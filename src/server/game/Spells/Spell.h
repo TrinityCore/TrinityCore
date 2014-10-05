@@ -40,11 +40,11 @@ enum SpellCastFlags
 {
     CAST_FLAG_NONE               = 0x00000000,
     CAST_FLAG_PENDING            = 0x00000001,              // aoe combat log?
-    CAST_FLAG_UNKNOWN_2          = 0x00000002,
+    CAST_FLAG_HAS_TRAJECTORY     = 0x00000002,
     CAST_FLAG_UNKNOWN_3          = 0x00000004,
     CAST_FLAG_UNKNOWN_4          = 0x00000008,              // ignore AOE visual
     CAST_FLAG_UNKNOWN_5          = 0x00000010,
-    CAST_FLAG_AMMO               = 0x00000020,              // Projectiles visual
+    CAST_FLAG_PROJECTILE         = 0x00000020,
     CAST_FLAG_UNKNOWN_7          = 0x00000040,
     CAST_FLAG_UNKNOWN_8          = 0x00000080,
     CAST_FLAG_UNKNOWN_9          = 0x00000100,
@@ -69,7 +69,7 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN_28         = 0x08000000,
     CAST_FLAG_UNKNOWN_29         = 0x10000000,
     CAST_FLAG_UNKNOWN_30         = 0x20000000,
-    CAST_FLAG_UNKNOWN_31         = 0x40000000,
+    CAST_FLAG_HEAL_PREDICTION    = 0x40000000,
     CAST_FLAG_UNKNOWN_32         = 0x80000000
 };
 
@@ -260,7 +260,7 @@ class Spell
         void EffectQuestClear(SpellEffIndex effIndex);
         void EffectTeleUnitsFaceCaster(SpellEffIndex effIndex);
         void EffectLearnSkill(SpellEffIndex effIndex);
-        void EffectAddHonor(SpellEffIndex effIndex);
+        void EffectPlayMovie(SpellEffIndex effIndex);
         void EffectTradeSkill(SpellEffIndex effIndex);
         void EffectEnchantItemPerm(SpellEffIndex effIndex);
         void EffectEnchantItemTmp(SpellEffIndex effIndex);
@@ -325,6 +325,7 @@ class Spell
         void EffectEnergizePct(SpellEffIndex effIndex);
         void EffectTriggerRitualOfSummoning(SpellEffIndex effIndex);
         void EffectSummonRaFFriend(SpellEffIndex effIndex);
+        void EffectUnlockGuildVaultTab(SpellEffIndex effIndex);
         void EffectKillCreditPersonal(SpellEffIndex effIndex);
         void EffectKillCredit(SpellEffIndex effIndex);
         void EffectQuestFail(SpellEffIndex effIndex);
@@ -343,8 +344,12 @@ class Spell
         void EffectActivateSpec(SpellEffIndex effIndex);
         void EffectPlaySound(SpellEffIndex effIndex);
         void EffectRemoveAura(SpellEffIndex effIndex);
+        void EffectDamageFromMaxHealthPCT(SpellEffIndex effIndex);
         void EffectCastButtons(SpellEffIndex effIndex);
         void EffectRechargeManaGem(SpellEffIndex effIndex);
+        void EffectGiveCurrency(SpellEffIndex effIndex);
+        void EffectResurrectWithAura(SpellEffIndex effIndex);
+        void EffectCreateAreaTrigger(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
@@ -406,6 +411,7 @@ class Spell
         SpellCastResult CheckPower();
         SpellCastResult CheckRuneCost(uint32 runeCostID);
         SpellCastResult CheckCasterAuras() const;
+        SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
 
         int32 CalculateDamage(uint8 i, Unit const* target) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i]); }
 
@@ -417,15 +423,13 @@ class Spell
 
         void DoCreateItem(uint32 i, uint32 itemtype);
         void WriteSpellGoTargets(WorldPacket* data);
-        void WriteAmmoToPacket(WorldPacket* data);
 
         bool CheckEffectTarget(Unit const* target, uint32 eff, Position const* losPosition) const;
         bool CanAutoCast(Unit* target);
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
 
-        static void WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError);
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE);
+        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, Opcodes opcode = SMSG_CAST_FAILED);
         void SendCastResult(SpellCastResult result);
         void SendPetCastResult(SpellCastResult result);
         void SendSpellStart();
@@ -447,6 +451,7 @@ class Spell
         void SendChannelStart(uint32 duration);
         void SendResurrectRequest(Player* target);
 
+        void HandleHolyPower(Player* caster);
         void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode);
         void HandleThreatSpells();
 

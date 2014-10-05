@@ -35,13 +35,13 @@
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
     SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
-    if (!pSkill)
-        return false;
+    return pSkill && pSkill->categoryId == SKILL_CATEGORY_PROFESSION;
+}
 
-    if (pSkill->categoryId != SKILL_CATEGORY_PROFESSION)
-        return false;
-
-    return true;
+bool IsWeaponSkill(uint32 skill)
+{
+    SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
+    return pSkill && pSkill->categoryId == SKILL_CATEGORY_WEAPON;
 }
 
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
@@ -130,6 +130,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Seduction
             else if (spellproto->SpellFamilyFlags[1] & 0x10000000)
                 return DIMINISHING_FEAR;
+            // Sin and Punishment (Priest spell, don't ask)
+            else if (spellproto->SpellIconID == 1869)
+                return DIMINISHING_NONE;
             break;
         }
         case SPELLFAMILY_DRUID:
@@ -296,7 +299,7 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
                 return 6 * IN_MILLISECONDS;
             // Hunter's Mark
             if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return 120 * IN_MILLISECONDS;
+                return 30 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_PALADIN:
@@ -323,7 +326,7 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
             break;
     }
 
-    return 10 * IN_MILLISECONDS;
+    return 8 * IN_MILLISECONDS;
 }
 
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
@@ -1156,19 +1159,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
     // Extra conditions
     switch (spellId)
     {
-        case 58600: // No fly Zone - Dalaran
-        {
-            if (!player)
-                return false;
-
-            AreaTableEntry const* pArea = GetAreaEntryByAreaID(player->GetAreaId());
-            if (!(pArea && pArea->flags & AREA_FLAG_NO_FLY_ZONE))
-                return false;
-            if (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY))
-                return false;
-            break;
-        }
-        case 58730: // No fly Zone - Wintergrasp
+        case 91604: // No fly Zone - Wintergrasp
         {
             if (!player)
                 return false;
@@ -1525,10 +1516,10 @@ void SpellMgr::LoadSpellLearnSpells()
     {
         Field* fields = result->Fetch();
 
-        uint32 spell_id = fields[0].GetUInt16();
+        uint32 spell_id = fields[0].GetUInt32();
 
         SpellLearnSpellNode node;
-        node.spell       = fields[1].GetUInt16();
+        node.spell       = fields[1].GetUInt32();
         node.active      = fields[2].GetBool();
         node.autoLearned = false;
 
@@ -1554,6 +1545,9 @@ void SpellMgr::LoadSpellLearnSpells()
 
         ++count;
     } while (result->NextRow());
+
+    // copy state loaded from db
+    SpellLearnSpellMap dbSpellLearnSpells = mSpellLearnSpells;
 
     // search auto-learned spells and add its to map also for use in unlearn spells/talents
     uint32 dbc_count = 0;
@@ -1581,7 +1575,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 // other required explicit dependent learning
                 dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || GetTalentSpellCost(spell) > 0 || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
 
-                SpellLearnSpellMapBounds db_node_bounds = GetSpellLearnSpellMapBounds(spell);
+                SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spell);
 
                 bool found = false;
                 for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
@@ -1604,7 +1598,68 @@ void SpellMgr::LoadSpellLearnSpells()
         }
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell learn spells + %u found in DBC in %u ms", count, dbc_count, GetMSTimeDiffToNow(oldMSTime));
+    uint32 mastery_count = 0;
+    for (uint32 i = 0; i < sTalentTabStore.GetNumRows(); ++i)
+    {
+        TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(i);
+        if (!talentTab)
+            continue;
+
+        for (uint32 c = CLASS_WARRIOR; c < MAX_CLASSES; ++c)
+        {
+            if (!(talentTab->ClassMask & (1 << (c - 1))))
+                continue;
+
+            uint32 masteryMainSpell = MasterySpells[c];
+
+            for (uint32 m = 0; m < MAX_MASTERY_SPELLS; ++m)
+            {
+                uint32 mastery = talentTab->MasterySpellId[m];
+                if (!mastery)
+                    continue;
+
+                SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(masteryMainSpell);
+                bool found = false;
+                for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
+                {
+                    if (itr->second.spell == mastery)
+                    {
+                        TC_LOG_ERROR("sql.sql", "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically as mastery learned spell from TalentTab.dbc", masteryMainSpell, mastery);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found)
+                    continue;
+
+                // Check if it is already found in Spell.dbc, ignore silently if yes
+                SpellLearnSpellMapBounds dbc_node_bounds = GetSpellLearnSpellMapBounds(masteryMainSpell);
+                found = false;
+                for (SpellLearnSpellMap::const_iterator itr = dbc_node_bounds.first; itr != dbc_node_bounds.second; ++itr)
+                {
+                    if (itr->second.spell == mastery)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found)
+                    continue;
+
+                SpellLearnSpellNode masteryNode;
+                masteryNode.spell       = mastery;
+                masteryNode.active      = true;
+                masteryNode.autoLearned = false;
+
+                mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(masteryMainSpell, masteryNode));
+                ++mastery_count;
+            }
+        }
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u spell learn spells, %u found in Spell.dbc and %u from TalentTab.dbc in %u ms", count, dbc_count, mastery_count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellTargetPositions()
@@ -2722,6 +2777,19 @@ void SpellMgr::LoadSpellAreas()
     TC_LOG_INFO("server.loading", ">> Loaded %u spell area requirements in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+// Temporary structure to hold spell effect entries for faster loading
+struct SpellEffectArray
+{
+    SpellEffectArray()
+    {
+        effects[0] = NULL;
+        effects[1] = NULL;
+        effects[2] = NULL;
+    }
+
+    SpellEffectEntry const* effects[MAX_SPELL_EFFECTS];
+};
+
 void SpellMgr::LoadSpellInfoStore()
 {
     uint32 oldMSTime = getMSTime();
@@ -2729,9 +2797,20 @@ void SpellMgr::LoadSpellInfoStore()
     UnloadSpellInfoStore();
     mSpellInfoMap.resize(sSpellStore.GetNumRows(), NULL);
 
+    std::map<uint32, SpellEffectArray> effectsBySpell;
+
+    for (uint32 i = 0; i < sSpellEffectStore.GetNumRows(); ++i)
+    {
+        SpellEffectEntry const* effect = sSpellEffectStore.LookupEntry(i);
+        if (!effect)
+            continue;
+
+        effectsBySpell[effect->EffectSpellId].effects[effect->EffectIndex] = effect;
+    }
+
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
-            mSpellInfoMap[i] = new SpellInfo(spellEntry);
+            mSpellInfoMap[i] = new SpellInfo(spellEntry, effectsBySpell[i].effects);
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
@@ -2926,7 +3005,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     SpellInfo* spellInfo = NULL;
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
-        spellInfo = mSpellInfoMap[i];
+        spellInfo = (SpellInfo*)mSpellInfoMap[i];
         if (!spellInfo)
             continue;
 
@@ -2950,9 +3029,6 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
-            case 53096: // Quetz'lun's Judgment
-                spellInfo->MaxAffectedTargets = 1;
-                break;
             case 42436: // Drink! (Brewfest)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
@@ -2977,7 +3053,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 63665: // Charge (Argent Tournament emote on riders)
             case 31298: // Sleep (needs target selection script)
             case 51904: // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
-            case 2895:  // Wrath of Air Totem rank 1 (Aura)
             case 68933: // Wrath of Air Totem rank 2 (Aura)
             case 29200: // Purify Helboar Meat
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
@@ -3006,28 +3081,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 59372: // Energize Cores
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENEMY);
                 break;
-            case 8494: // Mana Shield (rank 2)
-                // because of bug in dbc
-                spellInfo->ProcChance = 0;
-                break;
-            case 20335: // Heart of the Crusader
-            case 20336:
-            case 20337:
+            case 63320: // Glyph of Life Tap
             case 53228: // Rapid Killing (Rank 1)
             case 53232: // Rapid Killing (Rank 2)
-            case 63320: // Glyph of Life Tap
                 // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
-            case 5308:  // Execute (Rank 1)
-            case 20658: // Execute (Rank 2)
-            case 20660: // Execute (Rank 3)
-            case 20661: // Execute (Rank 4)
-            case 20662: // Execute (Rank 5)
-            case 25234: // Execute (Rank 6)
-            case 25236: // Execute (Rank 7)
-            case 47470: // Execute (Rank 8)
-            case 47471: // Execute (Rank 9)
+            case 5308: // Execute
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 59725: // Improved Spell Reflection - aoe aura
@@ -3035,47 +3095,47 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS_2);
                 break;
-            case 44978: // Wild Magic
-            case 45001:
-            case 45002:
-            case 45004:
-            case 45006:
-            case 45010:
             case 31347: // Doom
+            case 36327: // Shoot Arcane Explosion Arrow
+            case 39365: // Thundering Storm
+            case 41071: // Raise Dead (HACK)
+            case 42442: // Vengeance Landing Cannonfire
+            case 42611: // Shoot
+            case 44978: // Wild Magic
+            case 45001: // Wild Magic
+            case 45002: // Wild Magic
+            case 45004: // Wild Magic
+            case 45006: // Wild Magic
+            case 45010: // Wild Magic
+            case 45761: // Shoot Gun
+            case 45863: // Cosmetic - Incinerate to Random Target
+            case 48246: // Ball of Flame
             case 41635: // Prayer of Mending
             case 44869: // Spectral Blast
             case 45027: // Revitalize
             case 45976: // Muru Portal Channel
-            case 39365: // Thundering Storm
-            case 41071: // Raise Dead (HACK)
             case 52124: // Sky Darkener Assault
-            case 42442: // Vengeance Landing Cannonfire
-            case 45863: // Cosmetic - Incinerate to Random Target
-            case 25425: // Shoot
-            case 45761: // Shoot
-            case 42611: // Shoot
-            case 61588: // Blazing Harpoon
+            case 53096: // Quetz'lun's Judgment
             case 52479: // Gift of the Harvester
-            case 48246: // Ball of Flame
-            case 36327: // Shoot Arcane Explosion Arrow
+            case 61588: // Blazing Harpoon
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 36384: // Skartax Purple Beam
                 spellInfo->MaxAffectedTargets = 2;
                 break;
-            case 41376: // Spite
-            case 39992: // Needle Spine
-            case 29576: // Multi-Shot
-            case 40816: // Saber Lash
-            case 37790: // Spread Shot
-            case 46771: // Flame Sear
-            case 45248: // Shadow Blades
-            case 41303: // Soul Drain
-            case 54172: // Divine Storm (heal)
-            case 29213: // Curse of the Plaguebringer - Noth
             case 28542: // Life Drain - Sapphiron
-            case 66588: // Flaming Spear
+            case 29213: // Curse of the Plaguebringer - Noth
+            case 29576: // Multi-Shot
+            case 37790: // Spread Shot
+            case 39992: // Needle Spine
+            case 40816: // Saber Lash
+            case 41303: // Soul Drain
+            case 41376: // Spite
+            case 45248: // Shadow Blades
+            case 46771: // Flame Sear
             case 54171: // Divine Storm
+            case 54172: // Divine Storm (heal)
+            case 66588: // Flaming Spear
                 spellInfo->MaxAffectedTargets = 3;
                 break;
             case 38310: // Multi-Shot
@@ -3103,23 +3163,20 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->MaxAffectedTargets = 15;
                 break;
             case 33711: // Murmur's Touch
-            case 38794:
+            case 38794: // Murmur's Touch
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 33760;
                 break;
             case 17941: // Shadow Trance
             case 22008: // Netherwind Focus
-            case 31834: // Light's Grace
-            case 34754: // Clearcasting
+            case 34477: // Misdirection
             case 34936: // Backlash
             case 48108: // Hot Streak
             case 51124: // Killing Machine
             case 54741: // Firestarter
             case 57761: // Fireball!
-            case 39805: // Lightning Overload
             case 64823: // Item - Druid T8 Balance 4P Bonus
-            case 34477: // Misdirection
-            case 44401: // Missile Barrage
+            case 88819: // Daybreak
                 spellInfo->ProcCharges = 1;
                 break;
             case 44544: // Fingers of Frost
@@ -3132,16 +3189,16 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
                 break;
-            case 37408: // Oscillation Field
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-                break;
-            case 47201: // Everlasting Affliction
-            case 47202:
-            case 47203:
-            case 47204:
-            case 47205:
+            case 47201: // Everlasting Affliction (1)
+            case 47202: // Everlasting Affliction (2)
+            case 47203: // Everlasting Affliction (3)
+            case 47204: // Everlasting Affliction (4)
+            case 47205: // Everlasting Affliction (5)
                 // add corruption to affected spells
                 spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 2;
+                break;
+            case 37408: // Oscillation Field
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
                 spellInfo->Effects[EFFECT_0].MiscValue |= 1;
@@ -3149,19 +3206,17 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 51912: // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
                 spellInfo->Effects[EFFECT_0].Amplitude = 3000;
                 break;
-            case 29809: // Desecration Arm - 36 instead of 37 - typo? :/
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
-                break;
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
-            case 48420:
+            case 48420: // Master Shapeshifter
+            case 24900: // Heart of the Wild - Cat Effect
                 spellInfo->Stances = 1 << (FORM_CAT - 1);
                 break;
-            case 48421:
-                spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
+            case 24899: // Heart of the Wild - Bear Effect
+                spellInfo->Stances = 1 << (FORM_BEAR - 1);
                 break;
-            case 48422:
-                spellInfo->Stances = 1 << (FORM_TREE - 1);
+            case 48421: // Master Shapeshifter
+                spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
                 break;
             case 51466: // Elemental Oath (Rank 1)
             case 51470: // Elemental Oath (Rank 2)
@@ -3177,22 +3232,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 64904: // Hymn of Hope
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT;
                 break;
-            case 19465: // Improved Stings (Rank 2)
-                spellInfo->Effects[EFFECT_2].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-                break;
             case 30421: // Nether Portal - Perseverence
                 spellInfo->Effects[EFFECT_2].BasePoints += 30000;
-                break;
-            case 16834: // Natural shapeshifter
-            case 16835:
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
-                break;
-            case 51735: // Ebon Plague
-            case 51734:
-            case 51726:
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-                spellInfo->SpellFamilyFlags[2] = 0x10;
-                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
                 break;
             case 41913: // Parasitic Shadowfiend Passive
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY; // proc debuff, and summon infinite fiends
@@ -3203,7 +3244,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 27915: // Anchor to Skulls
             case 27931: // Anchor to Skulls
             case 27937: // Anchor to Skulls
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
                 break;
             // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
             // this is the only known exception, probably just wrong data
@@ -3211,10 +3252,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 54836: // Wrath of the Plaguebringer
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
                 spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
-                break;
-            case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
-                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
-                spellInfo->Effects[EFFECT_1].BasePoints = -6; // -5%
                 break;
             case 63675: // Improved Devouring Plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
@@ -3226,25 +3263,15 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 6474: // Earthbind Totem (instant pulse)
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
                 break;
-            case 52109: // Flametongue Totem rank 1 (Aura)
-            case 52110: // Flametongue Totem rank 2 (Aura)
-            case 52111: // Flametongue Totem rank 3 (Aura)
-            case 52112: // Flametongue Totem rank 4 (Aura)
-            case 52113: // Flametongue Totem rank 5 (Aura)
-            case 58651: // Flametongue Totem rank 6 (Aura)
-            case 58654: // Flametongue Totem rank 7 (Aura)
-            case 58655: // Flametongue Totem rank 8 (Aura)
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-                spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
-                spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo();
-                break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
-            case 53244: // Marked for Death (Rank 3)
-            case 53245: // Marked for Death (Rank 4)
-            case 53246: // Marked for Death (Rank 5)
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00067801, 0x10820001, 0x00000801);
+                break;
+            case 5176:  // Wrath
+            case 2912:  // Starfire
+            case 78674: // Starsurge
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 70728: // Exploit Weakness (needs target selection script)
             case 70840: // Devious Minds (needs target selection script)
@@ -3280,25 +3307,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 45602: // Ride Carpet
                 spellInfo->Effects[EFFECT_0].BasePoints = 0; // force seat 0, vehicle doesn't have the required seat flags for "no seat specified (-1)"
                 break;
-            case 64745: // Item - Death Knight T8 Tank 4P Bonus
-            case 64936: // Item - Warrior T8 Protection 4P Bonus
-                spellInfo->Effects[EFFECT_0].BasePoints = 100; // 100% chance of procc'ing, not -10% (chance calculated in PrepareTriggersExecutedOnHit)
-                break;
-            case 19970: // Entangling Roots (Rank 6) -- Nature's Grasp Proc
-            case 19971: // Entangling Roots (Rank 5) -- Nature's Grasp Proc
-            case 19972: // Entangling Roots (Rank 4) -- Nature's Grasp Proc
-            case 19973: // Entangling Roots (Rank 3) -- Nature's Grasp Proc
-            case 19974: // Entangling Roots (Rank 2) -- Nature's Grasp Proc
-            case 19975: // Entangling Roots (Rank 1) -- Nature's Grasp Proc
-            case 27010: // Entangling Roots (Rank 7) -- Nature's Grasp Proc
-            case 53313: // Entangling Roots (Rank 8) -- Nature's Grasp Proc
-                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(1);
-                break;
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
-                break;
-            case 70650: // Death Knight T10 Tank 2P Bonus
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
                 break;
             case 71838: // Drain Life - Bryntroll Normal
             case 71839: // Drain Life - Bryntroll Heroic
@@ -3397,7 +3407,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 64031: // Scrapyard Teleport
             case 64032: // Formation Grounds Teleport
             case 65042: // Prison of Yogg-Saron Teleport
-                spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
             // ENDOF ULDUAR SPELLS
             //
@@ -3439,10 +3449,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 70860: // Frozen Throne Teleport
             case 70861: // Sindragosa's Lair Teleport
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
-                break;
-            case 69055: // Bone Slice (Lord Marrowgar)
-            case 70814: // Bone Slice (Lord Marrowgar)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS); // 5yd
                 break;
             case 69075: // Bone Storm (Lord Marrowgar)
             case 70834: // Bone Storm (Lord Marrowgar)
@@ -3686,38 +3692,51 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF EYE OF ETERNITY SPELLS
             //
-            // OCULUS SPELLS
-            // The spells below are here because their effect 1 is giving warning due to
-            // triggered spell not found in any dbc and is missing from encounter source* of data.
-            // Even judged as clientside these spells can't be guessed for* now.
-            case 49462: // Call Ruby Drake
-            case 49461: // Call Amber Drake
-            case 49345: // Call Emerald Drake
-                spellInfo->Effects[EFFECT_1].Effect = 0;
-                break;
-            // ENDOF OCULUS SPELLS
-            //
             case 40055: // Introspection
             case 40165: // Introspection
             case 40166: // Introspection
             case 40167: // Introspection
                 spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
                 break;
-            case 45524: // Chains of Ice
-                spellInfo->Effects[EFFECT_2].TargetA = SpellImplicitTargetInfo();
-                break;
             case 2378: // Minor Fortitude
                 spellInfo->ManaCost = 0;
                 spellInfo->ManaPerSecond = 0;
                 break;
+            // Halls Of Origination spells
+            // Temple Guardian Anhuur
+            case 76606: // Disable Beacon Beams L
+            case 76608: // Disable Beacon Beams R
+                // Little hack, Increase the radius so it can hit the Cave In Stalkers in the platform.
+                spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_45_YARDS);
+                break;
+            case 75323: // Reverberating Hymn
+                // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
+                spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
+                break;
             case 24314: // Threatening Gaze
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+                break;
+            case 5420: // Tree of Life (Passive)
+                spellInfo->Stances = 1 << (FORM_TREE - 1);
+                break;
+            case 49376: // Feral Charge (Cat Form)
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 45257: // Using Steam Tonk Controller
             case 45440: // Steam Tonk Controller
             case 60256: // Collect Sample
                 // Crashes client on pressing ESC
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                break;
+            case 96942:  // Gaze of Occu'thar
+            case 101009: // Gaze of Occu'thar
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
+            case 75610: // Evolution
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 75697: // Evolution
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
                 break;
             // ISLE OF CONQUEST SPELLS
             //

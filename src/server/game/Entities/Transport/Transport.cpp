@@ -238,7 +238,6 @@ void Transport::AddPassenger(WorldObject* passenger)
     if (_passengers.insert(passenger).second)
     {
         passenger->SetTransport(this);
-        passenger->m_movementInfo.AddMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         passenger->m_movementInfo.transport.guid = GetGUID();
         TC_LOG_DEBUG("entities.transport", "Object %s boarded transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
@@ -268,7 +267,6 @@ void Transport::RemovePassenger(WorldObject* passenger)
     if (erased || _staticPassengers.erase(passenger)) // static passenger can remove itself in case of grid unload
     {
         passenger->SetTransport(NULL);
-        passenger->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         passenger->m_movementInfo.transport.Reset();
         TC_LOG_DEBUG("entities.transport", "Object %s removed from transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
@@ -294,7 +292,6 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
     float o = data->orientation;
 
     creature->SetTransport(this);
-    creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     creature->m_movementInfo.transport.guid = GetGUID();
     creature->m_movementInfo.transport.pos.Relocate(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
@@ -312,6 +309,15 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
         delete creature;
         return NULL;
     }
+
+    if (data->phaseid)
+        creature->SetInPhase(data->phaseid, false, true);
+    else if (data->phaseGroup)
+        for (auto phase : GetPhasesForGroup(data->phaseGroup))
+            creature->SetInPhase(phase, false, true);
+    else
+        for (auto phase : GetPhases()) // Set the creature to the transport's phases
+            creature->SetInPhase(phase, false, true);
 
     if (!map->AddToMap(creature))
     {
@@ -417,9 +423,11 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
         }
     }
 
-    uint32 phase = PHASEMASK_NORMAL;
+    std::set<uint32> phases;
     if (summoner)
-        phase = summoner->GetPhaseMask();
+        phases = summoner->GetPhases();
+    else
+        phases = GetPhases(); // If there was no summoner, try to use the transport phases
 
     TempSummon* summon = NULL;
     switch (mask)
@@ -445,16 +453,18 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     pos.GetPosition(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
 
-    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, phase, entry, x, y, z, o, nullptr, vehId))
+    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, 0, entry, x, y, z, o, nullptr, vehId))
     {
         delete summon;
         return NULL;
     }
 
+    for (auto itr : phases)
+        summon->SetInPhase(itr, false, true);
+
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
 
     summon->SetTransport(this);
-    summon->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     summon->m_movementInfo.transport.guid = GetGUID();
     summon->m_movementInfo.transport.pos.Relocate(pos);
     summon->Relocate(x, y, z, o);

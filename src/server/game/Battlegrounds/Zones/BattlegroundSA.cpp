@@ -301,7 +301,7 @@ void BattlegroundSA::StartShips()
         {
             if (Player* p = ObjectAccessor::FindPlayer(itr->first))
             {
-                UpdateData data;
+                UpdateData data(p->GetMapId());
                 WorldPacket pkt;
                 GetBGObject(i)->BuildValuesUpdateBlockForPlayer(&data, p);
                 data.BuildPacket(&pkt);
@@ -478,7 +478,7 @@ void BattlegroundSA::FillInitialWorldStates(WorldPacket& data)
 void BattlegroundSA::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUIDLow()] = new BattlegroundSAScore(player->GetGUID());
+    PlayerScores[player->GetGUIDLow()] = new BattlegroundSAScore(player->GetGUID(), player->GetBGTeam());
 
     SendTransportInit(player);
 
@@ -486,7 +486,7 @@ void BattlegroundSA::AddPlayer(Player* player)
     {
         if (player->GetTeamId() == Attackers)
         {
-            player->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            //player->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
 
             if (urand(0, 1))
                 player->TeleportTo(607, 2682.936f, -830.368f, 15.0f, 2.895f, 0);
@@ -540,7 +540,7 @@ void BattlegroundSA::TeleportPlayers()
 
             if (player->GetTeamId() == Attackers)
             {
-                player->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+                //player->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
 
                 if (urand(0, 1))
                     player->TeleportTo(607, 2682.936f, -830.368f, 15.0f, 2.895f, 0);
@@ -977,8 +977,9 @@ void BattlegroundSA::SendTransportInit(Player* player)
 {
     if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO])
     {
-        UpdateData transData;
+        UpdateData transData(player->GetMapId());
         if (BgObjects[BG_SA_BOAT_ONE])
+
             GetBGObject(BG_SA_BOAT_ONE)->BuildCreateUpdateBlockForPlayer(&transData, player);
         if (BgObjects[BG_SA_BOAT_TWO])
             GetBGObject(BG_SA_BOAT_TWO)->BuildCreateUpdateBlockForPlayer(&transData, player);
@@ -992,7 +993,7 @@ void BattlegroundSA::SendTransportsRemove(Player* player)
 {
     if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO])
     {
-        UpdateData transData;
+        UpdateData transData(player->GetMapId());
         if (BgObjects[BG_SA_BOAT_ONE])
             GetBGObject(BG_SA_BOAT_ONE)->BuildOutOfRangeUpdateBlock(&transData);
         if (BgObjects[BG_SA_BOAT_TWO])

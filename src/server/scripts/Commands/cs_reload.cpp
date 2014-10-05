@@ -102,7 +102,6 @@ public:
             { "gossip_menu_option",            rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU_OPTION,               true,  &HandleReloadGossipMenuOptionCommand,           "", NULL },
             { "item_enchantment_template",     rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_ENCHANTMENT_TEMPLATE,        true,  &HandleReloadItemEnchantementsCommand,          "", NULL },
             { "item_loot_template",            rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_LOOT_TEMPLATE,               true,  &HandleReloadLootTemplatesItemCommand,          "", NULL },
-            { "item_set_names",                rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_SET_NAMES,                   true,  &HandleReloadItemSetNamesCommand,               "", NULL },
             { "lfg_dungeon_rewards",           rbac::RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_REWARDS,              true,  &HandleReloadLfgRewardsCommand,                 "", NULL },
             { "locales_achievement_reward",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ACHIEVEMENT_REWARD,       true,  &HandleReloadLocalesAchievementRewardCommand,   "", NULL },
             { "locales_creature",              rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE,                  true,  &HandleReloadLocalesCreatureCommand,            "", NULL },
@@ -110,7 +109,6 @@ public:
             { "locales_gameobject",            rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_GAMEOBJECT,               true,  &HandleReloadLocalesGameobjectCommand,          "", NULL },
             { "locales_gossip_menu_option",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_GOSSIP_MENU_OPTION,       true,  &HandleReloadLocalesGossipMenuOptionCommand,    "", NULL },
             { "locales_item",                  rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM,                     true,  &HandleReloadLocalesItemCommand,                "", NULL },
-            { "locales_item_set_name",         rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM_SET_NAME,            true,  &HandleReloadLocalesItemSetNameCommand,         "", NULL },
             { "locales_npc_text",              rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_NPC_TEXT,                 true,  &HandleReloadLocalesNpcTextCommand,             "", NULL },
             { "locales_page_text",             rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_PAGE_TEXT,                true,  &HandleReloadLocalesPageTextCommand,            "", NULL },
             { "locales_points_of_interest",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_POINTS_OF_INTEREST,       true,  &HandleReloadLocalesPointsOfInterestCommand,    "", NULL },
@@ -877,14 +875,6 @@ public:
         return true;
     }
 
-    static bool HandleReloadItemSetNamesCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Re-Loading Item set names...");
-        sObjectMgr->LoadItemSetNames();
-        handler->SendGlobalGMSysMessage("DB table `item_set_names` reloaded.");
-        return true;
-    }
-
     static bool HandleReloadEventScriptsCommand(ChatHandler* handler, const char* args)
     {
         if (sScriptMgr->IsScriptScheduled())
@@ -1046,14 +1036,6 @@ public:
         return true;
     }
 
-    static bool HandleReloadLocalesItemSetNameCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Re-Loading Locales Item set name... ");
-        sObjectMgr->LoadItemSetNameLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_item_set_name` reloaded.");
-        return true;
-    }
-
     static bool HandleReloadLocalesNpcTextCommand(ChatHandler* handler, const char* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading Locales NPC Text ... ");
@@ -1141,6 +1123,16 @@ public:
         TC_LOG_INFO("misc", "Reloading vehicle_template_accessory table...");
         sObjectMgr->LoadVehicleTemplateAccessories();
         handler->SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
+        return true;
+    }
+
+
+    static bool HandleReloadPhaseDefinitionsCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Reloading phase_definitions table...");
+        sObjectMgr->LoadPhaseDefinitions();
+        sWorld->UpdatePhaseDefinitions();
+        handler->SendGlobalGMSysMessage("Phase Definitions reloaded.");
         return true;
     }
 

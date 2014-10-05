@@ -242,7 +242,7 @@ struct BattlegroundABScore final : public BattlegroundScore
     friend class BattlegroundAB;
 
     protected:
-        BattlegroundABScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), BasesAssaulted(0), BasesDefended(0) { }
+        BattlegroundABScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -260,11 +260,11 @@ struct BattlegroundABScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override
         {
-            data << uint32(2);
-            data << uint32(BasesAssaulted);
-            data << uint32(BasesDefended);
+            data.WriteBits(2, 24); // Objectives Count
+            content << uint32(BasesAssaulted);
+            content << uint32(BasesDefended);
         }
 
         uint32 GetAttr1() const final override { return BasesAssaulted; }

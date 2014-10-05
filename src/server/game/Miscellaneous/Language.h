@@ -205,7 +205,15 @@ enum TrinityStrings
     LANG_LIQUID_STATUS                  = 175,
     LANG_INVALID_GAMEOBJECT_TYPE        = 176,
     LANG_GAMEOBJECT_DAMAGED             = 177,
-    // Room for more level 1              178-199 not used
+
+    LANG_PHASING_SUCCESS                = 178,
+    LANG_PHASING_FAILED                 = 179,
+    LANG_PHASING_LAST_PHASE             = 180,
+    LANG_PHASING_LIST                   = 181,
+    LANG_PHASING_PHASEMASK              = 182,
+    LANG_PHASING_REPORT_STATUS          = 183,
+    LANG_PHASING_NO_DEFINITIONS         = 184,              // Phasing
+    // Room for more level 1              185-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -728,12 +736,12 @@ enum TrinityStrings
     LANG_DEBUG_ARENA_OFF                = 738,
     LANG_DEBUG_BG_ON                    = 739,
     LANG_DEBUG_BG_OFF                   = 740,
-    LANG_DIST_ARENA_POINTS_START        = 741,
-    LANG_DIST_ARENA_POINTS_ONLINE_START = 742,
-    LANG_DIST_ARENA_POINTS_ONLINE_END   = 743,
-    LANG_DIST_ARENA_POINTS_TEAM_START   = 744,
-    LANG_DIST_ARENA_POINTS_TEAM_END     = 745,
-    LANG_DIST_ARENA_POINTS_END          = 746,
+//  LANG_DIST_ARENA_POINTS_START        = 741,
+//  LANG_DIST_ARENA_POINTS_ONLINE_START = 742,
+//  LANG_DIST_ARENA_POINTS_ONLINE_END   = 743,
+//  LANG_DIST_ARENA_POINTS_TEAM_START   = 744,
+//  LANG_DIST_ARENA_POINTS_TEAM_END     = 745,
+//  LANG_DIST_ARENA_POINTS_END          = 746,
     LANG_BG_DISABLED                    = 747,
     LANG_ARENA_DISABLED                 = 748,
 //                                      = 749, see LANG_PINFO_ACC_OS
@@ -881,7 +889,8 @@ enum TrinityStrings
     LANG_CHARACTER_DELETED_LIST_LINE_CHAT = 1026,
     LANG_SQLDRIVER_QUERY_LOGGING_ENABLED  = 1027,
     LANG_SQLDRIVER_QUERY_LOGGING_DISABLED = 1028,
-    // Room for more level 4              1029-1099 not used
+    LANG_ACCOUNT_INVALID_BNET_NAME      = 1029,
+    // Room for more level 4              1030-1099 not used
 
     // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
@@ -968,6 +977,7 @@ enum TrinityStrings
     LANG_GUILD_INFO_BANK_GOLD           = 1181,
     LANG_GUILD_INFO_MOTD                = 1182,
     LANG_GUILD_INFO_EXTRA_INFO          = 1183,
+    LANG_GUILD_INFO_LEVEL               = 1184,
     // Room for more level 3              1184-1199 not used
 
     // Debug commands

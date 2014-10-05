@@ -346,7 +346,9 @@ bool AuthSession::HandleLogonChallenge()
                     unk3.SetRand(16 * 8);
 
                     // Fill the response packet with the result
-                    if (AuthHelper::IsAcceptedClientBuild(_build))
+                    if (fields[9].GetUInt32() && AuthHelper::IsBuildSupportingBattlenet(_build))
+                        pkt << uint8(WOW_FAIL_USE_BATTLENET);
+                    else if (AuthHelper::IsAcceptedClientBuild(_build))
                         pkt << uint8(WOW_SUCCESS);
                     else
                         pkt << uint8(WOW_FAIL_VERSION_INVALID);
@@ -506,18 +508,13 @@ bool AuthSession::HandleLogonProof()
         TC_LOG_DEBUG("server.authserver", "'%s:%d' User '%s' successfully authenticated", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _login.c_str());
 
         // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
-        // No SQL injection (escaped user name) and IP address as received by socket
-        const char *K_hex = K.AsHexStr();
-
         PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
-        stmt->setString(0, K_hex);
+        stmt->setString(0, K.AsHexStr());
         stmt->setString(1, GetRemoteIpAddress().to_string().c_str());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
         stmt->setString(4, _login);
         LoginDatabase.DirectExecute(stmt);
-
-        OPENSSL_free((void*)K_hex);
 
         // Finish SRP6 and send the final result to the client
         sha.Initialize();
@@ -551,7 +548,7 @@ bool AuthSession::HandleLogonProof()
             memcpy(proof.M2, sha.GetDigest(), 20);
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
-            proof.AccountFlags = 0x00800000;    // 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
+            proof.AccountFlags = GAMEACCOUNT_FLAG_PROPASS_LOCK;
             proof.SurveyId = 0;
             proof.unk3 = 0;
 
@@ -733,41 +730,6 @@ bool AuthSession::HandleReconnectProof()
     }
 }
 
-tcp::endpoint const GetAddressForClient(Realm const& realm, ip::address const& clientAddr)
-{
-    ip::address realmIp;
-
-    // Attempt to send best address for client
-    if (clientAddr.is_loopback())
-    {
-        // Try guessing if realm is also connected locally
-        if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-            realmIp = clientAddr;
-        else
-        {
-            // Assume that user connecting from the machine that authserver is located on
-            // has all realms available in his local network
-            realmIp = realm.LocalAddress;
-        }
-    }
-    else
-    {
-        if (clientAddr.is_v4() &&
-            (clientAddr.to_v4().to_ulong() & realm.LocalSubnetMask.to_v4().to_ulong()) ==
-            (realm.LocalAddress.to_v4().to_ulong() & realm.LocalSubnetMask.to_v4().to_ulong()))
-        {
-            realmIp = realm.LocalAddress;
-        }
-        else
-            realmIp = realm.ExternalAddress;
-    }
-
-    tcp::endpoint endpoint(realmIp, realm.port);
-
-    // Return external IP
-    return endpoint;
-}
-
 bool AuthSession::HandleRealmList()
 {
     TC_LOG_DEBUG("server.authserver", "Entering _HandleRealmList");
@@ -837,7 +799,7 @@ bool AuthSession::HandleRealmList()
             pkt << lock;                                    // if 1, then realm locked
         pkt << uint8(flag);                                 // RealmFlags
         pkt << name;
-        pkt << boost::lexical_cast<std::string>(GetAddressForClient(realm, GetRemoteIpAddress()));
+        pkt << boost::lexical_cast<std::string>(realm.GetAddressForClient(GetRemoteIpAddress()));
         pkt << realm.populationLevel;
         pkt << AmountOfCharacters;
         pkt << realm.timezone;                              // realm category
@@ -932,17 +894,9 @@ void AuthSession::SetVSFields(const std::string& rI)
     x.SetBinary(sha.GetDigest(), sha.GetLength());
     v = g.ModExp(x, N);
 
-    // No SQL injection (username escaped)
-    char *v_hex, *s_hex;
-    v_hex = v.AsHexStr();
-    s_hex = s.AsHexStr();
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
-    stmt->setString(0, v_hex);
-    stmt->setString(1, s_hex);
+    stmt->setString(0, v.AsHexStr());
+    stmt->setString(1, s.AsHexStr());
     stmt->setString(2, _login);
     LoginDatabase.Execute(stmt);
-
-    OPENSSL_free(v_hex);
-    OPENSSL_free(s_hex);
 }

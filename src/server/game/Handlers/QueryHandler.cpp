@@ -96,56 +96,75 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(entry);
-    if (ci)
+    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
+    if (creatureInfo)
     {
-        std::string Name, SubName;
-        Name = ci->Name;
-        SubName = ci->SubName;
+        std::string Name, FemaleName, SubName;
+        Name = creatureInfo->Name;
+        FemaleName = creatureInfo->FemaleName;
+        SubName = creatureInfo->SubName;
 
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        LocaleConstant locale = GetSessionDbLocaleIndex();
+        if (locale >= 0)
         {
-            if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(entry))
+            if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(entry))
             {
-                ObjectMgr::GetLocaleString(cl->Name, loc_idx, Name);
-                ObjectMgr::GetLocaleString(cl->SubName, loc_idx, SubName);
+                ObjectMgr::GetLocaleString(creatureLocale->Name, locale, Name);
+                ObjectMgr::GetLocaleString(creatureLocale->FemaleName, locale, FemaleName);
+                ObjectMgr::GetLocaleString(creatureLocale->SubName, locale, SubName);
             }
         }
-        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name.c_str(), entry);
-                                                            // guess size
-        WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 100);
-        data << uint32(entry);                              // creature entry
-        data << Name;
-        data << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4, always empty
-        data << SubName;
-        data << ci->IconName;                               // "Directions" for guard, string for Icons 2.3.0
-        data << uint32(ci->type_flags);                     // flags
-        data << uint32(ci->type);                           // CreatureType.dbc
-        data << uint32(ci->family);                         // CreatureFamily.dbc
-        data << uint32(ci->rank);                           // Creature Rank (elite, boss, etc)
-        data << uint32(ci->KillCredit[0]);                  // new in 3.1, kill credit
-        data << uint32(ci->KillCredit[1]);                  // new in 3.1, kill credit
-        data << uint32(ci->Modelid1);                       // Modelid1
-        data << uint32(ci->Modelid2);                       // Modelid2
-        data << uint32(ci->Modelid3);                       // Modelid3
-        data << uint32(ci->Modelid4);                       // Modelid4
-        data << float(ci->ModHealth);                       // dmg/hp modifier
-        data << float(ci->ModMana);                         // dmg/mana modifier
-        data << uint8(ci->RacialLeader);
-        for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            data << uint32(ci->questItems[i]);              // itemId[6], quest drop
-        data << uint32(ci->movementId);                     // CreatureMovementInfo.dbc
+
+        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", creatureInfo->Name.c_str(), entry);
+
+        WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 100);          // guess size
+        data << uint32(entry);                                        // creature entry
+        data << Name;                                                 // Name
+
+        for (uint8 i = 0; i < 3; i++)
+            data << uint8(0);                                         // name2, ..., name3
+
+        data << FemaleName;                                           // FemaleName
+
+        for (uint8 i = 0; i < 3; i++)
+            data << uint8(0);                                         // name5, ..., name8
+
+        data << SubName;                                              // SubName
+        data << creatureInfo->IconName;                               // "Directions" for guard, string for Icons 2.3.0
+        data << uint32(creatureInfo->type_flags);                     // flags
+        data << uint32(creatureInfo->type_flags2);                    // unknown meaning
+        data << uint32(creatureInfo->type);                           // CreatureType.dbc
+        data << uint32(creatureInfo->family);                         // CreatureFamily.dbc
+        data << uint32(creatureInfo->rank);                           // Creature Rank (elite, boss, etc)
+        data << uint32(creatureInfo->KillCredit[0]);                  // new in 3.1, kill credit
+        data << uint32(creatureInfo->KillCredit[1]);                  // new in 3.1, kill credit
+        data << uint32(creatureInfo->Modelid1);                       // Modelid1
+        data << uint32(creatureInfo->Modelid2);                       // Modelid2
+        data << uint32(creatureInfo->Modelid3);                       // Modelid3
+        data << uint32(creatureInfo->Modelid4);                       // Modelid4
+        data << float(creatureInfo->ModHealth);                       // dmg/hp modifier
+        data << float(creatureInfo->ModMana);                         // dmg/mana modifier
+        data << uint8(creatureInfo->RacialLeader);                    // RacialLeader
+
+        for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+            data << uint32(creatureInfo->questItems[i]);              // itemId[6], quest drop
+
+        data << uint32(creatureInfo->movementId);                     // CreatureMovementInfo.dbc
+        data << uint32(creatureInfo->expansionUnknown);               // unknown meaning
+
         SendPacket(&data);
+
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
     }
     else
     {
         TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY - NO CREATURE INFO! (%s, ENTRY: %u)",
             guid.ToString().c_str(), entry);
+
         WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 4);
         data << uint32(entry | 0x80000000);
         SendPacket(&data);
+
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
     }
 }
@@ -191,7 +210,8 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
         data.append(info->raw.data, MAX_GAMEOBJECT_DATA);
         data << float(info->size);                          // go size
         for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-            data << uint32(info->questItems[i]);              // itemId[6], quest drop
+            data << uint32(info->questItems[i]);            // itemId[6], quest drop
+        data << int32(info->unkInt32);                      // 4.x, unknown
         SendPacket(&data);
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
     }
@@ -206,7 +226,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received MSG_CORPSE_QUERY");
 
@@ -388,14 +408,55 @@ void WorldSession::HandleCorpseMapPositionQuery(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Recv CMSG_CORPSE_MAP_POSITION_QUERY");
 
-    uint32 unk;
-    recvData >> unk;
+    uint32 transportGuidLow;
+    recvData >> transportGuidLow;
 
     WorldPacket data(SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4+4+4+4);
     data << float(0);
     data << float(0);
     data << float(0);
     data << float(0);
+    SendPacket(&data);
+}
+
+void WorldSession::HandleQuestNPCQuery(WorldPacket& recvData)
+{
+    uint32 count = recvData.ReadBits(24);
+    std::map<uint32, std::vector<uint32>> quests;
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        uint32 questId;
+        recvData >> questId;
+
+        if (!sObjectMgr->GetQuestTemplate(questId))
+        {
+            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUEST_NPC_QUERY by player %u", questId, m_GUIDLow);
+            continue;
+        }
+
+        auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(questId);
+        for (auto it = creatures.first; it != creatures.second; ++it)
+            quests[questId].push_back(it->second);
+
+        auto gos = sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(questId);
+        for (auto it = gos.first; it != gos.second; ++it)
+            quests[questId].push_back(it->second | 0x80000000); // GO mask
+    }
+
+    WorldPacket data(SMSG_QUEST_NPC_QUERY_RESPONSE, 3 + quests.size() * 14);
+    data.WriteBits(quests.size(), 23);
+
+    for (auto it = quests.begin(); it != quests.end(); ++it)
+        data.WriteBits(it->second.size(), 24);
+
+    for (auto it = quests.begin(); it != quests.end(); ++it)
+    {
+        data << uint32(it->first);
+        for (const auto& entry : it->second)
+            data << uint32(entry);
+    }
+
     SendPacket(&data);
 }
 

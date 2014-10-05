@@ -77,6 +77,7 @@ enum GossipOptionIcon
     GOSSIP_ICON_CHAT_18             = 18,                   // white chat bubble
     GOSSIP_ICON_CHAT_19             = 19,                   // white chat bubble
     GOSSIP_ICON_CHAT_20             = 20,                   // white chat bubble
+    GOSSIP_ICON_CHAT_21             = 21,                   // transmogrifier?
     GOSSIP_ICON_MAX
 };
 
@@ -275,7 +276,7 @@ class PlayerMenu
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
-        void SendQuestGiverStatus(uint8 questStatus, ObjectGuid npcGUID) const;
+        void SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const;
 
         void SendQuestGiverQuestList(QEmote const& eEmote, const std::string& Title, ObjectGuid npcGUID);
 

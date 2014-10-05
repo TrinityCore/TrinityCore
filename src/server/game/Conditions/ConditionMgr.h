@@ -58,7 +58,7 @@ enum ConditionTypes
     CONDITION_AREAID                = 23,                   // area_id          0              0                  true if in area_id
     CONDITION_CREATURE_TYPE         = 24,                   // cinfo.type       0              0                  true if creature_template.type = value1
     CONDITION_SPELL                 = 25,                   // spell_id         0              0                  true if player has learned spell
-    CONDITION_PHASEMASK             = 26,                   // phasemask        0              0                  true if object is in phasemask
+    CONDITION_PHASEID               = 26,                   // phaseid          0              0                  true if object is in phaseid
     CONDITION_LEVEL                 = 27,                   // level            ComparisonType 0                  true if unit's level is equal to param1 (param2 can modify the statement)
     CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0              0                  true if player has quest_id with all objectives complete, but not yet rewarded
     CONDITION_NEAR_CREATURE         = 29,                   // creature entry   distance       0                  true if there is a creature of entry in range
@@ -218,6 +218,7 @@ typedef std::map<ConditionSourceType, ConditionTypeContainer> ConditionContainer
 typedef std::map<uint32, ConditionTypeContainer> CreatureSpellConditionContainer;
 typedef std::map<uint32, ConditionTypeContainer> NpcVendorConditionContainer;
 typedef std::map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionTypeContainer> SmartEventConditionContainer;
+typedef std::map<int32 /*zoneId*/, ConditionTypeContainer> PhaseDefinitionConditionContainer;
 
 typedef std::map<uint32, ConditionList> ConditionReferenceContainer;//only used for references
 
@@ -249,6 +250,7 @@ class ConditionMgr
         ConditionList GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId);
         ConditionList GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType);
         ConditionList GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId);
+        ConditionList const* GetConditionsForPhaseDefinition(uint32 zone, uint32 entry);
         ConditionList GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId);
 
     private:
@@ -268,6 +270,7 @@ class ConditionMgr
         CreatureSpellConditionContainer   SpellClickEventConditionStore;
         NpcVendorConditionContainer       NpcVendorConditionContainerStore;
         SmartEventConditionContainer      SmartEventConditionStore;
+        PhaseDefinitionConditionContainer PhaseDefinitionsConditionStore;
 };
 
 #define sConditionMgr ConditionMgr::instance()

@@ -93,6 +93,7 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid gui
         case HIGHGUID_UNIT:          return GetCreature(p, guid);
         case HIGHGUID_PET:           return GetPet(p, guid);
         case HIGHGUID_DYNAMICOBJECT: return GetDynamicObject(p, guid);
+        case HIGHGUID_AREATRIGGER:   return GetAreaTrigger(p, guid);
         case HIGHGUID_CORPSE:        return GetCorpse(p, guid);
         default:                     return NULL;
     }
@@ -129,6 +130,9 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid gui
             if (typemask & TYPEMASK_DYNAMICOBJECT)
                 return GetDynamicObject(p, guid);
             break;
+        case HIGHGUID_AREATRIGGER:
+            if (typemask & TYPEMASK_AREATRIGGER)
+                return GetAreaTrigger(p, guid);
         case HIGHGUID_CORPSE:
             break;
         default:
@@ -160,6 +164,11 @@ Transport* ObjectAccessor::GetTransport(WorldObject const& u, ObjectGuid guid)
 DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, ObjectGuid guid)
 {
     return GetObjectInMap(guid, u.GetMap(), (DynamicObject*)NULL);
+}
+
+AreaTrigger* ObjectAccessor::GetAreaTrigger(WorldObject const& u, ObjectGuid guid)
+{
+    return GetObjectInMap(guid, u.GetMap(), (AreaTrigger*)NULL);
 }
 
 Unit* ObjectAccessor::GetUnit(WorldObject const& u, ObjectGuid guid)
@@ -371,7 +380,6 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(ObjectGuid player_guid, bool insi
         // bones->m_time = m_time;                              // don't overwrite time
         // bones->m_type = m_type;                              // don't overwrite type
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());
-        bones->SetPhaseMask(corpse->GetPhaseMask(), false);
 
         bones->SetUInt32Value(CORPSE_FIELD_FLAGS, CORPSE_FLAG_UNK2 | CORPSE_FLAG_BONES);
         bones->SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid::Empty);

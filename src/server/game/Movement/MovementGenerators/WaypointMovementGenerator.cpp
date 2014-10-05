@@ -102,7 +102,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     if (Stopped())
         return true;
 
-    bool transportPath = creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && creature->GetTransGUID();
+    bool transportPath = creature->GetTransport() != NULL;
 
     if (m_isArrivalDone)
     {
@@ -210,7 +210,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
     else
     {
         // Set home position at place on waypoint movement.
-        if (!creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || !creature->GetTransGUID())
+        if (!creature->GetTransGUID())
             creature->SetHomePosition(creature->GetPosition());
 
         if (creature->IsStopped())
@@ -302,6 +302,9 @@ void FlightPathMovementGenerator::DoReset(Player* player)
     }
     init.SetFirstPointId(GetCurrentNode());
     init.SetFly();
+    init.SetSmooth();
+    init.SetUncompressed();
+    init.SetWalk(true);
     init.SetVelocity(PLAYER_FLIGHT_SPEED);
     init.Launch();
 }

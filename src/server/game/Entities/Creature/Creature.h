@@ -83,12 +83,14 @@ struct CreatureTemplate
     uint32  Modelid3;
     uint32  Modelid4;
     std::string  Name;
+    std::string FemaleName;
     std::string  SubName;
     std::string  IconName;
     uint32  GossipMenuId;
     uint8   minlevel;
     uint8   maxlevel;
     uint32  expansion;
+    uint32  expansionUnknown;                               // either 0 or 3, sent to the client / wdb
     uint32  faction;
     uint32  npcflag;
     float   speed_walk;
@@ -106,11 +108,11 @@ struct CreatureTemplate
     uint32  dynamicflags;
     uint32  family;                                         // enum CreatureFamily values (optional)
     uint32  trainer_type;
-    uint32  trainer_spell;
     uint32  trainer_class;
     uint32  trainer_race;
     uint32  type;                                           // enum CreatureType values
     uint32  type_flags;                                     // enum CreatureTypeFlags mask values
+    uint32  type_flags2;                                    // unknown enum, only set for 4 creatures (with value 1)
     uint32  lootid;
     uint32  pickpocketLootId;
     uint32  SkinLootId;
@@ -125,7 +127,9 @@ struct CreatureTemplate
     uint32  InhabitType;
     float   HoverHeight;
     float   ModHealth;
+    float   ModHealthExtra;
     float   ModMana;
+    float   ModManaExtra;                                   // Added in 4.x, this value is usually 2 for a small group of creatures with double mana
     float   ModArmor;
     float   ModDamage;
     float   ModExperience;
@@ -191,7 +195,7 @@ struct CreatureBaseStats
 
     uint32 GenerateHealth(CreatureTemplate const* info) const
     {
-        return uint32(ceil(BaseHealth[info->expansion] * info->ModHealth));
+        return uint32(ceil(BaseHealth[info->expansion] * info->ModHealth * info->ModHealthExtra));
     }
 
     uint32 GenerateMana(CreatureTemplate const* info) const
@@ -200,7 +204,7 @@ struct CreatureBaseStats
         if (!BaseMana)
             return 0;
 
-        return uint32(ceil(BaseMana * info->ModMana));
+        return uint32(ceil(BaseMana * info->ModMana * info->ModManaExtra));
     }
 
     uint32 GenerateArmor(CreatureTemplate const* info) const
@@ -221,6 +225,7 @@ typedef std::unordered_map<uint16, CreatureBaseStats> CreatureBaseStatsContainer
 struct CreatureLocale
 {
     StringVector Name;
+    StringVector FemaleName;
     StringVector SubName;
 };
 
@@ -252,7 +257,7 @@ struct CreatureData
     CreatureData() : id(0), mapid(0), phaseMask(0), displayid(0), equipmentId(0),
                      posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
                      spawndist(0.0f), currentwaypoint(0), curhealth(0), curmana(0), movementType(0),
-                     spawnMask(0), npcflag(0), unit_flags(0), dynamicflags(0), dbData(true) { }
+                     spawnMask(0), npcflag(0), unit_flags(0), dynamicflags(0), phaseid(0), phaseGroup(0), dbData(true) { }
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
     uint32 phaseMask;
@@ -272,6 +277,8 @@ struct CreatureData
     uint32 npcflag;
     uint32 unit_flags;                                      // enum UnitFlags mask values
     uint32 dynamicflags;
+    uint32 phaseid;
+    uint32 phaseGroup;
     bool dbData;
 };
 
@@ -330,13 +337,14 @@ typedef std::unordered_map<uint32, CreatureAddon> CreatureAddonContainer;
 // Vendors
 struct VendorItem
 {
-    VendorItem(uint32 _item, int32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost)
-        : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost) { }
+    VendorItem(uint32 _item, int32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost, uint8 _Type)
+        : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost), Type(_Type) { }
 
     uint32 item;
     uint32 maxcount;                                        // 0 for infinity item amount
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
+    uint8  Type;
 
     //helpers
     bool IsGoldRequired(ItemTemplate const* pProto) const { return pProto->Flags2 & ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD || !ExtendedCost; }
@@ -355,13 +363,13 @@ struct VendorItemData
         return m_items[slot];
     }
     bool Empty() const { return m_items.empty(); }
-    uint8 GetItemCount() const { return m_items.size(); }
-    void AddItem(uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost)
+    uint32 GetItemCount() const { return m_items.size(); }
+    void AddItem(uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 type)
     {
-        m_items.push_back(new VendorItem(item, maxcount, ptime, ExtendedCost));
+        m_items.push_back(new VendorItem(item, maxcount, ptime, ExtendedCost, type));
     }
-    bool RemoveItem(uint32 item_id);
-    VendorItem const* FindItemCostPair(uint32 item_id, uint32 extendedCost) const;
+    bool RemoveItem(uint32 item_id, uint8 type);
+    VendorItem const* FindItemCostPair(uint32 item_id, uint32 extendedCost, uint8 type) const;
     void Clear()
     {
         for (VendorItemList::const_iterator itr = m_items.begin(); itr != m_items.end(); ++itr)
@@ -419,7 +427,7 @@ typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 // max different by z coordinate for creature aggro reaction
 #define CREATURE_Z_ATTACK_RANGE 3
 
-#define MAX_VENDOR_ITEMS 150                                // Limitation in 3.x.x item count in SMSG_LIST_INVENTORY
+#define MAX_VENDOR_ITEMS 150                                // Limitation in 4.x.x item count in SMSG_LIST_INVENTORY
 
 class Creature : public Unit, public GridObject<Creature>, public MapObject
 {
@@ -480,16 +488,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void Motion_Initialize();
 
         CreatureAI* AI() const { return (CreatureAI*)i_AI; }
-
-        bool SetWalk(bool enable) override;
-        bool SetDisableGravity(bool disable, bool packetOnly = false) override;
-        bool SetSwim(bool enable) override;
-        bool SetCanFly(bool enable) override;
-        bool SetWaterWalking(bool enable, bool packetOnly = false) override;
-        bool SetFeatherFall(bool enable, bool packetOnly = false) override;
-        bool SetHover(bool enable, bool packetOnly = false) override;
-
-        uint32 GetShieldBlockValue() const override;
 
         SpellSchoolMask GetMeleeDamageSchoolMask() const override { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }

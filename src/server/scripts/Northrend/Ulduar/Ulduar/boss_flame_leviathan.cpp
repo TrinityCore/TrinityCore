@@ -541,7 +541,7 @@ class boss_flame_leviathan : public CreatureScript
             }
 
             private:
-                //! Copypasta from DoSpellAttackIfReady, only difference is the target - it cannot be selected trough getVictim this way -
+                //! Copypasta from DoSpellAttackIfReady, only difference is the target - it cannot be selected trough GetVictim this way -
                 //! I also removed the spellInfo check
                 void DoBatteringRamIfReady()
                 {
@@ -1217,7 +1217,7 @@ class npc_lorekeeper : public CreatureScript
                             if (Creature* Branz = creature->FindNearestCreature(NPC_BRANZ_BRONZBEARD, 1000, true))
                             {
                                 Delorah->GetMotionMaster()->MovePoint(0, Branz->GetPositionX()-4, Branz->GetPositionY(), Branz->GetPositionZ());
-                                /// @todo Delorah->AI()->Talk(xxxx, Branz->GetGUID()); when reached at branz
+                                /// @todo Delorah->AI()->Talk(xxxx, Branz); when reached at branz
                             }
                         }
                     }

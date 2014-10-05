@@ -19,13 +19,13 @@
 /* ScriptData
 SDName: Silithus
 SD%Complete: 100
-SDComment: Quest support: 8304, 8507.
+SDComment: Quest support: 7785, 8304.
 SDCategory: Silithus
 EndScriptData */
 
 /* ContentData
 npcs_rutgar_and_frankal
-quest_a_pawn_on_the_eternal_pawn
+go_wind_stone
 EndContentData */
 
 #include "ScriptMgr.h"

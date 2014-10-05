@@ -22,12 +22,14 @@ Comment: All guild related commands
 Category: commandscripts
 EndScriptData */
 
+#include "AchievementMgr.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
+#include <iomanip>
 
 class guild_commandscript : public CommandScript
 {
@@ -283,6 +285,7 @@ public:
         handler->PSendSysMessage(LANG_GUILD_INFO_CREATION_DATE, createdDateStr); // Creation Date
         handler->PSendSysMessage(LANG_GUILD_INFO_MEMBER_COUNT, guild->GetMemberCount()); // Number of Members
         handler->PSendSysMessage(LANG_GUILD_INFO_BANK_GOLD, guild->GetBankMoney() / 100 / 100); // Bank Gold (in gold coins)
+        handler->PSendSysMessage(LANG_GUILD_INFO_LEVEL, guild->GetLevel()); // Level
         handler->PSendSysMessage(LANG_GUILD_INFO_MOTD, guild->GetMOTD().c_str()); // Message of the Day
         handler->PSendSysMessage(LANG_GUILD_INFO_EXTRA_INFO, guild->GetInfo().c_str()); // Extra Information
         return true;

@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connection Patcher", "Connection Patcher.csproj", "{137B1355-6A81-4A3A-A01E-93ABAA4FFFDB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{137B1355-6A81-4A3A-A01E-93ABAA4FFFDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{137B1355-6A81-4A3A-A01E-93ABAA4FFFDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{137B1355-6A81-4A3A-A01E-93ABAA4FFFDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{137B1355-6A81-4A3A-A01E-93ABAA4FFFDB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

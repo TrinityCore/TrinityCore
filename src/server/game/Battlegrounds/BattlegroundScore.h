@@ -19,7 +19,8 @@
 #define TRINITY_BATTLEGROUND_SCORE_H
 
 #include "WorldPacket.h"
-#include "ObjectGuid.h"
+#include "Player.h"
+#include "ObjectAccessor.h"
 
 enum ScoreType
 {
@@ -30,7 +31,7 @@ enum ScoreType
     SCORE_DAMAGE_DONE           = 5,
     SCORE_HEALING_DONE          = 6,
 
-    // WS and EY
+    // WS, EY and TP
     SCORE_FLAG_CAPTURES         = 7,
     SCORE_FLAG_RETURNS          = 8,
 
@@ -56,8 +57,8 @@ struct BattlegroundScore
     friend class Battleground;
 
     protected:
-        BattlegroundScore(ObjectGuid playerGuid) : PlayerGuid(playerGuid), KillingBlows(0), Deaths(0),
-            HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0) { }
+        BattlegroundScore(ObjectGuid playerGuid, uint32 team) : PlayerGuid(playerGuid), TeamId(team == ALLIANCE ? 1 : 0),
+            KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0) { }
 
         virtual ~BattlegroundScore() { }
 
@@ -89,21 +90,71 @@ struct BattlegroundScore
             }
         }
 
-        virtual void AppendToPacket(WorldPacket& data)
+        virtual void AppendToPacket(WorldPacket& data, ByteBuffer& content)
         {
-            data << uint64(PlayerGuid);
+            uint32 primaryTree = 0;
+            if (Player* player = ObjectAccessor::FindPlayer(PlayerGuid))
+                primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 
-            data << uint32(KillingBlows);
-            data << uint32(HonorableKills);
-            data << uint32(Deaths);
-            data << uint32(BonusHonor);
-            data << uint32(DamageDone);
-            data << uint32(HealingDone);
+            data.WriteBit(0);                   // Unk 1
+            data.WriteBit(0);                   // Unk 2
+            data.WriteBit(PlayerGuid[2]);
+            data.WriteBit(/*!IsArena*/ 1);      // IsArena
+            data.WriteBit(0);                   // Unk 4
+            data.WriteBit(0);                   // Unk 5
+            data.WriteBit(0);                   // Unk 6
+            data.WriteBit(PlayerGuid[3]);
+            data.WriteBit(PlayerGuid[0]);
+            data.WriteBit(PlayerGuid[5]);
+            data.WriteBit(PlayerGuid[1]);
+            data.WriteBit(PlayerGuid[6]);
+            data.WriteBit(TeamId);
+            data.WriteBit(PlayerGuid[7]);
 
-            BuildObjectivesBlock(data);
+            content << uint32(HealingDone);     // healing done
+            content << uint32(DamageDone);      // damage done
+
+            //if (!IsArena)
+            //{
+                content << uint32(BonusHonor / 100);
+                content << uint32(Deaths);
+                content << uint32(HonorableKills);
+            //}
+
+            content.WriteByteSeq(PlayerGuid[4]);
+            content << uint32(KillingBlows);
+
+            //if (unk 5)
+            //    data << uint32() unk
+
+            content.WriteByteSeq(PlayerGuid[5]);
+
+            //if (unk 6)
+            //    data << uint32() unk
+
+            //if (unk 2)
+            //    data << uint32() unk
+
+            content.WriteByteSeq(PlayerGuid[1]);
+            content.WriteByteSeq(PlayerGuid[6]);
+
+            content << int32(primaryTree);
+
+            BuildObjectivesBlock(data, content);
+
+            data.WriteBit(PlayerGuid[4]);
+
+            content.WriteByteSeq(PlayerGuid[0]);
+            content.WriteByteSeq(PlayerGuid[3]);
+
+            //if (unk 4)
+            //    data << uint32() unk
+
+            content.WriteByteSeq(PlayerGuid[7]);
+            content.WriteByteSeq(PlayerGuid[2]);
         }
 
-        virtual void BuildObjectivesBlock(WorldPacket& /*data*/) = 0;
+        virtual void BuildObjectivesBlock(WorldPacket& /*data*/, ByteBuffer& /*content*/) = 0;
 
         // For Logging purpose
         virtual std::string ToString() const { return ""; }
@@ -122,6 +173,7 @@ struct BattlegroundScore
         virtual uint32 GetAttr5() const { return 0; }
 
         ObjectGuid PlayerGuid;
+        uint8 TeamId;
 
         // Default score, present in every type
         uint32 KillingBlows;

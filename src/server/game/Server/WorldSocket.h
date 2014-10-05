@@ -20,7 +20,7 @@
 #define __WORLDSOCKET_H__
 
 #include "Common.h"
-#include "AuthCrypt.h"
+#include "WorldPacketCrypt.h"
 #include "ServerPktHeader.h"
 #include "Socket.h"
 #include "Util.h"
@@ -40,13 +40,17 @@ struct ClientPktHeader
     uint32 cmd;
 
     bool IsValidSize() const { return size >= 4 && size < 10240; }
-    bool IsValidOpcode() const { return cmd < NUM_MSG_TYPES; }
+    bool IsValidOpcode() const { return cmd < NUM_OPCODE_HANDLERS; }
 };
 
 #pragma pack(pop)
 
 class WorldSocket : public Socket<WorldSocket>
 {
+    static std::string const ServerConnectionInitialize;
+
+    static std::string const ClientConnectionInitialize;
+
 public:
     WorldSocket(tcp::socket&& socket);
 
@@ -70,7 +74,7 @@ private:
     void HandlePing(WorldPacket& recvPacket);
 
     uint32 _authSeed;
-    AuthCrypt _authCrypt;
+    WorldPacketCrypt _authCrypt;
 
     std::chrono::steady_clock::time_point _LastPingTime;
     uint32 _OverSpeedPings;
@@ -79,6 +83,8 @@ private:
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
+
+    bool _initialized;
 };
 
 #endif

@@ -18,6 +18,8 @@
 #include "Arena.h"
 #include "ArenaScore.h"
 #include "ArenaTeamMgr.h"
+#include "GuildMgr.h"
+#include "Guild.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -141,6 +143,7 @@ void Arena::EndBattleground(uint32 winner)
         uint32 winnerMatchmakerRating = 0;
         int32  winnerChange           = 0;
         int32  winnerMatchmakerChange = 0;
+        bool   guildAwarded           = false;
 
         ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner));
         ArenaTeam* loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(winner)));
@@ -221,10 +224,19 @@ void Arena::EndBattleground(uint32 winner)
                     uint32 rating = player->GetArenaPersonalRating(winnerArenaTeam->GetSlot());
                     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
                     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
+                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
 
                     // Last standing - Rated 5v5 arena & be solely alive player
                     if (GetArenaType() == ARENA_TYPE_5v5 && aliveWinners == 1 && player->IsAlive())
                         player->CastSpell(player, SPELL_LAST_MAN_STANDING, true);
+
+                    if (!guildAwarded)
+                    {
+                        guildAwarded = true;
+                        if (uint32 guildId = GetBgMap()->GetOwnerGuildId(player->GetBGTeam()))
+                            if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+                                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winnerArenaTeam->GetRating(), 1), 0, 0, NULL, player);
+                    }
 
                     winnerArenaTeam->MemberWon(player, loserMatchmakerRating, winnerMatchmakerChange);
                 }

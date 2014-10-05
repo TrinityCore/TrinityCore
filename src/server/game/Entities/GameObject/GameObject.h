@@ -46,6 +46,7 @@ struct GameObjectTemplate
     uint32  flags;
     float   size;
     uint32  questItems[MAX_GAMEOBJECT_QUEST_ITEMS];
+    int32   unkInt32;
     union                                                   // different GO types have different data field
     {
         //0 GAMEOBJECT_TYPE_DOOR
@@ -192,11 +193,17 @@ struct GameObjectTemplate
         //11 GAMEOBJECT_TYPE_TRANSPORT
         struct
         {
-            uint32 pause;                                   //0
+            int32 stopFrame1;                               //0
             uint32 startOpen;                               //1
             uint32 autoCloseTime;                           //2 secs till autoclose = autoCloseTime / 0x10000
             uint32 pause1EventID;                           //3
             uint32 pause2EventID;                           //4
+            uint32 mapId;                                   //5
+            int32 stopFrame2;                               //6
+            uint32 unknown;
+            int32 stopFrame3;                               //8
+            uint32 unknown2;
+            int32 stopFrame4;                               //10
         } transport;
         //12 GAMEOBJECT_TYPE_AREADAMAGE
         struct
@@ -551,6 +558,8 @@ union GameObjectValue
         uint32 PathProgress;
         TransportAnimation const* AnimationInfo;
         uint32 CurrentSeg;
+        std::vector<uint32>* StopFrames;
+        uint32 StateUpdateTimer;
     } Transport;
     //25 GAMEOBJECT_TYPE_FISHINGHOLE
     struct
@@ -581,17 +590,20 @@ enum GOState
 {
     GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
     GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
-    GO_STATE_ACTIVE_ALTERNATIVE = 2                         // show in world as used in alt way and not reset (closed door open by cannon fire)
+    GO_STATE_ACTIVE_ALTERNATIVE = 2,                        // show in world as used in alt way and not reset (closed door open by cannon fire)
+    GO_STATE_TRANSPORT_ACTIVE   = 24,
+    GO_STATE_TRANSPORT_STOPPED  = 25
 };
 
 #define MAX_GO_STATE              3
+#define MAX_GO_STATE_TRANSPORT_STOP_FRAMES 9
 
 // from `gameobject`
 struct GameObjectData
 {
     explicit GameObjectData() : id(0), mapid(0), phaseMask(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f),
                                 rotation0(0.0f), rotation1(0.0f), rotation2(0.0f), rotation3(0.0f), spawntimesecs(0),
-                                animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0), dbData(true) { }
+                                animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0), phaseid(0), phaseGroup(0), dbData(true) { }
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
     uint32 phaseMask;
@@ -608,6 +620,8 @@ struct GameObjectData
     GOState go_state;
     uint8 spawnMask;
     uint8 artKit;
+    uint32 phaseid;
+    uint32 phaseGroup;
     bool dbData;
 };
 
@@ -717,13 +731,15 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
         GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_BYTES_1, 0)); }
         void SetGoState(GOState state);
+        uint32 GetTransportPeriod() const;
+        void SetTransportState(GOState state, uint32 stopFrame = 0);
         uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_BYTES_1, 2); }
         void SetGoArtKit(uint8 artkit);
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
 
-        void SetPhaseMask(uint32 newPhaseMask, bool update);
+        void SetInPhase(uint32 id, bool update, bool apply);
         void EnableCollision(bool enable);
 
         void Use(Unit* user);
@@ -832,7 +848,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         float GetStationaryZ() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetPositionZ(); return GetPositionZ(); }
         float GetStationaryO() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
 
-        float GetInteractionDistance();
+        float GetInteractionDistance() const;
 
         void UpdateModelPosition();
 
@@ -877,6 +893,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
             //! Following check does check 3d distance
             return IsInRange(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), dist2compare);
         }
+
         GameObjectAI* m_AI;
 };
 #endif

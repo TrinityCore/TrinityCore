@@ -490,10 +490,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
                         LadyDeathwisperElevatorGUID = go->GetGUID();
                         if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
-                        {
-                            go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
-                            go->SetGoState(GO_STATE_READY);
-                        }
+                            go->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
                         break;
                     case GO_THE_SKYBREAKER_H:
                     case GO_ORGRIMS_HAMMER_A:
@@ -607,13 +604,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                         break;
                     case GO_ARTHAS_PLATFORM:
-                        // this enables movement at The Frozen Throne, when printed this value is 0.000000f
-                        // however, when represented as integer client will accept only this value
-                        go->SetUInt32Value(GAMEOBJECT_PARENTROTATION, 5535469);
                         ArthasPlatformGUID = go->GetGUID();
                         break;
                     case GO_ARTHAS_PRECIPICE:
-                        go->SetUInt32Value(GAMEOBJECT_PARENTROTATION, 4178312);
                         ArthasPrecipiceGUID = go->GetGUID();
                         break;
                     case GO_DOODAD_ICECROWN_THRONEFROSTYEDGE01:
@@ -804,10 +797,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 SetTeleporterState(teleporter, true);
 
                             if (GameObject* elevator = instance->GetGameObject(LadyDeathwisperElevatorGUID))
-                            {
-                                elevator->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
-                                elevator->SetGoState(GO_STATE_READY);
-                            }
+                                elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
 
                             SpawnGunship();
                         }

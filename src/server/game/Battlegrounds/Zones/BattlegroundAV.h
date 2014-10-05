@@ -1554,7 +1554,7 @@ struct BattlegroundAVScore final : public BattlegroundScore
     friend class BattlegroundAV;
 
     protected:
-        BattlegroundAVScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0) { }
+        BattlegroundAVScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -1581,14 +1581,14 @@ struct BattlegroundAVScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override
         {
-            data << uint32(5); // Objectives Count
-            data << uint32(GraveyardsAssaulted);
-            data << uint32(GraveyardsDefended);
-            data << uint32(TowersAssaulted);
-            data << uint32(TowersDefended);
-            data << uint32(MinesCaptured);
+            data.WriteBits(5, 24); // Objectives Count
+            content << uint32(GraveyardsAssaulted);
+            content << uint32(GraveyardsDefended);
+            content << uint32(TowersAssaulted);
+            content << uint32(TowersDefended);
+            content << uint32(MinesCaptured);
         }
 
         uint32 GetAttr1() const final override { return GraveyardsAssaulted; }

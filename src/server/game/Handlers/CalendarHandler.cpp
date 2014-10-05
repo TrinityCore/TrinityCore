@@ -90,7 +90,11 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         data.AppendPackedTime(calendarEvent->GetEventTime());
         data << uint32(calendarEvent->GetFlags());
         data << int32(calendarEvent->GetDungeonId());
-        data << calendarEvent->GetCreatorGUID().WriteAsPacked();
+
+        Guild* guild = sGuildMgr->GetGuildById(calendarEvent->GetGuildId());
+        data << uint64(guild ? guild->GetGUID() : 0);
+
+        data.appendPackGUID(calendarEvent->GetCreatorGUID());
     }
 
     data << uint32(currTime);                              // server time
@@ -668,10 +672,11 @@ void WorldSession::HandleCalendarComplain(WorldPacket& recvData)
     ObjectGuid guid = _player->GetGUID();
     uint64 eventId;
     ObjectGuid complainGUID;
+    uint64 inviteId;
 
-    recvData >> eventId >> complainGUID;
+    recvData >> complainGUID >> eventId >> inviteId;
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_COMPLAIN [%s] EventId ["
-        UI64FMTD "] guid [%s]", guid.ToString().c_str(), eventId, complainGUID.ToString().c_str());
+        UI64FMTD "] guid [%s] InviteId [" UI64FMTD "]", guid.ToString().c_str(), eventId, complainGUID.ToString().c_str(), inviteId);
 
     // what to do with complains?
 }

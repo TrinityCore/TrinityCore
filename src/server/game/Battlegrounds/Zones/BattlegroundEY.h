@@ -328,7 +328,7 @@ struct BattlegroundEYScore final : public BattlegroundScore
     friend class BattlegroundEY;
 
     protected:
-        BattlegroundEYScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), FlagCaptures(0) { }
+        BattlegroundEYScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -343,10 +343,10 @@ struct BattlegroundEYScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override
         {
-            data << uint32(1); // Objectives Count
-            data << uint32(FlagCaptures);
+            data.WriteBits(1, 24); // Objectives Count
+            content << uint32(FlagCaptures);
         }
 
         uint32 GetAttr1() const final override { return FlagCaptures; }

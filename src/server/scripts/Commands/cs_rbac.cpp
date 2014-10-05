@@ -142,7 +142,7 @@ public:
         {
             accountName = param1;
 
-            if (AccountMgr::normalizeString(accountName))
+            if (Utf8ToUpperOnlyLatin(accountName))
                 accountId = AccountMgr::GetId(accountName);
 
             if (!accountId)

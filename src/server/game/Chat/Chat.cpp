@@ -351,10 +351,9 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
                 std::string zoneName = "Unknown";
                 if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
                 {
-                    int locale = GetSessionDbcLocale();
-                    areaName = area->area_name[locale];
+                    areaName = area->area_name;
                     if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
-                        zoneName = zone->area_name[locale];
+                        zoneName = zone->area_name;
                 }
 
                 sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (%s) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected: %s (%s)]",
@@ -631,7 +630,8 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
 
 size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, ObjectGuid senderGUID, ObjectGuid receiverGUID, std::string const& message, uint8 chatTag,
                                   std::string const& senderName /*= ""*/, std::string const& receiverName /*= ""*/,
-                                  uint32 achievementId /*= 0*/, bool gmMessage /*= false*/, std::string const& channelName /*= ""*/)
+                                  uint32 achievementId /*= 0*/, bool gmMessage /*= false*/, std::string const& channelName /*= ""*/,
+                                  std::string const& addonPrefix /*= ""*/)
 {
     size_t receiverGUIDPos = 0;
     data.Initialize(!gmMessage ? SMSG_MESSAGECHAT : SMSG_GM_MESSAGECHAT);
@@ -658,12 +658,17 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
                 data << uint32(receiverName.length() + 1);
                 data << receiverName;
             }
+
+            if (language == LANG_ADDON)
+                data << addonPrefix;
             break;
         case CHAT_MSG_WHISPER_FOREIGN:
             data << uint32(senderName.length() + 1);
             data << senderName;
             receiverGUIDPos = data.wpos();
             data << uint64(receiverGUID);
+            if (language == LANG_ADDON)
+                data << addonPrefix;
             break;
         case CHAT_MSG_BG_SYSTEM_NEUTRAL:
         case CHAT_MSG_BG_SYSTEM_ALLIANCE:
@@ -675,11 +680,16 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
                 data << uint32(receiverName.length() + 1);
                 data << receiverName;
             }
+
+            if (language == LANG_ADDON)
+                data << addonPrefix;
             break;
         case CHAT_MSG_ACHIEVEMENT:
         case CHAT_MSG_GUILD_ACHIEVEMENT:
             receiverGUIDPos = data.wpos();
             data << uint64(receiverGUID);
+            if (language == LANG_ADDON)
+                data << addonPrefix;
             break;
         default:
             if (gmMessage)
@@ -696,6 +706,9 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
 
             receiverGUIDPos = data.wpos();
             data << uint64(receiverGUID);
+
+            if (language == LANG_ADDON)
+                data << addonPrefix;
             break;
     }
 
@@ -705,12 +718,17 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
 
     if (chatType == CHAT_MSG_ACHIEVEMENT || chatType == CHAT_MSG_GUILD_ACHIEVEMENT)
         data << uint32(achievementId);
+    else if (chatType == CHAT_MSG_RAID_BOSS_WHISPER || chatType == CHAT_MSG_RAID_BOSS_EMOTE)
+    {
+        data << float(0.0f);                        // Display time in middle of the screen (in seconds), defaults to 10 if not set (cannot be below 1)
+        data << uint8(0);                           // Hide in chat frame (only shows in middle of the screen)
+    }
 
     return receiverGUIDPos;
 }
 
 size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message,
-                                  uint32 achievementId /*= 0*/, std::string const& channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/)
+                                  uint32 achievementId /*= 0*/, std::string const& channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string const& addonPrefix /*= ""*/)
 {
     ObjectGuid senderGUID;
     std::string senderName = "";
@@ -735,7 +753,7 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
         receiverName = receiver->GetNameForLocaleIdx(locale);
     }
 
-    return BuildChatPacket(data, chatType, language, senderGUID, receiverGUID, message, chatTag, senderName, receiverName, achievementId, gmMessage, channelName);
+    return BuildChatPacket(data, chatType, language, senderGUID, receiverGUID, message, chatTag, senderName, receiverName, achievementId, gmMessage, channelName, addonPrefix);
 }
 
 Player* ChatHandler::getSelectedPlayer()

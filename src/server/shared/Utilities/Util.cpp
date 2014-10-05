@@ -178,9 +178,9 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
     return ss.str();
 }
 
-int32 MoneyStringToMoney(const std::string& moneyString)
+int64 MoneyStringToMoney(const std::string& moneyString)
 {
-    int32 money = 0;
+    int64 money = 0;
 
     if (!(std::count(moneyString.begin(), moneyString.end(), 'g') == 1 ||
         std::count(moneyString.begin(), moneyString.end(), 's') == 1 ||
@@ -197,7 +197,7 @@ int32 MoneyStringToMoney(const std::string& moneyString)
         if (gCount + sCount + cCount != 1)
             return 0;
 
-        uint32 amount = atoi(*itr);
+        uint64 amount = atol(*itr);
         if (gCount == 1)
             money += amount * 100 * 100;
         else if (sCount == 1)
@@ -537,6 +537,17 @@ void vutf8printf(FILE* out, const char *str, va_list* ap)
 #endif
 }
 
+bool Utf8ToUpperOnlyLatin(std::string& utf8String)
+{
+    std::wstring wstr;
+    if (!Utf8toWStr(utf8String, wstr))
+        return false;
+
+    std::transform(wstr.begin(), wstr.end(), wstr.begin(), wcharToUpperOnlyLatin);
+
+    return WStrToUtf8(wstr, utf8String);
+}
+
 std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse /* = false */)
 {
     int32 init = 0;
@@ -568,4 +579,29 @@ uint32 EventMap::GetTimeUntilEvent(uint32 eventId) const
             return itr->first - _time;
 
     return std::numeric_limits<uint32>::max();
+}
+
+void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= false*/)
+{
+    // string must have even number of characters
+    if (str.length() & 1)
+        return;
+
+    int32 init = 0;
+    int32 end = str.length();
+    int8 op = 1;
+
+    if (reverse)
+    {
+        init = str.length() - 2;
+        end = -2;
+        op = -1;
+    }
+
+    uint32 j = 0;
+    for (int32 i = init; i != end; i += 2 * op)
+    {
+        char buffer[3] = { str[i], str[i + 1], '\0' };
+        out[j++] = strtoul(buffer, NULL, 16);
+    }
 }

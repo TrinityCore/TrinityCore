@@ -277,7 +277,7 @@ public:
 
             if (titleInfo && target->HasTitle(titleInfo))
             {
-                std::string name = target->getGender() == GENDER_MALE ? titleInfo->nameMale[loc] : titleInfo->nameFemale[loc];
+                std::string name = target->getGender() == GENDER_MALE ? titleInfo->nameMale : titleInfo->nameFemale;
                 if (name.empty())
                     continue;
 
@@ -566,7 +566,7 @@ public:
         {
             FactionState const& faction = itr->second;
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
-            char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
+            char const* factionName = factionEntry ? factionEntry->name : "#Not found#";
             ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
             std::string rankName = handler->GetTrinityString(ReputationRankStrIndex[rank]);
             std::ostringstream ss;
@@ -858,7 +858,7 @@ public:
             return false;
 
         std::string accountName = accountStr;
-        if (!AccountMgr::normalizeString(accountName))
+        if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
             handler->SetSentErrorMessage(true);

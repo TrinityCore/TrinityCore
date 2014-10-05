@@ -63,12 +63,12 @@ TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
     return NULL;
 }
 
-bool VendorItemData::RemoveItem(uint32 item_id)
+bool VendorItemData::RemoveItem(uint32 item_id, uint8 type)
 {
     bool found = false;
     for (VendorItemList::iterator i = m_items.begin(); i != m_items.end();)
     {
-        if ((*i)->item == item_id)
+        if ((*i)->item == item_id && (*i)->Type == type)
         {
             i = m_items.erase(i++);
             found = true;
@@ -79,10 +79,10 @@ bool VendorItemData::RemoveItem(uint32 item_id)
     return found;
 }
 
-VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extendedCost) const
+VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extendedCost, uint8 type) const
 {
     for (VendorItemList::const_iterator i = m_items.begin(); i != m_items.end(); ++i)
-        if ((*i)->item == item_id && (*i)->ExtendedCost == extendedCost)
+        if ((*i)->item == item_id && (*i)->ExtendedCost == extendedCost && (*i)->Type == type)
             return *i;
     return NULL;
 }
@@ -332,6 +332,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetName(normalInfo->Name);                              // at normal entry always
 
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
+    SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
 
     SetSpeed(MOVE_WALK,   cinfo->speed_walk);
     SetSpeed(MOVE_RUN,    cinfo->speed_run);
@@ -604,13 +605,10 @@ void Creature::RegenerateMana()
     // Combat and any controlled creature
     if (IsInCombat() || GetCharmerOrOwnerGUID())
     {
-        if (!IsUnderLastManaUseEffect())
-        {
-            float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
-            float Spirit = GetStat(STAT_SPIRIT);
+        float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
+        float Spirit = GetStat(STAT_SPIRIT);
 
-            addvalue = uint32((Spirit / 5.0f + 17.0f) * ManaIncreaseRate);
-        }
+        addvalue = uint32((Spirit / 5.0f + 17.0f) * ManaIncreaseRate);
     }
     else
         addvalue = maxValue / 3;
@@ -736,11 +734,17 @@ void Creature::Motion_Initialize()
         GetMotionMaster()->Initialize();
 }
 
-bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
+bool Creature::Create(uint32 guidlow, Map* map, uint32 /*phaseMask*/, uint32 entry, float x, float y, float z, float ang, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
 {
     ASSERT(map);
     SetMap(map);
-    SetPhaseMask(phaseMask, false);
+
+    if (data && data->phaseid)
+        SetInPhase(data->phaseid, false, true);
+
+    if (data && data->phaseGroup)
+        for (auto ph : GetPhasesForGroup(data->phaseGroup))
+            SetInPhase(ph, false, true);
 
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
@@ -1064,12 +1068,21 @@ void Creature::SelectLevel()
 
     // mana
     uint32 mana = stats->GenerateMana(cInfo);
-
     SetCreateMana(mana);
-    SetMaxPower(POWER_MANA, mana); // MAX Mana
-    SetPower(POWER_MANA, mana);
 
-    /// @todo set UNIT_FIELD_POWER*, for some creature class case (energy, etc)
+    switch (getClass())
+    {
+        case CLASS_WARRIOR:
+            setPowerType(POWER_RAGE);
+            break;
+        case CLASS_ROGUE:
+            setPowerType(POWER_ENERGY);
+            break;
+        default:
+            SetMaxPower(POWER_MANA, mana); // MAX Mana
+            SetPower(POWER_MANA, mana);
+            break;
+    }
 
     SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
     SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, (float)mana);
@@ -1497,8 +1510,6 @@ void Creature::setDeathState(DeathState s)
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
         Motion_Initialize();
-        if (GetCreatureData() && GetPhaseMask() != GetCreatureData()->phaseMask)
-            SetPhaseMask(GetCreatureData()->phaseMask, false);
         Unit::setDeathState(ALIVE);
     }
 }
@@ -1676,7 +1687,7 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
         if (bcontinue)
             continue;
 
-        if (spellInfo->ManaCost > GetPower(POWER_MANA))
+        if (spellInfo->ManaCost > (uint32)GetPower(POWER_MANA))
             continue;
         float range = spellInfo->GetMaxRange(false);
         float minrange = spellInfo->GetMinRange(false);
@@ -1720,7 +1731,7 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
         if (bcontinue)
             continue;
 
-        if (spellInfo->ManaCost > GetPower(POWER_MANA))
+        if (spellInfo->ManaCost > (uint32)GetPower(POWER_MANA))
             continue;
 
         float range = spellInfo->GetMaxRange(true);
@@ -2131,11 +2142,6 @@ void Creature::SetInCombatWithZone()
     }
 }
 
-uint32 Creature::GetShieldBlockValue() const                  //dunno mob block value
-{
-    return (getLevel()/2 + uint32(GetStat(STAT_STRENGTH)/20));
-}
-
 void Creature::_AddCreatureSpellCooldown(uint32 spell_id, time_t end_time)
 {
     m_CreatureSpellCooldowns[spell_id] = end_time;
@@ -2448,110 +2454,6 @@ bool Creature::IsDungeonBoss() const
     return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
 }
 
-bool Creature::SetWalk(bool enable)
-{
-    if (!Unit::SetWalk(enable))
-        return false;
-
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_WALK_MODE : SMSG_SPLINE_MOVE_SET_RUN_MODE, 9);
-    data << GetPackGUID();
-    SendMessageToSet(&data, false);
-    return true;
-}
-
-bool Creature::SetDisableGravity(bool disable, bool packetOnly/*=false*/)
-{
-    //! It's possible only a packet is sent but moveflags are not updated
-    //! Need more research on this
-    if (!packetOnly && !Unit::SetDisableGravity(disable))
-        return false;
-
-    if (!movespline->Initialized())
-        return true;
-
-    WorldPacket data(disable ? SMSG_SPLINE_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
-    data << GetPackGUID();
-    SendMessageToSet(&data, false);
-    return true;
-}
-
-bool Creature::SetSwim(bool enable)
-{
-    if (!Unit::SetSwim(enable))
-        return false;
-
-    if (!movespline->Initialized())
-        return true;
-
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_START_SWIM : SMSG_SPLINE_MOVE_STOP_SWIM);
-    data << GetPackGUID();
-    SendMessageToSet(&data, true);
-    return true;
-}
-
-bool Creature::SetCanFly(bool enable)
-{
-    if (!Unit::SetCanFly(enable))
-        return false;
-
-    if (!movespline->Initialized())
-        return true;
-
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_FLYING : SMSG_SPLINE_MOVE_UNSET_FLYING, 9);
-    data << GetPackGUID();
-    SendMessageToSet(&data, false);
-    return true;
-}
-
-bool Creature::SetWaterWalking(bool enable, bool packetOnly /* = false */)
-{
-    if (!packetOnly && !Unit::SetWaterWalking(enable))
-        return false;
-
-    if (!movespline->Initialized())
-        return true;
-
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_WATER_WALK : SMSG_SPLINE_MOVE_LAND_WALK);
-    data << GetPackGUID();
-    SendMessageToSet(&data, true);
-    return true;
-}
-
-bool Creature::SetFeatherFall(bool enable, bool packetOnly /* = false */)
-{
-    if (!packetOnly && !Unit::SetFeatherFall(enable))
-        return false;
-
-    if (!movespline->Initialized())
-        return true;
-
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_FEATHER_FALL : SMSG_SPLINE_MOVE_NORMAL_FALL);
-    data << GetPackGUID();
-    SendMessageToSet(&data, true);
-    return true;
-}
-
-bool Creature::SetHover(bool enable, bool packetOnly /*= false*/)
-{
-    if (!packetOnly && !Unit::SetHover(enable))
-        return false;
-
-    //! Unconfirmed for players:
-    if (enable)
-        SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
-    else
-        RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
-
-    if (!movespline->Initialized())
-        return true;
-
-    //! Not always a packet is sent
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_HOVER : SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
-    data << GetPackGUID();
-    SendMessageToSet(&data, false);
-    return true;
-}
-
 float Creature::GetAggroRange(Unit const* target) const
 {
     // Determines the aggro range for creatures (usually pets), used mainly for aggressive pet target selection.
@@ -2643,7 +2545,7 @@ void Creature::UpdateMovementFlags()
     }
 
     if (!isInAir)
-        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        SetFall(false);
 
     SetSwim(GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater());
 }

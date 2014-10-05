@@ -19,9 +19,11 @@
 #ifndef TRINITYCORE_ARENATEAM_H
 #define TRINITYCORE_ARENATEAM_H
 
+#include "Define.h"
 #include "QueryResult.h"
 #include "ObjectGuid.h"
 #include <list>
+#include <string>
 #include <map>
 
 class WorldSession;
@@ -39,6 +41,7 @@ enum ArenaTeamCommandTypes
 
 enum ArenaTeamCommandErrors
 {
+    ERR_ARENA_TEAM_CREATED                  = 0x00,
     ERR_ARENA_TEAM_INTERNAL                 = 0x01,
     ERR_ALREADY_IN_ARENA_TEAM               = 0x02,
     ERR_ALREADY_IN_ARENA_TEAM_S             = 0x03,
@@ -57,26 +60,19 @@ enum ArenaTeamCommandErrors
     ERR_ARENA_TEAM_TARGET_TOO_HIGH_S        = 0x16,
     ERR_ARENA_TEAM_TOO_MANY_MEMBERS_S       = 0x17,
     ERR_ARENA_TEAM_NOT_FOUND                = 0x1B,
-    ERR_ARENA_TEAMS_LOCKED                  = 0x1E
+    ERR_ARENA_TEAMS_LOCKED                  = 0x1E,
+    ERR_ARENA_TEAM_TOO_MANY_CREATE          = 0x21,
 };
 
 enum ArenaTeamEvents
 {
-    ERR_ARENA_TEAM_JOIN_SS                  = 3,            // player name + arena team name
-    ERR_ARENA_TEAM_LEAVE_SS                 = 4,            // player name + arena team name
-    ERR_ARENA_TEAM_REMOVE_SSS               = 5,            // player name + arena team name + captain name
-    ERR_ARENA_TEAM_LEADER_IS_SS             = 6,            // player name + arena team name
-    ERR_ARENA_TEAM_LEADER_CHANGED_SSS       = 7,            // old captain + new captain + arena team name
-    ERR_ARENA_TEAM_DISBANDED_S              = 8             // captain name + arena team name
+    ERR_ARENA_TEAM_JOIN_SS                  = 4,            // player name + arena team name
+    ERR_ARENA_TEAM_LEAVE_SS                 = 5,            // player name + arena team name
+    ERR_ARENA_TEAM_REMOVE_SSS               = 6,            // player name + arena team name + captain name
+    ERR_ARENA_TEAM_LEADER_IS_SS             = 7,            // player name + arena team name
+    ERR_ARENA_TEAM_LEADER_CHANGED_SSS       = 8,            // old captain + new captain + arena team name
+    ERR_ARENA_TEAM_DISBANDED_S              = 9             // captain name + arena team name
 };
-
-/*
-need info how to send these ones:
-ERR_ARENA_TEAM_YOU_JOIN_S - client show it automatically when accept invite
-ERR_ARENA_TEAM_TARGET_TOO_LOW_S
-ERR_ARENA_TEAM_TOO_MANY_MEMBERS_S
-ERR_ARENA_TEAM_LEVEL_TOO_LOW_I
-*/
 
 enum ArenaTeamTypes
 {
@@ -125,11 +121,12 @@ class ArenaTeam
 
         typedef std::list<ArenaTeamMember> MemberList;
 
-        uint32 GetId() const              { return TeamId; }
-        uint32 GetType() const            { return Type; }
-        uint8  GetSlot() const            { return GetSlotByType(GetType()); }
+        uint32 GetId() const { return TeamId; }
+        uint32 GetType() const { return Type; }
+        uint8  GetSlot() const { return GetSlotByType(GetType()); }
         static uint8 GetSlotByType(uint32 type);
-        ObjectGuid GetCaptain() const  { return CaptainGuid; }
+        static uint8 GetTypeBySlot(uint8 slot);
+        ObjectGuid GetCaptain() const { return CaptainGuid; }
         std::string const& GetName() const { return TeamName; }
         const ArenaTeamStats& GetStats() const { return Stats; }
 
@@ -178,15 +175,16 @@ class ArenaTeam
         void   MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
         void   OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
 
-        void UpdateArenaPointsHelper(std::map<uint32, uint32> & PlayerPoints);
+
+
 
         void FinishWeek();
         void FinishGame(int32 mod);
 
     protected:
 
-        uint32      TeamId;
-        uint8       Type;
+        uint32 TeamId;
+        uint8  Type;
         std::string TeamName;
         ObjectGuid  CaptainGuid;
 
@@ -196,7 +194,7 @@ class ArenaTeam
         uint8  BorderStyle;     // border image id
         uint32 BorderColor;     // ARGB format
 
-        MemberList     Members;
+        MemberList Members;
         ArenaTeamStats Stats;
 };
 #endif

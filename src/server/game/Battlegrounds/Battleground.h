@@ -118,12 +118,14 @@ enum BattlegroundTimeIntervals
     RESURRECTION_INTERVAL           = 30000,                // ms
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
-    INVITE_ACCEPT_WAIT_TIME         = 60000,                // ms
-    TIME_TO_AUTOREMOVE              = 120000,               // ms
+    INVITE_ACCEPT_WAIT_TIME         = 90000,                // ms
+    TIME_AUTOCLOSE_BATTLEGROUND     = 120000,               // ms
     MAX_OFFLINE_TIME                = 300,                  // secs
     RESPAWN_ONE_DAY                 = 86400,                // secs
     RESPAWN_IMMEDIATELY             = 0,                    // secs
-    BUFF_RESPAWN_TIME               = 180                   // secs
+    BUFF_RESPAWN_TIME               = 180,                  // secs
+    BATTLEGROUND_COUNTDOWN_MAX      = 120,                  // secs
+    ARENA_COUNTDOWN_MAX             = 60                    // secs
 };
 
 enum BattlegroundStartTimeIntervals
@@ -142,7 +144,7 @@ enum BattlegroundBuffObjects
     BG_OBJECTID_BERSERKERBUFF_ENTRY = 179905
 };
 
-const uint32 Buff_Entries[3] = { BG_OBJECTID_SPEEDBUFF_ENTRY, BG_OBJECTID_REGENBUFF_ENTRY, BG_OBJECTID_BERSERKERBUFF_ENTRY };
+uint32 const Buff_Entries[3] = { BG_OBJECTID_SPEEDBUFF_ENTRY, BG_OBJECTID_REGENBUFF_ENTRY, BG_OBJECTID_BERSERKERBUFF_ENTRY };
 
 enum BattlegroundStatus
 {
@@ -157,6 +159,7 @@ struct BattlegroundPlayer
 {
     time_t  OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
     uint32  Team;                                           // Player's team
+    int32   PrimaryTree;                                    // Player's primary tree
 };
 
 struct BattlegroundObjectInfo
@@ -237,13 +240,14 @@ class Battleground
         /* Battleground */
         // Get methods:
         std::string const& GetName() const  { return m_Name; }
+        ObjectGuid GetGUID() { return m_Guid; }
         BattlegroundTypeId GetTypeID(bool GetRandom = false) const { return GetRandom ? m_RandomTypeID : m_TypeID; }
         BattlegroundBracketId GetBracketId() const { return m_BracketId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }
         BattlegroundStatus GetStatus() const { return m_Status; }
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
-        uint32 GetStartTime() const         { return m_StartTime; }
-        uint32 GetEndTime() const           { return m_EndTime; }
+        uint32 GetElapsedTime() const       { return m_StartTime; }
+        uint32 GetRemainingTime() const     { return m_EndTime; }
         uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
         uint32 GetMaxPlayers() const        { return m_MaxPlayers; }
         uint32 GetMinPlayers() const        { return m_MinPlayers; }
@@ -262,6 +266,7 @@ class Battleground
         bool IsRandom() const { return m_IsRandom; }
 
         // Set methods:
+        void SetGuid(ObjectGuid newGuid)        { m_Guid = newGuid; }
         void SetName(std::string const& name) { m_Name = name; }
         void SetTypeID(BattlegroundTypeId TypeID) { m_TypeID = TypeID; }
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
@@ -270,8 +275,8 @@ class Battleground
         void SetInstanceID(uint32 InstanceID) { m_InstanceID = InstanceID; }
         void SetStatus(BattlegroundStatus Status) { m_Status = Status; }
         void SetClientInstanceID(uint32 InstanceID) { m_ClientInstanceID = InstanceID; }
-        void SetStartTime(uint32 Time)      { m_StartTime = Time; }
-        void SetEndTime(uint32 Time)        { m_EndTime = Time; }
+        void SetElapsedTime(uint32 Time)        { m_StartTime = Time; }
+        void SetRemainingTime(uint32 Time)      { m_EndTime = Time; }
         void SetLastResurrectTime(uint32 Time) { m_LastResurrectTime = Time; }
         void SetMaxPlayers(uint32 MaxPlayers) { m_MaxPlayers = MaxPlayers; }
         void SetMinPlayers(uint32 MinPlayers) { m_MinPlayers = MinPlayers; }
@@ -517,6 +522,7 @@ class Battleground
         BattlegroundStatus m_Status;
         uint32 m_ClientInstanceID;                          // the instance-id which is sent to the client and without any other internal use
         uint32 m_StartTime;
+        uint32 m_CountdownTimer;
         uint32 m_ResetStatTimer;
         uint32 m_ValidStartPositionTimer;
         int32 m_EndTime;                                    // it is set to 120000 when bg is ending and it decreases itself
@@ -532,6 +538,7 @@ class Battleground
         bool   m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         std::string m_Name;
+        ObjectGuid m_Guid;
 
         /* Pre- and post-update hooks */
 

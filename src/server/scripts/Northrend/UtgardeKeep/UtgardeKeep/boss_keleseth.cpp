@@ -356,7 +356,6 @@ class spell_frost_tomb : public SpellScriptLoader
         }
 };
 
-
 class achievement_on_the_rocks : public AchievementCriteriaScript
 {
     public:

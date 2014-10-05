@@ -1170,6 +1170,8 @@ class npc_scarlet_miner : public CreatureScript
                         if (Unit* car = ObjectAccessor::GetCreature(*me, carGUID))
                         {
                             me->SetFacingToObject(car);
+                            car->Relocate(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ() + 1);
+                            car->StopMoving();
                             car->RemoveAura(SPELL_CART_DRAG);
                         }
                         Talk(SAY_SCARLET_MINER_1);

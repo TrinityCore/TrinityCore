@@ -186,7 +186,6 @@ public:
                     _Reset();
 
                 me->SetVisible(true);
-                me->SetPhaseMask(1, true);
                 me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
                 me->setFaction(35);
                 me->SetStandState(UNIT_STAND_STATE_SIT_HIGH_CHAIR);
@@ -270,7 +269,7 @@ public:
                         case EVENT_SUCCESS_1:
                             if (Unit* player = me->SelectNearestPlayer(60.0f))
                             {
-                                me->SetInFront(player);
+                                me->SetFacingToObject(player);
                                 Talk(SAY_SUCCESS);
                                 if (GameObject* portcullis1 = me->FindNearestGameObject(GO_PORTCULLIS_ACTIVE, 65.0f))
                                     portcullis1->SetGoState(GO_STATE_ACTIVE);

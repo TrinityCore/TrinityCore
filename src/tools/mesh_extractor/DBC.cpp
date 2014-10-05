@@ -52,6 +52,7 @@ DBC::DBC( FILE* stream ) : StringBlock(NULL), StringBlockSize(0), IsFaulty(true)
             size += 4;
         }
     }
+
     StringBlock = new uint8[StringBlockSize];
     count = fread(StringBlock, sizeof(uint8), StringBlockSize, stream);
     if (count != StringBlockSize)

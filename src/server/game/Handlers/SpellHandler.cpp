@@ -21,6 +21,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "ObjectMgr.h"
+#include "GuildMgr.h"
 #include "SpellMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -51,9 +52,27 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
         uint8 hasMovementData;
         recvPacket >> hasMovementData;
         if (hasMovementData)
-        {
-            recvPacket.SetOpcode(recvPacket.read<uint32>());
             HandleMovementOpcodes(recvPacket);
+    }
+    else if (castFlags & 0x8)   // Archaeology
+    {
+        uint32 count, entry, usedCount;
+        uint8 type;
+        recvPacket >> count;
+        for (uint32 i = 0; i < count; ++i)
+        {
+            recvPacket >> type;
+            switch (type)
+            {
+                case 2: // Keystones
+                    recvPacket >> entry;        // Item id
+                    recvPacket >> usedCount;    // Item count
+                    break;
+                case 1: // Fragments
+                    recvPacket >> entry;        // Currency id
+                    recvPacket >> usedCount;    // Currency count
+                    break;
+            }
         }
     }
 }
@@ -201,7 +220,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     // Verify that the bag is an actual bag or wrapped item that can be used "normally"
     if (!(proto->Flags & ITEM_PROTO_FLAG_OPENABLE) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
     {
-        pUser->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, NULL);
+        pUser->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
         TC_LOG_ERROR("network", "Possible hacking attempt: Player %s [guid: %u] tried to open item [guid: %u, entry: %u] which is not openable!",
                 pUser->GetName().c_str(), pUser->GetGUIDLow(), item->GetGUIDLow(), proto->ItemId);
         return;
@@ -311,9 +330,13 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 
 void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 {
-    uint32 spellId;
+    uint32 spellId, glyphIndex;
     uint8  castCount, castFlags;
-    recvPacket >> castCount >> spellId >> castFlags;
+
+    recvPacket >> castCount;
+    recvPacket >> spellId;
+    recvPacket >> glyphIndex;
+    recvPacket >> castFlags;
 
     TC_LOG_DEBUG("network", "WORLD: got cast spell packet, castCount: %u, spellId: %u, castFlags: %u, data length = %u", castCount, spellId, castFlags, (uint32)recvPacket.size());
 
@@ -360,6 +383,27 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    Unit::AuraEffectList swaps = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+    Unit::AuraEffectList const& swaps2 = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2);
+    if (!swaps2.empty())
+        swaps.insert(swaps.end(), swaps2.begin(), swaps2.end());
+
+    if (!swaps.empty())
+    {
+        for (Unit::AuraEffectList::const_iterator itr = swaps.begin(); itr != swaps.end(); ++itr)
+        {
+            if ((*itr)->IsAffectingSpell(spellInfo))
+            {
+                if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo((*itr)->GetAmount()))
+                {
+                    spellInfo = newInfo;
+                    spellId = newInfo->Id;
+                }
+                break;
+            }
+        }
+    }
+
     // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
     // Skip it to prevent "interrupt" message
     if (spellInfo->IsAutoRepeatRangedSpell() && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)
@@ -393,6 +437,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
     spell->m_cast_count = castCount;                       // set count of casts
+    spell->m_glyphIndex = glyphIndex;
     spell->prepare(&targets);
 }
 
@@ -526,8 +571,9 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
         return;
 
     uint8 slotId;
-
+    uint64 guid;
     recvPacket >> slotId;
+    recvPacket >> guid;
 
     ++slotId;
     if (slotId >= MAX_TOTEM_SLOT)
@@ -537,12 +583,11 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
         return;
 
     Creature* totem = GetPlayer()->GetMap()->GetCreature(_player->m_SummonSlot[slotId]);
-
-    if (totem && totem->IsTotem())
+    if (totem && totem->IsTotem() && totem->GetGUID() == guid)
         totem->ToTotem()->UnSummon();
 }
 
-void WorldSession::HandleSelfResOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_SELF_RES");                  // empty opcode
 
@@ -582,6 +627,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
     ObjectGuid guid;
     recvData >> guid;
+    recvData.read_skip<uint32>(); // DisplayId ?
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
@@ -606,12 +652,17 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (creator->GetTypeId() == TYPEID_PLAYER)
     {
         Player* player = creator->ToPlayer();
+        Guild* guild = NULL;
+
+        if (uint32 guildId = player->GetGuildId())
+            guild = sGuildMgr->GetGuildById(guildId);
+
         data << uint8(player->GetByteValue(PLAYER_BYTES, 0));   // skin
         data << uint8(player->GetByteValue(PLAYER_BYTES, 1));   // face
         data << uint8(player->GetByteValue(PLAYER_BYTES, 2));   // hair
         data << uint8(player->GetByteValue(PLAYER_BYTES, 3));   // haircolor
         data << uint8(player->GetByteValue(PLAYER_BYTES_2, 0)); // facialhair
-        data << uint32(player->GetGuildId());                   // unk
+        data << uint64(guild ? guild->GetGUID() : 0);
 
         static EquipmentSlots const itemSlots[] =
         {
@@ -699,4 +750,29 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
     data << float(y);
     data << float(z);
     caster->SendMessageToSet(&data, true);
+}
+
+void WorldSession::HandleRequestCategoryCooldowns(WorldPacket& /*recvPacket*/)
+{
+    std::map<uint32, int32> categoryMods;
+    Unit::AuraEffectList const& categoryCooldownAuras = _player->GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
+    for (Unit::AuraEffectList::const_iterator itr = categoryCooldownAuras.begin(); itr != categoryCooldownAuras.end(); ++itr)
+    {
+        std::map<uint32, int32>::iterator cItr = categoryMods.find((*itr)->GetMiscValue());
+        if (cItr == categoryMods.end())
+            categoryMods[(*itr)->GetMiscValue()] = (*itr)->GetAmount();
+        else
+            cItr->second += (*itr)->GetAmount();
+    }
+
+    WorldPacket data(SMSG_SPELL_CATEGORY_COOLDOWN, 11);
+    data.WriteBits(categoryMods.size(), 23);
+    data.FlushBits();
+    for (std::map<uint32, int32>::const_iterator itr = categoryMods.begin(); itr != categoryMods.end(); ++itr)
+    {
+        data << uint32(itr->first);
+        data << int32(-itr->second);
+    }
+
+    SendPacket(&data);
 }
