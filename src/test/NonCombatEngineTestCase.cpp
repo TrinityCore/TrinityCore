@@ -272,7 +272,14 @@ protected:
         set<uint8>("mana", "self target", 100);
         tickWithNoTarget();
 
-        assertActions(">S:stay>S:check mount state>S:check mount state>Grind:attack anything");
+        set<uint8>("health", "self target", 1);
+        set<bool>("combat", "self target", true);
+        tickWithNoTarget();
+
+        set<bool>("combat", "self target", false);
+        tickWithNoTarget();
+
+        assertActions(">S:stay>S:check mount state>S:check mount state>Grind:attack anything>Grind:attack anything>S:check mount state");
     }
 
     void grindIfNoMana()
