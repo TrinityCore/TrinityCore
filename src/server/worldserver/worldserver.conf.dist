@@ -3289,6 +3289,8 @@ Currency.ConquestPointsArenaReward = 180
 
 #
 ###################################################################################################
+
+###################################################################################################
 # PACKET SPOOF PROTECTION SETTINGS
 #
 # These settings determine which action to take when harmful packet spoofing is detected.
