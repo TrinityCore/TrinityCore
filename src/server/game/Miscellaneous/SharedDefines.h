@@ -51,9 +51,9 @@ enum Expansions
     EXPANSION_THE_BURNING_CRUSADE      = 1,
     EXPANSION_WRATH_OF_THE_LICH_KING   = 2,
     EXPANSION_CATACLYSM                = 3,
-    EXPANSION_MISTS_OF_PANDARIA        = 5,
-    EXPANSION_WARLORDS_OF_DRAENOR      = 6,
-    MAX_EXPANSIONS                     = 7
+    EXPANSION_MISTS_OF_PANDARIA        = 4,
+    EXPANSION_WARLORDS_OF_DRAENOR      = 5,
+    MAX_EXPANSIONS                     = 6
 };
 
 enum Gender
@@ -1770,7 +1770,7 @@ enum GameobjectTypes // (6.0)
     GAMEOBJECT_TYPE_FLAGDROP               = 26,
     GAMEOBJECT_TYPE_MINI_GAME              = 27,
     GAMEOBJECT_TYPE_DO_NOT_USE_2           = 28,
-    GAMEOBJECT_TYPE_CAPTURE_POINT          = 29,
+    GAMEOBJECT_TYPE_CONTROL_ZONE           = 29,
     GAMEOBJECT_TYPE_AURA_GENERATOR         = 30,
     GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY     = 31,
     GAMEOBJECT_TYPE_BARBER_CHAIR           = 32,
