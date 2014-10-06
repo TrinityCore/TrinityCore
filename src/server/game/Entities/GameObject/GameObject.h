@@ -226,7 +226,7 @@ struct GameObjectTemplate
             uint32 openTextID;                              //3 can be used to replace castBarCaption?
         } camera;
         //14 GAMEOBJECT_TYPE_MAPOBJECT - empty
-        //15 GAMEOBJECT_TYPE_MO_TRANSPORT
+        //15 GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT
         struct
         {
             uint32 taxiPathId;                              //0
@@ -241,7 +241,7 @@ struct GameObjectTemplate
         } moTransport;
         //16 GAMEOBJECT_TYPE_DUELFLAG - empty
         //17 GAMEOBJECT_TYPE_FISHINGNODE - empty
-        //18 GAMEOBJECT_TYPE_SUMMONING_RITUAL
+        //18 GAMEOBJECT_TYPE_RITUAL
         struct
         {
             uint32 reqParticipants;                         //0
@@ -840,13 +840,13 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         GameObjectModel* m_model;
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL) const;
 
-        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MO_TRANSPORT) return reinterpret_cast<Transport*>(this); else return NULL; }
-        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MO_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return NULL; }
+        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return NULL; }
+        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return NULL; }
 
-        float GetStationaryX() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetPositionX(); return GetPositionX(); }
-        float GetStationaryY() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetPositionY(); return GetPositionY(); }
-        float GetStationaryZ() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetPositionZ(); return GetPositionZ(); }
-        float GetStationaryO() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
+        float GetStationaryX() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionX(); return GetPositionX(); }
+        float GetStationaryY() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionY(); return GetPositionY(); }
+        float GetStationaryZ() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionZ(); return GetPositionZ(); }
+        float GetStationaryO() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
 
         float GetInteractionDistance() const;
 
@@ -865,7 +865,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
         std::list<uint32> m_SkillupList;
 
-        ObjectGuid m_ritualOwnerGUID;                       // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
+        ObjectGuid m_ritualOwnerGUID;                       // used for GAMEOBJECT_TYPE_RITUAL where GO is not summoned (no owner)
         GuidSet m_unique_users;
         uint32 m_usetimes;
 
