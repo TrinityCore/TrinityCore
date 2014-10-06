@@ -151,7 +151,7 @@ uint32 const MasterySpells[MAX_CLASSES] =
     87491,  // Druid
 };
 
-uint64 const MAX_MONEY_AMOUNT = static_cast<uint64>(std::numeric_limits<int64>::max());
+uint64 const MAX_MONEY_AMOUNT = 9999999999ULL;
 
 // == PlayerTaxi ================================================
 
