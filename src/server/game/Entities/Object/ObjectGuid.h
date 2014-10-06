@@ -67,7 +67,7 @@ enum HighGuid
     HIGHGUID_CORPSE         = 0xF101,                      // blizz F100
     HIGHGUID_AREATRIGGER    = 0xF102,
     HIGHGUID_BATTLEGROUND   = 0x1F1,
-    HIGHGUID_MO_TRANSPORT   = 0x1FC,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
+    HIGHGUID_MO_TRANSPORT   = 0x1FC,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
     HIGHGUID_INSTANCE       = 0x1F4,                       // blizz 1F40
     HIGHGUID_GROUP          = 0x1F5,
     HIGHGUID_GUILD          = 0x1FF

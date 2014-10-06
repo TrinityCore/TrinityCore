@@ -954,7 +954,7 @@ bool GameObject::IsTransport() const
     if (!gInfo)
         return false;
 
-    return gInfo->type == GAMEOBJECT_TYPE_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT;
+    return gInfo->type == GAMEOBJECT_TYPE_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT;
 }
 
 // is Dynamic transport = non-stop Transport
@@ -965,7 +965,7 @@ bool GameObject::IsDynTransport() const
     if (!gInfo)
         return false;
 
-    return gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT || (gInfo->type == GAMEOBJECT_TYPE_TRANSPORT && m_goValue.Transport.StopFrames->empty());
+    return gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT || (gInfo->type == GAMEOBJECT_TYPE_TRANSPORT && m_goValue.Transport.StopFrames->empty());
 }
 
 bool GameObject::IsDestructibleBuilding() const
@@ -1497,7 +1497,7 @@ void GameObject::Use(Unit* user)
             return;
         }
 
-        case GAMEOBJECT_TYPE_SUMMONING_RITUAL:              //18
+        case GAMEOBJECT_TYPE_RITUAL:              //18
         {
             if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -2289,7 +2289,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                         pathProgress = int16(timer / float(GetTransportPeriod()) * 65535.0f);
                         break;
                     }
-                    case GAMEOBJECT_TYPE_MO_TRANSPORT:
+                    case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
                     {
                         float timer = float(m_goValue.Transport.PathProgress % GetUInt32Value(GAMEOBJECT_LEVEL));
                         pathProgress = int16(timer / float(GetUInt32Value(GAMEOBJECT_LEVEL)) * 65535.0f);
