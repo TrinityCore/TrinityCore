@@ -980,7 +980,12 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     		uint32 playersInBG  = 0;
     		uint32 playersInBG1 = 0;
     		uint32 playersInBG2 = 0;
+    		uint32 playersInBG2ab = 0;
+    		uint32 playersInBG2eots = 0;
+    		uint32 playersInBG2sota = 0;
     		uint32 playersInBG3 = 0;
+    		uint32 BG3counter = 0;
+
     		QueryResult result = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and (map=489 or map=566 or map=529 or map=607 or map=30 or map=628)");
     		if (result)
     		{
@@ -991,6 +996,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     			}
     			while (result->NextRow());
     		}
+
     		QueryResult result1 = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and map=489");
     		if (result1)
     		{
@@ -1001,6 +1007,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     			}
     			while (result1->NextRow());
     		}
+
     		QueryResult result2 = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and (map=566 or map=529 or map=607)");
     		if (result2)
     		{
@@ -1011,6 +1018,40 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     			}
     			while (result2->NextRow());
     		}
+
+    		QueryResult result2ab = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and map=529");
+    		if (result2ab)
+    		{
+    			do
+    			{
+    				Field* fields = result2ab->Fetch();
+    				playersInBG2ab = fields[0].GetUInt32();
+    			}
+    			while (result2ab->NextRow());
+    		}
+
+    		QueryResult result2eots = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and map=566");
+    		if (result2eots)
+    		{
+    			do
+    			{
+    				Field* fields = result2eots->Fetch();
+    				playersInBG2eots = fields[0].GetUInt32();
+    			}
+    			while (result2eots->NextRow());
+    		}
+
+    		QueryResult result2sota = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and map=607");
+    		if (result2sota)
+    		{
+    			do
+    			{
+    				Field* fields = result2sota->Fetch();
+    				playersInBG2sota = fields[0].GetUInt32();
+    			}
+    			while (result2sota->NextRow());
+    		}
+
     		QueryResult result3 = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and (map=30 or map=628)");
     		if (result3)
     		{
@@ -1021,9 +1062,22 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     			}
     			while (result3->NextRow());
     		}
-    		if (playersInBG>29 && playersInBG3<20)
+
+    		QueryResult result3counter = CharacterDatabase.Query("select counter from rbg_selection");
+    		if (result3counter)
     		{
-    			uint32 selectedWeight = 0;
+    			do
+    			{
+    				Field* fields = result3counter->Fetch();
+    				BG3counter = fields[0].GetUInt32();
+    			}
+    			while (result3counter->NextRow());
+    		}
+
+    		if (playersInBG2>28 && BG3counter>2)
+    		{
+    			CharacterDatabase.Execute("update rbg_selection set counter=0");
+				uint32 selectedWeight = 0;
     			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
     			weight = 0;
     			for (auto it : selectionWeights)
@@ -1035,8 +1089,10 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     				}
     			}
     		}
-    		else if (playersInBG<16 || (((playersInBG2>30 && playersInBG2<46) || (playersInBG2>60 && playersInBG2<76) || (playersInBG2>90 && playersInBG2<106) || (playersInBG2>120 && playersInBG2<136) || (playersInBG2>150 && playersInBG2<166) || (playersInBG>80 && (playersInBG2<16 || (playersInBG2>30 && playersInBG2<46) || (playersInBG2>60 && playersInBG2<76) || (playersInBG2>90 && playersInBG2<106)))) && playersInBG1<6))
+
+    		else if (playersInBG<12 || (playersInBG2>28 && playersInBG1==0))
     		{
+    			CharacterDatabase.Execute("update rbg_selection set counter=counter+1");
     			uint32 selectedWeight = 0;
     			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
     			weight = 0;
@@ -1049,6 +1105,52 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     				}
     			}
     		}
+
+    		else if (playersInBG2sota>0 && playersInBG2ab==0)
+    		{
+    			uint32 selectedWeight = 0;
+    			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
+    			weight = 0;
+    			for (auto it : selectionWeights)
+    			{
+    				weight += it.second;
+    				if (selectedWeight < weight && weight > 5 && weight < 7)
+    				{
+    					return it.first;
+    				}
+    			}
+    		}
+
+    		else if (playersInBG2ab>0 && playersInBG2eots==0)
+    		{
+    			uint32 selectedWeight = 0;
+    			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
+    			weight = 0;
+    			for (auto it : selectionWeights)
+    			{
+    				weight += it.second;
+    				if (selectedWeight < weight && weight > 7 && weight < 9)
+    				{
+    					return it.first;
+    				}
+    			}
+    		}
+
+    		else if (playersInBG2eots>0 && playersInBG2sota==0)
+    		{
+    			uint32 selectedWeight = 0;
+    			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
+    			weight = 0;
+    			for (auto it : selectionWeights)
+    			{
+    				weight += it.second;
+    				if (selectedWeight < weight && weight > 9 && weight < 11)
+    				{
+    					return it.first;
+    				}
+    			}
+    		}
+
     		else
     		{
     			uint32 selectedWeight = 0;
