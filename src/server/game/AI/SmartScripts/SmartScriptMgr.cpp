@@ -1184,15 +1184,23 @@ bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id) // unused
 
     if (e.entryOrGuid >= 0)
     {
-        switch (e.GetEventType())
+        if (e.GetEventType() == SMART_EVENT_TEXT_OVER)
         {
-            case SMART_EVENT_TEXT_OVER:
-                entry = e.event.textOver.creatureEntry;
-                id = e.event.textOver.textGroupID;
-                break;
-            default:
-                entry = uint32(e.entryOrGuid);
-                break;
+            entry = e.event.textOver.creatureEntry;
+            id = e.event.textOver.textGroupID;
+        }
+        else
+        {
+            switch (e.GetTargetType())
+            {
+                case SMART_TARGET_CREATURE_DISTANCE:
+                case SMART_TARGET_CREATURE_RANGE:
+                case SMART_TARGET_CLOSEST_CREATURE:
+                    return true; // ignore
+                default:
+                    entry = uint32(e.entryOrGuid);
+                    break;
+            }
         }
     }
     else
@@ -1213,7 +1221,7 @@ bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id) // unused
 
     if (error)
     {
-        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u using non-existent Text id %d, skipped.", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType(), id);
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u using non-existent Text id %d, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), id);
         return false;
     }
 
