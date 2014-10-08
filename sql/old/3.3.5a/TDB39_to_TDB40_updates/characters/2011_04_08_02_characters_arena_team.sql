@@ -1,3 +1,0 @@
-ALTER TABLE `arena_team`
-CHANGE `rating` `rating` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE `rank` `rank` INT(10) UNSIGNED NOT NULL DEFAULT '0';

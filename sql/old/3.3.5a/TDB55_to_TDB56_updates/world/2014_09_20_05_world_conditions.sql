@@ -1,1 +1,0 @@
-UPDATE `conditions` SET `ConditionTypeOrReference`=28 WHERE  `SourceTypeOrReferenceId`=15 AND `SourceGroup`=7967 AND `SourceEntry`=4 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=9 AND `ConditionTarget`=0 AND `ConditionValue1`=10242 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
