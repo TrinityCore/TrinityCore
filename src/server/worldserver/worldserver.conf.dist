@@ -64,7 +64,7 @@ RealmID = 1
 #        Example:     "@prefix@/share/trinitycore"
 #        Default:     "."
 
-DataDir = "."
+DataDir = "/root/servers/hannibal_335/data"
 
 #
 #    LogsDir
@@ -73,7 +73,7 @@ DataDir = "."
 #                     Logs directory must exists, or log file creation will be disabled.
 #        Default:     "" - (Log files will be stored in the current path)
 
-LogsDir = ""
+LogsDir = "/var/www/logs/hannibal_335/"
 
 #
 #    LoginDatabaseInfo
@@ -440,7 +440,7 @@ PacketLogFile = ""
 #                     16 - (FFA_PVP, Free for all pvp mode like arena PvP in all zones except rest
 #                          activated places and sanctuaries)
 
-GameType = 0
+GameType = 16
 
 #
 #    RealmZone
@@ -475,7 +475,7 @@ GameType = 0
 #                     28 - (QA Server     - any language)
 #                     29 - (CN9           - basic-Latin at create, any at login)
 
-RealmZone = 1
+RealmZone = 15
 
 #
 #    StrictPlayerNames
@@ -489,7 +489,7 @@ RealmZone = 1
 #                         placed in clientdir/Fonts.
 #                     3 - (Enabled, Basic Latin characters + server timezone specific)
 
-StrictPlayerNames = 0
+StrictPlayerNames = 1
 
 #
 #    StrictCharterNames
@@ -503,7 +503,7 @@ StrictPlayerNames = 0
 #                         placed in clientdir/Fonts.
 #                     3 - (Enabled, Basic Latin characters + server timezone specific)
 
-StrictCharterNames = 0
+StrictCharterNames = 1
 
 #
 #    StrictPetNames
@@ -517,7 +517,7 @@ StrictCharterNames = 0
 #                         placed in clientdir/Fonts.
 #                     3 - (Enabled, Basic Latin characters + server timezone specific)
 
-StrictPetNames = 0
+StrictPetNames = 1
 
 #
 #    DBC.Locale
@@ -559,7 +559,7 @@ Expansion = 2
 #        Range:       1-12
 #        Default:     2
 
-MinPlayerName = 2
+MinPlayerName = 4
 
 #
 #    MinCharterName
@@ -567,7 +567,7 @@ MinPlayerName = 2
 #        Range:       1-24
 #        Default:     2
 
-MinCharterName = 2
+MinCharterName = 4
 
 #
 #    MinPetName
@@ -575,7 +575,7 @@ MinCharterName = 2
 #        Range:       1-12
 #        Default:     2
 
-MinPetName = 2
+MinPetName = 4
 
 #
 #    MaxWhoListReturns
@@ -696,7 +696,7 @@ MinDualSpecLevel = 40
 #        Range:       1-MaxPlayerLevel
 #        Default:     1
 
-StartPlayerLevel = 1
+StartPlayerLevel = 80
 
 #
 #    StartHeroicPlayerLevel
@@ -704,7 +704,7 @@ StartPlayerLevel = 1
 #        Range:       1-MaxPlayerLevel
 #        Default:     55
 
-StartHeroicPlayerLevel = 55
+StartHeroicPlayerLevel = 80
 
 #
 #    StartPlayerMoney
@@ -775,7 +775,7 @@ DisableWaterBreath = 4
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllFlightPaths = 0
+AllFlightPaths = 1
 
 #
 #    InstantFlightPaths
@@ -784,7 +784,7 @@ AllFlightPaths = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-InstantFlightPaths = 0
+InstantFlightPaths = 1
 
 #
 #    AlwaysMaxSkillForLevel
@@ -1003,7 +1003,7 @@ ClientCacheVersion = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Event.Announce = 0
+Event.Announce = 1
 
 #
 #    BeepAtStart
@@ -1011,7 +1011,7 @@ Event.Announce = 0
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-BeepAtStart = 1
+BeepAtStart = 0
 
 #
 #    Motd
@@ -1020,7 +1020,7 @@ BeepAtStart = 1
 #        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
-Motd = "Welcome to a Trinity Core server."
+Motd = "Welcome to Hannibal, Carthagods Realm RP/PVP@Tape .commands to see avalibal commands."
 
 #
 #    Server.LoginInfo
@@ -1101,7 +1101,7 @@ BirthdayTime = 1222964635
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Warden.Enabled = 0
+Warden.Enabled = 1
 
 #
 #    Warden.NumMemChecks
@@ -1146,7 +1146,7 @@ Warden.ClientCheckHoldOff = 30
 #                     1 - (Kick)
 #                     2 - (Ban)
 
-Warden.ClientCheckFailAction = 0
+Warden.ClientCheckFailAction = 1
 
 #
 #    Warden.BanDuration
@@ -1168,7 +1168,7 @@ Warden.BanDuration = 86400
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Calendar = 0
+AllowTwoSide.Interaction.Calendar = 1
 
 #
 #    AllowTwoSide.Interaction.Channel
@@ -1176,7 +1176,7 @@ AllowTwoSide.Interaction.Calendar = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Channel = 0
+AllowTwoSide.Interaction.Channel = 1
 
 #
 #    AllowTwoSide.Interaction.Group
@@ -1184,7 +1184,7 @@ AllowTwoSide.Interaction.Channel = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Group = 0
+AllowTwoSide.Interaction.Group = 1
 
 #
 #    AllowTwoSide.Interaction.Guild
@@ -1192,7 +1192,7 @@ AllowTwoSide.Interaction.Group = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Guild = 0
+AllowTwoSide.Interaction.Guild = 1
 
 #
 #    AllowTwoSide.Interaction.Auction
@@ -1200,7 +1200,7 @@ AllowTwoSide.Interaction.Guild = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Auction = 0
+AllowTwoSide.Interaction.Auction = 1
 
 #
 #    AllowTwoSide.Trade
@@ -1208,7 +1208,7 @@ AllowTwoSide.Interaction.Auction = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Trade = 0
+AllowTwoSide.Trade = 1
 
 #
 #    TalentsInspecting
@@ -1518,7 +1518,7 @@ PreserveCustomChannelDuration = 14
 #                     0 - (Disable)
 #                     1 - (Enable)
 
-GM.LoginState = 2
+GM.LoginState = 1
 
 #
 #    GM.Visible
@@ -1527,7 +1527,7 @@ GM.LoginState = 2
 #                     0 - (Invisible)
 #                     1 - (Visible)
 
-GM.Visible = 2
+GM.Visible = 0
 
 #
 #    GM.Chat
@@ -1536,7 +1536,7 @@ GM.Visible = 2
 #                     0 - (Disable)
 #                     1 - (Enable)
 
-GM.Chat = 2
+GM.Chat = 1
 
 #
 #    GM.WhisperingTo
@@ -1545,7 +1545,7 @@ GM.Chat = 2
 #                     0 - (Disable)
 #                     1 - (Enable)
 
-GM.WhisperingTo = 2
+GM.WhisperingTo = 0
 
 #
 # GM.FreezeAuraDuration
@@ -2020,7 +2020,7 @@ Stats.Limits.Crit  = 95.0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AutoBroadcast.On = 0
+AutoBroadcast.On = 1
 
 #
 #    AutoBroadcast.Center
@@ -2036,7 +2036,7 @@ AutoBroadcast.Center = 0
 #        Description: Timer (in milliseconds) for auto broadcasts.
 #        Default:     60000 - (10 minutes)
 
-AutoBroadcast.Timer = 600000
+AutoBroadcast.Timer = 3600000
 
 #
 ###################################################################################################
@@ -2057,7 +2057,7 @@ Battleground.CastDeserter = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Battleground.QueueAnnouncer.Enable = 0
+Battleground.QueueAnnouncer.Enable = 1
 
 #
 #    Battleground.QueueAnnouncer.PlayerOnly
@@ -2153,7 +2153,7 @@ Battleground.RewardLoserHonorLast   = 5
 #         Default:     0 - (Disabled)
 #                      1 - (Enabled, Experimental as of still being in development)
 
-Wintergrasp.Enable = 0
+Wintergrasp.Enable = 1
 
 #
 #     Wintergrasp.PlayerMax
@@ -2351,7 +2351,7 @@ Console.Enable = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Ra.Enable = 0
+Ra.Enable = 1
 
 #
 #    Ra.IP
@@ -2380,7 +2380,7 @@ Ra.MinLevel = 3
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-SOAP.Enabled = 0
+SOAP.Enabled = 1
 
 #
 #    SOAP.IP
@@ -2460,7 +2460,7 @@ AllowTrackBothResources = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-PlayerStart.AllReputation = 0
+PlayerStart.AllReputation = 1
 
 #
 #    PlayerStart.AllSpells
@@ -2479,7 +2479,7 @@ PlayerStart.AllSpells = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-PlayerStart.MapsExplored = 0
+PlayerStart.MapsExplored = 1
 
 #
 #    HonorPointsAfterDuel
@@ -2556,7 +2556,7 @@ Guild.AllowMultipleGuildMaster = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ShowKickInWorld = 0
+ShowKickInWorld = 1
 
 #     ShowMuteInWorld
 #        Description: Determines whether a message is broadcasted to the entire server when a
@@ -2564,7 +2564,7 @@ ShowKickInWorld = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ShowMuteInWorld = 0
+ShowMuteInWorld = 1
 
 #
 #     ShowBanInWorld
@@ -2573,7 +2573,7 @@ ShowMuteInWorld = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ShowBanInWorld = 0
+ShowBanInWorld = 1
 
 #
 #     RecordUpdateTimeDiffInterval
@@ -3285,11 +3285,11 @@ Transmogrification.TokenAmount = 1
 #
 #    Transmogrification.AllowPoor
 #        Description: Allow poor quality items to be used as source and target items
-#        Default:    0
+#        Default:    1
 #
 #    Transmogrification.AllowCommon
 #        Description: Allow common quality items to be used as source and target items
-#        Default:    0
+#        Default:    1
 #
 #    Transmogrification.AllowUncommon
 #        Description: Allow uncommon quality items to be used as source and target items
@@ -3305,7 +3305,7 @@ Transmogrification.TokenAmount = 1
 #
 #    Transmogrification.AllowLegendary
 #        Description: Allow legendary quality items to be used as source and target items
-#        Default:    0
+#        Default:    1
 #
 #    Transmogrification.AllowArtifact
 #        Description: Allow artifact quality items to be used as source and target items
@@ -3355,26 +3355,26 @@ Transmogrification.TokenAmount = 1
 #        Description: Ignore stat count > 0 requirement for source items
 #        Default:    0
 
-Transmogrification.AllowPoor = 0
-Transmogrification.AllowCommon = 0
+Transmogrification.AllowPoor = 1
+Transmogrification.AllowCommon = 1
 Transmogrification.AllowUncommon = 1
 Transmogrification.AllowRare = 1
 Transmogrification.AllowEpic = 1
-Transmogrification.AllowLegendary = 0
-Transmogrification.AllowArtifact = 0
+Transmogrification.AllowLegendary = 1
+Transmogrification.AllowArtifact = 1
 Transmogrification.AllowHeirloom = 1
 
-Transmogrification.AllowMixedArmorTypes = 0
-Transmogrification.AllowMixedWeaponTypes = 0
-Transmogrification.AllowFishingPoles = 0
+Transmogrification.AllowMixedArmorTypes = 1
+Transmogrification.AllowMixedWeaponTypes = 1
+Transmogrification.AllowFishingPoles = 1
 
-Transmogrification.IgnoreReqRace = 0
-Transmogrification.IgnoreReqClass = 0
-Transmogrification.IgnoreReqSkill = 0
-Transmogrification.IgnoreReqSpell = 0
-Transmogrification.IgnoreReqLevel = 0
-Transmogrification.IgnoreReqEvent = 0
-Transmogrification.IgnoreReqStats = 0
+Transmogrification.IgnoreReqRace = 1
+Transmogrification.IgnoreReqClass = 1
+Transmogrification.IgnoreReqSkill = 1
+Transmogrification.IgnoreReqSpell = 1
+Transmogrification.IgnoreReqLevel = 1
+Transmogrification.IgnoreReqEvent = 1
+Transmogrification.IgnoreReqStats = 1
 
 #
 #    SET FEATURE
