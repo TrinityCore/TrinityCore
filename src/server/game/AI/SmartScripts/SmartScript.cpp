@@ -2458,7 +2458,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 if (!IsCreature(*itr))
                     continue;
 
-                if (me && me == *itr)
+                if (me && me->GetGUID() == (*itr)->GetGUID())
                     continue;
 
                 if (((e.target.unitRange.creature && (*itr)->ToCreature()->GetEntry() == e.target.unitRange.creature) || !e.target.unitRange.creature) && baseObject->IsInRange(*itr, (float)e.target.unitRange.minDist, (float)e.target.unitRange.maxDist))
@@ -2477,7 +2477,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 if (!IsCreature(*itr))
                     continue;
 
-                if (me && me == *itr)
+                if (me && me->GetGUID() == (*itr)->GetGUID())
                     continue;
 
                 if ((e.target.unitDistance.creature && (*itr)->ToCreature()->GetEntry() == e.target.unitDistance.creature) || !e.target.unitDistance.creature)
@@ -2496,7 +2496,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 if (!IsGameObject(*itr))
                     continue;
 
-                if (go && go == *itr)
+                if (go && go->GetGUID() == (*itr)->GetGUID())
                     continue;
 
                 if ((e.target.goDistance.entry && (*itr)->ToGameObject()->GetEntry() == e.target.goDistance.entry) || !e.target.goDistance.entry)
@@ -2515,7 +2515,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 if (!IsGameObject(*itr))
                     continue;
 
-                if (go && go == *itr)
+                if (go && go->GetGUID() == (*itr)->GetGUID())
                     continue;
 
                 if (((e.target.goRange.entry && IsGameObject(*itr) && (*itr)->ToGameObject()->GetEntry() == e.target.goRange.entry) || !e.target.goRange.entry) && baseObject->IsInRange((*itr), (float)e.target.goRange.minDist, (float)e.target.goRange.maxDist))
