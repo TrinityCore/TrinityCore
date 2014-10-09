@@ -19,13 +19,20 @@ bool CastCustomSpellAction::Execute(Event event)
 
     uint32 spell = chat->parseSpell(text);
 
+    ostringstream msg;
+    if (!ai->CanCastSpell(spell, target))
+    {
+        msg << "Cannot cast " << text << " on " << target->GetName();
+        ai->TellMaster(msg.str());
+        return false;
+    }
+
     bool result = false;
     if (spell)
         result = ai->CastSpell(spell, target);
     else
         ai->CastSpell(text, target);
 
-    ostringstream msg;
     if (result)
     {
         msg << "Casting " << text << " on " << target->GetName();
