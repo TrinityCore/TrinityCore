@@ -1,6 +1,5 @@
 # ![logo](http://carthagods.com/application/themes/crusader_theme/images/logo.png) CarthaCore
 
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435)  
 `hannibal_335`: [![hannibal_335 Build Status](https://travis-ci.org/saklyayoub/CarthaCore.svg?branch=hannibal_335)](https://travis-ci.org/saklyayoub/CarthaCore)
 
 ## Introduction
