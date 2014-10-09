@@ -55,8 +55,8 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     //DuelCountdown
     player->RemoveAllSpellCooldown();
     plTarget->RemoveAllSpellCooldown(); 
-    player->SetHealth(pl->GetMaxHealth());
-    player->SetPower(POWER_MANA, pl->GetMaxPower(POWER_MANA));
+    player->SetHealth(player->GetMaxHealth());
+    player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
     plTarget->SetHealth(plTarget->GetMaxHealth());
     plTarget->SetPower(POWER_MANA,  plTarget->GetMaxPower(POWER_MANA));
 }
