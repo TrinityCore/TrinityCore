@@ -1,7 +1,5 @@
 # ![logo](http://carthagods.com/application/themes/crusader_theme/images/logo.png) CarthaCore
 
-`hannibal_335`: [![hannibal_335 Build Status](https://travis-ci.org/saklyayoub/CarthaCore.svg?branch=hannibal_335)](https://travis-ci.org/saklyayoub/CarthaCore)
-
 ## Introduction
 
 CarthaCore is a *MMORPG* Framework based mostly in C++.
