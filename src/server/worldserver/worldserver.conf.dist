@@ -559,7 +559,7 @@ Expansion = 2
 #        Range:       1-12
 #        Default:     2
 
-MinPlayerName = 2
+MinPlayerName = 4
 
 #
 #    MinCharterName
@@ -567,7 +567,7 @@ MinPlayerName = 2
 #        Range:       1-24
 #        Default:     2
 
-MinCharterName = 2
+MinCharterName = 4
 
 #
 #    MinPetName
@@ -575,7 +575,7 @@ MinCharterName = 2
 #        Range:       1-12
 #        Default:     2
 
-MinPetName = 2
+MinPetName = 4
 
 #
 #    MaxWhoListReturns
@@ -1020,7 +1020,7 @@ BeepAtStart = 0
 #        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
-Motd = "Welcome to Hannibal, Carthagods Realm RP/PVP. Enter ".commands" to see available commands."
+Motd = "Bienvenue@Hannibal est un royaume RP/PVP proposer par Carthagods@On vous invite a rejoindre le canal world@/join wolrd"
 
 #
 #    Server.LoginInfo
