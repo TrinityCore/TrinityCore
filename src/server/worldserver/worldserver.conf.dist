@@ -559,7 +559,7 @@ Expansion = 2
 #        Range:       1-12
 #        Default:     2
 
-MinPlayerName = 4
+MinPlayerName = 2
 
 #
 #    MinCharterName
@@ -567,7 +567,7 @@ MinPlayerName = 4
 #        Range:       1-24
 #        Default:     2
 
-MinCharterName = 4
+MinCharterName = 2
 
 #
 #    MinPetName
@@ -575,7 +575,7 @@ MinCharterName = 4
 #        Range:       1-12
 #        Default:     2
 
-MinPetName = 4
+MinPetName = 2
 
 #
 #    MaxWhoListReturns
@@ -672,7 +672,7 @@ CharacterCreating.MinLevelForHeroicCharacter = 55
 #                     1 - (Show intro only for first character of selected race)
 #                     2 - (Disable intro for all classes)
 
-SkipCinematics = 0
+SkipCinematics = 2
 
 #
 #    MaxPlayerLevel
@@ -793,7 +793,7 @@ InstantFlightPaths = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AlwaysMaxSkillForLevel = 0
+AlwaysMaxSkillForLevel = 1
 
 #
 #    ActivateWeather
@@ -1020,7 +1020,7 @@ BeepAtStart = 0
 #        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
-Motd = "Welcome to Hannibal, Carthagods Realm RP/PVP@Tape .commands to see avalibal commands."
+Motd = "Welcome to Hannibal, Carthagods Realm RP/PVP. Enter ".commands" to see available commands."
 
 #
 #    Server.LoginInfo
@@ -1069,7 +1069,7 @@ DBC.EnforceItemAttributes = 1
 #        Description: Controls the max amount of different instances player can enter within hour.
 #        Default:     5
 
-AccountInstancesPerHour = 5
+AccountInstancesPerHour = 10
 
 #
 #   Account.PasswordChangeSecurity
@@ -1803,7 +1803,7 @@ Rate.Auction.Cut     = 1
 #        Description: Honor gain rate.
 #        Default:     1
 
-Rate.Honor = 1
+Rate.Honor = 2
 
 #
 #    Rate.Talent
@@ -1855,7 +1855,7 @@ Rate.MoveSpeed = 1
 #                     characters db in order to let new values work.
 #        Default:     1
 
-Rate.InstanceResetTime = 1
+Rate.InstanceResetTime = 0.1
 
 #
 #    SkillGain.Crafting
@@ -2188,7 +2188,7 @@ Wintergrasp.BattleTimer = 30
 #         Description: Time (in minutes) between Wintergrasp battles.
 #         Default:     150
 
-Wintergrasp.NoBattleTimer = 150
+Wintergrasp.NoBattleTimer = 60
 
 #
 #     Wintergrasp.CrashRestartTimer
@@ -2209,7 +2209,7 @@ Wintergrasp.CrashRestartTimer = 10
 #        Default:     150 - (Enabled)
 #                     0   - (Disabled)
 
-Arena.MaxRatingDifference = 150
+Arena.MaxRatingDifference = 375
 
 #
 #    Arena.RatingDiscardTimer
@@ -2233,7 +2233,7 @@ Arena.RatedUpdateTimer = 5000
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Arena.AutoDistributePoints = 0
+Arena.AutoDistributePoints = 1
 
 #
 #    Arena.AutoDistributeInterval
@@ -2249,7 +2249,7 @@ Arena.AutoDistributeInterval = 7
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Arena.QueueAnnouncer.Enable = 0
+Arena.QueueAnnouncer.Enable = 1
 
 #
 #    Arena.ArenaSeason.ID
@@ -2271,14 +2271,14 @@ Arena.ArenaSeason.InProgress = 1
 #        Description: Start rating for new arena teams.
 #        Default:     0
 
-Arena.ArenaStartRating = 0
+Arena.ArenaStartRating = 1000
 
 #
 #    Arena.ArenaStartPersonalRating
 #        Description: Start personal rating when joining a team.
 #        Default:     0
 
-Arena.ArenaStartPersonalRating = 0
+Arena.ArenaStartPersonalRating = 600
 
 #
 #    Arena.ArenaStartMatchmakerRating
@@ -2487,7 +2487,7 @@ PlayerStart.MapsExplored = 1
 #        Default:     0  - (Disabled)
 #                     1+ - (Enabled)
 
-HonorPointsAfterDuel = 0
+HonorPointsAfterDuel = 10
 
 #
 #    AlwaysMaxWeaponSkill
@@ -2496,7 +2496,7 @@ HonorPointsAfterDuel = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AlwaysMaxWeaponSkill = 0
+AlwaysMaxWeaponSkill = 1
 
 #
 #    PvPToken.Enable
