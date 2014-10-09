@@ -83,7 +83,7 @@ const char* Transmogrification::GetSlotName(uint8 slot, WorldSession* /*session*
 
     switch (slot)
     {
-        case EQUIPMENT_SLOT_HEAD: return  "Tête";// session->GetTrinityString(LANG_SLOT_NAME_HEAD);
+        case EQUIPMENT_SLOT_HEAD: return  "Tete";// session->GetTrinityString(LANG_SLOT_NAME_HEAD);
         case EQUIPMENT_SLOT_SHOULDERS: return  "Epaule";// session->GetTrinityString(LANG_SLOT_NAME_SHOULDERS);
         case EQUIPMENT_SLOT_BODY: return  "Chemise";// session->GetTrinityString(LANG_SLOT_NAME_BODY);
         case EQUIPMENT_SLOT_CHEST: return  "Torse";// session->GetTrinityString(LANG_SLOT_NAME_CHEST);
