@@ -90,9 +90,9 @@ LogsDir = "/var/www/logs/hannibal_335/"
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
 
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
-CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+LoginDatabaseInfo     = "127.0.0.1;3306;root;trinity;auth"
+WorldDatabaseInfo     = "127.0.0.1;3306;root;trinity;world_335"
+CharacterDatabaseInfo = "127.0.0.1;3306;root;trinity;characters_335"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -712,7 +712,7 @@ StartHeroicPlayerLevel = 80
 #        Default:     0
 #                     100 - (1 Silver)
 
-StartPlayerMoney = 0
+StartPlayerMoney = 5000000
 
 #
 #    MaxHonorPoints
