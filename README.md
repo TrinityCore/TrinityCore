@@ -38,5 +38,5 @@ Read file [COPYING](COPYING)
 
 ## Authors &amp; Contributors
 
-Read file [THANKS](THANKS)
-
+Schitan
+Sakly Ayoub www.carthagods.com administrator
