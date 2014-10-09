@@ -1,8 +1,7 @@
 # ![logo](http://carthagods.com/application/themes/crusader_theme/images/logo.png) CarthaCore
 
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435)  
-`3.3.5`: [![3.3.5 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=master)](https://travis-ci.org/TrinityCore/TrinityCore)
-`4.3.4`: [![4.3.4 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=4.3.4)](https://travis-ci.org/TrinityCore/TrinityCore)
+`hannibal_335`: [![hannibal_335 Build Status](https://travis-ci.org/saklyayoub/CarthaCore.svg?branch=hannibal_335)](https://travis-ci.org/saklyayoub/CarthaCore)
 
 ## Introduction
 
