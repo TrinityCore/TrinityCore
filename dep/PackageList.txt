@@ -36,6 +36,6 @@ recastnavigation (Recast is state of the art navigation mesh construction toolse
   https://github.com/memononen/recastnavigation
   Version: 42b96b7306d39bb7680ddb0f89d480a8296c83ff
 
-StormLib (a pack of modules, written in C++, which are able to read and also to write files from/to the MPQ archives)
-  http://www.zezula.net/en/mpq/stormlib.html
-  Version: 8.04
+CascLib (An open-source implementation of library for reading CASC storage from Blizzard games since 2014)
+  https://github.com/ladislav-zezula/CascLib
+  Version: d3d17de30a1c5678375049f4cf3301a0a7962780
