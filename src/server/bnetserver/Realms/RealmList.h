@@ -28,15 +28,15 @@ using namespace boost::asio;
 
 enum RealmFlags
 {
-    REALM_FLAG_NONE = 0x00,
-    REALM_FLAG_INVALID = 0x01,
-    REALM_FLAG_OFFLINE = 0x02,
+    REALM_FLAG_NONE         = 0x00,
+    REALM_FLAG_INVALID      = 0x01,
+    REALM_FLAG_OFFLINE      = 0x02,
     REALM_FLAG_SPECIFYBUILD = 0x04,
-    REALM_FLAG_UNK1 = 0x08,
-    REALM_FLAG_UNK2 = 0x10,
-    REALM_FLAG_RECOMMENDED = 0x20,
-    REALM_FLAG_NEW = 0x40,
-    REALM_FLAG_FULL = 0x80
+    REALM_FLAG_UNK1         = 0x08,
+    REALM_FLAG_UNK2         = 0x10,
+    REALM_FLAG_RECOMMENDED  = 0x20,
+    REALM_FLAG_NEW          = 0x40,
+    REALM_FLAG_FULL         = 0x80
 };
 
 // Storage object for a realm
@@ -59,6 +59,17 @@ struct Realm
 
     ip::tcp::endpoint GetAddressForClient(ip::address const& clientAddr) const;
 };
+
+namespace Battlenet
+{
+    struct RealmId
+    {
+        uint8 Region;
+        uint8 Battlegroup;
+        uint32 Index;
+        uint32 Build;
+    };
+}
 
 /// Storage object for the list of realms on the server
 class RealmList
@@ -83,6 +94,7 @@ public:
     RealmMap::const_iterator begin() const { return m_realms.begin(); }
     RealmMap::const_iterator end() const { return m_realms.end(); }
     uint32 size() const { return m_realms.size(); }
+    Realm const* GetRealm(Battlenet::RealmId const& id) const;
 
 private:
     RealmList();
