@@ -712,7 +712,7 @@ StartHeroicPlayerLevel = 80
 #        Default:     0
 #                     100 - (1 Silver)
 
-StartPlayerMoney = 5000000
+StartPlayerMoney = 50000000
 
 #
 #    MaxHonorPoints
