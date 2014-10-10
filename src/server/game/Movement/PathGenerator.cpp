@@ -23,7 +23,7 @@
 #include "MMapFactory.h"
 #include "MMapManager.h"
 #include "Log.h"
-
+#include "DisableMgr.h"
 #include "DetourCommon.h"
 #include "DetourNavMeshQuery.h"
 
@@ -39,7 +39,7 @@ PathGenerator::PathGenerator(const Unit* owner) :
     TC_LOG_DEBUG("maps", "++ PathGenerator::PathGenerator for %u \n", _sourceUnit->GetGUIDLow());
 
     uint32 mapId = _sourceUnit->GetMapId();
-    if (MMAP::MMapFactory::IsPathfindingEnabled(mapId))
+    if (DisableMgr::IsPathfindingEnabled(mapId))
     {
         MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
         _navMesh = mmap->GetNavMesh(mapId);

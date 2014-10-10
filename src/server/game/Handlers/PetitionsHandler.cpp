@@ -263,7 +263,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 
     if (!result)
     {
-        TC_LOG_DEBUG("entities.player.items", "Petition %u is not found for player %u %s", petitionguid.GetCounter(), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName().c_str());
+        TC_LOG_DEBUG("entities.player.items", "Petition %s is not found for player %u %s", petitionguid.ToString().c_str(), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName().c_str());
         return;
     }
     Field* fields = result->Fetch();
