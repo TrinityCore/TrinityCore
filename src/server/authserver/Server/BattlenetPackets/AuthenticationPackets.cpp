@@ -16,6 +16,7 @@
  */
 
 #include "AuthenticationPackets.h"
+#include "BattlenetSession.h"
 #include "Util.h"
 
 void Battlenet::Authentication::LogonRequest::Read()
