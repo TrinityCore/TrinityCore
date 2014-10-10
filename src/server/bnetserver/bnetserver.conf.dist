@@ -47,13 +47,6 @@ LogsDir = ""
 MaxPingTime = 30
 
 #
-#    RealmServerPort
-#        Description: TCP port to reach the auth server.
-#        Default:     3724
-
-RealmServerPort = 3724
-
-#
 #    BattlenetPort
 #        Description: TCP port to reach the auth server for battle.net connections.
 #        Default:     1119
@@ -231,7 +224,7 @@ Wrong.Password.Login.Logging = 0
 #
 
 Appender.Console=1,2,0
-Appender.Auth=2,2,0,Auth.log,w
+Appender.Bnet=2,2,0,Bnet.log,w
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -251,7 +244,7 @@ Appender.Auth=2,2,0,Auth.log,w
 #                     (Using spaces as separator).
 #
 
-Logger.root=3,Console Auth
+Logger.root=3,Console Bnet
 
 #
 ###################################################################################################
