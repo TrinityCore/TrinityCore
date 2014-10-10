@@ -21,7 +21,7 @@ include_directories(
 )
 
 add_executable(vmap4assembler VMapAssembler.cpp)
-add_dependencies(vmap4assembler storm)
+add_dependencies(vmap4assembler casc)
 
 target_link_libraries(vmap4assembler
   collision
