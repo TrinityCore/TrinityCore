@@ -27,6 +27,7 @@
 #include <G3D/Vector3.h>
 #include "Log.h"
 #include "VMapDefinitions.h"
+#include "Errors.h"
 
 using G3D::Vector3;
 
