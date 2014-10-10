@@ -46,7 +46,7 @@ using boost::asio::ip::tcp;
 using namespace boost::program_options;
 
 #ifndef _TRINITY_BNET_CONFIG
-# define _TRINITY_BNET_CONFIG  "authserver.conf"
+# define _TRINITY_BNET_CONFIG  "bnetserver.conf"
 #endif
 
 bool StartDB();
