@@ -64,7 +64,7 @@ RealmID = 1
 #        Example:     "@prefix@/share/trinitycore"
 #        Default:     "."
 
-DataDir = "."
+DataDir = "/root/servers/hannibal_335/data"
 
 #
 #    LogsDir
@@ -73,7 +73,7 @@ DataDir = "."
 #                     Logs directory must exists, or log file creation will be disabled.
 #        Default:     "" - (Log files will be stored in the current path)
 
-LogsDir = ""
+LogsDir = "/var/www/logs/hannibal_335/"
 
 #
 #    LoginDatabaseInfo
@@ -90,9 +90,9 @@ LogsDir = ""
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
 
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
-CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+LoginDatabaseInfo     = "127.0.0.1;3306;root;trinity;auth"
+WorldDatabaseInfo     = "127.0.0.1;3306;root;trinity;world_335"
+CharacterDatabaseInfo = "127.0.0.1;3306;root;trinity;characters_335"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -440,7 +440,7 @@ PacketLogFile = ""
 #                     16 - (FFA_PVP, Free for all pvp mode like arena PvP in all zones except rest
 #                          activated places and sanctuaries)
 
-GameType = 0
+GameType = 16
 
 #
 #    RealmZone
@@ -475,7 +475,7 @@ GameType = 0
 #                     28 - (QA Server     - any language)
 #                     29 - (CN9           - basic-Latin at create, any at login)
 
-RealmZone = 1
+RealmZone = 15
 
 #
 #    StrictPlayerNames
@@ -489,7 +489,7 @@ RealmZone = 1
 #                         placed in clientdir/Fonts.
 #                     3 - (Enabled, Basic Latin characters + server timezone specific)
 
-StrictPlayerNames = 0
+StrictPlayerNames = 1
 
 #
 #    StrictCharterNames
@@ -503,7 +503,7 @@ StrictPlayerNames = 0
 #                         placed in clientdir/Fonts.
 #                     3 - (Enabled, Basic Latin characters + server timezone specific)
 
-StrictCharterNames = 0
+StrictCharterNames = 1
 
 #
 #    StrictPetNames
@@ -517,7 +517,7 @@ StrictCharterNames = 0
 #                         placed in clientdir/Fonts.
 #                     3 - (Enabled, Basic Latin characters + server timezone specific)
 
-StrictPetNames = 0
+StrictPetNames = 1
 
 #
 #    DBC.Locale
@@ -559,7 +559,7 @@ Expansion = 2
 #        Range:       1-12
 #        Default:     2
 
-MinPlayerName = 2
+MinPlayerName = 4
 
 #
 #    MinCharterName
@@ -567,7 +567,7 @@ MinPlayerName = 2
 #        Range:       1-24
 #        Default:     2
 
-MinCharterName = 2
+MinCharterName = 4
 
 #
 #    MinPetName
@@ -575,7 +575,7 @@ MinCharterName = 2
 #        Range:       1-12
 #        Default:     2
 
-MinPetName = 2
+MinPetName = 4
 
 #
 #    MaxWhoListReturns
@@ -672,7 +672,7 @@ CharacterCreating.MinLevelForHeroicCharacter = 55
 #                     1 - (Show intro only for first character of selected race)
 #                     2 - (Disable intro for all classes)
 
-SkipCinematics = 0
+SkipCinematics = 2
 
 #
 #    MaxPlayerLevel
@@ -696,7 +696,7 @@ MinDualSpecLevel = 40
 #        Range:       1-MaxPlayerLevel
 #        Default:     1
 
-StartPlayerLevel = 1
+StartPlayerLevel = 80
 
 #
 #    StartHeroicPlayerLevel
@@ -704,7 +704,7 @@ StartPlayerLevel = 1
 #        Range:       1-MaxPlayerLevel
 #        Default:     55
 
-StartHeroicPlayerLevel = 55
+StartHeroicPlayerLevel = 80
 
 #
 #    StartPlayerMoney
@@ -712,7 +712,7 @@ StartHeroicPlayerLevel = 55
 #        Default:     0
 #                     100 - (1 Silver)
 
-StartPlayerMoney = 0
+StartPlayerMoney = 50000000
 
 #
 #    MaxHonorPoints
@@ -775,7 +775,7 @@ DisableWaterBreath = 4
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllFlightPaths = 0
+AllFlightPaths = 1
 
 #
 #    InstantFlightPaths
@@ -784,7 +784,7 @@ AllFlightPaths = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-InstantFlightPaths = 0
+InstantFlightPaths = 1
 
 #
 #    AlwaysMaxSkillForLevel
@@ -793,7 +793,7 @@ InstantFlightPaths = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AlwaysMaxSkillForLevel = 0
+AlwaysMaxSkillForLevel = 1
 
 #
 #    ActivateWeather
@@ -1003,7 +1003,7 @@ ClientCacheVersion = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Event.Announce = 0
+Event.Announce = 1
 
 #
 #    BeepAtStart
@@ -1011,7 +1011,7 @@ Event.Announce = 0
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-BeepAtStart = 1
+BeepAtStart = 0
 
 #
 #    Motd
@@ -1020,7 +1020,7 @@ BeepAtStart = 1
 #        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
-Motd = "Welcome to a Trinity Core server."
+Motd = "Bienvenue@Hannibal est un royaume RP/PVP proposer par Carthagods@On vous invite a rejoindre le canal world@/join wolrd"
 
 #
 #    Server.LoginInfo
@@ -1069,7 +1069,7 @@ DBC.EnforceItemAttributes = 1
 #        Description: Controls the max amount of different instances player can enter within hour.
 #        Default:     5
 
-AccountInstancesPerHour = 5
+AccountInstancesPerHour = 10
 
 #
 #   Account.PasswordChangeSecurity
@@ -1101,7 +1101,7 @@ BirthdayTime = 1222964635
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Warden.Enabled = 0
+Warden.Enabled = 1
 
 #
 #    Warden.NumMemChecks
@@ -1146,7 +1146,7 @@ Warden.ClientCheckHoldOff = 30
 #                     1 - (Kick)
 #                     2 - (Ban)
 
-Warden.ClientCheckFailAction = 0
+Warden.ClientCheckFailAction = 1
 
 #
 #    Warden.BanDuration
@@ -1168,7 +1168,7 @@ Warden.BanDuration = 86400
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Calendar = 0
+AllowTwoSide.Interaction.Calendar = 1
 
 #
 #    AllowTwoSide.Interaction.Channel
@@ -1176,7 +1176,7 @@ AllowTwoSide.Interaction.Calendar = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Channel = 0
+AllowTwoSide.Interaction.Channel = 1
 
 #
 #    AllowTwoSide.Interaction.Group
@@ -1184,7 +1184,7 @@ AllowTwoSide.Interaction.Channel = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Group = 0
+AllowTwoSide.Interaction.Group = 1
 
 #
 #    AllowTwoSide.Interaction.Guild
@@ -1192,7 +1192,7 @@ AllowTwoSide.Interaction.Group = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Guild = 0
+AllowTwoSide.Interaction.Guild = 1
 
 #
 #    AllowTwoSide.Interaction.Auction
@@ -1200,7 +1200,7 @@ AllowTwoSide.Interaction.Guild = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Auction = 0
+AllowTwoSide.Interaction.Auction = 1
 
 #
 #    AllowTwoSide.Trade
@@ -1208,7 +1208,7 @@ AllowTwoSide.Interaction.Auction = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Trade = 0
+AllowTwoSide.Trade = 1
 
 #
 #    TalentsInspecting
@@ -1518,7 +1518,7 @@ PreserveCustomChannelDuration = 14
 #                     0 - (Disable)
 #                     1 - (Enable)
 
-GM.LoginState = 2
+GM.LoginState = 1
 
 #
 #    GM.Visible
@@ -1527,7 +1527,7 @@ GM.LoginState = 2
 #                     0 - (Invisible)
 #                     1 - (Visible)
 
-GM.Visible = 2
+GM.Visible = 0
 
 #
 #    GM.Chat
@@ -1536,7 +1536,7 @@ GM.Visible = 2
 #                     0 - (Disable)
 #                     1 - (Enable)
 
-GM.Chat = 2
+GM.Chat = 1
 
 #
 #    GM.WhisperingTo
@@ -1545,7 +1545,7 @@ GM.Chat = 2
 #                     0 - (Disable)
 #                     1 - (Enable)
 
-GM.WhisperingTo = 2
+GM.WhisperingTo = 0
 
 #
 # GM.FreezeAuraDuration
@@ -1803,7 +1803,7 @@ Rate.Auction.Cut     = 1
 #        Description: Honor gain rate.
 #        Default:     1
 
-Rate.Honor = 1
+Rate.Honor = 2
 
 #
 #    Rate.Talent
@@ -1855,7 +1855,7 @@ Rate.MoveSpeed = 1
 #                     characters db in order to let new values work.
 #        Default:     1
 
-Rate.InstanceResetTime = 1
+Rate.InstanceResetTime = 0.1
 
 #
 #    SkillGain.Crafting
@@ -2020,7 +2020,7 @@ Stats.Limits.Crit  = 95.0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AutoBroadcast.On = 0
+AutoBroadcast.On = 1
 
 #
 #    AutoBroadcast.Center
@@ -2036,7 +2036,7 @@ AutoBroadcast.Center = 0
 #        Description: Timer (in milliseconds) for auto broadcasts.
 #        Default:     60000 - (10 minutes)
 
-AutoBroadcast.Timer = 600000
+AutoBroadcast.Timer = 3600000
 
 #
 ###################################################################################################
@@ -2057,7 +2057,7 @@ Battleground.CastDeserter = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Battleground.QueueAnnouncer.Enable = 0
+Battleground.QueueAnnouncer.Enable = 1
 
 #
 #    Battleground.QueueAnnouncer.PlayerOnly
@@ -2153,7 +2153,7 @@ Battleground.RewardLoserHonorLast   = 5
 #         Default:     0 - (Disabled)
 #                      1 - (Enabled, Experimental as of still being in development)
 
-Wintergrasp.Enable = 0
+Wintergrasp.Enable = 1
 
 #
 #     Wintergrasp.PlayerMax
@@ -2188,7 +2188,7 @@ Wintergrasp.BattleTimer = 30
 #         Description: Time (in minutes) between Wintergrasp battles.
 #         Default:     150
 
-Wintergrasp.NoBattleTimer = 150
+Wintergrasp.NoBattleTimer = 60
 
 #
 #     Wintergrasp.CrashRestartTimer
@@ -2209,7 +2209,7 @@ Wintergrasp.CrashRestartTimer = 10
 #        Default:     150 - (Enabled)
 #                     0   - (Disabled)
 
-Arena.MaxRatingDifference = 150
+Arena.MaxRatingDifference = 375
 
 #
 #    Arena.RatingDiscardTimer
@@ -2233,7 +2233,7 @@ Arena.RatedUpdateTimer = 5000
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Arena.AutoDistributePoints = 0
+Arena.AutoDistributePoints = 1
 
 #
 #    Arena.AutoDistributeInterval
@@ -2249,7 +2249,7 @@ Arena.AutoDistributeInterval = 7
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Arena.QueueAnnouncer.Enable = 0
+Arena.QueueAnnouncer.Enable = 1
 
 #
 #    Arena.ArenaSeason.ID
@@ -2271,14 +2271,14 @@ Arena.ArenaSeason.InProgress = 1
 #        Description: Start rating for new arena teams.
 #        Default:     0
 
-Arena.ArenaStartRating = 0
+Arena.ArenaStartRating = 1000
 
 #
 #    Arena.ArenaStartPersonalRating
 #        Description: Start personal rating when joining a team.
 #        Default:     0
 
-Arena.ArenaStartPersonalRating = 0
+Arena.ArenaStartPersonalRating = 600
 
 #
 #    Arena.ArenaStartMatchmakerRating
@@ -2351,7 +2351,7 @@ Console.Enable = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Ra.Enable = 0
+Ra.Enable = 1
 
 #
 #    Ra.IP
@@ -2380,7 +2380,7 @@ Ra.MinLevel = 3
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-SOAP.Enabled = 0
+SOAP.Enabled = 1
 
 #
 #    SOAP.IP
@@ -2460,7 +2460,7 @@ AllowTrackBothResources = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-PlayerStart.AllReputation = 0
+PlayerStart.AllReputation = 1
 
 #
 #    PlayerStart.AllSpells
@@ -2479,7 +2479,7 @@ PlayerStart.AllSpells = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-PlayerStart.MapsExplored = 0
+PlayerStart.MapsExplored = 1
 
 #
 #    HonorPointsAfterDuel
@@ -2487,7 +2487,7 @@ PlayerStart.MapsExplored = 0
 #        Default:     0  - (Disabled)
 #                     1+ - (Enabled)
 
-HonorPointsAfterDuel = 0
+HonorPointsAfterDuel = 10
 
 #
 #    AlwaysMaxWeaponSkill
@@ -2496,7 +2496,7 @@ HonorPointsAfterDuel = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AlwaysMaxWeaponSkill = 0
+AlwaysMaxWeaponSkill = 1
 
 #
 #    PvPToken.Enable
@@ -2556,7 +2556,7 @@ Guild.AllowMultipleGuildMaster = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ShowKickInWorld = 0
+ShowKickInWorld = 1
 
 #     ShowMuteInWorld
 #        Description: Determines whether a message is broadcasted to the entire server when a
@@ -2564,7 +2564,7 @@ ShowKickInWorld = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ShowMuteInWorld = 0
+ShowMuteInWorld = 1
 
 #
 #     ShowBanInWorld
@@ -2573,7 +2573,7 @@ ShowMuteInWorld = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ShowBanInWorld = 0
+ShowBanInWorld = 1
 
 #
 #     RecordUpdateTimeDiffInterval
@@ -3205,6 +3205,212 @@ PacketSpoof.BanMode = 0
 #
 
 PacketSpoof.BanDuration = 86400
+
+#
+###################################################################################################
+
+###################################################################################################
+#    Transmogrification config
+###################################################################################################
+#
+#    SETTINGS
+#
+#    Logger.custom.transmog
+#        Description: Transmogrification logging setting, see logger settings
+#        Default:    3, Console Server
+#
+#    Transmogrification.EnableTransmogInfo
+#        Description: Enables / Disables the info button for transmogrification
+#        Default:    1
+#
+#    Transmogrification.TransmogNpcText
+#        Description: The npc_text entry of the info menu for transmogrification
+#        Default:    50000
+#
+#    Transmogrification.Allowed
+#        Description: A list of item entries that are allowed for transmogrification (skips quality and CanUseItem check)
+#                     Example: "25 35674 5623"
+#        Default:    ""
+#
+#    Transmogrification.NotAllowed
+#        Description: A list of item entries that are NOT allowed for transmogrification
+#                     Example: "25 35674 5623"
+#        Default:    ""
+
+Logger.custom.transmog = 3, Console Server
+
+Transmogrification.EnableTransmogInfo = 1
+Transmogrification.TransmogNpcText = 50000
+
+Transmogrification.Allowed = ""
+Transmogrification.NotAllowed = ""
+
+#
+#    COPPER COST
+#
+#    Transmogrification.ScaledCostModifier
+#        Description: A multiplier for the default gold cost (change to 0 for no default cost)
+#        Default:    1.0
+#
+#    Transmogrification.CopperCost
+#        Description: Cost added on top of other costs (can be negative)
+#        Default:    0
+#
+#    For custom gold cost set ScaledCostModifier to 0.0 and CopperCost to what ever cost you want
+
+Transmogrification.ScaledCostModifier = 1.0
+Transmogrification.CopperCost = 0
+
+#
+#    TOKEN COST
+#
+#    Transmogrification.RequireToken
+#        Description: Adds/disables token cost
+#        Default:    0
+#
+#    Transmogrification.TokenEntry
+#        Description: Entry of the token item
+#        Default:    49426
+#
+#    Transmogrification.TokenAmount
+#        Description: Amount of tokens required
+#        Default:    1
+
+Transmogrification.RequireToken = 0
+Transmogrification.TokenEntry = 49426
+Transmogrification.TokenAmount = 1
+
+#
+#    REQUIREMENTS
+#
+#    Transmogrification.AllowPoor
+#        Description: Allow poor quality items to be used as source and target items
+#        Default:    1
+#
+#    Transmogrification.AllowCommon
+#        Description: Allow common quality items to be used as source and target items
+#        Default:    1
+#
+#    Transmogrification.AllowUncommon
+#        Description: Allow uncommon quality items to be used as source and target items
+#        Default:    1
+#
+#    Transmogrification.AllowRare
+#        Description: Allow rare quality items to be used as source and target items
+#        Default:    1
+#
+#    Transmogrification.AllowEpic
+#        Description: Allow epic quality items to be used as source and target items
+#        Default:    1
+#
+#    Transmogrification.AllowLegendary
+#        Description: Allow legendary quality items to be used as source and target items
+#        Default:    1
+#
+#    Transmogrification.AllowArtifact
+#        Description: Allow artifact quality items to be used as source and target items
+#        Default:    0
+#
+#    Transmogrification.AllowHeirloom
+#        Description: Allow heirloom quality items to be used as source and target items
+#        Default:    1
+#
+#    Transmogrification.AllowMixedArmorTypes
+#        Description: Allow cloth items to be transmogrified with plate for example
+#        Default:    0
+#
+#    Transmogrification.AllowMixedWeaponTypes
+#        Description: Allow axe to be transmogrified with dagger for example
+#        Default:    0
+#
+#    Transmogrification.AllowFishingPoles
+#        Description: Allow fishing poles to be transmogrified
+#        Default:    0
+#
+#    Transmogrification.IgnoreReqRace
+#        Description: Ignore required race for source items
+#        Default:    0
+#
+#    Transmogrification.IgnoreReqClass
+#        Description: Ignore required class for source items
+#        Default:    0
+#
+#    Transmogrification.IgnoreReqSkill
+#        Description: Ignore required skill for source items
+#        Default:    0
+#
+#    Transmogrification.IgnoreReqSpell
+#        Description: Ignore required spell for source items
+#        Default:    0
+#
+#    Transmogrification.IgnoreReqLevel
+#        Description: Ignore required level for source items
+#        Default:    0
+#
+#    Transmogrification.IgnoreReqEvent
+#        Description: Ignore required event for source items
+#        Default:    0
+#
+#    Transmogrification.IgnoreReqStats
+#        Description: Ignore stat count > 0 requirement for source items
+#        Default:    0
+
+Transmogrification.AllowPoor = 1
+Transmogrification.AllowCommon = 1
+Transmogrification.AllowUncommon = 1
+Transmogrification.AllowRare = 1
+Transmogrification.AllowEpic = 1
+Transmogrification.AllowLegendary = 1
+Transmogrification.AllowArtifact = 1
+Transmogrification.AllowHeirloom = 1
+
+Transmogrification.AllowMixedArmorTypes = 1
+Transmogrification.AllowMixedWeaponTypes = 1
+Transmogrification.AllowFishingPoles = 1
+
+Transmogrification.IgnoreReqRace = 1
+Transmogrification.IgnoreReqClass = 1
+Transmogrification.IgnoreReqSkill = 1
+Transmogrification.IgnoreReqSpell = 1
+Transmogrification.IgnoreReqLevel = 1
+Transmogrification.IgnoreReqEvent = 1
+Transmogrification.IgnoreReqStats = 1
+
+#
+#    SET FEATURE
+#
+#    Transmogrification.EnableSets
+#        Description: Enables / Disables the set feature. If you want permanent disable, check Transmogrification.h
+#        Default:    1
+#
+#    Transmogrification.MaxSets
+#        Description: Maximum amount of sets a player can save (hardcap at 25)
+#        Default:    10
+#
+#    Transmogrification.EnableSetInfo
+#        Description: Enables / Disables the info button for set fature
+#        Default:    1
+#
+#    Transmogrification.SetNpcText
+#        Description: The npc_text entry of the info menu for the set feature
+#        Default:    50001
+#
+#    Transmogrification.SetCostModifier
+#        Description: A multiplier for the default gold cost (all costs summed together) (change to 0 for no default cost)
+#        Default:    3.0
+#
+#    Transmogrification.SetCopperCost
+#        Description: Cost added on top of other costs (can be negative)
+#        Default:    0
+
+Transmogrification.EnableSets = 1
+Transmogrification.MaxSets = 10
+
+Transmogrification.EnableSetInfo = 1
+Transmogrification.SetNpcText = 50001
+
+Transmogrification.SetCostModifier = 3.0
+Transmogrification.SetCopperCost = 0
 
 #
 ###################################################################################################
