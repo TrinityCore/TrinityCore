@@ -2416,16 +2416,6 @@ std::string const & Creature::GetNameForLocaleIdx(LocaleConstant loc_idx) const
     return GetName();
 }
 
-//Do not if this works or not, moving creature to another map is very dangerous
-void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
-{
-    CleanupBeforeRemoveFromMap(false);
-    GetMap()->RemoveFromMap(this, false);
-    Relocate(X, Y, Z, O);
-    SetMap(map);
-    GetMap()->AddToMap(this);
-}
-
 uint32 Creature::GetPetAutoSpellOnPos(uint8 pos) const
 {
     if (pos >= MAX_SPELL_CHARM || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)

@@ -421,7 +421,7 @@ class LFGMgr
         /// Gets queue join time
         time_t GetQueueJoinTime(ObjectGuid guid);
         /// Checks if given roles match, modifies given roles map with new roles
-        static bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
+        static bool CheckGroupRoles(LfgRolesMap &groles);
         /// Checks if given players are ignoring each other
         static bool HasIgnore(ObjectGuid guid1, ObjectGuid guid2);
         /// Sends queue status to player

@@ -120,7 +120,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
     // Check if player is already in a similar arena team
     if ((player && player->GetArenaTeamId(GetSlot())) || Player::GetArenaTeamIdFromDB(playerGuid, GetType()) != 0)
     {
-        TC_LOG_DEBUG("bg.arena", "Arena: Player %s (guid: %u) already has an arena team of type %u", playerName.c_str(), playerGuid.GetCounter(), GetType());
+        TC_LOG_DEBUG("bg.arena", "Arena: %s %s already has an arena team of type %u", playerGuid.ToString().c_str(), playerName.c_str(), GetType());
         return false;
     }
 
@@ -179,7 +179,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 1);
     }
 
-    TC_LOG_INFO("bg.arena", "Player: %s [GUID: %u] joined arena team type: %u [Id: %u, Name: %s].", playerName.c_str(), playerGuid.GetCounter(), GetType(), GetId(), GetName().c_str());
+    TC_LOG_INFO("bg.arena", "Player: %s [%s] joined arena team type: %u [Id: %u, Name: %s].", playerName.c_str(), playerGuid.ToString().c_str(), GetType(), GetId(), GetName().c_str());
 
     return true;
 }
@@ -245,7 +245,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
         // Delete member if character information is missing
         if (newMember.Name.empty())
         {
-            TC_LOG_ERROR("sql.sql", "ArenaTeam %u has member with empty name - probably player %u doesn't exist, deleting him from memberlist!", arenaTeamId, newMember.Guid.GetCounter());
+            TC_LOG_ERROR("sql.sql", "ArenaTeam %u has member with empty name - probably %s doesn't exist, deleting him from memberlist!", arenaTeamId, newMember.Guid.ToString().c_str());
             DelMember(newMember.Guid, true);
             continue;
         }
