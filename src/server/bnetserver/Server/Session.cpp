@@ -94,7 +94,7 @@ void Battlenet::Session::LogUnhandledPacket(ClientPacket const& packet)
     TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::LogUnhandledPacket %s", packet.ToString().c_str());
 }
 
-void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& info)
+void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& logonRequest)
 {
     // Verify that this IP is not in the ip_banned table
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
@@ -104,55 +104,55 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
     stmt->setString(0, ip_address);
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(LOGIN_BANNED);
-        AsyncWrite(complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(LOGIN_BANNED);
+        AsyncWrite(logonResponse);
         TC_LOG_DEBUG("server.battlenet", "[Battlenet::LogonRequest] Banned ip '%s:%d' tries to login!", ip_address.c_str(), GetRemotePort());
         return;
     }
 
-    if (info.Program != "WoW")
+    if (logonRequest.Program != "WoW")
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(AUTH_INVALID_PROGRAM);
-        AsyncWrite(complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(AUTH_INVALID_PROGRAM);
+        AsyncWrite(logonResponse);
         return;
     }
 
-    if (!sComponentMgr->HasPlatform(info.Platform))
+    if (!sComponentMgr->HasPlatform(logonRequest.Platform))
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(AUTH_INVALID_OS);
-        AsyncWrite(complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(AUTH_INVALID_OS);
+        AsyncWrite(logonResponse);
         return;
     }
 
-    if (!sComponentMgr->HasPlatform(info.Locale))
+    if (!sComponentMgr->HasPlatform(logonRequest.Locale))
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(AUTH_UNSUPPORTED_LANGUAGE);
-        AsyncWrite(complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(AUTH_UNSUPPORTED_LANGUAGE);
+        AsyncWrite(logonResponse);
         return;
     }
 
-    for (Component const& component : info.Components)
+    for (Component const& component : logonRequest.Components)
     {
         if (!sComponentMgr->HasComponent(&component))
         {
-            Authentication::LogonResponse* complete = new Authentication::LogonResponse();
+            Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
             if (!sComponentMgr->HasProgram(component.Program))
-                complete->SetAuthResult(AUTH_INVALID_PROGRAM);
+                logonResponse->SetAuthResult(AUTH_INVALID_PROGRAM);
             else if (!sComponentMgr->HasPlatform(component.Platform))
-                complete->SetAuthResult(AUTH_INVALID_OS);
+                logonResponse->SetAuthResult(AUTH_INVALID_OS);
             else
             {
                 if (component.Program != "WoW" || AuthHelper::IsBuildSupportingBattlenet(component.Build))
-                    complete->SetAuthResult(AUTH_REGION_BAD_VERSION);
+                    logonResponse->SetAuthResult(AUTH_REGION_BAD_VERSION);
                 else
-                    complete->SetAuthResult(AUTH_USE_GRUNT_LOGON);
+                    logonResponse->SetAuthResult(AUTH_USE_GRUNT_LOGON);
             }
 
-            AsyncWrite(complete);
+            AsyncWrite(logonResponse);
             return;
         }
 
@@ -160,9 +160,9 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
             _build = component.Build;
     }
 
-    _accountName = info.Login;
-    _locale = info.Locale;
-    _os = info.Platform;
+    _accountName = logonRequest.Login;
+    _locale = logonRequest.Locale;
+    _os = logonRequest.Platform;
 
     Utf8ToUpperOnlyLatin(_accountName);
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
@@ -171,9 +171,9 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
-        AsyncWrite(complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
+        AsyncWrite(logonResponse);
         return;
     }
 
@@ -188,9 +188,9 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
 
         if (strcmp(fields[4].GetCString(), ip_address.c_str()) != 0)
         {
-            Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-            complete->SetAuthResult(AUTH_ACCOUNT_LOCKED);
-            AsyncWrite(complete);
+            Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+            logonResponse->SetAuthResult(AUTH_ACCOUNT_LOCKED);
+            AsyncWrite(logonResponse);
             return;
         }
     }
@@ -213,9 +213,9 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
                 TC_LOG_DEBUG("server.battlenet", "[Battlenet::AuthChallenge] Account '%s' is locked to country: '%s' Player country is '%s'", _accountName.c_str(), accountCountry.c_str(), loginCountry.c_str());
                 if (loginCountry != accountCountry)
                 {
-                    Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-                    complete->SetAuthResult(AUTH_ACCOUNT_LOCKED);
-                    AsyncWrite(complete);
+                    Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+                    logonResponse->SetAuthResult(AUTH_ACCOUNT_LOCKED);
+                    AsyncWrite(logonResponse);
                     return;
                 }
             }
@@ -234,17 +234,17 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         Field* fields = banresult->Fetch();
         if (fields[0].GetUInt32() == fields[1].GetUInt32())
         {
-            Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-            complete->SetAuthResult(LOGIN_BANNED);
-            AsyncWrite(complete);
+            Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+            logonResponse->SetAuthResult(LOGIN_BANNED);
+            AsyncWrite(logonResponse);
             TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::LogonRequest] Banned account %s tried to login!", ip_address.c_str(), GetRemotePort(), _accountName.c_str());
             return;
         }
         else
         {
-            Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-            complete->SetAuthResult(LOGIN_SUSPENDED);
-            AsyncWrite(complete);
+            Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+            logonResponse->SetAuthResult(LOGIN_SUSPENDED);
+            AsyncWrite(logonResponse);
             TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::LogonRequest] Temporarily banned account %s tried to login!", ip_address.c_str(), GetRemotePort(), _accountName.c_str());
             return;
         }
@@ -291,32 +291,32 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
 
     _modulesWaitingForData.push(MODULE_PASSWORD);
 
-    Authentication::ProofRequest* request = new Authentication::ProofRequest();
-    request->Modules.push_back(password);
+    Authentication::ProofRequest* proofRequest = new Authentication::ProofRequest();
+    proofRequest->Modules.push_back(password);
     // if has authenticator, send Token module
-    request->Modules.push_back(thumbprint);
-    AsyncWrite(request);
+    proofRequest->Modules.push_back(thumbprint);
+    AsyncWrite(proofRequest);
 }
 
-void Battlenet::Session::HandleResumeRequest(Authentication::ResumeRequest const& reconnect)
+void Battlenet::Session::HandleResumeRequest(Authentication::ResumeRequest const& resumeRequest)
 {
-    _accountName = reconnect.Login;
-    _locale = reconnect.Locale;
-    _os = reconnect.Platform;
-    auto baseComponent = std::find_if(reconnect.Components.begin(), reconnect.Components.end(), [](Component const& c) { return c.Program == "base"; });
-    if (baseComponent != reconnect.Components.end())
+    _accountName = resumeRequest.Login;
+    _locale = resumeRequest.Locale;
+    _os = resumeRequest.Platform;
+    auto baseComponent = std::find_if(resumeRequest.Components.begin(), resumeRequest.Components.end(), [](Component const& c) { return c.Program == "base"; });
+    if (baseComponent != resumeRequest.Components.end())
         _build = baseComponent->Build;
 
     Utf8ToUpperOnlyLatin(_accountName);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_RECONNECT_INFO);
     stmt->setString(0, _accountName);
-    stmt->setString(1, reconnect.GameAccountName);
+    stmt->setString(1, resumeRequest.GameAccountName);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
     {
-        Authentication::ResumeResponse* resume = new Authentication::ResumeResponse();
-        resume->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
-        AsyncWrite(resume);
+        Authentication::ResumeResponse* resumeResponse = new Authentication::ResumeResponse();
+        resumeResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
+        AsyncWrite(resumeResponse);
         return;
     }
 
@@ -325,7 +325,7 @@ void Battlenet::Session::HandleResumeRequest(Authentication::ResumeRequest const
     _accountId = fields[0].GetUInt32();
     K.SetHexStr(fields[1].GetString().c_str());
     _gameAccountId = fields[2].GetUInt32();
-    _gameAccountName = reconnect.GameAccountName;
+    _gameAccountName = resumeRequest.GameAccountName;
 
     ModuleInfo* thumbprint = sModuleMgr->CreateModule(_os, "Thumbprint");
     ModuleInfo* resume = sModuleMgr->CreateModule(_os, "Resume");
@@ -342,15 +342,15 @@ void Battlenet::Session::HandleResumeRequest(Authentication::ResumeRequest const
 
     _modulesWaitingForData.push(MODULE_RESUME);
 
-    Authentication::ProofRequest* request = new Authentication::ProofRequest();
-    request->Modules.push_back(thumbprint);
-    request->Modules.push_back(resume);
-    AsyncWrite(request);
+    Authentication::ProofRequest* proofRequest = new Authentication::ProofRequest();
+    proofRequest->Modules.push_back(thumbprint);
+    proofRequest->Modules.push_back(resume);
+    AsyncWrite(proofRequest);
 }
 
-void Battlenet::Session::HandleProofResponse(Authentication::ProofResponse const& proof)
+void Battlenet::Session::HandleProofResponse(Authentication::ProofResponse const& proofResponse)
 {
-    if (_modulesWaitingForData.size() < proof.Modules.size())
+    if (_modulesWaitingForData.size() < proofResponse.Modules.size())
     {
         Authentication::LogonResponse* complete = new Authentication::LogonResponse();
         complete->SetAuthResult(AUTH_CORRUPTED_MODULE);
@@ -359,9 +359,9 @@ void Battlenet::Session::HandleProofResponse(Authentication::ProofResponse const
     }
 
     ServerPacket* response = nullptr;
-    for (size_t i = 0; i < proof.Modules.size(); ++i)
+    for (size_t i = 0; i < proofResponse.Modules.size(); ++i)
     {
-        if (!(this->*(ModuleHandlers[_modulesWaitingForData.front()]))(proof.Modules[i], &response))
+        if (!(this->*(ModuleHandlers[_modulesWaitingForData.front()]))(proofResponse.Modules[i], &response))
             break;
 
         _modulesWaitingForData.pop();
@@ -400,7 +400,7 @@ void Battlenet::Session::HandleListSubscribeRequest(WoWRealm::ListSubscribeReque
 {
     sRealmList->UpdateIfNeed();
 
-    WoWRealm::ListSubscribeResponse* counts = new WoWRealm::ListSubscribeResponse();
+    WoWRealm::ListSubscribeResponse* listSubscribeResponse = new WoWRealm::ListSubscribeResponse();
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS);
     stmt->setUInt32(0, _gameAccountId);
@@ -411,7 +411,7 @@ void Battlenet::Session::HandleListSubscribeRequest(WoWRealm::ListSubscribeReque
         {
             Field* fields = countResult->Fetch();
             uint32 build = fields[4].GetUInt32();
-            counts->CharacterCounts.push_back({ { fields[2].GetUInt8(), fields[3].GetUInt8(), fields[1].GetUInt32(), (_build != build ? build : 0) }, fields[0].GetUInt8() });
+            listSubscribeResponse->CharacterCounts.push_back({ { fields[2].GetUInt8(), fields[3].GetUInt8(), fields[1].GetUInt32(), (_build != build ? build : 0) }, fields[0].GetUInt8() });
         } while (countResult->NextRow());
     }
 
@@ -428,62 +428,62 @@ void Battlenet::Session::HandleListSubscribeRequest(WoWRealm::ListSubscribeReque
                 flag |= REALM_FLAG_SPECIFYBUILD;   // tell the client what build the realm is for
         }
 
-        WoWRealm::ListUpdate* update = new WoWRealm::ListUpdate();
-        update->Timezone = realm.timezone;
-        update->Population = realm.populationLevel;
-        update->Lock = (realm.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
-        update->Type = realm.icon;
-        update->Name = realm.name;
+        WoWRealm::ListUpdate* listUpdate = new WoWRealm::ListUpdate();
+        listUpdate->Timezone = realm.timezone;
+        listUpdate->Population = realm.populationLevel;
+        listUpdate->Lock = (realm.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
+        listUpdate->Type = realm.icon;
+        listUpdate->Name = realm.name;
 
         if (flag & REALM_FLAG_SPECIFYBUILD)
         {
             std::ostringstream version;
             version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->Build;
 
-            update->Version = version.str();
-            update->Address = realm.GetAddressForClient(GetRemoteIpAddress());
-            update->Build = buildInfo->Build;
+            listUpdate->Version = version.str();
+            listUpdate->Address = realm.GetAddressForClient(GetRemoteIpAddress());
+            listUpdate->Build = buildInfo->Build;
         }
 
-        update->Flags = flag;
-        update->Region = realm.Region;
-        update->Battlegroup = realm.Battlegroup;
-        update->Index = realm.m_ID;
+        listUpdate->Flags = flag;
+        listUpdate->Region = realm.Region;
+        listUpdate->Battlegroup = realm.Battlegroup;
+        listUpdate->Index = realm.m_ID;
 
-        counts->RealmData.push_back(update);
+        listSubscribeResponse->RealmData.push_back(listUpdate);
     }
 
-    counts->RealmData.push_back(new WoWRealm::ListComplete());
+    listSubscribeResponse->RealmData.push_back(new WoWRealm::ListComplete());
 
-    AsyncWrite(counts);
+    AsyncWrite(listSubscribeResponse);
 }
 
-void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join)
+void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& joinRequest)
 {
-    WoWRealm::JoinResponseV2* result = new WoWRealm::JoinResponseV2();
-    Realm const* realm = sRealmList->GetRealm(join.Realm);
+    WoWRealm::JoinResponseV2* joinResponse = new WoWRealm::JoinResponseV2();
+    Realm const* realm = sRealmList->GetRealm(joinRequest.Realm);
     if (!realm || realm->flag & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE))
     {
-        result->Response = WoWRealm::JoinResponseV2::FAILURE;
-        AsyncWrite(result);
+        joinResponse->Response = WoWRealm::JoinResponseV2::FAILURE;
+        AsyncWrite(joinResponse);
         return;
     }
 
-    result->ServerSeed = uint32(rand32());
+    joinResponse->ServerSeed = uint32(rand32());
 
     uint8 sessionKey[40];
     HmacSha1 hmac(K.GetNumBytes(), K.AsByteArray().get());
     hmac.UpdateData((uint8*)"WoW\0", 4);
-    hmac.UpdateData((uint8*)&join.ClientSeed, 4);
-    hmac.UpdateData((uint8*)&result->ServerSeed, 4);
+    hmac.UpdateData((uint8*)&joinRequest.ClientSeed, 4);
+    hmac.UpdateData((uint8*)&joinResponse->ServerSeed, 4);
     hmac.Finalize();
 
     memcpy(sessionKey, hmac.GetDigest(), hmac.GetLength());
 
     HmacSha1 hmac2(K.GetNumBytes(), K.AsByteArray().get());
     hmac2.UpdateData((uint8*)"WoW\0", 4);
-    hmac2.UpdateData((uint8*)&result->ServerSeed, 4);
-    hmac2.UpdateData((uint8*)&join.ClientSeed, 4);
+    hmac2.UpdateData((uint8*)&joinResponse->ServerSeed, 4);
+    hmac2.UpdateData((uint8*)&joinRequest.ClientSeed, 4);
     hmac2.Finalize();
 
     memcpy(sessionKey + hmac.GetLength(), hmac2.GetDigest(), hmac2.GetLength());
@@ -491,11 +491,11 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
     LoginDatabase.DirectPExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = %u, failed_logins = 0, os = '%s' WHERE id = %u",
         ByteArrayToHexStr(sessionKey, 40, true).c_str(), GetRemoteIpAddress().to_string().c_str(), GetLocaleByName(_locale), _os.c_str(), _gameAccountId);
 
-    result->IPv4.emplace_back(realm->ExternalAddress, realm->port);
+    joinResponse->IPv4.emplace_back(realm->ExternalAddress, realm->port);
     if (realm->ExternalAddress != realm->LocalAddress)
-        result->IPv4.emplace_back(realm->LocalAddress, realm->port);
+        joinResponse->IPv4.emplace_back(realm->LocalAddress, realm->port);
 
-    AsyncWrite(result);
+    AsyncWrite(joinResponse);
 }
 
 void Battlenet::Session::ReadHandler()
@@ -586,17 +586,17 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
 {
     if (dataStream->GetSize() != 1 + 128 + 32 + 128)
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(AUTH_CORRUPTED_MODULE);
-        ReplaceResponse(response, complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(AUTH_CORRUPTED_MODULE);
+        ReplaceResponse(response, logonResponse);
         return false;
     }
 
     if (dataStream->Read<uint8>(8) != 2)                // State
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(AUTH_CORRUPTED_MODULE);
-        ReplaceResponse(response, complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(AUTH_CORRUPTED_MODULE);
+        ReplaceResponse(response, logonResponse);
         return false;
     }
 
@@ -608,9 +608,9 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
 
     if (A.isZero())
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(AUTH_CORRUPTED_MODULE);
-        ReplaceResponse(response, complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(AUTH_CORRUPTED_MODULE);
+        ReplaceResponse(response, logonResponse);
         return false;
     }
 
@@ -684,9 +684,9 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         stmt->setString(0, _accountName);
         LoginDatabase.Execute(stmt);
 
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
-        ReplaceResponse(response, complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
+        ReplaceResponse(response, logonResponse);
         return false;
     }
 
@@ -699,9 +699,9 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
 
     if (!numAccounts)
     {
-        Authentication::LogonResponse* noAccounts = new Authentication::LogonResponse();
-        noAccounts->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
-        ReplaceResponse(response, noAccounts);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
+        ReplaceResponse(response, logonResponse);
         return false;
     }
 
@@ -731,8 +731,8 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
     password->Data = new uint8[password->DataSize];
     memcpy(password->Data, stream.GetBuffer(), password->DataSize);
 
-    Authentication::ProofRequest* request = new Authentication::ProofRequest();
-    request->Modules.push_back(password);
+    Authentication::ProofRequest* proofRequest = new Authentication::ProofRequest();
+    proofRequest->Modules.push_back(password);
     if (numAccounts > 1)
     {
         BitStream accounts;
@@ -757,39 +757,39 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         selectGameAccount->DataSize = accounts.GetSize();
         selectGameAccount->Data = new uint8[selectGameAccount->DataSize];
         memcpy(selectGameAccount->Data, accounts.GetBuffer(), selectGameAccount->DataSize);
-        request->Modules.push_back(selectGameAccount);
+        proofRequest->Modules.push_back(selectGameAccount);
         _modulesWaitingForData.push(MODULE_SELECT_GAME_ACCOUNT);
     }
     else
     {
         if (fields[4].GetBool())
         {
-            delete request;
+            delete proofRequest;
 
-            Authentication::LogonResponse* complete = new Authentication::LogonResponse();
+            Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
             if (fields[2].GetUInt32() == fields[3].GetUInt32())
             {
-                complete->SetAuthResult(LOGIN_BANNED);
+                logonResponse->SetAuthResult(LOGIN_BANNED);
                 TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::Password] Banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
             }
             else
             {
-                complete->SetAuthResult(LOGIN_SUSPENDED);
+                logonResponse->SetAuthResult(LOGIN_SUSPENDED);
                 TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::Password] Temporarily banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
             }
 
-            ReplaceResponse(response, complete);
+            ReplaceResponse(response, logonResponse);
             return false;
         }
 
         _gameAccountId = fields[0].GetUInt32();
         _gameAccountName = fields[1].GetString();
 
-        request->Modules.push_back(sModuleMgr->CreateModule(_os, "RiskFingerprint"));
+        proofRequest->Modules.push_back(sModuleMgr->CreateModule(_os, "RiskFingerprint"));
         _modulesWaitingForData.push(MODULE_RISK_FINGERPRINT);
     }
 
-    ReplaceResponse(response, request);
+    ReplaceResponse(response, proofRequest);
     return true;
 }
 
@@ -797,9 +797,9 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
 {
     if (dataStream->Read<uint8>(8) != 1)
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(AUTH_CORRUPTED_MODULE);
-        ReplaceResponse(response, complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(AUTH_CORRUPTED_MODULE);
+        ReplaceResponse(response, logonResponse);
         return false;
     }
 
@@ -807,9 +807,9 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
     std::string account = dataStream->ReadString(8);
     if (account.empty())
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-        complete->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
-        ReplaceResponse(response, complete);
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+        logonResponse->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
+        ReplaceResponse(response, logonResponse);
         return false;
     }
 
@@ -838,28 +838,28 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
     Field* fields = result->Fetch();
     if (fields[4].GetBool())
     {
-        Authentication::LogonResponse* complete = new Authentication::LogonResponse();
+        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         if (fields[2].GetUInt32() == fields[3].GetUInt32())
         {
-            complete->SetAuthResult(LOGIN_BANNED);
+            logonResponse->SetAuthResult(LOGIN_BANNED);
             TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
         }
         else
         {
-            complete->SetAuthResult(LOGIN_SUSPENDED);
+            logonResponse->SetAuthResult(LOGIN_SUSPENDED);
             TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Temporarily banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
         }
 
-        ReplaceResponse(response, complete);
+        ReplaceResponse(response, logonResponse);
         return false;
     }
 
     _gameAccountId = fields[0].GetUInt32();
     _gameAccountName = fields[1].GetString();
 
-    Authentication::ProofRequest* request = new Authentication::ProofRequest();
-    request->Modules.push_back(sModuleMgr->CreateModule(_os, "RiskFingerprint"));
-    ReplaceResponse(response, request);
+    Authentication::ProofRequest* proofRequest = new Authentication::ProofRequest();
+    proofRequest->Modules.push_back(sModuleMgr->CreateModule(_os, "RiskFingerprint"));
+    ReplaceResponse(response, proofRequest);
 
     _modulesWaitingForData.push(MODULE_RISK_FINGERPRINT);
     return true;
@@ -867,16 +867,16 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
 
 bool Battlenet::Session::HandleRiskFingerprintModule(BitStream* dataStream, ServerPacket** response)
 {
-    Authentication::LogonResponse* complete = new Authentication::LogonResponse();
+    Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
     if (dataStream->Read<uint8>(8) == 1)
     {
-        complete->AccountId = _accountId;
-        complete->GameAccountName = _gameAccountName;
-        complete->GameAccountFlags = GAMEACCOUNT_FLAG_PROPASS_LOCK;
+        logonResponse->AccountId = _accountId;
+        logonResponse->GameAccountName = _gameAccountName;
+        logonResponse->GameAccountFlags = GAMEACCOUNT_FLAG_PROPASS_LOCK;
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_FAILED_LOGINS);
         stmt->setUInt32(0, _accountId);
         if (PreparedQueryResult failedLoginsResult = LoginDatabase.Query(stmt))
-            complete->FailedLogins = (*failedLoginsResult)[0].GetUInt32();
+            logonResponse->FailedLogins = (*failedLoginsResult)[0].GetUInt32();
 
         SQLTransaction trans = LoginDatabase.BeginTransaction();
 
@@ -899,9 +899,9 @@ bool Battlenet::Session::HandleRiskFingerprintModule(BitStream* dataStream, Serv
         sSessionMgr.AddSession(this);
     }
     else
-        complete->SetAuthResult(AUTH_BAD_VERSION_HASH);
+        logonResponse->SetAuthResult(AUTH_BAD_VERSION_HASH);
 
-    ReplaceResponse(response, complete);
+    ReplaceResponse(response, logonResponse);
     return true;
 }
 
@@ -909,9 +909,9 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
 {
     if (dataStream->Read<uint8>(8) != 1)
     {
-        Authentication::ResumeResponse* complete = new Authentication::ResumeResponse();
-        complete->SetAuthResult(AUTH_CORRUPTED_MODULE);
-        ReplaceResponse(response, complete);
+        Authentication::ResumeResponse* resumeResponse = new Authentication::ResumeResponse();
+        resumeResponse->SetAuthResult(AUTH_CORRUPTED_MODULE);
+        ReplaceResponse(response, resumeResponse);
         return false;
     }
 
@@ -954,9 +954,9 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
         LoginDatabase.Execute(stmt);
 
         TC_LOG_DEBUG("server.battlenet", "[Battlenet::Resume] Invalid proof!");
-        Authentication::ResumeResponse* result = new Authentication::ResumeResponse();
-        result->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
-        ReplaceResponse(response, result);
+        Authentication::ResumeResponse* resumeResponse = new Authentication::ResumeResponse();
+        resumeResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
+        ReplaceResponse(response, resumeResponse);
         return false;
     }
 
@@ -983,9 +983,9 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
     resume->Data = new uint8[resume->DataSize];
     memcpy(resume->Data, resumeData.GetBuffer(), resume->DataSize);
 
-    Authentication::ResumeResponse* result = new Authentication::ResumeResponse();
-    result->Modules.push_back(resume);
-    ReplaceResponse(response, result);
+    Authentication::ResumeResponse* resumeResponse = new Authentication::ResumeResponse();
+    resumeResponse->Modules.push_back(resume);
+    ReplaceResponse(response, resumeResponse);
     _authed = true;
     sSessionMgr.AddSession(this);
     return true;
@@ -993,8 +993,8 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
 
 bool Battlenet::Session::UnhandledModule(BitStream* /*dataStream*/, ServerPacket** response)
 {
-    Authentication::LogonResponse* complete = new Authentication::LogonResponse();
-    complete->SetAuthResult(AUTH_CORRUPTED_MODULE);
-    ReplaceResponse(response, complete);
+    Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
+    logonResponse->SetAuthResult(AUTH_CORRUPTED_MODULE);
+    ReplaceResponse(response, logonResponse);
     return false;
 }

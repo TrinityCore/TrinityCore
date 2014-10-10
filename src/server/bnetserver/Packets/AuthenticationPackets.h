@@ -19,6 +19,8 @@
 #define AuthenticationPackets_h__
 
 #include "PacketsBase.h"
+#include "ComponentManager.h"
+#include "ModuleManager.h"
 
 namespace Battlenet
 {
