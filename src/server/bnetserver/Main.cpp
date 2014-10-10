@@ -24,7 +24,9 @@
 * authentication server
 */
 
-#include "AuthSocketMgr.h"
+#include "ComponentManager.h"
+#include "ModuleManager.h"
+#include "SessionManager.h"
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
@@ -43,8 +45,8 @@
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
 
-#ifndef _TRINITY_REALM_CONFIG
-# define _TRINITY_REALM_CONFIG  "authserver.conf"
+#ifndef _TRINITY_BNET_CONFIG
+# define _TRINITY_BNET_CONFIG  "authserver.conf"
 #endif
 
 bool StartDB();
@@ -60,7 +62,7 @@ LoginDatabaseWorkerPool LoginDatabase;
 
 int main(int argc, char** argv)
 {
-    std::string configFile = _TRINITY_REALM_CONFIG;
+    std::string configFile = _TRINITY_BNET_CONFIG;
     auto vm = GetConsoleArguments(argc, argv, configFile);
     // exit if help is enabled
     if (vm.count("help"))
@@ -73,21 +75,21 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    TC_LOG_INFO("server.authserver", "%s (authserver)", _FULLVERSION);
-    TC_LOG_INFO("server.authserver", "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO("server.authserver", "Using configuration file %s.", configFile.c_str());
-    TC_LOG_INFO("server.authserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    TC_LOG_INFO("server.authserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+    TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", _FULLVERSION);
+    TC_LOG_INFO("server.bnetserver", "<Ctrl-C> to stop.\n");
+    TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", configFile.c_str());
+    TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    TC_LOG_INFO("server.bnetserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
     // authserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
     if (!pidFile.empty())
     {
         if (uint32 pid = CreatePIDFile(pidFile))
-            TC_LOG_INFO("server.authserver", "Daemon PID: %u\n", pid);
+            TC_LOG_INFO("server.bnetserver", "Daemon PID: %u\n", pid);
         else
         {
-            TC_LOG_ERROR("server.authserver", "Cannot create PID file %s.\n", pidFile.c_str());
+            TC_LOG_ERROR("server.bnetserver", "Cannot create PID file %s.\n", pidFile.c_str());
             return 1;
         }
     }
@@ -101,23 +103,23 @@ int main(int argc, char** argv)
 
     if (sRealmList->size() == 0)
     {
-        TC_LOG_ERROR("server.authserver", "No valid realms specified.");
+        TC_LOG_ERROR("server.bnetserver", "No valid realms specified.");
         StopDB();
         return 1;
     }
 
     // Start the listening port (acceptor) for auth connections
-    int32 port = sConfigMgr->GetIntDefault("RealmServerPort", 3724);
-    if (port < 0 || port > 0xFFFF)
+    int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
+    if (bnport < 0 || bnport > 0xFFFF)
     {
-        TC_LOG_ERROR("server.authserver", "Specified port out of allowed range (1-65535)");
+        TC_LOG_ERROR("server.bnetserver", "Specified battle.net port (%d) out of allowed range (1-65535)", bnport);
         StopDB();
         return 1;
     }
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
-    sAuthSocketMgr.StartNetwork(_ioService, bindIp, port);
+    sSessionMgr.StartNetwork(_ioService, bindIp, bnport);
 
     // Set signal handlers
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
@@ -127,12 +129,15 @@ int main(int argc, char** argv)
     signals.async_wait(SignalHandler);
 
     // Set process priority according to configuration settings
-    SetProcessPriority("server.authserver");
+    SetProcessPriority("server.bnetserver");
 
     // Enabled a timed callback for handling the database keep alive ping
     _dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
     _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
     _dbPingTimer.async_wait(KeepDatabaseAliveHandler);
+
+    sComponentMgr->Load();
+    sModuleMgr->Load();
 
     // Start the io service worker loop
     _ioService.run();
@@ -140,7 +145,7 @@ int main(int argc, char** argv)
     // Close the Database Pool and library
     StopDB();
 
-    TC_LOG_INFO("server.authserver", "Halting process...");
+    TC_LOG_INFO("server.bnetserver", "Halting process...");
     return 0;
 }
 
@@ -213,7 +218,7 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
-        ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_REALM_CONFIG), "use <arg> as configuration file")
+        ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_BNET_CONFIG), "use <arg> as configuration file")
         ;
     variables_map variablesMap;
     try

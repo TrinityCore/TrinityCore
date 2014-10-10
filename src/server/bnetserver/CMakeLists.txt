@@ -13,30 +13,32 @@
 file(GLOB_RECURSE sources_authentication Authentication/*.cpp Authentication/*.h)
 file(GLOB_RECURSE sources_realms Realms/*.cpp Realms/*.h)
 file(GLOB_RECURSE sources_server Server/*.cpp Server/*.h)
+file(GLOB_RECURSE sources_packets Packets/*.cpp Packets/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
 if (USE_COREPCH)
-  set(authserver_PCH_HDR PrecompiledHeaders/authPCH.h)
-  set(authserver_PCH_SRC PrecompiledHeaders/authPCH.cpp)
+  set(bnetserver_PCH_HDR PrecompiledHeaders/bnetPCH.h)
+  set(bnetserver_PCH_SRC PrecompiledHeaders/bnetPCH.cpp)
 endif()
 
-set(authserver_SRCS
-  ${authserver_SRCS}
+set(bnetserver_SRCS
+  ${bnetserver_SRCS}
   ${sources_authentication}
   ${sources_realms}
   ${sources_server}
+  ${sources_packets}
   ${sources_localdir}
 )
 
 if( WIN32 )
-  set(authserver_SRCS
-    ${authserver_SRCS}
+  set(bnetserver_SRCS
+    ${bnetserver_SRCS}
     ${sources_windows_Debugging}
   )
   if ( MSVC )
-    set(authserver_SRCS
-      ${authserver_SRCS}
-      authserver.rc
+    set(bnetserver_SRCS
+      ${bnetserver_SRCS}
+      bnetserver.rc
     )
   endif ()
 endif()
@@ -58,25 +60,26 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Authentication
   ${CMAKE_CURRENT_SOURCE_DIR}/Realms
   ${CMAKE_CURRENT_SOURCE_DIR}/Server
+  ${CMAKE_CURRENT_SOURCE_DIR}/Packets
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}
 )
 
-add_executable(authserver
-  ${authserver_SRCS}
-  ${authserver_PCH_SRC}
+add_executable(bnetserver
+  ${bnetserver_SRCS}
+  ${bnetserver_PCH_SRC}
 )
 
-add_dependencies(authserver revision.h)
+add_dependencies(bnetserver revision.h)
 
 if( NOT WIN32 )
-  set_target_properties(authserver PROPERTIES
-    COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+  set_target_properties(bnetserver PROPERTIES
+    COMPILE_DEFINITIONS _TRINITY_BNET_CONFIG="${CONF_DIR}/bnetserver.conf"
   )
 endif()
 
-target_link_libraries(authserver
+target_link_libraries(bnetserver
   shared
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
@@ -86,27 +89,27 @@ target_link_libraries(authserver
 
 if( WIN32 )
   if ( MSVC )
-    add_custom_command(TARGET authserver
+    add_custom_command(TARGET bnetserver
       POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
     )
   elseif ( MINGW )
-    add_custom_command(TARGET authserver
+    add_custom_command(TARGET bnetserver
       POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
     )
   endif()
 endif()
 
 if( UNIX )
-  install(TARGETS authserver DESTINATION bin)
-  install(FILES  authserver.conf.dist DESTINATION ${CONF_DIR})
+  install(TARGETS bnetserver DESTINATION bin)
+  install(FILES  bnetserver.conf.dist DESTINATION ${CONF_DIR})
 elseif( WIN32 )
-  install(TARGETS authserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  install(FILES authserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(TARGETS bnetserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(FILES bnetserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(authserver ${authserver_PCH_HDR} ${authserver_PCH_SRC})
+  add_cxx_pch(bnetserver ${bnetserver_PCH_HDR} ${bnetserver_PCH_SRC})
 endif()
