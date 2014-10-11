@@ -298,8 +298,8 @@ void SmartAIMgr::LoadSmartAIFromDB()
 bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
 {
     if (std::abs(e.target.o) > 2 * float(M_PI))
-        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has abs(`target.o`) > 2*PI (orientation is expressed in radians)",
-            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has abs(`target.o` = %f) > 2*PI (orientation is expressed in radians)",
+            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.o);
 
     if (e.GetActionType() == SMART_ACTION_INSTALL_AI_TEMPLATE)
         return true; // AI template has special handling
