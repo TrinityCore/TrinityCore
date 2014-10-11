@@ -25,7 +25,7 @@ std::string Battlenet::WoWRealm::ListSubscribeRequest::ToString() const
     return "Battlenet::WoWRealm::ListSubscribeRequest";
 }
 
-void Battlenet::WoWRealm::ListSubscribeRequest::CallHandler(Session* session) const
+void Battlenet::WoWRealm::ListSubscribeRequest::CallHandler(Session* session)
 {
     session->HandleListSubscribeRequest(*this);
 }
@@ -35,7 +35,7 @@ std::string Battlenet::WoWRealm::ListUnsubscribe::ToString() const
     return "Battlenet::WoWRealm::ListUnsubscribe";
 }
 
-void Battlenet::WoWRealm::ListUnsubscribe::CallHandler(Session* session) const
+void Battlenet::WoWRealm::ListUnsubscribe::CallHandler(Session* session)
 {
     session->HandleListUnsubscribe(*this);
 }
@@ -152,7 +152,7 @@ std::string Battlenet::WoWRealm::JoinRequestV2::ToString() const
     return stream.str().c_str();
 }
 
-void Battlenet::WoWRealm::JoinRequestV2::CallHandler(Session* session) const
+void Battlenet::WoWRealm::JoinRequestV2::CallHandler(Session* session)
 {
     session->HandleJoinRequestV2(*this);
 }

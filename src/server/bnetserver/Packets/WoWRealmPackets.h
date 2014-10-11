@@ -50,7 +50,7 @@ namespace Battlenet
 
             void Read() override { }
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
         };
 
         class ListUnsubscribe final : public ClientPacket
@@ -63,7 +63,7 @@ namespace Battlenet
 
             void Read() override { }
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
         };
 
         class JoinRequestV2 final : public ClientPacket
@@ -76,7 +76,7 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
 
             uint32 ClientSeed;
             RealmId Realm;

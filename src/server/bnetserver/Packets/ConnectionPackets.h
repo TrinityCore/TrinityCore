@@ -29,8 +29,8 @@ namespace Battlenet
             CMSG_PING               = 0x0,
             CMSG_ENABLE_ENCRYPTION  = 0x5,
             CMSG_LOGOUT_REQUEST     = 0x6,
-            CMSG_DISCONNECT_REQUEST = 0x7,  // Not implemented
-            CMSG_CONNECTION_CLOSING = 0x9,  // Not implemented
+            CMSG_DISCONNECT_REQUEST = 0x7,  // Not handled
+            CMSG_CONNECTION_CLOSING = 0x9,
 
             SMSG_PONG               = 0x0,
             SMSG_BOOM               = 0x1,  // Not implemented
@@ -49,7 +49,7 @@ namespace Battlenet
 
             void Read() override { }
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
         };
 
         class EnableEncryption final : public ClientPacket
@@ -62,7 +62,7 @@ namespace Battlenet
 
             void Read() override { }
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
         };
 
         class LogoutRequest final : public ClientPacket
@@ -75,7 +75,66 @@ namespace Battlenet
 
             void Read() override { }
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
+        };
+
+        class DisconnectRequest final : public ClientPacket
+        {
+        public:
+            DisconnectRequest(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_DISCONNECT_REQUEST, CONNECTION) && "Invalid packet header for DisconnectRequest");
+            }
+
+            void Read() override;
+            std::string ToString() const override;
+
+            uint16 Timeout;
+            uint32 Tick;
+        };
+
+        class ConnectionClosing final : public ClientPacket
+        {
+        public:
+            enum ClosingReason
+            {
+                PACKET_TOO_LARGE,
+                PACKET_CORRUPT,
+                PACKET_INVALID,
+                PACKET_INCORRECT,
+                HEADER_CORRUPT,
+                HEADER_IGNORED,
+                HEADER_INCORRECT,
+                PACKET_REJECTED,
+                CHANNEL_UNHANDLED,
+                COMMAND_UNHANDLED,
+                COMMAND_BAD_PERMISSIONS,
+                DIRECT_CALL,
+                TIMEOUT,
+            };
+
+            struct PacketInfo
+            {
+                uint16 LayerId;
+                std::string Channel;
+                uint32 Timestamp;
+                std::string CommandName;
+                uint16 Size;
+            };
+
+            ConnectionClosing(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_CONNECTION_CLOSING, CONNECTION) && "Invalid packet header for ConnectionClosing");
+            }
+
+            void Read() override;
+            std::string ToString() const override;
+            void CallHandler(Session* session) override;
+
+            PacketHeader Header;
+            ClosingReason Reason;
+            std::vector<PacketInfo> Packets;
+            time_t Now;
         };
 
         class Pong final : public ServerPacket

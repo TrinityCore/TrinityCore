@@ -55,6 +55,8 @@ namespace Battlenet
             _creators[PacketHeader(Connection::CMSG_PING, CONNECTION)] = &New<Connection::Ping>;
             _creators[PacketHeader(Connection::CMSG_ENABLE_ENCRYPTION, CONNECTION)] = &New<Connection::EnableEncryption>;
             _creators[PacketHeader(Connection::CMSG_LOGOUT_REQUEST, CONNECTION)] = &New<Connection::LogoutRequest>;
+            _creators[PacketHeader(Connection::CMSG_DISCONNECT_REQUEST, CONNECTION)] = &New<Connection::DisconnectRequest>;
+            _creators[PacketHeader(Connection::CMSG_CONNECTION_CLOSING, CONNECTION)] = &New<Connection::ConnectionClosing>;
 
             _creators[PacketHeader(WoWRealm::CMSG_LIST_SUBSCRIBE_REQUEST, WOWREALM)] = &New<WoWRealm::ListSubscribeRequest>;
             _creators[PacketHeader(WoWRealm::CMSG_LIST_UNSUBSCRIBE, WOWREALM)] = &New<WoWRealm::ListUnsubscribe>;

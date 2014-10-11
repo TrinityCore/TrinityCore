@@ -28,7 +28,7 @@ std::string Battlenet::Friends::SocialNetworkCheckConnected::ToString() const
     return "Battlenet::Friends::SocialNetworkCheckConnected SocialNetworkId " + std::to_string(SocialNetworkId);
 }
 
-void Battlenet::Friends::SocialNetworkCheckConnected::CallHandler(Session* session) const
+void Battlenet::Friends::SocialNetworkCheckConnected::CallHandler(Session* session)
 {
     session->HandleSocialNetworkCheckConnected(*this);
 }
@@ -45,11 +45,6 @@ void Battlenet::Friends::SocialNetworkConnect::Read()
 std::string Battlenet::Friends::SocialNetworkConnect::ToString() const
 {
     return "Battlenet::Friends::SocialNetworkConnect";
-}
-
-void Battlenet::Friends::SocialNetworkConnect::CallHandler(Session* session) const
-{
-    session->LogUnhandledPacket(*this);
 }
 
 std::string Battlenet::Friends::SocialNetworkConnectResult::ToString() const
@@ -82,11 +77,6 @@ void Battlenet::Friends::GetFriendsOfFriend::Read()
 std::string Battlenet::Friends::GetFriendsOfFriend::ToString() const
 {
     return "Battlenet::Friends::GetFriendsOfFriend";
-}
-
-void Battlenet::Friends::GetFriendsOfFriend::CallHandler(Session* session) const
-{
-    session->LogUnhandledPacket(*this);
 }
 
 void Battlenet::Friends::RealIdFriendInvite::Read()
@@ -139,7 +129,7 @@ std::string Battlenet::Friends::RealIdFriendInvite::ToString() const
     return "Battlenet::Friends::RealIdFriendInvite Mail: " + Email + " Message: " + Message;
 }
 
-void Battlenet::Friends::RealIdFriendInvite::CallHandler(Session* session) const
+void Battlenet::Friends::RealIdFriendInvite::CallHandler(Session* session)
 {
     FriendInviteResult* result = new FriendInviteResult();
     session->AsyncWrite(result);
