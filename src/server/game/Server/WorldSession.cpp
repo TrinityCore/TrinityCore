@@ -56,8 +56,7 @@ std::string const DefaultPlayerName = "<none>";
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
-    Opcodes opcode = DropHighBytes(packet->GetOpcode());
-    OpcodeHandler const* opHandle = opcodeTable[opcode];
+    OpcodeHandler const* opHandle = opcodeTable[packet->GetOpcode()];
 
     //let's check if our opcode can be really processed in Map::Update()
     if (opHandle->ProcessingPlace == PROCESS_INPLACE)
@@ -79,8 +78,7 @@ bool MapSessionFilter::Process(WorldPacket* packet)
 //OR packet handler is not thread-safe!
 bool WorldSessionFilter::Process(WorldPacket* packet)
 {
-    Opcodes opcode = DropHighBytes(packet->GetOpcode());
-    OpcodeHandler const* opHandle = opcodeTable[opcode];
+    OpcodeHandler const* opHandle = opcodeTable[packet->GetOpcode()];
     //check if packet handler is supposed to be safe
     if (opHandle->ProcessingPlace == PROCESS_INPLACE)
         return true;
