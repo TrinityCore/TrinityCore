@@ -20,6 +20,7 @@
 #define __SERVERPKTHDR_H__
 
 #include "Log.h"
+#include "WorldPacket.h"
 
 #pragma pack(push, 1)
 
@@ -28,34 +29,37 @@ struct ServerPktHeader
     /**
      * size is the length of the payload _plus_ the length of the opcode
      */
-    ServerPktHeader(uint32 size, uint16 cmd) : size(size)
+    ServerPktHeader(uint32 size, uint32 cmd, WorldPacketCrypt* authCrypt = nullptr) : size(size), isBigHeader(false)
     {
-        uint8 headerIndex=0;
-        if (isLargePacket())
+        if (authCrypt && authCrypt->IsInitialized())
         {
-            TC_LOG_DEBUG("network", "initializing large server to client packet. Size: %u, cmd: %u", size, cmd);
-            header[headerIndex++] = 0x80 | (0xFF & (size >> 16));
+            uint32 data =  (size << 13) | cmd & MAX_OPCODE;
+            memcpy(header, &data, 4);
+            authCrypt->EncryptSend(header, getHeaderLength());
         }
-        header[headerIndex++] = 0xFF &(size >> 8);
-        header[headerIndex++] = 0xFF & size;
+        else
+        {
+            // if authCrypt == nullPtr then it's init connection string
+            if (authCrypt)
+            {
+                size += 2;
+                memset(&header[4], 0, 2);
+                isBigHeader = true;
+            }
 
-        header[headerIndex++] = 0xFF & cmd;
-        header[headerIndex++] = 0xFF & (cmd >> 8);
+            memcpy(&header[0], &size, 2);
+            memcpy(&header[2], &cmd, 2);
+        }
     }
 
     uint8 getHeaderLength()
     {
-        // cmd = 2 bytes, size= 2||3bytes
-        return 2 + (isLargePacket() ? 3 : 2);
+        return isBigHeader ? 6 : 4;
     }
 
-    bool isLargePacket() const
-    {
-        return size > 0x7FFF;
-    }
-
+    uint8 header[6];
     const uint32 size;
-    uint8 header[5];
+    bool isBigHeader;
 };
 
 #pragma pack(pop)

@@ -36,11 +36,26 @@ using boost::asio::ip::tcp;
 
 struct ClientPktHeader
 {
-    uint16 size;
-    uint32 cmd;
+    union
+    {
+        struct
+        {
+            uint16 size;
+            uint32 cmd;
+        } NormalHeader;
 
-    bool IsValidSize() const { return size >= 4 && size < 10240; }
-    bool IsValidOpcode() const { return cmd < NUM_OPCODE_HANDLERS; }
+        struct
+        {
+            uint32 encryptedHeader;
+            uint16 unused;
+        } EncryptedHeader;
+    };
+
+    static uint8 GetHeaderSize(bool isEncrypted) { return isEncrypted ? 4 : 6; }
+    bool IsValidSize(bool isEncrypted) const { return isEncrypted ? true : GetSize(isEncrypted) >= GetHeaderSize(isEncrypted) && GetSize(isEncrypted) < 10240; }
+    bool IsValidOpcode(bool isEncrypted) const { return GetOpcode(isEncrypted) < NUM_OPCODE_HANDLERS; }
+    uint32 GetOpcode(bool isEncrypted) const { return isEncrypted ? EncryptedHeader.encryptedHeader & MAX_OPCODE : NormalHeader.cmd; }
+    uint32 GetSize(bool isEncrypted) const { return isEncrypted ? (EncryptedHeader.encryptedHeader & ~MAX_OPCODE) >> 13 : NormalHeader.size; }
 };
 
 #pragma pack(pop)

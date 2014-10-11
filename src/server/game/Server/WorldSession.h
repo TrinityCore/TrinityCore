@@ -144,7 +144,7 @@ public:
 
     virtual bool Process(WorldPacket* /*packet*/) { return true; }
     virtual bool ProcessLogout() const { return true; }
-    static Opcodes DropHighBytes(Opcodes opcode) { return Opcodes(opcode & 0xFFFF); }
+    static Opcodes DropHighBytes(Opcodes opcode) { return Opcodes(opcode & MAX_OPCODE); }
 
 protected:
     WorldSession* const m_pSession;
