@@ -2,13 +2,14 @@
 
 #include "../Action.h"
 #include "InventoryAction.h"
+#include "QueryItemUsageAction.h"
 
 namespace ai
 {
-    class TradeStatusAction : public InventoryAction
+    class TradeStatusAction : public QueryItemUsageAction
     {
     public:
-        TradeStatusAction(PlayerbotAI* ai) : InventoryAction(ai, "accept trade") {}
+        TradeStatusAction(PlayerbotAI* ai) : QueryItemUsageAction(ai, "accept trade") {}
         virtual bool Execute(Event event);
 
     private:
