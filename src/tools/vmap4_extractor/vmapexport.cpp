@@ -382,7 +382,6 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 {
     bool result = true;
     hasInputPathParam = false;
-    preciseVectorData = false;
 
     for(int i = 1; i < argc; ++i)
     {
