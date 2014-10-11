@@ -35,7 +35,7 @@ ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) cons
             realmIp = clientAddr;
         else
         {
-            // Assume that user connecting from the machine that authserver is located on
+            // Assume that user connecting from the machine that bnetserver is located on
             // has all realms available in his local network
             realmIp = LocalAddress;
         }
@@ -117,7 +117,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     if (error)
         return;
 
-    TC_LOG_INFO("server.authserver", "Updating Realm List...");
+    TC_LOG_INFO("server.bnetserver", "Updating Realm List...");
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -139,7 +139,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery, ec);
                 if (endPoint == end || ec)
                 {
-                    TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[2].GetString().c_str());
+                    TC_LOG_ERROR("server.bnetserver", "Could not resolve address %s", fields[2].GetString().c_str());
                     continue;
                 }
 
@@ -149,7 +149,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 endPoint = _resolver->resolve(localAddressQuery, ec);
                 if (endPoint == end || ec)
                 {
-                    TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[3].GetString().c_str());
+                    TC_LOG_ERROR("server.bnetserver", "Could not resolve address %s", fields[3].GetString().c_str());
                     continue;
                 }
 
@@ -159,7 +159,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 endPoint = _resolver->resolve(localSubmaskQuery, ec);
                 if (endPoint == end || ec)
                 {
-                    TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[4].GetString().c_str());
+                    TC_LOG_ERROR("server.bnetserver", "Could not resolve address %s", fields[4].GetString().c_str());
                     continue;
                 }
 
@@ -181,11 +181,11 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 UpdateRealm(id, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone,
                     (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
 
-                //TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[id].ExternalAddress.to_string().c_str(), port);
+                //TC_LOG_INFO("server.bnetserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[id].ExternalAddress.to_string().c_str(), port);
             }
             catch (std::exception& ex)
             {
-                TC_LOG_ERROR("server.authserver", "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
+                TC_LOG_ERROR("server.bnetserver", "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
                 ASSERT(false);
             }
         }
