@@ -99,14 +99,7 @@ int main(int argc, char** argv)
         return 1;
 
     // Get the list of realms for the server
-    sRealmList->Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
-
-    if (sRealmList->size() == 0)
-    {
-        TC_LOG_ERROR("server.bnetserver", "No valid realms specified.");
-        StopDB();
-        return 1;
-    }
+    sRealmList->Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
     // Start the listening port (acceptor) for auth connections
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);

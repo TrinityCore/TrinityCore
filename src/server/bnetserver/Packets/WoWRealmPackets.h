@@ -53,6 +53,19 @@ namespace Battlenet
             void CallHandler(Session* session) const override;
         };
 
+        class ListUnsubscribe final : public ClientPacket
+        {
+        public:
+            ListUnsubscribe(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_LIST_UNSUBSCRIBE, WOWREALM) && "Invalid packet header for ListUnsubscribe");
+            }
+
+            void Read() override { }
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+        };
+
         class JoinRequestV2 final : public ClientPacket
         {
         public:
@@ -110,8 +123,7 @@ namespace Battlenet
             };
 
             ListUpdate() : ServerPacket(PacketHeader(SMSG_LIST_UPDATE, WOWREALM)), UpdateState(UPDATE),
-                Timezone(0), Population(0.0f), Lock(0), Type(0), Name(""), Version(""),
-                Flags(0), Region(0), Battlegroup(0), Index(0), Build(0)
+                Timezone(0), Population(0.0f), Lock(0), Type(0), Name(""), Version(""), Flags(0)
             {
             }
 
@@ -127,10 +139,7 @@ namespace Battlenet
             std::string Version;
             tcp::endpoint Address;
             uint8 Flags;
-            uint8 Region;
-            uint8 Battlegroup;
-            uint32 Index;
-            uint32 Build;
+            RealmId Id;
         };
 
         class ListComplete final : public ServerPacket

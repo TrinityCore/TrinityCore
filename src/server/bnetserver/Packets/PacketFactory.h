@@ -57,10 +57,11 @@ namespace Battlenet
             _creators[PacketHeader(Connection::CMSG_LOGOUT_REQUEST, CONNECTION)] = &New<Connection::LogoutRequest>;
 
             _creators[PacketHeader(WoWRealm::CMSG_LIST_SUBSCRIBE_REQUEST, WOWREALM)] = &New<WoWRealm::ListSubscribeRequest>;
+            _creators[PacketHeader(WoWRealm::CMSG_LIST_UNSUBSCRIBE, WOWREALM)] = &New<WoWRealm::ListUnsubscribe>;
             _creators[PacketHeader(WoWRealm::CMSG_JOIN_REQUEST_V2, WOWREALM)] = &New<WoWRealm::JoinRequestV2>;
 
-            _creators[PacketHeader(Friends::CMSG_SOCIAL_NETWORK_CHECK_CONNECTED, FRIENDS)] = &New<Friends::SocialnetworkCheckConnected>;
-            _creators[PacketHeader(Friends::CMSG_SOCIAL_NETWORK_CONNECT, FRIENDS)] = &New<Friends::SocialnetworkConnect>;
+            _creators[PacketHeader(Friends::CMSG_SOCIAL_NETWORK_CHECK_CONNECTED, FRIENDS)] = &New<Friends::SocialNetworkCheckConnected>;
+            _creators[PacketHeader(Friends::CMSG_SOCIAL_NETWORK_CONNECT, FRIENDS)] = &New<Friends::SocialNetworkConnect>;
             _creators[PacketHeader(Friends::CMSG_GET_FRIENDS_OF_FRIEND, FRIENDS)] = &New<Friends::GetFriendsOfFriend>;
             _creators[PacketHeader(Friends::CMSG_REALID_FRIEND_INVITE, FRIENDS)] = &New<Friends::RealIdFriendInvite>;
 

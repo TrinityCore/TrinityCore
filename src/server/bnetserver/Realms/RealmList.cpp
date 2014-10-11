@@ -18,9 +18,10 @@
 
 #include <boost/asio/ip/tcp.hpp>
 #include "Common.h"
-#include "RealmList.h"
 #include "Database/DatabaseEnv.h"
+#include "SessionManager.h"
 #include "Util.h"
+#include "RealmList.h"
 
 ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) const
 {
@@ -51,73 +52,71 @@ ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) cons
             realmIp = ExternalAddress;
     }
 
-    ip::tcp::endpoint endpoint(realmIp, port);
+    ip::tcp::endpoint endpoint(realmIp, Port);
 
     // Return external IP
     return endpoint;
 }
 
-RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL)), _resolver(nullptr)
+RealmList::RealmList() : _updateInterval(0), _updateTimer(nullptr), _resolver(nullptr)
 {
 }
 
 RealmList::~RealmList()
 {
+    delete _updateTimer;
     delete _resolver;
 }
 
 // Load the realm list from the database
 void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInterval)
 {
+    _updateInterval = updateInterval;
+    _updateTimer = new boost::asio::deadline_timer(ioService);
     _resolver = new boost::asio::ip::tcp::resolver(ioService);
-    m_UpdateInterval = updateInterval;
 
     // Get the content of the realmlist table in the database
-    UpdateRealms(true);
+    UpdateRealms(boost::system::error_code());
 }
 
-void RealmList::UpdateRealm(uint32 id, const std::string& name, ip::address const& address, ip::address const& localAddr,
-    ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population, uint32 build, uint8 region, uint8 battlegroup)
+template<typename FieldType>
+inline void UpdateField(FieldType& out, FieldType const& in, bool& changed)
+{
+    if (out != in)
+    {
+        out = in;
+        changed = true;
+    }
+}
+
+void RealmList::UpdateRealm(Battlenet::RealmId const& id, const std::string& name, ip::address const& address, ip::address const& localAddr,
+    ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel,
+    float population)
 {
     // Create new if not exist or update existed
-    Realm& realm = m_realms[name];
+    Realm& realm = _realms[id];
 
-    realm.m_ID = id;
-    realm.name = name;
-    realm.icon = icon;
-    realm.flag = flag;
-    realm.timezone = timezone;
-    realm.allowedSecurityLevel = allowedSecurityLevel;
-    realm.populationLevel = population;
+    realm.Keep = true;
+    realm.Updated = false;
 
-    // Append port to IP address.
-
-    realm.ExternalAddress = address;
-    realm.LocalAddress = localAddr;
-    realm.LocalSubnetMask = localSubmask;
-    realm.port = port;
-    realm.gamebuild = build;
-    realm.Region = region;
-    realm.Battlegroup = battlegroup;
+    realm.Id = id;
+    UpdateField(realm.Name, name, realm.Updated);
+    UpdateField(realm.Type, icon, realm.Updated);
+    UpdateField(realm.Flags, flag, realm.Updated);
+    UpdateField(realm.Timezone, timezone, realm.Updated);
+    UpdateField(realm.AllowedSecurityLevel, allowedSecurityLevel, realm.Updated);
+    UpdateField(realm.PopulationLevel, population, realm.Updated);
+    UpdateField(realm.ExternalAddress, address, realm.Updated);
+    UpdateField(realm.LocalAddress, localAddr, realm.Updated);
+    UpdateField(realm.LocalSubnetMask, localSubmask, realm.Updated);
+    UpdateField(realm.Port, port, realm.Updated);
 }
 
-void RealmList::UpdateIfNeed()
+void RealmList::UpdateRealms(boost::system::error_code const& error)
 {
-    // maybe disabled or updated recently
-    if (!m_UpdateInterval || m_NextUpdateTime > time(NULL))
+    if (error)
         return;
 
-    m_NextUpdateTime = time(NULL) + m_UpdateInterval;
-
-    // Clears Realm list
-    m_realms.clear();
-
-    // Get the content of the realmlist table in the database
-    UpdateRealms();
-}
-
-void RealmList::UpdateRealms(bool init)
-{
     TC_LOG_INFO("server.authserver", "Updating Realm List...");
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
@@ -133,7 +132,6 @@ void RealmList::UpdateRealms(bool init)
                 boost::asio::ip::tcp::resolver::iterator end;
 
                 Field* fields = result->Fetch();
-                uint32 realmId = fields[0].GetUInt32();
                 std::string name = fields[1].GetString();
                 boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
 
@@ -142,7 +140,7 @@ void RealmList::UpdateRealms(bool init)
                 if (endPoint == end || ec)
                 {
                     TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[2].GetString().c_str());
-                    return;
+                    continue;
                 }
 
                 ip::address externalAddress = (*endPoint).endpoint().address();
@@ -152,7 +150,7 @@ void RealmList::UpdateRealms(bool init)
                 if (endPoint == end || ec)
                 {
                     TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[3].GetString().c_str());
-                    return;
+                    continue;
                 }
 
                 ip::address localAddress = (*endPoint).endpoint().address();
@@ -162,7 +160,7 @@ void RealmList::UpdateRealms(bool init)
                 if (endPoint == end || ec)
                 {
                     TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[4].GetString().c_str());
-                    return;
+                    continue;
                 }
 
                 ip::address localSubmask = (*endPoint).endpoint().address();
@@ -173,15 +171,17 @@ void RealmList::UpdateRealms(bool init)
                 uint8 timezone = fields[8].GetUInt8();
                 uint8 allowedSecurityLevel = fields[9].GetUInt8();
                 float pop = fields[10].GetFloat();
+                uint32 realmId = fields[0].GetUInt32();
                 uint32 build = fields[11].GetUInt32();
                 uint8 region = fields[12].GetUInt8();
                 uint8 battlegroup = fields[13].GetUInt8();
 
-                UpdateRealm(realmId, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone,
-                    (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build, region, battlegroup);
+                Battlenet::RealmId id{ region, battlegroup, realmId, build };
 
-                if (init)
-                    TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[name].ExternalAddress.to_string().c_str(), port);
+                UpdateRealm(id, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone,
+                    (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
+
+                //TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[id].ExternalAddress.to_string().c_str(), port);
             }
             catch (std::exception& ex)
             {
@@ -191,16 +191,41 @@ void RealmList::UpdateRealms(bool init)
         }
         while (result->NextRow());
     }
+
+    std::vector<Realm const*> updatedRealms;
+    std::vector<Battlenet::RealmId> deletedRealms;
+
+    for (RealmMap::value_type const& pair : _realms)
+    {
+        if (pair.second.Updated)
+            updatedRealms.push_back(&pair.second);
+        if (!pair.second.Keep)
+            deletedRealms.push_back(pair.first);
+    }
+
+    for (Battlenet::RealmId const& deleted : deletedRealms)
+        _realms.erase(deleted);
+
+    if (!updatedRealms.empty() || !deletedRealms.empty())
+    {
+        sSessionMgr.LockedForEach([&updatedRealms, &deletedRealms](Battlenet::Session* session)
+        {
+            if (session->IsSubscribedToRealmListUpdates())
+                session->UpdateRealms(updatedRealms, deletedRealms);
+        });
+    }
+
+    if (_updateInterval)
+    {
+        _updateTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
+        _updateTimer->async_wait(std::bind(&RealmList::UpdateRealms, this, std::placeholders::_1));
+    }
 }
 
 Realm const* RealmList::GetRealm(Battlenet::RealmId const& id) const
 {
-    auto itr = std::find_if(m_realms.begin(), m_realms.end(), [id](RealmMap::value_type const& pair)
-    {
-        return pair.second.Region == id.Region && pair.second.Battlegroup == id.Battlegroup && pair.second.m_ID == id.Index;
-    });
-
-    if (itr != m_realms.end())
+    auto itr = _realms.find(id);
+    if (itr != _realms.end())
         return &itr->second;
 
     return NULL;

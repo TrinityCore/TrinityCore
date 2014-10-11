@@ -54,8 +54,6 @@ struct Realm
     AccountTypes allowedSecurityLevel;
     float populationLevel;
     uint32 gamebuild;
-    uint8 Region;
-    uint8 Battlegroup;
 
     ip::tcp::endpoint GetAddressForClient(ip::address const& clientAddr) const;
 };
@@ -89,7 +87,7 @@ private:
 
     void UpdateRealms(bool init = false);
     void UpdateRealm(uint32 id, const std::string& name, ip::address const& address, ip::address const& localAddr,
-        ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population, uint32 build, uint8 region, uint8 battlegroup);
+        ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population, uint32 build);
 
     RealmMap m_realms;
     uint32   m_UpdateInterval;

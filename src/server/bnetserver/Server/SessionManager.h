@@ -20,6 +20,8 @@
 
 #include "Session.h"
 #include "SocketMgr.h"
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
 namespace Battlenet
 {
@@ -28,7 +30,7 @@ namespace Battlenet
     struct SessionInfo
     {
         uint32 AccountId;
-        uint32 GameAccountIndex;
+        uint32 GameAccountId;
 
         bool operator<(SessionInfo const& right) const
         {
@@ -41,6 +43,7 @@ namespace Battlenet
     class SessionManager : SocketMgr<Session>
     {
         typedef SocketMgr<Session> BaseSocketMgr;
+        typedef std::map<SessionInfo, Session*> SessionMap;
 
     public:
         static SessionManager& Instance()
@@ -52,9 +55,17 @@ namespace Battlenet
         bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port) override;
 
         // noop for now, will be needed later to broadcast realmlist updates for example
-        void AddSession(Session* /*session*/) { }
+        void AddSession(Session* /*session*/);
 
-        void RemoveSession(Session* /*session*/) { }
+        void RemoveSession(Session* /*session*/);
+
+        template<typename Iterator>
+        void LockedForEach(Iterator iterator)
+        {
+            boost::shared_lock<boost::shared_mutex> lock(_sessionMutex);
+            for (SessionMap::value_type const& pair : _sessions)
+                iterator(pair.second);
+        }
 
     protected:
         NetworkThread<Session>* CreateThreads() const override;
@@ -62,7 +73,8 @@ namespace Battlenet
     private:
         static void OnSocketAccept(tcp::socket&& sock);
 
-        std::map<SessionInfo, Session> _sessions;
+        SessionMap _sessions;
+        boost::shared_mutex _sessionMutex;
     };
 }
 

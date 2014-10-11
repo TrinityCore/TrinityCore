@@ -91,10 +91,10 @@ ProcessPriority = 0
 #
 #    RealmsStateUpdateDelay
 #        Description: Time (in seconds) between realm list updates.
-#        Default:     20 - (Enabled)
+#        Default:     10
 #                     0  - (Disabled)
 
-RealmsStateUpdateDelay = 20
+RealmsStateUpdateDelay = 10
 
 #
 #    WrongPass.MaxCount
