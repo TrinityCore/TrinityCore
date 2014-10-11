@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     TC_LOG_INFO("server.bnetserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
-    // authserver PID file creation
+    // bnetserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
     if (!pidFile.empty())
     {
@@ -151,32 +151,31 @@ bool StartDB()
     std::string dbstring = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
-        TC_LOG_ERROR("server.authserver", "Database not specified");
+        TC_LOG_ERROR("server.bnetserver", "Database not specified");
         return false;
     }
 
     int32 worker_threads = sConfigMgr->GetIntDefault("LoginDatabase.WorkerThreads", 1);
     if (worker_threads < 1 || worker_threads > 32)
     {
-        TC_LOG_ERROR("server.authserver", "Improper value specified for LoginDatabase.WorkerThreads, defaulting to 1.");
+        TC_LOG_ERROR("server.bnetserver", "Improper value specified for LoginDatabase.WorkerThreads, defaulting to 1.");
         worker_threads = 1;
     }
 
     int32 synch_threads = sConfigMgr->GetIntDefault("LoginDatabase.SynchThreads", 1);
     if (synch_threads < 1 || synch_threads > 32)
     {
-        TC_LOG_ERROR("server.authserver", "Improper value specified for LoginDatabase.SynchThreads, defaulting to 1.");
+        TC_LOG_ERROR("server.bnetserver", "Improper value specified for LoginDatabase.SynchThreads, defaulting to 1.");
         synch_threads = 1;
     }
 
-    // NOTE: While authserver is singlethreaded you should keep synch_threads == 1. Increasing it is just silly since only 1 will be used ever.
     if (!LoginDatabase.Open(dbstring, uint8(worker_threads), uint8(synch_threads)))
     {
-        TC_LOG_ERROR("server.authserver", "Cannot connect to database");
+        TC_LOG_ERROR("server.bnetserver", "Cannot connect to database");
         return false;
     }
 
-    TC_LOG_INFO("server.authserver", "Started auth database connection pool.");
+    TC_LOG_INFO("server.bnetserver", "Started auth database connection pool.");
     sLog->SetRealmId(0); // Enables DB appenders when realm is set.
     return true;
 }
@@ -198,7 +197,7 @@ void KeepDatabaseAliveHandler(const boost::system::error_code& error)
 {
     if (!error)
     {
-        TC_LOG_INFO("server.authserver", "Ping MySQL to keep connection alive");
+        TC_LOG_INFO("server.bnetserver", "Ping MySQL to keep connection alive");
         LoginDatabase.KeepAlive();
 
         _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
