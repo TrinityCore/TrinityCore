@@ -144,18 +144,32 @@ void SmartAIMgr::LoadSmartAIFromDB()
             {
                 case SMART_SCRIPT_TYPE_CREATURE:
                 {
-                    if (!sObjectMgr->GetCreatureTemplate((uint32)temp.entryOrGuid))
+                    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate((uint32)temp.entryOrGuid);
+                    if (!creatureInfo)
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                        continue;
+                    }
+
+                    if (creatureInfo->AIName != "SmartAI")
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) is not using SmartAI, skipped loading.", uint32(temp.entryOrGuid));
                         continue;
                     }
                     break;
                 }
                 case SMART_SCRIPT_TYPE_GAMEOBJECT:
                 {
-                    if (!sObjectMgr->GetGameObjectTemplate((uint32)temp.entryOrGuid))
+                    GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate((uint32)temp.entryOrGuid);
+                    if (!gameObjectInfo)
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry (%u) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                        continue;
+                    }
+
+                    if (gameObjectInfo->AIName != "SmartGameObjectAI")
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry (%u) is not using SmartGameObjectAI, skipped loading.", uint32(temp.entryOrGuid));
                         continue;
                     }
                     break;
@@ -178,9 +192,23 @@ void SmartAIMgr::LoadSmartAIFromDB()
         }
         else
         {
-            if (!sObjectMgr->GetCreatureData(uint32(abs(temp.entryOrGuid))))
+            CreatureData const* creature = sObjectMgr->GetCreatureData(uint32(abs(temp.entryOrGuid)));
+            if (!creature)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid (%u) does not exist, skipped loading.", uint32(abs(temp.entryOrGuid)));
+                continue;
+            }
+
+            CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature->id);
+            if (!creatureInfo)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) guid (%u) does not exist, skipped loading.", creature->id, uint32(abs(temp.entryOrGuid)));
+                continue;
+            }
+
+            if (creatureInfo->AIName != "SmartAI")
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) guid (%u) is not using SmartAI, skipped loading.", creature->id, uint32(abs(temp.entryOrGuid)));
                 continue;
             }
         }
@@ -267,6 +295,10 @@ void SmartAIMgr::LoadSmartAIFromDB()
 
 bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
 {
+    if (std::abs(e.target.o) > 2 * float(M_PI))
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has abs(`target.o`) > 2*PI (orientation is expressed in radians)",
+            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+
     if (e.GetActionType() == SMART_ACTION_INSTALL_AI_TEMPLATE)
         return true; // AI template has special handling
     switch (e.GetTargetType())
@@ -1155,7 +1187,26 @@ bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id) // unused
     uint32 entry = 0;
 
     if (e.entryOrGuid >= 0)
-        entry = uint32(e.entryOrGuid);
+    {
+        if (e.GetEventType() == SMART_EVENT_TEXT_OVER)
+        {
+            entry = e.event.textOver.creatureEntry;
+            id = e.event.textOver.textGroupID;
+        }
+        else
+        {
+            switch (e.GetTargetType())
+            {
+                case SMART_TARGET_CREATURE_DISTANCE:
+                case SMART_TARGET_CREATURE_RANGE:
+                case SMART_TARGET_CLOSEST_CREATURE:
+                    return true; // ignore
+                default:
+                    entry = uint32(e.entryOrGuid);
+                    break;
+            }
+        }
+    }
     else
     {
         entry = uint32(abs(e.entryOrGuid));
@@ -1174,7 +1225,7 @@ bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id) // unused
 
     if (error)
     {
-        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u using non-existent Text id %d, skipped.", e.entryOrGuid, e.GetScriptType(), e.source_type, e.GetActionType(), id);
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u using non-existent Text id %d, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), id);
         return false;
     }
 
