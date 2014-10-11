@@ -272,9 +272,9 @@ void LootStore::ReportUnusedIds(LootIdSet const& lootIdSet) const
         TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d isn't %s and not referenced from loot, and thus useless.", GetName(), *itr, GetEntryName());
 }
 
-void LootStore::ReportNonExistingId(uint32 id) const
+void LootStore::ReportNonExistingId(uint32 lootId, const char* ownerType, uint32 ownerId) const
 {
-    TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d (%s) does not exist but is used as loot id in DB.", GetName(), id, GetEntryName());
+    TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d does not exist but it is used by %s %d", GetName(), lootId, ownerType, ownerId);
 }
 
 //
@@ -1218,7 +1218,7 @@ void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, Lo
         if (item->reference > 0)
         {
             if (!LootTemplates_Reference.GetLootFor(item->reference))
-                LootTemplates_Reference.ReportNonExistingId(item->reference);
+                LootTemplates_Reference.ReportNonExistingId(item->reference, "Reference", item->itemid);
             else if (ref_set)
                 ref_set->erase(item->reference);
         }
@@ -1230,7 +1230,7 @@ void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, Lo
         if (item->reference > 0)
         {
             if (!LootTemplates_Reference.GetLootFor(item->reference))
-                LootTemplates_Reference.ReportNonExistingId(item->reference);
+                LootTemplates_Reference.ReportNonExistingId(item->reference, "Reference", item->itemid);
             else if (ref_set)
                 ref_set->erase(item->reference);
         }
@@ -1431,7 +1431,7 @@ void LootTemplate::CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_se
         if (item->reference > 0)
         {
             if (!LootTemplates_Reference.GetLootFor(item->reference))
-                LootTemplates_Reference.ReportNonExistingId(item->reference);
+                LootTemplates_Reference.ReportNonExistingId(item->reference, "Reference", item->itemid);
             else if (ref_set)
                 ref_set->erase(item->reference);
         }
@@ -1525,7 +1525,7 @@ void LoadLootTemplates_Creature()
         if (uint32 lootid = itr->second.lootid)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Creature.ReportNonExistingId(lootid);
+                LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", itr->second.Entry);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -1558,7 +1558,7 @@ void LoadLootTemplates_Disenchant()
         if (uint32 lootid = itr->second.DisenchantID)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Disenchant.ReportNonExistingId(lootid);
+                LootTemplates_Disenchant.ReportNonExistingId(lootid, "Item", itr->second.ItemId);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -1616,7 +1616,7 @@ void LoadLootTemplates_Gameobject()
         if (uint32 lootid = itr->second.GetLootId())
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Gameobject.ReportNonExistingId(lootid);
+                LootTemplates_Gameobject.ReportNonExistingId(lootid, "Gameobject", itr->second.entry);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -1703,7 +1703,7 @@ void LoadLootTemplates_Pickpocketing()
         if (uint32 lootid = itr->second.pickpocketLootId)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Pickpocketing.ReportNonExistingId(lootid);
+                LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", itr->second.Entry);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -1790,7 +1790,7 @@ void LoadLootTemplates_Skinning()
         if (uint32 lootid = itr->second.SkinLootId)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Skinning.ReportNonExistingId(lootid);
+                LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", itr->second.Entry);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -1834,7 +1834,7 @@ void LoadLootTemplates_Spell()
             // ignore 61756 (Northrend Inscription Research (FAST QA VERSION) for example
             if (!(spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT) || (spellInfo->Attributes & SPELL_ATTR0_TRADESPELL))
             {
-                LootTemplates_Spell.ReportNonExistingId(spell_id);
+                LootTemplates_Spell.ReportNonExistingId(spell_id, "Spell", spellInfo->Id);
             }
         }
         else
