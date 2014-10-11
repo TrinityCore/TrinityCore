@@ -684,9 +684,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 100 are not recommended at all.
 #        Range:       1-255
-#        Default:     85
+#        Default:     100
 
-MaxPlayerLevel = 85
+MaxPlayerLevel = 100
 
 #
 #    MinDualSpecLevel
@@ -723,9 +723,9 @@ StartPlayerMoney = 0
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.
-#        Default:     100
+#        Default:     85
 
-RecruitAFriend.MaxLevel = 100
+RecruitAFriend.MaxLevel = 85
 
 #
 #    RecruitAFriend.MaxDifference
