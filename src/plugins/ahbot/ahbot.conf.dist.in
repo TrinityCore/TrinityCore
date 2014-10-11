@@ -33,6 +33,12 @@ AhBot.DefaultMinPrice = 20
 AhBot.PriceQualityMultiplier = 1.0
 AhBot.AlwaysAvailableMoney = 2000000
 
+# Buy/sell delays
+AhBot.ItemBuyMinInterval = 7200
+AhBot.ItemBuyMaxInterval = 28800
+AhBot.ItemSellMinInterval = 7200
+AhBot.ItemSellMaxInterval = 28800
+
 #
 # Items
 #

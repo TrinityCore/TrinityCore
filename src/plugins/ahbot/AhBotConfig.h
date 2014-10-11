@@ -20,7 +20,9 @@ public:
     bool enabled;
     uint64 guid;
     uint32 updateInterval;
-    uint32 historyDays, itemBuyInterval, itemSellInterval, maxSellInterval;
+    uint32 historyDays, maxSellInterval;
+    uint32 itemBuyMinInterval, itemBuyMaxInterval;
+    uint32 itemSellMinInterval, itemSellMaxInterval;
     uint32 alwaysAvailableMoney;
     float priceMultiplier, priceQualityMultiplier;
     uint32 defaultMinPrice;

@@ -249,7 +249,7 @@ int AhBot::Answer(int auction, Category* category, ItemBag* inAuctionItems)
             continue;
         }
 
-        uint32 answerCount = GetAnswerCount(proto->ItemId, auctionIds[auction], sAhBotConfig.itemBuyInterval);
+        uint32 answerCount = GetAnswerCount(proto->ItemId, auctionIds[auction], sAhBotConfig.itemBuyMaxInterval);
         uint32 maxAnswerCount = category->GetMaxAllowedItemAuctionCount(proto);
         if (maxAnswerCount && answerCount > maxAnswerCount)
         {
@@ -401,8 +401,8 @@ uint32 AhBot::GetBuyTime(uint32 entry, uint32 itemId, uint32 auctionHouse, Categ
     if (itemTime < time(0)) itemTime = time(0);
 
     double rarity = category->GetPricingStrategy()->GetRarityPriceMultiplier(itemId);
-    categoryTime += urand(sAhBotConfig.updateInterval, sAhBotConfig.itemBuyInterval / 2) * priceLevel / rarity;
-    itemTime += urand(sAhBotConfig.updateInterval, sAhBotConfig.itemBuyInterval) * priceLevel / rarity;
+    categoryTime += urand(sAhBotConfig.itemBuyMinInterval, sAhBotConfig.itemBuyMaxInterval) * priceLevel;
+    itemTime += urand(sAhBotConfig.itemBuyMinInterval, sAhBotConfig.itemBuyMaxInterval) * priceLevel / rarity;
     entryTime = max(categoryTime, itemTime);
 
     SetTime(categoryName, 0, auctionHouse, AHBOT_WON_DELAY, categoryTime);
@@ -432,8 +432,8 @@ uint32 AhBot::GetSellTime(uint32 itemId, uint32 auctionHouse, Category*& categor
     if (itemTime < time(0)) itemTime = time(0);
 
     double rarity = category->GetPricingStrategy()->GetRarityPriceMultiplier(itemId);
-    categoryTime += urand(sAhBotConfig.updateInterval, sAhBotConfig.itemSellInterval / 2) * rarity;
-    itemTime += urand(sAhBotConfig.updateInterval, sAhBotConfig.itemSellInterval) * rarity;
+    categoryTime += urand(sAhBotConfig.itemSellMinInterval, sAhBotConfig.itemSellMaxInterval);
+    itemTime += urand(sAhBotConfig.itemSellMinInterval, sAhBotConfig.itemSellMaxInterval) * rarity;
     itemTime = max(itemTime, categoryTime);
 
     SetTime(categoryName, 0, auctionHouse, AHBOT_SELL_DELAY, categoryTime);
