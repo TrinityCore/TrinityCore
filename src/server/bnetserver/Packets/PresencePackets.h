@@ -44,7 +44,6 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
         };
 
         class StatisticSubscribe final : public ClientPacket
@@ -57,7 +56,6 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
         };
     }
 }

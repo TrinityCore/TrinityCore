@@ -50,7 +50,7 @@ std::string Battlenet::Authentication::LogonRequest::ToString() const
     return stream.str();
 }
 
-void Battlenet::Authentication::LogonRequest::CallHandler(Session* session) const
+void Battlenet::Authentication::LogonRequest::CallHandler(Session* session)
 {
     session->HandleLogonRequest(*this);
 }
@@ -89,7 +89,7 @@ std::string Battlenet::Authentication::ResumeRequest::ToString() const
     return stream.str();
 }
 
-void Battlenet::Authentication::ResumeRequest::CallHandler(Session* session) const
+void Battlenet::Authentication::ResumeRequest::CallHandler(Session* session)
 {
     session->HandleResumeRequest(*this);
 }
@@ -153,7 +153,7 @@ std::string Battlenet::Authentication::ProofResponse::ToString() const
     return stream.str();
 }
 
-void Battlenet::Authentication::ProofResponse::CallHandler(Session* session) const
+void Battlenet::Authentication::ProofResponse::CallHandler(Session* session)
 {
     session->HandleProofResponse(*this);
 }

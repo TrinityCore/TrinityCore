@@ -59,12 +59,11 @@ namespace Battlenet
         public:
             SocialNetworkConnect(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
             {
-                ASSERT(header == PacketHeader(CMSG_SOCIAL_NETWORK_CONNECT, FRIENDS) && "Invalid packet header for SocialnetworkConnect");
+                ASSERT(header == PacketHeader(CMSG_SOCIAL_NETWORK_CONNECT, FRIENDS) && "Invalid packet header for SocialNetworkConnect");
             }
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
         };
 
         class SocialNetworkConnectResult final : public ServerPacket
@@ -88,7 +87,7 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
 
             uint32 SocialNetworkId;
         };
@@ -117,7 +116,6 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
         };
 
         class FriendsOfFriend final : public ServerPacket
@@ -141,7 +139,7 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
 
             std::string Email;
             std::string Message;

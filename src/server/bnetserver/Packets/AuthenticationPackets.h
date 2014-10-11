@@ -49,7 +49,7 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
 
             std::string Program;
             std::string Platform;
@@ -68,7 +68,7 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
 
             std::string Program;
             std::string Platform;
@@ -91,21 +91,9 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session) const override;
+            void CallHandler(Session* session) override;
 
             std::vector<BitStream*> Modules;
-        };
-
-        class ProofRequest final : public ServerPacket
-        {
-        public:
-            ProofRequest() : ServerPacket(PacketHeader(SMSG_PROOF_REQUEST, AUTHENTICATION)) { }
-            ~ProofRequest();
-
-            void Write() override;
-            std::string ToString() const override;
-
-            std::vector<ModuleInfo*> Modules;
         };
 
         class ResponseFailure
@@ -191,6 +179,18 @@ namespace Battlenet
 
             int32 PingTimeout;
             Regulator RegulatorRules;
+        };
+
+        class ProofRequest final : public ServerPacket
+        {
+        public:
+            ProofRequest() : ServerPacket(PacketHeader(SMSG_PROOF_REQUEST, AUTHENTICATION)) { }
+            ~ProofRequest();
+
+            void Write() override;
+            std::string ToString() const override;
+
+            std::vector<ModuleInfo*> Modules;
         };
     }
 }

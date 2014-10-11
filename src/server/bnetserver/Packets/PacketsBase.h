@@ -97,10 +97,14 @@ namespace Battlenet
     class ClientPacket : public Packet
     {
     public:
-        ClientPacket(PacketHeader const& header, BitStream& stream) : Packet(header, stream) { }
+        ClientPacket(PacketHeader const& header, BitStream& stream) : Packet(header, stream), _handled(true) { }
 
         void Write() override final { ASSERT(!"Write not implemented for this packet."); }
-        virtual void CallHandler(Session* session) const = 0;
+        virtual void CallHandler(Session* session);
+        bool WasHandled() const { return _handled; }
+
+    private:
+        bool _handled;
     };
 
     class ServerPacket : public Packet

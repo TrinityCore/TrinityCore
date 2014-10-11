@@ -36,3 +36,9 @@ Battlenet::ServerPacket::~ServerPacket()
 {
     delete &_stream;
 }
+
+void Battlenet::ClientPacket::CallHandler(Session* session)
+{
+    session->LogUnhandledPacket(*this);
+    _handled = false;
+}

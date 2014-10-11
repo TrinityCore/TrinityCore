@@ -396,6 +396,10 @@ void Battlenet::Session::HandleLogoutRequest(Connection::LogoutRequest const& /*
     LoginDatabase.Execute(stmt);
 }
 
+void Battlenet::Session::HandleConnectionClosing(Connection::ConnectionClosing const& /*connectionClosing*/)
+{
+}
+
 void Battlenet::Session::HandleListSubscribeRequest(WoWRealm::ListSubscribeRequest const& /*listSubscribeRequest*/)
 {
     WoWRealm::ListSubscribeResponse* listSubscribeResponse = new WoWRealm::ListSubscribeResponse();
@@ -497,8 +501,10 @@ void Battlenet::Session::ReadHandler()
 
             if (ClientPacket* packet = sPacketFactory.Create(header, stream))
             {
-                TC_LOG_TRACE("server.battlenet", "Battlenet::Session::ReadDataHandler %s", packet->ToString().c_str());
                 packet->CallHandler(this);
+                if (packet->WasHandled())
+                    TC_LOG_TRACE("server.battlenet", "Battlenet::Session::ReadDataHandler %s", packet->ToString().c_str());
+
                 delete packet;
             }
             else

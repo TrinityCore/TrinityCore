@@ -28,11 +28,6 @@ std::string Battlenet::Presence::UpdateRequest::ToString() const
     return "Battlenet::Presence::UpdateRequest";
 }
 
-void Battlenet::Presence::UpdateRequest::CallHandler(Session* session) const
-{
-    session->LogUnhandledPacket(*this);
-}
-
 void Battlenet::Presence::StatisticSubscribe::Read()
 {
 }
@@ -40,9 +35,4 @@ void Battlenet::Presence::StatisticSubscribe::Read()
 std::string Battlenet::Presence::StatisticSubscribe::ToString() const
 {
     return "Battlenet::Presence::StatisticSubscribe";
-}
-
-void Battlenet::Presence::StatisticSubscribe::CallHandler(Session* session) const
-{
-    session->LogUnhandledPacket(*this);
 }

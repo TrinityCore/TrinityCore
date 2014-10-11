@@ -71,6 +71,7 @@ namespace Battlenet
         void HandlePing(Connection::Ping const& ping);
         void HandleEnableEncryption(Connection::EnableEncryption const& enableEncryption);
         void HandleLogoutRequest(Connection::LogoutRequest const& logoutRequest);
+        void HandleConnectionClosing(Connection::ConnectionClosing const& connectionClosing);
 
         // WoWRealm
         void HandleListSubscribeRequest(WoWRealm::ListSubscribeRequest const& listSubscribeRequest);
