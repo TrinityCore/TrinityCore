@@ -25,6 +25,7 @@
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 
+struct Realm;
 using boost::asio::ip::tcp;
 
 namespace Battlenet
@@ -73,11 +74,22 @@ namespace Battlenet
 
         // WoWRealm
         void HandleListSubscribeRequest(WoWRealm::ListSubscribeRequest const& listSubscribeRequest);
+        void HandleListUnsubscribe(WoWRealm::ListUnsubscribe const& listUnsubscribe);
         void HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& joinRequest);
+
+        // Friends
+        void HandleSocialNetworkCheckConnected(Friends::SocialNetworkCheckConnected const& socialNetworkCheckConnected);
 
         void Start() override;
 
+        void UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms);
+
         void AsyncWrite(ServerPacket* packet);
+
+        uint32 GetAccountId() const { return _accountId; }
+        uint32 GetGameAccountId() const { return _gameAccountId; }
+
+        bool IsSubscribedToRealmListUpdates() const { return _subscribedToRealmListUpdates; }
 
     protected:
         void ReadHandler() override;
@@ -93,6 +105,8 @@ namespace Battlenet
         bool HandleRiskFingerprintModule(BitStream* dataStream, ServerPacket** response);
         bool HandleResumeModule(BitStream* dataStream, ServerPacket** response);
         bool UnhandledModule(BitStream* dataStream, ServerPacket** response);
+
+        WoWRealm::ListUpdate* BuildListUpdate(Realm const* realm) const;
 
         uint32 _accountId;
         std::string _accountName;
@@ -121,6 +135,7 @@ namespace Battlenet
 
         PacketCrypt _crypt;
         bool _authed;
+        bool _subscribedToRealmListUpdates;
     };
 
 }

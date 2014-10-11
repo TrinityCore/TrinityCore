@@ -35,3 +35,15 @@ void Battlenet::SessionManager::OnSocketAccept(tcp::socket&& sock)
 {
     sSessionMgr.OnSocketOpen(std::forward<tcp::socket>(sock));
 }
+
+void Battlenet::SessionManager::AddSession(Session* session)
+{
+    std::unique_lock<boost::shared_mutex> lock(_sessionMutex);
+    _sessions[{ session->GetAccountId(), session->GetGameAccountId() }] = session;
+}
+
+void Battlenet::SessionManager::RemoveSession(Session* session)
+{
+    std::unique_lock<boost::shared_mutex> lock(_sessionMutex);
+    _sessions.erase({ session->GetAccountId(), session->GetGameAccountId() });
+}

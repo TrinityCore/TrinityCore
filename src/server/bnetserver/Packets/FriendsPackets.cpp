@@ -18,23 +18,22 @@
 #include "Session.h"
 #include "FriendsPackets.h"
 
-void Battlenet::Friends::SocialnetworkCheckConnected::Read()
+void Battlenet::Friends::SocialNetworkCheckConnected::Read()
 {
     SocialNetworkId = _stream.Read<uint32>(32);
 }
 
-std::string Battlenet::Friends::SocialnetworkCheckConnected::ToString() const
+std::string Battlenet::Friends::SocialNetworkCheckConnected::ToString() const
 {
-    return "Battlenet::Friends::SocialnetworkCheckConnected SocialNetworkId " + std::to_string(SocialNetworkId);
+    return "Battlenet::Friends::SocialNetworkCheckConnected SocialNetworkId " + std::to_string(SocialNetworkId);
 }
 
-void Battlenet::Friends::SocialnetworkCheckConnected::CallHandler(Session* session) const
+void Battlenet::Friends::SocialNetworkCheckConnected::CallHandler(Session* session) const
 {
-    SocialNetworkCheckConnectedResult* result = new SocialNetworkCheckConnectedResult(SocialNetworkId);
-    session->AsyncWrite(result);
+    session->HandleSocialNetworkCheckConnected(*this);
 }
 
-void Battlenet::Friends::SocialnetworkConnect::Read()
+void Battlenet::Friends::SocialNetworkConnect::Read()
 {
     int32 unk1 = _stream.Read<int32>(32);
     uint32 size1 = _stream.Read<uint32>(9);
@@ -43,12 +42,12 @@ void Battlenet::Friends::SocialnetworkConnect::Read()
     auto data2 = _stream.ReadBytes(size2);
 }
 
-std::string Battlenet::Friends::SocialnetworkConnect::ToString() const
+std::string Battlenet::Friends::SocialNetworkConnect::ToString() const
 {
-    return "Battlenet::Friends::SocialnetworkConnect";
+    return "Battlenet::Friends::SocialNetworkConnect";
 }
 
-void Battlenet::Friends::SocialnetworkConnect::CallHandler(Session* session) const
+void Battlenet::Friends::SocialNetworkConnect::CallHandler(Session* session) const
 {
     session->LogUnhandledPacket(*this);
 }
@@ -70,8 +69,7 @@ std::string Battlenet::Friends::SocialNetworkCheckConnectedResult::ToString() co
 void Battlenet::Friends::SocialNetworkCheckConnectedResult::Write()
 {
     _stream.Write(0, 23); // Ignored
-    volatile uint16 res = 0;
-    _stream.Write(res, 16); // Unknown
+    _stream.Write(0, 16); // Unknown
     _stream.Write(SocialNetworkId, 32);
 }
 

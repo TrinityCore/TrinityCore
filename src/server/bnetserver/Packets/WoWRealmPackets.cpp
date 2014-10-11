@@ -30,6 +30,16 @@ void Battlenet::WoWRealm::ListSubscribeRequest::CallHandler(Session* session) co
     session->HandleListSubscribeRequest(*this);
 }
 
+std::string Battlenet::WoWRealm::ListUnsubscribe::ToString() const
+{
+    return "Battlenet::WoWRealm::ListUnsubscribe";
+}
+
+void Battlenet::WoWRealm::ListUnsubscribe::CallHandler(Session* session) const
+{
+    session->HandleListUnsubscribe(*this);
+}
+
 Battlenet::WoWRealm::ListSubscribeResponse::~ListSubscribeResponse()
 {
     for (ServerPacket* realmData : RealmData)
@@ -95,7 +105,7 @@ void Battlenet::WoWRealm::ListUpdate::Write()
         if (!Version.empty())
         {
             _stream.WriteString(Version, 5);
-            _stream.Write(Build, 32);
+            _stream.Write(Id.Build, 32);
 
             boost::asio::ip::address_v4::bytes_type ip = Address.address().to_v4().to_bytes();
             uint16 port = Address.port();
@@ -110,16 +120,16 @@ void Battlenet::WoWRealm::ListUpdate::Write()
         _stream.WriteString(Name, 10);
     }
 
-    _stream.Write(Battlegroup, 8);
-    _stream.Write(Index, 32);
-    _stream.Write(Region, 8);
+    _stream.Write(Id.Battlegroup, 8);
+    _stream.Write(Id.Index, 32);
+    _stream.Write(Id.Region, 8);
 }
 
 std::string Battlenet::WoWRealm::ListUpdate::ToString() const
 {
     std::ostringstream stream;
     stream << "Battlenet::WoWRealm::ListUpdate Timezone " << Timezone << " Population " << Population << " Lock " << uint32(Lock) << " Type " << Type << " Name " << Name
-        << " Flags " << uint32(Flags) << " Region " << uint32(Region) << " Battlegroup " << uint32(Battlegroup) << " Index " << Index;
+        << " Flags " << uint32(Flags) << " Region " << uint32(Id.Region) << " Battlegroup " << uint32(Id.Battlegroup) << " Index " << Id.Index;
 
     if (!Version.empty())
         stream << " Version " << Version;

@@ -38,7 +38,7 @@ Battlenet::Session::ModuleHandler const Battlenet::Session::ModuleHandlers[MODUL
 
 Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket)), _accountId(0), _accountName(), _locale(),
     _os(), _build(0), _gameAccountId(0), _gameAccountName(), _accountSecurityLevel(SEC_PLAYER), I(), s(), v(), b(), B(), K(),
-    _reconnectProof(), _crypt(), _authed(false)
+    _reconnectProof(), _crypt(), _authed(false), _subscribedToRealmListUpdates(false)
 {
     static uint8 const N_Bytes[] =
     {
@@ -398,8 +398,6 @@ void Battlenet::Session::HandleLogoutRequest(Connection::LogoutRequest const& /*
 
 void Battlenet::Session::HandleListSubscribeRequest(WoWRealm::ListSubscribeRequest const& /*listSubscribeRequest*/)
 {
-    sRealmList->UpdateIfNeed();
-
     WoWRealm::ListSubscribeResponse* listSubscribeResponse = new WoWRealm::ListSubscribeResponse();
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS);
@@ -411,58 +409,29 @@ void Battlenet::Session::HandleListSubscribeRequest(WoWRealm::ListSubscribeReque
         {
             Field* fields = countResult->Fetch();
             uint32 build = fields[4].GetUInt32();
-            listSubscribeResponse->CharacterCounts.push_back({ { fields[2].GetUInt8(), fields[3].GetUInt8(), fields[1].GetUInt32(), (_build != build ? build : 0) }, fields[0].GetUInt8() });
+            listSubscribeResponse->CharacterCounts.push_back({ RealmId(fields[2].GetUInt8(), fields[3].GetUInt8(), fields[1].GetUInt32(), (_build != build ? build : 0)), fields[0].GetUInt8() });
         } while (countResult->NextRow());
     }
 
-    for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
-    {
-        Realm const& realm = i->second;
-
-        uint32 flag = realm.flag & ~REALM_FLAG_SPECIFYBUILD;
-        RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm.gamebuild);
-        if (realm.gamebuild != _build)
-        {
-            flag |= REALM_FLAG_INVALID;
-            if (buildInfo)
-                flag |= REALM_FLAG_SPECIFYBUILD;   // tell the client what build the realm is for
-        }
-
-        WoWRealm::ListUpdate* listUpdate = new WoWRealm::ListUpdate();
-        listUpdate->Timezone = realm.timezone;
-        listUpdate->Population = realm.populationLevel;
-        listUpdate->Lock = (realm.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
-        listUpdate->Type = realm.icon;
-        listUpdate->Name = realm.name;
-
-        if (flag & REALM_FLAG_SPECIFYBUILD)
-        {
-            std::ostringstream version;
-            version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->Build;
-
-            listUpdate->Version = version.str();
-            listUpdate->Address = realm.GetAddressForClient(GetRemoteIpAddress());
-            listUpdate->Build = buildInfo->Build;
-        }
-
-        listUpdate->Flags = flag;
-        listUpdate->Region = realm.Region;
-        listUpdate->Battlegroup = realm.Battlegroup;
-        listUpdate->Index = realm.m_ID;
-
-        listSubscribeResponse->RealmData.push_back(listUpdate);
-    }
+    for (RealmList::RealmMap::value_type const& i : sRealmList->GetRealms())
+        listSubscribeResponse->RealmData.push_back(BuildListUpdate(&i.second));
 
     listSubscribeResponse->RealmData.push_back(new WoWRealm::ListComplete());
 
     AsyncWrite(listSubscribeResponse);
+    _subscribedToRealmListUpdates = true;
+}
+
+void Battlenet::Session::HandleListUnsubscribe(WoWRealm::ListUnsubscribe const& /*listUnsubscribe*/)
+{
+    _subscribedToRealmListUpdates = false;
 }
 
 void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& joinRequest)
 {
     WoWRealm::JoinResponseV2* joinResponse = new WoWRealm::JoinResponseV2();
     Realm const* realm = sRealmList->GetRealm(joinRequest.Realm);
-    if (!realm || realm->flag & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE))
+    if (!realm || realm->Flags & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE))
     {
         joinResponse->Response = WoWRealm::JoinResponseV2::FAILURE;
         AsyncWrite(joinResponse);
@@ -491,11 +460,18 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
     LoginDatabase.DirectPExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = %u, failed_logins = 0, os = '%s' WHERE id = %u",
         ByteArrayToHexStr(sessionKey, 40, true).c_str(), GetRemoteIpAddress().to_string().c_str(), GetLocaleByName(_locale), _os.c_str(), _gameAccountId);
 
-    joinResponse->IPv4.emplace_back(realm->ExternalAddress, realm->port);
+    joinResponse->IPv4.emplace_back(realm->ExternalAddress, realm->Port);
     if (realm->ExternalAddress != realm->LocalAddress)
-        joinResponse->IPv4.emplace_back(realm->LocalAddress, realm->port);
+        joinResponse->IPv4.emplace_back(realm->LocalAddress, realm->Port);
 
     AsyncWrite(joinResponse);
+}
+
+void Battlenet::Session::HandleSocialNetworkCheckConnected(Friends::SocialNetworkCheckConnected const& socialNetworkCheckConnected)
+{
+    Friends::SocialNetworkCheckConnectedResult* socialNetworkCheckConnectedResult = new Friends::SocialNetworkCheckConnectedResult();
+    socialNetworkCheckConnectedResult->SocialNetworkId = socialNetworkCheckConnected.SocialNetworkId;
+    AsyncWrite(socialNetworkCheckConnectedResult);
 }
 
 void Battlenet::Session::ReadHandler()
@@ -997,4 +973,50 @@ bool Battlenet::Session::UnhandledModule(BitStream* /*dataStream*/, ServerPacket
     logonResponse->SetAuthResult(AUTH_CORRUPTED_MODULE);
     ReplaceResponse(response, logonResponse);
     return false;
+}
+
+void Battlenet::Session::UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms)
+{
+    for (Realm const* realm : realms)
+        AsyncWrite(BuildListUpdate(realm));
+
+    for (RealmId& deleted : deletedRealms)
+    {
+        WoWRealm::ListUpdate* listUpdate = new WoWRealm::ListUpdate();
+        listUpdate->UpdateState = WoWRealm::ListUpdate::DELETED;
+        listUpdate->Id = deleted;
+        AsyncWrite(listUpdate);
+    }
+}
+
+Battlenet::WoWRealm::ListUpdate* Battlenet::Session::BuildListUpdate(Realm const* realm) const
+{
+    uint32 flag = realm->Flags & ~REALM_FLAG_SPECIFYBUILD;
+    RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm->Id.Build);
+    if (realm->Id.Build != _build)
+    {
+        flag |= REALM_FLAG_INVALID;
+        if (buildInfo)
+            flag |= REALM_FLAG_SPECIFYBUILD;   // tell the client what build the realm is for
+    }
+
+    WoWRealm::ListUpdate* listUpdate = new WoWRealm::ListUpdate();
+    listUpdate->Timezone = realm->Timezone;
+    listUpdate->Population = realm->PopulationLevel;
+    listUpdate->Lock = (realm->AllowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
+    listUpdate->Type = realm->Type;
+    listUpdate->Name = realm->Name;
+
+    if (flag & REALM_FLAG_SPECIFYBUILD)
+    {
+        std::ostringstream version;
+        version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->Build;
+
+        listUpdate->Version = version.str();
+        listUpdate->Address = realm->GetAddressForClient(GetRemoteIpAddress());
+    }
+
+    listUpdate->Flags = flag;
+    listUpdate->Id = realm->Id;
+    return listUpdate;
 }

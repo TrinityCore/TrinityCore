@@ -54,10 +54,10 @@ namespace Battlenet
             SMSG_FRIENDS_LIST_NOTIFY_3                  = 0x18   // Not implemented
         };
 
-        class SocialnetworkConnect final : public ClientPacket
+        class SocialNetworkConnect final : public ClientPacket
         {
         public:
-            SocialnetworkConnect(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            SocialNetworkConnect(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
             {
                 ASSERT(header == PacketHeader(CMSG_SOCIAL_NETWORK_CONNECT, FRIENDS) && "Invalid packet header for SocialnetworkConnect");
             }
@@ -78,10 +78,10 @@ namespace Battlenet
             std::string ToString() const override;
         };
 
-        class SocialnetworkCheckConnected final : public ClientPacket
+        class SocialNetworkCheckConnected final : public ClientPacket
         {
         public:
-            SocialnetworkCheckConnected(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            SocialNetworkCheckConnected(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
             {
                 ASSERT(header == PacketHeader(CMSG_SOCIAL_NETWORK_CHECK_CONNECTED, FRIENDS) && "Invalid packet header for SocialNetworkCheckConnected");
             }
@@ -96,7 +96,8 @@ namespace Battlenet
         class SocialNetworkCheckConnectedResult final : public ServerPacket
         {
         public:
-            SocialNetworkCheckConnectedResult(uint32 socialNetworkId) : ServerPacket(PacketHeader(SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT, FRIENDS)), SocialNetworkId(socialNetworkId)
+            SocialNetworkCheckConnectedResult() : ServerPacket(PacketHeader(SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT, FRIENDS)),
+                SocialNetworkId(0)
             {
             }
 
