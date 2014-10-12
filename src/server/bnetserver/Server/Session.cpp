@@ -64,7 +64,6 @@ Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket)), _
 Battlenet::Session::~Session()
 {
     sSessionMgr.RemoveSession(this);
-    TC_LOG_TRACE("server.battlenet", "Battlenet::Session::OnClose");
 }
 
 void Battlenet::Session::_SetVSFields(std::string const& pstr)
@@ -91,7 +90,7 @@ void Battlenet::Session::_SetVSFields(std::string const& pstr)
 
 void Battlenet::Session::LogUnhandledPacket(ClientPacket const& packet)
 {
-    TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::LogUnhandledPacket %s", packet.ToString().c_str());
+    TC_LOG_DEBUG("session.packets", "%s Received unhandled packet %s", GetClientInfo().c_str(), packet.ToString().c_str());
 }
 
 void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& logonRequest)
@@ -107,7 +106,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(LOGIN_BANNED);
         AsyncWrite(logonResponse);
-        TC_LOG_DEBUG("server.battlenet", "[Battlenet::LogonRequest] Banned ip '%s:%d' tries to login!", ip_address.c_str(), GetRemotePort());
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] Banned ip '%s:%d' tries to login!", ip_address.c_str(), GetRemotePort());
         return;
     }
 
@@ -184,7 +183,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
     // If the IP is 'locked', check that the player comes indeed from the correct IP address
     if (fields[2].GetUInt8() == 1)                  // if ip is locked
     {
-        TC_LOG_DEBUG("server.battlenet", "[Battlenet::LogonRequest] Account '%s' is locked to IP - '%s' is logging in from '%s'", _accountName.c_str(), fields[4].GetCString(), ip_address.c_str());
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] Account '%s' is locked to IP - '%s' is logging in from '%s'", _accountName.c_str(), fields[4].GetCString(), ip_address.c_str());
 
         if (strcmp(fields[4].GetCString(), ip_address.c_str()) != 0)
         {
@@ -196,10 +195,10 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
     }
     else
     {
-        TC_LOG_DEBUG("server.battlenet", "[Battlenet::LogonRequest] Account '%s' is not locked to ip", _accountName.c_str());
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] Account '%s' is not locked to ip", _accountName.c_str());
         std::string accountCountry = fields[3].GetString();
         if (accountCountry.empty() || accountCountry == "00")
-            TC_LOG_DEBUG("server.battlenet", "[Battlenet::LogonRequest] Account '%s' is not locked to country", _accountName.c_str());
+            TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] Account '%s' is not locked to country", _accountName.c_str());
         else if (!accountCountry.empty())
         {
             uint32 ip = inet_addr(ip_address.c_str());
@@ -210,7 +209,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
             if (PreparedQueryResult sessionCountryQuery = LoginDatabase.Query(stmt))
             {
                 std::string loginCountry = (*sessionCountryQuery)[0].GetString();
-                TC_LOG_DEBUG("server.battlenet", "[Battlenet::AuthChallenge] Account '%s' is locked to country: '%s' Player country is '%s'", _accountName.c_str(), accountCountry.c_str(), loginCountry.c_str());
+                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] Account '%s' is locked to country: '%s' Player country is '%s'", _accountName.c_str(), accountCountry.c_str(), loginCountry.c_str());
                 if (loginCountry != accountCountry)
                 {
                     Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
@@ -237,7 +236,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
             Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
             logonResponse->SetAuthResult(LOGIN_BANNED);
             AsyncWrite(logonResponse);
-            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::LogonRequest] Banned account %s tried to login!", ip_address.c_str(), GetRemotePort(), _accountName.c_str());
+            TC_LOG_DEBUG("session", "'%s:%d' [Battlenet::LogonRequest] Banned account %s tried to login!", ip_address.c_str(), GetRemotePort(), _accountName.c_str());
             return;
         }
         else
@@ -245,7 +244,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
             Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
             logonResponse->SetAuthResult(LOGIN_SUSPENDED);
             AsyncWrite(logonResponse);
-            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::LogonRequest] Temporarily banned account %s tried to login!", ip_address.c_str(), GetRemotePort(), _accountName.c_str());
+            TC_LOG_DEBUG("session", "'%s:%d' [Battlenet::LogonRequest] Temporarily banned account %s tried to login!", ip_address.c_str(), GetRemotePort(), _accountName.c_str());
             return;
         }
     }
@@ -494,7 +493,7 @@ void Battlenet::Session::ReadHandler()
 
             if (header.Channel != AUTHENTICATION && !_authed)
             {
-                TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::ReadDataHandler Received not allowed packet %s", header.ToString().c_str());
+                TC_LOG_DEBUG("session.packets", "%s Received not allowed %s. Client has not authed yet.", GetClientInfo().c_str(), header.ToString().c_str());
                 CloseSocket();
                 return;
             }
@@ -503,13 +502,13 @@ void Battlenet::Session::ReadHandler()
             {
                 packet->CallHandler(this);
                 if (packet->WasHandled())
-                    TC_LOG_TRACE("server.battlenet", "Battlenet::Session::ReadDataHandler %s", packet->ToString().c_str());
+                    TC_LOG_TRACE("session.packets", "%s Received %s", GetClientInfo().c_str(), packet->ToString().c_str());
 
                 delete packet;
             }
             else
             {
-                TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::ReadDataHandler Unhandled opcode %s", header.ToString().c_str());
+                TC_LOG_DEBUG("session.packets", "%s Received unknown %s", GetClientInfo().c_str(), header.ToString().c_str());
                 break;
             }
 
@@ -517,7 +516,7 @@ void Battlenet::Session::ReadHandler()
         }
         catch (BitStreamPositionException const& e)
         {
-            TC_LOG_ERROR("server.battlenet", "Battlenet::Session::ReadDataHandler Exception: %s", e.what());
+            TC_LOG_ERROR("session.packets", "%s Exception thrown during packet processing %s", GetClientInfo().c_str(), e.what());
             CloseSocket();
             return;
         }
@@ -529,7 +528,7 @@ void Battlenet::Session::ReadHandler()
 
 void Battlenet::Session::Start()
 {
-    TC_LOG_TRACE("server.battlenet", "Battlenet::Session::Start");
+    TC_LOG_TRACE("session", "Accepted connection from %s", GetRemoteIpAddress().to_string().c_str());
     AsyncRead();
 }
 
@@ -541,7 +540,7 @@ void Battlenet::Session::AsyncWrite(ServerPacket* packet)
         return;
     }
 
-    TC_LOG_TRACE("server.battlenet", "Battlenet::Session::AsyncWrite %s", packet->ToString().c_str());
+    TC_LOG_TRACE("session.packets", "%s Sending %s", GetClientInfo().c_str(), packet->ToString().c_str());
 
     packet->Write();
 
@@ -752,12 +751,12 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
             if (fields[2].GetUInt32() == fields[3].GetUInt32())
             {
                 logonResponse->SetAuthResult(LOGIN_BANNED);
-                TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::Password] Banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
+                TC_LOG_DEBUG("session", "'%s:%d' [Battlenet::Password] Banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
             }
             else
             {
                 logonResponse->SetAuthResult(LOGIN_SUSPENDED);
-                TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::Password] Temporarily banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
+                TC_LOG_DEBUG("session", "'%s:%d' [Battlenet::Password] Temporarily banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
             }
 
             ReplaceResponse(response, logonResponse);
@@ -824,12 +823,12 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
         if (fields[2].GetUInt32() == fields[3].GetUInt32())
         {
             logonResponse->SetAuthResult(LOGIN_BANNED);
-            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
+            TC_LOG_DEBUG("session", "'%s:%d' [Battlenet::SelectGameAccount] Banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
         }
         else
         {
             logonResponse->SetAuthResult(LOGIN_SUSPENDED);
-            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Temporarily banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
+            TC_LOG_DEBUG("session", "'%s:%d' [Battlenet::SelectGameAccount] Temporarily banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
         }
 
         ReplaceResponse(response, logonResponse);
@@ -935,7 +934,7 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
         stmt->setString(0, _accountName);
         LoginDatabase.Execute(stmt);
 
-        TC_LOG_DEBUG("server.battlenet", "[Battlenet::Resume] Invalid proof!");
+        TC_LOG_DEBUG("session", "[Battlenet::Resume] Invalid proof!");
         Authentication::ResumeResponse* resumeResponse = new Authentication::ResumeResponse();
         resumeResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         ReplaceResponse(response, resumeResponse);
@@ -975,6 +974,7 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
 
 bool Battlenet::Session::UnhandledModule(BitStream* /*dataStream*/, ServerPacket** response)
 {
+    TC_LOG_ERROR("session.packets", "Unhandled module.");
     Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
     logonResponse->SetAuthResult(AUTH_CORRUPTED_MODULE);
     ReplaceResponse(response, logonResponse);
@@ -1025,4 +1025,19 @@ Battlenet::WoWRealm::ListUpdate* Battlenet::Session::BuildListUpdate(Realm const
     listUpdate->Flags = flag;
     listUpdate->Id = realm->Id;
     return listUpdate;
+}
+
+std::string Battlenet::Session::GetClientInfo() const
+{
+    std::ostringstream stream;
+    stream << '[' << GetRemoteIpAddress() << ':' << GetRemotePort();
+    if (!_accountName.empty())
+        stream << ", Account: " << _accountName;
+
+    if (!_gameAccountName.empty())
+        stream << ", Game account: " << _gameAccountName;
+
+    stream << ']';
+
+    return stream.str();
 }

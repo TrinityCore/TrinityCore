@@ -128,11 +128,17 @@ void Battlenet::WoWRealm::ListUpdate::Write()
 std::string Battlenet::WoWRealm::ListUpdate::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::WoWRealm::ListUpdate Timezone " << Timezone << " Population " << Population << " Lock " << uint32(Lock) << " Type " << Type << " Name " << Name
-        << " Flags " << uint32(Flags) << " Region " << uint32(Id.Region) << " Battlegroup " << uint32(Id.Battlegroup) << " Index " << Id.Index;
+    stream << "Battlenet::WoWRealm::ListUpdate";
+    if (UpdateState == UPDATE)
+    {
+        stream << " Timezone: " << Timezone << " Population: " << Population << " Lock: " << uint32(Lock) << " Type: " << Type << " Name: " << Name
+            << " Flags: " << uint32(Flags) << " Region: " << uint32(Id.Region) << " Battlegroup: " << uint32(Id.Battlegroup) << " Index: " << Id.Index;
 
-    if (!Version.empty())
-        stream << " Version " << Version;
+        if (!Version.empty())
+            stream << " Version: " << Version;
+    }
+    else
+        stream << " Delete realm [Region: " << uint32(Id.Region) << " Battlegroup : " << uint32(Id.Battlegroup) << " Index : " << Id.Index << "]";
 
     return stream.str().c_str();
 }
