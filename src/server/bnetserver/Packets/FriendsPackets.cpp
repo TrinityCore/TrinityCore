@@ -64,7 +64,7 @@ std::string Battlenet::Friends::SocialNetworkCheckConnectedResult::ToString() co
 void Battlenet::Friends::SocialNetworkCheckConnectedResult::Write()
 {
     _stream.Write(0, 23); // Ignored
-    _stream.Write(0, 16); // Unknown
+    _stream.Write(4601, 16); // Result, 4601 = The Facebook add friend service is unavailable right now. Please try again later.
     _stream.Write(SocialNetworkId, 32);
 }
 
