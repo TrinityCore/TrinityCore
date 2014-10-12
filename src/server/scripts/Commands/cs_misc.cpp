@@ -39,6 +39,7 @@
 
 #include "../../../plugins/ahbot/AhBot.h"
 #include "../../../plugins/playerbot/playerbot.h"
+#include "../../../plugins/playerbot/GuildTaskMgr.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -102,6 +103,7 @@ public:
             { "ahbot",            rbac::RBAC_PERM_COMMAND_GM       ,          true,  &ahbot::AhBot::HandleAhBotCommand,                      "", NULL },
             { "rndbot",           rbac::RBAC_PERM_COMMAND_GM       ,          true,  &RandomPlayerbotMgr::HandlePlayerbotConsoleCommand,     "", NULL },
             { "bot",              195                              ,          false, &PlayerbotMgr::HandlePlayerbotMgrCommand,               "", NULL },
+            { "gtask",            rbac::RBAC_PERM_COMMAND_GM       ,          true,  &GuildTaskMgr::HandleConsoleCommand,           "", NULL },
             { NULL,               0,                                  false, NULL,                           "", NULL }
         };
         return commandTable;

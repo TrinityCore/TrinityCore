@@ -7,6 +7,7 @@
 #include "../../../Ahbot/AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
 #include "../values/ItemUsageValue.h"
+#include "../../GuildTaskMgr.h"
 
 using namespace ai;
 
@@ -261,6 +262,16 @@ bool StoreLootAction::Execute(Event event)
                 {
                     sRandomPlayerbotMgr.SetLootAmount(bot, 0);
                 }
+
+                Group* group = bot->GetGroup();
+                if (group)
+                {
+                    for (GroupReference *ref = group->GetFirstMember(); ref; ref = ref->next())
+                    {
+                        if( ref->GetSource() != bot)
+                            sGuildTaskMgr.CheckItemTask(itemid, itemcount, ref->GetSource(), bot);
+                    }
+                }
             }
         }
 
@@ -308,7 +319,7 @@ bool StoreLootAction::IsLootAllowed(uint32 itemid)
 
     ostringstream out; out << itemid;
     ItemUsage usage = AI_VALUE2(ItemUsage, "item usage", out.str());
-    if (usage == ITEM_USAGE_SKILL || usage == ITEM_USAGE_USE)
+    if (usage == ITEM_USAGE_SKILL || usage == ITEM_USAGE_USE || usage == ITEM_USAGE_GUILD_TASK)
         return true;
 
     if (lootStrategy == LOOTSTRATEGY_SKILL)

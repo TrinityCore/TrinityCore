@@ -569,9 +569,11 @@ void PlayerbotFactory::InitEquipment(bool incremental)
 
         do
         {
-            for (uint32 itemId = 0; itemId < sItemStore.GetNumRows(); ++itemId)
+            ItemTemplateContainer const* itemTemplates = sObjectMgr->GetItemTemplateStore();
+            for (ItemTemplateContainer::const_iterator i = itemTemplates->begin(); i != itemTemplates->end(); ++i)
             {
-                ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
+                uint32 itemId = i->first;
+                ItemTemplate const* proto = &i->second;
                 if (!proto)
                     continue;
 
@@ -677,9 +679,11 @@ void PlayerbotFactory::InitSecondEquipmentSet()
 
     do
     {
-        for (uint32 itemId = 0; itemId < sItemStore.GetNumRows(); ++itemId)
+        ItemTemplateContainer const* itemTemplates = sObjectMgr->GetItemTemplateStore();
+        for (ItemTemplateContainer::const_iterator i = itemTemplates->begin(); i != itemTemplates->end(); ++i)
         {
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
+            uint32 itemId = i->first;
+            ItemTemplate const* proto = &i->second;
             if (!proto)
                 continue;
 
@@ -762,9 +766,11 @@ void PlayerbotFactory::InitBags()
 {
     vector<uint32> ids;
 
-    for (uint32 itemId = 0; itemId < sItemStore.GetNumRows(); ++itemId)
+    ItemTemplateContainer const* itemTemplates = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator i = itemTemplates->begin(); i != itemTemplates->end(); ++i)
     {
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
+        uint32 itemId = i->first;
+        ItemTemplate const* proto = &i->second;
         if (!proto || proto->Class != ITEM_CLASS_CONTAINER)
             continue;
 
@@ -1578,9 +1584,11 @@ void PlayerbotFactory::InitGlyphs()
         return;
 
     list<uint32> glyphs;
-    for (uint32 itemId = 0; itemId < sItemStore.GetNumRows(); ++itemId)
+    ItemTemplateContainer const* itemTemplates = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator i = itemTemplates->begin(); i != itemTemplates->end(); ++i)
     {
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
+        uint32 itemId = i->first;
+        ItemTemplate const* proto = &i->second;
         if (!proto)
             continue;
 

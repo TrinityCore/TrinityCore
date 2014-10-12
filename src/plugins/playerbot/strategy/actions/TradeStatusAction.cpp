@@ -6,6 +6,7 @@
 #include "../../PlayerbotAIConfig.h"
 #include "../../../Ahbot/AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
+#include "../../GuildTaskMgr.h"
 #include "../values/ItemUsageValue.h"
 
 using namespace ai;
@@ -48,9 +49,20 @@ bool TradeStatusAction::Execute(Event event)
         {
             int32 botMoney = CalculateCost(bot->GetTradeData(), true);
 
+            map<uint32, uint32> itemIds;
+            for (uint32 slot = 0; slot < TRADE_SLOT_TRADED_COUNT; ++slot)
+            {
+                Item* item = master->GetTradeData()->GetItem((TradeSlots)slot);
+                if (item)
+                    itemIds[item->GetTemplate()->ItemId] += item->GetCount();
+            }
+
             bot->GetSession()->HandleAcceptTradeOpcode(p);
             if (bot->GetTradeData())
                 return false;
+
+            for (map<uint32, uint32>::iterator i = itemIds.begin(); i != itemIds.end(); ++i)
+                sGuildTaskMgr.CheckItemTask(i->first, i->second, master, bot);
 
             if (sRandomPlayerbotMgr.IsRandomBot(bot))
             {

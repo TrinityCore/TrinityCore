@@ -7,6 +7,7 @@
 #include "AiFactory.h"
 #include "../../game/Maps/MapManager.h"
 #include "PlayerbotCommandServer.h"
+#include "GuildTaskMgr.h"
 
 RandomPlayerbotMgr::RandomPlayerbotMgr() : PlayerbotHolder(), processTicks(0)
 {
@@ -165,6 +166,12 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
         }
 
         return false;
+    }
+
+    if (player->GetGuild() && player->GetGuild()->GetLeaderGUID() == player->GetGUID())
+    {
+        for (vector<Player*>::iterator i = players.begin(); i != players.end(); ++i)
+            sGuildTaskMgr.Update(*i, player);
     }
 
     uint32 randomize = GetEventValue(bot, "randomize");
@@ -677,8 +684,10 @@ void RandomPlayerbotMgr::OnPlayerLogin(Player* player)
         }
     }
 
-    if (!player->GetPlayerbotAI())
-        players.push_back(player);
+    if (player->GetPlayerbotAI())
+        return;
+
+    players.push_back(player);
 }
 
 Player* RandomPlayerbotMgr::GetRandomPlayer()

@@ -2,6 +2,7 @@
 #include "../../playerbot.h"
 #include "ItemUsageValue.h"
 
+#include "../../GuildTaskMgr.h"
 using namespace ai;
 
 ItemUsage ItemUsageValue::Calculate()
@@ -23,6 +24,9 @@ ItemUsage ItemUsageValue::Calculate()
     case ITEM_CLASS_CONSUMABLE:
         return ITEM_USAGE_USE;
     }
+
+    if (bot->GetGuildId() && sGuildTaskMgr.IsGuildTaskItem(itemId, bot->GetGuildId()))
+        return ITEM_USAGE_GUILD_TASK;
 
     return QueryItemUsageForEquip(proto);
 }
