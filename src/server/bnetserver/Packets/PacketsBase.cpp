@@ -16,6 +16,7 @@
  */
 
 #include "Packets.h"
+#include "Session.h"
 #include <sstream>
 
 std::string Battlenet::PacketHeader::ToString() const
