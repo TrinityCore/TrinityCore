@@ -20,9 +20,12 @@ class RandomPlayerbotFactory
 
 	public:
         bool CreateRandomBot(uint8 cls);
+        static void CreateRandomBots();
+        static void CreateRandomGuilds();
 
 	private:
         string CreateRandomBotName();
+        static string CreateRandomGuildName();
 
     private:
         uint32 accountId;

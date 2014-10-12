@@ -122,7 +122,13 @@ bool PlayerbotAIConfig::Initialize()
         }
     }
 
-    CreateRandomBots();
+    randomBotAccountPrefix = config.GetStringDefault("AiPlayerbot.RandomBotAccountPrefix", "rndbot");
+    randomBotAccountCount = config.GetIntDefault("AiPlayerbot.RandomBotAccountCount", 50);
+    deleteRandomBotAccounts = config.GetBoolDefault("AiPlayerbot.DeleteRandomBotAccounts", false);
+    randomBotGuildCount = config.GetIntDefault("AiPlayerbot.RandomBotGuildCount", 50);
+    deleteRandomBotGuilds = config.GetBoolDefault("AiPlayerbot.DeleteRandomBotGuilds", false);
+
+    RandomPlayerbotFactory::CreateRandomBots();
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "AI Playerbot configuration loaded");
 
     return true;
@@ -213,84 +219,4 @@ void PlayerbotAIConfig::SetValue(string name, string value)
 
     else if (name == "IterationsPerTick")
         out >> iterationsPerTick;
-}
-
-
-void PlayerbotAIConfig::CreateRandomBots()
-{
-    string randomBotAccountPrefix = config.GetStringDefault("AiPlayerbot.RandomBotAccountPrefix", "rndbot");
-    uint32 randomBotAccountCount = config.GetIntDefault("AiPlayerbot.RandomBotAccountCount", 50);
-
-    if (config.GetBoolDefault("AiPlayerbot.DeleteRandomBotAccounts", false))
-    {
-        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Deleting random bot accounts...");
-        QueryResult results = LoginDatabase.PQuery("SELECT id FROM account where username like '%s%%'", randomBotAccountPrefix.c_str());
-        if (results)
-        {
-            do
-            {
-                Field* fields = results->Fetch();
-                sAccountMgr->DeleteAccount(fields[0].GetUInt32());
-            } while (results->NextRow());
-        }
-
-        CharacterDatabase.Execute("DELETE FROM ai_playerbot_random_bots");
-        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random bot accounts deleted");
-    }
-
-    for (int accountNumber = 0; accountNumber < randomBotAccountCount; ++accountNumber)
-    {
-        ostringstream out; out << randomBotAccountPrefix << accountNumber;
-        string accountName = out.str();
-        QueryResult results = LoginDatabase.PQuery("SELECT id FROM account where username = '%s'", accountName.c_str());
-        if (results)
-        {
-            continue;
-        }
-
-        string password = "";
-        for (int i = 0; i < 10; i++)
-        {
-            password += (char)urand('!', 'z');
-        }
-        sAccountMgr->CreateAccount(accountName, password, "playerbot");
-
-        sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Account %s created for random bots", accountName.c_str());
-    }
-
-    LoginDatabase.PExecute("UPDATE account SET expansion = '%u' where username like '%s%%'", 2, randomBotAccountPrefix.c_str());
-
-    int totalRandomBotChars = 0;
-    for (int accountNumber = 0; accountNumber < randomBotAccountCount; ++accountNumber)
-    {
-        ostringstream out; out << randomBotAccountPrefix << accountNumber;
-        string accountName = out.str();
-
-        QueryResult results = LoginDatabase.PQuery("SELECT id FROM account where username = '%s'", accountName.c_str());
-        if (!results)
-            continue;
-
-        Field* fields = results->Fetch();
-        uint32 accountId = fields[0].GetUInt32();
-
-        randomBotAccounts.push_back(accountId);
-
-        int count = sAccountMgr->GetCharactersCount(accountId);
-        if (count >= 10)
-        {
-            totalRandomBotChars += count;
-            continue;
-        }
-
-        RandomPlayerbotFactory factory(accountId);
-        for (uint8 cls = CLASS_WARRIOR; cls < MAX_CLASSES; ++cls)
-        {
-            if (cls != 10 && cls != CLASS_DEATH_KNIGHT)
-                factory.CreateRandomBot(cls);
-        }
-
-        totalRandomBotChars += sAccountMgr->GetCharactersCount(accountId);
-    }
-
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "%d random bot accounts with %d characters available", randomBotAccounts.size(), totalRandomBotChars);
 }

@@ -56,6 +56,12 @@ public:
     float randomChangeMultiplier;
     uint32 specProbability[MAX_CLASSES][3];
     std::string commandPrefix;
+    std::string randomBotAccountPrefix;
+    uint32 randomBotAccountCount;
+    bool deleteRandomBotAccounts;
+    uint32 randomBotGuildCount;
+    bool deleteRandomBotGuilds;
+    std::list<uint32> randomBotGuilds;
 
     uint32 iterationsPerTick;
 
@@ -65,7 +71,6 @@ public:
     void SetValue(std::string name, std::string value);
 
 private:
-    void CreateRandomBots();
     ConfigMgr config;
 };
 

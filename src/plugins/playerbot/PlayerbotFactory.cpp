@@ -1,12 +1,14 @@
 #include "../pchdef.h"
 #include "playerbot.h"
 #include "PlayerbotFactory.h"
+#include "../../server/game/Guilds/GuildMgr.h"
 #include "../ItemPrototype.h"
 #include "PlayerbotAIConfig.h"
 #include "../../shared/DataStores/DBCStore.h"
 #include "../Miscellaneous/SharedDefines.h"
 #include "../Ahbot/AhBot.h"
 #include "../Entities/Pet/Pet.h"
+#include "RandomPlayerbotFactory.h"
 
 using namespace ai;
 using namespace std;
@@ -113,6 +115,7 @@ void PlayerbotFactory::Randomize(bool incremental)
     InitSecondEquipmentSet();
     InitInventory();
     InitGlyphs();
+    InitGuild();
     bot->SetMoney(urand(level * 1000, level * 5 * 1000));
     bot->SaveToDB();
 
@@ -1652,4 +1655,35 @@ void PlayerbotFactory::InitGlyphs()
         if (!found)
             sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "No glyphs found for bot %s index %d slot %d", bot->GetName().c_str(), slotIndex, slot);
     }
+}
+
+void PlayerbotFactory::InitGuild()
+{
+    if (bot->GetGuildId())
+        return;
+
+    if (sPlayerbotAIConfig.randomBotGuilds.empty())
+        RandomPlayerbotFactory::CreateRandomGuilds();
+
+    vector<uint32> guilds;
+    for(list<uint32>::iterator i = sPlayerbotAIConfig.randomBotGuilds.begin(); i != sPlayerbotAIConfig.randomBotGuilds.end(); ++i)
+        guilds.push_back(*i);
+
+    if (guilds.empty())
+    {
+        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "No random guilds available");
+        return;
+    }
+
+    int index = urand(0, guilds.size() - 1);
+    uint32 guildId = guilds[index];
+    Guild* guild = sGuildMgr->GetGuildById(guildId);
+    if (!guild)
+    {
+        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "Invalid guild %u", guildId);
+        return;
+    }
+
+    if (guild->GetMemberCount() < 10)
+        guild->AddMember(bot->GetGUID(), urand(GR_OFFICER, GR_INITIATE));
 }

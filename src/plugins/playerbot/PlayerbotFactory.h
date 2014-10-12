@@ -58,6 +58,7 @@ private:
     void InitInventorySkill();
     Item* StoreItem(uint32 itemId, uint32 count);
     void InitGlyphs();
+    void InitGuild();
 
 private:
     Player* bot;
