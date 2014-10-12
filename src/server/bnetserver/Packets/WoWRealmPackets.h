@@ -28,7 +28,7 @@ namespace Battlenet
         enum Opcode
         {
             CMSG_LIST_SUBSCRIBE_REQUEST     = 0x0,
-            CMSG_LIST_UNSUBSCRIBE           = 0x1,  // Not implemented
+            CMSG_LIST_UNSUBSCRIBE           = 0x1,
             CMSG_JOIN_REQUEST_V2            = 0x8,
             CMSG_MULTI_LOGON_REQUEST_V2     = 0x9,  // Not implemented
 

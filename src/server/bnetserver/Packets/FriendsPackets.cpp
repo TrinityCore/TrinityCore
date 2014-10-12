@@ -18,6 +18,17 @@
 #include "Session.h"
 #include "FriendsPackets.h"
 
+void Battlenet::Friends::GetFriendsOfFriend::Read()
+{
+    uint8 unk = _stream.Read<uint8>(2);
+    uint32 unk1 = _stream.Read<uint32>(32);
+}
+
+std::string Battlenet::Friends::GetFriendsOfFriend::ToString() const
+{
+    return "Battlenet::Friends::GetFriendsOfFriend";
+}
+
 void Battlenet::Friends::SocialNetworkCheckConnected::Read()
 {
     SocialNetworkId = _stream.Read<uint32>(32);
@@ -31,52 +42,6 @@ std::string Battlenet::Friends::SocialNetworkCheckConnected::ToString() const
 void Battlenet::Friends::SocialNetworkCheckConnected::CallHandler(Session* session)
 {
     session->HandleSocialNetworkCheckConnected(*this);
-}
-
-void Battlenet::Friends::SocialNetworkConnect::Read()
-{
-    int32 unk1 = _stream.Read<int32>(32);
-    uint32 size1 = _stream.Read<uint32>(9);
-    auto data1 = _stream.ReadBytes(size1);
-    uint32 size2 = _stream.Read<uint32>(7);
-    auto data2 = _stream.ReadBytes(size2);
-}
-
-std::string Battlenet::Friends::SocialNetworkConnect::ToString() const
-{
-    return "Battlenet::Friends::SocialNetworkConnect";
-}
-
-std::string Battlenet::Friends::SocialNetworkConnectResult::ToString() const
-{
-    return "Battlenet::Friends::SocialNetworkConnectResult";
-}
-
-void Battlenet::Friends::SocialNetworkConnectResult::Write()
-{
-}
-
-std::string Battlenet::Friends::SocialNetworkCheckConnectedResult::ToString() const
-{
-    return "Battlenet::Friends::SocialNetworkCheckConnectedResult";
-}
-
-void Battlenet::Friends::SocialNetworkCheckConnectedResult::Write()
-{
-    _stream.Write(0, 23); // Ignored
-    _stream.Write(4601, 16); // Result, 4601 = The Facebook add friend service is unavailable right now. Please try again later.
-    _stream.Write(SocialNetworkId, 32);
-}
-
-void Battlenet::Friends::GetFriendsOfFriend::Read()
-{
-    uint8 unk = _stream.Read<uint8>(2);
-    uint32 unk1 = _stream.Read<uint32>(32);
-}
-
-std::string Battlenet::Friends::GetFriendsOfFriend::ToString() const
-{
-    return "Battlenet::Friends::GetFriendsOfFriend";
 }
 
 void Battlenet::Friends::RealIdFriendInvite::Read()
@@ -158,4 +123,16 @@ void Battlenet::Friends::FriendInviteResult::Write()
         _stream.Write(3, 32);
         _stream.WriteString("Testing3", 7, 2);
     }
+}
+
+std::string Battlenet::Friends::SocialNetworkCheckConnectedResult::ToString() const
+{
+    return "Battlenet::Friends::SocialNetworkCheckConnectedResult";
+}
+
+void Battlenet::Friends::SocialNetworkCheckConnectedResult::Write()
+{
+    _stream.Write(0, 23); // Ignored
+    _stream.Write(Result, 16);
+    _stream.Write(SocialNetworkId, 32);
 }
