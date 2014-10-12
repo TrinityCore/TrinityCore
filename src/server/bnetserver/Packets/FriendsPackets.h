@@ -34,9 +34,9 @@ namespace Battlenet
             CMSG_BLOCK_ADD                              = 0x08,  // Not implemented
             CMSG_BLOCK_REMOVE                           = 0x0A,  // Not implemented
             CMSG_GET_FRIENDS_OF_FRIEND                  = 0x0B,  // Not implemented
-            CMSG_GET_SOCIAL_NETWORK_FRIENDS             = 0x0D,  // Not implemented
-            CMSG_SOCIAL_NETWORK_CONNECT                 = 0x0F,  // Not implemented
-            CMSG_SOCIAL_NETWORK_DISCONNECT              = 0x11,  // Not implemented
+            CMSG_GET_SOCIAL_NETWORK_FRIENDS             = 0x0D,  // Won't support
+            CMSG_SOCIAL_NETWORK_CONNECT                 = 0x0F,  // Won't support
+            CMSG_SOCIAL_NETWORK_DISCONNECT              = 0x11,  // Won't support
             CMSG_SOCIAL_NETWORK_CHECK_CONNECTED         = 0x13,
             CMSG_REALID_FRIEND_INVITE                   = 0x16,  // Not implemented
 
@@ -46,34 +46,23 @@ namespace Battlenet
             SMSG_BLOCK_INVITE_NOTIFY                    = 0x07,  // Not implemented
             SMSG_BLOCK_ADD_FAILURE                      = 0x09,  // Not implemented
             SMSG_FRIENDS_OF_FRIEND                      = 0x0C,  // Not implemented
-            SMSG_SOCIAL_NETWORK_FRIENDS                 = 0x0E,  // Not implemented
-            SMSG_SOCIAL_NETWORK_CONNECT_RESULT          = 0x10,  // Not implemented
-            SMSG_SOCIAL_NETWORK_DISCONNECT_RESULT       = 0x12,  // Not implemented
+            SMSG_SOCIAL_NETWORK_FRIENDS                 = 0x0E,  // Won't support
+            SMSG_SOCIAL_NETWORK_CONNECT_RESULT          = 0x10,  // Won't support
+            SMSG_SOCIAL_NETWORK_DISCONNECT_RESULT       = 0x12,  // Won't support
             SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT  = 0x14,
             SMSG_MAX_FRIENDS_NOTIFY                     = 0x15,  // Not implemented
             SMSG_FRIENDS_LIST_NOTIFY_3                  = 0x18   // Not implemented
         };
 
-        class SocialNetworkConnect final : public ClientPacket
+        class GetFriendsOfFriend final : public ClientPacket
         {
         public:
-            SocialNetworkConnect(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            GetFriendsOfFriend(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
             {
-                ASSERT(header == PacketHeader(CMSG_SOCIAL_NETWORK_CONNECT, FRIENDS) && "Invalid packet header for SocialNetworkConnect");
+                ASSERT(header == PacketHeader(CMSG_GET_FRIENDS_OF_FRIEND, FRIENDS) && "Invalid packet header for GetFriendsOfFriend");
             }
 
             void Read() override;
-            std::string ToString() const override;
-        };
-
-        class SocialNetworkConnectResult final : public ServerPacket
-        {
-        public:
-            SocialNetworkConnectResult() : ServerPacket(PacketHeader(SMSG_SOCIAL_NETWORK_CONNECT_RESULT, FRIENDS))
-            {
-            }
-
-            void Write() override;
             std::string ToString() const override;
         };
 
@@ -90,43 +79,6 @@ namespace Battlenet
             void CallHandler(Session* session) override;
 
             uint32 SocialNetworkId;
-        };
-
-        class SocialNetworkCheckConnectedResult final : public ServerPacket
-        {
-        public:
-            SocialNetworkCheckConnectedResult() : ServerPacket(PacketHeader(SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT, FRIENDS)),
-                SocialNetworkId(0)
-            {
-            }
-
-            void Write() override;
-            std::string ToString() const override;
-
-            uint32 SocialNetworkId;
-        };
-
-        class GetFriendsOfFriend final : public ClientPacket
-        {
-        public:
-            GetFriendsOfFriend(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
-            {
-                ASSERT(header == PacketHeader(CMSG_GET_FRIENDS_OF_FRIEND, FRIENDS) && "Invalid packet header for GetFriendsOfFriend");
-            }
-
-            void Read() override;
-            std::string ToString() const override;
-        };
-
-        class FriendsOfFriend final : public ServerPacket
-        {
-        public:
-            FriendsOfFriend() : ServerPacket(PacketHeader(SMSG_FRIENDS_OF_FRIEND, FRIENDS))
-            {
-            }
-
-            void Write() override;
-            std::string ToString() const override;
         };
 
         class RealIdFriendInvite final : public ClientPacket
@@ -153,6 +105,32 @@ namespace Battlenet
 
             void Write() override;
             std::string ToString() const override;
+        };
+
+        class FriendsOfFriend final : public ServerPacket
+        {
+        public:
+            FriendsOfFriend() : ServerPacket(PacketHeader(SMSG_FRIENDS_OF_FRIEND, FRIENDS))
+            {
+            }
+
+            void Write() override;
+            std::string ToString() const override;
+        };
+
+        class SocialNetworkCheckConnectedResult final : public ServerPacket
+        {
+        public:
+            SocialNetworkCheckConnectedResult() : ServerPacket(PacketHeader(SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT, FRIENDS)),
+                Result(4601), SocialNetworkId(0)    // 4601 = The Facebook add friend service is unavailable right now. Please try again later.
+            {
+            }
+
+            void Write() override;
+            std::string ToString() const override;
+
+            uint16 Result;
+            uint32 SocialNetworkId;
         };
     }
 }

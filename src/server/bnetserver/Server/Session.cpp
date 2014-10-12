@@ -17,7 +17,7 @@
 
 #include "AuthCodes.h"
 #include "BitStream.h"
-#include "PacketFactory.h"
+#include "PacketManager.h"
 #include "SessionManager.h"
 #include "Database/DatabaseEnv.h"
 #include "HmacHash.h"
@@ -88,9 +88,9 @@ void Battlenet::Session::_SetVSFields(std::string const& pstr)
     LoginDatabase.Execute(stmt);
 }
 
-void Battlenet::Session::LogUnhandledPacket(ClientPacket const& packet)
+void Battlenet::Session::LogUnhandledPacket(PacketHeader const& header)
 {
-    TC_LOG_DEBUG("session.packets", "%s Received unhandled packet %s", GetClientInfo().c_str(), packet.ToString().c_str());
+    TC_LOG_DEBUG("session.packets", "%s Received unhandled packet %s", GetClientInfo().c_str(), sPacketManager.GetClientPacketName(header));
 }
 
 void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& logonRequest)
@@ -477,6 +477,22 @@ void Battlenet::Session::HandleSocialNetworkCheckConnected(Friends::SocialNetwor
     AsyncWrite(socialNetworkCheckConnectedResult);
 }
 
+inline std::string PacketToStringHelper(Battlenet::ClientPacket const* packet)
+{
+    if (sLog->ShouldLog("session.packets", LOG_LEVEL_TRACE))
+        return packet->ToString();
+
+    return sPacketManager.GetClientPacketName(packet->GetHeader());
+}
+
+inline std::string PacketToStringHelper(Battlenet::ServerPacket const* packet)
+{
+    if (sLog->ShouldLog("session.packets", LOG_LEVEL_TRACE))
+        return packet->ToString();
+
+    return sPacketManager.GetServerPacketName(packet->GetHeader());
+}
+
 void Battlenet::Session::ReadHandler()
 {
     BitStream stream(std::move(GetReadBuffer()));
@@ -498,13 +514,18 @@ void Battlenet::Session::ReadHandler()
                 return;
             }
 
-            if (ClientPacket* packet = sPacketFactory.Create(header, stream))
+            if (ClientPacket* packet = sPacketManager.CreateClientPacket(header, stream))
             {
-                packet->CallHandler(this);
-                if (packet->WasHandled())
-                    TC_LOG_TRACE("session.packets", "%s Received %s", GetClientInfo().c_str(), packet->ToString().c_str());
+                if (sPacketManager.IsHandled(header))
+                    TC_LOG_DEBUG("session.packets", "%s Received %s", GetClientInfo().c_str(), PacketToStringHelper(packet).c_str());
 
+                packet->CallHandler(this);
                 delete packet;
+            }
+            else if (sPacketManager.GetClientPacketName(header))
+            {
+                LogUnhandledPacket(header);
+                break;
             }
             else
             {
@@ -540,7 +561,7 @@ void Battlenet::Session::AsyncWrite(ServerPacket* packet)
         return;
     }
 
-    TC_LOG_TRACE("session.packets", "%s Sending %s", GetClientInfo().c_str(), packet->ToString().c_str());
+    TC_LOG_DEBUG("session.packets", "%s Sending %s", GetClientInfo().c_str(), PacketToStringHelper(packet).c_str());
 
     packet->Write();
 
