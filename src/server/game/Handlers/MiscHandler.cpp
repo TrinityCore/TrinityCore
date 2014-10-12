@@ -414,7 +414,8 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     // not set flags if player can't free move to prevent lost state at logout cancel
     if (GetPlayer()->CanFreeMove())
     {
-        GetPlayer()->SetStandState(UNIT_STAND_STATE_SIT);
+        if (GetPlayer()->getStandState() == UNIT_STAND_STATE_STAND)
+            GetPlayer()->SetStandState(UNIT_STAND_STATE_SIT);
 
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, (8+4));    // guess size
         data << GetPlayer()->GetPackGUID();
