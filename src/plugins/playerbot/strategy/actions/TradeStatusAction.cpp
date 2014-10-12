@@ -6,6 +6,7 @@
 #include "../../PlayerbotAIConfig.h"
 #include "../../../Ahbot/AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
+#include "../values/ItemUsageValue.h"
 
 using namespace ai;
 
@@ -114,12 +115,17 @@ bool TradeStatusAction::CheckTrade()
         }
 
         item = master->GetTradeData()->GetItem((TradeSlots)slot);
-        if (item && !auctionbot.GetBuyPrice(item->GetTemplate()))
+        if (item)
         {
-            ostringstream out;
-            out << chat->formatItem(item->GetTemplate()) << " - I don't need this";
-            ai->TellMaster(out);
-            return false;
+            ostringstream out; out << item->GetTemplate()->ItemId;
+            ItemUsage usage = AI_VALUE2(ItemUsage, "item usage", out.str());
+            if (!auctionbot.GetBuyPrice(item->GetTemplate()) || usage == ITEM_USAGE_NONE)
+            {
+                ostringstream out;
+                out << chat->formatItem(item->GetTemplate()) << " - I don't need this";
+                ai->TellMaster(out);
+                return false;
+            }
         }
     }
 

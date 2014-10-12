@@ -6,6 +6,7 @@
 #include "../../PlayerbotAIConfig.h"
 #include "../../../Ahbot/AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
+#include "../values/ItemUsageValue.h"
 
 using namespace ai;
 
@@ -277,82 +278,6 @@ bool StoreLootAction::Execute(Event event)
     return true;
 }
 
-bool StoreLootAction::IsLootAllowedBySkill(ItemTemplate const * proto)
-{
-    switch (proto->Class)
-    {
-    case ITEM_CLASS_KEY:
-    case ITEM_CLASS_CONSUMABLE:
-        return true;
-    case ITEM_CLASS_GEM:
-        if (proto->SubClass == ITEM_SUBCLASS_GEM_SIMPLE && bot->HasSkill(SKILL_JEWELCRAFTING))
-            return true;
-        if (proto->SubClass != ITEM_SUBCLASS_GEM_SIMPLE)
-            return true;
-        break;
-    case ITEM_CLASS_TRADE_GOODS:
-        switch (proto->SubClass)
-        {
-        case ITEM_SUBCLASS_PARTS:
-        case ITEM_SUBCLASS_EXPLOSIVES:
-        case ITEM_SUBCLASS_DEVICES:
-            return bot->HasSkill(SKILL_ENGINEERING);
-        case ITEM_SUBCLASS_JEWELCRAFTING:
-            return bot->HasSkill(SKILL_JEWELCRAFTING);
-        case ITEM_SUBCLASS_CLOTH:
-            return bot->HasSkill(SKILL_TAILORING);
-        case ITEM_SUBCLASS_LEATHER:
-            return bot->HasSkill(SKILL_LEATHERWORKING) || bot->HasSkill(SKILL_SKINNING);
-        case ITEM_SUBCLASS_METAL_STONE:
-            return (bot->HasSkill(SKILL_BLACKSMITHING) ||
-                bot->HasSkill(SKILL_ENGINEERING) ||
-                bot->HasSkill(SKILL_MINING));
-        case ITEM_SUBCLASS_MEAT:
-            return bot->HasSkill(SKILL_COOKING);
-        case ITEM_SUBCLASS_HERB:
-            return (bot->HasSkill(SKILL_HERBALISM) ||
-                bot->HasSkill(SKILL_ALCHEMY) ||
-                bot->HasSkill(SKILL_INSCRIPTION));
-        case ITEM_SUBCLASS_ELEMENTAL:
-            return true;
-        case ITEM_SUBCLASS_ENCHANTING:
-            return bot->HasSkill(SKILL_ENCHANTING);
-        }
-        break;
-    case ITEM_CLASS_RECIPE:
-        {
-            if (bot->HasSpell(proto->Spells[2].SpellId))
-                break;
-
-            switch (proto->SubClass)
-            {
-            case ITEM_SUBCLASS_LEATHERWORKING_PATTERN:
-                return bot->HasSkill(SKILL_LEATHERWORKING);
-            case ITEM_SUBCLASS_TAILORING_PATTERN:
-                return bot->HasSkill(SKILL_TAILORING);
-            case ITEM_SUBCLASS_ENGINEERING_SCHEMATIC:
-                return bot->HasSkill(SKILL_ENGINEERING);
-            case ITEM_SUBCLASS_BLACKSMITHING:
-                return bot->HasSkill(SKILL_BLACKSMITHING);
-            case ITEM_SUBCLASS_COOKING_RECIPE:
-                return bot->HasSkill(SKILL_COOKING);
-            case ITEM_SUBCLASS_ALCHEMY_RECIPE:
-                return bot->HasSkill(SKILL_ALCHEMY);
-            case ITEM_SUBCLASS_FIRST_AID_MANUAL:
-                return bot->HasSkill(SKILL_FIRST_AID);
-            case ITEM_SUBCLASS_ENCHANTING_FORMULA:
-                return bot->HasSkill(SKILL_ENCHANTING);
-            case ITEM_SUBCLASS_FISHING_MANUAL:
-                return bot->HasSkill(SKILL_FISHING);
-            case ITEM_SUBCLASS_JEWELCRAFTING_RECIPE:
-                return bot->HasSkill(SKILL_JEWELCRAFTING);
-            }
-        }
-    }
-    return false;
-}
-
-
 bool StoreLootAction::IsLootAllowed(uint32 itemid)
 {
     LootStrategy lootStrategy = AI_VALUE(LootStrategy, "loot strategy");
@@ -381,7 +306,9 @@ bool StoreLootAction::IsLootAllowed(uint32 itemid)
     if (lootStrategy == LOOTSTRATEGY_QUEST)
         return false;
 
-    if (IsLootAllowedBySkill(proto))
+    ostringstream out; out << itemid;
+    ItemUsage usage = AI_VALUE2(ItemUsage, "item usage", out.str());
+    if (usage == ITEM_USAGE_SKILL || usage == ITEM_USAGE_USE)
         return true;
 
     if (lootStrategy == LOOTSTRATEGY_SKILL)

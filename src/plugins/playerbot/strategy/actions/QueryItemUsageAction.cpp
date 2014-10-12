@@ -1,6 +1,7 @@
 #include "../../../pchdef.h"
 #include "../../playerbot.h"
 #include "QueryItemUsageAction.h"
+#include "../values/ItemUsageValue.h"
 #include "../../../Ahbot/AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
 
@@ -61,53 +62,21 @@ bool QueryItemUsageAction::Execute(Event event)
 
 bool QueryItemUsageAction::QueryItemUsage(ItemTemplate const *item)
 {
-    Player *bot = ai->GetBot();
-    if (bot->CanUseItem(item) != EQUIP_ERR_OK)
-        return false;
-
-    if (item->InventoryType == INVTYPE_NON_EQUIP)
-        return false;
-
-    Item *pItem = Item::CreateItem(item->ItemId, 1, bot);
-    if (!pItem)
-        return false;
-
-    uint16 dest;
-    InventoryResult result = bot->CanEquipItem(NULL_SLOT, dest, pItem, true, false);
-    pItem->RemoveFromUpdateQueueOf(bot);
-    delete pItem;
-
-    if( result != EQUIP_ERR_OK )
-        return false;
-
-    Item* existingItem = bot->GetItemByPos(dest);
-    if (!existingItem)
+    ostringstream out; out << item->ItemId;
+    ItemUsage usage = AI_VALUE2(ItemUsage, "item usage", out.str());
+    switch (usage)
     {
+    case ITEM_USAGE_EQUIP:
         ai->TellMaster("Equip");
         return true;
-    }
-
-    bool equip = false;
-    const ItemTemplate* oldItem = existingItem->GetTemplate();
-    if (oldItem->ItemLevel < item->ItemLevel && oldItem->ItemId != item->ItemId)
-    {
-        switch (item->Class)
-        {
-        case ITEM_CLASS_ARMOR:
-            equip = (oldItem->SubClass <= item->SubClass);
-            break;
-        default:
-            equip = true;
-        }
-    }
-
-    if (equip)
-    {
-        ostringstream out;
-        out << "Replace +";
-        out << (item->ItemLevel - oldItem->ItemLevel);
-        out << " lvl";
-        ai->TellMaster(out.str());
+    case ITEM_USAGE_REPLACE:
+        ai->TellMaster("Equip (replace)");
+        return true;
+    case ITEM_USAGE_SKILL:
+        ai->TellMaster("Tradeskill");
+        return true;
+    case ITEM_USAGE_USE:
+        ai->TellMaster("Use");
         return true;
     }
 
@@ -134,6 +103,11 @@ void QueryItemUsageAction::QueryItemPrice(ItemTemplate const *item)
             ai->TellMaster(out.str());
         }
     }
+
+    ostringstream out; out << item->ItemId;
+    ItemUsage usage = AI_VALUE2(ItemUsage, "item usage", out.str());
+    if (usage == ITEM_USAGE_NONE)
+        return;
 
     int32 buyPrice = auctionbot.GetBuyPrice(item) * sRandomPlayerbotMgr.GetBuyMultiplier(bot);
     if (buyPrice)

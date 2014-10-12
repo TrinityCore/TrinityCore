@@ -35,6 +35,5 @@ namespace ai
 
     protected:
         bool IsLootAllowed(uint32 itemid);
-        bool IsLootAllowedBySkill(ItemTemplate const * proto);
     };
 }
