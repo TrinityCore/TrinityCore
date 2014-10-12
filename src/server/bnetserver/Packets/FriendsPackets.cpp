@@ -117,22 +117,16 @@ void Battlenet::Friends::RealIdFriendInvite::Read()
     }
 
     _stream.Read<uint8>(1);
-    
+
     if (_stream.Read<uint8>(1))
         Message = _stream.ReadString(9);
-    
+
     _stream.Read<uint32>(32);
 }
 
 std::string Battlenet::Friends::RealIdFriendInvite::ToString() const
 {
     return "Battlenet::Friends::RealIdFriendInvite Mail: " + Email + " Message: " + Message;
-}
-
-void Battlenet::Friends::RealIdFriendInvite::CallHandler(Session* session)
-{
-    FriendInviteResult* result = new FriendInviteResult();
-    session->AsyncWrite(result);
 }
 
 std::string Battlenet::Friends::FriendInviteResult::ToString() const
@@ -150,7 +144,7 @@ void Battlenet::Friends::FriendInviteResult::Write()
         _stream.WriteString("Testing2", 8);
     }
     _stream.Write(5, 32);
-    
+
     _stream.Write(0, 0xC); // Ignored
 
     _stream.Write(1, 16);

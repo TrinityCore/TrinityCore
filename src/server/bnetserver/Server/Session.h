@@ -85,14 +85,14 @@ namespace Battlenet
 
         void UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms);
 
-        void AsyncWrite(ServerPacket* packet);
-
         uint32 GetAccountId() const { return _accountId; }
         uint32 GetGameAccountId() const { return _gameAccountId; }
 
         bool IsSubscribedToRealmListUpdates() const { return _subscribedToRealmListUpdates; }
 
     protected:
+        void AsyncWrite(ServerPacket* packet);
+
         void ReadHandler() override;
 
     private:
@@ -108,6 +108,7 @@ namespace Battlenet
         bool UnhandledModule(BitStream* dataStream, ServerPacket** response);
 
         WoWRealm::ListUpdate* BuildListUpdate(Realm const* realm) const;
+        std::string GetClientInfo() const;
 
         uint32 _accountId;
         std::string _accountName;

@@ -245,6 +245,9 @@ Appender.Bnet=2,2,0,Bnet.log,w
 #
 
 Logger.root=3,Console Bnet
+Logger.realmlist=3,Console Bnet
+Logger.session=3,Console Bnet
+Logger.session.packets=3,Console Bnet
 
 #
 ###################################################################################################

@@ -163,7 +163,7 @@ namespace Battlenet
             };
 
             JoinResponseV2() : ServerPacket(PacketHeader(SMSG_JOIN_RESPONSE_V2, WOWREALM)),
-                ServerSeed(0), Response(SUCCESS), ResponseCode(26)
+                Response(SUCCESS), ResponseCode(26), ServerSeed(0)
             {
             }
 
