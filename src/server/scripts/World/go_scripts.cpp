@@ -24,7 +24,6 @@ go_ethereum_stasis
 go_sacred_fire_of_life
 go_shrine_of_the_birds
 go_southfury_moonstone
-go_field_repair_bot_74A
 go_orb_of_command
 go_resonite_cask
 go_tablet_of_madness
@@ -88,24 +87,6 @@ public:
     {
         if (player->HasSkill(SKILL_TAILORING) && player->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !player->HasSpell(26086))
             player->CastSpell(player, 26095, false);
-
-        return true;
-    }
-};
-
-/*######
-## go_field_repair_bot_74A
-######*/
-
-class go_field_repair_bot_74A : public GameObjectScript
-{
-public:
-    go_field_repair_bot_74A() : GameObjectScript("go_field_repair_bot_74A") { }
-
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
-    {
-        if (player->HasSkill(SKILL_ENGINEERING) && player->GetBaseSkillValue(SKILL_ENGINEERING) >= 300 && !player->HasSpell(22704))
-            player->CastSpell(player, 22864, false);
 
         return true;
     }
@@ -1213,7 +1194,6 @@ void AddSC_go_scripts()
 {
     new go_cat_figurine();
     new go_barov_journal();
-    new go_field_repair_bot_74A();
     new go_gilded_brazier();
     new go_orb_of_command();
     new go_shrine_of_the_birds();
