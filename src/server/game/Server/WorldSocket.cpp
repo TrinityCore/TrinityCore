@@ -215,13 +215,16 @@ bool WorldSocket::ReadDataHandler()
 
                 // prevent invalid memory access/crash with custom opcodes
                 if (opcode >= NUM_OPCODE_HANDLERS)
+                {
+                    CloseSocket();
                     return false;
+                }
 
                 OpcodeHandler const* handler = opcodeTable[opcode];
-                if (!handler || handler->Status == STATUS_UNHANDLED)
+                if (!handler)
                 {
                     TC_LOG_ERROR("network.opcode", "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), _worldSession->GetPlayerInfo().c_str());
-                    return false;
+                    return true;
                 }
 
                 // Our Idle timer will reset on any non PING opcodes.
