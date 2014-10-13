@@ -5237,6 +5237,7 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
 {
     switch (opcode)
     {
+        /*
         case MSG_MOVE_FALL_LAND:
             return MovementFallLand;
         case MSG_MOVE_HEARTBEAT:
@@ -5443,6 +5444,7 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         case CMSG_PET_CAST_SPELL:
         case CMSG_USE_ITEM:
             return CastSpellEmbeddedMovement;
+        */
         default:
             break;
     }

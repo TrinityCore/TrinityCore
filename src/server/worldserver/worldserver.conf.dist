@@ -547,12 +547,14 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     3 - (Expansion 3)
+#        Default:     5 - (Expansion 5)
+#                     4 - (Expansion 4)
+#                     3 - (Expansion 3)
 #                     2 - (Expansion 2)
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 3
+Expansion = 5
 
 #
 #    MinPlayerName
@@ -644,10 +646,10 @@ CharactersPerAccount = 50
 #
 #    CharactersPerRealm
 #        Description: Limit number of characters per account on this realm.
-#        Range:       1-10
-#        Default:     10 - (Client limitation)
+#        Range:       1-11
+#        Default:     11 - (Client limitation)
 
-CharactersPerRealm = 10
+CharactersPerRealm = 11
 
 #
 #    HeroicCharactersPerRealm
@@ -682,9 +684,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 100 are not recommended at all.
 #        Range:       1-255
-#        Default:     85
+#        Default:     100
 
-MaxPlayerLevel = 85
+MaxPlayerLevel = 100
 
 #
 #    MinDualSpecLevel
@@ -721,9 +723,9 @@ StartPlayerMoney = 0
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.
-#        Default:     80
+#        Default:     85
 
-RecruitAFriend.MaxLevel = 80
+RecruitAFriend.MaxLevel = 85
 
 #
 #    RecruitAFriend.MaxDifference
