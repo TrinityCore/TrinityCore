@@ -21,22 +21,9 @@
 
 #include "Common.h"
 #include "ByteBuffer.h"
+#include "HighGuid.h"
 
 #include <functional>
-
-enum TypeID
-{
-    TYPEID_OBJECT        = 0,
-    TYPEID_ITEM          = 1,
-    TYPEID_CONTAINER     = 2,
-    TYPEID_UNIT          = 3,
-    TYPEID_PLAYER        = 4,
-    TYPEID_GAMEOBJECT    = 5,
-    TYPEID_DYNAMICOBJECT = 6,
-    TYPEID_CORPSE        = 7
-};
-
-#define NUM_CLIENT_OBJECT_TYPES             8
 
 enum TypeMask
 {
@@ -51,22 +38,6 @@ enum TypeMask
     TYPEMASK_SEER           = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
 };
 
-enum HighGuid
-{
-    HIGHGUID_ITEM           = 0x4000,                      // blizz 4000
-    HIGHGUID_CONTAINER      = 0x4000,                      // blizz 4000
-    HIGHGUID_PLAYER         = 0x0000,                      // blizz 0000
-    HIGHGUID_GAMEOBJECT     = 0xF110,                      // blizz F110
-    HIGHGUID_TRANSPORT      = 0xF120,                      // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
-    HIGHGUID_UNIT           = 0xF130,                      // blizz F130
-    HIGHGUID_PET            = 0xF140,                      // blizz F140
-    HIGHGUID_VEHICLE        = 0xF150,                      // blizz F550
-    HIGHGUID_DYNAMICOBJECT  = 0xF100,                      // blizz F100
-    HIGHGUID_CORPSE         = 0xF101,                      // blizz F100
-    HIGHGUID_MO_TRANSPORT   = 0x1FC0,                      // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
-    HIGHGUID_INSTANCE       = 0x1F40,                      // blizz 1F40
-    HIGHGUID_GROUP          = 0x1F50
-};
 
 class ObjectGuid;
 class PackedGuid;
@@ -82,113 +53,71 @@ class ObjectGuid
     public:
         static ObjectGuid const Empty;
 
-        ObjectGuid() : _guid(0) { }
-        explicit ObjectGuid(uint64 guid) : _guid(guid) { }
-        ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) : _guid(counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << 48) : 0) { }
-        ObjectGuid(HighGuid hi, uint32 counter) : _guid(counter ? uint64(counter) | (uint64(hi) << 48) : 0) { }
+        ObjectGuid() { Set(0); }
+        explicit ObjectGuid(uint64 guid) { Set(guid); }
+        ObjectGuid(HighGuid hi, uint32 entry, uint32 counter)
+        {
+            Set(counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << 48) : 0);
+        }
+        ObjectGuid(HighGuid hi, uint32 counter)
+        { 
+            Set(counter ? uint64(counter) | (uint64(hi) << 48) : 0); 
+        }
 
         operator uint64() const { return _guid; }
         PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
 
-        void Set(uint64 guid) { _guid = guid; }
-        void Clear() { _guid = 0; }
+        void Set(uint64 guid) 
+        { 
+            _guid = guid; 
+            _highGuid.reset(HighGuidFactory::Create(guid));
+        }
+        void Clear() { Set(0); }
 
         PackedGuid WriteAsPacked() const;
 
         uint64   GetRawValue() const { return _guid; }
-        HighGuid GetHigh() const { return HighGuid((_guid >> 48) & 0x0000FFFF); }
-        uint32   GetEntry() const { return HasEntry() ? uint32((_guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
+        HighGuid GetHigh() const { return _highGuid->Guid(); }
+        uint32   GetEntry() const { return _highGuid->HasEntry() ? uint32((_guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
         uint32   GetCounter()  const
         {
-            return HasEntry()
+            return _highGuid->HasEntry()
                    ? uint32(_guid & UI64LIT(0x0000000000FFFFFF))
                    : uint32(_guid & UI64LIT(0x00000000FFFFFFFF));
         }
 
-        static uint32 GetMaxCounter(HighGuid high)
-        {
-            return HasEntry(high)
-                   ? uint32(0x00FFFFFF)
-                   : uint32(0xFFFFFFFF);
-        }
-
-        uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
-
         bool IsEmpty()             const { return _guid == 0; }
-        bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT; }
-        bool IsPet()               const { return GetHigh() == HIGHGUID_PET; }
-        bool IsVehicle()           const { return GetHigh() == HIGHGUID_VEHICLE; }
+        bool IsCreature()          const { return _highGuid->Guid() == HIGHGUID_UNIT; }
+        bool IsPet()               const { return _highGuid->Guid() == HIGHGUID_PET; }
+        bool IsVehicle()           const { return _highGuid->Guid() == HIGHGUID_VEHICLE; }
         bool IsCreatureOrPet()     const { return IsCreature() || IsPet(); }
         bool IsCreatureOrVehicle() const { return IsCreature() || IsVehicle(); }
         bool IsAnyTypeCreature()   const { return IsCreature() || IsPet() || IsVehicle(); }
-        bool IsPlayer()            const { return !IsEmpty() && GetHigh() == HIGHGUID_PLAYER; }
+        bool IsPlayer()            const { return !IsEmpty() && _highGuid->Guid() == HIGHGUID_PLAYER; }
         bool IsUnit()              const { return IsAnyTypeCreature() || IsPlayer(); }
-        bool IsItem()              const { return GetHigh() == HIGHGUID_ITEM; }
-        bool IsGameObject()        const { return GetHigh() == HIGHGUID_GAMEOBJECT; }
-        bool IsDynamicObject()     const { return GetHigh() == HIGHGUID_DYNAMICOBJECT; }
-        bool IsCorpse()            const { return GetHigh() == HIGHGUID_CORPSE; }
-        bool IsTransport()         const { return GetHigh() == HIGHGUID_TRANSPORT; }
-        bool IsMOTransport()       const { return GetHigh() == HIGHGUID_MO_TRANSPORT; }
+        bool IsItem()              const { return _highGuid->Guid() == HIGHGUID_ITEM; }
+        bool IsGameObject()        const { return _highGuid->Guid() == HIGHGUID_GAMEOBJECT; }
+        bool IsDynamicObject()     const { return _highGuid->Guid() == HIGHGUID_DYNAMICOBJECT; }
+        bool IsCorpse()            const { return _highGuid->Guid() == HIGHGUID_CORPSE; }
+        bool IsTransport()         const { return _highGuid->Guid() == HIGHGUID_TRANSPORT; }
+        bool IsMOTransport()       const { return _highGuid->Guid() == HIGHGUID_MO_TRANSPORT; }
         bool IsAnyTypeGameObject() const { return IsGameObject() || IsTransport() || IsMOTransport(); }
-        bool IsInstance()          const { return GetHigh() == HIGHGUID_INSTANCE; }
-        bool IsGroup()             const { return GetHigh() == HIGHGUID_GROUP; }
+        bool IsInstance()          const { return _highGuid->Guid() == HIGHGUID_INSTANCE; }
+        bool IsGroup()             const { return _highGuid->Guid() == HIGHGUID_GROUP; }
 
-        static TypeID GetTypeId(HighGuid high)
-        {
-            switch (high)
-            {
-                case HIGHGUID_ITEM:         return TYPEID_ITEM;
-                //case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER==HIGHGUID_ITEM currently
-                case HIGHGUID_UNIT:         return TYPEID_UNIT;
-                case HIGHGUID_PET:          return TYPEID_UNIT;
-                case HIGHGUID_PLAYER:       return TYPEID_PLAYER;
-                case HIGHGUID_GAMEOBJECT:   return TYPEID_GAMEOBJECT;
-                case HIGHGUID_DYNAMICOBJECT: return TYPEID_DYNAMICOBJECT;
-                case HIGHGUID_CORPSE:       return TYPEID_CORPSE;
-                case HIGHGUID_MO_TRANSPORT: return TYPEID_GAMEOBJECT;
-                case HIGHGUID_VEHICLE:      return TYPEID_UNIT;
-                // unknown
-                case HIGHGUID_INSTANCE:
-                case HIGHGUID_GROUP:
-                default:                    return TYPEID_OBJECT;
-            }
-        }
-
-        TypeID GetTypeId() const { return GetTypeId(GetHigh()); }
+        TypeID GetTypeId() const { return _highGuid->TypeId(); }
 
         bool operator!() const { return IsEmpty(); }
         bool operator== (ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
         bool operator!= (ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
         bool operator< (ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
 
-        static char const* GetTypeName(HighGuid high);
-        char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
-        std::string ToString() const;
-
+        std::string const GetTypeName() const { return _highGuid->TypeName(); }
+        std::string const ToString() const;
     private:
-        static bool HasEntry(HighGuid high)
-        {
-            switch (high)
-            {
-                case HIGHGUID_ITEM:
-                case HIGHGUID_PLAYER:
-                case HIGHGUID_DYNAMICOBJECT:
-                case HIGHGUID_CORPSE:
-                case HIGHGUID_MO_TRANSPORT:
-                case HIGHGUID_INSTANCE:
-                case HIGHGUID_GROUP:
-                    return false;
-                case HIGHGUID_GAMEOBJECT:
-                case HIGHGUID_TRANSPORT:
-                case HIGHGUID_UNIT:
-                case HIGHGUID_PET:
-                case HIGHGUID_VEHICLE:
-                default:
-                    return true;
-            }
-        }
+        std::shared_ptr<HighGuidBase> _highGuid;
 
-        bool HasEntry() const { return HasEntry(GetHigh()); }
+        bool HasEntry() const { return _highGuid->HasEntry(); }
 
         explicit ObjectGuid(uint32 const&) = delete;                 // no implementation, used to catch wrong type assignment
         ObjectGuid(HighGuid, uint32, uint64 counter) = delete;       // no implementation, used to catch wrong type assignment
@@ -228,7 +157,7 @@ template<HighGuid high>
 class ObjectGuidGenerator
 {
     public:
-        explicit ObjectGuidGenerator(uint32 start = 1) : _nextGuid(start) { }
+        explicit ObjectGuidGenerator(uint32 start = 1) : _nextGuid(start), _type(HighGuidFactory::Create(high)) { }
 
         void Set(uint32 val) { _nextGuid = val; }
         uint32 Generate();
@@ -236,6 +165,7 @@ class ObjectGuidGenerator
 
     private:
         uint32 _nextGuid;
+        std::unique_ptr<HighGuidBase> _type;
 };
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
@@ -258,5 +188,8 @@ namespace std
             }
     };
 }
+
+
+
 
 #endif // ObjectGuid_h__

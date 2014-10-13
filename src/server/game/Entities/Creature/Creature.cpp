@@ -1215,7 +1215,7 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
             return false;
     }
     else
-        guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
+        guid = sObjectMgr->GuidGenerator.CreatureGuid.Generate();
 
     if (!Create(guid, map, data->phaseMask, data->id, data->posX, data->posY, data->posZ, data->orientation, data))
         return false;

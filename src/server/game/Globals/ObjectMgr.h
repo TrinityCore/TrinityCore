@@ -1046,7 +1046,6 @@ class ObjectMgr
         CreatureBaseStats const* GetCreatureBaseStats(uint8 level, uint8 unitClass);
 
         void SetHighestGuids();
-        uint32 GenerateLowGuid(HighGuid guidhigh);
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
         uint32 GenerateMailID();
@@ -1307,6 +1306,18 @@ class ObjectMgr
 
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
 
+        struct{
+            ObjectGuidGenerator<HIGHGUID_PLAYER> CharGuid;
+            ObjectGuidGenerator<HIGHGUID_UNIT> CreatureGuid;
+            ObjectGuidGenerator<HIGHGUID_PET> PetGuid;
+            ObjectGuidGenerator<HIGHGUID_VEHICLE> VehicleGuid;
+            ObjectGuidGenerator<HIGHGUID_ITEM> ItemGuid;
+            ObjectGuidGenerator<HIGHGUID_GAMEOBJECT> GoGuid;
+            ObjectGuidGenerator<HIGHGUID_DYNAMICOBJECT> DoGuid;
+            ObjectGuidGenerator<HIGHGUID_CORPSE> CorpseGuid;
+            ObjectGuidGenerator<HIGHGUID_TRANSPORT> MoTransGuid;
+        } GuidGenerator;
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1314,17 +1325,6 @@ class ObjectMgr
         uint32 _itemTextId;
         uint32 _mailId;
         uint32 _hiPetNumber;
-
-        // first free low guid for selected guid type
-        uint32 _hiCharGuid;
-        uint32 _hiCreatureGuid;
-        uint32 _hiPetGuid;
-        uint32 _hiVehicleGuid;
-        uint32 _hiItemGuid;
-        uint32 _hiGoGuid;
-        uint32 _hiDoGuid;
-        uint32 _hiCorpseGuid;
-        uint32 _hiMoTransGuid;
 
         QuestMap _questTemplates;
 

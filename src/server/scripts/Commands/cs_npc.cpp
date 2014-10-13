@@ -260,7 +260,7 @@ public:
 
         if (Transport* trans = chr->GetTransport())
         {
-            uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
+            uint32 guid = sObjectMgr->GuidGenerator.CreatureGuid.Generate();
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
             data.id = id;
             data.phaseMask = chr->GetPhaseMaskForSpawn();
@@ -278,7 +278,7 @@ public:
         }
 
         Creature* creature = new Creature();
-        if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, x, y, z, o))
+        if (!creature->Create(sObjectMgr->GuidGenerator.CreatureGuid.Generate(), map, chr->GetPhaseMaskForSpawn(), id, x, y, z, o))
         {
             delete creature;
             return false;

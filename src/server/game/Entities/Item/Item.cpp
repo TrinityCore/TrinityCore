@@ -1061,7 +1061,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
         ASSERT(count != 0 && "pProto->Stackable == 0 but checked at loading already");
 
         Item* item = NewItemOrBag(proto);
-        if (item->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), itemEntry, player))
+        if (item->Create(sObjectMgr->GuidGenerator.ItemGuid.Generate(), itemEntry, player))
         {
             item->SetCount(count);
             return item;

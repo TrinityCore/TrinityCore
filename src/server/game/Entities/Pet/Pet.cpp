@@ -174,7 +174,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     }
 
     Map* map = owner->GetMap();
-    uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
+    uint32 guid = sObjectMgr->GuidGenerator.PetGuid.Generate();
     if (!Create(guid, map, owner->GetPhaseMask(), petEntry, petId))
         return false;
 
@@ -806,7 +806,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
     TC_LOG_DEBUG("entities.pet", "Pet::CreateBaseForTamed");
-    uint32 guid=sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
+    uint32 guid = sObjectMgr->GuidGenerator.PetGuid.Generate();
     uint32 petId = sObjectMgr->GeneratePetNumber();
     if (!Create(guid, map, phaseMask, cinfo->Entry, petId))
         return false;

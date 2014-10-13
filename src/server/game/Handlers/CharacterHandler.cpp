@@ -638,7 +638,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             Player newChar(this);
             newChar.GetMotionMaster()->Initialize();
-            if (!newChar.Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), createInfo))
+            if (!newChar.Create(sObjectMgr->GuidGenerator.CharGuid.Generate(), createInfo))
             {
                 // Player not create (race/class/etc problem?)
                 newChar.CleanupsBeforeDelete();

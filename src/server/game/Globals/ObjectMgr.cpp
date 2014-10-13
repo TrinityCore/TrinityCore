@@ -228,15 +228,6 @@ ObjectMgr::ObjectMgr():
     _itemTextId(1),
     _mailId(1),
     _hiPetNumber(1),
-    _hiCharGuid(1),
-    _hiCreatureGuid(1),
-    _hiPetGuid(1),
-    _hiVehicleGuid(1),
-    _hiItemGuid(1),
-    _hiGoGuid(1),
-    _hiDoGuid(1),
-    _hiCorpseGuid(1),
-    _hiMoTransGuid(1),
     DBCLocaleIndex(LOCALE_enUS)
 {
     for (uint8 i = 0; i < MAX_CLASSES; ++i)
@@ -1798,7 +1789,7 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     if (!map)
         return 0;
 
-    uint32 guid = GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    uint32 guid = GuidGenerator.GoGuid.Generate();
     GameObjectData& data = NewGOData(guid);
     data.id             = entry;
     data.mapid          = mapId;
@@ -1880,7 +1871,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 mapId, float x, float y, float
     uint32 level = cInfo->minlevel == cInfo->maxlevel ? cInfo->minlevel : urand(cInfo->minlevel, cInfo->maxlevel); // Only used for extracting creature base stats
     CreatureBaseStats const* stats = GetCreatureBaseStats(level, cInfo->unit_class);
 
-    uint32 guid = GenerateLowGuid(HIGHGUID_UNIT);
+    uint32 guid = GuidGenerator.CreatureGuid.Generate();
     CreatureData& data = NewOrExistCreatureData(guid);
     data.id = entry;
     data.mapid = mapId;
@@ -6307,32 +6298,14 @@ AreaTrigger const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
 
 void ObjectMgr::SetHighestGuids()
 {
-    QueryResult result = CharacterDatabase.Query("SELECT MAX(guid) FROM characters");
-    if (result)
-        _hiCharGuid = (*result)[0].GetUInt32()+1;
-
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
-    if (result)
-        _hiCreatureGuid = (*result)[0].GetUInt32()+1;
-
-    result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
-    if (result)
-        _hiItemGuid = (*result)[0].GetUInt32()+1;
-
     // Cleanup other tables from nonexistent guids ( >= _hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _hiItemGuid);      // One-time query
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _hiItemGuid);          // One-time query
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _hiItemGuid);         // One-time query
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", _hiItemGuid);     // One-time query
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", GuidGenerator.ItemGuid.GetNextAfterMaxUsed());      // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", GuidGenerator.ItemGuid.GetNextAfterMaxUsed());          // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", GuidGenerator.ItemGuid.GetNextAfterMaxUsed());         // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", GuidGenerator.ItemGuid.GetNextAfterMaxUsed());     // One-time query
 
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
-    if (result)
-        _hiGoGuid = (*result)[0].GetUInt32()+1;
-
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
-    if (result)
-        _hiMoTransGuid = (*result)[0].GetUInt32()+1;
-
+    auto result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
+ 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
         _auctionId = (*result)[0].GetUInt32()+1;
@@ -6340,10 +6313,6 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(id) FROM mail");
     if (result)
         _mailId = (*result)[0].GetUInt32()+1;
-
-    result = CharacterDatabase.Query("SELECT MAX(corpseGuid) FROM corpse");
-    if (result)
-        _hiCorpseGuid = (*result)[0].GetUInt32()+1;
 
     result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
     if (result)
@@ -6390,61 +6359,6 @@ uint32 ObjectMgr::GenerateMailID()
         World::StopNow(ERROR_EXIT_CODE);
     }
     return _mailId++;
-}
-
-uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
-{
-    switch (guidhigh)
-    {
-        case HIGHGUID_ITEM:
-        {
-            ASSERT(_hiItemGuid < 0xFFFFFFFE && "Item guid overflow!");
-            return _hiItemGuid++;
-        }
-        case HIGHGUID_UNIT:
-        {
-            ASSERT(_hiCreatureGuid < 0x00FFFFFE && "Creature guid overflow!");
-            return _hiCreatureGuid++;
-        }
-        case HIGHGUID_PET:
-        {
-            ASSERT(_hiPetGuid < 0x00FFFFFE && "Pet guid overflow!");
-            return _hiPetGuid++;
-        }
-        case HIGHGUID_VEHICLE:
-        {
-            ASSERT(_hiVehicleGuid < 0x00FFFFFF && "Vehicle guid overflow!");
-            return _hiVehicleGuid++;
-        }
-        case HIGHGUID_PLAYER:
-        {
-            ASSERT(_hiCharGuid < 0xFFFFFFFE && "Player guid overflow!");
-            return _hiCharGuid++;
-        }
-        case HIGHGUID_GAMEOBJECT:
-        {
-            ASSERT(_hiGoGuid < 0x00FFFFFE && "Gameobject guid overflow!");
-            return _hiGoGuid++;
-        }
-        case HIGHGUID_CORPSE:
-        {
-            ASSERT(_hiCorpseGuid < 0xFFFFFFFE && "Corpse guid overflow!");
-            return _hiCorpseGuid++;
-        }
-        case HIGHGUID_DYNAMICOBJECT:
-        {
-            ASSERT(_hiDoGuid < 0xFFFFFFFE && "DynamicObject guid overflow!");
-            return _hiDoGuid++;
-        }
-        case HIGHGUID_MO_TRANSPORT:
-        {
-            ASSERT(_hiMoTransGuid < 0xFFFFFFFE && "MO Transport guid overflow!");
-            return _hiMoTransGuid++;
-        }
-        default:
-            ASSERT(false && "ObjectMgr::GenerateLowGuid - Unknown HIGHGUID type");
-            return 0;
-    }
 }
 
 void ObjectMgr::LoadGameObjectLocales()

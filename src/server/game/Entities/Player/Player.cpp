@@ -5226,7 +5226,7 @@ void Player::CreateCorpse()
     Corpse* corpse = new Corpse((m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) ? CORPSE_RESURRECTABLE_PVP : CORPSE_RESURRECTABLE_PVE);
     SetPvPDeath(false);
 
-    if (!corpse->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_CORPSE), this))
+    if (!corpse->Create(sObjectMgr->GuidGenerator.CorpseGuid.Generate(), this))
     {
         delete corpse;
         return;
@@ -26823,7 +26823,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     Map* map = GetMap();
     uint32 pet_number = sObjectMgr->GeneratePetNumber();
-    if (!pet->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PET), map, GetPhaseMask(), entry, pet_number))
+    if (!pet->Create(sObjectMgr->GuidGenerator.PetGuid.Generate(), map, GetPhaseMask(), entry, pet_number))
     {
         TC_LOG_ERROR("misc", "no such creature entry %u", entry);
         delete pet;
