@@ -3195,8 +3195,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 16835:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
                 break;
-            case 65142:
-                spellInfo->AttributesEx3 ~= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+            case 65142: // Ebon Plague
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 51735: // Ebon Plague
             case 51734:
