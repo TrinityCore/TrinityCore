@@ -477,6 +477,17 @@ void Battlenet::Session::HandleSocialNetworkCheckConnected(Friends::SocialNetwor
     AsyncWrite(socialNetworkCheckConnectedResult);
 }
 
+void Battlenet::Session::HandleGetStreamItemsRequest(Cache::GetStreamItemsRequest const& getStreamItemsRequest)
+{
+    if (ModuleInfo* module = sModuleMgr->CreateModule(getStreamItemsRequest.Locale, getStreamItemsRequest.ItemName))
+    {
+        Cache::GetStreamItemsResponse* getStreamItemsResponse = new Cache::GetStreamItemsResponse();
+        getStreamItemsResponse->Index = getStreamItemsRequest.Index;
+        getStreamItemsResponse->Modules.push_back(module);
+        AsyncWrite(getStreamItemsResponse);
+    }
+}
+
 inline std::string PacketToStringHelper(Battlenet::ClientPacket const* packet)
 {
     if (sLog->ShouldLog("session.packets", LOG_LEVEL_TRACE))

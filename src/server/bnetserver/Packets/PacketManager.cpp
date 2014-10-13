@@ -217,13 +217,13 @@ void Battlenet::PacketManager::RegisterCachePackets()
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Cache::CMSG_GATEWAY_LOOKUP_REQUEST, CACHE), "Cache::GatewayLookupRequest");
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Cache::CMSG_CONNECT_REQUEST, CACHE), "Cache::ConnectRequest");
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Cache::CMSG_DATA_CHUNK, CACHE), "Cache::DataChunk");
-    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Cache::SMSG_GET_STREAM_ITEMS_REQUEST, CACHE), "Cache::GetStreamItemsRequest");
+    REGISTER_CLIENT_PACKET(PacketHeader(Cache::CMSG_GET_STREAM_ITEMS_REQUEST, CACHE), Cache::GetStreamItemsRequest);
 
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Cache::SMSG_GATEWAY_LOOKUP_RESPONSE, CACHE), "Cache::GatewayLookupResponse");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Cache::SMSG_CONNECT_RESPONSE, CACHE), "Cache::ConnectResponse");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Cache::SMSG_PUBLISH_LIST_RESPONSE, CACHE), "Cache::PublishListResponse");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Cache::SMSG_RESULT, CACHE), "Cache::Result");
-    REGISTER_SERVER_PACKET_NAME(PacketHeader(Cache::SMSG_GET_STREAM_ITEMS_RESPONSE, CACHE), "Cache::GetStreamItemsResponse");
+    REGISTER_SERVER_PACKET(PacketHeader(Cache::SMSG_GET_STREAM_ITEMS_RESPONSE, CACHE), Cache::GetStreamItemsResponse);
 }
 
 void Battlenet::PacketManager::RegisterProfilePackets()

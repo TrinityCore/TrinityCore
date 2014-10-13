@@ -51,7 +51,8 @@ void Battlenet::ModuleManager::Load()
 Battlenet::ModuleInfo* Battlenet::ModuleManager::CreateModule(std::string const& os, std::string const& name) const
 {
     ModuleKey key { os, name };
-    ASSERT(_modules.count(key));
+    if (!_modules.count(key))
+        return nullptr;
 
     return new ModuleInfo(*_modules.at(key));
 }

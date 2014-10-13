@@ -81,6 +81,9 @@ namespace Battlenet
         // Friends
         void HandleSocialNetworkCheckConnected(Friends::SocialNetworkCheckConnected const& socialNetworkCheckConnected);
 
+        // Cache
+        void HandleGetStreamItemsRequest(Cache::GetStreamItemsRequest const& getStreamItemsRequest);
+
         void Start() override;
 
         void UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms);
