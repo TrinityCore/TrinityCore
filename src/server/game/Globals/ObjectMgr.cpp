@@ -8883,8 +8883,8 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
-    //                                               0      1      2        3        4        5        6         7          8            9                  10           11           12           13
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2, damage_exp3 FROM creature_classlevelstats");
+    //                                               0      1      2        3        4        5        6         7      8          9          10           11                 12           13           14           15           16           16
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basehp4, basehp5, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2, damage_exp3, damage_exp4, damage_exp5 FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -8915,7 +8915,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
                 stats.BaseHealth[i] = 1;
             }
 
-            stats.BaseDamage[i] = fields[10 + i].GetFloat();
+            stats.BaseDamage[i] = fields[12 + i].GetFloat();
             if (stats.BaseDamage[i] < 0.0f)
             {
                 TC_LOG_ERROR("sql.sql", "Creature base stats for class %u, level %u has invalid negative base damage[%u] - set to 0.0", Class, Level, i);
@@ -8923,11 +8923,11 @@ void ObjectMgr::LoadCreatureClassLevelStats()
             }
         }
 
-        stats.BaseMana = fields[6].GetUInt16();
-        stats.BaseArmor = fields[7].GetUInt16();
+        stats.BaseMana = fields[8].GetUInt16();
+        stats.BaseArmor = fields[9].GetUInt16();
 
-        stats.AttackPower = fields[8].GetUInt16();
-        stats.RangedAttackPower = fields[9].GetUInt16();
+        stats.AttackPower = fields[10].GetUInt16();
+        stats.RangedAttackPower = fields[11].GetUInt16();
 
         _creatureBaseStatsStore[MAKE_PAIR16(Level, Class)] = stats;
 

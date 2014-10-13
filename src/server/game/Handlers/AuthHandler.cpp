@@ -22,26 +22,38 @@
 void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 {
     WorldPacket packet(SMSG_AUTH_RESPONSE, 1 /*bits*/ + 4 + 1 + 4 + 1 + 4 + 1 + 1 + (queued ? 4 : 0));
+    packet << uint8(code);
+    packet.WriteBit(code == AUTH_OK);
     packet.WriteBit(queued);
-    if (queued)
-        packet.WriteBit(0);
 
-    packet.WriteBit(1);                                    // has account info
+    if (code == AUTH_OK)
+    {
+        packet << uint32(realmID);
+        packet << uint32(0);            // RealmNamesCount
+        packet << uint32(0);            // BillingTimeRemaining
+        packet << uint32(0);            // BillingPlanFlags
+        packet << uint32(0);            // BillingTimeRested
+        packet << uint8(Expansion());   // ActiveExpansion
+        packet << uint8(Expansion());   // AccountExpansion
+        packet << uint32(0);            // TimeSecondsUntilPCKick
+        packet << uint32(0);            // Races
+        packet << uint32(0);            // Classes
+        packet << uint32(0);            // Templates
+        packet << uint32(0);            // AccountCurrency (probably for ingame shop)
+        packet.WriteBit(0);             // Trial
+        packet.WriteBit(0);             // ForceCharacterTemplate
+        packet.WriteBit(0);             // NumPlayersHorde (uint16)
+        packet.WriteBit(0);             // NumPlayersAlliance (uint16)
+        packet.WriteBit(0);             // IsVeteranTrial
+    }
+
+    if (queued)
+    {
+        packet << uint32(queuePos);     // Queue position
+        packet.WriteBit(0);             // HasFCM
+    }
 
     packet.FlushBits();
-
-    // account info
-    packet << uint32(0);                                   // BillingTimeRemaining
-    packet << uint8(Expansion());                          // 0 - normal, 1 - TBC, 2 - WOTLK, 3 - CATA; must be set in database manually for each account
-    packet << uint32(0);
-    packet << uint8(Expansion());                          // Unknown, these two show the same
-    packet << uint32(0);                                   // BillingTimeRested
-    packet << uint8(0);                                    // BillingPlanFlags
-
-    packet << uint8(code);
-    if (queued)
-        packet << uint32(queuePos);                             // Queue position
-
     SendPacket(&packet);
 }
 
