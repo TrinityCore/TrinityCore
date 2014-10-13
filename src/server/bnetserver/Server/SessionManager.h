@@ -44,6 +44,7 @@ namespace Battlenet
     {
         typedef SocketMgr<Session> BaseSocketMgr;
         typedef std::map<SessionInfo, Session*> SessionMap;
+        typedef std::map<uint32, std::list<Session*>> SessionByAccountMap;
 
     public:
         static SessionManager& Instance()
@@ -74,6 +75,7 @@ namespace Battlenet
         static void OnSocketAccept(tcp::socket&& sock);
 
         SessionMap _sessions;
+        SessionByAccountMap _sessionsByAccountId;
         boost::shared_mutex _sessionMutex;
     };
 }

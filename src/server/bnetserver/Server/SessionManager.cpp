@@ -40,10 +40,12 @@ void Battlenet::SessionManager::AddSession(Session* session)
 {
     std::unique_lock<boost::shared_mutex> lock(_sessionMutex);
     _sessions[{ session->GetAccountId(), session->GetGameAccountId() }] = session;
+    _sessionsByAccountId[session->GetAccountId()].push_back(session);
 }
 
 void Battlenet::SessionManager::RemoveSession(Session* session)
 {
     std::unique_lock<boost::shared_mutex> lock(_sessionMutex);
     _sessions.erase({ session->GetAccountId(), session->GetGameAccountId() });
+    _sessionsByAccountId[session->GetAccountId()].remove(session);
 }
