@@ -3829,7 +3829,7 @@ public:
     class spell_gen_mixology_bonus_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_gen_mixology_bonus_AuraScript);
-   
+
     public:
         spell_gen_mixology_bonus_AuraScript()
         {
@@ -4024,21 +4024,21 @@ public:
                         break;
                 }
                 amount += bonus;
-			}
-		}
+            }
+        }
 
-		int32 bonus;
+        int32 bonus;
 
-		void Register() override
-		{
+        void Register() override
+        {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_mixology_bonus_AuraScript::CalculateAmount, EFFECT_ALL, SPELL_AURA_ANY);
-		}
-	};
+        }
+    };
 
-	AuraScript* GetAuraScript() const override
-	{
-		return new spell_gen_mixology_bonus_AuraScript();
-	}
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_gen_mixology_bonus_AuraScript();
+    }
 };
 
 void AddSC_generic_spell_scripts()
