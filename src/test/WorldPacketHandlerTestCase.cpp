@@ -250,8 +250,9 @@ protected:
     {
         trigger("often");
         tick();
+        tick();
 
-        assertActions(">S:security check");
+        assertActions(">S:security check>S:check mail");
     }
 
     void guild_accept()

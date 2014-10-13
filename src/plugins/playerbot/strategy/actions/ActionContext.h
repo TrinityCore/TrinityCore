@@ -13,6 +13,7 @@
 #include "SuggestWhatToDoAction.h"
 #include "PositionAction.h"
 #include "AttackAction.h"
+#include "CheckMailAction.h"
 
 namespace ai
 {
@@ -61,9 +62,11 @@ namespace ai
             creators["set facing"] = &ActionContext::set_facing;
             creators["attack duel opponent"] = &ActionContext::attack_duel_opponent;
             creators["drop target"] = &ActionContext::drop_target;
+            creators["check mail"] = &ActionContext::check_mail;
         }
 
     private:
+        static Action* check_mail(PlayerbotAI* ai) { return new CheckMailAction(ai); }
         static Action* drop_target(PlayerbotAI* ai) { return new DropTargetAction(ai); }
         static Action* attack_duel_opponent(PlayerbotAI* ai) { return new AttackDuelOpponentAction(ai); }
         static Action* guard(PlayerbotAI* ai) { return new GuardAction(ai); }

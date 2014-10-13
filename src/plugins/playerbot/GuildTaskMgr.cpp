@@ -3,6 +3,7 @@
 #include "PlayerbotAIConfig.h"
 #include "GuildTaskMgr.h"
 
+#include "../../plugins/ahbot/AhBot.h"
 #include "../../server/game/Guilds/GuildMgr.h"
 #include "../../shared/Database/DatabaseEnv.h"
 #include "../../server/game/Mails/Mail.h"
@@ -55,6 +56,7 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
         SetTaskValue(owner, guildId, "itemCount", 0, 0);
         SetTaskValue(owner, guildId, "killTask", 0, 0);
         SetTaskValue(owner, guildId, "killCount", 0, 0);
+        SetTaskValue(owner, guildId, "payment", 0, 0);
         SetTaskValue(owner, guildId, "thanks", 1, 2 * sPlayerbotAIConfig.maxGuildTaskChangeTime);
         SetTaskValue(owner, guildId, "reward", 1, 2 * sPlayerbotAIConfig.maxGuildTaskChangeTime);
 
@@ -394,7 +396,7 @@ bool GuildTaskMgr::HandleConsoleCommand(ChatHandler* handler, char const* args)
     return false;
 }
 
-void GuildTaskMgr::CheckItemTask(uint32 itemId, uint32 obtained, Player* ownerPlayer, Player* bot)
+void GuildTaskMgr::CheckItemTask(uint32 itemId, uint32 obtained, Player* ownerPlayer, Player* bot, bool byMail)
 {
     uint32 guildId = bot->GetGuildId();
     if (!guildId)
@@ -412,6 +414,16 @@ void GuildTaskMgr::CheckItemTask(uint32 itemId, uint32 obtained, Player* ownerPl
                 bot->GetGuild()->GetName().c_str(), ownerPlayer->GetName().c_str(),
                 itemId, itemTask);
         return;
+    }
+
+    if (byMail)
+    {
+        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
+        if (!proto)
+            return;
+
+        SetTaskValue(owner, guildId, "payment", auctionbot.GetBuyPrice(proto) * obtained,
+                urand(sPlayerbotAIConfig.minGuildTaskRewardTime, sPlayerbotAIConfig.maxGuildTaskRewardTime));
     }
 
     uint32 count = GetTaskValue(owner, guildId, "itemCount");
@@ -508,6 +520,7 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
         Item* item = Item::CreateItem(itemId, 1, leader);
         MailDraft("Thank You", body.str()).
                 AddItem(item).
+                AddMoney(GetTaskValue(owner, guildId, "payment")).
                 SendMailTo(trans, MailReceiver(player), MailSender(leader));
         CharacterDatabase.CommitTransaction(trans);
 

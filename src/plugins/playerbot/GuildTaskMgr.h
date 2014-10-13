@@ -22,7 +22,7 @@ class GuildTaskMgr
 	public:
         static bool HandleConsoleCommand(ChatHandler* handler, char const* args);
         bool IsGuildTaskItem(uint32 itemId, uint32 guildId);
-        void CheckItemTask(uint32 itemId, uint32 obtained, Player* owner, Player* bot);
+        void CheckItemTask(uint32 itemId, uint32 obtained, Player* owner, Player* bot, bool byMail = false);
 
     private:
         uint32 GetTaskValue(uint32 owner, uint32 guildId, string type);
