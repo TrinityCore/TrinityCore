@@ -29,13 +29,13 @@ namespace Battlenet
             CMSG_GATEWAY_LOOKUP_REQUEST     = 0x2,  // Not implemented
             CMSG_CONNECT_REQUEST            = 0x4,  // Not implemented
             CMSG_DATA_CHUNK                 = 0x7,  // Not implemented
-            CMSG_GET_STREAM_ITEMS_REQUEST   = 0x9,  // Not implemented
+            CMSG_GET_STREAM_ITEMS_REQUEST   = 0x9,
 
             SMSG_GATEWAY_LOOKUP_RESPONSE    = 0x3,  // Not implemented
             SMSG_CONNECT_RESPONSE           = 0x4,  // Not implemented
             SMSG_PUBLISH_LIST_RESPONSE      = 0x7,  // Not implemented
             SMSG_RESULT                     = 0x8,  // Not implemented
-            SMSG_GET_STREAM_ITEMS_RESPONSE  = 0x9   // Not implemented
+            SMSG_GET_STREAM_ITEMS_RESPONSE  = 0x9
         };
 
         class GetStreamItemsRequest final : public ClientPacket
