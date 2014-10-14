@@ -68,15 +68,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 else
                     player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 0);
 
-                // make sure Anub'arak isnt missing and floor is destroyed after a crash
+                // make sure Anub'arak isnt missing
                 if (GetBossState(BOSS_LICH_KING) == DONE && TrialCounter && GetBossState(BOSS_ANUBARAK) != DONE)
-                {
-                    if (Creature* anubArak = ObjectAccessor::GetCreature(*player, GetGuidData(NPC_ANUBARAK)))
-                        anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-
-                    if (GameObject* floor = ObjectAccessor::GetGameObject(*player, GetGuidData(GO_ARGENT_COLISEUM_FLOOR)))
-                        floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
-                }
+                    if (!ObjectAccessor::GetCreature(*player, GetGuidData(NPC_ANUBARAK)))
+                        player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
             }
 
             void OpenDoor(ObjectGuid guid)
@@ -160,23 +155,15 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_CRUSADERS_CACHE_10:
-                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL)
-                            CrusadersCacheGUID = go->GetGUID();
-                        break;
                     case GO_CRUSADERS_CACHE_25:
-                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL)
-                            CrusadersCacheGUID = go->GetGUID();
-                        break;
                     case GO_CRUSADERS_CACHE_10_H:
-                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
-                            CrusadersCacheGUID = go->GetGUID();
-                        break;
                     case GO_CRUSADERS_CACHE_25_H:
-                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
-                            CrusadersCacheGUID = go->GetGUID();
+                        CrusadersCacheGUID = go->GetGUID();
                         break;
                     case GO_ARGENT_COLISEUM_FLOOR:
                         FloorGUID = go->GetGUID();
+                        if (GetBossState(BOSS_LICH_KING) == DONE)
+                            go->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
                         break;
                     case GO_MAIN_GATE_DOOR:
                         MainGateDoorGUID = go->GetGUID();
