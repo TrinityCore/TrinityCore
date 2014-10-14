@@ -70,10 +70,6 @@ class AuraEffect
         void HandleEffect(Unit* target, uint8 mode, bool apply);
         void ApplySpellMod(Unit* target, bool apply);
 
-        void  SetDamage(int32 val) { m_damage = val; }
-        int32 GetDamage() const { return m_damage; }
-        void  SetCritChance(float val) { m_critChance = val; }
-        float GetCritChance() const { return m_critChance; }
         void  SetDonePct(float val) { m_donePct = val; }
         float GetDonePct() const { return m_donePct; }
 
@@ -105,8 +101,6 @@ class AuraEffect
         int32 const m_baseAmount;
 
         int32 m_amount;
-        int32 m_damage;
-        float m_critChance;
         float m_donePct;
 
         SpellModifier* m_spellmod;
