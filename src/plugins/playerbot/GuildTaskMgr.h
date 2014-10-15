@@ -25,7 +25,7 @@ class GuildTaskMgr
         void CheckItemTask(uint32 itemId, uint32 obtained, Player* owner, Player* bot, bool byMail = false);
 
     private:
-        uint32 GetTaskValue(uint32 owner, uint32 guildId, string type);
+        uint32 GetTaskValue(uint32 owner, uint32 guildId, string type, uint32 *validIn = NULL);
         uint32 SetTaskValue(uint32 owner, uint32 guildId, string type, uint32 value, uint32 validIn);
         uint32 CreateTask(uint32 owner, uint32 guildId);
         bool SendAdvertisement(uint32 owner, uint32 guildId);

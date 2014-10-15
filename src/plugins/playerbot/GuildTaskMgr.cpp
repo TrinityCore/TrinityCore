@@ -336,7 +336,7 @@ bool GuildTaskMgr::IsGuildTaskItem(uint32 itemId, uint32 guildId)
     return value;
 }
 
-uint32 GuildTaskMgr::GetTaskValue(uint32 owner, uint32 guildId, string type)
+uint32 GuildTaskMgr::GetTaskValue(uint32 owner, uint32 guildId, string type, uint32 *validIn /* = NULL */)
 {
     uint32 value = 0;
 
@@ -349,9 +349,11 @@ uint32 GuildTaskMgr::GetTaskValue(uint32 owner, uint32 guildId, string type)
         Field* fields = results->Fetch();
         value = fields[0].GetUInt32();
         uint32 lastChangeTime = fields[1].GetUInt32();
-        uint32 validIn = fields[2].GetUInt32();
-        if ((time(0) - lastChangeTime) >= validIn)
+        uint32 secs = fields[2].GetUInt32();
+        if ((time(0) - lastChangeTime) >= secs)
             value = 0;
+
+        if (validIn) *validIn = secs;
     }
 
     return value;
@@ -373,23 +375,75 @@ uint32 GuildTaskMgr::SetTaskValue(uint32 owner, uint32 guildId, string type, uin
 
 bool GuildTaskMgr::HandleConsoleCommand(ChatHandler* handler, char const* args)
 {
-    if (!sPlayerbotAIConfig.enabled)
+    if (!sPlayerbotAIConfig.guildTaskEnabled)
     {
-        sLog->outMessage("gtask", LOG_LEVEL_ERROR, "Playerbot system is currently disabled!");
+        sLog->outMessage("gtask", LOG_LEVEL_ERROR, "Guild task system is currently disabled!");
         return false;
     }
 
     if (!args || !*args)
     {
-        sLog->outMessage("gtask", LOG_LEVEL_ERROR, "Usage: gtask stats");
+        sLog->outMessage("gtask", LOG_LEVEL_ERROR, "Usage: gtask stats/reset");
         return false;
     }
 
     string cmd = args;
 
+    if (cmd == "reset")
+    {
+        CharacterDatabase.PExecute("delete from ai_playerbot_guild_tasks");
+        sLog->outMessage("gtask", LOG_LEVEL_INFO, "Guild tasks were reset for all players");
+        return true;
+    }
+
     if (cmd == "stats")
     {
-        sLog->outMessage("gtask", LOG_LEVEL_ERROR, "TODO");
+        sLog->outMessage("gtask", LOG_LEVEL_INFO, "Usage: gtask stats <player name>");
+        return true;
+    }
+
+    if (cmd.find("stats ") != string::npos)
+    {
+        string charName = cmd.substr(cmd.find("stats ") + 6);
+        ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(charName);
+        if (!guid)
+        {
+            sLog->outMessage("gtask", LOG_LEVEL_ERROR, "Player %s not found", charName.c_str());
+            return false;
+        }
+
+        uint32 owner = (uint32)guid.GetRawValue();
+
+        QueryResult result = CharacterDatabase.PQuery(
+                "select `value`, `time`, validIn, guildid, `type` from ai_playerbot_guild_tasks where owner = '%u' order by guildid, `type`",
+                owner);
+
+        if (result)
+        {
+            do
+            {
+                Field* fields = result->Fetch();
+                uint32 value = fields[0].GetUInt32();
+                uint32 lastChangeTime = fields[1].GetUInt32();
+                uint32 validIn = fields[2].GetUInt32();
+                if ((time(0) - lastChangeTime) >= validIn)
+                    value = 0;
+                uint32 guildId = fields[3].GetUInt32();
+                string type = fields[4].GetString();
+
+                Guild *guild = sGuildMgr->GetGuildById(guildId);
+                if (!guild)
+                    continue;
+
+                sLog->outMessage("gtask", LOG_LEVEL_INFO, "Player '%s' Guild '%s' %s=%u (%u secs)",
+                        charName.c_str(), guild->GetName().c_str(),
+                        type.c_str(), value, validIn);
+
+            } while (result->NextRow());
+
+            Field* fields = result->Fetch();
+        }
+
         return true;
     }
 
