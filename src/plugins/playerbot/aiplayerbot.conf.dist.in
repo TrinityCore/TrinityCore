@@ -117,6 +117,19 @@ AiPlayerbot.CommandPrefix =
 # Random bot guild count
 #AiPlayerbot.RandomBotGuildCount = 50
 
+# Guild Task system
+#AiPlayerbot.EnableGuildTasks = 1
+
+# How often tasks are changed
+#AiPlayerbot.MinGuildTaskChangeTime = 172800
+#AiPlayerbot.MaxGuildTaskChangeTime = 432000
+# Mail spam interval
+#AiPlayerbot.MinGuildTaskAdvertisementTime = 300
+#AiPlayerbot.MaxGuildTaskAdvertisementTime = 28800
+# Delay before reward is sent
+#AiPlayerbot.MinGuildTaskRewardTime = 300
+#AiPlayerbot.MaxGuildTaskRewardTime = 3600
+
 # Delete all random bot guilds
 #AiPlayerbot.DeleteRandomBotGuilds = 0
 
