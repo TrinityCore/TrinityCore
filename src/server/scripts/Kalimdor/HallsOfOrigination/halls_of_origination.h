@@ -57,6 +57,7 @@ enum Creatures
     BOSS_TEMPLE_GUARDIAN_ANHUUR     = 39425,
     NPC_CAVE_IN_STALKER             = 40183,
     NPC_SEARING_LIGHT               = 40283,
+    NPC_PIT_SNAKE                   = 39444,
 
     BOSS_EARTHRAGER_PTAH            = 39428,
     NPC_BEETLE_STALKER              = 40459, // Summons both Jeweled Scarab and Dustbone Horror
