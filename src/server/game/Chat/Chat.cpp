@@ -747,7 +747,7 @@ Player* ChatHandler::getSelectedPlayer()
     if (!selected)
         return m_session->GetPlayer();
 
-    return ObjectAccessor::FindPlayer(selected);
+    return ObjectAccessor::FindConnectedPlayer(selected);
 }
 
 Unit* ChatHandler::getSelectedUnit()
@@ -792,7 +792,7 @@ Player* ChatHandler::getSelectedPlayerOrSelf()
         return m_session->GetPlayer();
 
     // first try with selected target
-    Player* targetPlayer = ObjectAccessor::FindPlayer(selected);
+    Player* targetPlayer = ObjectAccessor::FindConnectedPlayer(selected);
     // if the target is not a player, then return self
     if (!targetPlayer)
         targetPlayer = m_session->GetPlayer();

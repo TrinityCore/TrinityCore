@@ -871,7 +871,7 @@ Player* Creature::GetLootRecipient() const
 {
     if (!m_lootRecipient)
         return NULL;
-    return ObjectAccessor::FindPlayer(m_lootRecipient);
+    return ObjectAccessor::FindConnectedPlayer(m_lootRecipient);
 }
 
 Group* Creature::GetLootRecipientGroup() const
