@@ -203,6 +203,11 @@ Player* ObjectAccessor::FindPlayer(ObjectGuid guid)
     return GetObjectInWorld(guid, (Player*)NULL);
 }
 
+Player* ObjectAccessor::FindConnectedPlayer(ObjectGuid guid)
+{
+    return HashMapHolder<Player>::Find(guid);
+}
+
 Unit* ObjectAccessor::FindUnit(ObjectGuid guid)
 {
     return GetObjectInWorld(guid, (Unit*)NULL);

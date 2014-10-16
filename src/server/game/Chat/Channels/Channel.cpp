@@ -543,7 +543,7 @@ void Channel::List(Player const* player)
     uint32 count  = 0;
     for (PlayerContainer::const_iterator i = playersStore.begin(); i != playersStore.end(); ++i)
     {
-        Player* member = ObjectAccessor::FindPlayer(i->first);
+        Player* member = ObjectAccessor::FindConnectedPlayer(i->first);
 
         // PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
         // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
@@ -621,7 +621,7 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang)
     }
 
     WorldPacket data;
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
         ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, _name);
     else
         ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), guid, guid, what, 0, "", "", 0, false, _name);
@@ -723,7 +723,7 @@ void Channel::SetOwner(ObjectGuid guid, bool exclaim)
 void Channel::SendToAll(WorldPacket* data, ObjectGuid guid)
 {
     for (PlayerContainer::const_iterator i = playersStore.begin(); i != playersStore.end(); ++i)
-        if (Player* player = ObjectAccessor::FindPlayer(i->first))
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(i->first))
             if (!guid || !player->GetSocial()->HasIgnore(guid.GetCounter()))
                 player->GetSession()->SendPacket(data);
 }
@@ -732,13 +732,13 @@ void Channel::SendToAllButOne(WorldPacket* data, ObjectGuid who)
 {
     for (PlayerContainer::const_iterator i = playersStore.begin(); i != playersStore.end(); ++i)
         if (i->first != who)
-            if (Player* player = ObjectAccessor::FindPlayer(i->first))
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(i->first))
                 player->GetSession()->SendPacket(data);
 }
 
 void Channel::SendToOne(WorldPacket* data, ObjectGuid who)
 {
-    if (Player* player = ObjectAccessor::FindPlayer(who))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(who))
         player->GetSession()->SendPacket(data);
 }
 
