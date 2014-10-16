@@ -564,6 +564,7 @@ Player* Battleground::_GetPlayer(ObjectGuid guid, bool offlineRemove, char const
     Player* player = NULL;
     if (!offlineRemove)
     {
+        // should this be ObjectAccessor::FindConnectedPlayer() to return players teleporting ?
         player = ObjectAccessor::FindPlayer(guid);
         if (!player)
             TC_LOG_ERROR("bg.battleground", "Battleground::%s: player (%s) not found for BG (map: %u, instance id: %u)!",

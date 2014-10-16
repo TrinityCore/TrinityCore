@@ -257,7 +257,7 @@ void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recvData*/)
         return;
 
     // Remember leader if online (group pointer will be invalid if group gets disbanded)
-    Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());
+    Player* leader = ObjectAccessor::FindConnectedPlayer(group->GetLeaderGUID());
 
     // uninvite, group can be deleted
     GetPlayer()->UninviteFromGroup();
@@ -372,7 +372,7 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    Player* player = ObjectAccessor::FindPlayer(guid);
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     Group* group = GetPlayer()->GetGroup();
 
     if (!group || !player)
@@ -551,7 +551,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
 
         if (guid.IsPlayer())
         {
-            Player* target = ObjectAccessor::FindPlayer(guid);
+            Player* target = ObjectAccessor::FindConnectedPlayer(guid);
 
             if (!target || target->IsHostileTo(GetPlayer()))
                 return;
