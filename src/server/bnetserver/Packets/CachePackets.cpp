@@ -16,6 +16,7 @@
  */
 
 #include "Session.h"
+#include "Util.h"
 #include "CachePackets.h"
 
 void Battlenet::Cache::GetStreamItemsRequest::Read()
