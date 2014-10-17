@@ -698,6 +698,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_AHBOT_RELOAD                           = 792,
     RBAC_PERM_COMMAND_AHBOT_STATUS                           = 793,
     RBAC_PERM_COMMAND_GUILD_INFO                             = 794,
+    RBAC_PERM_COMMAND_MUTEHISTORY                            = 795,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
