@@ -40,6 +40,26 @@ void Battlenet::WoWRealm::ListUnsubscribe::CallHandler(Session* session)
     session->HandleListUnsubscribe(*this);
 }
 
+void Battlenet::WoWRealm::JoinRequestV2::Read()
+{
+    Realm.Battlegroup = _stream.Read<uint8>(8);
+    Realm.Index = _stream.Read<uint32>(32);
+    Realm.Region = _stream.Read<uint8>(8);
+    ClientSeed = _stream.Read<uint32>(32);
+}
+
+std::string Battlenet::WoWRealm::JoinRequestV2::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::WoWRealm::JoinRequestV2 ClientSeed " << ClientSeed << " Region " << uint32(Realm.Region) << " Battlegroup " << uint32(Realm.Battlegroup) << " Index " << Realm.Index;
+    return stream.str().c_str();
+}
+
+void Battlenet::WoWRealm::JoinRequestV2::CallHandler(Session* session)
+{
+    session->HandleJoinRequestV2(*this);
+}
+
 Battlenet::WoWRealm::ListSubscribeResponse::~ListSubscribeResponse()
 {
     for (ServerPacket* realmData : RealmData)
@@ -143,24 +163,32 @@ std::string Battlenet::WoWRealm::ListUpdate::ToString() const
     return stream.str().c_str();
 }
 
-void Battlenet::WoWRealm::JoinRequestV2::Read()
+void Battlenet::WoWRealm::ToonReady::Write()
 {
-    Realm.Battlegroup = _stream.Read<uint8>(8);
-    Realm.Index = _stream.Read<uint32>(32);
-    Realm.Region = _stream.Read<uint8>(8);
-    ClientSeed = _stream.Read<uint32>(32);
+    _stream.Write(Realm.Region, 8);
+    _stream.WriteFourCC(Game);
+    uint32 realmAddress = ((Realm.Battlegroup << 16) & 0xFF0000) | uint16(Realm.Index);
+    _stream.Write(realmAddress, 32);
+    _stream.WriteString(Name, 7, -2);
+    _stream.WriteSkip(7);
+    _stream.Write(Guid, 64);
+    _stream.WriteFourCC(Game);
+    _stream.Write(Realm.Region, 8);
+    _stream.WriteSkip(21);
+    _stream.Write(realmAddress, 32);
+    _stream.WriteSkip(9);
+    _stream.Write(0, 64);   // Unknown
+    _stream.Write(0, 32);   // Unknown
 }
 
-std::string Battlenet::WoWRealm::JoinRequestV2::ToString() const
+std::string Battlenet::WoWRealm::ToonReady::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::WoWRealm::JoinRequestV2 ClientSeed " << ClientSeed << " Region " << uint32(Realm.Region) << " Battlegroup " << uint32(Realm.Battlegroup) << " Index " << Realm.Index;
-    return stream.str().c_str();
-}
+    stream << "Battlenet::WoWRealm::ToonReady" << " Game: " << Game
+        << ", Region: " << uint32(Realm.Region) << ", Battlegroup: " << uint32(Realm.Battlegroup) << ", Index: " << Realm.Index
+        << ", Guid: " << Guid << ", Name: " << Name;
 
-void Battlenet::WoWRealm::JoinRequestV2::CallHandler(Session* session)
-{
-    session->HandleJoinRequestV2(*this);
+    return stream.str().c_str();
 }
 
 void Battlenet::WoWRealm::JoinResponseV2::Write()

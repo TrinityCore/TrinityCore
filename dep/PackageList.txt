@@ -39,3 +39,7 @@ recastnavigation (Recast is state of the art navigation mesh construction toolse
 StormLib (a pack of modules, written in C++, which are able to read and also to write files from/to the MPQ archives)
   http://www.zezula.net/en/mpq/stormlib.html
   Version: 8.04
+
+zmqpp (C++ binding for 0mq/zmq is a 'high-level' library that hides most of the c-style interface core 0mq provides.)
+  https://github.com/zeromq/zmqpp
+  Version: 3.2.0 17e9f6afa98f56ecac1e3f3eecbfc112357a6732

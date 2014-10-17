@@ -47,6 +47,13 @@ LogsDir = ""
 MaxPingTime = 30
 
 #
+#    WorldserverListenPort
+#        Description: TCP port to listen on for incoming worldserver IPC.
+#        Default:     1118
+
+WorldserverListenPort = 1118
+
+#
 #    BattlenetPort
 #        Description: TCP port to reach the auth server for battle.net connections.
 #        Default:     1119

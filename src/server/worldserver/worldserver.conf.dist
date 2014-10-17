@@ -3324,3 +3324,24 @@ PacketSpoof.BanDuration = 86400
 
 #
 ###################################################################################################
+
+###################################################################################################
+# IPC SETTINGS
+#
+#    BnetServer.Address
+#        Description: Determines IP address of battle.net server to connect to.
+#        Default:     127.0.0.1
+#
+
+BnetServer.Address = 127.0.0.1
+
+#
+#    BnetServer.Port
+#        Description: Determines port to use when connecting to battle.net server.
+#        Default:     1118
+#
+
+BnetServer.Port = 1118
+
+#
+###################################################################################################

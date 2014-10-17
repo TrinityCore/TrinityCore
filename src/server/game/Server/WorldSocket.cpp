@@ -406,7 +406,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         return;
     }
 
-    if (realmIndex != realmID)
+    if (realmIndex != realmHandle.Index)
     {
         SendAuthResponseError(REALM_LIST_REALM_NOT_FOUND);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (bad realm).");
@@ -485,7 +485,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
 
     stmt->setUInt32(0, id);
-    stmt->setInt32(1, int32(realmID));
+    stmt->setInt32(1, int32(realmHandle.Index));
 
     result = LoginDatabase.Query(stmt);
 

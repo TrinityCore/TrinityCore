@@ -60,6 +60,9 @@ namespace Battlenet
 
         void RemoveSession(Session* /*session*/);
 
+        Session* GetSession(uint32 accountId, uint32 gameAccountId) const;
+        std::list<Session*> GetSessions(uint32 accountId) const;
+
         template<typename Iterator>
         void LockedForEach(Iterator iterator)
         {

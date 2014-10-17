@@ -19,11 +19,12 @@
 #ifndef _REALMLIST_H
 #define _REALMLIST_H
 
+#include "Common.h"
+#include "WorldListener.h"
 #include <boost/asio/ip/address.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
-#include "Common.h"
 
 using namespace boost::asio;
 
@@ -44,6 +45,8 @@ enum RealmFlags
 
 namespace Battlenet
 {
+    struct RealmHandle;
+
     struct RealmId
     {
         RealmId() : Region(0), Battlegroup(0), Index(0), Build(0) { }
@@ -59,6 +62,8 @@ namespace Battlenet
         {
             return memcmp(this, &r, sizeof(RealmId) - sizeof(Build)) < 0;
         }
+
+        RealmId& operator=(RealmHandle const& handle);
     };
 }
 
@@ -98,7 +103,8 @@ public:
 
     ~RealmList();
 
-    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
+    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval, uint16 worldListenPort);
+    void Close();
 
     RealmMap const& GetRealms() const { return _realms; }
     Realm const* GetRealm(Battlenet::RealmId const& id) const;
@@ -114,6 +120,7 @@ private:
     uint32 _updateInterval;
     boost::asio::deadline_timer* _updateTimer;
     boost::asio::ip::tcp::resolver* _resolver;
+    WorldListener* _worldListener;
 };
 
 #define sRealmList RealmList::instance()
