@@ -104,6 +104,7 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
         if (SendThanks(owner, guildId))
         {
             SetTaskValue(owner, guildId, "thanks", 1, 2 * sPlayerbotAIConfig.maxGuildTaskChangeTime);
+            SetTaskValue(owner, guildId, "payment", 0, 0);
         }
         else
         {
@@ -120,6 +121,7 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
         if (Reward(owner, guildId))
         {
             SetTaskValue(owner, guildId, "reward", 1, 2 * sPlayerbotAIConfig.maxGuildTaskChangeTime);
+            SetTaskValue(owner, guildId, "payment", 0, 0);
         }
         else
         {
@@ -294,7 +296,11 @@ bool GuildTaskMgr::SendThanks(uint32 owner, uint32 guildId)
         body << "Thanks again,\n";
         body << guild->GetName() << "\n";
         body << leader->GetName() << "\n";
-        MailDraft("Thank You", body.str()).SendMailTo(trans, MailReceiver(player), MailSender(leader));
+
+        MailDraft("Thank You", body.str()).
+                AddMoney(GetTaskValue(owner, guildId, "payment")).
+                SendMailTo(trans, MailReceiver(player), MailSender(leader));
+
         CharacterDatabase.CommitTransaction(trans);
 
         return true;
@@ -476,8 +482,9 @@ void GuildTaskMgr::CheckItemTask(uint32 itemId, uint32 obtained, Player* ownerPl
         if (!proto)
             return;
 
-        SetTaskValue(owner, guildId, "payment", auctionbot.GetBuyPrice(proto) * obtained,
-                urand(sPlayerbotAIConfig.minGuildTaskRewardTime, sPlayerbotAIConfig.maxGuildTaskRewardTime));
+        uint32 money = GetTaskValue(owner, guildId, "payment");
+        SetTaskValue(owner, guildId, "payment", money + auctionbot.GetBuyPrice(proto) * obtained,
+                sPlayerbotAIConfig.maxGuildTaskRewardTime);
     }
 
     uint32 count = GetTaskValue(owner, guildId, "itemCount");
