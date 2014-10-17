@@ -1360,7 +1360,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
         }
 
         Player* player = ObjectAccessor::FindPlayer(guid);
-        if (!player || !player->IsInWorld())
+        if (!player)
         {
             TC_LOG_DEBUG("lfg.dungeon.finish", "Group: %s, Player: %s not found in world", gguid.ToString().c_str(), guid.ToString().c_str());
             continue;
@@ -1773,50 +1773,56 @@ ObjectGuid LFGMgr::GetLeader(ObjectGuid guid)
 
 bool LFGMgr::HasIgnore(ObjectGuid guid1, ObjectGuid guid2)
 {
-    Player* plr1 = ObjectAccessor::FindPlayer(guid1);
-    Player* plr2 = ObjectAccessor::FindPlayer(guid2);
+    Player* plr1 = ObjectAccessor::FindConnectedPlayer(guid1);
+    Player* plr2 = ObjectAccessor::FindConnectedPlayer(guid2);
     return plr1 && plr2 && (plr1->GetSocial()->HasIgnore(guid2.GetCounter()) || plr2->GetSocial()->HasIgnore(guid1.GetCounter()));
 }
 
 void LFGMgr::SendLfgRoleChosen(ObjectGuid guid, ObjectGuid pguid, uint8 roles)
 {
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
         player->GetSession()->SendLfgRoleChosen(pguid, roles);
 }
 
 void LFGMgr::SendLfgRoleCheckUpdate(ObjectGuid guid, LfgRoleCheck const& roleCheck)
 {
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
         player->GetSession()->SendLfgRoleCheckUpdate(roleCheck);
 }
 
 void LFGMgr::SendLfgUpdateStatus(ObjectGuid guid, LfgUpdateData const& data, bool party)
 {
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
         player->GetSession()->SendLfgUpdateStatus(data, party);
+}
+
+void LFGMgr::SendLfgUpdateParty(ObjectGuid guid, LfgUpdateData const& data)
+{
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
+        player->GetSession()->SendLfgUpdateParty(data);
 }
 
 void LFGMgr::SendLfgJoinResult(ObjectGuid guid, LfgJoinResultData const& data)
 {
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
         player->GetSession()->SendLfgJoinResult(data);
 }
 
 void LFGMgr::SendLfgBootProposalUpdate(ObjectGuid guid, LfgPlayerBoot const& boot)
 {
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
         player->GetSession()->SendLfgBootProposalUpdate(boot);
 }
 
 void LFGMgr::SendLfgUpdateProposal(ObjectGuid guid, LfgProposal const& proposal)
 {
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
         player->GetSession()->SendLfgUpdateProposal(proposal);
 }
 
 void LFGMgr::SendLfgQueueStatus(ObjectGuid guid, LfgQueueStatusData const& data)
 {
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
         player->GetSession()->SendLfgQueueStatus(data);
 }
 

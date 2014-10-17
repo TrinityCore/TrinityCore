@@ -212,6 +212,11 @@ Player* ObjectAccessor::FindPlayer(ObjectGuid guid)
     return GetObjectInWorld(guid, (Player*)NULL);
 }
 
+Player* ObjectAccessor::FindConnectedPlayer(ObjectGuid guid)
+{
+    return HashMapHolder<Player>::Find(guid);
+}
+
 Unit* ObjectAccessor::FindUnit(ObjectGuid guid)
 {
     return GetObjectInWorld(guid, (Unit*)NULL);
@@ -228,6 +233,24 @@ Player* ObjectAccessor::FindPlayerByName(std::string const& name)
     {
         if (!iter->second->IsInWorld())
             continue;
+        std::string currentName = iter->second->GetName();
+        std::transform(currentName.begin(), currentName.end(), currentName.begin(), ::tolower);
+        if (nameStr.compare(currentName) == 0)
+            return iter->second;
+    }
+
+    return NULL;
+}
+
+Player* ObjectAccessor::FindConnectedPlayerByName(std::string const& name)
+{
+    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+
+    std::string nameStr = name;
+    std::transform(nameStr.begin(), nameStr.end(), nameStr.begin(), ::tolower);
+    HashMapHolder<Player>::MapType const& m = GetPlayers();
+    for (HashMapHolder<Player>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
         std::string currentName = iter->second->GetName();
         std::transform(currentName.begin(), currentName.end(), currentName.begin(), ::tolower);
         if (nameStr.compare(currentName) == 0)

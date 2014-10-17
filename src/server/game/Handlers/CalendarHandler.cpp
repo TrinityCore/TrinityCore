@@ -436,7 +436,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
 
     recvData >> eventId >> inviteId >> name >> isPreInvite >> isGuildEvent;
 
-    if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
+    if (Player* player = sObjectAccessor->FindConnectedPlayerByName(name.c_str()))
     {
         // Invitee is online
         inviteeGuid = player->GetGUID();

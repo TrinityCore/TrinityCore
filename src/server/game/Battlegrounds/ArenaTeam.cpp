@@ -408,7 +408,7 @@ void ArenaTeam::Roster(WorldSession* session)
 
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
-        player = ObjectAccessor::FindPlayer(itr->Guid);
+        player = ObjectAccessor::FindConnectedPlayer(itr->Guid);
 
         data << uint64(itr->Guid);                              // guid
         data << uint8((player ? 1 : 0));                        // online flag
@@ -465,7 +465,7 @@ void ArenaTeam::NotifyStatsChanged()
     // This is called after a rated match ended
     // Updates arena team stats for every member of the team (not only the ones who participated!)
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(itr->Guid))
             SendStats(player->GetSession());
 }
 
@@ -512,7 +512,7 @@ void ArenaTeamMember::ModifyMatchmakerRating(int32 mod, uint32 /*slot*/)
 void ArenaTeam::BroadcastPacket(WorldPacket* packet)
 {
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(itr->Guid))
             player->GetSession()->SendPacket(packet);
 }
 
@@ -611,7 +611,7 @@ uint32 ArenaTeam::GetAverageMMR(Group* group) const
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         // Skip if player is not online
-        if (!ObjectAccessor::FindPlayer(itr->Guid))
+        if (!ObjectAccessor::FindConnectedPlayer(itr->Guid))
             continue;
 
         // Skip if player is not a member of group
@@ -699,7 +699,7 @@ void ArenaTeam::FinishGame(int32 mod)
 
         // Check if rating related achivements are met
         for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
-            if (Player* member = ObjectAccessor::FindPlayer(itr->Guid))
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(itr->Guid))
                 member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING, Stats.Rating, Type);
     }
 
