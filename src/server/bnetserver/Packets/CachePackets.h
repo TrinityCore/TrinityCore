@@ -18,6 +18,7 @@
 #ifndef CachePackets_h__
 #define CachePackets_h__
 
+#include "ModuleManager.h"
 #include "PacketsBase.h"
 
 namespace Battlenet

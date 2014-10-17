@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Session.h"
 #include "CachePackets.h"
 
 void Battlenet::Cache::GetStreamItemsRequest::Read()
