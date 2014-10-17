@@ -296,7 +296,7 @@ void Channel::KickOrBan(Player const* player, std::string const& badname, bool b
         return;
     }
 
-    Player* bad = sObjectAccessor->FindPlayerByName(badname);
+    Player* bad = sObjectAccessor->FindConnectedPlayerByName(badname);
     ObjectGuid victim = bad ? bad->GetGUID() : ObjectGuid::Empty;
     if (!victim || !IsOn(victim))
     {
@@ -366,7 +366,7 @@ void Channel::UnBan(Player const* player, std::string const& badname)
         return;
     }
 
-    Player* bad = sObjectAccessor->FindPlayerByName(badname);
+    Player* bad = sObjectAccessor->FindConnectedPlayerByName(badname);
     ObjectGuid victim = bad ? bad->GetGUID() : ObjectGuid::Empty;
 
     if (!victim || !IsBanned(victim))
@@ -439,7 +439,7 @@ void Channel::SetMode(Player const* player, std::string const& p2n, bool mod, bo
     if (guid == _ownerGUID && std::string(p2n) == player->GetName() && mod)
         return;
 
-    Player* newp = sObjectAccessor->FindPlayerByName(p2n);
+    Player* newp = sObjectAccessor->FindConnectedPlayerByName(p2n);
     ObjectGuid victim = newp ? newp->GetGUID() : ObjectGuid::Empty;
 
     if (!victim || !IsOn(victim) ||
@@ -487,7 +487,7 @@ void Channel::SetOwner(Player const* player, std::string const& newname)
         return;
     }
 
-    Player* newp = sObjectAccessor->FindPlayerByName(newname);
+    Player* newp = sObjectAccessor->FindConnectedPlayerByName(newname);
     ObjectGuid victim = newp ? newp->GetGUID() : ObjectGuid::Empty;
 
     if (!victim || !IsOn(victim) ||
@@ -641,7 +641,7 @@ void Channel::Invite(Player const* player, std::string const& newname)
         return;
     }
 
-    Player* newp = sObjectAccessor->FindPlayerByName(newname);
+    Player* newp = sObjectAccessor->FindConnectedPlayerByName(newname);
     if (!newp || !newp->isGMVisible())
     {
         WorldPacket data;
