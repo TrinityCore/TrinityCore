@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <vector>
 #include <utility>
+#include <cassert>
 
 #include <zmq.h>
 
