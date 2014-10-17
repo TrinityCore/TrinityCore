@@ -153,6 +153,33 @@ namespace Battlenet
             std::string ToString() const override { return "Battlenet::WoWRealm::ListComplete"; }
         };
 
+        class ToonReady final : public ServerPacket
+        {
+        public:
+            ToonReady() : ServerPacket(PacketHeader(SMSG_TOON_READY, WOWREALM)), Game("WoW"), Guid(0)
+            {
+            }
+
+            void Write() override;
+            std::string ToString() const override;
+
+            std::string Game;
+            RealmId Realm;
+            uint64 Guid;
+            std::string Name;
+        };
+
+        class ToonLoggedOut final : public ServerPacket
+        {
+        public:
+            ToonLoggedOut() : ServerPacket(PacketHeader(SMSG_TOON_LOGGED_OUT, WOWREALM))
+            {
+            }
+
+            void Write() override { }
+            std::string ToString() const override { return "Battlenet::WoWRealm::ToonLoggedOut"; }
+        };
+
         class JoinResponseV2 final : public ServerPacket
         {
         public:

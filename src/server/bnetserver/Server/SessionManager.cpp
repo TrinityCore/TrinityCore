@@ -49,3 +49,22 @@ void Battlenet::SessionManager::RemoveSession(Session* session)
     _sessions.erase({ session->GetAccountId(), session->GetGameAccountId() });
     _sessionsByAccountId[session->GetAccountId()].remove(session);
 }
+
+Battlenet::Session* Battlenet::SessionManager::GetSession(uint32 accountId, uint32 gameAccountId) const
+{
+    auto itr = _sessions.find({ accountId, gameAccountId });
+    if (itr != _sessions.end())
+        return itr->second;
+
+    return nullptr;
+}
+
+std::list<Battlenet::Session*> Battlenet::SessionManager::GetSessions(uint32 accountId) const
+{
+    std::list<Session*> sessions;
+    auto itr = _sessionsByAccountId.find(accountId);
+    if (itr != _sessionsByAccountId.end())
+        sessions = itr->second;
+
+    return sessions;
+}

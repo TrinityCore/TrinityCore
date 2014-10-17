@@ -93,9 +93,9 @@ namespace Battlenet
 
         bool IsSubscribedToRealmListUpdates() const { return _subscribedToRealmListUpdates; }
 
-    protected:
         void AsyncWrite(ServerPacket* packet);
 
+    protected:
         void ReadHandler() override;
 
     private:

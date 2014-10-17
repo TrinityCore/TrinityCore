@@ -212,20 +212,16 @@ namespace Battlenet
             }
         }
 
-        void SetReadPos(uint32 bits)
-        {
-            if (bits > _writePos)
-                throw BitStreamPositionException(true, bits, 0, _writePos);
-
-            _readPos = bits;
-        }
-
         bool IsRead() const { return _readPos >= _writePos; }
 
         uint8* GetBuffer() { return _buffer.data(); }
         uint8 const* GetBuffer() const { return _buffer.data(); }
 
         size_t GetSize() const { return ((_writePos + 7) & ~7) / 8; }
+
+        // These methods are meant to only be used when their corresponding actions in the client ignore the value completely
+        void ReadSkip(uint32 bitCount) { _readPos += bitCount; }
+        void WriteSkip(uint32 bitCount) { Write(0, bitCount); }
 
     private:
         uint32 _writePos;

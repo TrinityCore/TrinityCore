@@ -132,7 +132,7 @@ std::string Battlenet::Friends::SocialNetworkCheckConnectedResult::ToString() co
 
 void Battlenet::Friends::SocialNetworkCheckConnectedResult::Write()
 {
-    _stream.Write(0, 23); // Ignored
+    _stream.WriteSkip(23);
     _stream.Write(Result, 16);
     _stream.Write(SocialNetworkId, 32);
 }

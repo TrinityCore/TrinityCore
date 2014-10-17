@@ -115,8 +115,8 @@ void Battlenet::PacketManager::RegisterWoWRealmPackets()
     REGISTER_SERVER_PACKET(PacketHeader(WoWRealm::SMSG_LIST_SUBSCRIBE_RESPONSE, WOWREALM), WoWRealm::ListSubscribeResponse);
     REGISTER_SERVER_PACKET(PacketHeader(WoWRealm::SMSG_LIST_UPDATE, WOWREALM), WoWRealm::ListUpdate);
     REGISTER_SERVER_PACKET(PacketHeader(WoWRealm::SMSG_LIST_COMPLETE, WOWREALM), WoWRealm::ListComplete);
-    REGISTER_SERVER_PACKET_NAME(PacketHeader(WoWRealm::SMSG_TOON_READY, WOWREALM), "WoWRealm::ToonReady");
-    REGISTER_SERVER_PACKET_NAME(PacketHeader(WoWRealm::SMSG_TOON_LOGGED_OUT, WOWREALM), "WoWRealm::ToonLoggedOut");
+    REGISTER_SERVER_PACKET(PacketHeader(WoWRealm::SMSG_TOON_READY, WOWREALM), WoWRealm::ToonReady);
+    REGISTER_SERVER_PACKET(PacketHeader(WoWRealm::SMSG_TOON_LOGGED_OUT, WOWREALM), WoWRealm::ToonLoggedOut);
     REGISTER_SERVER_PACKET(PacketHeader(WoWRealm::SMSG_JOIN_RESPONSE_V2, WOWREALM), WoWRealm::JoinResponseV2);
 }
 
