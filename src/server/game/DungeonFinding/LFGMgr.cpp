@@ -1796,12 +1796,6 @@ void LFGMgr::SendLfgUpdateStatus(ObjectGuid guid, LfgUpdateData const& data, boo
         player->GetSession()->SendLfgUpdateStatus(data, party);
 }
 
-void LFGMgr::SendLfgUpdateParty(ObjectGuid guid, LfgUpdateData const& data)
-{
-    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-        player->GetSession()->SendLfgUpdateParty(data);
-}
-
 void LFGMgr::SendLfgJoinResult(ObjectGuid guid, LfgJoinResultData const& data)
 {
     if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
