@@ -190,6 +190,9 @@ bool GuildTaskMgr::CreateItemTask(uint32 owner, uint32 guildId)
         if (proto->Class != ITEM_CLASS_TRADE_GOODS && proto->Class != ITEM_CLASS_CONSUMABLE)
             continue;
 
+        if (!auctionbot.GetBuyPrice(proto))
+            continue;
+
         items.push_back(itemId);
     }
 
