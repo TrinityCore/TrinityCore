@@ -606,7 +606,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     if (!group->HasFreeSlotSubGroup(groupNr))
         return;
 
-    Player* movedPlayer = sObjectAccessor->FindPlayerByName(name);
+    Player* movedPlayer = sObjectAccessor->FindConnectedPlayerByName(name);
     ObjectGuid guid;
     if (movedPlayer)
     {

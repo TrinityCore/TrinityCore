@@ -1280,7 +1280,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
         return;
     }
 
-    Player* player = sObjectAccessor->FindPlayerByName(charname);
+    Player* player = sObjectAccessor->FindConnectedPlayerByName(charname);
 
     if (!player)
     {

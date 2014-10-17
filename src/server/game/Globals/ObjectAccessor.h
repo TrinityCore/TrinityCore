@@ -171,6 +171,7 @@ class ObjectAccessor
 
         // this returns Player even if he is not in world, for example teleporting
         static Player* FindConnectedPlayer(ObjectGuid);
+        static Player* FindConnectedPlayerByName(std::string const& name);
 
         // when using this, you must use the hashmapholder's lock
         static HashMapHolder<Player>::MapType const& GetPlayers()
