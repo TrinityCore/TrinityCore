@@ -73,6 +73,68 @@ class npc_four_car_garage : public CreatureScript
         }
 };
 
+enum Events
+{
+    EVENT_TALK  = 1,
+    EVENT_DESPAWN
+};
+
+enum Texts
+{
+    SAY_ONBOARD = 0
+};
+
+class npc_ioc_gunship_captain : public CreatureScript
+{
+    public:
+        npc_ioc_gunship_captain() : CreatureScript("npc_ioc_gunship_captain") { }
+
+        struct npc_ioc_gunship_captainAI : public ScriptedAI
+        {
+            npc_ioc_gunship_captainAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void DoAction(int32 action) override
+            {
+                if (action == ACTION_GUNSHIP_READY)
+                {
+                    DoCast(me, SPELL_SIMPLE_TELEPORT);
+                    _events.ScheduleEvent(EVENT_TALK, 3000);
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_TALK:
+                            _events.ScheduleEvent(EVENT_DESPAWN, 1000);
+                            Talk(SAY_ONBOARD);
+                            DoCast(me, SPELL_TELEPORT_VISUAL_ONLY);
+                            break;
+                        case EVENT_DESPAWN:
+                            if (me->GetMap()->ToBattlegroundMap())
+                                if (Battleground* bgIoC = me->GetMap()->ToBattlegroundMap()->GetBG())
+                                    bgIoC->DelCreature(BG_IC_NPC_GUNSHIP_CAPTAIN_1);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        private:
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_ioc_gunship_captainAI(creature);
+        }
+};
+
 class spell_ioc_gunship_portal : public SpellScriptLoader
 {
     public:
@@ -90,9 +152,28 @@ class spell_ioc_gunship_portal : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Player* caster = GetCaster()->ToPlayer();
-                if (Battleground* bg = caster->GetBattleground())
-                    if (bg->GetTypeID(true) == BATTLEGROUND_IC)
-                        bg->DoAction(1, caster->GetGUID());
+                /*
+                 * HACK: GetWorldLocation() returns real position and not transportposition.
+                 * ServertoClient: SMSG_MOVE_TELEPORT (0x0B39)
+                 * counter: 45
+                 * Tranpsort Guid: Full: xxxx Type: MOTransport Low: xxx
+                 * Transport Position X: 0 Y: 0 Z: 0 O: 0
+                 * Position: X: 7.305609 Y: -0.095246 Z: 34.51022 O: 0
+                 */
+                caster->TeleportTo(GetHitCreature()->GetWorldLocation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+                /*
+                 * HACK: This aura should be added by 20212 and 20213 but can't find any SMSG_SPELL_GO. Could't find their position.
+                 * ServerToClient: SMSG_AURA_UPDATE (0x0072)
+                 * [0] CasterGUID: Full: xxxxx Type: Unit Entry: 20212 Low: xxx
+                 * [0] Flags: None (0)
+                 * [0] Caster Level: 60
+                 * [0] Spell ID: 66656
+                 * [0] Charges: 0
+                 * [0] Effect Mask: 1
+                 * [0] Slot: 37
+                 * Guid: Full: xxxxx Type: Player2 Low: xxxxx
+                 */
+                caster->AddAura(SPELL_PARACHUTE, caster);
             }
 
             void Register() override
@@ -107,11 +188,6 @@ class spell_ioc_gunship_portal : public SpellScriptLoader
         }
 };
 
-enum ParachuteIC
-{
-    SPELL_PARACHUTE_IC      = 66657
-};
-
 class spell_ioc_parachute_ic : public SpellScriptLoader
 {
     public:
@@ -124,7 +200,7 @@ class spell_ioc_parachute_ic : public SpellScriptLoader
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
                 if (Player* target = GetTarget()->ToPlayer())
-                    if (target->m_movementInfo.GetFallTime() > 2000)
+                    if (target->m_movementInfo.GetFallTime() > 2000 && !target->GetTransport())
                         target->CastSpell(target, SPELL_PARACHUTE_IC, true);
             }
 
@@ -140,9 +216,31 @@ class spell_ioc_parachute_ic : public SpellScriptLoader
         }
 };
 
-enum Launch
+class StartLaunchEvent : public BasicEvent
 {
-    SPELL_LAUNCH_NO_FALLING_DAMAGE  = 66251
+    public:
+        StartLaunchEvent(float x, float y, float z, uint32 lowGuid) : _x(x), _y(y), _z(z), _lowGuid(lowGuid)
+        {
+        }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        {
+            Player* player = sObjectMgr->GetPlayerByLowGUID(_lowGuid);
+            if (!player || !player->GetVehicle())
+                return true;
+
+            player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE, player); // prevents falling damage
+            float speedZ = 10.0f;
+            float dist = player->GetExactDist2d(_x, _y);
+
+            player->ExitVehicle();
+            player->GetMotionMaster()->MoveJump(_x, _y, _z, dist, speedZ);
+            return true;
+        }
+
+    private:
+        float _x, _y, _z;
+        uint32 _lowGuid;
 };
 
 class spell_ioc_launch : public SpellScriptLoader
@@ -154,34 +252,20 @@ class spell_ioc_launch : public SpellScriptLoader
         {
             PrepareSpellScript(spell_ioc_launch_SpellScript);
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* player = GetHitPlayer())
-                    player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE, player); // prevents falling damage
-            }
-
             void Launch()
             {
-                WorldLocation const* const position = GetExplTargetDest();
+                if (!GetCaster()->ToCreature() || !GetExplTargetDest())
+                    return;
 
-                if (Player* player = GetHitPlayer())
-                {
-                    player->ExitVehicle();
-
-                    // A better research is needed
-                    // There is no spell for this, the following calculation was based on void Spell::CalculateJumpSpeeds
-
-                    float speedZ = 10.0f;
-                    float dist = position->GetExactDist2d(player->GetPositionX(), player->GetPositionY());
-                    float speedXY = dist;
-
-                    player->GetMotionMaster()->MoveJump(position->GetPositionX(), position->GetPositionY(), position->GetPositionZ(), speedXY, speedZ);
-                }
+                float x, y, z;
+                x = GetExplTargetDest()->GetPositionX();
+                y = GetExplTargetDest()->GetPositionY();
+                z = GetExplTargetDest()->GetPositionZ();
+                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(x, y, z, GetHitPlayer()->GetGUIDLow()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500));
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_ioc_launch_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
                 AfterHit += SpellHitFn(spell_ioc_launch_SpellScript::Launch);
             }
         };
@@ -195,6 +279,7 @@ class spell_ioc_launch : public SpellScriptLoader
 void AddSC_isle_of_conquest()
 {
     new npc_four_car_garage();
+    new npc_ioc_gunship_captain();
     new spell_ioc_gunship_portal();
     new spell_ioc_parachute_ic();
     new spell_ioc_launch();
