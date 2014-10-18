@@ -20,15 +20,17 @@ else()
     )
 endif()
 
-find_path(ZMQ_INCLUDE_DIR
+find_path(ZMQ_ROOT_DIR
   NAMES
-    zmq.h
+    include/zmq.h
   HINTS
-    "${ZMQ_REGISTRY_PATH}/include"
+    "${ZMQ_REGISTRY_PATH}"
   PATHS
-    /usr/include
-    /usr/local/include
+    /usr
+    /usr/local
 )
+
+find_path(ZMQ_INCLUDE_DIR zmq.h ${ZMQ_ROOT_DIR}/include)
 
 if (MSVC)
   # Read registry key holding version
@@ -55,12 +57,11 @@ find_library(ZMQ_LIBRARY
   NAMES
     zmq
     ${ZMQ_LIBRARY_NAME}
-  HINTS
-    "${ZMQ_REGISTRY_PATH}/lib"
   PATHS
     /lib
     /usr/lib
     /usr/local/lib
+    "${ZMQ_ROOT_DIR}/lib"
 )
 
 if (ZMQ_INCLUDE_DIR AND ZMQ_LIBRARY)
@@ -72,4 +73,4 @@ else()
 endif()
 
 # show the ZMQ_INCLUDE_DIR and ZMQ_LIBRARY variables only in the advanced view
-mark_as_advanced(ZMQ_INCLUDE_DIR ZMQ_LIBRARY ZMQ_FOUND)
+mark_as_advanced(ZMQ_ROOT_DIR ZMQ_INCLUDE_DIR ZMQ_LIBRARY ZMQ_FOUND)
