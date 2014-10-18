@@ -3239,7 +3239,7 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
     ASSERT(!aurApp->GetEffectMask());
 
     // Remove totem at next update if totem loses its aura
-    if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTypeId() == TYPEID_UNIT && ToCreature()->IsTotem()&& ToTotem()->GetSummonerGUID() == aura->GetCasterGUID())
+    if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTypeId() == TYPEID_UNIT && ToCreature()->IsTotem())
     {
         if (ToTotem()->GetSpell() == aura->GetId() && ToTotem()->GetTotemType() == TOTEM_PASSIVE)
             ToTotem()->setDeathState(JUST_DIED);
@@ -7123,6 +7123,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(trigger_spell_id))
         return false;
 
+    // extra attack should hit same target
+    if (triggerEntry->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+        target = victim;
+
     // try detect target manually if not set
     if (target == NULL)
         target = !(procFlags & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)) && triggerEntry && triggerEntry->IsPositive() ? this : victim;
@@ -8153,6 +8157,15 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
     return gain;
 }
 
+bool Unit::IsMagnet() const
+{
+    // Grounding Totem 
+    if (GetUInt32Value(UNIT_CREATED_BY_SPELL) == 8177) /// @todo: find a more generic solution
+        return true;
+
+    return false;
+}
+
 Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
 {
     // Patch 1.2 notes: Spell Reflection no longer reflects abilities
@@ -8168,7 +8181,16 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
                 && _IsValidAttackTarget(magnet, spellInfo))
             {
                 /// @todo handle this charge drop by proc in cast phase on explicit target
-                (*itr)->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
+                if (victim && spellInfo->Speed > 0.0f)
+                {
+                    // Set up missile speed based delay
+                    uint32 delay = uint32(std::floor(std::max<float>(victim->GetDistance(this), 5.0f) / spellInfo->Speed * 1000.0f));
+                    // Schedule charge drop
+                    (*itr)->GetBase()->DropChargeDelayed(delay,AURA_REMOVE_BY_EXPIRE);
+                }
+                else
+                    (*itr)->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
+
                 return magnet;
             }
     }
