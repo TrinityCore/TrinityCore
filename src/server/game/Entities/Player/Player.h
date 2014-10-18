@@ -839,6 +839,14 @@ enum PlayerDelayedOperations
     DELAYED_END
 };
 
+enum PlayerCharacterCreateLimitation{
+    CREATE_LIMITATION_ENABLE_ALL = 0,
+    CREATE_LIMITATION_DISABLE_ALLIANCE,
+    CREATE_LIMITATION_DISABLE_HORDE,
+    CREATE_LIMITATION_DISABLE_BOTH,
+    CREATE_LIMITATION_ENABLE_USE_DATABASE_VALUES
+};
+
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
 // Maximum money amount : 2^31 - 1

@@ -1,0 +1,94 @@
+SET @REALM_ID = 1;
+
+SET @RACE_HUMAN     = 1;
+SET @RACE_ORC       = 2;
+SET @RACE_DWARF     = 3;
+SET @RACE_NIGHTELF  = 4;
+SET @RACE_UNDEAD    = 5;
+SET @RACE_TAUREN    = 6;
+SET @RACE_GNOME     = 7;
+SET @RACE_TROLL     = 8;
+SET @RACE_BLOODELF  = 10;
+SET @RACE_DRAENEI   = 11;
+	
+SET @CLASS_WARRIOR      = 1;
+SET @CLASS_PALADIN      = 2;
+SET @CLASS_HUNTER       = 3;
+SET @CLASS_ROGUE        = 4;
+SET @CLASS_PRIEST       = 5;
+SET @CLASS_DEATH_KNIGHT = 6;
+SET @CLASS_SHAMAN       = 7;
+SET @CLASS_MAGE         = 8;
+SET @CLASS_WARLOCK      = 9;
+SET @CLASS_DRUID        = 11;
+
+DROP TABLE `realm_races_classes_access`;
+CREATE TABLE IF NOT EXISTS `realm_races_classes_access` (
+  `realmId` int(11) NOT NULL,
+  `race` tinyint(4) NOT NULL,
+  `class` tinyint(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `realm_races_classes_access` (`race`,`class`,`realmId`) VALUES
+(@RACE_HUMAN,@CLASS_WARRIOR,@REALM_ID),         -- Human Warrior
+(@RACE_HUMAN,@CLASS_PALADIN,@REALM_ID),         -- Human Paladin
+(@RACE_HUMAN,@CLASS_ROGUE,@REALM_ID),           -- Human Rogue
+(@RACE_HUMAN,@CLASS_PRIEST,@REALM_ID),          -- Human Priest
+(@RACE_HUMAN,@CLASS_DEATH_KNIGHT,@REALM_ID),    -- Human DeathKnight
+(@RACE_HUMAN,@CLASS_MAGE,@REALM_ID),            -- Human Mage
+(@RACE_HUMAN,@CLASS_WARLOCK,@REALM_ID),         -- Human Warlock
+(@RACE_ORC,@CLASS_WARRIOR,@REALM_ID),           -- Orc Warrior
+(@RACE_ORC,@CLASS_HUNTER,@REALM_ID),            -- Orc Hunter
+(@RACE_ORC,@CLASS_ROGUE,@REALM_ID),             -- Orc Rogue
+(@RACE_ORC,@CLASS_DEATH_KNIGHT,@REALM_ID),      -- Orc DeathKnight
+(@RACE_ORC,@CLASS_SHAMAN,@REALM_ID),            -- Orc Shaman
+(@RACE_ORC,@CLASS_WARLOCK,@REALM_ID),           -- Orc Warlock
+(@RACE_DWARF,@CLASS_WARRIOR,@REALM_ID),         -- Dwarf Warrior
+(@RACE_DWARF,@CLASS_PALADIN,@REALM_ID),         -- Dwarf Paladin
+(@RACE_DWARF,@CLASS_HUNTER,@REALM_ID),          -- Dwarf Hunter
+(@RACE_DWARF,@CLASS_ROGUE,@REALM_ID),           -- Dwarf Rogue
+(@RACE_DWARF,@CLASS_PRIEST,@REALM_ID),          -- Dwarf Priest
+(@RACE_DWARF,@CLASS_DEATH_KNIGHT,@REALM_ID),    -- Dwarf DeathKnight
+(@RACE_UNDEAD,@CLASS_WARRIOR,@REALM_ID),        -- Undead Warrior
+(@RACE_UNDEAD,@CLASS_ROGUE,@REALM_ID),          -- Undead Rogue
+(@RACE_UNDEAD,@CLASS_PRIEST,@REALM_ID),         -- Undead Priest
+(@RACE_UNDEAD,@CLASS_DEATH_KNIGHT,@REALM_ID),   -- Undead DeathKnight
+(@RACE_UNDEAD,@CLASS_MAGE,@REALM_ID),           -- Undead Mage
+(@RACE_UNDEAD,@CLASS_WARLOCK,@REALM_ID),        -- Undead Warlock
+(@RACE_NIGHTELF,@CLASS_WARRIOR,@REALM_ID),      -- Nightelf Warrior
+(@RACE_NIGHTELF,@CLASS_HUNTER,@REALM_ID),       -- Nightelf Hunter
+(@RACE_NIGHTELF,@CLASS_ROGUE,@REALM_ID),        -- Nightelf Rogue
+(@RACE_NIGHTELF,@CLASS_PRIEST,@REALM_ID),       -- Nightelf Priest
+(@RACE_NIGHTELF,@CLASS_DEATH_KNIGHT,@REALM_ID), -- Nightelf DeathKnight
+(@RACE_NIGHTELF,@CLASS_DRUID,@REALM_ID),        -- Nightelf Druid
+(@RACE_TAUREN,@CLASS_WARRIOR,@REALM_ID),        -- Tauren Warrior
+(@RACE_TAUREN,@CLASS_HUNTER,@REALM_ID),         -- Tauren Hunter
+(@RACE_TAUREN,@CLASS_DEATH_KNIGHT,@REALM_ID),   -- Tauren DeathKnight
+(@RACE_TAUREN,@CLASS_SHAMAN,@REALM_ID),         -- Tauren Shaman
+(@RACE_TAUREN,@CLASS_DRUID,@REALM_ID),          -- Tauren Druid
+(@RACE_GNOME,@CLASS_WARRIOR,@REALM_ID),         -- Gnome Warrior
+(@RACE_GNOME,@CLASS_ROGUE,@REALM_ID),           -- Gnome Rogue
+(@RACE_GNOME,@CLASS_DEATH_KNIGHT,@REALM_ID),    -- Gnome DeathKnight
+(@RACE_GNOME,@CLASS_MAGE,@REALM_ID),            -- Gnome Mage
+(@RACE_GNOME,@CLASS_WARLOCK,@REALM_ID),         -- Gnome Warlock
+(@RACE_TROLL,@CLASS_WARRIOR,@REALM_ID),         -- Troll Warrior
+(@RACE_TROLL,@CLASS_HUNTER,@REALM_ID),          -- Troll Hunter
+(@RACE_TROLL,@CLASS_ROGUE,@REALM_ID),           -- Troll Rogue
+(@RACE_TROLL,@CLASS_PRIEST,@REALM_ID),          -- Troll Priest
+(@RACE_TROLL,@CLASS_DEATH_KNIGHT,@REALM_ID),    -- Troll DeathKnight
+(@RACE_TROLL,@CLASS_Shaman,@REALM_ID),          -- Troll Shaman
+(@RACE_TROLL,@CLASS_MAGE,@REALM_ID),            -- Troll Mage
+(@RACE_DRAENEI,@CLASS_WARRIOR,@REALM_ID),       -- Draenei Warrior
+(@RACE_DRAENEI,@CLASS_PALADIN,@REALM_ID),       -- Draenei Paladin
+(@RACE_DRAENEI,@CLASS_HUNTER,@REALM_ID),        -- Draenei Hunter
+(@RACE_DRAENEI,@CLASS_PRIEST,@REALM_ID),        -- Draenei Priest
+(@RACE_DRAENEI,@CLASS_DEATH_KNIGHT,@REALM_ID),  -- Draenei DeathKnight
+(@RACE_DRAENEI,@CLASS_Shaman,@REALM_ID),        -- Draenei Shaman
+(@RACE_DRAENEI,@CLASS_MAGE,@REALM_ID),          -- Draenei Mage
+(@RACE_BLOODELF,@CLASS_PALADIN,@REALM_ID),      -- Bloodelf Paladin
+(@RACE_BLOODELF,@CLASS_HUNTER,@REALM_ID),       -- Bloodelf Hunter
+(@RACE_BLOODELF,@CLASS_ROGUE,@REALM_ID),        -- Bloodelf Rogue
+(@RACE_BLOODELF,@CLASS_PRIEST,@REALM_ID),       -- Bloodelf Priest
+(@RACE_BLOODELF,@CLASS_DEATH_KNIGHT,@REALM_ID), -- Bloodelf DeathKnight
+(@RACE_BLOODELF,@CLASS_MAGE,@REALM_ID),         -- Bloodelf Mage
+(@RACE_BLOODELF,@CLASS_WARLOCK,@REALM_ID);      -- Bloodelf Warlock

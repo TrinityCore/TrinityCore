@@ -591,12 +591,15 @@ MaxWhoListReturns = 49
 #                     1 - (Disabled, Alliance)
 #                     2 - (Disabled, Horde)
 #                     3 - (Disabled, Both factions)
+#                     4 - (Enabled, Specific Race/Class Combinations using Database)
 
 CharacterCreating.Disabled = 0
 
 #
 #    CharacterCreating.Disabled.RaceMask
 #        Description: Mask of races which cannot be created by players.
+#                     If CharacterCreating.Disabled is set to 4, we recommended to set
+#                     CharacterCreating.Disabled.RaceMask to 0
 #        Example:     1536 - (1024 + 512, Blood Elf and Draenei races are disabled)
 #        Default:     0    - (Enabled, All races are allowed)
 #                     1    - (Disabled, Human)
@@ -615,6 +618,8 @@ CharacterCreating.Disabled.RaceMask = 0
 #
 #    CharacterCreating.Disabled.ClassMask
 #        Description: Mask of classes which cannot be created by players.
+#                     If CharacterCreating.Disabled is set to 4, we recommended to set
+#                     CharacterCreating.Disabled.RaceMask to 0
 #        Example:     288 - (32 + 256, Death Knight and Warlock classes are disabled)
 #        Default:     0    - (Enabled, All classes are allowed)
 #                     1    - (Disabled, Warrior)
