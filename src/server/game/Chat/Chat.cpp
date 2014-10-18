@@ -1072,7 +1072,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
             if (!normalizePlayerName(name))
                 return ObjectGuid::Empty;
 
-            if (Player* player = sObjectAccessor->FindPlayerByName(name))
+            if (Player* player = ObjectAccessor::FindPlayerByName(name))
                 return player->GetGUID();
 
             if (ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(name))
@@ -1130,7 +1130,7 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* p
             return false;
         }
 
-        Player* pl = sObjectAccessor->FindPlayerByName(name);
+        Player* pl = ObjectAccessor::FindPlayerByName(name);
 
         // if allowed player pointer
         if (player)
@@ -1294,7 +1294,7 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player*& player
                 return false;
             }
 
-            player = sObjectAccessor->FindPlayerByName(name);
+            player = ObjectAccessor::FindPlayerByName(name);
             if (offline)
                 guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
         }

@@ -427,7 +427,7 @@ public:
 
         // Detect target's GUID
         ObjectGuid guid;
-        if (Player* player = sObjectAccessor->FindPlayerByName(name))
+        if (Player* player = ObjectAccessor::FindPlayerByName(name))
             guid = player->GetGUID();
         else
             guid = sObjectMgr->GetPlayerGUIDByName(name);
