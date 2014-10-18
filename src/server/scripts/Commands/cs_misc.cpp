@@ -2193,7 +2193,7 @@ public:
 
         if (args && args[0] != '\0')
         {
-            target = sObjectAccessor->FindPlayerByName(args);
+            target = ObjectAccessor::FindPlayerByName(args);
             if (!target)
             {
                 handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -2287,7 +2287,7 @@ public:
                     // find the player
                     std::string name = arg1;
                     normalizePlayerName(name);
-                    player = sObjectAccessor->FindPlayerByName(name);
+                    player = ObjectAccessor::FindPlayerByName(name);
                     // Check if we have duration set
                     if (arg2 && isNumeric(arg2))
                     {
@@ -2351,7 +2351,7 @@ public:
         {
             name = targetName;
             normalizePlayerName(name);
-            player = sObjectAccessor->FindPlayerByName(name);
+            player = ObjectAccessor::FindPlayerByName(name);
         }
         else // If no name was entered - use target
         {
@@ -2427,7 +2427,7 @@ public:
             int32 remaintime = fields[1].GetInt32();
             // Save the frozen player to update remaining time in case of future .listfreeze uses
             // before the frozen state expires
-            if (Player* frozen = sObjectAccessor->FindPlayerByName(player))
+            if (Player* frozen = ObjectAccessor::FindPlayerByName(player))
                 frozen->SaveToDB();
             // Notify the freeze duration
             if (remaintime == -1) // Permanent duration
