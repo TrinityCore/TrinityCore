@@ -535,7 +535,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_CONDITIONS                      = 629,
     RBAC_PERM_COMMAND_RELOAD_CONFIG                          = 630,
     RBAC_PERM_COMMAND_RELOAD_BATTLEGROUND_TEMPLATE           = 631,
-    RBAC_PERM_UNUSED_632                                     = 632, // unused
+    RBAC_PERM_COMMAND_MUTEHISTORY                            = 632,
     RBAC_PERM_COMMAND_RELOAD_CREATURE_LINKED_RESPAWN         = 633,
     RBAC_PERM_COMMAND_RELOAD_CREATURE_LOOT_TEMPLATE          = 634,
     RBAC_PERM_COMMAND_RELOAD_CREATURE_ONKILL_REPUTATION      = 635,
@@ -698,6 +698,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_AHBOT_RELOAD                           = 792,
     RBAC_PERM_COMMAND_AHBOT_STATUS                           = 793,
     RBAC_PERM_COMMAND_GUILD_INFO                             = 794,
+    RBAC_PERM_COMMAND_INSTANCE_SET_BOSS_STATE                = 795,
+    RBAC_PERM_COMMAND_INSTANCE_GET_BOSS_STATE                = 796,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

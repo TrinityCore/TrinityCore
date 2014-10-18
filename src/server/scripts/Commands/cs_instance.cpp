@@ -40,11 +40,13 @@ public:
     {
         static ChatCommand instanceCommandTable[] =
         {
-            { "listbinds", rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS, false, &HandleInstanceListBindsCommand,    "", NULL },
-            { "unbind",    rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,    false, &HandleInstanceUnbindCommand,       "", NULL },
-            { "stats",     rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,      true, &HandleInstanceStatsCommand,        "", NULL },
-            { "savedata",  rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,  false, &HandleInstanceSaveDataCommand,     "", NULL },
-            { NULL,        0,                                    false, NULL,                               "", NULL }
+            { "listbinds",    rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS,     false, &HandleInstanceListBindsCommand,    "", NULL },
+            { "unbind",       rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,        false, &HandleInstanceUnbindCommand,       "", NULL },
+            { "stats",        rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,          true, &HandleInstanceStatsCommand,        "", NULL },
+            { "savedata",     rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,      false, &HandleInstanceSaveDataCommand,     "", NULL },
+            { "setbossstate", rbac::RBAC_PERM_COMMAND_INSTANCE_SET_BOSS_STATE, true, &HandleInstanceSetBossStateCommand, "", NULL },
+            { "getbossstate", rbac::RBAC_PERM_COMMAND_INSTANCE_GET_BOSS_STATE, true, &HandleInstanceGetBossStateCommand, "", NULL },
+            { NULL,           0,                                              false, NULL,                               "", NULL }
         };
 
         static ChatCommand commandTable[] =
@@ -185,6 +187,138 @@ public:
 
         ((InstanceMap*)map)->GetInstanceScript()->SaveToDB();
 
+        return true;
+    }
+
+    static bool HandleInstanceSetBossStateCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* param1 = strtok((char*)args, " ");
+        char* param2 = strtok(nullptr, " ");
+        char* param3 = strtok(nullptr, " ");
+        uint32 encounterId = 0;
+        int32 state = 0;
+        Player* player = nullptr;
+        std::string playerName;
+
+        // Character name must be provided when using this from console.
+        if (!param2 || (!param3 && !handler->GetSession()))
+        {
+            handler->PSendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!param3)
+            player = handler->GetSession()->GetPlayer();
+        else
+        {
+            playerName = param3;
+            if (normalizePlayerName(playerName))
+                player = sObjectAccessor->FindPlayerByName(playerName);
+        }
+
+        if (!player)
+        {
+            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Map* map = player->GetMap();
+        if (!map->IsDungeon())
+        {
+            handler->PSendSysMessage(LANG_NOT_DUNGEON);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!map->ToInstanceMap()->GetInstanceScript())
+        {
+            handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        encounterId = atoi(param1);
+        state = atoi(param2);
+
+        // Reject improper values.
+        if (state > TO_BE_DECIDED || encounterId > map->ToInstanceMap()->GetInstanceScript()->GetEncounterCount())
+        {
+            handler->PSendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        map->ToInstanceMap()->GetInstanceScript()->SetBossState(encounterId, (EncounterState)state);
+        handler->PSendSysMessage(LANG_COMMAND_INST_SET_BOSS_STATE, encounterId, state);
+        return true;
+    }
+
+    static bool HandleInstanceGetBossStateCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* param1 = strtok((char*)args, " ");
+        char* param2 = strtok(nullptr, " ");
+        uint32 encounterId = 0;
+        Player* player = nullptr;
+        std::string playerName;
+
+        // Character name must be provided when using this from console.
+        if (!param1 || (!param2 && !handler->GetSession()))
+        {
+            handler->PSendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!param2)
+            player = handler->GetSession()->GetPlayer();
+        else
+        {
+            playerName = param2;
+            if (normalizePlayerName(playerName))
+                player = sObjectAccessor->FindPlayerByName(playerName);
+        }
+
+        if (!player)
+        {
+            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Map* map = player->GetMap();
+        if (!map->IsDungeon())
+        {
+            handler->PSendSysMessage(LANG_NOT_DUNGEON);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!map->ToInstanceMap()->GetInstanceScript())
+        {
+            handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        encounterId = atoi(param1);
+
+        if (encounterId > map->ToInstanceMap()->GetInstanceScript()->GetEncounterCount())
+        {
+            handler->PSendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint8 state = map->ToInstanceMap()->GetInstanceScript()->GetBossState(encounterId);
+        handler->PSendSysMessage(LANG_COMMAND_INST_GET_BOSS_STATE, encounterId, state);
         return true;
     }
 };
