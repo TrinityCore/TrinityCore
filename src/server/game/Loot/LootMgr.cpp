@@ -272,6 +272,11 @@ void LootStore::ReportUnusedIds(LootIdSet const& lootIdSet) const
         TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d isn't %s and not referenced from loot, and thus useless.", GetName(), *itr, GetEntryName());
 }
 
+void LootStore::ReportNonExistingId(uint32 lootId) const
+{
+    TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d does not exist", GetName(), lootId);
+}
+
 void LootStore::ReportNonExistingId(uint32 lootId, const char* ownerType, uint32 ownerId) const
 {
     TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d does not exist but it is used by %s %d", GetName(), lootId, ownerType, ownerId);
@@ -1565,7 +1570,7 @@ void LoadLootTemplates_Disenchant()
 
         uint32 lootid = disenchant->Id;
         if (lootIdSet.find(lootid) == lootIdSet.end())
-            LootTemplates_Disenchant.ReportNonExistingId(lootid, "Item", itr->second.ItemId);
+            LootTemplates_Disenchant.ReportNonExistingId(lootid);
         else
             lootIdSetUsed.insert(lootid);
     }
