@@ -376,7 +376,7 @@ void npc_escortAI::OnPossess(bool apply)
 }
 */
 
-void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime)
+void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime /*= 0*/)
 {
     Escort_Waypoint t(id, x, y, z, waitTime);
 
@@ -392,6 +392,11 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 wait
     wp.m_fZ = z;
     wp.m_uiWaitTime = WaitTimeMs;
     PointMovementMap[wp.m_uiCreatureEntry].push_back(wp);*/
+}
+
+void npc_escortAI::AddWaypoint(uint32 id, Position const& pos, uint32 waitTime /*= 0*/)
+{
+    AddWaypoint(id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), waitTime);
 }
 
 void npc_escortAI::FillPointMovementListForCreature()

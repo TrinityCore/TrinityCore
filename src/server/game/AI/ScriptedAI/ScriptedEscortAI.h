@@ -68,13 +68,14 @@ struct npc_escortAI : public ScriptedAI
 
         void EnterEvadeMode() override;
 
-        void UpdateAI(uint32 diff) override;                   //the "internal" update, calls UpdateEscortAI()
-        virtual void UpdateEscortAI(uint32 const diff);     //used when it's needed to add code in update (abilities, scripted events, etc)
+        void UpdateAI(uint32 diff) override;                // the "internal" update, calls UpdateEscortAI()
+        virtual void UpdateEscortAI(uint32 const diff);     // used when it's needed to add code in update (abilities, scripted events, etc)
 
         void MovementInform(uint32, uint32) override;
 
         // EscortAI functions
         void AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime = 0);    // waitTime is in ms
+        void AddWaypoint(uint32 id, Position const& pos, uint32 waitTime = 0);          // waitTime is in ms
 
         //this will set the current position to x/y/z/o, and the current WP to pointId.
         bool SetNextWaypoint(uint32 pointId, float x, float y, float z, float orientation);

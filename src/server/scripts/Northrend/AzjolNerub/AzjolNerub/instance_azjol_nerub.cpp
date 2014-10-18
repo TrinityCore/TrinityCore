@@ -31,6 +31,7 @@ DoorData const doorData[] =
 ObjectData const creatureData[] =
 {
     { NPC_KRIKTHIR,        DATA_KRIKTHIR_THE_GATEWATCHER },
+    { NPC_HADRONOX,        DATA_HADRONOX                 },
     { NPC_WATCHER_NARJIL,  DATA_WATCHER_GASHRA           },
     { NPC_WATCHER_GASHRA,  DATA_WATCHER_SILTHIK          },
     { NPC_WATCHER_SILTHIK, DATA_WATCHER_NARJIL           },
@@ -51,6 +52,44 @@ class instance_azjol_nerub : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, nullptr);
             }
+
+            void OnCreatureCreate(Creature* creature) override
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_WORLD_TRIGGER_LARGE_AOI:
+                        if (creature->GetHomePosition().GetPositionZ() < 750.0f)
+                            AddObject(creature, DATA_SIDE_DOOR_TRIGGER, true);
+                        else if (creature->GetHomePosition().GetPositionX() < 500.0f)
+                            AddObject(creature, DATA_FRONT_DOOR_TRIGGER_A, true);
+                        else
+                            AddObject(creature, DATA_FRONT_DOOR_TRIGGER_B, true);
+                        break;
+                    default:
+                        break;
+                }
+
+                InstanceScript::OnCreatureCreate(creature);
+            }
+
+            void OnCreatureRemove(Creature* creature) override
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_WORLD_TRIGGER_LARGE_AOI:
+                        if (creature->GetHomePosition().GetPositionZ() < 750.0f)
+                            AddObject(creature, DATA_SIDE_DOOR_TRIGGER, false);
+                        else if (creature->GetHomePosition().GetPositionX() < 500.0f)
+                            AddObject(creature, DATA_FRONT_DOOR_TRIGGER_A, false);
+                        else
+                            AddObject(creature, DATA_FRONT_DOOR_TRIGGER_B, false);
+                        break;
+                    default:
+                        break;
+                }
+
+                InstanceScript::OnCreatureRemove(creature);
+            }
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
@@ -61,5 +100,5 @@ class instance_azjol_nerub : public InstanceMapScript
 
 void AddSC_instance_azjol_nerub()
 {
-   new instance_azjol_nerub();
+    new instance_azjol_nerub();
 }
