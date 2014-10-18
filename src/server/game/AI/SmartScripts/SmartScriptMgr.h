@@ -1355,6 +1355,8 @@ struct SmartScriptHolder
     bool active;
     bool runOnce;
     bool enableTimed;
+
+    operator bool() const { return entryOrGuid != 0; }
 };
 
 typedef std::unordered_map<uint32, WayPoint*> WPPath;
@@ -1477,22 +1479,36 @@ class SmartAIMgr
             }
         }
 
+        static SmartScriptHolder& FindLinkedSourceEvent(SmartAIEventList& list, uint32 eventId)
+        {
+            SmartAIEventList::iterator itr = std::find_if(list.begin(), list.end(),
+                [eventId](SmartScriptHolder& source) { return source.link == eventId; });
+
+            if (itr != list.end())
+                return *itr;
+
+            static SmartScriptHolder SmartScriptHolderDummy;
+            return SmartScriptHolderDummy;
+        }
+
+        static SmartScriptHolder& FindLinkedEvent(SmartAIEventList& list, uint32 link)
+        {
+            SmartAIEventList::iterator itr = std::find_if(list.begin(), list.end(),
+                [link](SmartScriptHolder& linked) { return linked.event_id == link && linked.GetEventType() == SMART_EVENT_LINK; });
+
+            if (itr != list.end())
+                return *itr;
+
+            static SmartScriptHolder SmartScriptHolderDummy;
+            return SmartScriptHolderDummy;
+        }
+
     private:
         //event stores
         SmartAIEventMap mEventMap[SMART_SCRIPT_TYPE_MAX];
 
         bool IsEventValid(SmartScriptHolder& e);
         bool IsTargetValid(SmartScriptHolder const& e);
-
-        /*inline bool IsTargetValid(SmartScriptHolder e, int32 target)
-        {
-            if (target < SMART_TARGET_NONE || target >= SMART_TARGET_END)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses invalid Target type %d, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), target);
-                return false;
-            }
-            return true;
-        }*/
 
         bool IsMinMaxValid(SmartScriptHolder const& e, uint32 min, uint32 max)
         {
@@ -1623,7 +1639,7 @@ class SmartAIMgr
         CacheSpellContainerBounds GetSummonCreatureSpellContainerBounds(uint32 creatureEntry) const;
         CacheSpellContainerBounds GetSummonGameObjectSpellContainerBounds(uint32 gameObjectEntry) const;
         CacheSpellContainerBounds GetKillCreditSpellContainerBounds(uint32 killCredit) const;
-        CacheSpellContainerBounds GetCreditItemSpellContainerBounds(uint32 itemId) const;
+        CacheSpellContainerBounds GetCreateItemSpellContainerBounds(uint32 itemId) const;
 
         CacheSpellContainer SummonCreatureSpellStore;
         CacheSpellContainer SummonGameObjectSpellStore;

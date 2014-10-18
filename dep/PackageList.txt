@@ -39,3 +39,8 @@ recastnavigation (Recast is state of the art navigation mesh construction toolse
 CascLib (An open-source implementation of library for reading CASC storage from Blizzard games since 2014)
   https://github.com/ladislav-zezula/CascLib
   Version: d3d17de30a1c5678375049f4cf3301a0a7962780
+
+zmqpp (C++ binding for 0mq/zmq is a 'high-level' library that hides most of the c-style interface core 0mq provides.)
+  https://github.com/zeromq/zmqpp
+  Version: 3.2.0 17e9f6afa98f56ecac1e3f3eecbfc112357a6732
+

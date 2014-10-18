@@ -98,7 +98,7 @@ public:
         ObjectGuid targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
         uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
         // Target must exist and have administrative rights
-        if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realmID))
+        if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realmHandle.Index))
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
             return true;
@@ -122,7 +122,7 @@ public:
 
         // Assign ticket
         SQLTransaction trans = SQLTransaction(NULL);
-        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realmID)));
+        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realmHandle.Index)));
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
 
@@ -162,12 +162,9 @@ public:
         // Inform player, who submitted this ticket, that it is closed
         if (Player* submitter = ticket->GetPlayer())
         {
-            if (submitter->IsInWorld())
-            {
-                WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
-                data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
-                submitter->GetSession()->SendPacket(&data);
-            }
+            WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
+            data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
+            submitter->GetSession()->SendPacket(&data);
         }
         return true;
     }
@@ -232,8 +229,7 @@ public:
         }
 
         if (Player* player = ticket->GetPlayer())
-            if (player->IsInWorld())
-                ticket->SendResponse(player->GetSession());
+            ticket->SendResponse(player->GetSession());
 
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetCompleted();
@@ -273,13 +269,10 @@ public:
 
         if (Player* player = ticket->GetPlayer())
         {
-            if (player->IsInWorld())
-            {
-                // Force abandon ticket
-                WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
-                data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
-                player->GetSession()->SendPacket(&data);
-            }
+            // Force abandon ticket
+            WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
+            data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
+            player->GetSession()->SendPacket(&data);
         }
 
         return true;
@@ -301,8 +294,7 @@ public:
         ticket->SetEscalatedStatus(TICKET_IN_ESCALATION_QUEUE);
 
         if (Player* player = ticket->GetPlayer())
-            if (player->IsInWorld())
-                sTicketMgr->SendTicket(player->GetSession(), ticket);
+            sTicketMgr->SendTicket(player->GetSession(), ticket);
 
         sTicketMgr->UpdateLastChange();
         return true;
@@ -372,13 +364,13 @@ public:
         // Get security level of player, whom this ticket is assigned to
         uint32 security = SEC_PLAYER;
         Player* assignedPlayer = ticket->GetAssignedPlayer();
-        if (assignedPlayer && assignedPlayer->IsInWorld())
+        if (assignedPlayer)
             security = assignedPlayer->GetSession()->GetSecurity();
         else
         {
             ObjectGuid guid = ticket->GetAssignedToGUID();
             uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(guid);
-            security = AccountMgr::GetSecurity(accountId, realmID);
+            security = AccountMgr::GetSecurity(accountId, realmHandle.Index);
         }
 
         // Check security
@@ -435,7 +427,7 @@ public:
 
         // Detect target's GUID
         ObjectGuid guid;
-        if (Player* player = sObjectAccessor->FindPlayerByName(name))
+        if (Player* player = ObjectAccessor::FindPlayerByName(name))
             guid = player->GetGUID();
         else
             guid = sObjectMgr->GetPlayerGUIDByName(name);
