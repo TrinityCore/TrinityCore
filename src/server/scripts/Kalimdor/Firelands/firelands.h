@@ -39,12 +39,31 @@ enum DataTypes
 
 enum CreatureIds
 {
+    //Bosses
+    NPC_SHANNOX                     = 53691,
+    NPC_LORD_RHYOLITH               = 52558,
+    NPC_BETH_TILAC                  = 52498,
+    NPC_ALYSRAZOR                   = 52530,
+    NPC_BALEROC                     = 53494,
+    NPC_MAJORDOMO_STAGHELM          = 52571,
+    NPC_RAGNAROS                    = 52409,
+
+    //Alysrazor
     NPC_BLAZING_MONSTROSITY_LEFT    = 53786,
     NPC_BLAZING_MONSTROSITY_RIGHT   = 53791,
     NPC_EGG_PILE                    = 53795,
     NPC_HARBINGER_OF_FLAME          = 53793,
     NPC_MOLTEN_EGG_TRASH            = 53914,
     NPC_SMOULDERING_HATCHLING       = 53794,
+};
+
+enum GameobjectIds
+{
+    GO_LORD_RHYOLITH_BRIDGE         = 209255,
+    GO_BETH_TILAC_DOOR              = 208877,
+    GO_BALEROC_FIREWALL             = 209066,
+    GO_MAJORDOMO_FIREWALL           = 208906,
+    GO_RAGNAROS_DOOR                = 209073,
 };
 
 class DelayedAttackStartEvent : public BasicEvent

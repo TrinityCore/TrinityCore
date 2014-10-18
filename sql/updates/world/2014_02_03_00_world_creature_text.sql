@@ -1,0 +1,13 @@
+DELETE FROM `creature_text` WHERE `entry`=53494;
+INSERT INTO `creature_text` VALUES (53494, 4, 2, 'Behold your weakness.', 14, 0, 100, 0, 0, 24451, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 0, 0, 'You are forbidden from my master\'s domain, mortals.', 14, 0, 100, 0, 0, 24441, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 1, 0, 'Fool mortals. Hurl yourselves into your own demise!', 14, 0, 100, 0, 0, 24446, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 2, 0, 'Burn beneath my molten fury!', 14, 0, 100, 0, 0, 24459, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 3, 0, 'By the Firelord\'s command, you, too, shall perish!', 14, 0, 100, 0, 0, 24447, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 4, 0, 'None shall pass!', 14, 0, 100, 0, 0, 24452, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 4, 1, 'You have been judged.', 14, 0, 100, 0, 0, 24449, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 5, 0, 'Your flesh is forfeit to the fires of this realm.', 14, 0, 100, 0, 0, 24450, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 7, 0, 'Mortal filth... the master\'s keep is forbidden...', 14, 0, 100, 0, 0, 24444, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 6, 0, '%s goes into a berserker rage!', 16, 0, 100, 0, 0, 0, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 8, 0, '|TInterface\\Icons\\inv_sword_09.blp:20|t%s readies his |cFFFF0000Inferno Blade|r!', 41, 0, 100, 0, 0, 0, 'Baleroc');
+INSERT INTO `creature_text` VALUES (53494, 9, 0, '|TInterface\\Icons\\spell_shadow_curse:20|t%s readies his |cFF551A8BDecimation Blade|r!', 41, 0, 100, 0, 0, 0, 'Baleroc');

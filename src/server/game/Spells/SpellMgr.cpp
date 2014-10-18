@@ -3753,6 +3753,15 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
+            // Firelands Spells
+            //
+            case 99256: // Torment
+            case 100230: //Torment
+            case 100231: //Torment
+            case 100232: //Torment
+                spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+                break;
+            // End of Firelands Spells
             default:
                 break;
         }
