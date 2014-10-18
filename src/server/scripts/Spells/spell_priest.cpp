@@ -45,6 +45,9 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
+    SPELL_SPIRITUAL_HEAL                            = 14898,
+    SPELL_DIVINE_PROVIDENCE                         = 47562,
+    SPELL_TWIN_DISC                                 = 47586,
 };
 
 enum PriestSpellIcons
@@ -726,12 +729,18 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
             {
                 if (Unit* caster = GetOriginalCaster())
                 {
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_PRIEST_T9_HEALING_2P, EFFECT_0))
-                    {
-                        int32 heal = GetHitHeal();
+                    int32 heal = GetHitHeal();
+
+                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_PRIEST_T9_HEALING_2P,EFFECT_0))
                         AddPct(heal, aurEff->GetAmount());
-                        SetHitHeal(heal);
-                    }
+                    if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_SPIRITUAL_HEAL, EFFECT_0))
+                        AddPct(heal, aurEff->GetAmount());
+                    if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_DIVINE_PROVIDENCE, EFFECT_0))
+                        AddPct(heal, aurEff->GetAmount());
+                    if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_TWIN_DISC, EFFECT_0))
+                        AddPct(heal, aurEff->GetAmount());
+
+                    SetHitHeal(heal);
                 }
             }
 
