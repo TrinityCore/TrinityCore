@@ -24,7 +24,7 @@ find_path(ZMQ_ROOT_DIR
   NAMES
     include/zmq.h
   HINTS
-    "${ZMQ_REGISTRY_PATH}"
+    ${ZMQ_REGISTRY_PATH}
   PATHS
     /usr
     /usr/local
