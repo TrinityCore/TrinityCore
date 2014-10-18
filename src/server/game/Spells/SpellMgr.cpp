@@ -3338,7 +3338,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 51798: // Brewfest - Relay Race - Intro - Quest Complete
             case 47134: // Quest Complete
-                //! HACK: This spell break quest complete for alliance and on retail not used °_O
+                //! HACK: This spell break quest complete for alliance and on retail not used Â°_O
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
             // ULDUAR SPELLS
