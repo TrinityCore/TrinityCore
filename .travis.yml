@@ -11,7 +11,7 @@ before_install:
   - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq update
   - sudo apt-get -qq install build-essential libtool gcc-4.8 g++-4.8 make cmake openssl
-  - sudo apt-get -qq install libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
+  - sudo apt-get -qq install libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev libzmq-dev
   - sudo apt-get -qq install libboost1.55-dev libboost-thread1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev
 
 install:
