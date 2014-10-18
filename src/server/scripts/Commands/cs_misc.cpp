@@ -1963,12 +1963,12 @@ public:
             
             // we have to manually set the string for mutedate
             time_t sqlTime = fields[0].GetUInt32();
-            struct tm* timeinfo;
+            tm timeinfo;
             char buffer[80];
             
             // set it to string
-            timeinfo = localtime_r(&sqlTime);
-            strftime(buffer, sizeof(buffer),"%Y-%m-%d %I:%M%p", timeinfo);
+            localtime_r(&sqlTime, &timeinfo);
+            strftime(buffer, sizeof(buffer),"%Y-%m-%d %I:%M%p", &timeinfo);
             
             handler->PSendSysMessage(LANG_COMMAND_MUTEHISTORY_OUTPUT, buffer, fields[1].GetUInt32(), fields[2].GetCString(), fields[3].GetCString());
         } while (result->NextRow());

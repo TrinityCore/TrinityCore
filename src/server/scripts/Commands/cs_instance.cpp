@@ -308,14 +308,14 @@ public:
             return false;
         }
 
+        encounterId = atoi(param1);
+
         if (encounterId > map->ToInstanceMap()->GetInstanceScript()->GetEncounterCount())
         {
             handler->PSendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        encounterId = atoi(param1);
 
         uint8 state = map->ToInstanceMap()->GetInstanceScript()->GetBossState(encounterId);
         handler->PSendSysMessage(LANG_COMMAND_INST_GET_BOSS_STATE, encounterId, state);
