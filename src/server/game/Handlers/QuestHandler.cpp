@@ -427,6 +427,17 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
             _player->RemoveTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, questId);
 
             TC_LOG_INFO("network", "Player %u abandoned quest %u", _player->GetGUIDLow(), questId);
+
+            if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
+            {
+                // prepare Quest Tracker datas
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_QUEST_TRACK_ABANDON_TIME);
+                stmt->setUInt32(0, questId);
+                stmt->setUInt32(1, _player->GetGUIDLow());
+
+                // add to Quest Tracker
+                CharacterDatabase.Execute(stmt);
+            }
         }
 
         _player->SetQuestSlot(slot, 0);

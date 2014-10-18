@@ -247,6 +247,8 @@ class InstanceScript : public ZoneScript
         // ReCheck PhaseTemplate related conditions
         void UpdatePhasing();
 
+        uint32 GetEncounterCount() const { return bosses.size(); }
+
     protected:
         void SetHeaders(std::string const& dataHeaders);
         void SetBossNumber(uint32 number) { bosses.resize(number); }

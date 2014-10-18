@@ -113,8 +113,6 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
     m_objectTarget = NULL;
     m_itemTarget = NULL;
 
-    m_objectTargetGUID.Clear();
-    m_itemTargetGUID.Clear();
     m_itemTargetEntry  = 0;
 
     m_targetMask = 0;
@@ -210,6 +208,28 @@ void SpellCastTargets::Write(ByteBuffer& data)
 
     if (m_targetMask & TARGET_FLAG_STRING)
         data << m_strTarget;
+}
+
+ObjectGuid SpellCastTargets::GetOrigUnitTargetGUID() const
+{
+    switch (m_origObjectTargetGUID.GetHigh())
+    {
+        case HIGHGUID_PLAYER:
+        case HIGHGUID_VEHICLE:
+        case HIGHGUID_UNIT:
+        case HIGHGUID_PET:
+            return m_origObjectTargetGUID;
+        default:
+            return ObjectGuid();
+    }
+}
+
+void SpellCastTargets::SetOrigUnitTarget(Unit* target)
+{
+    if (!target)
+        return;
+
+    m_origObjectTargetGUID = target->GetGUID();
 }
 
 ObjectGuid SpellCastTargets::GetUnitTargetGUID() const
@@ -638,6 +658,7 @@ Spell::~Spell()
 void Spell::InitExplicitTargets(SpellCastTargets const& targets)
 {
     m_targets = targets;
+    m_targets.SetOrigUnitTarget(m_targets.GetUnitTarget());
     // this function tries to correct spell explicit targets for spell
     // client doesn't send explicit targets correctly sometimes - we need to fix such spells serverside
     // this also makes sure that we correctly send explicit targets to client (removes redundant data)
@@ -3411,8 +3432,13 @@ void Spell::_handle_finish_phase()
            HandleHolyPower(m_caster->m_movedPlayer);
     }
 
-    if (m_caster->m_extraAttacks && GetSpellInfo()->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
-        m_caster->HandleProcExtraAttackFor(m_caster->GetVictim());
+    if (m_caster->m_extraAttacks && m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+    {
+        if (Unit* victim = ObjectAccessor::FindUnit(m_targets.GetOrigUnitTargetGUID()))
+            m_caster->HandleProcExtraAttackFor(victim);
+        else
+            m_caster->m_extraAttacks = 0;
+    }
 
     /// @todo trigger proc phase finish here
 }
