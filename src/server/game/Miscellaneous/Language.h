@@ -1108,8 +1108,10 @@ enum TrinityStrings
     LANG_COMMAND_INST_STAT_GROUPSBOUND  = 5054,
     LANG_NOT_DUNGEON                    = 5055, // Map is not a dungeon.
     LANG_NO_INSTANCE_DATA               = 5056, // Map has no instance data.
+    LANG_COMMAND_INST_SET_BOSS_STATE    = 5057,
+    LANG_COMMAND_INST_GET_BOSS_STATE    = 5058,
 
-    // Room for more Trinity strings      5057-9999
+    // Room for more Trinity strings      5059-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
