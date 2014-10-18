@@ -2385,6 +2385,14 @@ void SpellMgr::LoadSpellLinked()
             TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_linked_spell` does not exist", abs(trigger));
             continue;
         }
+
+        if (effect >= 0)
+            for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            {
+                if (spellInfo->Effects[j].CalcValue() == abs(effect))
+                    TC_LOG_ERROR("sql.sql", "Spell %u Effect: %u listed in `spell_linked_spell` has same bp%u like effect (possible hack)", abs(trigger), abs(effect), j);
+            }
+
         spellInfo = GetSpellInfo(abs(effect));
         if (!spellInfo)
         {
@@ -3330,7 +3338,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 51798: // Brewfest - Relay Race - Intro - Quest Complete
             case 47134: // Quest Complete
-                //! HACK: This spell break quest complete for alliance and on retail not used °_O
+                //! HACK: This spell break quest complete for alliance and on retail not used Â°_O
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
             // ULDUAR SPELLS

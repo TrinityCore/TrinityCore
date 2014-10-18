@@ -25,8 +25,6 @@
 */
 
 #include "AuthSocketMgr.h"
-#include "BattlenetManager.h"
-#include "BattlenetSessionManager.h"
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
@@ -117,18 +115,9 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
-    if (bnport < 0 || bnport > 0xFFFF)
-    {
-        TC_LOG_ERROR("server.authserver", "Specified battle.net port (%d) out of allowed range (1-65535)", bnport);
-        StopDB();
-        return 1;
-    }
-
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
     sAuthSocketMgr.StartNetwork(_ioService, bindIp, port);
-    sBattlenetSessionMgr.StartNetwork(_ioService, bindIp, bnport);
 
     // Set signal handlers
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
@@ -144,8 +133,6 @@ int main(int argc, char** argv)
     _dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
     _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
     _dbPingTimer.async_wait(KeepDatabaseAliveHandler);
-
-    sBattlenetMgr->Load();
 
     // Start the io service worker loop
     _ioService.run();

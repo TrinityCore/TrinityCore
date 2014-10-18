@@ -58,7 +58,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Authentication
   ${CMAKE_CURRENT_SOURCE_DIR}/Realms
   ${CMAKE_CURRENT_SOURCE_DIR}/Server
-  ${CMAKE_CURRENT_SOURCE_DIR}/Server/BattlenetPackets
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}

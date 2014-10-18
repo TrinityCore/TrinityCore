@@ -1782,6 +1782,21 @@ void ObjectMgr::LoadCreatures()
             data.phaseGroup = 0;
         }
 
+        if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
+        {
+            uint32 zoneId = 0;
+            uint32 areaId = 0;
+            sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
+
+            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_ZONE_AREA_DATA);
+
+            stmt->setUInt32(0, zoneId);
+            stmt->setUInt32(1, areaId);
+            stmt->setUInt64(2, guid);
+
+            WorldDatabase.Execute(stmt);
+        }
+
         // Add to grid if not managed by the game event or pool system
         if (gameEvent == 0 && PoolId == 0)
             AddCreatureToGrid(guid, &data);
@@ -2105,6 +2120,21 @@ void ObjectMgr::LoadGameobjects()
             data.phaseMask = 1;
         }
 
+        if (sWorld->getBoolConfig(CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA))
+        {
+            uint32 zoneId = 0;
+            uint32 areaId = 0;
+            sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
+
+            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA);
+
+            stmt->setUInt32(0, zoneId);
+            stmt->setUInt32(1, areaId);
+            stmt->setUInt64(2, guid);
+
+            WorldDatabase.Execute(stmt);
+        }
+
         if (gameEvent == 0 && PoolId == 0)                      // if not this is to be managed by GameEvent System or Pool system
             AddGameobjectToGrid(guid, &data);
         ++count;
@@ -2165,7 +2195,7 @@ ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
 bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const
 {
     // prevent DB access for online player
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
     {
         name = player->GetName();
         return true;
@@ -2189,7 +2219,7 @@ bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const
 uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
 {
     // prevent DB access for online player
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
     {
         return Player::TeamForRace(player->getRace());
     }
@@ -2212,7 +2242,7 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
 uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid guid) const
 {
     // prevent DB access for online player
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
     {
         return player->GetSession()->GetAccountId();
     }
@@ -5551,7 +5581,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
         Player* player = NULL;
         if (serverUp)
-            player = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, m->receiver));
+            player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HIGHGUID_PLAYER, m->receiver));
 
         if (player && player->m_mailsLoaded)
         {                                                   // this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail

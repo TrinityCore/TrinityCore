@@ -19,7 +19,6 @@
 #include <boost/asio/ip/tcp.hpp>
 #include "Common.h"
 #include "RealmList.h"
-#include "BattlenetManager.h"
 #include "Database/DatabaseEnv.h"
 #include "Util.h"
 
@@ -78,7 +77,7 @@ void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInte
 }
 
 void RealmList::UpdateRealm(uint32 id, const std::string& name, ip::address const& address, ip::address const& localAddr,
-    ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population, uint32 build, uint8 region, uint8 battlegroup)
+    ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population, uint32 build)
 {
     // Create new if not exist or update existed
     Realm& realm = m_realms[name];
@@ -91,15 +90,11 @@ void RealmList::UpdateRealm(uint32 id, const std::string& name, ip::address cons
     realm.allowedSecurityLevel = allowedSecurityLevel;
     realm.populationLevel = population;
 
-    // Append port to IP address.
-
     realm.ExternalAddress = address;
     realm.LocalAddress = localAddr;
     realm.LocalSubnetMask = localSubmask;
     realm.port = port;
     realm.gamebuild = build;
-    realm.Region = region;
-    realm.Battlegroup = battlegroup;
 }
 
 void RealmList::UpdateIfNeed()
@@ -175,11 +170,9 @@ void RealmList::UpdateRealms(bool init)
                 uint8 allowedSecurityLevel = fields[9].GetUInt8();
                 float pop = fields[10].GetFloat();
                 uint32 build = fields[11].GetUInt32();
-                uint8 region = fields[12].GetUInt8();
-                uint8 battlegroup = fields[13].GetUInt8();
 
                 UpdateRealm(realmId, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone,
-                    (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build, region, battlegroup);
+                    (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 
                 if (init)
                     TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[name].ExternalAddress.to_string().c_str(), port);
@@ -192,17 +185,4 @@ void RealmList::UpdateRealms(bool init)
         }
         while (result->NextRow());
     }
-}
-
-Realm const* RealmList::GetRealm(Battlenet::RealmId const& id) const
-{
-    auto itr = std::find_if(m_realms.begin(), m_realms.end(), [id](RealmMap::value_type const& pair)
-    {
-        return pair.second.Region == id.Region && pair.second.Battlegroup == id.Battlegroup && pair.second.m_ID == id.Index;
-    });
-
-    if (itr != m_realms.end())
-        return &itr->second;
-
-    return NULL;
 }

@@ -35,6 +35,7 @@
 #include "LFG.h"
 #include "GroupMgr.h"
 #include "MMapFactory.h"
+#include "DisableMgr.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -185,7 +186,7 @@ public:
 
         uint32 haveMap = Map::ExistMap(mapId, gridX, gridY) ? 1 : 0;
         uint32 haveVMap = Map::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
-        uint32 haveMMap = (MMAP::MMapFactory::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
+        uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
 
         if (haveVMap)
         {
@@ -1541,7 +1542,7 @@ public:
 
         // Query the prepared statement for login data
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
-        stmt->setInt32(0, int32(realmID));
+        stmt->setInt32(0, int32(realmHandle.Index));
         stmt->setUInt32(1, accId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -2193,7 +2194,7 @@ public:
 
         if (args && args[0] != '\0')
         {
-            target = sObjectAccessor->FindPlayerByName(args);
+            target = ObjectAccessor::FindPlayerByName(args);
             if (!target)
             {
                 handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -2281,7 +2282,7 @@ public:
                     // find the player
                     std::string name = arg1;
                     normalizePlayerName(name);
-                    player = sObjectAccessor->FindPlayerByName(name);
+                    player = ObjectAccessor::FindPlayerByName(name);
                     // Check if we have duration set
                     if (arg2 && isNumeric(arg2))
                     {
@@ -2345,7 +2346,7 @@ public:
         {
             name = targetName;
             normalizePlayerName(name);
-            player = sObjectAccessor->FindPlayerByName(name);
+            player = ObjectAccessor::FindPlayerByName(name);
         }
         else // If no name was entered - use target
         {
@@ -2421,7 +2422,7 @@ public:
             int32 remaintime = fields[1].GetInt32();
             // Save the frozen player to update remaining time in case of future .listfreeze uses
             // before the frozen state expires
-            if (Player* frozen = sObjectAccessor->FindPlayerByName(player))
+            if (Player* frozen = ObjectAccessor::FindPlayerByName(player))
                 frozen->SaveToDB();
             // Notify the freeze duration
             if (remaintime == -1) // Permanent duration
