@@ -4020,7 +4020,7 @@ public:
                         SetBonusValueForEffect(EFFECT_0, 5, aurEff);
                         break;
                     default:
-                        TC_LOG_ERROR("spells", "SpellId %d couldn't be processed in spell_gen_mixology_bonus", GetId());
+                        TC_LOG_ERROR("spells", "SpellId %u couldn't be processed in spell_gen_mixology_bonus", GetId());
                         break;
                 }
                 amount += bonus;

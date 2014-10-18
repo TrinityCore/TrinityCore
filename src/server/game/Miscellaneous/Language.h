@@ -1111,7 +1111,12 @@ enum TrinityStrings
     LANG_COMMAND_INST_SET_BOSS_STATE    = 5057,
     LANG_COMMAND_INST_GET_BOSS_STATE    = 5058,
 
-    // Room for more Trinity strings      5059-9999
+    // Mutehistory commands
+    LANG_COMMAND_MUTEHISTORY            = 5059,
+    LANG_COMMAND_MUTEHISTORY_EMPTY      = 5060,
+    LANG_COMMAND_MUTEHISTORY_OUTPUT     = 5061,
+
+    // Room for more Trinity strings      5062-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
