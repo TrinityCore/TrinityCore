@@ -855,6 +855,14 @@ Instance.UnloadDelay = 1800000
 InstancesResetAnnounce = false
 
 #
+#    Quests.EnableQuestTracker
+#        Description: Store datas in the database about quest completion and abandonment to help finding out bugged quests.
+#        Default:     0  - (Disabled)
+#                     1  - (Enabled)
+
+Quests.EnableQuestTracker = 0
+
+#
 #    Quests.LowLevelHideDiff
 #        Description: Level difference between player and quest level at which quests are
 #                     considered low-level and are not shown via exclamation mark (!) at quest
