@@ -82,8 +82,8 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 
     if (queued)
     {
-        packet << uint32(queuePos);     // Queue position
-        packet.WriteBit(0);             // HasFCM
+        packet << uint32(queuePos);                 // Queue position
+        packet.WriteBit(0);                         // HasFCM
     }
 
     packet.FlushBits();

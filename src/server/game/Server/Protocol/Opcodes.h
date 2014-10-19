@@ -151,10 +151,10 @@ enum Opcodes
     CMSG_CHANNEL_UNSILENCE_VOICE                      = 0x0000,
     CMSG_CHANNEL_VOICE_OFF                            = 0x0000,
     CMSG_CHANNEL_VOICE_ON                             = 0x0000,
-    CMSG_CHAR_CREATE                                  = 0x0000,
+    CMSG_CHAR_CREATE                                  = 0x10F3, // 6.0.2 19034
     CMSG_CHAR_CUSTOMIZE                               = 0x0000,
-    CMSG_CHAR_DELETE                                  = 0x0000,
-    CMSG_CHAR_ENUM                                    = 0x0000,
+    CMSG_CHAR_DELETE                                  = 0x08FC, // 6.0.2 19034
+    CMSG_CHAR_ENUM                                    = 0x01EC, // 6.0.2 19034
     CMSG_CHAR_FACTION_CHANGE                          = 0x0000,
     CMSG_CHAR_RACE_CHANGE                             = 0x0000,
     CMSG_CHAR_RENAME                                  = 0x0000,
@@ -761,10 +761,10 @@ enum Opcodes
     SMSG_CHANNEL_MEMBER_COUNT                         = 0x0000,
     SMSG_CHANNEL_NOTIFY                               = 0x0000,
     SMSG_CHARACTER_LOGIN_FAILED                       = 0x0000,
-    SMSG_CHAR_CREATE                                  = 0x0000,
-    SMSG_CHAR_CUSTOMIZE                               = 0x0000,
+    SMSG_CHAR_CREATE                                  = 0x0637, // 6.0.2 19034
+    SMSG_CHAR_CUSTOMIZE                               = 0x12A4, // 6.0.2 19034
     SMSG_CHAR_DELETE                                  = 0x0000,
-    SMSG_CHAR_ENUM                                    = 0x0000,
+    SMSG_CHAR_ENUM                                    = 0x1154, // 6.0.2 19034
     SMSG_CHAR_FACTION_CHANGE                          = 0x0000,
     SMSG_CHAR_RENAME                                  = 0x0000,
     SMSG_CHAT_IGNORED_ACCOUNT_MUTED                   = 0x0000,
