@@ -609,7 +609,7 @@ namespace MMAP
         int holeRow = row % 8;
         int holeCol = (square - (row * 128 + cellCol * 8));
 
-        return holes[cellRow][cellCol][holeRow] & (1 << holeCol);
+        return (holes[cellRow][cellCol][holeRow] & (1 << holeCol)) != 0;
     }
 
     /**************************************************************************/
