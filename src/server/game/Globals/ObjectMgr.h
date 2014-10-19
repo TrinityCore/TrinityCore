@@ -657,6 +657,9 @@ typedef std::pair<GraveYardContainer::iterator, GraveYardContainer::iterator> Gr
 typedef std::unordered_map<uint32, VendorItemData> CacheVendorItemContainer;
 typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellContainer;
 
+typedef std::unordered_map<uint8, uint8> ExpansionRequirementContainer;
+typedef std::unordered_map<uint32, std::string> RealmNameContainer;
+
 enum SkillRangeType
 {
     SKILL_RANGE_LANGUAGE,                                   // 300..300
@@ -1355,6 +1358,14 @@ class ObjectMgr
 
         void LoadMissingKeyChains();
 
+
+        void LoadRaceAndClassExpansionRequirements();
+        void LoadRealmNames();
+
+        std::string GetRealmName(uint32 realm) const;
+        ExpansionRequirementContainer const& GetRaceExpansionRequirements() const { return _raceExpansionRequirementStore; }
+        ExpansionRequirementContainer const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1495,6 +1506,10 @@ class ObjectMgr
 
         std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
+
+        ExpansionRequirementContainer _raceExpansionRequirementStore;
+        ExpansionRequirementContainer _classExpansionRequirementStore;
+        RealmNameContainer _realmNameStore;
 
         enum CreatureLinkedRespawnType
         {

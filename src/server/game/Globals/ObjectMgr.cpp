@@ -9325,3 +9325,120 @@ PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
         return NULL;
     return info;
 }
+
+void ObjectMgr::LoadRaceAndClassExpansionRequirements()
+{
+    uint32 oldMSTime = getMSTime();
+    _raceExpansionRequirementStore.clear();
+
+    //                                               0       1
+    QueryResult result = WorldDatabase.Query("SELECT raceID, expansion FROM `race_expansion_requirement`");
+
+    if (result)
+    {
+        uint32 count = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 raceID = fields[0].GetInt8();
+            uint8 expansion = fields[1].GetInt8();
+
+            ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
+            if (!raceEntry)
+            {
+                TC_LOG_ERROR("sql.sql", "Race %u defined in `race_expansion_requirement` does not exists, skipped.", raceID);
+                continue;
+            }
+
+            if (expansion >= MAX_EXPANSIONS)
+            {
+                TC_LOG_ERROR("sql.sql", "Race %u defined in `race_expansion_requirement` has incorrect expansion %u, skipped.", raceID, expansion);
+                continue;
+            }
+
+            _raceExpansionRequirementStore[raceID] = expansion;
+
+            ++count;
+        }
+        while (result->NextRow());
+        TC_LOG_INFO("server.loading", ">> Loaded %u race expansion requirements in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+        TC_LOG_INFO("server.loading", ">> Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
+
+    oldMSTime = getMSTime();
+    _classExpansionRequirementStore.clear();
+
+    //                                   0        1
+    result = WorldDatabase.Query("SELECT classID, expansion FROM `class_expansion_requirement`");
+
+    if (result)
+    {
+        uint32 count = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 classID = fields[0].GetInt8();
+            uint8 expansion = fields[1].GetInt8();
+
+            ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classID);
+            if (!classEntry)
+            {
+                TC_LOG_ERROR("sql.sql", "Class %u defined in `class_expansion_requirement` does not exists, skipped.", classID);
+                continue;
+            }
+
+            if (expansion >= MAX_EXPANSIONS)
+            {
+                TC_LOG_ERROR("sql.sql", "Class %u defined in `class_expansion_requirement` has incorrect expansion %u, skipped.", classID, expansion);
+                continue;
+            }
+
+            _classExpansionRequirementStore[classID] = expansion;
+
+            ++count;
+        }
+        while (result->NextRow());
+        TC_LOG_INFO("server.loading", ">> Loaded %u class expansion requirements in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+        TC_LOG_INFO("server.loading", ">> Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
+}
+
+void ObjectMgr::LoadRealmNames()
+{
+    uint32 oldMSTime = getMSTime();
+    _realmNameStore.clear();
+
+    //                                               0   1
+    QueryResult result = LoginDatabase.Query("SELECT id, name FROM `realmlist`");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 realm names. DB table `realmlist` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 realm = fields[0].GetUInt32();
+        std::string realmName = fields[1].GetString();
+
+        _realmNameStore[realm] = realmName;
+
+        ++count;
+    }
+    while (result->NextRow());
+    TC_LOG_INFO("server.loading", ">> Loaded %u realm names in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+std::string ObjectMgr::GetRealmName(uint32 realm) const
+{
+    RealmNameContainer::const_iterator iter = _realmNameStore.find(realm);
+    return iter != _realmNameStore.end() ? iter->second : "";
+}
