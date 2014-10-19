@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <cstdio>
 
-extern HANDLE WorldMpq;
+extern HANDLE CascStorage;
 
 Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0)
 {
@@ -33,7 +33,7 @@ Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0
 
 bool Model::open()
 {
-    MPQFile f(WorldMpq, filename.c_str());
+    MPQFile f(CascStorage, filename.c_str());
 
     if (f.isEof())
     {

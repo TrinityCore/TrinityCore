@@ -39,11 +39,11 @@ WMORoot::WMORoot(std::string &filename)
     memset(bbcorn2, 0, sizeof(bbcorn2));
 }
 
-extern HANDLE WorldMpq;
+extern HANDLE CascStorage;
 
 bool WMORoot::open()
 {
-    MPQFile f(WorldMpq, filename.c_str());
+    MPQFile f(CascStorage, filename.c_str());
     if(f.isEof ())
     {
         printf("No such file.\n");
@@ -151,7 +151,7 @@ WMOGroup::WMOGroup(const std::string &filename) :
 
 bool WMOGroup::open()
 {
-    MPQFile f(WorldMpq, filename.c_str());
+    MPQFile f(CascStorage, filename.c_str());
     if(f.isEof ())
     {
         printf("No such file.\n");

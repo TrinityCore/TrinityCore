@@ -52,15 +52,22 @@ bool ExtractSingleModel(std::string& fname)
     return mdl.ConvertToVMAPModel(output.c_str());
 }
 
-extern HANDLE LocaleMpq;
+extern HANDLE CascStorage;
 
 void ExtractGameobjectModels()
 {
     printf("Extracting GameObject models...");
-    DBCFile dbc(LocaleMpq, "DBFilesClient\\GameObjectDisplayInfo.dbc");
+    DBCFile dbc(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.dbc");
     if(!dbc.open())
     {
         printf("Fatal error: Invalid GameObjectDisplayInfo.dbc file format!\n");
+        exit(1);
+    }
+
+    DBCFile fileData(CascStorage, "DBFilesClient\\FileData.dbc");
+    if (!fileData.open())
+    {
+        printf("Fatal error: Invalid FileData.dbc file format!\n");
         exit(1);
     }
 
@@ -76,9 +83,27 @@ void ExtractGameobjectModels()
         return;
     }
 
+    size_t maxFileId = fileData.getMaxId() + 1;
+    uint32* fileDataIndex = new uint32[maxFileId];
+    memset(fileDataIndex, 0, maxFileId * sizeof(uint32));
+    size_t files = fileData.getRecordCount();
+    for (uint32 i = 0; i < files; ++i)
+        fileDataIndex[fileData.getRecord(i).getUInt(0)] = i;
+
     for (DBCFile::Iterator it = dbc.begin(); it != dbc.end(); ++it)
     {
-        path = it->getString(1);
+        uint32 fileId = it->getUInt(1);
+        if (!fileId)
+            continue;
+
+        uint32 fileIndex = fileDataIndex[fileId];
+        if (!fileIndex)
+            continue;
+
+        std::string filename = fileData.getRecord(fileIndex).getString(1);
+        std::string filepath = fileData.getRecord(fileIndex).getString(2);
+
+        path = filepath + filename;
 
         if (path.length() < 4)
             continue;
@@ -98,7 +123,7 @@ void ExtractGameobjectModels()
             result = ExtractSingleWmo(path);
         else if (!strcmp(ch_ext, ".mdl"))   // TODO: extract .mdl files, if needed
             continue;
-        else //if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
+        else if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
             result = ExtractSingleModel(path);
 
         if (result)
@@ -112,6 +137,8 @@ void ExtractGameobjectModels()
     }
 
     fclose(model_list);
+
+    delete[] fileDataIndex;
 
     printf("Done!\n");
 }
