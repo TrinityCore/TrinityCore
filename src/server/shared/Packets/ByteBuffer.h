@@ -133,6 +133,15 @@ class ByteBuffer
             _curbitval = 0;
         }
 
+        void ResetBitPos()
+        {
+            if (_bitpos > 7)
+                return;
+
+            _bitpos = 8;
+            _curbitval = 0;
+        }
+
         bool WriteBit(uint32 bit)
         {
             --_bitpos;
@@ -154,8 +163,8 @@ class ByteBuffer
             ++_bitpos;
             if (_bitpos > 7)
             {
-                _bitpos = 0;
                 _curbitval = read<uint8>();
+                _bitpos = 0;
             }
 
             return ((_curbitval >> (7-_bitpos)) & 1) != 0;
@@ -442,11 +451,14 @@ class ByteBuffer
         {
             if (_rpos + skip > size())
                 throw ByteBufferPositionException(false, _rpos, skip, size());
+
+            ResetBitPos();
             _rpos += skip;
         }
 
         template <typename T> T read()
         {
+            ResetBitPos();
             T r = read<T>(_rpos);
             _rpos += sizeof(T);
             return r;
@@ -465,6 +477,8 @@ class ByteBuffer
         {
             if (_rpos  + len > size())
                throw ByteBufferPositionException(false, _rpos, len, size());
+
+            ResetBitPos();
             std::memcpy(dest, &_storage[_rpos], len);
             _rpos += len;
         }

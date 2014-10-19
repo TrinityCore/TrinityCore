@@ -63,6 +63,8 @@ void WorldSocket::Start()
 void WorldSocket::HandleSendAuthSession()
 {
     WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
+    packet << uint32(_authSeed);
+
     BigNumber seed1;
     seed1.SetRand(16 * 8);
     packet.append(seed1.AsByteArray(16).get(), 16);               // new encryption seeds
@@ -71,7 +73,6 @@ void WorldSocket::HandleSendAuthSession()
     seed2.SetRand(16 * 8);
     packet.append(seed2.AsByteArray(16).get(), 16);               // new encryption seeds
 
-    packet << uint32(_authSeed);
     packet << uint8(1);
     SendPacket(packet);
 }
@@ -212,6 +213,7 @@ bool WorldSocket::ReadDataHandler()
 
                 HandleAuthSession(packet);
                 break;
+            /*
             case CMSG_KEEP_ALIVE:
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
@@ -229,6 +231,7 @@ bool WorldSocket::ReadDataHandler()
                     _worldSession->HandleEnableNagleAlgorithm();
                 break;
             }
+            */
             default:
             {
                 if (!_worldSession)
@@ -345,36 +348,22 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     uint8 loginServerType;
     uint32 realmIndex;
 
-    recvPacket.read_skip<uint32>(); // ServerId - Used for GRUNT only
-    recvPacket.read_skip<uint32>(); // Battlegroup
-    recvPacket >> loginServerType;
-    recvPacket >> digest[10];
-    recvPacket >> digest[18];
-    recvPacket >> digest[12];
-    recvPacket >> digest[5];
-    recvPacket.read_skip<uint64>();
-    recvPacket >> digest[15];
-    recvPacket >> digest[9];
-    recvPacket >> digest[19];
-    recvPacket >> digest[4];
-    recvPacket >> digest[7];
-    recvPacket >> digest[16];
-    recvPacket >> digest[3];
+    recvPacket.read_skip<uint32>(); // Grunt - ServerId
     recvPacket >> clientBuild;
-    recvPacket >> digest[8];
-    recvPacket >> realmIndex;
-    recvPacket.read_skip<uint8>();
-    recvPacket >> digest[17];
-    recvPacket >> digest[6];
-    recvPacket >> digest[0];
-    recvPacket >> digest[1];
-    recvPacket >> digest[11];
-    recvPacket >> clientSeed;
-    recvPacket >> digest[2];
     recvPacket.read_skip<uint32>(); // Region
-    recvPacket >> digest[14];
-    recvPacket >> digest[13];
+    recvPacket.read_skip<uint32>(); // Battlegroup
+    recvPacket >> realmIndex;
+    recvPacket >> loginServerType;  // could be swapped with other uint8 (both always 1)
+    recvPacket.read_skip<uint8>();
+    recvPacket >> clientSeed;
+    recvPacket.read_skip<uint64>(); // DosResponse
 
+    for (int i = 0; i < SHA_DIGEST_LENGTH; i++)
+        recvPacket >> digest[i];
+
+    uint32 accountNameLength = recvPacket.ReadBits(11);
+    account = recvPacket.ReadString(accountNameLength);
+    recvPacket.ReadBit();           // UseIPv6
     recvPacket >> addonSize;
 
     if (addonSize)
@@ -382,10 +371,6 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         addonsData.resize(addonSize);
         recvPacket.read((uint8*)addonsData.contents(), addonSize);
     }
-
-    recvPacket.ReadBit();           // UseIPv6
-    uint32 accountNameLength = recvPacket.ReadBits(12);
-    account = recvPacket.ReadString(accountNameLength);
 
     // Get the account information from the auth database
     //         0           1        2       3          4         5       6          7   8                  9
@@ -603,11 +588,12 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
 void WorldSocket::SendAuthResponseError(uint8 code)
 {
-    WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-    packet.WriteBit(0); // has queue info
-    packet.WriteBit(0); // has account info
+    WorldPacket packet(SMSG_AUTH_RESPONSE, 2);
     packet << uint8(code);
+    packet.WriteBit(0); // has account info
+    packet.WriteBit(0); // has queue info
 
+    packet.FlushBits();
     SendPacket(packet);
 }
 
@@ -617,8 +603,8 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
     uint32 latency;
 
     // Get the ping packet content
-    recvPacket >> latency;
     recvPacket >> ping;
+    recvPacket >> latency;
 
     if (_LastPingTime == steady_clock::time_point())
     {
