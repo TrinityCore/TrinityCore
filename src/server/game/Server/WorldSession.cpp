@@ -581,7 +581,7 @@ void WorldSession::LogoutPlayer(bool save)
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
         _player->CleanupsBeforeDelete();
-        TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d",
+        TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d",
             GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUIDLow(), _player->getLevel());
 
         sBattlenetServer.SendChangeToonOnlineState(GetBattlenetAccountId(), GetAccountId(), _player->GetGUID(), _player->GetName(), false);
@@ -1077,10 +1077,11 @@ void WorldSession::ProcessQueryCallbacks()
     //- HandleCharRenameOpcode
     if (_charRenameCallback.IsReady())
     {
-        std::string param = _charRenameCallback.GetParam();
         _charRenameCallback.GetResult(result);
-        HandleChangePlayerNameOpcodeCallBack(result, param);
-        _charRenameCallback.FreeResult();
+        CharacterRenameInfo* renameInfo = _charRenameCallback.GetParam();
+        HandleChangePlayerNameOpcodeCallBack(result, renameInfo);
+        delete renameInfo;
+        _charRenameCallback.Reset();
     }
 
     //- HandleCharAddIgnoreOpcode
