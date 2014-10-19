@@ -13,7 +13,7 @@ When creating patches read:
 - [TrinityCore Development Standards](http://www.trinitycore.org/f/topic/6-trinitycore-developing-standards/)
 - [WDB Fields](http://www.trinitycore.org/f/topic/58-wdb-fields/)
 - [Git Squash](https://ariejan.net/2011/07/05/git-squash-your-latests-commits-into-one/)
-
+- [SQL Guidelines](http://collab.kpsn.org/display/tc/SQL+Guidelines)
 We suggest you to create one branch for each `C++` based fix: on that way you can continue creating more fixes without having to wait to get one pull request merged.  
 For the `SQL` files of `C++` based fixes the naming schema is: `YYYY_MM_DD_i_database_description.sql`, where `YYYY_MM_DD` is the date of the fix, `i_database` is the *ith* sql created that day for `database`. 
 When doing changes to `auth` or `characters` database remember to update the base files (`/sql/base/*`).  
