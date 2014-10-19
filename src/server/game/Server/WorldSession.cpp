@@ -705,8 +705,8 @@ void WorldSession::SendAuthWaitQue(uint32 position)
         WorldPacket packet(SMSG_AUTH_RESPONSE, 6);
         packet << uint8(AUTH_WAIT_QUEUE);
         packet.WriteBit(0); // has account info
-        packet << uint32(position);
         packet.WriteBit(1); // has queue info
+        packet << uint32(position);
         packet.WriteBit(0); // unk queue bool
         packet.FlushBits();
         SendPacket(&packet);
