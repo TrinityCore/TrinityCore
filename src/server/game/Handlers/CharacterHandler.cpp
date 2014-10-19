@@ -278,7 +278,6 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
 
 void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 {
-    std::string name;
     uint8 playerRace, playerClass, gender, skin, face, hairStyle, hairColor, facialHair, outfitId;
 
     uint32 nameLength = recvData.ReadBits(6);

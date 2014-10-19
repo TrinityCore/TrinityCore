@@ -27,7 +27,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 
     std::list<uint32> realmsToSend;
     // Send current home realm. Also there is no need to send it later in realm queries.
-    realmsToSend.push_back(realmID);
+    realmsToSend.push_back(realmHandle.Index);
 
     WorldPacket packet(SMSG_AUTH_RESPONSE, 1 /*bits*/ + 4 + 1 + 4 + 1 + 4 + 1 + 1 + (queued ? 4 : 0));
     packet << uint8(code);
@@ -36,7 +36,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 
     if (code == AUTH_OK)
     {
-        packet << uint32(realmID);
+        packet << uint32(realmHandle.Index);
         packet << uint32(realmsToSend.size());      // RealmNamesCount
         packet << uint32(0);                        // BillingTimeRemaining
         packet << uint32(0);                        // BillingPlanFlags
@@ -53,31 +53,31 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
         packet.WriteBit(0);                         // NumPlayersHorde (uint16)
         packet.WriteBit(0);                         // NumPlayersAlliance (uint16)
         packet.WriteBit(0);                         // IsVeteranTrial
-    }
 
-    for (auto realm : realmsToSend)
-    {
-        std::string realmName = sObjectMgr->GetRealmName(realm);
+        for (auto realm : realmsToSend)
+        {
+            std::string realmName = sObjectMgr->GetRealmName(realm);
 
-        packet << uint32(realm);                    // realmID
-        packet.WriteBit(realm == realmID);          // IsHomeRealm
-        packet.WriteBit(0);                         // IsInternalRealm = guessed
-        packet.WriteBits(realmName.length(), 8);
-        packet.WriteBits(realmName.length(), 8);
-        packet.WriteString(realmName);              // RealmNameActual
-        packet.WriteString(realmName);              // RealmNameNormalized
-    }
+            packet << uint32(realm);                    // realmID
+            packet.WriteBit(realm == realmHandle.Index);// IsHomeRealm
+            packet.WriteBit(0);                         // IsInternalRealm = guessed
+            packet.WriteBits(realmName.length(), 8);
+            packet.WriteBits(realmName.length(), 8);
+            packet.WriteString(realmName);              // RealmNameActual
+            packet.WriteString(realmName);              // RealmNameNormalized
+        }
 
-    for (auto raceExpansion : raceExpansions)
-    {
-        packet << uint8(raceExpansion.first);       // Race
-        packet << uint8(raceExpansion.second);      // RequiredExpansion
-    }
+        for (auto raceExpansion : raceExpansions)
+        {
+            packet << uint8(raceExpansion.first);       // Race
+            packet << uint8(raceExpansion.second);      // RequiredExpansion
+        }
 
-    for (auto classExpansion : classExpansions)
-    {
-        packet << uint8(classExpansion.first);      // Class
-        packet << uint8(classExpansion.second);     // RequiredExpansion
+        for (auto classExpansion : classExpansions)
+        {
+            packet << uint8(classExpansion.first);      // Class
+            packet << uint8(classExpansion.second);     // RequiredExpansion
+        }
     }
 
     if (queued)
