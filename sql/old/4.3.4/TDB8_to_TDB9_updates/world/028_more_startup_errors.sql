@@ -1,0 +1,3 @@
+--
+UPDATE `creature_template` SET `AIName`='' WHERE `entry` IN (504,787,2305,2434,2990,3434,3457,6221,12319);
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (504,787,2305,2434,2990,3434,3457,6221,12319);
