@@ -1,0 +1,3 @@
+-- Some SAI Event flag fixes
+UPDATE `smart_scripts` SET `event_flags`=`event_flags` &~2 WHERE `entryorguid` IN (594,2529,3631,3632,3633,3655,11777,11778,11781,11782,11785,11786,12239,12240,12241,14284,14285,16354,16355,24819,25471,25472,25473,29186,29190,29199,29200,29204,29219,29454,29455,29468,32501);
+UPDATE `smart_scripts` SET `event_flags`=`event_flags` &~4 WHERE `entryorguid` IN (32501);
