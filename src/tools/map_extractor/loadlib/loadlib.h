@@ -72,6 +72,12 @@ struct file_MVER
     uint32 ver;
 };
 
+struct file_MWMO
+{
+    u_map_fcc fcc;
+    uint32 size;
+    char FileList[1];
+};
 
 class FileChunk
 {

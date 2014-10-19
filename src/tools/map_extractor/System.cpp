@@ -18,9 +18,10 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 
-#include <stdio.h>
+#include <cstdio>
 #include <deque>
 #include <list>
+#include <set>
 #include <cstdlib>
 #include <cstring>
 
@@ -262,7 +263,7 @@ uint32 ReadMapDBC()
     printf("Read Map.dbc file... ");
 
     HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, "DBFilesClient\\Map.dbc", CASC_LOCALE_ALL, 0, &dbcFile))
+    if (!CascOpenFile(CascStorage, "DBFilesClient\\Map.dbc", CASC_LOCALE_NONE, 0, &dbcFile))
     {
         printf("Fatal error: Cannot find Map.dbc in archive!\n");
         exit(1);
@@ -292,7 +293,7 @@ void ReadAreaTableDBC()
 {
     printf("Read AreaTable.dbc file...");
     HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, "DBFilesClient\\AreaTable.dbc", CASC_LOCALE_ALL, 0, &dbcFile))
+    if (!CascOpenFile(CascStorage, "DBFilesClient\\AreaTable.dbc", CASC_LOCALE_NONE, 0, &dbcFile))
     {
         printf("Fatal error: Cannot find AreaTable.dbc in archive!\n");
         exit(1);
@@ -320,7 +321,7 @@ void ReadLiquidTypeTableDBC()
 {
     printf("Read LiquidType.dbc file...");
     HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, "DBFilesClient\\LiquidType.dbc", CASC_LOCALE_ALL, 0, &dbcFile))
+    if (!CascOpenFile(CascStorage, "DBFilesClient\\LiquidType.dbc", CASC_LOCALE_NONE, 0, &dbcFile))
     {
         printf("Fatal error: Cannot find LiquidType.dbc in archive!\n");
         exit(1);
@@ -351,7 +352,7 @@ void ReadLiquidTypeTableDBC()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.3";
+static char const* MAP_VERSION_MAGIC = "v1.4";
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -440,7 +441,22 @@ uint16 liquid_entry[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 uint8 liquid_flags[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 bool  liquid_show[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float liquid_height[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
-uint16 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+uint8 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID][8];
+
+bool TransformToHighRes(uint16 holes, uint8 hiResHoles[8])
+{
+    for (uint8 i = 0; i < 8; i++)
+    {
+        for (uint8 j = 0; j < 8; j++)
+        {
+            int32 holeIdxL = (i / 2) * 4 + (j / 2);
+            if (((holes >> holeIdxL) & 1) == 1)
+                hiResHoles[i] |= (1 << j);
+        }
+    }
+
+    return *((uint64*)hiResHoles) != 0;
+}
 
 bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/, uint32 build)
 {
@@ -599,10 +615,14 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
         if (!(mcnk->flags & 0x10000))
         {
             if (uint16 hole = mcnk->holes)
-            {
-                holes[mcnk->iy][mcnk->ix] = mcnk->holes;
+                if (TransformToHighRes(hole, holes[mcnk->iy][mcnk->ix]))
+                    hasHoles = true;
+        }
+        else
+        {
+            memcpy(holes[mcnk->iy][mcnk->ix], mcnk->union_5_3_0.HighResHoles, sizeof(uint64));
+            if (*((uint64*)holes[mcnk->iy][mcnk->ix]) != 0)
                 hasHoles = true;
-            }
         }
     }
 
@@ -965,6 +985,23 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     return true;
 }
 
+void ExtractWmos(ChunkedFile& file, std::set<std::string>& wmoList)
+{
+    if (FileChunk* chunk = file.GetChunk("MWMO"))
+    {
+        file_MWMO* wmo = chunk->As<file_MWMO>();
+        if (wmo->size)
+        {
+            char* fileName = wmo->FileList;
+            while (fileName < wmo->FileList + wmo->size)
+            {
+                wmoList.insert(fileName);
+                fileName += strlen(fileName) + 1;
+            }
+        }
+    }
+}
+
 void ExtractMaps(uint32 build)
 {
     char storagePath[1024];
@@ -981,6 +1018,8 @@ void ExtractMaps(uint32 build)
     path += "/maps/";
     CreateDir(path);
 
+    std::set<std::string> wmoList;
+
     printf("Convert map files\n");
     for (uint32 z = 0; z < map_count; ++z)
     {
@@ -990,6 +1029,8 @@ void ExtractMaps(uint32 build)
         ChunkedFile wdt;
         if (!wdt.loadFile(CascStorage, storagePath, false))
             continue;
+
+        ExtractWmos(wdt, wmoList);
 
         FileChunk* chunk = wdt.GetChunk("MAIN");
         for (uint32 y = 0; y < WDT_MAP_SIZE; ++y)
@@ -1002,10 +1043,26 @@ void ExtractMaps(uint32 build)
                 sprintf(storagePath, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
                 sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
                 ConvertADT(storagePath, output_filename, y, x, build);
+
+                sprintf(storagePath, "World\\Maps\\%s\\%s_%u_%u_obj0.adt", map_ids[z].name, map_ids[z].name, x, y);
+                ChunkedFile adtObj;
+                if (adtObj.loadFile(CascStorage, storagePath, false))
+                    ExtractWmos(adtObj, wmoList);
             }
 
             // draw progress bar
             printf("Processing........................%d%%\r", (100 * (y+1)) / WDT_MAP_SIZE);
+        }
+    }
+
+    if (!wmoList.empty())
+    {
+        if (FILE* wmoListFile = fopen("wmo_list.txt", "w"))
+        {
+            for (std::string const& wmo : wmoList)
+                fprintf(wmoListFile, "%s\n", wmo.c_str());
+
+            fclose(wmoListFile);
         }
     }
 

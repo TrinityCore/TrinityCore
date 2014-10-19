@@ -24,6 +24,7 @@
 #include <errno.h>
 
 #ifdef WIN32
+    #define WIN32_LEAN_AND_MEAN
     #include <Windows.h>
     #include <sys/stat.h>
     #include <direct.h>
@@ -33,13 +34,8 @@
     #define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
 #endif
 
-#undef min
-#undef max
-
-//#pragma warning(disable : 4505)
-//#pragma comment(lib, "Winmm.lib")
-
 #include <map>
+#include <fstream>
 
 //From Extractor
 #include "adtfile.h"
@@ -57,51 +53,7 @@
 
 //-----------------------------------------------------------------------------
 
-HANDLE WorldMpq = NULL;
-HANDLE LocaleMpq = NULL;
-
-uint32 CONF_TargetBuild = 15595;              // 4.3.4.15595
-
-// List MPQ for extract maps from
-char const* CONF_mpq_list[]=
-{
-    "world.MPQ",
-    "art.MPQ",
-    "expansion1.MPQ",
-    "expansion2.MPQ",
-    "expansion3.MPQ",
-    "world2.MPQ",
-};
-
-uint32 const Builds[] = {13164, 13205, 13287, 13329, 13596, 13623, 13914, 14007, 14333, 14480, 14545, 15005, 15050, 15211, 15354, 15595, 0};
-#define LAST_DBC_IN_DATA_BUILD 13623    // after this build mpqs with dbc are back to locale folder
-#define NEW_BASE_SET_BUILD  15211
-
-#define LOCALES_COUNT 15
-
-char const* Locales[LOCALES_COUNT] =
-{
-    "enGB", "enUS",
-    "deDE", "esES",
-    "frFR", "koKR",
-    "zhCN", "zhTW",
-    "enCN", "enTW",
-    "esMX", "ruRU",
-    "ptBR", "ptPT",
-    "itIT"
-};
-
-TCHAR const* LocalesT[LOCALES_COUNT] =
-{
-    _T("enGB"), _T("enUS"),
-    _T("deDE"), _T("esES"),
-    _T("frFR"), _T("koKR"),
-    _T("zhCN"), _T("zhTW"),
-    _T("enCN"), _T("enTW"),
-    _T("esMX"), _T("ruRU"),
-    _T("ptBR"), _T("ptPT"),
-    _T("itIT"),
-};
+HANDLE CascStorage = NULL;
 
 typedef struct
 {
@@ -112,129 +64,27 @@ typedef struct
 map_id * map_ids;
 uint16 *LiqType = 0;
 uint32 map_count;
-char output_path[128]=".";
-char input_path[1024]=".";
+char output_path[128] = ".";
+char input_path[1024] = ".";
 bool preciseVectorData = false;
 
 // Constants
 
 //static const char * szWorkDirMaps = ".\\Maps";
 const char* szWorkDirWmo = "./Buildings";
-const char* szRawVMAPMagic = "VMAP041";
+const char* szRawVMAPMagic = "VMAP042";
 
-bool LoadLocaleMPQFile(int locale)
+bool OpenCascStorage()
 {
-    TCHAR buff[512];
-    memset(buff, 0, sizeof(buff));
-    _stprintf(buff, _T("%s%s/locale-%s.MPQ"), input_path, LocalesT[locale], LocalesT[locale]);
-    if (!SFileOpenArchive(buff, 0, MPQ_OPEN_READ_ONLY, &LocaleMpq))
+    if (!CascOpenStorage(".\\Data", 0, &CascStorage))
     {
-        if (GetLastError() != ERROR_PATH_NOT_FOUND)
-        {
-            _tprintf(_T("Loading %s locale MPQs\n"), LocalesT[locale]);
-            _tprintf(_T("Cannot open archive %s\n"), buff);
-        }
+        printf("Error %d\n", GetLastError());
         return false;
-    }
-
-    _tprintf(_T("Loading %s locale MPQs\n"), LocalesT[locale]);
-    char const* prefix = NULL;
-    for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
-    {
-        // Do not attempt to read older MPQ patch archives past this build, they were merged with base
-        // and trying to read them together with new base will not end well
-        if (CONF_TargetBuild >= NEW_BASE_SET_BUILD && Builds[i] < NEW_BASE_SET_BUILD)
-            continue;
-
-        memset(buff, 0, sizeof(buff));
-        if (Builds[i] > LAST_DBC_IN_DATA_BUILD)
-        {
-            prefix = "";
-            _stprintf(buff, _T("%s%s/wow-update-%s-%u.MPQ"), input_path, LocalesT[locale], LocalesT[locale], Builds[i]);
-        }
-        else
-        {
-            prefix = Locales[locale];
-            _stprintf(buff, _T("%swow-update-%u.MPQ"), input_path, Builds[i]);
-        }
-
-        if (!SFileOpenPatchArchive(LocaleMpq, buff, prefix, 0))
-        {
-            if (GetLastError() != ERROR_FILE_NOT_FOUND)
-                _tprintf(_T("Cannot open patch archive %s\n"), buff);
-            continue;
-        }
     }
 
     printf("\n");
     return true;
 }
-
-void LoadCommonMPQFiles(uint32 build)
-{
-    TCHAR filename[512];
-    _stprintf(filename, _T("%sworld.MPQ"), input_path);
-    _tprintf(_T("Loading common MPQ files\n"));
-    if (!SFileOpenArchive(filename, 0, MPQ_OPEN_READ_ONLY, &WorldMpq))
-    {
-        if (GetLastError() != ERROR_PATH_NOT_FOUND)
-            _tprintf(_T("Cannot open archive %s\n"), filename);
-        return;
-    }
-
-    int count = sizeof(CONF_mpq_list) / sizeof(char*);
-    for (int i = 1; i < count; ++i)
-    {
-        if (build < 15211 && !strcmp("world2.MPQ", CONF_mpq_list[i]))   // 4.3.2 and higher MPQ
-            continue;
-
-        _stprintf(filename, _T("%s%s"), input_path, CONF_mpq_list[i]);
-        if (!SFileOpenPatchArchive(WorldMpq, filename, "", 0))
-        {
-            if (GetLastError() != ERROR_PATH_NOT_FOUND)
-                _tprintf(_T("Cannot open archive %s\n"), filename);
-            else
-                _tprintf(_T("Not found %s\n"), filename);
-        }
-        else
-            _tprintf(_T("Loaded %s\n"), filename);
-    }
-
-    char const* prefix = NULL;
-    for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
-    {
-        // Do not attempt to read older MPQ patch archives past this build, they were merged with base
-        // and trying to read them together with new base will not end well
-        if (CONF_TargetBuild >= NEW_BASE_SET_BUILD && Builds[i] < NEW_BASE_SET_BUILD)
-            continue;
-
-        memset(filename, 0, sizeof(filename));
-        if (Builds[i] > LAST_DBC_IN_DATA_BUILD)
-        {
-            prefix = "";
-            _stprintf(filename, _T("%swow-update-base-%u.MPQ"), input_path, Builds[i]);
-        }
-        else
-        {
-            prefix = "base";
-            _stprintf(filename, _T("%swow-update-%u.MPQ"), input_path, Builds[i]);
-        }
-
-        if (!SFileOpenPatchArchive(WorldMpq, filename, prefix, 0))
-        {
-            if (GetLastError() != ERROR_PATH_NOT_FOUND)
-                _tprintf(_T("Cannot open patch archive %s\n"), filename);
-            else
-                _tprintf(_T("Not found %s\n"), filename);
-            continue;
-        }
-        else
-            _tprintf(_T("Loaded %s\n"), filename);
-    }
-
-    printf("\n");
-}
-
 
 // Local testing functions
 
@@ -262,7 +112,7 @@ void ReadLiquidTypeTableDBC()
 {
     printf("Read LiquidType.dbc file...");
 
-    DBCFile dbc(LocaleMpq, "DBFilesClient\\LiquidType.dbc");
+    DBCFile dbc(CascStorage, "DBFilesClient\\LiquidType.dbc");
     if(!dbc.open())
     {
         printf("Fatal error: Invalid LiquidType.dbc file format!\n");
@@ -282,23 +132,28 @@ void ReadLiquidTypeTableDBC()
 
 bool ExtractWmo()
 {
-    bool success = false;
+    bool success = true;
 
-    //const char* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
-
-    SFILE_FIND_DATA data;
-    HANDLE find = SFileFindFirstFile(WorldMpq, "*.wmo", &data, NULL);
-    if (find != NULL)
+    std::ifstream wmoList("wmo_list.txt");
+    if (!wmoList)
     {
-        do
-        {
-            std::string str = data.cFileName;
-            //printf("Extracting wmo %s\n", str.c_str());
-            success |= ExtractSingleWmo(str);
-        }
-        while (SFileFindNextFile(find, &data));
+        printf("\nUnable to open wmo_list.txt! Nothing extracted.\n");
+        return false;
     }
-    SFileFindClose(find);
+
+    std::set<std::string> wmos;
+    for (;;)
+    {
+        std::string str;
+        std::getline(wmoList, str);
+        if (str.empty())
+            break;
+        
+        wmos.insert(std::move(str));
+    }
+
+    for (std::string str : wmos)
+        success &= ExtractSingleWmo(str);
 
     if (success)
         printf("\nExtract wmo complete (No (fatal) errors)\n");
@@ -463,11 +318,6 @@ bool processArgv(int argc, char ** argv, const char *versionString)
         {
             preciseVectorData = true;
         }
-        else if(strcmp("-b",argv[i]) == 0)
-        {
-            if (i + 1 < argc)                            // all ok
-                CONF_TargetBuild = atoi(argv[i++ + 1]);
-        }
         else
         {
             result = false;
@@ -475,14 +325,13 @@ bool processArgv(int argc, char ** argv, const char *versionString)
         }
     }
 
-    if(!result)
+    if (!result)
     {
         printf("Extract %s.\n",versionString);
         printf("%s [-?][-s][-l][-d <path>]\n", argv[0]);
         printf("   -s : (default) small size (data size optimization), ~500MB less vmap data.\n");
         printf("   -l : large size, ~500MB more vmap data. (might contain more details)\n");
         printf("   -d <path>: Path to the vector data source folder.\n");
-        printf("   -b : target build (default %u)\n", CONF_TargetBuild);
         printf("   -? : This message.\n");
     }
 
@@ -491,7 +340,6 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 
     return result;
 }
-
 
 //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 // Main
@@ -504,7 +352,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 
 int main(int argc, char ** argv)
 {
-    bool success=true;
+    bool success = true;
     const char *versionString = "V4.00 2012_02";
 
     // Use command line arguments, when some
@@ -526,7 +374,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    printf("Extract %s. Beginning work ....\n\n",versionString);
+    printf("Extract %s. Beginning work ....\n\n", versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if (mkdir(szWorkDirWmo
@@ -536,21 +384,15 @@ int main(int argc, char ** argv)
                     ))
             success = (errno == EEXIST);
 
-    LoadCommonMPQFiles(CONF_TargetBuild);
-
-    for (int i = 0; i < LOCALES_COUNT; ++i)
+    if (!OpenCascStorage())
     {
-        //Open MPQs
-        if (!LoadLocaleMPQFile(i))
-        {
-            if (GetLastError() != ERROR_PATH_NOT_FOUND)
-                printf("Unable to load %s locale archives!\n", Locales[i]);
-            continue;
-        }
-
-        printf("Detected and using locale: %s\n", Locales[i]);
-        break;
+        if (GetLastError() != ERROR_PATH_NOT_FOUND)
+            printf("Unable to open storage!\n");
+        return 1;
     }
+
+    // Extract models, listed in GameObjectDisplayInfo.dbc
+    ExtractGameobjectModels();
 
     ReadLiquidTypeTableDBC();
 
@@ -562,42 +404,38 @@ int main(int argc, char ** argv)
     //map.dbc
     if (success)
     {
-        DBCFile * dbc = new DBCFile(LocaleMpq, "DBFilesClient\\Map.dbc");
+        DBCFile * dbc = new DBCFile(CascStorage, "DBFilesClient\\Map.dbc");
         if (!dbc->open())
         {
             delete dbc;
             printf("FATAL ERROR: Map.dbc not found in data file.\n");
             return 1;
         }
-        map_count=dbc->getRecordCount ();
-        map_ids=new map_id[map_count];
-        for (unsigned int x=0;x<map_count;++x)
-        {
-            map_ids[x].id=dbc->getRecord (x).getUInt(0);
-            strcpy(map_ids[x].name,dbc->getRecord(x).getString(1));
-            printf("Map - %s\n",map_ids[x].name);
-        }
 
+        map_count = dbc->getRecordCount();
+        map_ids = new map_id[map_count];
+        for (unsigned int x = 0; x < map_count; ++x)
+        {
+            map_ids[x].id = dbc->getRecord(x).getUInt(0);
+            strcpy(map_ids[x].name, dbc->getRecord(x).getString(1));
+            printf("Map - %s\n", map_ids[x].name);
+        }
 
         delete dbc;
         ParsMapFiles();
         delete [] map_ids;
-        //nError = ERROR_SUCCESS;
-        // Extract models, listed in GameObjectDisplayInfo.dbc
-        ExtractGameobjectModels();
     }
 
-    SFileCloseArchive(LocaleMpq);
-    SFileCloseArchive(WorldMpq);
+    CascCloseStorage(CascStorage);
 
     printf("\n");
     if (!success)
     {
-        printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n",versionString, preciseVectorData);
+        printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n", versionString, preciseVectorData);
         getchar();
     }
 
-    printf("Extract %s. Work complete. No errors.\n",versionString);
+    printf("Extract %s. Work complete. No errors.\n", versionString);
     delete [] LiqType;
     return 0;
 }

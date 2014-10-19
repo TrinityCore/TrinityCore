@@ -22,7 +22,8 @@
 #include "mpqfile.h"
 #include "wmo.h"
 #include <string>
-#include "stdlib.h"
+#include <vector>
+#include <cstdlib>
 
 class ADTFile;
 
@@ -30,13 +31,13 @@ class WDTFile
 {
 private:
     MPQFile WDT;
-    string filename;
+    std::string filename;
 public:
     WDTFile(char* file_name, char* file_name1);
     ~WDTFile(void);
     bool init(char* map_id, unsigned int mapID);
 
-    string* gWmoInstansName;
+    std::vector<std::string> gWmoInstansName;
     int gnWMO;
 
     ADTFile* GetMap(int x, int z);

@@ -23051,11 +23051,7 @@ bool Player::IsVisibleGloballyFor(Player const* u) const
         return GetSession()->GetSecurity() <= u->GetSession()->GetSecurity();
 
     // non faction visibility non-breakable for non-GMs
-    if (!IsVisible())
-        return false;
-
-    // non-gm stealth/invisibility not hide from global player lists
-    return true;
+    return false;
 }
 
 template<class T>
