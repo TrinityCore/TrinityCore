@@ -1,0 +1,16 @@
+UPDATE `creature_template` SET `trainer_type`=1 WHERE `subname` LIKE 'Riding Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Alchemy Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Archaeology Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Blacksmithing Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Cooking Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Enchanting Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Engineering Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'First Aid Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Fishing Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Herbalism Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Inscription Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Jewelcrafting Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Leatherworking Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Mining Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Skinning Trainer';
+UPDATE `creature_template` SET `trainer_type`=2 WHERE `subname` LIKE 'Tailoring Trainer';
