@@ -20468,19 +20468,19 @@ void Player::SendAttackSwingNotInRange()
     GetSession()->SendPacket(&data);
 }
 
-void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, ObjectGuid guid)
+void Player::SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
 
-    stmt->setFloat(0, x);
-    stmt->setFloat(1, y);
-    stmt->setFloat(2, z);
-    stmt->setFloat(3, o);
-    stmt->setUInt16(4, uint16(mapid));
-    stmt->setUInt16(5, uint16(zone));
+    stmt->setFloat(0, loc.GetPositionX());
+    stmt->setFloat(1, loc.GetPositionY());
+    stmt->setFloat(2, loc.GetPositionZ());
+    stmt->setFloat(3, loc.GetOrientation());
+    stmt->setUInt16(4, uint16(loc.GetMapId()));
+    stmt->setUInt16(5, zoneId);
     stmt->setUInt32(6, guid.GetCounter());
 
-    CharacterDatabase.Execute(stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void Player::SetUInt32ValueInArray(Tokenizer& Tokenizer, uint16 index, uint32 value)
@@ -20494,10 +20494,10 @@ void Player::SetUInt32ValueInArray(Tokenizer& Tokenizer, uint16 index, uint32 va
     Tokenizer[index] = buf;
 }
 
-void Player::Customize(ObjectGuid guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair)
+void Player::Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PLAYERBYTES2);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt32(0, customizeInfo->Guid.GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -20507,16 +20507,16 @@ void Player::Customize(ObjectGuid guid, uint8 gender, uint8 skin, uint8 face, ui
 
     uint32 playerBytes2 = fields[0].GetUInt32();
     playerBytes2 &= ~0xFF;
-    playerBytes2 |= facialHair;
+    playerBytes2 |= customizeInfo->FacialHair;
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_PLAYERBYTES);
 
-    stmt->setUInt8(0, gender);
-    stmt->setUInt32(1, skin | (face << 8) | (hairStyle << 16) | (hairColor << 24));
+    stmt->setUInt8(0, customizeInfo->Gender);
+    stmt->setUInt32(1, customizeInfo->Skin | (customizeInfo->Face << 8) | (customizeInfo->HairStyle << 16) | (customizeInfo->HairColor << 24));
     stmt->setUInt32(2, playerBytes2);
-    stmt->setUInt32(3, guid.GetCounter());
+    stmt->setUInt32(3, customizeInfo->Guid.GetCounter());
 
-    CharacterDatabase.Execute(stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void Player::SendAttackSwingDeadTarget()

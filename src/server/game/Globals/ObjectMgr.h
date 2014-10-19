@@ -1234,7 +1234,7 @@ class ObjectMgr
         bool IsReservedName(std::string const& name) const;
 
         // name with valid structure and symbols
-        static uint8 CheckPlayerName(std::string const& name, bool create = false);
+        static ResponseCodes CheckPlayerName(std::string const& name, bool create = false);
         static PetNameInvalidReason CheckPetName(std::string const& name);
         static bool IsValidCharterName(std::string const& name);
 
