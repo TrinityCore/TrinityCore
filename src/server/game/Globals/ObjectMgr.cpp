@@ -8880,8 +8880,8 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
-    //                                               0      1      2        3        4        5        6         7          8            9                  10           11           12           13
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2, damage_exp3 FROM creature_classlevelstats");
+    //                                               0      1      2        3        4        5        6         7      8          9          10           11                 12           13           14           15           16           16
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basehp4, basehp5, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2, damage_exp3, damage_exp4, damage_exp5 FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -8912,7 +8912,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
                 stats.BaseHealth[i] = 1;
             }
 
-            stats.BaseDamage[i] = fields[10 + i].GetFloat();
+            stats.BaseDamage[i] = fields[12 + i].GetFloat();
             if (stats.BaseDamage[i] < 0.0f)
             {
                 TC_LOG_ERROR("sql.sql", "Creature base stats for class %u, level %u has invalid negative base damage[%u] - set to 0.0", Class, Level, i);
@@ -8920,11 +8920,11 @@ void ObjectMgr::LoadCreatureClassLevelStats()
             }
         }
 
-        stats.BaseMana = fields[6].GetUInt16();
-        stats.BaseArmor = fields[7].GetUInt16();
+        stats.BaseMana = fields[8].GetUInt16();
+        stats.BaseArmor = fields[9].GetUInt16();
 
-        stats.AttackPower = fields[8].GetUInt16();
-        stats.RangedAttackPower = fields[9].GetUInt16();
+        stats.AttackPower = fields[10].GetUInt16();
+        stats.RangedAttackPower = fields[11].GetUInt16();
 
         _creatureBaseStatsStore[MAKE_PAIR16(Level, Class)] = stats;
 
@@ -9351,4 +9351,121 @@ PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
     if (!info)
         return NULL;
     return info;
+}
+
+void ObjectMgr::LoadRaceAndClassExpansionRequirements()
+{
+    uint32 oldMSTime = getMSTime();
+    _raceExpansionRequirementStore.clear();
+
+    //                                               0       1
+    QueryResult result = WorldDatabase.Query("SELECT raceID, expansion FROM `race_expansion_requirement`");
+
+    if (result)
+    {
+        uint32 count = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 raceID = fields[0].GetInt8();
+            uint8 expansion = fields[1].GetInt8();
+
+            ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
+            if (!raceEntry)
+            {
+                TC_LOG_ERROR("sql.sql", "Race %u defined in `race_expansion_requirement` does not exists, skipped.", raceID);
+                continue;
+            }
+
+            if (expansion >= MAX_EXPANSIONS)
+            {
+                TC_LOG_ERROR("sql.sql", "Race %u defined in `race_expansion_requirement` has incorrect expansion %u, skipped.", raceID, expansion);
+                continue;
+            }
+
+            _raceExpansionRequirementStore[raceID] = expansion;
+
+            ++count;
+        }
+        while (result->NextRow());
+        TC_LOG_INFO("server.loading", ">> Loaded %u race expansion requirements in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+        TC_LOG_INFO("server.loading", ">> Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
+
+    oldMSTime = getMSTime();
+    _classExpansionRequirementStore.clear();
+
+    //                                   0        1
+    result = WorldDatabase.Query("SELECT classID, expansion FROM `class_expansion_requirement`");
+
+    if (result)
+    {
+        uint32 count = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 classID = fields[0].GetInt8();
+            uint8 expansion = fields[1].GetInt8();
+
+            ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classID);
+            if (!classEntry)
+            {
+                TC_LOG_ERROR("sql.sql", "Class %u defined in `class_expansion_requirement` does not exists, skipped.", classID);
+                continue;
+            }
+
+            if (expansion >= MAX_EXPANSIONS)
+            {
+                TC_LOG_ERROR("sql.sql", "Class %u defined in `class_expansion_requirement` has incorrect expansion %u, skipped.", classID, expansion);
+                continue;
+            }
+
+            _classExpansionRequirementStore[classID] = expansion;
+
+            ++count;
+        }
+        while (result->NextRow());
+        TC_LOG_INFO("server.loading", ">> Loaded %u class expansion requirements in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+        TC_LOG_INFO("server.loading", ">> Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
+}
+
+void ObjectMgr::LoadRealmNames()
+{
+    uint32 oldMSTime = getMSTime();
+    _realmNameStore.clear();
+
+    //                                               0   1
+    QueryResult result = LoginDatabase.Query("SELECT id, name FROM `realmlist`");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 realm names. DB table `realmlist` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 realm = fields[0].GetUInt32();
+        std::string realmName = fields[1].GetString();
+
+        _realmNameStore[realm] = realmName;
+
+        ++count;
+    }
+    while (result->NextRow());
+    TC_LOG_INFO("server.loading", ">> Loaded %u realm names in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+std::string ObjectMgr::GetRealmName(uint32 realm) const
+{
+    RealmNameContainer::const_iterator iter = _realmNameStore.find(realm);
+    return iter != _realmNameStore.end() ? iter->second : "";
 }
