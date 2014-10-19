@@ -83,13 +83,13 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
 {
     for (SmartAIEventList::iterator i = mEvents.begin(); i != mEvents.end(); ++i)
     {
-        SMART_EVENT eventType = SMART_EVENT((*i).GetEventType());
+        SMART_EVENT eventType = SMART_EVENT(i->GetEventType());
         if (eventType == SMART_EVENT_LINK)//special handling
             continue;
 
-        if (eventType == e/* && (!(*i).event.event_phase_mask || IsInPhase((*i).event.event_phase_mask)) && !((*i).event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE && (*i).runOnce)*/)
+        if (eventType == e /*&& (!i->event.event_phase_mask || IsInPhase(i->event.event_phase_mask)) && !(i->event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE && i->runOnce)*/)
         {
-            ConditionList conds = sConditionMgr->GetConditionsForSmartEvent((*i).entryOrGuid, (*i).event_id, (*i).source_type);
+            ConditionList conds = sConditionMgr->GetConditionsForSmartEvent(i->entryOrGuid, i->event_id, i->source_type);
             ConditionSourceInfo info = ConditionSourceInfo(unit, GetBaseObject());
 
             if (sConditionMgr->IsObjectMeetToConditions(info, conds))
@@ -167,7 +167,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
                     if (IsCreature(*itr))
-                        sCreatureTextMgr->SendChat((*itr)->ToCreature(), uint8(e.action.talk.textGroupID), IsPlayer(GetLastInvoker())? GetLastInvoker() : 0);
+                        sCreatureTextMgr->SendChat((*itr)->ToCreature(), uint8(e.action.talk.textGroupID), IsPlayer(GetLastInvoker()) ? GetLastInvoker() : 0);
                     else if (IsPlayer(*itr) && me)
                     {
                         Unit* templastInvoker = GetLastInvoker();
@@ -2252,8 +2252,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
     if (e.link && e.link != e.event_id)
     {
-        SmartScriptHolder linked = FindLinkedEvent(e.link);
-        if (linked.GetActionType() && linked.GetEventType() == SMART_EVENT_LINK)
+        SmartScriptHolder& linked = SmartAIMgr::FindLinkedEvent(mEvents, e.link);
+        if (linked)
             ProcessEvent(linked, unit, var0, var1, bvar, spell, gob);
         else
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
@@ -2461,7 +2461,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 if (me && me->GetGUID() == (*itr)->GetGUID())
                     continue;
 
-                if (((e.target.unitRange.creature && (*itr)->ToCreature()->GetEntry() == e.target.unitRange.creature) || !e.target.unitRange.creature) && baseObject->IsInRange(*itr, (float)e.target.unitRange.minDist, (float)e.target.unitRange.maxDist))
+                if ((!e.target.unitRange.creature || (*itr)->ToCreature()->GetEntry() == e.target.unitRange.creature) && baseObject->IsInRange(*itr, float(e.target.unitRange.minDist), float(e.target.unitRange.maxDist)))
                     l->push_back(*itr);
             }
 
@@ -2480,7 +2480,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 if (me && me->GetGUID() == (*itr)->GetGUID())
                     continue;
 
-                if ((e.target.unitDistance.creature && (*itr)->ToCreature()->GetEntry() == e.target.unitDistance.creature) || !e.target.unitDistance.creature)
+                if (!e.target.unitDistance.creature || (*itr)->ToCreature()->GetEntry() == e.target.unitDistance.creature)
                     l->push_back(*itr);
             }
 
@@ -2499,7 +2499,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 if (go && go->GetGUID() == (*itr)->GetGUID())
                     continue;
 
-                if ((e.target.goDistance.entry && (*itr)->ToGameObject()->GetEntry() == e.target.goDistance.entry) || !e.target.goDistance.entry)
+                if (!e.target.goDistance.entry || (*itr)->ToGameObject()->GetEntry() == e.target.goDistance.entry)
                     l->push_back(*itr);
             }
 
@@ -2518,7 +2518,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 if (go && go->GetGUID() == (*itr)->GetGUID())
                     continue;
 
-                if (((e.target.goRange.entry && IsGameObject(*itr) && (*itr)->ToGameObject()->GetEntry() == e.target.goRange.entry) || !e.target.goRange.entry) && baseObject->IsInRange((*itr), (float)e.target.goRange.minDist, (float)e.target.goRange.maxDist))
+                if ((!e.target.goRange.entry && (*itr)->ToGameObject()->GetEntry() == e.target.goRange.entry) && baseObject->IsInRange(*itr, float(e.target.goRange.minDist), float(e.target.goRange.maxDist)))
                     l->push_back(*itr);
             }
 
@@ -2527,32 +2527,28 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
         }
         case SMART_TARGET_CREATURE_GUID:
         {
-            Creature* target = NULL;
             if (!scriptTrigger && !baseObject)
             {
                 TC_LOG_ERROR("sql.sql", "SMART_TARGET_CREATURE_GUID can not be used without invoker");
                 break;
             }
 
-            target = FindCreatureNear(scriptTrigger ? scriptTrigger : baseObject, e.target.unitGUID.dbGuid);
-
-            if (target && (!e.target.unitGUID.entry || target->GetEntry() == e.target.unitGUID.entry))
-                l->push_back(target);
+            if (Creature* target = FindCreatureNear(scriptTrigger ? scriptTrigger : baseObject, e.target.unitGUID.dbGuid))
+                if (!e.target.unitGUID.entry || target->GetEntry() == e.target.unitGUID.entry)
+                    l->push_back(target);
             break;
         }
         case SMART_TARGET_GAMEOBJECT_GUID:
         {
-            GameObject* target = NULL;
             if (!scriptTrigger && !baseObject)
             {
                 TC_LOG_ERROR("sql.sql", "SMART_TARGET_GAMEOBJECT_GUID can not be used without invoker");
                 break;
             }
 
-            target = FindGameObjectNear(scriptTrigger ? scriptTrigger : baseObject, e.target.goGUID.dbGuid);
-
-            if (target && (!e.target.goGUID.entry || target->GetEntry() == e.target.goGUID.entry))
-                l->push_back(target);
+            if (GameObject* target = FindGameObjectNear(scriptTrigger ? scriptTrigger : baseObject, e.target.goGUID.dbGuid))
+                if (!e.target.goGUID.entry || target->GetEntry() == e.target.goGUID.entry)
+                    l->push_back(target);
             break;
         }
         case SMART_TARGET_PLAYER_RANGE:
@@ -2591,26 +2587,21 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
         }
         case SMART_TARGET_CLOSEST_CREATURE:
         {
-            Creature* target = GetClosestCreatureWithEntry(baseObject, e.target.closest.entry, (float)(e.target.closest.dist ? e.target.closest.dist : 100), !e.target.closest.dead);
-            if (target)
+            if (Creature* target = GetClosestCreatureWithEntry(baseObject, e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100), !e.target.closest.dead))
                 l->push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
         {
-            GameObject* target = GetClosestGameObjectWithEntry(baseObject, e.target.closest.entry, (float)(e.target.closest.dist ? e.target.closest.dist : 100));
-            if (target)
+            if (GameObject* target = GetClosestGameObjectWithEntry(baseObject, e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100)))
                 l->push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_PLAYER:
         {
             if (me)
-            {
-                Player* target = me->SelectNearestPlayer((float)e.target.playerDistance.dist);
-                if (target)
+                if (Player* target = me->SelectNearestPlayer(float(e.target.playerDistance.dist)))
                     l->push_back(target);
-            }
             break;
         }
         case SMART_TARGET_OWNER_OR_SUMMONER:
@@ -2643,7 +2634,6 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
             if (me)
                 if (Unit* target = me->SelectNearestTarget(e.target.closestAttackable.maxDist, e.target.closestAttackable.playerOnly != 0))
                     l->push_back(target);
-
             break;
         }
         case SMART_TARGET_CLOSEST_FRIENDLY:
@@ -2651,7 +2641,6 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
             if (me)
                 if (Unit* target = DoFindClosestFriendlyInRange(e.target.closestFriendly.maxDist, e.target.closestFriendly.playerOnly != 0))
                     l->push_back(target);
-
             break;
         }
         case SMART_TARGET_POSITION:

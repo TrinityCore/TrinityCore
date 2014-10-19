@@ -184,7 +184,7 @@ void LFGGroupScript::OnRemoveMember(Group* group, ObjectGuid guid, RemoveMethod 
     }
 
     if (isLFG && state != LFG_STATE_FINISHED_DUNGEON) // Need more players to finish the dungeon
-        if (Player* leader = ObjectAccessor::FindPlayer(sLFGMgr->GetLeader(gguid)))
+        if (Player* leader = ObjectAccessor::FindConnectedPlayer(sLFGMgr->GetLeader(gguid)))
             leader->GetSession()->SendLfgOfferContinue(sLFGMgr->GetDungeon(gguid, false));
 }
 

@@ -212,7 +212,6 @@ class boss_anubarak_trial : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override
-
             {
                 if (!_intro)
                 {
