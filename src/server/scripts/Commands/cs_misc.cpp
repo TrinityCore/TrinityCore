@@ -511,13 +511,14 @@ public:
             handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE));
 
             // in point where GM stay
-            Player::SavePositionInDB(handler->GetSession()->GetPlayer()->GetMapId(),
+            SQLTransaction dummy;
+            Player::SavePositionInDB(WorldLocation(handler->GetSession()->GetPlayer()->GetMapId(),
                 handler->GetSession()->GetPlayer()->GetPositionX(),
                 handler->GetSession()->GetPlayer()->GetPositionY(),
                 handler->GetSession()->GetPlayer()->GetPositionZ(),
-                handler->GetSession()->GetPlayer()->GetOrientation(),
+                handler->GetSession()->GetPlayer()->GetOrientation()),
                 handler->GetSession()->GetPlayer()->GetZoneId(),
-                targetGuid);
+                targetGuid, dummy);
         }
 
         return true;
