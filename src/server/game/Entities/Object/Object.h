@@ -457,12 +457,23 @@ struct MovementInfo
 class WorldLocation : public Position
 {
     public:
-        explicit WorldLocation(uint32 _mapid = MAPID_INVALID, float _x = 0, float _y = 0, float _z = 0, float _o = 0)
-            : m_mapId(_mapid) { Relocate(_x, _y, _z, _o); }
-        WorldLocation(const WorldLocation &loc) : Position(loc) { WorldRelocate(loc); }
+        explicit WorldLocation(uint32 _mapId = MAPID_INVALID, float _x = 0.f, float _y = 0.f, float _z = 0.f, float _o = 0.f)
+            : Position(_x, _y, _z, _o), m_mapId(_mapId) { }
 
-        void WorldRelocate(const WorldLocation &loc)
-            { m_mapId = loc.GetMapId(); Relocate(loc); }
+        WorldLocation(WorldLocation const& loc)
+            : Position(loc), m_mapId(loc.GetMapId()) { }
+
+        void WorldRelocate(WorldLocation const& loc)
+        {
+            m_mapId = loc.GetMapId();
+            Relocate(loc);
+        }
+
+        void WorldRelocate(uint32 _mapId = MAPID_INVALID, float _x = 0.f, float _y = 0.f, float _z = 0.f, float _o = 0.f)
+        {
+            m_mapId = _mapId;
+            Relocate(_x, _y, _z, _o);
+        }
 
         WorldLocation GetWorldLocation() const
         {
