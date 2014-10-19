@@ -42,10 +42,12 @@ void Battlenet::WoWRealm::ListUnsubscribe::CallHandler(Session* session)
 
 void Battlenet::WoWRealm::JoinRequestV2::Read()
 {
+    ClientSeed = _stream.Read<uint32>(32);
+    _stream.Read<uint32>(20);
+    Realm.Region = _stream.Read<uint8>(8);
+    _stream.Read<uint16>(12);
     Realm.Battlegroup = _stream.Read<uint8>(8);
     Realm.Index = _stream.Read<uint32>(32);
-    Realm.Region = _stream.Read<uint8>(8);
-    ClientSeed = _stream.Read<uint32>(32);
 }
 
 std::string Battlenet::WoWRealm::JoinRequestV2::ToString() const
@@ -194,7 +196,6 @@ std::string Battlenet::WoWRealm::ToonReady::ToString() const
 
 void Battlenet::WoWRealm::JoinResponseV2::Write()
 {
-    _stream.Write(0, 27);
     _stream.Write(Response, 1);
     if (Response == SUCCESS)
     {
