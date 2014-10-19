@@ -1952,7 +1952,7 @@ void Player::InnEnter(time_t time, uint32 mapid, float x, float y, float z)
     time_inn_enter = time;
 }
 
-bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer)
+bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer)
 {
     //             0               1                2                3                 4                  5                       6                        7
     //    "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
@@ -1965,8 +1965,8 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
 
     ObjectGuid guid(HIGHGUID_PLAYER, fields[0].GetUInt32());
     std::string name = fields[1].GetString();
-    uint8 plrRace = fields[2].GetUInt8();
-    uint8 plrClass = fields[3].GetUInt8();
+    uint8 playerRace = fields[2].GetUInt8();
+    uint8 playerClass = fields[3].GetUInt8();
     uint8 gender = fields[4].GetUInt8();
     uint8 skin = uint8(fields[5].GetUInt32() & 0xFF);
     uint8 face = uint8((fields[5].GetUInt32() >> 8) & 0xFF);
@@ -2019,7 +2019,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     uint32 petLevel   = 0;
     uint32 petFamily  = 0;
     // show pet at selection character in character list only for non-ghost character
-    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (plrClass == CLASS_WARLOCK || plrClass == CLASS_HUNTER || plrClass == CLASS_DEATH_KNIGHT))
+    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (playerClass == CLASS_WARLOCK || playerClass == CLASS_HUNTER || playerClass == CLASS_DEATH_KNIGHT))
     {
         uint32 entry = fields[16].GetUInt32();
         CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
@@ -2032,27 +2032,34 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     }
 
     // Packet content flags
-    bitBuffer->WriteBit(guid[3]);
-    bitBuffer->WriteBit(guildGuid[1]);
-    bitBuffer->WriteBit(guildGuid[7]);
-    bitBuffer->WriteBit(guildGuid[2]);
-    bitBuffer->WriteBits(uint32(name.length()), 7);
-    bitBuffer->WriteBit(guid[4]);
-    bitBuffer->WriteBit(guid[7]);
-    bitBuffer->WriteBit(guildGuid[3]);
-    bitBuffer->WriteBit(guid[5]);
-    bitBuffer->WriteBit(guildGuid[6]);
-    bitBuffer->WriteBit(guid[1]);
-    bitBuffer->WriteBit(guildGuid[5]);
-    bitBuffer->WriteBit(guildGuid[4]);
-    bitBuffer->WriteBit(atLoginFlags & AT_LOGIN_FIRST);
-    bitBuffer->WriteBit(guid[0]);
-    bitBuffer->WriteBit(guid[2]);
-    bitBuffer->WriteBit(guid[6]);
-    bitBuffer->WriteBit(guildGuid[0]);
+    *dataBuffer << guid;
+    *dataBuffer << uint8(slot);                                 // List order
+    *dataBuffer << uint8(playerRace);                           // Race
+    *dataBuffer << uint8(playerClass);                          // Class
+    *dataBuffer << uint8(gender);                               // Gender
+    *dataBuffer << uint8(skin);                                 // Skin
+    *dataBuffer << uint8(face);                                 // Face
+    *dataBuffer << uint8(hairStyle);                            // Hair style
+    *dataBuffer << uint8(hairColor);                            // Hair color
+    *dataBuffer << uint8(facialHair);                           // Facial hair
+    *dataBuffer << uint8(level);                                // Level
+    *dataBuffer << uint32(zone);                                // Zone ids
+    *dataBuffer << uint32(mapId);                               // Map Id
+    *dataBuffer << float(y);                                    // Y
+    *dataBuffer << float(x);                                    // X
+    *dataBuffer << float(z);                                    // Z
+    *dataBuffer << guildGuid;
+    *dataBuffer << uint32(charFlags);                           // Character flag
+    *dataBuffer << uint32(customizationFlag);                   // Character customization flags
+    *dataBuffer << uint32(0);                                   // Character flags 3
+    *dataBuffer << uint32(petDisplayId);                        // Pet DisplayID
+    *dataBuffer << uint32(petLevel);                            // Pet level
+    *dataBuffer << uint32(petFamily);                           // Pet family
+
+    for (int i = 0; i < 2; i++)                                 // ProfessionIDs
+        *dataBuffer << uint32(0);
 
     // Character data
-    *dataBuffer << uint8(plrClass);                             // Class
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
         uint32 visualbase = slot * 2;
@@ -2060,9 +2067,9 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
         if (!proto)
         {
+            *dataBuffer << uint32(0);
+            *dataBuffer << uint32(0);
             *dataBuffer << uint8(0);
-            *dataBuffer << uint32(0);
-            *dataBuffer << uint32(0);
             continue;
         }
 
@@ -2080,47 +2087,15 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
                 break;
         }
 
-        *dataBuffer << uint8(proto->InventoryType);
         *dataBuffer << uint32(proto->DisplayInfoID);
         *dataBuffer << uint32(enchant ? enchant->aura_id : 0);
+        *dataBuffer << uint8(proto->InventoryType);
     }
 
-    *dataBuffer << uint32(petFamily);                           // Pet family
-    dataBuffer->WriteByteSeq(guildGuid[2]);
-    *dataBuffer << uint8(slot);                                 // List order
-    *dataBuffer << uint8(hairStyle);                            // Hair style
-    dataBuffer->WriteByteSeq(guildGuid[3]);
-    *dataBuffer << uint32(petDisplayId);                        // Pet DisplayID
-    *dataBuffer << uint32(charFlags);                           // Character flags
-    *dataBuffer << uint8(hairColor);                            // Hair color
-    dataBuffer->WriteByteSeq(guid[4]);
-    *dataBuffer << uint32(mapId);                               // Map Id
-    dataBuffer->WriteByteSeq(guildGuid[5]);
-    *dataBuffer << float(z);                                    // Z
-    dataBuffer->WriteByteSeq(guildGuid[6]);
-    *dataBuffer << uint32(petLevel);                            // Pet level
-    dataBuffer->WriteByteSeq(guid[3]);
-    *dataBuffer << float(y);                                    // Y
-    *dataBuffer << uint32(customizationFlag);                   // Character customization flags
-    *dataBuffer << uint8(facialHair);                           // Facial hair
-    dataBuffer->WriteByteSeq(guid[7]);
-    *dataBuffer << uint8(gender);                               // Gender
-    dataBuffer->append(name.c_str(), name.length());            // Name
-    *dataBuffer << uint8(face);                                 // Face
-    dataBuffer->WriteByteSeq(guid[0]);
-    dataBuffer->WriteByteSeq(guid[2]);
-    dataBuffer->WriteByteSeq(guildGuid[1]);
-    dataBuffer->WriteByteSeq(guildGuid[7]);
-    *dataBuffer << float(x);                                    // X
-    *dataBuffer << uint8(skin);                                 // Skin
-    *dataBuffer << uint8(plrRace);                              // Race
-    *dataBuffer << uint8(level);                                // Level
-    dataBuffer->WriteByteSeq(guid[6]);
-    dataBuffer->WriteByteSeq(guildGuid[4]);
-    dataBuffer->WriteByteSeq(guildGuid[0]);
-    dataBuffer->WriteByteSeq(guid[5]);
-    dataBuffer->WriteByteSeq(guid[1]);
-    *dataBuffer << uint32(zone);                                // Zone id
+    dataBuffer->WriteBits(uint32(name.length()), 6);
+    dataBuffer->WriteBit(atLoginFlags & AT_LOGIN_FIRST);
+    dataBuffer->WriteBit(0);                                    // BoostInProgress
+    dataBuffer->WriteString(name);                              // Name
     return true;
 }
 
@@ -5888,7 +5863,7 @@ void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
             ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
             ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
             ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
-                if (getClass() == CLASS_DEATH_KNIGHT)        
+                if (getClass() == CLASS_DEATH_KNIGHT)
                     UpdateAllRunesRegen();
             break;
         case CR_HASTE_RANGED:
