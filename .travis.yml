@@ -26,7 +26,9 @@ script:
   - mysql -utrinity -ptrinity auth < sql/base/auth_database.sql
   - mysql -utrinity -ptrinity characters < sql/base/characters_database.sql
   - mysql -utrinity -ptrinity world < sql/base/dev/world_database.sql
+  - mysql -utrinity -ptrinity hotfixes < sql/base/dev/hotfixes_database.sql
   - cat sql/updates/world/*.sql | mysql -utrinity -ptrinity world
+  - cat sql/updates/hotfixes/*.sql | mysql -utrinity -ptrinity hotfixes
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
   - make -j 10
