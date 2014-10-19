@@ -223,20 +223,16 @@ bool LoginQueryHolder::Initialize()
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
     uint32 charCount = 0;
-    ByteBuffer bitBuffer;
-    ByteBuffer dataBuffer;
+    WorldPacket data(SMSG_CHAR_ENUM);
+    data.WriteBit(1); // Success
+    data.WriteBit(0); // IsDeleted (used for character undelete list)
 
-    bitBuffer.WriteBits(0, 23);
-    bitBuffer.WriteBit(1);
     if (result)
     {
         _legitCharacters.clear();
 
         charCount = uint32(result->GetRowCount());
-        bitBuffer.reserve(24 * charCount / 8);
-        dataBuffer.reserve(charCount * 381);
-
-        bitBuffer.WriteBits(charCount, 17);
+        data.reserve(charCount * 450); // Guessed
 
         do
         {
@@ -244,7 +240,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", guid.ToString().c_str(), GetAccountId());
 
-            Player::BuildEnumData(result, &dataBuffer, &bitBuffer);
+            Player::BuildEnumData(result, &data);
 
             // Do not allow banned characters to log in
             if (!(*result)[20].GetUInt32())
@@ -255,15 +251,9 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         } while (result->NextRow());
     }
     else
-        bitBuffer.WriteBits(0, 17);
+        data << uint32(0); // CharCount
 
-    bitBuffer.FlushBits();
-
-    WorldPacket data(SMSG_CHAR_ENUM, 7 + bitBuffer.size() + dataBuffer.size());
-    data.append(bitBuffer);
-    if (charCount)
-        data.append(dataBuffer);
-
+    data << uint32(0); // FactionChangeRestrictions
     SendPacket(&data);
 }
 
@@ -289,17 +279,18 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
 void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 {
     std::string name;
-    uint8 race_, class_;
+    uint8 playerRace, playerClass, gender, skin, face, hairStyle, hairColor, facialHair, outfitId;
 
-    recvData >> name;
+    uint32 nameLength = recvData.ReadBits(6);
+    bool hasTempalte = recvData.ReadBit();
 
-    recvData >> race_;
-    recvData >> class_;
+    recvData >> playerRace >> playerClass >> gender >> skin;
+    recvData >> face >> hairStyle >> hairColor >> facialHair >> outfitId;
 
-    // extract other data required for player creating
-    uint8 gender, skin, face, hairStyle, hairColor, facialHair, outfitId;
-    recvData >> gender >> skin >> face;
-    recvData >> hairStyle >> hairColor >> facialHair >> outfitId;
+    std::string name = recvData.ReadString(nameLength);
+
+    if (hasTempalte)
+        recvData.read_skip<uint32>(); // Template from SMSG_AUTH_RESPONSE
 
     WorldPacket data(SMSG_CHAR_CREATE, 1);                  // returned with diff.values in all cases
 
@@ -309,7 +300,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         {
             bool disabled = false;
 
-            uint32 team = Player::TeamForRace(race_);
+            uint32 team = Player::TeamForRace(playerRace);
             switch (team)
             {
                 case ALLIANCE:
@@ -329,21 +320,21 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         }
     }
 
-    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
+    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(playerClass);
     if (!classEntry)
     {
         data << uint8(CHAR_CREATE_FAILED);
         SendPacket(&data);
-        TC_LOG_ERROR("network", "Class (%u) not found in DBC while creating new char for account (ID: %u): wrong DBC files or cheater?", class_, GetAccountId());
+        TC_LOG_ERROR("network", "Class (%u) not found in DBC while creating new char for account (ID: %u): wrong DBC files or cheater?", playerClass, GetAccountId());
         return;
     }
 
-    ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race_);
+    ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(playerRace);
     if (!raceEntry)
     {
         data << uint8(CHAR_CREATE_FAILED);
         SendPacket(&data);
-        TC_LOG_ERROR("network", "Race (%u) not found in DBC while creating new char for account (ID: %u): wrong DBC files or cheater?", race_, GetAccountId());
+        TC_LOG_ERROR("network", "Race (%u) not found in DBC while creating new char for account (ID: %u): wrong DBC files or cheater?", playerRace, GetAccountId());
         return;
     }
 
@@ -351,7 +342,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     if (raceEntry->expansion > Expansion())
     {
         data << uint8(CHAR_CREATE_EXPANSION);
-        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", Expansion(), GetAccountId(), raceEntry->expansion, race_);
+        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", Expansion(), GetAccountId(), raceEntry->expansion, playerRace);
         SendPacket(&data);
         return;
     }
@@ -360,7 +351,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     if (classEntry->expansion > Expansion())
     {
         data << uint8(CHAR_CREATE_EXPANSION_CLASS);
-        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", Expansion(), GetAccountId(), classEntry->expansion, class_);
+        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", Expansion(), GetAccountId(), classEntry->expansion, playerClass);
         SendPacket(&data);
         return;
     }
@@ -368,7 +359,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK))
     {
         uint32 raceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
-        if ((1 << (race_ - 1)) & raceMaskDisabled)
+        if ((1 << (playerRace - 1)) & raceMaskDisabled)
         {
             data << uint8(CHAR_CREATE_DISABLED);
             SendPacket(&data);
@@ -379,7 +370,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_CLASSMASK))
     {
         uint32 classMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
-        if ((1 << (class_ - 1)) & classMaskDisabled)
+        if ((1 << (playerClass - 1)) & classMaskDisabled)
         {
             data << uint8(CHAR_CREATE_DISABLED);
             SendPacket(&data);
@@ -412,7 +403,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (class_ == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_HEROIC_CHARACTER))
+    if (playerClass == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_HEROIC_CHARACTER))
     {
         // speedup check for heroic class disabled case
         uint32 heroic_free_slots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
@@ -434,7 +425,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     }
 
     delete _charCreateCallback.GetParam();  // Delete existing if any, to make the callback chain reset to stage 0
-    _charCreateCallback.SetParam(new CharacterCreateInfo(name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId, recvData));
+    _charCreateCallback.SetParam(new CharacterCreateInfo(name, playerRace, playerClass, gender, skin, face, hairStyle, hairColor, facialHair, outfitId, recvData));
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     stmt->setString(0, name);
     _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
@@ -722,6 +713,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
     recvData >> guid;
+
     // Initiating
     uint32 initAccountId = GetAccountId();
 
