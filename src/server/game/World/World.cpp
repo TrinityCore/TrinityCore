@@ -2935,7 +2935,8 @@ void World::InitCurrencyResetTime()
 
     // generate time by config
     time_t curTime = time(NULL);
-    tm localTm = *localtime(&curTime);
+    tm localTm;
+    localtime_r(&curTime, &localTm);
 
     localTm.tm_wday = getIntConfig(CONFIG_CURRENCY_RESET_DAY);
     localTm.tm_hour = getIntConfig(CONFIG_CURRENCY_RESET_HOUR);
