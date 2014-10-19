@@ -223,20 +223,16 @@ bool LoginQueryHolder::Initialize()
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
     uint32 charCount = 0;
-    ByteBuffer bitBuffer;
-    ByteBuffer dataBuffer;
+    WorldPacket data(SMSG_CHAR_ENUM);
+    data.WriteBit(1); // Success
+    data.WriteBit(0); // IsDeleted (used for character undelete list)
 
-    bitBuffer.WriteBits(0, 23);
-    bitBuffer.WriteBit(1);
     if (result)
     {
         _legitCharacters.clear();
 
         charCount = uint32(result->GetRowCount());
-        bitBuffer.reserve(24 * charCount / 8);
-        dataBuffer.reserve(charCount * 381);
-
-        bitBuffer.WriteBits(charCount, 17);
+        data.reserve(charCount * 450); // Guessed
 
         do
         {
@@ -244,7 +240,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", guid.ToString().c_str(), GetAccountId());
 
-            Player::BuildEnumData(result, &dataBuffer, &bitBuffer);
+            Player::BuildEnumData(result, &data);
 
             // Do not allow banned characters to log in
             if (!(*result)[20].GetUInt32())
@@ -255,15 +251,9 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         } while (result->NextRow());
     }
     else
-        bitBuffer.WriteBits(0, 17);
+        data << uint32(0); // CharCount
 
-    bitBuffer.FlushBits();
-
-    WorldPacket data(SMSG_CHAR_ENUM, 7 + bitBuffer.size() + dataBuffer.size());
-    data.append(bitBuffer);
-    if (charCount)
-        data.append(dataBuffer);
-
+    data << uint32(0); // FactionChangeRestrictions
     SendPacket(&data);
 }
 
@@ -290,8 +280,10 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 {
     CharacterCreateInfo createInfo;
 
-    recvData >> createInfo.Name
-             >> createInfo.Race
+    uint32 nameLength = recvData.ReadBits(6);
+    bool hasTempalte = recvData.ReadBit();
+
+    recvData >> createInfo.Race
              >> createInfo.Class
              >> createInfo.Gender
              >> createInfo.Skin
@@ -300,6 +292,12 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
              >> createInfo.HairColor
              >> createInfo.FacialHair
              >> createInfo.OutfitId;
+
+    createInfo.Name = recvData.ReadString(nameLength);
+
+    if (hasTempalte)
+        recvData.read_skip<uint32>(); // Template from SMSG_AUTH_RESPONSE
+
 
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_TEAMMASK))
     {
@@ -681,6 +679,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
     recvData >> guid;
+
     // Initiating
     uint32 initAccountId = GetAccountId();
 

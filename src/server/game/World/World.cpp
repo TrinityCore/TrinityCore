@@ -1900,14 +1900,20 @@ void World::SetInitialWorldSettings()
 
     LoadCharacterNameData();
 
-    TC_LOG_INFO("misc", "Initializing Opcodes...");
-    opcodeTable.Initialize();
-
     TC_LOG_INFO("misc", "Loading hotfix info...");
     sObjectMgr->LoadHotfixData();
 
     TC_LOG_INFO("server.loading", "Loading missing KeyChains...");
     sObjectMgr->LoadMissingKeyChains();
+
+    TC_LOG_INFO("server.loading", "Loading race and class expansion requirements...");
+    sObjectMgr->LoadRaceAndClassExpansionRequirements();
+
+    TC_LOG_INFO("server.loading", "Loading realm names...");
+    sObjectMgr->LoadRealmNames();
+
+    TC_LOG_INFO("misc", "Initializing Opcodes...");
+    opcodeTable.Initialize();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
