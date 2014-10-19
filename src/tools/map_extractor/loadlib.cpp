@@ -95,6 +95,7 @@ u_map_fcc InterestingChunks[] = {
     { 'O', '2', 'H', 'M' },
     { 'K', 'N', 'C', 'M' },
     { 'T', 'V', 'C', 'M' },
+    { 'O', 'M', 'W', 'M' },
     { 'Q', 'L', 'C', 'M' }
 };
 
@@ -113,10 +114,9 @@ void ChunkedFile::parseChunks()
     while (ptr < GetData() + GetDataSize())
     {
         u_map_fcc header = *(u_map_fcc*)ptr;
-        uint32 size = 0;
         if (IsInterestingChunk(header))
         {
-            size = *(uint32*)(ptr + 4);
+            uint32 size = *(uint32*)(ptr + 4);
             if (size <= data_size)
             {
                 std::swap(header.fcc_txt[0], header.fcc_txt[3]);
@@ -126,10 +126,12 @@ void ChunkedFile::parseChunks()
                 chunk->parseSubChunks();
                 chunks.insert({ std::string(header.fcc_txt, 4), chunk });
             }
-        }
 
-        // move to next chunk
-        ptr += size + 8;
+            // move to next chunk
+            ptr += size + 8;
+        }
+        else
+            ++ptr;
     }
 }
 
@@ -156,10 +158,9 @@ void FileChunk::parseSubChunks()
     while (ptr < data + size)
     {
         u_map_fcc header = *(u_map_fcc*)ptr;
-        uint32 subsize = 0;
         if (IsInterestingChunk(header))
         {
-            subsize = *(uint32*)(ptr + 4);
+            uint32 subsize = *(uint32*)(ptr + 4);
             if (subsize < size)
             {
                 std::swap(header.fcc_txt[0], header.fcc_txt[3]);
@@ -169,10 +170,12 @@ void FileChunk::parseSubChunks()
                 chunk->parseSubChunks();
                 subchunks.insert({ std::string(header.fcc_txt, 4), chunk });
             }
-        }
 
-        // move to next chunk
-        ptr += subsize + 8;
+            // move to next chunk
+            ptr += subsize + 8;
+        }
+        else
+            ++ptr;
     }
 }
 
