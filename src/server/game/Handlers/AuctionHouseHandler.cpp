@@ -311,7 +311,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->deposit = deposit;
         AH->auctionHouseEntry = auctionHouseEntry;
 
-        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
+        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer " UI64FMTD " with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
             _player->GetName().c_str(), _player->GetGUIDLow(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUIDLow(), AH->auctioneer, item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
         sAuctionMgr->AddAItem(item);
         auctionHouse->AddAuction(AH);
@@ -359,7 +359,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->deposit = deposit;
         AH->auctionHouseEntry = auctionHouseEntry;
 
-        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
+        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer " UI64FMTD " with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
             _player->GetName().c_str(), _player->GetGUIDLow(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUIDLow(), AH->auctioneer, newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
         sAuctionMgr->AddAItem(newItem);
         auctionHouse->AddAuction(AH);
@@ -497,7 +497,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, price);
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
-        stmt->setUInt32(0, auction->bidder);
+        stmt->setUInt64(0, auction->bidder);
         stmt->setUInt32(1, auction->bid);
         stmt->setUInt32(2, auction->Id);
         trans->Append(stmt);
@@ -584,7 +584,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
         }
         else
         {
-            TC_LOG_ERROR("network", "Auction id: %u got non existing item (item guid : %u)!", auction->Id, auction->itemGUIDLow);
+            TC_LOG_ERROR("network", "Auction id: %u got non existing item (item guid : " UI64FMTD ")!", auction->Id, auction->itemGUIDLow);
             SendAuctionCommandResult(NULL, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
             return;
         }

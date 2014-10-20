@@ -73,7 +73,7 @@ MailSender::MailSender(Player* sender)
 
 MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_lowguid(receiver->GetGUIDLow()) { }
 
-MailReceiver::MailReceiver(Player* receiver, uint32 receiver_lowguid) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)
+MailReceiver::MailReceiver(Player* receiver, uint64 receiver_lowguid) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)
 {
     ASSERT(!receiver || receiver->GetGUIDLow() == receiver_lowguid);
 }

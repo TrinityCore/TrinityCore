@@ -64,16 +64,16 @@ enum MailAuctionAnswers
 struct AuctionEntry
 {
     uint32 Id;
-    uint32 auctioneer;                                      // creature low guid
-    uint32 itemGUIDLow;
+    uint64 auctioneer;                                      // creature low guid
+    uint64 itemGUIDLow;
     uint32 itemEntry;
     uint32 itemCount;
-    uint32 owner;
+    uint64 owner;
     uint32 startbid;                                        //maybe useless
     uint32 bid;
     uint32 buyout;
     time_t expire_time;
-    uint32 bidder;
+    uint64 bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
     uint32 factionTemplateId;
@@ -88,7 +88,7 @@ struct AuctionEntry
     void SaveToDB(SQLTransaction& trans) const;
     bool LoadFromDB(Field* fields);
     std::string BuildAuctionMailSubject(MailAuctionAnswers response) const;
-    static std::string BuildAuctionMailBody(uint32 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut);
+    static std::string BuildAuctionMailBody(uint64 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut);
 
 };
 
@@ -145,12 +145,12 @@ class AuctionHouseMgr
             return &instance;
         }
 
-        typedef std::unordered_map<uint32, Item*> ItemMap;
+        typedef std::unordered_map<uint64, Item*> ItemMap;
 
         AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
         AuctionHouseObject* GetBidsMap(uint32 factionTemplateId);
 
-        Item* GetAItem(uint32 id)
+        Item* GetAItem(uint64 id)
         {
             ItemMap::const_iterator itr = mAitems.find(id);
             if (itr != mAitems.end())
@@ -177,7 +177,7 @@ class AuctionHouseMgr
         void LoadAuctions();
 
         void AddAItem(Item* it);
-        bool RemoveAItem(uint32 id, bool deleteItem = false);
+        bool RemoveAItem(uint64 id, bool deleteItem = false);
 
         void Update();
 

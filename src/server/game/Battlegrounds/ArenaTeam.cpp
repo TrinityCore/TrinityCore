@@ -63,13 +63,13 @@ bool ArenaTeam::Create(ObjectGuid captainGuid, uint8 type, std::string const& te
     EmblemColor = emblemColor;
     BorderStyle = borderStyle;
     BorderColor = borderColor;
-    uint32 captainLowGuid = captainGuid.GetCounter();
+    uint64 captainLowGuid = captainGuid.GetCounter();
 
     // Save arena team to db
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_TEAM);
     stmt->setUInt32(0, TeamId);
     stmt->setString(1, TeamName);
-    stmt->setUInt32(2, captainLowGuid);
+    stmt->setUInt64(2, captainLowGuid);
     stmt->setUInt8(3, Type);
     stmt->setUInt16(4, Stats.Rating);
     stmt->setUInt32(5, BackgroundColor);
@@ -82,7 +82,7 @@ bool ArenaTeam::Create(ObjectGuid captainGuid, uint8 type, std::string const& te
     // Add captain as member
     AddMember(CaptainGuid);
 
-    TC_LOG_DEBUG("bg.arena", "New ArenaTeam created [Id: %u, Name: %s] [Type: %u] [Captain low GUID: %u]", GetId(), GetName().c_str(), GetType(), captainLowGuid);
+    TC_LOG_DEBUG("bg.arena", "New ArenaTeam created [Id: %u, Name: %s] [Type: %u] [Captain low GUID: " UI64FMTD "]", GetId(), GetName().c_str(), GetType(), captainLowGuid);
     return true;
 }
 
@@ -165,7 +165,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
     // Save player's arena team membership to db
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_TEAM_MEMBER);
     stmt->setUInt32(0, TeamId);
-    stmt->setUInt32(1, playerGuid.GetCounter());
+    stmt->setUInt64(1, playerGuid.GetCounter());
     CharacterDatabase.Execute(stmt);
 
     // Inform player if online
@@ -294,7 +294,7 @@ void ArenaTeam::SetCaptain(ObjectGuid guid)
 
     // Update database
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_CAPTAIN);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     stmt->setUInt32(1, GetId());
     CharacterDatabase.Execute(stmt);
 
@@ -335,7 +335,7 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARENA_TEAM_MEMBER);
         stmt->setUInt32(0, GetId());
-        stmt->setUInt32(1, guid.GetCounter());
+        stmt->setUInt64(1, guid.GetCounter());
         CharacterDatabase.Execute(stmt);
     }
 }
@@ -854,11 +854,11 @@ void ArenaTeam::SaveToDB()
         stmt->setUInt16(3, itr->SeasonGames);
         stmt->setUInt16(4, itr->SeasonWins);
         stmt->setUInt32(5, GetId());
-        stmt->setUInt32(6, itr->Guid.GetCounter());
+        stmt->setUInt64(6, itr->Guid.GetCounter());
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHARACTER_ARENA_STATS);
-        stmt->setUInt32(0, itr->Guid.GetCounter());
+        stmt->setUInt64(0, itr->Guid.GetCounter());
         stmt->setUInt8(1, GetSlot());
         stmt->setUInt16(2, itr->MatchMakerRating);
         trans->Append(stmt);

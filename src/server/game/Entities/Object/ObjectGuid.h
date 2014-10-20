@@ -87,29 +87,29 @@ class ObjectGuid
     public:
         static ObjectGuid const Empty;
 
-        ObjectGuid() { _data._guid = UI64LIT(0); }
-        explicit ObjectGuid(uint64 guid)  { _data._guid = guid; }
-        ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
-        ObjectGuid(HighGuid hi, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
+        ObjectGuid() { _guid = UI64LIT(0); }
+        explicit ObjectGuid(uint64 guid)  { _guid = guid; }
+        ObjectGuid(HighGuid hi, uint32 entry, uint64 counter) { _guid = counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
+        ObjectGuid(HighGuid hi, uint64 counter) { _guid = counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
 
-        operator uint64() const { return _data._guid; }
-        PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
+        operator uint64() const { return _guid; }
+        DECLSPEC_DEPRECATED PackedGuidReader ReadAsPacked() ATTR_DEPRECATED { return PackedGuidReader(*this); }
 
-        void Set(uint64 guid) { _data._guid = guid; }
-        void Clear() { _data._guid = 0; }
+        void Set(uint64 guid) { _guid = guid; }
+        void Clear() { _guid = 0; }
 
-        PackedGuid WriteAsPacked() const;
+        DECLSPEC_DEPRECATED PackedGuid WriteAsPacked() const ATTR_DEPRECATED;
 
-        uint64   GetRawValue() const { return _data._guid; }
+        uint64   GetRawValue() const { return _guid; }
         HighGuid GetHigh() const
         {
-            uint32 temp = ((uint64(_data._guid) >> 48) & 0x0000FFFF);
+            uint32 temp = ((uint64(_guid) >> 48) & 0x0000FFFF);
             return HighGuid((temp == HIGHGUID_CORPSE || temp == HIGHGUID_AREATRIGGER) ? temp : ((temp >> 4) & 0x00000FFF));
         }
-        uint32   GetEntry() const { return HasEntry() ? uint32((_data._guid >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
+        uint32   GetEntry() const { return HasEntry() ? uint32((_guid >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
         uint32   GetCounter()  const
         {
-            return uint32(_data._guid & UI64LIT(0x00000000FFFFFFFF));
+            return uint32(_guid & UI64LIT(0x00000000FFFFFFFF));
         }
 
         static uint32 GetMaxCounter(HighGuid /*high*/)
@@ -119,19 +119,19 @@ class ObjectGuid
 
         uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
-        uint8& operator[](uint32 index)
+        DECLSPEC_DEPRECATED uint8& operator[](uint32 index) ATTR_DEPRECATED
         {
             ASSERT(index < sizeof(uint64));
-            return _data._bytes[index];
+            return ((uint8*)&_guid)[index];
         }
 
-        uint8 const& operator[](uint32 index) const
+        DECLSPEC_DEPRECATED uint8 const& operator[](uint32 index) const ATTR_DEPRECATED
         {
             ASSERT(index < sizeof(uint64));
-            return _data._bytes[index];
+            return ((uint8 const*)&_guid)[index];
         }
 
-        bool IsEmpty()             const { return _data._guid == 0; }
+        bool IsEmpty()             const { return _guid == 0; }
         bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT; }
         bool IsPet()               const { return GetHigh() == HIGHGUID_PET; }
         bool IsVehicle()           const { return GetHigh() == HIGHGUID_VEHICLE; }
@@ -214,14 +214,8 @@ class ObjectGuid
         bool HasEntry() const { return HasEntry(GetHigh()); }
 
         explicit ObjectGuid(uint32 const&) = delete;                 // no implementation, used to catch wrong type assignment
-        ObjectGuid(HighGuid, uint32, uint64 counter) = delete;       // no implementation, used to catch wrong type assignment
-        ObjectGuid(HighGuid, uint64 counter) = delete;               // no implementation, used to catch wrong type assignment
 
-        union
-        {
-            uint64 _guid;
-            uint8 _bytes[sizeof(uint64)];
-        } _data;
+        uint64 _guid;
 };
 
 // Some Shared defines
@@ -255,14 +249,14 @@ template<HighGuid high>
 class ObjectGuidGenerator
 {
     public:
-        explicit ObjectGuidGenerator(uint32 start = 1) : _nextGuid(start) { }
+        explicit ObjectGuidGenerator(uint64 start = 1) : _nextGuid(start) { }
 
         void Set(uint32 val) { _nextGuid = val; }
-        uint32 Generate();
-        uint32 GetNextAfterMaxUsed() const { return _nextGuid; }
+        uint64 Generate();
+        uint64 GetNextAfterMaxUsed() const { return _nextGuid; }
 
     private:
-        uint32 _nextGuid;
+        uint64 _nextGuid;
 };
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);

@@ -7638,7 +7638,7 @@ void Player::SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)
 uint32 Player::GetArenaTeamIdFromDB(ObjectGuid guid, uint8 type)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ARENA_TEAM_ID_BY_PLAYER_GUID);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     stmt->setUInt8(1, type);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -21453,7 +21453,7 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
 void Player::LeaveAllArenaTeams(ObjectGuid guid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_ARENA_TEAMS);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)

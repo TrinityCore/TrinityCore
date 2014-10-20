@@ -282,8 +282,8 @@ public:
             do
             {
                 Field* fields           = result->Fetch();
-                uint32 itemGuid         = fields[0].GetUInt32();
-                uint32 owner            = fields[1].GetUInt32();
+                uint64 itemGuid         = fields[0].GetUInt64();
+                uint64 owner            = fields[1].GetUInt64();
                 uint32 ownerAccountId   = fields[2].GetUInt32();
                 std::string ownerName   = fields[3].GetString();
 
