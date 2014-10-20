@@ -127,7 +127,7 @@ DROP TABLE IF EXISTS `arena_team`;
 CREATE TABLE `arena_team` (
   `arenaTeamId` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(24) NOT NULL,
-  `captainGuid` int(10) unsigned NOT NULL DEFAULT '0',
+  `captainGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `rating` smallint(5) unsigned NOT NULL DEFAULT '0',
   `seasonGames` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -162,7 +162,7 @@ DROP TABLE IF EXISTS `arena_team_member`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `arena_team_member` (
   `arenaTeamId` int(10) unsigned NOT NULL DEFAULT '0',
-  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `weekGames` smallint(5) unsigned NOT NULL DEFAULT '0',
   `weekWins` smallint(5) unsigned NOT NULL DEFAULT '0',
   `seasonGames` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -190,12 +190,12 @@ DROP TABLE IF EXISTS `auctionhouse`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `auctionhouse` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
-  `auctioneerguid` int(10) unsigned NOT NULL DEFAULT '0',
-  `itemguid` int(10) unsigned NOT NULL DEFAULT '0',
-  `itemowner` int(10) unsigned NOT NULL DEFAULT '0',
+  `auctioneerguid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `itemguid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `itemowner` bigint(20) unsigned NOT NULL DEFAULT '0',
   `buyoutprice` int(10) unsigned NOT NULL DEFAULT '0',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
-  `buyguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `buyguid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `lastbid` int(10) unsigned NOT NULL DEFAULT '0',
   `startbid` int(10) unsigned NOT NULL DEFAULT '0',
   `deposit` int(10) unsigned NOT NULL DEFAULT '0',

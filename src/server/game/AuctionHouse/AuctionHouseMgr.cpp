@@ -363,7 +363,7 @@ void AuctionHouseMgr::AddAItem(Item* it)
     mAitems[it->GetGUIDLow()] = it;
 }
 
-bool AuctionHouseMgr::RemoveAItem(uint32 id, bool deleteItem)
+bool AuctionHouseMgr::RemoveAItem(uint64 id, bool deleteItem)
 {
     ItemMap::iterator i = mAitems.find(id);
     if (i == mAitems.end())
@@ -635,7 +635,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
     Item* item = sAuctionMgr->GetAItem(itemGUIDLow);
     if (!item)
     {
-        TC_LOG_ERROR("misc", "AuctionEntry::BuildAuctionInfo: Auction %u has a non-existent item: %u", Id, itemGUIDLow);
+        TC_LOG_ERROR("misc", "AuctionEntry::BuildAuctionInfo: Auction %u has a non-existent item: " UI64FMTD, Id, itemGUIDLow);
         return false;
     }
     data << uint32(Id);
@@ -688,12 +688,12 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION);
     stmt->setUInt32(0, Id);
-    stmt->setUInt32(1, auctioneer);
-    stmt->setUInt32(2, itemGUIDLow);
-    stmt->setUInt32(3, owner);
+    stmt->setUInt64(1, auctioneer);
+    stmt->setUInt64(2, itemGUIDLow);
+    stmt->setUInt64(3, owner);
     stmt->setUInt32(4, buyout);
     stmt->setUInt32(5, uint32(expire_time));
-    stmt->setUInt32(6, bidder);
+    stmt->setUInt64(6, bidder);
     stmt->setUInt32(7, bid);
     stmt->setUInt32(8, startbid);
     stmt->setUInt32(9, deposit);
@@ -703,14 +703,14 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
 bool AuctionEntry::LoadFromDB(Field* fields)
 {
     Id = fields[0].GetUInt32();
-    auctioneer = fields[1].GetUInt32();
-    itemGUIDLow = fields[2].GetUInt32();
+    auctioneer = fields[1].GetUInt64();
+    itemGUIDLow = fields[2].GetUInt64();
     itemEntry = fields[3].GetUInt32();
     itemCount = fields[4].GetUInt32();
-    owner = fields[5].GetUInt32();
+    owner = fields[5].GetUInt64();
     buyout = fields[6].GetUInt32();
     expire_time = fields[7].GetUInt32();
-    bidder = fields[8].GetUInt32();
+    bidder = fields[8].GetUInt64();
     bid = fields[9].GetUInt32();
     startbid = fields[10].GetUInt32();
     deposit = fields[11].GetUInt32();
@@ -718,14 +718,14 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     CreatureData const* auctioneerData = sObjectMgr->GetCreatureData(auctioneer);
     if (!auctioneerData)
     {
-        TC_LOG_ERROR("misc", "Auction %u has not a existing auctioneer (GUID : %u)", Id, auctioneer);
+        TC_LOG_ERROR("misc", "Auction %u has not a existing auctioneer (GUID : " UI64FMTD ")", Id, auctioneer);
         return false;
     }
 
     CreatureTemplate const* auctioneerInfo = sObjectMgr->GetCreatureTemplate(auctioneerData->id);
     if (!auctioneerInfo)
     {
-        TC_LOG_ERROR("misc", "Auction %u has not a existing auctioneer (GUID : %u Entry: %u)", Id, auctioneer, auctioneerData->id);
+        TC_LOG_ERROR("misc", "Auction %u has not a existing auctioneer (GUID : " UI64FMTD " Entry: %u)", Id, auctioneer, auctioneerData->id);
         return false;
     }
 
@@ -733,7 +733,7 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(factionTemplateId);
     if (!auctionHouseEntry)
     {
-        TC_LOG_ERROR("misc", "Auction %u has auctioneer (GUID : %u Entry: %u) with wrong faction %u", Id, auctioneer, auctioneerData->id, factionTemplateId);
+        TC_LOG_ERROR("misc", "Auction %u has auctioneer (GUID : " UI64FMTD " Entry: %u) with wrong faction %u", Id, auctioneer, auctioneerData->id, factionTemplateId);
         return false;
     }
 
@@ -741,7 +741,7 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     // and itemEntry in fact (GetAItem will fail if problematic in result check in AuctionHouseMgr::LoadAuctionItems)
     if (!sAuctionMgr->GetAItem(itemGUIDLow))
     {
-        TC_LOG_ERROR("misc", "Auction %u has not a existing item : %u", Id, itemGUIDLow);
+        TC_LOG_ERROR("misc", "Auction %u has not a existing item : " UI64FMTD, Id, itemGUIDLow);
         return false;
     }
     return true;
@@ -753,7 +753,7 @@ std::string AuctionEntry::BuildAuctionMailSubject(MailAuctionAnswers response) c
     return strm.str();
 }
 
-std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut)
+std::string AuctionEntry::BuildAuctionMailBody(uint64 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut)
 {
     std::ostringstream strm;
     strm.width(16);

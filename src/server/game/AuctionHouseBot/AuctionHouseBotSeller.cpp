@@ -906,7 +906,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         items = sAuctionBotConfig->GetItemPerCycleNormal();
 
     uint32 houseid = 0;
-    uint32 auctioneer = 0;
+    uint64 auctioneer = 0;
     switch (config.GetHouseType())
     {
         case AUCTION_HOUSE_ALLIANCE:
