@@ -334,7 +334,7 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
     return true;
 }
 
-void Log::outCharDump(char const* str, uint32 accountId, uint32 guid, char const* name)
+void Log::outCharDump(char const* str, uint32 accountId, uint64 guid, char const* name)
 {
     if (!str || !ShouldLog("entities.player.dump", LOG_LEVEL_INFO))
         return;

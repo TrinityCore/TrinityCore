@@ -82,7 +82,7 @@ public:
 
     void Cancel()
     {
-        _queueLock.lock();
+        std::unique_lock<std::mutex> lock(_queueLock);
 
         while (!_queue.empty())
         {
@@ -94,8 +94,6 @@ public:
         }
 
         _shutdown = true;
-
-        _queueLock.unlock();
 
         _condition.notify_all();
     }

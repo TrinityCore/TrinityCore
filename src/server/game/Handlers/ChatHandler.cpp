@@ -289,7 +289,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 break;
             }
 
-            Player* receiver = sObjectAccessor->FindPlayerByName(to);
+            Player* receiver = ObjectAccessor::FindConnectedPlayerByName(to);
             if (!receiver || (lang != LANG_ADDON && !receiver->isAcceptWhispers() && receiver->GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS) && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
             {
                 SendPlayerNotFoundNotice(to);
@@ -674,7 +674,7 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
     recvData >> iguid;
     recvData >> unk;                                       // probably related to spam reporting
 
-    Player* player = ObjectAccessor::FindPlayer(iguid);
+    Player* player = ObjectAccessor::FindConnectedPlayer(iguid);
     if (!player || !player->GetSession())
         return;
 
