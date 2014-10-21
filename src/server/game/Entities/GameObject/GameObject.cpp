@@ -1713,7 +1713,7 @@ void GameObject::Use(Unit* user)
                 float x_i = GetPositionX() + relativeDistance * std::cos(orthogonalOrientation);
                 float y_i = GetPositionY() + relativeDistance * std::sin(orthogonalOrientation);
 
-                if (itr->second)
+                if (!itr->second.IsEmpty())
                 {
                     if (Player* ChairUser = ObjectAccessor::GetPlayer(*this, itr->second))
                     {
@@ -1937,7 +1937,7 @@ void GameObject::Use(Unit* user)
             GameObjectTemplate const* info = GetGOInfo();
 
             Player* m_ritualOwner = nullptr;
-            if (m_ritualOwnerGUID)
+            if (!m_ritualOwnerGUID.IsEmpty())
                 m_ritualOwner = ObjectAccessor::FindPlayer(m_ritualOwnerGUID);
 
             // ritual owner is set for GO's without owner (not summoned)

@@ -776,7 +776,7 @@ void Channel::Invite(Player const* player, std::string const& newname)
 
 void Channel::SetOwner(ObjectGuid guid, bool exclaim)
 {
-    if (_ownerGuid)
+    if (!_ownerGuid.IsEmpty())
     {
         auto itr = _playersStore.find(_ownerGuid);
         if (itr != _playersStore.end())
@@ -784,7 +784,7 @@ void Channel::SetOwner(ObjectGuid guid, bool exclaim)
     }
 
     _ownerGuid = guid;
-    if (_ownerGuid)
+    if (!_ownerGuid.IsEmpty())
     {
         uint8 oldFlag = GetPlayerFlags(_ownerGuid);
         auto itr = _playersStore.find(_ownerGuid);

@@ -702,7 +702,7 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
         // broadcast realm first reached
         WorldPacket data(SMSG_SERVER_FIRST_ACHIEVEMENT, GetPlayer()->GetName().size() + 1 + 8 + 4 + 4);
         data << GetPlayer()->GetName();
-        data << uint64(GetPlayer()->GetGUID());
+        data << GetPlayer()->GetGUID();
         data << uint32(achievement->ID);
 
         std::size_t linkTypePos = data.wpos();

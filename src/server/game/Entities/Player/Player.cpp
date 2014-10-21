@@ -2173,7 +2173,7 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFl
         return nullptr;
 
     // not allow interaction under control, but allow with own pets
-    if (creature->GetCharmerGUID())
+    if (!creature->GetCharmerGUID().IsEmpty())
         return nullptr;
 
     // not unfriendly/hostile
@@ -8220,8 +8220,9 @@ void Player::SendLootRelease(ObjectGuid guid) const
 
 void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 {
-    if (ObjectGuid lguid = GetLootGUID())
-        m_session->DoLootRelease(lguid);
+    ObjectGuid currentLootGuid = GetLootGUID();
+    if (!currentLootGuid.IsEmpty())
+        m_session->DoLootRelease(currentLootGuid);
 
     Loot* loot;
     PermissionTypes permission = ALL_PERMISSION;
@@ -13064,7 +13065,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
     // if player is moving bags and is looting an item inside this bag
     // release the loot
-    if (GetLootGUID())
+    if (!GetLootGUID().IsEmpty())
     {
         bool released = false;
         if (IsBagPos(src))
@@ -16271,7 +16272,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid /*= ObjectGuid::E
     uint16 addkillcount = 1;
     uint32 real_entry = entry;
     Creature* killed = nullptr;
-    if (guid)
+    if (!guid.IsEmpty())
     {
         killed = GetMap()->GetCreature(guid);
         if (killed && killed->GetEntry())
@@ -20440,7 +20441,8 @@ void Player::UpdateDuelFlag(time_t currTime)
 
 Pet* Player::GetPet() const
 {
-    if (ObjectGuid pet_guid = GetPetGUID())
+    ObjectGuid pet_guid = GetPetGUID();
+    if (!pet_guid.IsEmpty())
     {
         if (!pet_guid.IsPet())
             return nullptr;
@@ -20597,10 +20599,10 @@ void Player::StopCastingCharm()
             }
         }
     }
-    if (GetCharmedGUID())
+    if (!GetCharmedGUID().IsEmpty())
         charm->RemoveCharmAuras();
 
-    if (GetCharmedGUID())
+    if (!GetCharmedGUID().IsEmpty())
     {
         TC_LOG_FATAL("entities.player", "Player::StopCastingCharm: Player '{}' ({}) is not able to uncharm unit ({})", GetName(), GetGUID().ToString(), GetCharmedGUID().ToString());
         if (!charm->GetCharmerGUID().IsEmpty())
@@ -22241,7 +22243,8 @@ bool Player::CanAlwaysSee(WorldObject const* obj) const
     if (GetCharmedOrSelf() == obj)
         return true;
 
-    if (ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT))
+    ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT);
+    if (!guid.IsEmpty())
         if (obj->GetGUID() == guid)
             return true;
 
@@ -22529,14 +22532,16 @@ bool Player::IsQuestRewarded(uint32 quest_id) const
 
 Unit* Player::GetSelectedUnit() const
 {
-    if (ObjectGuid selectionGUID = GetTarget())
+    ObjectGuid selectionGUID = GetTarget();
+    if (!selectionGUID.IsEmpty())
         return ObjectAccessor::GetUnit(*this, selectionGUID);
     return nullptr;
 }
 
 Player* Player::GetSelectedPlayer() const
 {
-    if (ObjectGuid selectionGUID = GetTarget())
+    ObjectGuid selectionGUID = GetTarget();
+    if (!selectionGUID.IsEmpty())
         return ObjectAccessor::FindConnectedPlayer(selectionGUID);
     return nullptr;
 }
@@ -24345,7 +24350,8 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 
 WorldObject* Player::GetViewpoint() const
 {
-    if (ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT))
+    ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT);
+    if (!guid.IsEmpty())
         return static_cast<WorldObject*>(ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_SEER));
     return nullptr;
 }
@@ -25384,7 +25390,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
     if (IsPetNeedBeTemporaryUnsummoned())
         return;
 
-    if (GetPetGUID())
+    if (!GetPetGUID().IsEmpty())
         return;
 
     Pet* NewPet = new Pet(this);

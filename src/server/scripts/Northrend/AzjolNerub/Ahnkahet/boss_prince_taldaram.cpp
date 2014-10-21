@@ -265,7 +265,7 @@ struct boss_prince_taldaram : public BossAI
 
     Unit* GetEmbraceTarget()
     {
-        if (_embraceTargetGUID)
+        if (!_embraceTargetGUID.IsEmpty())
             return ObjectAccessor::GetUnit(*me, _embraceTargetGUID);
 
         return nullptr;

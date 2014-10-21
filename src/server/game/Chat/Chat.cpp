@@ -55,7 +55,7 @@ bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)
 
     if (target)
         target_session = target->GetSession();
-    else if (guid)
+    else if (!guid.IsEmpty())
         target_account = sCharacterCache->GetCharacterAccountIdByGuid(guid);
 
     if (!target_session && !target_account)

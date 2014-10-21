@@ -332,9 +332,9 @@ struct boss_leotheras_the_blind : public BossAI
     //Despawn all Inner Demon summoned
     void DespawnDemon()
     {
-        for (uint8 i=0; i<5; ++i)
+        for (uint8 i = 0; i < 5; ++i)
         {
-            if (InnderDemon[i])
+            if (!InnderDemon[i].IsEmpty())
             {
                 //delete creature
                 Creature* creature = ObjectAccessor::GetCreature((*me), InnderDemon[i]);
@@ -352,7 +352,7 @@ struct boss_leotheras_the_blind : public BossAI
     {
         for (uint8 i = 0; i < 5; ++i)
         {
-            if (InnderDemon[i])
+            if (!InnderDemon[i].IsEmpty())
             {
                 Creature* unit = ObjectAccessor::GetCreature((*me), InnderDemon[i]);
                 if (unit && unit->IsAlive())
@@ -381,7 +381,7 @@ struct boss_leotheras_the_blind : public BossAI
         Talk(SAY_DEATH);
 
         //despawn copy
-        if (Demon)
+        if (!Demon.IsEmpty())
         {
             if (Creature* pDemon = ObjectAccessor::GetCreature(*me, Demon))
                 pDemon->DespawnOrUnsummon();

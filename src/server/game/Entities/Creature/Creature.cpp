@@ -942,7 +942,7 @@ void Creature::RegenerateHealth()
     uint32 addvalue = 0;
 
     // Not only pet, but any controlled creature (and not polymorphed)
-    if (GetCharmerOrOwnerGUID() && !IsPolymorphed())
+    if (!GetCharmerOrOwnerGUID().IsEmpty() && !IsPolymorphed())
     {
         float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
         float Spirit = GetStat(STAT_SPIRIT);
@@ -2383,7 +2383,7 @@ bool Creature::CanAssistTo(Unit const* u, Unit const* enemy, bool checkfaction /
         return false;
 
     // only free creature
-    if (GetCharmerOrOwnerGUID())
+    if (!GetCharmerOrOwnerGUID().IsEmpty())
         return false;
 
     // only from same creature faction

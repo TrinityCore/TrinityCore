@@ -1664,8 +1664,8 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
         return;
 
     // clean other icons
-    if (targetGuid)
-        for (int i=0; i<TARGET_ICONS_COUNT; ++i)
+    if (!targetGuid.IsEmpty())
+        for (int i = 0; i < TARGET_ICONS_COUNT; ++i)
             if (m_targetIcons[i] == targetGuid)
                 SetTargetIcon(i, ObjectGuid::Empty, ObjectGuid::Empty);
 

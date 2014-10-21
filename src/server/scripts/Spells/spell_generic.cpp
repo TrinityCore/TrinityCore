@@ -3428,7 +3428,7 @@ class spell_gen_spirit_healer_res : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
-            data << uint64(target->GetGUID());
+            data << target->GetGUID();
             originalCaster->SendDirectMessage(&data);
         }
     }

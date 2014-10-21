@@ -365,7 +365,8 @@ void LFGMgr::Update(uint32 diff)
             {
                 guid = itPlayers->first;
                 SetState(guid, LFG_STATE_PROPOSAL);
-                if (ObjectGuid gguid = GetGroup(guid))
+                ObjectGuid gguid = GetGroup(guid);
+                if (!gguid.IsEmpty())
                 {
                     SetState(gguid, LFG_STATE_PROPOSAL);
                     SendLfgUpdateParty(guid, LfgUpdateData(LFG_UPDATETYPE_PROPOSAL_BEGIN, GetSelectedDungeons(guid), GetComment(guid)));
@@ -632,7 +633,7 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
     switch (state)
     {
         case LFG_STATE_QUEUED:
-            if (gguid)
+            if (!gguid.IsEmpty())
             {
                 LfgState newState = LFG_STATE_NONE;
                 LfgState oldState = GetOldState(gguid);
@@ -662,7 +663,7 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
             }
             break;
         case LFG_STATE_ROLECHECK:
-            if (gguid)
+            if (!gguid.IsEmpty())
                 UpdateRoleCheck(gguid);                    // No player to update role = LFG_ROLECHECK_ABORTED
             break;
         case LFG_STATE_PROPOSAL:
@@ -1087,7 +1088,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
         if (sendUpdate)
            SendLfgUpdateProposal(pguid, proposal);
 
-        if (gguid)
+        if (!gguid.IsEmpty())
         {
             waitTime = int32((joinTime - queue.GetJoinTime(gguid)) / IN_MILLISECONDS);
             SendLfgUpdateParty(pguid, updateData);
@@ -1375,7 +1376,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         error = LFG_TELEPORTERROR_FATIGUE;
     else if (player->GetVehicle())
         error = LFG_TELEPORTERROR_IN_VEHICLE;
-    else if (player->GetCharmedGUID())
+    else if (!player->GetCharmedGUID().IsEmpty())
         error = LFG_TELEPORTERROR_CHARMING;
     else if (player->HasAura(9454)) // check Freeze debuff
         error = LFG_TELEPORTERROR_INVALID_LOCATION;

@@ -755,7 +755,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
     else
         SendBroadcastText(m_CapturingPointTypes[Point].MessageIdHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
 
-    if (BgCreatures[Point])
+    if (!BgCreatures[Point].IsEmpty())
         DelCreature(Point);
 
     WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[Point].GraveyardId);

@@ -252,11 +252,13 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPackets::Battleg
         return;
 
     WorldPackets::Battleground::BattlegroundPlayerPositions playerPositions;
-    if (ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_ALLIANCE))
+    ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_ALLIANCE);
+    if (!guid.IsEmpty())
         if (Player* allianceFlagCarrier = ObjectAccessor::GetPlayer(*_player, guid))
             playerPositions.FlagCarriers.emplace_back(guid, allianceFlagCarrier->GetPosition());
 
-    if (ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_HORDE))
+    guid = bg->GetFlagPickerGUID(TEAM_HORDE);
+    if (!guid.IsEmpty())
         if (Player* hordeFlagCarrier = ObjectAccessor::GetPlayer(*_player, guid))
             playerPositions.FlagCarriers.emplace_back(guid, hordeFlagCarrier->GetPosition());
 
