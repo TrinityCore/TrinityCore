@@ -163,8 +163,16 @@ bool ResultSet::NextRow()
         return false;
     }
 
+    unsigned long* lengths = mysql_fetch_lengths(_result);
+    if (!lengths)
+    {
+        TC_LOG_WARN("sql.sql", "%s:mysql_fetch_lengths, cannot retrieve value lengths. Error %s.", __FUNCTION__, mysql_error(_result->handle));
+        CleanUp();
+        return false;
+    }
+
     for (uint32 i = 0; i < _fieldCount; i++)
-        _currentRow[i].SetStructuredValue(row[i], _fields[i].type);
+        _currentRow[i].SetStructuredValue(row[i], _fields[i].type, lengths[i], (_fields[i].flags & BINARY_FLAG) != 0);
 
     return true;
 }
