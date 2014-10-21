@@ -2431,7 +2431,8 @@ bool Guild::LoadMemberFromDB(Field* fields)
         delete member;
         return false;
     }
-    m_members[lowguid] = member;
+
+    m_members[member->GetGUID()] = member;
     return true;
 }
 
@@ -2721,7 +2722,7 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
     std::string name;
     if (player)
     {
-        m_members[lowguid] = member;
+        m_members[guid] = member;
         player->SetInGuild(m_id);
         player->SetGuildIdInvited(0);
         player->SetRank(rankId);
@@ -2757,7 +2758,7 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
             delete member;
             return false;
         }
-        m_members[lowguid] = member;
+        m_members[guid] = member;
     }
 
     SQLTransaction trans(NULL);
@@ -2787,7 +2788,7 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
         Member* newLeader = NULL;
         for (Guild::Members::iterator i = m_members.begin(); i != m_members.end(); ++i)
         {
-            if (i->first == lowguid)
+            if (i->first == guid)
                 oldLeader = i->second;
             else if (!newLeader || newLeader->GetRankId() > i->second->GetRankId())
                 newLeader = i->second;
@@ -2819,7 +2820,7 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
 
     if (Member* member = GetMember(guid))
         delete member;
-    m_members.erase(lowguid);
+    m_members.erase(guid);
 
     // If player not online data in data field will be loaded from guild tabs no need to update it !!
     if (player)
@@ -2852,7 +2853,7 @@ bool Guild::ChangeMemberRank(ObjectGuid guid, uint8 newRank)
 
 bool Guild::IsMember(ObjectGuid guid) const
 {
-    Members::const_iterator itr = m_members.find(guid.GetCounter());
+    Members::const_iterator itr = m_members.find(guid);
     return itr != m_members.end();
 }
 
