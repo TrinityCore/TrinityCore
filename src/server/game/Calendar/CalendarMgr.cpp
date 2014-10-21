@@ -172,7 +172,7 @@ void CalendarMgr::RemoveEvent(uint64 eventId, ObjectGuid remover)
 
         // guild events only? check invite status here?
         // When an event is deleted, all invited (accepted/declined? - verify) guildies are notified via in-game mail. (wowwiki)
-        if (remover && invite->GetInviteeGUID() != remover)
+        if (!remover.IsEmpty() && invite->GetInviteeGUID() != remover)
             mail.SendMailTo(trans, MailReceiver(invite->GetInviteeGUID().GetCounter()), calendarEvent, MAIL_CHECK_MASK_COPIED);
 
         delete invite;
@@ -529,7 +529,7 @@ void CalendarMgr::SendCalendarEventInviteAlert(CalendarEvent const& calendarEven
     data << uint64(invite.GetInviteId());
 
     Guild* guild = sGuildMgr->GetGuildById(calendarEvent.GetGuildId());
-    data << uint64(guild ? guild->GetGUID() : 0);
+    data << (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
     data << uint8(invite.GetStatus());
     data << uint8(invite.GetRank());
@@ -569,7 +569,7 @@ void CalendarMgr::SendCalendarEvent(ObjectGuid guid, CalendarEvent const& calend
     data.AppendPackedTime(calendarEvent.GetTimeZoneTime());
 
     Guild* guild = sGuildMgr->GetGuildById(calendarEvent.GetGuildId());
-    data << uint64(guild ? guild->GetGUID() : 0);
+    data << (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
     data << uint32(eventInviteeList.size());
     for (CalendarInviteStore::const_iterator itr = eventInviteeList.begin(); itr != eventInviteeList.end(); ++itr)

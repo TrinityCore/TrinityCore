@@ -211,7 +211,7 @@ public:
             return;
         }
 
-        if (sObjectMgr->GetPlayerGUIDByName(delInfo.name))
+        if (!sObjectMgr->GetPlayerGUIDByName(delInfo.name).IsEmpty())
         {
             handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
             return;
@@ -990,7 +990,7 @@ public:
             return false;
         }
 
-        switch (PlayerDumpWriter().WriteDump(fileStr, uint32(guid)))
+        switch (PlayerDumpWriter().WriteDump(fileStr, uint32(guid.GetCounter())))
         {
             case DUMP_SUCCESS:
                 handler->PSendSysMessage(LANG_COMMAND_EXPORT_SUCCESS);

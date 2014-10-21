@@ -949,7 +949,7 @@ void hyjalAI::WaypointReached(uint32 waypointId)
         TeleportTimer = 20000;
         if (me->GetEntry() == JAINA)
             DoCast(me, SPELL_MASS_TELEPORT, false);
-        if (me->GetEntry() == THRALL && DummyGuid)
+        if (me->GetEntry() == THRALL && !DummyGuid.IsEmpty())
         {
             if (Creature* creature = ObjectAccessor::GetCreature(*me, DummyGuid))
             {

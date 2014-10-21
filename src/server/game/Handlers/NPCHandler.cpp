@@ -303,10 +303,10 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::SendTrainerBuyFailed(uint64 guid, uint32 spellId, uint32 reason)
+void WorldSession::SendTrainerBuyFailed(ObjectGuid guid, uint32 spellId, uint32 reason)
 {
     WorldPacket data(SMSG_TRAINER_BUY_FAILED, 16);
-    data << uint64(guid);
+    data << guid;
     data << uint32(spellId);        // should be same as in packet from client
     data << uint32(reason);         // 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
     SendPacket(&data);

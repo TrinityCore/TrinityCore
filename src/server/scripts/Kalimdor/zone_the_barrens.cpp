@@ -451,7 +451,7 @@ public:
 
                     if (WaveTimer <= diff)
                     {
-                        if (Wave < 6 && AffrayChallenger[Wave] && !EventBigWill)
+                        if (Wave < 6 && !AffrayChallenger[Wave].IsEmpty() && !EventBigWill)
                         {
                             Talk(SAY_TWIGGY_FLATHEAD_FRAY);
                             Creature* creature = ObjectAccessor::GetCreature(*me, AffrayChallenger[Wave]);
@@ -479,7 +479,7 @@ public:
                                 WaveTimer = 1000;
                             }
                         }
-                        else if (Wave >= 6 && EventBigWill && BigWill)
+                        else if (Wave >= 6 && EventBigWill && !BigWill.IsEmpty())
                         {
                             Creature* creature = ObjectAccessor::GetCreature(*me, BigWill);
                             if (!creature || !creature->IsAlive())

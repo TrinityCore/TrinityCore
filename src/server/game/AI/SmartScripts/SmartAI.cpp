@@ -333,7 +333,7 @@ void SmartAI::UpdateAI(uint32 diff)
     UpdateDespawn(diff);
 
     /// @todo move to void
-    if (mFollowGuid)
+    if (!mFollowGuid.IsEmpty())
     {
         if (mFollowArrivedTimer < diff)
         {
@@ -435,7 +435,7 @@ void SmartAI::EnterEvadeMode()
         AddEscortState(SMART_ESCORT_RETURNING);
         ReturnToLastOOCPos();
     }
-    else if (mFollowGuid)
+    else if (!mFollowGuid.IsEmpty())
     {
         if (Unit* target = ObjectAccessor::GetUnit(*me, mFollowGuid))
             me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
@@ -674,7 +674,7 @@ void SmartAI::OnCharmed(bool apply)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, NULL, 0, 0, apply);
 
-    if (!apply && !me->IsInEvadeMode() && me->GetCharmerGUID())
+    if (!apply && !me->IsInEvadeMode() && !me->GetCharmerGUID().IsEmpty())
         if (Unit* charmer = ObjectAccessor::GetUnit(*me, me->GetCharmerGUID()))
             AttackStart(charmer);
 }

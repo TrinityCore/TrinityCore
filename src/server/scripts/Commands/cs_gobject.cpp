@@ -371,7 +371,7 @@ public:
         }
 
         ObjectGuid ownerGuid = object->GetOwnerGUID();
-        if (ownerGuid)
+        if (!ownerGuid.IsEmpty())
         {
             Unit* owner = ObjectAccessor::GetUnit(*handler->GetSession()->GetPlayer(), ownerGuid);
             if (!owner || !ownerGuid.IsPlayer())

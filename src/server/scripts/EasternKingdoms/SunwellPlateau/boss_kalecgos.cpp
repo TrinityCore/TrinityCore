@@ -625,7 +625,7 @@ public:
             me->setActive(true);
             KalecgosGUID = instance->GetGuidData(DATA_KALECGOS_DRAGON);
             instance->SetBossState(DATA_KALECGOS, NOT_STARTED);
-            if (KalecGUID)
+            if (!KalecGUID.IsEmpty())
             {
                 if (Creature* Kalec = ObjectAccessor::GetCreature(*me, KalecGUID))
                     Kalec->setDeathState(JUST_DIED);

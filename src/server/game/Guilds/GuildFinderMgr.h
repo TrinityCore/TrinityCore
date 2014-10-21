@@ -226,7 +226,7 @@ class GuildFinderMgr
          * @brief Removes all membership request from a player.
          * @param playerId The player's database guid whose application shall be deleted.
          */
-        void RemoveAllMembershipRequestsFromPlayer(uint32 playerId);
+        void RemoveAllMembershipRequestsFromPlayer(ObjectGuid playerId);
 
         /**
          * @brief Removes a membership request to a guild.

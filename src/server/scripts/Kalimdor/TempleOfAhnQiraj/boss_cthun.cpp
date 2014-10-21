@@ -774,7 +774,7 @@ public:
                         StomachEnterTimer = 13800;
                     } else StomachEnterTimer -= diff;
 
-                    if (StomachEnterVisTimer && StomachEnterTarget)
+                    if (StomachEnterVisTimer && !StomachEnterTarget.IsEmpty())
                     {
                         if (StomachEnterVisTimer <= diff)
                         {

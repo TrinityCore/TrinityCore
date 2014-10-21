@@ -316,7 +316,7 @@ public:
                     DoCast(temp, SPELL_BANISHED_SHATTRATH_A);
                     banishTimer = 9000;
                     playerGUID = temp->GetGUID();
-                    if (playerGUID)
+                    if (!playerGUID.IsEmpty())
                         canTeleport = true;
                 }
             } else banishTimer -= diff;
@@ -389,7 +389,7 @@ public:
                     DoCast(temp, SPELL_BANISHED_SHATTRATH_S);
                     banishTimer = 9000;
                     playerGUID = temp->GetGUID();
-                    if (playerGUID)
+                    if (!playerGUID.IsEmpty())
                         canTeleport = true;
                 }
             } else banishTimer -= diff;

@@ -803,7 +803,7 @@ public:
 
         void UpdateAI(uint32 /*diff*/) override
         {
-            if (WithRedDragonBlood && HarpoonerGUID && !me->HasAura(SPELL_RED_DRAGONBLOOD))
+            if (WithRedDragonBlood && !HarpoonerGUID.IsEmpty() && !me->HasAura(SPELL_RED_DRAGONBLOOD))
             {
                 if (Player* pHarpooner = ObjectAccessor::GetPlayer(*me, HarpoonerGUID))
                 {

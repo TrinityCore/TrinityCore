@@ -225,7 +225,7 @@ class boss_gal_darah : public CreatureScript
             }
 
         private:
-            std::set<uint64> impaledPlayers;
+            GuidSet impaledPlayers;
             uint8 _phaseCounter;
         };
 

@@ -665,7 +665,7 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
         return;
 
     LfgRoleCheck& roleCheck = itRoleCheck->second;
-    bool sendRoleChosen = roleCheck.state != LFG_ROLECHECK_DEFAULT && guid;
+    bool sendRoleChosen = roleCheck.state != LFG_ROLECHECK_DEFAULT && !guid.IsEmpty();
 
     if (!guid)
         roleCheck.state = LFG_ROLECHECK_ABORTED;
@@ -862,7 +862,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
     LFGDungeonData const* dungeon = GetLFGDungeon(proposal.dungeonId);
     ASSERT(dungeon);
 
-    Group* grp = proposal.group ? sGroupMgr->GetGroupByGUID(proposal.group.GetCounter()) : NULL;
+    Group* grp = !proposal.group.IsEmpty() ? sGroupMgr->GetGroupByGUID(proposal.group.GetCounter()) : NULL;
     for (GuidList::const_iterator it = players.begin(); it != players.end(); ++it)
     {
         ObjectGuid pguid = (*it);
@@ -1046,7 +1046,7 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
         if (it->second.accept == LFG_ANSWER_AGREE)
             continue;
 
-        ObjectGuid guid = it->second.group ? it->second.group : it->first;
+        ObjectGuid guid = !it->second.group.IsEmpty() ? it->second.group : it->first;
         // Player didn't accept or still pending when no secs left
         if (it->second.accept == LFG_ANSWER_DENY || type == LFG_UPDATETYPE_PROPOSAL_FAILED)
         {
@@ -1059,7 +1059,7 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
     for (LfgProposalPlayerContainer::const_iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
     {
         ObjectGuid guid = it->first;
-        ObjectGuid gguid = it->second.group ? it->second.group : guid;
+        ObjectGuid gguid = !it->second.group.IsEmpty() ? it->second.group : guid;
 
         SendLfgUpdateProposal(guid, proposal);
 
@@ -1822,7 +1822,7 @@ void LFGMgr::SendLfgQueueStatus(ObjectGuid guid, LfgQueueStatusData const& data)
 
 bool LFGMgr::IsLfgGroup(ObjectGuid guid)
 {
-    return guid && guid.IsGroup() && GroupsStore[guid].IsLfgGroup();
+    return !guid.IsEmpty() && guid.IsGroup() && GroupsStore[guid].IsLfgGroup();
 }
 
 uint8 LFGMgr::GetQueueId(ObjectGuid guid)

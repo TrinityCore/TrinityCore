@@ -994,7 +994,7 @@ public:
 
             if (ConversationTimer <= diff)
             {
-                if (Event && PlayerGUID)
+                if (Event && !PlayerGUID.IsEmpty())
                     ConversationTimer = NextStep(++Step);
             } else ConversationTimer -= diff;
         }

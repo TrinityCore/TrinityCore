@@ -43,7 +43,7 @@ void BuildPartyLockDungeonBlock(WorldPacket& data, lfg::LfgLockPartyMap const& l
     data << uint8(lockMap.size());
     for (lfg::LfgLockPartyMap::const_iterator it = lockMap.begin(); it != lockMap.end(); ++it)
     {
-        data << uint64(it->first);                         // Player guid
+        data << it->first;                              // Player guid
         BuildPlayerLockDungeonBlock(data, it->second);
     }
 }
@@ -719,7 +719,7 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
     data << uint8(agreeNum >= lfg::LFG_GROUP_KICK_VOTES_NEEDED);    // Did succeed
     data << uint8(playerVote != lfg::LFG_ANSWER_PENDING);           // Did Vote
     data << uint8(playerVote == lfg::LFG_ANSWER_AGREE);             // Agree
-    data << uint64(boot.victim);                                    // Victim GUID
+    data << boot.victim;                                            // Victim GUID
     data << uint32(votesNum);                                       // Total Votes
     data << uint32(agreeNum);                                       // Agree Count
     data << uint32(secsleft);                                       // Time Left

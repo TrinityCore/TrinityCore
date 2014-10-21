@@ -441,7 +441,7 @@ public:
         {
             Initialize();
             DoCast(me, SPELL_HEAD);
-            if (headGUID)
+            if (!headGUID.IsEmpty())
             {
                 if (Creature* Head = ObjectAccessor::GetCreature((*me), headGUID))
                     Head->DespawnOrUnsummon();

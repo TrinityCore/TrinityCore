@@ -181,7 +181,7 @@ class SmartScript
         void OnReset();
         void ResetBaseObject()
         {
-            if (meOrigGUID)
+            if (!meOrigGUID.IsEmpty())
             {
                 if (Creature* m = HashMapHolder<Creature>::Find(meOrigGUID))
                 {
@@ -189,7 +189,7 @@ class SmartScript
                     go = NULL;
                 }
             }
-            if (goOrigGUID)
+            if (!goOrigGUID.IsEmpty())
             {
                 if (GameObject* o = HashMapHolder<GameObject>::Find(goOrigGUID))
                 {

@@ -233,7 +233,7 @@ public:
                 {
                     MobDeath_Timer = 2500;
 
-                    if (RingBossGUID)
+                    if (!RingBossGUID.IsEmpty())
                     {
                         Creature* boss = ObjectAccessor::GetCreature(*me, RingBossGUID);
                         if (boss && !boss->IsAlive() && boss->isDead())

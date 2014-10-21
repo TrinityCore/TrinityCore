@@ -99,7 +99,7 @@ class npc_warp_splinter_treant : public CreatureScript
             {
                 if (!UpdateVictim() || !me->GetVictim())
                 {
-                    if (WarpGuid && check_Timer <= diff)
+                    if (!WarpGuid.IsEmpty() && check_Timer <= diff)
                     {
                         if (Unit* Warp = ObjectAccessor::GetUnit(*me, WarpGuid))
                         {

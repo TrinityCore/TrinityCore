@@ -681,7 +681,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void SetOwnerGUID(ObjectGuid owner)
         {
             // Owner already found and different than expected owner - remove object from old owner
-            if (owner && GetOwnerGUID() && GetOwnerGUID() != owner)
+            if (!owner.IsEmpty() && !GetOwnerGUID().IsEmpty() && GetOwnerGUID() != owner)
             {
                 ASSERT(false);
             }

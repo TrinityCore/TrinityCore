@@ -64,7 +64,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
         return;
 
     WorldPacket data(MSG_AUCTION_HELLO, 12);
-    data << uint64(guid);
+    data << guid;
     data << uint32(ahEntry->houseId);
     data << uint8(1);                                       // 3.3.3: 1 - AH enabled, 0 - AH disabled
     SendPacket(&data);
@@ -103,7 +103,7 @@ void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auction
     WorldPacket data(SMSG_AUCTION_BIDDER_NOTIFICATION, (8*4));
     data << uint32(location);
     data << uint32(auctionId);
-    data << uint64(bidder);
+    data << bidder;
     data << uint64(bidSum);
     data << uint64(diff);
     data << uint32(itemEntry);

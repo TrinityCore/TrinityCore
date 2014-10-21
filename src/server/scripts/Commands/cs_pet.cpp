@@ -65,7 +65,7 @@ public:
             return false;
         }
 
-        if (player->GetPetGUID())
+        if (!player->GetPetGUID().IsEmpty())
         {
             handler->PSendSysMessage("You already have a pet");
             handler->SetSentErrorMessage(true);

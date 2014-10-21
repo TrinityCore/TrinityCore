@@ -850,7 +850,7 @@ BfCapturePoint::BfCapturePoint(Battlefield* battlefield) : m_Bf(battlefield), m_
 
 bool BfCapturePoint::HandlePlayerEnter(Player* player)
 {
-    if (m_capturePointGUID)
+    if (!m_capturePointGUID.IsEmpty())
     {
         if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
         {
@@ -865,7 +865,7 @@ bool BfCapturePoint::HandlePlayerEnter(Player* player)
 
 GuidSet::iterator BfCapturePoint::HandlePlayerLeave(Player* player)
 {
-    if (m_capturePointGUID)
+    if (!m_capturePointGUID.IsEmpty())
         if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
             player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldState1, 0);
 
@@ -937,7 +937,7 @@ GameObject* BfCapturePoint::GetCapturePointGo()
 
 bool BfCapturePoint::DelCapturePoint()
 {
-    if (m_capturePointGUID)
+    if (!m_capturePointGUID.IsEmpty())
     {
         if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
         {

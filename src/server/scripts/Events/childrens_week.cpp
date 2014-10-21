@@ -960,7 +960,7 @@ class at_bring_your_orphan_to : public AreaTriggerScript
                     break;
             }
 
-            if (questId && orphanId && getOrphanGUID(player, orphanId) && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+            if (questId && orphanId && !getOrphanGUID(player, orphanId).IsEmpty() && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                 player->AreaExploredOrEventHappens(questId);
 
             return true;
@@ -1021,7 +1021,7 @@ class npc_cw_area_trigger : public CreatureScript
                                     orphanId = ORPHAN_BLOOD_ELF;
                                     break;
                                 case NPC_SILVERMOON_01_CW_TRIGGER:
-                                    if (player->GetQuestStatus(QUEST_NOW_WHEN_I_GROW_UP) == QUEST_STATUS_INCOMPLETE && getOrphanGUID(player, ORPHAN_BLOOD_ELF))
+                                    if (player->GetQuestStatus(QUEST_NOW_WHEN_I_GROW_UP) == QUEST_STATUS_INCOMPLETE && !getOrphanGUID(player, ORPHAN_BLOOD_ELF).IsEmpty())
                                     {
                                         player->AreaExploredOrEventHappens(QUEST_NOW_WHEN_I_GROW_UP);
                                         if (player->GetQuestStatus(QUEST_NOW_WHEN_I_GROW_UP) == QUEST_STATUS_COMPLETE)
@@ -1051,7 +1051,7 @@ class npc_cw_area_trigger : public CreatureScript
                                     }
                                     break;
                             }
-                            if (questId && orphanId && getOrphanGUID(player, orphanId) && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                            if (questId && orphanId && !getOrphanGUID(player, orphanId).IsEmpty() && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                                 player->AreaExploredOrEventHappens(questId);
                         }
             }
