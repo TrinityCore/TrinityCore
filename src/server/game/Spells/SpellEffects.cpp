@@ -306,8 +306,8 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
         finish();
 
     WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
-    data << uint64(m_caster->GetGUID());
-    data << uint64(unitTarget->GetGUID());
+    data << m_caster->GetGUID();
+    data << unitTarget->GetGUID();
     data << uint32(m_spellInfo->Id);
     m_caster->SendMessageToSet(&data, true);
 
@@ -2279,8 +2279,8 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
                 if (!failCount)
                 {
                     // Failed to dispell
-                    dataFail << uint64(m_caster->GetGUID());            // Caster GUID
-                    dataFail << uint64(unitTarget->GetGUID());          // Victim GUID
+                    dataFail << m_caster->GetGUID();                    // Caster GUID
+                    dataFail << unitTarget->GetGUID();                  // Victim GUID
                     dataFail << uint32(m_spellInfo->Id);                // dispel spell id
                 }
                 ++failCount;
@@ -3887,8 +3887,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
 
     // Send request
     WorldPacket data(SMSG_DUEL_REQUESTED, 8 + 8);
-    data << uint64(pGameObj->GetGUID());
-    data << uint64(caster->GetGUID());
+    data << pGameObj->GetGUID();
+    data << caster->GetGUID();
     caster->GetSession()->SendPacket(&data);
     target->GetSession()->SendPacket(&data);
 
@@ -3964,7 +3964,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->SetSummonPoint(m_caster->GetMapId(), x, y, z);
 
     WorldPacket data(SMSG_SUMMON_REQUEST, 8+4+4);
-    data << uint64(m_caster->GetGUID());                    // summoner guid
+    data << m_caster->GetGUID();                            // summoner guid
     data << uint32(m_caster->GetZoneId());                  // summoner zone
     data << uint32(MAX_PLAYER_SUMMON_DELAY*IN_MILLISECONDS); // auto decline after msecs
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
@@ -4373,7 +4373,7 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
         return;
 
     WorldPacket data(SMSG_CLEAR_TARGET, 8);
-    data << uint64(m_caster->GetGUID());
+    data << m_caster->GetGUID();
     m_caster->SendMessageToSet(&data, true);
 }
 
@@ -5117,8 +5117,8 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
                 if (!failCount)
                 {
                     // Failed to dispell
-                    dataFail << uint64(m_caster->GetGUID());            // Caster GUID
-                    dataFail << uint64(unitTarget->GetGUID());          // Victim GUID
+                    dataFail << m_caster->GetGUID();                    // Caster GUID
+                    dataFail << unitTarget->GetGUID();                  // Victim GUID
                     dataFail << uint32(m_spellInfo->Id);                // dispel spell id
                 }
                 ++failCount;
@@ -5482,7 +5482,7 @@ void Spell::EffectPlayMusic(SpellEffIndex effIndex)
 
     WorldPacket data(SMSG_PLAY_MUSIC, 4);
     data << uint32(soundid);
-    data << uint64(unitTarget->GetGUID());
+    data << unitTarget->GetGUID();
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -5683,7 +5683,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
 
     // zone update
     data.Initialize(SMSG_PLAYERBOUND, 8 + 4);
-    data << uint64(m_caster->GetGUID());
+    data << m_caster->GetGUID();
     data << uint32(areaId);
     player->SendDirectMessage(&data);
 }

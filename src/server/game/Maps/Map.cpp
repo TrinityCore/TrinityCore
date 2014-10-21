@@ -3468,7 +3468,7 @@ void Map::SendZoneDynamicInfo(Player* player)
     {
         WorldPacket data(SMSG_PLAY_MUSIC, 4);
         data << uint32(music);
-        data << uint64(player->GetGUID());
+        data << player->GetGUID();
         player->SendDirectMessage(&data);
     }
 
@@ -3507,7 +3507,7 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
                 {
                     WorldPacket data(SMSG_PLAY_MUSIC, 4);
                     data << uint32(musicId);
-                    data << uint64(player->GetGUID());
+                    data << player->GetGUID();
                     player->SendDirectMessage(&data);
                 }
     }

@@ -1258,7 +1258,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     player->BuildEnchantmentsInfoData(&data);
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
     {
-        data << uint64(guild->GetGUID());
+        data << guild->GetGUID();
         data << uint32(guild->GetLevel());
         data << uint64(guild->GetExperience());
         data << uint32(guild->GetMembersCount());
@@ -2048,7 +2048,7 @@ void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[5]);
 
     WorldObject* obj = ObjectAccessor::GetWorldObject(*GetPlayer(), guid);
-    TC_LOG_ERROR("network", "Object update failed for object " UI64FMTD " (%s) for player %s (%u)", uint64(guid), obj ? obj->GetName().c_str() : "object-not-found", GetPlayerName().c_str(), GetGuidLow());
+    TC_LOG_ERROR("network", "Object update failed for %s (%s) for player %s (%u)", guid.ToString().c_str(), obj ? obj->GetName().c_str() : "object-not-found", GetPlayerName().c_str(), GetGuidLow());
 
     // If create object failed for current player then client will be stuck on loading screen
     if (_player->GetGUID() == guid)
