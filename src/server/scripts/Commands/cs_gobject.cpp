@@ -302,7 +302,8 @@ public:
         if (GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(spawnId))
         {
             Player const* const player = handler->GetSession()->GetPlayer();
-            if (ObjectGuid ownerGuid = object->GetOwnerGUID())
+            ObjectGuid ownerGuid = object->GetOwnerGUID();
+            if (!ownerGuid.IsEmpty())
             {
                 Unit* owner = ObjectAccessor::GetUnit(*player, ownerGuid);
                 if (!owner || !ownerGuid.IsPlayer())

@@ -458,7 +458,7 @@ void SpellCastTargets::Update(WorldObject* caster)
     }
 
     // update positions by transport move
-    if (HasSrc() && m_src._transportGUID)
+    if (HasSrc() && !m_src._transportGUID.IsEmpty())
     {
         if (WorldObject* transport = ObjectAccessor::GetWorldObject(*caster, m_src._transportGUID))
         {
@@ -467,7 +467,7 @@ void SpellCastTargets::Update(WorldObject* caster)
         }
     }
 
-    if (HasDst() && m_dst._transportGUID)
+    if (HasDst() && !m_dst._transportGUID.IsEmpty())
     {
         if (WorldObject* transport = ObjectAccessor::GetWorldObject(*caster, m_dst._transportGUID))
         {
@@ -1732,7 +1732,7 @@ void Spell::SelectEffectTypeImplicitTargets(SpellEffectInfo const& spellEffectIn
     {
         case SPELL_EFFECT_SUMMON_RAF_FRIEND:
         case SPELL_EFFECT_SUMMON_PLAYER:
-            if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetTarget())
+            if (m_caster->GetTypeId() == TYPEID_PLAYER && !m_caster->ToPlayer()->GetTarget().IsEmpty())
             {
                 WorldObject* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetTarget());
                 CallScriptObjectTargetSelectHandlers(target, spellEffectInfo.EffectIndex, SpellImplicitTargetInfo());
@@ -3325,7 +3325,7 @@ void Spell::_cast(bool skipCheck)
     }
 
     // cancel at lost explicit target during cast
-    if (m_targets.GetObjectTargetGUID() && !m_targets.GetObjectTarget())
+    if (!m_targets.GetObjectTargetGUID().IsEmpty() && !m_targets.GetObjectTarget())
     {
         cancel();
         return;
@@ -3816,7 +3816,7 @@ void Spell::update(uint32 difftime)
         return;
     }
 
-    if (m_targets.GetUnitTargetGUID() && !m_targets.GetUnitTarget())
+    if (!m_targets.GetUnitTargetGUID().IsEmpty() && !m_targets.GetUnitTarget())
     {
         TC_LOG_DEBUG("spells", "Spell {} is cancelled due to removal of target.", m_spellInfo->Id);
         cancel();
@@ -7332,10 +7332,10 @@ bool Spell::UpdatePointers()
             m_originalCaster = nullptr;
     }
 
-    if (m_focusObjectGUID)
+    if (!m_focusObjectGUID.IsEmpty())
         focusObject = ObjectAccessor::GetGameObject(*m_caster, m_focusObjectGUID);
 
-    if (m_castItemGUID && m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (!m_castItemGUID.IsEmpty() && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         m_CastItem = m_caster->ToPlayer()->GetItemByGuid(m_castItemGUID);
         // cast item not found, somehow the item is no longer where we expected

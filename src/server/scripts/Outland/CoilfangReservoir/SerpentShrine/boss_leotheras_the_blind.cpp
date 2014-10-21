@@ -306,7 +306,7 @@ struct boss_leotheras_the_blind : public BossAI
             // and reseting equipment
             me->LoadEquipment();
 
-            if (instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
+            if (!instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER).IsEmpty())
             {
                 if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER)))
                     AddThreat(victim, 1);

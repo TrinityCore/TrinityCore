@@ -459,7 +459,7 @@ std::string GmTicket::GetAssignedToName() const
 {
     std::string name;
     // save queries if ticket is not assigned
-    if (_assignedTo)
+    if (!_assignedTo.IsEmpty())
         sCharacterCache->GetCharacterNameByGuid(_assignedTo, name);
 
     return name;

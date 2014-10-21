@@ -218,7 +218,7 @@ public:
             return;
         }
 
-        if (sCharacterCache->GetCharacterGuidByName(delInfo.name))
+        if (!sCharacterCache->GetCharacterGuidByName(delInfo.name).IsEmpty())
         {
             handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
             return;

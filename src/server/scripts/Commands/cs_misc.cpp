@@ -1954,7 +1954,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         // accept only explicitly selected target (not implicitly self targeting case)
-        Creature* target = player->GetTarget() ? handler->getSelectedCreature() : nullptr;
+        Creature* target = !player->GetTarget().IsEmpty() ? handler->getSelectedCreature() : nullptr;
         if (target)
         {
             if (target->IsPet())

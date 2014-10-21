@@ -1175,10 +1175,10 @@ class spell_hun_tame_beast : public SpellScript
                 }
             }
 
-            if (caster->GetCharmedGUID())
+            if (!caster->GetCharmedGUID().IsEmpty())
                 return SPELL_FAILED_ALREADY_HAVE_CHARM;
 
-            if (target->GetOwnerGUID())
+            if (!target->GetOwnerGUID().IsEmpty())
             {
                 caster->SendTameFailure(PETTAME_CREATUREALREADYOWNED);
                 return SPELL_FAILED_DONT_REPORT;

@@ -38,7 +38,7 @@ m_timer(0), m_lifetime(0), m_canFollowOwner(true)
 
 WorldObject* TempSummon::GetSummoner() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetWorldObject(*this, m_summonerGUID) : nullptr;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : nullptr;
 }
 
 Unit* TempSummon::GetSummonerUnit() const
@@ -50,7 +50,7 @@ Unit* TempSummon::GetSummonerUnit() const
 
 Creature* TempSummon::GetSummonerCreatureBase() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
 }
 
 GameObject* TempSummon::GetSummonerGameObject() const
@@ -201,7 +201,7 @@ void TempSummon::InitStats(uint32 duration)
         std::ptrdiff_t slot = m_Properties->Slot;
         if (slot != 0)
         {
-            if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
+            if (!owner->m_SummonSlot[slot].IsEmpty() && owner->m_SummonSlot[slot] != GetGUID())
             {
                 Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
                 if (oldSummon && oldSummon->IsSummon())

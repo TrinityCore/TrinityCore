@@ -627,7 +627,7 @@ void Channel::List(Player const* player) const
              member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
             member->IsVisibleGloballyFor(player))
         {
-            data << uint64(i->first);
+            data << i->first;
             data << uint8(i->second.flags);             // flags seems to be changed...
             ++count;
         }
@@ -826,7 +826,7 @@ void Channel::JoinNotify(ObjectGuid guid) const
         LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
 
         data.Initialize(IsConstant() ? SMSG_USERLIST_ADD : SMSG_USERLIST_UPDATE, 8 + 1 + 1 + 4 + 30 /*channelName buffer*/);
-        data << uint64(guid);
+        data << guid;
         data << uint8(GetPlayerFlags(guid));
         data << uint8(GetFlags());
         data << uint32(GetNumPlayers());
@@ -846,7 +846,7 @@ void Channel::LeaveNotify(ObjectGuid guid) const
         LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
 
         data.Initialize(SMSG_USERLIST_REMOVE, 8 + 1 + 4 + 30 /*channelName buffer*/);
-        data << uint64(guid);
+        data << guid;
         data << uint8(GetFlags());
         data << uint32(GetNumPlayers());
         data << GetName(localeIdx);

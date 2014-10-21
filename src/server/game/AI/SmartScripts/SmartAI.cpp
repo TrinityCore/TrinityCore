@@ -437,7 +437,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
         AddEscortState(SMART_ESCORT_RETURNING);
         ReturnToLastOOCPos();
     }
-    else if (Unit* target = _followGUID ? ObjectAccessor::GetUnit(*me, _followGUID) : nullptr)
+    else if (Unit* target = !_followGUID.IsEmpty() ? ObjectAccessor::GetUnit(*me, _followGUID) : nullptr)
     {
         me->GetMotionMaster()->MoveFollow(target, _followDistance, _followAngle);
         // evade is not cleared in MoveFollow, so we can't keep it
@@ -988,7 +988,7 @@ void SmartAI::UpdatePath(uint32 diff)
 
 void SmartAI::UpdateFollow(uint32 diff)
 {
-    if (_followGUID)
+    if (!_followGUID.IsEmpty())
     {
         if (_followArrivedTimer < diff)
         {

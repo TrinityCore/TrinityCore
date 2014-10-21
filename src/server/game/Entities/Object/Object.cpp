@@ -621,7 +621,7 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
 bool Object::AddGuidValue(uint16 index, ObjectGuid value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-    if (value && !*((ObjectGuid*)&(m_uint32Values[index])))
+    if (!value.IsEmpty() && ((ObjectGuid*)&(m_uint32Values[index]))->IsEmpty())
     {
         *((ObjectGuid*)&(m_uint32Values[index])) = value;
         _changesMask.SetBit(index);
@@ -638,7 +638,7 @@ bool Object::AddGuidValue(uint16 index, ObjectGuid value)
 bool Object::RemoveGuidValue(uint16 index, ObjectGuid value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-    if (value && *((ObjectGuid*)&(m_uint32Values[index])) == value)
+    if (!value.IsEmpty() && *((ObjectGuid*)&(m_uint32Values[index])) == value)
     {
         m_uint32Values[index] = 0;
         m_uint32Values[index + 1] = 0;

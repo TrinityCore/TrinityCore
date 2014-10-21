@@ -852,7 +852,7 @@ void GameObject::Update(uint32 diff)
                 UpdateObjectVisibility();
                 return;
             }
-            else if (GetOwnerGUID() || GetSpellId())
+            else if (!GetOwnerGUID().IsEmpty() || GetSpellId())
             {
                 SetRespawnTime(0);
                 Delete();
@@ -1309,9 +1309,9 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
         return false;
 
     // Always seen by owner and friendly units
-    if (ObjectGuid guid = GetOwnerGUID())
+    if (!GetOwnerGUID().IsEmpty())
     {
-        if (seer->GetGUID() == guid)
+        if (seer->GetGUID() == GetOwnerGUID())
             return true;
 
         Unit* owner = GetOwner();
