@@ -227,7 +227,7 @@ public:
         {
             for (uint8 i = 0; i < 4; ++i)
             {
-                if (AddGUID[i])
+                if (!AddGUID[i].IsEmpty())
                 {
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, AddGUID[i]))
                         temp->DespawnOrUnsummon();
@@ -239,7 +239,7 @@ public:
         {
             for (uint8 i = 0; i < 4; ++i)
             {
-                if (AddGUID[i])
+                if (!AddGUID[i].IsEmpty())
                 {
                     Creature* temp = ObjectAccessor::GetCreature((*me), AddGUID[i]);
                     if (temp && temp->IsAlive())
@@ -273,7 +273,7 @@ public:
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    if (AddGUID[i])
+                    if (!AddGUID[i].IsEmpty())
                     {
                         Creature* temp = ObjectAccessor::GetCreature((*me), AddGUID[i]);
                         if (temp && temp->IsAlive())
@@ -353,15 +353,20 @@ struct boss_moroes_guestAI : public ScriptedAI
     void AcquireGUID()
     {
         if (Creature* Moroes = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MOROES)))
+        {
             for (uint8 i = 0; i < 4; ++i)
-                if (ObjectGuid GUID = ENSURE_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i])
+            {
+                ObjectGuid GUID = ENSURE_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i];
+                if (!GUID.IsEmpty())
                     GuestGUID[i] = GUID;
+            }
+        }
     }
 
     Unit* SelectGuestTarget()
     {
         ObjectGuid TempGUID = GuestGUID[rand32() % 4];
-        if (TempGUID)
+        if (!TempGUID.IsEmpty())
         {
             Unit* unit = ObjectAccessor::GetUnit(*me, TempGUID);
             if (unit && unit->IsAlive())

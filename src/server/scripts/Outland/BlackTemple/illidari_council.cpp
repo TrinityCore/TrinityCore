@@ -304,7 +304,7 @@ public:
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    if (Council[i])
+                    if (!Council[i].IsEmpty())
                     {
                         if (Creature* member = ObjectAccessor::GetCreature(*me, Council[i]))
                             if (member->IsAlive())
@@ -352,7 +352,7 @@ public:
                     uint8 EvadeCheck = 0;
                     for (uint8 i = 0; i < 4; ++i)
                     {
-                        if (Council[i])
+                        if (!Council[i].IsEmpty())
                         {
                             if (Creature* Member = (ObjectAccessor::GetCreature((*me), Council[i])))
                             {

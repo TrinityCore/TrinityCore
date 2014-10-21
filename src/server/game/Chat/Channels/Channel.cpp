@@ -81,7 +81,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
                     for (Tokenizer::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
                     {
                         ObjectGuid banned_guid(uint64(strtoull(*i, NULL, 10)));
-                        if (banned_guid)
+                        if (!banned_guid.IsEmpty())
                         {
                             TC_LOG_DEBUG("chat.system", "Channel(%s) loaded bannedStore %s", name.c_str(), banned_guid.ToString().c_str());
                             bannedStore.insert(banned_guid);
@@ -691,7 +691,7 @@ void Channel::Invite(Player const* player, std::string const& newname)
 
 void Channel::SetOwner(ObjectGuid guid, bool exclaim)
 {
-    if (_ownerGUID)
+    if (!_ownerGUID.IsEmpty())
     {
         // [] will re-add player after it possible removed
         PlayerContainer::iterator p_itr = playersStore.find(_ownerGUID);
@@ -700,7 +700,7 @@ void Channel::SetOwner(ObjectGuid guid, bool exclaim)
     }
 
     _ownerGUID = guid;
-    if (_ownerGUID)
+    if (!_ownerGUID.IsEmpty())
     {
         uint8 oldFlag = GetPlayerFlags(_ownerGUID);
         playersStore[_ownerGUID].SetModerator(true);

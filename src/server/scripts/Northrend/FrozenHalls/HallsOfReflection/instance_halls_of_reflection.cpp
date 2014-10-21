@@ -370,7 +370,7 @@ class instance_halls_of_reflection : public InstanceMapScript
             void SpawnGunship()
             {
                 // don't spawn gunship twice
-                if (GunshipGUID)
+                if (!GunshipGUID.IsEmpty())
                     return;
 
                 if (!_teamInInstance)

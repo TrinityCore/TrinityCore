@@ -172,7 +172,7 @@ public:
         {
             instance->SetBossState(DATA_RELIQUARY_OF_SOULS, NOT_STARTED);
 
-            if (EssenceGUID)
+            if (!EssenceGUID.IsEmpty())
             {
                 if (Creature* essence = ObjectAccessor::GetCreature(*me, EssenceGUID))
                     essence->DespawnOrUnsummon();
@@ -268,7 +268,7 @@ public:
             }
 
             Creature* Essence = NULL;
-            if (EssenceGUID)
+            if (!EssenceGUID.IsEmpty())
             {
                 Essence = ObjectAccessor::GetCreature(*me, EssenceGUID);
                 if (!Essence)
@@ -387,7 +387,7 @@ public:
 
 void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit* /*killer*/)
 {
-    if (ReliquaryGUID)
+    if (!ReliquaryGUID.IsEmpty())
         if (Creature* Reliquary = (ObjectAccessor::GetCreature((*me), ReliquaryGUID)))
             ++(ENSURE_AI(boss_reliquary_of_souls::boss_reliquary_of_soulsAI, Reliquary->AI())->SoulDeathCount);
 

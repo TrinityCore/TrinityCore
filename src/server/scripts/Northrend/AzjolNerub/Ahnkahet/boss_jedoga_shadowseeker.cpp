@@ -250,7 +250,7 @@ public:
         {
             ObjectGuid opfer = instance->GetGuidData(DATA_ADD_JEDOGA_INITIAND);
 
-            if (opfer)
+            if (!opfer.IsEmpty())
             {
                 Talk(TEXT_SACRIFICE_1);
                 instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, opfer);

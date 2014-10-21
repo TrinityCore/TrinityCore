@@ -117,7 +117,7 @@ namespace Movement
 
         WorldPacket data(SMSG_MONSTER_MOVE, 64);
         data << unit->GetPackGUID();
-        if (unit->GetTransGUID())
+        if (!unit->GetTransGUID().IsEmpty())
         {
             data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
             data << unit->GetTransGUID().WriteAsPacked();

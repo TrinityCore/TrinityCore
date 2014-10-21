@@ -232,7 +232,7 @@ class boss_kologarn : public CreatureScript
                 summon->ClearUnitState(UNIT_STATE_CASTING);
 
                 // Victim gets 67351
-                if (eyebeamTarget)
+                if (!eyebeamTarget.IsEmpty())
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*summon, eyebeamTarget))
                     {

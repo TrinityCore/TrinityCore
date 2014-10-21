@@ -232,7 +232,7 @@ public:
                     {
                         for (uint8 i = 0; i < 3; ++i)
                         {
-                            if (TargetGUID[i])
+                            if (!TargetGUID[i].IsEmpty())
                             {
                                 if (Unit* unit = ObjectAccessor::GetUnit(*me, TargetGUID[i]))
                                     unit->CastSpell(unit, SPELL_ATTRACTION, true);

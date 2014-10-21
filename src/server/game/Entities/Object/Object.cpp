@@ -399,10 +399,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(hasFallData);                                            // Has fall data
         data->WriteBit(!hasSplineElevation);                                    // Has spline elevation
         data->WriteBit(guid[5]);
-        data->WriteBit(self->m_movementInfo.transport.guid);                    // Has transport data
+        data->WriteBit(!self->m_movementInfo.transport.guid.IsEmpty());         // Has transport data
         data->WriteBit(0);                                                      // Is missing time
 
-        if (self->m_movementInfo.transport.guid)
+        if (!self->m_movementInfo.transport.guid.IsEmpty())
         {
             ObjectGuid transGuid = self->m_movementInfo.transport.guid;
 
@@ -507,7 +507,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         *data << float(self->GetPositionZMinusOffset());
         data->WriteByteSeq(guid[5]);
 
-        if (self->m_movementInfo.transport.guid)
+        if (!self->m_movementInfo.transport.guid.IsEmpty())
         {
             ObjectGuid transGuid = self->m_movementInfo.transport.guid;
 
@@ -1256,7 +1256,7 @@ void MovementInfo::OutDebug()
     TC_LOG_INFO("misc", "flags2 %s (%u)", Movement::MovementFlagsExtra_ToString(flags2).c_str(), flags2);
     TC_LOG_INFO("misc", "time %u current time %u", time, getMSTime());
     TC_LOG_INFO("misc", "position: `%s`", pos.ToString().c_str());
-    if (transport.guid)
+    if (!transport.guid.IsEmpty())
     {
         TC_LOG_INFO("misc", "TRANSPORT:");
         TC_LOG_INFO("misc", "%s", transport.guid.ToString().c_str());

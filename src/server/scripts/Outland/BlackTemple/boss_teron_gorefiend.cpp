@@ -99,7 +99,7 @@ public:
         {
             if (CheckTeronTimer <= diff)
             {
-                if (TeronGUID)
+                if (!TeronGUID.IsEmpty())
                 {
                     DoZoneInCombat();
 
@@ -364,7 +364,7 @@ public:
             /************************************************************************/
 
             Unit* ghost = NULL;
-            if (GhostGUID)
+            if (!GhostGUID.IsEmpty())
                 ghost = ObjectAccessor::GetUnit(*me, GhostGUID);
             if (ghost && ghost->IsAlive() && ghost->HasAura(SPELL_SHADOW_OF_DEATH))
             {
@@ -410,7 +410,7 @@ public:
                     Talk(SAY_AGGRO);
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                     Done = true;
-                    if (AggroTargetGUID)
+                    if (!AggroTargetGUID.IsEmpty())
                     {
                         Unit* unit = ObjectAccessor::GetUnit(*me, AggroTargetGUID);
                         if (unit)

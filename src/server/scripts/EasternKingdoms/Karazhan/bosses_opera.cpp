@@ -266,7 +266,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (DorotheeGUID)
+            if (!DorotheeGUID.IsEmpty())
             {
                 Creature* Dorothee = (ObjectAccessor::GetCreature((*me), DorotheeGUID));
                 if (Dorothee && Dorothee->IsAlive())
@@ -1293,7 +1293,7 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_ROMULO_AGGRO);
-            if (JulianneGUID)
+            if (!JulianneGUID.IsEmpty())
             {
                 Creature* Julianne = (ObjectAccessor::GetCreature((*me), JulianneGUID));
                 if (Julianne && Julianne->GetVictim())

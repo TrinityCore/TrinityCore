@@ -160,7 +160,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (SacrificeGUID)
+            if (!SacrificeGUID.IsEmpty())
             {
                 Unit* Sacrifice = ObjectAccessor::GetUnit(*me, SacrificeGUID);
                 if (Sacrifice)
@@ -301,7 +301,7 @@ public:
         {
             for (uint8 i = 0; i < 2; ++i)
             {
-                if (PortalGUID[i])
+                if (!PortalGUID[i].IsEmpty())
                 {
                     if (Creature* pPortal = ObjectAccessor::GetCreature(*me, PortalGUID[i]))
                     {
@@ -359,7 +359,7 @@ public:
         {
             for (uint8 i = 0; i < 2; ++i)
             {
-                if (PortalGUID[i])
+                if (!PortalGUID[i].IsEmpty())
                 {
                     if (Creature* pPortal = ObjectAccessor::GetCreature((*me), PortalGUID[i]))
                         pPortal->DespawnOrUnsummon();

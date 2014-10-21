@@ -297,7 +297,7 @@ void Map::ScriptsProcess()
         ScriptAction const& step = iter->second;
 
         Object* source = NULL;
-        if (step.sourceGUID)
+        if (!step.sourceGUID.IsEmpty())
         {
             switch (step.sourceGUID.GetHigh())
             {
@@ -336,7 +336,7 @@ void Map::ScriptsProcess()
         }
 
         WorldObject* target = NULL;
-        if (step.targetGUID)
+        if (!step.targetGUID.IsEmpty())
         {
             switch (step.targetGUID.GetHigh())
             {

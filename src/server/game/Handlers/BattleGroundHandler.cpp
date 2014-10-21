@@ -278,15 +278,16 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
     uint32 hcount = 0;
     Player* aplr = NULL;
     Player* hplr = NULL;
-
-    if (ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_ALLIANCE))
+    ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_ALLIANCE);
+    if (!guid.IsEmpty())
     {
         aplr = ObjectAccessor::FindPlayer(guid);
         if (aplr)
             ++acount;
     }
 
-    if (ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_HORDE))
+    guid = bg->GetFlagPickerGUID(TEAM_HORDE);
+    if (!guid.IsEmpty())
     {
         hplr = ObjectAccessor::FindPlayer(guid);
         if (hplr)

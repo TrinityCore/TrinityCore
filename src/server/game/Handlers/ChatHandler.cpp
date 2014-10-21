@@ -662,7 +662,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
 
             WorldPacket data;
             ChatHandler::BuildChatPacket(data, type, LANG_ADDON, sender, NULL, message, 0U, "", DEFAULT_LOCALE, prefix);
-            group->BroadcastAddonMessagePacket(&data, prefix, true, -1, group->GetMemberGroup(sender->GetGUID()));
+            group->BroadcastAddonMessagePacket(&data, prefix, true, -1, sender->GetGUID());
             break;
         }
         default:

@@ -132,7 +132,7 @@ bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)
 
     if (target)
         target_session = target->GetSession();
-    else if (guid)
+    else if (!guid.IsEmpty())
         target_account = sObjectMgr->GetPlayerAccountIdByGUID(guid);
 
     if (!target_session && !target_account)
@@ -1093,10 +1093,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
             if (Player* player = ObjectAccessor::FindPlayerByName(name))
                 return player->GetGUID();
 
-            if (ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(name))
-                return guid;
-
-            return ObjectGuid::Empty;
+            return sObjectMgr->GetPlayerGUIDByName(name);
         }
         case SPELL_LINK_CREATURE:
         {

@@ -261,7 +261,7 @@ public:
                 }
                 else                                           // Encounter is a loop pretty much. Phase 1 -> Phase 2 -> Phase 1 -> Phase 2 till death or enrage
                 {
-                    if (TargetGUID)
+                    if (!TargetGUID.IsEmpty())
                         RevertThreatOnTarget(TargetGUID);
                     TargetGUID.Clear();
                     Phase1 = true;

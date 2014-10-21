@@ -478,13 +478,14 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
     if (!grp)
         return;
 
-    if (ObjectGuid guid = grp->GetMemberGUID(membername))
+    ObjectGuid guid = grp->GetMemberGUID(membername);
+    if (!guid.IsEmpty())
     {
         Player::RemoveFromGroup(grp, guid, GROUP_REMOVEMETHOD_KICK, GetPlayer()->GetGUID());
         return;
     }
 
-    if (Player* player = grp->GetInvited(membername))
+    if (Player* player = grp->GetInvited(guid))
     {
         player->UninviteFromGroup();
         return;

@@ -919,7 +919,7 @@ void npc_head::npc_headAI::Disappear()
     if (withbody)
         return;
 
-    if (bodyGUID)
+    if (!bodyGUID.IsEmpty())
     {
         Creature* body = ObjectAccessor::GetCreature((*me), bodyGUID);
         if (body && body->IsAlive())
