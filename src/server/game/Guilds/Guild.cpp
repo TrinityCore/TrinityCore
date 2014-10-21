@@ -1949,7 +1949,7 @@ bool Guild::LoadMemberFromDB(Field* fields)
     ObjectGuid::LowType lowguid = fields[1].GetUInt32();
     ObjectGuid playerGuid(HighGuid::Player, lowguid);
 
-    auto [memberIt, isNew] = m_members.try_emplace(lowguid, m_id, playerGuid, fields[2].GetUInt8());
+    auto [memberIt, isNew] = m_members.try_emplace(playerGuid, m_id, playerGuid, fields[2].GetUInt8());
     if (!isNew)
     {
         TC_LOG_ERROR("guild", "Tried to add {} to guild '{}'. Member already exists.", playerGuid.ToString(), m_name);
@@ -2206,7 +2206,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8
     if (rankId == GUILD_RANK_NONE)
         rankId = _GetLowestRankId();
 
-    auto [memberIt, isNew] = m_members.try_emplace(lowguid, m_id, guid, rankId);
+    auto [memberIt, isNew] = m_members.try_emplace(guid, m_id, guid, rankId);
     if (!isNew)
     {
         TC_LOG_ERROR("guild", "Tried to add {} to guild '{}'. Member already exists.", guid.ToString(), m_name);
@@ -2279,7 +2279,7 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
         Member* newLeader = nullptr;
         for (auto& [memberGuid, member] : m_members)
         {
-            if (memberGuid == lowguid)
+            if (memberGuid == guid)
                 oldLeader = &member;
             else if (!newLeader || newLeader->GetRankId() > member.GetRankId())
                 newLeader = &member;
@@ -2307,7 +2307,7 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
     // Call script on remove before member is actually removed from guild (and database)
     sScriptMgr->OnGuildRemoveMember(this, player, isDisbanding, isKicked);
 
-    m_members.erase(lowguid);
+    m_members.erase(guid);
 
     // If player not online data in data field will be loaded from guild tabs no need to update it !!
     if (player)
@@ -2347,7 +2347,7 @@ bool Guild::ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid
 
 bool Guild::IsMember(ObjectGuid guid) const
 {
-    return m_members.find(guid.GetCounter()) != m_members.end();
+    return m_members.find(guid) != m_members.end();
 }
 
 uint64 Guild::GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const
