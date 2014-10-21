@@ -840,7 +840,7 @@ void Map::Update(uint32 t_diff)
 
             // Totems
             for (ObjectGuid const& summonGuid : player->m_SummonSlot)
-                if (summonGuid)
+                if (!summonGuid.IsEmpty())
                     if (Creature* unit = GetCreature(summonGuid))
                         if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
                             toVisit.push_back(unit);

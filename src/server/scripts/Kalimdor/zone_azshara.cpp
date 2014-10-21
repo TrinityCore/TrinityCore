@@ -148,7 +148,7 @@ public:
 
         void AttackStart(Unit* who) override
         {
-            if (!who || PlayerGUID)
+            if (!who || !PlayerGUID.IsEmpty())
                 return;
 
             Player* player = who->ToPlayer();

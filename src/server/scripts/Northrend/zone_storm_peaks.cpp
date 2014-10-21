@@ -575,7 +575,7 @@ struct npc_wild_wyrm : public VehicleAI
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (_playerGuid || spellInfo->Id != SPELL_SPEAR_OF_HODIR)
+        if (!_playerGuid.IsEmpty() || spellInfo->Id != SPELL_SPEAR_OF_HODIR)
             return;
 
         _playerGuid = caster->GetGUID();

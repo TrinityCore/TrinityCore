@@ -1283,7 +1283,7 @@ void Creature::SetLootRecipient(Unit* unit, bool withGroup)
             m_lootRecipientGroup = group->GetLowGUID();
     }
     else
-        m_lootRecipientGroup = ObjectGuid::Empty;
+        m_lootRecipientGroup = 0;
 
     SetDynamicFlag(UNIT_DYNFLAG_TAPPED);
 }
@@ -3262,7 +3262,7 @@ void Creature::ReacquireSpellFocusTarget()
 
     if (!HasUnitFlag2(UNIT_FLAG2_CANNOT_TURN))
     {
-        if (_spellFocusInfo.Target)
+        if (!_spellFocusInfo.Target.IsEmpty())
         {
             if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, _spellFocusInfo.Target))
                 SetFacingToObject(objTarget, false);

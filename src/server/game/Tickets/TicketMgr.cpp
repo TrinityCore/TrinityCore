@@ -397,7 +397,7 @@ void TicketMgr::ResolveAndCloseTicket(uint32 ticketId, ObjectGuid source)
         CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
         ticket->SetClosedBy(source);
         ticket->SetResolvedBy(source);
-        if (source)
+        if (!source.IsEmpty())
             --_openTicketCount;
         ticket->SaveToDB(trans);
     }

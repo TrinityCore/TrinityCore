@@ -696,7 +696,7 @@ struct npc_greyheart_spellbinder : public ScriptedAI
     {
         if (!me->IsInCombat() && !me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
         {
-            if (leotherasGUID)
+            if (!leotherasGUID.IsEmpty())
             {
                 Creature* leotheras = ObjectAccessor::GetCreature(*me, leotherasGUID);
                 if (leotheras && leotheras->IsAlive())
@@ -710,7 +710,7 @@ struct npc_greyheart_spellbinder : public ScriptedAI
         if (!leotherasGUID)
             leotherasGUID = instance->GetGuidData(DATA_LEOTHERAS);
 
-        if (!me->IsInCombat() && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
+        if (!me->IsInCombat() && !instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER).IsEmpty())
         {
             if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER)))
                 AttackStart(victim);

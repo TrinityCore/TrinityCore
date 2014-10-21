@@ -1420,7 +1420,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             if (e.GetTargetType() == SMART_TARGET_SELF)
-                me->SetFacingTo((me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && me->GetTransGUID() ? me->GetTransportHomePosition() : me->GetHomePosition()).GetOrientation());
+                me->SetFacingTo((me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !me->GetTransGUID().IsEmpty() ? me->GetTransportHomePosition() : me->GetHomePosition()).GetOrientation());
             else if (e.GetTargetType() == SMART_TARGET_POSITION)
                 me->SetFacingTo(e.target.o);
             else if (!targets.empty())
@@ -3394,7 +3394,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                 if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
                 {
                     Unit* invoker = nullptr;
-                    if (me && mTimedActionListInvoker)
+                    if (me && !mTimedActionListInvoker.IsEmpty())
                         invoker = ObjectAccessor::GetUnit(*me, mTimedActionListInvoker);
                     ProcessEvent(e, invoker);
                     e.enableTimed = false;//disable event if it is in an ActionList and was processed once

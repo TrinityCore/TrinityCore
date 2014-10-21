@@ -274,7 +274,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     npc->CastSpell(_player, bindspell, true);
 
     WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, (8+4));
-    data << uint64(npc->GetGUID());
+    data << npc->GetGUID();
     data << uint32(bindspell);
     SendPacket(&data);
 
@@ -308,7 +308,7 @@ void WorldSession::SendStablePet(ObjectGuid guid)
 
     WorldPacket data(MSG_LIST_STABLED_PETS, 200);           // guess size
 
-    data << uint64(guid);
+    data << guid;
 
     size_t wpos = data.wpos();
     data << uint8(0);                                       // place holder for slot show number

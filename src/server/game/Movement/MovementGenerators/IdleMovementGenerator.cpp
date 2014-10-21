@@ -104,7 +104,7 @@ bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
 
     Movement::MoveSplineInit init(owner);
     init.MoveTo(PositionToVector3(*owner), false);
-    if (owner->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && owner->GetTransGUID())
+    if (owner->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !owner->GetTransGUID().IsEmpty())
         init.DisableTransportPathTransformations();
     init.SetFacing(angle);
     init.Launch();
@@ -159,7 +159,7 @@ void DistractMovementGenerator::Initialize(Unit* owner)
 
     Movement::MoveSplineInit init(owner);
     init.MoveTo(PositionToVector3(*owner), false);
-    if (owner->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && owner->GetTransGUID())
+    if (owner->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !owner->GetTransGUID().IsEmpty())
         init.DisableTransportPathTransformations();
     init.SetFacing(_orientation);
     init.Launch();

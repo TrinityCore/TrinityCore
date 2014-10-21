@@ -284,8 +284,8 @@ void Spell::EffectInstaKill()
         finish();
 
     WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
-    data << uint64(m_caster->GetGUID());
-    data << uint64(unitTarget->GetGUID());
+    data << m_caster->GetGUID();
+    data << unitTarget->GetGUID();
     data << uint32(m_spellInfo->Id);
     m_caster->SendMessageToSet(&data, true);
 
@@ -2322,8 +2322,8 @@ void Spell::EffectDispel()
             if (!failCount)
             {
                 // Failed to dispell
-                dataFail << uint64(m_caster->GetGUID());            // Caster GUID
-                dataFail << uint64(unitTarget->GetGUID());          // Victim GUID
+                dataFail << m_caster->GetGUID();                    // Caster GUID
+                dataFail << unitTarget->GetGUID();                  // Victim GUID
                 dataFail << uint32(m_spellInfo->Id);                // dispel spell id
             }
             ++failCount;
@@ -3679,8 +3679,8 @@ void Spell::EffectDuel()
 
     // Send request
     WorldPacket data(SMSG_DUEL_REQUESTED, 8 + 8);
-    data << uint64(pGameObj->GetGUID());
-    data << uint64(caster->GetGUID());
+    data << pGameObj->GetGUID();
+    data << caster->GetGUID();
     caster->SendDirectMessage(&data);
     target->SendDirectMessage(&data);
 
@@ -4173,7 +4173,7 @@ void Spell::EffectForceDeselect()
 
     // and selection
     data.Initialize(SMSG_CLEAR_TARGET, 8);
-    data << uint64(unitCaster->GetGUID());
+    data << unitCaster->GetGUID();
     Trinity::MessageDistDelivererToHostile notifierClear(unitCaster, &data, dist);
     Cell::VisitWorldObjects(unitCaster, notifierClear, dist);
 
@@ -4976,8 +4976,8 @@ void Spell::EffectStealBeneficialBuff()
             if (!failCount)
             {
                 // Failed to dispell
-                dataFail << uint64(m_caster->GetGUID());            // Caster GUID
-                dataFail << uint64(unitTarget->GetGUID());          // Victim GUID
+                dataFail << m_caster->GetGUID();                    // Caster GUID
+                dataFail << unitTarget->GetGUID();                  // Victim GUID
                 dataFail << uint32(m_spellInfo->Id);                // dispel spell id
             }
             ++failCount;

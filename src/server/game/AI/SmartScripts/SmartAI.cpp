@@ -717,7 +717,7 @@ void SmartAI::OnCharmed(bool isNew)
         else
             me->SetWalk(!_run);
 
-        if (me->LastCharmerGUID)
+        if (!me->LastCharmerGUID.IsEmpty())
         {
             if (!me->HasReactState(REACT_PASSIVE))
                 if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))

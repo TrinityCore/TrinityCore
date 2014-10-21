@@ -719,7 +719,7 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
     // Sanitize input roles
     roles &= PLAYER_ROLE_ANY;
 
-    if (guid)
+    if (!guid.IsEmpty())
     {
         if (Player* player = ObjectAccessor::FindPlayer(guid))
             roles = FilterClassRoles(player, roles);
