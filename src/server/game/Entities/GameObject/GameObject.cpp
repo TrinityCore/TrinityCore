@@ -57,9 +57,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_DBTableGuid = 0;
     m_rotation = 0;
 
-    m_lootRecipientGroup = 0;
     m_groupLootTimer = 0;
-    lootingGroupLowGUID = 0;
 
     ResetLootMode(); // restore default loot mode
     m_stationaryPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
@@ -560,13 +558,14 @@ void GameObject::Update(uint32 diff)
                     {
                         if (m_groupLootTimer <= diff)
                         {
-                            Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID);
-                            if (group)
+                            if (Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID))
                                 group->EndRoll(&loot);
+
                             m_groupLootTimer = 0;
-                            lootingGroupLowGUID = 0;
+                            lootingGroupLowGUID.Clear();
                         }
-                        else m_groupLootTimer -= diff;
+                        else
+                            m_groupLootTimer -= diff;
                     }
                     break;
                 case GAMEOBJECT_TYPE_TRAP:
@@ -2204,7 +2203,7 @@ void GameObject::SetLootRecipient(Unit* unit)
     if (!unit)
     {
         m_lootRecipient.Clear();
-        m_lootRecipientGroup = 0;
+        m_lootRecipientGroup.Clear();
         return;
     }
 
@@ -2217,7 +2216,7 @@ void GameObject::SetLootRecipient(Unit* unit)
 
     m_lootRecipient = player->GetGUID();
     if (Group* group = player->GetGroup())
-        m_lootRecipientGroup = group->GetLowGUID();
+        m_lootRecipientGroup = group->GetGUID();
 }
 
 bool GameObject::IsLootAllowedFor(Player const* player) const

@@ -780,9 +780,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         Group* GetLootRecipientGroup() const;
         void SetLootRecipient(Unit* unit);
         bool IsLootAllowedFor(Player const* player) const;
-        bool HasLootRecipient() const { return !m_lootRecipient.IsEmpty() || m_lootRecipientGroup; }
+        bool HasLootRecipient() const { return !m_lootRecipient.IsEmpty() || !m_lootRecipientGroup.IsEmpty(); }
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
-        uint32 lootingGroupLowGUID;                         // used to find group which is looting
+        ObjectGuid lootingGroupLowGUID;                     // used to find group which is looting
 
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id) const override;
@@ -881,7 +881,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         Position m_stationaryPosition;
 
         ObjectGuid m_lootRecipient;
-        uint32 m_lootRecipientGroup;
+        ObjectGuid m_lootRecipientGroup;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
     private:
         void RemoveFromOwner();
