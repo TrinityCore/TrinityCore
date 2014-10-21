@@ -252,7 +252,8 @@ void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    if (ObjectGuid lguid = GetPlayer()->GetLootGUID())
+    ObjectGuid lguid = GetPlayer()->GetLootGUID();
+    if (!lguid.IsEmpty())
         if (lguid == guid)
             DoLootRelease(lguid);
 }

@@ -377,7 +377,8 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_REQUEST Message, security - %u", GetSecurity());
 
-    if (ObjectGuid lguid = GetPlayer()->GetLootGUID())
+    ObjectGuid lguid = GetPlayer()->GetLootGUID();
+    if (!lguid.IsEmpty())
         DoLootRelease(lguid);
 
     bool instantLogout = (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat()) ||
@@ -611,7 +612,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
 
         if (HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmHandle.Index)))
         {
-            if (friendGuid)
+            if (!friendGuid.IsEmpty())
             {
                 if (friendGuid == GetPlayer()->GetGUID())
                     friendResult = FRIEND_SELF;
@@ -692,7 +693,7 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
     {
         IgnoreGuid = ObjectGuid(HIGHGUID_PLAYER, (*result)[0].GetUInt32());
 
-        if (IgnoreGuid)
+        if (!IgnoreGuid.IsEmpty())
         {
             if (IgnoreGuid == GetPlayer()->GetGUID())              //not add yourself
                 ignoreResult = FRIEND_IGNORE_SELF;

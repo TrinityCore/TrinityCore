@@ -172,7 +172,8 @@ public:
 
             if (uiChainHealTimer <= diff)
             {
-                if (ObjectGuid TargetGUID = GetChainHealTargetGUID())
+                ObjectGuid TargetGUID = GetChainHealTargetGUID();
+                if (!TargetGUID.IsEmpty())
                 {
                     if (Creature* target = ObjectAccessor::GetCreature(*me, TargetGUID))
                         DoCast(target, SPELL_CHAIN_HEAL);

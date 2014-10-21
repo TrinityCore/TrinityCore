@@ -221,7 +221,7 @@ class instance_naxxramas : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_BIRTH:
-                        if (SapphironGUID)
+                        if (!SapphironGUID.IsEmpty())
                         {
                             if (Creature* sapphiron = instance->GetCreature(SapphironGUID))
                                 sapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH);

@@ -232,7 +232,7 @@ public:
         {
             if (CheckTimer <= diff)
             {
-                if (AnetheronGUID)
+                if (!AnetheronGUID.IsEmpty())
                 {
                     Creature* boss = ObjectAccessor::GetCreature(*me, AnetheronGUID);
                     if (!boss || (boss && boss->isDead()))

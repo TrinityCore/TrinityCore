@@ -325,7 +325,7 @@ public:
                 // and reseting equipment
                 me->LoadEquipment();
 
-                if (instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
+                if (!instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER).IsEmpty())
                 {
                     Unit* victim = NULL;
                     victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
@@ -353,9 +353,9 @@ public:
         //Despawn all Inner Demon summoned
         void DespawnDemon()
         {
-            for (uint8 i=0; i<5; ++i)
+            for (uint8 i = 0; i < 5; ++i)
             {
-                if (InnderDemon[i])
+                if (!InnderDemon[i].IsEmpty())
                 {
                     //delete creature
                     Creature* creature = ObjectAccessor::GetCreature((*me), InnderDemon[i]);
@@ -373,7 +373,7 @@ public:
         {
             for (uint8 i = 0; i < 5; ++i)
             {
-                if (InnderDemon[i])
+                if (!InnderDemon[i].IsEmpty())
                 {
                     Creature* unit = ObjectAccessor::GetCreature((*me), InnderDemon[i]);
                     if (unit && unit->IsAlive())
@@ -402,11 +402,10 @@ public:
             Talk(SAY_DEATH);
 
             //despawn copy
-            if (Demon)
-            {
+            if (!Demon.IsEmpty())
                 if (Creature* pDemon = ObjectAccessor::GetCreature(*me, Demon))
                     pDemon->DespawnOrUnsummon();
-            }
+
             instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
         }
 
@@ -742,7 +741,7 @@ public:
         {
             if (!me->IsInCombat() && !me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
             {
-                if (leotherasGUID)
+                if (!leotherasGUID.IsEmpty())
                 {
                     Creature* leotheras = ObjectAccessor::GetCreature(*me, leotherasGUID);
                     if (leotheras && leotheras->IsAlive())

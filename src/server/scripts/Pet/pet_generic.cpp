@@ -66,7 +66,7 @@ class npc_pet_gen_mojo : public CreatureScript
 
                 Talk(SAY_MOJO, player);
 
-                if (_victimGUID)
+                if (!_victimGUID.IsEmpty())
                     if (Player* victim = ObjectAccessor::GetPlayer(*me, _victimGUID))
                         victim->RemoveAura(SPELL_FEELING_FROGGY);
 

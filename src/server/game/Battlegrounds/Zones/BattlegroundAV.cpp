@@ -567,7 +567,7 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
     {
         uint8 tmp = node-BG_AV_NODES_DUNBALDAR_SOUTH;
         //despawn marshal
-        if (BgCreatures[AV_CPLACE_A_MARSHAL_SOUTH + tmp])
+        if (!BgCreatures[AV_CPLACE_A_MARSHAL_SOUTH + tmp].IsEmpty())
             DelCreature(AV_CPLACE_A_MARSHAL_SOUTH + tmp);
         else
             TC_LOG_ERROR("bg.battleground", "BG_AV: playerdestroyedpoint: marshal %i doesn't exist", AV_CPLACE_A_MARSHAL_SOUTH + tmp);
@@ -625,10 +625,10 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
         TC_LOG_DEBUG("bg.battleground", "bg_av depopulating mine %i (0=north, 1=south)", mine);
         if (mine == AV_SOUTH_MINE)
             for (uint16 i=AV_CPLACE_MINE_S_S_MIN; i <= AV_CPLACE_MINE_S_S_MAX; i++)
-                if (BgCreatures[i])
+                if (!BgCreatures[i].IsEmpty())
                     DelCreature(i); /// @todo just set the respawntime to 999999
         for (uint16 i=((mine == AV_NORTH_MINE)?AV_CPLACE_MINE_N_1_MIN:AV_CPLACE_MINE_S_1_MIN); i <= ((mine == AV_NORTH_MINE)?AV_CPLACE_MINE_N_3:AV_CPLACE_MINE_S_3); i++)
-            if (BgCreatures[i])
+            if (!BgCreatures[i].IsEmpty())
                 DelCreature(i); /// @todo here also
     }
     SendMineWorldStates(mine);
@@ -725,7 +725,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
         else
            creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE3 : AV_NPC_H_GRAVEDEFENSE3;
         //spiritguide
-        if (BgCreatures[node])
+        if (!BgCreatures[node].IsEmpty())
             DelCreature(node);
         if (!AddSpiritGuide(node, BG_AV_CreaturePos[node], GetTeamIndexByTeamId(owner)))
             TC_LOG_ERROR("bg.battleground", "AV: couldn't spawn spiritguide at node %i", node);
@@ -761,9 +761,9 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
 void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
 {
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);
-    for (uint8 i=0; i<4; i++)
-        if (BgCreatures[c_place+i])
-            DelCreature(c_place+i);
+    for (uint8 i = 0; i < 4; i++)
+        if (!BgCreatures[c_place + i].IsEmpty())
+            DelCreature(c_place + i);
     //spiritguide
     if (!IsTower(node) && !BgCreatures[node].IsEmpty())
         DelCreature(node);
@@ -1490,7 +1490,7 @@ void BattlegroundAV::ResetBGSubclass()
 
     m_Mine_Timer=AV_MINE_TICK_TIMER;
     for (uint16 i = 0; i < AV_CPLACE_MAX+AV_STATICCPLACE_MAX; i++)
-        if (BgCreatures[i])
+        if (!BgCreatures[i].IsEmpty())
             DelCreature(i);
 }
 

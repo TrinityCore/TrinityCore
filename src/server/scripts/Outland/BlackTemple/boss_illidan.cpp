@@ -711,7 +711,7 @@ public:
             default:
                 break;
             }
-            if (MaievGUID)
+            if (!MaievGUID.IsEmpty())
             {
                 if (Creature* maiev = ObjectAccessor::GetCreature(*me, MaievGUID))
                     if (maiev->IsAlive())
@@ -853,7 +853,7 @@ public:
             case 8: // glaive return
                 for (uint8 i = 0; i < 2; ++i)
                 {
-                    if (GlaiveGUID[i])
+                    if (!GlaiveGUID[i].IsEmpty())
                     {
                         Unit* Glaive = ObjectAccessor::GetUnit(*me, GlaiveGUID[i]);
                         if (Glaive)
@@ -871,7 +871,7 @@ public:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                 for (uint8 i = 0; i < 2; ++i)
                 {
-                    if (GlaiveGUID[i])
+                    if (!GlaiveGUID[i].IsEmpty())
                     {
                         if (Creature* glaive = ObjectAccessor::GetCreature(*me, GlaiveGUID[i]))
                             glaive->DespawnOrUnsummon();
@@ -928,7 +928,7 @@ public:
                 DoResetThreat();
                 break;
             case 9:
-                if (MaievGUID)
+                if (!MaievGUID.IsEmpty())
                     EnterPhase(PHASE_NORMAL_MAIEV); // Depending on whether we summoned Maiev, we switch to either phase 5 or 3
                 else
                     EnterPhase(PHASE_NORMAL_2);

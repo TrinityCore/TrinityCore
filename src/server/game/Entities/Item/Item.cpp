@@ -421,7 +421,7 @@ bool Item::LoadFromDB(uint32 guid, ObjectGuid owner_guid, Field* fields, uint32 
         return false;
 
     // set owner (not if item is only loaded for gbank/auction/mail
-    if (owner_guid)
+    if (!owner_guid.IsEmpty())
         SetOwnerGUID(owner_guid);
 
     bool need_save = false;                                 // need explicit save data at load fixes

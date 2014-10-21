@@ -1011,9 +1011,9 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
         return false;
 
     // Always seen by owner and friendly units
-    if (ObjectGuid guid = GetOwnerGUID())
+    if (!GetOwnerGUID().IsEmpty())
     {
-        if (seer->GetGUID() == guid)
+        if (seer->GetGUID() == GetOwnerGUID())
             return true;
 
         Unit* owner = GetOwner();
@@ -1298,7 +1298,7 @@ void GameObject::Use(Unit* user)
                 float x_i = GetPositionX() + relativeDistance * std::cos(orthogonalOrientation);
                 float y_i = GetPositionY() + relativeDistance * std::sin(orthogonalOrientation);
 
-                if (itr->second)
+                if (!itr->second.IsEmpty())
                 {
                     if (Player* ChairUser = ObjectAccessor::FindPlayer(itr->second))
                     {
@@ -1509,7 +1509,7 @@ void GameObject::Use(Unit* user)
             GameObjectTemplate const* info = GetGOInfo();
 
             Player* m_ritualOwner = NULL;
-            if (m_ritualOwnerGUID)
+            if (!m_ritualOwnerGUID.IsEmpty())
                 m_ritualOwner = ObjectAccessor::FindPlayer(m_ritualOwnerGUID);
 
             // ritual owner is set for GO's without owner (not summoned)

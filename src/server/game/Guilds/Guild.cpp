@@ -3402,8 +3402,8 @@ void Guild::_BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, const char*
     else if (param1)
         data << param1;
 
-    if (guid)
-        data << uint64(guid);
+    if (!guid.IsEmpty())
+        data << guid;
 
     BroadcastPacket(&data);
 

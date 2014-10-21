@@ -360,7 +360,7 @@ void TicketMgr::CloseTicket(uint32 ticketId, ObjectGuid source)
     {
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetClosedBy(source);
-        if (source)
+        if (!source.IsEmpty())
             --_openTicketCount;
         ticket->SaveToDB(trans);
     }

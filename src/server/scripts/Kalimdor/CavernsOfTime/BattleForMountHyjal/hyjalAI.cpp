@@ -816,7 +816,7 @@ void hyjalAI::UpdateAI(uint32 diff)
     {
         for (uint8 i = 0; i < 2; ++i)
         {
-            if (BossGUID[i])
+            if (!BossGUID[i].IsEmpty())
             {
                 Unit* unit = ObjectAccessor::GetUnit(*me, BossGUID[i]);
                 if (unit && (!unit->IsAlive()))

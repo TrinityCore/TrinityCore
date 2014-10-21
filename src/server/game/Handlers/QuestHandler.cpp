@@ -595,7 +595,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
             continue;
         }
 
-        if (receiver->GetDivider())
+        if (!receiver->GetDivider().IsEmpty())
         {
             sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_BUSY);
             continue;

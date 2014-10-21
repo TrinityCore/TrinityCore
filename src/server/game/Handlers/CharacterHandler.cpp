@@ -1485,7 +1485,8 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     // character with this name already exist
-    if (ObjectGuid newGuid = sObjectMgr->GetPlayerGUIDByName(customizeInfo.Name))
+    ObjectGuid newGuid = sObjectMgr->GetPlayerGUIDByName(customizeInfo.Name);
+    if (!newGuid.IsEmpty())
     {
         if (newGuid != customizeInfo.Guid)
         {
@@ -1743,7 +1744,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     }
 
     // character with this name already exist
-    if (ObjectGuid newGuid = sObjectMgr->GetPlayerGUIDByName(factionChangeInfo.Name))
+    ObjectGuid newGuid = sObjectMgr->GetPlayerGUIDByName(factionChangeInfo.Name);
+    if (!newGuid.IsEmpty())
     {
         if (newGuid != factionChangeInfo.Guid)
         {

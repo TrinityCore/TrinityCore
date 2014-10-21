@@ -176,7 +176,7 @@ class npc_winterfin_playmate : public CreatureScript
                         {
                             playerGUID = player->GetGUID();
                             orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE);
-                            if (orphanGUID)
+                            if (!orphanGUID.IsEmpty())
                                 phase = 1;
                         }
             }
@@ -283,7 +283,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
                         {
                             playerGUID = player->GetGUID();
                             orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR);
-                            if (orphanGUID)
+                            if (!orphanGUID.IsEmpty())
                                 phase = 1;
                         }
             }
@@ -389,7 +389,7 @@ class npc_the_biggest_tree : public CreatureScript
                         {
                             playerGUID = player->GetGUID();
                             orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE);
-                            if (orphanGUID)
+                            if (!orphanGUID.IsEmpty())
                                 phase = 1;
                         }
             }
@@ -484,7 +484,7 @@ class npc_high_oracle_soo_roo : public CreatureScript
                         {
                             playerGUID = player->GetGUID();
                             orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE);
-                            if (orphanGUID)
+                            if (!orphanGUID.IsEmpty())
                                 phase = 1;
                         }
             }
@@ -580,7 +580,7 @@ class npc_elder_kekek : public CreatureScript
                         {
                             playerGUID = player->GetGUID();
                             orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR);
-                            if (orphanGUID)
+                            if (!orphanGUID.IsEmpty())
                                 phase = 1;
                         }
             }
@@ -676,7 +676,7 @@ class npc_the_etymidian : public CreatureScript
                         {
                             playerGUID = player->GetGUID();
                             orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE);
-                            if (orphanGUID)
+                            if (!orphanGUID.IsEmpty())
                                 phase = 1;
                         }
             }
@@ -797,14 +797,14 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                         {
                             playerGUID = player->GetGUID();
                             orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE);
-                            if (orphanGUID)
+                            if (!orphanGUID.IsEmpty())
                                 phase = 1;
                         }
                         else if (player->GetQuestStatus(QUEST_THE_DRAGON_QUEEN_WOLVAR) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
                             orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR);
-                            if (orphanGUID)
+                            if (!orphanGUID.IsEmpty())
                                 phase = 7;
                         }
                     }

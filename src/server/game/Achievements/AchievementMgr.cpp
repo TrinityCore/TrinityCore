@@ -868,7 +868,7 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
         // broadcast realm first reached
         WorldPacket data(SMSG_SERVER_FIRST_ACHIEVEMENT, GetOwner()->GetName().size() + 1 + 8 + 4 + 4);
         data << GetOwner()->GetName();
-        data << uint64(GetOwner()->GetGUID());
+        data << GetOwner()->GetGUID();
         data << uint32(achievement->ID);
         data << uint32(0);                                  // 1=link supplied string as player name, 0=display plain string
         sWorld->SendGlobalMessage(&data);

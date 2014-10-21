@@ -417,7 +417,7 @@ public:
 
             if (id == 1)
             {
-                if (PlayerGUID)
+                if (!PlayerGUID.IsEmpty())
                 {
                     Unit* player = ObjectAccessor::GetUnit(*me, PlayerGUID);
                     if (player)
@@ -441,7 +441,7 @@ public:
                     if (FlyTimer <= diff)
                     {
                         Tapped = false;
-                        if (PlayerGUID)
+                        if (!PlayerGUID.IsEmpty())
                         {
                             Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                             if (player && player->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
@@ -551,7 +551,7 @@ public:
             {
                 if (PoisonTimer <= diff)
                 {
-                    if (PlayerGUID)
+                    if (!PlayerGUID.IsEmpty())
                     {
                         Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                         if (player && player->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
@@ -776,7 +776,7 @@ public:
                 IllidanGUID = Illidan->GetGUID();
                 Illidan->SetVisible(false);
             }
-            if (PlayerGUID)
+            if (!PlayerGUID.IsEmpty())
             {
                 Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                 if (player)
@@ -1760,7 +1760,7 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
 
             if (WaveCount < 3)//1-3 Wave
             {
-                if (PlayerGUID)
+                if (!PlayerGUID.IsEmpty())
                 {
                     if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     {
@@ -1775,7 +1775,7 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
             if (WavesInfo[WaveCount].CreatureId == 22076) // Torloth
             {
                 ENSURE_AI(npc_torloth_the_magnificent::npc_torloth_the_magnificentAI, Spawn->AI())->LordIllidanGUID = me->GetGUID();
-                if (PlayerGUID)
+                if (!PlayerGUID.IsEmpty())
                     ENSURE_AI(npc_torloth_the_magnificent::npc_torloth_the_magnificentAI, Spawn->AI())->AggroTargetGUID = PlayerGUID;
             }
         }

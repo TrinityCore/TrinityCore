@@ -225,7 +225,7 @@ void LFGGroupScript::OnInviteMember(Group* group, ObjectGuid guid)
     // No gguid ==  new group being formed
     // No leader == after group creation first invite is new leader
     // leader and no gguid == first invite after leader is added to new group (this is the real invite)
-    if (leader && !gguid)
+    if (!leader.IsEmpty() && gguid.IsEmpty())
         sLFGMgr->LeaveLfg(leader);
 }
 

@@ -303,7 +303,7 @@ Aura* Aura::Create(SpellInfo const* spellproto, uint8 effMask, WorldObject* owne
     ASSERT(caster || !casterGUID.IsEmpty());
     ASSERT(effMask <= MAX_EFFECT_MASK);
     // try to get caster of aura
-    if (casterGUID)
+    if (!casterGUID.IsEmpty())
     {
         if (owner->GetGUID() == casterGUID)
             caster = owner->ToUnit();
@@ -1704,7 +1704,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         // don't allow passive area auras to stack
         if (m_spellInfo->IsMultiSlotAura() && !IsArea())
             return true;
-        if (!GetCastItemGUID().IsEmpty() && existingAura->GetCastItemGUID())
+        if (!GetCastItemGUID().IsEmpty() && !existingAura->GetCastItemGUID().IsEmpty())
             if (GetCastItemGUID() != existingAura->GetCastItemGUID() && (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_ENCHANT_PROC))
                 return true;
         // same spell with same caster should not stack

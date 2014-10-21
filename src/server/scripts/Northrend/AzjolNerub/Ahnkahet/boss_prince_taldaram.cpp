@@ -247,7 +247,7 @@ class boss_prince_taldaram : public CreatureScript
 
             Unit* GetEmbraceTarget()
             {
-                if (_embraceTargetGUID)
+                if (!_embraceTargetGUID.IsEmpty())
                     return ObjectAccessor::GetUnit(*me, _embraceTargetGUID);
 
                 return NULL;
