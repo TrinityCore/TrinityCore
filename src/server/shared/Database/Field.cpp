@@ -46,7 +46,7 @@ void Field::SetByteValue(const void* newValue, const size_t newSize, enum_field_
     data.raw = true;
 }
 
-void Field::SetStructuredValue(char* newValue, enum_field_types newType)
+void Field::SetStructuredValue(char* newValue, enum_field_types newType, uint32 length, bool isBinary)
 {
     if (data.value)
         CleanUp();
@@ -54,10 +54,16 @@ void Field::SetStructuredValue(char* newValue, enum_field_types newType)
     // This value stores somewhat structured data that needs function style casting
     if (newValue)
     {
-        size_t size = strlen(newValue);
-        data.value = new char [size+1];
-        strcpy((char*)data.value, newValue);
-        data.length = size;
+        if (!isBinary)
+        {
+            data.value = new char[length + 1];
+            *(reinterpret_cast<char*>(data.value) + length) = '\0';
+        }
+        else
+            data.value = new char[length];
+
+        memcpy(data.value, newValue, length);
+        data.length = length;
     }
 
     data.type = newType;
