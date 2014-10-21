@@ -4,7 +4,7 @@
 
 #include "../../LootObjectStack.h"
 #include "../../PlayerbotAIConfig.h"
-#include "../../../Ahbot/AhBot.h"
+#include "../../../ahbot/AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
 #include "../values/ItemUsageValue.h"
 #include "../../GuildTaskMgr.h"

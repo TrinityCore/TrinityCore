@@ -32,7 +32,7 @@
 #include "Log.h"
 #include <vector>
 
-#include "../../plugins/Ahbot/AhBot.h"
+#include "../../plugins/ahbot/AhBot.h"
 
 enum eAuctionHouse
 {

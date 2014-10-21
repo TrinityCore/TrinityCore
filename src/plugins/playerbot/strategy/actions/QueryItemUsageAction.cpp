@@ -2,7 +2,7 @@
 #include "../../playerbot.h"
 #include "QueryItemUsageAction.h"
 #include "../values/ItemUsageValue.h"
-#include "../../../Ahbot/AhBot.h"
+#include "../../../ahbot/AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
 
 
