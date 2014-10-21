@@ -410,7 +410,7 @@ void ArenaTeam::Roster(WorldSession* session)
     {
         player = ObjectAccessor::FindConnectedPlayer(itr->Guid);
 
-        data << uint64(itr->Guid);                              // guid
+        data << itr->Guid;                                      // guid
         data << uint8((player ? 1 : 0));                        // online flag
         data << itr->Name;                                      // member name
         data << uint32((itr->Guid == GetCaptain() ? 0 : 1));    // captain flag 0 captain 1 member
@@ -476,7 +476,7 @@ void ArenaTeam::Inspect(WorldSession* session, ObjectGuid guid)
         return;
 
     WorldPacket data(MSG_INSPECT_ARENA_TEAMS, 8+1+4*6);
-    data << uint64(guid);                                   // player guid
+    data << guid;                                           // player guid
     data << uint8(GetSlot());                               // slot (0...2)
     data << uint32(GetId());                                // arena team id
     data << uint32(Stats.Rating);                           // rating
@@ -539,8 +539,8 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, ObjectGuid guid, uint8 str
             return;
     }
 
-    if (guid)
-        data << uint64(guid);
+    if (!guid.IsEmpty())
+        data << guid;
 
     BroadcastPacket(&data);
 

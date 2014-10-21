@@ -137,7 +137,7 @@ void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest co
         SendApplicantListUpdate(*guild);
 }
 
-void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(uint32 playerId)
+void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(ObjectGuid playerId)
 {
     for (MembershipRequestStore::iterator itr = _membershipRequests.begin(); itr != _membershipRequests.end(); ++itr)
     {

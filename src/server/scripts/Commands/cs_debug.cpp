@@ -182,7 +182,7 @@ public:
             return false;
         }
 
-        if (handler->GetSession()->GetPlayer()->GetTarget())
+        if (!handler->GetSession()->GetPlayer()->GetTarget().IsEmpty())
             unit->PlayDistanceSound(soundId, handler->GetSession()->GetPlayer());
         else
             unit->PlayDirectSound(soundId, handler->GetSession()->GetPlayer());
@@ -390,15 +390,15 @@ public:
                     ifs.close();
                     return false;
                 }
-                data << uint64(obj->GetGUID());
+                data << obj->GetGUID();
             }
             else if (type == "myguid")
             {
-                data << uint64(player->GetGUID());
+                data << player->GetGUID();
             }
             else if (type == "itsguid")
             {
-                data << uint64(unit->GetGUID());
+                data << unit->GetGUID();
             }
             else if (type == "itspos")
             {

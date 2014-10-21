@@ -172,14 +172,14 @@ public:
         void SetGUID(ObjectGuid guid, int32 /*param*/) override
         {
             victimGUID = guid;
-            if (me->m_spells[0] && victimGUID)
+            if (me->m_spells[0] && !victimGUID.IsEmpty())
                 if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
                     victim->CastSpell(victim, me->m_spells[0], true, NULL, NULL, me->GetGUID());
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (me->m_spells[0] && victimGUID)
+            if (me->m_spells[0] && !victimGUID.IsEmpty())
                 if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
                     victim->RemoveAurasDueToSpell(me->m_spells[0], me->GetGUID());
         }

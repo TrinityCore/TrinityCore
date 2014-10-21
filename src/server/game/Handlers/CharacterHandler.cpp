@@ -1568,7 +1568,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
         Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
-        if (!item && itemGuid)                               // cheating check 1
+        if (!item && !itemGuid.IsEmpty())                    // cheating check 1
             return;
 
         if (item && item->GetGUID() != itemGuid)             // cheating check 2

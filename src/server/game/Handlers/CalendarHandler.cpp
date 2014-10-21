@@ -92,9 +92,9 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         data << int32(calendarEvent->GetDungeonId());
 
         Guild* guild = sGuildMgr->GetGuildById(calendarEvent->GetGuildId());
-        data << uint64(guild ? guild->GetGUID() : 0);
+        data << (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
-        data.appendPackGUID(calendarEvent->GetCreatorGUID());
+        data << calendarEvent->GetCreatorGUID().WriteAsPacked();
     }
 
     data << uint32(currTime);                              // server time

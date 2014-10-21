@@ -133,7 +133,7 @@ public:
         {
             aqsentinelAI* cai = ENSURE_AI(aqsentinelAI, (c)->AI());
             for (int32 i = 0; i < 3; ++i)
-                if (NearbyGUID[i] && NearbyGUID[i] != c->GetGUID())
+                if (!NearbyGUID[i].IsEmpty() && NearbyGUID[i] != c->GetGUID())
                     cai->AddBuddyToList(NearbyGUID[i]);
             cai->AddBuddyToList(me->GetGUID());
         }

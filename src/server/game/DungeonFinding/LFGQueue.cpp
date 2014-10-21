@@ -520,7 +520,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         LfgProposalPlayer &data = proposal.players[itRoles->first];
         data.role = itRoles->second;
         data.group = proposalGroups.find(itRoles->first)->second;
-        if (!proposal.isNew && data.group && data.group == proposal.group) // Player from existing group, autoaccept
+        if (!proposal.isNew && !data.group.IsEmpty() && data.group == proposal.group) // Player from existing group, autoaccept
             data.accept = LFG_ANSWER_AGREE;
     }
 

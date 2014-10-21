@@ -765,7 +765,7 @@ void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
         if (BgCreatures[c_place+i])
             DelCreature(c_place+i);
     //spiritguide
-    if (!IsTower(node) && BgCreatures[node])
+    if (!IsTower(node) && !BgCreatures[node].IsEmpty())
         DelCreature(node);
 
     //remove bonus honor aura trigger creature when node is lost

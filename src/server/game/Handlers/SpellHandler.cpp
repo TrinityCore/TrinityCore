@@ -571,7 +571,7 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
         return;
 
     uint8 slotId;
-    uint64 guid;
+    ObjectGuid guid;
     recvPacket >> slotId;
     recvPacket >> guid;
 
@@ -662,7 +662,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         data << uint8(player->GetByteValue(PLAYER_BYTES, 2));   // hair
         data << uint8(player->GetByteValue(PLAYER_BYTES, 3));   // haircolor
         data << uint8(player->GetByteValue(PLAYER_BYTES_2, 0)); // facialhair
-        data << uint64(guild ? guild->GetGUID() : 0);
+        data << (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
         static EquipmentSlots const itemSlots[] =
         {

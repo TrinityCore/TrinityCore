@@ -2766,7 +2766,7 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
     _UpdateAccountsNumber();
     _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, lowguid);
     _BroadcastEvent(GE_JOINED, guid, name.c_str());
-    sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(lowguid);
+    sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(guid);
 
     // Call scripts if member was succesfully added (and stored to database)
     sScriptMgr->OnGuildAddMember(this, player, rankId);
@@ -3391,7 +3391,7 @@ void Guild::_BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, const char*
 {
     uint8 count = !param3 ? (!param2 ? (!param1 ? 0 : 1) : 2) : 3;
 
-    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + count + (guid ? 8 : 0));
+    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + count + 8);
     data << uint8(guildEvent);
     data << uint8(count);
 

@@ -410,7 +410,7 @@ public:
                 if (!PortalGUID[1])
                     DoCastVictim(SPELL_FIENDISH_PORTAL_1, false);
 
-                if (PortalGUID[0] && PortalGUID[1])
+                if (!PortalGUID[0].IsEmpty() && !PortalGUID[1].IsEmpty())
                 {
                     if (Creature* pPortal = ObjectAccessor::GetCreature(*me, PortalGUID[urand(0, 1)]))
                         pPortal->CastSpell(me->GetVictim(), SPELL_SUMMON_FIENDISIMP, false);

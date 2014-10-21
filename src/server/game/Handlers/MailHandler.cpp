@@ -871,7 +871,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket& /*recvData*/)
             if (sentSenders.count(m->sender))
                 continue;
 
-            data << uint64(m->messageType == MAIL_NORMAL ? ObjectGuid(HIGHGUID_PLAYER, m->sender) : ObjectGuid::Empty);  // player guid
+            data << (m->messageType == MAIL_NORMAL ? ObjectGuid(HIGHGUID_PLAYER, m->sender) : ObjectGuid::Empty);  // player guid
             data << uint32(m->messageType != MAIL_NORMAL ? m->sender : 0);  // non-player entries
             data << uint32(m->messageType);
             data << uint32(m->stationery);
