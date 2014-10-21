@@ -378,7 +378,7 @@ private:
         bool LoadFromDB(Field* fields);
         void SaveToDB(SQLTransaction& trans) const;
 
-        ObjectGuid GetGUID() const { return m_guid; }
+        ObjectGuid const& GetGUID() const { return m_guid; }
         std::string const& GetName() const { return m_name; }
         uint32 GetAccountId() const { return m_accountId; }
         uint8 GetRankId() const { return m_rankId; }
@@ -759,7 +759,7 @@ private:
         void CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count);
     };
 
-    typedef std::unordered_map<uint32, Member*> Members;
+    typedef std::unordered_map<ObjectGuid, Member*> Members;
     typedef std::vector<RankInfo> Ranks;
     typedef std::vector<BankTab*> BankTabs;
 
@@ -939,13 +939,13 @@ private:
 
     inline const Member* GetMember(ObjectGuid guid) const
     {
-        Members::const_iterator itr = m_members.find(guid.GetCounter());
+        Members::const_iterator itr = m_members.find(guid);
         return itr != m_members.end() ? itr->second : NULL;
     }
 
     inline Member* GetMember(ObjectGuid guid)
     {
-        Members::iterator itr = m_members.find(guid.GetCounter());
+        Members::iterator itr = m_members.find(guid);
         return itr != m_members.end() ? itr->second : NULL;
     }
 
