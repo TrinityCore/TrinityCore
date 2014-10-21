@@ -286,8 +286,8 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionGuidLow);
 
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+1+signs*12));
-    data << uint64(petitionguid);                           // petition guid
-    data << uint64(_player->GetGUID());                     // owner guid
+    data << petitionguid;                                   // petition guid
+    data << _player->GetGUID();                             // owner guid
     data << uint32(petitionGuidLow);                        // guild guid
     data << uint8(signs);                                   // sign's count
 
@@ -344,7 +344,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
 
     WorldPacket data(SMSG_PETITION_QUERY_RESPONSE, (4+8+name.size()+1+1+4*12+2+10));
     data << uint32(petitionguid.GetCounter());              // guild/team guid (in Trinity always same as GUID_LOPART(petition guid)
-    data << uint64(ownerguid);                              // charter owner guid
+    data << ownerguid;                                      // charter owner guid
     data << name;                                           // name (guild/arena team)
     data << uint8(0);                                       // some string
     if (type == GUILD_CHARTER_TYPE)
@@ -446,8 +446,8 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
     CharacterDatabase.Execute(stmt);
 
     TC_LOG_DEBUG("network", "Petition %s renamed to '%s'", petitionGuid.ToString().c_str(), newName.c_str());
-    WorldPacket data(MSG_PETITION_RENAME, (8+newName.size()+1));
-    data << uint64(petitionGuid);
+    WorldPacket data(MSG_PETITION_RENAME, (8 + newName.size() + 1));
+    data << petitionGuid;
     data << newName;
     SendPacket(&data);
 }
@@ -547,8 +547,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
     if (result)
     {
         WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
-        data << uint64(petitionGuid);
-        data << uint64(_player->GetGUID());
+        data << petitionGuid;
+        data << _player->GetGUID();
         data << uint32(PETITION_SIGN_ALREADY_SIGNED);
 
         // close at signer side
@@ -568,8 +568,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "PETITION SIGN: %s by player: %s (GUID: %u Account: %u)", petitionGuid.ToString().c_str(), _player->GetName().c_str(), playerGuid, GetAccountId());
 
     WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
-    data << uint64(petitionGuid);
-    data << uint64(_player->GetGUID());
+    data << petitionGuid;
+    data << _player->GetGUID();
     data << uint32(PETITION_SIGN_OK);
 
     // close at signer side
@@ -609,7 +609,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
     if (owner)                                               // petition owner online
     {
         WorldPacket data(MSG_PETITION_DECLINE, 8);
-        data << uint64(_player->GetGUID());
+        data << _player->GetGUID();
         owner->GetSession()->SendPacket(&data);
     }
 }
@@ -706,15 +706,15 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
         signs = uint8(result->GetRowCount());
 
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+signs+signs*12));
-    data << uint64(petitionguid);                           // petition guid
-    data << uint64(_player->GetGUID());                     // owner guid
+    data << petitionguid;                                   // petition guid
+    data << _player->GetGUID();                             // owner guid
     data << uint32(petitionguid.GetCounter());              // guild guid
     data << uint8(signs);                                   // sign's count
 
     for (uint8 i = 1; i <= signs; ++i)
     {
         Field* fields2 = result->Fetch();
-        data << uint64(ObjectGuid(HIGHGUID_PLAYER, fields2[0].GetUInt32())); // Player GUID
+        data << ObjectGuid(HIGHGUID_PLAYER, fields2[0].GetUInt32()); // Player GUID
         data << uint32(0);                                  // there 0 ...
 
         result->NextRow();

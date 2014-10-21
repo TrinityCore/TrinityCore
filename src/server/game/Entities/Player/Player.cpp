@@ -1322,7 +1322,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     DealDamageMods(this, damage, &absorb);
 
     WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, (21));
-    data << uint64(GetGUID());
+    data << GetGUID();
     data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
     data << uint32(damage);
     data << uint32(absorb);
@@ -1558,7 +1558,7 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
         return;
 
     WorldPacket data(SMSG_CROSSED_INEBRIATION_THRESHOLD, (8+4+4));
-    data << uint64(GetGUID());
+    data << GetGUID();
     data << uint32(newDrunkenState);
     data << uint32(itemId);
     SendMessageToSet(&data, true);
@@ -7151,7 +7151,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [0, 20+] HK: <>
     WorldPacket data(SMSG_PVP_CREDIT, 4+8+4);
     data << uint32(honor);
-    data << uint64(victim_guid);
+    data << victim_guid;
     data << uint32(victim_rank);
 
     GetSession()->SendPacket(&data);
@@ -8913,7 +8913,7 @@ void Player::RemovedInsignia(Player* looterPlr)
 void Player::SendLootRelease(ObjectGuid guid)
 {
     WorldPacket data(SMSG_LOOT_RELEASE_RESPONSE, (8+1));
-    data << uint64(guid) << uint8(1);
+    data << guid << uint8(1);
     SendDirectMessage(&data);
 }
 
@@ -9238,7 +9238,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
         SetLootGUID(guid);
 
         WorldPacket data(SMSG_LOOT_RESPONSE, (9 + 50));           // we guess size
-        data << uint64(guid);
+        data << guid;
         data << uint8(loot_type);
         data << LootView(*loot, this, permission);
         SendDirectMessage(&data);
@@ -9256,7 +9256,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 void Player::SendLootError(ObjectGuid guid, LootError error)
 {
     WorldPacket data(SMSG_LOOT_RESPONSE, 10);
-    data << uint64(guid);
+    data << guid;
     data << uint8(LOOT_NONE);
     data << uint8(error);
     SendDirectMessage(&data);
@@ -9940,14 +9940,14 @@ uint32 Player::GetXPRestBonus(uint32 xp)
 void Player::SetBindPoint(ObjectGuid guid)
 {
     WorldPacket data(SMSG_BINDER_CONFIRM, 8);
-    data << uint64(guid);
+    data << guid;
     GetSession()->SendPacket(&data);
 }
 
 void Player::SendTalentWipeConfirm(ObjectGuid guid)
 {
     WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4);
-    data << uint64(guid);
+    data << guid;
     uint32 cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost();
     data << cost;
     GetSession()->SendPacket(&data);
@@ -13394,7 +13394,7 @@ void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid)
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_SELL_ITEM");
     WorldPacket data(SMSG_SELL_ITEM, (8+8+1));  // last check 4.3.4
     data << (creature ? creature->GetGUID() : ObjectGuid::Empty);
-    data << uint64(guid);
+    data << guid;
     data << uint8(msg);
     GetSession()->SendPacket(&data);
 }
@@ -14308,7 +14308,7 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
 
                                                             // last check 2.0.10
     WorldPacket data(SMSG_ITEM_PUSH_RESULT, (8+4+4+4+1+4+4+4+4+4));
-    data << uint64(GetGUID());                              // player GUID
+    data << GetGUID();                                      // player GUID
     data << uint32(received);                               // 0=looted, 1=from npc
     data << uint32(created);                                // 0=received, 1=created
     data << uint32(1);                                      // bool print error to chat
@@ -16951,7 +16951,7 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
         data << uint32(quest->GetQuestId());
         data << strTitle;
-        data << uint64(GetGUID());
+        data << GetGUID();
         pReceiver->GetSession()->SendPacket(&data);
 
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
@@ -16963,7 +16963,7 @@ void Player::SendPushToPartyResponse(Player* player, uint8 msg)
     if (player)
     {
         WorldPacket data(MSG_QUEST_PUSH_RESULT, 8 + 1);
-        data << uint64(player->GetGUID());
+        data << player->GetGUID();
         data << uint8(msg);                                 // valid values: 0-8
         GetSession()->SendPacket(&data);
         TC_LOG_DEBUG("network", "WORLD: Sent MSG_QUEST_PUSH_RESULT");
@@ -16985,7 +16985,7 @@ void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid,
     data << uint32(entry);
     data << uint32(old_count + add_count);
     data << uint32(quest->RequiredNpcOrGoCount[ creatureOrGO_idx ]);
-    data << uint64(guid);
+    data << guid;
     GetSession()->SendPacket(&data);
 
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
@@ -20934,7 +20934,7 @@ void Player::PetSpellInitialize()
     CharmInfo* charmInfo = pet->GetCharmInfo();
 
     WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
-    data << uint64(pet->GetGUID());
+    data << pet->GetGUID();
     data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
     data << uint32(pet->GetDuration());
     data << uint8(pet->GetReactState());
@@ -21019,7 +21019,7 @@ void Player::PossessSpellInitialize()
     }
 
     WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
-    data << uint64(charm->GetGUID());
+    data << charm->GetGUID();
     data << uint16(0);
     data << uint32(0);
     data << uint32(0);
@@ -21041,7 +21041,7 @@ void Player::VehicleSpellInitialize()
     uint8 cooldownCount = vehicle->m_CreatureSpellCooldowns.size();
 
     WorldPacket data(SMSG_PET_SPELLS, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
-    data << uint64(vehicle->GetGUID());                     // Guid
+    data << vehicle->GetGUID();                             // Guid
     data << uint16(0);                                      // Pet Family (0 for all vehicles)
     data << uint32(vehicle->IsSummon() ? vehicle->ToTempSummon()->GetTimer() : 0); // Duration
     // The following three segments are read by the client as one uint32
@@ -21143,7 +21143,7 @@ void Player::CharmSpellInitialize()
     }
 
     WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+4*addlist+1);
-    data << uint64(charm->GetGUID());
+    data << charm->GetGUID();
     data << uint16(0);
     data << uint32(0);
 
@@ -21923,7 +21923,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
         WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
-        data << uint64(pVendor->GetGUID());
+        data << pVendor->GetGUID();
         data << uint32(vendorslot + 1);                   // numbered from 1 at client
         data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
         data << uint32(count);
@@ -22620,7 +22620,7 @@ void Player::ModifySpellCooldown(uint32 spellId, int32 cooldown)
 
     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
     data << uint32(spellId);            // Spell ID
-    data << uint64(GetGUID());          // Player GUID
+    data << GetGUID();                  // Player GUID
     data << int32(cooldown);            // Cooldown mod in milliseconds
     GetSession()->SendPacket(&data);
 
@@ -22636,7 +22636,7 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
     // Send activate cooldown timer (possible 0) at client side
     WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
     data << uint32(spellInfo->Id);
-    data << uint64(GetGUID());
+    data << GetGUID();
     SendDirectMessage(&data);
 }
 
@@ -26589,7 +26589,7 @@ void Player::SendClearCooldown(uint32 spell_id, Unit* target)
 {
     WorldPacket data(SMSG_CLEAR_COOLDOWN, 4+8);
     data << uint32(spell_id);
-    data << uint64(target->GetGUID());
+    data << target->GetGUID();
     SendDirectMessage(&data);
 }
 

@@ -154,8 +154,8 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(leaveGuid[1]);
     recvData.ReadByteSeq(leaveGuid[5]);
 
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_LEAVE %s in group: %u sent guid " UI64FMTD ".",
-        GetPlayerInfo().c_str(), group ? 1 : 0, uint64(leaveGuid));
+    TC_LOG_DEBUG("lfg", "CMSG_LFG_LEAVE %s in group: %u sent guid %s.",
+        GetPlayerInfo().c_str(), group ? 1 : 0, leaveGuid.ToString().c_str());
 
     // Check cheating - only leader can leave the queue
     if (!group || group->GetLeaderGUID() == guid)
@@ -501,7 +501,7 @@ void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
         GetPlayerInfo().c_str(), guid.ToString().c_str(), roles);
 
     WorldPacket data(SMSG_LFG_ROLE_CHOSEN, 8 + 1 + 4);
-    data << uint64(guid);                                  // Guid
+    data << guid;                                           // Guid
     data << uint8(roles > 0);                              // Ready
     data << uint32(roles);                                 // Roles
     SendPacket(&data);
@@ -532,7 +532,7 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
         ObjectGuid guid = roleCheck.leader;
         uint8 roles = roleCheck.roles.find(guid)->second;
         Player* player = ObjectAccessor::FindConnectedPlayer(guid);
-        data << uint64(guid);                              // Guid
+        data << guid;                                      // Guid
         data << uint8(roles > 0);                          // Ready
         data << uint32(roles);                             // Roles
         data << uint8(player ? player->getLevel() : 0);    // Level
@@ -545,7 +545,7 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
             guid = it->first;
             roles = it->second;
             player = ObjectAccessor::FindConnectedPlayer(guid);
-            data << uint64(guid);                          // Guid
+            data << guid;                                  // Guid
             data << uint8(roles > 0);                      // Ready
             data << uint32(roles);                         // Roles
             data << uint8(player ? player->getLevel() : 0);// Level
@@ -599,8 +599,8 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
         ObjectGuid playerGuid = it->first;
         for (lfg::LfgLockMap::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
         {
-            TC_LOG_TRACE("lfg", "SendLfgJoinResult:: PlayerGUID: " UI64FMTD " DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",
-                uint64(playerGuid), (itr->first & 0x00FFFFFF), itr->second.lockStatus, itr->second.requiredItemLevel, itr->second.currentItemLevel);
+            TC_LOG_TRACE("lfg", "SendLfgJoinResult:: %s DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",
+                playerGuid.ToString().c_str(), (itr->first & 0x00FFFFFF), itr->second.lockStatus, itr->second.requiredItemLevel, itr->second.currentItemLevel);
 
             data << uint32(itr->second.lockStatus);             // Lock status
             data << uint32(itr->second.currentItemLevel);       // Current itemLevel

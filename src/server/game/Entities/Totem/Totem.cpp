@@ -61,7 +61,7 @@ void Totem::InitStats(uint32 duration)
     {
         WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
         data << uint8(m_Properties->Slot - 1);
-        data << uint64(GetGUID());
+        data << GetGUID();
         data << uint32(duration);
         data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
         GetOwner()->ToPlayer()->SendDirectMessage(&data);

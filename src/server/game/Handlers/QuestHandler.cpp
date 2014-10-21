@@ -631,7 +631,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
         if (player)
         {
             WorldPacket data(MSG_QUEST_PUSH_RESULT, 8 + 4 + 1);
-            data << uint64(_player->GetGUID());
+            data << _player->GetGUID();
             data << uint8(msg);                             // valid values: 0-8
             player->SendDirectMessage(&data);
             _player->SetDivider(ObjectGuid::Empty);
@@ -663,7 +663,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
 
             questStatus = _player->GetQuestDialogStatus(questgiver);
 
-            data << uint64(questgiver->GetGUID());
+            data << questgiver->GetGUID();
             data << uint32(questStatus);
             ++count;
         }
@@ -675,7 +675,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
 
             questStatus = _player->GetQuestDialogStatus(questgiver);
 
-            data << uint64(questgiver->GetGUID());
+            data << questgiver->GetGUID();
             data << uint32(questStatus);
             ++count;
         }

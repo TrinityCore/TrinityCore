@@ -54,7 +54,7 @@ void Battlenet::ServerManager::SendChangeToonOnlineState(uint32 battlenetAccount
     ToonHandle toon;
     toon.AccountId = battlenetAccountId;
     toon.GameAccountId = gameAccountId;
-    toon.Guid = guid;
+    toon.Guid = guid.GetCounter();
     toon.Name = name;
 
     zmqpp::message msg;

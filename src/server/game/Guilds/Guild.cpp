@@ -1487,7 +1487,7 @@ void Guild::HandleQuery(WorldSession* session)
 {
     WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 * 32 + 200);      // Guess size
 
-    data << uint64(GetGUID());
+    data << GetGUID();
     data << m_name;
 
     // Rank name
@@ -2363,7 +2363,7 @@ void Guild::SendLoginInfo(WorldSession* session)
     data << uint8(GE_SIGNED_ON);
     data << uint8(1);
     data << player->GetName();
-    data << uint64(player->GetGUID());
+    data << player->GetGUID();
     session->SendPacket(&data);
 
     data.Initialize(SMSG_GUILD_MEMBER_DAILY_RESET, 0);  // tells the client to request bank withdrawal limit
