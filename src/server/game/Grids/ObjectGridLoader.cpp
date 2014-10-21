@@ -141,9 +141,7 @@ void LoadHelper(CellCorpseSet const& cell_corpses, CellCoord &cell, CorpseMapTyp
         if (itr->second != map->GetInstanceId())
             continue;
 
-        ObjectGuid player_guid(HIGHGUID_PLAYER, itr->first);
-
-        Corpse* obj = sObjectAccessor->GetCorpseForPlayerGUID(player_guid);
+        Corpse* obj = sObjectAccessor->GetCorpseForPlayerGUID(itr->first);
         if (!obj)
             continue;
 

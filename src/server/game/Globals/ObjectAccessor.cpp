@@ -314,7 +314,7 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
 
         // build mapid*cellid -> guid_set map
         CellCoord cellCoord = Trinity::ComputeCellCoord(corpse->GetPositionX(), corpse->GetPositionY());
-        sObjectMgr->DeleteCorpseCellData(corpse->GetMapId(), cellCoord.GetId(), corpse->GetOwnerGUID().GetCounter());
+        sObjectMgr->DeleteCorpseCellData(corpse->GetMapId(), cellCoord.GetId(), corpse->GetOwnerGUID());
 
         i_player2corpse.erase(iter);
     }
@@ -333,7 +333,7 @@ void ObjectAccessor::AddCorpse(Corpse* corpse)
 
         // build mapid*cellid -> guid_set map
         CellCoord cellCoord = Trinity::ComputeCellCoord(corpse->GetPositionX(), corpse->GetPositionY());
-        sObjectMgr->AddCorpseCellData(corpse->GetMapId(), cellCoord.GetId(), corpse->GetOwnerGUID().GetCounter(), corpse->GetInstanceId());
+        sObjectMgr->AddCorpseCellData(corpse->GetMapId(), cellCoord.GetId(), corpse->GetOwnerGUID(), corpse->GetInstanceId());
     }
 }
 
