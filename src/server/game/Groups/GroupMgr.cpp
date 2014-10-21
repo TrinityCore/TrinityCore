@@ -100,9 +100,9 @@ GroupMgr* GroupMgr::instance()
     return &instance;
 }
 
-Group* GroupMgr::GetGroupByGUID(ObjectGuid::LowType groupId) const
+Group* GroupMgr::GetGroupByGUID(ObjectGuid const& groupId) const
 {
-    GroupContainer::const_iterator itr = GroupStore.find(groupId);
+    GroupContainer::const_iterator itr = GroupStore.find(groupId.GetCounter());
     if (itr != GroupStore.end())
         return itr->second;
 

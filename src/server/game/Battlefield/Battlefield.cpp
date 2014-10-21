@@ -504,7 +504,7 @@ void Battlefield::ShowNpc(Creature* creature, bool aggressive)
 Group* Battlefield::GetFreeBfRaid(TeamId TeamId)
 {
     for (auto itr = m_Groups[TeamId].begin(); itr != m_Groups[TeamId].end(); ++itr)
-        if (Group* group = sGroupMgr->GetGroupByGUID(itr->GetCounter()))
+        if (Group* group = sGroupMgr->GetGroupByGUID(*itr))
             if (!group->IsFull())
                 return group;
 
@@ -514,7 +514,7 @@ Group* Battlefield::GetFreeBfRaid(TeamId TeamId)
 Group* Battlefield::GetGroupPlayer(ObjectGuid guid, TeamId TeamId)
 {
     for (auto itr = m_Groups[TeamId].begin(); itr != m_Groups[TeamId].end(); ++itr)
-        if (Group* group = sGroupMgr->GetGroupByGUID(itr->GetCounter()))
+        if (Group* group = sGroupMgr->GetGroupByGUID(*itr))
             if (group->IsMember(guid))
                 return group;
 
