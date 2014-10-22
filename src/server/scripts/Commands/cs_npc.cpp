@@ -1520,7 +1520,7 @@ public:
 
         if (!creature->GetDBTableGUIDLow())
         {
-            handler->PSendSysMessage("Selected creature %u isn't in creature table", creature->GetGUIDLow());
+            handler->PSendSysMessage("Selected %s isn't in creature table", creature->GetGUID().ToString().c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
