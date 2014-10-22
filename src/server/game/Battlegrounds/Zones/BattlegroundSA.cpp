@@ -483,7 +483,7 @@ void BattlegroundSA::AddPlayer(Player* player)
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
     if (!isInBattleground)
-        PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundSAScore(player->GetGUID());
+        PlayerScores[player->GetGUID()] = new BattlegroundSAScore(player->GetGUID());
 
     SendTransportInit(player);
 

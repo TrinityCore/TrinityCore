@@ -360,7 +360,7 @@ void BattlegroundEY::AddPlayer(Player* player)
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
     if (!isInBattleground)
-        PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundEYScore(player->GetGUID());
+        PlayerScores[player->GetGUID()] = new BattlegroundEYScore(player->GetGUID());
 
     m_PlayersNearPoint[EY_POINTS_MAX].push_back(player->GetGUID());
 }

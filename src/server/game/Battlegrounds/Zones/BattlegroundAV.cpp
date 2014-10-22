@@ -444,7 +444,7 @@ void BattlegroundAV::AddPlayer(Player* player)
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
     if (!isInBattleground)
-        PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundAVScore(player->GetGUID());
+        PlayerScores[player->GetGUID()] = new BattlegroundAVScore(player->GetGUID());
 }
 
 void BattlegroundAV::EndBattleground(uint32 winner)

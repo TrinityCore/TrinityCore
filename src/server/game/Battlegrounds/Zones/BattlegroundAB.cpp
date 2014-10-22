@@ -231,7 +231,7 @@ void BattlegroundAB::AddPlayer(Player* player)
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
     if (!isInBattleground)
-        PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundABScore(player->GetGUID());
+        PlayerScores[player->GetGUID()] = new BattlegroundABScore(player->GetGUID());
 }
 
 void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
