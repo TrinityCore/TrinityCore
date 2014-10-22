@@ -1129,7 +1129,7 @@ public:
         uint32 field = (uint32)atoi(x);
         if (field >= target->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, field, guid.GetCounter(), target->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, field, guid.ToString().c_str(), target->GetValuesCount());
             return false;
         }
 
@@ -1141,13 +1141,13 @@ public:
         {
             uint32 value = (uint32)atoi(y);
             target->SetUInt32Value(field, value);
-            handler->PSendSysMessage(LANG_SET_UINT_FIELD, guid.GetCounter(), field, value);
+            handler->PSendSysMessage(LANG_SET_UINT_FIELD, guid.ToString().c_str(), field, value);
         }
         else
         {
             float value = (float)atof(y);
             target->SetFloatValue(field, value);
-            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, guid.GetCounter(), field, value);
+            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, guid.ToString().c_str(), field, value);
         }
 
         return true;
@@ -1177,7 +1177,7 @@ public:
         uint32 opcode = (uint32)atoi(x);
         if (opcode >= target->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, guid.GetCounter(), target->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, guid.ToString().c_str(), target->GetValuesCount());
             return false;
         }
 
@@ -1188,12 +1188,12 @@ public:
         if (isInt32)
         {
             uint32 value = target->GetUInt32Value(opcode);
-            handler->PSendSysMessage(LANG_GET_UINT_FIELD, guid.GetCounter(), opcode, value);
+            handler->PSendSysMessage(LANG_GET_UINT_FIELD, guid.ToString().c_str(), opcode, value);
         }
         else
         {
             float value = target->GetFloatValue(opcode);
-            handler->PSendSysMessage(LANG_GET_FLOAT_FIELD, guid.GetCounter(), opcode, value);
+            handler->PSendSysMessage(LANG_GET_FLOAT_FIELD, guid.ToString().c_str(), opcode, value);
         }
 
         return true;
@@ -1215,7 +1215,7 @@ public:
 
         if (opcode >= handler->GetSession()->GetPlayer()->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, handler->GetSession()->GetPlayer()->GetGUIDLow(), handler->GetSession()->GetPlayer()->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(), handler->GetSession()->GetPlayer()->GetValuesCount());
             return false;
         }
 

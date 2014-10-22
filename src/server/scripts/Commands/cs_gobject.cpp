@@ -376,7 +376,7 @@ public:
             Unit* owner = ObjectAccessor::GetUnit(*handler->GetSession()->GetPlayer(), ownerGuid);
             if (!owner || !ownerGuid.IsPlayer())
             {
-                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), object->GetGUIDLow());
+                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.ToString().c_str(), object->GetGUID().ToString().c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
             }
