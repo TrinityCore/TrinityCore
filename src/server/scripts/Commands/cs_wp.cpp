@@ -560,7 +560,7 @@ public:
         // -> variable lowguid is filled with the GUID of the NPC
         uint32 pathid = 0;
         uint32 point = 0;
-        uint32 wpGuid = 0;
+        ObjectGuid wpGuid;
         Creature* target = handler->getSelectedCreature();
         PreparedStatement* stmt = NULL;
 
@@ -571,18 +571,18 @@ public:
         }
 
         // The visual waypoint
-        wpGuid = target->GetGUIDLow();
+        wpGuid = target->GetGUID();
 
         // User did select a visual waypoint?
 
         // Check the creature
         stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_WPGUID);
-        stmt->setUInt32(0, wpGuid);
+        stmt->setUInt32(0, wpGuid.GetCounter());
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         if (!result)
         {
-            handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDSEARCH, target->GetGUIDLow());
+            handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDSEARCH, target->GetGUID().ToString().c_str());
             // Select waypoint number from database
             // Since we compare float values, we have to deal with
             // some difficulties.
@@ -602,7 +602,7 @@ public:
 
             if (!queryResult)
             {
-                handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM, wpGuid);
+                handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM, wpGuid.ToString().c_str());
                 return true;
             }
         }
@@ -630,13 +630,15 @@ public:
         {
             handler->PSendSysMessage("|cff00ff00DEBUG: wp modify del, PathID: |r|cff00ffff%u|r", pathid);
 
-            if (wpGuid != 0)
-                if (Creature* wpCreature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid(HIGHGUID_UNIT, VISUAL_WAYPOINT, wpGuid)))
+            if (!wpGuid.IsEmpty())
+            {
+                if (Creature* wpCreature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(wpGuid))
                 {
                     wpCreature->CombatStop();
                     wpCreature->DeleteFromDB();
                     wpCreature->AddObjectToRemoveList();
                 }
+            }
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_WAYPOINT_DATA);
             stmt->setUInt32(0, pathid);
@@ -662,9 +664,9 @@ public:
                 // What to do:
                 // Move the visual spawnpoint
                 // Respawn the owner of the waypoints
-                if (wpGuid != 0)
+                if (!wpGuid.IsEmpty())
                 {
-                    if (Creature* wpCreature = map->GetCreature(ObjectGuid(HIGHGUID_UNIT, VISUAL_WAYPOINT, wpGuid)))
+                    if (Creature* wpCreature = map->GetCreature(wpGuid))
                     {
                         wpCreature->CombatStop();
                         wpCreature->DeleteFromDB();
