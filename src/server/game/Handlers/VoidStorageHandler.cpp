@@ -68,7 +68,7 @@ void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
 
     if (player->IsVoidStorageUnlocked())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageUnlock - Player (GUID: %u, name: %s) tried to unlock void storage a 2nd time.", player->GetGUIDLow(), player->GetName().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageUnlock - Player (%s, name: %s) tried to unlock void storage a 2nd time.", player->GetGUID().ToString().c_str(), player->GetName().c_str());
         return;
     }
 
@@ -109,7 +109,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
 
     if (!player->IsVoidStorageUnlocked())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - Player (GUID: %u, name: %s) queried void storage without unlocking it.", player->GetGUIDLow(), player->GetName().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - Player (%s, name: %s) queried void storage without unlocking it.", player->GetGUID().ToString().c_str(), player->GetName().c_str());
         return;
     }
 
@@ -200,7 +200,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     if (countDeposit > 9)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to deposit more than 9 items (%u).", player->GetGUIDLow(), player->GetName().c_str(), countDeposit);
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (%s, name: %s) wants to deposit more than 9 items (%u).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), countDeposit);
         return;
     }
 
@@ -228,7 +228,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     if (countWithdraw > 9)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to withdraw more than 9 items (%u).", player->GetGUIDLow(), player->GetName().c_str(), countWithdraw);
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (%s, name: %s) wants to withdraw more than 9 items (%u).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), countWithdraw);
         return;
     }
 
@@ -290,7 +290,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     if (!player->IsVoidStorageUnlocked())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) queried void storage without unlocking it.", player->GetGUIDLow(), player->GetName().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (%s, name: %s) queried void storage without unlocking it.", player->GetGUID().ToString().c_str(), player->GetName().c_str());
         return;
     }
 
@@ -527,7 +527,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
 
     if (!player->IsVoidStorageUnlocked())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - Player (GUID: %u, name: %s) queried void storage without unlocking it.", player->GetGUIDLow(), player->GetName().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - Player (%s, name: %s) queried void storage without unlocking it.", player->GetGUID().ToString().c_str(), player->GetName().c_str());
         return;
     }
 
