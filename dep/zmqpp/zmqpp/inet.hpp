@@ -142,7 +142,7 @@ inline double htond(double value)
 
 	uint64_t temp;
 	memcpy(&temp, &value, sizeof(uint64_t));
-	temp = zmqpp::htonll(temp);
+	temp = htonll(temp);
 	memcpy(&value, &temp, sizeof(uint64_t));
 
 	return value;
@@ -160,7 +160,7 @@ inline double ntohd(double value)
 
 	uint64_t temp;
 	memcpy(&temp, &value, sizeof(uint64_t));
-	temp = zmqpp::ntohll(temp);
+	temp = ntohll(temp);
 	memcpy(&value, &temp, sizeof(uint64_t));
 
 	return value;
