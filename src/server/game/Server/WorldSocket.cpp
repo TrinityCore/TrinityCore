@@ -163,8 +163,8 @@ bool WorldSocket::ReadHeaderHandler()
         if (_worldSession)
         {
             Player* player = _worldSession->GetPlayer();
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
-                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName().c_str() : "<none>", size, opcode);
+            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client (account: %u, char [%s, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
+                _worldSession->GetAccountId(), player ? player->GetGUID().ToString().c_str() : "GUID: Empty", player ? player->GetName().c_str() : "<none>", size, opcode);
         }
         else
             TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",

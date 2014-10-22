@@ -201,7 +201,6 @@ class CharacterActionIpLogger : public PlayerScript
 
             // We declare all the required variables
             uint32 playerGuid = player->GetSession()->GetAccountId();
-            uint32 characterGuid = player->GetGUIDLow();
             const std::string currentIp = player->GetSession()->GetRemoteAddress();
             std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it...
 
@@ -234,7 +233,7 @@ class CharacterActionIpLogger : public PlayerScript
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_IP_LOGGING);
 
             stmt->setUInt32(0, playerGuid);
-            stmt->setUInt32(1, characterGuid);
+            stmt->setUInt32(1, player->GetGUID().GetCounter());
             stmt->setUInt8(2, aType);
             stmt->setString(3, currentIp.c_str()); // We query the ip here.
             stmt->setString(4, systemNote.c_str());

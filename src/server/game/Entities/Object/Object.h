@@ -99,10 +99,8 @@ class Object
         virtual void AddToWorld();
         virtual void RemoveFromWorld();
 
-        ObjectGuid GetGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
         uint32 GetGUIDLow() const { return GetGuidValue(OBJECT_FIELD_GUID).GetCounter(); }
-        uint32 GetGUIDMid() const { return GetGuidValue(OBJECT_FIELD_GUID).GetEntry(); }
-        uint32 GetGUIDHigh() const { return GetGuidValue(OBJECT_FIELD_GUID).GetHigh(); }
+        ObjectGuid const& GetGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
         PackedGuid const& GetPackGUID() const { return m_PackGUID; }
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
         void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY, entry); }
@@ -127,7 +125,7 @@ class Object
         float GetFloatValue(uint16 index) const;
         uint8 GetByteValue(uint16 index, uint8 offset) const;
         uint16 GetUInt16Value(uint16 index, uint8 offset) const;
-        ObjectGuid GetGuidValue(uint16 index) const;
+        ObjectGuid const& GetGuidValue(uint16 index) const;
 
         void SetInt32Value(uint16 index, int32 value);
         void SetUInt32Value(uint16 index, uint32 value);
@@ -137,12 +135,12 @@ class Object
         void SetByteValue(uint16 index, uint8 offset, uint8 value);
         void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
         void SetInt16Value(uint16 index, uint8 offset, int16 value) { SetUInt16Value(index, offset, (uint16)value); }
-        void SetGuidValue(uint16 index, ObjectGuid value);
+        void SetGuidValue(uint16 index, ObjectGuid const& value);
         void SetStatFloatValue(uint16 index, float value);
         void SetStatInt32Value(uint16 index, int32 value);
 
-        bool AddGuidValue(uint16 index, ObjectGuid value);
-        bool RemoveGuidValue(uint16 index, ObjectGuid value);
+        bool AddGuidValue(uint16 index, ObjectGuid const& value);
+        bool RemoveGuidValue(uint16 index, ObjectGuid const& value);
 
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);

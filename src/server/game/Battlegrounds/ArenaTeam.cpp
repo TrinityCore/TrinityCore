@@ -304,9 +304,9 @@ void ArenaTeam::SetCaptain(ObjectGuid guid)
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
         if (oldCaptain)
         {
-            TC_LOG_DEBUG("bg.arena", "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u, Name: %s] [Type: %u].",
-                oldCaptain->GetName().c_str(), oldCaptain->GetGUIDLow(), newCaptain->GetName().c_str(),
-                newCaptain->GetGUIDLow(), GetId(), GetName().c_str(), GetType());
+            TC_LOG_DEBUG("bg.arena", "Player: %s [%s] promoted player: %s [%s] to leader of arena team [Id: %u, Name: %s] [Type: %u].",
+                oldCaptain->GetName().c_str(), oldCaptain->GetGUID().ToString().c_str(), newCaptain->GetName().c_str(),
+                newCaptain->GetGUID().ToString().c_str(), GetId(), GetName().c_str(), GetType());
         }
     }
 }
@@ -327,7 +327,7 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
         // delete all info regarding this team
         for (uint32 i = 0; i < ARENA_TEAM_END; ++i)
             player->SetArenaTeamInfoField(GetSlot(), ArenaTeamInfoType(i), 0);
-        TC_LOG_DEBUG("bg.arena", "Player: %s [GUID: %u] left arena team type: %u [Id: %u, Name: %s].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId(), GetName().c_str());
+        TC_LOG_DEBUG("bg.arena", "Player: %s [%s] left arena team type: %u [Id: %u, Name: %s].", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetType(), GetId(), GetName().c_str());
     }
 
     // Only used for single member deletion, for arena team disband we use a single query for more efficiency
@@ -347,7 +347,7 @@ void ArenaTeam::Disband(WorldSession* session)
     {
         BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, ObjectGuid::Empty, 2, session->GetPlayerName(), GetName(), "");
         if (Player* player = session->GetPlayer())
-            TC_LOG_DEBUG("bg.arena", "Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u, Name: %s].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId(), GetName().c_str());
+            TC_LOG_DEBUG("bg.arena", "Player: %s [%s] disbanded arena team type: %u [Id: %u, Name: %s].", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetType(), GetId(), GetName().c_str());
     }
 
     // Remove all members from arena team

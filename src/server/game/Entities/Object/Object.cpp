@@ -168,7 +168,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
 
-    switch (GetGUIDHigh())
+    switch (GetGUID().GetHigh())
     {
         case HIGHGUID_PLAYER:
         case HIGHGUID_PET:
@@ -325,7 +325,7 @@ uint16 Object::GetUInt16Value(uint16 index, uint8 offset) const
     return *(((uint16*)&m_uint32Values[index])+offset);
 }
 
-ObjectGuid Object::GetGuidValue(uint16 index) const
+ObjectGuid const& Object::GetGuidValue(uint16 index) const
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, false));
     return *((ObjectGuid*)&(m_uint32Values[index]));
@@ -850,7 +850,7 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
     }
 }
 
-bool Object::AddGuidValue(uint16 index, ObjectGuid value)
+bool Object::AddGuidValue(uint16 index, ObjectGuid const& value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
     if (!value.IsEmpty() && ((ObjectGuid*)&(m_uint32Values[index]))->IsEmpty())
@@ -871,7 +871,7 @@ bool Object::AddGuidValue(uint16 index, ObjectGuid value)
     return false;
 }
 
-bool Object::RemoveGuidValue(uint16 index, ObjectGuid value)
+bool Object::RemoveGuidValue(uint16 index, ObjectGuid const& value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
     if (!value.IsEmpty() && *((ObjectGuid*)&(m_uint32Values[index])) == value)
@@ -958,7 +958,7 @@ void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
     }
 }
 
-void Object::SetGuidValue(uint16 index, ObjectGuid value)
+void Object::SetGuidValue(uint16 index, ObjectGuid const& value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
     if (*((ObjectGuid*)&(m_uint32Values[index])) != value)

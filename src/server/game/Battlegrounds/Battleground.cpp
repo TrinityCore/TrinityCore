@@ -825,7 +825,7 @@ void Battleground::EndBattleground(uint32 winner)
             BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUID());
 
             stmt->setUInt32(0, battlegroundId);
-            stmt->setUInt32(1, player->GetGUIDLow());
+            stmt->setUInt32(1, player->GetGUID().GetCounter());
             stmt->setUInt32(2, score->second->GetKillingBlows());
             stmt->setUInt32(3, score->second->GetDeaths());
             stmt->setUInt32(4, score->second->GetHonorableKills());
