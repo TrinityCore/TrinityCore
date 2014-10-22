@@ -219,13 +219,13 @@ class spell_ioc_parachute_ic : public SpellScriptLoader
 class StartLaunchEvent : public BasicEvent
 {
     public:
-        StartLaunchEvent(float x, float y, float z, uint32 lowGuid) : _x(x), _y(y), _z(z), _lowGuid(lowGuid)
+        StartLaunchEvent(float x, float y, float z, ObjectGuid const& guid) : _x(x), _y(y), _z(z), _guid(guid)
         {
         }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/)
         {
-            Player* player = sObjectMgr->GetPlayerByLowGUID(_lowGuid);
+            Player* player = ObjectAccessor::FindPlayer(_guid);
             if (!player || !player->GetVehicle())
                 return true;
 
@@ -240,7 +240,7 @@ class StartLaunchEvent : public BasicEvent
 
     private:
         float _x, _y, _z;
-        uint32 _lowGuid;
+        ObjectGuid _guid;
 };
 
 class spell_ioc_launch : public SpellScriptLoader
@@ -261,7 +261,7 @@ class spell_ioc_launch : public SpellScriptLoader
                 x = GetExplTargetDest()->GetPositionX();
                 y = GetExplTargetDest()->GetPositionY();
                 z = GetExplTargetDest()->GetPositionZ();
-                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(x, y, z, GetHitPlayer()->GetGUIDLow()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500));
+                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(x, y, z, GetHitPlayer()->GetGUID()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500));
             }
 
             void Register() override

@@ -146,15 +146,13 @@ struct LootStoreItem
                                                             // Checks correctness of values
 };
 
-typedef std::set<uint32> AllowedLooterSet;
-
 struct LootItem
 {
     uint32  itemid;
     uint32  randomSuffix;
     int32   randomPropertyId;
     ConditionList conditions;                               // additional loot condition
-    AllowedLooterSet allowedGUIDs;
+    GuidSet allowedGUIDs;
     uint8   count             : 8;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
@@ -177,7 +175,7 @@ struct LootItem
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const* player) const;
     void AddAllowedLooter(Player const* player);
-    const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
+    GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
 };
 
 struct QuestItem
@@ -324,11 +322,11 @@ struct Loot
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
-    // GUIDLow of container that holds this loot (item_instance.entry)
+    // GUID of container that holds this loot (item_instance.entry)
     //  Only set for inventory items that can be right-click looted
-    uint32 containerID;
+    ObjectGuid containerID;
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(), loot_type(LOOT_CORPSE), maxDuplicates(1), containerID(0) { }
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(), loot_type(LOOT_CORPSE), maxDuplicates(1) { }
     ~Loot() { clear(); }
 
     // For deleting items at loot removal since there is no backward interface to the Item()

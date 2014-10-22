@@ -216,7 +216,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
         loot->gold = 0;
 
         // Delete the money loot record from the DB
-        if (loot->containerID > 0)
+        if (!loot->containerID.IsEmpty())
             loot->DeleteLootMoneyFromContainerItemDB();
 
         // Delete container if empty
@@ -479,11 +479,8 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    // list of players allowed to receive this item in trade
-    AllowedLooterSet looters = item.GetAllowedLooters();
-
     // now move item from loot to target inventory
-    Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, looters);
+    Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, item.GetAllowedLooters());
     target->SendNewItem(newitem, uint32(item.count), false, false, true);
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, item.itemid, item.count, loot->loot_type);

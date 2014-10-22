@@ -691,7 +691,7 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid)
         // Update the group leader
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_LEADER);
 
-        stmt->setUInt32(0, newLeader->GetGUIDLow());
+        stmt->setUInt32(0, newLeader->GetGUID().GetCounter());
         stmt->setUInt32(1, m_dbStoreId);
 
         trans->Append(stmt);
