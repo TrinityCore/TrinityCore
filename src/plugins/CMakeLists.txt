@@ -135,6 +135,41 @@ add_library(plugins STATIC
 
 add_dependencies(plugins revision.h)
 
+if( WIN32 )
+  if ( MSVC )
+	add_custom_command(TARGET plugins
+      POST_BUILD
+ 	  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}playerbot/aiplayerbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    ) 
+	add_custom_command(TARGET plugins
+      POST_BUILD
+ 	  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}ahbot/ahbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    )
+  elseif ( MINGW )
+    
+	 add_custom_command(TARGET plugins
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}playerbot/aiplayerbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/
+    )
+	add_custom_command(TARGET plugins
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}ahbot/ahbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/
+    )
+  endif()
+endif()
+
+if( UNIX )
+  install(TARGETS plugins DESTINATION bin)
+  install(FILES playerbot/aiplayerbot.conf.dist.in DESTINATION ${CONF_DIR})
+  install(FILES ahbot/ahbot.conf.dist.in DESTINATION ${CONF_DIR})
+elseif( WIN32 )
+  install(TARGETS plugins DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(FILES playerbot/aiplayerbot.conf.dist.in DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(FILES ahbot/ahbot.conf.dist.in DESTINATION "${CMAKE_INSTALL_PREFIX}")
+endif()
+
+
+
 # Generate precompiled header
 if (USE_COREPCH)
   add_cxx_pch(plugins ${plugins_STAT_PCH_HDR} ${plugins_STAT_PCH_SRC})
