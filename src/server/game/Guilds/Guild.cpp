@@ -1769,7 +1769,7 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
 
     Player* player = session->GetPlayer();
     // Do not show invitations from ignored players
-    if (pInvitee->GetSocial()->HasIgnore(player->GetGUIDLow()))
+    if (pInvitee->GetSocial()->HasIgnore(player->GetGUID()))
         return;
 
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && pInvitee->GetTeam() != player->GetTeam())
@@ -2619,7 +2619,7 @@ void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::strin
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindConnectedPlayer())
                 if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
-                    !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
+                    !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUID()))
                     player->GetSession()->SendPacket(&data);
     }
 }
@@ -2633,7 +2633,7 @@ void Guild::BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindPlayer())
                 if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
-                    !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()) &&
+                    !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUID()) &&
                     player->GetSession()->IsAddonRegistered(prefix))
                         player->GetSession()->SendPacket(&data);
     }

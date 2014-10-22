@@ -676,7 +676,7 @@ void Channel::Invite(Player const* player, std::string const& newname)
         return;
     }
 
-    if (!newp->GetSocial()->HasIgnore(guid.GetCounter()))
+    if (!newp->GetSocial()->HasIgnore(guid))
     {
         WorldPacket data;
         MakeInvite(&data, guid);
@@ -724,7 +724,7 @@ void Channel::SendToAll(WorldPacket* data, ObjectGuid guid)
 {
     for (PlayerContainer::const_iterator i = playersStore.begin(); i != playersStore.end(); ++i)
         if (Player* player = ObjectAccessor::FindConnectedPlayer(i->first))
-            if (!guid || !player->GetSocial()->HasIgnore(guid.GetCounter()))
+            if (!guid || !player->GetSocial()->HasIgnore(guid))
                 player->GetSession()->SendPacket(data);
 }
 
