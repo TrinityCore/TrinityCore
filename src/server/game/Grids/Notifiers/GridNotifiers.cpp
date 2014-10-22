@@ -73,7 +73,7 @@ void VisibleNotifier::SendToSelf()
         if (it->IsPlayer())
         {
             Player* player = ObjectAccessor::FindPlayer(*it);
-            if (player && player->IsInWorld() && !player->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
+            if (player && !player->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
                 player->UpdateVisibilityOf(&i_player);
         }
     }

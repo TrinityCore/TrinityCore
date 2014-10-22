@@ -371,7 +371,7 @@ class AchievementGlobalMgr
         {
             if (IsRealmCompleted(achievement, instanceId))
                 return;
-                
+
             m_allCompletedAchievements[achievement->ID] = instanceId;
         }
 

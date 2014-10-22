@@ -294,7 +294,7 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
         if (itr2 != itr->second.m_playerSocialMap.end() && (itr2->second.Flags & SOCIAL_FLAG_FRIEND))
         {
             Player* target = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, 0, itr->first));
-            if (!target || !target->IsInWorld())
+            if (!target)
                 continue;
 
             WorldSession* session = target->GetSession();
