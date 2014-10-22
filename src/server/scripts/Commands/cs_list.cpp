@@ -486,7 +486,7 @@ public:
                 aurApp->GetEffectMask(), aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
                 aura->GetDuration(), aura->GetMaxDuration(), (aura->IsPassive() ? passiveStr : ""),
                 (talent ? talentStr : ""), aura->GetCasterGUID().IsPlayer() ? "player" : "creature",
-                aura->GetCasterGUID().GetCounter());
+                aura->GetCasterGUID().ToString().c_str());
         }
 
         for (uint16 i = 0; i < TOTAL_AURAS; ++i)
@@ -546,7 +546,7 @@ public:
             uint32 countMail    = fields[0].GetUInt64();
 
             std::string nameLink = handler->playerLink(player->GetName());
-            handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), player->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), player->GetGUID().ToString().c_str());
             handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
