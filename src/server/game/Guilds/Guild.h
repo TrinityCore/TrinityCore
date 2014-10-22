@@ -342,6 +342,7 @@ private:
         void ResetValues();
 
         inline Player* FindPlayer() const { return ObjectAccessor::FindPlayer(m_guid); }
+        inline Player* FindConnectedPlayer() const { return ObjectAccessor::FindConnectedPlayer(m_guid); }
 
     private:
         uint32 m_guildId;
@@ -723,7 +724,7 @@ public:
     void BroadcastWorker(Do& _do, Player* except = NULL)
     {
         for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-            if (Player* player = itr->second->FindPlayer())
+            if (Player* player = itr->second->FindConnectedPlayer())
                 if (player != except)
                     _do(player);
     }

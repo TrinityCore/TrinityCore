@@ -671,8 +671,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         float m_SightDistance, m_CombatDistance;
 
-        void FarTeleportTo(Map* map, float X, float Y, float Z, float O);
-
         bool m_isTempWorldObject; //true when possessed
 
         // Handling caster facing during spellcast

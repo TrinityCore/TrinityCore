@@ -35,6 +35,7 @@
 #include "LFG.h"
 #include "GroupMgr.h"
 #include "MMapFactory.h"
+#include "DisableMgr.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -73,6 +74,7 @@ public:
             { "maxskill",         rbac::RBAC_PERM_COMMAND_MAXSKILL,         false, &HandleMaxSkillCommand,         "", NULL },
             { "movegens",         rbac::RBAC_PERM_COMMAND_MOVEGENS,         false, &HandleMovegensCommand,         "", NULL },
             { "mute",             rbac::RBAC_PERM_COMMAND_MUTE,              true, &HandleMuteCommand,             "", NULL },
+            { "mutehistory",      rbac::RBAC_PERM_COMMAND_MUTEHISTORY,       true, &HandleMuteInfoCommand,         "", NULL },
             { "neargrave",        rbac::RBAC_PERM_COMMAND_NEARGRAVE,        false, &HandleNearGraveCommand,        "", NULL },
             { "pinfo",            rbac::RBAC_PERM_COMMAND_PINFO,             true, &HandlePInfoCommand,            "", NULL },
             { "playall",          rbac::RBAC_PERM_COMMAND_PLAYALL,          false, &HandlePlayAllCommand,          "", NULL },
@@ -186,7 +188,7 @@ public:
 
         uint32 haveMap = Map::ExistMap(mapId, gridX, gridY) ? 1 : 0;
         uint32 haveVMap = Map::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
-        uint32 haveMMap = (MMAP::MMapFactory::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
+        uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
 
         if (haveVMap)
         {
@@ -508,13 +510,14 @@ public:
             handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE));
 
             // in point where GM stay
-            Player::SavePositionInDB(handler->GetSession()->GetPlayer()->GetMapId(),
+            SQLTransaction dummy;
+            Player::SavePositionInDB(WorldLocation(handler->GetSession()->GetPlayer()->GetMapId(),
                 handler->GetSession()->GetPlayer()->GetPositionX(),
                 handler->GetSession()->GetPlayer()->GetPositionY(),
                 handler->GetSession()->GetPlayer()->GetPositionZ(),
-                handler->GetSession()->GetPlayer()->GetOrientation(),
+                handler->GetSession()->GetPlayer()->GetOrientation()),
                 handler->GetSession()->GetPlayer()->GetZoneId(),
-                targetGuid);
+                targetGuid, dummy);
         }
 
         return true;
@@ -1848,6 +1851,12 @@ public:
         stmt->setString(2, muteBy.c_str());
         stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MUTE);
+        stmt->setUInt32(0, accountId);
+        stmt->setUInt32(1, notSpeakTime);
+        stmt->setString(2, muteBy.c_str());
+        stmt->setString(3, muteReasonStr.c_str());
+        LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
         if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD) && !target)
@@ -1907,6 +1916,65 @@ public:
         return true;
     }
 
+    // mutehistory command
+    static bool HandleMuteInfoCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char *nameStr = strtok((char*)args, "");
+        if (!nameStr)
+            return false;
+
+        std::string accountName = nameStr;
+        if (!AccountMgr::normalizeString(accountName))
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 accountId = AccountMgr::GetId(accountName);
+        if (!accountId)
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            return false;
+        }
+
+        return HandleMuteInfoHelper(accountId, accountName.c_str(), handler);
+    }
+
+    // helper for mutehistory
+    static bool HandleMuteInfoHelper(uint32 accountId, char const* accountName, ChatHandler *handler)
+    {
+        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE_INFO);
+        stmt->setUInt16(0, accountId);
+        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        
+        if (!result)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_MUTEHISTORY_EMPTY, accountName);
+            return true;
+        }
+
+        handler->PSendSysMessage(LANG_COMMAND_MUTEHISTORY, accountName);
+        do
+        {
+            Field* fields = result->Fetch();
+            
+            // we have to manually set the string for mutedate
+            time_t sqlTime = fields[0].GetUInt32();
+            tm timeinfo;
+            char buffer[80];
+            
+            // set it to string
+            localtime_r(&sqlTime, &timeinfo);
+            strftime(buffer, sizeof(buffer),"%Y-%m-%d %I:%M%p", &timeinfo);
+            
+            handler->PSendSysMessage(LANG_COMMAND_MUTEHISTORY_OUTPUT, buffer, fields[1].GetUInt32(), fields[2].GetCString(), fields[3].GetCString());
+        } while (result->NextRow());
+        return true;
+    }
 
     static bool HandleMovegensCommand(ChatHandler* handler, char const* /*args*/)
     {
@@ -2192,7 +2260,7 @@ public:
 
         if (args && args[0] != '\0')
         {
-            target = sObjectAccessor->FindPlayerByName(args);
+            target = ObjectAccessor::FindPlayerByName(args);
             if (!target)
             {
                 handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -2286,7 +2354,7 @@ public:
                     // find the player
                     std::string name = arg1;
                     normalizePlayerName(name);
-                    player = sObjectAccessor->FindPlayerByName(name);
+                    player = ObjectAccessor::FindPlayerByName(name);
                     // Check if we have duration set
                     if (arg2 && isNumeric(arg2))
                     {
@@ -2350,7 +2418,7 @@ public:
         {
             name = targetName;
             normalizePlayerName(name);
-            player = sObjectAccessor->FindPlayerByName(name);
+            player = ObjectAccessor::FindPlayerByName(name);
         }
         else // If no name was entered - use target
         {
@@ -2426,7 +2494,7 @@ public:
             int32 remaintime = fields[1].GetInt32();
             // Save the frozen player to update remaining time in case of future .listfreeze uses
             // before the frozen state expires
-            if (Player* frozen = sObjectAccessor->FindPlayerByName(player))
+            if (Player* frozen = ObjectAccessor::FindPlayerByName(player))
                 frozen->SaveToDB();
             // Notify the freeze duration
             if (remaintime == -1) // Permanent duration
