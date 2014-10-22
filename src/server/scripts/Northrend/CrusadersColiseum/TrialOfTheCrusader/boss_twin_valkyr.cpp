@@ -703,6 +703,14 @@ class spell_powering_up : public SpellScriptLoader
         {
             PrepareSpellScript(spell_powering_up_SpellScript);
 
+        public:
+            spell_powering_up_SpellScript()
+            {
+                spellId = 0;
+                poweringUp = 0;
+            }
+
+        private:
             uint32 spellId;
             uint32 poweringUp;
 
@@ -760,6 +768,13 @@ class spell_valkyr_essences : public SpellScriptLoader
         {
             PrepareAuraScript(spell_valkyr_essences_AuraScript);
 
+        public:
+            spell_valkyr_essences_AuraScript()
+            {
+                spellId = 0;
+            }
+
+        private:
             uint32 spellId;
 
             bool Load() override

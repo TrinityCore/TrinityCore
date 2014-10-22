@@ -143,6 +143,8 @@ class InstanceScript : public ZoneScript
         Map* instance;
 
         // On creation, NOT load.
+        // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!
+        // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
         virtual void Initialize() { }
 
         // On load
@@ -238,6 +240,8 @@ class InstanceScript : public ZoneScript
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
 
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
+
+        uint32 GetEncounterCount() const { return bosses.size(); }
 
     protected:
         void SetHeaders(std::string const& dataHeaders);

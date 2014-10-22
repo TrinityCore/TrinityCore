@@ -33,7 +33,7 @@
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
-    Player* player = ObjectAccessor::FindPlayer(guid);
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid);
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));

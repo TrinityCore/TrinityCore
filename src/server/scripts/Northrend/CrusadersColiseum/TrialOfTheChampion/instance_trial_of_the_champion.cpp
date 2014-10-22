@@ -41,7 +41,17 @@ public:
 
     struct instance_trial_of_the_champion_InstanceMapScript : public InstanceScript
     {
-        instance_trial_of_the_champion_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_trial_of_the_champion_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            uiMovementDone = 0;
+            uiGrandChampionsDeaths = 0;
+            uiArgentSoldierDeaths = 0;
+
+            bDone = false;
+
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+        }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -65,18 +75,6 @@ public:
         std::string str_data;
 
         bool bDone;
-
-        void Initialize() override
-        {
-            SetHeaders(DataHeader);
-            uiMovementDone = 0;
-            uiGrandChampionsDeaths = 0;
-            uiArgentSoldierDeaths = 0;
-
-            bDone = false;
-
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-        }
 
         bool IsEncounterInProgress() const override
         {
