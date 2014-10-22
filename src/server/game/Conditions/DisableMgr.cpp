@@ -21,8 +21,8 @@
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "SpellMgr.h"
-#include "VMapManager2.h"
 #include "Player.h"
+#include "World.h"
 
 namespace DisableMgr
 {
@@ -193,28 +193,28 @@ void LoadDisables()
                 switch (mapEntry->map_type)
                 {
                     case MAP_COMMON:
-                        if (flags & VMAP_DISABLE_AREAFLAG)
+                        if (flags & VMAP::VMAP_DISABLE_AREAFLAG)
                             TC_LOG_INFO("misc", "Areaflag disabled for world map %u.", entry);
-                        if (flags & VMAP_DISABLE_LIQUIDSTATUS)
+                        if (flags & VMAP::VMAP_DISABLE_LIQUIDSTATUS)
                             TC_LOG_INFO("misc", "Liquid status disabled for world map %u.", entry);
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        if (flags & VMAP_DISABLE_HEIGHT)
+                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
                             TC_LOG_INFO("misc", "Height disabled for instance map %u.", entry);
-                        if (flags & VMAP_DISABLE_LOS)
+                        if (flags & VMAP::VMAP_DISABLE_LOS)
                             TC_LOG_INFO("misc", "LoS disabled for instance map %u.", entry);
                         break;
                     case MAP_BATTLEGROUND:
-                        if (flags & VMAP_DISABLE_HEIGHT)
+                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
                             TC_LOG_INFO("misc", "Height disabled for battleground map %u.", entry);
-                        if (flags & VMAP_DISABLE_LOS)
+                        if (flags & VMAP::VMAP_DISABLE_LOS)
                             TC_LOG_INFO("misc", "LoS disabled for battleground map %u.", entry);
                         break;
                     case MAP_ARENA:
-                        if (flags & VMAP_DISABLE_HEIGHT)
+                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
                             TC_LOG_INFO("misc", "Height disabled for arena map %u.", entry);
-                        if (flags & VMAP_DISABLE_LOS)
+                        if (flags & VMAP::VMAP_DISABLE_LOS)
                             TC_LOG_INFO("misc", "LoS disabled for arena map %u.", entry);
                         break;
                     default:
@@ -385,6 +385,17 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
     }
 
     return false;
+}
+
+bool IsVMAPDisabledFor(uint32 entry, uint8 flags)
+{
+    return IsDisabledFor(DISABLE_TYPE_VMAP, entry, NULL, flags);
+}
+
+bool IsPathfindingEnabled(uint32 mapId)
+{
+    return sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS)
+        && !IsDisabledFor(DISABLE_TYPE_MMAP, mapId, NULL, MMAP_DISABLE_PATHFINDING);
 }
 
 } // Namespace

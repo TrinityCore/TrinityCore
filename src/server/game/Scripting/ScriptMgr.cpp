@@ -102,9 +102,13 @@ class ScriptRegistry
                 else
                 {
                     // The script uses a script name from database, but isn't assigned to anything.
-                    if (script->GetName().find("Smart") == std::string::npos)
-                        TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.",
-                            script->GetName().c_str());
+                    TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.", script->GetName().c_str());
+
+                    // Avoid calling "delete script;" because we are currently in the script constructor
+                    // In a valid scenario this will not happen because every script has a name assigned in the database
+                    // If that happens, it's acceptable to just leak a few bytes
+
+                    return;
                 }
             }
             else

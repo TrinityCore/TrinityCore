@@ -253,7 +253,7 @@ void BattlefieldWG::OnBattleStart()
         for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
         {
             // Kick player in orb room, TODO: offline player ?
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
             {
                 float x, y, z;
                 player->GetPosition(x, y, z);
@@ -356,7 +356,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
 
     for (GuidSet::const_iterator itr = m_PlayersInWar[GetDefenderTeam()].begin(); itr != m_PlayersInWar[GetDefenderTeam()].end(); ++itr)
     {
-        if (Player* player = sObjectAccessor->FindPlayer(*itr))
+        if (Player* player = ObjectAccessor::FindPlayer(*itr))
         {
             player->CastSpell(player, SPELL_ESSENCE_OF_WINTERGRASP, true);
             player->CastSpell(player, SPELL_VICTORY_REWARD, true);
@@ -369,13 +369,13 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
     }
 
     for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
-        if (Player* player = sObjectAccessor->FindPlayer(*itr))
+        if (Player* player = ObjectAccessor::FindPlayer(*itr))
             player->CastSpell(player, SPELL_DEFEAT_REWARD, true);
 
     for (uint8 team = 0; team < 2; ++team)
     {
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 RemoveAurasFromPlayer(player);
 
         m_PlayersInWar[team].clear();
@@ -394,7 +394,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
         {
             for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             {
-                if (Player* player = sObjectAccessor->FindPlayer(*itr))
+                if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 {
                     player->RemoveAurasDueToSpell(m_DefenderTeam == TEAM_ALLIANCE ? SPELL_HORDE_CONTROL_PHASE_SHIFT : SPELL_ALLIANCE_CONTROL_PHASE_SHIFT, player->GetGUID());
                     player->AddAura(m_DefenderTeam == TEAM_HORDE ? SPELL_HORDE_CONTROL_PHASE_SHIFT : SPELL_ALLIANCE_CONTROL_PHASE_SHIFT, player);
@@ -620,7 +620,7 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
     if (victim->GetTypeId() == TYPEID_PLAYER)
     {
         for (GuidSet::const_iterator itr = m_PlayersInWar[killerTeam].begin(); itr != m_PlayersInWar[killerTeam].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 if (player->GetDistance2d(killer) < 40)
                     PromotePlayer(player);
         return;
@@ -635,7 +635,7 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
             {
                 again = true;
                 for (GuidSet::const_iterator iter = m_PlayersInWar[killerTeam].begin(); iter != m_PlayersInWar[killerTeam].end(); ++iter)
-                    if (Player* player = sObjectAccessor->FindPlayer(*iter))
+                    if (Player* player = ObjectAccessor::FindPlayer(*iter))
                         if (player->GetDistance2d(killer) < 40.0f)
                             PromotePlayer(player);
             }
@@ -847,7 +847,7 @@ void BattlefieldWG::SendInitWorldStatesToAll()
 {
     for (uint8 team = 0; team < 2; team++)
         for (GuidSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 SendInitWorldStatesTo(player);
 }
 
@@ -858,7 +858,7 @@ void BattlefieldWG::BrokenWallOrTower(TeamId /*team*/)
     {
         for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
         {
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 IncrementQuest(player, WGQuest[player->GetTeamId()][2], true);
         }
     }*/
@@ -876,12 +876,12 @@ void BattlefieldWG::UpdatedDestroyedTowerCount(TeamId team)
 
         // Remove buff stack on attackers
         for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 player->RemoveAuraFromStack(SPELL_TOWER_CONTROL);
 
         // Add buff stack to defenders
         for (GuidSet::const_iterator itr = m_PlayersInWar[GetDefenderTeam()].begin(); itr != m_PlayersInWar[GetDefenderTeam()].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
             {
                 player->CastSpell(player, SPELL_TOWER_CONTROL, true);
                 DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WG_TOWER_DESTROY, player);
@@ -986,7 +986,7 @@ void BattlefieldWG::UpdateTenacity()
     if (team != TEAM_NEUTRAL)
     {
         for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 if (player->getLevel() >= m_MinLevel)
                     player->RemoveAurasDueToSpell(SPELL_TENACITY);
 
@@ -1014,7 +1014,7 @@ void BattlefieldWG::UpdateTenacity()
             buff_honor = 0;
 
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 player->SetAuraStack(SPELL_TENACITY, player, newStack);
 
         for (GuidSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
@@ -1024,7 +1024,7 @@ void BattlefieldWG::UpdateTenacity()
         if (buff_honor != 0)
         {
             for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
-                if (Player* player = sObjectAccessor->FindPlayer(*itr))
+                if (Player* player = ObjectAccessor::FindPlayer(*itr))
                     player->CastSpell(player, buff_honor, true);
             for (GuidSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
                 if (Creature* creature = GetCreature(*itr))

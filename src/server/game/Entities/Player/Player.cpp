@@ -61,6 +61,7 @@
 #include "Pet.h"
 #include "QuestDef.h"
 #include "ReputationMgr.h"
+#include "revision.h"
 #include "SkillDiscovery.h"
 #include "SocialMgr.h"
 #include "Spell.h"
@@ -4814,11 +4815,8 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                 {
                     if (Player* pFriend = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, 0, (*resultFriends)[0].GetUInt32())))
                     {
-                        if (pFriend->IsInWorld())
-                        {
-                            pFriend->GetSocial()->RemoveFromSocialList(guid, false);
-                            sSocialMgr->SendFriendStatus(pFriend, FRIEND_REMOVED, guid, false);
-                        }
+                        pFriend->GetSocial()->RemoveFromSocialList(guid, false);
+                        sSocialMgr->SendFriendStatus(pFriend, FRIEND_REMOVED, guid, false);
                     }
                 } while (resultFriends->NextRow());
             }
@@ -15238,6 +15236,19 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, quest_id);
 
     SendQuestUpdate(quest_id);
+
+    if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
+    {
+        // prepare Quest Tracker datas
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_QUEST_TRACK);
+        stmt->setUInt32(0, quest_id);
+        stmt->setUInt32(1, GetGUIDLow());
+        stmt->setString(2, _HASH);
+        stmt->setString(3, _DATE);
+
+        // add to Quest Tracker
+        CharacterDatabase.Execute(stmt);
+    }
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -15257,6 +15268,17 @@ void Player::CompleteQuest(uint32 quest_id)
             else
                 SendQuestComplete(quest_id);
         }
+    }
+
+    if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
+    {
+        // prepare Quest Tracker datas
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_QUEST_TRACK_COMPLETE_TIME);
+        stmt->setUInt32(0, quest_id);
+        stmt->setUInt32(1, GetGUIDLow());
+
+        // add to Quest Tracker
+        CharacterDatabase.Execute(stmt);
     }
 }
 
@@ -20182,19 +20204,19 @@ void Player::SendAttackSwingNotInRange()
     GetSession()->SendPacket(&data);
 }
 
-void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, ObjectGuid guid)
+void Player::SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
 
-    stmt->setFloat(0, x);
-    stmt->setFloat(1, y);
-    stmt->setFloat(2, z);
-    stmt->setFloat(3, o);
-    stmt->setUInt16(4, uint16(mapid));
-    stmt->setUInt16(5, uint16(zone));
+    stmt->setFloat(0, loc.GetPositionX());
+    stmt->setFloat(1, loc.GetPositionY());
+    stmt->setFloat(2, loc.GetPositionZ());
+    stmt->setFloat(3, loc.GetOrientation());
+    stmt->setUInt16(4, uint16(loc.GetMapId()));
+    stmt->setUInt16(5, zoneId);
     stmt->setUInt32(6, guid.GetCounter());
 
-    CharacterDatabase.Execute(stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value)
@@ -20208,10 +20230,10 @@ void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value
     tokens[index] = buf;
 }
 
-void Player::Customize(ObjectGuid guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair)
+void Player::Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PLAYERBYTES2);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt32(0, customizeInfo->Guid.GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -20221,16 +20243,16 @@ void Player::Customize(ObjectGuid guid, uint8 gender, uint8 skin, uint8 face, ui
 
     uint32 playerBytes2 = fields[0].GetUInt32();
     playerBytes2 &= ~0xFF;
-    playerBytes2 |= facialHair;
+    playerBytes2 |= customizeInfo->FacialHair;
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_PLAYERBYTES);
 
-    stmt->setUInt8(0, gender);
-    stmt->setUInt32(1, skin | (face << 8) | (hairStyle << 16) | (hairColor << 24));
+    stmt->setUInt8(0, customizeInfo->Gender);
+    stmt->setUInt32(1, customizeInfo->Skin | (customizeInfo->Face << 8) | (customizeInfo->HairStyle << 16) | (customizeInfo->HairColor << 24));
     stmt->setUInt32(2, playerBytes2);
-    stmt->setUInt32(3, guid.GetCounter());
+    stmt->setUInt32(3, customizeInfo->Guid.GetCounter());
 
-    CharacterDatabase.Execute(stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void Player::SendAttackSwingDeadTarget()
@@ -21123,7 +21145,7 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
             ObjectGuid petitionguid = ObjectGuid(HIGHGUID_ITEM, fields[1].GetUInt32());
 
             // send update if charter owner in game
-            Player* owner = ObjectAccessor::FindPlayer(ownerguid);
+            Player* owner = ObjectAccessor::FindConnectedPlayer(ownerguid);
             if (owner)
                 owner->GetSession()->SendPetitionQueryOpcode(petitionguid);
         } while (result->NextRow());
@@ -22509,11 +22531,7 @@ bool Player::IsVisibleGloballyFor(Player const* u) const
         return GetSession()->GetSecurity() <= u->GetSession()->GetSecurity();
 
     // non faction visibility non-breakable for non-GMs
-    if (!IsVisible())
-        return false;
-
-    // non-gm stealth/invisibility not hide from global player lists
-    return true;
+    return false;
 }
 
 template<class T>

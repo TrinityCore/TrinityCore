@@ -747,7 +747,7 @@ Player* ChatHandler::getSelectedPlayer()
     if (!selected)
         return m_session->GetPlayer();
 
-    return ObjectAccessor::FindPlayer(selected);
+    return ObjectAccessor::FindConnectedPlayer(selected);
 }
 
 Unit* ChatHandler::getSelectedUnit()
@@ -792,7 +792,7 @@ Player* ChatHandler::getSelectedPlayerOrSelf()
         return m_session->GetPlayer();
 
     // first try with selected target
-    Player* targetPlayer = ObjectAccessor::FindPlayer(selected);
+    Player* targetPlayer = ObjectAccessor::FindConnectedPlayer(selected);
     // if the target is not a player, then return self
     if (!targetPlayer)
         targetPlayer = m_session->GetPlayer();
@@ -1072,7 +1072,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
             if (!normalizePlayerName(name))
                 return ObjectGuid::Empty;
 
-            if (Player* player = sObjectAccessor->FindPlayerByName(name))
+            if (Player* player = ObjectAccessor::FindPlayerByName(name))
                 return player->GetGUID();
 
             if (ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(name))
@@ -1130,7 +1130,7 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* p
             return false;
         }
 
-        Player* pl = sObjectAccessor->FindPlayerByName(name);
+        Player* pl = ObjectAccessor::FindPlayerByName(name);
 
         // if allowed player pointer
         if (player)
@@ -1294,7 +1294,7 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player*& player
                 return false;
             }
 
-            player = sObjectAccessor->FindPlayerByName(name);
+            player = ObjectAccessor::FindPlayerByName(name);
             if (offline)
                 guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
         }
