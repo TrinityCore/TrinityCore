@@ -2525,7 +2525,7 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
         guid = (*resultCharacter)[0].GetUInt32();
     }
     else
-        guid = pBanned->GetGUIDLow();
+        guid = pBanned->GetGUID().GetCounter();
 
     // make sure there is only one active ban
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
@@ -2564,7 +2564,7 @@ bool World::RemoveBanCharacter(std::string const& name)
         guid = (*resultCharacter)[0].GetUInt32();
     }
     else
-        guid = pBanned->GetGUIDLow();
+        guid = pBanned->GetGUID().GetCounter();
 
     if (!guid)
         return false;

@@ -755,14 +755,10 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
         void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
 
-        void AddToSkillupList(uint32 PlayerGuidLow) { m_SkillupList.push_back(PlayerGuidLow); }
-        bool IsInSkillupList(uint32 PlayerGuidLow) const
+        void AddToSkillupList(ObjectGuid const& PlayerGuidLow) { m_SkillupList.insert(PlayerGuidLow); }
+        bool IsInSkillupList(ObjectGuid const& playerGuid) const
         {
-            for (std::list<uint32>::const_iterator i = m_SkillupList.begin(); i != m_SkillupList.end(); ++i)
-                if (*i == PlayerGuidLow)
-                    return true;
-
-            return false;
+            return m_SkillupList.count(playerGuid) > 0;
         }
         void ClearSkillupList() { m_SkillupList.clear(); }
 
@@ -863,7 +859,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
-        std::list<uint32> m_SkillupList;
+        GuidSet m_SkillupList;
 
         ObjectGuid m_ritualOwnerGUID;                       // used for GAMEOBJECT_TYPE_RITUAL where GO is not summoned (no owner)
         GuidSet m_unique_users;
