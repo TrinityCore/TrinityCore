@@ -790,7 +790,7 @@ public:
             }
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
-            stmt->setUInt32(0, target->GetGUIDLow());
+            stmt->setUInt32(0, target->GetGUID().GetCounter());
             PreparedQueryResult result = WorldDatabase.Query(stmt);
 
             if (!result)
@@ -906,7 +906,7 @@ public:
 
                 // Set "wpguid" column to the visual waypoint
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
-                stmt->setInt32(0, int32(wpCreature->GetGUIDLow()));
+                stmt->setUInt32(0, wpCreature->GetGUID().GetCounter());
                 stmt->setUInt32(1, pathid);
                 stmt->setUInt32(2, point);
                 WorldDatabase.Execute(stmt);

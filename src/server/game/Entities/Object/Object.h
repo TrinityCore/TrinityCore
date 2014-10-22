@@ -99,7 +99,6 @@ class Object
         virtual void AddToWorld();
         virtual void RemoveFromWorld();
 
-        uint32 GetGUIDLow() const { return GetGuidValue(OBJECT_FIELD_GUID).GetCounter(); }
         ObjectGuid const& GetGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
         PackedGuid const& GetPackGUID() const { return m_PackGUID; }
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
