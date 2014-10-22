@@ -11950,7 +11950,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
 }
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId, AllowedLooterSet const& allowedLooters)
+Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId, GuidSet const& allowedLooters)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
@@ -11974,13 +11974,13 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
 
             // save data
             std::ostringstream ss;
-            AllowedLooterSet::const_iterator itr = allowedLooters.begin();
+            GuidSet::const_iterator itr = allowedLooters.begin();
             ss << *itr;
             for (++itr; itr != allowedLooters.end(); ++itr)
                 ss << ' ' << *itr;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_BOP_TRADE);
-            stmt->setUInt32(0, pItem->GetGUIDLow());
+            stmt->setUInt32(0, pItem->GetGUID().GetCounter());
             stmt->setString(1, ss.str());
             CharacterDatabase.Execute(stmt);
         }
@@ -25485,8 +25485,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
     InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
     if (msg == EQUIP_ERR_OK)
     {
-        AllowedLooterSet looters = item->GetAllowedLooters();
-        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, looters);
+        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, item->GetAllowedLooters());
 
         if (qitem)
         {
@@ -25531,7 +25530,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
 
         // LootItem is being removed (looted) from the container, delete it from the DB.
-        if (loot->containerID > 0)
+        if (!loot->containerID.IsEmpty())
             loot->DeleteLootItemFromContainerItemDB(item->itemid);
 
     }
