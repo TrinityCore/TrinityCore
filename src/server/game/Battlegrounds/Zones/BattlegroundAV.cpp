@@ -437,7 +437,7 @@ void BattlegroundAV::StartingEventOpenDoors()
 void BattlegroundAV::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUIDLow()] = new BattlegroundAVScore(player->GetGUID(), player->GetBGTeam());
+    PlayerScores[player->GetGUID()] = new BattlegroundAVScore(player->GetGUID(), player->GetBGTeam());
 }
 
 void BattlegroundAV::EndBattleground(uint32 winner)

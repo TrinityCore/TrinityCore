@@ -478,7 +478,7 @@ void BattlegroundSA::FillInitialWorldStates(WorldPacket& data)
 void BattlegroundSA::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUIDLow()] = new BattlegroundSAScore(player->GetGUID(), player->GetBGTeam());
+    PlayerScores[player->GetGUID()] = new BattlegroundSAScore(player->GetGUID(), player->GetBGTeam());
 
     SendTransportInit(player);
 
