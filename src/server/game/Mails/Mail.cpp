@@ -131,7 +131,7 @@ void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/
 void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32 receiver_guid, SQLTransaction& trans)
 {
     ObjectGuid receiverGuid(HIGHGUID_PLAYER, receiver_guid);
-    Player* receiver = ObjectAccessor::FindPlayer(receiverGuid);
+    Player* receiver = ObjectAccessor::FindConnectedPlayer(receiverGuid);
 
     uint32 rc_account = 0;
     if (!receiver)

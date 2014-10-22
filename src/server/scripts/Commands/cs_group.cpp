@@ -343,7 +343,7 @@ public:
 
             // Check if iterator is online. If is...
             Player* p = ObjectAccessor::FindPlayer((*itr).guid);
-            if (p && p->IsInWorld())
+            if (p)
             {
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";

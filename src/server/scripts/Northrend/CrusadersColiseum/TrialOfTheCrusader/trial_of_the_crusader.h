@@ -42,9 +42,7 @@ enum SpellIds
 
 enum MiscData
 {
-    DESPAWN_TIME                = 1200000,
-
-    DISPLAYID_DESTROYED_FLOOR   = 9060
+    DESPAWN_TIME                = 1200000
 };
 
 const Position ToCSpawnLoc[]=
@@ -133,7 +131,7 @@ const Position LichKingLoc[]=
 
 const Position AnubarakLoc[]=
 {
-    {787.932556f, 133.289780f, 142.612152f, 0},  // 0 - Anub'arak start location
+    {783.9305f, 132.9722f, 142.6711f, 3.141593f}, // 0 - Anub'arak Spawn Location (sniffed)
     {695.240051f, 137.834824f, 142.200000f, 0},  // 1 - Anub'arak move point location
     {694.886353f, 102.484665f, 142.119614f, 0},  // 3 - Nerub Spawn
     {694.500671f, 185.363968f, 142.117905f, 0},  // 5 - Nerub Spawn
@@ -232,13 +230,13 @@ enum CreatureIds
     NPC_HORDE_WARLOCK                   = 34450,
     NPC_HORDE_WARRIOR                   = 34453,
 
-    NPC_LIGHTBANE               = 34497,
-    NPC_DARKBANE                = 34496,
+    NPC_LIGHTBANE                       = 34497,
+    NPC_DARKBANE                        = 34496,
 
-    NPC_DARK_ESSENCE            = 34567,
-    NPC_LIGHT_ESSENCE           = 34568,
+    NPC_DARK_ESSENCE                    = 34567,
+    NPC_LIGHT_ESSENCE                   = 34568,
 
-    NPC_ANUBARAK                = 34564
+    NPC_ANUBARAK                        = 34564
 };
 
 enum GameObjectIds

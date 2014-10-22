@@ -241,6 +241,8 @@ class InstanceScript : public ZoneScript
 
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
 
+        uint32 GetEncounterCount() const { return bosses.size(); }
+
     protected:
         void SetHeaders(std::string const& dataHeaders);
         void SetBossNumber(uint32 number) { bosses.resize(number); }
