@@ -28,6 +28,9 @@ else()
 
   add_definitions(/arch:SSE2)
   message(STATUS "MSVC: Enabled SSE2 support")
+
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /SAFESEH:NO")
+  message(STATUS "MSVC: Disabled Safe Exception Handlers for debug builds")
 endif()
 
 # Set build-directive (used in core to tell which buildtype we used)

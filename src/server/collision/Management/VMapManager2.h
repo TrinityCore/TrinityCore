@@ -66,6 +66,14 @@ namespace VMAP
     typedef std::unordered_map<uint32, StaticMapTree*> InstanceTreeMap;
     typedef std::unordered_map<std::string, ManagedModel> ModelFileMap;
 
+    enum DisableTypes
+    {
+        VMAP_DISABLE_AREAFLAG       = 0x1,
+        VMAP_DISABLE_HEIGHT         = 0x2,
+        VMAP_DISABLE_LOS            = 0x4,
+        VMAP_DISABLE_LIQUIDSTATUS   = 0x8
+    };
+
     class VMapManager2 : public IVMapManager
     {
         protected:
@@ -77,6 +85,9 @@ namespace VMAP
 
             bool _loadMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
             /* void _unloadMap(uint32 pMapId, uint32 x, uint32 y); */
+
+            static uint32 GetLiquidFlagsDummy(uint32) { return 0; }
+            static bool IsVMAPDisabledForDummy(uint32 /*entry*/, uint8 /*flags*/) { return false; }
 
         public:
             // public for debug
@@ -114,6 +125,12 @@ namespace VMAP
             virtual bool existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
         public:
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
+
+            typedef uint32(*GetLiquidFlagsFn)(uint32 liquidType);
+            GetLiquidFlagsFn GetLiquidFlagsPtr;
+
+            typedef bool(*IsVMAPDisabledForFn)(uint32 entry, uint8 flags);
+            IsVMAPDisabledForFn IsVMAPDisabledForPtr;
     };
 }
 
