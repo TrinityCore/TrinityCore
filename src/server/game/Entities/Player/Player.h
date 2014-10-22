@@ -1054,7 +1054,7 @@ struct BGData
 
     std::map<uint32, uint32> bgQueuesJoinedTime;
 
-    std::set<uint32>   bgAfkReporter;
+    GuidSet            bgAfkReporter;
     uint8              bgAfkReportedCount;
     time_t             bgAfkReportedTimer;
 

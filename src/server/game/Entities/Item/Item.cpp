@@ -255,7 +255,6 @@ Item::Item()
     mb_in_trade = false;
     m_lastPlayedTimeUpdate = time(NULL);
 
-    m_refundRecipient = 0;
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
 }
@@ -1108,7 +1107,7 @@ void Item::SaveRefundDataToDB()
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_REFUND_INSTANCE);
     stmt->setUInt32(0, GetGUID().GetCounter());
-    stmt->setUInt32(1, GetRefundRecipient());
+    stmt->setUInt32(1, GetRefundRecipient().GetCounter());
     stmt->setUInt32(2, GetPaidMoney());
     stmt->setUInt16(3, uint16(GetPaidExtendedCost()));
     trans->Append(stmt);
@@ -1137,7 +1136,7 @@ void Item::SetNotRefundable(Player* owner, bool changestate /*=true*/, SQLTransa
     if (changestate)
         SetState(ITEM_CHANGED, owner);
 
-    SetRefundRecipient(0);
+    SetRefundRecipient(ObjectGuid::Empty);
     SetPaidMoney(0);
     SetPaidExtendedCost(0);
     DeleteRefundDataFromDB(trans);
