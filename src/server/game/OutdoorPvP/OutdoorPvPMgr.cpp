@@ -123,7 +123,7 @@ void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
         return;
 
     itr->second->HandlePlayerEnterZone(player, zoneid);
-    TC_LOG_DEBUG("outdoorpvp", "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
+    TC_LOG_DEBUG("outdoorpvp", "%s entered outdoorpvp id %u", player->GetGUID().ToString().c_str(), itr->second->GetTypeId());
 }
 
 void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
@@ -137,7 +137,7 @@ void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
         return;
 
     itr->second->HandlePlayerLeaveZone(player, zoneid);
-    TC_LOG_DEBUG("outdoorpvp", "Player %u left outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
+    TC_LOG_DEBUG("outdoorpvp", "%s left outdoorpvp id %u", player->GetGUID().ToString().c_str(), itr->second->GetTypeId());
 }
 
 OutdoorPvP* OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
