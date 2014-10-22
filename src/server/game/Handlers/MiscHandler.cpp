@@ -618,7 +618,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
                     friendResult = FRIEND_SELF;
                 else if (GetPlayer()->GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_ADD_FRIEND))
                     friendResult = FRIEND_ENEMY;
-                else if (GetPlayer()->GetSocial()->HasFriend(friendGuid.GetCounter()))
+                else if (GetPlayer()->GetSocial()->HasFriend(friendGuid))
                     friendResult = FRIEND_ALREADY;
                 else
                 {
@@ -627,18 +627,18 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
                         friendResult = FRIEND_ADDED_ONLINE;
                     else
                         friendResult = FRIEND_ADDED_OFFLINE;
-                    if (!GetPlayer()->GetSocial()->AddToSocialList(friendGuid.GetCounter(), false))
+                    if (!GetPlayer()->GetSocial()->AddToSocialList(friendGuid, false))
                     {
                         friendResult = FRIEND_LIST_FULL;
                         TC_LOG_DEBUG("network", "WORLD: %s's friend list is full.", GetPlayer()->GetName().c_str());
                     }
                 }
-                GetPlayer()->GetSocial()->SetFriendNote(friendGuid.GetCounter(), friendNote);
+                GetPlayer()->GetSocial()->SetFriendNote(friendGuid, friendNote);
             }
         }
     }
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), friendResult, friendGuid.GetCounter(), false);
+    sSocialMgr->SendFriendStatus(GetPlayer(), friendResult, friendGuid, false);
 
     TC_LOG_DEBUG("network", "WORLD: Sent (SMSG_FRIEND_STATUS)");
 }
@@ -651,9 +651,9 @@ void WorldSession::HandleDelFriendOpcode(WorldPacket& recvData)
 
     recvData >> FriendGUID;
 
-    _player->GetSocial()->RemoveFromSocialList(FriendGUID.GetCounter(), false);
+    _player->GetSocial()->RemoveFromSocialList(FriendGUID, false);
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, FriendGUID.GetCounter(), false);
+    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, FriendGUID, false);
 
     TC_LOG_DEBUG("network", "WORLD: Sent motd (SMSG_FRIEND_STATUS)");
 }
@@ -697,20 +697,20 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
         {
             if (IgnoreGuid == GetPlayer()->GetGUID())              //not add yourself
                 ignoreResult = FRIEND_IGNORE_SELF;
-            else if (GetPlayer()->GetSocial()->HasIgnore(IgnoreGuid.GetCounter()))
+            else if (GetPlayer()->GetSocial()->HasIgnore(IgnoreGuid))
                 ignoreResult = FRIEND_IGNORE_ALREADY;
             else
             {
                 ignoreResult = FRIEND_IGNORE_ADDED;
 
                 // ignore list full
-                if (!GetPlayer()->GetSocial()->AddToSocialList(IgnoreGuid.GetCounter(), true))
+                if (!GetPlayer()->GetSocial()->AddToSocialList(IgnoreGuid, true))
                     ignoreResult = FRIEND_IGNORE_FULL;
             }
         }
     }
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, IgnoreGuid.GetCounter(), false);
+    sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, IgnoreGuid, false);
 
     TC_LOG_DEBUG("network", "WORLD: Sent (SMSG_FRIEND_STATUS)");
 }
@@ -723,9 +723,9 @@ void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
 
     recvData >> IgnoreGUID;
 
-    _player->GetSocial()->RemoveFromSocialList(IgnoreGUID.GetCounter(), true);
+    _player->GetSocial()->RemoveFromSocialList(IgnoreGUID, true);
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_IGNORE_REMOVED, IgnoreGUID.GetCounter(), false);
+    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_IGNORE_REMOVED, IgnoreGUID, false);
 
     TC_LOG_DEBUG("network", "WORLD: Sent motd (SMSG_FRIEND_STATUS)");
 }
@@ -736,7 +736,7 @@ void WorldSession::HandleSetContactNotesOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     std::string note;
     recvData >> guid >> note;
-    _player->GetSocial()->SetFriendNote(guid.GetCounter(), note);
+    _player->GetSocial()->SetFriendNote(guid, note);
 }
 
 void WorldSession::HandleBugOpcode(WorldPacket& recvData)
