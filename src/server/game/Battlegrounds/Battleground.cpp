@@ -822,7 +822,7 @@ void Battleground::EndBattleground(uint32 winner)
         if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
-            BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUIDLow());
+            BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUID());
 
             stmt->setUInt32(0, battlegroundId);
             stmt->setUInt32(1, player->GetGUIDLow());
@@ -918,7 +918,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         participant = true;
     }
 
-    BattlegroundScoreMap::iterator itr2 = PlayerScores.find(guid.GetCounter());
+    BattlegroundScoreMap::iterator itr2 = PlayerScores.find(guid);
     if (itr2 != PlayerScores.end())
     {
         delete itr2->second;                                // delete player's score
@@ -1345,7 +1345,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPacket& data)
 
 bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
 {
-    BattlegroundScoreMap::const_iterator itr = PlayerScores.find(player->GetGUIDLow());
+    BattlegroundScoreMap::const_iterator itr = PlayerScores.find(player->GetGUID());
     if (itr == PlayerScores.end()) // player not found...
         return false;
 

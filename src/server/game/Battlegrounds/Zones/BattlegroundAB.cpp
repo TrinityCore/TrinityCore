@@ -224,7 +224,7 @@ void BattlegroundAB::StartingEventOpenDoors()
 void BattlegroundAB::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUIDLow()] = new BattlegroundABScore(player->GetGUID(), player->GetBGTeam());
+    PlayerScores[player->GetGUID()] = new BattlegroundABScore(player->GetGUID(), player->GetBGTeam());
 }
 
 void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)

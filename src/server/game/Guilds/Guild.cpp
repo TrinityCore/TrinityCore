@@ -1220,8 +1220,8 @@ bool Guild::Create(Player* pLeader, std::string const& name)
     _todayExperience = 0;
     _CreateLogHolders();
 
-    TC_LOG_DEBUG("guild", "GUILD: creating guild [%s] for leader %s (%u)",
-        name.c_str(), pLeader->GetName().c_str(), m_leaderGuid.GetCounter());
+    TC_LOG_DEBUG("guild", "GUILD: creating guild [%s] for leader %s (%s)",
+        name.c_str(), pLeader->GetName().c_str(), m_leaderGuid.ToString().c_str());
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
