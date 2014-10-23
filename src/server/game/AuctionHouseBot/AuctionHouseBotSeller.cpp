@@ -207,12 +207,12 @@ bool AuctionBotSeller::Initialize()
         {
             if (sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
             {
-                if (prototype->BuyPrice == 0)
+                if (prototype->SellPrice == 0)
                     continue;
             }
             else
             {
-                if (prototype->SellPrice == 0)
+                if (prototype->BuyPrice == 0)
                     continue;
             }
         }
@@ -706,7 +706,7 @@ void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConf
     if (sellPrice == 0)
         sellPrice = (buyPrice > 10 ? buyPrice / GetSellModifier(itemProto) : buyPrice);
 
-    if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
+    if (sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
         buyPrice = sellPrice;
 
     uint32 basePrice = (buyPrice * stackCount * priceRatio) / (itemProto->Class == 6 ? 200 : itemProto->BuyCount) / 100;
