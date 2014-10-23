@@ -373,8 +373,8 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     }
 
     // Get the account information from the auth database
-    //         0           1        2       3          4         5       6          7   8                  9
-    // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os, battlenet_account FROM account WHERE username = ?
+    //         0           1        2       3          4         5       6          7   8
+    // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
     stmt->setString(0, account);
 
@@ -500,7 +500,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     uint32 battlenetAccountId = 0;
     if (loginServerType == 1)
-        battlenetAccountId = fields[9].GetUInt32();
+        battlenetAccountId = Battlenet::AccountMgr::GetIdByGameAccount(id);
 
     // Checks gmlevel per Realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
