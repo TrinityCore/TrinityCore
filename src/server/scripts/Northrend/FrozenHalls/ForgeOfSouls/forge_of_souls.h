@@ -34,6 +34,7 @@ enum Creatures
     CREATURE_BRONJAHM                             = 36497,
     CREATURE_DEVOURER                             = 36502,
 
+	NPC_CORRUPTED_SOUL_FRAGMENT					  = 36535,
     NPC_SYLVANAS_PART1                            = 37596,
     NPC_SYLVANAS_PART2                            = 38161,
     NPC_JAINA_PART1                               = 37597,

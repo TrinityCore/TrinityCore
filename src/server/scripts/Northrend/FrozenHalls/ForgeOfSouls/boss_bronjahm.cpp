@@ -19,15 +19,15 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "CreatureTextMgr.h"
 #include "forge_of_souls.h"
 
 enum Yells
 {
     SAY_AGGRO           = 0,
     SAY_SLAY            = 1,
-    SAY_DEATH           = 2,
-    SAY_SOUL_STORM      = 3,
-    SAY_CORRUPT_SOUL    = 4,
+    SAY_SOUL_STORM      = 2,
+    SAY_CORRUPT_SOUL    = 3
 };
 
 enum Spells
@@ -50,13 +50,19 @@ enum Events
     EVENT_SHADOW_BOLT   = 2,
     EVENT_CORRUPT_SOUL  = 3,
     EVENT_SOULSTORM     = 4,
-    EVENT_FEAR          = 5,
+    EVENT_FEAR          = 5
 };
 
-enum CombatPhases
+enum Phases
 {
     PHASE_1 = 1,
     PHASE_2 = 2
+};
+
+enum Misc
+{
+	SOUND_DEATH		= 16598,
+	DATA_SOUL_POWER = 1
 };
 
 class boss_bronjahm : public CreatureScript
@@ -73,33 +79,38 @@ class boss_bronjahm : public CreatureScript
 
             void Reset() override
             {
+				_Reset();
+
                 events.Reset();
                 events.SetPhase(PHASE_1);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
                 events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
                 events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
 
-                instance->SetBossState(DATA_BRONJAHM, NOT_STARTED);
+				_summonedFragments = 0;
             }
 
            void JustReachedHome() override
            {
+			   _JustReachedHome();
+
                DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
            }
 
             void EnterCombat(Unit* /*who*/) override
             {
+				_EnterCombat();
+				
                 Talk(SAY_AGGRO);
-                me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
 
-                instance->SetBossState(DATA_BRONJAHM, IN_PROGRESS);
+                me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                Talk(SAY_DEATH);
+				_JustDied();
 
-                instance->SetBossState(DATA_BRONJAHM, DONE);
+				sCreatureTextMgr->SendSound(me, SOUND_DEATH, CHAT_MSG_MONSTER_YELL, NULL, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
             }
 
             void KilledUnit(Unit* who) override
@@ -121,12 +132,30 @@ class boss_bronjahm : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                summons.Summon(summon);
-                summon->SetReactState(REACT_PASSIVE);
-                summon->GetMotionMaster()->Clear();
-                summon->GetMotionMaster()->MoveFollow(me, me->GetObjectSize(), 0.0f);
-                summon->CastSpell(summon, SPELL_PURPLE_BANISH_VISUAL, true);
+				if (summon->GetEntry() == NPC_CORRUPTED_SOUL_FRAGMENT)
+				{
+					summons.Summon(summon);
+					summon->SetReactState(REACT_PASSIVE);
+					summon->GetMotionMaster()->Clear();
+					summon->GetMotionMaster()->MoveFollow(me, me->GetObjectSize(), 0.0f);
+					summon->CastSpell(summon, SPELL_PURPLE_BANISH_VISUAL, true);
+					++_summonedFragments;
+				}
             }
+
+			void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
+			{
+				if (summon->GetEntry() == NPC_CORRUPTED_SOUL_FRAGMENT)
+					--_summonedFragments;
+			}
+
+			uint32 GetData(uint32 type) const override
+			{
+				if (type == DATA_SOUL_POWER)
+					return _summonedFragments;
+
+				return 0;
+			}
 
             void UpdateAI(uint32 diff) override
             {
@@ -144,12 +173,12 @@ class boss_bronjahm : public CreatureScript
                     {
                         case EVENT_MAGIC_BANE:
                             DoCastVictim(SPELL_MAGIC_S_BANE);
-                            events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
+                            events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000), 0, PHASE_1);
                             break;
                         case EVENT_SHADOW_BOLT:
                             if (!me->IsWithinMeleeRange(me->GetVictim()))
                                 DoCastVictim(SPELL_SHADOW_BOLT);
-                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000); // Only in PHASE_1 maybe?
                             break;
                         case EVENT_CORRUPT_SOUL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
@@ -176,6 +205,9 @@ class boss_bronjahm : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+		private:
+			uint32 _summonedFragments;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -198,12 +230,13 @@ class npc_corrupted_soul_fragment : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id) override
             {
-                if (type != CHASE_MOTION_TYPE)
+                if (type != FOLLOW_MOTION_TYPE) // FOLLOW_MOTION_TYPE because when Bronjahm summons the fragment, it uses MoveFollow
                     return;
 
                 if (TempSummon* summ = me->ToTempSummon())
                 {
                     ObjectGuid BronjahmGUID(instance->GetGuidData(DATA_BRONJAHM));
+
                     if (BronjahmGUID.GetCounter() != id)
                         return;
 
@@ -325,7 +358,7 @@ class spell_bronjahm_soulstorm_visual : public SpellScriptLoader
             void HandlePeriodicTick(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                if (aurEff->GetTickNumber()%5)
+                if (aurEff->GetTickNumber() % 5)
                     return;
                 GetTarget()->CastSpell(GetTarget(), 68886, true);
                 for (uint32 i = 68896; i <= 68898; ++i)
@@ -395,6 +428,26 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
         }
 };
 
+class achievement_soul_power : public AchievementCriteriaScript
+{
+	public:
+		achievement_soul_power() : AchievementCriteriaScript("achievement_soul_power") { }
+
+		bool OnCheck(Player* /*player*/, Unit* target) override
+		{
+			if (!target)
+				return false;
+
+			if (Creature* bronjahm = target->ToCreature())
+			{
+				if (bronjahm->AI()->GetData(DATA_SOUL_POWER) >= 4)
+					return true;
+			}
+
+			return false;
+		}
+};
+
 void AddSC_boss_bronjahm()
 {
     new boss_bronjahm();
@@ -404,4 +457,5 @@ void AddSC_boss_bronjahm()
     new spell_bronjahm_soulstorm_channel();
     new spell_bronjahm_soulstorm_visual();
     new spell_bronjahm_soulstorm_targeting();
+	new achievement_soul_power();
 }
