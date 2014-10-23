@@ -93,6 +93,7 @@ class ObjectGuid
 
     public:
         static ObjectGuid const Empty;
+        typedef uint32 LowType;
 
         ObjectGuid() : _low(0), _high(0) { }
         ObjectGuid(uint64 high, uint64 low) : _low(low), _high(high) { }
