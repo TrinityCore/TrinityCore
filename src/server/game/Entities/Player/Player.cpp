@@ -18041,12 +18041,13 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
 
     if (result)
     {
+        ObjectGuid caster_guid;
         do
         {
             Field* fields = result->Fetch();
             int32 damage[3];
             int32 baseDamage[3];
-            ObjectGuid caster_guid(fields[0].GetUInt64());
+            caster_guid.SetRawValue(fields[0].GetBinary());
             uint32 spellid = fields[1].GetUInt32();
             uint8 effmask = fields[2].GetUInt8();
             uint8 recalculatemask = fields[3].GetUInt8();
@@ -19772,8 +19773,8 @@ void Player::_SaveAuras(SQLTransaction& trans)
         uint8 index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
         stmt->setUInt32(index++, GetGUID().GetCounter());
-        stmt->setUInt64(index++, itr->second->GetCasterGUID().GetRawValue());
-        stmt->setUInt64(index++, itr->second->GetCastItemGUID().GetRawValue());
+        stmt->setBinary(index++, itr->second->GetCasterGUID().GetRawValue());
+        stmt->setBinary(index++, itr->second->GetCastItemGUID().GetRawValue());
         stmt->setUInt32(index++, itr->second->GetId());
         stmt->setUInt8(index++, effMask);
         stmt->setUInt8(index++, recalculateMask);
@@ -23172,7 +23173,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
             m_clientGUIDs.erase(target->GetGUID());
 
             #ifdef TRINITY_DEBUG
-                TC_LOG_DEBUG("maps", "Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
+            TC_LOG_DEBUG("maps", "Object %u (%s) is out of range for %s. Distance = %f", target->GetGUID().ToString().c_str(), target->GetEntry(), GetGUID().ToString().c_str(), GetDistance(target));
             #endif
         }
     }
@@ -23184,7 +23185,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
             UpdateVisibilityOf_helper(m_clientGUIDs, target, visibleNow);
 
             #ifdef TRINITY_DEBUG
-                TC_LOG_DEBUG("maps", "Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
+            TC_LOG_DEBUG("maps", "Object %u (%s) is visible now for %s. Distance = %f", target->GetGUID().ToString().c_str(), target->GetEntry(), GetGUID().ToString().c_str(), GetDistance(target));
             #endif
         }
     }
@@ -26420,7 +26421,7 @@ void Player::SendEquipmentSetList()
     {
         if (itr->second.state == EQUIPMENT_SET_DELETED)
             continue;
-        data.appendPackGUID(itr->second.Guid);
+        data.AppendPackedUInt64(itr->second.Guid);
         data << uint32(itr->first);
         data << itr->second.Name;
         data << itr->second.IconName;
@@ -26428,7 +26429,7 @@ void Player::SendEquipmentSetList()
         {
             // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
             if (itr->second.IgnoreMask & (1 << i))
-                data.appendPackGUID(uint64(1));
+                data << ObjectGuid(uint64(0), uint64(1));
             else
                 data << ObjectGuid(HIGHGUID_ITEM, 0, itr->second.Items[i]).WriteAsPacked();
         }
@@ -26473,7 +26474,7 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
 
         WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 1);
         data << uint32(index);
-        data.appendPackGUID(eqslot.Guid);
+        data.AppendPackedUInt64(eqslot.Guid);
         GetSession()->SendPacket(&data);
     }
 

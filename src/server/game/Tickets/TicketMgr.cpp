@@ -62,7 +62,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     _posY               = fields[++index].GetFloat();
     _posZ               = fields[++index].GetFloat();
     _lastModifiedTime   = fields[++index].GetUInt32();
-    _closedBy           = ObjectGuid(uint64(fields[++index].GetInt32()));
+    _closedBy           = ObjectGuid(uint64(0), uint64(fields[++index].GetInt32()));
     _assignedTo         = ObjectGuid(HIGHGUID_PLAYER, fields[++index].GetUInt32());
     _comment            = fields[++index].GetString();
     _response           = fields[++index].GetString();

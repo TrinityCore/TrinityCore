@@ -80,7 +80,8 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
                     Tokenizer tokens(db_BannedList, ' ');
                     for (Tokenizer::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
                     {
-                        ObjectGuid banned_guid(uint64(strtoull(*i, NULL, 10)));
+                        std::string bannedGuidStr(*i);
+                        ObjectGuid banned_guid(uint64(strtoull(bannedGuidStr.substr(0, 16).c_str(), NULL, 16)), uint64(strtoull(bannedGuidStr.substr(16).c_str(), NULL, 16)));
                         if (!banned_guid.IsEmpty())
                         {
                             TC_LOG_DEBUG("chat.system", "Channel(%s) loaded bannedStore %s", name.c_str(), banned_guid.ToString().c_str());
@@ -110,7 +111,7 @@ void Channel::UpdateChannelInDB() const
         std::ostringstream banlist;
         BannedContainer::const_iterator iter;
         for (iter = bannedStore.begin(); iter != bannedStore.end(); ++iter)
-            banlist << iter->GetRawValue() << ' ';
+            banlist << *iter << ' ';
 
         std::string banListStr = banlist.str();
 

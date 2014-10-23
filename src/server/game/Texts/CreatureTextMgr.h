@@ -165,7 +165,8 @@ class CreatureTextLocalizer
             {
                 case CHAT_MSG_MONSTER_WHISPER:
                 case CHAT_MSG_RAID_BOSS_WHISPER:
-                    data.put<uint64>(whisperGUIDpos, player->GetGUID().GetRawValue());
+                    // TODO: Fix this. GUIDs are now always written packed and can have different packed lengths
+                    //data.put<uint64>(whisperGUIDpos, player->GetGUID().GetRawValue());
                     break;
                 default:
                     break;

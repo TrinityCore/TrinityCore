@@ -130,7 +130,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         if (!item)
             continue;
 
-        ObjectGuid itemId(item->ItemId);
+        ObjectGuid itemId(HIGHGUID_ITEM, item->ItemId);
         ObjectGuid creatorGuid = item->CreatorGuid;
 
         data.WriteBit(creatorGuid[3]);
@@ -353,7 +353,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     for (std::vector<ObjectGuid>::iterator itr = itemIds.begin(); itr != itemIds.end(); ++itr)
     {
         uint8 slot;
-        VoidStorageItem* itemVS = player->GetVoidStorageItem(*itr, slot);
+        VoidStorageItem* itemVS = player->GetVoidStorageItem(itr->GetCounter(), slot);
         if (!itemVS)
         {
             TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - %s %s tried to withdraw an invalid item (id: %s)", player->GetGUID().ToString().c_str(), player->GetName().c_str(), itr->ToString().c_str());
@@ -387,7 +387,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < depositCount; ++i)
     {
-        ObjectGuid itemId(depositItems[i].first.ItemId);
+        ObjectGuid itemId(HIGHGUID_ITEM, depositItems[i].first.ItemId);
         ObjectGuid creatorGuid = depositItems[i].first.CreatorGuid;
         data.WriteBit(creatorGuid[7]);
         data.WriteBit(itemId[7]);
@@ -409,7 +409,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
-        ObjectGuid itemId(withdrawItems[i].ItemId);
+        ObjectGuid itemId(HIGHGUID_ITEM, withdrawItems[i].ItemId);
         data.WriteBit(itemId[1]);
         data.WriteBit(itemId[7]);
         data.WriteBit(itemId[3]);
@@ -424,7 +424,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
-        ObjectGuid itemId(withdrawItems[i].ItemId);
+        ObjectGuid itemId(HIGHGUID_ITEM, withdrawItems[i].ItemId);
         data.WriteByteSeq(itemId[3]);
         data.WriteByteSeq(itemId[1]);
         data.WriteByteSeq(itemId[0]);
@@ -437,7 +437,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < depositCount; ++i)
     {
-        ObjectGuid itemId(depositItems[i].first.ItemId);
+        ObjectGuid itemId(HIGHGUID_ITEM, depositItems[i].first.ItemId);
         ObjectGuid creatorGuid = depositItems[i].first.CreatorGuid;
 
         data << uint32(depositItems[i].first.ItemSuffixFactor);
@@ -532,7 +532,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     }
 
     uint8 oldSlot;
-    if (!player->GetVoidStorageItem(itemId, oldSlot))
+    if (!player->GetVoidStorageItem(itemId.GetCounter(), oldSlot))
     {
         TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - %s %s requested swapping an invalid item (slot: %u, itemid: %s).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), newSlot, itemId.ToString().c_str());
         return;
@@ -542,7 +542,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     bool usedDestSlot = player->GetVoidStorageItem(newSlot) != NULL;
     ObjectGuid itemIdDest;
     if (usedDestSlot)
-        itemIdDest.Set(player->GetVoidStorageItem(newSlot)->ItemId);
+        itemIdDest = ObjectGuid(HIGHGUID_ITEM, player->GetVoidStorageItem(newSlot)->ItemId);
 
     if (!player->SwapVoidStorageItem(oldSlot, newSlot))
     {

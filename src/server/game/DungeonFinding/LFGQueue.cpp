@@ -47,9 +47,9 @@ std::string ConcatenateGuids(GuidList const& check)
     std::ostringstream o;
 
     GuidSet::const_iterator it = guids.begin();
-    o << it->GetRawValue();
+    o << *it;
     for (++it; it != guids.end(); ++it)
-        o << '|' << it->GetRawValue();
+        o << '|' << *it;
 
     return o.str();
 }
@@ -102,7 +102,7 @@ void LFGQueue::RemoveFromQueue(ObjectGuid guid)
     RemoveFromCompatibles(guid);
 
     std::ostringstream o;
-    o << guid.GetRawValue();
+    o << guid;
     std::string sguid = o.str();
 
     LfgQueueDataContainer::iterator itDelete = QueueDataStore.end();
@@ -191,7 +191,7 @@ void LFGQueue::UpdateWaitTimeDps(int32 waitTime, uint32 dungeonId)
 void LFGQueue::RemoveFromCompatibles(ObjectGuid guid)
 {
     std::stringstream out;
-    out << guid.GetRawValue();
+    out << guid;
     std::string strGuid = out.str();
 
     TC_LOG_DEBUG("lfg.queue.data.compatibles.remove", "Removing %s", guid.ToString().c_str());
@@ -436,7 +436,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         {
             std::ostringstream o;
             for (LfgRolesMap::const_iterator it = debugRoles.begin(); it != debugRoles.end(); ++it)
-                o << ", " << it->first.GetRawValue() << ": " << GetRolesString(it->second);
+                o << ", " << it->first << ": " << GetRolesString(it->second);
 
             TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Roles not compatible%s", strGuids.c_str(), o.str().c_str());
             SetCompatibles(strGuids, LFG_INCOMPATIBLES_NO_ROLES);
@@ -446,12 +446,12 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         GuidList::iterator itguid = check.begin();
         proposalDungeons = QueueDataStore[*itguid].dungeons;
         std::ostringstream o;
-        o << ", " << itguid->GetRawValue() << ": (" << ConcatenateDungeons(proposalDungeons) << ")";
+        o << ", " << *itguid << ": (" << ConcatenateDungeons(proposalDungeons) << ")";
         for (++itguid; itguid != check.end(); ++itguid)
         {
             LfgDungeonSet temporal;
             LfgDungeonSet& dungeons = QueueDataStore[*itguid].dungeons;
-            o << ", " << itguid->GetRawValue() << ": (" << ConcatenateDungeons(dungeons) << ")";
+            o << ", " << *itguid << ": (" << ConcatenateDungeons(dungeons) << ")";
             std::set_intersection(proposalDungeons.begin(), proposalDungeons.end(), dungeons.begin(), dungeons.end(), std::inserter(temporal, temporal.begin()));
             proposalDungeons = temporal;
         }
@@ -639,7 +639,7 @@ void LFGQueue::FindBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueu
 {
     TC_LOG_DEBUG("lfg.queue.compatibles.find", "%s", itrQueue->first.ToString().c_str());
     std::ostringstream o;
-    o << itrQueue->first.GetRawValue();
+    o << itrQueue->first;
     std::string sguid = o.str();
 
     for (LfgCompatibleContainer::const_iterator itr = CompatibleMapStore.begin(); itr != CompatibleMapStore.end(); ++itr)

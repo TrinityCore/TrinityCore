@@ -483,35 +483,24 @@ class ByteBuffer
             _rpos += len;
         }
 
-        void readPackGUID(uint64& guid)
+        void ReadPackedUInt64(uint64& guid)
         {
-            if (rpos() + 1 > size())
-                throw ByteBufferPositionException(false, _rpos, 1, size());
-
             guid = 0;
+            ReadPackedUInt64(read<uint8>(), guid);
+        }
 
-            uint8 guidmark = 0;
-            (*this) >> guidmark;
-
-            for (int i = 0; i < 8; ++i)
-            {
-                if (guidmark & (uint8(1) << i))
-                {
-                    if (rpos() + 1 > size())
-                        throw ByteBufferPositionException(false, _rpos, 1, size());
-
-                    uint8 bit;
-                    (*this) >> bit;
-                    guid |= (uint64(bit) << (i * 8));
-                }
-            }
+        void ReadPackedUInt64(uint8 mask, uint64& value)
+        {
+            for (uint32 i = 0; i < 8; ++i)
+                if (mask & (uint8(1) << i))
+                    value |= (uint64(read<uint8>()) << (i * 8));
         }
 
         std::string ReadString(uint32 length)
         {
             if (!length)
                 return std::string();
-            char* buffer = new char[length + 1]();
+            char* buffer = new char[length + 1];
             read((uint8*)buffer, length);
             std::string retval = buffer;
             delete[] buffer;
@@ -621,23 +610,37 @@ class ByteBuffer
             *this << packed;
         }
 
-        void appendPackGUID(uint64 guid)
+        void AppendPackedUInt64(uint64 guid)
         {
-            uint8 packGUID[8+1];
-            packGUID[0] = 0;
-            size_t size = 1;
-            for (uint8 i = 0;guid != 0;++i)
+            uint8 mask = 0;
+            size_t pos = wpos();
+            *this << uint8(mask);
+
+            uint8 packed[8];
+            if (size_t packedSize = PackUInt64(guid, &mask, packed))
+                append(packed, packedSize);
+
+            put<uint8>(pos, mask);
+        }
+
+        size_t PackUInt64(uint64 value, uint8* mask, uint8* result) const
+        {
+            size_t resultSize = 0;
+            *mask = 0;
+            memset(result, 0, 8);
+
+            for (uint8 i = 0; value != 0; ++i)
             {
-                if (guid & 0xFF)
+                if (value & 0xFF)
                 {
-                    packGUID[0] |= uint8(1 << i);
-                    packGUID[size] =  uint8(guid & 0xFF);
-                    ++size;
+                    *mask |= uint8(1 << i);
+                    result[resultSize++] = uint8(value & 0xFF);
                 }
 
-                guid >>= 8;
+                value >>= 8;
             }
-            append(packGUID, size);
+
+            return resultSize;
         }
 
         void AppendPackedTime(time_t time)

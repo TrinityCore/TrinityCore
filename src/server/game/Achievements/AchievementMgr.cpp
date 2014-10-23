@@ -931,7 +931,7 @@ void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* 
     data << uint32(entry->ID);
 
     // the counter is packed like a packed Guid
-    data.appendPackGUID(progress->counter);
+    data.AppendPackedUInt64(progress->counter);
 
     data << GetOwner()->GetPackGUID();
     if (!entry->timeLimit)
@@ -947,10 +947,11 @@ void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* 
 template<>
 void AchievementMgr<Guild>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 /*timeElapsed*/, bool /*timedCompleted*/) const
 {
+    /*
     //will send response to criteria progress request
     WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3 + 1 + 1 + 8 + 8 + 4 + 4 + 4 + 4 + 4);
 
-    ObjectGuid counter(progress->counter); // for accessing every byte individually
+    ObjectGuid counter(0, progress->counter); // for accessing every byte individually
     ObjectGuid guid = progress->CompletedGUID;
 
     data.WriteBits(1, 21);
@@ -996,6 +997,7 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(AchievementCriteriaEntry const* e
     data.WriteByteSeq(guid[0]);
 
     GetOwner()->BroadcastPacketIfTrackingAchievement(&data, entry->ID);
+    */
 }
 
 template<class T>
@@ -1006,6 +1008,7 @@ void AchievementMgr<T>::SendAllTrackedCriterias(Player* /*receiver*/, std::set<u
 template<>
 void AchievementMgr<Guild>::SendAllTrackedCriterias(Player* receiver, std::set<uint32> const& trackedCriterias) const
 {
+    /*
     ObjectGuid counter;
     ObjectGuid guid;
     uint32 trackedCriteriasCount = 0;
@@ -1034,7 +1037,7 @@ void AchievementMgr<Guild>::SendAllTrackedCriterias(Player* receiver, std::set<u
         if (progress == m_criteriaProgress.end())
             continue;
 
-        counter.Set(progress->second.counter);
+        counter.SetRawValue(progress->second.counter);
         guid = progress->second.CompletedGUID;
 
         criteriaBits.WriteBit(counter[4]);
@@ -1084,6 +1087,7 @@ void AchievementMgr<Guild>::SendAllTrackedCriterias(Player* receiver, std::set<u
         data.append(criteriaData);
 
     receiver->GetSession()->SendPacket(&data);
+    */
 }
 
 /**
@@ -2031,6 +2035,7 @@ struct VisibleAchievementPred
 template<class T>
 void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
 {
+    /*
     VisibleAchievementPred isVisible;
     size_t numCriteria = m_criteriaProgress.size();
     size_t numAchievements = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), isVisible);
@@ -2042,7 +2047,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
     data.WriteBits(numCriteria, 21);
     for (CriteriaProgressMap::const_iterator itr = m_criteriaProgress.begin(); itr != m_criteriaProgress.end(); ++itr)
     {
-        counter.Set(itr->second.counter);
+        counter.SetRawValue(itr->second.counter);
 
         data.WriteBit(guid[4]);
         data.WriteBit(counter[3]);
@@ -2098,6 +2103,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
     }
 
     SendPacket(&data);
+    */
 }
 
 template<>
@@ -2126,6 +2132,7 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver) const
 template<>
 void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achievementId = 0 */) const
 {
+    /*
     ObjectGuid guid = GetOwner()->GetGUID();
     ObjectGuid counter;
 
@@ -2145,7 +2152,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
     data.WriteBit(guid[2]);
     for (CriteriaProgressMap::const_iterator itr = m_criteriaProgress.begin(); itr != m_criteriaProgress.end(); ++itr)
     {
-        counter.Set(itr->second.counter);
+        counter.SetRawValue(itr->second.counter);
 
         data.WriteBit(counter[5]);
         data.WriteBit(counter[3]);
@@ -2211,11 +2218,13 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
     data.WriteByteSeq(guid[5]);
 
     receiver->GetSession()->SendPacket(&data);
+    */
 }
 
 template<>
 void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achievementId /*= 0*/) const
 {
+    /*
     //will send response to criteria progress request
     AchievementCriteriaEntryList const* criteria = sAchievementMgr->GetAchievementCriteriaByAchievement(achievementId);
     if (!criteria)
@@ -2252,7 +2261,7 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
         if (progress == m_criteriaProgress.end())
             continue;
 
-        counter.Set(progress->second.counter);
+        counter.SetRawValue(progress->second.counter);
         guid = progress->second.CompletedGUID;
 
         criteriaBits.WriteBit(counter[4]);
@@ -2301,6 +2310,7 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
         data.append(criteriaData);
 
     receiver->GetSession()->SendPacket(&data);
+    */
 }
 
 template<class T>
