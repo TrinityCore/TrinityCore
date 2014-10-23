@@ -63,7 +63,7 @@ bool ArenaTeam::Create(ObjectGuid captainGuid, uint8 type, std::string const& te
     EmblemColor = emblemColor;
     BorderStyle = borderStyle;
     BorderColor = borderColor;
-    uint64 captainLowGuid = captainGuid.GetCounter();
+    ObjectGuid::LowType captainLowGuid = captainGuid.GetCounter();
 
     // Save arena team to db
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_TEAM);
@@ -134,7 +134,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
 
     // Try to get player's match maker rating from db and fall back to config setting if not found
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MATCH_MAKER_RATING);
-    stmt->setUInt32(0, playerGuid.GetCounter());
+    stmt->setUInt64(0, playerGuid.GetCounter());
     stmt->setUInt8(1, GetSlot());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 

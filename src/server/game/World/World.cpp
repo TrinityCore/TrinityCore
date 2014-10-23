@@ -2508,32 +2508,27 @@ bool World::RemoveBanAccount(BanMode mode, std::string const& nameOrIP)
 BanReturn World::BanCharacter(std::string const& name, std::string const& duration, std::string const& reason, std::string const& author)
 {
     Player* pBanned = ObjectAccessor::FindConnectedPlayerByName(name);
-    uint32 guid = 0;
+    ObjectGuid guid;
 
     uint32 duration_secs = TimeStringToSecs(duration);
 
     /// Pick a player to ban if not online
     if (!pBanned)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
-        stmt->setString(0, name);
-        PreparedQueryResult resultCharacter = CharacterDatabase.Query(stmt);
-
-        if (!resultCharacter)
+        guid = sObjectMgr->GetPlayerGUIDByName(name);
+        if (guid.IsEmpty())
             return BAN_NOTFOUND;                                    // Nobody to ban
-
-        guid = (*resultCharacter)[0].GetUInt32();
     }
     else
-        guid = pBanned->GetGUID().GetCounter();
+        guid = pBanned->GetGUID();
 
     // make sure there is only one active ban
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
-    stmt->setUInt32(0, guid);
+    stmt->setUInt64(0, guid.GetCounter());
     CharacterDatabase.Execute(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_BAN);
-    stmt->setUInt32(0, guid);
+    stmt->setUInt64(0, guid.GetCounter());
     stmt->setUInt32(1, duration_secs);
     stmt->setString(2, author);
     stmt->setString(3, reason);
@@ -2549,28 +2544,20 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
 bool World::RemoveBanCharacter(std::string const& name)
 {
     Player* pBanned = ObjectAccessor::FindConnectedPlayerByName(name);
-    uint32 guid = 0;
+    ObjectGuid guid;
 
     /// Pick a player to ban if not online
     if (!pBanned)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
-        stmt->setString(0, name);
-        PreparedQueryResult resultCharacter = CharacterDatabase.Query(stmt);
-
-        if (!resultCharacter)
-            return false;
-
-        guid = (*resultCharacter)[0].GetUInt32();
+        guid = sObjectMgr->GetPlayerGUIDByName(name);
+        if (guid.IsEmpty())
+            return false;                                    // Nobody to ban
     }
     else
-        guid = pBanned->GetGUID().GetCounter();
-
-    if (!guid)
-        return false;
+        guid = pBanned->GetGUID();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
-    stmt->setUInt32(0, guid);
+    stmt->setUInt64(0, guid.GetCounter());
     CharacterDatabase.Execute(stmt);
     return true;
 }

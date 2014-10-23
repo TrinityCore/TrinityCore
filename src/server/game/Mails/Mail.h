@@ -102,15 +102,15 @@ class MailSender
 class MailReceiver
 {
     public:                                                 // Constructors
-        explicit MailReceiver(uint64 receiver_lowguid) : m_receiver(NULL), m_receiver_lowguid(receiver_lowguid) { }
+        explicit MailReceiver(ObjectGuid::LowType receiver_lowguid) : m_receiver(NULL), m_receiver_lowguid(receiver_lowguid) { }
         MailReceiver(Player* receiver);
-        MailReceiver(Player* receiver, uint64 receiver_lowguid);
+        MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid);
     public:                                                 // Accessors
         Player* GetPlayer() const { return m_receiver; }
-        uint32  GetPlayerGUIDLow() const { return m_receiver_lowguid; }
+        ObjectGuid::LowType GetPlayerGUIDLow() const { return m_receiver_lowguid; }
     private:
         Player* m_receiver;
-        uint64  m_receiver_lowguid;
+        ObjectGuid::LowType m_receiver_lowguid;
 };
 
 class MailDraft

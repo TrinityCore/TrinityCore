@@ -514,11 +514,11 @@ void AchievementMgr<Player>::DeleteFromDB(ObjectGuid guid)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -557,11 +557,11 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
             stmt->setUInt16(0, iter->first);
-            stmt->setUInt32(1, GetOwner()->GetGUID().GetCounter());
+            stmt->setUInt64(1, GetOwner()->GetGUID().GetCounter());
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT);
-            stmt->setUInt32(0, GetOwner()->GetGUID().GetCounter());
+            stmt->setUInt64(0, GetOwner()->GetGUID().GetCounter());
             stmt->setUInt16(1, iter->first);
             stmt->setUInt32(2, uint32(iter->second.date));
             trans->Append(stmt);
@@ -578,14 +578,14 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
                 continue;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
-            stmt->setUInt32(0, GetOwner()->GetGUID().GetCounter());
+            stmt->setUInt64(0, GetOwner()->GetGUID().GetCounter());
             stmt->setUInt16(1, iter->first);
             trans->Append(stmt);
 
             if (iter->second.counter)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT_PROGRESS);
-                stmt->setUInt32(0, GetOwner()->GetGUID().GetCounter());
+                stmt->setUInt64(0, GetOwner()->GetGUID().GetCounter());
                 stmt->setUInt16(1, iter->first);
                 stmt->setUInt32(2, iter->second.counter);
                 stmt->setUInt32(3, uint32(iter->second.date));

@@ -146,7 +146,7 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
         }
 
         if (!creature)
-            TC_LOG_ERROR("scripts", "%s neither source nor target are creatures (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
+            TC_LOG_ERROR("scripts", "%s neither source nor target are creatures (source: TypeId: %u, Entry: %u, %s; target: TypeId: %u, Entry: %u, %s), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
                 source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, (source ? source->GetGUID() : ObjectGuid::Empty).ToString().c_str(),
                 target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, (target ? target->GetGUID() : ObjectGuid::Empty).ToString().c_str());

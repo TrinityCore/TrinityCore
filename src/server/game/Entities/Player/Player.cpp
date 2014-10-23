@@ -4649,7 +4649,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
         updateRealmChars = false;
 
     // Convert guid to low GUID for CharacterNameData, but also other methods on success
-    uint32 guid = playerguid.GetCounter();
+    ObjectGuid::LowType guid = playerguid.GetCounter();
     uint32 charDelete_method = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
 
     if (deleteFinally)
@@ -4821,19 +4821,19 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ACCOUNT_DATA);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GIFT);
@@ -4905,7 +4905,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENTS);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS);
@@ -4926,7 +4926,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
@@ -19698,7 +19698,7 @@ void Player::_SaveActions(SQLTransaction& trans)
         {
             case ACTIONBUTTON_NEW:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACTION);
-                stmt->setUInt32(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt8(1, GetActiveSpec());
                 stmt->setUInt8(2, itr->first);
                 stmt->setUInt32(3, itr->second.GetAction());
@@ -19712,7 +19712,7 @@ void Player::_SaveActions(SQLTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACTION);
                 stmt->setUInt32(0, itr->second.GetAction());
                 stmt->setUInt8(1, uint8(itr->second.GetType()));
-                stmt->setUInt32(2, GetGUID().GetCounter());
+                stmt->setUInt64(2, GetGUID().GetCounter());
                 stmt->setUInt8(3, itr->first);
                 stmt->setUInt8(4, GetActiveSpec());
                 trans->Append(stmt);
@@ -19722,7 +19722,7 @@ void Player::_SaveActions(SQLTransaction& trans)
                 break;
             case ACTIONBUTTON_DELETED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION_BY_BUTTON_SPEC);
-                stmt->setUInt32(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt8(1, itr->first);
                 stmt->setUInt8(2, GetActiveSpec());
                 trans->Append(stmt);
@@ -19739,7 +19739,7 @@ void Player::_SaveActions(SQLTransaction& trans)
 void Player::_SaveAuras(SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
     for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end(); ++itr)
@@ -19772,7 +19772,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
 
         uint8 index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
-        stmt->setUInt32(index++, GetGUID().GetCounter());
+        stmt->setUInt64(index++, GetGUID().GetCounter());
         stmt->setBinary(index++, itr->second->GetCasterGUID().GetRawValue());
         stmt->setBinary(index++, itr->second->GetCastItemGUID().GetRawValue());
         stmt->setUInt32(index++, itr->second->GetId());
@@ -19950,14 +19950,14 @@ void Player::_SaveCUFProfiles(SQLTransaction& trans)
         {
             // DELETE FROM character_cuf_profiles WHERE guid = ? and id = ?
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_CUF_PROFILES);
-            stmt->setUInt32(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUID().GetCounter());
             stmt->setUInt8(1, i);
         }
         else
         {
             // REPLACE INTO character_cuf_profiles (guid, id, name, frameHeight, frameWidth, sortBy, healthText, boolOptions, unk146, unk147, unk148, unk150, unk152, unk154) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_CUF_PROFILES);
-            stmt->setUInt32(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUID().GetCounter());
             stmt->setUInt8(1, i);
             stmt->setString(2, _CUFProfiles[i]->ProfileName);
             stmt->setUInt16(3, _CUFProfiles[i]->FrameHeight);
@@ -26535,11 +26535,11 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
 void Player::_SaveBGData(SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
     /* guid, bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell */
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_BGDATA);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     stmt->setUInt32(1, m_bgData.bgInstanceID);
     stmt->setUInt16(2, m_bgData.bgTeam);
     stmt->setFloat (3, m_bgData.joinPos.GetPositionX());
@@ -26755,7 +26755,7 @@ void Player::UpdateSpecCount(uint8 count)
         for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end(); ++itr)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACTION);
-            stmt->setUInt32(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUID().GetCounter());
             stmt->setUInt8(1, 1);
             stmt->setUInt8(2, itr->first);
             stmt->setUInt32(3, itr->second.GetAction());
@@ -26770,7 +26770,7 @@ void Player::UpdateSpecCount(uint8 count)
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION_EXCEPT_SPEC);
         stmt->setUInt8(0, GetActiveSpec());
-        stmt->setUInt32(1, GetGUID().GetCounter());
+        stmt->setUInt64(1, GetGUID().GetCounter());
         trans->Append(stmt);
 
     }
@@ -26936,7 +26936,7 @@ void Player::ActivateSpec(uint8 spec)
 
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS_SPEC);
-        stmt->setUInt32(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, GetGUID().GetCounter());
         stmt->setUInt8(1, GetActiveSpec());
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
             _LoadActions(result);
@@ -27286,7 +27286,7 @@ void Player::SetRandomWinner(bool isWinner)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BATTLEGROUND_RANDOM);
 
-        stmt->setUInt32(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, GetGUID().GetCounter());
 
         CharacterDatabase.Execute(stmt);
     }
