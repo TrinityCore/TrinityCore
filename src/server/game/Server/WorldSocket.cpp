@@ -32,18 +32,18 @@ std::string const WorldSocket::ServerConnectionInitialize("WORLD OF WARCRAFT CON
 
 std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER");
 
-uint32 const ClientPktHeader::SizeOf[2][2] =
+uint32 const SizeOfClientHeader[2][2] =
 {
     { 2, 0 },
     { 6, 4 }
 };
 
-uint32 const ServerPktHeader::SizeOf[2] = { sizeof(uint16) + sizeof(uint32), sizeof(uint32) };
+uint32 const SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint32), sizeof(uint32) };
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
     : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
 {
-    _headerBuffer.Resize(ClientPktHeader::SizeOf[0][0]);
+    _headerBuffer.Resize(ClientPktHeader::SizeOfClientHeader[0][0]);
 }
 
 void WorldSocket::Start()
@@ -148,7 +148,7 @@ void WorldSocket::ExtractOpcodeAndSize(ClientPktHeader const* header, uint32& op
 
 bool WorldSocket::ReadHeaderHandler()
 {
-    ASSERT(_headerBuffer.GetActiveSize() == ClientPktHeader::SizeOf[_initialized][_authCrypt.IsInitialized()], "Header size %u different than expected %u", _headerBuffer.GetActiveSize(), ClientPktHeader::SizeOf[_initialized][_authCrypt.IsInitialized()]);
+    ASSERT(_headerBuffer.GetActiveSize() == SizeOfClientHeader[_initialized][_authCrypt.IsInitialized()], "Header size %u different than expected %u", _headerBuffer.GetActiveSize(), SizeOfClientHeader[_initialized][_authCrypt.IsInitialized()]);
 
     _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), _headerBuffer.GetActiveSize());
 
@@ -275,7 +275,7 @@ bool WorldSocket::ReadDataHandler()
         }
 
         _initialized = true;
-        _headerBuffer.Resize(ClientPktHeader::SizeOf[1][0]);
+        _headerBuffer.Resize(SizeOfClientHeader[1][0]);
         _packetBuffer.Reset();
         HandleSendAuthSession();
     }
@@ -299,7 +299,7 @@ void WorldSocket::SendPacket(WorldPacket& packet)
     std::unique_lock<std::mutex> guard(_writeLock);
 
     ServerPktHeader header;
-    uint32 sizeOfHeader = ServerPktHeader::SizeOf[_authCrypt.IsInitialized()];
+    uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
     if (_authCrypt.IsInitialized())
     {
         header.Normal.Size = packet.size();
@@ -416,7 +416,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     // even if auth credentials are bad, try using the session key we have - client cannot read auth response error without it
     _authCrypt.Init(&k);
-    _headerBuffer.Resize(ClientPktHeader::SizeOf[1][1]);
+    _headerBuffer.Resize(SizeOfClientHeader[1][1]);
 
     // First reject the connection if packet contains invalid data or realm state doesn't allow logging in
     if (sWorld->IsClosed())

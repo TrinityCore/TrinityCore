@@ -23,8 +23,6 @@
 
 union ServerPktHeader
 {
-    static uint32 const SizeOf[2];
-
     struct
     {
         uint16 Size;
