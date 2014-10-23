@@ -166,9 +166,9 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                         case INSTANCE_INFO_DATA:
                             condMeets = instance->GetData(ConditionValue1) == ConditionValue2;
                             break;
-                        case INSTANCE_INFO_GUID_DATA:
-                            condMeets = instance->GetGuidData(ConditionValue1) == ObjectGuid(uint64(ConditionValue2));
-                            break;
+                        //case INSTANCE_INFO_GUID_DATA:
+                        //    condMeets = instance->GetGuidData(ConditionValue1) == ObjectGuid(uint64(ConditionValue2));
+                        //    break;
                         case INSTANCE_INFO_BOSS_STATE:
                             condMeets = instance->GetBossState(ConditionValue1) == EncounterState(ConditionValue2);
                             break;

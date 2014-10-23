@@ -1221,12 +1221,13 @@ void Pet::_LoadAuras(uint32 timediff)
 
     if (result)
     {
+        ObjectGuid caster_guid;
         do
         {
             int32 damage[3];
             int32 baseDamage[3];
             Field* fields = result->Fetch();
-            ObjectGuid caster_guid(fields[0].GetUInt64());
+            caster_guid.SetRawValue(fields[0].GetBinary());
             // NULL guid stored - pet is the caster of the spell - see Pet::_SaveAuras
             if (!caster_guid)
                 caster_guid = GetGUID();
@@ -1327,7 +1328,7 @@ void Pet::_SaveAuras(SQLTransaction& trans)
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
         stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
-        stmt->setUInt64(index++, casterGUID.GetRawValue());
+        stmt->setBinary(index++, casterGUID.GetRawValue());
         stmt->setUInt32(index++, itr->second->GetId());
         stmt->setUInt8(index++, effMask);
         stmt->setUInt8(index++, recalculateMask);

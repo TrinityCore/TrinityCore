@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "ByteBuffer.h"
+#include <boost/functional/hash.hpp>
 
 #include <functional>
 
@@ -82,34 +83,40 @@ struct PackedGuidReader
     ObjectGuid* GuidPtr;
 };
 
+#pragma pack(push, 1)
+
 class ObjectGuid
 {
+    friend std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
+    friend ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid);
+    friend class PackedGuid;
+
     public:
         static ObjectGuid const Empty;
 
-        ObjectGuid() { _guid = UI64LIT(0); }
-        explicit ObjectGuid(uint64 guid)  { _guid = guid; }
-        ObjectGuid(HighGuid hi, uint32 entry, uint64 counter) { _guid = counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
-        ObjectGuid(HighGuid hi, uint64 counter) { _guid = counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
+        ObjectGuid() : _low(0), _high(0) { }
+        ObjectGuid(uint64 high, uint64 low) : _low(low), _high(high) { }
+        ObjectGuid(HighGuid hi, uint32 entry, uint64 counter) : _low(counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0), _high(0) { }
+        ObjectGuid(HighGuid hi, uint64 counter) : _low(counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0), _high(0) { }
+        ObjectGuid(ObjectGuid const&) = default;
 
-        operator uint64() const { return _guid; }
-        DECLSPEC_DEPRECATED PackedGuidReader ReadAsPacked() ATTR_DEPRECATED { return PackedGuidReader(*this); }
+        PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
 
-        void Set(uint64 guid) { _guid = guid; }
-        void Clear() { _guid = 0; }
+        std::vector<uint8> GetRawValue() const;
+        void SetRawValue(std::vector<uint8> const& guid);
+        void Clear() { _low = 0; }
 
-        DECLSPEC_DEPRECATED PackedGuid WriteAsPacked() const ATTR_DEPRECATED;
+        PackedGuid WriteAsPacked() const;
 
-        uint64   GetRawValue() const { return _guid; }
         HighGuid GetHigh() const
         {
-            uint32 temp = ((uint64(_guid) >> 48) & 0x0000FFFF);
+            uint32 temp = ((uint64(_low) >> 48) & 0x0000FFFF);
             return HighGuid((temp == HIGHGUID_CORPSE || temp == HIGHGUID_AREATRIGGER) ? temp : ((temp >> 4) & 0x00000FFF));
         }
-        uint32   GetEntry() const { return HasEntry() ? uint32((_guid >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
-        uint32   GetCounter()  const
+        uint32 GetEntry() const { return HasEntry() ? uint32((_low >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
+        uint32 GetCounter()  const
         {
-            return uint32(_guid & UI64LIT(0x00000000FFFFFFFF));
+            return uint32(_low & UI64LIT(0x00000000FFFFFFFF));
         }
 
         static uint32 GetMaxCounter(HighGuid /*high*/)
@@ -119,19 +126,19 @@ class ObjectGuid
 
         uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
-        DECLSPEC_DEPRECATED uint8& operator[](uint32 index) ATTR_DEPRECATED
+        uint8& operator[](uint32 index)
         {
-            ASSERT(index < sizeof(uint64));
-            return ((uint8*)&_guid)[index];
+            ASSERT(index < sizeof(uint64) * 2);
+            return ((uint8*)&_low)[index];
         }
 
-        DECLSPEC_DEPRECATED uint8 const& operator[](uint32 index) const ATTR_DEPRECATED
+        uint8 const& operator[](uint32 index) const
         {
-            ASSERT(index < sizeof(uint64));
-            return ((uint8 const*)&_guid)[index];
+            ASSERT(index < sizeof(uint64) * 2);
+            return ((uint8 const*)&_low)[index];
         }
 
-        bool IsEmpty()             const { return _guid == 0; }
+        bool IsEmpty()             const { return _low == 0 && _high == 0; }
         bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT; }
         bool IsPet()               const { return GetHigh() == HIGHGUID_PET; }
         bool IsVehicle()           const { return GetHigh() == HIGHGUID_VEHICLE; }
@@ -180,9 +187,17 @@ class ObjectGuid
         TypeID GetTypeId() const { return GetTypeId(GetHigh()); }
 
         bool operator!() const { return IsEmpty(); }
-        bool operator== (ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
-        bool operator!= (ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
-        bool operator< (ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
+        bool operator== (ObjectGuid const& guid) const { return _low == guid._low && _high == guid._high; }
+        bool operator!= (ObjectGuid const& guid) const { return !(*this == guid); }
+        bool operator< (ObjectGuid const& guid) const
+        {
+            if (_high < guid._high)
+                return true;
+            else if (_high > guid._high)
+                return false;
+
+            return _low < guid._low;
+        }
 
         static char const* GetTypeName(HighGuid high);
         char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
@@ -215,8 +230,11 @@ class ObjectGuid
 
         explicit ObjectGuid(uint32 const&) = delete;                 // no implementation, used to catch wrong type assignment
 
-        uint64 _guid;
+        uint64 _low;
+        uint64 _high;
 };
+
+#pragma pack(pop)
 
 // Some Shared defines
 typedef std::set<ObjectGuid> GuidSet;
@@ -224,20 +242,18 @@ typedef std::list<ObjectGuid> GuidList;
 typedef std::deque<ObjectGuid> GuidDeque;
 typedef std::vector<ObjectGuid> GuidVector;
 
-// minimum buffer size for packed guid is 9 bytes
-#define PACKED_GUID_MIN_BUFFER_SIZE 9
+// maximum buffer size for packed guid is 18 bytes
+#define PACKED_GUID_MIN_BUFFER_SIZE 18
 
 class PackedGuid
 {
         friend ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
 
     public:
-        explicit PackedGuid() : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid.appendPackGUID(0); }
-        explicit PackedGuid(uint64 guid) : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid.appendPackGUID(guid); }
-        explicit PackedGuid(ObjectGuid guid) : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid.appendPackGUID(guid.GetRawValue()); }
+        explicit PackedGuid() : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid << uint16(0); }
+        explicit PackedGuid(ObjectGuid guid) : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { Set(guid); }
 
-        void Set(uint64 guid) { _packedGuid.wpos(0); _packedGuid.appendPackGUID(guid); }
-        void Set(ObjectGuid guid) { _packedGuid.wpos(0); _packedGuid.appendPackGUID(guid.GetRawValue()); }
+        void Set(ObjectGuid guid);
 
         size_t size() const { return _packedGuid.size(); }
 
@@ -251,7 +267,7 @@ class ObjectGuidGenerator
     public:
         explicit ObjectGuidGenerator(uint64 start = 1) : _nextGuid(start) { }
 
-        void Set(uint32 val) { _nextGuid = val; }
+        void Set(uint64 val) { _nextGuid = val; }
         uint64 Generate();
         uint64 GetNextAfterMaxUsed() const { return _nextGuid; }
 
@@ -265,6 +281,8 @@ ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid&       guid);
 ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
 ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid);
 
+std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
+
 inline PackedGuid ObjectGuid::WriteAsPacked() const { return PackedGuid(*this); }
 
 namespace std
@@ -275,7 +293,7 @@ namespace std
         public:
             size_t operator()(ObjectGuid const& key) const
             {
-                return hash<uint64>()(key.GetRawValue());
+                return boost::hash_range(reinterpret_cast<uint64 const*>(&key), reinterpret_cast<uint64 const*>(&key) + 2);
             }
     };
 }
