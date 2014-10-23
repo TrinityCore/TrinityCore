@@ -273,6 +273,7 @@ enum LeviathanActions
 enum UlduarAchievementCriteriaIds
 {
     CRITERIA_CON_SPEED_ATORY                 = 21597,
+    CRITERIA_LUMBERJACKED                    = 21686,
     CRITERIA_DISARMED                        = 21687,
     CRITERIA_WAITS_DREAMING_STORMWIND_25     = 10321,
     CRITERIA_WAITS_DREAMING_CHAMBER_25       = 10322,
@@ -362,6 +363,7 @@ enum UlduarAchievementData
     DATA_UNBROKEN = 29052906, // 2905, 2906 are achievement IDs,
     MAX_HERALD_ARMOR_ITEMLEVEL  = 226,
     MAX_HERALD_WEAPON_ITEMLEVEL = 232,
+    SPELL_LUMBERJACKED_CREDIT = 65296
 };
 
 enum UlduarEvents

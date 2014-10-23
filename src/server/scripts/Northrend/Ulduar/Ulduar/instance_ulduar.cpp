@@ -78,6 +78,8 @@ class instance_ulduar : public InstanceMapScript
                 illusion = 0;
                 keepersCount = 0;
                 conSpeedAtory = false;
+                lumberjacked = false;
+                deadElders = 0;
                 Unbroken = true;
                 IsDriveMeCrazyEligible = true;
                 _algalonSummoned = false;
@@ -141,6 +143,8 @@ class instance_ulduar : public InstanceMapScript
             uint8 illusion;
             uint8 keepersCount;
             bool conSpeedAtory;
+            bool lumberjacked;
+            uint8 deadElders;
             bool Unbroken;
             bool IsDriveMeCrazyEligible;
 
@@ -606,6 +610,19 @@ class instance_ulduar : public InstanceMapScript
                             conSpeedAtory = true;
                         }
                         break;
+                    case NPC_IRONBRANCH:
+                    case NPC_STONEBARK:
+                    case NPC_BRIGHTLEAF:
+                    {
+                        if (!lumberjacked)
+                        {
+                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_LUMBERJACKED);
+                            lumberjacked = true;
+                        }
+                        if (++deadElders == 3)
+                            creature->CastSpell(creature, SPELL_LUMBERJACKED_CREDIT, true);
+                        break;
+                    }
                     default:
                         break;
                 }
