@@ -114,7 +114,7 @@ class ObjectGuid
             return HighGuid((temp == HIGHGUID_CORPSE || temp == HIGHGUID_AREATRIGGER) ? temp : ((temp >> 4) & 0x00000FFF));
         }
         uint32 GetEntry() const { return HasEntry() ? uint32((_low >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
-        uint32 GetCounter()  const
+        LowType GetCounter()  const
         {
             return uint32(_low & UI64LIT(0x00000000FFFFFFFF));
         }
@@ -290,11 +290,12 @@ namespace std
     template<>
     struct hash<ObjectGuid>
     {
-        public:
-            size_t operator()(ObjectGuid const& key) const
-            {
-                return boost::hash_range(reinterpret_cast<uint64 const*>(&key), reinterpret_cast<uint64 const*>(&key) + 2);
-            }
+    public:
+        size_t operator()(ObjectGuid const& key) const
+        {
+            return boost::hash_range(reinterpret_cast<uint64 const*>(&key), reinterpret_cast<uint64 const*>(&key) + 2);
+        }
+    };
     };
 }
 

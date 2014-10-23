@@ -72,7 +72,7 @@ void WorldSession::SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTy
 
 void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 {
-    uint32 bgTypeId_;
+    ObjectGuid::LowType bgTypeId_;
     uint32 instanceId;
     uint8 asGroup;
     bool isPremade = false;

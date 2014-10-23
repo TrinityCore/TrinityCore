@@ -475,7 +475,7 @@ void AuctionHouseObject::Update()
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
         ///- Either cancel the auction if there was no bidder
-        if (auction->bidder == 0)
+        if (!auction->bidder)
         {
             sAuctionMgr->SendAuctionExpiredMail(auction, trans);
             sScriptMgr->OnAuctionExpire(this, auction);

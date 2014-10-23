@@ -478,7 +478,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
 
     if (price < auction->buyout || auction->buyout == 0)
     {
-        if (auction->bidder > 0)
+        if (auction->bidder)
         {
             if (auction->bidder == player->GetGUID().GetCounter())
                 player->ModifyMoney(-int64(price - auction->bid));
@@ -568,7 +568,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
         Item* pItem = sAuctionMgr->GetAItem(auction->itemGUIDLow);
         if (pItem)
         {
-            if (auction->bidder > 0)                        // If we have a bidder, we have to send him the money he paid
+            if (auction->bidder)                            // If we have a bidder, we have to send him the money he paid
             {
                 uint32 auctionCut = auction->GetAuctionCut();
                 if (!player->HasEnoughMoney((uint64)auctionCut))          //player doesn't have enough money, maybe message needed

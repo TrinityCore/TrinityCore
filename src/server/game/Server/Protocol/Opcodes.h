@@ -89,7 +89,7 @@ enum Opcodes
     CMSG_BATTLEFIELD_REQUEST_SCORE_DATA               = 0x0000,
     CMSG_BATTLEFIELD_STATUS                           = 0x0000,
     CMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x0000,
-    CMSG_BATTLEMASTER_JOIN                            = 0x0000,
+    CMSG_BATTLEMASTER_JOIN                            = 0x0327,
     CMSG_BATTLEMASTER_JOIN_ARENA                      = 0x0000,
     CMSG_BATTLEMASTER_JOIN_RATED                      = 0x0000,
     CMSG_BATTLEMASTER_HELLO                           = 0x0000,

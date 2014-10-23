@@ -526,8 +526,8 @@ void WorldSession::HandleRequestCemeteryList(WorldPacket& /*recvPacket*/)
 
     if (graveyardIds.empty())
     {
-        TC_LOG_DEBUG("network", "No graveyards found for zone %u for player %u (team %u) in CMSG_REQUEST_CEMETERY_LIST",
-            zoneId, m_GUIDLow, team);
+        TC_LOG_DEBUG("network", "No graveyards found for zone %u for %s (team %u) in CMSG_REQUEST_CEMETERY_LIST",
+            zoneId, _player->GetGUID().ToString().c_str(), team);
         return;
     }
 

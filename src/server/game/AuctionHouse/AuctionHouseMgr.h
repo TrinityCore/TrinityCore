@@ -64,16 +64,16 @@ enum MailAuctionAnswers
 struct AuctionEntry
 {
     uint32 Id;
-    uint64 auctioneer;                                      // creature low guid
-    uint64 itemGUIDLow;
+    ObjectGuid::LowType auctioneer;                                      // creature low guid
+    ObjectGuid::LowType itemGUIDLow;
     uint32 itemEntry;
     uint32 itemCount;
-    uint64 owner;
+    ObjectGuid::LowType owner;
     uint32 startbid;                                        //maybe useless
     uint32 bid;
     uint32 buyout;
     time_t expire_time;
-    uint64 bidder;
+    ObjectGuid::LowType bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
     uint32 factionTemplateId;
@@ -145,12 +145,12 @@ class AuctionHouseMgr
             return &instance;
         }
 
-        typedef std::unordered_map<uint64, Item*> ItemMap;
+        typedef std::unordered_map<ObjectGuid::LowType, Item*> ItemMap;
 
         AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
         AuctionHouseObject* GetBidsMap(uint32 factionTemplateId);
 
-        Item* GetAItem(uint64 id)
+        Item* GetAItem(ObjectGuid::LowType id)
         {
             ItemMap::const_iterator itr = mAitems.find(id);
             if (itr != mAitems.end())

@@ -431,7 +431,7 @@ void WorldSession::HandleQuestNPCQuery(WorldPacket& recvData)
 
         if (!sObjectMgr->GetQuestTemplate(questId))
         {
-            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUEST_NPC_QUERY by player %u", questId, m_GUIDLow);
+            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUEST_NPC_QUERY by %s", questId, _player->GetGUID().ToString().c_str());
             continue;
         }
 

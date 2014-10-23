@@ -750,12 +750,14 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 
 void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string const& data)
 {
-    uint32 id = 0;
-    uint32 index = 0;
     if ((1 << type) & GLOBAL_CACHE_MASK)
     {
-        id = GetAccountId();
-        index = CHAR_REP_ACCOUNT_DATA;
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_ACCOUNT_DATA);
+        stmt->setUInt32(0, GetAccountId());
+        stmt->setUInt8(1, type);
+        stmt->setUInt32(2, uint32(tm));
+        stmt->setString(3, data);
+        CharacterDatabase.Execute(stmt);
     }
     else
     {
@@ -763,16 +765,14 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string c
         if (!m_GUIDLow)
             return;
 
-        id = m_GUIDLow;
-        index = CHAR_REP_PLAYER_ACCOUNT_DATA;
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_ACCOUNT_DATA);
+        stmt->setUInt64(0, m_GUIDLow);
+        stmt->setUInt8(1, type);
+        stmt->setUInt32(2, uint32(tm));
+        stmt->setString(3, data);
+        CharacterDatabase.Execute(stmt);
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
-    stmt->setUInt32(0, id);
-    stmt->setUInt8 (1, type);
-    stmt->setUInt32(2, uint32(tm));
-    stmt->setString(3, data);
-    CharacterDatabase.Execute(stmt);
 
     m_accountData[type].Time = tm;
     m_accountData[type].Data = data;
