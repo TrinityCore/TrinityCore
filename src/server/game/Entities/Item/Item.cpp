@@ -362,8 +362,8 @@ void Item::SaveToDB(SQLTransaction& trans)
             if ((uState == ITEM_CHANGED) && HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GIFT_OWNER);
-                stmt->setUInt32(0, GetOwnerGUID().GetCounter());
-                stmt->setUInt32(1, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetOwnerGUID().GetCounter());
+                stmt->setUInt64(1, GetGUID().GetCounter());
                 trans->Append(stmt);
             }
             break;
@@ -377,7 +377,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
-                stmt->setUInt32(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUID().GetCounter());
                 trans->Append(stmt);
             }
 
@@ -500,10 +500,10 @@ void Item::DeleteFromDB(SQLTransaction& trans)
 }
 
 /*static*/
-void Item::DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid)
+void Item::DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
-    stmt->setUInt32(0, itemGuid);
+    stmt->setUInt64(0, itemGuid);
     trans->Append(stmt);
 }
 

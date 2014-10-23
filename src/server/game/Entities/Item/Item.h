@@ -238,7 +238,7 @@ class Item : public Object
         virtual bool LoadFromDB(uint32 guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
         static void DeleteFromDB(SQLTransaction& trans, uint32 itemGuid);
         virtual void DeleteFromDB(SQLTransaction& trans);
-        static void DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid);
+        static void DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
 
         // Lootable items and their contents
         void ItemContainerSaveLootToDB();
