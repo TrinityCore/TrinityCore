@@ -43,7 +43,7 @@ uint32 const SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint32), sizeof(u
 WorldSocket::WorldSocket(tcp::socket&& socket)
     : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
 {
-    _headerBuffer.Resize(ClientPktHeader::SizeOfClientHeader[0][0]);
+    _headerBuffer.Resize(SizeOfClientHeader[0][0]);
 }
 
 void WorldSocket::Start()
