@@ -129,6 +129,9 @@ enum UlduarNPCs
     NPC_NATURES_BLADE                       = 33527,
     NPC_GUARDIAN_OF_LIFE                    = 33528,
 
+    // Freya Achievement Trigger
+    NPC_FREYA_ACHIEVE_TRIGGER               = 33406,
+
     // Yogg-Saron
     NPC_SARA                                = 33134,
     NPC_GUARDIAN_OF_YOGG_SARON              = 33136,

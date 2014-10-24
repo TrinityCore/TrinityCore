@@ -104,6 +104,7 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid ThorimGUID;
             ObjectGuid FreyaGUID;
             ObjectGuid ElderGUIDs[3];
+            ObjectGuid FreyaAchieveTriggerGUID;
             ObjectGuid MimironGUID;
             ObjectGuid MimironVehicleGUIDs[3];
             ObjectGuid MimironComputerGUID;
@@ -325,7 +326,10 @@ class instance_ulduar : public InstanceMapScript
                         ElderGUIDs[2] = creature->GetGUID();
                         if (GetBossState(BOSS_FREYA) == DONE)
                             creature->DespawnOrUnsummon();
-                         break;
+                        break;
+                    case NPC_FREYA_ACHIEVE_TRIGGER:
+                        FreyaAchieveTriggerGUID = creature->GetGUID();
+                        break;
 
                     // Mimiron
                     case NPC_MIMIRON:
@@ -620,7 +624,8 @@ class instance_ulduar : public InstanceMapScript
                             lumberjacked = true;
                         }
                         if (++deadElders == 3)
-                            creature->CastSpell(creature, SPELL_LUMBERJACKED_CREDIT, true);
+                            if (Creature* trigger = instance->GetCreature(FreyaAchieveTriggerGUID))
+                                trigger->CastSpell(trigger, SPELL_LUMBERJACKED_CREDIT, true);
                         break;
                     }
                     default:
