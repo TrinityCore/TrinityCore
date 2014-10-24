@@ -297,7 +297,6 @@ namespace std
             return boost::hash_range(reinterpret_cast<uint64 const*>(&key), reinterpret_cast<uint64 const*>(&key) + 2);
         }
     };
-    };
 }
 
 #endif // ObjectGuid_h__
