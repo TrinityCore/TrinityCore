@@ -15,8 +15,8 @@ Video: https://youtu.be/xtH4ogz12iM
 
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/transmog
-- Diff: https://github.com/Rochet2/TrinityCore/compare/transmog.diff
-- Patch: https://github.com/Rochet2/TrinityCore/compare/transmog.patch
+- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...transmog.diff
+- Patch: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...transmog.patch
 
 Using direct merge:
 - open git bash to source location
