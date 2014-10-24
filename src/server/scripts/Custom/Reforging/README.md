@@ -14,8 +14,8 @@ Video: https://youtu.be/84EtvKTfqQM
 
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/reforging
-- Diff: https://github.com/Rochet2/TrinityCore/compare/reforging.diff
-- Patch: https://github.com/Rochet2/TrinityCore/compare/reforging.patch
+- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...reforging.diff
+- Patch: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...reforging.patch
 
 Using direct merge:
 - open git bash to source location
