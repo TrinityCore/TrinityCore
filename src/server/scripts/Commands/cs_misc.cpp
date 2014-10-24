@@ -2442,7 +2442,7 @@ public:
                 }
 
                 // If player found: delete his freeze aura
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_FROZEN);
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_FROZEN);
                 stmt->setUInt64(0, guid.GetCounter());
                 CharacterDatabase.Execute(stmt);
 
