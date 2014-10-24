@@ -6937,7 +6937,7 @@ void ObjectMgr::LoadCorpses()
     do
     {
         Field* fields = result->Fetch();
-        uint32 guid = fields[16].GetUInt32();
+        uint32 guid = fields[15].GetUInt32();
         CorpseType type = CorpseType(fields[12].GetUInt8());
         if (type >= MAX_CORPSE_TYPE)
         {
