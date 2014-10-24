@@ -53,7 +53,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, haveTicket
     uint8 index = 0;
     _id                 = fields[  index].GetUInt32();
-    _playerGuid         = ObjectGuid(HIGHGUID_PLAYER, fields[++index].GetUInt32());
+    _playerGuid         = ObjectGuid(HIGHGUID_PLAYER, fields[++index].GetUInt64());
     _playerName         = fields[++index].GetString();
     _message            = fields[++index].GetString();
     _createTime         = fields[++index].GetUInt32();
@@ -62,8 +62,8 @@ bool GmTicket::LoadFromDB(Field* fields)
     _posY               = fields[++index].GetFloat();
     _posZ               = fields[++index].GetFloat();
     _lastModifiedTime   = fields[++index].GetUInt32();
-    _closedBy           = ObjectGuid(uint64(0), uint64(fields[++index].GetInt32()));
-    _assignedTo         = ObjectGuid(HIGHGUID_PLAYER, fields[++index].GetUInt32());
+    _closedBy           = ObjectGuid(uint64(0), uint64(fields[++index].GetInt64()));
+    _assignedTo         = ObjectGuid(HIGHGUID_PLAYER, fields[++index].GetUInt64());
     _comment            = fields[++index].GetString();
     _response           = fields[++index].GetString();
     _completed          = fields[++index].GetBool();
@@ -80,7 +80,7 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     uint8 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->setUInt32(  index, _id);
-    stmt->setUInt32(++index, _playerGuid.GetCounter());
+    stmt->setUInt64(++index, _playerGuid.GetCounter());
     stmt->setString(++index, _playerName);
     stmt->setString(++index, _message);
     stmt->setUInt32(++index, uint32(_createTime));
@@ -89,8 +89,8 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setFloat (++index, _posY);
     stmt->setFloat (++index, _posZ);
     stmt->setUInt32(++index, uint32(_lastModifiedTime));
-    stmt->setInt32 (++index, int32(_closedBy.GetCounter()));
-    stmt->setUInt32(++index, _assignedTo.GetCounter());
+    stmt->setInt64 (++index, int64(_closedBy.GetCounter()));
+    stmt->setUInt64(++index, _assignedTo.GetCounter());
     stmt->setString(++index, _comment);
     stmt->setString(++index, _response);
     stmt->setBool  (++index, _completed);

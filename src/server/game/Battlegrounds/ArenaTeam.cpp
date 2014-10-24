@@ -107,7 +107,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
         //          0     1
         // SELECT name, class FROM characters WHERE guid = ?
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_CLASS);
-        stmt->setUInt32(0, playerGuid.GetCounter());
+        stmt->setUInt64(0, playerGuid.GetCounter());
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         if (!result)

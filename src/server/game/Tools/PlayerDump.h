@@ -19,6 +19,7 @@
 #ifndef _PLAYER_DUMP_H
 #define _PLAYER_DUMP_H
 
+#include "ObjectGuid.h"
 #include <string>
 #include <map>
 #include <set>
@@ -73,14 +74,14 @@ class PlayerDumpWriter : public PlayerDump
     public:
         PlayerDumpWriter() { }
 
-        bool GetDump(uint32 guid, std::string& dump);
-        DumpReturn WriteDump(std::string const& file, uint32 guid);
+        typedef std::set<ObjectGuid::LowType> GUIDs;
+        bool GetDump(ObjectGuid::LowType guid, std::string& dump);
+        DumpReturn WriteDump(std::string const& file, ObjectGuid::LowType guid);
     private:
-        typedef std::set<uint32> GUIDs;
 
-        bool DumpTable(std::string& dump, uint32 guid, char const*tableFrom, char const*tableTo, DumpTableType type);
+        bool DumpTable(std::string& dump, ObjectGuid::LowType guid, char const*tableFrom, char const*tableTo, DumpTableType type);
         std::string GenerateWhereStr(char const* field, GUIDs const& guids, GUIDs::const_iterator& itr);
-        std::string GenerateWhereStr(char const* field, uint32 guid);
+        std::string GenerateWhereStr(char const* field, ObjectGuid::LowType guid);
 
         GUIDs pets;
         GUIDs mails;
@@ -92,7 +93,7 @@ class PlayerDumpReader : public PlayerDump
     public:
         PlayerDumpReader() { }
 
-        DumpReturn LoadDump(std::string const& file, uint32 account, std::string name, uint32 guid);
+        DumpReturn LoadDump(std::string const& file, uint32 account, std::string name, ObjectGuid::LowType guid);
 };
 
 #endif

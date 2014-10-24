@@ -218,7 +218,7 @@ std::string CreateDumpString(char const* tableName, QueryResult result)
     return ss.str();
 }
 
-std::string PlayerDumpWriter::GenerateWhereStr(char const* field, uint32 guid)
+std::string PlayerDumpWriter::GenerateWhereStr(char const* field, ObjectGuid::LowType guid)
 {
     std::ostringstream wherestr;
     wherestr << field << " = '" << guid << '\'';
@@ -247,25 +247,25 @@ std::string PlayerDumpWriter::GenerateWhereStr(char const* field, GUIDs const& g
     return wherestr.str();
 }
 
-void StoreGUID(QueryResult result, uint32 field, std::set<uint32>& guids)
+void StoreGUID(QueryResult result, uint32 field, PlayerDumpWriter::GUIDs &guids)
 {
     Field* fields = result->Fetch();
-    uint32 guid = fields[field].GetUInt32();
+    ObjectGuid::LowType guid = fields[field].GetUInt64();
     if (guid)
         guids.insert(guid);
 }
 
-void StoreGUID(QueryResult result, uint32 data, uint32 field, std::set<uint32>& guids)
+void StoreGUID(QueryResult result, uint32 data, uint32 field, PlayerDumpWriter::GUIDs& guids)
 {
     Field* fields = result->Fetch();
     std::string dataStr = fields[data].GetString();
-    uint32 guid = atoi(gettoknth(dataStr, field).c_str());
+    ObjectGuid::LowType guid = atoll(gettoknth(dataStr, field).c_str());
     if (guid)
         guids.insert(guid);
 }
 
 // Writing - High-level functions
-bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tableFrom, char const*tableTo, DumpTableType type)
+bool PlayerDumpWriter::DumpTable(std::string& dump, ObjectGuid::LowType guid, char const*tableFrom, char const*tableTo, DumpTableType type)
 {
     GUIDs const* guids = NULL;
     char const* fieldname = NULL;
@@ -345,7 +345,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
     return true;
 }
 
-bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
+bool PlayerDumpWriter::GetDump(ObjectGuid::LowType guid, std::string &dump)
 {
     dump =  "IMPORTANT NOTE: THIS DUMPFILE IS MADE FOR USE WITH THE 'PDUMP' COMMAND ONLY - EITHER THROUGH INGAME CHAT OR ON CONSOLE!\n";
     dump += "IMPORTANT NOTE: DO NOT apply it directly - it will irreversibly DAMAGE and CORRUPT your database! You have been warned!\n\n";
@@ -360,7 +360,7 @@ bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
     return true;
 }
 
-DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
+DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, ObjectGuid::LowType guid)
 {
     if (sWorld->getBoolConfig(CONFIG_PDUMP_NO_PATHS))
         if (strstr(file.c_str(), "\\") || strstr(file.c_str(), "/"))
@@ -399,7 +399,7 @@ void fixNULLfields(std::string &line)
     }
 }
 
-DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, std::string name, uint32 guid)
+DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, std::string name, ObjectGuid::LowType guid)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(account);
     if (charcount >= 10)
@@ -413,10 +413,10 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
-    if (guid != 0 && guid < sObjectMgr->_hiCharGuid)
+    if (guid && guid < sObjectMgr->_hiCharGuid)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
-        stmt->setUInt32(0, guid);
+        stmt->setUInt64(0, guid);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         if (result)
