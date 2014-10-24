@@ -18222,7 +18222,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                 {
                     item->SetSlot(NULL_SLOT);
                     // Item is in the bag, find the bag
-                    std::map<ObjectGuid, Bag*>::iterator itr = bagMap.find(bagGuid);
+                    std::map<uint32, Bag*>::iterator itr = bagMap.find(bagGuid.GetCounter());
                     if (itr != bagMap.end())
                     {
                         ItemPosCountVec dest;
@@ -18230,9 +18230,9 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                         if (err == EQUIP_ERR_OK)
                             item = StoreItem(dest, item, true);
                     }
-                    else if (invalidBagMap.find(bagGuid) != invalidBagMap.end())
+                    else if (invalidBagMap.find(bagGuid.GetCounter()) != invalidBagMap.end())
                     {
-                        std::map<uint32, Item*>::iterator itr = invalidBagMap.find(bagGuid);
+                        std::map<uint32, Item*>::iterator itr = invalidBagMap.find(bagGuid.GetCounter());
                         if (std::find(problematicItems.begin(), problematicItems.end(), itr->second) != problematicItems.end())
                             err = EQUIP_ERR_INTERNAL_BAG_ERROR;
                     }
