@@ -111,13 +111,15 @@ enum LocaleConstant
     LOCALE_zhTW = 5,
     LOCALE_esES = 6,
     LOCALE_esMX = 7,
-    LOCALE_ruRU = 8
+    LOCALE_ruRU = 8,
+    LOCALE_ptPT = 10,
+    LOCALE_itIT = 11
 };
 
-const uint8 TOTAL_LOCALES = 9;
+const uint8 TOTAL_LOCALES = 11;
 #define DEFAULT_LOCALE LOCALE_enUS
 
-#define MAX_LOCALES 8
+const uint8 MAX_LOCALES = 10;
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
 extern char const* localeNames[TOTAL_LOCALES];
