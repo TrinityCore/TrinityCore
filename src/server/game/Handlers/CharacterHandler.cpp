@@ -70,7 +70,7 @@ bool LoginQueryHolder::Initialize()
     ObjectGuid::LowType lowGuid = m_guid.GetCounter();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER);
-    stmt->setUInt32(0, lowGuid);
+    stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_FROM, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
@@ -86,7 +86,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_AURAS, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELL);
-    stmt->setUInt32(0, lowGuid);
+    stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_SPELLS, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS);
@@ -118,7 +118,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_INVENTORY, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_VOID_STORAGE);
-    stmt->setUInt32(0, lowGuid);
+    stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_VOID_STORAGE, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS);
@@ -135,7 +135,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_DATE, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SOCIALLIST);
-    stmt->setUInt32(0, lowGuid);
+    stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_HOMEBIND);
@@ -143,7 +143,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_HOME_BIND, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELLCOOLDOWNS);
-    stmt->setUInt32(0, lowGuid);
+    stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS, stmt);
 
     if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
@@ -186,7 +186,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GLYPHS, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_TALENTS);
-    stmt->setUInt32(0, lowGuid);
+    stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_TALENTS, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_ACCOUNT_DATA);
@@ -240,14 +240,14 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
         do
         {
-            ObjectGuid guid(HIGHGUID_PLAYER, (*result)[0].GetUInt32());
+            ObjectGuid guid(HIGHGUID_PLAYER, (*result)[0].GetUInt64());
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", guid.ToString().c_str(), GetAccountId());
 
             Player::BuildEnumData(result, &data);
 
             // Do not allow banned characters to log in
-            if (!(*result)[20].GetUInt32())
+            if (!(*result)[20].GetUInt64())
                 _legitCharacters.insert(guid);
 
             if (!sWorld->HasCharacterNameData(guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
@@ -717,7 +717,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     }
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_DATA_BY_GUID);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
 
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
     {
@@ -997,7 +997,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ONLINE);
-    stmt->setUInt32(0, pCurrChar->GetGUID().GetCounter());
+    stmt->setUInt64(0, pCurrChar->GetGUID().GetCounter());
     CharacterDatabase.Execute(stmt);
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_ONLINE);
@@ -1214,7 +1214,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     // and that there is no character with the desired new name
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_FREE_NAME);
 
-    stmt->setUInt32(0, renameInfo.Guid.GetCounter());
+    stmt->setUInt64(0, renameInfo.Guid.GetCounter());
     stmt->setUInt32(1, GetAccountId());
     stmt->setUInt16(2, AT_LOGIN_RENAME);
     stmt->setUInt16(3, AT_LOGIN_RENAME);
@@ -1242,7 +1242,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 
     stmt->setString(0, renameInfo->Name);
     stmt->setUInt16(1, AT_LOGIN_RENAME);
-    stmt->setUInt32(2, renameInfo->Guid.GetCounter());
+    stmt->setUInt64(2, renameInfo->Guid.GetCounter());
 
     CharacterDatabase.Execute(stmt);
 
@@ -1443,7 +1443,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
              >> customizeInfo.Face;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AT_LOGIN);
-    stmt->setUInt32(0, customizeInfo.Guid.GetCounter());
+    stmt->setUInt64(0, customizeInfo.Guid.GetCounter());
     // TODO: Make async with callback
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -1495,7 +1495,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME);
-    stmt->setUInt32(0, customizeInfo.Guid.GetCounter());
+    stmt->setUInt64(0, customizeInfo.Guid.GetCounter());
     result = CharacterDatabase.Query(stmt);
 
     if (result)
@@ -1512,7 +1512,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_NAME_AT_LOGIN);
     stmt->setString(0, customizeInfo.Name);
     stmt->setUInt16(1, uint16(AT_LOGIN_CUSTOMIZE));
-    stmt->setUInt32(2, customizeInfo.Guid.GetCounter());
+    stmt->setUInt64(2, customizeInfo.Guid.GetCounter());
 
     trans->Append(stmt);
 
@@ -1685,7 +1685,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     // TO Do: Make async
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_AT_LOGIN_TITLES);
-    stmt->setUInt32(0, lowGuid);
+    stmt->setUInt64(0, lowGuid);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -1765,7 +1765,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     stmt->setString(0, factionChangeInfo.Name);
     stmt->setUInt8(1, factionChangeInfo.Race);
     stmt->setUInt16(2, used_loginFlag);
-    stmt->setUInt32(3, lowGuid);
+    stmt->setUInt64(3, lowGuid);
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
@@ -1858,7 +1858,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         {
             // Delete all Flypaths
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXI_PATH);
-            stmt->setUInt32(0, lowGuid);
+            stmt->setUInt64(0, lowGuid);
             trans->Append(stmt);
 
             if (level > 7)
@@ -1904,7 +1904,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXIMASK);
                 stmt->setString(0, taximask);
-                stmt->setUInt32(1, lowGuid);
+                stmt->setUInt64(1, lowGuid);
                 trans->Append(stmt);
             }
 
@@ -1927,11 +1927,11 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             {
                 // Delete Friend List
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_GUID);
-                stmt->setUInt32(0, lowGuid);
+                stmt->setUInt64(0, lowGuid);
                 trans->Append(stmt);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_FRIEND);
-                stmt->setUInt32(0, lowGuid);
+                stmt->setUInt64(0, lowGuid);
                 trans->Append(stmt);
             }
 
@@ -2049,13 +2049,13 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
                 stmt->setUInt32(0, (team == TEAM_ALLIANCE ? spell_alliance : spell_horde));
-                stmt->setUInt32(1, lowGuid);
+                stmt->setUInt64(1, lowGuid);
                 trans->Append(stmt);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_SPELL_FACTION_CHANGE);
                 stmt->setUInt32(0, (team == TEAM_ALLIANCE ? spell_alliance : spell_horde));
                 stmt->setUInt32(1, (team == TEAM_ALLIANCE ? spell_horde : spell_alliance));
-                stmt->setUInt32(2, lowGuid);
+                stmt->setUInt64(2, lowGuid);
                 trans->Append(stmt);
             }
 
@@ -2159,12 +2159,12 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
                     stmt->setString(0, ss.str().c_str());
-                    stmt->setUInt32(1, lowGuid);
+                    stmt->setUInt64(1, lowGuid);
                     trans->Append(stmt);
 
                     // unset any currently chosen title
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_RES_CHAR_TITLES_FACTION_CHANGE);
-                    stmt->setUInt32(0, lowGuid);
+                    stmt->setUInt64(0, lowGuid);
                     trans->Append(stmt);
                 }
             }
@@ -2241,7 +2241,7 @@ void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_LIST_SLOT);
         stmt->setUInt8(0, position);
-        stmt->setUInt32(1, guids[i].GetCounter());
+        stmt->setUInt64(1, guids[i].GetCounter());
         trans->Append(stmt);
     }
 

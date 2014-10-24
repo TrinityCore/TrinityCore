@@ -2184,7 +2184,7 @@ ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
-        return ObjectGuid(HIGHGUID_PLAYER, (*result)[0].GetUInt32());
+        return ObjectGuid(HIGHGUID_PLAYER, (*result)[0].GetUInt64());
 
     return ObjectGuid::Empty;
 }
@@ -2200,7 +2200,7 @@ bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME);
 
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -2223,7 +2223,7 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
 
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -2246,7 +2246,7 @@ uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid guid) const
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_GUID);
 
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -6937,7 +6937,7 @@ void ObjectMgr::LoadCorpses()
     do
     {
         Field* fields = result->Fetch();
-        uint32 guid = fields[15].GetUInt32();
+        ObjectGuid::LowType guid = fields[15].GetUInt64();
         CorpseType type = CorpseType(fields[12].GetUInt8());
         if (type >= MAX_CORPSE_TYPE)
         {

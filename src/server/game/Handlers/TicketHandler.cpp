@@ -218,7 +218,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
     recvData >> comment;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
-    stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
+    stmt->setUInt64(0, GetPlayer()->GetGUID().GetCounter());
     stmt->setUInt32(1, nextSurveyID);
     stmt->setUInt32(2, mainSurvey);
     stmt->setString(3, comment);

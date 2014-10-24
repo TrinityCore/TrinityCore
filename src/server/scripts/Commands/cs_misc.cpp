@@ -1517,7 +1517,7 @@ public:
 
             // Query informations from the DB
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PINFO);
-            stmt->setUInt32(0, lowguid);
+            stmt->setUInt64(0, lowguid);
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
             if (!result)
@@ -1617,7 +1617,7 @@ public:
 
         // Can be used to query data from Characters database
         stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_XP);
-        stmt2->setUInt32(0, lowguid);
+        stmt2->setUInt64(0, lowguid);
         PreparedQueryResult result4 = CharacterDatabase.Query(stmt2);
 
         if (result4)

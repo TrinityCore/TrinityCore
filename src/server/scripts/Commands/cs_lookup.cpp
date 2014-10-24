@@ -1280,10 +1280,10 @@ public:
                 do
                 {
                     Field* characterFields  = result2->Fetch();
-                    uint32 guid             = characterFields[0].GetUInt32();
+                    ObjectGuid guid(HIGHGUID_PLAYER, characterFields[0].GetUInt64());
                     std::string name        = characterFields[1].GetString();
 
-                    handler->PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER, name.c_str(), guid);
+                    handler->PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER, name.c_str(), guid.ToString().c_str());
                     ++counter;
                 }
                 while (result2->NextRow() && (limit == -1 || counter < limit));

@@ -225,7 +225,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
-        stmt->setUInt32(0, receiverGuid.GetCounter());
+        stmt->setUInt64(0, receiverGuid.GetCounter());
 
         result = CharacterDatabase.Query(stmt);
         if (result)

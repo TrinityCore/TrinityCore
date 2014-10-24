@@ -282,14 +282,14 @@ public:
             do
             {
                 Field* fields           = result->Fetch();
-                uint64 itemGuid         = fields[0].GetUInt64();
-                uint64 owner            = fields[1].GetUInt64();
+                ObjectGuid itemGuid(HIGHGUID_ITEM, fields[0].GetUInt64());
+                ObjectGuid owner(HIGHGUID_PLAYER, fields[1].GetUInt64());
                 uint32 ownerAccountId   = fields[2].GetUInt32();
                 std::string ownerName   = fields[3].GetString();
 
                 char const* itemPos = "[in auction]";
 
-                handler->PSendSysMessage(LANG_ITEMLIST_AUCTION, itemGuid, ownerName.c_str(), owner, ownerAccountId, itemPos);
+                handler->PSendSysMessage(LANG_ITEMLIST_AUCTION, itemGuid.ToString().c_str(), ownerName.c_str(), owner.ToString().c_str(), ownerAccountId, itemPos);
             }
             while (result->NextRow());
         }

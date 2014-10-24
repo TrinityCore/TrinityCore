@@ -1098,7 +1098,7 @@ DROP TABLE IF EXISTS `character_reputation`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_reputation` (
-  `guid` bigint(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `faction` smallint(5) unsigned NOT NULL DEFAULT '0',
   `standing` int(11) NOT NULL DEFAULT '0',
   `flags` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -1148,8 +1148,8 @@ DROP TABLE IF EXISTS `character_social`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_social` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
-  `friend` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Friend Global Unique Identifier',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
+  `friend` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Friend Global Unique Identifier',
   `flags` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Friend Flags',
   `note` varchar(48) NOT NULL DEFAULT '' COMMENT 'Friend Note',
   PRIMARY KEY (`guid`,`friend`,`flags`),
@@ -1174,7 +1174,7 @@ DROP TABLE IF EXISTS `character_spell`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_spell` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `disabled` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -1199,7 +1199,7 @@ DROP TABLE IF EXISTS `character_spell_cooldown`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_spell_cooldown` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `item` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Item Identifier',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1224,7 +1224,7 @@ DROP TABLE IF EXISTS `character_stats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_stats` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
   `maxhealth` int(10) unsigned NOT NULL DEFAULT '0',
   `maxpower1` int(10) unsigned NOT NULL DEFAULT '0',
   `maxpower2` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1274,7 +1274,7 @@ DROP TABLE IF EXISTS `character_talent`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_talent` (
-  `guid` int(10) unsigned NOT NULL,
+  `guid` bigint(20) unsigned NOT NULL,
   `spell` mediumint(8) unsigned NOT NULL,
   `spec` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`,`spec`)
@@ -1299,10 +1299,10 @@ DROP TABLE IF EXISTS `character_void_storage`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_void_storage` (
   `itemId` bigint(20) unsigned NOT NULL,
-  `playerGuid` int(10) unsigned NOT NULL,
+  `playerGuid` bigint(20) unsigned NOT NULL,
   `itemEntry` mediumint(8) unsigned NOT NULL,
   `slot` tinyint(3) unsigned NOT NULL,
-  `creatorGuid` int(10) unsigned NOT NULL DEFAULT '0',
+  `creatorGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `randomProperty` int(10) unsigned NOT NULL DEFAULT '0',
   `suffixFactor` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`itemId`),
@@ -1328,7 +1328,7 @@ DROP TABLE IF EXISTS `characters`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `characters` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `account` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Account Identifier',
   `name` varchar(12) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -1363,7 +1363,7 @@ CREATE TABLE `characters` (
   `trans_y` float NOT NULL DEFAULT '0',
   `trans_z` float NOT NULL DEFAULT '0',
   `trans_o` float NOT NULL DEFAULT '0',
-  `transguid` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `transguid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `extra_flags` smallint(5) unsigned NOT NULL DEFAULT '0',
   `stable_slots` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `at_login` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -1417,8 +1417,8 @@ DROP TABLE IF EXISTS `corpse`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `corpse` (
-  `corpseGuid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
+  `corpseGuid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
   `posX` float NOT NULL DEFAULT '0',
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
@@ -1585,7 +1585,7 @@ DROP TABLE IF EXISTS `gm_surveys`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gm_surveys` (
   `surveyId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `mainSurvey` int(10) unsigned NOT NULL DEFAULT '0',
   `overallComment` longtext NOT NULL,
   `createTime` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1611,7 +1611,7 @@ DROP TABLE IF EXISTS `gm_tickets`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gm_tickets` (
   `ticketId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier of ticket creator',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier of ticket creator',
   `name` varchar(12) NOT NULL COMMENT 'Name of ticket creator',
   `message` text NOT NULL,
   `createTime` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1620,8 +1620,8 @@ CREATE TABLE `gm_tickets` (
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
   `lastModifiedTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `closedBy` int(10) NOT NULL DEFAULT '0',
-  `assignedTo` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
+  `closedBy` bigint(20) NOT NULL DEFAULT '0',
+  `assignedTo` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
   `comment` text NOT NULL,
   `response` text NOT NULL,
   `completed` tinyint(3) unsigned NOT NULL DEFAULT '0',
