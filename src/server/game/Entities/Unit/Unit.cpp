@@ -10768,7 +10768,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
     propagateSpeedChange();
 
-    static Opcodes const moveTypeToOpcode[MAX_MOVE_TYPE][3] =
+    static OpcodeServer const moveTypeToOpcode[MAX_MOVE_TYPE][3] =
     {
         {SMSG_SPLINE_MOVE_SET_WALK_SPEED,        SMSG_MOVE_SET_WALK_SPEED,        SMSG_MOVE_UPDATE_WALK_SPEED       },
         {SMSG_SPLINE_MOVE_SET_RUN_SPEED,         SMSG_MOVE_SET_RUN_SPEED,         SMSG_MOVE_UPDATE_RUN_SPEED        },
@@ -15613,7 +15613,7 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
     MovementStatusElements const* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (!sequence)
     {
-        TC_LOG_ERROR("network", "Unit::WriteMovementInfo: No movement sequence found for opcode %s", GetOpcodeNameForLogging(data.GetOpcode()).c_str());
+        TC_LOG_ERROR("network", "Unit::WriteMovementInfo: No movement sequence found for opcode %s", GetOpcodeNameForLogging(static_cast<OpcodeServer>(data.GetOpcode())).c_str());
         return;
     }
 
@@ -16317,9 +16317,9 @@ bool Unit::SetSwim(bool enable)
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
     if (enable)
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_START_SWIM, NULL_OPCODE).Send();
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_START_SWIM, static_cast<OpcodeServer>(NULL_OPCODE)).Send();
     else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_STOP_SWIM, NULL_OPCODE).Send();
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_STOP_SWIM, static_cast<OpcodeServer>(NULL_OPCODE)).Send();
 
     return true;
 }

@@ -33,7 +33,7 @@ class WorldPacket : public ByteBuffer
         {
         }
 
-        explicit WorldPacket(Opcodes opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode) { }
+        explicit WorldPacket(uint32 opcode, size_t res = 200) : ByteBuffer(res), m_opcode(opcode) { }
 
         WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode)
         {
@@ -54,23 +54,23 @@ class WorldPacket : public ByteBuffer
             return *this;
         }
 
-        WorldPacket(Opcodes opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
+        WorldPacket(uint32 opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
 
-        void Initialize(Opcodes opcode, size_t newres=200)
+        void Initialize(uint32 opcode, size_t newres = 200)
         {
             clear();
             _storage.reserve(newres);
             m_opcode = opcode;
         }
 
-        Opcodes GetOpcode() const { return m_opcode; }
-        void SetOpcode(Opcodes opcode) { m_opcode = opcode; }
+        uint32 GetOpcode() const { return m_opcode; }
+        void SetOpcode(uint32 opcode) { m_opcode = opcode; }
         bool IsCompressed() const { return (m_opcode & COMPRESSED_OPCODE_MASK) != 0; }
         void Compress(z_stream_s* compressionStream);
         void Compress(z_stream_s* compressionStream, WorldPacket const* source);
 
     protected:
-        Opcodes m_opcode;
+        uint32 m_opcode;
         void Compress(void* dst, uint32 *dst_size, const void* src, int src_size);
         z_stream_s* _compressionStream;
 };

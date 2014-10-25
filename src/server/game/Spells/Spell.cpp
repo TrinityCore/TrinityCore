@@ -3662,7 +3662,7 @@ void Spell::SendPetCastResult(SpellCastResult result)
     SendCastResult(owner->ToPlayer(), m_spellInfo, m_cast_count, result, SPELL_CUSTOM_ERROR_NONE, SMSG_PET_CAST_FAILED);
 }
 
-void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, Opcodes opcode /*= SMSG_CAST_FAILED*/)
+void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, OpcodeServer opcode /*= SMSG_CAST_FAILED*/)
 {
     if (result == SPELL_CAST_OK)
         return;

@@ -188,7 +188,7 @@ bool WorldSocket::ReadDataHandler()
 
         ExtractOpcodeAndSize(header, cmd, size);
 
-        Opcodes opcode = Opcodes(cmd);
+        OpcodeClient opcode = static_cast<OpcodeClient>(cmd);
 
         std::string opcodeName = GetOpcodeNameForLogging(opcode);
 
@@ -251,7 +251,7 @@ bool WorldSocket::ReadDataHandler()
                 OpcodeHandler const* handler = opcodeTable[opcode];
                 if (!handler)
                 {
-                    TC_LOG_ERROR("network.opcode", "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), _worldSession->GetPlayerInfo().c_str());
+                    TC_LOG_ERROR("network.opcode", "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet.GetOpcode())).c_str(), _worldSession->GetPlayerInfo().c_str());
                     return true;
                 }
 
@@ -294,7 +294,7 @@ void WorldSocket::SendPacket(WorldPacket& packet)
     if (_worldSession && packet.size() > 0x400 && !packet.IsCompressed())
         packet.Compress(_worldSession->GetCompressionStream());
 
-    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
+    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
 
     std::unique_lock<std::mutex> guard(_writeLock);
 
