@@ -58,7 +58,7 @@ struct PlayerLevelInfo;
 struct PageText
 {
     std::string Text;
-    uint16 NextPage;
+    uint16 NextPageID;
 };
 
 /// Key for storing temp summon data in TempSummonDataContainer
@@ -575,13 +575,13 @@ struct RepSpilloverTemplate
 
 struct PointOfInterest
 {
-    uint32 entry;
-    float x;
-    float y;
-    uint32 icon;
-    uint32 flags;
-    uint32 data;
-    std::string icon_name;
+    uint32 ID;
+    float PositionX;
+    float PositionY;
+    uint32 Icon;
+    uint32 Flags;
+    uint32 Importance;
+    std::string Name;
 };
 
 struct GossipMenuItems

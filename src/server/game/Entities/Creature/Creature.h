@@ -392,21 +392,21 @@ typedef std::list<VendorItemCount> VendorItemCounts;
 
 struct TrainerSpell
 {
-    TrainerSpell() : spell(0), spellCost(0), reqSkill(0), reqSkillValue(0), reqLevel(0)
+    TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0)
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            learnedSpell[i] = 0;
+            ReqAbility[i] = 0;
     }
 
-    uint32 spell;
-    uint32 spellCost;
-    uint32 reqSkill;
-    uint32 reqSkillValue;
-    uint32 reqLevel;
-    uint32 learnedSpell[3];
+    uint32 SpellID;
+    uint32 MoneyCost;
+    uint32 ReqSkillLine;
+    uint32 ReqSkillRank;
+    uint32 ReqLevel;
+    uint32 ReqAbility[3];
 
     // helpers
-    bool IsCastable() const { return learnedSpell[0] != spell; }
+    bool IsCastable() const { return ReqAbility[0] != SpellID; }
 };
 
 typedef std::unordered_map<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;

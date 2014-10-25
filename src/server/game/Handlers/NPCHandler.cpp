@@ -169,14 +169,14 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
         bool primary_prof_first_rank = false;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (!tSpell->learnedSpell[i])
+            if (!tSpell->ReqAbility[i])
                 continue;
-            if (!_player->IsSpellFitByClassAndRace(tSpell->learnedSpell[i]))
+            if (!_player->IsSpellFitByClassAndRace(tSpell->ReqAbility[i]))
             {
                 valid = false;
                 break;
             }
-            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(tSpell->learnedSpell[i]);
+            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(tSpell->ReqAbility[i]);
             if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank())
                 primary_prof_first_rank = true;
         }
@@ -185,27 +185,27 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
 
         TrainerSpellState state = _player->GetTrainerSpellState(tSpell);
 
-        data << uint32(tSpell->spell);                      // learned spell (or cast-spell in profession case)
+        data << uint32(tSpell->SpellID);                      // learned spell (or cast-spell in profession case)
         data << uint8(state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
-        data << uint32(floor(tSpell->spellCost * fDiscountMod));
+        data << uint32(floor(tSpell->MoneyCost * fDiscountMod));
 
-        data << uint8(tSpell->reqLevel);
-        data << uint32(tSpell->reqSkill);
-        data << uint32(tSpell->reqSkillValue);
+        data << uint8(tSpell->ReqLevel);
+        data << uint32(tSpell->ReqSkillLine);
+        data << uint32(tSpell->ReqSkillRank);
         //prev + req or req + 0
         uint8 maxReq = 0;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (!tSpell->learnedSpell[i])
+            if (!tSpell->ReqAbility[i])
                 continue;
-            if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(tSpell->learnedSpell[i]))
+            if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(tSpell->ReqAbility[i]))
             {
                 data << uint32(prevSpellId);
                 ++maxReq;
             }
             if (maxReq == 2)
                 break;
-            SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->learnedSpell[i]);
+            SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->ReqAbility[i]);
             for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < 3; ++itr2)
             {
                 data << uint32(itr2->second);
@@ -277,7 +277,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     }
 
     // apply reputation discount
-    uint32 nSpellCost = uint32(floor(trainer_spell->spellCost * _player->GetReputationPriceDiscount(unit)));
+    uint32 nSpellCost = uint32(floor(trainer_spell->MoneyCost * _player->GetReputationPriceDiscount(unit)));
 
     // check money requirement
     if (!_player->HasEnoughMoney(uint64(nSpellCost)))
@@ -293,7 +293,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 
     // learn explicitly or cast explicitly
     if (trainer_spell->IsCastable())
-        _player->CastSpell(_player, trainer_spell->spell, true);
+        _player->CastSpell(_player, trainer_spell->SpellID, true);
     else
         _player->LearnSpell(spellId, false);
 
