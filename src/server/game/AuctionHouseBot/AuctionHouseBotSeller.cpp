@@ -18,6 +18,7 @@
 #include "Log.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
+#include "World.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHouseBotSeller.h"
 
@@ -614,17 +615,20 @@ uint32 AuctionBotSeller::SetStat(SellerConfiguration& config)
 {
     AllItemsArray itemsSaved(MAX_AUCTION_QUALITY, std::vector<uint32>(MAX_ITEM_CLASS));
 
+    time_t curTime = sWorld->GetGameTime();
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
     for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
     {
         AuctionEntry* auctionEntry = itr->second;
+        if (auctionEntry->owner != 0)               // Add only ahbot items
+            continue;
+        if (auctionEntry->expire_time > curTime)    // Add only nonexpired items
+            continue;
         Item* item = sAuctionMgr->GetAItem(auctionEntry->itemGUIDLow);
         if (item)
         {
             ItemTemplate const* prototype = item->GetTemplate();
-            if (prototype)
-                if (!auctionEntry->owner)                         // Add only ahbot items
-                    ++itemsSaved[prototype->Quality][prototype->Class];
+            ++itemsSaved[prototype->Quality][prototype->Class];
         }
     }
 

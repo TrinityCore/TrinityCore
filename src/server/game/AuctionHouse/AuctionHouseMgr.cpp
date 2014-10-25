@@ -447,29 +447,25 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction, uint32 /*itemEntry
 
 void AuctionHouseObject::Update()
 {
-    time_t curTime = sWorld->GetGameTime();
     ///- Handle expired auctions
 
     // If storage is empty, no need to update. next == NULL in this case.
     if (AuctionsMap.empty())
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_BY_TIME);
-    stmt->setUInt32(0, (uint32)curTime+60);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    time_t curTime = sWorld->GetGameTime();
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    if (!result)
-        return;
-
-    do
+    for (AuctionEntryMap::iterator it = AuctionsMap.begin(); it != AuctionsMap.end();)
     {
         // from auctionhousehandler.cpp, creates auction pointer & player pointer
-        AuctionEntry* auction = GetAuction(result->Fetch()->GetUInt32());
+        AuctionEntry* auction = it->second;
+        // Increment iterator due to deletion
+        ++it;
 
-        if (!auction)
+        ///- filter auctions exipred on next update
+        if (auction->expire_time > curTime + 60)
             continue;
-
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
         ///- Either cancel the auction if there was no bidder
         if (auction->bidder == 0)
@@ -488,16 +484,15 @@ void AuctionHouseObject::Update()
             sScriptMgr->OnAuctionSuccessful(this, auction);
         }
 
-        uint32 itemEntry = auction->itemEntry;
-
         ///- In any case clear the auction
         auction->DeleteFromDB(trans);
-        CharacterDatabase.CommitTransaction(trans);
 
         sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
-        RemoveAuction(auction, itemEntry);
+        RemoveAuction(auction, auction->itemEntry);
     }
-    while (result->NextRow());
+
+    // Run DB changes
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount)
@@ -592,22 +587,31 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
             if (propRefID)
             {
                 // Append the suffix to the name (ie: of the Monkey) if one exists
-                // These are found in ItemRandomProperties.dbc, not ItemRandomSuffix.dbc
-                //  even though the DBC names seem misleading
-                const ItemRandomPropertiesEntry* itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
+                // These are found in ItemRandomSuffix.dbc and ItemRandomProperties.dbc
+                //  even though the DBC name seems misleading
 
-                if (itemRandProp)
+                char* const* suffix = nullptr;
+
+                if (propRefID < 0)
                 {
-                    char* const* temp = itemRandProp->nameSuffix;
+                    const ItemRandomSuffixEntry* itemRandEntry = sItemRandomSuffixStore.LookupEntry(-item->GetItemRandomPropertyId());
+                    if (itemRandEntry)
+                        suffix = itemRandEntry->nameSuffix;
+                }
+                else
+                {
+                    const ItemRandomPropertiesEntry* itemRandEntry = sItemRandomPropertiesStore.LookupEntry(item->GetItemRandomPropertyId());
+                    if (itemRandEntry)
+                        suffix = itemRandEntry->nameSuffix;
+                }
 
-                    // dbc local name
-                    if (temp)
-                    {
-                        // Append the suffix (ie: of the Monkey) to the name using localization
-                        // or default enUS if localization is invalid
-                        name += ' ';
-                        name += temp[locdbc_idx >= 0 ? locdbc_idx : LOCALE_enUS];
-                    }
+                // dbc local name
+                if (suffix)
+                {
+                    // Append the suffix (ie: of the Monkey) to the name using localization
+                    // or default enUS if localization is invalid
+                    name += ' ';
+                    name += suffix[locdbc_idx >= 0 ? locdbc_idx : LOCALE_enUS];
                 }
             }
 
