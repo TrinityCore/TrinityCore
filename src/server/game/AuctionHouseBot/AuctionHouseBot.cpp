@@ -388,7 +388,7 @@ void AuctionHouseBot::Rebuild(bool all)
         AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(AuctionHouseType(i));
         for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
             if (!itr->second->owner)                        // ahbot auction
-                if (all || itr->second->bid == 0)           // expire now auction if no bid or forced
+                if (all || itr->second->bidder == 0)        // expire auction if forced or no bids
                     itr->second->expire_time = sWorld->GetGameTime();
     }
 }
