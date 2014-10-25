@@ -339,6 +339,7 @@ struct Position
         { return std::sqrt(GetExactDistSq(pos)); }
 
     void GetPositionOffsetTo(Position const & endPos, Position & retOffset) const;
+    Position GetPositionWithOffset(Position const& offset) const;
 
     float GetAngle(Position const* pos) const;
     float GetAngle(float x, float y) const;
