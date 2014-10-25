@@ -22,14 +22,14 @@
 //! Compresses packet in place
 void WorldPacket::Compress(z_stream* compressionStream)
 {
-    Opcodes uncompressedOpcode = GetOpcode();
+    OpcodeServer uncompressedOpcode = static_cast<OpcodeServer>(GetOpcode());
     if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
     {
         TC_LOG_ERROR("network", "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;
     }
 
-    Opcodes opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
+    OpcodeServer opcode = OpcodeServer(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
     uint32 size = wpos();
     uint32 destsize = compressBound(size);
 
@@ -53,14 +53,14 @@ void WorldPacket::Compress(z_stream* compressionStream, WorldPacket const* sourc
 {
     ASSERT(source != this);
 
-    Opcodes uncompressedOpcode = source->GetOpcode();
+    OpcodeServer uncompressedOpcode = static_cast<OpcodeServer>(source->GetOpcode());
     if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
     {
         TC_LOG_ERROR("network", "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;
     }
 
-    Opcodes opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
+    OpcodeServer opcode = OpcodeServer(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
     uint32 size = source->size();
     uint32 destsize = compressBound(size);
 

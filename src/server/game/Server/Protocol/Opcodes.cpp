@@ -22,31 +22,61 @@
 OpcodeTable opcodeTable;
 
 template<bool isInValidRange, bool isNonZero>
-void OpcodeTable::ValidateAndSetOpcode(uint16 /*opcode*/, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+void OpcodeTable::ValidateAndSetOpcode(OpcodeClient /*opcode*/, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+{
+    // if for some reason we are here, that means NUM_OPCODE_HANDLERS == 0 (or your compiler is broken)
+}
+
+template<bool isInValidRange, bool isNonZero>
+void OpcodeTable::ValidateAndSetOpcode(OpcodeServer /*opcode*/, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
 {
     // if for some reason we are here, that means NUM_OPCODE_HANDLERS == 0 (or your compiler is broken)
 }
 
 template<>
-void OpcodeTable::ValidateAndSetOpcode<true, true>(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler)
+void OpcodeTable::ValidateAndSetOpcode<true, true>(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler)
 {
-    if (_internalTable[opcode] != NULL)
+    if (_internalTableClient[opcode] != NULL)
     {
-        TC_LOG_ERROR("network", "Tried to override handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
+        TC_LOG_ERROR("network", "Tried to override client handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
         return;
     }
 
-    _internalTable[opcode] = new OpcodeHandler(name, status, processing, handler);
+    _internalTableClient[opcode] = new OpcodeHandler(name, status, processing, handler);
 }
 
 template<>
-void OpcodeTable::ValidateAndSetOpcode<false, true>(uint16 opcode, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+void OpcodeTable::ValidateAndSetOpcode<true, true>(OpcodeServer opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler)
+{
+    if (_internalTableServer[opcode] != NULL)
+    {
+        TC_LOG_ERROR("network", "Tried to override server handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
+        return;
+    }
+
+    _internalTableServer[opcode] = new OpcodeHandler(name, status, processing, handler);
+}
+
+template<>
+void OpcodeTable::ValidateAndSetOpcode<false, true>(OpcodeClient opcode, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
 {
     TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode %d", opcode);
 }
 
 template<>
-void OpcodeTable::ValidateAndSetOpcode<true, false>(uint16 /*opcode*/, char const* name, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+void OpcodeTable::ValidateAndSetOpcode<false, true>(OpcodeServer opcode, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+{
+    TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode %d", opcode);
+}
+
+template<>
+void OpcodeTable::ValidateAndSetOpcode<true, false>(OpcodeClient /*opcode*/, char const* name, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+{
+    TC_LOG_ERROR("network", "Opcode %s got value 0", name);
+}
+
+template<>
+void OpcodeTable::ValidateAndSetOpcode<true, false>(OpcodeServer /*opcode*/, char const* name, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
 {
     TC_LOG_ERROR("network", "Opcode %s got value 0", name);
 }

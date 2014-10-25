@@ -21196,7 +21196,7 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
 void Player::AddSpellMod(SpellModifier* mod, bool apply)
 {
     TC_LOG_DEBUG("spells", "Player::AddSpellMod %d", mod->spellId);
-    Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+    OpcodeServer opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
     int i = 0;
     flag96 _mask = 0;
@@ -27462,7 +27462,7 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
 
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 {
-    Movement::PacketSender(this, NULL_OPCODE, apply ?
+    Movement::PacketSender(this, static_cast<OpcodeServer>(NULL_OPCODE), apply ?
         SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY :
         SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
 }
@@ -27472,7 +27472,7 @@ void Player::SendMovementSetCollisionHeight(float height)
     static MovementStatusElements const heightElement = MSEExtraFloat;
     Movement::ExtraMovementStatusElement extra(&heightElement);
     extra.Data.floatData = height;
-    Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_SET_COLLISION_HEIGHT, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
+    Movement::PacketSender(this, static_cast<OpcodeServer>(NULL_OPCODE), SMSG_MOVE_SET_COLLISION_HEIGHT, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
 }
 
 float Player::GetCollisionHeight(bool mounted) const
@@ -27665,7 +27665,7 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
     MovementStatusElements const* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (!sequence)
     {
-        TC_LOG_ERROR("network", "Player::ReadMovementInfo: No movement sequence found for opcode %s", GetOpcodeNameForLogging(data.GetOpcode()).c_str());
+        TC_LOG_ERROR("network", "Player::ReadMovementInfo: No movement sequence found for opcode %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(data.GetOpcode())).c_str());
         return;
     }
 

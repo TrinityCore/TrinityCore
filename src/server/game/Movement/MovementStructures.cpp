@@ -5192,7 +5192,7 @@ bool Movement::PrintInvalidSequenceElement(MovementStatusElements const element,
     return false;
 }
 
-Movement::PacketSender::PacketSender(Unit* unit, Opcodes serverControl, Opcodes playerControl, Opcodes broadcast /*= SMSG_PLAYER_MOVE*/, ExtraMovementStatusElement* extras /*= NULL*/)
+Movement::PacketSender::PacketSender(Unit* unit, OpcodeServer serverControl, OpcodeServer playerControl, OpcodeServer broadcast /*= SMSG_PLAYER_MOVE*/, ExtraMovementStatusElement* extras /*= NULL*/)
     : _extraElements(extras), _unit(unit)
 {
     if (unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER)
@@ -5202,7 +5202,7 @@ Movement::PacketSender::PacketSender(Unit* unit, Opcodes serverControl, Opcodes 
     }
     else
     {
-        _selfOpcode = NULL_OPCODE;
+        _selfOpcode = static_cast<OpcodeServer>(NULL_OPCODE);
         _broadcast = serverControl;
     }
 }
@@ -5233,7 +5233,7 @@ void Movement::PacketSender::Send() const
     }
 }
 
-MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
+MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
 {
     switch (opcode)
     {

@@ -25,15 +25,18 @@
 
 #include "Common.h"
 
-/// List of Opcodes
-enum Opcodes
+enum OpcodeMisc : uint32
 {
-    MAX_OPCODE                                        = 0x1FFF,
-    NUM_OPCODE_HANDLERS                               = (MAX_OPCODE+1),
-    UNKNOWN_OPCODE                                    = (0xFFFF+1),
-    NULL_OPCODE                                       = 0,
-    COMPRESSED_OPCODE_MASK                            = 0x8000,
+    MAX_OPCODE = 0x1FFF,
+    NUM_OPCODE_HANDLERS = (MAX_OPCODE + 1),
+    UNKNOWN_OPCODE = (0xFFFF + 1),
+    NULL_OPCODE = 0,
+    COMPRESSED_OPCODE_MASK = 0x8000
+};
 
+// CMSGs
+enum OpcodeClient : uint32
+{
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0000,
     CMSG_ACCEPT_TRADE                                 = 0x0000,
     CMSG_ACTIVATETAXI                                 = 0x0000,
@@ -657,7 +660,12 @@ enum Opcodes
     MSG_SET_DUNGEON_DIFFICULTY                        = 0x0000,
     MSG_SET_RAID_DIFFICULTY                           = 0x0000,
     MSG_TABARDVENDOR_ACTIVATE                         = 0x0000,
-    MSG_TALENT_WIPE_CONFIRM                           = 0x0000,
+    MSG_TALENT_WIPE_CONFIRM                           = 0x0000
+};
+
+// SMSGs
+enum OpcodeServer : uint32
+{
     SMSG_ACCOUNT_DATA_TIMES                           = 0x11AC,
     SMSG_ACCOUNT_INFO_RESPONSE                        = 0x0000,
     SMSG_ACCOUNT_RESTRICTED_WARNING                   = 0x0000,
@@ -1444,31 +1452,43 @@ class OpcodeTable
     public:
         OpcodeTable()
         {
-            memset(_internalTable, 0, sizeof(_internalTable));
+            memset(_internalTableClient, 0, sizeof(_internalTableClient));
+            memset(_internalTableServer, 0, sizeof(_internalTableServer));
         }
+
+        OpcodeTable(OpcodeTable const&) = delete;
+        OpcodeTable& operator=(OpcodeTable const&) = delete;
 
         ~OpcodeTable()
         {
             for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
-                delete _internalTable[i];
+            {
+                delete _internalTableClient[i];
+                delete _internalTableServer[i];
+            }
         }
 
         void Initialize();
 
-        OpcodeHandler const* operator[](uint32 index) const
+        OpcodeHandler const* operator[](OpcodeClient index) const
         {
-            return _internalTable[index];
+            return _internalTableClient[index];
+        }
+
+        OpcodeHandler const* operator[](OpcodeServer index) const
+        {
+            return _internalTableServer[index];
         }
 
     private:
         template<bool isInValidRange, bool isNonZero>
-        void ValidateAndSetOpcode(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler);
+        void ValidateAndSetOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler);
 
-        // Prevent copying this structure
-        OpcodeTable(OpcodeTable const&);
-        OpcodeTable& operator=(OpcodeTable const&);
+        template<bool isInValidRange, bool isNonZero>
+        void ValidateAndSetOpcode(OpcodeServer opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler);
 
-        OpcodeHandler* _internalTable[NUM_OPCODE_HANDLERS];
+        OpcodeHandler* _internalTableClient[NUM_OPCODE_HANDLERS];
+        OpcodeHandler* _internalTableServer[NUM_OPCODE_HANDLERS];
 };
 
 extern OpcodeTable opcodeTable;
@@ -1481,8 +1501,9 @@ extern OpcodeTable opcodeTable;
 
 void InitOpcodes();
 
-/// Lookup opcode name for human understandable logging
-inline std::string GetOpcodeNameForLogging(Opcodes id)
+/// Lookup opcode name for human understandable logging (T = OpcodeClient|OpcodeServer)
+template<typename T>
+inline std::string GetOpcodeNameForLogging(T id)
 {
     uint32 opcode = uint32(id);
     std::ostringstream ss;
@@ -1490,7 +1511,7 @@ inline std::string GetOpcodeNameForLogging(Opcodes id)
 
     if (id < UNKNOWN_OPCODE)
     {
-        if (OpcodeHandler const* handler = opcodeTable[uint32(id) & 0x7FFF])
+        if (OpcodeHandler const* handler = opcodeTable[T(opcode & 0x7FFF)])
         {
             ss << handler->Name;
             if (opcode & COMPRESSED_OPCODE_MASK)
@@ -1505,6 +1526,7 @@ inline std::string GetOpcodeNameForLogging(Opcodes id)
     ss << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
     return ss.str();
 }
+
 
 #endif
 /// @}
