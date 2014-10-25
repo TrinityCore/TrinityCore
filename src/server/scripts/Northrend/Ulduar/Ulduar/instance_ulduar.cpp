@@ -79,7 +79,6 @@ class instance_ulduar : public InstanceMapScript
                 keepersCount = 0;
                 conSpeedAtory = false;
                 lumberjacked = false;
-                deadElders = 0;
                 Unbroken = true;
                 IsDriveMeCrazyEligible = true;
                 _algalonSummoned = false;
@@ -145,7 +144,6 @@ class instance_ulduar : public InstanceMapScript
             uint8 keepersCount;
             bool conSpeedAtory;
             bool lumberjacked;
-            uint8 deadElders;
             bool Unbroken;
             bool IsDriveMeCrazyEligible;
 
@@ -617,17 +615,12 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_IRONBRANCH:
                     case NPC_STONEBARK:
                     case NPC_BRIGHTLEAF:
-                    {
                         if (!lumberjacked)
                         {
                             DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_LUMBERJACKED);
                             lumberjacked = true;
                         }
-                        if (++deadElders == 3)
-                            if (Creature* trigger = instance->GetCreature(FreyaAchieveTriggerGUID))
-                                trigger->CastSpell(trigger, SPELL_LUMBERJACKED_CREDIT, true);
                         break;
-                    }
                     default:
                         break;
                 }
@@ -690,6 +683,13 @@ class instance_ulduar : public InstanceMapScript
                     case BOSS_FREYA:
                         if (state == DONE)
                             instance->SummonCreature(NPC_FREYA_OBSERVATION_RING, ObservationRingKeepersPos[0]);
+                        break;
+                    case BOSS_IRONBRANCH:
+                    case BOSS_STONEBARK:
+                    case BOSS_BRIGHTLEAF:
+                        if (GetBossState(BOSS_BRIGHTLEAF) == DONE && GetBossState(BOSS_IRONBRANCH) == DONE && GetBossState(BOSS_STONEBARK) == DONE && GetBossState(BOSS_FREYA) != DONE)
+                            if (Creature* trigger = instance->GetCreature(FreyaAchieveTriggerGUID))
+                                trigger->CastSpell(trigger, SPELL_LUMBERJACKED_CREDIT, true);
                         break;
                     case BOSS_KOLOGARN:
                         if (state == DONE)
