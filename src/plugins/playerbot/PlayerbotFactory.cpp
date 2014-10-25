@@ -6,7 +6,7 @@
 #include "PlayerbotAIConfig.h"
 #include "../../shared/DataStores/DBCStore.h"
 #include "../Miscellaneous/SharedDefines.h"
-#include "../Ahbot/AhBot.h"
+#include "../ahbot/AhBot.h"
 #include "../Entities/Pet/Pet.h"
 #include "RandomPlayerbotFactory.h"
 

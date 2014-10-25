@@ -1,7 +1,7 @@
 #include "../../../pchdef.h"
 #include "../../playerbot.h"
 #include "SuggestWhatToDoAction.h"
-#include "../../../Ahbot/AhBot.h"
+#include "../../../ahbot/AhBot.h"
 #include "../../PlayerbotAIConfig.h"
 
 using namespace ai;
