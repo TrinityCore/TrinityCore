@@ -404,7 +404,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
     _pointOfInterestLocaleStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, icon_name_loc1, icon_name_loc2, icon_name_loc3, icon_name_loc4, icon_name_loc5, icon_name_loc6, icon_name_loc7, icon_name_loc8 FROM locales_points_of_interest");
+    QueryResult result = WorldDatabase.Query("SELECT ID, Name_loc1, Name_loc2, Name_loc3, Name_loc4, Name_loc5, Name_loc6, Name_loc7, Name_loc8 FROM locales_points_of_interest");
 
     if (!result)
         return;
@@ -5174,8 +5174,8 @@ void ObjectMgr::LoadPageTexts()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0      1       2
-    QueryResult result = WorldDatabase.Query("SELECT entry, text, next_page FROM page_text");
+    //                                               0   1     2
+    QueryResult result = WorldDatabase.Query("SELECT ID, Text, NextPageID FROM page_text");
 
     if (!result)
     {
@@ -5190,8 +5190,8 @@ void ObjectMgr::LoadPageTexts()
 
         PageText& pageText = _pageTextStore[fields[0].GetUInt32()];
 
-        pageText.Text     = fields[1].GetString();
-        pageText.NextPage = fields[2].GetUInt32();
+        pageText.Text       = fields[1].GetString();
+        pageText.NextPageID = fields[2].GetUInt32();
 
         ++count;
     }
@@ -5199,11 +5199,11 @@ void ObjectMgr::LoadPageTexts()
 
     for (PageTextContainer::const_iterator itr = _pageTextStore.begin(); itr != _pageTextStore.end(); ++itr)
     {
-        if (itr->second.NextPage)
+        if (itr->second.NextPageID)
         {
-            PageTextContainer::const_iterator itr2 = _pageTextStore.find(itr->second.NextPage);
+            PageTextContainer::const_iterator itr2 = _pageTextStore.find(itr->second.NextPageID);
             if (itr2 == _pageTextStore.end())
-                TC_LOG_ERROR("sql.sql", "Page text (Id: %u) has not existing next page (Id: %u)", itr->first, itr->second.NextPage);
+                TC_LOG_ERROR("sql.sql", "Page text (ID: %u) has non-existing `NextPageID` (%u)", itr->first, itr->second.NextPageID);
 
         }
     }
@@ -5224,9 +5224,9 @@ void ObjectMgr::LoadPageTextLocales()
 {
     uint32 oldMSTime = getMSTime();
 
-    _pageTextLocaleStore.clear();                             // need for reload case
+    _pageTextLocaleStore.clear(); // needed for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, text_loc1, text_loc2, text_loc3, text_loc4, text_loc5, text_loc6, text_loc7, text_loc8 FROM locales_page_text");
+    QueryResult result = WorldDatabase.Query("SELECT ID, Text_loc1, Text_loc2, Text_loc3, Text_loc4, Text_loc5, Text_loc6, Text_loc7, Text_loc8 FROM locales_page_text");
 
     if (!result)
         return;
@@ -7247,8 +7247,8 @@ void ObjectMgr::LoadPointsOfInterest()
 
     uint32 count = 0;
 
-    //                                                  0   1  2   3      4     5       6
-    QueryResult result = WorldDatabase.Query("SELECT entry, x, y, icon, flags, data, icon_name FROM points_of_interest");
+    //                                               0   1          2          3     4      5           6
+    QueryResult result = WorldDatabase.Query("SELECT ID, PositionX, PositionY, Icon, Flags, Importance, Name FROM points_of_interest");
 
     if (!result)
     {
@@ -7263,17 +7263,17 @@ void ObjectMgr::LoadPointsOfInterest()
         uint32 point_id = fields[0].GetUInt32();
 
         PointOfInterest POI;
-        POI.entry = point_id;
-        POI.x = fields[1].GetFloat();
-        POI.y = fields[2].GetFloat();
-        POI.icon = fields[3].GetUInt32();
-        POI.flags = fields[4].GetUInt32();
-        POI.data = fields[5].GetUInt32();
-        POI.icon_name = fields[6].GetString();
+        POI.ID         = point_id;
+        POI.PositionX  = fields[1].GetFloat();
+        POI.PositionY  = fields[2].GetFloat();
+        POI.Icon       = fields[3].GetUInt32();
+        POI.Flags      = fields[4].GetUInt32();
+        POI.Importance = fields[5].GetUInt32();
+        POI.Name       = fields[6].GetString();
 
-        if (!Trinity::IsValidMapCoord(POI.x, POI.y))
+        if (!Trinity::IsValidMapCoord(POI.PositionX, POI.PositionY))
         {
-            TC_LOG_ERROR("sql.sql", "Table `points_of_interest` (Entry: %u) have invalid coordinates (X: %f Y: %f), ignored.", point_id, POI.x, POI.y);
+            TC_LOG_ERROR("sql.sql", "Table `points_of_interest` (ID: %u) have invalid coordinates (PositionX: %f PositionY: %f), ignored.", point_id, POI.PositionX, POI.PositionY);
             continue;
         }
 
@@ -8191,76 +8191,76 @@ void ObjectMgr::LoadMailLevelRewards()
     TC_LOG_INFO("server.loading", ">> Loaded %u level dependent mail rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel)
+void ObjectMgr::AddSpellToTrainer(uint32 ID, uint32 SpellID, uint32 MoneyCost, uint32 ReqSkillLine, uint32 ReqSkillRank, uint32 ReqLevel)
 {
-    if (entry >= TRINITY_TRAINER_START_REF)
+    if (ID >= TRINITY_TRAINER_START_REF)
         return;
 
-    CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
+    CreatureTemplate const* cInfo = GetCreatureTemplate(ID);
     if (!cInfo)
     {
-        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains entries for a non-existing creature template (Entry: %u), ignoring", entry);
+        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains entries for a non-existing creature template (ID: %u), ignoring", ID);
         return;
     }
 
     if (!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
     {
-        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains entries for a creature template (Entry: %u) without trainer flag, ignoring", entry);
+        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains entries for a creature template (ID: %u) without any trainer flag, ignoring", ID);
         return;
     }
 
-    SpellInfo const* spellinfo = sSpellMgr->GetSpellInfo(spell);
+    SpellInfo const* spellinfo = sSpellMgr->GetSpellInfo(SpellID);
     if (!spellinfo)
     {
-        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains an entry (Entry: %u) for a non-existing spell (Spell: %u), ignoring", entry, spell);
+        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains an ID (%u) for a non-existing spell (Spell: %u), ignoring", ID, SpellID);
         return;
     }
 
     if (!SpellMgr::IsSpellValid(spellinfo))
     {
-        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains an entry (Entry: %u) for a broken spell (Spell: %u), ignoring", entry, spell);
+        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains an ID (%u) for a broken spell (Spell: %u), ignoring", ID, SpellID);
         return;
     }
 
-    if (GetTalentSpellCost(spell))
+    if (GetTalentSpellCost(SpellID))
     {
-        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains an entry (Entry: %u) for a non-existing spell (Spell: %u) which is a talent, ignoring", entry, spell);
+        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains an ID (%u) for a non-existing spell (Spell: %u) which is a talent, ignoring", ID, SpellID);
         return;
     }
 
-    TrainerSpellData& data = _cacheTrainerSpellStore[entry];
+    TrainerSpellData& data = _cacheTrainerSpellStore[ID];
 
-    TrainerSpell& trainerSpell = data.spellList[spell];
-    trainerSpell.spell         = spell;
-    trainerSpell.spellCost     = spellCost;
-    trainerSpell.reqSkill      = reqSkill;
-    trainerSpell.reqSkillValue = reqSkillValue;
-    trainerSpell.reqLevel      = reqLevel;
+    TrainerSpell& trainerSpell = data.spellList[SpellID];
+    trainerSpell.SpellID       = SpellID;
+    trainerSpell.MoneyCost     = MoneyCost;
+    trainerSpell.ReqSkillLine  = ReqSkillLine;
+    trainerSpell.ReqSkillRank  = ReqSkillRank;
+    trainerSpell.ReqLevel      = ReqLevel;
 
-    if (!trainerSpell.reqLevel)
-        trainerSpell.reqLevel = spellinfo->SpellLevel;
+    if (!trainerSpell.ReqLevel)
+        trainerSpell.ReqLevel = spellinfo->SpellLevel;
 
     // calculate learned spell for profession case when stored cast-spell
-    trainerSpell.learnedSpell[0] = spell;
+    trainerSpell.ReqAbility[0] = SpellID;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (spellinfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
             continue;
-        if (trainerSpell.learnedSpell[0] == spell)
-            trainerSpell.learnedSpell[0] = 0;
+        if (trainerSpell.ReqAbility[0] == SpellID)
+            trainerSpell.ReqAbility[0] = 0;
         // player must be able to cast spell on himself
         if (spellinfo->Effects[i].TargetA.GetTarget() != 0 && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_TARGET_ALLY
             && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_TARGET_ANY && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER)
         {
-            TC_LOG_ERROR("sql.sql", "Table `npc_trainer` has spell %u for trainer entry %u with learn effect which has incorrect target type, ignoring learn effect!", spell, entry);
+            TC_LOG_ERROR("sql.sql", "Table `npc_trainer` has spell %u for trainer entry %u with learn effect which has incorrect target type, ignoring learn effect!", SpellID, ID);
             continue;
         }
 
-        trainerSpell.learnedSpell[i] = spellinfo->Effects[i].TriggerSpell;
+        trainerSpell.ReqAbility[i] = spellinfo->Effects[i].TriggerSpell;
 
-        if (trainerSpell.learnedSpell[i])
+        if (trainerSpell.ReqAbility[i])
         {
-            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainerSpell.learnedSpell[i]);
+            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainerSpell.ReqAbility[i]);
             if (learnedSpellInfo && learnedSpellInfo->IsProfession())
                 data.trainerType = 2;
         }
@@ -8276,9 +8276,9 @@ void ObjectMgr::LoadTrainerSpell()
     // For reload case
     _cacheTrainerSpellStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT b.entry, a.spell, a.spellcost, a.reqskill, a.reqskillvalue, a.reqlevel FROM npc_trainer AS a "
-                                             "INNER JOIN npc_trainer AS b ON a.entry = -(b.spell) "
-                                             "UNION SELECT * FROM npc_trainer WHERE spell > 0");
+    QueryResult result = WorldDatabase.Query("SELECT b.ID, a.SpellID, a.MoneyCost, a.ReqSkillLine, a.ReqSkillRank, a.Reqlevel FROM npc_trainer AS a "
+                                             "INNER JOIN npc_trainer AS b ON a.ID = -(b.SpellID) "
+                                             "UNION SELECT * FROM npc_trainer WHERE SpellID > 0");
 
     if (!result)
     {
@@ -8293,14 +8293,14 @@ void ObjectMgr::LoadTrainerSpell()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry         = fields[0].GetUInt32();
-        uint32 spell         = fields[1].GetUInt32();
-        uint32 spellCost     = fields[2].GetUInt32();
-        uint32 reqSkill      = fields[3].GetUInt16();
-        uint32 reqSkillValue = fields[4].GetUInt16();
-        uint32 reqLevel      = fields[5].GetUInt8();
+        uint32 ID           = fields[0].GetUInt32();
+        uint32 SpellID      = fields[1].GetUInt32();
+        uint32 MoneyCost    = fields[2].GetUInt32();
+        uint32 ReqSkillLine = fields[3].GetUInt16();
+        uint32 ReqSkillRank = fields[4].GetUInt16();
+        uint32 ReqLevel     = fields[5].GetUInt8();
 
-        AddSpellToTrainer(entry, spell, spellCost, reqSkill, reqSkillValue, reqLevel);
+        AddSpellToTrainer(ID, SpellID, MoneyCost, ReqSkillLine, ReqSkillRank, ReqLevel);
 
         ++count;
     }

@@ -861,9 +861,9 @@ public:
 
     static bool HandleReloadPageTextsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Page Texts...");
+        TC_LOG_INFO("misc", "Re-Loading Page Text...");
         sObjectMgr->LoadPageTexts();
-        handler->SendGlobalGMSysMessage("DB table `page_texts` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `page_text` reloaded.");
         return true;
     }
 
