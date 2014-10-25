@@ -484,7 +484,7 @@ DROP TABLE IF EXISTS `character_aura`;
 CREATE TABLE `character_aura` (
   `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `caster_guid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier',
-  `item_guid` binary(16) unsigned NOT NULL DEFAULT '0',
+  `item_guid` binary(16) NOT NULL DEFAULT '0',
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `effect_mask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `recalculate_mask` tinyint(3) unsigned NOT NULL DEFAULT '0',
