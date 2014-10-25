@@ -139,19 +139,11 @@ if( WIN32 )
   if ( MSVC )
 	add_custom_command(TARGET plugins
       POST_BUILD
-<<<<<<< HEAD
  	  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/aiplayerbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
     ) 
 	add_custom_command(TARGET plugins
       POST_BUILD
  	  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ahbot/ahbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-=======
- 	  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}playerbot/aiplayerbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-    ) 
-	add_custom_command(TARGET plugins
-      POST_BUILD
- 	  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}ahbot/ahbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
->>>>>>> 5848b6517d422bc8c752a0f1daf149b99a5f01fe
     )
   elseif ( MINGW )
     
