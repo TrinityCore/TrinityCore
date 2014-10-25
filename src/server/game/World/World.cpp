@@ -3244,7 +3244,7 @@ void World::LoadCharacterNameData()
     do
     {
         Field* fields = result->Fetch();
-        AddCharacterNameData(ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32()), fields[1].GetString(),
+        AddCharacterNameData(ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt64()), fields[1].GetString(),
             fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/);
         ++count;
     } while (result->NextRow());

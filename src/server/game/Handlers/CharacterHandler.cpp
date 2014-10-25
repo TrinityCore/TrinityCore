@@ -1553,13 +1553,16 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
     eqSet.IconName  = iconName;
     eqSet.state     = EQUIPMENT_SET_NEW;
 
+    ObjectGuid ignoredItemGuid;
+    ignoredItemGuid.SetRawValue(0, 1);
+
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         ObjectGuid itemGuid;
         recvData >> itemGuid.ReadAsPacked();
 
         // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuid == ObjectGuid(uint64(0), uint64(1)))
+        if (itemGuid == ignoredItemGuid)
         {
             // ignored slots saved as bit mask because we have no free special values for Items[i]
             eqSet.IgnoreMask |= 1 << i;
@@ -1594,6 +1597,8 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_USE");
 
+    ObjectGuid ignoredItemGuid;
+    ignoredItemGuid.SetRawValue(0, 1);
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         ObjectGuid itemGuid;
@@ -1605,7 +1610,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         TC_LOG_DEBUG("entities.player.items", "%s: srcbag %u, srcslot %u", itemGuid.ToString().c_str(), srcbag, srcslot);
 
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid == ObjectGuid(uint64(0), uint64(1)))
+        if (itemGuid == ignoredItemGuid)
             continue;
 
         // Only equip weapons in combat

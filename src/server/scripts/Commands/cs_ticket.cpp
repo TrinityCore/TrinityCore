@@ -153,7 +153,13 @@ public:
             return true;
         }
 
-        sTicketMgr->CloseTicket(ticket->GetId(), player ? player->GetGUID() : ObjectGuid(HIGHGUID_PLAYER, uint64(0), uint64(-1)));
+        ObjectGuid closedByGuid;
+        if (player)
+            closedByGuid = player->GetGUID();
+        else
+            closedByGuid.SetRawValue(0, uint64(-1));
+
+        sTicketMgr->CloseTicket(ticket->GetId(), closedByGuid);
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL, NULL);

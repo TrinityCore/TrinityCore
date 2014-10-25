@@ -5434,7 +5434,7 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
 
             if (guildBank)
             {
-                if (GetGuildId() == 0)
+                if (!GetGuildId())
                 {
                     TC_LOG_DEBUG("entities.player.items", "You are not member of a guild");
                     return TotalCost;
@@ -26413,6 +26413,8 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 
 void Player::SendEquipmentSetList()
 {
+    ObjectGuid ignoredItemGuid;
+    ignoredItemGuid.SetRawValue(0, 1);
     uint32 count = 0;
     WorldPacket data(SMSG_EQUIPMENT_SET_LIST, 4);
     size_t count_pos = data.wpos();
@@ -26429,7 +26431,7 @@ void Player::SendEquipmentSetList()
         {
             // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
             if (itr->second.IgnoreMask & (1 << i))
-                data << ObjectGuid(uint64(0), uint64(1));
+                data << ignoredItemGuid;
             else
                 data << ObjectGuid(HIGHGUID_ITEM, itr->second.Items[i]);
         }

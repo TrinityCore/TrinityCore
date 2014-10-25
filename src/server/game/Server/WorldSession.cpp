@@ -102,7 +102,7 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
-    m_GUIDLow(0),
+    m_GUIDLow(UI64LIT(0)),
     _player(NULL),
     m_Socket(sock),
     _security(sec),
