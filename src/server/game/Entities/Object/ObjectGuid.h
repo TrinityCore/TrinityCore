@@ -104,6 +104,7 @@ class ObjectGuid
 
         std::vector<uint8> GetRawValue() const;
         void SetRawValue(std::vector<uint8> const& guid);
+        void SetRawValue(uint64 high, uint64 low) { _high = high; _low = low; }
         void Clear() { _low = 0; }
 
         PackedGuid WriteAsPacked() const;

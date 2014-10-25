@@ -432,7 +432,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
 
     ObjectGuid inviteeGuid;
     uint32 inviteeTeam = 0;
-    uint32 inviteeGuildId = 0;
+    ObjectGuid::LowType inviteeGuildId = UI64LIT(0);
 
     recvData >> eventId >> inviteId >> name >> isPreInvite >> isGuildEvent;
 

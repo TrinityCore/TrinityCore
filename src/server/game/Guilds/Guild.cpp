@@ -2702,10 +2702,10 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
     // Player cannot be in guild
     if (player)
     {
-        if (player->GetGuildId() != 0)
+        if (player->GetGuildId())
             return false;
     }
-    else if (Player::GetGuildIdFromDB(guid) != 0)
+    else if (Player::GetGuildIdFromDB(guid))
         return false;
 
     // Remove all player signs from another petitions

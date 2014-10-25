@@ -43,7 +43,7 @@ void GuildMgr::SaveGuilds()
         itr->second->SaveToDB();
 }
 
-uint32 GuildMgr::GenerateGuildId()
+ObjectGuid::LowType GuildMgr::GenerateGuildId()
 {
     if (NextGuildId >= 0xFFFFFFFE)
     {
@@ -68,7 +68,7 @@ Guild* GuildMgr::GetGuildByGuid(ObjectGuid guid) const
     // Full guids are only used when receiving/sending data to client
     // everywhere else guild id is used
     if (guid.IsGuild())
-        if (uint32 guildId = guid.GetCounter())
+        if (ObjectGuid::LowType guildId = guid.GetCounter())
             return GetGuildById(guildId);
 
     return NULL;
