@@ -179,7 +179,7 @@ bool LfgAcceptAction::Execute(Event event)
     uint32 id = AI_VALUE(uint32, "lfg proposal");
     if (id)
     {
-        if (bot->IsInCombat())
+        if (bot->IsInCombat() || bot->isDead())
         {
             sLFGMgr->LeaveLfg(bot->GetGUID());
             return false;
@@ -189,13 +189,8 @@ bool LfgAcceptAction::Execute(Event event)
         if (urand(0, 1 + 10 / sPlayerbotAIConfig.randomChangeMultiplier))
             return false;
 
-        ai->Reset();
         if (sRandomPlayerbotMgr.IsRandomBot(bot) && !bot->GetGroup())
-        {
-            sRandomPlayerbotMgr.Refresh(bot);
-            ai->ResetStrategies();
             ai->ChangeStrategy("-grind", BOT_STATE_NON_COMBAT);
-        }
 
         sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s updated proposal %d", bot->GetName().c_str(), id);
         ai->GetAiObjectContext()->GetValue<uint32>("lfg proposal")->Set(0);
@@ -220,5 +215,16 @@ bool LfgLeaveAction::Execute(Event event)
         return false;
 
     sLFGMgr->LeaveLfg(bot->GetGUID());
+	return true;
+}
+
+bool LfgTeleportAction::Execute(Event event)
+{
+    WorldPacket p(event.getPacket());
+    p.rpos(0);
+    bool out;
+    p >> out;
+
+    sLFGMgr->TeleportPlayer(bot, out);
 	return true;
 }

@@ -62,6 +62,7 @@ namespace ai
             creators["lfg accept"] = &WorldPacketActionContext::lfg_accept;
             creators["lfg role check"] = &WorldPacketActionContext::lfg_role_check;
             creators["lfg leave"] = &WorldPacketActionContext::lfg_leave;
+            creators["lfg teleport"] = &WorldPacketActionContext::lfg_teleport;
             creators["security check"] = &WorldPacketActionContext::security_check;
             creators["guild accept"] = &WorldPacketActionContext::guild_accept;
         }
@@ -69,6 +70,7 @@ namespace ai
     private:
         static Action* guild_accept(PlayerbotAI* ai) { return new GuildAcceptAction(ai); }
         static Action* security_check(PlayerbotAI* ai) { return new SecurityCheckAction(ai); }
+        static Action* lfg_teleport(PlayerbotAI* ai) { return new LfgTeleportAction(ai); }
         static Action* lfg_leave(PlayerbotAI* ai) { return new LfgLeaveAction(ai); }
         static Action* lfg_accept(PlayerbotAI* ai) { return new LfgAcceptAction(ai); }
         static Action* lfg_role_check(PlayerbotAI* ai) { return new LfgRoleCheckAction(ai); }

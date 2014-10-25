@@ -36,6 +36,7 @@ class WorldPacketHandlerTestCase : public MockedAiObjectContextTestCase
       CPPUNIT_TEST( lfg_leave );
       CPPUNIT_TEST( security_check );
       CPPUNIT_TEST( guild_accept );
+      CPPUNIT_TEST( lfg_teleport );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -223,6 +224,7 @@ protected:
 
     void lfg()
     {
+        engine->addStrategy("lfg");
         trigger("no possible targets");
         tick();
 
@@ -261,6 +263,14 @@ protected:
         tick();
 
         assertActions(">S:guild accept");
+    }
+
+    void lfg_teleport()
+    {
+        trigger("lfg teleport");
+        tick();
+
+        assertActions(">S:lfg teleport");
     }
 
 };

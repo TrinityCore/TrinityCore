@@ -59,6 +59,7 @@ namespace ai
             creators["tell target"] = &StrategyContext::tell_target;
             creators["pvp"] = &StrategyContext::pvp;
             creators["move random"] = &StrategyContext::move_random;
+            creators["lfg"] = &StrategyContext::lfg;
         }
 
     private:
@@ -82,6 +83,7 @@ namespace ai
         static Strategy* ready_check(PlayerbotAI* ai) { return new ReadyCheckStrategy(ai); }
         static Strategy* pvp(PlayerbotAI* ai) { return new AttackEnemyPlayersStrategy(ai); }
         static Strategy* move_random(PlayerbotAI* ai) { return new MoveRandomStrategy(ai); }
+        static Strategy* lfg(PlayerbotAI* ai) { return new LfgStrategy(ai); }
     };
 
     class MovementStrategyContext : public NamedObjectContext<Strategy>
