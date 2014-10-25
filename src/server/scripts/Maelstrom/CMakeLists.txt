@@ -9,6 +9,13 @@
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Maelstrom/kezan.cpp
+  Maelstrom/Stonecore/instance_stonecore.cpp
+  Maelstrom/Stonecore/stonecore.cpp
+  Maelstrom/Stonecore/stonecore.h
+  Maelstrom/Stonecore/boss_corborus.cpp
+  Maelstrom/Stonecore/boss_slabhide.cpp
+  Maelstrom/Stonecore/boss_ozruk.cpp
+  Maelstrom/Stonecore/boss_high_priestess_azil.cpp
 )
 
 message("  -> Prepared: The Maelstrom")
