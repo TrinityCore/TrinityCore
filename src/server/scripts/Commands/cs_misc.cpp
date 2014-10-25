@@ -1479,7 +1479,7 @@ public:
         std::string zoneName    = handler->GetTrinityString(LANG_UNKNOWN);
 
         // Guild data print variables defined so that they exist, but are not necessarily used
-        uint32 guildId           = 0;
+        ObjectGuid::LowType guildId = 0;
         uint8 guildRankId        = 0;
         std::string guildName;
         std::string guildRank;
@@ -1624,19 +1624,19 @@ public:
         {
             Field* fields = result4->Fetch();
             xp            = fields[0].GetUInt32(); // Used for "current xp" output and "%u XP Left" calculation
-            uint32 gguid  = fields[1].GetUInt32(); // We check if have a guild for the person, so we might not require to query it at all
+            ObjectGuid::LowType gguid  = fields[1].GetUInt64(); // We check if have a guild for the person, so we might not require to query it at all
             xptotal = sObjectMgr->GetXPForLevel(level);
 
-            if (gguid != 0)
+            if (gguid)
             {
                 // Guild Data - an own query, because it may not happen.
                 PreparedStatement* stmt3 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER_EXTENDED);
-                stmt3->setUInt32(0, lowguid);
+                stmt3->setUInt64(0, lowguid);
                 PreparedQueryResult result5 = CharacterDatabase.Query(stmt3);
                 if (result5)
                 {
                     Field* fields5  = result5->Fetch();
-                    guildId         = fields5[0].GetUInt32();
+                    guildId         = fields5[0].GetUInt64();
                     guildName       = fields5[1].GetString();
                     guildRank       = fields5[2].GetString();
                     guildRankId     = fields5[3].GetUInt8();

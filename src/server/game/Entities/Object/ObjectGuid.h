@@ -96,7 +96,6 @@ class ObjectGuid
         typedef uint32 LowType;
 
         ObjectGuid() : _low(0), _high(0) { }
-        ObjectGuid(uint64 high, uint64 low) : _low(low), _high(high) { }
         ObjectGuid(HighGuid hi, uint32 entry, uint64 counter) : _low(counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0), _high(0) { }
         ObjectGuid(HighGuid hi, uint64 counter) : _low(counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0), _high(0) { }
         ObjectGuid(ObjectGuid const&) = default;

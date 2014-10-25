@@ -283,7 +283,7 @@ public:
     EmblemInfo() : m_style(0), m_color(0), m_borderStyle(0), m_borderColor(0), m_backgroundColor(0) { }
 
     void LoadFromDB(Field* fields);
-    void SaveToDB(uint32 guildId) const;
+    void SaveToDB(ObjectGuid::LowType guildId) const;
     void ReadPacket(WorldPacket& recv);
     void WritePacket(WorldPacket& data) const;
 
@@ -340,7 +340,7 @@ private:
     class Member
     {
     public:
-        Member(uint32 guildId, ObjectGuid guid, uint8 rankId) :
+        Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId) :
             m_guildId(guildId),
             m_guid(guid),
             m_zoneId(0),
@@ -416,7 +416,7 @@ private:
         inline Player* FindConnectedPlayer() const { return ObjectAccessor::FindConnectedPlayer(m_guid); }
 
     private:
-        uint32 m_guildId;
+        ObjectGuid::LowType m_guildId;
         // Fields from characters table
         ObjectGuid m_guid;
         std::string m_name;
@@ -445,8 +445,8 @@ private:
     class LogEntry
     {
     public:
-        LogEntry(uint32 guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::time(NULL)) { }
-        LogEntry(uint32 guildId, uint32 guid, time_t timestamp) : m_guildId(guildId), m_guid(guid), m_timestamp(timestamp) { }
+        LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::time(NULL)) { }
+        LogEntry(ObjectGuid::LowType guildId, uint32 guid, time_t timestamp) : m_guildId(guildId), m_guid(guid), m_timestamp(timestamp) { }
         virtual ~LogEntry() { }
 
         uint32 GetGUID() const { return m_guid; }
@@ -456,7 +456,7 @@ private:
         virtual void WritePacket(WorldPacket& data, ByteBuffer& content) const = 0;
 
     protected:
-        uint32 m_guildId;
+        ObjectGuid::LowType m_guildId;
         uint32 m_guid;
         uint64 m_timestamp;
     };
@@ -465,10 +465,10 @@ private:
     class EventLogEntry : public LogEntry
     {
     public:
-        EventLogEntry(uint32 guildId, uint32 guid, GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank) :
+        EventLogEntry(ObjectGuid::LowType guildId, uint32 guid, GuildEventLogTypes eventType, ObjectGuid::LowType playerGuid1, ObjectGuid::LowType playerGuid2, uint8 newRank) :
             LogEntry(guildId, guid), m_eventType(eventType), m_playerGuid1(playerGuid1), m_playerGuid2(playerGuid2), m_newRank(newRank) { }
 
-        EventLogEntry(uint32 guildId, uint32 guid, time_t timestamp, GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank) :
+        EventLogEntry(ObjectGuid::LowType guildId, uint32 guid, time_t timestamp, GuildEventLogTypes eventType, ObjectGuid::LowType playerGuid1, ObjectGuid::LowType playerGuid2, uint8 newRank) :
             LogEntry(guildId, guid, timestamp), m_eventType(eventType), m_playerGuid1(playerGuid1), m_playerGuid2(playerGuid2), m_newRank(newRank) { }
 
         ~EventLogEntry() { }
@@ -478,8 +478,8 @@ private:
 
     private:
         GuildEventLogTypes m_eventType;
-        uint32 m_playerGuid1;
-        uint32 m_playerGuid2;
+        ObjectGuid::LowType m_playerGuid1;
+        ObjectGuid::LowType m_playerGuid2;
         uint8  m_newRank;
     };
 
@@ -501,11 +501,11 @@ private:
             return IsMoneyEvent(m_eventType);
         }
 
-        BankEventLogEntry(uint32 guildId, uint32 guid, GuildBankEventLogTypes eventType, uint8 tabId, uint32 playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId) :
+        BankEventLogEntry(ObjectGuid::LowType guildId, uint32 guid, GuildBankEventLogTypes eventType, uint8 tabId, ObjectGuid::LowType playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId) :
             LogEntry(guildId, guid), m_eventType(eventType), m_bankTabId(tabId), m_playerGuid(playerGuid),
             m_itemOrMoney(itemOrMoney), m_itemStackCount(itemStackCount), m_destTabId(destTabId) { }
 
-        BankEventLogEntry(uint32 guildId, uint32 guid, time_t timestamp, uint8 tabId, GuildBankEventLogTypes eventType, uint32 playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId) :
+        BankEventLogEntry(ObjectGuid::LowType guildId, uint32 guid, time_t timestamp, uint8 tabId, GuildBankEventLogTypes eventType, ObjectGuid::LowType playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId) :
             LogEntry(guildId, guid, timestamp), m_eventType(eventType), m_bankTabId(tabId), m_playerGuid(playerGuid),
             m_itemOrMoney(itemOrMoney), m_itemStackCount(itemStackCount), m_destTabId(destTabId) { }
 
@@ -517,7 +517,7 @@ private:
     private:
         GuildBankEventLogTypes m_eventType;
         uint8  m_bankTabId;
-        uint32 m_playerGuid;
+        ObjectGuid::LowType m_playerGuid;
         uint64 m_itemOrMoney;
         uint16 m_itemStackCount;
         uint8  m_destTabId;
@@ -527,10 +527,10 @@ private:
     class NewsLogEntry : public LogEntry
     {
     public:
-        NewsLogEntry(uint32 guildId, uint32 guid, GuildNews type, ObjectGuid playerGuid, uint32 flags, uint32 value) :
+        NewsLogEntry(ObjectGuid::LowType guildId, uint32 guid, GuildNews type, ObjectGuid playerGuid, uint32 flags, uint32 value) :
             LogEntry(guildId, guid), m_type(type), m_playerGuid(playerGuid), m_flags(flags), m_value(value) { }
 
-        NewsLogEntry(uint32 guildId, uint32 guid, time_t timestamp, GuildNews type, ObjectGuid playerGuid, uint32 flags, uint32 value) :
+        NewsLogEntry(ObjectGuid::LowType guildId, uint32 guid, time_t timestamp, GuildNews type, ObjectGuid playerGuid, uint32 flags, uint32 value) :
             LogEntry(guildId, guid, timestamp), m_type(type), m_playerGuid(playerGuid), m_flags(flags), m_value(value) { }
 
         ~NewsLogEntry() { }
@@ -588,9 +588,9 @@ private:
     class RankInfo
     {
     public:
-        RankInfo(): m_guildId(0), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
-        RankInfo(uint32 guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
-        RankInfo(uint32 guildId, uint8 rankId, std::string const& name, uint32 rights, uint32 money) :
+        RankInfo(): m_guildId(UI64LIT(0)), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
+        RankInfo(ObjectGuid::LowType guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
+        RankInfo(ObjectGuid::LowType guildId, uint8 rankId, std::string const& name, uint32 rights, uint32 money) :
             m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights),
             m_bankMoneyPerDay(rankId != GR_GUILDMASTER ? money : GUILD_WITHDRAW_MONEY_UNLIMITED) { }
 
@@ -623,7 +623,7 @@ private:
         void CreateMissingTabsIfNeeded(uint8 ranks, SQLTransaction& trans, bool logOnCreate = false);
 
     private:
-        uint32 m_guildId;
+        ObjectGuid::LowType m_guildId;
         uint8  m_rankId;
         std::string m_name;
         uint32 m_rights;
@@ -634,7 +634,7 @@ private:
     class BankTab
     {
     public:
-        BankTab(uint32 guildId, uint8 tabId) : m_guildId(guildId), m_tabId(tabId)
+        BankTab(ObjectGuid::LowType guildId, uint8 tabId) : m_guildId(guildId), m_tabId(tabId)
         {
             memset(m_items, 0, GUILD_BANK_MAX_SLOTS * sizeof(Item*));
         }
@@ -663,7 +663,7 @@ private:
         bool SetItem(SQLTransaction& trans, uint8 slotId, Item* item);
 
     private:
-        uint32 m_guildId;
+        ObjectGuid::LowType m_guildId;
         uint8 m_tabId;
 
         Item* m_items[GUILD_BANK_MAX_SLOTS];
@@ -776,7 +776,7 @@ public:
     void SaveToDB();
 
     // Getters
-    uint32 GetId() const { return m_id; }
+    ObjectGuid::LowType GetId() const { return m_id; }
     ObjectGuid GetGUID() const { return ObjectGuid(HIGHGUID_GUILD, m_id); }
     ObjectGuid GetLeaderGUID() const { return m_leaderGuid; }
     std::string const& GetName() const { return m_name; }
@@ -894,7 +894,7 @@ public:
     void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player);
 
 protected:
-    uint32 m_id;
+    ObjectGuid::LowType m_id;
     std::string m_name;
     ObjectGuid m_leaderGuid;
     std::string m_motd;
@@ -958,10 +958,10 @@ private:
         return NULL;
     }
 
-    inline void _DeleteMemberFromDB(uint32 lowguid) const
+    inline void _DeleteMemberFromDB(ObjectGuid::LowType lowguid) const
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
-        stmt->setUInt32(0, lowguid);
+        stmt->setUInt64(0, lowguid);
         CharacterDatabase.Execute(stmt);
     }
 
@@ -993,8 +993,8 @@ private:
     void _UpdateMemberWithdrawSlots(SQLTransaction& trans, ObjectGuid guid, uint8 tabId);
     bool _MemberHasTabRights(ObjectGuid guid, uint8 tabId, uint32 rights) const;
 
-    void _LogEvent(GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2 = 0, uint8 newRank = 0);
-    void _LogBankEvent(SQLTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount = 0, uint8 destTabId = 0);
+    void _LogEvent(GuildEventLogTypes eventType, ObjectGuid::LowType playerGuid1, ObjectGuid::LowType playerGuid2 = UI64LIT(0), uint8 newRank = 0);
+    void _LogBankEvent(SQLTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, ObjectGuid::LowType playerGuid, uint64 itemOrMoney, uint16 itemStackCount = 0, uint8 destTabId = 0);
 
     Item* _GetItem(uint8 tabId, uint8 slotId) const;
     void _RemoveItem(SQLTransaction& trans, uint8 tabId, uint8 slotId);

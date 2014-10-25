@@ -530,11 +530,11 @@ void AchievementMgr<Guild>::DeleteFromDB(ObjectGuid guid)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GUILD_ACHIEVEMENTS);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GUILD_ACHIEVEMENT_CRITERIA);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -608,12 +608,12 @@ void AchievementMgr<Guild>::SaveToDB(SQLTransaction& trans)
             continue;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_ACHIEVEMENT);
-        stmt->setUInt32(0, GetOwner()->GetId());
+        stmt->setUInt64(0, GetOwner()->GetId());
         stmt->setUInt16(1, itr->first);
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_ACHIEVEMENT);
-        stmt->setUInt32(0, GetOwner()->GetId());
+        stmt->setUInt64(0, GetOwner()->GetId());
         stmt->setUInt16(1, itr->first);
         stmt->setUInt32(2, itr->second.date);
         for (GuidSet::const_iterator gItr = itr->second.guids.begin(); gItr != itr->second.guids.end(); ++gItr)
@@ -631,16 +631,16 @@ void AchievementMgr<Guild>::SaveToDB(SQLTransaction& trans)
             continue;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_ACHIEVEMENT_CRITERIA);
-        stmt->setUInt32(0, GetOwner()->GetId());
+        stmt->setUInt64(0, GetOwner()->GetId());
         stmt->setUInt16(1, itr->first);
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_ACHIEVEMENT_CRITERIA);
-        stmt->setUInt32(0, GetOwner()->GetId());
+        stmt->setUInt64(0, GetOwner()->GetId());
         stmt->setUInt16(1, itr->first);
         stmt->setUInt64(2, itr->second.counter);
         stmt->setUInt32(3, itr->second.date);
-        stmt->setUInt32(4, itr->second.CompletedGUID.GetCounter());
+        stmt->setUInt64(4, itr->second.CompletedGUID.GetCounter());
         trans->Append(stmt);
     }
 }
@@ -735,7 +735,7 @@ void AchievementMgr<Guild>::LoadFromDB(PreparedQueryResult achievementResult, Pr
             ca.date = time_t(fields[1].GetUInt32());
             Tokenizer guids(fields[2].GetString(), ' ');
             for (uint32 i = 0; i < guids.size(); ++i)
-                ca.guids.insert(ObjectGuid(HIGHGUID_PLAYER, uint32(atol(guids[i]))));
+                ca.guids.insert(ObjectGuid(HIGHGUID_PLAYER, uint64(strtoull(guids[i], nullptr, 10))));
 
             ca.changed = false;
 
@@ -753,7 +753,7 @@ void AchievementMgr<Guild>::LoadFromDB(PreparedQueryResult achievementResult, Pr
             uint32 id      = fields[0].GetUInt16();
             uint32 counter = fields[1].GetUInt32();
             time_t date    = time_t(fields[2].GetUInt32());
-            uint32 guid    = fields[3].GetUInt32();
+            ObjectGuid::LowType guid = fields[3].GetUInt64();
 
             AchievementCriteriaEntry const* criteria = sAchievementMgr->GetAchievementCriteria(id);
             if (!criteria)
