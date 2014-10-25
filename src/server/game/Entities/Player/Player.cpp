@@ -82,7 +82,8 @@
 #include "GameObjectAI.h"
 
 // Playerbot mod:
-#include "../../plugins/playerbot/playerbot.h"
+#include "../../../../plugins/playerbot/playerbot.h"
+#include "../../../../plugins/playerbot/GuildTaskMgr.h"
 
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -24037,6 +24038,9 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
 void Player::RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround)
 {
     KillRewarder(this, victim, isBattleGround).Reward();
+    // playerbot mod
+    sGuildTaskMgr.CheckKillTask(this, victim);
+    // end of playerbot mod
 }
 
 void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource)

@@ -52,6 +52,7 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
     uint32 activeTask = GetTaskValue(owner, guildId, "activeTask");
     if (!activeTask)
     {
+        SetTaskValue(owner, guildId, "killTask", 0, 0);
         SetTaskValue(owner, guildId, "itemTask", 0, 0);
         SetTaskValue(owner, guildId, "itemCount", 0, 0);
         SetTaskValue(owner, guildId, "killTask", 0, 0);
@@ -133,11 +134,6 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
 
 uint32 GuildTaskMgr::CreateTask(uint32 owner, uint32 guildId)
 {
-    if (CreateItemTask(owner, guildId))
-        return GUILD_TASK_TYPE_ITEM;
-
-    return GUILD_TASK_TYPE_NONE;
-    /*
     switch (urand(0, 1))
     {
     case 0:
@@ -146,7 +142,7 @@ uint32 GuildTaskMgr::CreateTask(uint32 owner, uint32 guildId)
     default:
         CreateKillTask(owner, guildId);
         return GUILD_TASK_TYPE_KILL;
-    }*/
+    }
 }
 
 bool GuildTaskMgr::CreateItemTask(uint32 owner, uint32 guildId)
@@ -219,7 +215,40 @@ bool GuildTaskMgr::CreateItemTask(uint32 owner, uint32 guildId)
 
 bool GuildTaskMgr::CreateKillTask(uint32 owner, uint32 guildId)
 {
-    return false;
+    Player* player = sObjectMgr->GetPlayerByLowGUID(owner);
+    if (!player)
+        return false;
+
+    vector<uint32> ids;
+    CreatureTemplateContainer const* creatureTemplateContainer = sObjectMgr->GetCreatureTemplates();
+    for (CreatureTemplateContainer::const_iterator i = creatureTemplateContainer->begin(); i != creatureTemplateContainer->end(); ++i)
+    {
+        CreatureTemplate const& co = i->second;
+        if (co.rank != CREATURE_ELITE_RARE)
+            continue;
+
+        if (co.minlevel > player->getLevel() || co.maxlevel < player->getLevel() - 5)
+            continue;
+
+        ids.push_back(i->first);
+    }
+
+    if (ids.empty())
+    {
+        sLog->outMessage("gtask", LOG_LEVEL_ERROR, "%s / %s: no rare creatures available for kill task",
+                sGuildMgr->GetGuildById(guildId)->GetName().c_str(), player->GetName().c_str());
+        return false;
+    }
+
+    uint32 index = urand(0, ids.size() - 1);
+    uint32 creatureId = ids[index];
+
+    sLog->outMessage("gtask", LOG_LEVEL_DEBUG, "%s / %s: kill task %u",
+            sGuildMgr->GetGuildById(guildId)->GetName().c_str(), player->GetName().c_str(),
+            creatureId);
+
+    SetTaskValue(owner, guildId, "killTask", creatureId, sPlayerbotAIConfig.maxGuildTaskChangeTime);
+    return true;
 }
 
 bool GuildTaskMgr::SendAdvertisement(uint32 owner, uint32 guildId)
@@ -238,33 +267,71 @@ bool GuildTaskMgr::SendAdvertisement(uint32 owner, uint32 guildId)
 
     uint32 itemTask = GetTaskValue(owner, guildId, "itemTask");
     if (itemTask)
-    {
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemTask);
-        if (!proto)
-            return false;
+        return SendItemAdvertisement(itemTask, owner, guildId);
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        ostringstream body;
-        body << "Hello, " << player->GetName() << ",\n";
-        body << "\n";
-        body << "We are in a great need of " << proto->Name1 << ". If you could sell us ";
-        uint32 count = GetTaskValue(owner, guildId, "itemCount");
-        if (count > 1)
-            body << "at least " << count << " of them ";
-        else
-            body << "some ";
-        body << "we'd really appreciate that and pay a high price.\n";
-        body << "\n";
-        body << "Best Regards,\n";
-        body << guild->GetName() << "\n";
-        body << leader->GetName() << "\n";
-        MailDraft("Guild Task Advertisement", body.str()).SendMailTo(trans, MailReceiver(player), MailSender(leader));
-        CharacterDatabase.CommitTransaction(trans);
-
-        return true;
-    }
+    uint32 killTask = GetTaskValue(owner, guildId, "killTask");
+    if (killTask)
+        return SendKillAdvertisement(killTask, owner, guildId);
 
     return false;
+}
+
+bool GuildTaskMgr::SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 guildId)
+{
+    Guild *guild = sGuildMgr->GetGuildById(guildId);
+    Player* player = sObjectMgr->GetPlayerByLowGUID(owner);
+    Player* leader = sObjectMgr->GetPlayerByLowGUID(guild->GetLeaderGUID());
+
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
+    if (!proto)
+        return false;
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    ostringstream body;
+    body << "Hello, " << player->GetName() << ",\n";
+    body << "\n";
+    body << "We are in a great need of " << proto->Name1 << ". If you could sell us ";
+    uint32 count = GetTaskValue(owner, guildId, "itemCount");
+    if (count > 1)
+        body << "at least " << count << " of them ";
+    else
+        body << "some ";
+    body << "we'd really appreciate that and pay a high price.\n";
+    body << "\n";
+    body << "Best Regards,\n";
+    body << guild->GetName() << "\n";
+    body << leader->GetName() << "\n";
+    MailDraft("Guild Task Advertisement", body.str()).SendMailTo(trans, MailReceiver(player), MailSender(leader));
+    CharacterDatabase.CommitTransaction(trans);
+
+    return true;
+}
+
+
+bool GuildTaskMgr::SendKillAdvertisement(uint32 creatureId, uint32 owner, uint32 guildId)
+{
+    Guild *guild = sGuildMgr->GetGuildById(guildId);
+    Player* player = sObjectMgr->GetPlayerByLowGUID(owner);
+    Player* leader = sObjectMgr->GetPlayerByLowGUID(guild->GetLeaderGUID());
+
+    CreatureTemplate const* proto = sObjectMgr->GetCreatureTemplate(creatureId);
+    if (!proto)
+        return false;
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    ostringstream body;
+    body << "Hello, " << player->GetName() << ",\n";
+    body << "\n";
+    body << "As you probably know " << proto->Name << " is wanted dead for the crimes it did against our guild. If you should kill it ";
+    body << "we'd really appreciate that.\n";
+    body << "\n";
+    body << "Best Regards,\n";
+    body << guild->GetName() << "\n";
+    body << leader->GetName() << "\n";
+    MailDraft("Guild Task Advertisement", body.str()).SendMailTo(trans, MailReceiver(player), MailSender(leader));
+    CharacterDatabase.CommitTransaction(trans);
+
+    return true;
 }
 
 bool GuildTaskMgr::SendThanks(uint32 owner, uint32 guildId)
@@ -343,6 +410,34 @@ bool GuildTaskMgr::IsGuildTaskItem(uint32 itemId, uint32 guildId)
     }
 
     return value;
+}
+
+map<uint32,uint32> GuildTaskMgr::GetTaskValues(uint32 owner, string type, uint32 *validIn /* = NULL */)
+{
+    map<uint32,uint32> result;
+
+    QueryResult results = CharacterDatabase.PQuery(
+            "select `value`, `time`, validIn, guildid from ai_playerbot_guild_tasks where owner = '%u' and `type` = '%s'",
+            owner, type.c_str());
+
+    if (!results)
+        return result;
+
+    do
+    {
+        Field* fields = results->Fetch();
+        uint32 value = fields[0].GetUInt32();
+        uint32 lastChangeTime = fields[1].GetUInt32();
+        uint32 secs = fields[2].GetUInt32();
+        uint32 guildId = fields[3].GetUInt32();
+        if ((time(0) - lastChangeTime) >= secs)
+            value = 0;
+
+        result[guildId] = value;
+
+    } while (results->NextRow());
+
+    return result;
 }
 
 uint32 GuildTaskMgr::GetTaskValue(uint32 owner, uint32 guildId, string type, uint32 *validIn /* = NULL */)
@@ -523,73 +618,112 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
         return false;
 
     uint32 itemTask = GetTaskValue(owner, guildId, "itemTask");
+    uint32 killTask = GetTaskValue(owner, guildId, "killTask");
+    if (!itemTask && !killTask)
+        return false;
+
+    ostringstream body;
+    body << "Hello, " << player->GetName() << ",\n";
+    body << "\n";
+
     if (itemTask)
     {
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemTask);
         if (!proto)
             return false;
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        ostringstream body;
-        body << "Hello, " << player->GetName() << ",\n";
-        body << "\n";
         body << "We wish to thank you for the " << proto->Name1 << " you provided so kindly. We really appreciate this and may this small gift bring you our thanks!\n";
         body << "\n";
         body << "Many thanks,\n";
         body << guild->GetName() << "\n";
         body << leader->GetName() << "\n";
-
-        vector<uint32> items;
-        ItemTemplateContainer const* itemTemplates = sObjectMgr->GetItemTemplateStore();
-        for (ItemTemplateContainer::const_iterator i = itemTemplates->begin(); i != itemTemplates->end(); ++i)
-        {
-            uint32 itemId = i->first;
-            ItemTemplate const* proto = &i->second;
-            if (!proto)
-                continue;
-
-            if (proto->Bonding == BIND_WHEN_PICKED_UP ||
-                    proto->Bonding == BIND_QUEST_ITEM ||
-                    proto->Bonding == BIND_WHEN_USE)
-                continue;
-
-            if (proto->Quality < ITEM_QUALITY_RARE)
-                continue;
-
-            if (proto->RequiredLevel > sAhBotConfig.maxRequiredLevel || proto->ItemLevel > sAhBotConfig.maxItemLevel)
-                continue;
-
-            if (proto->Duration & 0x80000000)
-                continue;
-
-            if (sAhBotConfig.ignoreItemIds.find(proto->ItemId) != sAhBotConfig.ignoreItemIds.end())
-                continue;
-
-            if (strstri(proto->Name1.c_str(), "qa") || strstri(proto->Name1.c_str(), "test") || strstri(proto->Name1.c_str(), "deprecated"))
-                continue;
-
-            items.push_back(itemId);
-        }
-
-        if (items.empty())
-        {
-            sLog->outMessage("gtask", LOG_LEVEL_ERROR, "%s / %s: no items available for item task",
-                    sGuildMgr->GetGuildById(guildId)->GetName().c_str(), player->GetName().c_str());
+    }
+    else if (killTask)
+    {
+        CreatureTemplate const* proto = sObjectMgr->GetCreatureTemplate(killTask);
+        if (!proto)
             return false;
-        }
 
-        uint32 index = urand(0, items.size() - 1);
-        uint32 itemId = items[index];
-
-        Item* item = Item::CreateItem(itemId, 1, leader);
-        MailDraft("Thank You", body.str()).
-                AddItem(item).
-                AddMoney(GetTaskValue(owner, guildId, "payment")).
-                SendMailTo(trans, MailReceiver(player), MailSender(leader));
-        CharacterDatabase.CommitTransaction(trans);
-
-        return true;
+        body << "We wish to thank you for the " << proto->Name << " you've killed recently. We really appreciate this and may this small gift bring you our thanks!\n";
+        body << "\n";
+        body << "Many thanks,\n";
+        body << guild->GetName() << "\n";
+        body << leader->GetName() << "\n";
     }
 
-    return false;
+    vector<uint32> items;
+    ItemTemplateContainer const* itemTemplates = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator i = itemTemplates->begin(); i != itemTemplates->end(); ++i)
+    {
+        uint32 itemId = i->first;
+        ItemTemplate const* proto = &i->second;
+        if (!proto)
+            continue;
+
+        if (proto->Bonding == BIND_WHEN_PICKED_UP ||
+                proto->Bonding == BIND_QUEST_ITEM ||
+                proto->Bonding == BIND_WHEN_USE)
+            continue;
+
+        if (proto->Quality < ITEM_QUALITY_RARE)
+            continue;
+
+        if (proto->RequiredLevel > sAhBotConfig.maxRequiredLevel || proto->ItemLevel > sAhBotConfig.maxItemLevel)
+            continue;
+
+        if (proto->Duration & 0x80000000)
+            continue;
+
+        if (sAhBotConfig.ignoreItemIds.find(proto->ItemId) != sAhBotConfig.ignoreItemIds.end())
+            continue;
+
+        if (strstri(proto->Name1.c_str(), "qa") || strstri(proto->Name1.c_str(), "test") || strstri(proto->Name1.c_str(), "deprecated"))
+            continue;
+
+        items.push_back(itemId);
+    }
+
+    if (items.empty())
+    {
+        sLog->outMessage("gtask", LOG_LEVEL_ERROR, "%s / %s: no items available for guild task reward",
+                sGuildMgr->GetGuildById(guildId)->GetName().c_str(), player->GetName().c_str());
+        return false;
+    }
+
+    uint32 index = urand(0, items.size() - 1);
+    uint32 itemId = items[index];
+
+    Item* item = Item::CreateItem(itemId, 1, leader);
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    MailDraft("Thank You", body.str()).
+            AddItem(item).
+            AddMoney(GetTaskValue(owner, guildId, "payment")).
+            SendMailTo(trans, MailReceiver(player), MailSender(leader));
+    CharacterDatabase.CommitTransaction(trans);
+
+    return true;
+}
+
+void GuildTaskMgr::CheckKillTask(Player* player, Unit* victim)
+{
+    uint32 owner = player->GetGUIDLow();
+    Creature* creature = victim->ToCreature();
+    if (!creature)
+        return;
+
+    map<uint32,uint32> tasks = GetTaskValues(owner, "killTask");
+    for (map<uint32,uint32>::iterator i = tasks.begin(); i != tasks.end(); ++i)
+    {
+        uint32 guildId = i->first;
+        uint32 value = i->second;
+        Guild* guild = sGuildMgr->GetGuildById(guildId);
+
+        if (value != creature->GetCreatureTemplate()->Entry)
+            continue;
+
+        sLog->outMessage("gtask", LOG_LEVEL_DEBUG, "%s / %s: guild task complete",
+                guild->GetName().c_str(), player->GetName().c_str());
+        SetTaskValue(owner, guildId, "reward", 1,
+                urand(sPlayerbotAIConfig.minGuildTaskRewardTime, sPlayerbotAIConfig.maxGuildTaskRewardTime));
+    }
 }
