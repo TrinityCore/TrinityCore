@@ -1675,7 +1675,7 @@ DROP TABLE IF EXISTS `group_member`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `group_member` (
   `guid` int(10) unsigned NOT NULL,
-  `memberGuid` int(10) unsigned NOT NULL,
+  `memberGuid` bigint(20) unsigned NOT NULL,
   `memberFlags` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `subgroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `roles` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -1701,9 +1701,9 @@ DROP TABLE IF EXISTS `groups`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `groups` (
   `guid` int(10) unsigned NOT NULL,
-  `leaderGuid` int(10) unsigned NOT NULL,
+  `leaderGuid` bigint(20) unsigned NOT NULL,
   `lootMethod` tinyint(3) unsigned NOT NULL,
-  `looterGuid` int(10) unsigned NOT NULL,
+  `looterGuid` bigint(20) unsigned NOT NULL,
   `lootThreshold` tinyint(3) unsigned NOT NULL,
   `icon1` binary(16) NOT NULL,
   `icon2` binary(16) NOT NULL,
@@ -1716,7 +1716,7 @@ CREATE TABLE `groups` (
   `groupType` tinyint(3) unsigned NOT NULL,
   `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `raiddifficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `masterLooterGuid` int(10) unsigned NOT NULL,
+  `masterLooterGuid` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`guid`),
   KEY `leaderGuid` (`leaderGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups';
@@ -1739,9 +1739,9 @@ DROP TABLE IF EXISTS `guild`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild` (
-  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guildid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `name` varchar(24) NOT NULL DEFAULT '',
-  `leaderguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `leaderguid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `EmblemStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `EmblemColor` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `BorderStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -1775,7 +1775,7 @@ DROP TABLE IF EXISTS `guild_achievement`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_achievement` (
-  `guildId` int(10) unsigned NOT NULL,
+  `guildId` bigint(20) unsigned NOT NULL,
   `achievement` smallint(5) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   `guids` text NOT NULL,
@@ -1800,11 +1800,11 @@ DROP TABLE IF EXISTS `guild_achievement_progress`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_achievement_progress` (
-  `guildId` int(10) unsigned NOT NULL,
+  `guildId` bigint(20) unsigned NOT NULL,
   `criteria` smallint(5) unsigned NOT NULL,
   `counter` bigint(20) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
-  `completedGuid` int(10) unsigned NOT NULL DEFAULT '0',
+  `completedGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildId`,`criteria`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1826,12 +1826,12 @@ DROP TABLE IF EXISTS `guild_bank_eventlog`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_bank_eventlog` (
-  `guildid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild Identificator',
+  `guildid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild Identificator',
   `LogGuid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Log record identificator - auxiliary column',
   `TabId` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild bank TabId',
   `EventType` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Event type',
-  `PlayerGuid` int(10) unsigned NOT NULL DEFAULT '0',
-  `ItemOrMoney` int(10) unsigned NOT NULL DEFAULT '0',
+  `PlayerGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `ItemOrMoney` bigint(20) unsigned NOT NULL DEFAULT '0',
   `ItemStackCount` smallint(5) unsigned NOT NULL DEFAULT '0',
   `DestTabId` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Destination Tab Id',
   `TimeStamp` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Event UNIX time',
@@ -1859,10 +1859,10 @@ DROP TABLE IF EXISTS `guild_bank_item`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_bank_item` (
-  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guildid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `TabId` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `SlotId` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `item_guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `item_guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`TabId`,`SlotId`),
   KEY `guildid_key` (`guildid`),
   KEY `Idx_item_guid` (`item_guid`)
@@ -1886,7 +1886,7 @@ DROP TABLE IF EXISTS `guild_bank_right`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_bank_right` (
-  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guildid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `TabId` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `rid` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `gbright` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -1913,7 +1913,7 @@ DROP TABLE IF EXISTS `guild_bank_tab`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_bank_tab` (
-  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guildid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `TabId` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `TabName` varchar(16) NOT NULL DEFAULT '',
   `TabIcon` varchar(100) NOT NULL DEFAULT '',
@@ -1940,11 +1940,11 @@ DROP TABLE IF EXISTS `guild_eventlog`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_eventlog` (
-  `guildid` int(10) unsigned NOT NULL COMMENT 'Guild Identificator',
+  `guildid` bigint(20) unsigned NOT NULL COMMENT 'Guild Identificator',
   `LogGuid` int(10) unsigned NOT NULL COMMENT 'Log record identificator - auxiliary column',
   `EventType` tinyint(3) unsigned NOT NULL COMMENT 'Event type',
-  `PlayerGuid1` int(10) unsigned NOT NULL COMMENT 'Player 1',
-  `PlayerGuid2` int(10) unsigned NOT NULL COMMENT 'Player 2',
+  `PlayerGuid1` bigint(20) unsigned NOT NULL COMMENT 'Player 1',
+  `PlayerGuid2` bigint(20) unsigned NOT NULL COMMENT 'Player 2',
   `NewRank` tinyint(3) unsigned NOT NULL COMMENT 'New rank(in case promotion/demotion)',
   `TimeStamp` int(10) unsigned NOT NULL COMMENT 'Event UNIX time',
   PRIMARY KEY (`guildid`,`LogGuid`),
@@ -1971,8 +1971,8 @@ DROP TABLE IF EXISTS `guild_finder_applicant`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_finder_applicant` (
-  `guildId` int(10) unsigned DEFAULT NULL,
-  `playerGuid` int(10) unsigned DEFAULT NULL,
+  `guildId` bigint(20) unsigned DEFAULT NULL,
+  `playerGuid` bigint(20) unsigned DEFAULT NULL,
   `availability` tinyint(3) unsigned DEFAULT '0',
   `classRole` tinyint(3) unsigned DEFAULT '0',
   `interests` tinyint(3) unsigned DEFAULT '0',
@@ -1999,7 +1999,7 @@ DROP TABLE IF EXISTS `guild_finder_guild_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_finder_guild_settings` (
-  `guildId` int(10) unsigned NOT NULL,
+  `guildId` bigint(20) unsigned NOT NULL,
   `availability` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `classRoles` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `interests` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2027,8 +2027,8 @@ DROP TABLE IF EXISTS `guild_member`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_member` (
-  `guildid` int(10) unsigned NOT NULL COMMENT 'Guild Identificator',
-  `guid` int(10) unsigned NOT NULL,
+  `guildid` bigint(20) unsigned NOT NULL COMMENT 'Guild Identificator',
+  `guid` bigint(20) unsigned NOT NULL,
   `rank` tinyint(3) unsigned NOT NULL,
   `pnote` varchar(31) NOT NULL DEFAULT '',
   `offnote` varchar(31) NOT NULL DEFAULT '',
@@ -2055,7 +2055,7 @@ DROP TABLE IF EXISTS `guild_member_withdraw`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_member_withdraw` (
-  `guid` int(10) unsigned NOT NULL,
+  `guid` bigint(20) unsigned NOT NULL,
   `tab0` int(10) unsigned NOT NULL DEFAULT '0',
   `tab1` int(10) unsigned NOT NULL DEFAULT '0',
   `tab2` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2086,10 +2086,10 @@ DROP TABLE IF EXISTS `guild_newslog`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_newslog` (
-  `guildid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild Identificator',
+  `guildid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild Identificator',
   `LogGuid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Log record identificator - auxiliary column',
   `EventType` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Event type',
-  `PlayerGuid` int(10) unsigned NOT NULL DEFAULT '0',
+  `PlayerGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `Flags` int(10) unsigned NOT NULL DEFAULT '0',
   `Value` int(10) unsigned NOT NULL DEFAULT '0',
   `TimeStamp` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Event UNIX time',
@@ -2117,7 +2117,7 @@ DROP TABLE IF EXISTS `guild_rank`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_rank` (
-  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guildid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `rid` tinyint(3) unsigned NOT NULL,
   `rname` varchar(20) NOT NULL DEFAULT '',
   `rights` mediumint(8) unsigned NOT NULL DEFAULT '0',

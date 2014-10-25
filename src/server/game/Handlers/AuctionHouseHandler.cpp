@@ -285,7 +285,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
     AuctionEntry* AH = new AuctionEntry();
 
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
-        AH->auctioneer = 23442;     ///@TODO - HARDCODED DB GUID, BAD BAD BAD
+        AH->auctioneer = UI64LIT(23442);     ///@TODO - HARDCODED DB GUID, BAD BAD BAD
     else
         AH->auctioneer = auctioneer.GetCounter();
 
@@ -304,7 +304,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->itemCount = item->GetCount();
         AH->owner = _player->GetGUID().GetCounter();
         AH->startbid = bid;
-        AH->bidder = 0;
+        AH->bidder = UI64LIT(0);
         AH->bid = 0;
         AH->buyout = buyout;
         AH->expire_time = time(NULL) + auctionTime;
@@ -352,7 +352,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->itemCount = newItem->GetCount();
         AH->owner = _player->GetGUID().GetCounter();
         AH->startbid = bid;
-        AH->bidder = 0;
+        AH->bidder = UI64LIT(0);
         AH->bid = 0;
         AH->buyout = buyout;
         AH->expire_time = time(NULL) + auctionTime;

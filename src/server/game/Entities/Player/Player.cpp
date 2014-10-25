@@ -732,7 +732,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     duel = NULL;
 
-    m_GuildIdInvited = 0;
+    m_GuildIdInvited = UI64LIT(0);
     m_ArenaTeamIdInvited = 0;
 
     m_atLoginFlags = AT_LOGIN_NONE;
@@ -1979,7 +1979,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer)
     float x = fields[10].GetFloat();
     float y = fields[11].GetFloat();
     float z = fields[12].GetFloat();
-    uint32 guildId = fields[13].GetUInt32();
+    uint32 guildId = fields[13].GetUInt64();
     ObjectGuid guildGuid;
     if (guildId)
         guildGuid = ObjectGuid(HIGHGUID_GUILD, guildId);
@@ -4678,7 +4678,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
     // the player was uninvited already on logout so just remove from group
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-    stmt->setUInt32(0, guid);
+    stmt->setUInt64(0, guid);
     PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
 
     if (resultGroup)
@@ -4917,12 +4917,12 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_EVENTLOG_BY_PLAYER);
-            stmt->setUInt32(0, guid);
-            stmt->setUInt32(1, guid);
+            stmt->setUInt64(0, guid);
+            stmt->setUInt64(1, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_BANK_EVENTLOG_BY_PLAYER);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
@@ -7588,7 +7588,7 @@ void Player::UpdateConquestCurrencyCap(uint32 currency)
     }
 }
 
-void Player::SetInGuild(uint32 guildId)
+void Player::SetInGuild(ObjectGuid::LowType guildId)
 {
     if (guildId)
         SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid(HIGHGUID_GUILD, guildId));
@@ -7599,12 +7599,12 @@ void Player::SetInGuild(uint32 guildId)
     SetUInt16Value(OBJECT_FIELD_TYPE, 1, guildId != 0);
 }
 
-uint32 Player::GetGuildIdFromDB(ObjectGuid guid)
+ObjectGuid::LowType Player::GetGuildIdFromDB(ObjectGuid guid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-        return result->Fetch()[0].GetUInt32();
+        return result->Fetch()[0].GetUInt64();
 
     return 0;
 }
@@ -7612,7 +7612,7 @@ uint32 Player::GetGuildIdFromDB(ObjectGuid guid)
 uint8 Player::GetRankFromDB(ObjectGuid guid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         return result->Fetch()[1].GetUInt8();
 

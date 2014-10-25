@@ -181,7 +181,7 @@ void GroupMgr::LoadGroups()
             Group* group = GetGroupByDbStoreId(fields[0].GetUInt32());
 
             if (group)
-                group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8());
+                group->LoadMemberFromDB(fields[1].GetUInt64(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8());
             else
                 TC_LOG_ERROR("misc", "GroupMgr::LoadGroups: Consistency failed, can't find group (storage id: %u)", fields[0].GetUInt32());
 
