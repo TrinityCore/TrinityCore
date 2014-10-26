@@ -533,7 +533,7 @@ CREATE TABLE `creature_template` (
   `unit_flags` int(10) unsigned NOT NULL DEFAULT '0',
   `unit_flags2` int(10) unsigned NOT NULL DEFAULT '0',
   `dynamicflags` int(10) unsigned NOT NULL DEFAULT '0',
-  `family` tinyint(4) NOT NULL DEFAULT '0',
+  `family` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `trainer_type` tinyint(4) NOT NULL DEFAULT '0',
   `trainer_class` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `trainer_race` tinyint(3) unsigned NOT NULL DEFAULT '0',
