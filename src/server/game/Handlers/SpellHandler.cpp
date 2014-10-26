@@ -654,7 +654,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         Player* player = creator->ToPlayer();
         Guild* guild = NULL;
 
-        if (uint32 guildId = player->GetGuildId())
+        if (ObjectGuid::LowType guildId = player->GetGuildId())
             guild = sGuildMgr->GetGuildById(guildId);
 
         data << uint8(player->GetByteValue(PLAYER_BYTES, 0));   // skin

@@ -606,7 +606,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
     {
         Field* fields = result->Fetch();
 
-        friendGuid = ObjectGuid(HIGHGUID_PLAYER, 0, fields[0].GetUInt32());
+        friendGuid = ObjectGuid(HIGHGUID_PLAYER, 0, fields[0].GetUInt64());
         team = Player::TeamForRace(fields[1].GetUInt8());
         friendAccountId = fields[2].GetUInt32();
 

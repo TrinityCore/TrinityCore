@@ -195,7 +195,7 @@ class LootTemplate;
 
 typedef std::vector<QuestItem> QuestItemList;
 typedef std::vector<LootItem> LootItemList;
-typedef std::map<uint32, QuestItemList*> QuestItemMap;
+typedef std::map<ObjectGuid::LowType, QuestItemList*> QuestItemMap;
 typedef std::list<LootStoreItem*> LootStoreItemList;
 typedef std::unordered_map<uint32, LootTemplate*> LootTemplateMap;
 

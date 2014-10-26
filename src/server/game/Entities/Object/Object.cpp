@@ -114,7 +114,7 @@ void Object::_InitValues()
     m_objectUpdated = false;
 }
 
-void Object::_Create(uint32 guidlow, uint32 entry, HighGuid guidhigh)
+void Object::_Create(ObjectGuid::LowType guidlow, uint32 entry, HighGuid guidhigh)
 {
     if (!m_uint32Values) _InitValues();
 
@@ -1353,7 +1353,7 @@ void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
         transport->RemovePassenger(this);
 }
 
-void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
+void WorldObject::_Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32 phaseMask)
 {
     Object::_Create(guidlow, 0, guidhigh);
     m_phaseMask = phaseMask;
@@ -2222,7 +2222,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, 0, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
+    if (!summon->Create(sObjectMgr->GetGenerator<HIGHGUID_UNIT>()->Generate(), this, 0, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
     {
         delete summon;
         return NULL;
@@ -2320,7 +2320,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
 
     Map* map = GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
+    if (!go->Create(sObjectMgr->GetGenerator<HIGHGUID_GAMEOBJECT>()->Generate(), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
         delete go;
         return NULL;

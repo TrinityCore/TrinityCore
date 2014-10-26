@@ -92,9 +92,8 @@ Group::~Group()
 bool Group::Create(Player* leader)
 {
     ObjectGuid leaderGuid = leader->GetGUID();
-    uint32 lowguid = sGroupMgr->GenerateGroupId();
 
-    m_guid = ObjectGuid(HIGHGUID_GROUP, lowguid);
+    m_guid = ObjectGuid(HIGHGUID_GROUP, sGroupMgr->GenerateGroupId());
     m_leaderGuid = leaderGuid;
     m_leaderName = leader->GetName();
     leader->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
@@ -164,14 +163,14 @@ void Group::LoadGroupFromDB(Field* fields)
 {
     m_dbStoreId = fields[16].GetUInt32();
     m_guid = ObjectGuid(HIGHGUID_GROUP, sGroupMgr->GenerateGroupId());
-    m_leaderGuid = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32());
+    m_leaderGuid = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt64());
 
     // group leader not exist
     if (!sObjectMgr->GetPlayerNameByGUID(m_leaderGuid, m_leaderName))
         return;
 
     m_lootMethod = LootMethod(fields[1].GetUInt8());
-    m_looterGuid = ObjectGuid(HIGHGUID_PLAYER, fields[2].GetUInt32());
+    m_looterGuid = ObjectGuid(HIGHGUID_PLAYER, fields[2].GetUInt64());
     m_lootThreshold = ItemQualities(fields[3].GetUInt8());
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
@@ -193,7 +192,7 @@ void Group::LoadGroupFromDB(Field* fields)
     else
        m_raidDifficulty = Difficulty(r_diff);
 
-    m_masterLooterGuid = ObjectGuid(HIGHGUID_PLAYER, fields[15].GetUInt32());
+    m_masterLooterGuid = ObjectGuid(HIGHGUID_PLAYER, fields[15].GetUInt64());
 
     if (m_groupType & GROUPTYPE_LFG)
         sLFGMgr->_LoadFromDB(fields, GetGUID());
@@ -565,7 +564,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
         if (!isBGGroup() && !isBFGroup())
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_MEMBER);
-            stmt->setUInt32(0, guid.GetCounter());
+            stmt->setUInt64(0, guid.GetCounter());
             CharacterDatabase.Execute(stmt);
             DelinkMember(guid);
         }
@@ -959,7 +958,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         //roll for over-threshold item if it's one-player loot
         if (item->Quality >= uint32(m_lootThreshold))
         {
-            ObjectGuid newitemGUID = ObjectGuid(HIGHGUID_ITEM, sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM));
+            ObjectGuid newitemGUID = ObjectGuid(HIGHGUID_ITEM, sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->Generate());
             Roll* r = new Roll(newitemGUID, *i);
 
             //a vector is filled with only near party members
@@ -1043,7 +1042,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
             continue;
         }
 
-        ObjectGuid newitemGUID = ObjectGuid(HIGHGUID_ITEM, sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM));
+        ObjectGuid newitemGUID = ObjectGuid(HIGHGUID_ITEM, sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->Generate());
         Roll* r = new Roll(newitemGUID, *i);
 
         //a vector is filled with only near party members
@@ -1104,7 +1103,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
         //roll for over-threshold item if it's one-player loot
         if (item->Quality >= uint32(m_lootThreshold))
         {
-            ObjectGuid newitemGUID = ObjectGuid(HIGHGUID_ITEM, sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM));
+            ObjectGuid newitemGUID = ObjectGuid(HIGHGUID_ITEM, sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->Generate());
             Roll* r = new Roll(newitemGUID, *i);
 
             for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
@@ -1179,7 +1178,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
             continue;
 
         item = sObjectMgr->GetItemTemplate(i->itemid);
-        ObjectGuid newitemGUID = ObjectGuid(HIGHGUID_ITEM, sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM));
+        ObjectGuid newitemGUID = ObjectGuid(HIGHGUID_ITEM, sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->Generate());
         Roll* r = new Roll(newitemGUID, *i);
 
         for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
@@ -2264,11 +2263,6 @@ ObjectGuid Group::GetLeaderGUID() const
 ObjectGuid Group::GetGUID() const
 {
     return m_guid;
-}
-
-uint32 Group::GetLowGUID() const
-{
-    return m_guid.GetCounter();
 }
 
 char const* Group::GetLeaderName() const

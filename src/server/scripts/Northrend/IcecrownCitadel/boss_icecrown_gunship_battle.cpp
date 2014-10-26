@@ -1000,7 +1000,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                             Talk(SAY_SAURFANG_INTRO_2);
                             break;
                         case EVENT_INTRO_SUMMON_SKYBREAKER:
-                            sTransportMgr->CreateTransport(GO_THE_SKYBREAKER_H, 0, me->GetMap());
+                            sTransportMgr->CreateTransport(GO_THE_SKYBREAKER_H, UI64LIT(0), me->GetMap());
                             break;
                         case EVENT_INTRO_H_3:
                             Talk(SAY_SAURFANG_INTRO_3);
@@ -1270,7 +1270,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                             Talk(SAY_MURADIN_INTRO_2);
                             break;
                         case EVENT_INTRO_SUMMON_ORGRIMS_HAMMER:
-                            sTransportMgr->CreateTransport(GO_ORGRIMS_HAMMER_A, 0, me->GetMap());
+                            sTransportMgr->CreateTransport(GO_ORGRIMS_HAMMER_A, UI64LIT(0), me->GetMap());
                             break;
                         case EVENT_INTRO_A_3:
                             Talk(SAY_MURADIN_INTRO_3);

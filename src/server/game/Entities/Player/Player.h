@@ -1270,7 +1270,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSummonPoint(uint32 mapid, float x, float y, float z);
         void SummonIfPossible(bool agree);
 
-        bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
+        bool Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo);
 
         void Update(uint32 time) override;
 
@@ -1674,7 +1674,6 @@ class Player : public Unit, public GridObject<Player>
         bool LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder);
         bool IsLoading() const override;
 
-        void Initialize(uint32 guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
         static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
@@ -1741,7 +1740,7 @@ class Player : public Unit, public GridObject<Player>
         void ClearComboPoints();
         void SendComboPoints();
 
-        void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, uint32 item_guid = 0, uint32 item_count = 0);
+        void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, ObjectGuid::LowType item_guid = UI64LIT(0), uint32 item_count = 0);
         void SendNewMail();
         void UpdateNextMailTimeAndUnreads();
         void AddNewMailDeliverTime(time_t deliver_time);
@@ -1765,13 +1764,13 @@ class Player : public Unit, public GridObject<Player>
         uint8 unReadMails;
         time_t m_nextMailDelivereTime;
 
-        typedef std::unordered_map<uint32, Item*> ItemMap;
+        typedef std::unordered_map<ObjectGuid::LowType, Item*> ItemMap;
 
         ItemMap mMitems;                                    //template defined in objectmgr.cpp
 
-        Item* GetMItem(uint32 id);
+        Item* GetMItem(ObjectGuid::LowType id);
         void AddMItem(Item* it);
-        bool RemoveMItem(uint32 id);
+        bool RemoveMItem(ObjectGuid::LowType id);
 
         void SendOnCancelExpectedVehicleRideAura();
         void PetSpellInitialize();

@@ -55,11 +55,11 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        bool Create(uint32 guidlow, Map* map);
-        bool Create(uint32 guidlow, Player* owner);
+        bool Create(ObjectGuid::LowType guidlow, Map* map);
+        bool Create(ObjectGuid::LowType guidlow, Player* owner);
 
         void SaveToDB();
-        bool LoadCorpseFromDB(uint32 guid, Field* fields);
+        bool LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields);
 
         void DeleteBonesFromWorld();
         void DeleteFromDB(SQLTransaction& trans);

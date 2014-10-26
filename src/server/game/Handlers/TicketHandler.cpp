@@ -241,7 +241,7 @@ void WorldSession::HandleReportLag(WorldPacket& recvData)
     recvData >> z;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LAG_REPORT);
-    stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
+    stmt->setUInt64(0, GetPlayer()->GetGUID().GetCounter());
     stmt->setUInt8 (1, lagType);
     stmt->setUInt16(2, mapId);
     stmt->setFloat (3, x);

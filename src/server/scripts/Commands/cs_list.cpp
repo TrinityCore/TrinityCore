@@ -109,7 +109,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -235,9 +235,9 @@ public:
             do
             {
                 Field* fields                   = result->Fetch();
-                uint32 itemGuid                 = fields[0].GetUInt32();
-                uint32 itemSender               = fields[1].GetUInt32();
-                uint32 itemReceiver             = fields[2].GetUInt32();
+                ObjectGuid::LowType itemGuid    = fields[0].GetUInt64();
+                ObjectGuid::LowType itemSender  = fields[1].GetUInt64();
+                ObjectGuid::LowType itemReceiver = fields[2].GetUInt64();
                 uint32 itemSenderAccountId      = fields[3].GetUInt32();
                 std::string itemSenderName      = fields[4].GetString();
                 uint32 itemReceiverAccount      = fields[5].GetUInt32();
@@ -398,7 +398,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -476,7 +476,7 @@ public:
         if (!*args)
             return false;
 
-        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atol((char*)args)));
+        ObjectGuid parseGUID(HIGHGUID_PLAYER, strtoull(args, nullptr, 10));
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
         {
@@ -487,7 +487,7 @@ public:
             return false;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_COUNT);
-        stmt->setUInt32(0, targetGuid.GetCounter());
+        stmt->setUInt64(0, targetGuid.GetCounter());
         PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
         if (queryResult)
         {
@@ -499,7 +499,7 @@ public:
             handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
-            stmt->setUInt32(0, targetGuid.GetCounter());
+            stmt->setUInt64(0, targetGuid.GetCounter());
             PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
 
             if (queryResult)
@@ -508,9 +508,9 @@ public:
                 {
                     Field* queryFields      = queryResult->Fetch();
                     uint32 messageId        = queryFields[0].GetUInt32();
-                    uint32 senderId         = queryFields[1].GetUInt32();
+                    ObjectGuid::LowType senderId = queryFields[1].GetUInt64();
                     std::string sender      = queryFields[2].GetString();
-                    uint32 receiverId       = queryFields[3].GetUInt32();
+                    ObjectGuid::LowType receiverId = queryFields[3].GetUInt64();
                     std::string receiver    = queryFields[4].GetString();
                     std::string subject     = queryFields[5].GetString();
                     uint64 deliverTime      = queryFields[6].GetUInt32();
@@ -536,7 +536,7 @@ public:
                             {
                                 uint32 item_guid = (*result2)[0].GetUInt32();
                                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_ITEMS);
-                                stmt->setUInt32(0, item_guid);
+                                stmt->setUInt64(0, item_guid);
                                 PreparedQueryResult result3 = CharacterDatabase.Query(stmt);
                                 if (result3)
                                 {

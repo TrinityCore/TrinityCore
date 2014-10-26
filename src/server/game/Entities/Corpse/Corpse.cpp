@@ -61,14 +61,14 @@ void Corpse::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
-bool Corpse::Create(uint32 guidlow, Map* map)
+bool Corpse::Create(ObjectGuid::LowType guidlow, Map* map)
 {
     SetMap(map);
     Object::_Create(guidlow, 0, HIGHGUID_CORPSE);
     return true;
 }
 
-bool Corpse::Create(uint32 guidlow, Player* owner)
+bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
 {
     ASSERT(owner);
 
@@ -157,12 +157,11 @@ void Corpse::DeleteFromDB(SQLTransaction& trans)
     trans->Append(stmt);
 }
 
-bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
+bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 {
     //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15         16
     // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, phaseMask, corpseGuid, guid FROM corpse WHERE corpseType <> 0
 
-    uint32 ownerGuid = fields[16].GetUInt32();
     float posX   = fields[0].GetFloat();
     float posY   = fields[1].GetFloat();
     float posZ   = fields[2].GetFloat();
@@ -177,7 +176,7 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
     SetUInt32Value(CORPSE_FIELD_BYTES_2, fields[8].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[9].GetUInt8());
     SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[10].GetUInt8());
-    SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid(HIGHGUID_PLAYER, ownerGuid));
+    SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid(HIGHGUID_PLAYER, fields[16].GetUInt64()));
 
     m_time = time_t(fields[11].GetUInt32());
 

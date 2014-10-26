@@ -259,7 +259,7 @@ Item::Item()
     m_paidExtendedCost = 0;
 }
 
-bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
+bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner)
 {
     Object::_Create(guidlow, 0, HIGHGUID_ITEM);
 
@@ -329,9 +329,9 @@ void Item::SaveToDB(SQLTransaction& trans)
             uint8 index = 0;
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(uState == ITEM_NEW ? CHAR_REP_ITEM_INSTANCE : CHAR_UPD_ITEM_INSTANCE);
             stmt->setUInt32(  index, GetEntry());
-            stmt->setUInt32(++index, GetOwnerGUID().GetCounter());
-            stmt->setUInt32(++index, GetGuidValue(ITEM_FIELD_CREATOR).GetCounter());
-            stmt->setUInt32(++index, GetGuidValue(ITEM_FIELD_GIFTCREATOR).GetCounter());
+            stmt->setUInt64(++index, GetOwnerGUID().GetCounter());
+            stmt->setUInt64(++index, GetGuidValue(ITEM_FIELD_CREATOR).GetCounter());
+            stmt->setUInt64(++index, GetGuidValue(ITEM_FIELD_GIFTCREATOR).GetCounter());
             stmt->setUInt32(++index, GetCount());
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_DURATION));
 
@@ -355,7 +355,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
-            stmt->setUInt32(++index, GetGUID().GetCounter());
+            stmt->setUInt64(++index, GetGUID().GetCounter());
 
             trans->Append(stmt);
 
@@ -371,7 +371,7 @@ void Item::SaveToDB(SQLTransaction& trans)
         case ITEM_REMOVED:
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-            stmt->setUInt32(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUID().GetCounter());
             trans->Append(stmt);
 
             if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
@@ -423,8 +423,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         SetOwnerGUID(owner_guid);
 
     bool need_save = false;                                 // need explicit save data at load fixes
-    SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32()));
-    SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid(HIGHGUID_PLAYER, fields[1].GetUInt32()));
+    SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt64()));
+    SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid(HIGHGUID_PLAYER, fields[1].GetUInt64()));
     SetCount(fields[2].GetUInt32());
 
     uint32 duration = fields[3].GetUInt32();
@@ -475,7 +475,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         stmt->setUInt32(0, GetUInt32Value(ITEM_FIELD_DURATION));
         stmt->setUInt32(1, GetUInt32Value(ITEM_FIELD_FLAGS));
         stmt->setUInt32(2, GetUInt32Value(ITEM_FIELD_DURABILITY));
-        stmt->setUInt32(3, guid);
+        stmt->setUInt64(3, guid);
         CharacterDatabase.Execute(stmt);
     }
 
@@ -483,10 +483,10 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
 }
 
 /*static*/
-void Item::DeleteFromDB(SQLTransaction& trans, uint32 itemGuid)
+void Item::DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-    stmt->setUInt32(0, itemGuid);
+    stmt->setUInt64(0, itemGuid);
     trans->Append(stmt);
 }
 
@@ -1040,7 +1040,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
         ASSERT(count != 0 && "pProto->Stackable == 0 but checked at loading already");
 
         Item* item = NewItemOrBag(proto);
-        if (item->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), itemEntry, player))
+        if (item->Create(sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->Generate(), itemEntry, player))
         {
             item->SetCount(count);
             return item;
@@ -1102,12 +1102,12 @@ void Item::SaveRefundDataToDB()
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_REFUND_INSTANCE);
-    stmt->setUInt32(0, GetGUID().GetCounter());
-    stmt->setUInt32(1, GetRefundRecipient().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(1, GetRefundRecipient().GetCounter());
     stmt->setUInt32(2, GetPaidMoney());
     stmt->setUInt16(3, uint16(GetPaidExtendedCost()));
     trans->Append(stmt);
@@ -1120,7 +1120,7 @@ void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
     if (trans)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-        stmt->setUInt32(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, GetGUID().GetCounter());
         (*trans)->Append(stmt);
 
     }
@@ -1199,7 +1199,7 @@ void Item::ClearSoulboundTradeable(Player* currentOwner)
     allowedGUIDs.clear();
     SetState(ITEM_CHANGED, currentOwner);
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_BOP_TRADE);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     CharacterDatabase.Execute(stmt);
 }
 
@@ -1528,11 +1528,11 @@ void Item::ItemContainerSaveLootToDB()
     if (loot.gold > 0)
     {
         PreparedStatement* stmt_money = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
-        stmt_money->setUInt32(0, loot.containerID.GetCounter());
+        stmt_money->setUInt64(0, loot.containerID.GetCounter());
         trans->Append(stmt_money);
 
         stmt_money = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_MONEY);
-        stmt_money->setUInt32(0, loot.containerID.GetCounter());
+        stmt_money->setUInt64(0, loot.containerID.GetCounter());
         stmt_money->setUInt32(1, loot.gold);
         trans->Append(stmt_money);
     }
@@ -1541,7 +1541,7 @@ void Item::ItemContainerSaveLootToDB()
     if (!loot.isLooted())
     {
         PreparedStatement* stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
-        stmt_items->setUInt32(0, loot.containerID.GetCounter());
+        stmt_items->setUInt64(0, loot.containerID.GetCounter());
         trans->Append(stmt_items);
 
         // Now insert the items
@@ -1563,7 +1563,7 @@ void Item::ItemContainerSaveLootToDB()
             stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
 
             // container_id, item_id, item_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, rnd_suffix
-            stmt_items->setUInt32(0, loot.containerID.GetCounter());
+            stmt_items->setUInt64(0, loot.containerID.GetCounter());
             stmt_items->setUInt32(1, _li->itemid);
             stmt_items->setUInt32(2, _li->count);
             stmt_items->setBool(3, _li->follow_loot_rules);
@@ -1592,7 +1592,7 @@ bool Item::ItemContainerLoadLootFromDB()
 
     // First, see if there was any money loot. This gets added directly to the container.
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_MONEY);
-    stmt->setUInt32(0, loot.containerID.GetCounter());
+    stmt->setUInt64(0, loot.containerID.GetCounter());
     PreparedQueryResult money_result = CharacterDatabase.Query(stmt);
 
     if (money_result)
@@ -1603,7 +1603,7 @@ bool Item::ItemContainerLoadLootFromDB()
 
     // Next, load any items that were saved
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
-    stmt->setUInt32(0, loot.containerID.GetCounter());
+    stmt->setUInt64(0, loot.containerID.GetCounter());
     PreparedQueryResult item_result = CharacterDatabase.Query(stmt);
 
     if (item_result)
@@ -1662,7 +1662,7 @@ void Item::ItemContainerDeleteLootItemsFromDB()
 {
     // Deletes items associated with an openable item from the DB
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     CharacterDatabase.Execute(stmt);
 }
 
@@ -1670,7 +1670,7 @@ void Item::ItemContainerDeleteLootItemFromDB(uint32 itemID)
 {
     // Deletes a single item associated with an openable item from the DB
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     stmt->setUInt32(1, itemID);
     CharacterDatabase.Execute(stmt);
 }
@@ -1679,7 +1679,7 @@ void Item::ItemContainerDeleteLootMoneyFromDB()
 {
     // Deletes the money loot associated with an openable item from the DB
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     CharacterDatabase.Execute(stmt);
 }
 

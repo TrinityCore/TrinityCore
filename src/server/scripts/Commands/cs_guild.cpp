@@ -160,7 +160,7 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid))
             return false;
 
-        uint32 guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid);
+        ObjectGuid::LowType guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid);
         if (!guildId)
             return false;
 
@@ -186,7 +186,7 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &target_name))
             return false;
 
-        uint32 guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid);
+        ObjectGuid::LowType guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid);
         if (!guildId)
             return false;
 
@@ -254,15 +254,9 @@ public:
         if (args && args[0] != '\0')
         {
             if (isNumeric(args))
-            {
-                uint32 guildId = uint32(atoi(args));
-                guild = sGuildMgr->GetGuildById(guildId);
-            }
+                guild = sGuildMgr->GetGuildById(strtoull(args, nullptr, 10));
             else
-            {
-                std::string guildName = args;
-                guild = sGuildMgr->GetGuildByName(guildName);
-            }
+                guild = sGuildMgr->GetGuildByName(args);
         }
         else if (Player* target = handler->getSelectedPlayerOrSelf())
             guild = target->GetGuild();

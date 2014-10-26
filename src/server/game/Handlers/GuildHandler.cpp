@@ -93,8 +93,8 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_DECLINE [%s]", GetPlayerInfo().c_str());
 
-    GetPlayer()->SetGuildIdInvited(0);
-    GetPlayer()->SetInGuild(0);
+    GetPlayer()->SetGuildIdInvited(UI64LIT(0));
+    GetPlayer()->SetInGuild(UI64LIT(0));
 }
 
 void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)

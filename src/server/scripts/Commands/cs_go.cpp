@@ -135,7 +135,7 @@ public:
         float z = fields[2].GetFloat();
         float o = fields[3].GetFloat();
         uint32 mapId = fields[4].GetUInt16();
-        uint32 guid = fields[5].GetUInt32();
+        ObjectGuid::LowType guid = fields[5].GetUInt64();
         uint32 id = fields[6].GetUInt32();
 
         Transport* transport = NULL;
@@ -278,7 +278,7 @@ public:
         if (!id)
             return false;
 
-        int32 guid = atoi(id);
+        ObjectGuid::LowType guid = strtoull(id, nullptr, 10);
         if (!guid)
             return false;
 

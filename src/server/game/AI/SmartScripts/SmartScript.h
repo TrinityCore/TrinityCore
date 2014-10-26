@@ -118,7 +118,7 @@ class SmartScript
                 smart = false;
 
             if (!smart)
-                TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: %u Entry: %u) is not using SmartAI, action called by Creature (GUID: %u Entry: %u) skipped to prevent crash.", c ? c->GetDBTableGUIDLow() : 0, c ? c->GetEntry() : 0, me ? me->GetDBTableGUIDLow() : 0, me ? me->GetEntry() : 0);
+                TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: " UI64FMTD " Entry: %u) is not using SmartAI, action called by Creature (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", uint64(c ? c->GetDBTableGUIDLow() : UI64LIT(0)), c ? c->GetEntry() : 0, uint64(me ? me->GetDBTableGUIDLow() : UI64LIT(0)), me ? me->GetEntry() : 0);
 
             return smart;
         }
@@ -132,7 +132,7 @@ class SmartScript
             if (!go || go->GetAIName() != "SmartGameObjectAI")
                 smart = false;
             if (!smart)
-                TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: %u Entry: %u) is not using SmartGameObjectAI, action called by GameObject (GUID: %u Entry: %u) skipped to prevent crash.", g ? g->GetDBTableGUIDLow() : 0, g ? g->GetEntry() : 0, go ? go->GetDBTableGUIDLow() : 0, go ? go->GetEntry() : 0);
+                TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: " UI64FMTD " Entry: %u) is not using SmartGameObjectAI, action called by GameObject (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", uint64(g ? g->GetDBTableGUIDLow() : UI64LIT(0)), g ? g->GetEntry() : 0, uint64(go ? go->GetDBTableGUIDLow() : UI64LIT(0)), go ? go->GetEntry() : 0);
 
             return smart;
         }
@@ -145,7 +145,7 @@ class SmartScript
             return NULL;
         }
 
-        GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
+        GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
         {
             GameObject* gameObject = NULL;
 
@@ -161,7 +161,7 @@ class SmartScript
             return gameObject;
         }
 
-        Creature* FindCreatureNear(WorldObject* searchObject, uint32 guid) const
+        Creature* FindCreatureNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
         {
             Creature* creature = NULL;
             CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));

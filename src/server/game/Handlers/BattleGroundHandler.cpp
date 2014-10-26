@@ -72,7 +72,7 @@ void WorldSession::SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTy
 
 void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 {
-    ObjectGuid::LowType bgTypeId_;
+    uint32 bgTypeId_;
     uint32 instanceId;
     uint8 asGroup;
     bool isPremade = false;
@@ -100,7 +100,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[1]);
 
     //extract from guid
-    bgTypeId_ = guid.GetCounter();
+    bgTypeId_ = uint64(guid.GetCounter()) & 0xFFFFFFFF;
 
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {

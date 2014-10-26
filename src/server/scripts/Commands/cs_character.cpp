@@ -909,11 +909,11 @@ public:
             guidStr = strtok(NULL, " ");
         }
 
-        uint32 guid = 0;
+        ObjectGuid::LowType guid = UI64LIT(0);
 
         if (guidStr)
         {
-            guid = uint32(atoi(guidStr));
+            guid = strtoull(guidStr, nullptr, 10);
             if (!guid)
             {
                 handler->PSendSysMessage(LANG_INVALID_CHARACTER_GUID);
@@ -969,7 +969,7 @@ public:
         ObjectGuid guid;
         // character name can't start from number
         if (isNumeric(playerStr))
-            guid = ObjectGuid(HIGHGUID_PLAYER, uint32(atoi(playerStr)));
+            guid = ObjectGuid(HIGHGUID_PLAYER, strtoull(playerStr, nullptr, 10));
         else
         {
             std::string name = handler->extractPlayerNameFromLink(playerStr);
@@ -990,7 +990,7 @@ public:
             return false;
         }
 
-        switch (PlayerDumpWriter().WriteDump(fileStr, uint32(guid.GetCounter())))
+        switch (PlayerDumpWriter().WriteDump(fileStr, guid.GetCounter()))
         {
             case DUMP_SUCCESS:
                 handler->PSendSysMessage(LANG_COMMAND_EXPORT_SUCCESS);

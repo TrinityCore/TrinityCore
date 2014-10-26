@@ -54,7 +54,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_goInfo = NULL;
     m_goData = NULL;
 
-    m_DBTableGuid = 0;
+    m_DBTableGuid = UI64LIT(0);
     m_rotation = 0;
 
     m_groupLootTimer = 0;
@@ -162,7 +162,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 /*phaseMask*/, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
+bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 /*phaseMask*/, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
 {
     ASSERT(map);
     SetMap(map);
@@ -798,11 +798,11 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     uint8 index = 0;
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
-    stmt->setUInt32(0, m_DBTableGuid);
+    stmt->setUInt64(0, m_DBTableGuid);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GAMEOBJECT);
-    stmt->setUInt32(index++, m_DBTableGuid);
+    stmt->setUInt64(index++, m_DBTableGuid);
     stmt->setUInt32(index++, GetEntry());
     stmt->setUInt16(index++, uint16(mapid));
     stmt->setUInt8(index++, spawnMask);
@@ -823,7 +823,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     WorldDatabase.CommitTransaction(trans);
 }
 
-bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
+bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap)
 {
     GameObjectData const* data = sObjectMgr->GetGOData(guid);
 
@@ -851,7 +851,8 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
     uint32 artKit = data->artKit;
 
     m_DBTableGuid = guid;
-    if (map->GetInstanceId() != 0) guid = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    if (map->GetInstanceId() != 0)
+        guid = sObjectMgr->GetGenerator<HIGHGUID_GAMEOBJECT>()->Generate();
 
     if (!Create(guid, entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
         return false;
@@ -911,13 +912,13 @@ void GameObject::DeleteFromDB()
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
 
-    stmt->setUInt32(0, m_DBTableGuid);
+    stmt->setUInt64(0, m_DBTableGuid);
 
     WorldDatabase.Execute(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_EVENT_GAMEOBJECT);
 
-    stmt->setUInt32(0, m_DBTableGuid);
+    stmt->setUInt64(0, m_DBTableGuid);
 
     WorldDatabase.Execute(stmt);
 }
@@ -1172,7 +1173,7 @@ void GameObject::SetGoArtKit(uint8 kit)
         data->artKit = kit;
 }
 
-void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid)
+void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid)
 {
     const GameObjectData* data = NULL;
     if (go)

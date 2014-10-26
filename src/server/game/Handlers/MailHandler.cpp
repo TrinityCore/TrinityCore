@@ -215,7 +215,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         receiverTeam = sObjectMgr->GetPlayerTeamByGUID(receiverGuid);
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
-        stmt->setUInt32(0, receiverGuid.GetCounter());
+        stmt->setUInt64(0, receiverGuid.GetCounter());
 
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
         if (result)
@@ -510,7 +510,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 {
     ObjectGuid mailbox;
     uint32 mailId;
-    uint32 itemId;
+    ObjectGuid::LowType itemId;
     recvData >> mailbox;
     recvData >> mailId;
     recvData >> itemId;                                    // item guid low
@@ -692,7 +692,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
         uint8 item_count = (*itr)->items.size();            // max count is MAX_MAIL_ITEMS (12)
 
-        size_t next_mail_size = 2+4+1+((*itr)->messageType == MAIL_NORMAL ? 8 : 4)+4*8+((*itr)->subject.size()+1)+((*itr)->body.size()+1)+1+item_count*(1+4+4+MAX_INSPECTED_ENCHANTMENT_SLOT*3*4+4+4+4+4+4+4+1);
+        size_t next_mail_size = 2+4+1+((*itr)->messageType == MAIL_NORMAL ? 8 : 4)+4*8+((*itr)->subject.size()+1)+((*itr)->body.size()+1)+1+item_count*(1+8+4+MAX_INSPECTED_ENCHANTMENT_SLOT*3*4+4+4+4+4+4+4+1);
 
         if (data.wpos()+next_mail_size > maxPacketSize)
         {
@@ -734,7 +734,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
             // item index (0-6?)
             data << uint8(i);
             // item guid low?
-            data << uint32((item ? item->GetGUID().GetCounter() : 0));
+            data << uint64((item ? item->GetGUID().GetCounter() : UI64LIT(0)));
             // entry
             data << uint32((item ? item->GetEntry() : 0));
             for (uint8 j = 0; j < MAX_INSPECTED_ENCHANTMENT_SLOT; ++j)
@@ -794,7 +794,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     }
 
     Item* bodyItem = new Item;                              // This is not bag and then can be used new Item.
-    if (!bodyItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), MAIL_BODY_ITEM_TEMPLATE, player))
+    if (!bodyItem->Create(sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->Generate(), MAIL_BODY_ITEM_TEMPLATE, player))
     {
         delete bodyItem;
         return;
@@ -855,7 +855,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket& /*recvData*/)
 
         uint32 count = 0;
         time_t now = time(NULL);
-        std::set<uint32> sentSenders;
+        std::set<ObjectGuid::LowType> sentSenders;
         for (PlayerMails::iterator itr = _player->GetMailBegin(); itr != _player->GetMailEnd(); ++itr)
         {
             Mail* m = (*itr);

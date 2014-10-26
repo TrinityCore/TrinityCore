@@ -126,12 +126,12 @@ bool LoginQueryHolder::Initialize()
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ACTIONS, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILCOUNT);
-    stmt->setUInt32(0, lowGuid);
+    stmt->setUInt64(0, lowGuid);
     stmt->setUInt64(1, uint64(time(NULL)));
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILDATE);
-    stmt->setUInt32(0, lowGuid);
+    stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_DATE, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SOCIALLIST);
@@ -214,7 +214,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_CURRENCY);
-    stmt->setUInt32(0, lowGuid);
+    stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CURRENCY, stmt);
 
     return res;
@@ -632,7 +632,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             Player newChar(this);
             newChar.GetMotionMaster()->Initialize();
-            if (!newChar.Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), createInfo))
+            if (!newChar.Create(sObjectMgr->GetGenerator<HIGHGUID_PLAYER>()->Generate(), createInfo))
             {
                 // Player not create (race/class/etc problem?)
                 newChar.CleanupsBeforeDelete();
@@ -929,7 +929,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
-        pCurrChar->SetInGuild(0);
+        pCurrChar->SetInGuild(UI64LIT(0));
         pCurrChar->SetRank(0);
         pCurrChar->SetGuildLevel(0);
     }
@@ -982,15 +982,15 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     sObjectAccessor->AddObject(pCurrChar);
     //TC_LOG_DEBUG("Player %s added to Map.", pCurrChar->GetName().c_str());
 
-    if (pCurrChar->GetGuildId() != 0)
+    if (pCurrChar->GetGuildId())
     {
         if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
             guild->SendLoginInfo(this);
         else
         {
             // remove wrong guild data
-            TC_LOG_ERROR("misc", "Player %s (%s) marked as member of not existing guild (id: %u), removing guild membership for player.", pCurrChar->GetName().c_str(), pCurrChar->GetGUID().ToString().c_str(), pCurrChar->GetGuildId());
-            pCurrChar->SetInGuild(0);
+            TC_LOG_ERROR("misc", "Player %s (%s) marked as member of not existing guild (id: " UI64FMTD "), removing guild membership for player.", pCurrChar->GetName().c_str(), pCurrChar->GetGUID().ToString().c_str(), pCurrChar->GetGuildId());
+            pCurrChar->SetInGuild(UI64LIT(0));
         }
     }
 

@@ -91,7 +91,7 @@ void PackedGuid::Set(ObjectGuid guid)
 }
 
 template<HighGuid high>
-uint64 ObjectGuidGenerator<high>::Generate()
+ObjectGuid::LowType ObjectGuidGenerator<high>::Generate()
 {
     if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
     {
@@ -136,17 +136,14 @@ std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid)
     return stream;
 }
 
-template uint64 ObjectGuidGenerator<HIGHGUID_ITEM>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_PLAYER>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_GAMEOBJECT>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_TRANSPORT>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_UNIT>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_PET>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_VEHICLE>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_DYNAMICOBJECT>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_CORPSE>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_AREATRIGGER>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_BATTLEGROUND>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_INSTANCE>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_GROUP>::Generate();
-template uint64 ObjectGuidGenerator<HIGHGUID_GUILD>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_PLAYER>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_UNIT>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_PET>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_VEHICLE>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_ITEM>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_PET>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_GAMEOBJECT>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_DYNAMICOBJECT>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_CORPSE>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_AREATRIGGER>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_MO_TRANSPORT>::Generate();

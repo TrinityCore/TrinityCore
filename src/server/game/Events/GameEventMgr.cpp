@@ -372,7 +372,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 guid    = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
                 int16 event_id = fields[1].GetInt8();
 
                 int32 internal_event_id = mGameEvent.size() + event_id - 1;
@@ -380,7 +380,7 @@ void GameEventMgr::LoadFromDB()
                 CreatureData const* data = sObjectMgr->GetCreatureData(guid);
                 if (!data)
                 {
-                    TC_LOG_ERROR("sql.sql", "`game_event_creature` contains creature (GUID: %u) not found in `creature` table.", guid);
+                    TC_LOG_ERROR("sql.sql", "`game_event_creature` contains creature (GUID: " UI64FMTD ") not found in `creature` table.", guid);
                     continue;
                 }
 
@@ -418,7 +418,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 guid    = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
                 int16 event_id = fields[1].GetInt8();
 
                 int32 internal_event_id = mGameEvent.size() + event_id - 1;
@@ -426,7 +426,7 @@ void GameEventMgr::LoadFromDB()
                 GameObjectData const* data = sObjectMgr->GetGOData(guid);
                 if (!data)
                 {
-                    TC_LOG_ERROR("sql.sql", "`game_event_gameobject` contains gameobject (GUID: %u) not found in `gameobject` table.", guid);
+                    TC_LOG_ERROR("sql.sql", "`game_event_gameobject` contains gameobject (GUID: " UI64FMTD ") not found in `gameobject` table.", guid);
                     continue;
                 }
 
@@ -464,7 +464,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
                 uint32 entry    = fields[1].GetUInt32();
                 uint16 event_id = fields[2].GetUInt8();
 
@@ -486,13 +486,13 @@ void GameEventMgr::LoadFromDB()
                     int8 equipId = static_cast<int8>(newModelEquipSet.equipment_id);
                     if (!sObjectMgr->GetEquipmentInfo(entry, equipId))
                     {
-                        TC_LOG_ERROR("sql.sql", "Table `game_event_model_equip` have creature (Guid: %u, entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.",
+                        TC_LOG_ERROR("sql.sql", "Table `game_event_model_equip` have creature (Guid: " UI64FMTD ", entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.",
                                          guid, entry, newModelEquipSet.equipment_id);
                         continue;
                     }
                 }
 
-                equiplist.push_back(std::pair<uint32, ModelEquip>(guid, newModelEquipSet));
+                equiplist.push_back(std::pair<ObjectGuid::LowType, ModelEquip>(guid, newModelEquipSet));
 
                 ++count;
             }
@@ -713,7 +713,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
                 uint16 event_id = fields[1].GetUInt8();
                 uint32 npcflag  = fields[2].GetUInt32();
 
@@ -799,7 +799,7 @@ void GameEventMgr::LoadFromDB()
 
                 NPCVendorList& vendors = mGameEventVendors[event_id];
                 NPCVendorEntry newEntry;
-                uint32 guid = fields[1].GetUInt32();
+                ObjectGuid::LowType guid = fields[1].GetUInt64();
                 newEntry.item = fields[2].GetUInt32();
                 newEntry.maxcount = fields[3].GetUInt32();
                 newEntry.incrtime = fields[4].GetUInt32();
@@ -919,7 +919,7 @@ void GameEventMgr::LoadFromDB()
 uint32 GameEventMgr::GetNPCFlag(Creature* cr)
 {
     uint32 mask = 0;
-    uint32 guid = cr->GetDBTableGUIDLow();
+    ObjectGuid::LowType guid = cr->GetDBTableGUIDLow();
 
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
@@ -1387,7 +1387,7 @@ bool GameEventMgr::hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 e
     }
     return false;
 }
-bool GameEventMgr::hasCreatureActiveEventExcept(uint32 creature_id, uint16 event_id)
+bool GameEventMgr::hasCreatureActiveEventExcept(ObjectGuid::LowType creature_id, uint16 event_id)
 {
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
@@ -1403,7 +1403,7 @@ bool GameEventMgr::hasCreatureActiveEventExcept(uint32 creature_id, uint16 event
     }
     return false;
 }
-bool GameEventMgr::hasGameObjectActiveEventExcept(uint32 go_id, uint16 event_id)
+bool GameEventMgr::hasGameObjectActiveEventExcept(ObjectGuid::LowType go_id, uint16 event_id)
 {
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
