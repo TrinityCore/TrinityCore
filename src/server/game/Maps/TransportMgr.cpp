@@ -348,7 +348,7 @@ void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg,
     animNode.Path[timeSeg] = node;
 }
 
-Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map* map /*= NULL*/, uint32 phaseid /*= 0*/, uint32 phasegroup /*= 0*/)
+Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= NULL*/, uint32 phaseid /*= 0*/, uint32 phasegroup /*= 0*/)
 {
     // instance case, execute GetGameObjectEntry hook
     if (map)
@@ -381,7 +381,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map*
     float o = tInfo->keyFrames.begin()->InitialOrientation;
 
     // initialize the gameobject base
-    uint32 guidLow = guid ? guid : sObjectMgr->GenerateLowGuid(HIGHGUID_MO_TRANSPORT);
+    ObjectGuid::LowType guidLow = guid ? guid : sObjectMgr->GetGenerator<HIGHGUID_MO_TRANSPORT>()->Generate();
     if (!trans->Create(guidLow, entry, mapId, x, y, z, o, 255))
     {
         delete trans;
@@ -431,7 +431,7 @@ void TransportMgr::SpawnContinentTransports()
         do
         {
             Field* fields = result->Fetch();
-            uint32 guid = fields[0].GetUInt32();
+            ObjectGuid::LowType guid = fields[0].GetUInt64();
             uint32 entry = fields[1].GetUInt32();
             uint32 phaseid = fields[2].GetUInt32();
             uint32 phasegroup = fields[3].GetUInt32();
@@ -457,7 +457,7 @@ void TransportMgr::CreateInstanceTransports(Map* map)
 
     // create transports
     for (std::set<uint32>::const_iterator itr = mapTransports->second.begin(); itr != mapTransports->second.end(); ++itr)
-        CreateTransport(*itr, 0, map);
+        CreateTransport(*itr, UI64LIT(0), map);
 }
 
 TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const

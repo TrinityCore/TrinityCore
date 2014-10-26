@@ -215,7 +215,6 @@ class Group
         bool IsCreated()   const;
         ObjectGuid GetLeaderGUID() const;
         ObjectGuid GetGUID() const;
-        uint32 GetLowGUID() const;
         const char * GetLeaderName() const;
         LootMethod GetLootMethod() const;
         ObjectGuid GetLooterGuid() const;

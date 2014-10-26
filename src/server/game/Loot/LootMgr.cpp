@@ -492,7 +492,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 
 void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 {
-    uint32 plguid = player->GetGUID().GetCounter();
+    ObjectGuid::LowType plguid = player->GetGUID().GetCounter();
 
     QuestItemMap::const_iterator qmapitr = PlayerQuestItems.find(plguid);
     if (qmapitr == PlayerQuestItems.end())
@@ -705,7 +705,7 @@ void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
 {
     // Deletes a single item associated with an openable item from the DB
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
-    stmt->setUInt32(0, containerID.GetCounter());
+    stmt->setUInt64(0, containerID.GetCounter());
     stmt->setUInt32(1, itemID);
     CharacterDatabase.Execute(stmt);
 
@@ -724,7 +724,7 @@ void Loot::DeleteLootMoneyFromContainerItemDB()
 {
     // Deletes money loot associated with an openable item from the DB
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
-    stmt->setUInt32(0, containerID.GetCounter());
+    stmt->setUInt64(0, containerID.GetCounter());
     CharacterDatabase.Execute(stmt);
 }
 

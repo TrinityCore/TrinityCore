@@ -655,7 +655,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void RemoveFromWorld() override;
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
-        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectData const* GetGOData() const { return m_goData; }
@@ -665,7 +665,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         bool IsDynTransport() const;
         bool IsDestructibleBuilding() const;
 
-        uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
+        ObjectGuid::LowType GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void UpdateRotationFields(float rotation2 = 0.0f, float rotation3 = 0.0f);
 
@@ -674,8 +674,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
-        bool LoadFromDB(uint32 guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
-        bool LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap = true);
+        bool LoadFromDB(ObjectGuid::LowType guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
+        bool LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap = true);
         void DeleteFromDB();
 
         void SetOwnerGUID(ObjectGuid owner)
@@ -737,7 +737,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void SetGoArtKit(uint8 artkit);
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
-        static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
+        static void SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
 
         void SetInPhase(uint32 id, bool update, bool apply);
         void EnableCollision(bool enable);
@@ -868,7 +868,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         typedef std::map<uint32, ObjectGuid> ChairSlotAndUser;
         ChairSlotAndUser ChairListSlots;
 
-        uint32 m_DBTableGuid;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
+        ObjectGuid::LowType m_DBTableGuid;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
         GameObjectTemplate const* m_goInfo;
         GameObjectData const* m_goData;
         GameObjectValue m_goValue;

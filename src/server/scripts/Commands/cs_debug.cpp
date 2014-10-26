@@ -373,7 +373,7 @@ public:
                 GameObject* obj = handler->GetNearbyGameObject();
                 if (!obj)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, 0);
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, UI64LIT(0));
                     handler->SetSentErrorMessage(true);
                     ifs.close();
                     return false;
@@ -385,7 +385,7 @@ public:
                 GameObject* obj = handler->GetNearbyGameObject();
                 if (!obj)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, 0);
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, UI64LIT(0));
                     handler->SetSentErrorMessage(true);
                     ifs.close();
                     return false;
@@ -928,7 +928,7 @@ public:
 
         Map* map = handler->GetSession()->GetPlayer()->GetMap();
 
-        if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, x, y, z, o, nullptr, id))
+        if (!v->Create(sObjectMgr->GetGenerator<HIGHGUID_VEHICLE>()->Generate(), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, x, y, z, o, nullptr, id))
         {
             delete v;
             return false;
@@ -987,10 +987,10 @@ public:
         if (!e || !f)
             return false;
 
-        uint32 guid = (uint32)atoi(e);
+        ObjectGuid::LowType guid = strtoull(e, nullptr, 10);
         uint32 index = (uint32)atoi(f);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, guid));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, guid));
 
         if (!i)
             return false;
@@ -1000,7 +1000,7 @@ public:
 
         uint32 value = i->GetUInt32Value(index);
 
-        handler->PSendSysMessage("Item %u: value at %u is %u", guid, index, value);
+        handler->PSendSysMessage("Item " UI64FMTD ": value at %u is %u", guid, index, value);
 
         return true;
     }
@@ -1017,11 +1017,11 @@ public:
         if (!e || !f || !g)
             return false;
 
-        uint32 guid = (uint32)atoi(e);
+        ObjectGuid::LowType guid = strtoull(e, nullptr, 10);
         uint32 index = (uint32)atoi(f);
         uint32 value = (uint32)atoi(g);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, guid));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, guid));
 
         if (!i)
             return false;
@@ -1043,7 +1043,7 @@ public:
         if (!e)
             return false;
 
-        uint32 guid = (uint32)atoi(e);
+        ObjectGuid::LowType guid = strtoull(e, nullptr, 10);
 
         Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, guid));
 

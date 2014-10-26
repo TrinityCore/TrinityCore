@@ -145,7 +145,7 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(),
 m_groupLootTimer(0), m_PlayerDamageReq(0),
 _pickpocketLootRestore(0), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
-m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
+m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(NULL), m_creatureData(NULL), m_waypointID(0), m_path_id(0), m_formation(NULL)
 {
@@ -221,7 +221,7 @@ void Creature::SearchFormation()
     if (IsSummon())
         return;
 
-    uint32 lowguid = GetDBTableGUIDLow();
+    ObjectGuid::LowType lowguid = GetDBTableGUIDLow();
     if (!lowguid)
         return;
 
@@ -735,7 +735,7 @@ void Creature::Motion_Initialize()
         GetMotionMaster()->Initialize();
 }
 
-bool Creature::Create(uint32 guidlow, Map* map, uint32 /*phaseMask*/, uint32 entry, float x, float y, float z, float ang, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
+bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 /*phaseMask*/, uint32 entry, float x, float y, float z, float ang, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
 {
     ASSERT(map);
     SetMap(map);
@@ -1014,13 +1014,13 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     SQLTransaction trans = WorldDatabase.BeginTransaction();
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
-    stmt->setUInt32(0, m_DBTableGuid);
+    stmt->setUInt64(0, m_DBTableGuid);
     trans->Append(stmt);
 
     uint8 index = 0;
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE);
-    stmt->setUInt32(index++, m_DBTableGuid);
+    stmt->setUInt64(index++, m_DBTableGuid);
     stmt->setUInt32(index++, GetEntry());
     stmt->setUInt16(index++, uint16(mapid));
     stmt->setUInt8(index++, spawnMask);
@@ -1174,7 +1174,7 @@ float Creature::GetSpellDamageMod(int32 Rank) const
     }
 }
 
-bool Creature::CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
+bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
 {
     SetZoneScript();
     if (GetZoneScript() && data)
@@ -1215,7 +1215,7 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const*
     return true;
 }
 
-bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
+bool Creature::LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap)
 {
     CreatureData const* data = sObjectMgr->GetCreatureData(guid);
 
@@ -1232,7 +1232,7 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
             return false;
     }
     else
-        guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
+        guid = sObjectMgr->GetGenerator<HIGHGUID_UNIT>()->Generate();
 
     if (!Create(guid, map, data->phaseMask, data->id, data->posX, data->posY, data->posZ, data->orientation, data))
         return false;
@@ -1352,19 +1352,19 @@ void Creature::DeleteFromDB()
     SQLTransaction trans = WorldDatabase.BeginTransaction();
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
-    stmt->setUInt32(0, m_DBTableGuid);
+    stmt->setUInt64(0, m_DBTableGuid);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_ADDON);
-    stmt->setUInt32(0, m_DBTableGuid);
+    stmt->setUInt64(0, m_DBTableGuid);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_EVENT_CREATURE);
-    stmt->setUInt32(0, m_DBTableGuid);
+    stmt->setUInt64(0, m_DBTableGuid);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_EVENT_MODEL_EQUIP);
-    stmt->setUInt32(0, m_DBTableGuid);
+    stmt->setUInt64(0, m_DBTableGuid);
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);

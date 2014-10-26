@@ -30,33 +30,33 @@ FormationMgr::~FormationMgr()
         delete itr->second;
 }
 
-void FormationMgr::AddCreatureToGroup(uint32 groupId, Creature* member)
+void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderGuid, Creature* creature)
 {
-    Map* map = member->FindMap();
+    Map* map = creature->FindMap();
     if (!map)
         return;
 
-    CreatureGroupHolderType::iterator itr = map->CreatureGroupHolder.find(groupId);
+    CreatureGroupHolderType::iterator itr = map->CreatureGroupHolder.find(leaderGuid);
 
     //Add member to an existing group
     if (itr != map->CreatureGroupHolder.end())
     {
-        TC_LOG_DEBUG("entities.unit", "Group found: %u, inserting %s, Group InstanceID %u", groupId, member->GetGUID().ToString().c_str(), member->GetInstanceId());
-        itr->second->AddMember(member);
+        TC_LOG_DEBUG("entities.unit", "Group found: " UI64FMTD ", inserting %s, Group InstanceID %u", leaderGuid, creature->GetGUID().ToString().c_str(), creature->GetInstanceId());
+        itr->second->AddMember(creature);
     }
     //Create new group
     else
     {
-        TC_LOG_DEBUG("entities.unit", "Group not found: %u. Creating new group.", groupId);
-        CreatureGroup* group = new CreatureGroup(groupId);
-        map->CreatureGroupHolder[groupId] = group;
-        group->AddMember(member);
+        TC_LOG_DEBUG("entities.unit", "Group not found: " UI64FMTD ". Creating new group.", leaderGuid);
+        CreatureGroup* group = new CreatureGroup(leaderGuid);
+        map->CreatureGroupHolder[leaderGuid] = group;
+        group->AddMember(creature);
     }
 }
 
 void FormationMgr::RemoveCreatureFromGroup(CreatureGroup* group, Creature* member)
 {
-    TC_LOG_DEBUG("entities.unit", "Deleting member pointer to GUID: %u from group %u", group->GetId(), member->GetDBTableGUIDLow());
+    TC_LOG_DEBUG("entities.unit", "Deleting member pointer to GUID: " UI64FMTD " from group %u", group->GetId(), member->GetDBTableGUIDLow());
     group->RemoveMember(member);
 
     if (group->isEmpty())
@@ -98,8 +98,8 @@ void FormationMgr::LoadCreatureFormations()
 
         //Load group member data
         group_member                        = new FormationInfo();
-        group_member->leaderGUID            = fields[0].GetUInt32();
-        uint32 memberGUID                   = fields[1].GetUInt32();
+        group_member->leaderGUID            = fields[0].GetUInt64();
+        ObjectGuid::LowType memberGUID      = fields[1].GetUInt64();
         group_member->groupAI               = fields[4].GetUInt32();
         group_member->point_1               = fields[5].GetUInt16();
         group_member->point_2               = fields[6].GetUInt16();
@@ -119,14 +119,14 @@ void FormationMgr::LoadCreatureFormations()
         {
             if (!sObjectMgr->GetCreatureData(group_member->leaderGUID))
             {
-                TC_LOG_ERROR("sql.sql", "creature_formations table leader guid %u incorrect (not exist)", group_member->leaderGUID);
+                TC_LOG_ERROR("sql.sql", "creature_formations table leader guid " UI64FMTD " incorrect (not exist)", group_member->leaderGUID);
                 delete group_member;
                 continue;
             }
 
             if (!sObjectMgr->GetCreatureData(memberGUID))
             {
-                TC_LOG_ERROR("sql.sql", "creature_formations table member guid %u incorrect (not exist)", memberGUID);
+                TC_LOG_ERROR("sql.sql", "creature_formations table member guid " UI64FMTD " incorrect (not exist)", memberGUID);
                 delete group_member;
                 continue;
             }

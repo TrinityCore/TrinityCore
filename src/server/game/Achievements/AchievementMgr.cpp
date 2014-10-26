@@ -1981,7 +1981,7 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
             draft.AddItem(item);
         }
 
-        draft.SendMailTo(trans, GetOwner(), MailSender(MAIL_CREATURE, reward->sender));
+        draft.SendMailTo(trans, GetOwner(), MailSender(MAIL_CREATURE, uint64(reward->sender)));
         CharacterDatabase.CommitTransaction(trans);
     }
 }

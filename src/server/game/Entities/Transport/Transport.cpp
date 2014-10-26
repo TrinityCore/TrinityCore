@@ -47,7 +47,7 @@ Transport::~Transport()
     UnloadStaticPassengers();
 }
 
-bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress)
+bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress)
 {
     Relocate(x, y, z, ang);
 
@@ -275,7 +275,7 @@ void Transport::RemovePassenger(WorldObject* passenger)
     }
 }
 
-Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
+Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data)
 {
     Map* map = GetMap();
     Creature* creature = new Creature();
@@ -330,7 +330,7 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
     return creature;
 }
 
-GameObject* Transport::CreateGOPassenger(uint32 guid, GameObjectData const* data)
+GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectData const* data)
 {
     Map* map = GetMap();
     GameObject* go = new GameObject();
@@ -453,7 +453,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     pos.GetPosition(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
 
-    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, 0, entry, x, y, z, o, nullptr, vehId))
+    if (!summon->Create(sObjectMgr->GetGenerator<HIGHGUID_UNIT>()->Generate(), map, 0, entry, x, y, z, o, nullptr, vehId))
     {
         delete summon;
         return NULL;

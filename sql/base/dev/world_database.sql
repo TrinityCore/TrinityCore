@@ -272,7 +272,7 @@ DROP TABLE IF EXISTS `creature`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature` (
-  `guid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier',
+  `guid` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier',
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Creature Identifier',
   `map` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
   `spawnMask` tinyint(3) unsigned NOT NULL DEFAULT '1',
@@ -309,7 +309,7 @@ DROP TABLE IF EXISTS `creature_addon`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_addon` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
@@ -373,8 +373,8 @@ DROP TABLE IF EXISTS `creature_formations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_formations` (
-  `leaderGUID` int(10) unsigned NOT NULL,
-  `memberGUID` int(10) unsigned NOT NULL,
+  `leaderGUID` bigint(20) unsigned NOT NULL,
+  `memberGUID` bigint(20) unsigned NOT NULL,
   `dist` float unsigned NOT NULL,
   `angle` float unsigned NOT NULL,
   `groupAI` int(10) unsigned NOT NULL,
@@ -801,7 +801,7 @@ DROP TABLE IF EXISTS `game_event_creature`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `game_event_creature` (
   `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event. Put negative entry to remove during event.',
-  `guid` int(10) unsigned NOT NULL,
+  `guid` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`guid`,`eventEntry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -830,7 +830,7 @@ DROP TABLE IF EXISTS `game_event_gameobject`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `game_event_gameobject` (
   `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event. Put negative entry to remove during event.',
-  `guid` int(10) unsigned NOT NULL,
+  `guid` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`guid`,`eventEntry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -859,7 +859,7 @@ DROP TABLE IF EXISTS `game_event_model_equip`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `game_event_model_equip` (
   `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event.',
-  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `modelid` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `equipment_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
@@ -875,7 +875,7 @@ DROP TABLE IF EXISTS `game_event_npc_vendor`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `game_event_npc_vendor` (
   `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event.',
-  `guid` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `slot` smallint(6) NOT NULL DEFAULT '0',
   `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `maxcount` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -896,7 +896,7 @@ DROP TABLE IF EXISTS `game_event_npcflag`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `game_event_npcflag` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
-  `guid` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `npcflag` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`eventEntry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -1029,7 +1029,7 @@ DROP TABLE IF EXISTS `gameobject`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gameobject` (
-  `guid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier',
+  `guid` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier',
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Gameobject Identifier',
   `map` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
   `spawnMask` tinyint(3) unsigned NOT NULL DEFAULT '1',
@@ -1602,8 +1602,8 @@ DROP TABLE IF EXISTS `linked_respawn`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `linked_respawn` (
-  `guid` int(10) unsigned NOT NULL COMMENT 'dependent creature',
-  `linkedGuid` int(10) unsigned NOT NULL COMMENT 'master creature',
+  `guid` bigint(20) unsigned NOT NULL COMMENT 'dependent creature',
+  `linkedGuid` bigint(20) unsigned NOT NULL COMMENT 'master creature',
   `linkType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`linkType`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature Respawn Link System';
@@ -2723,7 +2723,7 @@ DROP TABLE IF EXISTS `pool_creature`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pool_creature` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `chance` float unsigned NOT NULL DEFAULT '0',
   `description` varchar(255) DEFAULT NULL,
@@ -2740,7 +2740,7 @@ DROP TABLE IF EXISTS `pool_gameobject`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pool_gameobject` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `chance` float unsigned NOT NULL DEFAULT '0',
   `description` varchar(255) DEFAULT NULL,
@@ -3195,7 +3195,7 @@ DROP TABLE IF EXISTS `smart_scripts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `smart_scripts` (
-  `entryorguid` int(11) NOT NULL,
+  `entryorguid` bigint(20) NOT NULL,
   `source_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `id` smallint(5) unsigned NOT NULL DEFAULT '0',
   `link` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -3642,7 +3642,7 @@ DROP TABLE IF EXISTS `transports`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `transports` (
-  `guid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `guid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `name` text,
   `phaseid` int(10) NOT NULL DEFAULT '0',
@@ -3683,7 +3683,7 @@ DROP TABLE IF EXISTS `vehicle_accessory`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `vehicle_accessory` (
-  `guid` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `accessory_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `seat_id` tinyint(4) NOT NULL DEFAULT '0',
   `minion` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -3767,7 +3767,7 @@ CREATE TABLE `waypoint_data` (
   `move_type` int(11) NOT NULL DEFAULT '0',
   `action` int(11) NOT NULL DEFAULT '0',
   `action_chance` smallint(6) NOT NULL DEFAULT '100',
-  `wpguid` int(11) NOT NULL DEFAULT '0',
+  `wpguid` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`,`point`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

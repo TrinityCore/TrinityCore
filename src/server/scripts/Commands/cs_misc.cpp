@@ -1390,7 +1390,7 @@ public:
         PreparedStatement* stmt = NULL;
 
         // To make sure we get a target, we convert our guid to an omniversal...
-        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atol((char*)args)));
+        ObjectGuid parseGUID(HIGHGUID_PLAYER, strtoull(args, nullptr, 10));
 
         // ... and make sure we get a target, somehow.
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
@@ -1479,7 +1479,7 @@ public:
         std::string zoneName    = handler->GetTrinityString(LANG_UNKNOWN);
 
         // Guild data print variables defined so that they exist, but are not necessarily used
-        ObjectGuid::LowType guildId = 0;
+        ObjectGuid::LowType guildId = UI64LIT(0);
         uint8 guildRankId        = 0;
         std::string guildName;
         std::string guildRank;
@@ -1735,7 +1735,7 @@ public:
         // Mail Data - an own query, because it may or may not be useful.
         // SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"
         PreparedStatement* stmt4 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_MAILS);
-        stmt4->setUInt32(0, lowguid);
+        stmt4->setUInt64(0, lowguid);
         PreparedQueryResult result6 = CharacterDatabase.Query(stmt4);
         if (result6)
         {
@@ -2124,7 +2124,7 @@ public:
                 return false;
             }
 
-            int32 guid = atoi(guidStr);
+            ObjectGuid::LowType guid = strtoull(guidStr, nullptr, 10);
             if (!guid)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);

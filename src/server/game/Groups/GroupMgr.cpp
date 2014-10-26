@@ -24,7 +24,7 @@
 GroupMgr::GroupMgr()
 {
     NextGroupDbStoreId = 1;
-    NextGroupId = 1;
+    NextGroupId = UI64LIT(1);
 }
 
 GroupMgr::~GroupMgr()
@@ -82,7 +82,7 @@ Group* GroupMgr::GetGroupByDbStoreId(uint32 storageId) const
     return NULL;
 }
 
-uint32 GroupMgr::GenerateGroupId()
+ObjectGuid::LowType GroupMgr::GenerateGroupId()
 {
     if (NextGroupId >= 0xFFFFFFFE)
     {
@@ -103,12 +103,12 @@ Group* GroupMgr::GetGroupByGUID(ObjectGuid const& groupId) const
 
 void GroupMgr::AddGroup(Group* group)
 {
-    GroupStore[group->GetLowGUID()] = group;
+    GroupStore[group->GetGUID().GetCounter()] = group;
 }
 
 void GroupMgr::RemoveGroup(Group* group)
 {
-    GroupStore.erase(group->GetLowGUID());
+    GroupStore.erase(group->GetGUID().GetCounter());
 }
 
 void GroupMgr::LoadGroups()

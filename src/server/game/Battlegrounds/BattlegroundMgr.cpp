@@ -652,7 +652,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
     bg->SetRandomTypeID(bgTypeId);
     bg->SetRated(isRated);
     bg->SetRandom(isRandom);
-    bg->SetGuid(ObjectGuid(HIGHGUID_BATTLEGROUND, uint32(bgTypeId)));
+    bg->SetGuid(ObjectGuid(HIGHGUID_BATTLEGROUND, uint64(bgTypeId)));
 
     // Set up correct min/max player counts for scoreboards
     if (bg->isArena())
@@ -755,7 +755,7 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
     bg->SetStartMaxDist(bgTemplate->MaxStartDistSq);
     bg->SetLevelRange(bgTemplate->MinLevel, bgTemplate->MaxLevel);
     bg->SetScriptId(bgTemplate->ScriptId);
-    bg->SetGuid(ObjectGuid(HIGHGUID_BATTLEGROUND, uint32(bgTemplate->Id)));
+    bg->SetGuid(ObjectGuid(HIGHGUID_BATTLEGROUND, uint64(bgTemplate->Id)));
 
     AddBattleground(bg);
 

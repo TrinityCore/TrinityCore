@@ -93,11 +93,12 @@ class ObjectGuid
 
     public:
         static ObjectGuid const Empty;
-        typedef uint32 LowType;
+
+        typedef uint64 LowType;
 
         ObjectGuid() : _low(0), _high(0) { }
-        ObjectGuid(HighGuid hi, uint32 entry, uint64 counter) : _low(counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0), _high(0) { }
-        ObjectGuid(HighGuid hi, uint64 counter) : _low(counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0), _high(0) { }
+        ObjectGuid(HighGuid hi, uint32 entry, LowType counter) : _low(counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0), _high(0) { }
+        ObjectGuid(HighGuid hi, LowType counter) : _low(counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0), _high(0) { }
         ObjectGuid(ObjectGuid const&) = default;
 
         PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
@@ -117,12 +118,12 @@ class ObjectGuid
         uint32 GetEntry() const { return HasEntry() ? uint32((_low >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
         LowType GetCounter()  const
         {
-            return uint32(_low & UI64LIT(0x00000000FFFFFFFF));
+            return _low & UI64LIT(0x00000000FFFFFFFF);
         }
 
-        static uint32 GetMaxCounter(HighGuid /*high*/)
+        static LowType GetMaxCounter(HighGuid /*high*/)
         {
-            return uint32(0xFFFFFFFF);
+            return UI64LIT(0xFFFFFFFF);
         }
 
         uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
@@ -266,11 +267,11 @@ template<HighGuid high>
 class ObjectGuidGenerator
 {
     public:
-        explicit ObjectGuidGenerator(uint64 start = 1) : _nextGuid(start) { }
+        explicit ObjectGuidGenerator(ObjectGuid::LowType start = UI64LIT(1)) : _nextGuid(start) { }
 
         void Set(uint64 val) { _nextGuid = val; }
-        uint64 Generate();
-        uint64 GetNextAfterMaxUsed() const { return _nextGuid; }
+        ObjectGuid::LowType Generate();
+        ObjectGuid::LowType GetNextAfterMaxUsed() const { return _nextGuid; }
 
     private:
         uint64 _nextGuid;

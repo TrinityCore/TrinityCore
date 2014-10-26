@@ -120,7 +120,7 @@ class ChatHandler
         std::string GetNameLink(Player* chr) const;
 
         GameObject* GetNearbyGameObject();
-        GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid, uint32 entry);
+        GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry);
         bool HasSentErrorMessage() const { return sentErrorMessage; }
         void SetSentErrorMessage(bool val){ sentErrorMessage = val; }
         static bool LoadCommandTable() { return load_command_table; }

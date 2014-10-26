@@ -670,7 +670,7 @@ void KillRewarder::Reward()
             if (InstanceScript* instance = _victim->GetInstanceScript())
                 instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
 
-        if (uint32 guildId = victim->GetMap()->GetOwnerGuildId())
+        if (ObjectGuid::LowType guildId = victim->GetMap()->GetOwnerGuildId())
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                 guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
     }
@@ -974,7 +974,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
             itr->second.save->RemovePlayer(this);
 }
 
-bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
+bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo)
 {
     //FIXME: outfitId not used in player creating
     /// @todo need more checks against packet modifications
@@ -1979,7 +1979,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer)
     float x = fields[10].GetFloat();
     float y = fields[11].GetFloat();
     float z = fields[12].GetFloat();
-    uint32 guildId = fields[13].GetUInt64();
+    uint64 guildId = fields[13].GetUInt64();
     ObjectGuid guildGuid;
     if (guildId)
         guildGuid = ObjectGuid(HIGHGUID_GUILD, guildId);
@@ -3151,7 +3151,7 @@ void Player::GiveLevel(uint8 level)
     {
         /// @todo Poor design of mail system
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        MailDraft(mailReward->mailTemplateId).SendMailTo(trans, this, MailSender(MAIL_CREATURE, mailReward->senderEntry));
+        MailDraft(mailReward->mailTemplateId).SendMailTo(trans, this, MailSender(MAIL_CREATURE, uint64(mailReward->senderEntry)));
         CharacterDatabase.CommitTransaction(trans);
     }
 
@@ -3461,7 +3461,7 @@ void Player::RemoveMail(uint32 id)
     }
 }
 
-void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, uint32 item_guid, uint32 item_count)
+void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count)
 {
     WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(mailError == MAIL_ERR_EQUIP_ERROR?4:(mailAction == MAIL_ITEM_TAKEN?4+4:0))));
     data << uint32(mailId);
@@ -3471,7 +3471,7 @@ void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResp
         data << uint32(equipError);
     else if (mailAction == MAIL_ITEM_TAKEN)
     {
-        data << uint32(item_guid);                         // item guid low?
+        data << uint64(item_guid);                         // item guid low?
         data << uint32(item_count);                        // item count?
     }
     GetSession()->SendPacket(&data);
@@ -4669,7 +4669,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     // bones will be deleted by corpse/bones deleting thread shortly
     sObjectAccessor->ConvertCorpseForPlayer(playerguid);
 
-    if (uint32 guildId = GetGuildIdFromDB(playerguid))
+    if (ObjectGuid::LowType guildId = GetGuildIdFromDB(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guild->DeleteMember(playerguid, false, false, true);
 
@@ -4696,7 +4696,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_COD_ITEM_MAIL);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             PreparedQueryResult resultMail = CharacterDatabase.Query(stmt);
 
             if (resultMail)
@@ -4708,7 +4708,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     uint32 mail_id       = mailFields[0].GetUInt32();
                     uint8 mailType       = mailFields[1].GetUInt8();
                     uint16 mailTemplateId= mailFields[2].GetUInt16();
-                    uint32 sender        = mailFields[3].GetUInt32();
+                    ObjectGuid::LowType sender = mailFields[3].GetUInt64();
                     std::string subject  = mailFields[4].GetString();
                     std::string body     = mailFields[5].GetString();
                     uint64 money         = mailFields[6].GetUInt64();
@@ -4747,14 +4747,14 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                             do
                             {
                                 Field* itemFields = resultItems->Fetch();
-                                uint32 item_guidlow = itemFields[11].GetUInt32();
+                                ObjectGuid::LowType item_guidlow = itemFields[11].GetUInt64();
                                 uint32 item_template = itemFields[12].GetUInt32();
 
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
                                 if (!itemProto)
                                 {
                                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                                    stmt->setUInt32(0, item_guidlow);
+                                    stmt->setUInt64(0, item_guidlow);
                                     trans->Append(stmt);
                                     continue;
                                 }
@@ -4787,7 +4787,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             // Unsummon and delete for pets in world is not required: player deleted from CLI or character list with not loaded pet.
             // NOW we can finally clear other DB data related to character
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PETS);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             PreparedQueryResult resultPets = CharacterDatabase.Query(stmt);
 
             if (resultPets)
@@ -4877,7 +4877,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_BY_OWNER);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_FRIEND);
@@ -4889,19 +4889,19 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEMS);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_OWNER);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME_BY_OWNER);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENTS);
@@ -5204,7 +5204,7 @@ void Player::CreateCorpse()
     Corpse* corpse = new Corpse((m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) ? CORPSE_RESURRECTABLE_PVP : CORPSE_RESURRECTABLE_PVE);
     SetPvPDeath(false);
 
-    if (!corpse->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_CORPSE), this))
+    if (!corpse->Create(sObjectMgr->GetGenerator<HIGHGUID_CORPSE>()->Generate(), this))
     {
         delete corpse;
         return;
@@ -7606,7 +7606,7 @@ ObjectGuid::LowType Player::GetGuildIdFromDB(ObjectGuid guid)
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         return result->Fetch()[0].GetUInt64();
 
-    return 0;
+    return UI64LIT(0);
 }
 
 uint8 Player::GetRankFromDB(ObjectGuid guid)
@@ -11980,7 +11980,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
                 ss << ' ' << *itr;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_BOP_TRADE);
-            stmt->setUInt32(0, pItem->GetGUID().GetCounter());
+            stmt->setUInt64(0, pItem->GetGUID().GetCounter());
             stmt->setString(1, ss.str());
             CharacterDatabase.Execute(stmt);
         }
@@ -15248,7 +15248,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         // prepare Quest Tracker datas
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_QUEST_TRACK);
         stmt->setUInt32(0, quest_id);
-        stmt->setUInt32(1, GetGUID().GetCounter());
+        stmt->setUInt64(1, GetGUID().GetCounter());
         stmt->setString(2, _HASH);
         stmt->setString(3, _DATE);
 
@@ -15281,7 +15281,7 @@ void Player::CompleteQuest(uint32 quest_id)
         // prepare Quest Tracker datas
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_QUEST_TRACK_COMPLETE_TIME);
         stmt->setUInt32(0, quest_id);
-        stmt->setUInt32(1, GetGUID().GetCounter());
+        stmt->setUInt64(1, GetGUID().GetCounter());
 
         // add to Quest Tracker
         CharacterDatabase.Execute(stmt);
@@ -17035,11 +17035,6 @@ bool Player::HasPvPForcingQuest() const
 /***                   LOAD SYSTEM                     ***/
 /*********************************************************/
 
-void Player::Initialize(uint32 guid)
-{
-    Object::_Create(guid, 0, HIGHGUID_PLAYER);
-}
-
 void Player::_LoadDeclinedNames(PreparedQueryResult result)
 {
     if (!result)
@@ -18331,7 +18326,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = NULL;
-    uint32 itemGuid  = fields[13].GetUInt32();
+    ObjectGuid::LowType itemGuid  = fields[13].GetUInt64();
     uint32 itemEntry = fields[14].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
@@ -18363,7 +18358,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                         GetGUID().ToString().c_str(), GetName().c_str(), item->GetGUID().ToString().c_str(), item->GetEntry(), item->GetPlayedTime());
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-                    stmt->setUInt32(0, item->GetGUID().GetCounter());
+                    stmt->setUInt64(0, item->GetGUID().GetCounter());
                     trans->Append(stmt);
 
                     item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE);
@@ -18371,13 +18366,13 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 else
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_REFUNDS);
-                    stmt->setUInt32(0, item->GetGUID().GetCounter());
-                    stmt->setUInt32(1, GetGUID().GetCounter());
+                    stmt->setUInt64(0, item->GetGUID().GetCounter());
+                    stmt->setUInt64(1, GetGUID().GetCounter());
                     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                     {
-                        item->SetRefundRecipient(ObjectGuid(HIGHGUID_PLAYER, uint32((*result)[0].GetUInt32())));
-                        item->SetPaidMoney((*result)[1].GetUInt32());
-                        item->SetPaidExtendedCost((*result)[2].GetUInt16());
+                        item->SetRefundRecipient(GetGUID());
+                        item->SetPaidMoney((*result)[0].GetUInt32());
+                        item->SetPaidExtendedCost((*result)[1].GetUInt16());
                         AddRefundReference(item->GetGUID());
                     }
                     else
@@ -18391,14 +18386,14 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
             else if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_BOP_TRADE);
-                stmt->setUInt32(0, item->GetGUID().GetCounter());
+                stmt->setUInt64(0, item->GetGUID().GetCounter());
                 if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                 {
                     std::string strGUID = (*result)[0].GetString();
                     Tokenizer GUIDlist(strGUID, ' ');
                     GuidSet looters;
                     for (Tokenizer::const_iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
-                        looters.insert(ObjectGuid(HIGHGUID_PLAYER, uint32(atol(*itr))));
+                        looters.insert(ObjectGuid(HIGHGUID_PLAYER, uint64(strtoull(*itr, nullptr, 10))));
 
                     if (looters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
                     {
@@ -18432,7 +18427,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
         }
         else
         {
-            TC_LOG_ERROR("entities.player", "Player::_LoadInventory: player (%s, name: '%s') has broken item (GUID: %u, entry: %u) in inventory. Deleting item.",
+            TC_LOG_ERROR("entities.player", "Player::_LoadInventory: player (%s, name: '%s') has broken item (GUID: " UI64FMTD ", entry: %u) in inventory. Deleting item.",
                 GetGUID().ToString().c_str(), GetName().c_str(), itemGuid, itemEntry);
             remove = true;
         }
@@ -18469,7 +18464,7 @@ void Player::_LoadMailedItems(Mail* mail)
     {
         Field* fields = result->Fetch();
 
-        uint32 itemGuid = fields[11].GetUInt32();
+        ObjectGuid::LowType itemGuid = fields[11].GetUInt64();
         uint32 itemTemplate = fields[12].GetUInt32();
 
         mail->AddItem(itemGuid, itemTemplate);
@@ -18478,26 +18473,26 @@ void Player::_LoadMailedItems(Mail* mail)
 
         if (!proto)
         {
-            TC_LOG_ERROR("entities.player", "%s has unknown item_template (ProtoType) in mailed items(GUID: %u template: %u) in mail (%u), deleted.", GetGUID().ToString().c_str(), itemGuid, itemTemplate, mail->messageID);
+            TC_LOG_ERROR("entities.player", "%s has unknown item_template (ProtoType) in mailed items(GUID: " UI64FMTD " template: %u) in mail (%u), deleted.", GetGUID().ToString().c_str(), itemGuid, itemTemplate, mail->messageID);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
-            stmt->setUInt32(0, itemGuid);
+            stmt->setUInt64(0, itemGuid);
             CharacterDatabase.Execute(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-            stmt->setUInt32(0, itemGuid);
+            stmt->setUInt64(0, itemGuid);
             CharacterDatabase.Execute(stmt);
             continue;
         }
 
         Item* item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(itemGuid, ObjectGuid(HIGHGUID_PLAYER, fields[13].GetUInt32()), fields, itemTemplate))
+        if (!item->LoadFromDB(itemGuid, ObjectGuid(HIGHGUID_PLAYER, fields[13].GetUInt64()), fields, itemTemplate))
         {
-            TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, itemGuid);
+            TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems - Item in mail (" UI64FMTD ") doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, itemGuid);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
-            stmt->setUInt32(0, itemGuid);
+            stmt->setUInt64(0, itemGuid);
             CharacterDatabase.Execute(stmt);
 
             item->FSetState(ITEM_REMOVED);
@@ -18530,7 +18525,7 @@ void Player::_LoadMail()
     m_mail.clear();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
@@ -18542,8 +18537,8 @@ void Player::_LoadMail()
 
             m->messageID      = fields[0].GetUInt32();
             m->messageType    = fields[1].GetUInt8();
-            m->sender         = fields[2].GetUInt32();
-            m->receiver       = fields[3].GetUInt32();
+            m->sender         = fields[2].GetUInt64();
+            m->receiver       = fields[3].GetUInt64();
             m->subject        = fields[4].GetString();
             m->body           = fields[5].GetString();
             bool has_items    = fields[6].GetBool();
@@ -18918,7 +18913,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
                 }
                 else if (!perm && group)
                 {
-                    TC_LOG_ERROR("entities.player", "_LoadBoundInstances: player %s(%s) is in group %d but has a non-permanent character bind to map %d (%s), %d, %d", GetName().c_str(), GetGUID().ToString().c_str(), group->GetLowGUID(), mapId, mapname.c_str(), instanceId, difficulty);
+                    TC_LOG_ERROR("entities.player", "_LoadBoundInstances: player %s(%s) is in group %s but has a non-permanent character bind to map %d (%s), %d, %d", GetName().c_str(), GetGUID().ToString().c_str(), group->GetGUID().ToString().c_str(), mapId, mapname.c_str(), instanceId, difficulty);
                     deleteInstance = true;
                 }
             }
@@ -19406,7 +19401,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setFloat(index++, finiteAlways(GetTransOffsetY()));
         stmt->setFloat(index++, finiteAlways(GetTransOffsetZ()));
         stmt->setFloat(index++, finiteAlways(GetTransOffsetO()));
-        ObjectGuid::LowType transLowGUID = 0;
+        ObjectGuid::LowType transLowGUID = UI64LIT(0);
         if (GetTransport())
             transLowGUID = GetTransport()->GetGUID().GetCounter();
         stmt->setUInt64(index++, transLowGUID);
@@ -19535,7 +19530,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setFloat(index++, finiteAlways(GetTransOffsetY()));
         stmt->setFloat(index++, finiteAlways(GetTransOffsetZ()));
         stmt->setFloat(index++, finiteAlways(GetTransOffsetO()));
-        ObjectGuid::LowType transLowGUID = 0;
+        ObjectGuid::LowType transLowGUID = UI64LIT(0);
         if (GetTransport())
             transLowGUID = GetTransport()->GetGUID().GetCounter();
         stmt->setUInt64(index++, transLowGUID);
@@ -19808,7 +19803,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-        stmt->setUInt32(0, item->GetGUID().GetCounter());
+        stmt->setUInt64(0, item->GetGUID().GetCounter());
         trans->Append(stmt);
         m_items[i]->FSetState(ITEM_NEW);
     }
@@ -19857,7 +19852,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
             Item* test = GetItemByPos(item->GetBagSlot(), item->GetSlot());
             if (test == NULL)
             {
-                ObjectGuid::LowType bagTestGUID = 0;
+                ObjectGuid::LowType bagTestGUID = UI64LIT(0);
                 if (Item* test2 = GetItemByPos(INVENTORY_SLOT_BAG_0, item->GetBagSlot()))
                     bagTestGUID = test2->GetGUID().GetCounter();
 
@@ -19892,7 +19887,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
             case ITEM_CHANGED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_INVENTORY_ITEM);
                 stmt->setUInt64(0, GetGUID().GetCounter());
-                stmt->setUInt64(1, container ? container->GetGUID().GetCounter() : 0);
+                stmt->setUInt64(1, container ? container->GetGUID().GetCounter() : UI64LIT(0));
                 stmt->setUInt8 (2, item->GetSlot());
                 stmt->setUInt64(3, item->GetGUID().GetCounter());
                 trans->Append(stmt);
@@ -20002,10 +19997,10 @@ void Player::_SaveMail(SQLTransaction& trans)
 
             if (!m->removedItems.empty())
             {
-                for (std::vector<uint32>::iterator itr2 = m->removedItems.begin(); itr2 != m->removedItems.end(); ++itr2)
+                for (std::vector<ObjectGuid::LowType>::iterator itr2 = m->removedItems.begin(); itr2 != m->removedItems.end(); ++itr2)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
-                    stmt->setUInt32(0, *itr2);
+                    stmt->setUInt64(0, *itr2);
                     trans->Append(stmt);
                 }
                 m->removedItems.clear();
@@ -20019,7 +20014,7 @@ void Player::_SaveMail(SQLTransaction& trans)
                 for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                    stmt->setUInt32(0, itr2->item_guid);
+                    stmt->setUInt64(0, itr2->item_guid);
                     trans->Append(stmt);
                 }
             }
@@ -20897,7 +20892,7 @@ void Player::Whisper(std::string const& text, Language language, Player* target,
         ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_DND, target->GetName().c_str(), target->autoReplyMsg.c_str());
 }
 
-Item* Player::GetMItem(uint32 id)
+Item* Player::GetMItem(ObjectGuid::LowType id)
 {
     ItemMap::const_iterator itr = mMitems.find(id);
     return itr != mMitems.end() ? itr->second : NULL;
@@ -20910,7 +20905,7 @@ void Player::AddMItem(Item* it)
     mMitems[it->GetGUID().GetCounter()] = it;
 }
 
-bool Player::RemoveMItem(uint32 id)
+bool Player::RemoveMItem(ObjectGuid::LowType id)
 {
     return mMitems.erase(id) ? true : false;
 }
@@ -21389,7 +21384,7 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
         stmt->setUInt8(1, uint8(type));
     }
 
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
@@ -21397,8 +21392,8 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
         do                                                  // this part effectively does nothing, since the deletion / modification only takes place _after_ the PetitionQuery. Though I don't know if the result remains intact if I execute the delete query beforehand.
         {                                                   // and SendPetitionQueryOpcode reads data from the DB
             Field* fields = result->Fetch();
-            ObjectGuid ownerguid = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32());
-            ObjectGuid petitionguid = ObjectGuid(HIGHGUID_ITEM, fields[1].GetUInt32());
+            ObjectGuid ownerguid = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt64());
+            ObjectGuid petitionguid = ObjectGuid(HIGHGUID_ITEM, fields[1].GetUInt64());
 
             // send update if charter owner in game
             Player* owner = ObjectAccessor::FindConnectedPlayer(ownerguid);
@@ -21410,7 +21405,7 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PETITION_SIGNATURES);
 
-            stmt->setUInt32(0, guid.GetCounter());
+            stmt->setUInt64(0, guid.GetCounter());
 
             CharacterDatabase.Execute(stmt);
         }
@@ -21418,7 +21413,7 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE);
 
-            stmt->setUInt32(0, guid.GetCounter());
+            stmt->setUInt64(0, guid.GetCounter());
             stmt->setUInt8(1, uint8(type));
 
             CharacterDatabase.Execute(stmt);
@@ -21429,22 +21424,22 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
     if (type == 10)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER);
-        stmt->setUInt32(0, guid.GetCounter());
+        stmt->setUInt64(0, guid.GetCounter());
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE_BY_OWNER);
-        stmt->setUInt32(0, guid.GetCounter());
+        stmt->setUInt64(0, guid.GetCounter());
         trans->Append(stmt);
     }
     else
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER_AND_TYPE);
-        stmt->setUInt32(0, guid.GetCounter());
+        stmt->setUInt64(0, guid.GetCounter());
         stmt->setUInt8(1, uint8(type));
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE_BY_OWNER_AND_TYPE);
-        stmt->setUInt32(0, guid.GetCounter());
+        stmt->setUInt64(0, guid.GetCounter());
         stmt->setUInt8(1, uint8(type));
         trans->Append(stmt);
     }
@@ -27267,7 +27262,7 @@ void Player::RefundItem(Item* item)
 
 void Player::SendItemRetrievalMail(uint32 itemEntry, uint32 count)
 {
-    MailSender sender(MAIL_CREATURE, 34337 /* The Postmaster */);
+    MailSender sender(MAIL_CREATURE, UI64LIT(34337) /* The Postmaster */);
     MailDraft draft("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -27537,7 +27532,7 @@ std::string Player::GetCoordsMapAreaAndZoneString()
 
 Guild* Player::GetGuild()
 {
-    uint32 guildId = GetGuildId();
+    ObjectGuid::LowType guildId = GetGuildId();
     return guildId ? sGuildMgr->GetGuildById(guildId) : NULL;
 }
 
@@ -27583,7 +27578,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     Map* map = GetMap();
     uint32 pet_number = sObjectMgr->GeneratePetNumber();
-    if (!pet->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PET), map, GetPhaseMask(), entry, pet_number))
+    if (!pet->Create(sObjectMgr->GetGenerator<HIGHGUID_PET>()->Generate(), map, GetPhaseMask(), entry, pet_number))
     {
         TC_LOG_ERROR("misc", "no such creature entry %u", entry);
         delete pet;

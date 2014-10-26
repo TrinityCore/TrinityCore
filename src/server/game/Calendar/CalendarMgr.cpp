@@ -58,7 +58,7 @@ void CalendarMgr::LoadFromDB()
             Field* fields = result->Fetch();
 
             uint64 eventId          = fields[0].GetUInt64();
-            ObjectGuid creatorGUID  = ObjectGuid(HIGHGUID_PLAYER, fields[1].GetUInt32());
+            ObjectGuid creatorGUID  = ObjectGuid(HIGHGUID_PLAYER, fields[1].GetUInt64());
             std::string title       = fields[2].GetString();
             std::string description = fields[3].GetString();
             CalendarEventType type  = CalendarEventType(fields[4].GetUInt8());
@@ -66,7 +66,7 @@ void CalendarMgr::LoadFromDB()
             uint32 eventTime        = fields[6].GetUInt32();
             uint32 flags            = fields[7].GetUInt32();
             uint32 timezoneTime     = fields[8].GetUInt32();
-            uint32 guildId = 0;
+            ObjectGuid::LowType guildId = UI64LIT(0);
 
             if (flags & CALENDAR_FLAG_GUILD_EVENT || flags & CALENDAR_FLAG_WITHOUT_INVITES)
                 guildId = Player::GetGuildIdFromDB(creatorGUID);
@@ -91,8 +91,8 @@ void CalendarMgr::LoadFromDB()
 
             uint64 inviteId             = fields[0].GetUInt64();
             uint64 eventId              = fields[1].GetUInt64();
-            ObjectGuid invitee          = ObjectGuid(HIGHGUID_PLAYER, fields[2].GetUInt32());
-            ObjectGuid senderGUID       = ObjectGuid(HIGHGUID_PLAYER, fields[3].GetUInt32());
+            ObjectGuid invitee          = ObjectGuid(HIGHGUID_PLAYER, fields[2].GetUInt64());
+            ObjectGuid senderGUID       = ObjectGuid(HIGHGUID_PLAYER, fields[3].GetUInt64());
             CalendarInviteStatus status = CalendarInviteStatus(fields[4].GetUInt8());
             uint32 statusTime           = fields[5].GetUInt32();
             CalendarModerationRank rank = CalendarModerationRank(fields[6].GetUInt8());
@@ -228,7 +228,7 @@ void CalendarMgr::UpdateEvent(CalendarEvent* calendarEvent)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_EVENT);
     stmt->setUInt64(0, calendarEvent->GetEventId());
-    stmt->setUInt32(1, calendarEvent->GetCreatorGUID().GetCounter());
+    stmt->setUInt64(1, calendarEvent->GetCreatorGUID().GetCounter());
     stmt->setString(2, calendarEvent->GetTitle());
     stmt->setString(3, calendarEvent->GetDescription());
     stmt->setUInt8(4, calendarEvent->GetType());
@@ -250,8 +250,8 @@ void CalendarMgr::UpdateInvite(CalendarInvite* invite, SQLTransaction& trans)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_INVITE);
     stmt->setUInt64(0, invite->GetInviteId());
     stmt->setUInt64(1, invite->GetEventId());
-    stmt->setUInt32(2, invite->GetInviteeGUID().GetCounter());
-    stmt->setUInt32(3, invite->GetSenderGUID().GetCounter());
+    stmt->setUInt64(2, invite->GetInviteeGUID().GetCounter());
+    stmt->setUInt64(3, invite->GetSenderGUID().GetCounter());
     stmt->setUInt8(4, invite->GetStatus());
     stmt->setUInt32(5, uint32(invite->GetStatusTime()));
     stmt->setUInt8(6, invite->GetRank());

@@ -229,7 +229,7 @@ inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, const
 inline void Map::_ScriptProcessDoor(Object* source, Object* target, const ScriptInfo* scriptInfo) const
 {
     bool bOpen = false;
-    uint32 guid = scriptInfo->ToggleDoor.GOGuid;
+    ObjectGuid::LowType guid = scriptInfo->ToggleDoor.GOGuid;
     int32 nTimeToToggle = std::max(15, int32(scriptInfo->ToggleDoor.ResetDelay));
     switch (scriptInfo->command)
     {
@@ -281,7 +281,7 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
     }
 }
 
-inline GameObject* Map::_FindGameObject(WorldObject* searchObject, uint32 guid) const
+inline GameObject* Map::_FindGameObject(WorldObject* searchObject, ObjectGuid::LowType guid) const
 {
     GameObject* gameobject = NULL;
 
@@ -820,7 +820,7 @@ void Map::ScriptsProcess()
                     CellCoord p(Trinity::ComputeCellCoord(wSource->GetPositionX(), wSource->GetPositionY()));
                     Cell cell(p);
 
-                    Trinity::CreatureWithDbGUIDCheck target_check(wSource, step.script->CallScript.CreatureEntry);
+                    Trinity::CreatureWithDbGUIDCheck target_check(wSource, uint64(step.script->CallScript.CreatureEntry));
                     Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(wSource, cTarget, target_check);
 
                     TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
@@ -829,7 +829,7 @@ void Map::ScriptsProcess()
                 else //check hashmap holders
                 {
                     if (CreatureData const* data = sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
-                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, ObjectGuid(HIGHGUID_UNIT, data->id, step.script->CallScript.CreatureEntry), cTarget);
+                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, ObjectGuid(HIGHGUID_UNIT, data->id, uint64(step.script->CallScript.CreatureEntry)), cTarget);
                 }
 
                 if (!cTarget)

@@ -738,13 +738,13 @@ namespace Trinity
     class GameObjectWithDbGUIDCheck
     {
         public:
-            GameObjectWithDbGUIDCheck(WorldObject const& /*obj*/, uint32 db_guid) : i_db_guid(db_guid) { }
+            GameObjectWithDbGUIDCheck(WorldObject const& /*obj*/, ObjectGuid::LowType db_guid) : i_db_guid(db_guid) { }
             bool operator()(GameObject const* go) const
             {
                 return go->GetDBTableGUIDLow() == i_db_guid;
             }
         private:
-            uint32 i_db_guid;
+            ObjectGuid::LowType i_db_guid;
     };
 
     // Unit checks
@@ -851,13 +851,13 @@ namespace Trinity
     class CreatureWithDbGUIDCheck
     {
         public:
-            CreatureWithDbGUIDCheck(WorldObject const* /*obj*/, uint32 lowguid) : i_lowguid(lowguid) { }
+            CreatureWithDbGUIDCheck(WorldObject const* /*obj*/, ObjectGuid::LowType lowguid) : i_lowguid(lowguid) { }
             bool operator()(Creature* u)
             {
                 return u->GetDBTableGUIDLow() == i_lowguid;
             }
         private:
-            uint32 i_lowguid;
+            ObjectGuid::LowType i_lowguid;
     };
 
     class AnyFriendlyUnitInObjectRangeCheck

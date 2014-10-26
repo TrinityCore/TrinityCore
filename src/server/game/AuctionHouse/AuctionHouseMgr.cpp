@@ -132,8 +132,8 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         // set owner to bidder (to prevent delete item with sender char deleting)
         // owner in `data` will set at mail receive and item extracting
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-        stmt->setUInt32(0, auction->bidder);
-        stmt->setUInt32(1, pItem->GetGUID().GetCounter());
+        stmt->setUInt64(0, auction->bidder);
+        stmt->setUInt64(1, pItem->GetGUID().GetCounter());
         trans->Append(stmt);
 
         if (bidder)
@@ -291,13 +291,13 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         Field* fields = result->Fetch();
 
-        uint32 item_guid        = fields[11].GetUInt32();
+        ObjectGuid::LowType item_guid = fields[11].GetUInt64();
         uint32 itemEntry    = fields[12].GetUInt32();
 
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
         if (!proto)
         {
-            TC_LOG_ERROR("misc", "AuctionHouseMgr::LoadAuctionItems: Unknown item (GUID: %u id: #%u) in auction, skipped.", item_guid, itemEntry);
+            TC_LOG_ERROR("misc", "AuctionHouseMgr::LoadAuctionItems: Unknown item (GUID: " UI64FMTD " id: #%u) in auction, skipped.", item_guid, itemEntry);
             continue;
         }
 

@@ -2724,7 +2724,7 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
     {
         m_members[guid] = member;
         player->SetInGuild(m_id);
-        player->SetGuildIdInvited(0);
+        player->SetGuildIdInvited(UI64LIT(0));
         player->SetRank(rankId);
         player->SetGuildLevel(GetLevel());
         SendLoginInfo(player->GetSession());
@@ -2824,7 +2824,7 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
     // If player not online data in data field will be loaded from guild tabs no need to update it !!
     if (player)
     {
-        player->SetInGuild(0);
+        player->SetInGuild(UI64LIT(0));
         player->SetRank(0);
         player->SetGuildLevel(0);
 

@@ -81,7 +81,7 @@ public:
         if (!id)
             return false;
 
-        uint32 guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = strtoull(id, nullptr, 10);
         if (!guidLow)
             return false;
 
@@ -150,7 +150,7 @@ public:
         Map* map = player->GetMap();
 
         GameObject* object = new GameObject;
-        uint32 guidLow = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+        ObjectGuid::LowType guidLow = sObjectMgr->GetGenerator<HIGHGUID_GAMEOBJECT>()->Generate();
 
         if (!object->Create(guidLow, objectInfo->entry, map, 0, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
         {
@@ -293,14 +293,15 @@ public:
 
         bool found = false;
         float x, y, z, o;
-        uint32 guidLow, id, phase;
+        ObjectGuid::LowType guidLow;
+        uint32 id, phase;
         uint16 mapId;
         uint32 poolId;
 
         do
         {
             Field* fields = result->Fetch();
-            guidLow = fields[0].GetUInt32();
+            guidLow = fields[0].GetUInt64();
             id =      fields[1].GetUInt32();
             x =       fields[2].GetFloat();
             y =       fields[3].GetFloat();
@@ -353,7 +354,7 @@ public:
         if (!id)
             return false;
 
-        uint32 guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = strtoull(id, nullptr, 10);
         if (!guidLow)
             return false;
 
@@ -401,7 +402,7 @@ public:
         if (!id)
             return false;
 
-        uint32 guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = strtoull(id, nullptr, 10);
         if (!guidLow)
             return false;
 
@@ -450,7 +451,7 @@ public:
         if (!id)
             return false;
 
-        uint32 guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = strtoull(id, nullptr, 10);
         if (!guidLow)
             return false;
 
@@ -569,7 +570,7 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guid = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
                 uint32 entry = fields[1].GetUInt32();
                 float x = fields[2].GetFloat();
                 float y = fields[3].GetFloat();
@@ -638,7 +639,7 @@ public:
         if (!id)
             return false;
 
-        uint32 guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = strtoull(id, nullptr, 10);
         if (!guidLow)
             return false;
 

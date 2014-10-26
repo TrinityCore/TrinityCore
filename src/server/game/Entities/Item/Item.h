@@ -220,7 +220,7 @@ class Item : public Object
 
         Item();
 
-        virtual bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
 
@@ -236,7 +236,7 @@ class Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
-        static void DeleteFromDB(SQLTransaction& trans, uint32 itemGuid);
+        static void DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
         virtual void DeleteFromDB(SQLTransaction& trans);
         static void DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
 
