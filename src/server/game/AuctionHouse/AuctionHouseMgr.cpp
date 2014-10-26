@@ -435,7 +435,7 @@ void AuctionHouseObject::AddAuction(AuctionEntry* auction)
     sScriptMgr->OnAuctionAdd(this, auction);
 }
 
-bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction, uint32 /*itemEntry*/)
+bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction)
 {
     bool wasInMap = AuctionsMap.erase(auction->Id) ? true : false;
 
@@ -492,7 +492,7 @@ void AuctionHouseObject::Update()
         auction->DeleteFromDB(trans);
 
         sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
-        RemoveAuction(auction, auction->itemEntry);
+        RemoveAuction(auction);
     }
 
     // Run DB changes
