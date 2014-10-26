@@ -121,7 +121,7 @@ struct generic_boss_controllerAI : public BossAI
             if (otherBoss->IsAlive())
             {
                 Talk(SAY_DIED_FIRST);
-                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                me->RemoveFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                 otherBoss->AI()->DoAction(ACTION_OTHER_JUST_DIED);
                 DoCast(me, OtherBossData == DATA_DALRONN ? SPELL_SUMMON_SKARVALD_GHOST : SPELL_SUMMON_DALRONN_GHOST, true);
             }

@@ -165,6 +165,12 @@ class Object
         bool HasFlag64(uint16 index, uint64 flag) const;
         void ApplyModFlag64(uint16 index, uint64 flag, bool apply);
 
+        std::vector<uint32> const& GetDynamicValues(uint16 index) const;
+        void AddDynamicValue(uint16 index, uint32 value);
+        void RemoveDynamicValue(uint16 index, uint32 value);
+        void ClearDynamicValue(uint16 index);
+        void SetDynamicValue(uint16 index, uint8 offset, uint32 value);
+
         void ClearUpdateMask(bool remove);
 
         uint16 GetValuesCount() const { return m_valuesCount; }
@@ -210,9 +216,11 @@ class Object
         void _LoadIntoDataField(std::string const& data, uint32 startOffset, uint32 count);
 
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
+        uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
 
         void BuildMovementUpdate(ByteBuffer* data, uint16 flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
+        virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
         uint16 m_objectType;
 
@@ -226,9 +234,14 @@ class Object
             float  *m_floatValues;
         };
 
+        std::vector<uint32>* _dynamicValues;
+
         UpdateMask _changesMask;
+        UpdateMask _dynamicChangesMask;
+        UpdateMask* _dynamicChangesArrayMask;
 
         uint16 m_valuesCount;
+        uint16 _dynamicValuesCount;
 
         uint16 _fieldNotifyFlags;
 

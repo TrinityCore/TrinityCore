@@ -366,7 +366,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         loot = &creature->loot;
         if (loot->isLooted())
         {
-            creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            creature->RemoveFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
             // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
             if (!creature->IsAlive())
@@ -386,7 +386,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                     group->SendLooter(creature, NULL);
 
                     // force update of dynamic flags, otherwise other group's players still not able to loot.
-                    creature->ForceValuesUpdateAtIndex(UNIT_DYNAMIC_FLAGS);
+                    creature->ForceValuesUpdateAtIndex(OBJECT_DYNAMIC_FLAGS);
                 }
             }
         }
