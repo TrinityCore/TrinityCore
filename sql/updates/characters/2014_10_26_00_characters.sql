@@ -18,7 +18,7 @@ ALTER TABLE `petition_sign` CHANGE `ownerguid` `ownerguid` BIGINT(20) UNSIGNED N
 ALTER TABLE `petition_sign` CHANGE `petitionguid` `petitionguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `petition_sign` CHANGE `playerguid` `playerguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `pvpstats_players` CHANGE `character_guid` `character_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `quest_tracker` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `quest_tracker` CHANGE `character_guid` `character_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `calendar_events` CHANGE `creator` `creator` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `calendar_invites` CHANGE `invitee` `invitee` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `calendar_invites` CHANGE `sender` `sender` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
