@@ -4553,20 +4553,20 @@ void Unit::ApplyResistanceBuffModsPercentMod(SpellSchools school, bool positive,
 void Unit::InitStatBuffMods()
 {
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
-        SetFloatValue(UNIT_FIELD_POSSTAT0+i, 0);
+        SetFloatValue(UNIT_FIELD_POSSTAT+i, 0);
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
-        SetFloatValue(UNIT_FIELD_NEGSTAT0+i, 0);
+        SetFloatValue(UNIT_FIELD_NEGSTAT+i, 0);
 }
 
 void Unit::ApplyStatBuffMod(Stats stat, float val, bool apply)
 {
-    ApplyModSignedFloatValue((val > 0 ? UNIT_FIELD_POSSTAT0+stat : UNIT_FIELD_NEGSTAT0+stat), val, apply);
+    ApplyModSignedFloatValue((val > 0 ? UNIT_FIELD_POSSTAT+stat : UNIT_FIELD_NEGSTAT+stat), val, apply);
 }
 
 void Unit::ApplyStatPercentBuffMod(Stats stat, float val, bool apply)
 {
-    ApplyPercentModFloatValue(UNIT_FIELD_POSSTAT0+stat, val, apply);
-    ApplyPercentModFloatValue(UNIT_FIELD_NEGSTAT0+stat, val, apply);
+    ApplyPercentModFloatValue(UNIT_FIELD_POSSTAT+stat, val, apply);
+    ApplyPercentModFloatValue(UNIT_FIELD_NEGSTAT+stat, val, apply);
 }
 
 void Unit::_RegisterDynObject(DynamicObject* dynObj)
@@ -10210,8 +10210,8 @@ void Unit::ClearInCombat()
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC); // set immunity state to the one from db on evade
 
         ClearUnitState(UNIT_STATE_ATTACK_PLAYER);
-        if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
-            SetUInt32Value(UNIT_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
+        if (HasFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
+            SetUInt32Value(OBJECT_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
 
         if (creature->IsPet())
         {
@@ -11763,7 +11763,7 @@ int32 Unit::GetPower(Powers power) const
     if (powerIndex == MAX_POWERS)
         return 0;
 
-    return GetUInt32Value(UNIT_FIELD_POWER1 + powerIndex);
+    return GetUInt32Value(UNIT_FIELD_POWER + powerIndex);
 }
 
 int32 Unit::GetMaxPower(Powers power) const
@@ -11772,7 +11772,7 @@ int32 Unit::GetMaxPower(Powers power) const
     if (powerIndex == MAX_POWERS)
         return 0;
 
-    return GetInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex);
+    return GetInt32Value(UNIT_FIELD_MAXPOWER + powerIndex);
 }
 
 void Unit::SetPower(Powers power, int32 val)
@@ -11785,7 +11785,7 @@ void Unit::SetPower(Powers power, int32 val)
     if (maxPower < val)
         val = maxPower;
 
-    SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
+    SetInt32Value(UNIT_FIELD_POWER + powerIndex, val);
 
     if (IsInWorld())
     {
@@ -11821,7 +11821,7 @@ void Unit::SetMaxPower(Powers power, int32 val)
         return;
 
     int32 cur_power = GetPower(power);
-    SetInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex, val);
+    SetInt32Value(UNIT_FIELD_MAXPOWER + powerIndex, val);
 
     // group update
     if (GetTypeId() == TYPEID_PLAYER)
@@ -13101,9 +13101,9 @@ void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply
         if (GetTypeId() == TYPEID_PLAYER)
         {
             if (att == BASE_ATTACK)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE, val, !apply);
+                ApplyPercentModFloatValue(UNIT_FIELD_MOD_HASTE, val, !apply);
             else if (att == RANGED_ATTACK)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE, val, !apply);
+                ApplyPercentModFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, val, !apply);
         }
     }
     else
@@ -13114,9 +13114,9 @@ void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply
         if (GetTypeId() == TYPEID_PLAYER)
         {
             if (att == BASE_ATTACK)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE, -val, apply);
+                ApplyPercentModFloatValue(UNIT_FIELD_MOD_HASTE, -val, apply);
             else if (att == RANGED_ATTACK)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE, -val, apply);
+                ApplyPercentModFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, -val, apply);
         }
     }
     m_attackTimer[att] = uint32(GetAttackTime(att) * m_modAttackSpeedPct[att] * remainingTimePct);
@@ -13863,7 +13863,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
             // must be after setDeathState which resets dynamic flags
             if (!creature->loot.isLooted())
-                creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                creature->SetFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             else
                 creature->AllLootRemovedFromCorpse();
         }
@@ -16492,7 +16492,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     if (GetOwnerGUID() == target->GetGUID())
         visibleFlag |= UF_FLAG_OWNER;
 
-    if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+    if (HasFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
         if (HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
             visibleFlag |= UF_FLAG_SPECIAL_INFO;
 
@@ -16531,10 +16531,10 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                 fieldBuffer << uint32(m_floatValues[index] < 0 ? 0 : m_floatValues[index]);
             }
             // there are some float values which may be negative or can't get negative due to other checks
-            else if ((index >= UNIT_FIELD_NEGSTAT0   && index <= UNIT_FIELD_NEGSTAT4) ||
+            else if ((index >= UNIT_FIELD_NEGSTAT && index < UNIT_FIELD_NEGSTAT + 5) ||
                 (index >= UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE  && index <= (UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 6)) ||
                 (index >= UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE  && index <= (UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6)) ||
-                (index >= UNIT_FIELD_POSSTAT0   && index <= UNIT_FIELD_POSSTAT4))
+                (index >= UNIT_FIELD_POSSTAT && index < UNIT_FIELD_POSSTAT + 5))
             {
                 fieldBuffer << uint32(m_floatValues[index]);
             }
@@ -16587,9 +16587,9 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                 fieldBuffer << uint32(displayId);
             }
             // hide lootable animation for unallowed players
-            else if (index == UNIT_DYNAMIC_FLAGS)
+            else if (index == OBJECT_DYNAMIC_FLAGS)
             {
-                uint32 dynamicFlags = m_uint32Values[UNIT_DYNAMIC_FLAGS] & ~(UNIT_DYNFLAG_TAPPED | UNIT_DYNFLAG_TAPPED_BY_PLAYER);
+                uint32 dynamicFlags = m_uint32Values[OBJECT_DYNAMIC_FLAGS] & ~(UNIT_DYNFLAG_TAPPED | UNIT_DYNFLAG_TAPPED_BY_PLAYER);
 
                 if (creature)
                 {

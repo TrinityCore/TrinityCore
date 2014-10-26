@@ -44,6 +44,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_updateFlag = (UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION);
 
     m_valuesCount = GAMEOBJECT_END;
+    _dynamicValuesCount = GAMEOBJECT_DYNAMIC_END;
     m_respawnTime = 0;
     m_respawnDelayTime = 300;
     m_lootState = GO_NOT_READY;
@@ -2263,7 +2264,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
         {
             updateMask.SetBit(index);
 
-            if (index == GAMEOBJECT_DYNAMIC)
+            if (index == OBJECT_DYNAMIC_FLAGS)
             {
                 uint16 dynFlags = 0;
                 int16 pathProgress = -1;

@@ -59,8 +59,11 @@ Object::Object()
     m_objectType        = TYPEMASK_OBJECT;
     m_updateFlag        = UPDATEFLAG_NONE;
 
-    m_uint32Values      = NULL;
+    m_uint32Values      = nullptr;
+    _dynamicValues      = nullptr;
+    _dynamicChangesArrayMask = nullptr;
     m_valuesCount       = 0;
+    _dynamicValuesCount = 0;
     _fieldNotifyFlags   = UF_FLAG_DYNAMIC;
 
     m_inWorld           = false;
@@ -100,8 +103,14 @@ Object::~Object()
         sObjectAccessor->RemoveUpdateObject(this);
     }
 
-    delete [] m_uint32Values;
+    delete[] m_uint32Values;
     m_uint32Values = nullptr;
+
+    delete[] _dynamicValues;
+    _dynamicValues = nullptr;
+
+    delete[] _dynamicChangesArrayMask;
+    _dynamicChangesArrayMask = nullptr;
 }
 
 void Object::_InitValues()
@@ -110,6 +119,13 @@ void Object::_InitValues()
     memset(m_uint32Values, 0, m_valuesCount*sizeof(uint32));
 
     _changesMask.SetCount(m_valuesCount);
+
+    _dynamicChangesMask.SetCount(_dynamicValuesCount);
+    if (_dynamicValuesCount)
+    {
+        _dynamicValues = new std::vector<uint32>[_dynamicValuesCount];
+        _dynamicChangesArrayMask = new UpdateMask[_dynamicValuesCount];
+    }
 
     m_objectUpdated = false;
 }
@@ -231,6 +247,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);
+    BuildDynamicValuesUpdate(updateType, &buf, target);
     data->AddUpdateBlock(buf);
 }
 
@@ -253,6 +270,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << GetPackGUID();
 
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
+    BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
 
     data->AddUpdateBlock(buf);
 }
@@ -691,9 +709,55 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     data->append(fieldBuffer);
 }
 
+void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
+{
+    if (!target)
+        return;
+
+    ByteBuffer fieldBuffer;
+    UpdateMask updateMask;
+    updateMask.SetCount(_dynamicValuesCount);
+
+    uint32* flags = nullptr;
+    uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
+
+    for (uint16 index = 0; index < _dynamicValuesCount; ++index)
+    {
+        ByteBuffer buffer;
+        std::vector<uint32> const& values = _dynamicValues[index];
+        if (_fieldNotifyFlags & flags[index] ||
+            ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask.GetBit(index) : !values.empty()) && (flags[index] & visibleFlag)))
+        {
+            updateMask.SetBit(index);
+
+            UpdateMask arrayMask;
+            arrayMask.SetCount(values.size());
+            for (std::size_t v = 0; v < values.size(); ++v)
+            {
+                if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index].GetBit(v))
+                {
+                    arrayMask.SetBit(v);
+                    buffer << uint32(values[v]);
+                }
+            }
+
+            fieldBuffer << uint8(arrayMask.GetBlockCount());
+            arrayMask.AppendToPacket(&fieldBuffer);
+            fieldBuffer.append(buffer);
+        }
+    }
+
+    *data << uint8(updateMask.GetBlockCount());
+    updateMask.AppendToPacket(data);
+    data->append(fieldBuffer);
+}
+
 void Object::ClearUpdateMask(bool remove)
 {
     _changesMask.Clear();
+    _dynamicChangesMask.Clear();
+    for (uint32 i = 0; i < _dynamicValuesCount; ++i)
+        _dynamicChangesArrayMask[i].Clear();
 
     if (m_objectUpdated)
     {
@@ -740,7 +804,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             if (ToUnit()->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
 
-            if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+            if (HasFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
                 if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
                     visibleFlag |= UF_FLAG_SPECIAL_INFO;
 
@@ -767,6 +831,45 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             flags = AreaTriggerUpdateFieldFlags;
             break;
         case TYPEID_OBJECT:
+            break;
+    }
+
+    return visibleFlag;
+}
+
+uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const
+{
+    uint32 visibleFlag = UF_FLAG_PUBLIC;
+
+    if (target == this)
+        visibleFlag |= UF_FLAG_PRIVATE;
+
+    switch (GetTypeId())
+    {
+        case TYPEID_ITEM:
+        case TYPEID_CONTAINER:
+            flags = ItemDynamicUpdateFieldFlags;
+            if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
+            break;
+        case TYPEID_UNIT:
+        case TYPEID_PLAYER:
+        {
+            Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
+            flags = UnitDynamicUpdateFieldFlags;
+            if (ToUnit()->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
+
+            if (HasFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+                if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+                    visibleFlag |= UF_FLAG_SPECIAL_INFO;
+
+            if (plr && plr->IsInSameRaidWith(target))
+                visibleFlag |= UF_FLAG_PARTY_MEMBER;
+            break;
+        }
+        default:
+            flags = nullptr;
             break;
     }
 
@@ -1183,6 +1286,82 @@ bool Object::HasFlag64(uint16 index, uint64 flag) const
 void Object::ApplyModFlag64(uint16 index, uint64 flag, bool apply)
 {
     if (apply) SetFlag64(index, flag); else RemoveFlag64(index, flag);
+}
+
+std::vector<uint32> const& Object::GetDynamicValues(uint16 index) const
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+    return _dynamicValues[index];
+}
+
+void Object::AddDynamicValue(uint16 index, uint32 value)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+
+    std::vector<uint32>& values = _dynamicValues[index];
+    UpdateMask& mask = _dynamicChangesArrayMask[index];
+
+    _dynamicChangesMask.SetBit(index);
+    if (values.size() >= values.capacity())
+        values.reserve(values.capacity() + 32);
+
+    values.push_back(value);
+    if (mask.GetCount() < values.size())
+        mask.AddBlock();
+
+    mask.SetBit(values.size());
+
+    if (m_inWorld && !m_objectUpdated)
+    {
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
+}
+
+void Object::RemoveDynamicValue(uint16 index, uint32 value)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+    /// TODO: Research if this is actually needed
+}
+
+void Object::ClearDynamicValue(uint16 index)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+
+    if (!_dynamicValues[index].empty())
+    {
+        _dynamicValues[index].clear();
+        _dynamicChangesMask.SetBit(index);
+        _dynamicChangesArrayMask[index].SetCount(0);
+
+        if (m_inWorld && !m_objectUpdated)
+        {
+            sObjectAccessor->AddUpdateObject(this);
+            m_objectUpdated = true;
+        }
+    }
+}
+
+void Object::SetDynamicValue(uint16 index, uint8 offset, uint32 value)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+
+    std::vector<uint32>& values = _dynamicValues[index];
+
+    ASSERT(offset < values.size());
+
+    if (values[offset] != value)
+    {
+        values[offset] = value;
+        _dynamicChangesMask.SetBit(index);
+        _dynamicChangesArrayMask[index].SetBit(offset);
+
+        if (m_inWorld && !m_objectUpdated)
+        {
+            sObjectAccessor->AddUpdateObject(this);
+            m_objectUpdated = true;
+        }
+    }
 }
 
 bool Object::PrintIndexError(uint32 index, bool set) const
