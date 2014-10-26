@@ -141,7 +141,6 @@ template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_UNIT>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_PET>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_VEHICLE>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_ITEM>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_PET>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_GAMEOBJECT>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_DYNAMICOBJECT>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_CORPSE>::Generate();

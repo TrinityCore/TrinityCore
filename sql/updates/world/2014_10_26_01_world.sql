@@ -2,7 +2,7 @@ RENAME TABLE `game_graveyard_zone` TO `graveyard_zone`;
 ALTER TABLE `graveyard_zone` CHANGE `id` `ID` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `graveyard_zone` CHANGE `ghost_zone` `GhostZone` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `graveyard_zone` CHANGE `faction` `Faction` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `graveyard_zone` ADD COLUMN `Comment` TEXT NOT NULL DEFAULT '' AFTER `Faction`;
+ALTER TABLE `graveyard_zone` ADD COLUMN `Comment` TEXT AFTER `Faction`;
 
 UPDATE `graveyard_zone` SET `Comment`='Redridge Mountains - Redridge Mountains' WHERE `ID`=2;
 UPDATE `graveyard_zone` SET `Comment`='Duskwood, Darkshire - Duskwood' WHERE `ID`=3;
