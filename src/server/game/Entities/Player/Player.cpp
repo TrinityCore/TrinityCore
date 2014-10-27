@@ -27990,7 +27990,7 @@ void Player::SendUpdatePhasing()
         return;
 
     std::set<uint32> worldAreaSwaps; // @ToDo
-    GetSession()->SendSetPhaseShift(GetPhases(), _terrainSwaps, worldAreaSwaps);
+    GetSession()->SendSetPhaseShift(GetPhases(), GetTerrainSwaps(), worldAreaSwaps);
 }
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)

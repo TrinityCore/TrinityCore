@@ -599,6 +599,7 @@ class WorldObject : public Object, public WorldLocation
         bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
         bool IsInPhase(WorldObject const* obj) const;
         std::set<uint32> const& GetPhases() const { return _phases; }
+        std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }
 
         uint32 GetZoneId() const;
         uint32 GetAreaId() const;

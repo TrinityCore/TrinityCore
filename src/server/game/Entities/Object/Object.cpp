@@ -2738,8 +2738,11 @@ void WorldObject::SetInPhase(uint32 id, bool update, bool apply)
         _phases.erase(id);
         // Remove the terrain swaps that were applied by this phase
         // Iterator pointing to the start of the sequence of elements that we're going to delete
-        std::set<uint32>::iterator endRange = std::set_difference(_terrainSwaps.begin(), _terrainSwaps.end(), terrainSwaps.begin(), terrainSwaps.end(), _terrainSwaps.begin());
-        terrainSwaps.erase(endRange, _terrainSwaps.end());
+
+        // other phases could use the same terrain swaps too, check for them before remove!!!
+
+        //std::set<uint32>::iterator endRange = std::set_difference(_terrainSwaps.begin(), _terrainSwaps.end(), terrainSwaps.begin(), terrainSwaps.end(), _terrainSwaps.begin());
+        //terrainSwaps.erase(endRange, _terrainSwaps.end());
     }
 
     if (update && IsInWorld())
