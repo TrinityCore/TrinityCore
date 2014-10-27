@@ -39,7 +39,7 @@ namespace Connection_Patcher
     namespace
     {
         template<typename PATCH, typename PATTERN>
-            void PatchModule (boost::filesystem::path file, boost::filesystem::path path)
+        void PatchModule (boost::filesystem::path file, boost::filesystem::path path)
         {
             std::cout << "Patching module...\n";
 
@@ -62,7 +62,7 @@ namespace Connection_Patcher
         }
 
         template<typename PATCH, typename PATTERN>
-            void do_module (std::string moduleName, boost::filesystem::path path)
+        void do_module (std::string moduleName, boost::filesystem::path path)
         {
             boost::filesystem::path const modulePath
                 (path / std::string (&moduleName[0], 2) / std::string (&moduleName[2], 2));
@@ -77,7 +77,7 @@ namespace Connection_Patcher
         }
 
         template<typename PATCH, typename PATTERN>
-            void do_patches (Patcher* patcher, boost::filesystem::path output)
+        void do_patches (Patcher* patcher, boost::filesystem::path output)
         {
             std::cout << "patching BNet\n";
             patcher->Patch (PATCH::BNet(), PATTERN::BNet());
