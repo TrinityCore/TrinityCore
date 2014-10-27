@@ -472,7 +472,7 @@ void Creature::Update(uint32 diff)
                 if (!allowed)                                               // Will be rechecked on next Update call
                     break;
 
-                ObjectGuid dbtableHighGuid(HIGHGUID_UNIT, GetEntry(), m_DBTableGuid);
+                ObjectGuid dbtableHighGuid(HighGuid::Creature, GetEntry(), m_DBTableGuid);
                 time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                 if (!linkedRespawntime)             // Can respawn
                     Respawn();
@@ -1194,7 +1194,7 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
 
     SetOriginalEntry(entry);
 
-    Object::_Create(guidlow, entry, (vehId || cinfo->VehicleId) ? HIGHGUID_VEHICLE : HIGHGUID_UNIT);
+    Object::_Create(guidlow, entry, (vehId || cinfo->VehicleId) ? HighGuid::Vehicle : HighGuid::Creature);
 
     if (!UpdateEntry(entry, data))
         return false;
@@ -1229,11 +1229,11 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addTo
     m_DBTableGuid = guid;
     if (map->GetInstanceId() == 0)
     {
-        if (map->GetCreature(ObjectGuid(HIGHGUID_UNIT, data->id, guid)))
+        if (map->GetCreature(ObjectGuid(HighGuid::Creature, data->id, guid)))
             return false;
     }
     else
-        guid = sObjectMgr->GetGenerator<HIGHGUID_UNIT>()->Generate();
+        guid = sObjectMgr->GetGenerator<HighGuid::Creature>()->Generate();
 
     if (!Create(guid, map, data->phaseMask, data->id, data->posX, data->posY, data->posZ, data->orientation, data))
         return false;

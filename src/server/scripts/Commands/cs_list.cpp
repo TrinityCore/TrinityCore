@@ -181,10 +181,10 @@ public:
             do
             {
                 Field* fields           = result->Fetch();
-                ObjectGuid itemGuid(HIGHGUID_ITEM, fields[0].GetUInt64());
+                ObjectGuid itemGuid(HighGuid::Item, fields[0].GetUInt64());
                 uint32 itemBag          = fields[1].GetUInt32();
                 uint8 itemSlot          = fields[2].GetUInt8();
-                ObjectGuid ownerGuid(HIGHGUID_PLAYER, fields[3].GetUInt64());
+                ObjectGuid ownerGuid(HighGuid::Player, fields[3].GetUInt64());
                 uint32 ownerAccountId   = fields[4].GetUInt32();
                 std::string ownerName   = fields[5].GetString();
 
@@ -282,8 +282,8 @@ public:
             do
             {
                 Field* fields           = result->Fetch();
-                ObjectGuid itemGuid(HIGHGUID_ITEM, fields[0].GetUInt64());
-                ObjectGuid owner(HIGHGUID_PLAYER, fields[1].GetUInt64());
+                ObjectGuid itemGuid(HighGuid::Item, fields[0].GetUInt64());
+                ObjectGuid owner(HighGuid::Player, fields[1].GetUInt64());
                 uint32 ownerAccountId   = fields[2].GetUInt32();
                 std::string ownerName   = fields[3].GetString();
 
@@ -314,8 +314,8 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                ObjectGuid itemGuid(HIGHGUID_ITEM, fields[0].GetUInt64());
-                ObjectGuid guildGuid(HIGHGUID_GUILD, fields[1].GetUInt64());
+                ObjectGuid itemGuid(HighGuid::Item, fields[0].GetUInt64());
+                ObjectGuid guildGuid(HighGuid::Guild, fields[1].GetUInt64());
                 std::string guildName = fields[2].GetString();
 
                 char const* itemPos = "[in guild bank]";
@@ -476,7 +476,7 @@ public:
         if (!*args)
             return false;
 
-        ObjectGuid parseGUID(HIGHGUID_PLAYER, strtoull(args, nullptr, 10));
+        ObjectGuid parseGUID(HighGuid::Player, strtoull(args, nullptr, 10));
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
         {

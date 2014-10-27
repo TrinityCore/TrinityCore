@@ -221,7 +221,7 @@ void PoolGroup<Creature>::Despawn1Object(uint64 guid)
     {
         sObjectMgr->RemoveCreatureFromGrid(guid, data);
 
-        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_UNIT, data->id, guid), (Creature*)NULL))
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HighGuid::Creature, data->id, guid), (Creature*)NULL))
             creature->AddObjectToRemoveList();
     }
 }
@@ -234,7 +234,7 @@ void PoolGroup<GameObject>::Despawn1Object(uint64 guid)
     {
         sObjectMgr->RemoveGameobjectFromGrid(guid, data);
 
-        if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, guid), (GameObject*)NULL))
+        if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid(HighGuid::GameObject, data->id, guid), (GameObject*)NULL))
             pGameobject->AddObjectToRemoveList();
     }
 }
@@ -510,7 +510,7 @@ template <>
 void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 {
     if (CreatureData const* data = sObjectMgr->GetCreatureData(obj->guid))
-        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_UNIT, data->id, obj->guid), (Creature*)NULL))
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HighGuid::Creature, data->id, obj->guid), (Creature*)NULL))
             creature->GetMap()->AddToMap(creature);
 }
 
@@ -519,7 +519,7 @@ template <>
 void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* obj)
 {
     if (GameObjectData const* data = sObjectMgr->GetGOData(obj->guid))
-        if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, obj->guid), (GameObject*)NULL))
+        if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid(HighGuid::GameObject, data->id, obj->guid), (GameObject*)NULL))
             pGameobject->GetMap()->AddToMap(pGameobject);
 }
 

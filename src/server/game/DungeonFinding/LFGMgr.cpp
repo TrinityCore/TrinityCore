@@ -55,10 +55,10 @@ void LFGMgr::_LoadFromDB(Field* fields, ObjectGuid guid)
     if (!fields)
         return;
 
-    if (!guid.IsGroup())
+    if (!guid.IsParty())
         return;
 
-    SetLeader(guid, ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt64()));
+    SetLeader(guid, ObjectGuid(HighGuid::Player, fields[0].GetUInt64()));
 
     uint32 dungeon = fields[17].GetUInt32();
     uint8 state = fields[18].GetUInt8();
@@ -81,7 +81,7 @@ void LFGMgr::_LoadFromDB(Field* fields, ObjectGuid guid)
 
 void LFGMgr::_SaveToDB(ObjectGuid guid, uint32 db_guid)
 {
-    if (!guid.IsGroup())
+    if (!guid.IsParty())
         return;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
@@ -582,7 +582,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
 */
 void LFGMgr::LeaveLfg(ObjectGuid guid)
 {
-    ObjectGuid gguid = guid.IsGroup() ? guid : GetGroup(guid);
+    ObjectGuid gguid = guid.IsParty() ? guid : GetGroup(guid);
 
     TC_LOG_DEBUG("lfg.leave", "%s left (%s)", guid.ToString().c_str(), guid == gguid ? "group" : "player");
 
@@ -1466,7 +1466,7 @@ LfgType LFGMgr::GetDungeonType(uint32 dungeonId)
 LfgState LFGMgr::GetState(ObjectGuid guid)
 {
     LfgState state;
-    if (guid.IsGroup())
+    if (guid.IsParty())
     {
         state = GroupsStore[guid].GetState();
         TC_LOG_TRACE("lfg.data.group.state.get", "Group: %s, State: %u", guid.ToString().c_str(), state);
@@ -1483,7 +1483,7 @@ LfgState LFGMgr::GetState(ObjectGuid guid)
 LfgState LFGMgr::GetOldState(ObjectGuid guid)
 {
     LfgState state;
-    if (guid.IsGroup())
+    if (guid.IsParty())
     {
         state = GroupsStore[guid].GetOldState();
         TC_LOG_TRACE("lfg.data.group.oldstate.get", "Group: %s, Old state: %u", guid.ToString().c_str(), state);
@@ -1615,7 +1615,7 @@ uint8 LFGMgr::GetKicksLeft(ObjectGuid guid)
 
 void LFGMgr::RestoreState(ObjectGuid guid, char const* debugMsg)
 {
-    if (guid.IsGroup())
+    if (guid.IsParty())
     {
         LfgGroupData& data = GroupsStore[guid];
         TC_LOG_TRACE("lfg.data.group.state.restore", "Group: %s (%s), State: %s, Old state: %s",
@@ -1637,7 +1637,7 @@ void LFGMgr::RestoreState(ObjectGuid guid, char const* debugMsg)
 
 void LFGMgr::SetState(ObjectGuid guid, LfgState state)
 {
-    if (guid.IsGroup())
+    if (guid.IsParty())
     {
         LfgGroupData& data = GroupsStore[guid];
         TC_LOG_TRACE("lfg.data.group.state.set", "Group: %s, New state: %s, Previous: %s, Old state: %s",
@@ -1823,12 +1823,12 @@ void LFGMgr::SendLfgQueueStatus(ObjectGuid guid, LfgQueueStatusData const& data)
 
 bool LFGMgr::IsLfgGroup(ObjectGuid guid)
 {
-    return !guid.IsEmpty() && guid.IsGroup() && GroupsStore[guid].IsLfgGroup();
+    return !guid.IsEmpty() && guid.IsParty() && GroupsStore[guid].IsLfgGroup();
 }
 
 uint8 LFGMgr::GetQueueId(ObjectGuid guid)
 {
-    if (guid.IsGroup())
+    if (guid.IsParty())
     {
         GuidSet const& players = GetPlayers(guid);
         ObjectGuid pguid = players.empty() ? ObjectGuid::Empty : (*players.begin());
@@ -1953,7 +1953,7 @@ bool LFGMgr::selectedRandomLfgDungeon(ObjectGuid guid)
 
 bool LFGMgr::inLfgDungeonMap(ObjectGuid guid, uint32 map, Difficulty difficulty)
 {
-    if (!guid.IsGroup())
+    if (!guid.IsParty())
         guid = GetGroup(guid);
 
     if (uint32 dungeonId = GetDungeon(guid, true))

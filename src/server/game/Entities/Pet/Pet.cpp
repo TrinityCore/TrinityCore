@@ -175,7 +175,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     }
 
     Map* map = owner->GetMap();
-    if (!Create(sObjectMgr->GetGenerator<HIGHGUID_PET>()->Generate(), map, owner->GetPhaseMask(), petEntry, petId))
+    if (!Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, owner->GetPhaseMask(), petEntry, petId))
         return false;
 
     for (auto itr : owner->GetPhases())
@@ -771,7 +771,7 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phas
 {
     TC_LOG_DEBUG("entities.pet", "Pet::CreateBaseForTamed");
     uint32 petId = sObjectMgr->GeneratePetNumber();
-    if (!Create(sObjectMgr->GetGenerator<HIGHGUID_PET>()->Generate(), map, phaseMask, cinfo->Entry, petId))
+    if (!Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, phaseMask, cinfo->Entry, petId))
         return false;
 
     setPowerType(POWER_FOCUS);
@@ -1871,7 +1871,7 @@ bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32
     SetMap(map);
 
     SetPhaseMask(phaseMask, false);
-    Object::_Create(guidlow, petId, HIGHGUID_PET);
+    Object::_Create(guidlow, petId, HighGuid::Pet);
 
     m_DBTableGuid = guidlow;
     m_originalEntry = Entry;
