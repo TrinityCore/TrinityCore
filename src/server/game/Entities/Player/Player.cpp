@@ -23162,6 +23162,7 @@ template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data
 template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, std::set<Unit*>& visibleNow);
 template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, std::set<Unit*>& visibleNow);
 template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::set<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(AreaTrigger*   target, UpdateData& data, std::set<Unit*>& visibleNow);
 
 void Player::UpdateObjectVisibility(bool forced)
 {
