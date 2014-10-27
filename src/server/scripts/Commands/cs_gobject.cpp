@@ -150,7 +150,7 @@ public:
         Map* map = player->GetMap();
 
         GameObject* object = new GameObject;
-        ObjectGuid::LowType guidLow = sObjectMgr->GetGenerator<HIGHGUID_GAMEOBJECT>()->Generate();
+        ObjectGuid::LowType guidLow = sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate();
 
         if (!object->Create(guidLow, objectInfo->entry, map, 0, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
         {
@@ -328,7 +328,7 @@ public:
             return false;
         }
 
-        GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, id, guidLow));
+        GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(ObjectGuid(HighGuid::GameObject, id, guidLow));
 
         handler->PSendSysMessage(LANG_GAMEOBJECT_DETAIL, guidLow, objectInfo->name.c_str(), guidLow, id, x, y, z, mapId, o, phase);
 

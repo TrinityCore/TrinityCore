@@ -735,7 +735,7 @@ void AchievementMgr<Guild>::LoadFromDB(PreparedQueryResult achievementResult, Pr
             ca.date = time_t(fields[1].GetUInt32());
             Tokenizer guids(fields[2].GetString(), ' ');
             for (uint32 i = 0; i < guids.size(); ++i)
-                ca.guids.insert(ObjectGuid(HIGHGUID_PLAYER, uint64(strtoull(guids[i], nullptr, 10))));
+                ca.guids.insert(ObjectGuid(HighGuid::Player, uint64(strtoull(guids[i], nullptr, 10))));
 
             ca.changed = false;
 
@@ -773,7 +773,7 @@ void AchievementMgr<Guild>::LoadFromDB(PreparedQueryResult achievementResult, Pr
             CriteriaProgress& progress = m_criteriaProgress[id];
             progress.counter = counter;
             progress.date    = date;
-            progress.CompletedGUID = ObjectGuid(HIGHGUID_PLAYER, guid);
+            progress.CompletedGUID = ObjectGuid(HighGuid::Player, guid);
             progress.changed = false;
         } while (criteriaResult->NextRow());
     }

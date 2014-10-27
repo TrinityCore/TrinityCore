@@ -240,7 +240,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
         do
         {
-            ObjectGuid guid(HIGHGUID_PLAYER, (*result)[0].GetUInt64());
+            ObjectGuid guid(HighGuid::Player, (*result)[0].GetUInt64());
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", guid.ToString().c_str(), GetAccountId());
 
@@ -632,7 +632,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             Player newChar(this);
             newChar.GetMotionMaster()->Initialize();
-            if (!newChar.Create(sObjectMgr->GetGenerator<HIGHGUID_PLAYER>()->Generate(), createInfo))
+            if (!newChar.Create(sObjectMgr->GetGenerator<HighGuid::Player>()->Generate(), createInfo))
             {
                 // Player not create (race/class/etc problem?)
                 newChar.CleanupsBeforeDelete();

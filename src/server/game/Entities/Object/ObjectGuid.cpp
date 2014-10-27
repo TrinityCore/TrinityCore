@@ -28,21 +28,18 @@ char const* ObjectGuid::GetTypeName(HighGuid high)
 {
     switch (high)
     {
-        case HIGHGUID_ITEM:         return "Item";
-        case HIGHGUID_PLAYER:       return "Player";
-        case HIGHGUID_GAMEOBJECT:   return "Gameobject";
-        case HIGHGUID_TRANSPORT:    return "Transport";
-        case HIGHGUID_UNIT:         return "Creature";
-        case HIGHGUID_PET:          return "Pet";
-        case HIGHGUID_VEHICLE:      return "Vehicle";
-        case HIGHGUID_DYNAMICOBJECT: return "DynObject";
-        case HIGHGUID_CORPSE:       return "Corpse";
-        case HIGHGUID_AREATRIGGER:  return "AreaTrigger";
-        case HIGHGUID_BATTLEGROUND: return "Battleground";
-        case HIGHGUID_MO_TRANSPORT: return "MoTransport";
-        case HIGHGUID_INSTANCE:     return "InstanceID";
-        case HIGHGUID_GROUP:        return "Group";
-        case HIGHGUID_GUILD:        return "Guild";
+        case HighGuid::Item:            return "Item";
+        case HighGuid::Player:          return "Player";
+        case HighGuid::GameObject:      return "Gameobject";
+        case HighGuid::Creature:        return "Creature";
+        case HighGuid::Pet:             return "Pet";
+        case HighGuid::Vehicle:         return "Vehicle";
+        case HighGuid::DynamicObject:   return "DynObject";
+        case HighGuid::Corpse:          return "Corpse";
+        case HighGuid::AreaTrigger:     return "AreaTrigger";
+        case HighGuid::Transport:       return "Transport";
+        case HighGuid::Party:           return "Party";
+        case HighGuid::Guild:           return "Guild";
         default:
             return "<unknown>";
     }
@@ -136,13 +133,13 @@ std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid)
     return stream;
 }
 
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_PLAYER>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_UNIT>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_PET>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_VEHICLE>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_ITEM>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_GAMEOBJECT>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_DYNAMICOBJECT>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_CORPSE>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_AREATRIGGER>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HIGHGUID_MO_TRANSPORT>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Player>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Creature>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Pet>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Vehicle>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Item>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::GameObject>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::DynamicObject>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Corpse>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::AreaTrigger>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Transport>::Generate();

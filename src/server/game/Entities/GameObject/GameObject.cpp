@@ -44,6 +44,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_updateFlag = (UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION);
 
     m_valuesCount = GAMEOBJECT_END;
+    _dynamicValuesCount = GAMEOBJECT_DYNAMIC_END;
     m_respawnTime = 0;
     m_respawnDelayTime = 300;
     m_lootState = GO_NOT_READY;
@@ -193,7 +194,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         m_updateFlag |= UPDATEFLAG_TRANSPORT;
 
-    Object::_Create(guidlow, goinfo->entry, HIGHGUID_GAMEOBJECT);
+    Object::_Create(guidlow, goinfo->entry, HighGuid::GameObject);
 
     m_goInfo = goinfo;
 
@@ -403,7 +404,7 @@ void GameObject::Update(uint32 diff)
                 time_t now = time(NULL);
                 if (m_respawnTime <= now)            // timer expired
                 {
-                    ObjectGuid dbtableHighGuid(HIGHGUID_GAMEOBJECT, GetEntry(), m_DBTableGuid);
+                    ObjectGuid dbtableHighGuid(HighGuid::GameObject, GetEntry(), m_DBTableGuid);
                     time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                     if (linkedRespawntime)             // Can't respawn, the master is dead
                     {
@@ -852,7 +853,7 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool a
 
     m_DBTableGuid = guid;
     if (map->GetInstanceId() != 0)
-        guid = sObjectMgr->GetGenerator<HIGHGUID_GAMEOBJECT>()->Generate();
+        guid = sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate();
 
     if (!Create(guid, entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
         return false;
@@ -2263,7 +2264,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
         {
             updateMask.SetBit(index);
 
-            if (index == GAMEOBJECT_DYNAMIC)
+            if (index == OBJECT_DYNAMIC_FLAGS)
             {
                 uint16 dynFlags = 0;
                 int16 pathProgress = -1;

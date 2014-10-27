@@ -193,7 +193,7 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult result)
 
     TeamId            = fields[0].GetUInt32();
     TeamName          = fields[1].GetString();
-    CaptainGuid       = ObjectGuid(HIGHGUID_PLAYER, fields[2].GetUInt64());
+    CaptainGuid       = ObjectGuid(HighGuid::Player, fields[2].GetUInt64());
     Type              = fields[3].GetUInt8();
     BackgroundColor   = fields[4].GetUInt32();
     EmblemStyle       = fields[5].GetUInt8();
@@ -232,7 +232,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
             break;
 
         ArenaTeamMember newMember;
-        newMember.Guid             = ObjectGuid(HIGHGUID_PLAYER, fields[1].GetUInt64());
+        newMember.Guid             = ObjectGuid(HighGuid::Player, fields[1].GetUInt64());
         newMember.WeekGames        = fields[2].GetUInt16();
         newMember.WeekWins         = fields[3].GetUInt16();
         newMember.SeasonGames      = fields[4].GetUInt16();

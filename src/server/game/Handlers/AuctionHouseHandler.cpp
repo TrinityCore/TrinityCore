@@ -445,7 +445,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
     }
 
     // impossible have online own another character (use this for speedup check in case online owner)
-    ObjectGuid ownerGuid(HIGHGUID_PLAYER, auction->owner);
+    ObjectGuid ownerGuid(HighGuid::Player, auction->owner);
     Player* auction_owner = ObjectAccessor::FindPlayer(ownerGuid);
     if (!auction_owner && sObjectMgr->GetPlayerAccountIdByGUID(ownerGuid) == player->GetSession()->GetAccountId())
     {
@@ -528,9 +528,8 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
 
         auction->DeleteFromDB(trans);
 
-        uint32 itemEntry = auction->itemEntry;
         sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
-        auctionHouse->RemoveAuction(auction, itemEntry);
+        auctionHouse->RemoveAuction(auction);
     }
     player->SaveInventoryAndGoldToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
@@ -606,9 +605,8 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
     auction->DeleteFromDB(trans);
     CharacterDatabase.CommitTransaction(trans);
 
-    uint32 itemEntry = auction->itemEntry;
     sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
-    auctionHouse->RemoveAuction(auction, itemEntry);
+    auctionHouse->RemoveAuction(auction);
 }
 
 //called when player lists his bids

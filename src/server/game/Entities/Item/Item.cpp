@@ -218,6 +218,10 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
                     if (!(pProto->BagFamily & BAG_FAMILY_MASK_FISHING_SUPP))
                         return false;
                     return true;
+                case ITEM_SUBCLASS_COOKING_CONTAINER:
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_COOKING_SUPP))
+                        return false;
+                    return true;
                 default:
                     return false;
             }
@@ -247,6 +251,7 @@ Item::Item()
     m_updateFlag = 0;
 
     m_valuesCount = ITEM_END;
+    _dynamicValuesCount = ITEM_DYNAMIC_END;
     m_slot = 0;
     uState = ITEM_NEW;
     uQueuePos = -1;
@@ -261,14 +266,14 @@ Item::Item()
 
 bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner)
 {
-    Object::_Create(guidlow, 0, HIGHGUID_ITEM);
+    Object::_Create(guidlow, 0, HighGuid::Item);
 
     SetEntry(itemid);
     SetObjectScale(1.0f);
 
     if (owner)
     {
-        SetGuidValue(ITEM_FIELD_OWNER, owner->GetGUID());
+        SetOwnerGUID(owner->GetGUID());
         SetGuidValue(ITEM_FIELD_CONTAINED, owner->GetGUID());
     }
 
@@ -408,7 +413,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
-    Object::_Create(guid, 0, HIGHGUID_ITEM);
+    Object::_Create(guid, 0, HighGuid::Item);
 
     // Set entry, MUST be before proto check
     SetEntry(entry);
@@ -423,8 +428,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         SetOwnerGUID(owner_guid);
 
     bool need_save = false;                                 // need explicit save data at load fixes
-    SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt64()));
-    SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid(HIGHGUID_PLAYER, fields[1].GetUInt64()));
+    SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid(HighGuid::Player, fields[0].GetUInt64()));
+    SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid(HighGuid::Player, fields[1].GetUInt64()));
     SetCount(fields[2].GetUInt32());
 
     uint32 duration = fields[3].GetUInt32();
@@ -450,7 +455,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
     }
 
     std::string enchants = fields[6].GetString();
-    _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
+    _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].GetInt16());
     // recalculate suffix factor
     if (GetItemRandomPropertyId() < 0)
@@ -881,9 +886,9 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
             owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetEntry(), id);
     }
 
-    SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET, id);
-    SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET, duration);
-    SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET, charges);
+    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET, id);
+    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET, duration);
+    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET, charges);
     SetState(ITEM_CHANGED, owner);
 }
 
@@ -892,7 +897,7 @@ void Item::SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player*
     if (GetEnchantmentDuration(slot) == duration)
         return;
 
-    SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET, duration);
+    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET, duration);
     SetState(ITEM_CHANGED, owner);
     // Cannot use GetOwner() here, has to be passed as an argument to avoid freeze due to hashtable locking
 }
@@ -902,7 +907,7 @@ void Item::SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges)
     if (GetEnchantmentCharges(slot) == charges)
         return;
 
-    SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET, charges);
+    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET, charges);
     SetState(ITEM_CHANGED, GetOwner());
 }
 
@@ -912,7 +917,7 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
         return;
 
     for (uint8 x = 0; x < MAX_ITEM_ENCHANTMENT_EFFECTS; ++x)
-        SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + x, 0);
+        SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + x, 0);
     SetState(ITEM_CHANGED, GetOwner());
 }
 
@@ -1040,7 +1045,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
         ASSERT(count != 0 && "pProto->Stackable == 0 but checked at loading already");
 
         Item* item = NewItemOrBag(proto);
-        if (item->Create(sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->Generate(), itemEntry, player))
+        if (item->Create(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), itemEntry, player))
         {
             item->SetCount(count);
             return item;

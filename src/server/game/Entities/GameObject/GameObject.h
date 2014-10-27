@@ -686,9 +686,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
                 ASSERT(false);
             }
             m_spawnedByDefault = false;                     // all object with owner is despawned after delay
-            SetGuidValue(OBJECT_FIELD_CREATED_BY, owner);
+            SetGuidValue(GAMEOBJECT_FIELD_CREATED_BY, owner);
         }
-        ObjectGuid GetOwnerGUID() const { return GetGuidValue(OBJECT_FIELD_CREATED_BY); }
+        ObjectGuid GetOwnerGUID() const { return GetGuidValue(GAMEOBJECT_FIELD_CREATED_BY); }
         Unit* GetOwner() const;
 
         void SetSpellId(uint32 id)

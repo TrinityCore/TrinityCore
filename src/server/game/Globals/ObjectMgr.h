@@ -1377,16 +1377,16 @@ class ObjectMgr
         uint64 _voidItemId;
 
         // first free low guid for selected guid type
-        ObjectGuidGenerator<HIGHGUID_PLAYER> _playerGuidGenerator;
-        ObjectGuidGenerator<HIGHGUID_UNIT> _creatureGuidGenerator;
-        ObjectGuidGenerator<HIGHGUID_PET> _petGuidGenerator;
-        ObjectGuidGenerator<HIGHGUID_VEHICLE> _vehicleGuidGenerator;
-        ObjectGuidGenerator<HIGHGUID_ITEM> _itemGuidGenerator;
-        ObjectGuidGenerator<HIGHGUID_GAMEOBJECT> _gameObjectGuidGenerator;
-        ObjectGuidGenerator<HIGHGUID_DYNAMICOBJECT> _dynamicObjectGuidGenerator;
-        ObjectGuidGenerator<HIGHGUID_CORPSE> _corpseGuidGenerator;
-        ObjectGuidGenerator<HIGHGUID_AREATRIGGER> _areaTriggerGuidGenerator;
-        ObjectGuidGenerator<HIGHGUID_MO_TRANSPORT> _moTransportGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Player> _playerGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Creature> _creatureGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Pet> _petGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Vehicle> _vehicleGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Item> _itemGuidGenerator;
+        ObjectGuidGenerator<HighGuid::GameObject> _gameObjectGuidGenerator;
+        ObjectGuidGenerator<HighGuid::DynamicObject> _dynamicObjectGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Corpse> _corpseGuidGenerator;
+        ObjectGuidGenerator<HighGuid::AreaTrigger> _areaTriggerGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Transport> _moTransportGuidGenerator;
 
         QuestMap _questTemplates;
 
