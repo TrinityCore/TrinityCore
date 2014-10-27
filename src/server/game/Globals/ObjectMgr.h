@@ -129,34 +129,6 @@ typedef std::map<uint32, PageText> PageTextContainer;
 // Benchmarked: Faster than std::map (insert/find)
 typedef std::unordered_map<uint16, InstanceTemplate> InstanceTemplateContainer;
 
-// Phasing (visibility)
-enum PhasingFlags
-{
-    PHASE_FLAG_OVERWRITE_EXISTING = 0x01,       // don't stack with existing phases, overwrites existing phases
-    PHASE_FLAG_NO_MORE_PHASES = 0x02,       // stop calculating phases after this phase was applied (no more phases will be applied)
-    PHASE_FLAG_NEGATE_PHASE = 0x04        // negate instead to add the phasemask
-};
-
-struct PhaseInfo
-{
-    uint32 phaseId;
-    uint32 worldMapAreaSwap;
-    uint32 terrainSwapMap;
-};
-
-typedef std::unordered_map<uint32, PhaseInfo> PhaseInfoContainer;
-
-struct PhaseDefinition
-{
-    uint32 zoneId;
-    uint32 entry;
-    uint32 phaseId;
-    uint32 phaseGroup;
-};
-
-typedef std::list<PhaseDefinition> PhaseDefinitionContainer;
-typedef std::unordered_map<uint32 /*zoneId*/, PhaseDefinitionContainer> PhaseDefinitionStore;
-
 struct GameTele
 {
     float  position_x;
@@ -714,6 +686,8 @@ struct HotfixInfo
 
 typedef std::vector<HotfixInfo> HotfixData;
 
+typedef std::unordered_map<uint32, std::list<uint32>> TerrainPhaseInfo;
+
 class PlayerDumpReader;
 
 class ObjectMgr
@@ -1054,8 +1028,7 @@ class ObjectMgr
         void LoadTrainerSpell();
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
 
-        void LoadPhaseDefinitions();
-        void LoadPhaseInfo();
+        void LoadTerrainPhaseInfo();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
@@ -1312,7 +1285,7 @@ class ObjectMgr
             return _gossipMenuItemsStore.equal_range(uiMenuId);
         }
 
-        PhaseInfo const* GetPhaseInfo(uint32 phase) { return _PhaseInfoStore.find(phase) != _PhaseInfoStore.end() ? &_PhaseInfoStore[phase] : nullptr; }
+        std::list<uint32>& GetPhaseTerrainSwaps(uint32 phaseid) { return _terrainPhaseInfoStore[phaseid]; }
 
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
@@ -1429,8 +1402,7 @@ class ObjectMgr
         PageTextContainer _pageTextStore;
         InstanceTemplateContainer _instanceTemplateStore;
 
-        PhaseDefinitionStore _PhaseDefinitionStore;
-        PhaseInfoContainer _PhaseInfoStore;
+        TerrainPhaseInfo _terrainPhaseInfoStore;
 
     private:
         void LoadScripts(ScriptsType type);

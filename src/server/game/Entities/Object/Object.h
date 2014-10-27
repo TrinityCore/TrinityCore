@@ -770,6 +770,7 @@ class WorldObject : public Object, public WorldLocation
         uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
         std::set<uint32> _phases;
+        std::set<uint32> _terrainSwaps;
 
         uint16 m_notifyflags;
         uint16 m_executed_notifies;

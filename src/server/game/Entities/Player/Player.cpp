@@ -27984,25 +27984,13 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
     #undef REMOVE_VIOLATING_FLAGS
 }
 
-void Player::UpdatePhasing()
+void Player::SendUpdatePhasing()
 {
     if (!IsInWorld())
         return;
 
-    std::set<uint32> phaseIds;
-    std::set<uint32> terrainswaps;
-    std::set<uint32> worldAreaSwaps;
-
-    for (auto phase : GetPhases())
-    {
-        PhaseInfo const* info = sObjectMgr->GetPhaseInfo(phase);
-        if (!info)
-            continue;
-        terrainswaps.insert(info->terrainSwapMap);
-        worldAreaSwaps.insert(info->worldMapAreaSwap);
-    }
-
-    GetSession()->SendSetPhaseShift(GetPhases(), terrainswaps, worldAreaSwaps);
+    std::set<uint32> worldAreaSwaps; // @ToDo
+    GetSession()->SendSetPhaseShift(GetPhases(), _terrainSwaps, worldAreaSwaps);
 }
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
