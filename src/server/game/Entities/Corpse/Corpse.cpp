@@ -65,7 +65,7 @@ void Corpse::RemoveFromWorld()
 bool Corpse::Create(ObjectGuid::LowType guidlow, Map* map)
 {
     SetMap(map);
-    Object::_Create(guidlow, 0, HIGHGUID_CORPSE);
+    Object::_Create(guidlow, 0, HighGuid::Corpse);
     return true;
 }
 
@@ -86,7 +86,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
     //in other way we will get a crash in Corpse::SaveToDB()
     SetMap(owner->GetMap());
 
-    WorldObject::_Create(guidlow, HIGHGUID_CORPSE, owner->GetPhaseMask());
+    WorldObject::_Create(guidlow, HighGuid::Corpse, owner->GetPhaseMask());
 
     SetObjectScale(1);
     SetGuidValue(CORPSE_FIELD_OWNER, owner->GetGUID());
@@ -169,7 +169,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     float o      = fields[3].GetFloat();
     uint32 mapId = fields[4].GetUInt16();
 
-    Object::_Create(guid, 0, HIGHGUID_CORPSE);
+    Object::_Create(guid, 0, HighGuid::Corpse);
 
     SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].GetUInt32());
     _LoadIntoDataField(fields[6].GetCString(), CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END);
@@ -177,7 +177,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     SetUInt32Value(CORPSE_FIELD_BYTES_2, fields[8].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[9].GetUInt8());
     SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[10].GetUInt8());
-    SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid(HIGHGUID_PLAYER, fields[16].GetUInt64()));
+    SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid(HighGuid::Player, fields[16].GetUInt64()));
 
     m_time = time_t(fields[11].GetUInt32());
 

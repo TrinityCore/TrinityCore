@@ -292,7 +292,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     for (uint8 i = 1; i <= signs; ++i)
     {
         Field* fields2 = result->Fetch();
-        data << ObjectGuid(HIGHGUID_PLAYER, fields2[0].GetUInt64());    // Player GUID
+        data << ObjectGuid(HighGuid::Player, fields2[0].GetUInt64());    // Player GUID
         data << uint32(0);                                  // there 0 ...
 
         result->NextRow();
@@ -328,7 +328,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     if (result)
     {
         Field* fields = result->Fetch();
-        ownerguid = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt64());
+        ownerguid = ObjectGuid(HighGuid::Player, fields[0].GetUInt64());
         name      = fields[1].GetString();
         type      = fields[2].GetUInt8();
     }
@@ -472,7 +472,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
     }
 
     fields = result->Fetch();
-    ObjectGuid ownerGuid(HIGHGUID_PLAYER, fields[0].GetUInt64());
+    ObjectGuid ownerGuid(HighGuid::Player, fields[0].GetUInt64());
     uint64 signs = fields[1].GetUInt64();
     uint8 type = fields[2].GetUInt8();
 
@@ -598,7 +598,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
         return;
 
     Field* fields = result->Fetch();
-    ObjectGuid ownerguid(HIGHGUID_PLAYER, 0, fields[0].GetUInt64());
+    ObjectGuid ownerguid(HighGuid::Player, 0, fields[0].GetUInt64());
 
     Player* owner = ObjectAccessor::FindConnectedPlayer(ownerguid);
     if (owner)                                               // petition owner online
@@ -709,7 +709,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
     for (uint8 i = 1; i <= signs; ++i)
     {
         Field* fields2 = result->Fetch();
-        data << ObjectGuid(HIGHGUID_PLAYER, fields2[0].GetUInt64()); // Player GUID
+        data << ObjectGuid(HighGuid::Player, fields2[0].GetUInt64()); // Player GUID
         data << uint32(0);                                  // there 0 ...
 
         result->NextRow();
@@ -747,7 +747,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     if (result)
     {
         Field* fields = result->Fetch();
-        ownerguid = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt64());
+        ownerguid = ObjectGuid(HighGuid::Player, fields[0].GetUInt64());
         name = fields[1].GetString();
         type = fields[2].GetUInt8();
     }
@@ -854,7 +854,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         for (uint8 i = 0; i < signatures; ++i)
         {
             Field* fields = result->Fetch();
-            guild->AddMember(ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt64()));
+            guild->AddMember(ObjectGuid(HighGuid::Player, fields[0].GetUInt64()));
             result->NextRow();
         }
     }
@@ -881,7 +881,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         for (uint8 i = 0; i < signatures; ++i)
         {
             Field* fields = result->Fetch();
-            ObjectGuid memberGUID(HIGHGUID_PLAYER, fields[0].GetUInt64());
+            ObjectGuid memberGUID(HighGuid::Player, fields[0].GetUInt64());
             TC_LOG_DEBUG("network", "PetitionsHandler: Adding arena team (guid: %u) member %s", arenaTeam->GetId(), memberGUID.ToString().c_str());
             arenaTeam->AddMember(memberGUID);
             result->NextRow();

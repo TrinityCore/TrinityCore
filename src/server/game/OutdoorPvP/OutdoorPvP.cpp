@@ -95,7 +95,7 @@ void OPvPCapturePoint::AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry
         entry = data->id;
     }
 
-    m_Objects[type] = ObjectGuid(HIGHGUID_GAMEOBJECT, entry, guid);
+    m_Objects[type] = ObjectGuid(HighGuid::GameObject, entry, guid);
     m_ObjectTypes[m_Objects[type]] = type;
 }
 
@@ -109,7 +109,7 @@ void OPvPCapturePoint::AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entr
         entry = data->id;
     }
 
-    m_Creatures[type] = ObjectGuid(HIGHGUID_UNIT, entry, guid);
+    m_Creatures[type] = ObjectGuid(HighGuid::Creature, entry, guid);
     m_CreatureTypes[m_Creatures[type]] = type;
 }
 
@@ -147,7 +147,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
         return false;
     }
 
-    m_capturePointGUID = ObjectGuid(HIGHGUID_GAMEOBJECT, entry, sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3));
+    m_capturePointGUID = ObjectGuid(HighGuid::GameObject, entry, sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3));
     if (!m_capturePointGUID)
         return false;
 
