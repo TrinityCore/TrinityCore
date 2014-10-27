@@ -110,15 +110,24 @@ enum Races
 // max+1 for player race
 #define MAX_RACES         12
 
-#define RACEMASK_ALL_PLAYABLE \
-    ((1<<(RACE_HUMAN-1))   |(1<<(RACE_ORC-1))          |(1<<(RACE_DWARF-1))   | \
-     (1<<(RACE_NIGHTELF-1))|(1<<(RACE_UNDEAD_PLAYER-1))|(1<<(RACE_TAUREN-1))  | \
-     (1<<(RACE_GNOME-1))   |(1<<(RACE_TROLL-1))        |(1<<(RACE_BLOODELF-1))| \
+#define RACEMASK_ALL_PLAYABLE      \
+    ((1<<(RACE_HUMAN-1))         | \
+     (1<<(RACE_ORC-1))           | \
+     (1<<(RACE_DWARF-1))         | \
+     (1<<(RACE_NIGHTELF-1))      | \
+     (1<<(RACE_UNDEAD_PLAYER-1)) | \
+     (1<<(RACE_TAUREN-1))        | \
+     (1<<(RACE_GNOME-1))         | \
+     (1<<(RACE_TROLL-1))         | \
+     (1<<(RACE_BLOODELF-1))      | \
      (1<<(RACE_DRAENEI-1)))
 
-#define RACEMASK_ALLIANCE \
-    ((1<<(RACE_HUMAN-1)) | (1<<(RACE_DWARF-1)) | (1<<(RACE_NIGHTELF-1)) | \
-     (1<<(RACE_GNOME-1)) | (1<<(RACE_DRAENEI-1)))
+#define RACEMASK_ALLIANCE     \
+    ((1<<(RACE_HUMAN-1))    | \
+     (1<<(RACE_DWARF-1))    | \
+     (1<<(RACE_NIGHTELF-1)) | \
+     (1<<(RACE_GNOME-1))    | \
+     (1<<(RACE_DRAENEI-1)))
 
 #define RACEMASK_HORDE RACEMASK_ALL_PLAYABLE & ~RACEMASK_ALLIANCE
 
@@ -143,11 +152,17 @@ enum Classes
 // max+1 for player class
 #define MAX_CLASSES       12
 
-#define CLASSMASK_ALL_PLAYABLE \
-    ((1<<(CLASS_WARRIOR-1))|(1<<(CLASS_PALADIN-1))|(1<<(CLASS_HUNTER-1))| \
-    (1<<(CLASS_ROGUE-1))  |(1<<(CLASS_PRIEST-1)) |(1<<(CLASS_SHAMAN-1))| \
-    (1<<(CLASS_MAGE-1))   |(1<<(CLASS_WARLOCK-1))|(1<<(CLASS_DRUID-1)) | \
-    (1<<(CLASS_DEATH_KNIGHT-1)))
+#define CLASSMASK_ALL_PLAYABLE     \
+    ((1<<(CLASS_WARRIOR-1))      | \
+     (1<<(CLASS_PALADIN-1))      | \
+     (1<<(CLASS_HUNTER-1))       | \
+     (1<<(CLASS_ROGUE-1))        | \
+     (1<<(CLASS_PRIEST-1))       | \
+     (1<<(CLASS_DEATH_KNIGHT-1)) | \
+     (1<<(CLASS_SHAMAN-1))       | \
+     (1<<(CLASS_MAGE-1))         | \
+     (1<<(CLASS_WARLOCK-1))      | \
+     (1<<(CLASS_DRUID-1)))
 
 #define MAX_TALENT_TREES 3
 
@@ -196,7 +211,7 @@ enum UnitClass
 
 #define CLASSMASK_ALL_CREATURES ((1<<(UNIT_CLASS_WARRIOR-1)) | (1<<(UNIT_CLASS_PALADIN-1)) | (1<<(UNIT_CLASS_ROGUE-1)) | (1<<(UNIT_CLASS_MAGE-1)))
 
-#define CLASSMASK_WAND_USERS ((1<<(CLASS_PRIEST-1))|(1<<(CLASS_MAGE-1))|(1<<(CLASS_WARLOCK-1)))
+#define CLASSMASK_WAND_USERS ((1<<(CLASS_PRIEST-1)) | (1<<(CLASS_MAGE-1)) | (1<<(CLASS_WARLOCK-1)))
 
 #define PLAYER_MAX_BATTLEGROUND_QUEUES 2
 
