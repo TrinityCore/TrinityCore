@@ -85,7 +85,7 @@ void OpcodeTable::ValidateAndSetOpcode<true, false>(OpcodeServer /*opcode*/, cha
 void OpcodeTable::Initialize()
 {
 #define DEFINE_OPCODE_HANDLER(opcode, status, processing, handler)                                      \
-    ValidateAndSetOpcode<(opcode < NUM_OPCODE_HANDLERS), (opcode != 0)>(opcode, #opcode, status, processing, handler);
+    ValidateAndSetOpcode<(static_cast<uint32>(opcode) < NUM_OPCODE_HANDLERS), (opcode != 0)>(opcode, #opcode, status, processing, handler);
 
     DEFINE_OPCODE_HANDLER(CMSG_ACCEPT_LEVEL_GRANT,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptGrantLevel          );
     DEFINE_OPCODE_HANDLER(CMSG_ACCEPT_TRADE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptTradeOpcode         );
