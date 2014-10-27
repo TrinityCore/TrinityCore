@@ -172,7 +172,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     m_stationaryPosition.Relocate(x, y, z, ang);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "Gameobject (GUID: %u Entry: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", guidlow, name_id, x, y);
+        TC_LOG_ERROR("misc", "Gameobject (GUID: " UI64FMTD " Entry: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", guidlow, name_id, x, y);
         return false;
     }
 
@@ -187,7 +187,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(name_id);
     if (!goinfo)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: %u Entry: %u) not created: non-existing entry in `gameobject_template`. Map: %u (X: %f Y: %f Z: %f)", guidlow, name_id, map->GetId(), x, y, z);
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: " UI64FMTD " Entry: %u) not created: non-existing entry in `gameobject_template`. Map: %u (X: %f Y: %f Z: %f)", guidlow, name_id, map->GetId(), x, y, z);
         return false;
     }
 
@@ -200,7 +200,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     if (goinfo->type >= MAX_GAMEOBJECT_TYPE)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: %u Entry: %u) not created: non-existing GO type '%u' in `gameobject_template`. It will crash client if created.", guidlow, name_id, goinfo->type);
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: " UI64FMTD " Entry: %u) not created: non-existing GO type '%u' in `gameobject_template`. It will crash client if created.", guidlow, name_id, goinfo->type);
         return false;
     }
 
@@ -830,7 +830,7 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool a
 
     if (!data)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: %u) not found in table `gameobject`, can't load. ", guid);
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: " UI64FMTD ") not found in table `gameobject`, can't load. ", guid);
         return false;
     }
 
@@ -1362,7 +1362,7 @@ void GameObject::Use(Unit* user)
 
                 if (info->goober.eventId)
                 {
-                    TC_LOG_DEBUG("maps.script", "Goober ScriptStart id %u for GO entry %u (GUID %u).", info->goober.eventId, GetEntry(), GetDBTableGUIDLow());
+                    TC_LOG_DEBUG("maps.script", "Goober ScriptStart id %u for GO entry %u (GUID " UI64FMTD ").", info->goober.eventId, GetEntry(), GetDBTableGUIDLow());
                     GetMap()->ScriptsStart(sEventScripts, info->goober.eventId, player, this);
                     EventInform(info->goober.eventId, user);
                 }

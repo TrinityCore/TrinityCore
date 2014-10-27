@@ -160,7 +160,7 @@ bool changetoknth(std::string &str, int n, char const* with, bool insert = false
     return true;
 }
 
-uint32 registerNewGuid(uint64 oldGuid, std::map<uint64, uint64> &guidMap, uint64 hiGuid)
+uint64 registerNewGuid(uint64 oldGuid, std::map<uint64, uint64> &guidMap, uint64 hiGuid)
 {
     std::map<uint64, uint64>::const_iterator itr = guidMap.find(oldGuid);
     if (itr != guidMap.end())
@@ -178,7 +178,7 @@ bool changeGuid(std::string &str, int n, std::map<uint64, uint64> &guidMap, uint
     if (nonzero && !oldGuid)
         return true;                                        // not an error
 
-    uint32 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
+    uint64 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
     snprintf(chritem, 21, UI64FMTD, newGuid);
 
     return changenth(str, n, chritem, false, nonzero);
@@ -431,7 +431,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
     // name encoded or empty
 
-    snprintf(newguid, 20, "%u", guid);
+    snprintf(newguid, 20, UI64FMTD, guid);
     snprintf(chraccount, 20, "%u", account);
     snprintf(newpetid, 20, "%u", sObjectMgr->GeneratePetNumber());
     snprintf(lastpetid, 20, "%s", "");

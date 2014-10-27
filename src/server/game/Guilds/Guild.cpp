@@ -406,7 +406,7 @@ void Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 tabs, SQLTransaction& tran
             rightsAndSlots.SetGuildMasterValues();
 
         if (logOnCreate)
-            TC_LOG_ERROR("guild", "Guild %u has broken Tab %u for rank %u. Created default tab.", m_guildId, i, m_rankId);
+            TC_LOG_ERROR("guild", "Guild " UI64FMTD " has broken Tab %u for rank %u. Created default tab.", m_guildId, i, m_rankId);
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_BANK_RIGHT);
         stmt->setUInt64(0, m_guildId);
@@ -1027,7 +1027,7 @@ void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
     if (!pFrom->IsBank() && m_pPlayer->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE)) /// @todo Move this to scripts
     {
         sLog->outCommand(m_pPlayer->GetSession()->GetAccountId(),
-            "GM %s (%s) (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank named: %s (Guild ID: %u)",
+            "GM %s (%s) (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank named: %s (Guild ID: " UI64FMTD ")",
             m_pPlayer->GetName().c_str(), m_pPlayer->GetGUID().ToString().c_str(), m_pPlayer->GetSession()->GetAccountId(),
             pFrom->GetItem()->GetTemplate()->Name1.c_str(), pFrom->GetItem()->GetEntry(), pFrom->GetItem()->GetCount(),
             m_pGuild->GetName().c_str(), m_pGuild->GetId());
@@ -2090,7 +2090,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
     if (player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
         sLog->outCommand(player->GetSession()->GetAccountId(),
-            "GM %s (Account: %u) deposit money (Amount: " UI64FMTD ") to guild bank (Guild ID %u)",
+            "GM %s (Account: %u) deposit money (Amount: " UI64FMTD ") to guild bank (Guild ID " UI64FMTD ")",
             player->GetName().c_str(), player->GetSession()->GetAccountId(), amount, m_id);
     }
 }
@@ -2477,13 +2477,13 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
             {
                 if (!isMoneyTab)
                 {
-                    TC_LOG_ERROR("guild", "GuildBankEventLog ERROR: MoneyEvent(LogGuid: %u, Guild: %u) does not belong to money tab (%u), ignoring...", guid, m_id, dbTabId);
+                    TC_LOG_ERROR("guild", "GuildBankEventLog ERROR: MoneyEvent(LogGuid: %u, Guild: " UI64FMTD ") does not belong to money tab (%u), ignoring...", guid, m_id, dbTabId);
                     return false;
                 }
             }
             else if (isMoneyTab)
             {
-                TC_LOG_ERROR("guild", "GuildBankEventLog ERROR: non-money event (LogGuid: %u, Guild: %u) belongs to money tab, ignoring...", guid, m_id);
+                TC_LOG_ERROR("guild", "GuildBankEventLog ERROR: non-money event (LogGuid: %u, Guild: " UI64FMTD ") belongs to money tab, ignoring...", guid, m_id);
                 return false;
             }
             pLog->LoadEvent(new BankEventLogEntry(
@@ -2549,8 +2549,8 @@ bool Guild::Validate()
     uint8 ranks = _GetRanksSize();
     if (ranks < GUILD_RANKS_MIN_COUNT || ranks > GUILD_RANKS_MAX_COUNT)
     {
-        TC_LOG_ERROR("guild", "Guild %u has invalid number of ranks, creating new...", m_id);
-        broken_ranks = true;
+        TC_LOG_ERROR("guild", "Guild " UI64FMTD " has invalid number of ranks, creating new...", m_id);
+        broken_ranks = true;\
     }
     else
     {
@@ -2559,7 +2559,7 @@ bool Guild::Validate()
             RankInfo* rankInfo = GetRankInfo(rankId);
             if (rankInfo->GetId() != rankId)
             {
-                TC_LOG_ERROR("guild", "Guild %u has broken rank id %u, creating default set of ranks...", m_id, rankId);
+                TC_LOG_ERROR("guild", "Guild " UI64FMTD " has broken rank id %u, creating default set of ranks...", m_id, rankId);
                 broken_ranks = true;
             }
             else

@@ -1763,7 +1763,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
                 /// @todo possible must be moved to loot release (in different from linked triggering)
                 if (gameObjTarget->GetGOInfo()->chest.eventId)
                 {
-                    TC_LOG_DEBUG("spells", "Chest ScriptStart id %u for GO %u", gameObjTarget->GetGOInfo()->chest.eventId, gameObjTarget->GetDBTableGUIDLow());
+                    TC_LOG_DEBUG("spells", "Chest ScriptStart id %u for GO " UI64FMTD, gameObjTarget->GetGOInfo()->chest.eventId, gameObjTarget->GetDBTableGUIDLow());
                     player->GetMap()->ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->chest.eventId, player, gameObjTarget);
                 }
 

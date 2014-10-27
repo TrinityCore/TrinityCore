@@ -1376,7 +1376,7 @@ void ObjectMgr::LoadLinkedRespawn()
 
                 if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
                 {
-                    TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to Creature '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '" UI64FMTD "' linking to Creature '" UI64FMTD "' with not corresponding spawnMask", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1472,7 +1472,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 const CreatureData* master = GetCreatureData(linkedGuidLow);
                 if (!master)
                 {
-                    TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature (linkedGuid) '%u' not found in creature table", linkedGuidLow);
+                    TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature (linkedGuid) '" UI64FMTD "' not found in creature table", linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1718,7 +1718,7 @@ void ObjectMgr::LoadCreatures()
 
         // Skip spawnMask check for transport maps
         if (!IsTransportMap(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
-            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u) that have wrong spawn mask %u including unsupported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.mapid);
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: " UI64FMTD ") that have wrong spawn mask %u including unsupported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.mapid);
 
         bool ok = true;
         for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
@@ -1915,7 +1915,7 @@ bool ObjectMgr::MoveCreData(ObjectGuid::LowType guid, uint32 mapId, const Positi
             Creature* creature = new Creature();
             if (!creature->LoadCreatureFromDB(guid, map))
             {
-                TC_LOG_ERROR("misc", "MoveCreData: Cannot add creature guid %u to map", guid);
+                TC_LOG_ERROR("misc", "MoveCreData: Cannot add creature guid " UI64FMTD " to map", guid);
                 delete creature;
                 return false;
             }
@@ -6887,7 +6887,7 @@ void ObjectMgr::LoadCorpses()
         CorpseType type = CorpseType(fields[12].GetUInt8());
         if (type >= MAX_CORPSE_TYPE)
         {
-            TC_LOG_ERROR("misc", "Corpse (guid: %u) have wrong corpse type (%u), not loading.", guid, type);
+            TC_LOG_ERROR("misc", "Corpse (guid: " UI64FMTD ") have wrong corpse type (%u), not loading.", guid, type);
             continue;
         }
 

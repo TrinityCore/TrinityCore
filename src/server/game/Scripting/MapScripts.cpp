@@ -260,7 +260,7 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
         {
             GameObject* pDoor = _FindGameObject(wSource, guid);
             if (!pDoor)
-                TC_LOG_ERROR("scripts", "%s gameobject was not found (guid: %u).", scriptInfo->GetDebugInfo().c_str(), guid);
+                TC_LOG_ERROR("scripts", "%s gameobject was not found (guid: " UI64FMTD ").", scriptInfo->GetDebugInfo().c_str(), guid);
             else if (pDoor->GetGoType() != GAMEOBJECT_TYPE_DOOR)
             {
                 TC_LOG_ERROR("scripts", "%s gameobject is not a door (GoType: %u, Entry: %u, %s).",
@@ -563,7 +563,7 @@ void Map::ScriptsProcess()
                     }
                     else
                     {
-                        TC_LOG_ERROR("scripts", "%s neither source nor target is player (Entry: %u, GUID: %u; target: Entry: %u, GUID: %u), skipping.",
+                        TC_LOG_ERROR("scripts", "%s neither source nor target is player (Entry: %u, GUID: %s; target: Entry: %u, GUID: %s), skipping.",
                             step.script->GetDebugInfo().c_str(), source->GetEntry(), source->GetGUID().ToString().c_str(),
                             target->GetEntry(), target->GetGUID().ToString().c_str());
                         break;
