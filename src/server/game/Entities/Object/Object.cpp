@@ -2726,23 +2726,21 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
 
 void WorldObject::SetInPhase(uint32 id, bool update, bool apply)
 {
-    std::list<uint32> terrainSwaps = sObjectMgr->GetPhaseTerrainSwaps(id);
-
     if (apply)
-    {
         _phases.insert(id);
-        _terrainSwaps.insert(terrainSwaps.begin(), terrainSwaps.end());
-    }
     else
-    {
         _phases.erase(id);
-        // Remove the terrain swaps that were applied by this phase
-        // Iterator pointing to the start of the sequence of elements that we're going to delete
 
-        // other phases could use the same terrain swaps too, check for them before remove!!!
+    // Clear all terrain swaps, will be rebuilt below
+    // Reason for this is, multiple phases can have the same terrain swap, we should not remove the swap if another phase still use it
+    _terrainSwaps.clear();
 
-        //std::set<uint32>::iterator endRange = std::set_difference(_terrainSwaps.begin(), _terrainSwaps.end(), terrainSwaps.begin(), terrainSwaps.end(), _terrainSwaps.begin());
-        //terrainSwaps.erase(endRange, _terrainSwaps.end());
+    // Check all applied phases for terrain swap and add it only once
+    for (auto phaseId : _phases)
+    {
+        std::list<uint32> swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
+        for (auto swap : swaps)
+            _terrainSwaps.insert(swap);
     }
 
     if (update && IsInWorld())
