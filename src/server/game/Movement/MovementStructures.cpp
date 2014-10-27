@@ -5213,7 +5213,7 @@ void Movement::PacketSender::Send() const
     if (Player* player = _unit->ToPlayer())
     {
         isPlayerMovement = player->m_mover->GetTypeId() == TYPEID_PLAYER;
-        if (isPlayerMovement && _selfOpcode != NULL_OPCODE)
+        if (isPlayerMovement && _selfOpcode != static_cast<OpcodeServer>(NULL_OPCODE))
         {
             WorldPacket data(_selfOpcode);
             _unit->WriteMovementInfo(data, _extraElements);
@@ -5221,7 +5221,7 @@ void Movement::PacketSender::Send() const
         }
     }
 
-    if (_broadcast != NULL_OPCODE)
+    if (_broadcast != static_cast<OpcodeServer>(NULL_OPCODE))
     {
         ///! Need to reset current extra element index before writing another packet
         if (_extraElements)

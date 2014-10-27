@@ -691,7 +691,7 @@ void PoolMgr::LoadFromDB()
 
                 if (chance < 0 || chance > 100)
                 {
-                    TC_LOG_ERROR("sql.sql", "`pool_gameobject` has an invalid chance (%f) for gameobject guid (%u) in pool id (%u), skipped.", chance, guid, pool_id);
+                    TC_LOG_ERROR("sql.sql", "`pool_gameobject` has an invalid chance (%f) for gameobject guid (" UI64FMTD ") in pool id (%u), skipped.", chance, guid, pool_id);
                     continue;
                 }
 
