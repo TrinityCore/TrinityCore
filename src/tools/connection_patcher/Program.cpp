@@ -23,10 +23,16 @@
 #include <src/tools/connection_patcher/Patterns/Mac.hpp>
 #include <src/tools/connection_patcher/Patterns/Windows.hpp>
 
+#include <src/server/shared/CompilerDefs.h>
+
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 
 #include <iostream>
+
+#if PLATFORM == PLATFORM_WINDOWS
+#include <Shlobj.h>
+#endif
 
 namespace Connection_Patcher
 {
@@ -134,8 +140,10 @@ int main (int argc, char** argv)
 
         std::string renamed_binary_path (binary_path);
 
-        //var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-        std::string commonAppData;
+        wchar_t* commonAppData (nullptr);
+#if PLATFORM == PLATFORM_WINDOWS
+        SHGetKnownFolderPath (FOLDERID_ProgramData, 0, NULL, &commonAppData);
+#endif
 
         std::cout << "Creating patched binaries for ";
 
@@ -152,7 +160,7 @@ int main (int argc, char** argv)
 
             do_module<Patches::Windows::x86, Patterns::Windows::x86>
                 ( "8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth"
-                , commonAppData + "/Blizzard Entertainment/Battle.net/Cache/"
+                , std::wstring (commonAppData) + std::wstring (L"/Blizzard Entertainment/Battle.net/Cache/")
                 );
 
             break;
@@ -165,7 +173,7 @@ int main (int argc, char** argv)
 
             do_module<Patches::Windows::x64, Patterns::Windows::x64>
                 ( "0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth"
-                , commonAppData + "/Blizzard Entertainment/Battle.net/Cache/"
+                , std::wstring (commonAppData) + std::wstring (L"/Blizzard Entertainment/Battle.net/Cache/")
                 );
 
             break;
