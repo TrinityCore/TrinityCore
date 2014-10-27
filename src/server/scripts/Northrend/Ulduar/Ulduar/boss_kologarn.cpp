@@ -166,7 +166,6 @@ class boss_kologarn : public CreatureScript
                     left = apply;
                     if (!apply && isEncounterInProgress)
                     {
-                        who->ToCreature()->DespawnOrUnsummon();
                         Talk(SAY_LEFT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
                     }
@@ -177,7 +176,6 @@ class boss_kologarn : public CreatureScript
                     right = apply;
                     if (!apply && isEncounterInProgress)
                     {
-                        who->ToCreature()->DespawnOrUnsummon();
                         Talk(SAY_RIGHT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
                     }
@@ -194,6 +192,7 @@ class boss_kologarn : public CreatureScript
                     {
                         rubbleStalker->CastSpell(rubbleStalker, SPELL_FALLING_RUBBLE, true);
                         rubbleStalker->CastSpell(rubbleStalker, SPELL_SUMMON_RUBBLE, true);
+                        who->ToCreature()->DespawnOrUnsummon();
                     }
 
                     if (!right && !left)
