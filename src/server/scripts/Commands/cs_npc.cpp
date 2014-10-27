@@ -261,7 +261,7 @@ public:
 
         if (Transport* trans = chr->GetTransport())
         {
-            ObjectGuid::LowType guid = sObjectMgr->GetGenerator<HIGHGUID_UNIT>()->Generate();
+            ObjectGuid::LowType guid = sObjectMgr->GetGenerator<HighGuid::Creature>()->Generate();
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
             data.id = id;
             data.phaseMask = chr->GetPhaseMask();
@@ -279,7 +279,7 @@ public:
         }
 
         Creature* creature = new Creature();
-        if (!creature->Create(sObjectMgr->GetGenerator<HIGHGUID_UNIT>()->Generate(), map, chr->GetPhaseMask(), id, x, y, z, o))
+        if (!creature->Create(sObjectMgr->GetGenerator<HighGuid::Creature>()->Generate(), map, chr->GetPhaseMask(), id, x, y, z, o))
         {
             delete creature;
             return false;
@@ -527,7 +527,7 @@ public:
                 return false;
 
             if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
-                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid(HIGHGUID_UNIT, cr_data->id, lowguid));
+                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid(HighGuid::Creature, cr_data->id, lowguid));
         }
         else
             unit = handler->getSelectedCreature();
@@ -1323,7 +1323,7 @@ public:
             return false;
         }
 
-        ObjectGuid receiver_guid(HIGHGUID_PLAYER, strtoull(receiver_str, nullptr, 10));
+        ObjectGuid receiver_guid(HighGuid::Player, strtoull(receiver_str, nullptr, 10));
 
         // check online security
         Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);

@@ -199,8 +199,8 @@ void Guild::EventLogEntry::SaveToDB(SQLTransaction& trans) const
 
 void Guild::EventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content) const
 {
-    ObjectGuid guid1 = ObjectGuid(HIGHGUID_PLAYER, m_playerGuid1);
-    ObjectGuid guid2 = ObjectGuid(HIGHGUID_PLAYER, m_playerGuid2);
+    ObjectGuid guid1 = ObjectGuid(HighGuid::Player, m_playerGuid1);
+    ObjectGuid guid2 = ObjectGuid(HighGuid::Player, m_playerGuid2);
 
     data.WriteBit(guid1[2]);
     data.WriteBit(guid1[4]);
@@ -276,7 +276,7 @@ void Guild::BankEventLogEntry::SaveToDB(SQLTransaction& trans) const
 
 void Guild::BankEventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content) const
 {
-    ObjectGuid logGuid = ObjectGuid(HIGHGUID_PLAYER, m_playerGuid);
+    ObjectGuid logGuid = ObjectGuid(HighGuid::Player, m_playerGuid);
 
     bool hasItem = m_eventType == GUILD_BANK_LOG_DEPOSIT_ITEM || m_eventType == GUILD_BANK_LOG_WITHDRAW_ITEM ||
                    m_eventType == GUILD_BANK_LOG_MOVE_ITEM || m_eventType == GUILD_BANK_LOG_MOVE_ITEM2;
@@ -1815,7 +1815,7 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
 
     ObjectGuid oldGuildGuid;
     if (ObjectGuid::LowType oldId = pInvitee->GetGuildId())
-        oldGuildGuid = ObjectGuid(HIGHGUID_GUILD, oldId);
+        oldGuildGuid = ObjectGuid(HighGuid::Guild, oldId);
 
     ObjectGuid newGuildGuid = GetGUID();
 
@@ -2390,7 +2390,7 @@ bool Guild::LoadFromDB(Field* fields)
 {
     m_id            = fields[0].GetUInt64();
     m_name          = fields[1].GetString();
-    m_leaderGuid    = ObjectGuid(HIGHGUID_PLAYER, fields[2].GetUInt64());
+    m_leaderGuid    = ObjectGuid(HighGuid::Player, fields[2].GetUInt64());
     m_emblemInfo.LoadFromDB(fields);
     m_info          = fields[8].GetString();
     m_motd          = fields[9].GetString();
@@ -2424,7 +2424,7 @@ void Guild::LoadRankFromDB(Field* fields)
 bool Guild::LoadMemberFromDB(Field* fields)
 {
     ObjectGuid::LowType lowguid = fields[1].GetUInt64();
-    Member *member = new Member(m_id, ObjectGuid(HIGHGUID_PLAYER, lowguid), fields[2].GetUInt8());
+    Member *member = new Member(m_id, ObjectGuid(HighGuid::Player, lowguid), fields[2].GetUInt8());
     if (!member->LoadFromDB(fields))
     {
         _DeleteMemberFromDB(lowguid);
@@ -2511,7 +2511,7 @@ void Guild::LoadGuildNewsLogFromDB(Field* fields)
     fields[1].GetUInt32(),                              // guid
     fields[6].GetUInt32(),                              // timestamp //64 bits?
     GuildNews(fields[2].GetUInt8()),                    // type
-    ObjectGuid(HIGHGUID_PLAYER, fields[3].GetUInt64()), // player guid
+    ObjectGuid(HighGuid::Player, fields[3].GetUInt64()), // player guid
     fields[4].GetUInt32(),                              // Flags
     fields[5].GetUInt32()));                            // value
 }

@@ -226,16 +226,16 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
     return true;
 }
 
-template<> ObjectGuidGenerator<HIGHGUID_PLAYER>* ObjectMgr::GetGenerator() { return &_playerGuidGenerator; }
-template<> ObjectGuidGenerator<HIGHGUID_UNIT>* ObjectMgr::GetGenerator() { return &_creatureGuidGenerator; }
-template<> ObjectGuidGenerator<HIGHGUID_PET>* ObjectMgr::GetGenerator() { return &_petGuidGenerator; }
-template<> ObjectGuidGenerator<HIGHGUID_VEHICLE>* ObjectMgr::GetGenerator() { return &_vehicleGuidGenerator; }
-template<> ObjectGuidGenerator<HIGHGUID_ITEM>* ObjectMgr::GetGenerator() { return &_itemGuidGenerator; }
-template<> ObjectGuidGenerator<HIGHGUID_GAMEOBJECT>* ObjectMgr::GetGenerator() { return &_gameObjectGuidGenerator; }
-template<> ObjectGuidGenerator<HIGHGUID_DYNAMICOBJECT>* ObjectMgr::GetGenerator() { return &_dynamicObjectGuidGenerator; }
-template<> ObjectGuidGenerator<HIGHGUID_CORPSE>* ObjectMgr::GetGenerator() { return &_corpseGuidGenerator; }
-template<> ObjectGuidGenerator<HIGHGUID_AREATRIGGER>* ObjectMgr::GetGenerator() { return &_areaTriggerGuidGenerator; }
-template<> ObjectGuidGenerator<HIGHGUID_MO_TRANSPORT>* ObjectMgr::GetGenerator() { return &_moTransportGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::Player>* ObjectMgr::GetGenerator() { return &_playerGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::Creature>* ObjectMgr::GetGenerator() { return &_creatureGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::Pet>* ObjectMgr::GetGenerator() { return &_petGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::Vehicle>* ObjectMgr::GetGenerator() { return &_vehicleGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::Item>* ObjectMgr::GetGenerator() { return &_itemGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::GameObject>* ObjectMgr::GetGenerator() { return &_gameObjectGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::DynamicObject>* ObjectMgr::GetGenerator() { return &_dynamicObjectGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::Corpse>* ObjectMgr::GetGenerator() { return &_corpseGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::AreaTrigger>* ObjectMgr::GetGenerator() { return &_areaTriggerGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::Transport>* ObjectMgr::GetGenerator() { return &_moTransportGuidGenerator; }
 
 template<HighGuid type>
 ObjectGuidGenerator<type>* ObjectMgr::GetGenerator()
@@ -1381,8 +1381,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_UNIT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_UNIT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::Creature, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::Creature, master->id, linkedGuidLow);
                 break;
             }
             case CREATURE_TO_GO:
@@ -1418,8 +1418,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_UNIT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_GAMEOBJECT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::Creature, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::GameObject, master->id, linkedGuidLow);
                 break;
             }
             case GO_TO_GO:
@@ -1455,8 +1455,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_GAMEOBJECT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_GAMEOBJECT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::GameObject, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::GameObject, master->id, linkedGuidLow);
                 break;
             }
             case GO_TO_CREATURE:
@@ -1492,8 +1492,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_GAMEOBJECT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_UNIT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::GameObject, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::Creature, master->id, linkedGuidLow);
                 break;
             }
         }
@@ -1513,7 +1513,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
 
     CreatureData const* master = GetCreatureData(guidLow);
     ASSERT(master);
-    ObjectGuid guid(HIGHGUID_UNIT, master->id, guidLow);
+    ObjectGuid guid(HighGuid::Creature, master->id, guidLow);
 
     if (!linkedGuidLow) // we're removing the linking
     {
@@ -1544,7 +1544,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
         return false;
     }
 
-    ObjectGuid linkedGuid(HIGHGUID_UNIT, slave->id, linkedGuidLow);
+    ObjectGuid linkedGuid(HighGuid::Creature, slave->id, linkedGuidLow);
 
     _linkedRespawnStore[guid] = linkedGuid;
     PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
@@ -1851,7 +1851,7 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
     if (!map)
         return UI64LIT(0);
 
-    ObjectGuid::LowType guid = GetGenerator<HIGHGUID_GAMEOBJECT>()->Generate();
+    ObjectGuid::LowType guid = GetGenerator<HighGuid::GameObject>()->Generate();
     GameObjectData& data = NewGOData(guid);
     data.id             = entry;
     data.mapid          = mapId;
@@ -1933,7 +1933,7 @@ ObjectGuid::LowType ObjectMgr::AddCreData(uint32 entry, uint32 mapId, float x, f
     uint32 level = cInfo->minlevel == cInfo->maxlevel ? cInfo->minlevel : urand(cInfo->minlevel, cInfo->maxlevel); // Only used for extracting creature base stats
     CreatureBaseStats const* stats = GetCreatureBaseStats(level, cInfo->unit_class);
 
-    ObjectGuid::LowType guid = GetGenerator<HIGHGUID_UNIT>()->Generate();
+    ObjectGuid::LowType guid = GetGenerator<HighGuid::Creature>()->Generate();
     CreatureData& data = NewOrExistCreatureData(guid);
     data.id = entry;
     data.mapid = mapId;
@@ -2177,7 +2177,7 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
 
 Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const
 {
-    return ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, lowguid));
+    return ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, lowguid));
 }
 
 // name must be checked to correctness (if received) before call this function
@@ -2190,7 +2190,7 @@ ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
-        return ObjectGuid(HIGHGUID_PLAYER, (*result)[0].GetUInt64());
+        return ObjectGuid(HighGuid::Player, (*result)[0].GetUInt64());
 
     return ObjectGuid::Empty;
 }
@@ -5584,7 +5584,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
         Player* player = NULL;
         if (serverUp)
-            player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HIGHGUID_PLAYER, m->receiver));
+            player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, m->receiver));
 
         if (player && player->m_mailsLoaded)
         {                                                   // this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail

@@ -606,7 +606,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
     {
         Field* fields = result->Fetch();
 
-        friendGuid = ObjectGuid(HIGHGUID_PLAYER, 0, fields[0].GetUInt64());
+        friendGuid = ObjectGuid(HighGuid::Player, 0, fields[0].GetUInt64());
         team = Player::TeamForRace(fields[1].GetUInt8());
         friendAccountId = fields[2].GetUInt32();
 
@@ -691,7 +691,7 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
 
     if (result)
     {
-        IgnoreGuid = ObjectGuid(HIGHGUID_PLAYER, (*result)[0].GetUInt64());
+        IgnoreGuid = ObjectGuid(HighGuid::Player, (*result)[0].GetUInt64());
 
         if (!IgnoreGuid.IsEmpty())
         {

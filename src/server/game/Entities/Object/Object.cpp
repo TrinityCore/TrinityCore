@@ -186,15 +186,15 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     switch (GetGUID().GetHigh())
     {
-        case HIGHGUID_PLAYER:
-        case HIGHGUID_PET:
-        case HIGHGUID_CORPSE:
-        case HIGHGUID_DYNAMICOBJECT:
-        case HIGHGUID_AREATRIGGER:
+        case HighGuid::Player:
+        case HighGuid::Pet:
+        case HighGuid::Corpse:
+        case HighGuid::DynamicObject:
+        case HighGuid::AreaTrigger:
             updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
-        case HIGHGUID_UNIT:
-        case HIGHGUID_VEHICLE:
+        case HighGuid::Creature:
+        case HighGuid::Vehicle:
         {
             if (TempSummon const* summon = ToUnit()->ToTempSummon())
                 if (summon->GetSummonerGUID().IsPlayer())
@@ -202,7 +202,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
             break;
         }
-        case HIGHGUID_GAMEOBJECT:
+        case HighGuid::GameObject:
         {
             if (ToGameObject()->GetOwnerGUID().IsPlayer())
                 updateType = UPDATETYPE_CREATE_OBJECT2;
@@ -2401,7 +2401,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(sObjectMgr->GetGenerator<HIGHGUID_UNIT>()->Generate(), this, 0, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
+    if (!summon->Create(sObjectMgr->GetGenerator<HighGuid::Creature>()->Generate(), this, 0, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
     {
         delete summon;
         return NULL;
@@ -2499,7 +2499,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
 
     Map* map = GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(sObjectMgr->GetGenerator<HIGHGUID_GAMEOBJECT>()->Generate(), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
+    if (!go->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
         delete go;
         return NULL;

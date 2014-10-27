@@ -1390,7 +1390,7 @@ public:
         PreparedStatement* stmt = NULL;
 
         // To make sure we get a target, we convert our guid to an omniversal...
-        ObjectGuid parseGUID(HIGHGUID_PLAYER, strtoull(args, nullptr, 10));
+        ObjectGuid parseGUID(HighGuid::Player, strtoull(args, nullptr, 10));
 
         // ... and make sure we get a target, somehow.
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))

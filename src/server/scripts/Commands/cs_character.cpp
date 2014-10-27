@@ -133,7 +133,7 @@ public:
 
                 DeletedInfo info;
 
-                info.guid       = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt64());
+                info.guid       = ObjectGuid(HighGuid::Player, fields[0].GetUInt64());
                 info.name       = fields[1].GetString();
                 info.accountId  = fields[2].GetUInt32();
 
@@ -921,7 +921,7 @@ public:
                 return false;
             }
 
-            if (sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid(HIGHGUID_PLAYER, guid)))
+            if (sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid(HighGuid::Player, guid)))
             {
                 handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, guid);
                 handler->SetSentErrorMessage(true);
@@ -969,7 +969,7 @@ public:
         ObjectGuid guid;
         // character name can't start from number
         if (isNumeric(playerStr))
-            guid = ObjectGuid(HIGHGUID_PLAYER, strtoull(playerStr, nullptr, 10));
+            guid = ObjectGuid(HighGuid::Player, strtoull(playerStr, nullptr, 10));
         else
         {
             std::string name = handler->extractPlayerNameFromLink(playerStr);

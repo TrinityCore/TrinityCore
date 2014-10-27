@@ -35,10 +35,12 @@ enum TypeID
     TYPEID_GAMEOBJECT    = 5,
     TYPEID_DYNAMICOBJECT = 6,
     TYPEID_CORPSE        = 7,
-    TYPEID_AREATRIGGER   = 8
+    TYPEID_AREATRIGGER   = 8,
+    TYPEID_SCENEOBJECT   = 9,
+    TYPEID_CONVERSATION  = 10
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             9
+#define NUM_CLIENT_OBJECT_TYPES             11
 
 enum TypeMask
 {
@@ -54,24 +56,52 @@ enum TypeMask
     TYPEMASK_SEER           = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
 };
 
-enum HighGuid
+enum class HighGuid
 {
-    HIGHGUID_ITEM           = 0x400,                       // blizz 4000
-    HIGHGUID_CONTAINER      = 0x400,                       // blizz 4000
-    HIGHGUID_PLAYER         = 0x000,                       // blizz 0000
-    HIGHGUID_GAMEOBJECT     = 0xF11,                       // blizz F110
-    HIGHGUID_TRANSPORT      = 0xF12,                       // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
-    HIGHGUID_UNIT           = 0xF13,                       // blizz F130
-    HIGHGUID_PET            = 0xF14,                       // blizz F140
-    HIGHGUID_VEHICLE        = 0xF15,                       // blizz F550
-    HIGHGUID_DYNAMICOBJECT  = 0xF10,                       // blizz F100
-    HIGHGUID_CORPSE         = 0xF101,                      // blizz F100
-    HIGHGUID_AREATRIGGER    = 0xF102,
-    HIGHGUID_BATTLEGROUND   = 0x1F1,
-    HIGHGUID_MO_TRANSPORT   = 0x1FC,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
-    HIGHGUID_INSTANCE       = 0x1F4,                       // blizz 1F40
-    HIGHGUID_GROUP          = 0x1F5,
-    HIGHGUID_GUILD          = 0x1FF
+    Null             = 0,
+    Uniq             = 1,
+    Player           = 2,
+    Item             = 3,
+    StaticDoor       = 4,
+    Transport        = 5,
+    Conversation     = 6,
+    Creature         = 7,
+    Vehicle          = 8,
+    Pet              = 9,
+    GameObject       = 10,
+    DynamicObject    = 11,
+    AreaTrigger      = 12,
+    Corpse           = 13,
+    LootObject       = 14,
+    SceneObject      = 15,
+    Scenario         = 16,
+    AIGroup          = 17,
+    DynamicDoor      = 18,
+    ClientActor      = 19,
+    Vignette         = 20,
+    CallForHelp      = 21,
+    AIResource       = 22,
+    AILock           = 23,
+    AILockTicket     = 24,
+    ChatChannel      = 25,
+    Party            = 26,
+    Guild            = 27,
+    WowAccount       = 28,
+    BNetAccount      = 29,
+    GMTask           = 30,
+    MobileSession    = 31,
+    RaidGroup        = 32,
+    Spell            = 33,
+    Mail             = 34,
+    WebObj           = 35,
+    LFGObject        = 36,
+    LFGList          = 37,
+    UserRouter       = 38,
+    PVPQueueGroup    = 39,
+    UserClient       = 40,
+    PetBattle        = 41,
+    UniqueUserClient = 42,
+    BattlePet        = 43
 };
 
 class ObjectGuid;
@@ -97,8 +127,8 @@ class ObjectGuid
         typedef uint64 LowType;
 
         ObjectGuid() : _low(0), _high(0) { }
-        ObjectGuid(HighGuid hi, uint32 entry, LowType counter) : _low(counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0), _high(0) { }
-        ObjectGuid(HighGuid hi, LowType counter) : _low(counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0), _high(0) { }
+        ObjectGuid(HighGuid hi, uint32 entry, LowType counter) : _low(counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HighGuid::Corpse || hi == HighGuid::AreaTrigger) ? 48 : 52)) : 0), _high(0) { }
+        ObjectGuid(HighGuid hi, LowType counter) : _low(counter ? uint64(counter) | (uint64(hi) << ((hi == HighGuid::Corpse || hi == HighGuid::AreaTrigger) ? 48 : 52)) : 0), _high(0) { }
         ObjectGuid(ObjectGuid const&) = default;
 
         PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
@@ -113,7 +143,7 @@ class ObjectGuid
         HighGuid GetHigh() const
         {
             uint32 temp = ((uint64(_low) >> 48) & 0x0000FFFF);
-            return HighGuid((temp == HIGHGUID_CORPSE || temp == HIGHGUID_AREATRIGGER) ? temp : ((temp >> 4) & 0x00000FFF));
+            return HighGuid((temp == uint32(HighGuid::Corpse) || temp == uint32(HighGuid::AreaTrigger)) ? temp : ((temp >> 4) & 0x00000FFF));
         }
         uint32 GetEntry() const { return HasEntry() ? uint32((_low >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
         LowType GetCounter()  const
@@ -141,47 +171,42 @@ class ObjectGuid
         }
 
         bool IsEmpty()             const { return _low == 0 && _high == 0; }
-        bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT; }
-        bool IsPet()               const { return GetHigh() == HIGHGUID_PET; }
-        bool IsVehicle()           const { return GetHigh() == HIGHGUID_VEHICLE; }
+        bool IsCreature()          const { return GetHigh() == HighGuid::Creature; }
+        bool IsPet()               const { return GetHigh() == HighGuid::Pet; }
+        bool IsVehicle()           const { return GetHigh() == HighGuid::Vehicle; }
         bool IsCreatureOrPet()     const { return IsCreature() || IsPet(); }
         bool IsCreatureOrVehicle() const { return IsCreature() || IsVehicle(); }
         bool IsAnyTypeCreature()   const { return IsCreature() || IsPet() || IsVehicle(); }
-        bool IsPlayer()            const { return !IsEmpty() && GetHigh() == HIGHGUID_PLAYER; }
+        bool IsPlayer()            const { return !IsEmpty() && GetHigh() == HighGuid::Player; }
         bool IsUnit()              const { return IsAnyTypeCreature() || IsPlayer(); }
-        bool IsItem()              const { return GetHigh() == HIGHGUID_ITEM; }
-        bool IsGameObject()        const { return GetHigh() == HIGHGUID_GAMEOBJECT; }
-        bool IsDynamicObject()     const { return GetHigh() == HIGHGUID_DYNAMICOBJECT; }
-        bool IsCorpse()            const { return GetHigh() == HIGHGUID_CORPSE; }
-        bool IsAreaTrigger()       const { return GetHigh() == HIGHGUID_AREATRIGGER; }
-        bool IsBattleground()      const { return GetHigh() == HIGHGUID_BATTLEGROUND; }
-        bool IsTransport()         const { return GetHigh() == HIGHGUID_TRANSPORT; }
-        bool IsMOTransport()       const { return GetHigh() == HIGHGUID_MO_TRANSPORT; }
-        bool IsAnyTypeGameObject() const { return IsGameObject() || IsTransport() || IsMOTransport(); }
-        bool IsInstance()          const { return GetHigh() == HIGHGUID_INSTANCE; }
-        bool IsGroup()             const { return GetHigh() == HIGHGUID_GROUP; }
-        bool IsGuild()             const { return GetHigh() == HIGHGUID_GUILD; }
+        bool IsItem()              const { return GetHigh() == HighGuid::Item; }
+        bool IsGameObject()        const { return GetHigh() == HighGuid::GameObject; }
+        bool IsDynamicObject()     const { return GetHigh() == HighGuid::DynamicObject; }
+        bool IsCorpse()            const { return GetHigh() == HighGuid::Corpse; }
+        bool IsAreaTrigger()       const { return GetHigh() == HighGuid::AreaTrigger; }
+        bool IsMOTransport()       const { return GetHigh() == HighGuid::Transport; }
+        bool IsAnyTypeGameObject() const { return IsGameObject() || IsMOTransport(); }
+        bool IsParty()             const { return GetHigh() == HighGuid::Party; }
+        bool IsGuild()             const { return GetHigh() == HighGuid::Guild; }
 
         static TypeID GetTypeId(HighGuid high)
         {
             switch (high)
             {
-                case HIGHGUID_ITEM:         return TYPEID_ITEM;
+                case HighGuid::Item:         return TYPEID_ITEM;
                 //case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER==HIGHGUID_ITEM currently
-                case HIGHGUID_UNIT:         return TYPEID_UNIT;
-                case HIGHGUID_PET:          return TYPEID_UNIT;
-                case HIGHGUID_PLAYER:       return TYPEID_PLAYER;
-                case HIGHGUID_GAMEOBJECT:   return TYPEID_GAMEOBJECT;
-                case HIGHGUID_DYNAMICOBJECT: return TYPEID_DYNAMICOBJECT;
-                case HIGHGUID_CORPSE:       return TYPEID_CORPSE;
-                case HIGHGUID_AREATRIGGER:  return TYPEID_AREATRIGGER;
-                case HIGHGUID_MO_TRANSPORT: return TYPEID_GAMEOBJECT;
-                case HIGHGUID_VEHICLE:      return TYPEID_UNIT;
+                case HighGuid::Creature:         return TYPEID_UNIT;
+                case HighGuid::Pet:          return TYPEID_UNIT;
+                case HighGuid::Player:       return TYPEID_PLAYER;
+                case HighGuid::GameObject:   return TYPEID_GAMEOBJECT;
+                case HighGuid::DynamicObject: return TYPEID_DYNAMICOBJECT;
+                case HighGuid::Corpse:       return TYPEID_CORPSE;
+                case HighGuid::AreaTrigger:  return TYPEID_AREATRIGGER;
+                case HighGuid::Transport: return TYPEID_GAMEOBJECT;
+                case HighGuid::Vehicle:      return TYPEID_UNIT;
                 // unknown
-                case HIGHGUID_INSTANCE:
-                case HIGHGUID_BATTLEGROUND:
-                case HIGHGUID_GROUP:
-                case HIGHGUID_GUILD:
+                case HighGuid::Party:
+                case HighGuid::Guild:
                 default:                    return TYPEID_OBJECT;
             }
         }
@@ -210,19 +235,17 @@ class ObjectGuid
         {
             switch (high)
             {
-                case HIGHGUID_ITEM:
-                case HIGHGUID_PLAYER:
-                case HIGHGUID_DYNAMICOBJECT:
-                case HIGHGUID_CORPSE:
-                case HIGHGUID_MO_TRANSPORT:
-                case HIGHGUID_INSTANCE:
-                case HIGHGUID_GROUP:
+                case HighGuid::Item:
+                case HighGuid::Player:
+                case HighGuid::DynamicObject:
+                case HighGuid::Corpse:
+                case HighGuid::Transport:
+                case HighGuid::Party:
                     return false;
-                case HIGHGUID_GAMEOBJECT:
-                case HIGHGUID_TRANSPORT:
-                case HIGHGUID_UNIT:
-                case HIGHGUID_PET:
-                case HIGHGUID_VEHICLE:
+                case HighGuid::GameObject:
+                case HighGuid::Creature:
+                case HighGuid::Pet:
+                case HighGuid::Vehicle:
                 default:
                     return true;
             }

@@ -315,28 +315,27 @@ void Map::ScriptsProcess()
         {
             switch (step.sourceGUID.GetHigh())
             {
-                case HIGHGUID_ITEM: // as well as HIGHGUID_CONTAINER
+                case HighGuid::Item: // as well as HIGHGUID_CONTAINER
                     if (Player* player = HashMapHolder<Player>::Find(step.ownerGUID))
                         source = player->GetItemByGuid(step.sourceGUID);
                     break;
-                case HIGHGUID_UNIT:
-                case HIGHGUID_VEHICLE:
+                case HighGuid::Creature:
+                case HighGuid::Vehicle:
                     source = HashMapHolder<Creature>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_PET:
+                case HighGuid::Pet:
                     source = HashMapHolder<Pet>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_PLAYER:
+                case HighGuid::Player:
                     source = HashMapHolder<Player>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_TRANSPORT:
-                case HIGHGUID_GAMEOBJECT:
+                case HighGuid::GameObject:
                     source = HashMapHolder<GameObject>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_CORPSE:
+                case HighGuid::Corpse:
                     source = HashMapHolder<Corpse>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_MO_TRANSPORT:
+                case HighGuid::Transport:
                 {
                     GameObject* go = HashMapHolder<GameObject>::Find(step.sourceGUID);
                     source = go ? go->ToTransport() : NULL;
@@ -354,24 +353,23 @@ void Map::ScriptsProcess()
         {
             switch (step.targetGUID.GetHigh())
             {
-                case HIGHGUID_UNIT:
-                case HIGHGUID_VEHICLE:
+                case HighGuid::Creature:
+                case HighGuid::Vehicle:
                     target = HashMapHolder<Creature>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_PET:
+                case HighGuid::Pet:
                     target = HashMapHolder<Pet>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_PLAYER:                       // empty GUID case also
+                case HighGuid::Player:
                     target = HashMapHolder<Player>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_TRANSPORT:
-                case HIGHGUID_GAMEOBJECT:
+                case HighGuid::GameObject:
                     target = HashMapHolder<GameObject>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_CORPSE:
+                case HighGuid::Corpse:
                     target = HashMapHolder<Corpse>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_MO_TRANSPORT:
+                case HighGuid::Transport:
                 {
                     GameObject* go = HashMapHolder<GameObject>::Find(step.targetGUID);
                     target = go ? go->ToTransport() : NULL;
@@ -829,7 +827,7 @@ void Map::ScriptsProcess()
                 else //check hashmap holders
                 {
                     if (CreatureData const* data = sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
-                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, ObjectGuid(HIGHGUID_UNIT, data->id, uint64(step.script->CallScript.CreatureEntry)), cTarget);
+                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, ObjectGuid(HighGuid::Creature, data->id, uint64(step.script->CallScript.CreatureEntry)), cTarget);
                 }
 
                 if (!cTarget)
