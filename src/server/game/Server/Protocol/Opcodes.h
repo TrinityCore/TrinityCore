@@ -1509,7 +1509,7 @@ inline std::string GetOpcodeNameForLogging(T id)
     std::ostringstream ss;
     ss << '[';
 
-    if (id < UNKNOWN_OPCODE)
+    if (static_cast<uint32>(id) < UNKNOWN_OPCODE)
     {
         if (OpcodeHandler const* handler = opcodeTable[T(opcode & 0x7FFF)])
         {

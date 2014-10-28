@@ -160,7 +160,7 @@ bool changetoknth(std::string &str, int n, char const* with, bool insert = false
     return true;
 }
 
-uint32 registerNewGuid(uint64 oldGuid, std::map<uint64, uint64> &guidMap, uint64 hiGuid)
+uint64 registerNewGuid(uint64 oldGuid, std::map<uint64, uint64> &guidMap, uint64 hiGuid)
 {
     std::map<uint64, uint64>::const_iterator itr = guidMap.find(oldGuid);
     if (itr != guidMap.end())
@@ -178,7 +178,7 @@ bool changeGuid(std::string &str, int n, std::map<uint64, uint64> &guidMap, uint
     if (nonzero && !oldGuid)
         return true;                                        // not an error
 
-    uint32 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
+    uint64 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
     snprintf(chritem, 21, UI64FMTD, newGuid);
 
     return changenth(str, n, chritem, false, nonzero);
@@ -400,18 +400,18 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
-    if (guid && guid < sObjectMgr->GetGenerator<HIGHGUID_PLAYER>()->GetNextAfterMaxUsed())
+    if (guid && guid < sObjectMgr->GetGenerator<HighGuid::Player>()->GetNextAfterMaxUsed())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
         stmt->setUInt64(0, guid);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         if (result)
-            guid = sObjectMgr->GetGenerator<HIGHGUID_PLAYER>()->GetNextAfterMaxUsed();                     // use first free if exists
+            guid = sObjectMgr->GetGenerator<HighGuid::Player>()->GetNextAfterMaxUsed();                     // use first free if exists
         else incHighest = false;
     }
     else
-        guid = sObjectMgr->GetGenerator<HIGHGUID_PLAYER>()->GetNextAfterMaxUsed();
+        guid = sObjectMgr->GetGenerator<HighGuid::Player>()->GetNextAfterMaxUsed();
 
     // normalize the name if specified and check if it exists
     if (!normalizePlayerName(name))
@@ -431,7 +431,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
     // name encoded or empty
 
-    snprintf(newguid, 20, "%u", guid);
+    snprintf(newguid, 20, UI64FMTD, guid);
     snprintf(chraccount, 20, "%u", account);
     snprintf(newpetid, 20, "%u", sObjectMgr->GeneratePetNumber());
     snprintf(lastpetid, 20, "%s", "");
@@ -570,9 +570,9 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 if (!changenth(line, 1, newguid))           // character_inventory.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                if (!changeGuid(line, 2, items, sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->GetNextAfterMaxUsed(), true))
+                if (!changeGuid(line, 2, items, sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed(), true))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.bag update
-                if (!changeGuid(line, 4, items, sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->GetNextAfterMaxUsed()))
+                if (!changeGuid(line, 4, items, sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed()))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.item update
                 break;
             }
@@ -588,7 +588,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
             {
                 if (!changeGuid(line, 1, mails, sObjectMgr->_mailId))
                     ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.id
-                if (!changeGuid(line, 2, items, sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->GetNextAfterMaxUsed()))
+                if (!changeGuid(line, 2, items, sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed()))
                     ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.item_guid
                 if (!changenth(line, 3, newguid))           // mail_items.receiver
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -597,7 +597,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
             case DTT_ITEM:
             {
                 // item, owner, data field:item, owner guid
-                if (!changeGuid(line, 1, items, sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->GetNextAfterMaxUsed()))
+                if (!changeGuid(line, 1, items, sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed()))
                    ROLLBACK(DUMP_FILE_BROKEN);              // item_instance.guid update
                 if (!changenth(line, 3, newguid))           // item_instance.owner_guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -607,7 +607,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
             {
                 if (!changenth(line, 1, newguid))           // character_gifts.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changeGuid(line, 2, items, sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->GetNextAfterMaxUsed()))
+                if (!changeGuid(line, 2, items, sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed()))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_gifts.item_guid update
                 break;
             }
@@ -666,13 +666,13 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     CharacterDatabase.CommitTransaction(trans);
 
     // in case of name conflict player has to rename at login anyway
-    sWorld->AddCharacterNameData(ObjectGuid(HIGHGUID_PLAYER, guid), name, gender, race, playerClass, level);
+    sWorld->AddCharacterNameData(ObjectGuid(HighGuid::Player, guid), name, gender, race, playerClass, level);
 
-    sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->Set(sObjectMgr->GetGenerator<HIGHGUID_ITEM>()->GetNextAfterMaxUsed() + items.size());
+    sObjectMgr->GetGenerator<HighGuid::Item>()->Set(sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed() + items.size());
     sObjectMgr->_mailId     += mails.size();
 
     if (incHighest)
-        sObjectMgr->GetGenerator<HIGHGUID_PLAYER>()->Generate();
+        sObjectMgr->GetGenerator<HighGuid::Player>()->Generate();
 
     fclose(fin);
 

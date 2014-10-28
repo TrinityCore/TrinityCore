@@ -71,8 +71,29 @@ class UpdateMask
             _fieldCount = valuesCount;
             _blockCount = (valuesCount + CLIENT_UPDATE_MASK_BITS - 1) / CLIENT_UPDATE_MASK_BITS;
 
+            if (!valuesCount)
+            {
+                _bits = nullptr;
+                return;
+            }
+
             _bits = new uint8[_blockCount * CLIENT_UPDATE_MASK_BITS];
             memset(_bits, 0, sizeof(uint8) * _blockCount * CLIENT_UPDATE_MASK_BITS);
+        }
+
+        void AddBlock()
+        {
+            uint8* curr = _bits;
+            _fieldCount += CLIENT_UPDATE_MASK_BITS;
+            ++_blockCount;
+
+            _bits = new uint8[_blockCount * CLIENT_UPDATE_MASK_BITS];
+            memset(&_bits[(_blockCount - 1) * CLIENT_UPDATE_MASK_BITS], 0, CLIENT_UPDATE_MASK_BITS);
+            if (curr)
+            {
+                memcpy(_bits, curr, sizeof(uint8) * (_blockCount - 1) * CLIENT_UPDATE_MASK_BITS);
+                delete[] curr;
+            }
         }
 
         void Clear()

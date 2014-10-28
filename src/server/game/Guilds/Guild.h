@@ -777,7 +777,7 @@ public:
 
     // Getters
     ObjectGuid::LowType GetId() const { return m_id; }
-    ObjectGuid GetGUID() const { return ObjectGuid(HIGHGUID_GUILD, m_id); }
+    ObjectGuid GetGUID() const { return ObjectGuid(HighGuid::Guild, m_id); }
     ObjectGuid GetLeaderGUID() const { return m_leaderGuid; }
     std::string const& GetName() const { return m_name; }
     std::string const& GetMOTD() const { return m_motd; }

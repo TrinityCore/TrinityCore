@@ -113,7 +113,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
     switch (guid.GetHigh())
     {
-        case HIGHGUID_GAMEOBJECT:
+        case HighGuid::GameObject:
         {
             GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid);
 
@@ -123,7 +123,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
             break;
         }
-        case HIGHGUID_CORPSE:                               // remove insignia ONLY in BG
+        case HighGuid::Corpse:                               // remove insignia ONLY in BG
         {
             Corpse* bones = ObjectAccessor::GetCorpse(*player, guid);
 
@@ -135,7 +135,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
             break;
         }
-        case HIGHGUID_ITEM:
+        case HighGuid::Item:
         {
             if (Item* item = player->GetItemByGuid(guid))
             {
@@ -144,8 +144,8 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             }
             break;
         }
-        case HIGHGUID_UNIT:
-        case HIGHGUID_VEHICLE:
+        case HighGuid::Creature:
+        case HighGuid::Vehicle:
         {
             Creature* creature = player->GetMap()->GetCreature(guid);
             bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
@@ -366,7 +366,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         loot = &creature->loot;
         if (loot->isLooted())
         {
-            creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            creature->RemoveFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
             // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
             if (!creature->IsAlive())
@@ -386,7 +386,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                     group->SendLooter(creature, NULL);
 
                     // force update of dynamic flags, otherwise other group's players still not able to loot.
-                    creature->ForceValuesUpdateAtIndex(UNIT_DYNAMIC_FLAGS);
+                    creature->ForceValuesUpdateAtIndex(OBJECT_DYNAMIC_FLAGS);
                 }
             }
         }

@@ -78,6 +78,7 @@ class instance_ulduar : public InstanceMapScript
                 illusion = 0;
                 keepersCount = 0;
                 conSpeedAtory = false;
+                lumberjacked = false;
                 Unbroken = true;
                 IsDriveMeCrazyEligible = true;
                 _algalonSummoned = false;
@@ -102,6 +103,7 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid ThorimGUID;
             ObjectGuid FreyaGUID;
             ObjectGuid ElderGUIDs[3];
+            ObjectGuid FreyaAchieveTriggerGUID;
             ObjectGuid MimironGUID;
             ObjectGuid MimironVehicleGUIDs[3];
             ObjectGuid MimironComputerGUID;
@@ -141,6 +143,7 @@ class instance_ulduar : public InstanceMapScript
             uint8 illusion;
             uint8 keepersCount;
             bool conSpeedAtory;
+            bool lumberjacked;
             bool Unbroken;
             bool IsDriveMeCrazyEligible;
 
@@ -321,7 +324,10 @@ class instance_ulduar : public InstanceMapScript
                         ElderGUIDs[2] = creature->GetGUID();
                         if (GetBossState(BOSS_FREYA) == DONE)
                             creature->DespawnOrUnsummon();
-                         break;
+                        break;
+                    case NPC_FREYA_ACHIEVE_TRIGGER:
+                        FreyaAchieveTriggerGUID = creature->GetGUID();
+                        break;
 
                     // Mimiron
                     case NPC_MIMIRON:
@@ -606,6 +612,15 @@ class instance_ulduar : public InstanceMapScript
                             conSpeedAtory = true;
                         }
                         break;
+                    case NPC_IRONBRANCH:
+                    case NPC_STONEBARK:
+                    case NPC_BRIGHTLEAF:
+                        if (!lumberjacked)
+                        {
+                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_LUMBERJACKED);
+                            lumberjacked = true;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -668,6 +683,13 @@ class instance_ulduar : public InstanceMapScript
                     case BOSS_FREYA:
                         if (state == DONE)
                             instance->SummonCreature(NPC_FREYA_OBSERVATION_RING, ObservationRingKeepersPos[0]);
+                        break;
+                    case BOSS_IRONBRANCH:
+                    case BOSS_STONEBARK:
+                    case BOSS_BRIGHTLEAF:
+                        if (GetBossState(BOSS_BRIGHTLEAF) == DONE && GetBossState(BOSS_IRONBRANCH) == DONE && GetBossState(BOSS_STONEBARK) == DONE && GetBossState(BOSS_FREYA) != DONE)
+                            if (Creature* trigger = instance->GetCreature(FreyaAchieveTriggerGUID))
+                                trigger->CastSpell(trigger, SPELL_LUMBERJACKED_CREDIT, true);
                         break;
                     case BOSS_KOLOGARN:
                         if (state == DONE)

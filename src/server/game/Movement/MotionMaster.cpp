@@ -441,7 +441,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
 {
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        TC_LOG_ERROR("misc", "Player (GUID: %u) attempt to seek assistance", _owner->GetGUID().ToString().c_str());
+        TC_LOG_ERROR("misc", "Player (GUID: %s) attempt to seek assistance", _owner->GetGUID().ToString().c_str());
     }
     else
     {

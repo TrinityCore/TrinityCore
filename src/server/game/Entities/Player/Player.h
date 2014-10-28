@@ -60,8 +60,18 @@ struct CharacterCustomizeInfo;
 
 typedef std::deque<Mail*> PlayerMails;
 
-#define PLAYER_MAX_SKILLS           128
-#define PLAYER_MAX_DAILY_QUESTS     25
+#define PLAYER_MAX_SKILLS                       128
+enum SkillFieldOffset
+{
+    SKILL_ID_OFFSET = 0,
+    SKILL_STEP_OFFSET = 64,
+    SKILL_RANK_OFFSET = SKILL_STEP_OFFSET + 64,
+    SUBSKILL_START_RANK_OFFSET = SKILL_RANK_OFFSET + 64,
+    SKILL_MAX_RANK_OFFSET = SUBSKILL_START_RANK_OFFSET + 64,
+    SKILL_TEMP_BONUS_OFFSET = SKILL_MAX_RANK_OFFSET + 64,
+    SKILL_PERM_BONUS_OFFSET = SKILL_TEMP_BONUS_OFFSET + 64
+};
+
 #define PLAYER_EXPLORED_ZONES_SIZE  156
 
 // Note: SPELLMOD_* values is aura types in fact
@@ -663,7 +673,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 86,
+    PLAYER_SLOT_END             = 184,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -694,6 +704,9 @@ enum EquipmentSlots                                         // 19 slots
     EQUIPMENT_SLOT_END          = 19
 };
 
+#define VISIBLE_ITEM_ENTRY_OFFSET 0
+#define VISIBLE_ITEM_ENCHANTMENT_OFFSET 1
+
 enum InventorySlots                                         // 4 slots
 {
     INVENTORY_SLOT_BAG_START    = 19,
@@ -723,6 +736,12 @@ enum BuyBackSlots                                           // 12 slots
     // stored in m_buybackitems
     BUYBACK_SLOT_START          = 74,
     BUYBACK_SLOT_END            = 86
+};
+
+enum ReagentSlots
+{
+    REAGENT_SLOT_START          = 87,
+    REAGENT_SLOT_END            = 184,
 };
 
 enum EquipmentSetUpdateState

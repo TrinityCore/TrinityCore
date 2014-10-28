@@ -362,7 +362,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
 
         // Store group so we don't need to call Mgr to get it later (if it's player group will be 0 otherwise would have joined as group)
         for (LfgRolesMap::const_iterator it2 = itQueue->second.roles.begin(); it2 != itQueue->second.roles.end(); ++it2)
-            proposalGroups[it2->first] = itQueue->first.IsGroup() ? itQueue->first : ObjectGuid::Empty;
+            proposalGroups[it2->first] = itQueue->first.IsParty() ? itQueue->first : ObjectGuid::Empty;
 
         numPlayers += itQueue->second.roles.size();
 
@@ -610,7 +610,7 @@ std::string LFGQueue::DumpQueueInfo() const
         for (GuidList::const_iterator it = queue.begin(); it != queue.end(); ++it)
         {
             ObjectGuid guid = *it;
-            if (guid.IsGroup())
+            if (guid.IsParty())
             {
                 groups++;
                 playersInGroup += sLFGMgr->GetPlayerCount(guid);
