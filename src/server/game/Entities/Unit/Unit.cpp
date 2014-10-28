@@ -13404,6 +13404,9 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         return false;
     }
 
+    for (auto phase : GetPhases())
+        pet->SetInPhase(phase, false, true);
+
     pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
     // this enables pet details window (Shift+P)
     pet->InitPetCreateSpells();
