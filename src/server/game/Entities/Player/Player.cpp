@@ -5253,10 +5253,13 @@ void Player::CreateCorpse()
     corpse->SetUInt32Value(CORPSE_FIELD_BYTES_2, _cfb2);
 
     uint32 flags = CORPSE_FLAG_UNK2;
+
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
         flags |= CORPSE_FLAG_HIDE_HELM;
+
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
         flags |= CORPSE_FLAG_HIDE_CLOAK;
+
     if (InBattleground() && !InArena())
         flags |= CORPSE_FLAG_LOOTABLE;                      // to be able to remove insignia
 
@@ -5266,6 +5269,7 @@ void Player::CreateCorpse()
     uint32 iDisplayID;
     uint32 iIventoryType;
     uint32 _cfi;
+
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
     {
         if (m_items[i])
@@ -16122,8 +16126,6 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
         m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
     }
 
-    RebuildTerrainSwaps();
-
     if (update)
         SendQuestUpdate(questId);
 
@@ -16183,6 +16185,7 @@ void Player::SendQuestUpdate(uint32 questId)
     }
 
     UpdateForQuestWorldObjects();
+    RebuildTerrainSwaps();
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
