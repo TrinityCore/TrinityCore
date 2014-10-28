@@ -547,7 +547,10 @@ bool Map::AddToMap(T* obj)
         AddToActive(obj);
 
     obj->RebuildTerrainSwaps();
-    obj->SendUpdatePhasing();
+
+    // packets are only sent to players
+    if (obj->GetTypeId() == TYPEID_PLAYER)
+        obj->ToPlayer()->SendUpdatePhasing();
 
     //something, such as vehicle, needs to be update immediately
     //also, trigger needs to cast spell, if not update, cannot see visual
