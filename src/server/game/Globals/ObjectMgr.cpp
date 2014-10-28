@@ -6924,11 +6924,27 @@ uint64 ObjectMgr::GenerateVoidStorageItemId()
 
 void ObjectMgr::LoadCorpses()
 {
-    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, corpseGuid, guid FROM corpse WHERE corpseType <> 0
-
     uint32 oldMSTime = getMSTime();
 
+    std::unordered_map<uint32, std::list<uint32>> phases;
+
+    //                                                     0       1
+    QueryResult phaseResult = WorldDatabase.Query("SELECT `Guid`, `PhaseId` FROM corpse_phases");
+    if (phaseResult)
+    {
+        do
+        {
+            Field* fields = phaseResult->Fetch();
+            uint32 guid = fields[0].GetUInt32();
+            uint32 phaseId = fields[1].GetUInt32();
+            
+            phases[guid].push_back(phaseId);
+
+        } while (phaseResult->NextRow());
+    }
+
+    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15
+    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, corpseGuid, guid FROM corpse WHERE corpseType <> 0
     PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES));
     if (!result)
     {
@@ -6954,6 +6970,9 @@ void ObjectMgr::LoadCorpses()
             delete corpse;
             continue;
         }
+
+        for (auto phaseId : phases[guid])
+            corpse->SetInPhase(phaseId, false, true);
 
         sObjectAccessor->AddCorpse(corpse);
         ++count;
