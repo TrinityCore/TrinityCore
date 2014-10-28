@@ -2752,12 +2752,6 @@ bool WorldObject::IsInPhase(WorldObject const* obj) const
     return Trinity::Containers::Intersects(_phases.begin(), _phases.end(), obj->GetPhases().begin(), obj->GetPhases().end());
 }
 
-bool WorldObject::InSamePhase(WorldObject const* obj) const
-{
-    return IsInPhase(obj);
-    // return InSamePhase(obj->GetPhaseMask());
-}
-
 void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
 {
     WorldPacket data(SMSG_PLAY_OBJECT_SOUND, 4 + 8);

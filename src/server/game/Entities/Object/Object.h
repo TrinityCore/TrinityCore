@@ -595,8 +595,6 @@ class WorldObject : public Object, public WorldLocation
         virtual void SetInPhase(uint32 id, bool update, bool apply);
         void RebuildTerrainSwaps();
         uint32 GetPhaseMask() const { return m_phaseMask; }
-        bool InSamePhase(WorldObject const* obj) const;
-        bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
         bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
         bool IsInPhase(WorldObject const* obj) const;
         bool IsInTerrainSwap(uint32 terrainSwap) const { return _terrainSwaps.find(terrainSwap) != _terrainSwaps.end(); }

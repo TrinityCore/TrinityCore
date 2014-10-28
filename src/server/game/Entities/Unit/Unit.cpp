@@ -3668,7 +3668,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase, bool phaseid)
             else
             {
                 Unit* caster = aura->GetCaster();
-                if (!caster || (newPhase && !caster->InSamePhase(newPhase)) || (!newPhase && !caster->IsInPhase(this)))
+                if (!caster || (newPhase && !caster->IsInPhase(newPhase)) || (!newPhase && !caster->IsInPhase(this)))
                     RemoveAura(iter);
                 else
                     ++iter;
@@ -3683,7 +3683,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase, bool phaseid)
     for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
     {
         Aura* aura = *iter;
-        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
+        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->IsInPhase(newPhase))
         {
             aura->Remove();
             iter = scAuras.begin();
