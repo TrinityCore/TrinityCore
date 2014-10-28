@@ -102,8 +102,18 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
     }
 
     Player *player = new Player(session);
-    WorldPacket data;
-    CharacterCreateInfo cci(name, race, cls, gender, skin, face, hairStyle,hairColor, facialHair, outfitId, data);
+    CharacterCreateInfo cci;
+    cci.Name = name;
+    cci.Race = race;
+    cci.Class = cls;
+    cci.Gender = gender;
+    cci.Skin = skin;
+    cci.Face = face;
+    cci.HairStyle = hairStyle;
+    cci.HairColor = hairColor;
+    cci.FacialHair = facialHair;
+    cci.OutfitId = outfitId;
+
     if (!player->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), &cci))
     {
         player->DeleteFromDB(player->GetGUID(), accountId, true, true);
