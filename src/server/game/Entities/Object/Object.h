@@ -599,6 +599,7 @@ class WorldObject : public Object, public WorldLocation
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
         bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
         bool IsInPhase(WorldObject const* obj) const;
+        bool IsInTerrainSwap(uint32 terrainSwap) const { return _terrainSwaps.find(terrainSwap) != _terrainSwaps.end(); }
         std::set<uint32> const& GetPhases() const { return _phases; }
         std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }
 

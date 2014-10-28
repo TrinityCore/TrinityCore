@@ -2910,17 +2910,30 @@ void WorldObject::RebuildTerrainSwaps()
     // Clear all terrain swaps, will be rebuilt below
     // Reason for this is, multiple phases can have the same terrain swap, we should not remove the swap if another phase still use it
     _terrainSwaps.clear();
+    ConditionList conditions;
 
     // Check all applied phases for terrain swap and add it only once
     for (auto phaseId : _phases)
     {
         std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
+
         for (auto swap : swaps)
-            _terrainSwaps.insert(swap);
+        {
+            conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+
+            if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+                _terrainSwaps.insert(swap);
+        }
     }
 
     // Now insert the map terrain swaps
     std::list<uint32>& mapSwaps = sObjectMgr->GetMapTerrainSwaps(GetMapId());
+
     for (auto swap : mapSwaps)
-        _terrainSwaps.insert(swap);
+    {
+        conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+
+        if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+            _terrainSwaps.insert(swap);
+    }
 }
