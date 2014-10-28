@@ -1160,10 +1160,11 @@ void WorldSession::ProcessQueryCallbacks()
     //- HandleCharRenameOpcode
     if (_charRenameCallback.IsReady())
     {
-        std::string param = _charRenameCallback.GetParam();
         _charRenameCallback.GetResult(result);
-        HandleChangePlayerNameOpcodeCallBack(result, param);
-        _charRenameCallback.FreeResult();
+        CharacterRenameInfo* renameInfo = _charRenameCallback.GetParam();
+        HandleChangePlayerNameOpcodeCallBack(result, renameInfo);
+        delete renameInfo;
+        _charRenameCallback.Reset();
     }
 
     //- HandleCharAddIgnoreOpcode
