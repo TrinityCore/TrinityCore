@@ -9226,8 +9226,49 @@ void ObjectMgr::LoadFactionChangeTitles()
     TC_LOG_INFO("server.loading", ">> Loaded %u faction change title pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadTerrainMapInfo()
+{
+    _terrainMapInfoStore.clear();
+
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0       1
+    QueryResult result = WorldDatabase.Query("SELECT mapid, terrainswapmap FROM `terrain_map_info`");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 terrain area infos. DB table `terrain_map_info` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 mapId = fields[0].GetUInt32();
+
+        MapEntry const* map = sMapStore.LookupEntry(mapId);
+        if (!map)
+        {
+            TC_LOG_ERROR("sql.sql", "Map %u defined in `terrain_map_info` does not exist, skipped.", mapId);
+            continue;
+        }
+
+        uint32 terrainSwap = fields[1].GetUInt32();
+
+        _terrainMapInfoStore[mapId].push_back(terrainSwap);
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u terrain map infos in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void ObjectMgr::LoadTerrainPhaseInfo()
 {
+    _terrainPhaseInfoStore.clear();
+
     uint32 oldMSTime = getMSTime();
 
     //                                               0       1
@@ -9249,7 +9290,7 @@ void ObjectMgr::LoadTerrainPhaseInfo()
         PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId);
         if (!phase)
         {
-            TC_LOG_ERROR("sql.sql", "Phase %u defined in `terrain_phase_info` does not exists, skipped.", phaseId);
+            TC_LOG_ERROR("sql.sql", "Phase %u defined in `terrain_phase_info` does not exist, skipped.", phaseId);
             continue;
         }
 
@@ -9260,6 +9301,7 @@ void ObjectMgr::LoadTerrainPhaseInfo()
         ++count;
     }
     while (result->NextRow());
+
     TC_LOG_INFO("server.loading", ">> Loaded %u terrain phase infos in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 

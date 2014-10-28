@@ -546,6 +546,9 @@ bool Map::AddToMap(T* obj)
     if (obj->isActiveObject())
         AddToActive(obj);
 
+    obj->RebuildTerrainSwaps();
+    obj->SendUpdatePhasing();
+
     //something, such as vehicle, needs to be update immediately
     //also, trigger needs to cast spell, if not update, cannot see visual
     obj->UpdateObjectVisibility(true);

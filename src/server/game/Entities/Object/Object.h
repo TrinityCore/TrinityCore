@@ -593,6 +593,7 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         virtual void SetInPhase(uint32 id, bool update, bool apply);
+        void RebuildTerrainSwaps();
         uint32 GetPhaseMask() const { return m_phaseMask; }
         bool InSamePhase(WorldObject const* obj) const;
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }

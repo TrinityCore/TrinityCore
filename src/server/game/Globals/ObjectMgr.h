@@ -1029,6 +1029,7 @@ class ObjectMgr
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
 
         void LoadTerrainPhaseInfo();
+        void LoadTerrainMapInfo();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
@@ -1286,6 +1287,7 @@ class ObjectMgr
         }
 
         std::list<uint32>& GetPhaseTerrainSwaps(uint32 phaseid) { return _terrainPhaseInfoStore[phaseid]; }
+        std::list<uint32>& GetMapTerrainSwaps(uint32 mapid) { return _terrainMapInfoStore[mapid]; }
 
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
@@ -1403,6 +1405,7 @@ class ObjectMgr
         InstanceTemplateContainer _instanceTemplateStore;
 
         TerrainPhaseInfo _terrainPhaseInfoStore;
+        TerrainPhaseInfo _terrainMapInfoStore;
 
     private:
         void LoadScripts(ScriptsType type);
@@ -1418,7 +1421,7 @@ class ObjectMgr
         PetLevelInfoContainer _petInfoStore;                            // [creature_id][level]
 
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
-
+        
         PlayerInfo* _playerInfo[MAX_RACES][MAX_CLASSES];
 
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]

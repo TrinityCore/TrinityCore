@@ -2731,17 +2731,7 @@ void WorldObject::SetInPhase(uint32 id, bool update, bool apply)
     else
         _phases.erase(id);
 
-    // Clear all terrain swaps, will be rebuilt below
-    // Reason for this is, multiple phases can have the same terrain swap, we should not remove the swap if another phase still use it
-    _terrainSwaps.clear();
-
-    // Check all applied phases for terrain swap and add it only once
-    for (auto phaseId : _phases)
-    {
-        std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
-        for (auto swap : swaps)
-            _terrainSwaps.insert(swap);
-    }
+    RebuildTerrainSwaps();
 
     if (update && IsInWorld())
         UpdateObjectVisibility();
@@ -2913,4 +2903,24 @@ ObjectGuid WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetGUID();
     return ObjectGuid::Empty;
+}
+
+void WorldObject::RebuildTerrainSwaps()
+{
+    // Clear all terrain swaps, will be rebuilt below
+    // Reason for this is, multiple phases can have the same terrain swap, we should not remove the swap if another phase still use it
+    _terrainSwaps.clear();
+
+    // Check all applied phases for terrain swap and add it only once
+    for (auto phaseId : _phases)
+    {
+        std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
+        for (auto swap : swaps)
+            _terrainSwaps.insert(swap);
+    }
+
+    // Now insert the map terrain swaps
+    std::list<uint32>& mapSwaps = sObjectMgr->GetMapTerrainSwaps(GetMapId());
+    for (auto swap : mapSwaps)
+        _terrainSwaps.insert(swap);
 }

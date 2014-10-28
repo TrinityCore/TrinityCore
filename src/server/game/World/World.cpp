@@ -1729,6 +1729,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Terrain Phase definitions...");
     sObjectMgr->LoadTerrainPhaseInfo();
 
+    TC_LOG_INFO("server.loading", "Loading Terrain Map definitions...");
+    sObjectMgr->LoadTerrainMapInfo();
+
     TC_LOG_INFO("server.loading", "Loading Conditions...");
     sConditionMgr->LoadConditions();
 
