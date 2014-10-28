@@ -16,16 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Connection_Patcher.Patches
+#ifndef CONNECTION_PATCHER_PATCHER_HPP
+#define CONNECTION_PATCHER_PATCHER_HPP
+
+#include "Constants/BinaryTypes.hpp"
+
+#include <boost/filesystem.hpp>
+
+#include <vector>
+#include <string>
+
+namespace Connection_Patcher
 {
-    class Mac
+    struct Patcher
     {
-        public static class x64
-        {
-            public static byte[] BNet      = { 0xB8, 0xD5, 0xF8, 0x7F, 0x82, 0x89, 0x47, 0x0C, 0x5D, 0xC3, 0x90, 0x90, 0x90 };
-            public static byte[] Connect   = { };
-            public static byte[] Password  = { 0x0F, 0x85 };
-            public static byte[] Signature = { 0x45, 0x31, 0xED, 0x4D, 0x89, 0xFC, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB };
-        }
-    }
+        std::vector<unsigned char> binary;
+        Constants::BinaryTypes Type;
+
+        Patcher (boost::filesystem::path file);
+
+        void Patch(std::vector<unsigned char> const& bytes, std::vector<unsigned char> const& pattern);
+        void Finish (boost::filesystem::path out);
+    };
 }
+
+#endif

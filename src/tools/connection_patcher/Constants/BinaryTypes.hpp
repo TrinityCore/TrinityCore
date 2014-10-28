@@ -16,16 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Connection_Patcher.Patterns
+#ifndef CONNECTION_PATCHER_CONSTANTS_BINARYTYPES_HPP
+#define CONNECTION_PATCHER_CONSTANTS_BINARYTYPES_HPP
+
+#include <cstdint>
+
+namespace Connection_Patcher
 {
-    class Mac
+    namespace Constants
     {
-        public static class x64
+        enum class BinaryTypes : uint32_t
         {
-            public static byte[] BNet      = { 0x8B, 0x06, 0x89, 0x47, 0x0C, 0x5D, 0xC3 };
-            public static byte[] Connect   = { };
-            public static byte[] Password  = { 0x0F, 0x84, 0x00, 0xFF, 0xFF, 0xFF, 0x49, 0x8B, 0x45, 0x00, 0xB9, 0x40 };
-            public static byte[] Signature = { 0xE8, 0x00, 0x00, 0x00, 0x00, 0x45, 0x31, 0xED, 0x4D, 0x89, 0xFC, 0x84, 0xC0, 0x75 };
-        }
+            Pe32   = 0x0000014C,
+            Pe64   = 0x00008664,
+            Mach64 = 0xFEEDFACF
+        };
     }
 }
+
+#endif

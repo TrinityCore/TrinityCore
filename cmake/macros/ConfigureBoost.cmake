@@ -25,10 +25,14 @@ if(WIN32)
   add_definitions(-D_WIN32_WINNT=${ver})
 endif()
 
-find_package(Boost 1.49 REQUIRED system thread program_options)
+find_package(Boost 1.49 REQUIRED system filesystem thread program_options)
 add_definitions(-DBOOST_DATE_TIME_NO_LIB)
 add_definitions(-DBOOST_REGEX_NO_LIB)
 add_definitions(-DBOOST_CHRONO_NO_LIB)
+
+if(!WIN32) # https://svn.boost.org/trac/boost/ticket/6779
+  add_definitions(-DBOOST_NO_CXX11_SCOPED_ENUMS)
+endif()
 
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})

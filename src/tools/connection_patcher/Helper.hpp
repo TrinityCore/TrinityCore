@@ -1,4 +1,4 @@
-﻿﻿/*
+﻿/*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
@@ -16,14 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Connection_Patcher.Constants
+#ifndef CONNECTION_PATCHER_HELPER_HPP
+#define CONNECTION_PATCHER_HELPER_HPP
+
+#include "Constants/BinaryTypes.hpp"
+
+#include <vector>
+#include <string>
+
+namespace Connection_Patcher
 {
-    enum BinaryTypes : uint
+    namespace Helper
     {
-        None   = 0000000000,
-        Pe32   = 0x0000014C,
-        Pe64   = 0x00008664,
-        Mach32 = 0xFEEDFACE,
-        Mach64 = 0xFEEDFACF
+        Constants::BinaryTypes GetBinaryType(std::vector<unsigned char> const& data);
+        std::string GetFileChecksum(std::vector<unsigned char> const& data);
     }
 }
+
+#endif

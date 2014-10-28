@@ -8,6 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+add_subdirectory(connection_patcher)
 add_subdirectory(map_extractor)
 add_subdirectory(vmap4_assembler)
 add_subdirectory(vmap4_extractor)
