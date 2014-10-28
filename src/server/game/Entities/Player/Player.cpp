@@ -16122,6 +16122,8 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
         m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
     }
 
+    RebuildTerrainSwaps();
+
     if (update)
         SendQuestUpdate(questId);
 
