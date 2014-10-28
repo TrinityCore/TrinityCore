@@ -6924,8 +6924,8 @@ uint64 ObjectMgr::GenerateVoidStorageItemId()
 
 void ObjectMgr::LoadCorpses()
 {
-    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15         16
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, phaseMask, corpseGuid, guid FROM corpse WHERE corpseType <> 0
+    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15
+    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, corpseGuid, guid FROM corpse WHERE corpseType <> 0
 
     uint32 oldMSTime = getMSTime();
 
@@ -6940,7 +6940,7 @@ void ObjectMgr::LoadCorpses()
     do
     {
         Field* fields = result->Fetch();
-        uint32 guid = fields[15].GetUInt32();
+        uint32 guid = fields[14].GetUInt32();
         CorpseType type = CorpseType(fields[12].GetUInt8());
         if (type >= MAX_CORPSE_TYPE)
         {

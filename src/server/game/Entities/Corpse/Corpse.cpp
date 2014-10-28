@@ -119,7 +119,6 @@ void Corpse::SaveToDB()
     stmt->setUInt32(index++, uint32(m_time));                                         // time
     stmt->setUInt8 (index++, GetType());                                              // corpseType
     stmt->setUInt32(index++, GetInstanceId());                                        // instanceId
-    stmt->setUInt32(index++, GetPhaseMask());                                         // phaseMask
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -159,10 +158,10 @@ void Corpse::DeleteFromDB(SQLTransaction& trans)
 
 bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
 {
-    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15         16
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, phaseMask, corpseGuid, guid FROM corpse WHERE corpseType <> 0
+    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15
+    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, corpseGuid, guid FROM corpse WHERE corpseType <> 0
 
-    uint32 ownerGuid = fields[16].GetUInt32();
+    uint32 ownerGuid = fields[15].GetUInt32();
     float posX   = fields[0].GetFloat();
     float posY   = fields[1].GetFloat();
     float posZ   = fields[2].GetFloat();
@@ -182,7 +181,6 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
     m_time = time_t(fields[11].GetUInt32());
 
     uint32 instanceId  = fields[13].GetUInt32();
-    //uint32 phaseMask   = fields[14].GetUInt32();
 
     // place
     SetLocationInstanceId(instanceId);
