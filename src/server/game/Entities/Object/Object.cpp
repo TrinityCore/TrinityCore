@@ -2738,7 +2738,7 @@ void WorldObject::SetInPhase(uint32 id, bool update, bool apply)
     // Check all applied phases for terrain swap and add it only once
     for (auto phaseId : _phases)
     {
-        std::list<uint32> swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
+        std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
         for (auto swap : swaps)
             _terrainSwaps.insert(swap);
     }
