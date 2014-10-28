@@ -4,16 +4,16 @@ DROP TABLE IF EXISTS `terrain_phase_info`;
 DROP TABLE IF EXISTS `terrain_map_info`;
 
 CREATE TABLE `terrain_phase_info`(  
-  `id` INT(10) NOT NULL,
-  `terrainswapmap` INT(10) NOT NULL,
-  `comment` VARCHAR(255),
-  PRIMARY KEY (`id`, `terrainswapmap`)
+  `Id` INT(10) NOT NULL,
+  `TerrainSwapMap` INT(10) NOT NULL,
+  `Comment` VARCHAR(255),
+  PRIMARY KEY (`Id`, `TerrainSwapMap`)
 );
 
 CREATE TABLE `terrain_map_info`(
-  `mapid` INT(10) NOT NULL,
-  `terrainswapmap` INT(10) NOT NULL,
-  `comment` VARCHAR(255),
-  PRIMARY KEY (`mapid`, `terrainswapmap`)
+  `MapId` INT(10) NOT NULL,
+  `TerrainSwapMap` INT(10) NOT NULL,
+  `Comment` VARCHAR(255),
+  PRIMARY KEY (`MapId`, `TerrainSwapMap`)
 );
 

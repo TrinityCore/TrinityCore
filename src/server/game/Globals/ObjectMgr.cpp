@@ -9233,7 +9233,7 @@ void ObjectMgr::LoadTerrainMapInfo()
     uint32 oldMSTime = getMSTime();
 
     //                                               0       1
-    QueryResult result = WorldDatabase.Query("SELECT mapid, terrainswapmap FROM `terrain_map_info`");
+    QueryResult result = WorldDatabase.Query("SELECT MapId, TerrainSwapMap FROM `terrain_map_info`");
 
     if (!result)
     {
@@ -9272,7 +9272,7 @@ void ObjectMgr::LoadTerrainPhaseInfo()
     uint32 oldMSTime = getMSTime();
 
     //                                               0       1
-    QueryResult result = WorldDatabase.Query("SELECT id, terrainswapmap FROM `terrain_phase_info`");
+    QueryResult result = WorldDatabase.Query("SELECT Id, TerrainSwapMap FROM `terrain_phase_info`");
 
     if (!result)
     {
