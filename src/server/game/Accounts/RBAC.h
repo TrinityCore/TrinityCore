@@ -56,7 +56,7 @@ enum RBACPermissions
     RBAC_PERM_JOIN_RANDOM_BG                                 = 4,
     RBAC_PERM_JOIN_ARENAS                                    = 5,
     RBAC_PERM_JOIN_DUNGEON_FINDER                            = 6,
-    //  7 - reuse
+    RBAC_PERM_COMMAND_MODIFY_XP                              = 7,
     //  8 - reuse
     //  9 - reuse
     // 10 - reuse
