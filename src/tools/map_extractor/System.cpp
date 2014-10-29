@@ -33,6 +33,9 @@
 #define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
 #endif
 
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+
 #include "DBFilesClientList.h"
 #include "CascLib.h"
 #include "dbcfile.h"
@@ -1134,13 +1137,13 @@ void ExtractDBFilesClient(int l)
 
 bool OpenCascStorage()
 {
-    if (!CascOpenStorage(".\\Data", 0, &CascStorage))
+    boost::filesystem::path const storage_dir (boost::filesystem::canonical (input_path) / "Data");
+    if (!CascOpenStorage(storage_dir.string().c_str(), 0, &CascStorage))
     {
-        printf("Error %d\n", GetLastError());
+        printf("error opening casc storage '%s': %d\n", storage_dir.string().c_str(), GetLastError());
         return false;
     }
-
-    printf("\n");
+    printf("opened casc storage '%s'\n", storage_dir.string().c_str());
     return true;
 }
 
@@ -1156,8 +1159,6 @@ int main(int argc, char * arg[])
 
     if (!OpenCascStorage())
     {
-        if (GetLastError() != ERROR_PATH_NOT_FOUND)
-            printf("Unable to open storage!\n");
         return 1;
     }
 
