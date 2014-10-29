@@ -99,7 +99,7 @@ void Usage(char const* prg)
         "-o set output path (max %d characters)\n"\
         "-e extract only MAP(1)/DBC(2)/Camera(4) - standard: all(7)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
-        "Example: %s -f 0 -i \"c:\\games\\game\"", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
+        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
     exit(1);
 }
 
@@ -150,6 +150,11 @@ void HandleArgs(int argc, char* arg[])
                 }
                 else
                     Usage(arg[0]);
+                break;
+            case 'h':
+                Usage(arg[0]);
+                break;
+            default:
                 break;
         }
     }
