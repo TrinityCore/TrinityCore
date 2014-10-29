@@ -846,11 +846,12 @@ public:
             if (result2)
             {
                 bool hasError = false;
+                Map* map = handler->GetSession()->GetPlayer()->GetMap();
                 do
                 {
                     Field* fields = result2->Fetch();
                     ObjectGuid::LowType wpguid = fields[0].GetUInt64();
-                    Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid(HighGuid::Creature, VISUAL_WAYPOINT, wpguid));
+                    Creature* creature = map->GetCreature(ObjectGuid::Create<HighGuid::Creature>(map->GetId(), VISUAL_WAYPOINT, wpguid));
 
                     if (!creature)
                     {
@@ -1051,11 +1052,12 @@ public:
                 return false;
             }
             bool hasError = false;
+            Map* map = handler->GetSession()->GetPlayer()->GetMap();
             do
             {
                 Field* fields = result->Fetch();
                 ObjectGuid::LowType guid = fields[0].GetUInt64();
-                Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid(HighGuid::Creature, VISUAL_WAYPOINT, guid));
+                Creature* creature = map->GetCreature(ObjectGuid::Create<HighGuid::Creature>(map->GetId(), VISUAL_WAYPOINT, guid));
                 if (!creature)
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, guid);

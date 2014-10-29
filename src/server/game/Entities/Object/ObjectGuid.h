@@ -62,7 +62,7 @@ enum class HighGuid
     Uniq             = 1,
     Player           = 2,
     Item             = 3,
-    StaticDoor       = 4,
+    StaticDoor       = 4,   //NYI
     Transport        = 5,
     Conversation     = 6,
     Creature         = 7,
@@ -77,7 +77,7 @@ enum class HighGuid
     Scenario         = 16,
     AIGroup          = 17,
     DynamicDoor      = 18,
-    ClientActor      = 19,
+    ClientActor      = 19,  //NYI
     Vignette         = 20,
     CallForHelp      = 21,
     AIResource       = 22,
@@ -89,23 +89,26 @@ enum class HighGuid
     WowAccount       = 28,
     BNetAccount      = 29,
     GMTask           = 30,
-    MobileSession    = 31,
+    MobileSession    = 31,  //NYI
     RaidGroup        = 32,
     Spell            = 33,
     Mail             = 34,
-    WebObj           = 35,
-    LFGObject        = 36,
-    LFGList          = 37,
+    WebObj           = 35,  //NYI
+    LFGObject        = 36,  //NYI
+    LFGList          = 37,  //NYI
     UserRouter       = 38,
     PVPQueueGroup    = 39,
     UserClient       = 40,
-    PetBattle        = 41,
+    PetBattle        = 41,  //NYI
     UniqueUserClient = 42,
-    BattlePet        = 43
+    BattlePet        = 43,
+
+    Count,
 };
 
 class ObjectGuid;
 class PackedGuid;
+class GuidFormat;
 
 struct PackedGuidReader
 {
@@ -120,15 +123,21 @@ class ObjectGuid
     friend std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
     friend ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid);
     friend class PackedGuid;
+    friend class GuidFormat;
 
     public:
         static ObjectGuid const Empty;
+        static ObjectGuid const TradeItem;
 
         typedef uint64 LowType;
 
+        template<HighGuid type>
+        static ObjectGuid Create(LowType counter);
+
+        template<HighGuid type>
+        static ObjectGuid Create(uint16 mapId, uint32 entry, LowType counter);
+
         ObjectGuid() : _low(0), _high(0) { }
-        ObjectGuid(HighGuid hi, uint32 entry, LowType counter) : _low(counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HighGuid::Corpse || hi == HighGuid::AreaTrigger) ? 48 : 52)) : 0), _high(0) { }
-        ObjectGuid(HighGuid hi, LowType counter) : _low(counter ? uint64(counter) | (uint64(hi) << ((hi == HighGuid::Corpse || hi == HighGuid::AreaTrigger) ? 48 : 52)) : 0), _high(0) { }
         ObjectGuid(ObjectGuid const&) = default;
 
         PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
@@ -136,24 +145,19 @@ class ObjectGuid
         std::vector<uint8> GetRawValue() const;
         void SetRawValue(std::vector<uint8> const& guid);
         void SetRawValue(uint64 high, uint64 low) { _high = high; _low = low; }
-        void Clear() { _low = 0; }
+        void Clear() { _high = 0; _low = 0; }
 
         PackedGuid WriteAsPacked() const;
 
-        HighGuid GetHigh() const
-        {
-            uint32 temp = ((uint64(_low) >> 48) & 0x0000FFFF);
-            return HighGuid((temp == uint32(HighGuid::Corpse) || temp == uint32(HighGuid::AreaTrigger)) ? temp : ((temp >> 4) & 0x00000FFF));
-        }
-        uint32 GetEntry() const { return HasEntry() ? uint32((_low >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
-        LowType GetCounter()  const
-        {
-            return _low & UI64LIT(0x00000000FFFFFFFF);
-        }
+        HighGuid GetHigh() const { return HighGuid((_high >> 58) & 0x3F); }
+        uint32 GetRealmId() const { return uint32((_high >> 42) & 0x1FFF); }
+        uint32 GetMapId() const { return uint32((_high >> 29) & 0x1FFF); }
+        uint32 GetEntry() const { return uint32((_high >> 6) & 0x7FFFFF); }
+        LowType GetCounter() const { return _low & UI64LIT(0x000000FFFFFFFFFF); }
 
         static LowType GetMaxCounter(HighGuid /*high*/)
         {
-            return UI64LIT(0xFFFFFFFF);
+            return UI64LIT(0xFFFFFFFFFF);
         }
 
         uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
@@ -188,26 +192,26 @@ class ObjectGuid
         bool IsAnyTypeGameObject() const { return IsGameObject() || IsMOTransport(); }
         bool IsParty()             const { return GetHigh() == HighGuid::Party; }
         bool IsGuild()             const { return GetHigh() == HighGuid::Guild; }
+        bool IsSceneObject()       const { return GetHigh() == HighGuid::SceneObject; }
+        bool IsConversation()      const { return GetHigh() == HighGuid::Conversation; }
 
         static TypeID GetTypeId(HighGuid high)
         {
             switch (high)
             {
-                case HighGuid::Item:         return TYPEID_ITEM;
-                //case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER==HIGHGUID_ITEM currently
-                case HighGuid::Creature:         return TYPEID_UNIT;
-                case HighGuid::Pet:          return TYPEID_UNIT;
-                case HighGuid::Player:       return TYPEID_PLAYER;
-                case HighGuid::GameObject:   return TYPEID_GAMEOBJECT;
-                case HighGuid::DynamicObject: return TYPEID_DYNAMICOBJECT;
-                case HighGuid::Corpse:       return TYPEID_CORPSE;
-                case HighGuid::AreaTrigger:  return TYPEID_AREATRIGGER;
-                case HighGuid::Transport: return TYPEID_GAMEOBJECT;
-                case HighGuid::Vehicle:      return TYPEID_UNIT;
-                // unknown
-                case HighGuid::Party:
-                case HighGuid::Guild:
-                default:                    return TYPEID_OBJECT;
+                case HighGuid::Item:            return TYPEID_ITEM;
+                case HighGuid::Creature:
+                case HighGuid::Pet:
+                case HighGuid::Vehicle:         return TYPEID_UNIT;
+                case HighGuid::Player:          return TYPEID_PLAYER;
+                case HighGuid::GameObject:
+                case HighGuid::Transport:       return TYPEID_GAMEOBJECT;
+                case HighGuid::DynamicObject:   return TYPEID_DYNAMICOBJECT;
+                case HighGuid::Corpse:          return TYPEID_CORPSE;
+                case HighGuid::AreaTrigger:     return TYPEID_AREATRIGGER;
+                case HighGuid::SceneObject:     return TYPEID_SCENEOBJECT;
+                case HighGuid::Conversation:    return TYPEID_CONVERSATION;
+                default:                        return TYPEID_OBJECT;
             }
         }
 
@@ -235,13 +239,6 @@ class ObjectGuid
         {
             switch (high)
             {
-                case HighGuid::Item:
-                case HighGuid::Player:
-                case HighGuid::DynamicObject:
-                case HighGuid::Corpse:
-                case HighGuid::Transport:
-                case HighGuid::Party:
-                    return false;
                 case HighGuid::GameObject:
                 case HighGuid::Creature:
                 case HighGuid::Pet:
@@ -253,6 +250,7 @@ class ObjectGuid
 
         bool HasEntry() const { return HasEntry(GetHigh()); }
 
+        ObjectGuid(uint64 high, uint64 low) : _low(low), _high(high) { }
         explicit ObjectGuid(uint32 const&) = delete;                 // no implementation, used to catch wrong type assignment
 
         uint64 _low;
@@ -276,9 +274,9 @@ class PackedGuid
 
     public:
         explicit PackedGuid() : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid << uint16(0); }
-        explicit PackedGuid(ObjectGuid guid) : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { Set(guid); }
+        explicit PackedGuid(ObjectGuid const& guid) : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { Set(guid); }
 
-        void Set(ObjectGuid guid);
+        void Set(ObjectGuid const& guid);
 
         size_t size() const { return _packedGuid.size(); }
 

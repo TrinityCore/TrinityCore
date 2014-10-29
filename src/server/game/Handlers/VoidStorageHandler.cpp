@@ -130,7 +130,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         if (!item)
             continue;
 
-        ObjectGuid itemId(HighGuid::Item, item->ItemId);
+        ObjectGuid itemId = ObjectGuid::Create<HighGuid::Item>(item->ItemId);
         ObjectGuid creatorGuid = item->CreatorGuid;
 
         data.WriteBit(creatorGuid[3]);
@@ -387,7 +387,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < depositCount; ++i)
     {
-        ObjectGuid itemId(HighGuid::Item, depositItems[i].first.ItemId);
+        ObjectGuid itemId = ObjectGuid::Create<HighGuid::Item>(depositItems[i].first.ItemId);
         ObjectGuid creatorGuid = depositItems[i].first.CreatorGuid;
         data.WriteBit(creatorGuid[7]);
         data.WriteBit(itemId[7]);
@@ -409,7 +409,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
-        ObjectGuid itemId(HighGuid::Item, withdrawItems[i].ItemId);
+        ObjectGuid itemId = ObjectGuid::Create<HighGuid::Item>(withdrawItems[i].ItemId);
         data.WriteBit(itemId[1]);
         data.WriteBit(itemId[7]);
         data.WriteBit(itemId[3]);
@@ -424,7 +424,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
-        ObjectGuid itemId(HighGuid::Item, withdrawItems[i].ItemId);
+        ObjectGuid itemId = ObjectGuid::Create<HighGuid::Item>(withdrawItems[i].ItemId);
         data.WriteByteSeq(itemId[3]);
         data.WriteByteSeq(itemId[1]);
         data.WriteByteSeq(itemId[0]);
@@ -437,7 +437,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < depositCount; ++i)
     {
-        ObjectGuid itemId(HighGuid::Item, depositItems[i].first.ItemId);
+        ObjectGuid itemId = ObjectGuid::Create<HighGuid::Item>(depositItems[i].first.ItemId);
         ObjectGuid creatorGuid = depositItems[i].first.CreatorGuid;
 
         data << uint32(depositItems[i].first.ItemSuffixFactor);
@@ -542,7 +542,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     bool usedDestSlot = player->GetVoidStorageItem(newSlot) != NULL;
     ObjectGuid itemIdDest;
     if (usedDestSlot)
-        itemIdDest = ObjectGuid(HighGuid::Item, player->GetVoidStorageItem(newSlot)->ItemId);
+        itemIdDest = ObjectGuid::Create<HighGuid::Item>(player->GetVoidStorageItem(newSlot)->ItemId);
 
     if (!player->SwapVoidStorageItem(oldSlot, newSlot))
     {

@@ -240,7 +240,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
         do
         {
-            ObjectGuid guid(HighGuid::Player, (*result)[0].GetUInt64());
+            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt64());
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", guid.ToString().c_str(), GetAccountId());
 

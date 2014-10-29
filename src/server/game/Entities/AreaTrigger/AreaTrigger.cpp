@@ -66,7 +66,8 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
         return false;
     }
 
-    WorldObject::_Create(guidlow, HighGuid::AreaTrigger, caster->GetPhaseMask());
+    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), triggerEntry, guidlow));
+    SetPhaseMask(caster->GetPhaseMask(), false);
 
     SetEntry(triggerEntry);
     SetDuration(spell->GetDuration());

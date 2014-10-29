@@ -22,27 +22,60 @@
 #include <sstream>
 #include <iomanip>
 
-ObjectGuid const ObjectGuid::Empty = ObjectGuid();
+char const* TypeNames[] =
+{
+    "Null",
+    "Uniq",
+    "Player",
+    "Item",
+    "StaticDoor",
+    "Transport",
+    "Conversation",
+    "Creature",
+    "Vehicle",
+    "Pet",
+    "GameObject",
+    "DynamicObject",
+    "AreaTrigger",
+    "Corpse",
+    "LootObject",
+    "SceneObject",
+    "Scenario",
+    "AIGroup",
+    "DynamicDoor",
+    "ClientActor",
+    "Vignette",
+    "CallForHelp",
+    "AIResource",
+    "AILock",
+    "AILockTicket",
+    "ChatChannel",
+    "Party",
+    "Guild",
+    "WowAccount",
+    "BNetAccount",
+    "GMTask",
+    "MobileSession",
+    "RaidGroup",
+    "Spell",
+    "Mail",
+    "WebObj",
+    "LFGObject",
+    "LFGList",
+    "UserRouter",
+    "PVPQueueGroup",
+    "UserClient",
+    "PetBattle",
+    "UniqueUserClient",
+    "BattlePet",
+};
 
 char const* ObjectGuid::GetTypeName(HighGuid high)
 {
-    switch (high)
-    {
-        case HighGuid::Item:            return "Item";
-        case HighGuid::Player:          return "Player";
-        case HighGuid::GameObject:      return "Gameobject";
-        case HighGuid::Creature:        return "Creature";
-        case HighGuid::Pet:             return "Pet";
-        case HighGuid::Vehicle:         return "Vehicle";
-        case HighGuid::DynamicObject:   return "DynObject";
-        case HighGuid::Corpse:          return "Corpse";
-        case HighGuid::AreaTrigger:     return "AreaTrigger";
-        case HighGuid::Transport:       return "Transport";
-        case HighGuid::Party:           return "Party";
-        case HighGuid::Guild:           return "Guild";
-        default:
-            return "<unknown>";
-    }
+    if (high > HighGuid::Count)
+        return "<unknown>";
+
+    return TypeNames[uint32(high)];
 }
 
 std::string ObjectGuid::ToString() const
@@ -70,7 +103,7 @@ void ObjectGuid::SetRawValue(std::vector<uint8> const& guid)
     memcpy(this, guid.data(), sizeof(*this));
 }
 
-void PackedGuid::Set(ObjectGuid guid)
+void PackedGuid::Set(ObjectGuid const& guid)
 {
     uint8 lowMask = 0;
     uint8 highMask = 0;
@@ -131,6 +164,81 @@ std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid)
     tmp << std::hex << std::setw(16) << std::setfill('0') << guid._high << std::setw(16) << std::setfill('0') << guid._low;
     stream << tmp.str();
     return stream;
+}
+
+class GuidFormat
+{
+public:
+    inline static ObjectGuid Global(HighGuid type, ObjectGuid::LowType counter)
+    {
+        return ObjectGuid(uint64(uint64(type) << 58), counter);
+    }
+
+    inline static ObjectGuid RealmSpecific(HighGuid type, ObjectGuid::LowType counter)
+    {
+        return ObjectGuid(uint64(uint64(type) << 58 | uint64(realmHandle.Index) << 42), counter);
+    }
+
+    inline static ObjectGuid MapSpecific(HighGuid type, uint8 subType, uint16 mapId, uint32 serverId, uint32 entry, ObjectGuid::LowType counter)
+    {
+        return ObjectGuid(uint64((uint64(type) << 58) | (uint64(realmHandle.Index & 0x1FFF) << 42) | (uint64(mapId & 0x1FFF) << 29) | (uint64(entry & 0x7FFFFF) << 6)),
+            uint64((uint64(serverId & 0xFFFFFF) << 40) | (counter & UI64LIT(0xFFFFFFFFFF))));
+    }
+};
+
+#define GLOBAL_GUID_CREATE(highguid) template<> ObjectGuid ObjectGuid::Create<highguid>(LowType counter) { return GuidFormat::Global(highguid, counter); }
+#define REALM_GUID_CREATE(highguid) template<> ObjectGuid ObjectGuid::Create<highguid>(LowType counter) { return GuidFormat::RealmSpecific(highguid, counter); }
+#define MAP_GUID_CREATE(highguid) template<> ObjectGuid ObjectGuid::Create<highguid>(uint16 mapId, uint32 entry, LowType counter) { return GuidFormat::MapSpecific(highguid, 0, mapId, 0, entry, counter); }
+
+GLOBAL_GUID_CREATE(HighGuid::Uniq)
+GLOBAL_GUID_CREATE(HighGuid::Party)
+GLOBAL_GUID_CREATE(HighGuid::WowAccount)
+GLOBAL_GUID_CREATE(HighGuid::BNetAccount)
+GLOBAL_GUID_CREATE(HighGuid::GMTask)
+GLOBAL_GUID_CREATE(HighGuid::RaidGroup)
+GLOBAL_GUID_CREATE(HighGuid::Spell)
+GLOBAL_GUID_CREATE(HighGuid::Mail)
+GLOBAL_GUID_CREATE(HighGuid::UserRouter)
+GLOBAL_GUID_CREATE(HighGuid::PVPQueueGroup)
+GLOBAL_GUID_CREATE(HighGuid::UserClient)
+GLOBAL_GUID_CREATE(HighGuid::UniqueUserClient)
+GLOBAL_GUID_CREATE(HighGuid::BattlePet)
+REALM_GUID_CREATE(HighGuid::Player)
+REALM_GUID_CREATE(HighGuid::Item)   // This is not exactly correct, there are 2 more unknown parts in highguid: (high >> 10 & 0xFF), (high >> 18 & 0xFFFFFF)
+REALM_GUID_CREATE(HighGuid::Transport)
+REALM_GUID_CREATE(HighGuid::Guild)
+MAP_GUID_CREATE(HighGuid::Conversation)
+MAP_GUID_CREATE(HighGuid::Creature)
+MAP_GUID_CREATE(HighGuid::Vehicle)
+MAP_GUID_CREATE(HighGuid::Pet)
+MAP_GUID_CREATE(HighGuid::GameObject)
+MAP_GUID_CREATE(HighGuid::DynamicObject)
+MAP_GUID_CREATE(HighGuid::AreaTrigger)
+MAP_GUID_CREATE(HighGuid::Corpse)
+MAP_GUID_CREATE(HighGuid::LootObject)
+MAP_GUID_CREATE(HighGuid::SceneObject)
+MAP_GUID_CREATE(HighGuid::Scenario)
+MAP_GUID_CREATE(HighGuid::AIGroup)
+MAP_GUID_CREATE(HighGuid::DynamicDoor)
+MAP_GUID_CREATE(HighGuid::Vignette)
+MAP_GUID_CREATE(HighGuid::CallForHelp)
+MAP_GUID_CREATE(HighGuid::AIResource)
+MAP_GUID_CREATE(HighGuid::AILock)
+MAP_GUID_CREATE(HighGuid::AILockTicket)
+
+ObjectGuid const ObjectGuid::Empty = ObjectGuid();
+ObjectGuid const ObjectGuid::TradeItem = ObjectGuid::Create<HighGuid::Uniq>(uint64(10));
+
+template<HighGuid type>
+ObjectGuid ObjectGuid::Create(LowType counter)
+{
+    static_assert(false, "Invalid guid construction method for this guid type.");
+}
+
+template<HighGuid type>
+ObjectGuid ObjectGuid::Create(uint16 mapId, uint32 entry, LowType counter)
+{
+    static_assert(false, "Invalid guid construction method for this guid type.");
 }
 
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Player>::Generate();

@@ -85,7 +85,7 @@ void OPvPCapturePoint::SendChangePhase()
     SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
 }
 
-void OPvPCapturePoint::AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry)
+void OPvPCapturePoint::AddGO(uint32 type, uint32 mapId, ObjectGuid::LowType guid, uint32 entry /*= 0*/)
 {
     if (!entry)
     {
@@ -95,11 +95,11 @@ void OPvPCapturePoint::AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry
         entry = data->id;
     }
 
-    m_Objects[type] = ObjectGuid(HighGuid::GameObject, entry, guid);
+    m_Objects[type] = ObjectGuid::Create<HighGuid::GameObject>(mapId, entry, guid);
     m_ObjectTypes[m_Objects[type]] = type;
 }
 
-void OPvPCapturePoint::AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entry)
+void OPvPCapturePoint::AddCre(uint32 type, uint32 mapId, ObjectGuid::LowType guid, uint32 entry /*= 0*/)
 {
     if (!entry)
     {
@@ -109,7 +109,7 @@ void OPvPCapturePoint::AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entr
         entry = data->id;
     }
 
-    m_Creatures[type] = ObjectGuid(HighGuid::Creature, entry, guid);
+    m_Creatures[type] = ObjectGuid::Create<HighGuid::Creature>(mapId, entry, guid);
     m_CreatureTypes[m_Creatures[type]] = type;
 }
 
@@ -117,7 +117,7 @@ bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x,
 {
     if (ObjectGuid::LowType guid = sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
     {
-        AddGO(type, guid, entry);
+        AddGO(type, map, guid, entry);
         return true;
     }
 
@@ -128,7 +128,7 @@ bool OPvPCapturePoint::AddCreature(uint32 type, uint32 entry, uint32 map, float 
 {
     if (ObjectGuid::LowType guid = sObjectMgr->AddCreData(entry, map, x, y, z, o, spawntimedelay))
     {
-        AddCre(type, guid, entry);
+        AddCre(type, map, guid, entry);
         return true;
     }
 
@@ -147,7 +147,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
         return false;
     }
 
-    m_capturePointGUID = ObjectGuid(HighGuid::GameObject, entry, sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3));
+    m_capturePointGUID = ObjectGuid::Create<HighGuid::GameObject>(map, entry, sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3));
     if (!m_capturePointGUID)
         return false;
 
