@@ -241,7 +241,7 @@ class boss_ignis : public CreatureScript
                         case EVENT_CHANGE_POT:
                             if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, _slagPotGUID))
                             {
-                                slagPotTarget->AddAura(SPELL_SLAG_POT, slagPotTarget);
+                                DoCast(slagPotTarget, SPELL_SLAG_POT, true);
                                 slagPotTarget->EnterVehicle(me, 1);
                                 events.CancelEvent(EVENT_CHANGE_POT);
                                 events.ScheduleEvent(EVENT_END_POT, 10000);
@@ -458,14 +458,13 @@ class spell_ignis_slag_pot : public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
-                Unit* aurEffCaster = aurEff->GetCaster();
-                if (!aurEffCaster)
-                    return;
-
-                Unit* target = GetTarget();
-                aurEffCaster->CastSpell(target, SPELL_SLAG_POT_DAMAGE, true);
+                if (Unit* caster = GetCaster())
+                {
+                    Unit* target = GetTarget();
+                    caster->CastSpell(target, SPELL_SLAG_POT_DAMAGE, true);
+                }
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
