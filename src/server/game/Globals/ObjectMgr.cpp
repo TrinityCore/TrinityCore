@@ -6928,8 +6928,9 @@ void ObjectMgr::LoadCorpses()
 
     std::unordered_map<uint32, std::list<uint32>> phases;
 
-    //                                                     0       1
-    QueryResult phaseResult = WorldDatabase.Query("SELECT `Guid`, `PhaseId` FROM corpse_phases");
+    //        0       1
+    // SELECT Guid, PhaseId FROM corpse_phases
+    PreparedQueryResult phaseResult = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_PHASES));
     if (phaseResult)
     {
         do

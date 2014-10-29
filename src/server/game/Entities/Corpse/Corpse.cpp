@@ -92,6 +92,9 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
 
     _gridCoord = Trinity::ComputeGridCoord(GetPositionX(), GetPositionY());
 
+    for (auto itr : owner->GetPhases())
+        SetInPhase(itr, false, true);
+
     return true;
 }
 
@@ -121,6 +124,17 @@ void Corpse::SaveToDB()
     stmt->setUInt32(index++, GetInstanceId());                                        // instanceId
     trans->Append(stmt);
 
+    for (auto phaseId : GetPhases())
+    {
+        index = 0;
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE_PHASES);
+        stmt->setUInt32(index++, GetGUIDLow());                                       // Guid (corpse's)
+        stmt->setUInt32(index++, phaseId);                                            // PhaseId
+        stmt->setUInt32(index++, uint32(m_time));                                     // Time
+        stmt->setUInt8(index++, GetType());                                           // CorpseType
+        trans->Append(stmt);
+    }
+
     CharacterDatabase.CommitTransaction(trans);
 }
 
@@ -146,14 +160,25 @@ void Corpse::DeleteFromDB(SQLTransaction& trans)
         // Only specific bones
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
         stmt->setUInt32(0, GetGUIDLow());
+        trans->Append(stmt);
+
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_PHASES);
+        stmt->setUInt32(0, GetGUIDLow());
+        trans->Append(stmt);
     }
     else
     {
         // all corpses (not bones)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_CORPSES);
         stmt->setUInt32(0, GetOwnerGUID().GetCounter());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_CORPSES_PHASES);
+        stmt->setUInt32(0, GetOwnerGUID().GetCounter());
+        trans->Append(stmt);
     }
-    trans->Append(stmt);
+    
 }
 
 bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
