@@ -53,7 +53,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, haveTicket
     uint8 index = 0;
     _id                 = fields[  index].GetUInt32();
-    _playerGuid         = ObjectGuid(HighGuid::Player, fields[++index].GetUInt64());
+    _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetUInt64());
     _playerName         = fields[++index].GetString();
     _message            = fields[++index].GetString();
     _createTime         = fields[++index].GetUInt32();
@@ -66,9 +66,9 @@ bool GmTicket::LoadFromDB(Field* fields)
     if (closedBy < 0)
         _closedBy.SetRawValue(0, uint64(closedBy));
     else
-        _closedBy = ObjectGuid(HighGuid::Player, uint64(closedBy));
+        _closedBy = ObjectGuid::Create<HighGuid::Player>(uint64(closedBy));
 
-    _assignedTo         = ObjectGuid(HighGuid::Player, fields[++index].GetUInt64());
+    _assignedTo         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetUInt64());
     _comment            = fields[++index].GetString();
     _response           = fields[++index].GetString();
     _completed          = fields[++index].GetBool();

@@ -950,7 +950,7 @@ GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::Lo
 
     Player* pl = m_session->GetPlayer();
 
-    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid(HighGuid::GameObject, entry, lowguid));
+    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid::Create<HighGuid::GameObject>(pl->GetMapId(), entry, lowguid));
 
     if (!obj && sObjectMgr->GetGOData(lowguid))                   // guid is DB guid of object
     {
@@ -1100,7 +1100,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
             ObjectGuid::LowType lowguid = strtoull(idS, nullptr, 10);
 
             if (CreatureData const* data = sObjectMgr->GetCreatureData(lowguid))
-                return ObjectGuid(HighGuid::Creature, data->id, lowguid);
+                return ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, lowguid);
             else
                 return ObjectGuid::Empty;
         }
@@ -1109,7 +1109,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
             ObjectGuid::LowType lowguid = strtoull(idS, nullptr, 10);
 
             if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-                return ObjectGuid(HighGuid::GameObject, data->id, lowguid);
+                return ObjectGuid::Create<HighGuid::GameObject>(data->mapid, data->id, lowguid);
             else
                 return ObjectGuid::Empty;
         }

@@ -266,7 +266,7 @@ Item::Item()
 
 bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner)
 {
-    Object::_Create(guidlow, 0, HighGuid::Item);
+    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
     SetEntry(itemid);
     SetObjectScale(1.0f);
@@ -413,7 +413,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
-    Object::_Create(guid, 0, HighGuid::Item);
+    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guid));
 
     // Set entry, MUST be before proto check
     SetEntry(entry);
@@ -428,8 +428,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         SetOwnerGUID(owner_guid);
 
     bool need_save = false;                                 // need explicit save data at load fixes
-    SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid(HighGuid::Player, fields[0].GetUInt64()));
-    SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid(HighGuid::Player, fields[1].GetUInt64()));
+    SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()));
+    SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt64()));
     SetCount(fields[2].GetUInt32());
 
     uint32 duration = fields[3].GetUInt32();

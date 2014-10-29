@@ -241,7 +241,7 @@ class Battleground
         /* Battleground */
         // Get methods:
         std::string const& GetName() const  { return m_Name; }
-        ObjectGuid GetGUID() { return m_Guid; }
+        uint64 GetGUID() { return m_Guid; }
         BattlegroundTypeId GetTypeID(bool GetRandom = false) const { return GetRandom ? m_RandomTypeID : m_TypeID; }
         BattlegroundBracketId GetBracketId() const { return m_BracketId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }
@@ -267,7 +267,7 @@ class Battleground
         bool IsRandom() const { return m_IsRandom; }
 
         // Set methods:
-        void SetGuid(ObjectGuid newGuid)        { m_Guid = newGuid; }
+        void SetGuid(uint64 newGuid)        { m_Guid = newGuid; }
         void SetName(std::string const& name) { m_Name = name; }
         void SetTypeID(BattlegroundTypeId TypeID) { m_TypeID = TypeID; }
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
@@ -539,7 +539,7 @@ class Battleground
         bool   m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         std::string m_Name;
-        ObjectGuid m_Guid;
+        uint64 m_Guid;
 
         /* Pre- and post-update hooks */
 

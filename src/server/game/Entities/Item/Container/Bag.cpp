@@ -77,7 +77,7 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner
     if (!itemProto || itemProto->ContainerSlots > MAX_BAG_SIZE)
         return false;
 
-    Object::_Create(guidlow, 0, HighGuid::Item);
+    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
     SetEntry(itemid);
     SetObjectScale(1.0f);

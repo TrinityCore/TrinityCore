@@ -54,7 +54,7 @@ void GuildFinderMgr::LoadGuildSettings()
     do
     {
         Field* fields = result->Fetch();
-        ObjectGuid guildId(HighGuid::Guild, fields[0].GetUInt64());
+        ObjectGuid guildId = ObjectGuid::Create<HighGuid::Guild>(fields[0].GetUInt64());
         uint8  availability = fields[1].GetUInt8();
         uint8  classRoles   = fields[2].GetUInt8();
         uint8  interests    = fields[3].GetUInt8();
@@ -94,8 +94,8 @@ void GuildFinderMgr::LoadMembershipRequests()
     do
     {
         Field* fields = result->Fetch();
-        ObjectGuid guildId(HighGuid::Guild, fields[0].GetUInt64());
-        ObjectGuid playerId(HighGuid::Player, fields[1].GetUInt64());
+        ObjectGuid guildId = ObjectGuid::Create<HighGuid::Guild>(fields[0].GetUInt64());
+        ObjectGuid playerId = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt64());
         uint8  availability = fields[2].GetUInt8();
         uint8  classRoles   = fields[3].GetUInt8();
         uint8  interests    = fields[4].GetUInt8();
