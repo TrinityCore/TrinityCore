@@ -296,7 +296,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         m_updateFlag = (m_updateFlag | UPDATEFLAG_TRANSPORT) & ~UPDATEFLAG_POSITION;
 
-    Object::_Create(guidlow, goinfo->entry, HighGuid::GameObject);
+    Object::_Create(ObjectGuid::Create<HighGuid::GameObject>(goinfo->entry, guidlow));
 
     m_goInfo = goinfo;
     m_goTemplateAddon = sObjectMgr->GetGameObjectTemplateAddon(name_id);
@@ -574,7 +574,7 @@ void GameObject::Update(uint32 diff)
                     time_t now = GameTime::GetGameTime();
                     if (m_respawnTime <= now)            // timer expired
                     {
-                        ObjectGuid dbtableHighGuid(HighGuid::GameObject, GetEntry(), m_spawnId);
+                        ObjectGuid dbtableHighGuid = ObjectGuid::Create<HighGuid::GameObject>(GetEntry(), m_spawnId);
                         time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                         if (linkedRespawntime)             // Can't respawn, the master is dead
                         {

@@ -1917,7 +1917,7 @@ bool Guild::LoadFromDB(Field* fields)
 {
     m_id            = fields[0].GetUInt32();
     m_name          = fields[1].GetString();
-    m_leaderGuid    = ObjectGuid(HighGuid::Player, fields[2].GetUInt32());
+    m_leaderGuid    = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt32());
     m_emblemInfo.LoadFromDB(fields);
     m_info          = fields[8].GetString();
     m_motd          = fields[9].GetString();
@@ -1947,7 +1947,7 @@ void Guild::LoadRankFromDB(Field* fields)
 bool Guild::LoadMemberFromDB(Field* fields)
 {
     ObjectGuid::LowType lowguid = fields[1].GetUInt32();
-    ObjectGuid playerGuid(HighGuid::Player, lowguid);
+    ObjectGuid playerGuid(ObjectGuid::Create<HighGuid::Player>(lowguid));
 
     auto [memberIt, isNew] = m_members.try_emplace(playerGuid, m_id, playerGuid, fields[2].GetUInt8());
     if (!isNew)

@@ -92,10 +92,11 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
         return false;
     }
 
-    WorldObject::_Create(guidlow, HighGuid::DynamicObject, caster->GetPhaseMask());
+    WorldObject::_Create(ObjectGuid::Create<HighGuid::DynamicObject>(guidlow));
+    SetPhaseMask(caster->GetPhaseMask(), false);
 
     SetEntry(spell->Id);
-    SetObjectScale(1);
+    SetObjectScale(1.0f);
     SetGuidValue(DYNAMICOBJECT_CASTER, caster->GetGUID());
     SetByteValue(DYNAMICOBJECT_BYTES, 0, type);
     SetUInt32Value(DYNAMICOBJECT_SPELLID, spell->Id);

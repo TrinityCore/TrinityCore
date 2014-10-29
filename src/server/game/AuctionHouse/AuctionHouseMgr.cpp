@@ -126,7 +126,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
         return;
 
     uint32 bidderAccId = 0;
-    ObjectGuid bidderGuid(HighGuid::Player, auction->bidder);
+    ObjectGuid bidderGuid = ObjectGuid::Create<HighGuid::Player>(auction->bidder);
     Player* bidder = ObjectAccessor::FindConnectedPlayer(bidderGuid);
     // data for gm.log
     std::string bidderName;
@@ -147,7 +147,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
 
     if (logGmTrade)
     {
-        ObjectGuid ownerGuid = ObjectGuid(HighGuid::Player, auction->owner);
+        ObjectGuid ownerGuid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
         std::string ownerName;
         if (!sCharacterCache->GetCharacterNameByGuid(ownerGuid, ownerName))
             ownerName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
@@ -188,7 +188,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
 
 void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, CharacterDatabaseTransaction trans)
 {
-    ObjectGuid owner_guid(HighGuid::Player, auction->owner);
+    ObjectGuid owner_guid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sCharacterCache->GetCharacterAccountIdByGuid(owner_guid);
     // owner exist (online or offline)
@@ -209,7 +209,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, Characte
 //call this method to send mail to auction owner, when auction is successful, it does not clear ram
 void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, CharacterDatabaseTransaction trans)
 {
-    ObjectGuid owner_guid(HighGuid::Player, auction->owner);
+    ObjectGuid owner_guid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sCharacterCache->GetCharacterAccountIdByGuid(owner_guid);
     // owner exist
@@ -240,7 +240,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, CharacterDat
     if (!pItem)
         return;
 
-    ObjectGuid owner_guid(HighGuid::Player, auction->owner);
+    ObjectGuid owner_guid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sCharacterCache->GetCharacterAccountIdByGuid(owner_guid);
     // owner exist
@@ -263,7 +263,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, CharacterDat
 //this function sends mail to old bidder
 void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, CharacterDatabaseTransaction trans)
 {
-    ObjectGuid oldBidder_guid(HighGuid::Player, auction->bidder);
+    ObjectGuid oldBidder_guid = ObjectGuid::Create<HighGuid::Player>(auction->bidder);
     Player* oldBidder = ObjectAccessor::FindConnectedPlayer(oldBidder_guid);
 
     uint32 oldBidder_accId = 0;
@@ -285,7 +285,7 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 new
 //this function sends mail, when auction is cancelled to old bidder
 void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, CharacterDatabaseTransaction trans, Item* item)
 {
-    ObjectGuid bidder_guid = ObjectGuid(HighGuid::Player, auction->bidder);
+    ObjectGuid bidder_guid = ObjectGuid::Create<HighGuid::Player>(auction->bidder);
     Player* bidder = ObjectAccessor::FindConnectedPlayer(bidder_guid);
 
     uint32 bidder_accId = 0;

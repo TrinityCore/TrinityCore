@@ -65,7 +65,7 @@ void Corpse::RemoveFromWorld()
 
 bool Corpse::Create(ObjectGuid::LowType guidlow)
 {
-    Object::_Create(guidlow, 0, HighGuid::Corpse);
+    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(guidlow));
     return true;
 }
 
@@ -82,7 +82,8 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
         return false;
     }
 
-    WorldObject::_Create(guidlow, HighGuid::Corpse, owner->GetPhaseMask());
+    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(guidlow));
+    SetPhaseMask(owner->GetPhaseMask(), false);
 
     SetObjectScale(1.0f);
     SetGuidValue(CORPSE_FIELD_OWNER, owner->GetGUID());
@@ -159,7 +160,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     float o      = fields[3].GetFloat();
     uint32 mapId = fields[4].GetUInt16();
 
-    Object::_Create(guid, 0, HighGuid::Corpse);
+    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(guid));
 
     SetObjectScale(1.0f);
     SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].GetUInt32());

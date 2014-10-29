@@ -700,7 +700,7 @@ void Creature::Update(uint32 diff)
                     break; // Will be rechecked on next Update call after delay expires
                 }
 
-                ObjectGuid dbtableHighGuid(HighGuid::Unit, GetEntry(), m_spawnId);
+                ObjectGuid dbtableHighGuid = ObjectGuid::Create<HighGuid::Unit>(GetEntry(), m_spawnId);
                 time_t linkedRespawnTime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                 if (!linkedRespawnTime)             // Can respawn
                     Respawn();
@@ -1568,7 +1568,10 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
 
     SetOriginalEntry(entry);
 
-    Object::_Create(guidlow, entry, (vehId || cinfo->VehicleId) ? HighGuid::Vehicle : HighGuid::Unit);
+    if (vehId || cinfo->VehicleId)
+        Object::_Create(ObjectGuid::Create<HighGuid::Vehicle>(entry, guidlow));
+    else
+        Object::_Create(ObjectGuid::Create<HighGuid::Unit>(entry, guidlow));
 
     if (!UpdateEntry(entry, data))
         return false;

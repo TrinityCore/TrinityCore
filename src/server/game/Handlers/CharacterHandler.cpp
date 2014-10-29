@@ -229,7 +229,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     {
         do
         {
-            ObjectGuid guid(HighGuid::Player, (*result)[0].GetUInt32());
+            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt32());
             TC_LOG_INFO("network", "Loading {} from account {}.", guid.ToString(), GetAccountId());
             if (Player::BuildEnumData(result, &data))
             {

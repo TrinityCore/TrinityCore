@@ -76,7 +76,7 @@ void LFGMgr::_LoadFromDB(Field* fields, ObjectGuid guid)
     if (!guid.IsGroup())
         return;
 
-    SetLeader(guid, ObjectGuid(HighGuid::Player, fields[0].GetUInt32()));
+    SetLeader(guid, ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32()));
 
     uint32 dungeon = fields[17].GetUInt32();
     uint8 state = fields[18].GetUInt8();

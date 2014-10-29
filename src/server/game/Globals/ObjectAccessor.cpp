@@ -250,7 +250,7 @@ Player* ObjectAccessor::FindPlayerByName(std::string_view name)
 
 Player* ObjectAccessor::FindPlayerByLowGUID(ObjectGuid::LowType lowguid)
 {
-    ObjectGuid guid(HighGuid::Player, lowguid);
+    ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(lowguid);
     return ObjectAccessor::FindPlayer(guid);
 }
 

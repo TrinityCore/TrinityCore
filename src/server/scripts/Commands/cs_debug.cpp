@@ -1055,7 +1055,7 @@ public:
 
     static bool HandleDebugGetItemValueCommand(ChatHandler* handler, ObjectGuid::LowType guid, uint32 index)
     {
-        Item* i = handler->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, guid));
+        Item* i = handler->GetPlayer()->GetItemByGuid(ObjectGuid::Create<HighGuid::Item>(guid));
 
         if (!i)
             return false;
@@ -1072,7 +1072,7 @@ public:
 
     static bool HandleDebugSetItemValueCommand(ChatHandler* handler, ObjectGuid::LowType guid, uint32 index, uint32 value)
     {
-        Item* i = handler->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, guid));
+        Item* i = handler->GetPlayer()->GetItemByGuid(ObjectGuid::Create<HighGuid::Item>(guid));
 
         if (!i)
             return false;
@@ -1087,7 +1087,7 @@ public:
 
     static bool HandleDebugItemExpireCommand(ChatHandler* handler, ObjectGuid::LowType guid)
     {
-        Item* i = handler->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, guid));
+        Item* i = handler->GetPlayer()->GetItemByGuid(ObjectGuid::Create<HighGuid::Item>(guid));
 
         if (!i)
             return false;

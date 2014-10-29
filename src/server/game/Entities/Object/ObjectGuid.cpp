@@ -117,17 +117,7 @@ std::string ObjectGuid::ToHexString() const
     return Trinity::StringFormat("0x{:016X}", _guid);
 }
 
-ObjectGuid ObjectGuid::Global(HighGuid type, LowType counter)
-{
-    return ObjectGuid(type, counter);
-}
-
-ObjectGuid ObjectGuid::MapSpecific(HighGuid type, uint32 entry, LowType counter)
-{
-    return ObjectGuid(type, entry, counter);
-}
-
-void PackedGuid::Set(ObjectGuid guid)
+void PackedGuid::Set(ObjectGuid const& guid)
 {
     _packedSize = 1;
     uint64 raw = guid.GetRawValue();

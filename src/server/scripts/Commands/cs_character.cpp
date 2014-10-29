@@ -140,7 +140,7 @@ public:
 
                 DeletedInfo info;
 
-                info.guid       = ObjectGuid(HighGuid::Player, fields[0].GetUInt32());
+                info.guid       = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32());
                 info.name       = fields[1].GetString();
                 info.accountId  = fields[2].GetUInt32();
 
@@ -946,7 +946,7 @@ public:
 
         if (characterGUID)
         {
-            if (sCharacterCache->GetCharacterCacheByGuid(ObjectGuid(HighGuid::Player, *characterGUID)))
+            if (sCharacterCache->GetCharacterCacheByGuid(ObjectGuid::Create<HighGuid::Player>(*characterGUID)))
             {
                 handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, *characterGUID);
                 handler->SetSentErrorMessage(true);
