@@ -21,6 +21,7 @@
 */
 
 #include "WorldSocket.h"
+#include "Packet.h"
 #include <zlib.h>
 #include "Config.h"
 #include "Common.h"
@@ -682,30 +683,6 @@ void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
 {
     TC_LOG_ERROR("network.opcode", "Received deprecated opcode %s from %s"
         , GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
-}
-
-void WorldSession::SendAuthWaitQue(uint32 position)
-{
-    if (position == 0)
-    {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 2);
-        packet << uint8(AUTH_OK);
-        packet.WriteBit(0); // has account info
-        packet.WriteBit(0); // has queue info
-        packet.FlushBits();
-        SendPacket(&packet);
-    }
-    else
-    {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 6);
-        packet << uint8(AUTH_WAIT_QUEUE);
-        packet.WriteBit(0); // has account info
-        packet.WriteBit(1); // has queue info
-        packet << uint32(position);
-        packet.WriteBit(0); // unk queue bool
-        packet.FlushBits();
-        SendPacket(&packet);
-    }
 }
 
 void WorldSession::LoadGlobalAccountData()

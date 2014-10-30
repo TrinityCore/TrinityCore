@@ -32,6 +32,11 @@
 
 using boost::asio::ip::tcp;
 
+namespace WorldPackets
+{
+    class ServerPacket;
+}
+
 #pragma pack(push, 1)
 
 union ClientPktHeader
