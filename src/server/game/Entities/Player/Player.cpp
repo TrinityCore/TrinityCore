@@ -27993,6 +27993,8 @@ void Player::SendUpdatePhasing()
     if (!IsInWorld())
         return;
 
+    RebuildTerrainSwaps(); // to set default maps swaps
+
     std::set<uint32> worldAreaSwaps;
 
     for (uint32 terrain : GetTerrainSwaps())

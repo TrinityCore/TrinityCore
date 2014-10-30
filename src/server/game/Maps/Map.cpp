@@ -488,6 +488,8 @@ bool Map::AddPlayerToMap(Player* player)
     player->m_clientGUIDs.clear();
     player->UpdateObjectVisibility(false);
 
+    player->SendUpdatePhasing();
+
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
 }
@@ -547,10 +549,6 @@ bool Map::AddToMap(T* obj)
         AddToActive(obj);
 
     obj->RebuildTerrainSwaps();
-
-    // packets are only sent to players
-    if (obj->GetTypeId() == TYPEID_PLAYER)
-        obj->ToPlayer()->SendUpdatePhasing();
 
     //something, such as vehicle, needs to be update immediately
     //also, trigger needs to cast spell, if not update, cannot see visual

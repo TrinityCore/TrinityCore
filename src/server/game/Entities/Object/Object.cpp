@@ -2928,16 +2928,27 @@ void WorldObject::RebuildTerrainSwaps()
     ConditionList conditions;
 
     // Check all applied phases for terrain swap and add it only once
-    for (auto phaseId : _phases)
+    for (uint32 phaseId : _phases)
     {
         std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
 
-        for (auto swap : swaps)
+        for (uint32 swap : swaps)
         {
             conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
 
             if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
                 _terrainSwaps.insert(swap);
         }
+    }
+
+    // get default terrain swaps, id is 0
+    std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(0);
+
+    for (uint32 swap : swaps)
+    {
+        conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+
+        if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+            _terrainSwaps.insert(swap);
     }
 }

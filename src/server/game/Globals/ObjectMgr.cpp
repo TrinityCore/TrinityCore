@@ -9319,13 +9319,16 @@ void ObjectMgr::LoadTerrainPhaseInfo()
 
         uint32 phaseId = fields[0].GetUInt32();
 
-        PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId);
-        if (!phase)
+        // 0 is kept for default map swaps
+        if (phaseId)
         {
-            TC_LOG_ERROR("sql.sql", "Phase %u defined in `terrain_phase_info` does not exist, skipped.", phaseId);
-            continue;
+            PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId);
+            if (!phase)
+            {
+                TC_LOG_ERROR("sql.sql", "Phase %u defined in `terrain_phase_info` does not exist, skipped.", phaseId);
+                continue;
+            }
         }
-
         uint32 terrainSwap = fields[1].GetUInt32();
 
         _terrainPhaseInfoStore[phaseId].push_back(terrainSwap);
