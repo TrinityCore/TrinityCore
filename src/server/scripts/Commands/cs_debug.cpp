@@ -958,6 +958,7 @@ public:
 
         char* t = strtok((char*)args, " ");
         char* p = strtok(NULL, " ");
+        char* m = strtok(NULL, " ");
 
         if (!t)
             return false;
@@ -966,10 +967,16 @@ public:
         std::set<uint32> phaseId;
         std::set<uint32> worldMapSwap;
 
-        terrainswap.insert((uint32)atoi(t));
+        if (uint32 ut = (uint32)atoi(t))
+            terrainswap.insert(ut);
 
         if (p)
-            phaseId.insert((uint32)atoi(p));
+            if (uint32 up = (uint32)atoi(p))
+                phaseId.insert(up);
+
+        if (m)
+            if (uint32 um = (uint32)atoi(m))
+                worldMapSwap.insert(um);
 
         handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, worldMapSwap);
         return true;

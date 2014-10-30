@@ -27993,7 +27993,15 @@ void Player::SendUpdatePhasing()
     if (!IsInWorld())
         return;
 
-    std::set<uint32> worldAreaSwaps; // @ToDo
+    std::set<uint32> worldAreaSwaps;
+
+    for (uint32 terrain : GetTerrainSwaps())
+    {
+        for (uint32 map : sObjectMgr->GetMapTerrainSwaps(terrain))
+        {
+            worldAreaSwaps.insert(map);
+        }
+    }
     GetSession()->SendSetPhaseShift(GetPhases(), GetTerrainSwaps(), worldAreaSwaps);
 }
 

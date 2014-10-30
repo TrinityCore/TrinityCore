@@ -1787,7 +1787,7 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[4]);
 
-    data << uint32(worldMapAreaSwaps.size());
+    data << uint32(worldMapAreaSwaps.size()) * 2;
     for (auto mapSwap : worldMapAreaSwaps)
         data << uint16(mapSwap);                    // WorldMapArea.dbc id (controls map display)
 

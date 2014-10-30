@@ -2940,15 +2940,4 @@ void WorldObject::RebuildTerrainSwaps()
                 _terrainSwaps.insert(swap);
         }
     }
-
-    // Now insert the map terrain swaps
-    std::list<uint32>& mapSwaps = sObjectMgr->GetMapTerrainSwaps(GetMapId());
-
-    for (auto swap : mapSwaps)
-    {
-        conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
-
-        if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
-            _terrainSwaps.insert(swap);
-    }
 }
