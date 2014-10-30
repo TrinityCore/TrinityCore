@@ -29,7 +29,7 @@ void WorldPackets::AuctionHousePackets::AuctionCommandResult::InitializeAuction(
         AuctionId     = auction->Id;
         Bid           = auction->bid;
         AuctionOutBid = auction->GetAuctionOutBid();
-        Bidder        = ObjectGuid(HIGHGUID_PLAYER, auction->bidder);
+        Bidder        = ObjectGuid::Create<HighGuid::Player>(auction->bidder);
     }
 }
 

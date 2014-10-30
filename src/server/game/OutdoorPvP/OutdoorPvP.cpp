@@ -58,9 +58,9 @@ bool OPvPCapturePoint::HandlePlayerEnter(Player* player)
 {
     if (m_capturePoint)
     {
-        player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldState1, 1);
-        player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate2, (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
-        player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
+        player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->controlZone.worldState1, 1);
+        player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->controlZone.worldstate2, (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
+        player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->controlZone.worldstate3, m_neutralValuePct);
     }
     return m_activePlayers[player->GetTeamId()].insert(player->GetGUID()).second;
 }
@@ -68,7 +68,7 @@ bool OPvPCapturePoint::HandlePlayerEnter(Player* player)
 void OPvPCapturePoint::HandlePlayerLeave(Player* player)
 {
     if (m_capturePoint)
-        player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldState1, 0);
+        player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->controlZone.worldState1, 0);
     m_activePlayers[player->GetTeamId()].erase(player->GetGUID());
 }
 
@@ -78,11 +78,11 @@ void OPvPCapturePoint::SendChangePhase()
         return;
 
     // send this too, sometimes the slider disappears, dunno why :(
-    SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldState1, 1);
+    SendUpdateWorldState(m_capturePoint->GetGOInfo()->controlZone.worldState1, 1);
     // send these updates to only the ones in this objective
-    SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate2, (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
+    SendUpdateWorldState(m_capturePoint->GetGOInfo()->controlZone.worldstate2, (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
     // send this too, sometimes it resets :S
-    SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
+    SendUpdateWorldState(m_capturePoint->GetGOInfo()->controlZone.worldstate3, m_neutralValuePct);
 }
 
 void OPvPCapturePoint::AddGO(uint32 type, uint32 mapId, ObjectGuid::LowType guid, uint32 entry /*= 0*/)
@@ -152,9 +152,9 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
         return false;
 
     // get the needed values from goinfo
-    m_maxValue = (float)goinfo->capturePoint.maxTime;
-    m_maxSpeed = m_maxValue / (goinfo->capturePoint.minTime ? goinfo->capturePoint.minTime : 60);
-    m_neutralValuePct = goinfo->capturePoint.neutralPercent;
+    m_maxValue = (float)goinfo->controlZone.maxTime;
+    m_maxSpeed = m_maxValue / (goinfo->controlZone.minTime ? goinfo->controlZone.minTime : 60);
+    m_neutralValuePct = goinfo->controlZone.neutralPercent;
     m_minValue = CalculatePct(m_maxValue, m_neutralValuePct);
 
     return true;
@@ -294,7 +294,7 @@ bool OPvPCapturePoint::Update(uint32 diff)
     if (!m_capturePoint)
         return false;
 
-    float radius = (float)m_capturePoint->GetGOInfo()->capturePoint.radius;
+    float radius = (float)m_capturePoint->GetGOInfo()->controlZone.radius;
 
     for (uint32 team = 0; team < 2; ++team)
     {
