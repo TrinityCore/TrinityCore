@@ -1,6 +1,9 @@
-DELETE FROM `rbac_permissions` WHERE `id`=776;
-INSERT INTO `rbac_permissions` (`id`, `name`) VALUES (776, 'Command: debug phase');
+DELETE FROM `terrain_map_info` WHERE `MapId` IN (656, 655);
+INSERT INTO `terrain_map_info` (MapId, TerrainSwapMap, Comment) VALUES 
+(655, 677, 'Gilneas_terrain1'),
+(656, 679, 'Gilneas_terrain2');
 
-DELETE FROM `rbac_linked_permissions` WHERE `id`=192 AND linkedId=776;
-INSERT INTO `rbac_linked_permissions` (`id`, `linkedId`) VALUES (192, 776);
-
+DELETE FROM `terrain_phase_info` WHERE `Id` IN (182, 186);
+INSERT INTO `terrain_phase_info` (Id, TerrainSwapMap, Comment) VALUES 
+(182, 655, 'Quest Zone-Specific 07'),
+(186, 656, 'Quest Zone-Specific 11');
