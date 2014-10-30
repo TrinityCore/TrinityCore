@@ -339,9 +339,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_OLD_CORPSES, "DELETE FROM corpse WHERE corpseType = 0 OR time < (UNIX_TIMESTAMP(NOW()) - ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CORPSE_PHASES, "SELECT Guid, PhaseId FROM corpse_phases", CONNECTION_SYNCH);
     PrepareStatement(CHAR_DEL_CORPSE_PHASES, "DELETE FROM corpse_phases WHERE Guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_PLAYER_CORPSES_PHASES, "DELETE FROM corpse_phases WHERE Guid = ? AND CorpseType <> 0", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_PLAYER_CORPSES_PHASES, "DELETE FROM corpse_phases WHERE OwnerGuid = ? AND CorpseType <> 0", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_OLD_CORPSE_PHASES, "DELETE FROM corpse_phases WHERE CorpseType = 0 OR Time < (UNIX_TIMESTAMP(NOW()) - ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_CORPSE_PHASES, "INSERT INTO corpse_phases (Guid, PhaseId, Time, CorpseType) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CORPSE_PHASES, "INSERT INTO corpse_phases (Guid, PhaseId, OwnerGuid, Time, CorpseType) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
     // Creature respawn
     PrepareStatement(CHAR_SEL_CREATURE_RESPAWNS, "SELECT guid, respawnTime FROM creature_respawn WHERE mapId = ? AND instanceId = ?", CONNECTION_SYNCH);

@@ -130,6 +130,7 @@ void Corpse::SaveToDB()
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE_PHASES);
         stmt->setUInt32(index++, GetGUIDLow());                                       // Guid (corpse's)
         stmt->setUInt32(index++, phaseId);                                            // PhaseId
+        stmt->setUInt32(index++, GetOwnerGUID().GetCounter());                        // OwnerGuid
         stmt->setUInt32(index++, uint32(m_time));                                     // Time
         stmt->setUInt8(index++, GetType());                                           // CorpseType
         trans->Append(stmt);
