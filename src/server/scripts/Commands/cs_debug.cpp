@@ -1389,14 +1389,28 @@ public:
         return true;
     }
 
-    static bool HandleDebugPhaseCommand(ChatHandler* /*handler*/, char const* /*args*/)
+    static bool HandleDebugPhaseCommand(ChatHandler* handler, char const* /*args*/)
     {
-        /*/
-        Unit* unit = handler->getSelectedUnit();
-        Player* player = handler->GetSession()->GetPlayer();
-        if (unit && unit->GetTypeId() == TYPEID_PLAYER)
-            player = unit->ToPlayer();
-        */
+        Unit* target = handler->getSelectedUnit();
+
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        std::stringstream phases;
+
+        for (uint32 phase : target->GetPhases())
+        {
+            phases << phase << " ";
+        }
+
+        if (!phases.str().empty())
+            handler->PSendSysMessage("Target's current phases: %s", phases.str().c_str());
+        else
+            handler->SendSysMessage("Target is not phased");
         return true;
     }
 };
