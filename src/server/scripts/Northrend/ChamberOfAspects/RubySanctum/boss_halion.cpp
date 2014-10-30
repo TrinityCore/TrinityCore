@@ -1292,7 +1292,7 @@ class go_twilight_portal : public GameObjectScript
                 {
                     case GO_HALION_PORTAL_EXIT:
                         gameobject->SetPhaseMask(0x20, true);
-                        _spellId = gameobject->GetGOInfo()->goober.spellId;
+                        _spellId = gameobject->GetGOInfo()->goober.spell;
                         break;
                     case GO_HALION_PORTAL_1:
                     case GO_HALION_PORTAL_2: // Not used, not seen in sniffs. Just in case.
