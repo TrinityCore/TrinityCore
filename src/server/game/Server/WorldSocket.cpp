@@ -17,6 +17,7 @@
  */
 
 #include "WorldSocket.h"
+#include "AuthenticationPackets.h"
 #include "BigNumber.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -588,13 +589,13 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
 void WorldSocket::SendAuthResponseError(uint8 code)
 {
-    WorldPacket packet(SMSG_AUTH_RESPONSE, 2);
-    packet << uint8(code);
-    packet.WriteBit(0); // has account info
-    packet.WriteBit(0); // has queue info
+    WorldPackets::Auth::AuthResponse response;
+    response.SuccessInfo.HasValue = false;
+    response.WaitInfo.HasValue = false;
+    response.Result = code;
+    response.Write();
 
-    packet.FlushBits();
-    SendPacket(packet);
+    SendPacket(response.GetWorldPacket());
 }
 
 void WorldSocket::HandlePing(WorldPacket& recvPacket)

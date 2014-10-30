@@ -30,6 +30,8 @@
 #include "Util.h"
 #include "AccountMgr.h"
 
+#include "AuctionHousePackets.h"
+
 //void called when player click on auctioneer npc
 void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
 {
@@ -70,31 +72,14 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
     SendPacket(&data);
 }
 
-//call this method when player bids, creates, or deletes auction
-void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action, uint32 errorCode, uint32 bidError)
+void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action, uint32 errorCode, uint32 /*bidError = 0*/)
 {
-    WorldPacket data(SMSG_AUCTION_COMMAND_RESULT);
-    data << uint32(auction ? auction->Id : 0);
-    data << uint32(action);
-    data << uint32(errorCode);
-
-    switch (errorCode)
-    {
-        case ERR_AUCTION_OK:
-            if (action == AUCTION_PLACE_BID)
-                data << uint64(auction->bid ? auction->GetAuctionOutBid() : 0);
-            break;
-        case ERR_AUCTION_INVENTORY:
-            data << uint32(bidError);
-            break;
-        case ERR_AUCTION_HIGHER_BID:
-            data << uint64(auction->bidder);
-            data << uint64(auction->bid);
-            data << uint64(auction->bid ? auction->GetAuctionOutBid() : 0);
-            break;
-    }
-
-    SendPacket(&data);
+    WorldPackets::AuctionHousePackets::AuctionCommandResult auctionCommandResult;
+    auctionCommandResult.InitializeAuction(auction);
+    auctionCommandResult.Action = action;
+    auctionCommandResult.ErrorCode = errorCode;
+    auctionCommandResult.Write();
+    SendPacket(&auctionCommandResult.GetWorldPacket());
 }
 
 //this function sends notification, if bidder is online
