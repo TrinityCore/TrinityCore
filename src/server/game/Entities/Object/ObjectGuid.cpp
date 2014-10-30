@@ -232,13 +232,13 @@ ObjectGuid const ObjectGuid::TradeItem = ObjectGuid::Create<HighGuid::Uniq>(uint
 template<HighGuid type>
 ObjectGuid ObjectGuid::Create(LowType counter)
 {
-    static_assert(false, "Invalid guid construction method for this guid type.");
+    static_assert(type == HighGuid::Count, "This guid type cannot be constructed using Create(LowType counter).");
 }
 
 template<HighGuid type>
 ObjectGuid ObjectGuid::Create(uint16 mapId, uint32 entry, LowType counter)
 {
-    static_assert(false, "Invalid guid construction method for this guid type.");
+    static_assert(type == HighGuid::Count, "This guid type cannot be constructed using Create(uint16 mapId, uint32 entry, LowType counter).");
 }
 
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Player>::Generate();
