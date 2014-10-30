@@ -285,8 +285,7 @@ public:
             return false;
         }
 
-        for (auto phase : chr->GetPhases())
-            creature->SetInPhase(phase, false, true);
+        creature->CopyPhaseFrom(chr);
 
         creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
 

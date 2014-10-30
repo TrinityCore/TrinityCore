@@ -372,8 +372,8 @@ public:
             target->GetContactPoint(_player, x, y, z);
 
             _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAngle(target), TELE_TO_GM_MODE);
-            for (auto phase : target->GetPhases())
-                _player->SetInPhase(phase, true, true);
+
+            _player->CopyPhaseFrom(target, true);
         }
         else
         {
@@ -497,8 +497,7 @@ public:
             float x, y, z;
             handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, target->GetObjectSize());
             target->TeleportTo(handler->GetSession()->GetPlayer()->GetMapId(), x, y, z, target->GetOrientation());
-            for (auto phase : handler->GetSession()->GetPlayer()->GetPhases())
-                target->SetInPhase(phase, true, true);
+            target->CopyPhaseFrom(handler->GetSession()->GetPlayer(), true);
         }
         else
         {

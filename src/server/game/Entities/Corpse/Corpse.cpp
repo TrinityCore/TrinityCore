@@ -92,8 +92,7 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
 
     _gridCoord = Trinity::ComputeGridCoord(GetPositionX(), GetPositionY());
 
-    for (auto itr : owner->GetPhases())
-        SetInPhase(itr, false, true);
+    CopyPhaseFrom(owner);
 
     return true;
 }
@@ -124,7 +123,7 @@ void Corpse::SaveToDB()
     stmt->setUInt32(index++, GetInstanceId());                                        // instanceId
     trans->Append(stmt);
 
-    for (auto phaseId : GetPhases())
+    for (uint32 phaseId : GetPhases())
     {
         index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE_PHASES);

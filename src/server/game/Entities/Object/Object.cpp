@@ -2191,10 +2191,6 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         }
     }
 
-    std::set<uint32> phases;
-    if (summoner)
-        phases = summoner->GetPhases();
-
     TempSummon* summon = NULL;
     switch (mask)
     {
@@ -2222,8 +2218,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     }
 
     // Set the summon to the summoner's phase
-    for (auto phaseId : phases)
-        summon->SetInPhase(phaseId, false, true);
+    summon->CopyPhaseFrom(summoner);
 
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
 
@@ -2319,8 +2314,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
         return NULL;
     }
 
-    for (auto phase : GetPhases())
-        go->SetInPhase(phase, false, true);
+    go->CopyPhaseFrom(this);
 
     go->SetRespawnTime(respawnTime);
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
@@ -2732,6 +2726,18 @@ void WorldObject::SetInPhase(uint32 id, bool update, bool apply)
         _phases.erase(id);
 
     RebuildTerrainSwaps();
+
+    if (update && IsInWorld())
+        UpdateObjectVisibility();
+}
+
+void WorldObject::CopyPhaseFrom(WorldObject* obj, bool update)
+{
+    if (!obj)
+        return;
+
+    for (uint32 phase : obj->GetPhases())
+        SetInPhase(phase, false, true);
 
     if (update && IsInWorld())
         UpdateObjectVisibility();

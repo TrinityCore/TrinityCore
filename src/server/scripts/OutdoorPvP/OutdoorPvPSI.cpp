@@ -172,8 +172,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                             return true;
                         }
 
-                        for (auto phase : player->GetPhases())
-                            go->SetInPhase(phase, false, true);
+                        go->CopyPhaseFrom(player);
 
                         go->SetRespawnTime(0);
 
@@ -209,8 +208,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                             return true;
                         }
 
-                        for (auto phase : player->GetPhases())
-                            go->SetInPhase(phase, false, true);
+                        go->CopyPhaseFrom(player);
 
                         go->SetRespawnTime(0);
 
