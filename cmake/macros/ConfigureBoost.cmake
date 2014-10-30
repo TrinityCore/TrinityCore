@@ -30,7 +30,15 @@ add_definitions(-DBOOST_DATE_TIME_NO_LIB)
 add_definitions(-DBOOST_REGEX_NO_LIB)
 add_definitions(-DBOOST_CHRONO_NO_LIB)
 
-if(!WIN32) # https://svn.boost.org/trac/boost/ticket/6779
+try_compile (boost_filesystem_copy_links_without_NO_SCOPED_ENUM
+  ${CMAKE_BINARY_DIR}/try_compile/boost_filesystem_copy_links_without_NO_SCOPED_ENUM
+  SOURCES ${CMAKE_SOURCE_DIR}/cmake/test_use_boost_cxx11_no_scoped_enum_for_filesystem.cpp
+  COMPILE_DEFINITIONS -I${Boost_INCLUDE_DIR}
+                      --std=c++11
+  LINK_LIBRARIES ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY}
+)
+
+if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
   add_definitions(-DBOOST_NO_CXX11_SCOPED_ENUMS)
 endif()
 
