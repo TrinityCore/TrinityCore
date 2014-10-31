@@ -33,6 +33,9 @@
 #define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
 #endif
 
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+
 #include "DBFilesClientList.h"
 #include "CascLib.h"
 #include "dbcfile.h"
@@ -56,6 +59,32 @@
 #else
     #define OPEN_FLAGS (O_RDONLY | O_BINARY)
 #endif
+
+namespace
+{
+    const char* HumanReadableCASCError(int error)
+    {
+        switch (error)
+        {
+            case ERROR_SUCCESS: return "SUCCESS";
+            case ERROR_FILE_CORRUPT: return "FILE_CORRUPT";
+            case ERROR_CAN_NOT_COMPLETE: return "CAN_NOT_COMPLETE";
+            case ERROR_HANDLE_EOF: return "HANDLE_EOF";
+            case ERROR_NO_MORE_FILES: return "NO_MORE_FILES";
+            case ERROR_BAD_FORMAT: return "BAD_FORMAT";
+            case ERROR_INSUFFICIENT_BUFFER: return "INSUFFICIENT_BUFFER";
+            case ERROR_ALREADY_EXISTS: return "ALREADY_EXISTS";
+            case ERROR_DISK_FULL: return "DISK_FULL";
+            case ERROR_INVALID_PARAMETER: return "INVALID_PARAMETER";
+            case ERROR_NOT_SUPPORTED: return "NOT_SUPPORTED";
+            case ERROR_NOT_ENOUGH_MEMORY: return "NOT_ENOUGH_MEMORY";
+            case ERROR_INVALID_HANDLE: return "INVALID_HANDLE";
+            case ERROR_ACCESS_DENIED: return "ACCESS_DENIED";
+            case ERROR_FILE_NOT_FOUND: return "FILE_NOT_FOUND";
+            default: return "UNKNOWN";
+        }
+    }
+}
 
 HANDLE CascStorage = NULL;
 
@@ -148,7 +177,7 @@ void Usage(char const* prg)
         "-o set output path\n"\
         "-e extract only MAP(1)/DBC(2) - standard: both(3)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
-        "Example: %s -f 0 -i \"c:\\games\\game\"", prg, prg);
+        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
     exit(1);
 }
 
@@ -205,6 +234,9 @@ void HandleArgs(int argc, char* arg[])
                 }
                 else
                     Usage(arg[0]);
+                break;
+            case 'h':
+                Usage(arg[0]);
                 break;
             default:
                 break;
@@ -265,7 +297,7 @@ uint32 ReadMapDBC()
     HANDLE dbcFile;
     if (!CascOpenFile(CascStorage, "DBFilesClient\\Map.dbc", CASC_LOCALE_NONE, 0, &dbcFile))
     {
-        printf("Fatal error: Cannot find Map.dbc in archive!\n");
+        printf("Fatal error: Cannot find Map.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
@@ -295,7 +327,7 @@ void ReadAreaTableDBC()
     HANDLE dbcFile;
     if (!CascOpenFile(CascStorage, "DBFilesClient\\AreaTable.dbc", CASC_LOCALE_NONE, 0, &dbcFile))
     {
-        printf("Fatal error: Cannot find AreaTable.dbc in archive!\n");
+        printf("Fatal error: Cannot find AreaTable.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
@@ -323,7 +355,7 @@ void ReadLiquidTypeTableDBC()
     HANDLE dbcFile;
     if (!CascOpenFile(CascStorage, "DBFilesClient\\LiquidType.dbc", CASC_LOCALE_NONE, 0, &dbcFile))
     {
-        printf("Fatal error: Cannot find LiquidType.dbc in archive!\n");
+        printf("Fatal error: Cannot find LiquidType.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
@@ -1124,7 +1156,7 @@ void ExtractDBFilesClient(int l)
             CascCloseFile(dbcFile);
         }
         else
-            printf("Unable to open file %s in the archive for locale %s.\n", fileName, Locales[l]);
+            printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, Locales[l], HumanReadableCASCError(GetLastError()));
 
         fileName = DBFilesClientList[++index];
     }
@@ -1134,13 +1166,13 @@ void ExtractDBFilesClient(int l)
 
 bool OpenCascStorage()
 {
-    if (!CascOpenStorage(".\\Data", 0, &CascStorage))
+    boost::filesystem::path const storage_dir (boost::filesystem::canonical (input_path) / "Data");
+    if (!CascOpenStorage(storage_dir.string().c_str(), 0, &CascStorage))
     {
-        printf("Error %d\n", GetLastError());
+        printf("error opening casc storage '%s': %s\n", storage_dir.string().c_str(), HumanReadableCASCError(GetLastError()));
         return false;
     }
-
-    printf("\n");
+    printf("opened casc storage '%s'\n", storage_dir.string().c_str());
     return true;
 }
 
@@ -1156,8 +1188,6 @@ int main(int argc, char * arg[])
 
     if (!OpenCascStorage())
     {
-        if (GetLastError() != ERROR_PATH_NOT_FOUND)
-            printf("Unable to open storage!\n");
         return 1;
     }
 
