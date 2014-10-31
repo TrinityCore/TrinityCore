@@ -115,7 +115,7 @@ struct GameObjectTemplate
             uint32 usegrouplootrules;                       // 15 use group loot rules, enum { false, true, }; Default: false
             uint32 floatingTooltip;                         // 16 floatingTooltip, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 17 conditionID1, References: PlayerCondition, NoValue = 0
-            uint32 xpLevel;                                 // 18 xpLevel, int, Min value: -1, Max value: 100, Default value: 0
+            int32 xpLevel;                                  // 18 xpLevel, int, Min value: -1, Max value: 100, Default value: 0
             uint32 xpDifficulty;                            // 19 xpDifficulty, enum { No Exp, Trivial, Very Small, Small, Substandard, Standard, High, Epic, Dungeon, Placeholder2, }; Default: No Exp
             uint32 lootLevel;                               // 20 lootLevel, int, Min value: 0, Max value: 100, Default value: 0
             uint32 GroupXP;                                 // 21 Group XP, enum { false, true, }; Default: false
@@ -245,7 +245,7 @@ struct GameObjectTemplate
             uint32 autoClose;                               // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Reached1stfloor;                         // 3 Reached 1st floor, References: GameEvents, NoValue = 0
             uint32 Reached2ndfloor;                         // 4 Reached 2nd floor, References: GameEvents, NoValue = 0
-            uint32 mapID;                                   // 5 mapID, References: Map, NoValue = -1
+            int32 mapID;                                    // 5 mapID, References: Map, NoValue = -1
             uint32 Timeto3rdfloor;                          // 6 Time to 3rd floor (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Reached3rdfloor;                         // 7 Reached 3rd floor, References: GameEvents, NoValue = 0
             uint32 Timeto4thfloor;                          // 8 Time to 4th floor (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
@@ -299,7 +299,7 @@ struct GameObjectTemplate
             uint32 startEventID;                            // 3 startEventID, References: GameEvents, NoValue = 0
             uint32 stopEventID;                             // 4 stopEventID, References: GameEvents, NoValue = 0
             uint32 transportPhysics;                        // 5 transportPhysics, References: TransportPhysics, NoValue = 0
-            uint32 mapID;                                   // 6 mapID, References: Map, NoValue = -1
+            int32 mapID;                                    // 6 mapID, References: Map, NoValue = -1
             uint32 worldState1;                             // 7 worldState1, References: WorldState, NoValue = 0
             uint32 allowstopping;                           // 8 allow stopping, enum { false, true, }; Default: false
             uint32 InitStopped;                             // 9 Init Stopped, enum { false, true, }; Default: false
@@ -345,7 +345,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 spell;                                   // 0 spell, References: Spell, NoValue = 0
-            uint32 charges;                                 // 1 charges, int, Min value: -1, Max value: 65535, Default value: 1
+            int32 charges;                                  // 1 charges, int, Min value: -1, Max value: 65535, Default value: 1
             uint32 partyOnly;                               // 2 partyOnly, enum { false, true, }; Default: false
             uint32 allowMounted;                            // 3 allowMounted, enum { false, true, }; Default: false
             uint32 GiganticAOI;                             // 4 Gigantic AOI, enum { false, true, }; Default: false
@@ -469,33 +469,33 @@ struct GameObjectTemplate
         struct
         {
             uint32 chairheight;                             // 0 chairheight, int, Min value: 0, Max value: 2, Default value: 1
-            uint32 HeightOffset;                            // 1 Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
+            int32 HeightOffset;                             // 1 Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
         } barberChair;
         // 33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
         struct
         {
-            uint32 Unused;                                  // 0 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused;                                   // 0 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 CreditProxyCreature;                     // 1 Credit Proxy Creature, References: Creature, NoValue = 0
             uint32 HealthRec;                               // 2 Health Rec, References: DestructibleHitpoint, NoValue = 0
             uint32 IntactEvent;                             // 3 Intact Event, References: GameEvents, NoValue = 0
             uint32 PVPEnabling;                             // 4 PVP Enabling, enum { false, true, }; Default: false
             uint32 InteriorVisible;                         // 5 Interior Visible, enum { false, true, }; Default: false
             uint32 InteriorLight;                           // 6 Interior Light, enum { false, true, }; Default: false
-            uint32 Unused1;                                 // 7 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
-            uint32 Unused2;                                 // 8 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused1;                                  // 7 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused2;                                  // 8 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 DamagedEvent;                            // 9 Damaged Event, References: GameEvents, NoValue = 0
-            uint32 Unused3;                                 // 10 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
-            uint32 Unused4;                                 // 11 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
-            uint32 Unused5;                                 // 12 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
-            uint32 Unused6;                                 // 13 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused3;                                  // 10 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused4;                                  // 11 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused5;                                  // 12 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused6;                                  // 13 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 DestroyedEvent;                          // 14 Destroyed Event, References: GameEvents, NoValue = 0
-            uint32 Unused7;                                 // 15 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused7;                                  // 15 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 RebuildingTime;                          // 16 Rebuilding: Time (secs), int, Min value: 0, Max value: 65535, Default value: 0
-            uint32 Unused8;                                 // 17 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused8;                                  // 17 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 DestructibleModelRec;                    // 18 Destructible Model Rec, References: DestructibleModelData, NoValue = 0
             uint32 RebuildingEvent;                         // 19 Rebuilding: Event, References: GameEvents, NoValue = 0
-            uint32 Unused9;                                 // 20 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
-            uint32 Unused10;                                // 21 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused9;                                  // 20 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused10;                                 // 21 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 DamageEvent;                             // 22 Damage Event, References: GameEvents, NoValue = 0
         } destructibleBuilding;
         // 34 GAMEOBJECT_TYPE_GUILD_BANK
@@ -506,7 +506,7 @@ struct GameObjectTemplate
         // 35 GAMEOBJECT_TYPE_TRAPDOOR
         struct
         {
-            uint32 Unused;                                  // 0 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Unused;                                   // 0 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 startOpen;                               // 1 startOpen, enum { false, true, }; Default: false
             uint32 autoClose;                               // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 BlocksPathsDown;                         // 3 Blocks Paths Down, enum { false, true, }; Default: false
@@ -524,7 +524,7 @@ struct GameObjectTemplate
             uint32 ExpireDuration;                          // 7 Expire Duration, int, Min value: 0, Max value: 3600000, Default value: 10000
             uint32 RespawnTime;                             // 8 Respawn Time, int, Min value: 0, Max value: 3600000, Default value: 20000
             uint32 FlagDrop;                                // 9 Flag Drop, References: GameObjects, NoValue = 0
-            uint32 ExclusiveCategory;                       // 10 Exclusive Category (BGs Only), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 ExclusiveCategory;                        // 10 Exclusive Category (BGs Only), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 worldState1;                             // 11 worldState1, References: WorldState, NoValue = 0
             uint32 ReturnonDefenderInteract;                // 12 Return on Defender Interact, enum { false, true, }; Default: false
         } newflag;
@@ -536,13 +536,13 @@ struct GameObjectTemplate
         // 38 GAMEOBJECT_TYPE_GARRISON_BUILDING
         struct
         {
-            uint32 mapID;                                   // 0 mapID, References: Map, NoValue = -1
+            int32 mapID;                                    // 0 mapID, References: Map, NoValue = -1
         } garrisonBuilding;
         // 39 GAMEOBJECT_TYPE_GARRISON_PLOT
         struct
         {
             uint32 PlotInstance;                            // 0 Plot Instance, References: GarrPlotInstance, NoValue = 0
-            uint32 mapID;                                   // 1 mapID, References: Map, NoValue = -1
+            int32 mapID;                                    // 1 mapID, References: Map, NoValue = -1
         } garrisonPlot;
         // 40 GAMEOBJECT_TYPE_CLIENT_CREATURE
         struct
@@ -585,8 +585,8 @@ struct GameObjectTemplate
         // 43 GAMEOBJECT_TYPE_PHASEABLE_MO
         struct
         {
-            uint32 mapID;                                   // 0 mapID, References: Map, NoValue = -1
-            uint32 namedset;                                // 1 named set, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 mapID;                                    // 0 mapID, References: Map, NoValue = -1
+            int32 namedset;                                 // 1 named set, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
         } phaseableMO;
         // 44 GAMEOBJECT_TYPE_GARRISON_MONUMENT
         struct
