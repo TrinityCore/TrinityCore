@@ -48,6 +48,14 @@ namespace WorldPackets
         size_t GetSize() const { return _worldPacket.size(); }
         void Reset() { _worldPacket.clear(); }
     };
+
+    class ClientPacket : public Packet
+    {
+    public:
+        ClientPacket(WorldPacket&& packet) : Packet(std::move(packet)) { }
+
+        void Write() override final { ASSERT(!"Write not allowed for client packets."); }
+    };
 }
 
 #endif

@@ -770,7 +770,6 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
     TC_LOG_DEBUG("entities.pet", "Pet::CreateBaseForTamed");
-    uint32 petId = sObjectMgr->GeneratePetNumber();
     if (!Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, phaseMask, cinfo->Entry))
         return false;
 

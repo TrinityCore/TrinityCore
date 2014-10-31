@@ -1317,7 +1317,7 @@ void Object::AddDynamicValue(uint16 index, uint32 value)
     }
 }
 
-void Object::RemoveDynamicValue(uint16 index, uint32 value)
+void Object::RemoveDynamicValue(uint16 index, uint32 /*value*/)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
     /// TODO: Research if this is actually needed

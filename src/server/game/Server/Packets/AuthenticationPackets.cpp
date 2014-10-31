@@ -17,6 +17,37 @@
 
 #include "AuthenticationPackets.h"
 
+void WorldPackets::Auth::AuthChallenge::Write()
+{
+    _worldPacket << uint32(Challenge);
+    _worldPacket.append(DosChallenge, sizeof(DosChallenge));
+    _worldPacket << uint8(DosZeroBits);
+}
+
+void WorldPackets::Auth::AuthSession::Read()
+{
+    uint32 addonDataSize;
+
+    _worldPacket >> LoginServerID;
+    _worldPacket >> Build;
+    _worldPacket >> RegionID;
+    _worldPacket >> BattlegroupID;
+    _worldPacket >> RealmID;
+    _worldPacket >> LoginServerType;
+    _worldPacket >> BuildType;
+    _worldPacket >> LocalChallenge;
+    _worldPacket >> DosResponse;
+    _worldPacket.read(Digest, SHA_DIGEST_LENGTH);
+    Account = _worldPacket.ReadString(_worldPacket.ReadBits(11));
+    UseIPv6 = _worldPacket.ReadBit();           // UseIPv6
+    _worldPacket >> addonDataSize;
+    if (addonDataSize)
+    {
+        AddonInfo.resize(addonDataSize);
+        _worldPacket.read(AddonInfo.contents(), addonDataSize);
+    }
+}
+
 WorldPackets::Auth::AuthResponse::AuthResponse()
     : ServerPacket(SMSG_AUTH_RESPONSE, 132) 
 {

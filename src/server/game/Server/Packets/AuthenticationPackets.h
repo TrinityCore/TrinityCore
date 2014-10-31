@@ -19,11 +19,49 @@
 
 #include "Packet.h"
 #include "Util.h"
+#include <SHA1.h>
 
 namespace WorldPackets
 {
     namespace Auth
     {
+        class AuthChallenge final : public ServerPacket
+        {
+        public:
+            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 8 + 32 + 1), Challenge(0) { }
+
+            void Write() override;
+
+            uint32 Challenge;
+            uint32 DosChallenge[8]; ///< Encryption seeds
+            uint8 DosZeroBits;
+        };
+
+        class AuthSession final : public ClientPacket
+        {
+        public:
+            AuthSession(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            {
+                memset(Digest, 0, SHA_DIGEST_LENGTH);
+            }
+
+            void Read() override;
+
+            uint32 BattlegroupID = 0;
+            int8 LoginServerType = 0;           ///< Auth type used - 0 GRUNT, 1 battle.net
+            int8 BuildType = 0;
+            uint32 RealmID = 0;
+            uint16 Build = 0;
+            uint32 LocalChallenge = 0;
+            int32 LoginServerID = 0;
+            uint32 RegionID = 0;
+            uint64 DosResponse = 0;
+            uint8 Digest[SHA_DIGEST_LENGTH];
+            std::string Account;
+            bool UseIPv6 = false;
+            ByteBuffer AddonInfo;
+        };
+
         class AuthResponse final : public ServerPacket
         {
         public:
