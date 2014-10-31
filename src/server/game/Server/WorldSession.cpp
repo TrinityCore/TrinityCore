@@ -147,7 +147,7 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
     _compressionStream->opaque = (voidpf)NULL;
     _compressionStream->avail_in = 0;
     _compressionStream->next_in = NULL;
-    int32 z_res = deflateInit(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION));
+    int32 z_res = deflateInit2(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
     if (z_res != Z_OK)
         TC_LOG_ERROR("network", "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
 }
@@ -265,6 +265,37 @@ void WorldSession::SendPacket(WorldPacket* packet, bool forced /*= false*/)
     sScriptMgr->OnPacketSend(this, *packet);
 
     m_Socket->SendPacket(*packet);
+}
+
+uint32 WorldSession::CompressPacket(uint8* buffer, WorldPacket const& packet)
+{
+    uint32 opcode = packet.GetOpcode();
+    uint32 bufferSize = deflateBound(_compressionStream, packet.size() + sizeof(opcode));
+
+    _compressionStream->next_out = buffer;
+    _compressionStream->avail_out = bufferSize;
+    _compressionStream->next_in = (Bytef*)&opcode;
+    _compressionStream->avail_in = sizeof(uint32);
+
+    int32 z_res = deflate(_compressionStream, Z_BLOCK);
+    if (z_res != Z_OK)
+    {
+        TC_LOG_ERROR("network", "Can't compress packet opcode (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
+        return 0;
+    }
+
+    _compressionStream->next_in = (Bytef*)packet.contents();
+    _compressionStream->avail_in = packet.size();
+
+    z_res = deflate(_compressionStream, Z_SYNC_FLUSH);
+    if (z_res != Z_OK)
+    {
+        TC_LOG_ERROR("network", "Can't compress packet data (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
+        return 0;
+    }
+
+
+    return bufferSize - _compressionStream->avail_out;
 }
 
 /// Add an incoming packet to the queue

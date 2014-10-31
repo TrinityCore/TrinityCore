@@ -273,6 +273,8 @@ class WorldSession
         bool IsAddonRegistered(const std::string& prefix) const;
 
         void SendPacket(WorldPacket* packet, bool forced = false);
+        uint32 CompressPacket(uint8* buffer, WorldPacket const& packet);
+
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName *declinedName);

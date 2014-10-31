@@ -73,7 +73,8 @@ public:
 
     void Start() override;
 
-    void SendPacket(WorldPacket& packet);
+    void SendPacket(WorldPacket const& packet);
+    void WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer);
 
 protected:
     void ReadHandler() override;
