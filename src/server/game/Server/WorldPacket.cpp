@@ -23,13 +23,12 @@
 void WorldPacket::Compress(z_stream* compressionStream)
 {
     OpcodeServer uncompressedOpcode = static_cast<OpcodeServer>(GetOpcode());
-    if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
+    if (uncompressedOpcode == SMSG_COMPRESSED_PACKET)
     {
         TC_LOG_ERROR("network", "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;
     }
 
-    OpcodeServer opcode = OpcodeServer(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
     uint32 size = wpos();
     uint32 destsize = compressBound(size);
 
@@ -41,11 +40,12 @@ void WorldPacket::Compress(z_stream* compressionStream)
         return;
 
     clear();
-    reserve(destsize + sizeof(uint32));
+    reserve(destsize + sizeof(uint32) * 2);
+    *this << uint32(uncompressedOpcode);
     *this << uint32(size);
     append(&storage[0], destsize);
-    SetOpcode(opcode);
-    TC_LOG_INFO("network", "%s (len %u) successfully compressed to %04X (len %u)", GetOpcodeNameForLogging(uncompressedOpcode).c_str(), size, opcode, destsize);
+    SetOpcode(SMSG_COMPRESSED_PACKET);
+    TC_LOG_INFO("network", "%s (len %u) successfully compressed to len %u", GetOpcodeNameForLogging(uncompressedOpcode).c_str(), size, destsize);
 }
 
 //! Compresses another packet and stores it in self (source left intact)
@@ -54,30 +54,29 @@ void WorldPacket::Compress(z_stream* compressionStream, WorldPacket const* sourc
     ASSERT(source != this);
 
     OpcodeServer uncompressedOpcode = static_cast<OpcodeServer>(source->GetOpcode());
-    if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
+    if (uncompressedOpcode == SMSG_COMPRESSED_PACKET)
     {
         TC_LOG_ERROR("network", "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;
     }
 
-    OpcodeServer opcode = OpcodeServer(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
     uint32 size = source->size();
     uint32 destsize = compressBound(size);
 
-    size_t sizePos = 0;
-    resize(destsize + sizeof(uint32));
+    resize(destsize + sizeof(uint32) * 2);
 
     _compressionStream = compressionStream;
-    Compress(static_cast<void*>(&_storage[0] + sizeof(uint32)), &destsize, static_cast<const void*>(source->contents()), size);
+    Compress(static_cast<void*>(&_storage[0] + sizeof(uint32) * 2), &destsize, static_cast<const void*>(source->contents()), size);
     if (destsize == 0)
         return;
 
-    put<uint32>(sizePos, size);
+    put<uint32>(0, uncompressedOpcode);
+    put<uint32>(4, size);
     resize(destsize + sizeof(uint32));
 
-    SetOpcode(opcode);
+    SetOpcode(SMSG_COMPRESSED_PACKET);
 
-    TC_LOG_INFO("network", "%s (len %u) successfully compressed to %04X (len %u)", GetOpcodeNameForLogging(uncompressedOpcode).c_str(), size, opcode, destsize);
+    TC_LOG_INFO("network", "%s (len %u) successfully compressed to len %u", GetOpcodeNameForLogging(uncompressedOpcode).c_str(), size, destsize);
 }
 
 void WorldPacket::Compress(void* dst, uint32 *dst_size, const void* src, int src_size)

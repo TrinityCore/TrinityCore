@@ -63,19 +63,20 @@ void WorldSocket::Start()
 
 void WorldSocket::HandleSendAuthSession()
 {
-    WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
-    packet << uint32(_authSeed);
-
     BigNumber seed1;
-    seed1.SetRand(16 * 8);
-    packet.append(seed1.AsByteArray(16).get(), 16);               // new encryption seeds
-
     BigNumber seed2;
+    seed1.SetRand(16 * 8);
     seed2.SetRand(16 * 8);
-    packet.append(seed2.AsByteArray(16).get(), 16);               // new encryption seeds
 
-    packet << uint8(1);
-    SendPacket(packet);
+    WorldPackets::Auth::AuthChallenge challenge;
+    challenge.Challenge = _authSeed;
+    memcpy(&challenge.DosChallenge[0], seed1.AsByteArray(16).get(), 16);
+    memcpy(&challenge.DosChallenge[4], seed2.AsByteArray(16).get(), 16);
+    challenge.DosZeroBits = 1;
+
+    challenge.Write();
+
+    SendPacket(challenge.GetWorldPacket());
 }
 
 void WorldSocket::ReadHandler()
@@ -334,50 +335,21 @@ void WorldSocket::SendPacket(WorldPacket& packet)
 
 void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 {
-    uint8 digest[SHA_DIGEST_LENGTH];
-    uint32 clientSeed;
+    WorldPackets::Auth::AuthSession authSession(std::move(recvPacket));
+    authSession.Read();
+
     uint8 security;
-    uint16 clientBuild;
     uint32 id;
-    uint32 addonSize;
     LocaleConstant locale;
-    std::string account;
     SHA1Hash sha;
     BigNumber k;
     bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
-    WorldPacket addonsData;
-    uint8 loginServerType;
-    uint32 realmIndex;
-
-    recvPacket.read_skip<uint32>(); // Grunt - ServerId
-    recvPacket >> clientBuild;
-    recvPacket.read_skip<uint32>(); // Region
-    recvPacket.read_skip<uint32>(); // Battlegroup
-    recvPacket >> realmIndex;
-    recvPacket >> loginServerType;  // could be swapped with other uint8 (both always 1)
-    recvPacket.read_skip<uint8>();
-    recvPacket >> clientSeed;
-    recvPacket.read_skip<uint64>(); // DosResponse
-
-    for (int i = 0; i < SHA_DIGEST_LENGTH; i++)
-        recvPacket >> digest[i];
-
-    uint32 accountNameLength = recvPacket.ReadBits(11);
-    account = recvPacket.ReadString(accountNameLength);
-    recvPacket.ReadBit();           // UseIPv6
-    recvPacket >> addonSize;
-
-    if (addonSize)
-    {
-        addonsData.resize(addonSize);
-        recvPacket.read((uint8*)addonsData.contents(), addonSize);
-    }
 
     // Get the account information from the auth database
     //         0           1        2       3          4         5       6          7   8
     // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
-    stmt->setString(0, account);
+    stmt->setString(0, authSession.Account);
 
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -405,7 +377,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
 
     stmt->setString(0, address);
-    stmt->setString(1, account);
+    stmt->setString(1, authSession.Account);
 
     LoginDatabase.Execute(stmt);
     // This also allows to check for possible "hack" attempts on account
@@ -428,7 +400,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         return;
     }
 
-    if (realmIndex != realmHandle.Index)
+    if (authSession.RealmID != realmHandle.Index)
     {
         SendAuthResponseError(REALM_LIST_REALM_NOT_FOUND);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (bad realm).");
@@ -450,17 +422,17 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Check that Key and account name are the same on client and server
     uint32 t = 0;
 
-    sha.UpdateData(account);
+    sha.UpdateData(authSession.Account);
     sha.UpdateData((uint8*)&t, 4);
-    sha.UpdateData((uint8*)&clientSeed, 4);
+    sha.UpdateData((uint8*)&authSession.LocalChallenge, 4);
     sha.UpdateData((uint8*)&_authSeed, 4);
     sha.UpdateBigNumbers(&k, NULL);
     sha.Finalize();
 
-    if (memcmp(sha.GetDigest(), digest, SHA_DIGEST_LENGTH) != 0)
+    if (memcmp(sha.GetDigest(), authSession.Digest, SHA_DIGEST_LENGTH) != 0)
     {
         SendAuthResponseError(AUTH_FAILED);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, authSession.Account.c_str(), address.c_str());
         DelayedCloseSocket();
         return;
     }
@@ -500,7 +472,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     uint32 recruiter = fields[7].GetUInt32();
 
     uint32 battlenetAccountId = 0;
-    if (loginServerType == 1)
+    if (authSession.LoginServerType == 1)
         battlenetAccountId = Battlenet::AccountMgr::GetIdByGameAccount(id);
 
     // Checks gmlevel per Realm
@@ -549,8 +521,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     }
 
     TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.",
-        account.c_str(),
-        address.c_str());
+        authSession.Account.c_str(), address.c_str());
 
     // Check if this user is by any chance a recruiter
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_RECRUITER);
@@ -567,7 +538,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
 
     stmt->setString(0, address);
-    stmt->setString(1, account);
+    stmt->setString(1, authSession.Account);
 
     LoginDatabase.Execute(stmt);
 
@@ -577,7 +548,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     _worldSession = new WorldSession(id, battlenetAccountId, shared_from_this(), AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter);
     _worldSession->LoadGlobalAccountData();
     _worldSession->LoadTutorialsData();
-    _worldSession->ReadAddonsInfo(addonsData);
+    _worldSession->ReadAddonsInfo(authSession.AddonInfo);
     _worldSession->LoadPermissions();
 
     // Initialize Warden system only if it is enabled by config

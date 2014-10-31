@@ -65,7 +65,7 @@ class WorldPacket : public ByteBuffer
 
         uint32 GetOpcode() const { return m_opcode; }
         void SetOpcode(uint32 opcode) { m_opcode = opcode; }
-        bool IsCompressed() const { return (m_opcode & COMPRESSED_OPCODE_MASK) != 0; }
+        bool IsCompressed() const { return m_opcode == SMSG_COMPRESSED_PACKET; }
         void Compress(z_stream_s* compressionStream);
         void Compress(z_stream_s* compressionStream, WorldPacket const* source);
 

@@ -31,7 +31,6 @@ enum OpcodeMisc : uint32
     NUM_OPCODE_HANDLERS = (MAX_OPCODE + 1),
     UNKNOWN_OPCODE = (0xFFFF + 1),
     NULL_OPCODE = 0,
-    COMPRESSED_OPCODE_MASK = 0x8000
 };
 
 // CMSGs
@@ -69,7 +68,7 @@ enum OpcodeClient : uint32
     CMSG_AUCTION_PLACE_BID                            = 0x0000,
     CMSG_AUCTION_REMOVE_ITEM                          = 0x0000,
     CMSG_AUCTION_SELL_ITEM                            = 0x0000,
-    CMSG_AUTH_SESSION                                 = 0x1B05,
+    CMSG_AUTH_SESSION                                 = 0x0487,
     CMSG_AUTOBANK_ITEM                                = 0x0000,
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x0000,
     CMSG_AUTOEQUIP_ITEM                               = 0x0000,
@@ -712,8 +711,8 @@ enum OpcodeServer : uint32
     SMSG_AURA_POINTS_DEPLETED                         = 0x0000,
     SMSG_AURA_UPDATE                                  = 0x128B,
     SMSG_AURA_UPDATE_ALL                              = 0x0000,
-    SMSG_AUTH_CHALLENGE                               = 0x10AA,
-    SMSG_AUTH_RESPONSE                                = 0x0564,
+    SMSG_AUTH_CHALLENGE                               = 0x1759,
+    SMSG_AUTH_RESPONSE                                = 0x0DA9,
     SMSG_AVAILABLE_VOICE_CHANNEL                      = 0x0000,
     SMSG_AVERAGE_ITEM_LEVEL_INFORM                    = 0x0000,
     SMSG_BARBER_SHOP_RESULT                           = 0x0000,
@@ -809,6 +808,7 @@ enum OpcodeServer : uint32
     SMSG_COMMENTATOR_STATE_CHANGED                    = 0x0000,
     SMSG_COMPLAIN_RESULT                              = 0x0000,
     SMSG_COMPRESSED_MOVES                             = 0x0000,
+    SMSG_COMPRESSED_PACKET                            = 0x07CA,
     SMSG_COMSAT_CONNECT_FAIL                          = 0x0000,
     SMSG_COMSAT_DISCONNECT                            = 0x0000,
     SMSG_COMSAT_RECONNECT_TRY                         = 0x0000,
@@ -1512,11 +1512,7 @@ inline std::string GetOpcodeNameForLogging(T id)
     if (static_cast<uint32>(id) < UNKNOWN_OPCODE)
     {
         if (OpcodeHandler const* handler = opcodeTable[T(opcode & 0x7FFF)])
-        {
             ss << handler->Name;
-            if (opcode & COMPRESSED_OPCODE_MASK)
-                ss << "_COMPRESSED";
-        }
         else
             ss << "UNKNOWN OPCODE";
     }
