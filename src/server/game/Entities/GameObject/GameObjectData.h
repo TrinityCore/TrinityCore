@@ -203,7 +203,7 @@ struct GameObjectTemplate
             uint32 autoCloseTime;                           //2 secs till autoclose = autoCloseTime / 0x10000
             uint32 pause1EventID;                           //3
             uint32 pause2EventID;                           //4
-            uint32 mapID;                                   //5
+            int32 mapID;                                    //5
         } transport;
         //12 GAMEOBJECT_TYPE_AREADAMAGE
         struct
@@ -236,7 +236,7 @@ struct GameObjectTemplate
             uint32 startEventID;                            //3
             uint32 stopEventID;                             //4
             uint32 transportPhysics;                        //5
-            uint32 mapID;                                   //6
+            int32 mapID;                                    //6
             uint32 worldState1;                             //7
             uint32 canBeStopped;                            //8
         } moTransport;
@@ -271,7 +271,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 spellId;                                 //0
-            uint32 charges;                                 //1
+            int32 charges;                                  //1
             uint32 partyOnly;                               //2
             uint32 allowMounted;                            //3 Is usable while on mount/vehicle. (0/1)
             uint32 large;                                   //4
@@ -361,14 +361,14 @@ struct GameObjectTemplate
         //31 GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY
         struct
         {
-            uint32 mapID;                                   //0
+            int32 mapID;                                    //0
             uint32 difficulty;                              //1
         } dungeonDifficulty;
         //32 GAMEOBJECT_TYPE_BARBER_CHAIR
         struct
         {
             uint32 chairheight;                             //0
-            uint32 heightOffset;                            //1
+            int32 heightOffset;                             //1
         } barberChair;
         //33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
         struct
@@ -380,21 +380,21 @@ struct GameObjectTemplate
             uint32 empty2;                                  //4
             uint32 damagedNumHits;                          //5
             uint32 empty3;                                  //6
-            uint32 empty4;                                  //7
-            uint32 empty5;                                  //8
+            int32 empty4;                                   //7
+            int32 empty5;                                   //8
             uint32 damagedEvent;                            //9
-            uint32 empty6;                                  //10
-            uint32 empty7;                                  //11
-            uint32 empty8;                                  //12
-            uint32 empty9;                                  //13
+            int32 empty6;                                   //10
+            int32 empty7;                                   //11
+            int32 empty8;                                   //12
+            int32 empty9;                                   //13
             uint32 destroyedEvent;                          //14
-            uint32 empty10;                                 //15
+            int32 empty10;                                  //15
             uint32 rebuildingTimeSecs;                      //16
-            uint32 empty11;                                 //17
+            int32 empty11;                                  //17
             uint32 destructibleData;                        //18
             uint32 rebuildingEvent;                         //19
-            uint32 empty12;                                 //20
-            uint32 empty13;                                 //21
+            int32 empty12;                                  //20
+            int32 empty13;                                  //21
             uint32 damageEvent;                             //22
             uint32 empty14;                                 //23
         } building;
