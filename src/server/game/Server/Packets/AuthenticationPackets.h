@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AuthenticationPackets_h__
+#ifndef AuthenticationPacketsWorld_h__
+#define AuthenticationPacketsWorld_h__
 
 #include "Packet.h"
 #include "Util.h"
@@ -134,4 +135,4 @@ namespace WorldPackets
     }
 }
 
-#endif
+#endif // AuthenticationPacketsWorld_h__

@@ -49,7 +49,7 @@ void WorldPackets::Auth::AuthSession::Read()
 }
 
 WorldPackets::Auth::AuthResponse::AuthResponse()
-    : ServerPacket(SMSG_AUTH_RESPONSE, 132) 
+    : ServerPacket(SMSG_AUTH_RESPONSE, 132)
 {
     WaitInfo.HasValue = false;
     SuccessInfo.HasValue = false;

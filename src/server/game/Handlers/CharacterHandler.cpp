@@ -21,6 +21,7 @@
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "CalendarMgr.h"
+#include "CharacterPackets.h"
 #include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -222,45 +223,35 @@ bool LoginQueryHolder::Initialize()
 
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
-    uint32 charCount = 0;
-    WorldPacket data(SMSG_CHAR_ENUM);
-    data.WriteBit(1); // Success
-    data.WriteBit(0); // IsDeleted (used for character undelete list)
-
+    WorldPackets::Character::CharEnumResult charEnum;
+    charEnum.Success = true;
+    charEnum.IsDeletedCharacters = false;
 
     if (result)
     {
         _legitCharacters.clear();
 
-        charCount = uint32(result->GetRowCount());
-        data << uint32(charCount);
-        data << uint32(0); // FactionChangeRestrictions
-
-        data.reserve(charCount * 450); // Guessed
-
         do
         {
-            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt64());
+            Field* fields = result->Fetch();
+            WorldPackets::Character::CharEnumResult::CharacterInfo charInfo(fields);
 
-            TC_LOG_INFO("network", "Loading char guid %s from account %u.", guid.ToString().c_str(), GetAccountId());
+            TC_LOG_INFO("network", "Loading char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
-            Player::BuildEnumData(result, &data);
+            // Do not allow locked characters to login
+            if (!(charInfo.Flags & (CHARACTER_FLAG_LOCKED_FOR_TRANSFER | CHARACTER_FLAG_LOCKED_BY_BILLING)))
+                _legitCharacters.insert(charInfo.Guid);
 
-            // Do not allow banned characters to log in
-            if (!(*result)[20].GetUInt64())
-                _legitCharacters.insert(guid);
+            if (!sWorld->HasCharacterNameData(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                sWorld->AddCharacterNameData(charInfo.Guid, charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level);
 
-            if (!sWorld->HasCharacterNameData(guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                sWorld->AddCharacterNameData(guid, (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
-        } while (result->NextRow());
-    }
-    else
-    {
-        data << uint32(0); // CharCount
-        data << uint32(0); // FactionChangeRestrictions
+            charEnum.Characters.emplace_back(charInfo);
+        }
+        while (result->NextRow());
     }
 
-    SendPacket(&data);
+    charEnum.Write();
+    SendPacket(&charEnum.GetWorldPacket());
 }
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
@@ -763,38 +754,23 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
         return;
     }
 
-    m_playerLoading = true;
-    ObjectGuid playerGuid;
-
     TC_LOG_DEBUG("network", "WORLD: Recvd Player Logon Message");
-    playerGuid[2] = recvData.ReadBit();
-    playerGuid[3] = recvData.ReadBit();
-    playerGuid[0] = recvData.ReadBit();
-    playerGuid[6] = recvData.ReadBit();
-    playerGuid[4] = recvData.ReadBit();
-    playerGuid[5] = recvData.ReadBit();
-    playerGuid[1] = recvData.ReadBit();
-    playerGuid[7] = recvData.ReadBit();
 
-    recvData.ReadByteSeq(playerGuid[2]);
-    recvData.ReadByteSeq(playerGuid[7]);
-    recvData.ReadByteSeq(playerGuid[0]);
-    recvData.ReadByteSeq(playerGuid[3]);
-    recvData.ReadByteSeq(playerGuid[5]);
-    recvData.ReadByteSeq(playerGuid[6]);
-    recvData.ReadByteSeq(playerGuid[1]);
-    recvData.ReadByteSeq(playerGuid[4]);
+    m_playerLoading = true;
 
-    TC_LOG_DEBUG("network", "Character %s logging in", playerGuid.ToString().c_str());
+    WorldPackets::Character::PlayerLogin playerLogin(std::move(recvData));
+    playerLogin.Read();
 
-    if (!IsLegitCharacterForAccount(playerGuid))
+    TC_LOG_DEBUG("network", "Character %s logging in", playerLogin.Guid.ToString().c_str());
+
+    if (!IsLegitCharacterForAccount(playerLogin.Guid))
     {
-        TC_LOG_ERROR("network", "Account (%u) can't login with that character (%s).", GetAccountId(), playerGuid.ToString().c_str());
+        TC_LOG_ERROR("network", "Account (%u) can't login with that character (%s).", GetAccountId(), playerLogin.Guid.ToString().c_str());
         KickPlayer();
         return;
     }
 
-    LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), playerGuid);
+    LoginQueryHolder* holder = new LoginQueryHolder(GetAccountId(), playerLogin.Guid);
     if (!holder->Initialize())
     {
         delete holder;                                      // delete all unprocessed queries
@@ -1083,9 +1059,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (pCurrChar->IsGameMaster())
         SendNotification(LANG_GM_ON);
 
-    std::string IP_str = GetRemoteAddress();
     TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Login Character: [%s] (%s) Level: %d",
-        GetAccountId(), IP_str.c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUID().ToString().c_str(), pCurrChar->getLevel());
+        GetAccountId(), GetRemoteAddress().c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUID().ToString().c_str(), pCurrChar->getLevel());
 
     if (!pCurrChar->IsStandState() && !pCurrChar->HasUnitState(UNIT_STATE_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
