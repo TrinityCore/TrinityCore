@@ -2757,10 +2757,14 @@ void WorldObject::ClearPhases(bool update)
 
 bool WorldObject::IsInPhase(WorldObject const* obj) const
 {
-    // PhaseId 169 is the default fallback phase
+    // if object has no phasing it should be always visible
+    if (obj->GetPhases().empty())
+        return true;
+
     if (_phases.empty() && obj->GetPhases().empty())
         return true;
 
+    // PhaseId 169 is the default fallback phase in dbc
     if (_phases.empty() && obj->IsInPhase(169))
         return true;
 
