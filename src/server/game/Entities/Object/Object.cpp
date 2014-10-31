@@ -2934,6 +2934,11 @@ void WorldObject::RebuildTerrainSwaps()
 
         for (uint32 swap : swaps)
         {
+            // only add terrain swaps for current map
+            MapEntry const* mapEntry = sMapStore.LookupEntry(swap);
+            if (!mapEntry || mapEntry->rootPhaseMap != GetMapId())
+                continue;
+
             conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
 
             if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
@@ -2941,14 +2946,38 @@ void WorldObject::RebuildTerrainSwaps()
         }
     }
 
-    // get default terrain swaps, id is 0
-    std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(0);
+    // get default terrain swaps, only for current map always
+    std::list<uint32>& mapSwaps = sObjectMgr->GetDefaultTerrainSwaps(GetMapId());
 
-    for (uint32 swap : swaps)
+    for (uint32 swap : mapSwaps)
     {
         conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
 
         if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
             _terrainSwaps.insert(swap);
+    }
+    if (GetTypeId() == TYPEID_PLAYER)
+        RebuildWorldMapAreaSwaps();
+}
+
+void WorldObject::RebuildWorldMapAreaSwaps()
+{
+    // Clear all world map area swaps, will be rebuilt below
+    _worldMapAreaSwaps.clear();
+
+    // get ALL default terrain swaps, if we are using it (condition is true) 
+    // send the worldmaparea for it, to see swapped worldmaparea in client from other maps too, not just from our current
+    TerrainPhaseInfo defaults = sObjectMgr->GetDefaultTerrainSwapStore();
+    for (TerrainPhaseInfo::const_iterator itr = defaults.begin(); itr != defaults.end(); ++itr)
+    {
+        for (uint32 swap : itr->second)
+        {
+            ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+            if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+            {
+                for (uint32 map : sObjectMgr->GetTerrainWorldMaps(swap))
+                    _worldMapAreaSwaps.insert(map);
+            }
+        }
     }
 }

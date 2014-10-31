@@ -1029,7 +1029,8 @@ class ObjectMgr
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
 
         void LoadTerrainPhaseInfo();
-        void LoadTerrainMapInfo();
+        void LoadTerrainSwapDefaults();
+        void LoadTerrainWorldMaps();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
@@ -1287,7 +1288,9 @@ class ObjectMgr
         }
 
         std::list<uint32>& GetPhaseTerrainSwaps(uint32 phaseid) { return _terrainPhaseInfoStore[phaseid]; }
-        std::list<uint32>& GetMapTerrainSwaps(uint32 mapid) { return _terrainMapInfoStore[mapid]; }
+        std::list<uint32>& GetDefaultTerrainSwaps(uint32 mapid) { return _terrainMapDefaultStore[mapid]; }
+        std::list<uint32>& GetTerrainWorldMaps(uint32 terrainId) { return _terrainWorldMapStore[terrainId]; }
+        TerrainPhaseInfo& GetDefaultTerrainSwapStore() { return _terrainMapDefaultStore; }
 
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
@@ -1405,7 +1408,8 @@ class ObjectMgr
         InstanceTemplateContainer _instanceTemplateStore;
 
         TerrainPhaseInfo _terrainPhaseInfoStore;
-        TerrainPhaseInfo _terrainMapInfoStore;
+        TerrainPhaseInfo _terrainMapDefaultStore;
+        TerrainPhaseInfo _terrainWorldMapStore;
 
     private:
         void LoadScripts(ScriptsType type);

@@ -9258,18 +9258,18 @@ void ObjectMgr::LoadFactionChangeTitles()
     TC_LOG_INFO("server.loading", ">> Loaded %u faction change title pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadTerrainMapInfo()
+void ObjectMgr::LoadTerrainSwapDefaults()
 {
-    _terrainMapInfoStore.clear();
+    _terrainMapDefaultStore.clear();
 
     uint32 oldMSTime = getMSTime();
 
     //                                               0       1
-    QueryResult result = WorldDatabase.Query("SELECT MapId, TerrainSwapMap FROM `terrain_map_info`");
+    QueryResult result = WorldDatabase.Query("SELECT MapId, TerrainSwapMap FROM `terrain_swap_defaults`");
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 terrain area infos. DB table `terrain_map_info` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 terrain swap defaults. DB table `terrain_swap_defaults` is empty.");
         return;
     }
 
@@ -9283,18 +9283,25 @@ void ObjectMgr::LoadTerrainMapInfo()
         MapEntry const* map = sMapStore.LookupEntry(mapId);
         if (!map)
         {
-            TC_LOG_ERROR("sql.sql", "Map %u defined in `terrain_map_info` does not exist, skipped.", mapId);
+            TC_LOG_ERROR("sql.sql", "Map %u defined in `terrain_swap_defaults` does not exist, skipped.", mapId);
             continue;
         }
 
         uint32 terrainSwap = fields[1].GetUInt32();
 
-        _terrainMapInfoStore[mapId].push_back(terrainSwap);
+        map = sMapStore.LookupEntry(terrainSwap);
+        if (!map)
+        {
+            TC_LOG_ERROR("sql.sql", "TerrainSwapMap %u defined in `terrain_swap_defaults` does not exist, skipped.", terrainSwap);
+            continue;
+        }
+
+        _terrainMapDefaultStore[mapId].push_back(terrainSwap);
 
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u terrain map infos in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u terrain swap defaults in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadTerrainPhaseInfo()
@@ -9319,16 +9326,13 @@ void ObjectMgr::LoadTerrainPhaseInfo()
 
         uint32 phaseId = fields[0].GetUInt32();
 
-        // 0 is kept for default map swaps
-        if (phaseId)
+        PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId);
+        if (!phase)
         {
-            PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId);
-            if (!phase)
-            {
-                TC_LOG_ERROR("sql.sql", "Phase %u defined in `terrain_phase_info` does not exist, skipped.", phaseId);
-                continue;
-            }
+            TC_LOG_ERROR("sql.sql", "Phase %u defined in `terrain_phase_info` does not exist, skipped.", phaseId);
+            continue;
         }
+
         uint32 terrainSwap = fields[1].GetUInt32();
 
         _terrainPhaseInfoStore[phaseId].push_back(terrainSwap);
@@ -9338,6 +9342,44 @@ void ObjectMgr::LoadTerrainPhaseInfo()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u terrain phase infos in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadTerrainWorldMaps()
+{
+    _terrainWorldMapStore.clear();
+
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0               1
+    QueryResult result = WorldDatabase.Query("SELECT TerrainSwapMap, WorldMapArea FROM `terrain_worldmap`");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 terrain world maps. DB table `terrain_worldmap` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 mapId = fields[0].GetUInt32();
+
+        if (!sMapStore.LookupEntry(mapId))
+        {
+            TC_LOG_ERROR("sql.sql", "TerrainSwapMap %u defined in `terrain_worldmap` does not exist, skipped.", mapId);
+            continue;
+        }
+
+        uint32 worldMapArea = fields[1].GetUInt32();
+
+        _terrainWorldMapStore[mapId].push_back(worldMapArea);
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u terrain world maps in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)

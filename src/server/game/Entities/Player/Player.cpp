@@ -16185,7 +16185,7 @@ void Player::SendQuestUpdate(uint32 questId)
     }
 
     UpdateForQuestWorldObjects();
-    RebuildTerrainSwaps();
+    SendUpdatePhasing();
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
@@ -27993,18 +27993,9 @@ void Player::SendUpdatePhasing()
     if (!IsInWorld())
         return;
 
-    RebuildTerrainSwaps(); // to set default maps swaps
+    RebuildTerrainSwaps(); // to set default map swaps
 
-    std::set<uint32> worldAreaSwaps;
-
-    for (uint32 terrain : GetTerrainSwaps())
-    {
-        for (uint32 map : sObjectMgr->GetMapTerrainSwaps(terrain))
-        {
-            worldAreaSwaps.insert(map);
-        }
-    }
-    GetSession()->SendSetPhaseShift(GetPhases(), GetTerrainSwaps(), worldAreaSwaps);
+    GetSession()->SendSetPhaseShift(GetPhases(), GetTerrainSwaps(), GetWorldMapAreaSwaps());
 }
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
