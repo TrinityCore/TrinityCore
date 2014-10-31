@@ -292,7 +292,7 @@ enum ItemQualities
     ITEM_QUALITY_EPIC                  = 4, // PURPLE
     ITEM_QUALITY_LEGENDARY             = 5, // ORANGE
     ITEM_QUALITY_ARTIFACT              = 6, // LIGHT YELLOW
-    ITEM_QUALITY_HEIRLOOM              = 7  
+    ITEM_QUALITY_HEIRLOOM              = 7
 };
 
 #define MAX_ITEM_QUALITY                 8
@@ -852,6 +852,51 @@ enum SheathTypes
 };
 
 #define MAX_SHEATHETYPE                  8
+
+enum CharacterFlags
+{
+    CHARACTER_FLAG_NONE                 = 0x00000000,
+    CHARACTER_FLAG_UNK1                 = 0x00000001,
+    CHARACTER_FLAG_UNK2                 = 0x00000002,
+    CHARACTER_FLAG_LOCKED_FOR_TRANSFER  = 0x00000004,
+    CHARACTER_FLAG_UNK4                 = 0x00000008,
+    CHARACTER_FLAG_UNK5                 = 0x00000010,
+    CHARACTER_FLAG_UNK6                 = 0x00000020,
+    CHARACTER_FLAG_UNK7                 = 0x00000040,
+    CHARACTER_FLAG_UNK8                 = 0x00000080,
+    CHARACTER_FLAG_UNK9                 = 0x00000100,
+    CHARACTER_FLAG_UNK10                = 0x00000200,
+    CHARACTER_FLAG_HIDE_HELM            = 0x00000400,
+    CHARACTER_FLAG_HIDE_CLOAK           = 0x00000800,
+    CHARACTER_FLAG_UNK13                = 0x00001000,
+    CHARACTER_FLAG_GHOST                = 0x00002000,
+    CHARACTER_FLAG_RENAME               = 0x00004000,
+    CHARACTER_FLAG_UNK16                = 0x00008000,
+    CHARACTER_FLAG_UNK17                = 0x00010000,
+    CHARACTER_FLAG_UNK18                = 0x00020000,
+    CHARACTER_FLAG_UNK19                = 0x00040000,
+    CHARACTER_FLAG_UNK20                = 0x00080000,
+    CHARACTER_FLAG_UNK21                = 0x00100000,
+    CHARACTER_FLAG_UNK22                = 0x00200000,
+    CHARACTER_FLAG_UNK23                = 0x00400000,
+    CHARACTER_FLAG_UNK24                = 0x00800000,
+    CHARACTER_FLAG_LOCKED_BY_BILLING    = 0x01000000,
+    CHARACTER_FLAG_DECLINED             = 0x02000000,
+    CHARACTER_FLAG_UNK27                = 0x04000000,
+    CHARACTER_FLAG_UNK28                = 0x08000000,
+    CHARACTER_FLAG_UNK29                = 0x10000000,
+    CHARACTER_FLAG_UNK30                = 0x20000000,
+    CHARACTER_FLAG_UNK31                = 0x40000000,
+    CHARACTER_FLAG_UNK32                = 0x80000000
+};
+
+enum CharacterCustomizeFlags
+{
+    CHAR_CUSTOMIZE_FLAG_NONE            = 0x00000000,
+    CHAR_CUSTOMIZE_FLAG_CUSTOMIZE       = 0x00000001, // name, gender, etc...
+    CHAR_CUSTOMIZE_FLAG_FACTION         = 0x00010000, // name, gender, faction, etc...
+    CHAR_CUSTOMIZE_FLAG_RACE            = 0x00100000  // name, gender, race, etc...
+};
 
 enum CharacterSlot
 {
@@ -1860,58 +1905,59 @@ enum SpellPreventionType
     SPELL_PREVENTION_TYPE_UNK       = 3 // Only a few spells have this, but most of the should be interruptable.
 };
 
-enum GameobjectTypes // (6.0.2.18988)
+enum GameobjectTypes // (6.0.3.19103)
 {
-    GAMEOBJECT_TYPE_DOOR                  = 0,
-    GAMEOBJECT_TYPE_BUTTON                = 1,
-    GAMEOBJECT_TYPE_QUESTGIVER            = 2,
-    GAMEOBJECT_TYPE_CHEST                 = 3,
-    GAMEOBJECT_TYPE_BINDER                = 4,
-    GAMEOBJECT_TYPE_GENERIC               = 5,
-    GAMEOBJECT_TYPE_TRAP                  = 6,
-    GAMEOBJECT_TYPE_CHAIR                 = 7,
-    GAMEOBJECT_TYPE_SPELL_FOCUS           = 8,
-    GAMEOBJECT_TYPE_TEXT                  = 9,
-    GAMEOBJECT_TYPE_GOOBER                = 10,
-    GAMEOBJECT_TYPE_TRANSPORT             = 11,
-    GAMEOBJECT_TYPE_AREADAMAGE            = 12,
-    GAMEOBJECT_TYPE_CAMERA                = 13,
-    GAMEOBJECT_TYPE_MAP_OBJECT            = 14,
-    GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT     = 15,
-    GAMEOBJECT_TYPE_DUEL_ARBITER          = 16,
-    GAMEOBJECT_TYPE_FISHINGNODE           = 17,
-    GAMEOBJECT_TYPE_RITUAL                = 18,
-    GAMEOBJECT_TYPE_MAILBOX               = 19,
-    GAMEOBJECT_TYPE_DO_NOT_USE            = 20,
-    GAMEOBJECT_TYPE_GUARDPOST             = 21,
-    GAMEOBJECT_TYPE_SPELLCASTER           = 22,
-    GAMEOBJECT_TYPE_MEETINGSTONE          = 23,
-    GAMEOBJECT_TYPE_FLAGSTAND             = 24,
-    GAMEOBJECT_TYPE_FISHINGHOLE           = 25,
-    GAMEOBJECT_TYPE_FLAGDROP              = 26,
-    GAMEOBJECT_TYPE_MINI_GAME             = 27,
-    GAMEOBJECT_TYPE_DO_NOT_USE_2          = 28,
-    GAMEOBJECT_TYPE_CONTROL_ZONE          = 29,
-    GAMEOBJECT_TYPE_AURA_GENERATOR        = 30,
-    GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY    = 31,
-    GAMEOBJECT_TYPE_BARBER_CHAIR          = 32,
-    GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING = 33,
-    GAMEOBJECT_TYPE_GUILD_BANK            = 34,
-    GAMEOBJECT_TYPE_TRAPDOOR              = 35,
-    GAMEOBJECT_TYPE_NEW_FLAG              = 36,
-    GAMEOBJECT_TYPE_NEW_FLAG_DROP         = 37,
-    GAMEOBJECT_TYPE_GARRISON_BUILDING     = 38,
-    GAMEOBJECT_TYPE_GARRISON_PLOT         = 39,
-    GAMEOBJECT_TYPE_CLIENT_CREATURE       = 40,
-    GAMEOBJECT_TYPE_CLIENT_ITEM           = 41,
-    GAMEOBJECT_TYPE_CAPTURE_POINT         = 42,
-    GAMEOBJECT_TYPE_TROPHY                = 43,
-    GAMEOBJECT_TYPE_PHASEABLE_MO          = 44,
-    GAMEOBJECT_TYPE_SHIPMENT              = 45
+    GAMEOBJECT_TYPE_DOOR                        = 0,
+    GAMEOBJECT_TYPE_BUTTON                      = 1,
+    GAMEOBJECT_TYPE_QUESTGIVER                  = 2,
+    GAMEOBJECT_TYPE_CHEST                       = 3,
+    GAMEOBJECT_TYPE_BINDER                      = 4,
+    GAMEOBJECT_TYPE_GENERIC                     = 5,
+    GAMEOBJECT_TYPE_TRAP                        = 6,
+    GAMEOBJECT_TYPE_CHAIR                       = 7,
+    GAMEOBJECT_TYPE_SPELL_FOCUS                 = 8,
+    GAMEOBJECT_TYPE_TEXT                        = 9,
+    GAMEOBJECT_TYPE_GOOBER                      = 10,
+    GAMEOBJECT_TYPE_TRANSPORT                   = 11,
+    GAMEOBJECT_TYPE_AREADAMAGE                  = 12,
+    GAMEOBJECT_TYPE_CAMERA                      = 13,
+    GAMEOBJECT_TYPE_MAP_OBJECT                  = 14,
+    GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT           = 15,
+    GAMEOBJECT_TYPE_DUEL_ARBITER                = 16,
+    GAMEOBJECT_TYPE_FISHINGNODE                 = 17,
+    GAMEOBJECT_TYPE_RITUAL                      = 18,
+    GAMEOBJECT_TYPE_MAILBOX                     = 19,
+    GAMEOBJECT_TYPE_DO_NOT_USE                  = 20,
+    GAMEOBJECT_TYPE_GUARDPOST                   = 21,
+    GAMEOBJECT_TYPE_SPELLCASTER                 = 22,
+    GAMEOBJECT_TYPE_MEETINGSTONE                = 23,
+    GAMEOBJECT_TYPE_FLAGSTAND                   = 24,
+    GAMEOBJECT_TYPE_FISHINGHOLE                 = 25,
+    GAMEOBJECT_TYPE_FLAGDROP                    = 26,
+    GAMEOBJECT_TYPE_MINI_GAME                   = 27,
+    GAMEOBJECT_TYPE_DO_NOT_USE_2                = 28,
+    GAMEOBJECT_TYPE_CONTROL_ZONE                = 29,
+    GAMEOBJECT_TYPE_AURA_GENERATOR              = 30,
+    GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY          = 31,
+    GAMEOBJECT_TYPE_BARBER_CHAIR                = 32,
+    GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING       = 33,
+    GAMEOBJECT_TYPE_GUILD_BANK                  = 34,
+    GAMEOBJECT_TYPE_TRAPDOOR                    = 35,
+    GAMEOBJECT_TYPE_NEW_FLAG                    = 36,
+    GAMEOBJECT_TYPE_NEW_FLAG_DROP               = 37,
+    GAMEOBJECT_TYPE_GARRISON_BUILDING           = 38,
+    GAMEOBJECT_TYPE_GARRISON_PLOT               = 39,
+    GAMEOBJECT_TYPE_CLIENT_CREATURE             = 40,
+    GAMEOBJECT_TYPE_CLIENT_ITEM                 = 41,
+    GAMEOBJECT_TYPE_CAPTURE_POINT               = 42,
+    GAMEOBJECT_TYPE_PHASEABLE_MO                = 43,
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT           = 44,
+    GAMEOBJECT_TYPE_GARRISON_SHIPMENT           = 45,
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE    = 46
 };
 
-#define MAX_GAMEOBJECT_TYPE                  46             // sending to client this or greater value can crash client.
-#define MAX_GAMEOBJECT_DATA                  32             // Max number of uint32 vars in gameobject_template data field
+#define MAX_GAMEOBJECT_TYPE                  47             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
 {
@@ -3668,7 +3714,7 @@ inline uint8 ClassByQuestSort(int32 QuestSort)
 enum SkillType
 {
     SKILL_NONE                           = 0,
-                                         
+
     SKILL_FROST                          = 6,
     SKILL_FIRE                           = 8,
     SKILL_ARMS                           = 26,
