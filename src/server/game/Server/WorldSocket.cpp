@@ -25,7 +25,19 @@
 #include "SHA1.h"
 #include "PacketLog.h"
 #include "BattlenetAccountMgr.h"
+#include <zlib.h>
 #include <memory>
+
+#pragma pack(push, 1)
+
+struct CompressedWorldPacket
+{
+    uint32 UncompressedSize;
+    uint32 UncompressedAdler;
+    uint32 CompressedAdler;
+};
+
+#pragma pack(pop)
 
 using boost::asio::ip::tcp;
 
@@ -220,6 +232,7 @@ bool WorldSocket::ReadDataHandler()
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 break;
+            */
             case CMSG_LOG_DISCONNECT:
                 packet.rfinish();   // contains uint32 disconnectReason;
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
@@ -233,7 +246,6 @@ bool WorldSocket::ReadDataHandler()
                     _worldSession->HandleEnableNagleAlgorithm();
                 break;
             }
-            */
             default:
             {
                 if (!_worldSession)
@@ -285,7 +297,56 @@ bool WorldSocket::ReadDataHandler()
     return true;
 }
 
-void WorldSocket::SendPacket(WorldPacket& packet)
+void WorldSocket::WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer)
+{
+    ServerPktHeader header;
+    uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
+    uint32 opcode = packet.GetOpcode();
+    uint32 packetSize = packet.size();
+
+    // Reserve space for buffer
+    uint8* headerPos = buffer.GetWritePointer();
+    buffer.WriteCompleted(sizeOfHeader);
+
+    if (packetSize > 0x400 && _worldSession)
+    {
+        CompressedWorldPacket cmp;
+        cmp.UncompressedSize = packetSize + 4;
+        cmp.UncompressedAdler = adler32(adler32(0x9827D8F1, (Bytef*)&opcode, 4), packet.contents(), packetSize);
+
+        // Reserve space for compression info - uncompressed size and checksums
+        uint8* compressionInfo = buffer.GetWritePointer();
+        buffer.WriteCompleted(sizeof(CompressedWorldPacket));
+
+        uint32 compressedSize = _worldSession->CompressPacket(buffer.GetWritePointer(), packet);
+
+        cmp.CompressedAdler = adler32(0x9827D8F1, buffer.GetWritePointer(), compressedSize);
+
+        memcpy(compressionInfo, &cmp, sizeof(CompressedWorldPacket));
+        buffer.WriteCompleted(compressedSize);
+        packetSize = compressedSize + sizeof(CompressedWorldPacket);
+
+        opcode = SMSG_COMPRESSED_PACKET;
+    }
+    else if (!packet.empty())
+        buffer.Write(packet.contents(), packet.size());
+
+    if (_authCrypt.IsInitialized())
+    {
+        header.Normal.Size = packetSize;
+        header.Normal.Command = opcode;
+        _authCrypt.EncryptSend((uint8*)&header, sizeOfHeader);
+    }
+    else
+    {
+        header.Setup.Size = packetSize + 4;
+        header.Setup.Command = opcode;
+    }
+
+    memcpy(headerPos, &header, sizeOfHeader);
+}
+
+void WorldSocket::SendPacket(WorldPacket const& packet)
 {
     if (!IsOpen())
         return;
@@ -293,42 +354,23 @@ void WorldSocket::SendPacket(WorldPacket& packet)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
 
-    if (_worldSession && packet.size() > 0x400 && !packet.IsCompressed())
-        packet.Compress(_worldSession->GetCompressionStream());
-
     TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
+
+    uint32 packetSize = packet.size();
+    uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
+    if (packetSize > 0x400 && _worldSession)
+        packetSize = compressBound(packetSize) + sizeof(CompressedWorldPacket);
 
     std::unique_lock<std::mutex> guard(_writeLock);
 
-    ServerPktHeader header;
-    uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
-    if (_authCrypt.IsInitialized())
-    {
-        header.Normal.Size = packet.size();
-        header.Normal.Command = packet.GetOpcode();
-        _authCrypt.EncryptSend((uint8*)&header, sizeOfHeader);
-    }
-    else
-    {
-        header.Setup.Size = packet.size() + 4;
-        header.Setup.Command = packet.GetOpcode();
-    }
-
 #ifndef TC_SOCKET_USE_IOCP
-    if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= sizeOfHeader + packet.size())
-    {
-        _writeBuffer.Write((uint8*)&header, sizeOfHeader);
-        if (!packet.empty())
-            _writeBuffer.Write(packet.contents(), packet.size());
-    }
+    if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= sizeOfHeader + packetSize)
+        WritePacketToBuffer(packet, _writeBuffer);
     else
 #endif
     {
-        MessageBuffer buffer(sizeOfHeader + packet.size());
-        buffer.Write((uint8*)&header, sizeOfHeader);
-        if (!packet.empty())
-            buffer.Write(packet.contents(), packet.size());
-
+        MessageBuffer buffer(sizeOfHeader + packetSize);
+        WritePacketToBuffer(packet, buffer);
         QueuePacket(std::move(buffer), guard);
     }
 }

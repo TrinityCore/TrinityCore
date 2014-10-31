@@ -197,7 +197,7 @@ enum OpcodeClient : uint32
     CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x0000,
     CMSG_ENABLETAXI                                   = 0x0000,
-    CMSG_ENABLE_NAGLE                                 = 0x0000,
+    CMSG_ENABLE_NAGLE                                 = 0x0460,
     CMSG_EQUIPMENT_SET_DELETE                         = 0x0000,
     CMSG_EQUIPMENT_SET_SAVE                           = 0x1B54,
     CMSG_EQUIPMENT_SET_USE                            = 0x0000,
