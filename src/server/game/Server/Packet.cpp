@@ -17,6 +17,6 @@
 
 #include "Packet.h"
 
-WorldPackets::ServerPacket::ServerPacket(OpcodeServer opcode, size_t initialSize = 200) : Packet(WorldPacket(opcode, initialSize))
+WorldPackets::ServerPacket::ServerPacket(OpcodeServer opcode, size_t initialSize /*= 200*/) : Packet(WorldPacket(opcode, initialSize))
 {
 }
