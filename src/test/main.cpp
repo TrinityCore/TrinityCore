@@ -1,54 +1,94 @@
 #include "pch.h"
 #include "../../plugins/playerbot/PlayerbotAIConfig.h"
+#include "../../plugins/ahbot/AhBot.h"
 
 WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
 uint32 realmID;                                             ///< Id of the realm
 
-int main()
+int main(int argc, char* argv[])
 {
-  sPlayerbotAIConfig.Initialize();
-  sPlayerbotAIConfig.enabled = true;
-  sPlayerbotAIConfig.globalCoolDown = 1000;
-  sPlayerbotAIConfig.reactDelay = 100;
-  sPlayerbotAIConfig.sightDistance = 40.0f;
-  sPlayerbotAIConfig.spellDistance = 25.0f;
-  sPlayerbotAIConfig.reactDistance = 100.0f;
-  sPlayerbotAIConfig.grindDistance = 50.0f;
-  sPlayerbotAIConfig.meleeDistance = ATTACK_DISTANCE;
-  sPlayerbotAIConfig.followDistance = ATTACK_DISTANCE;
-  sPlayerbotAIConfig.tooCloseDistance = ATTACK_DISTANCE;
-  sPlayerbotAIConfig.contactDistance = CONTACT_DISTANCE;
-  sPlayerbotAIConfig.lootDistance = 20.0f;
-  sPlayerbotAIConfig.criticalHealth = 25;
-  sPlayerbotAIConfig.lowHealth = 40;
-  sPlayerbotAIConfig.mediumHealth = 60;
-  sPlayerbotAIConfig.almostFullHealth = 80;
-  sPlayerbotAIConfig.lowMana = 40;
-  sPlayerbotAIConfig.mediumMana = 60;
-  sPlayerbotAIConfig.iterationsPerTick = 10;
-  sPlayerbotAIConfig.randomChangeMultiplier = 1;
 
-  // Create the event manager and test controller
-  CPPUNIT_NS::TestResult controller;
+    std::string configError;
+    if (!sConfigMgr->LoadInitial("worldserver.conf", configError))
+    {
+        printf("Error in config file: %s\n", configError.c_str());
+        return 1;
+    }
 
-  // Add a listener that colllects test result
-  CPPUNIT_NS::TestResultCollector result;
-  controller.addListener( &result );
+    MySQL::Library_Init();
 
-  // Add a listener that print dots as test run.
-  CPPUNIT_NS::BriefTestProgressListener progress;
-  controller.addListener( &progress );
+    if (!WorldDatabase.Open(sConfigMgr->GetStringDefault("WorldDatabaseInfo", ""), 1, 1))
+    {
+        TC_LOG_ERROR("server.worldserver", "Cannot connect to world database");
+        return false;
+    }
+    if (!CharacterDatabase.Open(sConfigMgr->GetStringDefault("CharacterDatabaseInfo", ""), 1, 1))
+    {
+        TC_LOG_ERROR("server.worldserver", "Cannot connect to Character database");
+        return false;
+    }
+    if (!LoginDatabase.Open(sConfigMgr->GetStringDefault("LoginDatabaseInfo", ""), 1, 1))
+    {
+        TC_LOG_ERROR("server.worldserver", "Cannot connect to Login database");
+        return false;
+    }
 
-  // Add the top suite to the test runner
-  CPPUNIT_NS::TestRunner runner;
-  runner.addTest( CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest() );
-  runner.run( controller );
+    //sWorld->SetInitialWorldSettings();
+    std::string dataPath = sConfigMgr->GetStringDefault("DataDir", "./");
+    if (dataPath.empty() || (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\'))
+        dataPath.push_back('/');
 
-  // Print test in a compiler compatible format.
-  CPPUNIT_NS::CompilerOutputter outputter( &result, CPPUNIT_NS::stdCOut() );
-  outputter.write();
+    ///- Load the DBC files
+     TC_LOG_INFO("server.loading", "Initialize data stores...");
+     LoadDBCStores(dataPath);
 
-  return result.wasSuccessful() ? 0 : 1;
+     auctionbot.Init();
+
+    sPlayerbotAIConfig.Initialize();
+    sPlayerbotAIConfig.enabled = true;
+    sPlayerbotAIConfig.globalCoolDown = 1000;
+    sPlayerbotAIConfig.reactDelay = 100;
+    sPlayerbotAIConfig.sightDistance = 40.0f;
+    sPlayerbotAIConfig.spellDistance = 25.0f;
+    sPlayerbotAIConfig.reactDistance = 100.0f;
+    sPlayerbotAIConfig.grindDistance = 50.0f;
+    sPlayerbotAIConfig.meleeDistance = ATTACK_DISTANCE;
+    sPlayerbotAIConfig.followDistance = ATTACK_DISTANCE;
+    sPlayerbotAIConfig.tooCloseDistance = ATTACK_DISTANCE;
+    sPlayerbotAIConfig.contactDistance = CONTACT_DISTANCE;
+    sPlayerbotAIConfig.lootDistance = 20.0f;
+    sPlayerbotAIConfig.criticalHealth = 25;
+    sPlayerbotAIConfig.lowHealth = 40;
+    sPlayerbotAIConfig.mediumHealth = 60;
+    sPlayerbotAIConfig.almostFullHealth = 80;
+    sPlayerbotAIConfig.lowMana = 40;
+    sPlayerbotAIConfig.mediumMana = 60;
+    sPlayerbotAIConfig.iterationsPerTick = 10;
+    sPlayerbotAIConfig.randomChangeMultiplier = 1;
+
+    // Create the event manager and test controller
+    CPPUNIT_NS::TestResult controller;
+
+    // Add a listener that colllects test result
+    CPPUNIT_NS::TestResultCollector result;
+    controller.addListener( &result );
+
+    // Add a listener that print dots as test run.
+    CPPUNIT_NS::BriefTestProgressListener progress;
+    controller.addListener( &progress );
+
+    // Add the top suite to the test runner
+    CPPUNIT_NS::TestRunner runner;
+
+    runner.addTest( CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest() );
+    runner.run( controller, argc > 1 ? argv[1] : "" );
+
+    // Print test in a compiler compatible format.
+    CPPUNIT_NS::CompilerOutputter outputter( &result, CPPUNIT_NS::stdCOut() );
+    outputter.write();
+
+    cout.flush();
+    return result.wasSuccessful() ? 0 : 1;
 }
