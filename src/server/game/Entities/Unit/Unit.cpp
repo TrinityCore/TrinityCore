@@ -11890,6 +11890,7 @@ void Unit::AddToWorld()
     {
         WorldObject::AddToWorld();
     }
+    RebuildTerrainSwaps();
 }
 
 void Unit::RemoveFromWorld()
