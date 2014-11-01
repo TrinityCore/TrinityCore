@@ -14734,12 +14734,12 @@ float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, u
     return missChance;
 }
 
-void Unit::SetInPhase(uint32 id, bool update, bool apply)
+bool Unit::SetInPhase(uint32 id, bool update, bool apply)
 {
-    WorldObject::SetInPhase(id, update, apply);
+   bool res = WorldObject::SetInPhase(id, update, apply);
 
     if (!IsInWorld())
-        return;
+        return res;
 
     if (GetTypeId() == TYPEID_UNIT || (!ToPlayer()->IsGameMaster() && !ToPlayer()->GetSession()->PlayerLogout()))
     {
@@ -14782,6 +14782,8 @@ void Unit::SetInPhase(uint32 id, bool update, bool apply)
                 summon->SetInPhase(id, true, apply);
 
     RemoveNotOwnSingleTargetAuras(0, true);
+
+    return res;
 }
 
 void Unit::UpdateObjectVisibility(bool forced)

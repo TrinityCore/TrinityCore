@@ -7883,6 +7883,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     UpdateLocalChannels(newZone);
 
     UpdateZoneDependentAuras(newZone);
+
+    UpdateAreaPhase();
 }
 
 //If players are too far away from the duel flag... they lose the duel

@@ -687,6 +687,7 @@ struct HotfixInfo
 typedef std::vector<HotfixInfo> HotfixData;
 
 typedef std::unordered_map<uint32, std::list<uint32>> TerrainPhaseInfo;
+typedef std::unordered_map<uint32, std::list<uint32>> PhaseInfo;
 
 class PlayerDumpReader;
 
@@ -1031,6 +1032,7 @@ class ObjectMgr
         void LoadTerrainPhaseInfo();
         void LoadTerrainSwapDefaults();
         void LoadTerrainWorldMaps();
+        void LoadAreaPhases();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
@@ -1291,6 +1293,8 @@ class ObjectMgr
         std::list<uint32>& GetDefaultTerrainSwaps(uint32 mapid) { return _terrainMapDefaultStore[mapid]; }
         std::list<uint32>& GetTerrainWorldMaps(uint32 terrainId) { return _terrainWorldMapStore[terrainId]; }
         TerrainPhaseInfo& GetDefaultTerrainSwapStore() { return _terrainMapDefaultStore; }
+        std::list<uint32>& GetPhasesForArea(uint32 area) { return _phases[area]; }
+        PhaseInfo& GetAreaPhases() { return _phases; }
 
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
@@ -1410,6 +1414,7 @@ class ObjectMgr
         TerrainPhaseInfo _terrainPhaseInfoStore;
         TerrainPhaseInfo _terrainMapDefaultStore;
         TerrainPhaseInfo _terrainWorldMapStore;
+        PhaseInfo _phases;
 
     private:
         void LoadScripts(ScriptsType type);
