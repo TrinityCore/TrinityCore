@@ -97,9 +97,7 @@ class boss_jaraxxus : public CreatureScript
 
         struct boss_jaraxxusAI : public BossAI
         {
-            boss_jaraxxusAI(Creature* creature) : BossAI(creature, BOSS_JARAXXUS)
-            {
-            }
+            boss_jaraxxusAI(Creature* creature) : BossAI(creature, BOSS_JARAXXUS) { }
 
             void Reset() override
             {
@@ -134,11 +132,6 @@ class boss_jaraxxus : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-            }
-
-            void JustSummoned(Creature* summoned) override
-            {
-                summons.Summon(summoned);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -370,9 +363,7 @@ class npc_nether_portal : public CreatureScript
 
         struct npc_nether_portalAI : public ScriptedAI
         {
-            npc_nether_portalAI(Creature* creature) : ScriptedAI(creature), _summons(me)
-            {
-            }
+            npc_nether_portalAI(Creature* creature) : ScriptedAI(creature), _summons(me) { }
 
             void Reset() override
             {

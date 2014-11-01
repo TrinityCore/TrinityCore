@@ -119,8 +119,7 @@ enum Stages
 enum Actions
 {
     ACTION_VORTEX,
-    ACTION_PACT,
-    ACTION_SPECIAL_ABILITY
+    ACTION_PACT
 };
 
 #define ESSENCE_REMOVE 0
