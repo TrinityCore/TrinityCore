@@ -211,7 +211,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteBit(0);                          // Waiting On Other Activity
             data->WriteBit(bgGuid[1]);
 
-            data->FlushBits();
+            //data->FlushBits();
 
             data->WriteByteSeq(playerGuid[0]);
             *data << uint32(bg->isArena() ? arenatype : 1); // Player count, 1 for bgs, 2-3-5 for arena (2v2, 3v3, 5v5)
