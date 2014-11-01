@@ -2,6 +2,8 @@
 #include "../../playerbot.h"
 #include "AttackersValue.h"
 
+#include "../../../../server/game/Entities/Pet/Pet.h"
+
 using namespace ai;
 
 list<ObjectGuid> AttackersValue::Calculate()
@@ -35,25 +37,30 @@ void AttackersValue::AddAttackersOf(Group* group, set<Unit*>& targets)
         if (!member || !member->IsAlive() || member == bot)
             continue;
 
+        if (member->IsBeingTeleported())
+            return;
+
         AddAttackersOf(member, targets);
+
+        Pet* pet = member->GetPet();
+        if (pet)
+            AddAttackersOf(pet, targets);
     }
 }
 
-void AttackersValue::AddAttackersOf(Player* player, set<Unit*>& targets)
+void AttackersValue::AddAttackersOf(Unit* unit, set<Unit*>& targets)
 {
-    if (player->IsBeingTeleported())
-        return;
-
-    HostileReference *ref = player->getHostileRefManager().getFirst();
+    HostileRefManager& refManager = unit->getHostileRefManager();
+    HostileReference *ref = refManager.getFirst();
     if (!ref)
-        return; // simulate as target is not atacking anybody yet
+        return;
 
     while( ref )
     {
         ThreatManager *threatManager = ref->GetSource();
         Unit *attacker = threatManager->GetOwner();
         Unit *victim = attacker->GetVictim();
-        if (victim == player)
+        if (victim == unit)
             targets.insert(attacker);
         ref = ref->next();
     }
