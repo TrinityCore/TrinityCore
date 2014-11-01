@@ -38,8 +38,11 @@ namespace ai
             float x = master->GetPositionX() + cos(angle) * range;
             float y = master->GetPositionY() + sin(angle) * range;
             float z = master->GetPositionZ();
+            float ground = master->GetMap()->GetHeight(x, y, z + 0.5f);
+            if (ground <= INVALID_HEIGHT)
+                return Formation::NullLocation;
 
-            return WorldLocation(master->GetMapId(), x, y, z);
+            return WorldLocation(master->GetMapId(), x, y, ground + 0.5f);
         }
 
         virtual float GetMaxDistance() { return sPlayerbotAIConfig.lootDistance; }
@@ -82,9 +85,12 @@ namespace ai
             float x = target->GetPositionX();
             float y = target->GetPositionY();
             float z = target->GetPositionZ();
-            float angle = GetFollowAngle();
+            float ground = target->GetMap()->GetHeight(x, y, z + 0.5f);
+            if (ground <= INVALID_HEIGHT)
+                return Formation::NullLocation;
 
-            return WorldLocation(bot->GetMapId(), x + cos(angle) * range, y + sin(angle) * range, z);
+            float angle = GetFollowAngle();
+            return WorldLocation(bot->GetMapId(), x + cos(angle) * range, y + sin(angle) * range, ground + 0.5f);
         }
     };
 
@@ -323,7 +329,14 @@ WorldLocation MoveFormation::MoveSingleLine(vector<Player*> line, float diff, fl
             float angle = orientation + M_PI / 2.0f;
             float radius = range * index;
 
-            return WorldLocation(bot->GetMapId(), x + cos(angle) * radius, y + sin(angle) * radius, cz);
+            float lx = x + cos(angle) * radius;
+            float ly = y + sin(angle) * radius;
+            float lz = cz;
+            float ground = bot->GetMap()->GetHeight(lx, ly, lz + 0.5f);
+            if (ground <= INVALID_HEIGHT)
+                return Formation::NullLocation;
+
+            return WorldLocation(bot->GetMapId(), lx, ly, ground + 0.5f);
         }
 
         index++;

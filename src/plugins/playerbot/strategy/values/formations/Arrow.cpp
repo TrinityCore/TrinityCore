@@ -33,10 +33,15 @@ WorldLocation ArrowFormation::GetLocation()
     healers.PlaceUnits(&placer);
     healers.Move(-cos(orientation) * offset, -sin(orientation) * offset);
 
-    return WorldLocation(master->GetMapId(),
-            master->GetPositionX() - masterUnit->GetX() + botUnit->GetX(),
-            master->GetPositionY() - masterUnit->GetY() + botUnit->GetY(),
-            master->GetPositionZ());
+    float x = master->GetPositionX() - masterUnit->GetX() + botUnit->GetX();
+    float y = master->GetPositionY() - masterUnit->GetY() + botUnit->GetY();
+    float z = master->GetPositionZ();
+
+    float ground = master->GetMap()->GetHeight(x, y, z + 0.5f);
+    if (ground <= INVALID_HEIGHT)
+        return Formation::NullLocation;
+
+    return WorldLocation(master->GetMapId(), x, y, 0.05f + ground);
 
 
 }
