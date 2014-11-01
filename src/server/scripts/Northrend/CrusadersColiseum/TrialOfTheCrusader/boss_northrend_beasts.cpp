@@ -156,9 +156,7 @@ class boss_gormok : public CreatureScript
 
         struct boss_gormokAI : public BossAI
         {
-            boss_gormokAI(Creature* creature) : BossAI(creature, BOSS_BEASTS)
-            {
-            }
+            boss_gormokAI(Creature* creature) : BossAI(creature, BOSS_BEASTS) { }
 
             void Reset() override
             {
