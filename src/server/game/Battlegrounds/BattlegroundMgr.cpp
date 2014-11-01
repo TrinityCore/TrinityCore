@@ -893,6 +893,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     data->WriteBit(0);                                      // unk
 
     size_t count_pos = data->bitwpos();
+	data->FlushBits();
     data->WriteBits(0, 24);                                 // placeholder
 
     data->WriteBit(guid[6]);
@@ -903,7 +904,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     data->WriteBit(guid[5]);
     data->WriteBit(0);                                      // unk
 
-    data->FlushBits();
+    
 
     data->WriteByteSeq(guid[6]);
     data->WriteByteSeq(guid[1]);
