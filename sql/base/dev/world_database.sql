@@ -1,8 +1,8 @@
--- MySQL dump 10.15  Distrib 10.0.13-MariaDB, for Win64 (x86)
+-- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
 --
--- Host: localhost    Database: world
+-- Host: localhost    Database: world335
 -- ------------------------------------------------------
--- Server version	10.0.13-MariaDB
+-- Server version	5.6.9-rc
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -276,6 +276,8 @@ CREATE TABLE `creature` (
   `guid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier',
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Creature Identifier',
   `map` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
+  `zoneId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Zone Identifier',
+  `areaId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Area Identifier',
   `spawnMask` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `phaseMask` int(10) unsigned NOT NULL DEFAULT '1',
   `modelid` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -389,14 +391,17 @@ DROP TABLE IF EXISTS `creature_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -653,14 +658,17 @@ DROP TABLE IF EXISTS `disenchant_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `disenchant_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Recommended id selection: item_level*100 + item_quality',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(9) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -707,14 +715,17 @@ DROP TABLE IF EXISTS `fishing_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fishing_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1024,6 +1035,8 @@ CREATE TABLE `gameobject` (
   `guid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier',
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Gameobject Identifier',
   `map` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
+  `zoneId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Zone Identifier',
+  `areaId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Area Identifier',
   `spawnMask` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `phaseMask` int(10) unsigned NOT NULL DEFAULT '1',
   `position_x` float NOT NULL DEFAULT '0',
@@ -1050,14 +1063,17 @@ DROP TABLE IF EXISTS `gameobject_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gameobject_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1240,14 +1256,17 @@ DROP TABLE IF EXISTS `item_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2003,14 +2022,17 @@ DROP TABLE IF EXISTS `mail_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mail_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2022,14 +2044,17 @@ DROP TABLE IF EXISTS `milling_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `milling_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2266,14 +2291,17 @@ DROP TABLE IF EXISTS `pickpocketing_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pickpocketing_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2614,14 +2642,17 @@ DROP TABLE IF EXISTS `prospecting_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `prospecting_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2827,14 +2858,17 @@ DROP TABLE IF EXISTS `reference_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `reference_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2956,14 +2990,17 @@ DROP TABLE IF EXISTS `skinning_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `skinning_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3252,14 +3289,17 @@ DROP TABLE IF EXISTS `spell_loot_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `spell_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ChanceOrQuestChance` float NOT NULL DEFAULT '100',
-  `lootmode` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mincountOrRef` mediumint(8) NOT NULL DEFAULT '1',
-  `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`entry`,`item`)
+  `Entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Reference` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '100',
+  `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
+  `LootMode` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `GroupId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `MinCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `MaxCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3634,4 +3674,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-09-21 17:08:37
+-- Dump completed on 2014-10-30 13:28:50

@@ -111,9 +111,7 @@ class npc_announcer_toc10 : public CreatureScript
 
         struct npc_announcer_toc10AI : public ScriptedAI
         {
-            npc_announcer_toc10AI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_announcer_toc10AI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
