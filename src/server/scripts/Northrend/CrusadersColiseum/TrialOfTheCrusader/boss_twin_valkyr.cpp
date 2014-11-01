@@ -31,7 +31,7 @@
 #include "CellImpl.h"
 #include "trial_of_the_crusader.h"
 
-enum Yells
+enum Texts
 {
     SAY_AGGRO               = 0,
     SAY_NIGHT               = 1,
@@ -91,6 +91,23 @@ enum BossSpells
     SPELL_SURGE_OF_SPEED        = 65828
 };
 
+enum Events
+{
+    EVENT_TWIN_SPIKE      = 1,
+    EVENT_TOUCH           = 2,
+    EVENT_SPECIAL_ABILITY = 3,
+    EVENT_BERSERK         = 4
+};
+
+enum Stages
+{
+    STAGE_DARK_VORTEX,
+    STAGE_DARK_PACT,
+    STAGE_LIGHT_VORTEX,
+    STAGE_LIGHT_PACT,
+    MAX_STAGES
+};
+
 #define SPELL_DARK_ESSENCE_HELPER RAID_MODE<uint32>(65684, 67176, 67177, 67178)
 #define SPELL_LIGHT_ESSENCE_HELPER RAID_MODE<uint32>(65686, 67222, 67223, 67224)
 
@@ -101,8 +118,9 @@ enum BossSpells
 
 enum Actions
 {
-    ACTION_VORTEX   = 0,
-    ACTION_PACT     = 1
+    ACTION_VORTEX,
+    ACTION_PACT,
+    ACTION_SPECIAL_ABILITY
 };
 
 #define ESSENCE_REMOVE 0
@@ -143,14 +161,8 @@ struct boss_twin_baseAI : public BossAI
 {
     boss_twin_baseAI(Creature* creature) : BossAI(creature, BOSS_VALKIRIES)
     {
-        Initialize();
         AuraState = AURA_STATE_NONE;
-
-        Stage = 0;
-
         Weapon = 0;
-
-        VortexEmote = 0;
         SisterNpcId = 0;
         MyEmphatySpellId = 0;
         OtherEssenceSpellId = 0;
@@ -162,16 +174,6 @@ struct boss_twin_baseAI : public BossAI
         TouchSpellId = 0;
     }
 
-    void Initialize()
-    {
-        IsBerserk = false;
-
-        SpecialAbilityTimer = 1 * MINUTE*IN_MILLISECONDS;
-        SpikeTimer = 20 * IN_MILLISECONDS;
-        TouchTimer = urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
-        BerserkTimer = IsHeroic() ? 6 * MINUTE*IN_MILLISECONDS : 10 * MINUTE*IN_MILLISECONDS;
-    }
-
     void Reset() override
     {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -180,7 +182,6 @@ struct boss_twin_baseAI : public BossAI
         /* Uncomment this once that they are floating above the ground
         me->SetLevitate(true);
         me->SetFlying(true); */
-        Initialize();
 
         summons.DespawnAll();
     }
@@ -216,11 +217,6 @@ struct boss_twin_baseAI : public BossAI
             Talk(SAY_KILL_PLAYER);
             instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
         }
-    }
-
-    void JustSummoned(Creature* summoned) override
-    {
-        summons.Summon(summoned);
     }
 
     void SummonedCreatureDespawn(Creature* summoned) override
@@ -282,6 +278,11 @@ struct boss_twin_baseAI : public BossAI
 
         Talk(SAY_AGGRO);
         DoCast(me, SurgeSpellId);
+
+        events.ScheduleEvent(EVENT_TWIN_SPIKE, 20 * IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 6 * MINUTE*IN_MILLISECONDS : 10 * MINUTE*IN_MILLISECONDS);
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_TOUCH, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
     }
 
     void DoAction(int32 action) override
@@ -289,10 +290,16 @@ struct boss_twin_baseAI : public BossAI
         switch (action)
         {
             case ACTION_VORTEX:
-                Stage = me->GetEntry() == NPC_LIGHTBANE ? 2 : 1;
+                Talk(EMOTE_VORTEX);
+                DoCastAOE(VortexSpellId);
                 break;
             case ACTION_PACT:
-                Stage = me->GetEntry() == NPC_LIGHTBANE ? 1 : 2;
+                Talk(EMOTE_TWINK_PACT);
+                Talk(SAY_TWINK_PACT);
+                if (Creature* sister = GetSister())
+                    sister->CastSpell(sister, SPELL_POWER_TWINS, false);
+                DoCast(me, ShieldSpellId);
+                DoCast(me, TwinPactSpellId);
                 break;
             default:
                 break;
@@ -305,95 +312,31 @@ struct boss_twin_baseAI : public BossAI
         me->SetCanDualWield(mode);
     }
 
-    void UpdateAI(uint32 diff) override
+    void ExecuteEvent(uint32 eventId) override
     {
-        if (!instance || !UpdateVictim())
-            return;
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        switch (Stage)
+        switch (eventId)
         {
-            case 0:
+            case EVENT_TWIN_SPIKE:
+                DoCastVictim(SpikeSpellId);
+                events.ScheduleEvent(EVENT_TWIN_SPIKE, 20 * IN_MILLISECONDS);
                 break;
-            case 1: // Vortex
-                if (SpecialAbilityTimer <= diff)
-                {
-                    if (Creature* pSister = GetSister())
-                        pSister->AI()->DoAction(ACTION_VORTEX);
-                    Talk(VortexEmote);
-                    DoCastAOE(VortexSpellId);
-                    Stage = 0;
-                    SpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
-                }
-                else
-                    SpecialAbilityTimer -= diff;
+            case EVENT_TOUCH:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, OtherEssenceSpellId))
+                    me->CastCustomSpell(TouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
+                events.ScheduleEvent(EVENT_TOUCH, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
                 break;
-            case 2: // Shield + Pact
-                if (SpecialAbilityTimer <= diff)
-                {
-                    Talk(EMOTE_TWINK_PACT);
-                    Talk(SAY_TWINK_PACT);
-                    if (Creature* pSister = GetSister())
-                    {
-                        pSister->AI()->DoAction(ACTION_PACT);
-                        pSister->CastSpell(pSister, SPELL_POWER_TWINS, false);
-                    }
-                    DoCast(me, ShieldSpellId);
-                    DoCast(me, TwinPactSpellId);
-                    Stage = 0;
-                    SpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
-                }
-                else
-                    SpecialAbilityTimer -= diff;
+            case EVENT_BERSERK:
+                DoCast(me, SPELL_BERSERK);
+                Talk(SAY_BERSERK);
                 break;
             default:
                 break;
         }
-
-        if (SpikeTimer <= diff)
-        {
-            DoCastVictim(SpikeSpellId);
-            SpikeTimer = 20*IN_MILLISECONDS;
-        }
-        else
-            SpikeTimer -= diff;
-
-        if (IsHeroic() && TouchTimer <= diff)
-        {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, OtherEssenceSpellId))
-                me->CastCustomSpell(TouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
-            TouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-        }
-        else
-            TouchTimer -= diff;
-
-        if (!IsBerserk && BerserkTimer <= diff)
-        {
-            DoCast(me, SPELL_BERSERK);
-            Talk(SAY_BERSERK);
-            IsBerserk = true;
-        }
-        else
-            BerserkTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     protected:
         AuraStateType AuraState;
-
-        uint8  Stage;
-        bool   IsBerserk;
-
         uint32 Weapon;
-        uint32 SpecialAbilityTimer;
-        uint32 SpikeTimer;
-        uint32 TouchTimer;
-        uint32 BerserkTimer;
-
-        int32 VortexEmote;
         uint32 SisterNpcId;
         uint32 MyEmphatySpellId;
         uint32 OtherEssenceSpellId;
@@ -414,15 +357,14 @@ class boss_fjola : public CreatureScript
         {
             boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature)
             {
+                GenerateStageSequence();
             }
 
             void Reset() override
             {
                 SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-                Stage = 0;
                 Weapon = EQUIP_MAIN_1;
                 AuraState = AURA_STATE_UNKNOWN22;
-                VortexEmote = EMOTE_VORTEX;
                 SisterNpcId = NPC_DARKBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
                 OtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
@@ -437,10 +379,43 @@ class boss_fjola : public CreatureScript
                 boss_twin_baseAI::Reset();
             }
 
+            void ExecuteEvent(uint32 eventId) override
+            {
+                if (eventId == EVENT_SPECIAL_ABILITY)
+                {
+                    if (CurrentStage == MAX_STAGES)
+                        GenerateStageSequence();
+
+                    switch (Stage[CurrentStage])
+                    {
+                        case STAGE_DARK_VORTEX:
+                            if (Creature* sister = GetSister())
+                                sister->AI()->DoAction(ACTION_VORTEX);
+                            break;
+                        case STAGE_DARK_PACT:
+                            if (Creature* sister = GetSister())
+                                sister->AI()->DoAction(ACTION_PACT);
+                            break;
+                        case STAGE_LIGHT_VORTEX:
+                            me->AI()->DoAction(ACTION_VORTEX);
+                            break;
+                        case STAGE_LIGHT_PACT:
+                            me->AI()->DoAction(ACTION_PACT);
+                            break;
+                        default:
+                            break;
+                    }
+                    ++CurrentStage;
+                    events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 45 * IN_MILLISECONDS);
+                }
+                else
+                    boss_twin_baseAI::ExecuteEvent(eventId);
+            }
+
             void EnterCombat(Unit* who) override
             {
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
-
+                events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 45 * IN_MILLISECONDS);
                 me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
                 boss_twin_baseAI::EnterCombat(who);
             }
@@ -457,6 +432,27 @@ class boss_fjola : public CreatureScript
 
                 boss_twin_baseAI::JustReachedHome();
             }
+
+            void GenerateStageSequence()
+            {
+                CurrentStage = 0;
+
+                // Initialize and clean up.
+                for (int i = 0; i < MAX_STAGES; ++i)
+                    Stage[i] = i;
+
+                // Allocate an unique random stage to each position in the array.
+                for (int i = 0; i < MAX_STAGES - 1; ++i)
+                {
+                    int random = i + (rand32() % (MAX_STAGES - i));
+                    int temp = Stage[i];
+                    Stage[i] = Stage[random];
+                    Stage[random] = temp;
+                }
+            }
+            private:
+                uint8 Stage[4];
+                uint8 CurrentStage;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -477,10 +473,8 @@ class boss_eydis : public CreatureScript
             void Reset() override
             {
                 SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-                Stage = 1;
                 Weapon = EQUIP_MAIN_2;
                 AuraState = AURA_STATE_UNKNOWN19;
-                VortexEmote = EMOTE_VORTEX;
                 SisterNpcId = NPC_LIGHTBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
                 OtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
