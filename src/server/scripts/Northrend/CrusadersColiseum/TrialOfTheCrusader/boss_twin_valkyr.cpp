@@ -37,8 +37,8 @@ enum Texts
     SAY_NIGHT               = 1,
     SAY_LIGHT               = 2,
     EMOTE_VORTEX            = 3,
-    EMOTE_TWINK_PACT        = 4,
-    SAY_TWINK_PACT          = 5,
+    EMOTE_TWIN_PACT         = 4,
+    SAY_TWIN_PACT           = 5,
     SAY_KILL_PLAYER         = 6,
     SAY_BERSERK             = 7,
     SAY_DEATH               = 8
@@ -294,8 +294,8 @@ struct boss_twin_baseAI : public BossAI
                 DoCastAOE(VortexSpellId);
                 break;
             case ACTION_PACT:
-                Talk(EMOTE_TWINK_PACT);
-                Talk(SAY_TWINK_PACT);
+                Talk(EMOTE_TWIN_PACT);
+                Talk(SAY_TWIN_PACT);
                 if (Creature* sister = GetSister())
                     sister->CastSpell(sister, SPELL_POWER_TWINS, false);
                 DoCast(me, ShieldSpellId);
@@ -397,10 +397,10 @@ class boss_fjola : public CreatureScript
                                 sister->AI()->DoAction(ACTION_PACT);
                             break;
                         case STAGE_LIGHT_VORTEX:
-                            me->AI()->DoAction(ACTION_VORTEX);
+                            DoAction(ACTION_VORTEX);
                             break;
                         case STAGE_LIGHT_PACT:
-                            me->AI()->DoAction(ACTION_PACT);
+                            DoAction(ACTION_PACT);
                             break;
                         default:
                             break;
