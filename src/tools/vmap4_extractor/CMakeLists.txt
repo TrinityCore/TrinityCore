@@ -28,9 +28,9 @@ include_directories(
 add_executable(vmap4extractor ${sources})
 
 target_link_libraries(vmap4extractor
+  casc
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
-  casc
 )
 
 add_dependencies(vmap4extractor casc)

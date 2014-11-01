@@ -38,6 +38,7 @@ add_executable(connection_patcher ${HEADER_FILES} ${SRC_FILES})
 target_link_libraries(connection_patcher
   shared
   ${OPENSSL_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
 )
 
