@@ -218,14 +218,14 @@ class Object
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
         uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
 
-        void BuildMovementUpdate(ByteBuffer* data, uint16 flags) const;
+        void BuildMovementUpdate(ByteBuffer* data, uint32 flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
         virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
         uint16 m_objectType;
 
         TypeID m_objectTypeId;
-        uint16 m_updateFlag;
+        uint32 m_updateFlag;
 
         union
         {
@@ -411,16 +411,16 @@ struct MovementInfo
             pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
             seat = -1;
             time = 0;
-            time2 = 0;
-            time3 = 0;
+            prevTime = 0;
+            vehicleId = 0;
         }
 
         ObjectGuid guid;
         Position pos;
         int8 seat;
         uint32 time;
-        uint32 time2;
-        uint32 time3;
+        uint32 prevTime;
+        uint32 vehicleId;
     } transport;
 
     // swimming/flying

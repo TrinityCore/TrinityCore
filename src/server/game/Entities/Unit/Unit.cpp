@@ -15603,8 +15603,8 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
     bool hasTransportData = !GetTransGUID().IsEmpty();
     bool hasSpline = IsSplineEnabled();
 
-    bool hasTransportTime2 = hasTransportData && m_movementInfo.transport.time2 != 0;
-    bool hasTransportTime3 = false;
+    bool hasTransportPrevTime = hasTransportData && m_movementInfo.transport.prevTime != 0;
+    bool hasTransportVehicleId = hasTransportData && mi.transport.vehicleId != 0;
     bool hasPitch = HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || HasExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
     bool hasFallDirection = HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
     bool hasFallData = hasFallDirection || m_movementInfo.jump.fallTime != 0;
@@ -15683,13 +15683,13 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
         case MSEHasTransportData:
             data.WriteBit(hasTransportData);
             break;
-        case MSEHasTransportTime2:
+        case MSEHasTransportPrevTime:
             if (hasTransportData)
-                data.WriteBit(hasTransportTime2);
+                data.WriteBit(hasTransportPrevTime);
             break;
-        case MSEHasTransportTime3:
+        case MSEHasTransportVehicleId:
             if (hasTransportData)
-                data.WriteBit(hasTransportTime3);
+                data.WriteBit(hasTransportVehicleId);
             break;
         case MSEHasPitch:
             data.WriteBit(!hasPitch);
@@ -15756,13 +15756,13 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             if (hasTransportData)
                 data << GetTransTime();
             break;
-        case MSETransportTime2:
-            if (hasTransportData && hasTransportTime2)
-                data << mi.transport.time2;
+        case MSETransportPrevTime:
+            if (hasTransportData && hasTransportPrevTime)
+                data << mi.transport.prevTime;
             break;
-        case MSETransportTime3:
-            if (hasTransportData && hasTransportTime3)
-                data << mi.transport.time3;
+        case MSETransportVehicleId:
+            if (hasTransportData && hasTransportVehicleId)
+                data << mi.transport.vehicleId;
             break;
         case MSEPitch:
             if (hasPitch)
