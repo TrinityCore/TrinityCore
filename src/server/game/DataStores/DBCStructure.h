@@ -2426,7 +2426,8 @@ struct WorldSafeLocsEntry
     float     x;                                            // 2
     float     y;                                            // 3
     float     z;                                            // 4
-    //char*   name;                                         // 5        m_AreaName_lang
+    float     Facing;                                       // 5 values are in degrees
+    //char*   name;                                         // 6        m_AreaName_lang
 };
 
 /*
