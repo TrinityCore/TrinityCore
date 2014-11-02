@@ -20,7 +20,7 @@
 void WorldPackets::Auth::AuthChallenge::Write()
 {
     _worldPacket << uint32(Challenge);
-    _worldPacket.append(DosChallenge, sizeof(DosChallenge));
+    _worldPacket.append(DosChallenge, 8);
     _worldPacket << uint8(DosZeroBits);
 }
 
