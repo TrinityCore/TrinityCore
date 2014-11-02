@@ -25,6 +25,7 @@
 #include "DetourNavMeshQuery.h"
 #include <string>
 #include <unordered_map>
+#include <set>
 
 //  move map related classes
 namespace MMAP
@@ -55,6 +56,9 @@ namespace MMAP
 
     typedef std::unordered_map<uint32, MMapData*> MMapDataSet;
 
+    typedef std::unordered_map<uint32, unsigned char*> PhaseTileContainer;
+    typedef std::unordered_map<uint32, PhaseTileContainer> PhaseTileMap;
+
     // singleton class
     // holds all all access to mmap loading unloading and meshes
     class MMapManager
@@ -74,12 +78,21 @@ namespace MMAP
 
             uint32 getLoadedTilesCount() const { return loadedTiles; }
             uint32 getLoadedMapsCount() const { return loadedMMaps.size(); }
+
+            void LoadPhaseTiles(uint32 mapId, int32 x, int32 y);
+            void UnloadPhaseTile(uint32 mapId, int32 x, int32 y);
+            PhaseTileMap& GetPhaseTileStore() { return _phaseTiles; }
+            PhaseTileContainer& GetPhaseTileContainer(uint32 mapId) { return _phaseTiles[mapId]; }
+
         private:
             bool loadMapData(uint32 mapId);
             uint32 packTileID(int32 x, int32 y);
 
             MMapDataSet loadedMMaps;
             uint32 loadedTiles;
+
+            unsigned char* LoadTile(uint32 mapId, int32 x, int32 y);
+            PhaseTileMap _phaseTiles;
     };
 }
 
