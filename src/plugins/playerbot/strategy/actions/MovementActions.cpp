@@ -62,7 +62,7 @@ bool MovementAction::MoveTo(uint32 mapId, float x, float y, float z)
         mm.Clear();
 
         float botZ = bot->GetPositionZ();
-        if (z - botZ > 0.5f)
+        if (z - botZ > 0.5f && bot->GetDistance2d(x, y) <= 5.0f)
         {
             float speed = bot->GetSpeed(MOVE_RUN);
             mm.MoveJump(x, y, botZ + 0.5f, speed, speed, 1);
