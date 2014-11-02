@@ -1030,45 +1030,11 @@ class spell_dk_pestilence : public SpellScriptLoader
 
                 if (victim != hitUnit || caster->HasAura(SPELL_DK_GLYPH_OF_DISEASE))
                 {
-                    if (Aura* aurOld = victim->GetAura(SPELL_DK_BLOOD_PLAGUE, caster->GetGUID())) // Check Blood Plague application on victim.
-                    {
-                        if (AuraEffect* aurEffOld = aurOld->GetEffect(EFFECT_0))
-                        {
-                            float donePct = aurEffOld->GetDonePct();
-                            float critChance = aurEffOld->GetCritChance();
+                    if (victim->HasAura(SPELL_DK_BLOOD_PLAGUE, caster->GetGUID())) // Check Blood Plague application on victim.
+                        caster->CastSpell(hitUnit, SPELL_DK_BLOOD_PLAGUE, true); // Spread the disease to hitUnit.
 
-                            caster->CastSpell(hitUnit, SPELL_DK_BLOOD_PLAGUE, true); // Spread the disease to hitUnit.
-
-                            if (Aura* aurNew = hitUnit->GetAura(SPELL_DK_BLOOD_PLAGUE, caster->GetGUID())) // Check Blood Plague application on hitUnit.
-                            {
-                                if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
-                                {
-                                    aurEffNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
-                                    aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetDamage(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), std::max(aurEffNew->GetAmount(), 0), DOT) * donePct);
-                                }
-                            }
-                        }
-                    }
-
-                    if (Aura* aurOld = victim->GetAura(SPELL_DK_FROST_FEVER, caster->GetGUID())) // Check Frost Fever application on victim.
-                    {
-                        if (AuraEffect* aurEffOld = aurOld->GetEffect(EFFECT_0))
-                        {
-                            float donePct = aurEffOld->GetDonePct();
-
-                            caster->CastSpell(hitUnit, SPELL_DK_FROST_FEVER, true); // Spread the disease to hitUnit.
-
-                            if (Aura* aurNew = hitUnit->GetAura(SPELL_DK_FROST_FEVER, caster->GetGUID())) // Check Frost Fever application on hitUnit.
-                            {
-                                if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
-                                {
-                                    aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetDamage(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), std::max(aurEffNew->GetAmount(), 0), DOT) * donePct);
-                                }
-                            }
-                        }
-                    }
+                    if (victim->HasAura(SPELL_DK_FROST_FEVER, caster->GetGUID())) // Check Frost Fever application on victim.
+                        caster->CastSpell(hitUnit, SPELL_DK_FROST_FEVER, true); // Spread the disease to hitUnit.
                 }
             }
 
