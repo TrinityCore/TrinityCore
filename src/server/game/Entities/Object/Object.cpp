@@ -211,6 +211,11 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             break;
     }
 
+    if (!(flags & UPDATEFLAG_LIVING))
+        if (WorldObject const* worldObject = dynamic_cast<WorldObject const*>(this))
+            if (!worldObject->m_movementInfo.transport.guid.IsEmpty())
+                flags |= UPDATEFLAG_TRANSPORT_POSITION;
+
     if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
         // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...
@@ -355,7 +360,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool PlayHoverAnim = false;
     bool IsSuppressingGreetings = false;
     bool HasMovementUpdate = flags & UPDATEFLAG_LIVING;
-    bool HasMovementTransport = flags & UPDATEFLAG_GO_TRANSPORT_POSITION;
+    bool HasMovementTransport = flags & UPDATEFLAG_TRANSPORT_POSITION;
     bool Stationary = flags & UPDATEFLAG_STATIONARY_POSITION;
     bool CombatVictim = flags & UPDATEFLAG_HAS_TARGET;
     bool ServerTime = flags & UPDATEFLAG_TRANSPORT;
