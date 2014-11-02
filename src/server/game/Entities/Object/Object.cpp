@@ -400,7 +400,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool HasFall = HasFallDirection || unit->m_movementInfo.jump.fallTime != 0;
         bool HasSpline = unit->IsSplineEnabled();
 
-        *data << unit->m_movementInfo.guid;                             // MoverGUID
+        *data << GetPackGUID();                                         // MoverGUID
 
         *data << uint32(unit->m_movementInfo.time);                     // MoveIndex
         *data << float(unit->GetPositionX());
@@ -424,6 +424,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         data->WriteBit(HasFall);                                        // HasFall
         data->WriteBit(HasSpline);                                      // HasSpline - marks that the unit uses spline movement
         data->WriteBit(0);                                              // HeightChangeFailed
+        data->WriteBit(0);                                              // RemoteTimeValid
 
         if (!unit->m_movementInfo.transport.guid.IsEmpty())
         {
