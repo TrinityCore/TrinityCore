@@ -286,3 +286,11 @@ void WorldPackets::Character::PlayerLogin::Read()
     _worldPacket >> Guid;
     _worldPacket >> FarClip;
 }
+
+WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
+{
+    _worldPacket << int32(MapID);
+    _worldPacket << Pos.PositionXYZOStream();
+    _worldPacket << uint32(Reason);
+    return &_worldPacket;
+}
