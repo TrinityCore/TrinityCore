@@ -18,6 +18,7 @@
 
 #include "Opcodes.h"
 #include "WorldSession.h"
+#include "Packets/CharacterPackets.h"
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
 class PacketHandler : public OpcodeHandler
@@ -99,6 +100,9 @@ void OpcodeTable::Initialize()
 {
 #define DEFINE_OPCODE_HANDLER_OLD(opcode, status, processing, handler) \
     ValidateAndSetOpcode<WorldPacket, handler>(opcode, #opcode, status, processing);
+
+#define DEFINE_HANDLER(opcode, status, processing, packetclass, handler) \
+    ValidateAndSetOpcode<packetclass, handler>(opcode, #opcode, status, processing);
 
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ACCEPT_LEVEL_GRANT,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptGrantLevel          );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ACCEPT_TRADE,                            STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptTradeOpcode         );
@@ -454,7 +458,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_STOP_ATTACK,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetStopAttack             );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PING,                                    STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PLAYED_TIME,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePlayedTime                );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PLAYER_LOGIN,                            STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandlePlayerLoginOpcode         );
+    DEFINE_HANDLER(CMSG_PLAYER_LOGIN, STATUS_AUTHED, PROCESS_THREADUNSAFE, WorldPackets::Character::PlayerLogin, &WorldSession::HandlePlayerLoginOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PLAYER_VEHICLE_ENTER,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEnterPlayerVehicle        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PLAY_DANCE,                              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PUSHQUESTTOPARTY,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePushQuestToParty          );
@@ -659,7 +663,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(MSG_TABARDVENDOR_ACTIVATE,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleTabardVendorActivateOpcode);
     DEFINE_OPCODE_HANDLER_OLD(MSG_TALENT_WIPE_CONFIRM,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleTalentWipeConfirmOpcode   );
 
-#undef DEFINE_OPCODE_HANDLER
+#undef DEFINE_OPCODE_HANDLER_OLD
+#undef DEFINE_HANDLER
 
 #define DEFINE_SERVER_OPCODE_HANDLER(opcode, status) \
     ValidateAndSetOpcode(opcode, #opcode, status)

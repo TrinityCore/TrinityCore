@@ -745,7 +745,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     SendCharDelete(CHAR_DELETE_SUCCESS);
 }
 
-void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
+void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin)
 {
     if (PlayerLoading() || GetPlayer() != NULL)
     {
@@ -757,9 +757,6 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: Recvd Player Logon Message");
 
     m_playerLoading = true;
-
-    WorldPackets::Character::PlayerLogin playerLogin(std::move(recvData));
-    playerLogin.Read();
 
     TC_LOG_DEBUG("network", "Character %s logging in", playerLogin.Guid.ToString().c_str());
 
