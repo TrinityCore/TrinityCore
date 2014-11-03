@@ -1716,5 +1716,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_spell_deflection();
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
-	new spell_dk_death_grip_initial();
+    new spell_dk_death_grip_initial();
 }
