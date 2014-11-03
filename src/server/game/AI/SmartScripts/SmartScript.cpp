@@ -155,7 +155,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             mUseTextTimer = true;
             sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), talkTarget);
-            TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_TALK: talker: %s (%s), textGuid: s",
+            TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_TALK: talker: %s (%s), textGuid: %s",
                 talker->GetName().c_str(), talker->GetGUID().ToString().c_str(), talkTarget ? talkTarget->GetGUID().ToString().c_str() : "Empty");
             break;
         }
@@ -778,7 +778,15 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     continue;
 
                 if (e.action.removeAura.spell)
-                    (*itr)->ToUnit()->RemoveAurasDueToSpell(e.action.removeAura.spell);
+                {
+                    if (e.action.removeAura.charges)
+                    {
+                        if (Aura* aur = (*itr)->ToUnit()->GetAura(e.action.removeAura.spell))
+                            aur->ModCharges(-static_cast<int32>(e.action.removeAura.charges), AURA_REMOVE_BY_EXPIRE);
+                    }
+                    else
+                        (*itr)->ToUnit()->RemoveAurasDueToSpell(e.action.removeAura.spell);
+                }
                 else
                     (*itr)->ToUnit()->RemoveAllAuras();
 

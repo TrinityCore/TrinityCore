@@ -105,7 +105,7 @@ public:
             if (isNumeric(searchString.c_str()))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_GUID);
-                stmt->setUInt64(0, uint32(atoi(searchString.c_str())));
+                stmt->setUInt64(0, strtoull(searchString.c_str(), nullptr, 10));
                 result = CharacterDatabase.Query(stmt);
             }
             // search by name
@@ -133,7 +133,7 @@ public:
 
                 DeletedInfo info;
 
-                info.guid       = ObjectGuid(HighGuid::Player, fields[0].GetUInt64());
+                info.guid       = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
                 info.name       = fields[1].GetString();
                 info.accountId  = fields[2].GetUInt32();
 
@@ -205,7 +205,7 @@ public:
 
         // check character count
         uint32 charcount = AccountMgr::GetCharactersCount(delInfo.accountId);
-        if (charcount >= 10)
+        if (charcount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
         {
             handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.guid.ToString().c_str(), delInfo.accountId);
             return;
@@ -921,7 +921,7 @@ public:
                 return false;
             }
 
-            if (sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid(HighGuid::Player, guid)))
+            if (sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid::Create<HighGuid::Player>(guid)))
             {
                 handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, guid);
                 handler->SetSentErrorMessage(true);
@@ -969,7 +969,7 @@ public:
         ObjectGuid guid;
         // character name can't start from number
         if (isNumeric(playerStr))
-            guid = ObjectGuid(HighGuid::Player, strtoull(playerStr, nullptr, 10));
+            guid = ObjectGuid::Create<HighGuid::Player>(strtoull(playerStr, nullptr, 10));
         else
         {
             std::string name = handler->extractPlayerNameFromLink(playerStr);

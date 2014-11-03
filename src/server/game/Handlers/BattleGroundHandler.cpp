@@ -149,7 +149,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
         {
             WorldPacket data;
             sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, _player, 0, ERR_LFG_CANT_USE_BATTLEGROUND);
-            GetPlayer()->GetSession()->SendPacket(&data);
+            SendPacket(&data);
             return;
         }
 
@@ -158,7 +158,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
         {
             WorldPacket data;
             sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, _player, 0, ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS);
-            _player->GetSession()->SendPacket(&data);
+            SendPacket(&data);
             return;
         }
 
@@ -167,7 +167,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
             // player is already in random queue
             WorldPacket data;
             sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, _player, 0, ERR_IN_RANDOM_BG);
-            _player->GetSession()->SendPacket(&data);
+            SendPacket(&data);
             return;
         }
 
@@ -176,7 +176,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
             // player is already in queue, can't start random queue
             WorldPacket data;
             sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, _player, 0, ERR_IN_NON_RANDOM_BG);
-            _player->GetSession()->SendPacket(&data);
+            SendPacket(&data);
             return;
         }
 
@@ -190,7 +190,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
         {
             WorldPacket data;
             sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, _player, 0, ERR_BATTLEGROUND_TOO_MANY_QUEUES);
-            _player->GetSession()->SendPacket(&data);
+            SendPacket(&data);
             return;
         }
 

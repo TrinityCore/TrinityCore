@@ -211,21 +211,21 @@ class Object
         Object();
 
         void _InitValues();
-        void _Create(ObjectGuid::LowType guidlow, uint32 entry, HighGuid guidhigh);
+        void _Create(ObjectGuid const& guid);
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
         void _LoadIntoDataField(std::string const& data, uint32 startOffset, uint32 count);
 
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
         uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
 
-        void BuildMovementUpdate(ByteBuffer* data, uint16 flags) const;
+        void BuildMovementUpdate(ByteBuffer* data, uint32 flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
         virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
         uint16 m_objectType;
 
         TypeID m_objectTypeId;
-        uint16 m_updateFlag;
+        uint32 m_updateFlag;
 
         union
         {
@@ -411,16 +411,16 @@ struct MovementInfo
             pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
             seat = -1;
             time = 0;
-            time2 = 0;
-            time3 = 0;
+            prevTime = 0;
+            vehicleId = 0;
         }
 
         ObjectGuid guid;
         Position pos;
         int8 seat;
         uint32 time;
-        uint32 time2;
-        uint32 time3;
+        uint32 prevTime;
+        uint32 vehicleId;
     } transport;
 
     // swimming/flying
@@ -591,7 +591,6 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void Update (uint32 /*time_diff*/) { }
 
-        void _Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32 phaseMask);
         virtual void RemoveFromWorld() override;
 
         void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;

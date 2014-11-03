@@ -23,7 +23,6 @@ ALTER TABLE `game_event_npc_vendor` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT
 ALTER TABLE `game_event_npcflag` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `gameobject` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `linked_respawn` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `linked_respawn` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `pool_creature` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `pool_gameobject` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `smart_scripts` CHANGE `entryorguid` `entryorguid` BIGINT(20) NOT NULL DEFAULT '0';

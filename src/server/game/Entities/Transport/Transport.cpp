@@ -38,7 +38,7 @@ Transport::Transport() : GameObject(),
     _triggeredArrivalEvent(false), _triggeredDepartureEvent(false),
     _passengerTeleportItr(_passengers.begin()), _delayedAddModel(false)
 {
-    m_updateFlag = UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
+    m_updateFlag = UPDATEFLAG_TRANSPORT | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
 }
 
 Transport::~Transport()
@@ -53,18 +53,18 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
 
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("entities.transport", "Transport (GUID: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+        TC_LOG_ERROR("entities.transport", "Transport (GUID: " UI64FMTD ") not created. Suggested coordinates isn't valid (X: %f Y: %f)",
             guidlow, x, y);
         return false;
     }
 
-    Object::_Create(guidlow, 0, HighGuid::Transport);
+    Object::_Create(ObjectGuid::Create<HighGuid::Transport>(guidlow));
 
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
 
     if (!goinfo)
     {
-        TC_LOG_ERROR("sql.sql", "Transport not created: entry in `gameobject_template` not found, guidlow: %u map: %u  (X: %f Y: %f Z: %f) ang: %f", guidlow, mapid, x, y, z, ang);
+        TC_LOG_ERROR("sql.sql", "Transport not created: entry in `gameobject_template` not found, guidlow: " UI64FMTD " map: %u  (X: %f Y: %f Z: %f) ang: %f", guidlow, mapid, x, y, z, ang);
         return false;
     }
 
@@ -92,7 +92,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     SetPeriod(tInfo->pathTime);
     SetEntry(goinfo->entry);
     SetDisplayId(goinfo->displayId);
-    SetGoState(!goinfo->moTransport.canBeStopped ? GO_STATE_READY : GO_STATE_ACTIVE);
+    SetGoState(!goinfo->moTransport.allowstopping ? GO_STATE_READY : GO_STATE_ACTIVE);
     SetGoType(GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT);
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
@@ -169,7 +169,7 @@ void Transport::Update(uint32 diff)
         SetMoving(true);
 
         // Enable movement
-        if (GetGOInfo()->moTransport.canBeStopped)
+        if (GetGOInfo()->moTransport.allowstopping)
             SetGoState(GO_STATE_ACTIVE);
 
         if (timer >= _currentFrame->DepartureTime && timer < _currentFrame->NextArriveTime)
@@ -548,7 +548,7 @@ void Transport::UnloadStaticPassengers()
 
 void Transport::EnableMovement(bool enabled)
 {
-    if (!GetGOInfo()->moTransport.canBeStopped)
+    if (!GetGOInfo()->moTransport.allowstopping)
         return;
 
     _pendingStop = !enabled;

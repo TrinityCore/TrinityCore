@@ -140,7 +140,7 @@ public:
 
         Transport* transport = NULL;
 
-        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HighGuid::Creature, id, guid), (Creature*)NULL))
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::Creature>(mapId, id, guid), (Creature*)NULL))
         {
             x = creature->GetPositionX();
             y = creature->GetPositionY();
@@ -216,7 +216,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(gy->map_id, gy->x, gy->y, gy->z, player->GetOrientation());
+        player->TeleportTo(gy->map_id, gy->x, gy->y, gy->z, (gy->Facing * M_PI) / 180); // Orientation is initially in degrees
         return true;
     }
 

@@ -160,7 +160,7 @@ bool changetoknth(std::string &str, int n, char const* with, bool insert = false
     return true;
 }
 
-uint32 registerNewGuid(uint64 oldGuid, std::map<uint64, uint64> &guidMap, uint64 hiGuid)
+uint64 registerNewGuid(uint64 oldGuid, std::map<uint64, uint64> &guidMap, uint64 hiGuid)
 {
     std::map<uint64, uint64>::const_iterator itr = guidMap.find(oldGuid);
     if (itr != guidMap.end())
@@ -178,7 +178,7 @@ bool changeGuid(std::string &str, int n, std::map<uint64, uint64> &guidMap, uint
     if (nonzero && !oldGuid)
         return true;                                        // not an error
 
-    uint32 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
+    uint64 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
     snprintf(chritem, 21, UI64FMTD, newGuid);
 
     return changenth(str, n, chritem, false, nonzero);
@@ -389,7 +389,7 @@ void fixNULLfields(std::string &line)
 DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, std::string name, ObjectGuid::LowType guid)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(account);
-    if (charcount >= 10)
+    if (charcount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
         return DUMP_TOO_MANY_CHARS;
 
     FILE* fin = fopen(file.c_str(), "r");
@@ -431,7 +431,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
     // name encoded or empty
 
-    snprintf(newguid, 20, "%u", guid);
+    snprintf(newguid, 20, UI64FMTD, guid);
     snprintf(chraccount, 20, "%u", account);
     snprintf(newpetid, 20, "%u", sObjectMgr->GeneratePetNumber());
     snprintf(lastpetid, 20, "%s", "");
@@ -666,7 +666,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     CharacterDatabase.CommitTransaction(trans);
 
     // in case of name conflict player has to rename at login anyway
-    sWorld->AddCharacterNameData(ObjectGuid(HighGuid::Player, guid), name, gender, race, playerClass, level);
+    sWorld->AddCharacterNameData(ObjectGuid::Create<HighGuid::Player>(guid), name, gender, race, playerClass, level);
 
     sObjectMgr->GetGenerator<HighGuid::Item>()->Set(sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed() + items.size());
     sObjectMgr->_mailId     += mails.size();

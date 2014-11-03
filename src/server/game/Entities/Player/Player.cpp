@@ -31,6 +31,7 @@
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
+#include "CharacterPackets.h"
 #include "Chat.h"
 #include "Common.h"
 #include "ConditionMgr.h"
@@ -84,51 +85,6 @@
 #include "GameObjectAI.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
-
-enum CharacterFlags
-{
-    CHARACTER_FLAG_NONE                 = 0x00000000,
-    CHARACTER_FLAG_UNK1                 = 0x00000001,
-    CHARACTER_FLAG_UNK2                 = 0x00000002,
-    CHARACTER_LOCKED_FOR_TRANSFER       = 0x00000004,
-    CHARACTER_FLAG_UNK4                 = 0x00000008,
-    CHARACTER_FLAG_UNK5                 = 0x00000010,
-    CHARACTER_FLAG_UNK6                 = 0x00000020,
-    CHARACTER_FLAG_UNK7                 = 0x00000040,
-    CHARACTER_FLAG_UNK8                 = 0x00000080,
-    CHARACTER_FLAG_UNK9                 = 0x00000100,
-    CHARACTER_FLAG_UNK10                = 0x00000200,
-    CHARACTER_FLAG_HIDE_HELM            = 0x00000400,
-    CHARACTER_FLAG_HIDE_CLOAK           = 0x00000800,
-    CHARACTER_FLAG_UNK13                = 0x00001000,
-    CHARACTER_FLAG_GHOST                = 0x00002000,
-    CHARACTER_FLAG_RENAME               = 0x00004000,
-    CHARACTER_FLAG_UNK16                = 0x00008000,
-    CHARACTER_FLAG_UNK17                = 0x00010000,
-    CHARACTER_FLAG_UNK18                = 0x00020000,
-    CHARACTER_FLAG_UNK19                = 0x00040000,
-    CHARACTER_FLAG_UNK20                = 0x00080000,
-    CHARACTER_FLAG_UNK21                = 0x00100000,
-    CHARACTER_FLAG_UNK22                = 0x00200000,
-    CHARACTER_FLAG_UNK23                = 0x00400000,
-    CHARACTER_FLAG_UNK24                = 0x00800000,
-    CHARACTER_FLAG_LOCKED_BY_BILLING    = 0x01000000,
-    CHARACTER_FLAG_DECLINED             = 0x02000000,
-    CHARACTER_FLAG_UNK27                = 0x04000000,
-    CHARACTER_FLAG_UNK28                = 0x08000000,
-    CHARACTER_FLAG_UNK29                = 0x10000000,
-    CHARACTER_FLAG_UNK30                = 0x20000000,
-    CHARACTER_FLAG_UNK31                = 0x40000000,
-    CHARACTER_FLAG_UNK32                = 0x80000000
-};
-
-enum CharacterCustomizeFlags
-{
-    CHAR_CUSTOMIZE_FLAG_NONE            = 0x00000000,
-    CHAR_CUSTOMIZE_FLAG_CUSTOMIZE       = 0x00000001,       // name, gender, etc...
-    CHAR_CUSTOMIZE_FLAG_FACTION         = 0x00010000,       // name, gender, faction, etc...
-    CHAR_CUSTOMIZE_FLAG_RACE            = 0x00100000        // name, gender, race, etc...
-};
 
 // corpse reclaim times
 #define DEATH_EXPIRE_STEP (5*MINUTE)
@@ -975,14 +931,14 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
             itr->second.save->RemovePlayer(this);
 }
 
-bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo)
+bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo)
 {
     //FIXME: outfitId not used in player creating
     /// @todo need more checks against packet modifications
     // should check that skin, face, hair* are valid via DBC per race/class
     // also do it in Player::BuildEnumData, Player::LoadFromDB
 
-    Object::_Create(guidlow, 0, HighGuid::Player);
+    Object::_Create(ObjectGuid::Create<HighGuid::Player>(guidlow));
 
     m_name = createInfo->Name;
 
@@ -1015,14 +971,14 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     setFactionForRace(createInfo->Race);
 
-    if (!IsValidGender(createInfo->Gender))
+    if (!IsValidGender(createInfo->Sex))
     {
         TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid gender (%u) - refusing to do so",
-                GetSession()->GetAccountId(), m_name.c_str(), createInfo->Gender);
+                GetSession()->GetAccountId(), m_name.c_str(), createInfo->Sex);
         return false;
     }
 
-    uint32 RaceClassGender = (createInfo->Race) | (createInfo->Class << 8) | (createInfo->Gender << 16);
+    uint32 RaceClassGender = (createInfo->Race) | (createInfo->Class << 8) | (createInfo->Sex << 16);
 
     SetUInt32Value(UNIT_FIELD_BYTES_0, (RaceClassGender | (powertype << 24)));
     InitDisplayIds();
@@ -1038,11 +994,11 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));  // -1 is default value
 
     SetUInt32Value(PLAYER_BYTES, (createInfo->Skin | (createInfo->Face << 8) | (createInfo->HairStyle << 16) | (createInfo->HairColor << 24)));
-    SetUInt32Value(PLAYER_BYTES_2, (createInfo->FacialHair |
+    SetUInt32Value(PLAYER_BYTES_2, (createInfo->FacialHairStyle |
                                    (0x00 << 8) |
                                    (0x00 << 16) |
                                    (((GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED) << 24)));
-    SetByteValue(PLAYER_BYTES_3, 0, createInfo->Gender);
+    SetByteValue(PLAYER_BYTES_3, 0, createInfo->Sex);
     SetByteValue(PLAYER_BYTES_3, 3, 0);                     // BattlefieldArenaFaction (0 or 1)
 
     SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
@@ -1166,7 +1122,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
         addActionButton(action_itr->button, action_itr->action, action_itr->type);
 
     // original items
-    if (CharStartOutfitEntry const* oEntry = GetCharStartOutfitEntry(createInfo->Race, createInfo->Class, createInfo->Gender))
+    if (CharStartOutfitEntry const* oEntry = GetCharStartOutfitEntry(createInfo->Race, createInfo->Class, createInfo->Sex))
     {
         for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
@@ -1951,153 +1907,6 @@ void Player::InnEnter(time_t time, uint32 mapid, float x, float y, float z)
     inn_pos_y = y;
     inn_pos_z = z;
     time_inn_enter = time;
-}
-
-bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer)
-{
-    //             0               1                2                3                 4                  5                       6                        7
-    //    "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
-    //     8                9               10                     11                     12                     13                    14
-    //    "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
-    //    15                    16                   17                     18                   19               20                     21               22
-    //    "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.data, character_banned.guid, characters.slot, character_declinedname.genitive"
-
-    Field* fields = result->Fetch();
-
-    ObjectGuid guid(HighGuid::Player, fields[0].GetUInt64());
-    std::string name = fields[1].GetString();
-    uint8 playerRace = fields[2].GetUInt8();
-    uint8 playerClass = fields[3].GetUInt8();
-    uint8 gender = fields[4].GetUInt8();
-    uint8 skin = uint8(fields[5].GetUInt32() & 0xFF);
-    uint8 face = uint8((fields[5].GetUInt32() >> 8) & 0xFF);
-    uint8 hairStyle = uint8((fields[5].GetUInt32() >> 16) & 0xFF);
-    uint8 hairColor = uint8((fields[5].GetUInt32() >> 24) & 0xFF);
-    uint8 facialHair = uint8(fields[6].GetUInt32() & 0xFF);
-    uint8 level = fields[7].GetUInt8();
-    uint32 zone = fields[8].GetUInt16();
-    uint32 mapId = uint32(fields[9].GetUInt16());
-    float x = fields[10].GetFloat();
-    float y = fields[11].GetFloat();
-    float z = fields[12].GetFloat();
-    uint64 guildId = fields[13].GetUInt64();
-    ObjectGuid guildGuid;
-    if (guildId)
-        guildGuid = ObjectGuid(HighGuid::Guild, guildId);
-    uint32 playerFlags = fields[14].GetUInt32();
-    uint32 atLoginFlags = fields[15].GetUInt16();
-    Tokenizer equipment(fields[19].GetString(), ' ');
-    uint8 slot = fields[21].GetUInt8();
-
-    uint32 charFlags = 0;
-    if (playerFlags & PLAYER_FLAGS_HIDE_HELM)
-        charFlags |= CHARACTER_FLAG_HIDE_HELM;
-
-    if (playerFlags & PLAYER_FLAGS_HIDE_CLOAK)
-        charFlags |= CHARACTER_FLAG_HIDE_CLOAK;
-
-    if (playerFlags & PLAYER_FLAGS_GHOST)
-        charFlags |= CHARACTER_FLAG_GHOST;
-
-    if (atLoginFlags & AT_LOGIN_RENAME)
-        charFlags |= CHARACTER_FLAG_RENAME;
-
-    if (fields[20].GetUInt32())
-        charFlags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
-
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[22].GetString().empty())
-        charFlags |= CHARACTER_FLAG_DECLINED;
-
-    uint32 customizationFlag = 0;
-    if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
-        customizationFlag = CHAR_CUSTOMIZE_FLAG_CUSTOMIZE;
-    else if (atLoginFlags & AT_LOGIN_CHANGE_FACTION)
-        customizationFlag = CHAR_CUSTOMIZE_FLAG_FACTION;
-    else if (atLoginFlags & AT_LOGIN_CHANGE_RACE)
-        customizationFlag = CHAR_CUSTOMIZE_FLAG_RACE;
-
-    uint32 petDisplayId = 0;
-    uint32 petLevel   = 0;
-    uint32 petFamily  = 0;
-    // show pet at selection character in character list only for non-ghost character
-    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (playerClass == CLASS_WARLOCK || playerClass == CLASS_HUNTER || playerClass == CLASS_DEATH_KNIGHT))
-    {
-        uint32 entry = fields[16].GetUInt32();
-        CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
-        if (creatureInfo)
-        {
-            petDisplayId = fields[17].GetUInt32();
-            petLevel     = fields[18].GetUInt16();
-            petFamily    = creatureInfo->family;
-        }
-    }
-
-    // Packet content flags
-    *dataBuffer << guid;
-    *dataBuffer << uint8(slot);                                 // List order
-    *dataBuffer << uint8(playerRace);                           // Race
-    *dataBuffer << uint8(playerClass);                          // Class
-    *dataBuffer << uint8(gender);                               // Gender
-    *dataBuffer << uint8(skin);                                 // Skin
-    *dataBuffer << uint8(face);                                 // Face
-    *dataBuffer << uint8(hairStyle);                            // Hair style
-    *dataBuffer << uint8(hairColor);                            // Hair color
-    *dataBuffer << uint8(facialHair);                           // Facial hair
-    *dataBuffer << uint8(level);                                // Level
-    *dataBuffer << uint32(zone);                                // Zone ids
-    *dataBuffer << uint32(mapId);                               // Map Id
-    *dataBuffer << float(y);                                    // Y
-    *dataBuffer << float(x);                                    // X
-    *dataBuffer << float(z);                                    // Z
-    *dataBuffer << guildGuid;
-    *dataBuffer << uint32(charFlags);                           // Character flag
-    *dataBuffer << uint32(customizationFlag);                   // Character customization flags
-    *dataBuffer << uint32(0);                                   // Character flags 3
-    *dataBuffer << uint32(petDisplayId);                        // Pet DisplayID
-    *dataBuffer << uint32(petLevel);                            // Pet level
-    *dataBuffer << uint32(petFamily);                           // Pet family
-
-    for (int i = 0; i < 2; i++)                                 // ProfessionIDs
-        *dataBuffer << uint32(0);
-
-    // Character data
-    for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
-    {
-        uint32 visualbase = slot * 2;
-        uint32 itemId = GetUInt32ValueFromArray(equipment, visualbase);
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
-        if (!proto)
-        {
-            *dataBuffer << uint32(0);
-            *dataBuffer << uint32(0);
-            *dataBuffer << uint8(0);
-            continue;
-        }
-
-        SpellItemEnchantmentEntry const* enchant = NULL;
-        uint32 enchants = GetUInt32ValueFromArray(equipment, visualbase + 1);
-        for (uint8 enchantSlot = PERM_ENCHANTMENT_SLOT; enchantSlot <= TEMP_ENCHANTMENT_SLOT; ++enchantSlot)
-        {
-            // values stored in 2 uint16
-            uint32 enchantId = 0x0000FFFF & (enchants >> enchantSlot*16);
-            if (!enchantId)
-                continue;
-
-            enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId);
-            if (enchant)
-                break;
-        }
-
-        *dataBuffer << uint32(proto->DisplayInfoID);
-        *dataBuffer << uint32(enchant ? enchant->aura_id : 0);
-        *dataBuffer << uint8(proto->InventoryType);
-    }
-
-    dataBuffer->WriteBits(uint32(name.length()), 6);
-    dataBuffer->WriteBit(atLoginFlags & AT_LOGIN_FIRST);
-    dataBuffer->WriteBit(0);                                    // BoostInProgress
-    dataBuffer->WriteString(name);                              // Name
-    return true;
 }
 
 void Player::ToggleAFK()
@@ -4809,7 +4618,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             {
                 do
                 {
-                    if (Player* pFriend = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, (*resultFriends)[0].GetUInt64())))
+                    if (Player* pFriend = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>((*resultFriends)[0].GetUInt64())))
                     {
                         pFriend->GetSocial()->RemoveFromSocialList(playerguid, false);
                         sSocialMgr->SendFriendStatus(pFriend, FRIEND_REMOVED, playerguid, false);
@@ -5017,7 +4826,7 @@ void Player::DeleteOldCharacters(uint32 keepDays)
          do
          {
             Field* fields = result->Fetch();
-            Player::DeleteFromDB(ObjectGuid(HighGuid::Player, fields[0].GetUInt64()), fields[1].GetUInt32(), true, true);
+            Player::DeleteFromDB(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()), fields[1].GetUInt32(), true, true);
          }
          while (result->NextRow());
     }
@@ -5503,8 +5312,7 @@ void Player::RepopAtGraveyard()
     // and don't show spirit healer location
     if (ClosestGrave)
     {
-        float const* orientation = sObjectMgr->GetGraveyardOrientation(ClosestGrave->ID);
-        TeleportTo(ClosestGrave->map_id, ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, orientation ? *orientation : GetOrientation());
+        TeleportTo(ClosestGrave->map_id, ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, (ClosestGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
             WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);  // show spirit healer position on minimap
@@ -6629,7 +6437,7 @@ void Player::removeActionButton(uint8 button)
     else
         buttonItr->second.uState = ACTIONBUTTON_DELETED;    // saved, will deleted at next save
 
-    TC_LOG_DEBUG("entities.player", "Action Button '%s' Removed from Player '%u'", button, GetGUID().ToString().c_str());
+    TC_LOG_DEBUG("entities.player", "Action Button '%u' Removed from Player '%s'", button, GetGUID().ToString().c_str());
 }
 
 ActionButton const* Player::GetActionButton(uint8 button)
@@ -7592,7 +7400,7 @@ void Player::UpdateConquestCurrencyCap(uint32 currency)
 void Player::SetInGuild(ObjectGuid::LowType guildId)
 {
     if (guildId)
-        SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid(HighGuid::Guild, guildId));
+        SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Create<HighGuid::Guild>(guildId));
     else
         SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
 
@@ -8958,7 +8766,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                 loot->clear();
 
                 Group* group = GetGroup();
-                bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules);
+                bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules);
 
                 // check current RR player and get next if necessary
                 if (groupRules)
@@ -8976,7 +8784,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
             else if (loot_type == LOOT_FISHING_JUNK)
                 go->getFishLootJunk(loot, this);
 
-            if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules)
+            if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules)
             {
                 if (Group* group = GetGroup())
                 {
@@ -12773,7 +12581,7 @@ void Player::DestroyItemCount(Item* pItem, uint32 &count, bool update)
     if (!pItem)
         return;
 
-    TC_LOG_DEBUG("entities.player.items", "STORAGE: DestroyItemCount item (%s, Entry: %u) count = %u", pItem->GetGUID().GetCounter(), pItem->GetEntry(), count);
+    TC_LOG_DEBUG("entities.player.items", "STORAGE: DestroyItemCount item (%s, Entry: %u) count = %u", pItem->GetGUID().ToString().c_str(), pItem->GetEntry(), count);
 
     if (pItem->GetCount() <= count)
     {
@@ -14383,7 +14191,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     VendorItemData const* vendorItems = creature->GetVendorItems();
                     if (!vendorItems || vendorItems->Empty())
                     {
-                        TC_LOG_ERROR("sql.sql", "Creature %s (%s DB GUID: %u) has UNIT_NPC_FLAG_VENDOR set but has an empty trading item list.", creature->GetName().c_str(), creature->GetGUID().ToString().c_str(), creature->GetDBTableGUIDLow());
+                        TC_LOG_ERROR("sql.sql", "Creature %s (%s DB GUID: " UI64FMTD ") has UNIT_NPC_FLAG_VENDOR set but has an empty trading item list.", creature->GetName().c_str(), creature->GetGUID().ToString().c_str(), creature->GetDBTableGUIDLow());
                         canTalk = false;
                     }
                     break;
@@ -17229,7 +17037,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         return false;
     }
 
-    Object::_Create(guid.GetCounter(), 0, HighGuid::Player);
+    Object::_Create(guid);
 
     m_name = fields[2].GetString();
 
@@ -17431,7 +17239,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // currently we do not support transport in bg
     else if (transLowGUID)
     {
-        ObjectGuid transGUID(HighGuid::Transport, transLowGUID);
+        ObjectGuid transGUID = ObjectGuid::Create<HighGuid::Transport>(transLowGUID);
 
         Transport* transport = NULL;
         if (GameObject* go = HashMapHolder<GameObject>::Find(transGUID))
@@ -17466,7 +17274,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         }
         else
         {
-            TC_LOG_ERROR("entities.player", "Player (%s) have problems with transport guid (%u). Teleport to bind location.",
+            TC_LOG_ERROR("entities.player", "Player (%s) have problems with transport guid (" UI64FMTD "). Teleport to bind location.",
                 guid.ToString().c_str(), transLowGUID);
 
             RelocateToHomebind();
@@ -18155,7 +17963,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid bagGuid(HighGuid::Item, fields[11].GetUInt64());
+                ObjectGuid bagGuid = ObjectGuid::Create<HighGuid::Item>(fields[11].GetUInt64());
                 uint8  slot     = fields[12].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
@@ -18275,7 +18083,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint64 itemId = fields[0].GetUInt64();
         uint32 itemEntry = fields[1].GetUInt32();
         uint8 slot = fields[2].GetUInt8();
-        ObjectGuid creatorGuid(HighGuid::Player, fields[3].GetUInt64());
+        ObjectGuid creatorGuid = ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64());
         uint32 randomProperty = fields[4].GetUInt32();
         uint32 suffixFactor = fields[5].GetUInt32();
 
@@ -18379,7 +18187,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     Tokenizer GUIDlist(strGUID, ' ');
                     GuidSet looters;
                     for (Tokenizer::const_iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
-                        looters.insert(ObjectGuid(HighGuid::Player, uint64(strtoull(*itr, nullptr, 10))));
+                        looters.insert(ObjectGuid::Create<HighGuid::Player>(uint64(strtoull(*itr, nullptr, 10))));
 
                     if (looters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
                     {
@@ -18473,9 +18281,9 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(itemGuid, ObjectGuid(HighGuid::Player, fields[13].GetUInt64()), fields, itemTemplate))
+        if (!item->LoadFromDB(itemGuid, ObjectGuid::Create<HighGuid::Player>(fields[13].GetUInt64()), fields, itemTemplate))
         {
-            TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems - Item in mail (" UI64FMTD ") doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, itemGuid);
+            TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: " UI64FMTD ", deleted from mail", mail->messageID, itemGuid);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
             stmt->setUInt64(0, itemGuid);
@@ -18722,7 +18530,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
             AddDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_id);
 
-            TC_LOG_DEBUG("entities.player.loading", "Daily quest (%u) cooldown for player (5s)", quest_id, GetGUID().ToString().c_str());
+            TC_LOG_DEBUG("entities.player.loading", "Daily quest (%u) cooldown for player (%s)", quest_id, GetGUID().ToString().c_str());
         }
         while (result->NextRow());
     }
@@ -20435,7 +20243,7 @@ void Player::SetUInt32ValueInArray(Tokenizer& Tokenizer, uint16 index, uint32 va
     Tokenizer[index] = buf;
 }
 
-void Player::Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
+void Player::Customize(WorldPackets::Character::CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PLAYERBYTES2);
     stmt->setUInt64(0, customizeInfo->Guid.GetCounter());
@@ -21363,8 +21171,8 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
         do                                                  // this part effectively does nothing, since the deletion / modification only takes place _after_ the PetitionQuery. Though I don't know if the result remains intact if I execute the delete query beforehand.
         {                                                   // and SendPetitionQueryOpcode reads data from the DB
             Field* fields = result->Fetch();
-            ObjectGuid ownerguid = ObjectGuid(HighGuid::Player, fields[0].GetUInt64());
-            ObjectGuid petitionguid = ObjectGuid(HighGuid::Item, fields[1].GetUInt64());
+            ObjectGuid ownerguid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
+            ObjectGuid petitionguid = ObjectGuid::Create<HighGuid::Item>(fields[1].GetUInt64());
 
             // send update if charter owner in game
             Player* owner = ObjectAccessor::FindConnectedPlayer(ownerguid);
@@ -26393,7 +26201,7 @@ void Player::SendEquipmentSetList()
             if (itr->second.IgnoreMask & (1 << i))
                 data << ignoredItemGuid;
             else
-                data << ObjectGuid(HighGuid::Item, itr->second.Items[i]);
+                data << ObjectGuid::Create<HighGuid::Item>(itr->second.Items[i]);
         }
 
         ++count;                                            // client have limit but it checked at loading and set
@@ -26936,7 +26744,7 @@ void Player::SendTimeSync()
     m_timeSyncServer = getMSTime();
 
     if (m_timeSyncQueue.size() > 3)
-        TC_LOG_ERROR("network", "Not received CMSG_TIME_SYNC_RESP for over 30 seconds from 5s (%s), possible cheater", GetGUID().ToString().c_str(), GetName().c_str());
+        TC_LOG_ERROR("network", "Not received CMSG_TIME_SYNC_RESP for over 30 seconds from 5s (%s), possible cheater", GetGUID().ToString().c_str());
 }
 
 void Player::SetReputation(uint32 factionentry, uint32 value)
@@ -27543,7 +27351,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     Map* map = GetMap();
     uint32 pet_number = sObjectMgr->GeneratePetNumber();
-    if (!pet->Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, GetPhaseMask(), entry, pet_number))
+    if (!pet->Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, GetPhaseMask(), entry))
     {
         TC_LOG_ERROR("misc", "no such creature entry %u", entry);
         delete pet;
@@ -27636,8 +27444,8 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
     bool hasTimestamp = false;
     bool hasOrientation = false;
     bool hasTransportData = false;
-    bool hasTransportTime2 = false;
-    bool hasTransportTime3 = false;
+    bool hasTransportPrevTime = false;
+    bool hasTransportVehicleId = false;
     bool hasPitch = false;
     bool hasFallData = false;
     bool hasFallDirection = false;
@@ -27709,13 +27517,13 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
             case MSEHasTransportData:
                 hasTransportData = data.ReadBit();
                 break;
-            case MSEHasTransportTime2:
+            case MSEHasTransportPrevTime:
                 if (hasTransportData)
-                    hasTransportTime2 = data.ReadBit();
+                    hasTransportPrevTime = data.ReadBit();
                 break;
-            case MSEHasTransportTime3:
+            case MSEHasTransportVehicleId:
                 if (hasTransportData)
-                    hasTransportTime3 = data.ReadBit();
+                    hasTransportVehicleId = data.ReadBit();
                 break;
             case MSEHasPitch:
                 hasPitch = !data.ReadBit();
@@ -27782,13 +27590,13 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                 if (hasTransportData)
                     data >> mi->transport.time;
                 break;
-            case MSETransportTime2:
-                if (hasTransportData && hasTransportTime2)
-                    data >> mi->transport.time2;
+            case MSETransportPrevTime:
+                if (hasTransportData && hasTransportPrevTime)
+                    data >> mi->transport.prevTime;
                 break;
-            case MSETransportTime3:
-                if (hasTransportData && hasTransportTime3)
-                    data >> mi->transport.time3;
+            case MSETransportVehicleId:
+                if (hasTransportData && hasTransportVehicleId)
+                    data >> mi->transport.vehicleId;
                 break;
             case MSEPitch:
                 if (hasPitch)

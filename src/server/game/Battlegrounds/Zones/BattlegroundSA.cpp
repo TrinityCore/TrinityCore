@@ -571,7 +571,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                     uint8 gateId = gate->GateId;
 
                     // damaged
-                    if (eventId == go->GetGOInfo()->building.damagedEvent)
+                    if (eventId == go->GetGOInfo()->destructibleBuilding.DamagedEvent)
                     {
                         GateStatus[gateId] = BG_SA_GATE_DAMAGED;
 
@@ -581,7 +581,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                         PlaySoundToAll(Attackers == TEAM_ALLIANCE ? SOUND_WALL_ATTACKED_ALLIANCE : SOUND_WALL_ATTACKED_HORDE);
                     }
                     // destroyed
-                    else if (eventId == go->GetGOInfo()->building.destroyedEvent)
+                    else if (eventId == go->GetGOInfo()->destructibleBuilding.DestroyedEvent)
                     {
                         GateStatus[gate->GateId] = BG_SA_GATE_DESTROYED;
                         _gateDestroyed = true;

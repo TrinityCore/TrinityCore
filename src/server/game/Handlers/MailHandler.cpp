@@ -553,7 +553,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
         if (m->COD > 0)                                     //if there is COD, take COD money from player and send them to sender by mail
         {
-            ObjectGuid sender_guid(HighGuid::Player, m->sender);
+            ObjectGuid sender_guid = ObjectGuid::Create<HighGuid::Player>(m->sender);
             Player* receiver = ObjectAccessor::FindConnectedPlayer(sender_guid);
 
             uint32 sender_accId = 0;
@@ -707,7 +707,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         switch ((*itr)->messageType)
         {
             case MAIL_NORMAL:                               // sender guid
-                data << ObjectGuid(HighGuid::Player, (*itr)->sender);
+                data << ObjectGuid::Create<HighGuid::Player>((*itr)->sender);
                 break;
             case MAIL_CREATURE:
             case MAIL_GAMEOBJECT:
@@ -816,7 +816,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
         bodyItem->SetText(m->body);
 
     if (m->messageType == MAIL_NORMAL)
-        bodyItem->SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid(HighGuid::Player, m->sender));
+        bodyItem->SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(m->sender));
 
     bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
 
@@ -871,7 +871,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket& /*recvData*/)
             if (sentSenders.count(m->sender))
                 continue;
 
-            data << (m->messageType == MAIL_NORMAL ? ObjectGuid(HighGuid::Player, m->sender) : ObjectGuid::Empty);  // player guid
+            data << (m->messageType == MAIL_NORMAL ? ObjectGuid::Create<HighGuid::Player>(m->sender) : ObjectGuid::Empty);  // player guid
             data << uint32(m->messageType != MAIL_NORMAL ? m->sender : 0);  // non-player entries
             data << uint32(m->messageType);
             data << uint32(m->stationery);

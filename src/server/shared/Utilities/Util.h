@@ -28,6 +28,15 @@
 #include <list>
 #include <map>
 
+template<typename T>
+struct Optional
+{
+    Optional() : value(), HasValue(false) { }
+
+    T value;
+    bool HasValue;
+};
+
 // Searcher for map of structs
 template<typename T, class S> struct Finder
 {

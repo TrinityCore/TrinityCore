@@ -48,6 +48,7 @@
 #include "WardenWin.h"
 #include "WardenMac.h"
 #include "BattlenetServerManager.h"
+#include "CharacterPackets.h"
 
 namespace {
 
@@ -146,7 +147,7 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
     _compressionStream->opaque = (voidpf)NULL;
     _compressionStream->avail_in = 0;
     _compressionStream->next_in = NULL;
-    int32 z_res = deflateInit(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION));
+    int32 z_res = deflateInit2(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
     if (z_res != Z_OK)
         TC_LOG_ERROR("network", "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
 }
@@ -201,7 +202,7 @@ std::string WorldSession::GetPlayerInfo() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket* packet, bool forced /*= false*/)
+void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
 {
     if (!m_Socket)
         return;
@@ -264,6 +265,37 @@ void WorldSession::SendPacket(WorldPacket* packet, bool forced /*= false*/)
     sScriptMgr->OnPacketSend(this, *packet);
 
     m_Socket->SendPacket(*packet);
+}
+
+uint32 WorldSession::CompressPacket(uint8* buffer, WorldPacket const& packet)
+{
+    uint32 opcode = packet.GetOpcode();
+    uint32 bufferSize = deflateBound(_compressionStream, packet.size() + sizeof(opcode));
+
+    _compressionStream->next_out = buffer;
+    _compressionStream->avail_out = bufferSize;
+    _compressionStream->next_in = (Bytef*)&opcode;
+    _compressionStream->avail_in = sizeof(uint32);
+
+    int32 z_res = deflate(_compressionStream, Z_BLOCK);
+    if (z_res != Z_OK)
+    {
+        TC_LOG_ERROR("network", "Can't compress packet opcode (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
+        return 0;
+    }
+
+    _compressionStream->next_in = (Bytef*)packet.contents();
+    _compressionStream->avail_in = packet.size();
+
+    z_res = deflate(_compressionStream, Z_SYNC_FLUSH);
+    if (z_res != Z_OK)
+    {
+        TC_LOG_ERROR("network", "Can't compress packet data (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
+        return 0;
+    }
+
+
+    return bufferSize - _compressionStream->avail_out;
 }
 
 /// Add an incoming packet to the queue
@@ -348,7 +380,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else if (_player->IsInWorld())
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle->Handler)(*packet);
+                        opHandle->Call(this, *packet);
                         LogUnprocessedTail(packet);
                     }
                     // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
@@ -361,7 +393,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     {
                         // not expected _player or must checked in packet hanlder
                         sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle->Handler)(*packet);
+                        opHandle->Call(this, *packet);
                         LogUnprocessedTail(packet);
                     }
                     break;
@@ -373,7 +405,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle->Handler)(*packet);
+                        opHandle->Call(this, *packet);
                         LogUnprocessedTail(packet);
                     }
                     break;
@@ -391,7 +423,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         m_playerRecentlyLogout = false;
 
                     sScriptMgr->OnPacketReceive(this, *packet);
-                    (this->*opHandle->Handler)(*packet);
+                    opHandle->Call(this, *packet);
                     LogUnprocessedTail(packet);
                     break;
                 case STATUS_NEVER:
@@ -684,30 +716,6 @@ void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
         , GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
 }
 
-void WorldSession::SendAuthWaitQue(uint32 position)
-{
-    if (position == 0)
-    {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 2);
-        packet << uint8(AUTH_OK);
-        packet.WriteBit(0); // has account info
-        packet.WriteBit(0); // has queue info
-        packet.FlushBits();
-        SendPacket(&packet);
-    }
-    else
-    {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 6);
-        packet << uint8(AUTH_WAIT_QUEUE);
-        packet.WriteBit(0); // has account info
-        packet.WriteBit(1); // has queue info
-        packet << uint32(position);
-        packet.WriteBit(0); // unk queue bool
-        packet.FlushBits();
-        SendPacket(&packet);
-    }
-}
-
 void WorldSession::LoadGlobalAccountData()
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
@@ -829,7 +837,7 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
     m_TutorialsChanged = false;
 }
 
-void WorldSession::ReadAddonsInfo(WorldPacket &data)
+void WorldSession::ReadAddonsInfo(ByteBuffer& data)
 {
     if (data.rpos() + 4 > data.size())
         return;
@@ -1034,25 +1042,32 @@ void WorldSession::SetPlayer(Player* player)
 void WorldSession::InitializeQueryCallbackParameters()
 {
     // Callback parameters that have pointers in them should be properly
-    // initialized to NULL here.
-    _charCreateCallback.SetParam(NULL);
+    // initialized to nullptr here.
+    _charRenameCallback.SetParam(nullptr);
 }
 
 void WorldSession::ProcessQueryCallbacks()
 {
     PreparedQueryResult result;
 
-    //! HandleCharEnumOpcode
-    if (_charEnumCallback.valid() && _charEnumCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    //! HandleCharEnumOpcode and HandleCharUndeleteEnumOpcode
+    if (_charEnumCallback.IsReady())
     {
-        result = _charEnumCallback.get();
-        HandleCharEnum(result);
+        _charEnumCallback.GetResult(result);
+
+        if (bool undelete = _charEnumCallback.GetParam())
+            HandleCharUndeleteEnum(result);
+        else
+            HandleCharEnum(result);
+
+        _charEnumCallback.FreeResult();
     }
 
+    //! HandleCharCreateOpcode
     if (_charCreateCallback.IsReady())
     {
         _charCreateCallback.GetResult(result);
-        HandleCharCreateCallback(result, _charCreateCallback.GetParam());
+        HandleCharCreateCallback(result, _charCreateCallback.GetParam().get());
     }
 
     //! HandlePlayerLoginOpcode
@@ -1075,10 +1090,25 @@ void WorldSession::ProcessQueryCallbacks()
     if (_charRenameCallback.IsReady())
     {
         _charRenameCallback.GetResult(result);
-        CharacterRenameInfo* renameInfo = _charRenameCallback.GetParam();
-        HandleChangePlayerNameOpcodeCallBack(result, renameInfo);
+        WorldPackets::Character::CharacterRenameInfo* renameInfo = _charRenameCallback.GetParam();
+        HandleCharRenameCallBack(result, renameInfo);
         delete renameInfo;
         _charRenameCallback.Reset();
+    }
+
+    /// HandleUndeleteCooldownStatusOpcode
+    /// wait until no char undelete is in progress
+    if (!_charUndeleteCallback.GetStage() && _undeleteCooldownStatusCallback.IsReady())
+    {
+        _undeleteCooldownStatusCallback.GetResult(result);
+        HandleUndeleteCooldownStatusCallback(result);
+    }
+
+    /// HandleCharUndeleteOpcode
+    if (_charUndeleteCallback.IsReady())
+    {
+        _charUndeleteCallback.GetResult(result);
+        HandleCharUndeleteCallback(result, _charUndeleteCallback.GetParam().get());
     }
 
     //- HandleCharAddIgnoreOpcode

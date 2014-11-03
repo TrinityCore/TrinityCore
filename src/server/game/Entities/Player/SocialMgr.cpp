@@ -324,7 +324,7 @@ PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, ObjectGuid const
     {
         Field* fields = result->Fetch();
 
-        friendGuid = ObjectGuid(HighGuid::Player, fields[0].GetUInt64());
+        friendGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
         flags = fields[1].GetUInt8();
         note = fields[2].GetString();
 
