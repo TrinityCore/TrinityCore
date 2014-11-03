@@ -254,6 +254,18 @@ namespace WorldPackets
             ObjectGuid Guid;      ///< Guid of the player that is logging in
             float FarClip = 0.0f; ///< Visibility distance (for terrain)
         };
+
+        class LoginVerifyWorld final : public ServerPacket
+        {
+        public:
+            LoginVerifyWorld() : ServerPacket(SMSG_LOGIN_VERIFY_WORLD, 4 + 4 * 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MapID = -1;
+            Position Pos;
+            uint32 Reason = 0;
+        };
     }
 }
 
