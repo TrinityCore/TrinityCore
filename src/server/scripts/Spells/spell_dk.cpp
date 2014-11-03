@@ -1658,18 +1658,18 @@ public:
         {
             if (Player* caster = GetCaster()->ToPlayer())
             {
-				// Death Grip should not be castable while jumping/falling
+                // Death Grip should not be castable while jumping/falling
                 if (caster->HasUnitState(UNIT_STATE_JUMPING) || caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
                     return SPELL_FAILED_MOVING;
 
-				float x = GetTargetUnit()->GetPositionX();
-				float y = GetTargetUnit()->GetPositionY();
-				float z = GetTargetUnit()->GetPositionZ();
+                float x = GetExplTargetUnit()->GetPositionX();
+                float y = GetExplTargetUnit()->GetPositionY();
+                float z = GetExplTargetUnit()->GetPositionZ();
 
-				// Patch 3.3.3 (2010-03-23): Minimum range has been changed to 8 yards in PvP.
-				if (GetTargetUnit()->GetTypeId() == TYPEID_PLAYER)
-				    if (caster->GetDistance(x, y, z) < 8)
-					    return SPELL_FAILED_TOO_CLOSE;
+                // Patch 3.3.3 (2010-03-23): Minimum range has been changed to 8 yards in PvP.
+                if (GetExplTargetUnit()->GetTypeId() == TYPEID_PLAYER)
+                    if (caster->GetDistance(x, y, z) < 8)
+                        return SPELL_FAILED_TOO_CLOSE;
             }
             return SPELL_CAST_OK;
         }
