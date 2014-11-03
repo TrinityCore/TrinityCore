@@ -230,7 +230,7 @@ class WorldSession
         void SendAddonsInfo();
         bool IsAddonRegistered(const std::string& prefix) const;
 
-        void SendPacket(WorldPacket* packet, bool forced = false);
+        void SendPacket(WorldPacket const* packet, bool forced = false);
         uint32 CompressPacket(uint8* buffer, WorldPacket const& packet);
 
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);

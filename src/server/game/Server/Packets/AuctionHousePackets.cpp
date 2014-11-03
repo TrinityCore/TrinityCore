@@ -33,7 +33,7 @@ void WorldPackets::AuctionHousePackets::AuctionCommandResult::InitializeAuction(
     }
 }
 
-void WorldPackets::AuctionHousePackets::AuctionCommandResult::Write()
+WorldPacket const* WorldPackets::AuctionHousePackets::AuctionCommandResult::Write()
 {
     _worldPacket << uint32(AuctionId);
     _worldPacket << uint32(Action);
@@ -54,4 +54,6 @@ void WorldPackets::AuctionHousePackets::AuctionCommandResult::Write()
             _worldPacket << uint64(Bid ? AuctionOutBid : 0);
             break;
     }
+
+    return &_worldPacket;
 }

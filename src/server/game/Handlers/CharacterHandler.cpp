@@ -250,8 +250,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         while (result->NextRow());
     }
 
-    charEnum.Write();
-    SendPacket(&charEnum.GetWorldPacket());
+    SendPacket(charEnum.Write());
 }
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
@@ -294,8 +293,7 @@ void WorldSession::HandleCharUndeleteEnum(PreparedQueryResult result)
         while (result->NextRow());
     }
 
-    charEnum.Write();
-    SendPacket(&charEnum.GetWorldPacket());
+    SendPacket(charEnum.Write());
 }
 
 void WorldSession::HandleCharUndeleteEnumOpcode(WorldPacket& /*recvData*/)
@@ -2441,8 +2439,7 @@ void WorldSession::SendCharCreate(ResponseCodes result)
     WorldPackets::Character::CharacterCreateResponse response;
     response.Code = result;
 
-    response.Write();
-    SendPacket(&response.GetWorldPacket());
+    SendPacket(response.Write());
 }
 
 void WorldSession::SendCharDelete(ResponseCodes result)
@@ -2450,8 +2447,7 @@ void WorldSession::SendCharDelete(ResponseCodes result)
     WorldPackets::Character::CharacterDeleteResponse response;
     response.Code = result;
 
-    response.Write();
-    SendPacket(&response.GetWorldPacket());
+    SendPacket(response.Write());
 }
 
 void WorldSession::SendCharRename(ResponseCodes result, WorldPackets::Character::CharacterRenameInfo const& renameInfo)
@@ -2526,8 +2522,7 @@ void WorldSession::SendUndeleteCooldownStatusResponse(uint32 currentCooldown, ui
     response.MaxCooldown = maxCooldown;
     response.CurrentCooldown = currentCooldown;
 
-    response.Write();
-    SendPacket(&response.GetWorldPacket());
+    SendPacket(response.Write());
 }
 
 void WorldSession::SendUndeleteCharacterResponse(CharacterUndeleteResult result, WorldPackets::Character::CharacterUndeleteInfo const* undeleteInfo)
@@ -2536,6 +2531,5 @@ void WorldSession::SendUndeleteCharacterResponse(CharacterUndeleteResult result,
     response.UndeleteInfo = undeleteInfo;
     response.Result = result;
 
-    response.Write();
-    SendPacket(&response.GetWorldPacket());
+    SendPacket(response.Write());
 }

@@ -86,9 +86,7 @@ void WorldSocket::HandleSendAuthSession()
     memcpy(&challenge.DosChallenge[4], seed2.AsByteArray(16).get(), 16);
     challenge.DosZeroBits = 1;
 
-    challenge.Write();
-
-    SendPacket(challenge.GetWorldPacket());
+    SendPacket(*challenge.Write());
 }
 
 void WorldSocket::ReadHandler()
@@ -606,9 +604,7 @@ void WorldSocket::SendAuthResponseError(uint8 code)
     response.SuccessInfo.HasValue = false;
     response.WaitInfo.HasValue = false;
     response.Result = code;
-    response.Write();
-
-    SendPacket(response.GetWorldPacket());
+    SendPacket(*response.Write());
 }
 
 void WorldSocket::HandlePing(WorldPacket& recvPacket)

@@ -78,8 +78,7 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
     auctionCommandResult.InitializeAuction(auction);
     auctionCommandResult.Action = action;
     auctionCommandResult.ErrorCode = errorCode;
-    auctionCommandResult.Write();
-    SendPacket(&auctionCommandResult.GetWorldPacket());
+    SendPacket(auctionCommandResult.Write());
 }
 
 //this function sends notification, if bidder is online

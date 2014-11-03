@@ -17,11 +17,12 @@
 
 #include "AuthenticationPackets.h"
 
-void WorldPackets::Auth::AuthChallenge::Write()
+WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
 {
     _worldPacket << uint32(Challenge);
     _worldPacket.append(DosChallenge, 8);
     _worldPacket << uint8(DosZeroBits);
+    return &_worldPacket;
 }
 
 void WorldPackets::Auth::AuthSession::Read()
@@ -55,7 +56,7 @@ WorldPackets::Auth::AuthResponse::AuthResponse()
     SuccessInfo.HasValue = false;
 }
 
-void WorldPackets::Auth::AuthResponse::Write()
+WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 {
     _worldPacket << uint8(Result);
     _worldPacket.WriteBit(SuccessInfo.HasValue);
@@ -135,4 +136,5 @@ void WorldPackets::Auth::AuthResponse::Write()
     }
 
     _worldPacket.FlushBits();
+    return &_worldPacket;
 }

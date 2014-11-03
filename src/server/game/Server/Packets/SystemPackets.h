@@ -29,7 +29,7 @@ namespace WorldPackets
         public:
             FeatureSystemStatusGlueScreen();
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             bool BpayStoreAvailable                  = false; // NYI
             bool BpayStoreDisabledByParentalControls = false; // NYI
@@ -42,7 +42,7 @@ namespace WorldPackets
         public:
             SetTimeZoneInformation();
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             std::string ServerTimeTZ;
             std::string GameTimeTZ;
