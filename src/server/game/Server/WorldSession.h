@@ -74,6 +74,11 @@ class RBACData;
 namespace WorldPackets
 {
     class ServerPacket;
+
+    namespace Character
+    {
+        class PlayerLogin;
+    }
 }
 
 enum AccountDataType
@@ -470,7 +475,7 @@ class WorldSession
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
         void HandleCharCreateCallback(PreparedQueryResult result, CharacterCreateInfo* createInfo);
-        void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
+        void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
         void HandleLoadScreenOpcode(WorldPacket& recvPacket);
         void HandleCharEnum(PreparedQueryResult result);
         void HandlePlayerLogin(LoginQueryHolder * holder);
