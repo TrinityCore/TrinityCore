@@ -30,9 +30,11 @@
 
 template<typename T>
 struct Optional
-{ 
-    T value; 
-    bool HasValue; 
+{
+    Optional() : value(), HasValue(false) { }
+
+    T value;
+    bool HasValue;
 };
 
 // Searcher for map of structs

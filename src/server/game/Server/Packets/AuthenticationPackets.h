@@ -29,7 +29,7 @@ namespace WorldPackets
         class AuthChallenge final : public ServerPacket
         {
         public:
-            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 8 + 32 + 1), Challenge(0) { }
+            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 4 + 32 + 1), Challenge(0) { }
 
             void Write() override;
 

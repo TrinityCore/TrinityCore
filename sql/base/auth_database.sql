@@ -217,6 +217,7 @@ CREATE TABLE `battlenet_accounts` (
   `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `os` varchar(3) NOT NULL DEFAULT '',
+  `LastCharacterUndelete` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='Account System';
 /*!40101 SET character_set_client = @saved_cs_client */;

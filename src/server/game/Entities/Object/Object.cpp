@@ -359,17 +359,17 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool EnablePortals = false;
     bool PlayHoverAnim = false;
     bool IsSuppressingGreetings = false;
-    bool HasMovementUpdate = flags & UPDATEFLAG_LIVING ? true : false;
-    bool HasMovementTransport = flags & UPDATEFLAG_TRANSPORT_POSITION ? true : false;
-    bool Stationary = flags & UPDATEFLAG_STATIONARY_POSITION ? true : false;
-    bool CombatVictim = flags & UPDATEFLAG_HAS_TARGET ? true : false;
-    bool ServerTime = flags & UPDATEFLAG_TRANSPORT ? true : false;
-    bool VehicleCreate = flags & UPDATEFLAG_VEHICLE ? true : false;
-    bool AnimKitCreate = flags & UPDATEFLAG_ANIMKITS ? true : false;
-    bool Rotation = flags & UPDATEFLAG_ROTATION ? true : false;
+    bool HasMovementUpdate = (flags & UPDATEFLAG_LIVING) != 0;
+    bool HasMovementTransport = (flags & UPDATEFLAG_TRANSPORT_POSITION) != 0;
+    bool Stationary = (flags & UPDATEFLAG_STATIONARY_POSITION) != 0;
+    bool CombatVictim = (flags & UPDATEFLAG_HAS_TARGET) != 0;
+    bool ServerTime = (flags & UPDATEFLAG_TRANSPORT) != 0;
+    bool VehicleCreate = (flags & UPDATEFLAG_VEHICLE) != 0;
+    bool AnimKitCreate = (flags & UPDATEFLAG_ANIMKITS) != 0;
+    bool Rotation = (flags & UPDATEFLAG_ROTATION) != 0;
     bool HasAreaTrigger = false;
     bool HasGameObject = false;
-    bool ThisIsYou = flags & UPDATEFLAG_SELF ? true : false;
+    bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
     bool ReplaceActive = false;
     bool SceneObjCreate = false;
     bool ScenePendingInstances = false;
@@ -379,7 +379,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             PauseTimesCount = go->GetGOValue()->Transport.StopFrames->size();
 
     data->WriteBit(NoBirthAnim);
-    data->WriteBit(EnablePortals); 
+    data->WriteBit(EnablePortals);
     data->WriteBit(PlayHoverAnim);
     data->WriteBit(IsSuppressingGreetings);
     data->WriteBit(HasMovementUpdate);

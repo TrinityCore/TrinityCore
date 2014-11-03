@@ -170,6 +170,8 @@ enum WorldBoolConfigs
     CONFIG_ALLOW_TRACK_BOTH_RESOURCES,
     CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA,
     CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA,
+    CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED,
+    CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -358,6 +360,7 @@ enum WorldIntConfigs
     CONFIG_BG_REWARD_WINNER_CONQUEST_LAST,
     CONFIG_CREATURE_PICKPOCKET_REFILL,
     CONFIG_AHBOT_UPDATE_INTERVAL,
+    CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_COOLDOWN,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -509,6 +512,8 @@ enum WorldStates
     // Cata specific custom worldstates
     WS_GUILD_WEEKLY_RESET_TIME  = 20050,                     // Next guild week reset time
 };
+
+#define MAX_CHARACTERS_PER_REALM 11
 
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
@@ -878,7 +883,7 @@ class World
         void LoadCharacterNameData();
 
         void ProcessQueryCallbacks();
-        std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
+        std::deque<PreparedQueryResultFuture> m_realmCharCallbacks;
 };
 
 extern Battlenet::RealmHandle realmHandle;

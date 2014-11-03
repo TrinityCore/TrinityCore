@@ -31,6 +31,7 @@
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
+#include "CharacterPackets.h"
 #include "Chat.h"
 #include "Common.h"
 #include "ConditionMgr.h"
@@ -930,7 +931,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
             itr->second.save->RemovePlayer(this);
 }
 
-bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo)
+bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo)
 {
     //FIXME: outfitId not used in player creating
     /// @todo need more checks against packet modifications
@@ -970,14 +971,14 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     setFactionForRace(createInfo->Race);
 
-    if (!IsValidGender(createInfo->Gender))
+    if (!IsValidGender(createInfo->Sex))
     {
         TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid gender (%u) - refusing to do so",
-                GetSession()->GetAccountId(), m_name.c_str(), createInfo->Gender);
+                GetSession()->GetAccountId(), m_name.c_str(), createInfo->Sex);
         return false;
     }
 
-    uint32 RaceClassGender = (createInfo->Race) | (createInfo->Class << 8) | (createInfo->Gender << 16);
+    uint32 RaceClassGender = (createInfo->Race) | (createInfo->Class << 8) | (createInfo->Sex << 16);
 
     SetUInt32Value(UNIT_FIELD_BYTES_0, (RaceClassGender | (powertype << 24)));
     InitDisplayIds();
@@ -993,11 +994,11 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));  // -1 is default value
 
     SetUInt32Value(PLAYER_BYTES, (createInfo->Skin | (createInfo->Face << 8) | (createInfo->HairStyle << 16) | (createInfo->HairColor << 24)));
-    SetUInt32Value(PLAYER_BYTES_2, (createInfo->FacialHair |
+    SetUInt32Value(PLAYER_BYTES_2, (createInfo->FacialHairStyle |
                                    (0x00 << 8) |
                                    (0x00 << 16) |
                                    (((GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED) << 24)));
-    SetByteValue(PLAYER_BYTES_3, 0, createInfo->Gender);
+    SetByteValue(PLAYER_BYTES_3, 0, createInfo->Sex);
     SetByteValue(PLAYER_BYTES_3, 3, 0);                     // BattlefieldArenaFaction (0 or 1)
 
     SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
@@ -1121,7 +1122,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
         addActionButton(action_itr->button, action_itr->action, action_itr->type);
 
     // original items
-    if (CharStartOutfitEntry const* oEntry = GetCharStartOutfitEntry(createInfo->Race, createInfo->Class, createInfo->Gender))
+    if (CharStartOutfitEntry const* oEntry = GetCharStartOutfitEntry(createInfo->Race, createInfo->Class, createInfo->Sex))
     {
         for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
@@ -20242,7 +20243,7 @@ void Player::SetUInt32ValueInArray(Tokenizer& Tokenizer, uint16 index, uint32 va
     Tokenizer[index] = buf;
 }
 
-void Player::Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
+void Player::Customize(WorldPackets::Character::CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PLAYERBYTES2);
     stmt->setUInt64(0, customizeInfo->Guid.GetCounter());

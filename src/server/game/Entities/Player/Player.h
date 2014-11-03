@@ -44,7 +44,6 @@ struct VendorItem;
 template<class T> class AchievementMgr;
 class ReputationMgr;
 class Channel;
-class CharacterCreateInfo;
 class Creature;
 class DynamicObject;
 class Group;
@@ -55,8 +54,6 @@ class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
-
-struct CharacterCustomizeInfo;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -1289,7 +1286,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSummonPoint(uint32 mapid, float x, float y, float z);
         void SummonIfPossible(bool agree);
 
-        bool Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo);
+        bool Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo);
 
         void Update(uint32 time) override;
 
@@ -1711,7 +1708,7 @@ class Player : public Unit, public GridObject<Player>
 
         static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
         static void SetFloatValueInArray(Tokenizer& data, uint16 index, float value);
-        static void Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans);
+        static void Customize(WorldPackets::Character::CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);

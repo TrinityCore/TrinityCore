@@ -389,7 +389,7 @@ void fixNULLfields(std::string &line)
 DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, std::string name, ObjectGuid::LowType guid)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(account);
-    if (charcount >= 10)
+    if (charcount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
         return DUMP_TOO_MANY_CHARS;
 
     FILE* fin = fopen(file.c_str(), "r");

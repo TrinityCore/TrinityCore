@@ -1074,10 +1074,31 @@ Account.PasswordChangeSecurity = 0
 #        Description: Set to date of project's birth in UNIX time. By default the date when
 #                     TrinityCore was started (Thu Oct 2, 2008)
 #        Default:     1222964635
-#
-#
 
 BirthdayTime = 1222964635
+
+#
+#   FeatureSystem.BpayStore.Enabled
+#        Description: Not yet implemented
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+FeatureSystem.BpayStore.Enabled = 0
+
+#
+#   FeatureSystem.CharacterUndelete.Enabled
+#        Description: Controls Feature in CharacterList to restore delete Characters.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled, Experimental)
+
+FeatureSystem.CharacterUndelete.Enabled = 0
+
+#
+#   FeatureSystem.CharacterUndelete.Cooldown
+#        Description: Time between available character restorations. (in sec)
+#        Default:     2592000 (30 days)
+
+FeatureSystem.CharacterUndelete.Cooldown = 2592000
 
 #
 ###################################################################################################
