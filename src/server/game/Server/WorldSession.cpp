@@ -380,7 +380,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else if (_player->IsInWorld())
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle->Handler)(*packet);
+                        opHandle->Call(this, *packet);
                         LogUnprocessedTail(packet);
                     }
                     // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
@@ -393,7 +393,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     {
                         // not expected _player or must checked in packet hanlder
                         sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle->Handler)(*packet);
+                        opHandle->Call(this, *packet);
                         LogUnprocessedTail(packet);
                     }
                     break;
@@ -405,7 +405,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle->Handler)(*packet);
+                        opHandle->Call(this, *packet);
                         LogUnprocessedTail(packet);
                     }
                     break;
@@ -423,7 +423,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         m_playerRecentlyLogout = false;
 
                     sScriptMgr->OnPacketReceive(this, *packet);
-                    (this->*opHandle->Handler)(*packet);
+                    opHandle->Call(this, *packet);
                     LogUnprocessedTail(packet);
                     break;
                 case STATUS_NEVER:

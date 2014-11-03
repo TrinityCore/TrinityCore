@@ -31,7 +31,7 @@ enum OpcodeMisc : uint32
     MAX_OPCODE                                        = 0x1FFF,
     NUM_OPCODE_HANDLERS                               = (MAX_OPCODE + 1),
     UNKNOWN_OPCODE                                    = (0xFFFF + 1),
-    NULL_OPCODE                                       = 0
+    NULL_OPCODE                                       = 0xBADD
 };
 
 // CMSGs 6.0.3.19103
@@ -1431,21 +1431,22 @@ class WorldSession;
 class WorldPacket;
 class WorldSession;
 
-typedef void(WorldSession::*pOpcodeHandler)(WorldPacket& recvPacket);
-
 #if defined(__GNUC__)
 #pragma pack(1)
 #else
 #pragma pack(push, 1)
 #endif
 
-struct OpcodeHandler
+class OpcodeHandler
 {
-    OpcodeHandler() {}
-    OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
-        : Handler(_handler), Name(_name), Status(_status), ProcessingPlace(_processing) {}
+public:
+    OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing)
+        : Name(_name), Status(_status), ProcessingPlace(_processing) { }
 
-    pOpcodeHandler Handler;
+    virtual ~OpcodeHandler() { }
+
+    virtual void Call(WorldSession* session, WorldPacket& packet) const = 0;
+
     char const* Name;
     SessionStatus Status;
     PacketProcessing ProcessingPlace;
@@ -1485,11 +1486,10 @@ class OpcodeTable
         }
 
     private:
-        template<bool isInValidRange>
-        void ValidateAndSetOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler);
+        template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
+        void ValidateAndSetOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing);
 
-        template<bool isInValidRange>
-        void ValidateAndSetOpcode(OpcodeServer opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler);
+        void ValidateAndSetOpcode(OpcodeServer opcode, char const* name, SessionStatus status);
 
         OpcodeHandler* _internalTableClient[NUM_OPCODE_HANDLERS];
         OpcodeHandler* _internalTableServer[NUM_OPCODE_HANDLERS];
