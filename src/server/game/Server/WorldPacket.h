@@ -23,8 +23,6 @@
 #include "Opcodes.h"
 #include "ByteBuffer.h"
 
-struct z_stream_s;
-
 class WorldPacket : public ByteBuffer
 {
     public:

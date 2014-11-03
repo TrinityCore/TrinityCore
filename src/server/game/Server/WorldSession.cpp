@@ -21,7 +21,6 @@
 */
 
 #include "WorldSocket.h"
-#include "Packet.h"
 #include <zlib.h>
 #include "Config.h"
 #include "Common.h"
@@ -49,6 +48,7 @@
 #include "WardenWin.h"
 #include "WardenMac.h"
 #include "BattlenetServerManager.h"
+#include "CharacterPackets.h"
 
 namespace {
 
@@ -1042,25 +1042,32 @@ void WorldSession::SetPlayer(Player* player)
 void WorldSession::InitializeQueryCallbackParameters()
 {
     // Callback parameters that have pointers in them should be properly
-    // initialized to NULL here.
-    _charCreateCallback.SetParam(NULL);
+    // initialized to nullptr here.
+    _charRenameCallback.SetParam(nullptr);
 }
 
 void WorldSession::ProcessQueryCallbacks()
 {
     PreparedQueryResult result;
 
-    //! HandleCharEnumOpcode
-    if (_charEnumCallback.valid() && _charEnumCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    //! HandleCharEnumOpcode and HandleCharUndeleteEnumOpcode
+    if (_charEnumCallback.IsReady())
     {
-        result = _charEnumCallback.get();
-        HandleCharEnum(result);
+        _charEnumCallback.GetResult(result);
+
+        if (bool undelete = _charEnumCallback.GetParam())
+            HandleCharUndeleteEnum(result);
+        else
+            HandleCharEnum(result);
+
+        _charEnumCallback.FreeResult();
     }
 
+    //! HandleCharCreateOpcode
     if (_charCreateCallback.IsReady())
     {
         _charCreateCallback.GetResult(result);
-        HandleCharCreateCallback(result, _charCreateCallback.GetParam());
+        HandleCharCreateCallback(result, _charCreateCallback.GetParam().get());
     }
 
     //! HandlePlayerLoginOpcode
@@ -1083,10 +1090,25 @@ void WorldSession::ProcessQueryCallbacks()
     if (_charRenameCallback.IsReady())
     {
         _charRenameCallback.GetResult(result);
-        CharacterRenameInfo* renameInfo = _charRenameCallback.GetParam();
-        HandleChangePlayerNameOpcodeCallBack(result, renameInfo);
+        WorldPackets::Character::CharacterRenameInfo* renameInfo = _charRenameCallback.GetParam();
+        HandleCharRenameCallBack(result, renameInfo);
         delete renameInfo;
         _charRenameCallback.Reset();
+    }
+
+    /// HandleUndeleteCooldownStatusOpcode
+    /// wait until no char undelete is in progress
+    if (!_charUndeleteCallback.GetStage() && _undeleteCooldownStatusCallback.IsReady())
+    {
+        _undeleteCooldownStatusCallback.GetResult(result);
+        HandleUndeleteCooldownStatusCallback(result);
+    }
+
+    /// HandleCharUndeleteOpcode
+    if (_charUndeleteCallback.IsReady())
+    {
+        _charUndeleteCallback.GetResult(result);
+        HandleCharUndeleteCallback(result, _charUndeleteCallback.GetParam().get());
     }
 
     //- HandleCharAddIgnoreOpcode

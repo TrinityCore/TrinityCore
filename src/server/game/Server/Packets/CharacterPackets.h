@@ -25,6 +25,77 @@ namespace WorldPackets
 {
     namespace Character
     {
+        struct CharacterCreateInfo
+        {
+            friend class CharacterCreate;
+            friend class Player;
+            friend class WorldSession;
+
+        protected:
+            /// User specified variables
+            uint8 Race            = 0;
+            uint8 Class           = 0;
+            uint8 Sex   = GENDER_NONE;
+            uint8 Skin            = 0;
+            uint8 Face            = 0;
+            uint8 HairStyle       = 0;
+            uint8 HairColor       = 0;
+            uint8 FacialHairStyle = 0;
+            uint8 OutfitId        = 0;
+            Optional<int32> TemplateSet;
+            std::string Name;
+
+            /// Server side data
+            uint8 CharCount  = 0;
+        };
+
+        struct CharacterRenameInfo
+        {
+            friend class WorldSession;
+
+        protected:
+            ObjectGuid Guid;
+            std::string Name;
+        };
+
+        struct CharacterCustomizeInfo : public CharacterRenameInfo
+        {
+            friend class Player;
+            friend class WorldSession;
+
+        protected:
+            uint8 Gender     = GENDER_NONE;
+            uint8 Skin       = 0;
+            uint8 Face       = 0;
+            uint8 HairStyle  = 0;
+            uint8 HairColor  = 0;
+            uint8 FacialHair = 0;
+        };
+
+        struct CharacterFactionChangeInfo : public CharacterCustomizeInfo
+        {
+            friend class Player;
+            friend class WorldSession;
+
+        protected:
+            uint8 Race = 0;
+        };
+
+        struct CharacterUndeleteInfo
+        {
+            friend class UndeleteCharacter;
+            friend class UndeleteCharacterResponse;
+            friend class WorldSession;
+
+        protected:
+            /// User specified variables
+            ObjectGuid CharacterGuid; ///< Guid of the character to restore
+            int32 ClientToken    = 0; ///< @todo: research
+
+            /// Server side data
+            std::string Name;
+        };
+
         class CharEnumResult final : public ServerPacket
         {
         public:
@@ -51,8 +122,8 @@ namespace WorldPackets
                 uint8 HairColor          = 0;
                 uint8 FacialHair         = 0;
                 uint8 Level              = 0;
-                uint32 ZoneId            = 0;
-                uint32 MapId             = 0;
+                int32 ZoneId             = 0;
+                int32 MapId              = 0;
                 G3D::Vector3 PreLoadPosition;
                 ObjectGuid GuildGuid;
                 uint32 Flags             = 0; ///< Character flag @see enum CharacterFlags
@@ -68,7 +139,7 @@ namespace WorldPackets
                 } Pet;
 
                 bool BoostInProgress = false; ///< @todo
-                uint32 ProfessionIds[2];      ///< @todo
+                int32 ProfessionIds[2];       ///< @todo
 
                 struct VisualItemInfo
                 {
@@ -82,11 +153,11 @@ namespace WorldPackets
 
             struct RestrictedFactionChangeRuleInfo
             {
-                RestrictedFactionChangeRuleInfo(uint32 mask, uint8 race)
+                RestrictedFactionChangeRuleInfo(int32 mask, uint8 race)
                     : Mask(mask), Race(race) { }
 
-                uint32 Mask = 0;
-                uint8 Race  = 0;
+                int32 Mask = 0;
+                uint8 Race = 0;
             };
 
             CharEnumResult();
@@ -98,6 +169,100 @@ namespace WorldPackets
 
             std::list<CharacterInfo> Characters; ///< all characters on the list
             std::list<RestrictedFactionChangeRuleInfo> FactionChangeRestrictions; ///< @todo: research
+        };
+
+        class CharacterCreate final : public ClientPacket
+        {
+        public:
+            CharacterCreate(WorldPacket&& packet);
+
+            void Read() override;
+
+            /**
+             * @var uint8 Race
+             * @var uint8 Class
+             * @var uint8 Sex
+             * @var uint8 Skin
+             * @var uint8 Face
+             * @var uint8 HairStyle
+             * @var uint8 HairColor
+             * @var uint8 FacialHairStyle
+             * @var uint8 OutfitId
+             * @var Optional<int32> TemplateSet
+             * @var std::string Name
+             */
+            std::shared_ptr<CharacterCreateInfo> CreateInfo;
+        };
+
+        class CharacterCreateResponse final : public ServerPacket
+        {
+        public:
+            CharacterCreateResponse();
+
+            void Write() override;
+
+            uint8 Code = 0; ///< Result code @see enum ResponseCodes
+        };
+
+        class CharacterDelete final : public ClientPacket
+        {
+        public:
+            CharacterDelete(WorldPacket&& packet);
+
+            void Read() override;
+
+            ObjectGuid Guid; ///< Guid of the character to delete
+        };
+
+        class CharacterDeleteResponse final : public ServerPacket
+        {
+        public:
+            CharacterDeleteResponse();
+
+            void Write() override;
+
+            uint8 Code = 0; ///< Result code @see enum ResponseCodes
+        };
+
+        class UndeleteCharacter final : public ClientPacket
+        {
+        public:
+            UndeleteCharacter(WorldPacket&& packet);
+
+            void Read() override;
+
+            /**
+             * @var ObjectGuid CharacterGuid
+             * @var int32 ClientToken
+             */
+            std::shared_ptr<CharacterUndeleteInfo> UndeleteInfo;
+        };
+
+        class UndeleteCharacterResponse final : public ServerPacket
+        {
+        public:
+            UndeleteCharacterResponse();
+
+            void Write() override;
+
+            /**
+             * @var ObjectGuid CharacterGuid
+             * @var int32 ClientToken
+             */
+            CharacterUndeleteInfo const* UndeleteInfo = nullptr;
+            uint32 Result = 0; ///< @see enum CharacterUndeleteResult
+        };
+
+        class UndeleteCooldownStatusResponse final : public ServerPacket
+        {
+        public:
+            UndeleteCooldownStatusResponse();
+
+            void Write() override;
+
+            bool OnCooldown    = false; ///<
+            uint32 MaxCooldown     = 0; ///< Max. cooldown until next free character restoration. Displayed in undelete confirm message. (in sec)
+            uint32 CurrentCooldown = 0; ///< Current cooldown until next free character restoration. (in sec)
         };
 
         class PlayerLogin final : public ClientPacket

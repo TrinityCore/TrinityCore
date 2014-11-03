@@ -54,6 +54,7 @@ struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
 struct TradeStatusInfo;
+struct z_stream_s;
 
 namespace lfg
 {
@@ -73,10 +74,17 @@ class RBACData;
 
 namespace WorldPackets
 {
-    class ServerPacket;
-
     namespace Character
     {
+        struct CharacterCreateInfo;
+        struct CharacterRenameInfo;
+        struct CharacterCustomizeInfo;
+        struct CharacterFactionChangeInfo;
+        struct CharacterUndeleteInfo;
+
+        class CharacterCreate;
+        class CharacterDelete;
+        class UndeleteCharacter;
         class PlayerLogin;
     }
 }
@@ -176,6 +184,7 @@ private:
     PacketFilter(PacketFilter const& right) = delete;
     PacketFilter& operator=(PacketFilter const& right) = delete;
 };
+
 //process only thread-safe packets in Map::Update()
 class MapSessionFilter : public PacketFilter
 {
@@ -197,62 +206,6 @@ public:
     ~WorldSessionFilter() { }
 
     virtual bool Process(WorldPacket* packet) override;
-};
-
-// Proxy structure to contain data passed to callback function,
-// only to prevent bloating the parameter list
-class CharacterCreateInfo
-{
-    friend class WorldSession;
-    friend class Player;
-
-    protected:
-        /// User specified variables
-        std::string Name;
-        uint8 Race       = 0;
-        uint8 Class      = 0;
-        uint8 Gender     = GENDER_NONE;
-        uint8 Skin       = 0;
-        uint8 Face       = 0;
-        uint8 HairStyle  = 0;
-        uint8 HairColor  = 0;
-        uint8 FacialHair = 0;
-        uint8 OutfitId   = 0;
-
-        /// Server side data
-        uint8 CharCount = 0;
-};
-
-struct CharacterRenameInfo
-{
-    friend class WorldSession;
-
-    protected:
-        ObjectGuid Guid;
-        std::string Name;
-};
-
-struct CharacterCustomizeInfo : public CharacterRenameInfo
-{
-    friend class Player;
-    friend class WorldSession;
-
-    protected:
-        uint8 Gender     = GENDER_NONE;
-        uint8 Skin       = 0;
-        uint8 Face       = 0;
-        uint8 HairStyle  = 0;
-        uint8 HairColor  = 0;
-        uint8 FacialHair = 0;
-};
-
-struct CharacterFactionChangeInfo : public CharacterCustomizeInfo
-{
-    friend class Player;
-    friend class WorldSession;
-
-    protected:
-        uint8 Race = 0;
 };
 
 struct PacketCounter
@@ -336,6 +289,9 @@ class WorldSession
 
         /// Handle the authentication waiting queue (to be completed)
         void SendAuthWaitQue(uint32 position);
+
+        void SendSetTimeZoneInformation();
+        void SendFeatureSystemStatusGlueScreen();
 
         void SendNameQueryOpcode(ObjectGuid guid);
 
@@ -471,25 +427,38 @@ class WorldSession
         void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
         void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
-        void HandleCharEnumOpcode(WorldPacket& recvPacket);
-        void HandleCharDeleteOpcode(WorldPacket& recvPacket);
-        void HandleCharCreateOpcode(WorldPacket& recvPacket);
-        void HandleCharCreateCallback(PreparedQueryResult result, CharacterCreateInfo* createInfo);
+        void HandleCharEnum(PreparedQueryResult result);
+        void HandleCharEnumOpcode(WorldPacket& /*recvData*/);
+        void HandleCharUndeleteEnum(PreparedQueryResult result);
+        void HandleCharUndeleteEnumOpcode(WorldPacket& /*recvData*/);
+        void HandleCharDeleteOpcode(WorldPackets::Character::CharacterDelete& charDelete);
+        void HandleCharCreateOpcode(WorldPackets::Character::CharacterCreate& charCreate);
+        void HandleCharCreateCallback(PreparedQueryResult result, WorldPackets::Character::CharacterCreateInfo* createInfo);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
         void HandleLoadScreenOpcode(WorldPacket& recvPacket);
-        void HandleCharEnum(PreparedQueryResult result);
         void HandlePlayerLogin(LoginQueryHolder * holder);
+        void HandleCharRenameOpcode(WorldPacket& recvData);
+        void HandleCharRenameCallBack(PreparedQueryResult result, WorldPackets::Character::CharacterRenameInfo const* renameInfo);
+        void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
+        void HandleAlterAppearance(WorldPacket& recvData);
         void HandleCharFactionOrRaceChange(WorldPacket& recvData);
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
         void HandleReorderCharacters(WorldPacket& recvData);
         void HandleOpeningCinematic(WorldPacket& recvData);
+        void HandleUndeleteCooldownStatusQuery(WorldPacket& /*recvData*/);
+        void HandleUndeleteCooldownStatusCallback(PreparedQueryResult result);
+        void HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCharacter& undeleteInfo);
+        void HandleCharUndeleteCallback(PreparedQueryResult result, WorldPackets::Character::CharacterUndeleteInfo* undeleteInfo);
+
         void SendCharCreate(ResponseCodes result);
         void SendCharDelete(ResponseCodes result);
-        void SendCharRename(ResponseCodes result, CharacterRenameInfo const& renameInfo);
-        void SendCharCustomize(ResponseCodes result, CharacterCustomizeInfo const& customizeInfo);
-        void SendCharFactionChange(ResponseCodes result, CharacterFactionChangeInfo const& factionChangeInfo);
+        void SendCharRename(ResponseCodes result, WorldPackets::Character::CharacterRenameInfo const& renameInfo);
+        void SendCharCustomize(ResponseCodes result, WorldPackets::Character::CharacterCustomizeInfo const& customizeInfo);
+        void SendCharFactionChange(ResponseCodes result, WorldPackets::Character::CharacterFactionChangeInfo const& factionChangeInfo);
         void SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, ObjectGuid guid);
         void SendBarberShopResult(BarberShopResult result);
+        void SendUndeleteCooldownStatusResponse(uint32 currentCooldown, uint32 maxCooldown);
+        void SendUndeleteCharacterResponse(CharacterUndeleteResult result, WorldPackets::Character::CharacterUndeleteInfo const* undeleteInfo);
 
         // played time
         void HandlePlayedTime(WorldPacket& recvPacket);
@@ -858,10 +827,6 @@ class WorldSession
 
         void HandleSetActionBarToggles(WorldPacket& recvData);
 
-        void HandleCharRenameOpcode(WorldPacket& recvData);
-        void HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult result, CharacterRenameInfo const* renameInfo);
-        void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
-
         void HandleTotemDestroyed(WorldPacket& recvData);
         void HandleDismissCritter(WorldPacket& recvData);
 
@@ -1026,7 +991,6 @@ class WorldSession
         // Miscellaneous
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
-        void HandleAlterAppearance(WorldPacket& recvData);
         void HandleRemoveGlyph(WorldPacket& recvData);
         void HandleCharCustomize(WorldPacket& recvData);
         void HandleQueryInspectAchievements(WorldPacket& recvData);
@@ -1057,15 +1021,17 @@ class WorldSession
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
 
-        PreparedQueryResultFuture _charEnumCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
         PreparedQueryResultFuture _stablePetCallback;
-        QueryCallback<PreparedQueryResult, CharacterRenameInfo*> _charRenameCallback;
+        QueryCallback<PreparedQueryResult, bool> _charEnumCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
         QueryCallback<PreparedQueryResult, uint32> _unstablePetCallback;
         QueryCallback<PreparedQueryResult, uint32> _stableSwapCallback;
         QueryCallback<PreparedQueryResult, ObjectGuid> _sendStabledPetCallback;
-        QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
+        QueryCallback<PreparedQueryResult, std::shared_ptr<WorldPackets::Character::CharacterCreateInfo>, true> _charCreateCallback;
+        QueryCallback<PreparedQueryResult, WorldPackets::Character::CharacterRenameInfo*> _charRenameCallback;
+        QueryCallback<PreparedQueryResult, bool, true> _undeleteCooldownStatusCallback;
+        QueryCallback<PreparedQueryResult, std::shared_ptr<WorldPackets::Character::CharacterUndeleteInfo>, true> _charUndeleteCallback;
         QueryResultHolderFuture _charLoginCallback;
 
     friend class World;

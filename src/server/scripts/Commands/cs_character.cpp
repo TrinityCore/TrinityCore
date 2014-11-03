@@ -105,7 +105,7 @@ public:
             if (isNumeric(searchString.c_str()))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_GUID);
-                stmt->setUInt64(0, uint32(atoi(searchString.c_str())));
+                stmt->setUInt64(0, strtoull(searchString.c_str(), nullptr, 10));
                 result = CharacterDatabase.Query(stmt);
             }
             // search by name
@@ -205,7 +205,7 @@ public:
 
         // check character count
         uint32 charcount = AccountMgr::GetCharactersCount(delInfo.accountId);
-        if (charcount >= 10)
+        if (charcount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
         {
             handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.guid.ToString().c_str(), delInfo.accountId);
             return;
