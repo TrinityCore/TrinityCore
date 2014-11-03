@@ -23,6 +23,7 @@
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
+#include "ClientConfigPackets.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -821,7 +822,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
-    SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
+
+    WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
+    accountDataTimes.PlayerGuid = playerGuid;
+    accountDataTimes.ServerTime = uint32(sWorld->GetGameTime());
+    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+        accountDataTimes.AccountTimes[i] = uint32(GetAccountData(AccountDataType(i))->Time);
+
+    SendPacket(accountDataTimes.Write());
 
     bool featureBit4 = true;
     WorldPacket data(SMSG_FEATURE_SYSTEM_STATUS, 7);         // checked in 4.2.2
