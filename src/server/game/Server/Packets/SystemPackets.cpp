@@ -20,24 +20,26 @@
 WorldPackets::System::FeatureSystemStatusGlueScreen::FeatureSystemStatusGlueScreen()
     : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, 1) { }
 
-void WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
+WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
 {
     _worldPacket.WriteBit(BpayStoreEnabled);
     _worldPacket.WriteBit(BpayStoreAvailable);
     _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
     _worldPacket.WriteBit(CharUndeleteEnabled);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
 }
 
 WorldPackets::System::SetTimeZoneInformation::SetTimeZoneInformation()
     : ServerPacket(SMSG_SET_TIME_ZONE_INFORMATION) { }
 
-void WorldPackets::System::SetTimeZoneInformation::Write()
+WorldPacket const* WorldPackets::System::SetTimeZoneInformation::Write()
 {
-    _worldPacket.reserve(1 + ServerTimeTZ.length() + GameTimeTZ.length());
-
     _worldPacket.WriteBits(ServerTimeTZ.length(), 7);
     _worldPacket.WriteBits(GameTimeTZ.length(), 7);
     _worldPacket.WriteString(ServerTimeTZ);
     _worldPacket.WriteString(GameTimeTZ);
+
+    return &_worldPacket;
 }

@@ -125,7 +125,7 @@ WorldPackets::Character::CharEnumResult::CharacterInfo::CharacterInfo(Field* fie
 WorldPackets::Character::CharEnumResult::CharEnumResult()
     : ServerPacket(SMSG_CHAR_ENUM) { }
 
-void WorldPackets::Character::CharEnumResult::Write()
+WorldPacket const* WorldPackets::Character::CharEnumResult::Write()
 {
     _worldPacket.reserve(9 + Characters.size() * sizeof(CharacterInfo) + FactionChangeRestrictions.size() * sizeof(RestrictedFactionChangeRuleInfo));
 
@@ -181,6 +181,8 @@ void WorldPackets::Character::CharEnumResult::Write()
         _worldPacket << int32(rule.Mask);
         _worldPacket << uint8(rule.Race);
     }
+
+    return &_worldPacket;
 }
 
 WorldPackets::Character::CharacterCreate::CharacterCreate(WorldPacket&& packet)
@@ -211,9 +213,10 @@ void WorldPackets::Character::CharacterCreate::Read()
 WorldPackets::Character::CharacterCreateResponse::CharacterCreateResponse()
     : ServerPacket(SMSG_CHAR_CREATE, 1) { }
 
-void WorldPackets::Character::CharacterCreateResponse::Write()
+WorldPacket const* WorldPackets::Character::CharacterCreateResponse::Write()
 {
     _worldPacket << uint8(Code);
+    return &_worldPacket;
 }
 
 WorldPackets::Character::CharacterDelete::CharacterDelete(WorldPacket&& packet)
@@ -230,9 +233,10 @@ void WorldPackets::Character::CharacterDelete::Read()
 WorldPackets::Character::CharacterDeleteResponse::CharacterDeleteResponse()
     : ServerPacket(SMSG_CHAR_DELETE, 1) { }
 
-void WorldPackets::Character::CharacterDeleteResponse::Write()
+WorldPacket const* WorldPackets::Character::CharacterDeleteResponse::Write()
 {
     _worldPacket << uint8(Code);
+    return &_worldPacket;
 }
 
 WorldPackets::Character::UndeleteCharacter::UndeleteCharacter(WorldPacket&& packet)
@@ -251,22 +255,24 @@ void WorldPackets::Character::UndeleteCharacter::Read()
 WorldPackets::Character::UndeleteCharacterResponse::UndeleteCharacterResponse()
     : ServerPacket(SMSG_UNDELETE_CHARACTER_RESPONSE, 26) { }
 
-void WorldPackets::Character::UndeleteCharacterResponse::Write()
+WorldPacket const* WorldPackets::Character::UndeleteCharacterResponse::Write()
 {
     ASSERT(UndeleteInfo);
     _worldPacket << int32(UndeleteInfo->ClientToken);
     _worldPacket << uint32(Result);
     _worldPacket << UndeleteInfo->CharacterGuid;
+    return &_worldPacket;
 }
 
 WorldPackets::Character::UndeleteCooldownStatusResponse::UndeleteCooldownStatusResponse()
     : ServerPacket(SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE, 9) { }
 
-void WorldPackets::Character::UndeleteCooldownStatusResponse::Write()
+WorldPacket const* WorldPackets::Character::UndeleteCooldownStatusResponse::Write()
 {
     _worldPacket.WriteBit(OnCooldown);
     _worldPacket << uint32(MaxCooldown);
     _worldPacket << uint32(CurrentCooldown);
+    return &_worldPacket;
 }
 
 WorldPackets::Character::PlayerLogin::PlayerLogin(WorldPacket&& packet)

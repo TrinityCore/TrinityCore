@@ -44,8 +44,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
         response.SuccessInfo.value.AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
     }
 
-    response.Write();
-    SendPacket(&response.GetWorldPacket());
+    SendPacket(response.Write());
 }
 
 void WorldSession::SendAuthWaitQue(uint32 position)
@@ -66,8 +65,7 @@ void WorldSession::SendAuthWaitQue(uint32 position)
         response.Result = AUTH_WAIT_QUEUE;
     }
 
-    response.Write();
-    SendPacket(&response.GetWorldPacket());
+    SendPacket(response.Write());
 }
 
 void WorldSession::SendClientCacheVersion(uint32 version)
@@ -84,8 +82,7 @@ void WorldSession::SendSetTimeZoneInformation()
     packet.ServerTimeTZ = "Europe/Paris";
     packet.GameTimeTZ = "Europe/Paris";
 
-    packet.Write();
-    SendPacket(&packet.GetWorldPacket());
+    SendPacket(packet.Write());
 }
 
 void WorldSession::SendFeatureSystemStatusGlueScreen()
@@ -96,6 +93,5 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
 
-    features.Write();
-    SendPacket(&features.GetWorldPacket());
+    SendPacket(features.Write());
 }

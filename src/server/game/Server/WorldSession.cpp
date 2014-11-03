@@ -202,7 +202,7 @@ std::string WorldSession::GetPlayerInfo() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket* packet, bool forced /*= false*/)
+void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
 {
     if (!m_Socket)
         return;

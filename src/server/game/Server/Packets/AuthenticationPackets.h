@@ -31,7 +31,7 @@ namespace WorldPackets
         public:
             AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 4 + 32 + 1), Challenge(0) { }
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             uint32 Challenge;
             uint32 DosChallenge[8]; ///< Encryption seeds
@@ -126,7 +126,7 @@ namespace WorldPackets
 
             AuthResponse();
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             Optional<AuthSuccessInfo> SuccessInfo; ///< contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
             Optional<AuthWaitInfo> WaitInfo; ///< contains the queue wait information in case the account is in the login queue.

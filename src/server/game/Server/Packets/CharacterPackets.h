@@ -27,11 +27,6 @@ namespace WorldPackets
     {
         struct CharacterCreateInfo
         {
-            friend class CharacterCreate;
-            friend class Player;
-            friend class WorldSession;
-
-        protected:
             /// User specified variables
             uint8 Race            = 0;
             uint8 Class           = 0;
@@ -51,19 +46,12 @@ namespace WorldPackets
 
         struct CharacterRenameInfo
         {
-            friend class WorldSession;
-
-        protected:
             ObjectGuid Guid;
             std::string Name;
         };
 
         struct CharacterCustomizeInfo : public CharacterRenameInfo
         {
-            friend class Player;
-            friend class WorldSession;
-
-        protected:
             uint8 Gender     = GENDER_NONE;
             uint8 Skin       = 0;
             uint8 Face       = 0;
@@ -74,20 +62,11 @@ namespace WorldPackets
 
         struct CharacterFactionChangeInfo : public CharacterCustomizeInfo
         {
-            friend class Player;
-            friend class WorldSession;
-
-        protected:
             uint8 Race = 0;
         };
 
         struct CharacterUndeleteInfo
         {
-            friend class UndeleteCharacter;
-            friend class UndeleteCharacterResponse;
-            friend class WorldSession;
-
-        protected:
             /// User specified variables
             ObjectGuid CharacterGuid; ///< Guid of the character to restore
             int32 ClientToken    = 0; ///< @todo: research
@@ -162,7 +141,7 @@ namespace WorldPackets
 
             CharEnumResult();
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             bool Success                = false; ///<
             bool IsDeletedCharacters    = false; ///< used for character undelete list
@@ -199,7 +178,7 @@ namespace WorldPackets
         public:
             CharacterCreateResponse();
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             uint8 Code = 0; ///< Result code @see enum ResponseCodes
         };
@@ -219,7 +198,7 @@ namespace WorldPackets
         public:
             CharacterDeleteResponse();
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             uint8 Code = 0; ///< Result code @see enum ResponseCodes
         };
@@ -243,7 +222,7 @@ namespace WorldPackets
         public:
             UndeleteCharacterResponse();
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             /**
              * @var ObjectGuid CharacterGuid
@@ -258,7 +237,7 @@ namespace WorldPackets
         public:
             UndeleteCooldownStatusResponse();
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             bool OnCooldown    = false; ///<
             uint32 MaxCooldown     = 0; ///< Max. cooldown until next free character restoration. Displayed in undelete confirm message. (in sec)
