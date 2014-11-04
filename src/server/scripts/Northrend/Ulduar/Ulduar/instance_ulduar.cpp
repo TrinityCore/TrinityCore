@@ -1023,43 +1023,43 @@ class instance_ulduar : public InstanceMapScript
                         return keepersCount == 0;
                     case CRITERIA_C_O_U_LEVIATHAN_10:
                     case CRITERIA_C_O_U_LEVIATHAN_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_LEVIATHAN) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_LEVIATHAN)) == 0;
                     case CRITERIA_C_O_U_IGNIS_10:
                     case CRITERIA_C_O_U_IGNIS_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_IGNIS) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_IGNIS)) == 0;
                     case CRITERIA_C_O_U_RAZORSCALE_10:
                     case CRITERIA_C_O_U_RAZORSCALE_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_RAZORSCALE) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_RAZORSCALE)) == 0;
                     case CRITERIA_C_O_U_XT002_10:
                     case CRITERIA_C_O_U_XT002_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_XT002) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_XT002)) == 0;
                     case CRITERIA_C_O_U_IRON_COUNCIL_10:
                     case CRITERIA_C_O_U_IRON_COUNCIL_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_ASSEMBLY_OF_IRON) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_ASSEMBLY_OF_IRON)) == 0;
                     case CRITERIA_C_O_U_KOLOGARN_10:
                     case CRITERIA_C_O_U_KOLOGARN_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_KOLOGARN) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_KOLOGARN)) == 0;
                     case CRITERIA_C_O_U_AURIAYA_10:
                     case CRITERIA_C_O_U_AURIAYA_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_AURIAYA) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_AURIAYA)) == 0;
                     case CRITERIA_C_O_U_HODIR_10:
                     case CRITERIA_C_O_U_HODIR_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_HODIR) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_HODIR)) == 0;
                     case CRITERIA_C_O_U_THORIM_10:
                     case CRITERIA_C_O_U_THORIM_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_THORIM) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_THORIM)) == 0;
                     case CRITERIA_C_O_U_FREYA_10:
                     case CRITERIA_C_O_U_FREYA_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_FREYA) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_FREYA)) == 0;
                     case CRITERIA_C_O_U_MIMIRON_10:
                     case CRITERIA_C_O_U_MIMIRON_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_MIMIRON) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_MIMIRON)) == 0;
                     case CRITERIA_C_O_U_VEZAX_10:
                     case CRITERIA_C_O_U_VEZAX_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_VEZAX) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_VEZAX)) == 0;
                     case CRITERIA_C_O_U_YOGG_SARON_10:
                     case CRITERIA_C_O_U_YOGG_SARON_25:
-                        return _CoUAchivePlayerDeathMask & (1 << BOSS_YOGG_SARON) ? false : true;
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_YOGG_SARON)) == 0;
                 }
 
                 return false;
