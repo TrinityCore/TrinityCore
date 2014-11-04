@@ -41,10 +41,12 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
     if (!player->IsFriendlyTo(guildMaster))
         return;
 
-    if (!guildMaster->GetPlayerbotAI()->GetSecurity()->CheckLevelFor(PLAYERBOT_SECURITY_INVITE, true, player, true))
+    DenyReason reason = PLAYERBOT_DENY_NONE;
+    PlayerbotSecurityLevel secLevel = guildMaster->GetPlayerbotAI()->GetSecurity()->LevelFor(player, &reason);
+    if (secLevel == PLAYERBOT_SECURITY_DENY_ALL || (secLevel == PLAYERBOT_SECURITY_TALK && reason != PLAYERBOT_DENY_FAR))
     {
-        sLog->outMessage("gtask", LOG_LEVEL_DEBUG, "%s / %s: skipping guild task update - not enough security level",
-                guildMaster->GetGuild()->GetName().c_str(), player->GetName().c_str());
+        sLog->outMessage("gtask", LOG_LEVEL_DEBUG, "%s / %s: skipping guild task update - not enough security level, reason = %u",
+                guildMaster->GetGuild()->GetName().c_str(), player->GetName().c_str(), reason);
         return;
     }
 
