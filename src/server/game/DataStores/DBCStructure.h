@@ -40,20 +40,21 @@
 
 struct AchievementEntry
 {
-    uint32    ID;                                           // 0
-    int32    requiredFaction;                               // 1 -1=all, 0=horde, 1=alliance
-    int32    mapID;                                         // 2 -1=none
-    //uint32 parentAchievement;                             // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
-    char* name;                                             // 4
-    //char* description;                                    // 5
-    uint32    categoryId;                                   // 6
-    uint32    points;                                       // 7 reward points
-    //uint32 OrderInCategory;                               // 8
-    uint32    flags;                                        // 9
-    //uint32    icon;                                       // 10 icon (from SpellIcon.dbc)
-    //char* reward;                                         // 11
-    uint32 count;                                           // 12 - need this count of completed criterias (own or referenced achievement criterias)
-    uint32 refAchievement;                                  // 13 - referenced achievement (counting of all completed criterias)
+    uint32      ID;                                         // 0
+    int32       Faction;                                    // 1 -1=all, 0=horde, 1=alliance
+    int32       InstanceID;                                 // 2 MapID -1=none
+    //uint32    Supercedes;                                 // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
+    char*       Title_lang;                                 // 4
+    //char*     Description_lang;                           // 5
+    uint32      Category;                                   // 6
+    uint32      Points;                                     // 7 reward points
+    //uint32    UIOrder;                                    // 8
+    uint32      Flags;                                      // 9
+    //uint32    IconID;                                     // 10 icon (from SpellIcon.dbc)
+    //char*     Reward_lang;                                // 11
+    uint32      MinimumCriteria;                            // 12 - need this count of completed criterias (own or referenced achievement criterias)
+    uint32      SharesCriteria;                             // 13 - referenced achievement (counting of all completed criterias)
+    //uint32    CriteriaTree;                               // 14
 };
 
 struct AchievementCategoryEntry
