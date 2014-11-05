@@ -35,7 +35,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::list<::AddonInfo> const* Addons = nullptr;
+            std::list< ::AddonInfo> const* Addons = nullptr;
             std::list<BannedAddon> const* BannedAddons = nullptr;
         };
 

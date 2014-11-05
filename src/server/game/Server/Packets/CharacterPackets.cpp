@@ -16,6 +16,7 @@
  */
 
 #include "CharacterPackets.h"
+#include "ObjectMgr.h"
 
 WorldPackets::Character::CharEnumResult::CharacterInfo::CharacterInfo(Field* fields)
 {
