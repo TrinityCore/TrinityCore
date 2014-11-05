@@ -1486,28 +1486,27 @@ struct MailTemplateEntry
 
 struct MapEntry
 {
-    uint32      MapID;                                      // 0
-    //char*     internalname;                               // 1 unused
-    uint32      map_type;                                   // 2
+    uint32      ID;                                         // 0
+    //char*     Directory;                                  // 1
+    uint32      InstanceType;                               // 2
     uint32      Flags;                                      // 3
-    //uint32    unk4;                                       // 4
+    //uint32    MapType;                                    // 4
     //uint32    unk5;                                       // 5
-    char*       name;                                       // 6        m_MapName_lang
-    uint32      linked_zone;                                // 7        m_areaTableID
-    //char*     hordeIntro;                                 // 8        m_MapDescription0_lang
-    //char*     allianceIntro;                              // 9        m_MapDescription1_lang
-    uint32      multimap_id;                                // 10       m_LoadingScreenID (LoadingScreens.dbc)
-    //float     BattlefieldMapIconScale;                    // 11       m_minimapIconScale
-    int32       entrance_map;                               // 12       m_corpseMapID map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
-    float       entrance_x;                                 // 13       m_corpseX entrance x coordinate in ghost mode  (in most cases = normal entrance)
-    float       entrance_y;                                 // 14       m_corpseY entrance y coordinate in ghost mode  (in most cases = normal entrance)
-    //uint32    timeOfDayOverride;                          // 15       m_timeOfDayOverride
-    uint32      addon;                                      // 16       m_expansionID
-    uint32      expireTime;                                 // 17       m_raidOffset
-    uint32      maxPlayers;                                 // 18       m_maxPlayers
-    int32       rootPhaseMap;                               // 19       m_parentMapID new 4.0.0, related to phasing
-    //uint32    cosmeticParentMapID                         // 20       m_cosmeticParentMapID;
-    //uint32    timeOffset                                  // 21       m_timeOffset;
+    char*       MapName_lang;                               // 6
+    uint32      AreaTableID;                                // 7
+    //char*     MapDescription0_lang;                       // 8 Horde
+    //char*     MapDescription1_lang;                       // 9 Alliance
+    uint32      LoadingScreenID;                            // 10 LoadingScreens.dbc
+    //float     MinimapIconScale;                           // 11
+    int32       CorpseMapID;                                // 12 map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
+    float       Corpse[2];                                  // 13 entrance coordinates in ghost mode  (in most cases = normal entrance)
+    //uint32    TimeOfDayOverride;                          // 15
+    uint32      ExpansionID;                                // 16
+    uint32      RaidOffset;                                 // 17
+    uint32      MaxPlayers;                                 // 18
+    int32       ParentMapID;                                // 19 related to phasing
+    //uint32    CosmeticParentMapID                         // 20
+    //uint32    TimeOffset                                  // 21
 
     // Helpers
     uint32 Expansion() const { return addon; }
