@@ -598,44 +598,44 @@ struct AreaTriggerEntry
 
 struct ArmorLocationEntry
 {
-  uint32    InventoryType;                                  // 0
-  float     Value[5];                                       // 1-5 multiplier for armor types (cloth...plate, no armor?)
+    uint32      ID;                                         // 0
+    float       Modifier[5];                                // 1-5 multiplier for armor types (cloth...plate, no armor?)
 };
 
 struct AuctionHouseEntry
 {
-    uint32    houseId;                                      // 0 index
-    uint32    faction;                                      // 1 id of faction.dbc for player factions associated with city
-    uint32    depositPercent;                               // 2 1/3 from real
-    uint32    cutPercent;                                   // 3
-    //char*     name;                                       // 4
+    uint32      ID;                                         // 0
+    uint32      FactionID;                                  // 1 id of faction.dbc for player factions associated with city
+    uint32      DepositRate;                                // 2 1/3 from real
+    uint32      ConsignmentRate;                            // 3
+    //char*     Name_lang;                                  // 4
 };
 
 struct BankBagSlotPricesEntry
 {
-    uint32  ID;
-    uint32  price;
+    uint32      ID;                                         // 0
+    uint32      Cost;                                       // 1
 };
 
 struct BannedAddOnsEntry
 {
-    uint32 Id;
-    // uint32 NameMD5[4];
-    // uint32 VersionMD5[4];
-    // uint32 Timestamp;
-    // uint32 State;
+    uint32      ID;                                         // 0
+    //uint32    NameMD5[4];                                 // 1
+    //uint32    VersionMD5[4];                              // 2
+    //uint32    LastModified;                               // 3
+    //uint32    Flags;                                      // 4
 };
 
 struct BarberShopStyleEntry
 {
-    uint32  Id;                                             // 0
-    uint32  type;                                           // 1 value 0 -> hair, value 2 -> facialhair
-    //char*   name;                                         // 2        m_DisplayName_lang
-    //uint32  unk_name;                                     // 3        m_Description_lang
-    //float   CostMultiplier;                               // 4        m_Cost_Modifier
-    uint32  race;                                           // 5        m_race
-    uint32  gender;                                         // 6        m_sex
-    uint32  hair_id;                                        // 7        m_data (real ID to hair/facial hair)
+    uint32      ID;                                         // 0
+    uint32      Type;                                       // 1 value 0 -> hair, value 2 -> facialhair
+    //char*     DisplayName_lang;                           // 2
+    //char*     Description_lang                            // 3
+    //float     CostModifier;                               // 4
+    uint32      Race;                                       // 5
+    uint32      Sex;                                        // 6
+    uint32      Data;                                       // 7 (real ID to hair/facial hair)
 };
 
 struct BattlemasterListEntry
