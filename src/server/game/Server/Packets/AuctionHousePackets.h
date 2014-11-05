@@ -18,6 +18,7 @@
 #ifndef AuctionHousePackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
 
 class ObjectGuid;
 
