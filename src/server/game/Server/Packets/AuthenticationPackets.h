@@ -19,6 +19,7 @@
 #define AuthenticationPacketsWorld_h__
 
 #include "Packet.h"
+#include "ObjectMgr.h"
 #include "Util.h"
 #include <SHA1.h>
 

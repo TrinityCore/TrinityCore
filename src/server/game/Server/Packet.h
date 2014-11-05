@@ -18,6 +18,8 @@
 #ifndef PacketBaseWorld_h__
 #define PacketBaseWorld_h__
 
+#include "WorldPacket.h"
+
 namespace WorldPackets
 {
     class Packet
