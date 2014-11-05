@@ -22,7 +22,7 @@
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
 // n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
 
-char const Achievementfmt[] = "niixsxiixixxii";
+char const Achievementfmt[] = "niixsxiixixxiix";
 const std::string CustomAchievementfmt = "pppaaaapapaapp";
 const std::string CustomAchievementIndex = "ID";
 char const AchievementCriteriafmt[] = "niiiliiiisiiiiixxiiiiii";
