@@ -28,7 +28,6 @@ const std::string CustomAchievementIndex = "ID";
 char const AchievementCriteriafmt[] = "niiiliiiisiiiiixxiiiiii";
 char const AreaTableEntryfmt[] = "iiinixxxxxisiiiiiffixxxxxx";
 char const AreaGroupEntryfmt[] = "niiiiiii";
-char const AreaPOIEntryfmt[] = "niiiiiiiiiiiffixixxixx";
 char const AreaTriggerEntryfmt[] = "nifffxxxfffff";
 char const ArmorLocationfmt[] = "nfffff";
 char const AuctionHouseEntryfmt[] = "niiix";

@@ -52,7 +52,6 @@ typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTri
 
 DBCStorage <AreaTableEntry> sAreaStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry> sAreaGroupStore(AreaGroupEntryfmt);
-DBCStorage <AreaPOIEntry> sAreaPOIStore(AreaPOIEntryfmt);
 static AreaFlagByAreaID sAreaFlagByAreaID;
 static AreaFlagByMapID sAreaFlagByMapID;                    // for instances without generated *.map files
 
@@ -348,7 +347,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementCriteriaStore,    dbcPath, "Achievement_Criteria.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaGroupStore,              dbcPath, "AreaGroup.dbc");//15595
-    LoadDBC(availableDbcLocales, bad_dbc_files, sAreaPOIStore,                dbcPath, "AreaPOI.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sAuctionHouseStore,           dbcPath, "AuctionHouse.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sArmorLocationStore,          dbcPath, "ArmorLocation.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sBankBagSlotPricesStore,      dbcPath, "BankBagSlotPrices.dbc");//15595
