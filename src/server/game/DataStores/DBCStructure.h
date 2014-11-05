@@ -579,19 +579,21 @@ struct AreaGroupEntry
 
 struct AreaTriggerEntry
 {
-    uint32  id;                                             // 0        m_ID
-    uint32  mapid;                                          // 1        m_ContinentID
-    float   x;                                              // 2        m_x
-    float   y;                                              // 3        m_y
-    float   z;                                              // 4        m_z
-    //uint32                                                // 5
-    //uint32                                                // 6
-    //uint32                                                // 7
-    float   radius;                                         // 8        m_radius
-    float   box_x;                                          // 9        m_box_length
-    float   box_y;                                          // 10       m_box_width
-    float   box_z;                                          // 11       m_box_heigh
-    float   box_orientation;                                // 12       m_box_yaw
+    uint32      ID;                                         // 0
+    uint32      ContinentID;                                // 1 MapID
+    float       Pos[3];                                     // 2-4
+    //uint32    PhaseUseFlags                               // 5
+    //uint32    PhaseID                                     // 6
+    //uint32    PhaseGroupID                                // 7
+    float       Radius;                                     // 8
+    float       BoxLength;                                  // 9
+    float       BoxWidth;                                   // 10
+    float       BoxHeight;                                  // 11
+    float       BoxYaw;                                     // 12
+    //uint32    ShapeType                                   // 13
+    //uint32    ShapeID                                     // 14
+    //uint32    AreaTriggerActionSetID                      // 15
+    //uint32    Flags                                       // 16
 };
 
 struct ArmorLocationEntry

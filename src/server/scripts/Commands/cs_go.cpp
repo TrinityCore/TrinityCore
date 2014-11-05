@@ -391,9 +391,9 @@ public:
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(at->mapid, at->x, at->y, at->z))
+        if (!MapManager::IsValidMapCoord(at->ContinentID, at->Pos[0], at->Pos[1], at->Pos[2]))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, at->x, at->y, at->mapid);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, at->Pos[0], at->Pos[1], at->ContinentID);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -408,7 +408,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(at->mapid, at->x, at->y, at->z, player->GetOrientation());
+        player->TeleportTo(at->ContinentID, at->Pos[0], at->Pos[1], at->Pos[2], player->GetOrientation());
         return true;
     }
 
