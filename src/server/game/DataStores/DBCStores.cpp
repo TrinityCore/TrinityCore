@@ -908,7 +908,7 @@ AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_
         return sAreaStore.LookupEntry(area_flag);
 
     if (MapEntry const* mapEntry = sMapStore.LookupEntry(map_id))
-        return GetAreaEntryByAreaID(mapEntry->linked_zone);
+        return GetAreaEntryByAreaID(mapEntry->AreaTableID);
 
     return NULL;
 }
@@ -982,8 +982,8 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
         return CONTENT_1_60;
 
     // no need enum all maps from phasing
-    if (mapEntry->rootPhaseMap >= 0)
-        mapid = mapEntry->rootPhaseMap;
+    if (mapEntry->ParentMapID >= 0)
+        mapid = mapEntry->ParentMapID;
 
     switch (mapid)
     {

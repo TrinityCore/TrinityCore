@@ -1132,7 +1132,7 @@ public:
         {
             if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
             {
-                std::string name = mapInfo->name;
+                std::string name = mapInfo->MapName_lang;
                 if (name.empty())
                     continue;
 
@@ -1150,7 +1150,7 @@ public:
                     if (mapInfo->IsContinent())
                         ss << handler->GetTrinityString(LANG_CONTINENT);
 
-                    switch (mapInfo->map_type)
+                    switch (mapInfo->InstanceType)
                     {
                         case MAP_INSTANCE:
                             ss << handler->GetTrinityString(LANG_INSTANCE);
