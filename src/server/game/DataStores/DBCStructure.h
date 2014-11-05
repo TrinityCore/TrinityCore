@@ -572,25 +572,9 @@ struct AreaTableEntry
 
 struct AreaGroupEntry
 {
-    uint32  AreaGroupId;                                    // 0
-    uint32  AreaId[MAX_GROUP_AREA_IDS];                     // 1-6
-    uint32  nextGroup;                                      // 7 index of next group
-};
-
-struct AreaPOIEntry
-{
-    uint32 id;              //0
-    uint32 icon[11];        //1-11
-    float x;                //12
-    float y;                //13
-    uint32 mapId;           //14
-    //uint32 val1;          //15
-    uint32 zoneId;          //16
-    //char* name;           //17 - name
-    //char* name2;          //18 - name2
-    uint32 worldState;      //19
-    //uint32 val2;          //20
-    //uint32 unk;           //21
+    uint32  ID;                                             // 0
+    uint32  AreaID[MAX_GROUP_AREA_IDS];                     // 1-6
+    uint32  NextAreaID;                                     // 7 index of next group
 };
 
 struct AreaTriggerEntry
