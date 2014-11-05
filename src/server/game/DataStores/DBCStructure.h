@@ -59,10 +59,10 @@ struct AchievementEntry
 
 struct AchievementCategoryEntry
 {
-    uint32    ID;                                           // 0
-    uint32    parentCategory;                               // 1 -1 for main category
-    //char* name;                                           // 2
-    //uint32    sortOrder;                                  // 3
+    uint32      ID;                                         // 0
+    uint32      Parent;                                     // 1 -1 for main category
+    //char*     Name_lang;                                  // 2
+    //uint32    UIOrder;                                    // 3
 };
 
 struct AchievementCriteriaEntry
