@@ -104,7 +104,7 @@ char const LockEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
 char const PhaseEntryfmt[] = "nsi";
 char const PhaseGroupfmt[] = "nii";
 char const MailTemplateEntryfmt[] = "nxs";
-char const MapEntryfmt[] = "nxiixxsixxixiffxiiii";
+char const MapEntryfmt[] = "nxiixxsixxixiffxiiiixx";
 char const MapDifficultyEntryfmt[] = "diisiix";
 char const MovieEntryfmt[] = "nxxx";
 char const MountCapabilityfmt[] = "niiiiiii";
@@ -178,6 +178,6 @@ char const VehicleSeatEntryfmt[] = "niiffffffffffiiiiiifffffffiiifffiiiiiiiffiii
 char const WMOAreaTableEntryfmt[] = "niiixxxxxiixxxx";
 char const WorldMapAreaEntryfmt[] = "xinxffffixxxxx";
 char const WorldMapOverlayEntryfmt[] = "nxiiiixxxxxxxxx";
-char const WorldSafeLocsEntryfmt[] = "niffffx";
+char const WorldSafeLocsEntryfmt[] = "niffff";
 
 #endif
