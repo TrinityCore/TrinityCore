@@ -619,7 +619,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
     clientM1.SetBinary(dataStream->ReadBytes(32).get(), 32);
     clientChallenge.SetBinary(dataStream->ReadBytes(128).get(), 128);
 
-    if (A.isZero())
+    if (A.IsZero())
     {
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_CORRUPTED_MODULE);

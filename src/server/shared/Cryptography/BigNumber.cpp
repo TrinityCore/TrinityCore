@@ -164,9 +164,14 @@ uint32 BigNumber::AsDword()
     return (uint32)BN_get_word(_bn);
 }
 
-bool BigNumber::isZero() const
+bool BigNumber::IsZero() const
 {
     return BN_is_zero(_bn);
+}
+
+bool BigNumber::IsNegative() const
+{
+    return BN_is_negative(_bn);
 }
 
 std::unique_ptr<uint8[]> BigNumber::AsByteArray(int32 minSize, bool littleEndian)

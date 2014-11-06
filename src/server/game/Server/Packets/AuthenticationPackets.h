@@ -21,7 +21,11 @@
 #include "Packet.h"
 #include "ObjectMgr.h"
 #include "Util.h"
-#include <SHA1.h>
+#include "BigNumber.h"
+#include "SHA1.h"
+#include <boost/asio/ip/tcp.hpp>
+
+using boost::asio::ip::tcp;
 
 namespace WorldPackets
 {
@@ -132,6 +136,37 @@ namespace WorldPackets
             Optional<AuthSuccessInfo> SuccessInfo; ///< contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
             Optional<AuthWaitInfo> WaitInfo; ///< contains the queue wait information in case the account is in the login queue.
             uint8 Result = 0; ///< the result of the authentication process, it is AUTH_OK if it succeeded and the account is ready to log in. It can also be AUTH_WAIT_QUEUE if the account entered the login queue (Queued, QueuePos), possible values are @ref ResponseCodes
+        };
+
+        class ConnectTo final : public ServerPacket
+        {
+            static std::string const Haiku;
+            static uint8 const PiDigits[260];
+
+            struct ConnectPayload
+            {
+                tcp::endpoint Where;
+                uint32 Adler32 = 0;
+                uint8 XorMagic = 0x2A;
+                uint8 PanamaKey[32];
+            };
+
+        public:
+            ConnectTo();
+
+            WorldPacket const* Write() override;
+
+            uint64 Key = 0;
+            uint32 Serial = 0;
+            ConnectPayload Payload;
+            uint8 Con = 0;
+
+        private:
+            BigNumber p;
+            BigNumber q;
+            BigNumber dmp1;
+            BigNumber dmq1;
+            BigNumber iqmp;
         };
     }
 }
