@@ -2190,43 +2190,16 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
+void WorldSession::HandleReorderCharacters(WorldPackets::Character::ReorderCharacters& reorderChars)
 {
-    uint32 charactersCount = std::min<uint32>(recvData.ReadBits(10), sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM));
-
-    std::vector<ObjectGuid> guids(charactersCount);
-    uint8 position;
-
-    for (uint8 i = 0; i < charactersCount; ++i)
-    {
-        guids[i][1] = recvData.ReadBit();
-        guids[i][4] = recvData.ReadBit();
-        guids[i][5] = recvData.ReadBit();
-        guids[i][3] = recvData.ReadBit();
-        guids[i][0] = recvData.ReadBit();
-        guids[i][7] = recvData.ReadBit();
-        guids[i][6] = recvData.ReadBit();
-        guids[i][2] = recvData.ReadBit();
-    }
-
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    for (uint8 i = 0; i < charactersCount; ++i)
+
+    for (WorldPackets::Character::ReorderCharacters::ReorderInfo const& reorderInfo : reorderChars.Entries)
     {
-        recvData.ReadByteSeq(guids[i][6]);
-        recvData.ReadByteSeq(guids[i][5]);
-        recvData.ReadByteSeq(guids[i][1]);
-        recvData.ReadByteSeq(guids[i][4]);
-        recvData.ReadByteSeq(guids[i][0]);
-        recvData.ReadByteSeq(guids[i][3]);
-
-        recvData >> position;
-
-        recvData.ReadByteSeq(guids[i][2]);
-        recvData.ReadByteSeq(guids[i][7]);
-
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_LIST_SLOT);
-        stmt->setUInt8(0, position);
-        stmt->setUInt64(1, guids[i].GetCounter());
+        stmt->setUInt8(0, reorderInfo.NewPosition);
+        stmt->setUInt64(1, reorderInfo.PlayerGUID.GetCounter());
+        stmt->setUInt32(2, GetAccountId());
         trans->Append(stmt);
     }
 

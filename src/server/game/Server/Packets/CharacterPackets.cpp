@@ -17,6 +17,7 @@
 
 #include "CharacterPackets.h"
 #include "ObjectMgr.h"
+#include "World.h"
 
 WorldPackets::Character::CharEnumResult::CharacterInfo::CharacterInfo(Field* fields)
 {
@@ -238,6 +239,24 @@ WorldPacket const* WorldPackets::Character::CharacterDeleteResponse::Write()
 {
     _worldPacket << uint8(Code);
     return &_worldPacket;
+}
+
+WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet)
+    : ClientPacket(std::move(packet))
+{
+    ASSERT(_worldPacket.GetOpcode() == CMSG_REORDER_CHARACTERS);
+}
+
+void WorldPackets::Character::ReorderCharacters::Read()
+{
+    uint32 count = std::min<uint32>(_worldPacket.ReadBits(9), sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM));
+    while (count--)
+    {
+        ReorderInfo reorderInfo;
+        _worldPacket >> reorderInfo.PlayerGUID;
+        _worldPacket >> reorderInfo.NewPosition;
+        Entries.emplace_back(reorderInfo);
+    }
 }
 
 WorldPackets::Character::UndeleteCharacter::UndeleteCharacter(WorldPacket&& packet)
