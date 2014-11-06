@@ -27,18 +27,25 @@
 #include "Guild.h"
 #include "GossipDef.h"
 #include "SocialMgr.h"
+#include "GuildPackets.h"
 
-void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::GuildQuery& query)
 {
-    ObjectGuid guildGuid, playerGuid;
-    recvPacket >> guildGuid >> playerGuid;
-
     TC_LOG_DEBUG("guild", "CMSG_GUILD_QUERY [%s]: Guild: %s Target: %s",
-        GetPlayerInfo().c_str(), guildGuid.ToString().c_str(), playerGuid.ToString().c_str());
+        GetPlayerInfo().c_str(), query.GuildGuid.ToString().c_str(), query.PlayerGuid.ToString().c_str());
 
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-        if (guild->IsMember(playerGuid))
-            guild->HandleQuery(this);
+    if (Guild* guild = sGuildMgr->GetGuildByGuid(query.GuildGuid))
+        if (guild->IsMember(query.PlayerGuid))
+        {
+            guild->SendQueryResponse(this);
+            return;
+        }
+
+    WorldPackets::Guild::GuildQueryResponse response;
+    response.GuildGuid = query.GuildGuid;
+    SendPacket(response.Write());
+
+    TC_LOG_DEBUG("guild", "SMSG_GUILD_QUERY_RESPONSE [%s]", GetPlayerInfo().c_str());
 }
 
 void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)

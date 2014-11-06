@@ -88,6 +88,11 @@ namespace WorldPackets
         class UndeleteCharacter;
         class PlayerLogin;
     }
+
+    namespace Guild
+    {
+        class GuildQuery;
+    }
 }
 
 enum AccountDataType
@@ -608,7 +613,7 @@ class WorldSession
         void HandleOfferPetitionOpcode(WorldPacket& recvData);
         void HandleTurnInPetitionOpcode(WorldPacket& recvData);
 
-        void HandleGuildQueryOpcode(WorldPacket& recvPacket);
+        void HandleGuildQueryOpcode(WorldPackets::Guild::GuildQuery& query);
         void HandleGuildInviteOpcode(WorldPacket& recvPacket);
         void HandleGuildRemoveOpcode(WorldPacket& recvPacket);
         void HandleGuildAcceptOpcode(WorldPacket& recvPacket);
