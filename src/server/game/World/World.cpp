@@ -65,7 +65,6 @@
 #include "WeatherMgr.h"
 #include "WorldSession.h"
 
-
 std::atomic<bool> World::m_stopEvent(false);
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 std::atomic<uint32> World::m_worldLoopCounter(0);
