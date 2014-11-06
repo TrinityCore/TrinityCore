@@ -203,6 +203,22 @@ namespace WorldPackets
             uint8 Code = 0; ///< Result code @see enum ResponseCodes
         };
 
+        class ReorderCharacters final : public ClientPacket
+        {
+        public:
+            struct ReorderInfo
+            {
+                ObjectGuid PlayerGUID;
+                uint8 NewPosition = 0;
+            };
+
+            ReorderCharacters(WorldPacket&& packet);
+
+            void Read() override;
+
+            std::list<ReorderInfo> Entries;
+        };
+
         class UndeleteCharacter final : public ClientPacket
         {
         public:

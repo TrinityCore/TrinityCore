@@ -84,6 +84,7 @@ namespace WorldPackets
 
         class CharacterCreate;
         class CharacterDelete;
+        class ReorderCharacters;
         class UndeleteCharacter;
         class PlayerLogin;
     }
@@ -442,7 +443,7 @@ class WorldSession
         void HandleAlterAppearance(WorldPacket& recvData);
         void HandleCharFactionOrRaceChange(WorldPacket& recvData);
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
-        void HandleReorderCharacters(WorldPacket& recvData);
+        void HandleReorderCharacters(WorldPackets::Character::ReorderCharacters& reorderChars);
         void HandleOpeningCinematic(WorldPacket& recvData);
         void HandleUndeleteCooldownStatusQuery(WorldPacket& /*recvData*/);
         void HandleUndeleteCooldownStatusCallback(PreparedQueryResult result);
