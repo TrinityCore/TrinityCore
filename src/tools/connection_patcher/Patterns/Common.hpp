@@ -16,23 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONNECTION_PATCHER_PATCHES_MAC_HPP
-#define CONNECTION_PATCHER_PATCHES_MAC_HPP
+#ifndef CONNECTION_PATCHER_PATTERNS_COMMON_HPP
+#define CONNECTION_PATCHER_PATTERNS_COMMON_HPP
 
 #include <vector>
 
 namespace Connection_Patcher
 {
-    namespace Patches
+    namespace Patterns
     {
-        namespace Mac
+        struct Common
         {
-            struct x64
-            {
-                static const std::vector<unsigned char> BNet     () { return { 0xB8, 0xD5, 0xF8, 0x7F, 0x82, 0x89, 0x47, 0x0C, 0x5D, 0xC3, 0x90, 0x90, 0x90 }; }
-                static const std::vector<unsigned char> Password () { return { 0x0F, 0x85 }; }
-                static const std::vector<unsigned char> Signature() { return { 0x45, 0x31, 0xED, 0x4D, 0x89, 0xFC, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB }; }
-            };
+            static const std::vector<unsigned char> Portal()  { return { '.', 'l', 'o', 'g', 'o', 'n', '.', 'b', 'a', 't', 't', 'l', 'e', '.', 'n', 'e', 't', 0x00 }; }
+            static const std::vector<unsigned char> Modulus() { return { 0x91, 0xD5, 0x9B, 0xB7, 0xD4, 0xE1, 0x83, 0xA5 }; }
         };
     }
 }

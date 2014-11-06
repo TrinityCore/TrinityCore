@@ -21,8 +21,10 @@ set(HEADER_FILES
   Helper.hpp
   Patcher.hpp
   Constants/BinaryTypes.hpp
+  Patches/Common.hpp
   Patches/Mac.hpp
   Patches/Windows.hpp
+  Patterns/Common.hpp
   Patterns/Mac.hpp
   Patterns/Windows.hpp
 )
