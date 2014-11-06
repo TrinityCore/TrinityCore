@@ -43,6 +43,8 @@ namespace Connection_Patcher
         template<typename PATCH, typename PATTERN>
         void PatchModule(boost::filesystem::path file, boost::filesystem::path path)
         {
+            namespace fs = boost::filesystem;
+
             std::cout << "Patching module...\n";
 
             Patcher patcher(file);
@@ -50,13 +52,15 @@ namespace Connection_Patcher
             patcher.Patch(PATCH::Password(), PATTERN::Password());
 
             std::string const moduleName(Helper::GetFileChecksum(patcher.binary) + ".auth");
-            boost::filesystem::path const modulePath
+            fs::path const modulePath
                 (path / std::string(&moduleName[0], 2) / std::string(&moduleName[2], 2));
 
-            if (!boost::filesystem::exists(modulePath))
-                boost::filesystem::create_directories(modulePath);
+            if (!fs::exists(modulePath))
+                fs::create_directories(modulePath);
 
+            fs::permissions(modulePath / moduleName, fs::add_perms | fs::others_write | fs::group_write | fs::owner_write);
             patcher.Finish(modulePath / moduleName);
+            fs::permissions(modulePath / moduleName, fs::remove_perms | fs::others_write | fs::group_write | fs::owner_write);
 
             std::cout << "Patching module finished.\n";
         }

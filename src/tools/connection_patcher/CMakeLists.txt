@@ -37,6 +37,10 @@ set(SRC_FILES
 
 add_executable(connection_patcher ${HEADER_FILES} ${SRC_FILES})
 
+if (MSVC)
+  set_target_properties(connection_patcher PROPERTIES LINK_FLAGS "/level='requireAdministrator' /uiAccess='false'")
+endif ()
+
 target_link_libraries(connection_patcher
   shared
   ${OPENSSL_LIBRARIES}
