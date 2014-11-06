@@ -19,6 +19,7 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "Packets/CharacterPackets.h"
+#include "Packets/GuildPackets.h"
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
 class PacketHandler : public OpcodeHandler
@@ -320,7 +321,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_NEWS_UPDATE_STICKY,                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleGuildNewsUpdateStickyOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_PERMISSIONS,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildPermissions          );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_PROMOTE,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildPromoteOpcode        );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_QUERY,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryOpcode          );
+    DEFINE_HANDLER(CMSG_GUILD_QUERY,                                        STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildQuery, &WorldSession::HandleGuildQueryOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_QUERY_NEWS,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleGuildQueryNewsOpcode      );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_QUERY_RANKS,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryRanksOpcode     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_REMOVE,                            STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildRemoveOpcode         );
@@ -941,7 +942,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_NEWS_UPDATE,                       STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_PARTY_STATE_RESPONSE,              STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_PERMISSIONS_QUERY_RESULTS,         STATUS_UNHANDLED);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_QUERY_RESPONSE,                    STATUS_UNHANDLED);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_QUERY_RESPONSE,                    STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_RANK,                              STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_RANKS_UPDATE,                      STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_RECIPES,                           STATUS_UNHANDLED);

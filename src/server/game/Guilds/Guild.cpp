@@ -24,6 +24,7 @@
 #include "Guild.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
+#include "GuildPackets.h"
 #include "Language.h"
 #include "Log.h"
 #include "ScriptMgr.h"
@@ -810,15 +811,6 @@ void EmblemInfo::LoadFromDB(Field* fields)
     m_backgroundColor   = fields[7].GetUInt8();
 }
 
-void EmblemInfo::WritePacket(WorldPacket& data) const
-{
-    data << uint32(m_style);
-    data << uint32(m_color);
-    data << uint32(m_borderStyle);
-    data << uint32(m_borderColor);
-    data << uint32(m_backgroundColor);
-}
-
 void EmblemInfo::SaveToDB(ObjectGuid::LowType guildId) const
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_EMBLEM_INFO);
@@ -1483,44 +1475,27 @@ void Guild::HandleRoster(WorldSession* session)
     session->SendPacket(&data);
 }
 
-void Guild::HandleQuery(WorldSession* session)
+void Guild::SendQueryResponse(WorldSession* session)
 {
-    WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 * 32 + 200);      // Guess size
+    WorldPackets::Guild::GuildQueryResponse response;
+    response.GuildGuid = GetGUID();
+    response.Info.HasValue = true;
 
-    data << GetGUID();
-    data << m_name;
+    response.Info.value.GuildGuid = GetGUID();
+    response.Info.value.VirtualRealmAddress = realmHandle.Index;
 
-    // Rank name
-    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)               // Always show 10 ranks
-    {
-        if (i < _GetRanksSize())
-            data << m_ranks[i].GetName();
-        else
-            data << uint8(0);                                       // Empty string
-    }
+    response.Info.value.EmblemStyle = m_emblemInfo.GetStyle();
+    response.Info.value.EmblemColor = m_emblemInfo.GetColor();
+    response.Info.value.BorderStyle = m_emblemInfo.GetBorderStyle();
+    response.Info.value.BorderColor = m_emblemInfo.GetBorderColor();
+    response.Info.value.BackgroundColor = m_emblemInfo.GetBackgroundColor();
 
-    // Rank order of creation
-    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
-    {
-        if (i < _GetRanksSize())
-            data << uint32(i);
-        else
-            data << uint32(0);
-    }
+    for (uint8 i = 0; i < _GetRanksSize(); ++i)
+        response.Info.value.Ranks.emplace(m_ranks[i].GetId(), i, m_ranks[i].GetName());
 
-    // Rank order of "importance" (sorting by rights)
-    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
-    {
-        if (i < _GetRanksSize())
-            data << uint32(m_ranks[i].GetId());
-        else
-            data << uint32(0);
-    }
+    response.Info.value.Name = m_name;
 
-    m_emblemInfo.WritePacket(data);
-    data << uint32(_GetRanksSize());                                // Number of ranks used
-
-    session->SendPacket(&data);
+    session->SendPacket(response.Write());
     TC_LOG_DEBUG("guild", "SMSG_GUILD_QUERY_RESPONSE [%s]", session->GetPlayerInfo().c_str());
 }
 
@@ -1645,7 +1620,7 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
 
         SendSaveEmblemResult(session, ERR_GUILDEMBLEM_SUCCESS); // "Guild Emblem saved."
 
-        HandleQuery(session);
+        SendQueryResponse(session);
     }
 }
 
