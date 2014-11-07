@@ -6000,7 +6000,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             if (!mapEntry
                 || mapEntry->CorpseMapID < 0
                 || uint32(mapEntry->CorpseMapID) != entry->map_id
-                || (mapEntry->Corpse[0] == 0 && mapEntry->Corpse[1] == 0)) // Check X and Y
+                || (mapEntry->CorpsePos.X == 0 && mapEntry->CorpsePos.Y == 0)) // Check X and Y
             {
                 // not have any corrdinates for check distance anyway
                 entryFar = entry;
@@ -6008,8 +6008,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->x - mapEntry->Corpse[0])*(entry->x - mapEntry->Corpse[0])
-                +(entry->y - mapEntry->Corpse[1])*(entry->y - mapEntry->Corpse[1]);
+            float dist2 = (entry->x - mapEntry->CorpsePos.X)*(entry->x - mapEntry->CorpsePos.X)
+                +(entry->y - mapEntry->CorpsePos.Y)*(entry->y - mapEntry->CorpsePos.Y);
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -6320,7 +6320,7 @@ AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         if ((!useParentDbValue && itr->second.target_mapId == entrance_map) || (useParentDbValue && itr->second.target_mapId == parentId))
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
-            if (atEntry && atEntry->ContinentID == Map)
+            if (atEntry && atEntry->MapID == Map)
                 return &itr->second;
         }
     return NULL;
