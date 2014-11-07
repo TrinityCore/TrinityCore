@@ -6282,10 +6282,10 @@ uint32 Player::TeamForRace(uint8 race)
 {
     if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race))
     {
-        switch (rEntry->BaseLanguage)
+        switch (rEntry->Alliance)
         {
+            case 0: return ALLIANCE;
             case 1: return HORDE;
-            case 7: return ALLIANCE;
         }
         TC_LOG_ERROR("entities.player", "Race ({}) has wrong teamid ({}) in DBC: wrong DBC files?", uint32(race), rEntry->BaseLanguage);
     }
