@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -3714,6 +3714,27 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 95284: // Teleport (from entrance to Slabhide)
             case 95285: // Teleport (from Slabhide to entrance)
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
+                break;
+            // Vortex of Pinnacle spells
+            case 85085: // Howling Gale
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
+                break;
+            case 85159: // Howling Gale
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(84); // To-do: Enum this radius entry - EFFECT_RADIUS_17_YARDS.
+                break;
+            // Altairus
+            case 88282: // Upwind of Altairus
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS);
+                break;
+            case 88314: // Twisting Winds
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
+                break;
+            // Grounding Field
+            case 87721: // Beam A
+            case 87722: // Beam B
+            case 87723: // Beam C
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
             // Halls Of Origination spells
             // Temple Guardian Anhuur

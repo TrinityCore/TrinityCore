@@ -350,6 +350,11 @@ void AddSC_instance_wailing_caverns();
 void AddSC_boss_zum_rah();                   //Zul'Farrak
 void AddSC_zulfarrak();
 void AddSC_instance_zulfarrak();
+void AddSC_vortex_pinnacle();
+void AddSC_instance_vortex_pinnacle();
+void AddSC_boss_grand_vizier_ertan();
+void AddSC_boss_altairus();
+void AddSC_boss_asaad();
 void AddSC_instance_halls_of_origination();
 void AddSC_boss_temple_guardian_anhuur();
 void AddSC_boss_earthrager_ptah();
@@ -1100,6 +1105,12 @@ void AddKalimdorScripts()
     AddSC_thunder_bluff();
     AddSC_ungoro_crater();
     AddSC_winterspring();
+
+    AddSC_vortex_pinnacle();
+    AddSC_instance_vortex_pinnacle();
+    AddSC_boss_grand_vizier_ertan();
+    AddSC_boss_altairus();
+    AddSC_boss_asaad();
 
     AddSC_instance_halls_of_origination();
     AddSC_boss_temple_guardian_anhuur();

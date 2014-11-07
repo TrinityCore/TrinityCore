@@ -117,6 +117,12 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
   Kalimdor/RagefireChasm/instance_ragefire_chasm.cpp
   Kalimdor/DireMaul/instance_dire_maul.cpp
+  Kalimdor/VortexPinnacle/vortex_pinnacle.h
+  Kalimdor/VortexPinnacle/instance_vortex_pinnacle.cpp
+  Kalimdor/VortexPinnacle/vortex_pinnacle.cpp
+  Kalimdor/VortexPinnacle/boss_grand_vizier_ertan.cpp
+  Kalimdor/VortexPinnacle/boss_altairus.cpp
+  Kalimdor/VortexPinnacle/boss_asaad.cpp
   Kalimdor/HallsOfOrigination/halls_of_origination.h
   Kalimdor/HallsOfOrigination/instance_halls_of_origination.cpp
   Kalimdor/HallsOfOrigination/boss_temple_guardian_anhuur.cpp
