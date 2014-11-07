@@ -356,7 +356,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sCharStartOutfitStore,        dbcPath, "CharStartOutfit.dbc");//15595
     for (uint32 i = 0; i < sCharStartOutfitStore.GetNumRows(); ++i)
         if (CharStartOutfitEntry const* outfit = sCharStartOutfitStore.LookupEntry(i))
-            sCharStartOutfitMap[outfit->Race | (outfit->Class << 8) | (outfit->Gender << 16)] = outfit;
+            sCharStartOutfitMap[outfit->RaceID | (outfit->ClassID << 8) | (outfit->GenderID << 16)] = outfit;
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sCharTitlesStore,             dbcPath, "CharTitles.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sChatChannelsStore,           dbcPath, "ChatChannels.dbc");//15595

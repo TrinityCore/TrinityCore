@@ -1072,7 +1072,7 @@ public:
             CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
             if (titleInfo)
             {
-                std::string name = target->getGender() == GENDER_MALE ? titleInfo->nameMale : titleInfo->nameFemale;
+                std::string name = target->getGender() == GENDER_MALE ? titleInfo->NameMale_lang : titleInfo->NameFemale_lang;
 
                 if (name.empty())
                     continue;
@@ -1088,7 +1088,7 @@ public:
 
                 char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
 
-                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
+                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
                     ? handler->GetTrinityString(LANG_ACTIVE)
                     : "";
 
@@ -1097,9 +1097,9 @@ public:
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->bit_index, id, titleNameStr, "", knownStr, activeStr);
+                    handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr, "", knownStr, activeStr);
                 else
-                    handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->bit_index, titleNameStr, "", knownStr, activeStr);
+                    handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->MaskID, titleNameStr, "", knownStr, activeStr);
 
                 ++counter;
             }
