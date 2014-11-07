@@ -653,45 +653,48 @@ struct BarberShopStyleEntry
 
 struct BattlemasterListEntry
 {
-    uint32  id;                                             // 0
-    int32   mapid[8];                                       // 1-8 mapid
-    uint32  type;                                           // 9 map type (3 - BG, 4 - arena)
-    //uint32 canJoinAsGroup;                                // 10 (0 or 1)
-    char* name;                                             // 11
-    uint32 maxGroupSize;                                    // 12 maxGroupSize, used for checking if queue as group
-    uint32 HolidayWorldStateId;                             // 13 new 3.1
-    uint32 minLevel;                                        // 14, min level (sync with PvPDifficulty.dbc content)
-    uint32 maxLevel;                                        // 15, max level (sync with PvPDifficulty.dbc content)
-    //uint32 maxGroupSizeRated;                             // 16 4.0.1
-    //uint32 unk;                                           // 17 - 4.0.6.13596
-    //uint32 maxPlayers;                                    // 18 4.0.1
-    //uint32 unk1;                                          // 19 4.0.3, value 2 for Rated Battlegrounds
+    uint32      ID;                                         // 0
+    uint32      MapID[16];                                  // 1-16 mapid
+    uint32      InstanceType;                               // 17 map type (3 - BG, 4 - arena)
+    //uint32    GroupsAllowed;                              // 18 (0 or 1)
+    char*       Name_lang;                                  // 19
+    uint32      MaxGroupSize;                               // 20 maxGroupSize, used for checking if queue as group
+    uint32      HolidayWorldState;                          // 21 new 3.1
+    uint32      MinLevel;                                   // 22, min level (sync with PvPDifficulty.dbc content)
+    uint32      MaxLevel;                                   // 23, max level (sync with PvPDifficulty.dbc content)
+    //uint32    RatedPlayers;                               // 24 4.0.1
+    //uint32    MinPlayers;                                 // 25 - 4.0.6.13596
+    //uint32    MaxPlayers;                                 // 26 4.0.1
+    //uint32    Flags;                                      // 27 4.0.3, value 2 for Rated Battlegrounds
+    //uint32    IconFileDataID;                             // 28
+    //char*     GameType_lang;                              // 29
+    //uint32    Unk1;                                       // 30
 };
 
 #define MAX_OUTFIT_ITEMS 24
 
 struct CharStartOutfitEntry
 {
-    //uint32 Id;                                            // 0
-    uint8 Race;                                             // 1
-    uint8 Class;                                            // 2
-    uint8 Gender;                                           // 3
-    //uint8 Unused;                                         // 4
-    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28
-    //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
-    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
-    uint32 PetDisplayId;                                    // 77 Pet Model ID for starting pet
-    uint32 PetFamilyEntry;                                  // 78 Pet Family Entry for starting pet
+    //uint32    ID;                                         // 0
+    uint8       RaceID;                                     // 1
+    uint8       ClassID;                                    // 2
+    uint8       GenderID;                                   // 3
+    //uint8     OutfitID;                                   // 4
+    int32       ItemID[MAX_OUTFIT_ITEMS];                   // 5-28
+    //int32     ItemDisplayID[MAX_OUTFIT_ITEMS];            // 29-52 not required at server side
+    //int32     InventoryType[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
+    uint32      PetDisplayID;                               // 77 Pet Model ID for starting pet
+    uint32      PetFamilyID;                                // 78 Pet Family Entry for starting pet
 };
 
 struct CharTitlesEntry
 {
-    uint32  ID;                                             // 0, title ids, for example in Quest::GetCharTitleId()
-    //uint32      unk1;                                     // 1 flags?
-    char* nameMale;                                         // 2 m_name_lang
-    char* nameFemale;                                       // 3 m_name1_lang
-    uint32  bit_index;                                      // 4 m_mask_ID used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
-    //uint32                                                // 5
+    uint32      ID;                                         // 0, title ids, for example in Quest::GetCharTitleId()
+    //uint32    ConditionID;                                // 1
+    char*       NameMale_lang;                              // 2 m_name_lang
+    char*       NameFemale_lang;                            // 3 m_name1_lang
+    uint32      MaskID;                                     // 4 m_mask_ID used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
+    //uint32    Flags;                                      // 5
 };
 
 struct ChatChannelsEntry

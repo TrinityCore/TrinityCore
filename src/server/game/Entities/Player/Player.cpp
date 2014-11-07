@@ -1126,10 +1126,10 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     {
         for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
-            if (oEntry->ItemId[j] <= 0)
+            if (oEntry->ItemID[j] <= 0)
                 continue;
 
-            uint32 itemId = oEntry->ItemId[j];
+            uint32 itemId = oEntry->ItemID[j];
 
             // just skip, reported in ObjectMgr::LoadItemTemplates
             ItemTemplate const* iProto = sObjectMgr->GetItemTemplate(itemId);
@@ -9705,12 +9705,12 @@ void Player::SendBGWeekendWorldStates()
     for (uint32 i = 1; i < sBattlemasterListStore.GetNumRows(); ++i)
     {
         BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(i);
-        if (bl && bl->HolidayWorldStateId)
+        if (bl && bl->HolidayWorldState)
         {
-            if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->id))
-                SendUpdateWorldState(bl->HolidayWorldStateId, 1);
+            if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->ID))
+                SendUpdateWorldState(bl->HolidayWorldState, 1);
             else
-                SendUpdateWorldState(bl->HolidayWorldStateId, 0);
+                SendUpdateWorldState(bl->HolidayWorldState, 0);
         }
     }
 }
@@ -24957,8 +24957,8 @@ bool Player::HasTitle(uint32 bitIndex) const
 
 void Player::SetTitle(CharTitlesEntry const* title, bool lost)
 {
-    uint32 fieldIndexOffset = title->bit_index / 32;
-    uint32 flag = 1 << (title->bit_index % 32);
+    uint32 fieldIndexOffset = title->MaskID / 32;
+    uint32 flag = 1 << (title->MaskID % 32);
 
     if (lost)
     {
@@ -24976,7 +24976,7 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
     }
 
     WorldPacket data(SMSG_TITLE_EARNED, 4 + 4);
-    data << uint32(title->bit_index);
+    data << uint32(title->MaskID);
     data << uint32(lost ? 0 : 1);                           // 1 - earned, 0 - lost
     GetSession()->SendPacket(&data);
 }
