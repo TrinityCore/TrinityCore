@@ -3188,8 +3188,8 @@ void ObjectMgr::LoadPlayerInfo()
                 info->positionY = positionY;
                 info->positionZ = positionZ;
                 info->orientation = orientation;
-                info->displayId_m = rEntry->model_m;
-                info->displayId_f = rEntry->model_f;
+                info->displayId_m = rEntry->MaleDisplayID;
+                info->displayId_f = rEntry->FemaleDisplayID;
                 _playerInfo[current_race][current_class] = info;
 
                 ++count;

@@ -1353,8 +1353,24 @@ class ObjectMgr
         void LoadRealmNames();
 
         std::string GetRealmName(uint32 realm) const;
+        
         ExpansionRequirementContainer const& GetRaceExpansionRequirements() const { return _raceExpansionRequirementStore; }
+        uint8 const GetRaceExpansionRequirement(uint8 race)
+        {
+            auto itr = _raceExpansionRequirementStore.find(race);
+            if (itr != _raceExpansionRequirementStore.end())
+                return itr->second;
+            return EXPANSION_CLASSIC;
+        }
+        
         ExpansionRequirementContainer const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
+        uint8 const GetClassExpansionRequirement(uint8 race)
+        {
+            auto itr = _classExpansionRequirementStore.find(race);
+            if (itr != _classExpansionRequirementStore.end())
+                return itr->second;
+            return EXPANSION_CLASSIC;
+        }
 
     private:
         // first free id for selected id type

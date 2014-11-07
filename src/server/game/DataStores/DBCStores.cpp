@@ -914,13 +914,13 @@ AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_
 char const* GetRaceName(uint8 race, uint8 /*locale*/)
 {
     ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race);
-    return raceEntry ? raceEntry->name : NULL;
+    return raceEntry ? raceEntry->Name_lang : NULL;
 }
 
 char const* GetClassName(uint8 class_, uint8 /*locale*/)
 {
     ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
-    return classEntry ? classEntry->name : NULL;
+    return classEntry ? classEntry->Name_lang : NULL;
 }
 
 uint32 GetAreaFlagByMapId(uint32 mapid)
