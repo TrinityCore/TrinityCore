@@ -699,53 +699,73 @@ struct CharTitlesEntry
 
 struct ChatChannelsEntry
 {
-    uint32  ChannelID;                                      // 0
-    uint32  flags;                                          // 1
-    //uint32                                                // 2        m_factionGroup
-    char* pattern;                                          // 3        m_name_lang
-    //char*       name;                                     // 4        m_shortcut_lang
+    uint32      ID;                                         // 0
+    uint32      Flags;                                      // 1
+    //uint32    FactionGroup                                // 2
+    char*     Name_lang;                                    // 3
+    //char*     Shortcut_lang;                              // 4
 };
 
 struct ChrClassesEntry
 {
-    uint32  ClassID;                                        // 0
-    uint32  powerType;                                      // 1        m_DisplayPower
-                                                            // 2        m_petNameToken
-    char* name;                                             // 3        m_name_lang
-    //char*       nameFemale;                               // 4        m_name_female_lang
-    //char*       nameNeutralGender;                        // 5        m_name_male_lang
-    //char*       capitalizedName                           // 6,       m_filename
-    uint32  spellfamily;                                    // 7        m_spellClassSet
-    //uint32 flags2;                                        // 8        m_flags (0x08 HasRelicSlot)
-    uint32  CinematicSequence;                              // 9        m_cinematicSequenceID
-    uint32  expansion;                                      // 10       m_required_expansion
-    uint32 APPerStrenth;                                    // 11       Attack Power bonus per point of strength
-    uint32 APPerAgility;                                    // 12       Attack Power bonus per point of agility
-    uint32 RAPPerAgility;                                   // 13       Ranged Attack Power bonus per point of agility
+    uint32      ID;                                         // 0
+    uint32      PowerType;                                  // 1
+    //char*     PetNameToken                                // 2
+    char*       Name_lang;                                  // 3
+    //char*     NameFemale_lang;                            // 4
+    //char*     NameMale_lang;                              // 5
+    //char*     Filename;                                   // 6
+    uint32      SpellClassSet;                              // 7
+    //uint32    Flags;                                      // 8
+    uint32      CinematicSequenceID;                        // 9
+    uint32      AttackPowerPerStrength;                     // 10 Attack Power bonus per point of strength
+    uint32      AttackPowerPerAgility;                      // 11 Attack Power bonus per point of agility
+    uint32      RangedAttackPowerPerAgility;                // 12 Ranged Attack Power bonus per point of agility
+    //uint32    DefaultSpec;                                // 13
+    //uint32    CreateScreenFileDataID;                     // 14
+    //uint32    SelectScreenFileDataID;                     // 15
+    //uint32    LowResScreenFileDataID;                     // 16
+    //uint32    IconFileDataID;                             // 17
+    //uint32    Unk1;                                       // 18
 };
 
 struct ChrRacesEntry
 {
-    uint32      RaceID;                                     // 0
+    uint32      ID;                                         // 0
     uint32      Flags;                                      // 1
-    uint32      FactionID;                                  // 2 facton template id
-                                                            // 3 unused
-    uint32      model_m;                                    // 4
-    uint32      model_f;                                    // 5
-                                                            // 6 unused
-    uint32      TeamID;                                     // 7 (7-Alliance 1-Horde)
-                                                            // 8-11 unused
-    uint32      CinematicSequence;                          // 12 id from CinematicSequences.dbc
-    //uint32    unk_322;                                    // 13       m_alliance (0 alliance, 1 horde, 2 not available?)
-    char* name;                                             // 14       m_name_lang used for DBC language detection/selection
-    //char*       nameFemale;                               // 15       m_name_female_lang
-    //char*       nameNeutralGender;                        // 16       m_name_male_lang
-                                                            // 17-18    m_facialHairCustomization[2]
-                                                            // 19       m_hairCustomization
-    uint32      expansion;                                  // 20       m_required_expansion
-    //uint32                                                // 21 (23 for worgens)
-    //uint32                                                // 22 4.0.0
-    //uint32                                                // 23 4.0.0
+    uint32      FactionID;                                  // 2 faction template id
+    //uint32    ExplorationSoundID;                         // 3
+    uint32      MaleDisplayID;                              // 4
+    uint32      FemaleDisplayID;                            // 5
+    //char*     ClientPrefix;                               // 6
+    //uint32    BaseLanguage;                               // 7
+    //uint32    CreatureType;                               // 8
+    //uint32    ResSicknessSpellID;                         // 9
+    //uint32    SplashSoundID;                              // 10
+    //char*     ClientFileString;                           // 11
+    uint32      CinematicSequenceID;                        // 12
+    uint32      TeamID;                                     // 13 m_alliance (0 alliance, 1 horde, 2 neutral)
+    char*       Name_lang;                                  // 14
+    //char*     NameFemale_lang;                            // 15
+    //char*     NameMale_lang;                              // 16
+    //char*     FacialHairCustomization[2];                 // 17-18
+    //char*     HairCustomization;                          // 19
+    //uint32    RaceRelated;                                // 20
+    //uint32    UnalteredVisualRaceID;                      // 21
+    //uint32    UAMaleCreatureSoundDataID;                  // 22
+    //uint32    UAFemaleCreatureSoundDataID;                // 23
+    //uint32    CharComponentTextureLayoutID;               // 24
+    //uint32    DefaultClassID;                             // 25
+    //uint32    CreateScreenFileDataID;                     // 26
+    //uint32    SelectScreenFileDataID;                     // 27
+    //float     MaleCustomizeOffset[3];                     // 28-30
+    //float     FemaleCustomizeOffset[3];                   // 31-33
+    //uint32    NeutralRaceID;                              // 34
+    //uint32    LowResScreenFileDataID;                     // 35
+    //uint32    HighResMaleDisplayID;                       // 36
+    //uint32    HighResFemaleDisplayID;                     // 37
+    //uint32    CharComponentTexLayoutHiResID;              // 38
+    //uint32    Unk;                                        // 39
 };
 
 struct ChrPowerTypesEntry
@@ -1535,7 +1555,7 @@ struct MapEntry
 
     bool IsContinent() const
     {
-        return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 1116;
+        return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 870 || ID == 1116;
     }
 
     bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_DYNAMIC_DIFFICULTY) != 0; }
