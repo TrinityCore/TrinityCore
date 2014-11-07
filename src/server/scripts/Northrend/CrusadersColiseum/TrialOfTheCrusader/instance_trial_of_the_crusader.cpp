@@ -190,6 +190,13 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
+            void OnUnitDeath(Unit* unit) override
+            {
+                if (unit->GetTypeId() == TYPEID_PLAYER && IsEncounterInProgress())
+                    TributeToImmortalityEligible = false;
+
+            }
+
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
@@ -426,9 +433,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             ++MistressOfPainCount;
                         else if (data == DECREASE)
                             --MistressOfPainCount;
-                        break;
-                    case DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE:
-                        TributeToImmortalityEligible = false;
                         break;
                     default:
                         break;
