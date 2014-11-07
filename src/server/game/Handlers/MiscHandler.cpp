@@ -867,10 +867,10 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (player->GetMapId() != atEntry->ContinentID)
+    if (player->GetMapId() != atEntry->MapID)
     {
         TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
-            player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->ContinentID, player->GetMapId(), triggerId);
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->MapID, player->GetMapId(), triggerId);
         return;
     }
 
@@ -880,7 +880,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     if (atEntry->Radius > 0)
     {
         // if we have radius check it
-        float dist = player->GetDistance(atEntry->Pos[0], atEntry->Pos[1], atEntry->Pos[2]);
+        float dist = player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z);
         if (dist > atEntry->Radius + delta)
         {
             TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
@@ -900,16 +900,16 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         double sinVal = std::sin(rotation);
         double cosVal = std::cos(rotation);
 
-        float playerBoxDistX = player->GetPositionX() - atEntry->Pos[0];
-        float playerBoxDistY = player->GetPositionY() - atEntry->Pos[1];
+        float playerBoxDistX = player->GetPositionX() - atEntry->Pos.X;
+        float playerBoxDistY = player->GetPositionY() - atEntry->Pos.Y;
 
-        float rotPlayerX = float(atEntry->Pos[0] + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
-        float rotPlayerY = float(atEntry->Pos[1] + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
+        float rotPlayerX = float(atEntry->Pos.X + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
+        float rotPlayerY = float(atEntry->Pos.Y + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
 
         // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
-        float dz = player->GetPositionZ() - atEntry->Pos[2];
-        float dx = rotPlayerX - atEntry->Pos[0];
-        float dy = rotPlayerY - atEntry->Pos[1];
+        float dz = player->GetPositionZ() - atEntry->Pos.Z;
+        float dx = rotPlayerX - atEntry->Pos.X;
+        float dy = rotPlayerY - atEntry->Pos.Y;
         if ((std::fabs(dx) > atEntry->BoxLength / 2 + delta) ||
             (std::fabs(dy) > atEntry->BoxWidth / 2 + delta) ||
             (std::fabs(dz) > atEntry->BoxHeight / 2 + delta))
@@ -935,7 +935,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     {
         // set resting flag we are in the inn
         player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-        player->InnEnter(time(NULL), atEntry->ContinentID, atEntry->Pos[0], atEntry->Pos[1], atEntry->Pos[2]);
+        player->InnEnter(time(NULL), atEntry->MapID, atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z);
         player->SetRestType(REST_TYPE_IN_TAVERN);
 
         if (sWorld->IsFFAPvPRealm())

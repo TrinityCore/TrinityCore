@@ -258,8 +258,8 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
                 if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->CorpseMapID))
                 {
                     mapid = corpseMapEntry->CorpseMapID;
-                    x = corpseMapEntry->Corpse[0];
-                    y = corpseMapEntry->Corpse[1];
+                    x = corpseMapEntry->CorpsePos.X;
+                    y = corpseMapEntry->CorpsePos.Y;
                     z = entranceMap->GetHeight(GetPlayer()->GetPhaseMask(), x, y, MAX_HEIGHT);
                 }
             }

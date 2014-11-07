@@ -38,11 +38,24 @@
 #pragma pack(push, 1)
 #endif
 
+struct DBCPosition2D
+{
+    float X;
+    float Y;
+};
+
+struct DBCPosition3D
+{
+    float X;
+    float Y;
+    float Z;
+};
+
 struct AchievementEntry
 {
     uint32      ID;                                         // 0
     int32       Faction;                                    // 1 -1=all, 0=horde, 1=alliance
-    int32       InstanceID;                                 // 2 MapID -1=none
+    int32       MapID;                                      // 2 -1=none
     //uint32    Supercedes;                                 // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
     char*       Title_lang;                                 // 4
     //char*     Description_lang;                           // 5
@@ -579,21 +592,21 @@ struct AreaGroupEntry
 
 struct AreaTriggerEntry
 {
-    uint32      ID;                                         // 0
-    uint32      ContinentID;                                // 1 MapID
-    float       Pos[3];                                     // 2-4
-    //uint32    PhaseUseFlags                               // 5
-    //uint32    PhaseID                                     // 6
-    //uint32    PhaseGroupID                                // 7
-    float       Radius;                                     // 8
-    float       BoxLength;                                  // 9
-    float       BoxWidth;                                   // 10
-    float       BoxHeight;                                  // 11
-    float       BoxYaw;                                     // 12
-    //uint32    ShapeType                                   // 13
-    //uint32    ShapeID                                     // 14
-    //uint32    AreaTriggerActionSetID                      // 15
-    //uint32    Flags                                       // 16
+    uint32          ID;                                     // 0
+    uint32          MapID;                                  // 1
+    DBCPosition3D   Pos;                                    // 2-4
+    //uint32        PhaseUseFlags                           // 5
+    //uint32        PhaseID                                 // 6
+    //uint32        PhaseGroupID                            // 7
+    float           Radius;                                 // 8
+    float           BoxLength;                              // 9
+    float           BoxWidth;                               // 10
+    float           BoxHeight;                              // 11
+    float           BoxYaw;                                 // 12
+    //uint32        ShapeType                               // 13
+    //uint32        ShapeID                                 // 14
+    //uint32        AreaTriggerActionSetID                  // 15
+    //uint32        Flags                                   // 16
 };
 
 struct ArmorLocationEntry
@@ -1473,27 +1486,27 @@ struct MailTemplateEntry
 
 struct MapEntry
 {
-    uint32      ID;                                         // 0
-    //char*     Directory;                                  // 1
-    uint32      InstanceType;                               // 2
-    uint32      Flags;                                      // 3
-    //uint32    MapType;                                    // 4
-    //uint32    unk5;                                       // 5
-    char*       MapName_lang;                               // 6
-    uint32      AreaTableID;                                // 7
-    //char*     MapDescription0_lang;                       // 8 Horde
-    //char*     MapDescription1_lang;                       // 9 Alliance
-    uint32      LoadingScreenID;                            // 10 LoadingScreens.dbc
-    //float     MinimapIconScale;                           // 11
-    int32       CorpseMapID;                                // 12 map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
-    float       Corpse[2];                                  // 13 entrance coordinates in ghost mode  (in most cases = normal entrance)
-    //uint32    TimeOfDayOverride;                          // 15
-    uint32      ExpansionID;                                // 16
-    uint32      RaidOffset;                                 // 17
-    uint32      MaxPlayers;                                 // 18
-    int32       ParentMapID;                                // 19 related to phasing
-    //uint32    CosmeticParentMapID                         // 20
-    //uint32    TimeOffset                                  // 21
+    uint32          ID;                                     // 0
+    //char*         Directory;                              // 1
+    uint32          InstanceType;                           // 2
+    uint32          Flags;                                  // 3
+    //uint32        MapType;                                // 4
+    //uint32        unk5;                                   // 5
+    char*           MapName_lang;                           // 6
+    uint32          AreaTableID;                            // 7
+    //char*         MapDescription0_lang;                   // 8 Horde
+    //char*         MapDescription1_lang;                   // 9 Alliance
+    uint32          LoadingScreenID;                        // 10 LoadingScreens.dbc
+    //float         MinimapIconScale;                       // 11
+    int32           CorpseMapID;                            // 12 map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
+    DBCPosition2D   CorpsePos;                              // 13 entrance coordinates in ghost mode  (in most cases = normal entrance)
+    //uint32        TimeOfDayOverride;                      // 15
+    uint32          ExpansionID;                            // 16
+    uint32          RaidOffset;                             // 17
+    uint32          MaxPlayers;                             // 18
+    int32           ParentMapID;                            // 19 related to phasing
+    //uint32        CosmeticParentMapID                     // 20
+    //uint32        TimeOffset                              // 21
 
     // Helpers
     uint32 Expansion() const { return ExpansionID; }
@@ -1512,8 +1525,8 @@ struct MapEntry
         if (CorpseMapID < 0)
             return false;
         mapid = CorpseMapID;
-        x = Corpse[0];
-        y = Corpse[1];
+        x = CorpsePos.X;
+        y = CorpsePos.Y;
         return true;
     }
 
