@@ -596,7 +596,7 @@ void LoadDBCStores(const std::string& dataPath)
                 if (!cFamily)
                     continue;
 
-                if (skillLine->skillId != cFamily->skillLine[0] && skillLine->skillId != cFamily->skillLine[1])
+                if (skillLine->skillId != cFamily->SkillLine[0] && skillLine->skillId != cFamily->SkillLine[1])
                     continue;
 
                 if (skillLine->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
@@ -854,7 +854,7 @@ char const* GetPetName(uint32 petfamily, uint32 /*dbclang*/)
     CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(petfamily);
     if (!pet_family)
         return NULL;
-    return pet_family->Name ? pet_family->Name : NULL;
+    return pet_family->Name_lang ? pet_family->Name_lang : NULL;
 }
 
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId)

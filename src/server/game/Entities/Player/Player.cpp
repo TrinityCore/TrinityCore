@@ -7114,7 +7114,7 @@ void Player::SendCurrencies() const
         CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
 
         // not send init meta currencies.
-        if (!entry || entry->Category == CURRENCY_CATEGORY_META_CONQUEST)
+        if (!entry || entry->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
             continue;
 
         uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
@@ -7263,7 +7263,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         if (count > 0)
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
 
-        if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
+        if (currency->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
         {
             // count was changed to week limit, now we can modify original points.
             ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, count, printLog);
@@ -7349,12 +7349,12 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
             return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
     }
 
-    return currency->WeekCap;
+    return currency->MaxEarnablePerWeek;
 }
 
 uint32 Player::GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const
 {
-    uint32 cap = currency->TotalCap;
+    uint32 cap = currency->MaxQty;
 
     switch (currency->ID)
     {
@@ -25814,11 +25814,11 @@ void Player::LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRa
     if (!pet_family)
         return;
 
-    if (pet_family->petTalentType < 0)                       // not hunter pet
+    if (pet_family->PetTalentType < 0)                       // not hunter pet
         return;
 
     // prevent learn talent for different family (cheating)
-    if (!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
+    if (!((1 << pet_family->PetTalentType) & talentTabInfo->petTalentMask))
         return;
 
     // find current max talent rank (0~5)
@@ -26076,7 +26076,7 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
         return;
 
     CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
-    if (!pet_family || pet_family->petTalentType < 0)
+    if (!pet_family || pet_family->PetTalentType < 0)
         return;
 
     for (uint32 talentTabId = 1; talentTabId < sTalentTabStore.GetNumRows(); ++talentTabId)
@@ -26085,7 +26085,7 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
         if (!talentTabInfo)
             continue;
 
-        if (!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
+        if (!((1 << pet_family->PetTalentType) & talentTabInfo->petTalentMask))
             continue;
 
         for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)

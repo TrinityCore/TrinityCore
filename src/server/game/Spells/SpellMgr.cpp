@@ -2432,7 +2432,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
 
         for (uint8 j = 0; j < 2; ++j)
         {
-            if (!creatureFamily->skillLine[j])
+            if (!creatureFamily->SkillLine[j])
                 continue;
 
             for (uint32 k = 0; k < sSkillLineAbilityStore.GetNumRows(); ++k)
@@ -2441,11 +2441,11 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (!skillLine)
                     continue;
 
-                //if (skillLine->skillId != creatureFamily->skillLine[0] &&
-                //    (!creatureFamily->skillLine[1] || skillLine->skillId != creatureFamily->skillLine[1]))
+                //if (skillLine->skillId != creatureFamily->SkillLine[0] &&
+                //    (!creatureFamily->SkillLine[1] || skillLine->skillId != creatureFamily->SkillLine[1]))
                 //    continue;
 
-                if (skillLine->skillId != creatureFamily->skillLine[j])
+                if (skillLine->skillId != creatureFamily->SkillLine[j])
                     continue;
 
                 if (skillLine->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
@@ -2543,7 +2543,7 @@ void SpellMgr::LoadPetDefaultSpells()
         int32 petSpellsId = -int32(itr->second.PetSpellDataId);
         PetDefaultSpellsEntry petDefSpells;
         for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
-            petDefSpells.spellid[j] = spellDataEntry->spellId[j];
+            petDefSpells.spellid[j] = spellDataEntry->Spells[j];
 
         if (LoadPetDefaultSpells_helper(&itr->second, petDefSpells))
         {

@@ -822,55 +822,67 @@ struct CreatureDisplayInfoExtraEntry
 
 struct CreatureFamilyEntry
 {
-    uint32  ID;                                             // 0        m_ID
-    float   minScale;                                       // 1        m_minScale
-    uint32  minScaleLevel;                                  // 2        m_minScaleLevel
-    float   maxScale;                                       // 3        m_maxScale
-    uint32  maxScaleLevel;                                  // 4        m_maxScaleLevel
-    uint32  skillLine[2];                                   // 5-6      m_skillLine
-    uint32  petFoodMask;                                    // 7        m_petFoodMask
-    int32   petTalentType;                                  // 8        m_petTalentType
-                                                            // 9        m_categoryEnumID
-    char* Name;                                             // 10       m_name_lang
-                                                            // 11       m_iconFile
+    uint32      ID;                                         // 0
+    float       MinScale;                                   // 1
+    uint32      MinScaleLevel;                              // 2
+    float       MaxScale;                                   // 3
+    uint32      MaxScaleLevel;                              // 4
+    uint32      SkillLine[2];                               // 5-6
+    uint32      PetFoodMask;                                // 7
+    uint32      PetTalentType;                              // 8
+    //uint32    CategoryEnumID;                             // 9
+    char*       Name_lang;                                  // 10
+    //char*     IconFile;                                   // 11
 };
 
 struct CreatureModelDataEntry
 {
-    uint32 Id;
-    uint32 Flags;
-    //char* ModelPath
-    //uint32 Unk1;
-    //float Scale;                                             // Used in calculation of unit collision data
-    //int32 Unk2
-    //int32 Unk3
-    //uint32 Unk4
-    //uint32 Unk5
-    //float Unk6
-    //uint32 Unk7
-    //float Unk8
-    //uint32 Unk9
-    //uint32 Unk10
-    //float CollisionWidth;
-    float CollisionHeight;
-    float MountHeight;                                       // Used in calculation of unit collision data when mounted
-    //float Unks[11]
+    uint32      ID;                                         // 0
+    uint32      Flags;                                      // 1
+    //uint32    FileDataID;                                 // 2
+    //uint32    SizeClass;                                  // 3
+    //float     ModelScale;                                 // 4
+    //uint32    BloodID;                                    // 5
+    //uint32    FootprintTextureID;                         // 6
+    //float     FootprintTextureLength;                     // 7
+    //float     FootprintTextureWidth;                      // 8
+    //float     FootprintParticleScale;                     // 9
+    //uint32    FoleyMaterialID;                            // 10
+    //uint32    FootstepShakeSize;                          // 11
+    //uint32    DeathThudShakeSize;                         // 12
+    //uint32    SoundID;                                    // 13
+    //float     CollisionWidth;                             // 14
+    float       CollisionHeight;                            // 15
+    float       MountHeight;                                // 16
+    //float     GeoBoxMin[3];                               // 17-19
+    //float     GeoBoxMax[3];                               // 20-22
+    //float     WorldEffectScale;                           // 23
+    //float     AttachedEffectScale;                        // 24
+    //float     MissileCollisionRadius;                     // 25
+    //float     MissileCollisionPush;                       // 26
+    //float     MissileCollisionRaise;                      // 27
+    //float     OverrideLootEffectScale;                    // 28
+    //float     OverrideNameScale;                          // 29
+    //float     OverrideSelectionRadius;                    // 30
+    //float     TamedPetBaseScale;                          // 31
+    //uint32    CreatureGeosetDataID;                       // 32
+    //float     HoverHeight;                                // 33
 };
 
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 struct CreatureSpellDataEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    uint32    spellId[MAX_CREATURE_SPELL_DATA_SLOT];        // 1-4      m_spells[4]
-    //uint32    availability[MAX_CREATURE_SPELL_DATA_SLOT]; // 4-7      m_availability[4]
+    uint32      ID;                                         // 0
+    uint32      Spells[MAX_CREATURE_SPELL_DATA_SLOT];       // 1-4
+    //uint32    Availability[MAX_CREATURE_SPELL_DATA_SLOT]; // 4-7
 };
 
 struct CreatureTypeEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    //char*   Name;                                         // 1        m_name_lang
-    //uint32    no_expirience;                              // 2        m_flags no exp? critters, non-combat pets, gas cloud.
+    uint32      ID;                                         // 0
+    //char*     Name_lang;                                  // 1
+    //uint32    Flags;                                      // 2 no exp? critters, non-combat pets, gas cloud.
 };
 
 /* not used
@@ -885,45 +897,57 @@ struct CurrencyCategoryEntry
 
 struct CurrencyTypesEntry
 {
-    uint32 ID;                                              // 0        not used
-    uint32 Category;                                        // 1        may be category
-    //char* name;                                           // 2
-    //char* iconName;                                       // 3
-    //uint32 unk4;                                          // 4        all 0
-    uint32 HasSubstitution;                                 // 5        archaeology-related (?)
-    uint32 SubstitutionId;                                  // 6
-    uint32 TotalCap;                                        // 7
-    uint32 WeekCap;                                         // 8
-    uint32 Flags;                                           // 9
-    //char* description;                                    // 10
+    uint32      ID;                                         // 0
+    uint32      CategoryID;                                 // 1
+    //char*     Name_lang;                                  // 2
+    //char*     InventoryIcon[2];                           // 3-4
+    //uint32    SpellWeight;                                // 5 archaeology-related (?)
+    //uint32    SpellCategory;                              // 6
+    uint32      MaxQty;                                     // 7
+    uint32      MaxEarnablePerWeek;                         // 8
+    uint32      Flags;                                      // 9
+    //uint32    Quality;                                    // 10
+    //char*     Description_lang;                           // 11
 };
 
 struct DestructibleModelDataEntry
 {
-    uint32  Id;
-    uint32  DamagedDisplayId;
-    //uint32  DamagedUnk1;
-    //uint32  DamagedUnk2;
-    //uint32  DamagedUnk3;
-    uint32  DestroyedDisplayId;
-    //uint32  DestroyedUnk1;
-    //uint32  DestroyedUnk2;
-    //uint32  DestroyedUnk3;
-    //uint32  DestroyedUnk4;
-    uint32  RebuildingDisplayId;
-    //uint32  RebuildingUnk1;
-    //uint32  RebuildingUnk2;
-    //uint32  RebuildingUnk3;
-    //uint32  RebuildingUnk4;
-    uint32  SmokeDisplayId;
-    //uint32  SmokeUnk1;
-    //uint32  SmokeUnk2;
-    //uint32  SmokeUnk3;
-    //uint32  SmokeUnk4;
-    //uint32  UnkDisplayid;
-    //uint32  Unk6;
-    //uint32  Unk7;
-    //uint32  Unk8;
+    uint32          ID;                                     // 0
+    struct
+    {
+        uint32      DisplayID;                              // 1
+        //uint32    ImpactEffectDoodadSet;                  // 2
+        //uint32    AmbientDoodadSet;                       // 3
+        //uint32    NameSet;                                // 4
+    } StateDamaged;
+    struct
+    {
+        uint32      DisplayID;                              // 5
+        //uint32    DestructionDoodadSet;                   // 6
+        //uint32    ImpactEffectDoodadSet;                  // 7
+        //uint32    AmbientDoodadSet;                       // 8
+        //uint32    NameSet;                                // 9
+    } StateDestroyed;
+    struct
+    {
+        uint32      DisplayID;                              // 10
+        //uint32    DestructionDoodadSet;                   // 11
+        //uint32    ImpactEffectDoodadSet;                  // 12
+        //uint32    AmbientDoodadSet;                       // 13
+        //uint32    NameSet;                                // 14
+    } StateRebuilding;
+    struct
+    {
+        //uint32    DisplayID;                              // 15
+        //uint32    InitDoodadSet;                          // 16
+        //uint32    AmbientDoodadSet;                       // 17
+        //uint32    NameSet;                                // 18
+    } StateSmoke;
+    //uint32        EjectDirection;                         // 19
+    //uint32        RepairGroundFx;                         // 20
+    //uint32        DoNotHighlight;                         // 21
+    //uint32        HealEffect;                             // 22
+    //uint32        HealEffectSpeed;                        // 23
 };
 
 struct DungeonEncounterEntry
