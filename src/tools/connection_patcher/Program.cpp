@@ -194,7 +194,7 @@ int main(int argc, char** argv)
                 do_patches<Patches::Mac::x64, Patterns::Mac::x64>
                     (&patcher, renamed_binary_path);
 
-                do_module<Patches::Windows::x64, Patterns::Windows::x64>
+                do_module<Patches::Mac::x64, Patterns::Mac::x64>
                     ( "97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth"
                     , "/Users/Shared/Blizzard/Battle.net/Cache/"
                     );
