@@ -183,7 +183,7 @@ bool ItemChatLink::ValidateName(char* buffer, const char* context)
 {
     ChatLink::ValidateName(buffer, context);
 
-    char* suffixStrings = _suffix ? _suffix->nameSuffix : (_property ? _property->nameSuffix : NULL);
+    char* suffixStrings = _suffix ? _suffix->Name_lang : (_property ? _property->Name_lang : NULL);
 
     bool res = (FormatName(LOCALE_enUS, NULL, suffixStrings) == buffer);
     if (!res)

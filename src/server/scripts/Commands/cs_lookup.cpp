@@ -461,7 +461,7 @@ public:
             ItemSetEntry const* set = sItemSetStore.LookupEntry(id);
             if (set)
             {
-                std::string name = set->name;
+                std::string name = set->Name_lang;
                 if (name.empty())
                     continue;
 

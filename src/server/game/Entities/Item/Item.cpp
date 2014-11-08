@@ -43,7 +43,7 @@ void AddItemsSetItem(Player* player, Item* item)
         return;
     }
 
-    if (set->required_skill_id && player->GetSkillValue(set->required_skill_id) < set->required_skill_value)
+    if (set->RequiredSkill && player->GetSkillValue(set->RequiredSkill) < set->RequiredSkillRank)
         return;
 
     ItemSetEffect* eff = NULL;
@@ -74,18 +74,18 @@ void AddItemsSetItem(Player* player, Item* item)
     }
 
     ++eff->item_count;
+    
+    ItemSetSpells& spells = sItemSetSpellsStore[setid];
 
-    for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; ++x)
+    for (uint32 x = 0; x < spells.size(); ++x)
     {
-        if (!set->spells [x])
-            continue;
         //not enough for  spell
-        if (set->items_to_triggerspell[x] > eff->item_count)
+        if (spells[x]->Threshold > eff->item_count)
             continue;
 
         uint32 z = 0;
         for (; z < MAX_ITEM_SET_SPELLS; ++z)
-            if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
+            if (eff->spells[z] && eff->spells[z]->Id == spells[x]->SpellID)
                 break;
 
         if (z < MAX_ITEM_SET_SPELLS)
@@ -96,10 +96,10 @@ void AddItemsSetItem(Player* player, Item* item)
         {
             if (!eff->spells[y])                             // free slot
             {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->spells[x]);
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spells[x]->SpellID);
                 if (!spellInfo)
                 {
-                    TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
+                    TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", spells[x]->SpellID, setid);
                     break;
                 }
 
@@ -140,19 +140,18 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
         return;
 
     --eff->item_count;
+    
+    ItemSetSpells& spells = sItemSetSpellsStore[setid];
 
-    for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; x++)
+    for (uint32 x = 0; x < spells.size(); x++)
     {
-        if (!set->spells[x])
-            continue;
-
         // enough for spell
-        if (set->items_to_triggerspell[x] <= eff->item_count)
+        if (spells[x]->Threshold <= eff->item_count)
             continue;
 
         for (uint32 z = 0; z < MAX_ITEM_SET_SPELLS; z++)
         {
-            if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
+            if (eff->spells[z] && eff->spells[z]->Id == spells[x]->SpellID)
             {
                 // spell can be not active if not fit form requirement
                 player->ApplyEquipSpell(eff->spells[z], NULL, false);
@@ -626,7 +625,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
                 SetState(ITEM_CHANGED, GetOwner());
             }
             for (uint32 i = PROP_ENCHANTMENT_SLOT_1; i < PROP_ENCHANTMENT_SLOT_1 + 3; ++i)
-                SetEnchantment(EnchantmentSlot(i), item_rand->enchant_id[i - PROP_ENCHANTMENT_SLOT_1], 0, 0);
+                SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_1], 0, 0);
         }
     }
     else
@@ -643,7 +642,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
             }
 
             for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i <= PROP_ENCHANTMENT_SLOT_4; ++i)
-                SetEnchantment(EnchantmentSlot(i), item_rand->enchant_id[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
+                SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
         }
     }
 }
@@ -1459,7 +1458,7 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
             {
                 ItemClassEntry const* classEntry = sItemClassStore.LookupEntry(proto->Class);
                 if (classEntry)
-                    cost *= classEntry->PriceFactor;
+                    cost *= classEntry->PriceMod;
                 else
                     cost = 0;
             }
@@ -1497,9 +1496,9 @@ int32 Item::GetReforgableStat(ItemModType statType) const
             if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
                 for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
                     if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->spellid[f]) == statType)
-                        for (int k = 0; k < 5; ++k)
-                            if (randomSuffix->enchant_id[k] == enchant->ID)
-                                return int32((randomSuffix->prefix[k] * GetItemSuffixFactor()) / 10000);
+                        for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
+                            if (randomSuffix->Enchantment[k] == enchant->ID)
+                                return int32((randomSuffix->AllocationPct[k] * GetItemSuffixFactor()) / 10000);
     }
     else
     {
@@ -1512,7 +1511,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
                 for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
                     if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->spellid[f]) == statType)
                         for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
-                            if (randomProp->enchant_id[k] == enchant->ID)
+                            if (randomProp->Enchantment[k] == enchant->ID)
                                 return int32(enchant->amount[k]);
     }
 

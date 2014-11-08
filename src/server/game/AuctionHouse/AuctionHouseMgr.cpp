@@ -599,13 +599,13 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                 {
                     const ItemRandomSuffixEntry* itemRandSuffix = sItemRandomSuffixStore.LookupEntry(-propRefID);
                     if (itemRandSuffix)
-                        suffix = itemRandSuffix->nameSuffix;
+                        suffix = itemRandSuffix->Name_lang;
                 }
                 else
                 {
                     const ItemRandomPropertiesEntry* itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
                     if (itemRandProp)
-                        suffix = itemRandProp->nameSuffix;
+                        suffix = itemRandProp->Name_lang;
                 }
 
                 // dbc local name
