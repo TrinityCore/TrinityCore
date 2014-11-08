@@ -1429,7 +1429,7 @@ void Player::HandleDrowning(uint32 time_diff)
             SendMirrorTimer(FATIGUE_TIMER, DarkWaterTime, m_MirrorTimer[FATIGUE_TIMER], 10);
     }
 
-    if (m_MirrorTimerFlags & (UNDERWATER_INLAVA /*| UNDERWATER_INSLIME*/) && !(_lastLiquid && _lastLiquid->SpellId))
+    if (m_MirrorTimerFlags & (UNDERWATER_INLAVA /*| UNDERWATER_INSLIME*/) && !(_lastLiquid && _lastLiquid->SpellID))
     {
         // Breath timer not activated - activate it
         if (m_MirrorTimer[FIRE_TIMER] == DISABLED_MIRROR_TIMER)
@@ -6748,7 +6748,7 @@ void Player::RewardReputation(Unit* victim, float rate)
         Map const* map = GetMap();
         if (map && map->IsNonRaidDungeon())
             if (LFGDungeonEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficulty()))
-                if (dungeon->reclevel == 80)
+                if (dungeon->TargetLevel == 80)
                     ChampioningFaction = GetChampioningFaction();
     }
 
@@ -24695,8 +24695,8 @@ void Player::UpdateUnderwaterState(Map* m, float x, float y, float z)
     if (!res)
     {
         m_MirrorTimerFlags &= ~(UNDERWATER_INWATER | UNDERWATER_INLAVA | UNDERWATER_INSLIME | UNDERWARER_INDARKWATER);
-        if (_lastLiquid && _lastLiquid->SpellId)
-            RemoveAurasDueToSpell(_lastLiquid->SpellId);
+        if (_lastLiquid && _lastLiquid->SpellID)
+            RemoveAurasDueToSpell(_lastLiquid->SpellID);
 
         _lastLiquid = NULL;
         return;
@@ -24705,25 +24705,25 @@ void Player::UpdateUnderwaterState(Map* m, float x, float y, float z)
     if (uint32 liqEntry = liquid_status.entry)
     {
         LiquidTypeEntry const* liquid = sLiquidTypeStore.LookupEntry(liqEntry);
-        if (_lastLiquid && _lastLiquid->SpellId && _lastLiquid->Id != liqEntry)
-            RemoveAurasDueToSpell(_lastLiquid->SpellId);
+        if (_lastLiquid && _lastLiquid->SpellID && _lastLiquid->ID != liqEntry)
+            RemoveAurasDueToSpell(_lastLiquid->SpellID);
 
-        if (liquid && liquid->SpellId)
+        if (liquid && liquid->SpellID)
         {
             if (res & (LIQUID_MAP_UNDER_WATER | LIQUID_MAP_IN_WATER))
             {
-                if (!HasAura(liquid->SpellId))
-                    CastSpell(this, liquid->SpellId, true);
+                if (!HasAura(liquid->SpellID))
+                    CastSpell(this, liquid->SpellID, true);
             }
             else
-                RemoveAurasDueToSpell(liquid->SpellId);
+                RemoveAurasDueToSpell(liquid->SpellID);
         }
 
         _lastLiquid = liquid;
     }
-    else if (_lastLiquid && _lastLiquid->SpellId)
+    else if (_lastLiquid && _lastLiquid->SpellID)
     {
-        RemoveAurasDueToSpell(_lastLiquid->SpellId);
+        RemoveAurasDueToSpell(_lastLiquid->SpellID);
         _lastLiquid = NULL;
     }
 
@@ -25310,10 +25310,11 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         SendEquipError(msg, NULL, NULL, item->itemid);
 }
 
+// 6.x - removeme
 uint32 Player::CalculateTalentsPoints() const
 {
     // this dbc file has entries only up to level 100
-    NumTalentsAtLevelEntry const* count = sNumTalentsAtLevelStore.LookupEntry(std::min<uint32>(getLevel(), 100));
+    /*NumTalentsAtLevelEntry const* count = sNumTalentsAtLevelStore.LookupEntry(std::min<uint32>(getLevel(), 100));
     if (!count)
         return 0;
 
@@ -25337,7 +25338,8 @@ uint32 Player::CalculateTalentsPoints() const
     if (talentPointsForLevel > baseForLevel)
         talentPointsForLevel = baseForLevel;
 
-    return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
+    return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));*/
+    return 0;
 }
 
 bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const

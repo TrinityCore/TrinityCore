@@ -557,7 +557,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MOUNTED:
             if (MountCapabilityEntry const* mountCapability = GetBase()->GetUnitOwner()->GetMountCapability(uint32(GetMiscValueB())))
             {
-                amount = mountCapability->Id;
+                amount = mountCapability->ID;
                 m_canBeRecalculated = false;
             }
             break;

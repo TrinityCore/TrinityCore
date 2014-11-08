@@ -2949,8 +2949,8 @@ void Unit::UpdateUnderwaterState(Map* m, float x, float y, float z)
     ZLiquidStatus res = m->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquid_status);
     if (!res)
     {
-        if (_lastLiquid && _lastLiquid->SpellId)
-            RemoveAurasDueToSpell(_lastLiquid->SpellId);
+        if (_lastLiquid && _lastLiquid->SpellID)
+            RemoveAurasDueToSpell(_lastLiquid->SpellID);
 
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
         _lastLiquid = NULL;
@@ -2960,26 +2960,26 @@ void Unit::UpdateUnderwaterState(Map* m, float x, float y, float z)
     if (uint32 liqEntry = liquid_status.entry)
     {
         LiquidTypeEntry const* liquid = sLiquidTypeStore.LookupEntry(liqEntry);
-        if (_lastLiquid && _lastLiquid->SpellId && _lastLiquid->Id != liqEntry)
-            RemoveAurasDueToSpell(_lastLiquid->SpellId);
+        if (_lastLiquid && _lastLiquid->SpellID && _lastLiquid->ID != liqEntry)
+            RemoveAurasDueToSpell(_lastLiquid->SpellID);
 
-        if (liquid && liquid->SpellId)
+        if (liquid && liquid->SpellID)
         {
             if (res & (LIQUID_MAP_UNDER_WATER | LIQUID_MAP_IN_WATER))
             {
-                if (!HasAura(liquid->SpellId))
-                    CastSpell(this, liquid->SpellId, true);
+                if (!HasAura(liquid->SpellID))
+                    CastSpell(this, liquid->SpellID, true);
             }
             else
-                RemoveAurasDueToSpell(liquid->SpellId);
+                RemoveAurasDueToSpell(liquid->SpellID);
         }
 
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_ABOVEWATER);
         _lastLiquid = liquid;
     }
-    else if (_lastLiquid && _lastLiquid->SpellId)
+    else if (_lastLiquid && _lastLiquid->SpellID)
     {
-        RemoveAurasDueToSpell(_lastLiquid->SpellId);
+        RemoveAurasDueToSpell(_lastLiquid->SpellID);
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
         _lastLiquid = NULL;
     }

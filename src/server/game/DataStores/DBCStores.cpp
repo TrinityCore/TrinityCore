@@ -166,7 +166,6 @@ DBCStorage <MountTypeEntry> sMountTypeStore(MountTypefmt);
 
 DBCStorage <NameGenEntry> sNameGenStore(NameGenfmt);
 NameGenVectorArraysMap sGenNameVectoArraysMap;
-DBCStorage <NumTalentsAtLevelEntry> sNumTalentsAtLevelStore(NumTalentsAtLevelfmt);
 
 DBCStorage <OverrideSpellDataEntry> sOverrideSpellDataStore(OverrideSpellDatafmt);
 
@@ -486,7 +485,7 @@ void LoadDBCStores(const std::string& dataPath)
     sMapDifficultyMap[MAKE_PAIR32(0, 0)] = MapDifficulty(0, 0, false);//map 0 is missingg from MapDifficulty.dbc use this till its ported to sql
     for (uint32 i = 0; i < sMapDifficultyStore.GetNumRows(); ++i)
         if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
-            sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] > 0);
+            sMapDifficultyMap[MAKE_PAIR32(entry->MapID, entry->DifficultyID)] = MapDifficulty(entry->RaidDuration, entry->MaxPlayers, entry->Message_lang[0] > 0);
     sMapDifficultyStore.Clear();
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMountCapabilityStore,        dbcPath, "MountCapability.dbc");//15595
@@ -495,9 +494,8 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sNameGenStore,                dbcPath, "NameGen.dbc");//15595
     for (uint32 i = 0; i < sNameGenStore.GetNumRows(); ++i)
         if (NameGenEntry const* entry = sNameGenStore.LookupEntry(i))
-            sGenNameVectoArraysMap[entry->race].stringVectorArray[entry->gender].push_back(std::string(entry->name));
+            sGenNameVectoArraysMap[entry->Race].stringVectorArray[entry->Sex].push_back(std::string(entry->Name));
     sNameGenStore.Clear();
-    LoadDBC(availableDbcLocales, bad_dbc_files, sNumTalentsAtLevelStore,      dbcPath, "NumTalentsAtLevel.dbc");//15595
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");//15595
 
@@ -508,8 +506,8 @@ void LoadDBCStores(const std::string& dataPath)
 
     for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
         if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
-            if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseId))
-                sPhasesByGroup[group->GroupId].insert(phase->ID);
+            if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
+                sPhasesByGroup[group->PhaseGroupID].insert(phase->ID);
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath, "PowerDisplay.dbc");
 
@@ -1306,7 +1304,7 @@ LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty)
         if (!dungeon)
             continue;
 
-        if (dungeon->map == int32(mapId) && Difficulty(dungeon->difficulty) == difficulty)
+        if (dungeon->MapID == int32(mapId) && Difficulty(dungeon->DifficultyID) == difficulty)
             return dungeon;
     }
 
@@ -1321,8 +1319,8 @@ uint32 GetDefaultMapLight(uint32 mapId)
         if (!light)
             continue;
 
-        if (light->MapId == mapId && light->X == 0.0f && light->Y == 0.0f && light->Z == 0.0f)
-            return light->Id;
+        if (light->MapID == mapId && light->Pos.X == 0.0f && light->Pos.Y == 0.0f && light->Pos.Z == 0.0f)
+            return light->ID;
     }
 
     return 0;
