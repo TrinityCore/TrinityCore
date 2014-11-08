@@ -398,9 +398,9 @@ void LoadDBCStores(const std::string& dataPath)
     for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)
     {
         FactionEntry const* faction = sFactionStore.LookupEntry(i);
-        if (faction && faction->team)
+        if (faction && faction->ParentFactionID)
         {
-            SimpleFactionsList &flist = sFactionTeamMap[faction->team];
+            SimpleFactionsList &flist = sFactionTeamMap[faction->ParentFactionID];
             flist.push_back(i);
         }
     }
