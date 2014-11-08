@@ -333,7 +333,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
             {
                 if (FactionEntry const* factionEntryCalc = sFactionStore.LookupEntry(*itr))
                 {
-                    if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > ReputationRank(factionEntryCalc->ParentFactionCapOut))
+                    if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > ReputationRank(factionEntryCalc->ParentFactionCapIn))
                         continue;
                     int32 spilloverRep = int32(spillOverRepOut * factionEntryCalc->ParentFactionModIn);
                     if (spilloverRep != 0 || !incremental)

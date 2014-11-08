@@ -1079,41 +1079,40 @@ struct FactionTemplateEntry
 
 struct GameObjectDisplayInfoEntry
 {
-    uint32      Displayid;                                  // 0        m_ID
-    char* filename;                                         // 1
-    //uint32  unk1[10];                                     //2-11
-    float   minX;
-    float   minY;
-    float   minZ;
-    float   maxX;
-    float   maxY;
-    float   maxZ;
-    //uint32  transport;                                    //18
+    uint32          ID;                                     // 0
+    uint32          FileDataID;                             // 1
+    //uint32        Sound[10];                              // 2-11
+    DBCPosition3D   GeoBoxMin;                              // 12-14
+    DBCPosition3D   GeoBoxMax;                              // 15-17
+    //uint32        ObjectEffectPackageID;                  // 18
+    //float         OverrideLootEffectScale;                // 19
+    //float         OverrideNameScale;                      // 20
 };
 
 struct GemPropertiesEntry
 {
-    uint32      ID;                                         // 0        m_id
-    uint32      spellitemenchantement;                      // 1        m_enchant_id
-                                                            // 2        m_maxcount_inv
-                                                            // 3        m_maxcount_item
-    uint32      color;                                      // 4        m_type
-    uint32      minJewelCraftingSkill;                      // 5        m_minJewelCraftingSkill
+    uint32      ID;                                         // 0
+    uint32      EnchantID;                                  // 1
+    //uint32    MaxCountInv;                                // 2
+    //uint32    MaxCountItem;                               // 3
+    uint32      Type;                                       // 4
+    uint32      MinItemLevel;                               // 5
 };
 
 struct GlyphPropertiesEntry
 {
-    uint32  Id;
-    uint32  SpellId;
-    uint32  TypeFlags;
-    uint32  IconId;                                         // GlyphIconId (SpellIcon.dbc)
+    uint32      ID;                                         // 0
+    uint32      SpellID;                                    // 1
+    uint32      Type;                                       // 2
+    uint32      SpellIconID;                                // 3 GlyphIconId (SpellIcon.dbc)
+    //uint32    GlyphExclusiveCategoryID;                   // 4
 };
 
 struct GlyphSlotEntry
 {
-    uint32  Id;
-    uint32  TypeFlags;
-    uint32  Order;
+    uint32      ID;                                         // 0
+    uint32      Type;                                       // 1
+    //uint32    Tooltip;                                    // 2
 };
 
 // All Gt* DBC store data for 100 levels, some by 100 per class/race
@@ -1207,9 +1206,9 @@ struct GtOCTBaseMPByClassEntry
 
 struct GuildPerkSpellsEntry
 {
-    //uint32 Id;
-    uint32 Level;
-    uint32 SpellId;
+    //uint32    ID;                                         // 0
+    uint32      GuildLevel;                                 // 1
+    uint32      SpellID;                                    // 2
 };
 
 /* no used
@@ -1234,49 +1233,49 @@ struct HolidayNamesEntry
 
 struct HolidaysEntry
 {
-    uint32 Id;                                              // 0        m_ID
-    uint32 Duration[MAX_HOLIDAY_DURATIONS];                 // 1-10     m_duration
-    uint32 Date[MAX_HOLIDAY_DATES];                         // 11-36    m_date (dates in unix time starting at January, 1, 2000)
-    uint32 Region;                                          // 37       m_region (wow region)
-    uint32 Looping;                                         // 38       m_looping
-    uint32 CalendarFlags[MAX_HOLIDAY_FLAGS];                // 39-48    m_calendarFlags
-    //uint32 holidayNameId;                                 // 49       m_holidayNameID (HolidayNames.dbc)
-    //uint32 holidayDescriptionId;                          // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
-    char* TextureFilename;                                  // 51       m_textureFilename
-    uint32 Priority;                                        // 52       m_priority
-    uint32 CalendarFilterType;                              // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
-    //uint32 flags;                                         // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
+    uint32      ID;                                         // 0        m_ID
+    uint32      Duration[MAX_HOLIDAY_DURATIONS];            // 1-10     m_duration
+    uint32      Date[MAX_HOLIDAY_DATES];                    // 11-36    m_date (dates in unix time starting at January, 1, 2000)
+    uint32      Region;                                     // 37       m_region (wow region)
+    uint32      Looping;                                    // 38       m_looping
+    uint32      CalendarFlags[MAX_HOLIDAY_FLAGS];           // 39-48    m_calendarFlags
+    //uint32    HolidayNameID;                              // 49       m_holidayNameID (HolidayNames.dbc)
+    //uint32    HolidayDescriptionID;                       // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
+    char*       TextureFilename;                            // 51       m_textureFilename
+    uint32      Priority;                                   // 52       m_priority
+    uint32      CalendarFilterType;                         // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
+    //uint32    Flags;                                      // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
 // ImportPriceArmor.dbc
 struct ImportPriceArmorEntry
 {
-    uint32 InventoryType;                                   // 1        Id/InventoryType
-    float ClothFactor;                                      // 2        Price factor cloth
-    float LeatherFactor;                                    // 3        Price factor leather
-    float MailFactor;                                       // 4        Price factor mail
-    float PlateFactor;                                      // 5        Price factor plate
+    uint32      ID;                                         // 1        Id/InventoryType
+    float       ClothFactor;                                // 2        Price factor cloth
+    float       LeatherFactor;                              // 3        Price factor leather
+    float       MailFactor;                                 // 4        Price factor mail
+    float       PlateFactor;                                // 5        Price factor plate
 };
 
 // ImportPriceQuality.dbc
 struct ImportPriceQualityEntry
 {
-    uint32 QualityId;                                       // 1        Quality Id (+1?)
-    float Factor;                                           // 2        Price factor
+    uint32      ID;                                         // 1        Quality Id (+1?)
+    float       Factor;                                     // 2        Price factor
 };
 
 // ImportPriceShield.dbc
 struct ImportPriceShieldEntry
 {
-    uint32 Id;                                              // 1        Unk id (only 1 and 2)
-    float Factor;                                           // 2        Price factor
+    uint32      ID;                                         // 1        Unk id (only 1 and 2)
+    float       Factor;                                     // 2        Price factor
 };
 
 // ImportPriceWeapon.dbc
 struct ImportPriceWeaponEntry
 {
-    uint32 Id;                                              // 1        Unk id (mainhand - 0, offhand - 1, weapon - 2, 2hweapon - 3, ranged/rangedright/relic - 4)
-    float Factor;                                           // 2        Price factor
+    uint32      ID;                                         // 1        Unk id (mainhand - 0, offhand - 1, weapon - 2, 2hweapon - 3, ranged/rangedright/relic - 4)
+    float       Factor;                                     // 2        Price factor
 };
 
 // ItemPriceBase.dbc
