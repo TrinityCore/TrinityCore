@@ -266,7 +266,7 @@ public:
             return false;
         }
 
-        if (petFamily->petTalentType < 0)                       // not hunter pet
+        if (petFamily->PetTalentType < 0)                       // not hunter pet
         {
             handler->SendSysMessage(LANG_WRONG_PET_TYPE);
             handler->SetSentErrorMessage(true);
@@ -284,7 +284,7 @@ public:
                 continue;
 
             // prevent learn talent for different family (cheating)
-            if (((1 << petFamily->petTalentType) & talentTabInfo->petTalentMask) == 0)
+            if (((1 << petFamily->PetTalentType) & talentTabInfo->petTalentMask) == 0)
                 continue;
 
             // search highest talent rank

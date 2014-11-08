@@ -747,7 +747,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     SetDisplayId(creature->GetDisplayId());
 
     if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family))
-        SetName(cFamily->Name);
+        SetName(cFamily->Name_lang);
     else
         SetName(creature->GetNameForLocaleIdx(sObjectMgr->GetDBCLocaleIndex()));
 
@@ -760,7 +760,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
         return false;
 
     if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family))
-        SetName(cFamily->Name);
+        SetName(cFamily->Name_lang);
 
     Relocate(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation());
 
@@ -834,15 +834,15 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     //scale
     CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family);
-    if (cFamily && cFamily->minScale > 0.0f && petType == HUNTER_PET)
+    if (cFamily && cFamily->MinScale > 0.0f && petType == HUNTER_PET)
     {
         float scale;
-        if (getLevel() >= cFamily->maxScaleLevel)
-            scale = cFamily->maxScale;
-        else if (getLevel() <= cFamily->minScaleLevel)
-            scale = cFamily->minScale;
+        if (getLevel() >= cFamily->MaxScaleLevel)
+            scale = cFamily->MaxScale;
+        else if (getLevel() <= cFamily->MinScaleLevel)
+            scale = cFamily->MinScale;
         else
-            scale = cFamily->minScale + float(getLevel() - cFamily->minScaleLevel) / cFamily->maxScaleLevel * (cFamily->maxScale - cFamily->minScale);
+            scale = cFamily->MinScale + float(getLevel() - cFamily->MinScaleLevel) / cFamily->MaxScaleLevel * (cFamily->MaxScale - cFamily->MinScale);
 
         SetObjectScale(scale);
     }
@@ -1045,7 +1045,7 @@ bool Pet::HaveInDiet(ItemTemplate const* item) const
     if (!cFamily)
         return false;
 
-    uint32 diet = cFamily->petFoodMask;
+    uint32 diet = cFamily->PetFoodMask;
     uint32 FoodMask = 1 << (item->FoodType-1);
     return (diet & FoodMask) != 0;
 }
@@ -1633,7 +1633,7 @@ bool Pet::resetTalents()
         return false;
     // Check pet talent type
     CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
-    if (!pet_family || pet_family->petTalentType < 0)
+    if (!pet_family || pet_family->PetTalentType < 0)
         return false;
 
     uint8 level = getLevel();
@@ -1658,7 +1658,7 @@ bool Pet::resetTalents()
             continue;
 
         // unlearn only talents for pets family talent type
-        if (!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
+        if (!((1 << pet_family->PetTalentType) & talentTabInfo->petTalentMask))
             continue;
 
         for (uint8 j = 0; j < MAX_TALENT_RANK; ++j)
