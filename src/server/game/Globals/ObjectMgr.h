@@ -1355,7 +1355,7 @@ class ObjectMgr
         std::string GetRealmName(uint32 realm) const;
         
         ExpansionRequirementContainer const& GetRaceExpansionRequirements() const { return _raceExpansionRequirementStore; }
-        uint8 const GetRaceExpansionRequirement(uint8 race)
+        uint8 GetRaceExpansionRequirement(uint8 race) const
         {
             auto itr = _raceExpansionRequirementStore.find(race);
             if (itr != _raceExpansionRequirementStore.end())
@@ -1364,9 +1364,9 @@ class ObjectMgr
         }
         
         ExpansionRequirementContainer const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
-        uint8 const GetClassExpansionRequirement(uint8 race)
+        uint8 GetClassExpansionRequirement(uint8 class_) const
         {
-            auto itr = _classExpansionRequirementStore.find(race);
+            auto itr = _classExpansionRequirementStore.find(class_);
             if (itr != _classExpansionRequirementStore.end())
                 return itr->second;
             return EXPANSION_CLASSIC;
