@@ -24,6 +24,7 @@
 namespace zmqpp
 {
     class socket;
+    class message;
 }
 
 namespace Battlenet
@@ -45,6 +46,8 @@ namespace Battlenet
         void SendChangeToonOnlineState(uint32 battlenetAccountId, uint32 gameAccountId, ObjectGuid guid, std::string const& name, bool online);
 
     private:
+        void Send(zmqpp::message* msg);
+
         static Header CreateHeader(BnetCommands command);
         ZmqMux* _socket;
     };
