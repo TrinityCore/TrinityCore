@@ -168,6 +168,8 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
     if (sRandomPlayerbotMgr.IsRandomBot(player) && !player->GetGroup())
     {
         engine->ChangeStrategy(sPlayerbotAIConfig.randomBotCombatStrategies);
+        if (player->getClass() == CLASS_DRUID && player->getLevel() < 20)
+            engine->addStrategies("bear", "threat", NULL);
     }
 }
 
