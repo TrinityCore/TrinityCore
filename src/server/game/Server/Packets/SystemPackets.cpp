@@ -17,9 +17,6 @@
 
 #include "SystemPackets.h"
 
-WorldPackets::System::FeatureSystemStatusGlueScreen::FeatureSystemStatusGlueScreen()
-    : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, 1) { }
-
 WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
 {
     _worldPacket.WriteBit(BpayStoreEnabled);
@@ -31,8 +28,21 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     return &_worldPacket;
 }
 
-WorldPackets::System::SetTimeZoneInformation::SetTimeZoneInformation()
-    : ServerPacket(SMSG_SET_TIME_ZONE_INFORMATION) { }
+WorldPacket const* WorldPackets::System::MOTD::Write()
+{
+    ASSERT(Text);
+    _worldPacket.WriteBits(Text->size(), 4);
+    _worldPacket.FlushBits();
+
+    for (std::string const& line : *Text)
+    {
+        _worldPacket.WriteBits(line.length(), 7);
+        _worldPacket.FlushBits();
+        _worldPacket.WriteString(line);
+    }
+
+    return &_worldPacket;
+}
 
 WorldPacket const* WorldPackets::System::SetTimeZoneInformation::Write()
 {

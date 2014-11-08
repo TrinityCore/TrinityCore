@@ -84,6 +84,7 @@ namespace WorldPackets
 
         class CharacterCreate;
         class CharacterDelete;
+        class GenerateRandomCharacterName;
         class ReorderCharacters;
         class UndeleteCharacter;
         class PlayerLogin;
@@ -91,7 +92,7 @@ namespace WorldPackets
 
     namespace Guild
     {
-        class GuildQuery;
+        class QueryGuildInfo;
     }
 }
 
@@ -447,7 +448,7 @@ class WorldSession
         void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
         void HandleAlterAppearance(WorldPacket& recvData);
         void HandleCharFactionOrRaceChange(WorldPacket& recvData);
-        void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
+        void HandleRandomizeCharNameOpcode(WorldPackets::Character::GenerateRandomCharacterName& packet);
         void HandleReorderCharacters(WorldPackets::Character::ReorderCharacters& reorderChars);
         void HandleOpeningCinematic(WorldPacket& recvData);
         void HandleUndeleteCooldownStatusQuery(WorldPacket& /*recvData*/);
@@ -613,7 +614,7 @@ class WorldSession
         void HandleOfferPetitionOpcode(WorldPacket& recvData);
         void HandleTurnInPetitionOpcode(WorldPacket& recvData);
 
-        void HandleGuildQueryOpcode(WorldPackets::Guild::GuildQuery& query);
+        void HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& query);
         void HandleGuildInviteOpcode(WorldPacket& recvPacket);
         void HandleGuildRemoveOpcode(WorldPacket& recvPacket);
         void HandleGuildAcceptOpcode(WorldPacket& recvPacket);

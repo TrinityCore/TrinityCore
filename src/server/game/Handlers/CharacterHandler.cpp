@@ -44,6 +44,7 @@
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SystemConfig.h"
+#include "SystemPackets.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "World.h"
@@ -863,36 +864,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // Send MOTD
     {
-        data.Initialize(SMSG_MOTD, 50);                     // new in 2.0.1
-        data << (uint32)0;
-
-        uint32 linecount=0;
-        std::string str_motd = sWorld->GetMotd();
-        std::string::size_type pos, nextpos;
-
-        pos = 0;
-        while ((nextpos= str_motd.find('@', pos)) != std::string::npos)
-        {
-            if (nextpos != pos)
-            {
-                data << str_motd.substr(pos, nextpos-pos);
-                ++linecount;
-            }
-            pos = nextpos+1;
-        }
-
-        if (pos<str_motd.length())
-        {
-            data << str_motd.substr(pos);
-            ++linecount;
-        }
-
-        data.put(0, linecount);
-
-        SendPacket(&data);
+        WorldPackets::System::MOTD motd;
+        motd.Text = &sWorld->GetMotd();
+        SendPacket(motd.Write());
         TC_LOG_DEBUG("network", "WORLD: Sent motd (SMSG_MOTD)");
+    }
 
-        // send server info
+    // send server info
+    {
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
 
@@ -2163,31 +2142,25 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     SendCharFactionChange(RESPONSE_SUCCESS, factionChangeInfo);
 }
 
-void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
+void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::GenerateRandomCharacterName& packet)
 {
-    uint8 gender, race;
-
-    recvData >> race;
-    recvData >> gender;
-
-    if (!Player::IsValidRace(race))
+    if (!Player::IsValidRace(packet.Race))
     {
-        TC_LOG_ERROR("misc", "Invalid race (%u) sent by accountId: %u", race, GetAccountId());
+        TC_LOG_ERROR("misc", "Invalid race (%u) sent by accountId: %u", packet.Race, GetAccountId());
         return;
     }
 
-    if (!Player::IsValidGender(gender))
+    if (!Player::IsValidGender(packet.Sex))
     {
-        TC_LOG_ERROR("misc", "Invalid gender (%u) sent by accountId: %u", gender, GetAccountId());
+        TC_LOG_ERROR("misc", "Invalid gender (%u) sent by accountId: %u", packet.Sex, GetAccountId());
         return;
     }
 
-    std::string const* name = GetRandomCharacterName(race, gender);
-    WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
-    data.WriteBit(0); // unk
-    data.WriteBits(name->size(), 7);
-    data.WriteString(*name);
-    SendPacket(&data);
+    WorldPackets::Character::GenerateRandomCharacterNameResult result;
+    result.Success = true;
+    result.Name = GetRandomCharacterName(packet.Race, packet.Sex);
+
+    SendPacket(result.Write());
 }
 
 void WorldSession::HandleReorderCharacters(WorldPackets::Character::ReorderCharacters& reorderChars)

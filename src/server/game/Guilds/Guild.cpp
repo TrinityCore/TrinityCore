@@ -1477,12 +1477,12 @@ void Guild::HandleRoster(WorldSession* session)
 
 void Guild::SendQueryResponse(WorldSession* session)
 {
-    WorldPackets::Guild::GuildQueryResponse response;
+    WorldPackets::Guild::QueryGuildInfoResponse response;
     response.GuildGuid = GetGUID();
     response.Info.HasValue = true;
 
-    response.Info.value.GuildGuid = GetGUID();
-    response.Info.value.VirtualRealmAddress = realmHandle.Index;
+    response.Info.value.GuildGUID = GetGUID();
+    response.Info.value.VirtualRealmAddress = GetVirtualRealmAddress();
 
     response.Info.value.EmblemStyle = m_emblemInfo.GetStyle();
     response.Info.value.EmblemColor = m_emblemInfo.GetColor();
@@ -1493,7 +1493,7 @@ void Guild::SendQueryResponse(WorldSession* session)
     for (uint8 i = 0; i < _GetRanksSize(); ++i)
         response.Info.value.Ranks.emplace(m_ranks[i].GetId(), i, m_ranks[i].GetName());
 
-    response.Info.value.Name = m_name;
+    response.Info.value.GuildName = m_name;
 
     session->SendPacket(response.Write());
     TC_LOG_DEBUG("guild", "SMSG_GUILD_QUERY_RESPONSE [%s]", session->GetPlayerInfo().c_str());

@@ -50,6 +50,16 @@ namespace WorldPackets
             uint32 ServerTime = 0;
             uint32 AccountTimes[NUM_ACCOUNT_DATA_TYPES];
         };
+
+        class ClientCacheVersion final : public ServerPacket
+        {
+        public:
+            ClientCacheVersion() : ServerPacket(SMSG_CLIENTCACHE_VERSION, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 CacheVersion = 0;
+        };
     }
 }
 

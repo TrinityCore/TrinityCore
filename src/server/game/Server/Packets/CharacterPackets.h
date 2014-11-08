@@ -203,6 +203,28 @@ namespace WorldPackets
             uint8 Code = 0; ///< Result code @see enum ResponseCodes
         };
 
+        class GenerateRandomCharacterName final : public ClientPacket
+        {
+        public:
+            GenerateRandomCharacterName(WorldPacket&& packet);
+        
+            void Read() override;
+        
+            uint8 Sex = 0;
+            uint8 Race = 0;
+        };
+
+        class GenerateRandomCharacterNameResult final : public ServerPacket
+        {
+        public:
+            GenerateRandomCharacterNameResult();
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+            bool Success = false;
+        };
+
         class ReorderCharacters final : public ClientPacket
         {
         public:

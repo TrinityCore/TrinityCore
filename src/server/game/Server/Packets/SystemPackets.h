@@ -27,7 +27,7 @@ namespace WorldPackets
         class FeatureSystemStatusGlueScreen final : public ServerPacket
         {
         public:
-            FeatureSystemStatusGlueScreen();
+            FeatureSystemStatusGlueScreen() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -37,10 +37,20 @@ namespace WorldPackets
             bool BpayStoreEnabled                    = false; // NYI
         };
 
+        class MOTD final : public ServerPacket
+        {
+        public:
+            MOTD() : ServerPacket(SMSG_MOTD) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<std::string> const* Text = nullptr;
+        };
+
         class SetTimeZoneInformation final : public ServerPacket
         {
         public:
-            SetTimeZoneInformation();
+            SetTimeZoneInformation() : ServerPacket(SMSG_SET_TIME_ZONE_INFORMATION) { }
 
             WorldPacket const* Write() override;
 

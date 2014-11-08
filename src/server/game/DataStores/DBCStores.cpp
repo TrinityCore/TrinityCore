@@ -17,6 +17,7 @@
  */
 
 #include "DBCStores.h"
+#include "Containers.h"
 #include "Log.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
@@ -164,7 +165,7 @@ DBCStorage <MountCapabilityEntry> sMountCapabilityStore(MountCapabilityfmt);
 DBCStorage <MountTypeEntry> sMountTypeStore(MountTypefmt);
 
 DBCStorage <NameGenEntry> sNameGenStore(NameGenfmt);
-NameGenVectorArraysMap sGenNameVectoArraysMap;
+NameGenContainer sGenerateNamesMap;
 DBCStorage <NumTalentsAtLevelEntry> sNumTalentsAtLevelStore(NumTalentsAtLevelfmt);
 
 DBCStorage <OverrideSpellDataEntry> sOverrideSpellDataStore(OverrideSpellDatafmt);
@@ -488,11 +489,12 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sMountCapabilityStore,        dbcPath, "MountCapability.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sMountTypeStore,              dbcPath, "MountType.dbc");//15595
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sNameGenStore,                dbcPath, "NameGen.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sNameGenStore,                dbcPath, "NameGen.dbc"); // 19116
     for (uint32 i = 0; i < sNameGenStore.GetNumRows(); ++i)
         if (NameGenEntry const* entry = sNameGenStore.LookupEntry(i))
-            sGenNameVectoArraysMap[entry->race].stringVectorArray[entry->gender].push_back(std::string(entry->name));
+            sGenerateNamesMap[entry->Race].Contents[entry->Sex].emplace_back(entry->Name);
     sNameGenStore.Clear();
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sNumTalentsAtLevelStore,      dbcPath, "NumTalentsAtLevel.dbc");//15595
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");//15595
@@ -800,7 +802,7 @@ void LoadDBCStores(const std::string& dataPath)
             sWMOAreaInfoByTripple.insert(WMOAreaInfoByTripple::value_type(WMOAreaTableTripple(entry->rootId, entry->adtId, entry->groupId), entry));
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapAreaStore,           dbcPath, "WorldMapArea.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapOverlayStore,        dbcPath, "WorldMapOverlay.dbc");//15595
-    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,          dbcPath, "WorldSafeLocs.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,          dbcPath, "WorldSafeLocs.dbc"); // 19116
 
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)
@@ -832,12 +834,10 @@ void LoadDBCStores(const std::string& dataPath)
     TC_LOG_INFO("server.loading", ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
-const std::string* GetRandomCharacterName(uint8 race, uint8 gender)
+std::string const& GetRandomCharacterName(uint8 race, uint8 gender)
 {
-    uint32 size = sGenNameVectoArraysMap[race].stringVectorArray[gender].size();
-    uint32 randPos = urand(0, size-1);
-
-    return &sGenNameVectoArraysMap[race].stringVectorArray[gender][randPos];
+    ASSERT(gender < GENDER_NONE);
+    return Trinity::Containers::SelectRandomContainerElement(sGenerateNamesMap[race].Contents[gender]);
 }
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction)

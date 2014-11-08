@@ -241,6 +241,29 @@ WorldPacket const* WorldPackets::Character::CharacterDeleteResponse::Write()
     return &_worldPacket;
 }
 
+WorldPackets::Character::GenerateRandomCharacterName::GenerateRandomCharacterName(WorldPacket&& packet)
+    : ClientPacket(std::move(packet))
+{
+    ASSERT(_worldPacket.GetOpcode() == CMSG_RANDOMIZE_CHAR_NAME);
+}
+
+void WorldPackets::Character::GenerateRandomCharacterName::Read()
+{
+    _worldPacket >> Race;
+    _worldPacket >> Sex;
+}
+
+WorldPackets::Character::GenerateRandomCharacterNameResult::GenerateRandomCharacterNameResult()
+    : ServerPacket(SMSG_RANDOMIZE_CHAR_NAME, 20) { }
+
+WorldPacket const* WorldPackets::Character::GenerateRandomCharacterNameResult::Write()
+{
+    _worldPacket.WriteBit(Success);
+    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.WriteString(Name);
+    return &_worldPacket;
+}
+
 WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet)
     : ClientPacket(std::move(packet))
 {

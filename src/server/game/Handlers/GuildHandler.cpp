@@ -29,7 +29,7 @@
 #include "SocialMgr.h"
 #include "GuildPackets.h"
 
-void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::GuildQuery& query)
+void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& query)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_QUERY [%s]: Guild: %s Target: %s",
         GetPlayerInfo().c_str(), query.GuildGuid.ToString().c_str(), query.PlayerGuid.ToString().c_str());
@@ -41,7 +41,7 @@ void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::GuildQuery& query
             return;
         }
 
-    WorldPackets::Guild::GuildQueryResponse response;
+    WorldPackets::Guild::QueryGuildInfoResponse response;
     response.GuildGuid = query.GuildGuid;
     SendPacket(response.Write());
 
