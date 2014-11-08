@@ -770,74 +770,54 @@ struct ChrRacesEntry
 
 struct ChrPowerTypesEntry
 {
-   uint32 entry;                                               // 0
-   uint32 classId;                                             // 1
-   uint32 power;                                               // 2
+    uint32      ID;                                         // 0
+    uint32      ClassID;                                    // 1
+    uint32      PowerType;                                  // 2
 };
-
-/* not used
-struct CinematicCameraEntry
-{
-    uint32      id;                                         // 0 index
-    char*       filename;                                   // 1
-    uint32      soundid;                                    // 2 in SoundEntries.dbc or 0
-    float       start_x;                                    // 3
-    float       start_y;                                    // 4
-    float       start_z;                                    // 5
-    float       unk6;                                       // 6 speed?
-};
-*/
 
 struct CinematicSequencesEntry
 {
-    uint32      Id;                                         // 0 index
-    //uint32      unk1;                                     // 1 always 0
-    //uint32      cinematicCamera;                          // 2 id in CinematicCamera.dbc
-                                                            // 3-9 always 0
+    uint32      ID;                                         // 0
+    //uint32    SoundID;                                    // 1
+    //uint32    Camera[8];                                  // 2-9
 };
 
 struct CreatureDisplayInfoEntry
 {
-    uint32      Displayid;                                  // 0        m_ID
-    uint32      ModelId;                                    // 1        m_modelID
-                                                            // 2        m_soundID
-    uint32      ExtraId;                                    // 3        m_extendedDisplayInfoID
-    float       scale;                                      // 4        m_creatureModelScale
-                                                            // 5        m_creatureModelAlpha
-                                                            // 6-8      m_textureVariation[3]
-                                                            // 9        m_portraitTextureName
-                                                            // 10       m_sizeClass
-                                                            // 11       m_bloodID
-                                                            // 12       m_NPCSoundID
-                                                            // 13       m_particleColorID
-                                                            // 14       m_creatureGeosetData
-                                                            // 15       m_objectEffectPackageID
-                                                            // 16
+    uint32      ID;                                         // 0
+    uint32      ModelID;                                    // 1
+    //uint32    SoundID;                                    // 2
+    uint32      ExtendedDisplayInfoID;                      // 3
+    float       CreatureModelScale;                         // 4
+    //uint32    CreatureModelAlpha;                         // 5
+    //char*     TextureVariation[3];                        // 6-8
+    //char*     PortraitTextureName;                        // 9
+    //uint32    PortraitCreatureDisplayInfoID;              // 10
+    //uint32    SizeClass;                                  // 11
+    //uint32    BloodID;                                    // 12
+    //uint32    NPCSoundID;                                 // 13
+    //uint32    ParticleColorID;                            // 14
+    //uint32    CreatureGeosetData;                         // 15
+    //uint32    ObjectEffectPackageID;                      // 16
+    //uint32    AnimReplacementSetID;                       // 17
+    //uint32    Flags;                                      // 18
+    //uint32    Gender;                                     // 19
+    //uint32    StateSpellVisualKitID;                      // 20
 };
 
 struct CreatureDisplayInfoExtraEntry
 {
-    //uint32 Id;                                            // 0
-    uint32 Race;                                            // 1
-    uint32 Gender;                                          // 2
-    //uint32 SkinColor;                                     // 3
-    //uint32 FaceType;                                      // 4
-    //uint32 HairType;                                      // 5
-    //uint32 HairStyle;                                     // 6
-    //uint32 FacialHair;                                    // 7
-    //uint32 HelmDisplayId;                                 // 8
-    //uint32 ShoulderDisplayId;                             // 9
-    //uint32 ShirtDisplayId;                                // 10
-    //uint32 ChestDisplayId;                                // 11
-    //uint32 BeltDisplayId;                                 // 12
-    //uint32 LegsDisplayId;                                 // 13
-    //uint32 BootsDisplayId;                                // 14
-    //uint32 WristDisplayId;                                // 15
-    //uint32 GlovesDisplayId;                               // 16
-    //uint32 TabardDisplayId;                               // 17
-    //uint32 CloakDisplayId;                                // 18
-    //uint32 CanEquip;                                      // 19
-    //char const* Texture;                                  // 20
+    //uint32    ID;                                         // 0
+    uint32      DisplayRaceID;                              // 1
+    //uint32    DisplaySexID;                               // 2
+    //uint32    SkinID;                                     // 3
+    //uint32    FaceID;                                     // 4
+    //uint32    HairStyleID;                                // 5
+    //uint32    HairColorID;                                // 6
+    //uint32    FacialHairID;                               // 7
+    //uint32    NPCItemDisplay[11];                         // 8-18
+    //uint32    Flags;                                      // 19
+    //char*     FileName;                                   // 20
 };
 
 struct CreatureFamilyEntry
