@@ -938,7 +938,7 @@ struct DestructibleModelDataEntry
     } StateRebuilding;
     struct
     {
-        //uint32    DisplayID;                              // 15
+        uint32      DisplayID;                              // 15
         //uint32    InitDoodadSet;                          // 16
         //uint32    AmbientDoodadSet;                       // 17
         //uint32    NameSet;                                // 18
@@ -952,67 +952,72 @@ struct DestructibleModelDataEntry
 
 struct DungeonEncounterEntry
 {
-    uint32 id;                                              // 0        unique id
-    uint32 mapId;                                           // 1        map id
-    int32 difficulty;                                       // 2        instance mode
-    //uint32 unk0;                                          // 3
-    uint32 encounterIndex;                                  // 4        encounter index for creating completed mask
-    char* encounterName;                                    // 5        encounter name
-    //uint32 nameFlags;                                     // 21
-    //uint32 unk1;                                          // 22
+    uint32      ID;                                         // 0
+    uint32      MapID;                                      // 1
+    uint32      DifficultyID;                               // 2
+    uint32      OrderIndex;                                 // 3
+    //uint32    Bit;                                        // 4
+    char*       Name_lang;                                  // 5
+    //uint32    CreatureDisplayID;                          // 6
+    //uint32    Flags;                                      // 7
 };
 
 struct DurabilityCostsEntry
 {
-    uint32    Itemlvl;                                      // 0
-    uint32    multiplier[29];                               // 1-29
+    uint32      ID;                                         // 0
+    uint32      WeaponSubClassCost[21];                     // 1-22
+    uint32      ArmorSubClassCost[8];                       // 23-30
 };
 
 struct DurabilityQualityEntry
 {
-    uint32    Id;                                           // 0
-    float     quality_mod;                                  // 1
+    uint32      ID;                                         // 0
+    float       QualityMod;                                 // 1
 };
 
 struct EmotesEntry
 {
-    uint32  Id;                                             // 0
-    //char* Name;                                           // 1, internal name
-    //uint32 AnimationId;                                   // 2, ref to animationData
-    uint32  Flags;                                          // 3, bitmask, may be unit_flags
-    uint32  EmoteType;                                      // 4, Can be 0, 1 or 2 (determine how emote are shown)
-    uint32  UnitStandState;                                 // 5, uncomfirmed, may be enum UnitStandStateType
-    //uint32 SoundId;                                       // 6, ref to soundEntries
-    //uint32 unk7                                           // 7
+    uint32      ID;                                         // 0
+    //char*     EmoteSlashCommand;                          // 1
+    //uint32    AnimID;                                     // 2 ref to animationData
+    uint32      EmoteFlags;                                 // 3 bitmask, may be unit_flags
+    uint32      EmoteSpecProc;                              // 4 Can be 0, 1 or 2 (determine how emote are shown)
+    uint32      EmoteSpecProcParam;                         // 5 uncomfirmed, may be enum UnitStandStateType
+    //uint32    EmoteSoundID;                               // 6 ref to soundEntries
+    //uint32    SpellVisualKitID                            // 7
 };
 
 struct EmotesTextEntry
 {
-    uint32  Id;
-    uint32  textid;
+    uint32      ID;                                         // 0
+    //char*     Name_lang;                                  // 1
+    uint32      EmoteID;                                    // 2
+    //uint32    EmoteText[16];                              // 3-18
 };
 
 struct FactionEntry
 {
-    uint32      ID;                                         // 0        m_ID
-    int32       reputationListID;                           // 1        m_reputationIndex
-    uint32      BaseRepRaceMask[4];                         // 2-5      m_reputationRaceMask
-    uint32      BaseRepClassMask[4];                        // 6-9      m_reputationClassMask
-    int32       BaseRepValue[4];                            // 10-13    m_reputationBase
-    uint32      ReputationFlags[4];                         // 14-17    m_reputationFlags
-    uint32      team;                                       // 18       m_parentFactionID
-    float       spilloverRateIn;                            // 19       Faction gains incoming rep * spilloverRateIn
-    float       spilloverRateOut;                           // 20       Faction outputs rep * spilloverRateOut as spillover reputation
-    uint32      spilloverMaxRankIn;                         // 21       The highest rank the faction will profit from incoming spillover
-    //uint32    spilloverRank_unk;                          // 22       It does not seem to be the max standing at which a faction outputs spillover ...so no idea
-    char*       name;                                       // 23       m_name_lang
-    //char*     description;                                // 24       m_description_lang
-    uint32      GroupExpansion;                             // 25       m_factionGroupExpansion
+    uint32      ID;                                         // 0
+    int32       ReputationIndex;                            // 1
+    uint32      ReputationRaceMask[4];                      // 2-5
+    uint32      ReputationClassMask[4];                     // 6-9
+    int32       ReputationBase[4];                          // 10-13
+    uint32      ReputationFlags[4];                         // 14-17
+    uint32      ParentFactionID;                            // 18
+    float       ParentFactionModIn;                         // 19 Faction gains incoming rep * ParentFactionModIn
+    float       ParentFactionModOut;                        // 20 Faction outputs rep * ParentFactionModOut as spillover reputation
+    uint32      ParentFactionCapIn;                         // 21 The highest rank the faction will profit from incoming spillover
+    //uint32    ParentFactionCapOut;                        // 22
+    char*       Name_lang;                                  // 23
+    //char*     Description_lang;                           // 24
+    uint32      Expansion;                                  // 25
+    //uint32    Flags;                                      // 26
+    //uint32    FriendshipRepID;                            // 27
 
     // helpers
     bool CanHaveReputation() const
     {
-        return reputationListID >= 0;
+        return ReputationIndex >= 0;
     }
 };
 
@@ -1020,14 +1025,14 @@ struct FactionEntry
 
 struct FactionTemplateEntry
 {
-    uint32      ID;                                         // 0        m_ID
-    uint32      faction;                                    // 1        m_faction
-    uint32      factionFlags;                               // 2        m_flags
-    uint32      ourMask;                                    // 3        m_factionGroup
-    uint32      friendlyMask;                               // 4        m_friendGroup
-    uint32      hostileMask;                                // 5        m_enemyGroup
-    uint32      enemyFaction[MAX_FACTION_RELATIONS];        // 6        m_enemies[MAX_FACTION_RELATIONS]
-    uint32      friendFaction[MAX_FACTION_RELATIONS];       // 10       m_friend[MAX_FACTION_RELATIONS]
+    uint32      ID;                                         // 0
+    uint32      Faction;                                    // 1
+    uint32      Flags;                                      // 2
+    uint32      Mask;                                       // 3 m_factionGroup
+    uint32      FriendMask;                                 // 4 m_friendGroup
+    uint32      EnemyMask;                                  // 5 m_enemyGroup
+    uint32      Enemies[MAX_FACTION_RELATIONS];             // 6
+    uint32      Friends[MAX_FACTION_RELATIONS];             // 10
     //-------------------------------------------------------  end structure
 
     // helpers
@@ -1035,41 +1040,41 @@ struct FactionTemplateEntry
     {
         if (ID == entry.ID)
             return true;
-        if (entry.faction)
+        if (entry.Faction)
         {
             for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
-                if (enemyFaction[i] == entry.faction)
+                if (Enemies[i] == entry.Faction)
                     return false;
             for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
-                if (friendFaction[i] == entry.faction)
+                if (Friends[i] == entry.Faction)
                     return true;
         }
-        return (friendlyMask & entry.ourMask) || (ourMask & entry.friendlyMask);
+        return (FriendMask & entry.Mask) || (Mask & entry.FriendMask);
     }
     bool IsHostileTo(FactionTemplateEntry const& entry) const
     {
         if (ID == entry.ID)
             return false;
-        if (entry.faction)
+        if (entry.Faction)
         {
             for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
-                if (enemyFaction[i] == entry.faction)
+                if (Enemies[i] == entry.Faction)
                     return true;
             for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
-                if (friendFaction[i] == entry.faction)
+                if (Friends[i] == entry.Faction)
                     return false;
         }
-        return (hostileMask & entry.ourMask) != 0;
+        return (EnemyMask & entry.Mask) != 0;
     }
-    bool IsHostileToPlayers() const { return (hostileMask & FACTION_MASK_PLAYER) !=0; }
+    bool IsHostileToPlayers() const { return (EnemyMask & FACTION_MASK_PLAYER) !=0; }
     bool IsNeutralToAll() const
     {
         for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
-            if (enemyFaction[i] != 0)
+            if (Enemies[i] != 0)
                 return false;
-        return hostileMask == 0 && friendlyMask == 0;
+        return EnemyMask == 0 && FriendMask == 0;
     }
-    bool IsContestedGuardFaction() const { return (factionFlags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
+    bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
 };
 
 struct GameObjectDisplayInfoEntry

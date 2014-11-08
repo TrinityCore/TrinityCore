@@ -2638,9 +2638,9 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask)
 
     // not unfriendly
     if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(creature->getFaction()))
-        if (factionTemplate->faction)
-            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->faction))
-                if (faction->reputationListID >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
+        if (factionTemplate->Faction)
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->Faction))
+                if (faction->ReputationIndex >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
                     return NULL;
 
     // not too far
@@ -5234,8 +5234,13 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
                 return TotalCost;
             }
 
-            uint32 dmultiplier = dcost->multiplier[ItemSubClassToDurabilityMultiplierId(ditemProto->Class, ditemProto->SubClass)];
-            uint32 costs = uint32(LostDurability*dmultiplier*double(dQualitymodEntry->quality_mod));
+            uint32 dmultiplier = 0;
+            if (ditemProto->Class == ITEM_CLASS_WEAPON)
+                dmultiplier = dcost->WeaponSubClassCost[ditemProto->SubClass];
+            else if (ditemProto->Class == ITEM_CLASS_ARMOR)
+                dmultiplier = dcost->ArmorSubClassCost[ditemProto->SubClass];
+
+            uint32 costs = uint32(LostDurability*dmultiplier*double(dQualitymodEntry->QualityMod));
 
             costs = uint32(costs * discountMod * sWorld->getRate(RATE_REPAIRCOST));
 
@@ -23870,10 +23875,10 @@ bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 float Player::GetReputationPriceDiscount(Creature const* creature) const
 {
     FactionTemplateEntry const* vendor_faction = creature->GetFactionTemplateEntry();
-    if (!vendor_faction || !vendor_faction->faction)
+    if (!vendor_faction || !vendor_faction->Faction)
         return 1.0f;
 
-    ReputationRank rank = GetReputationRank(vendor_faction->faction);
+    ReputationRank rank = GetReputationRank(vendor_faction->Faction);
     if (rank <= REP_NEUTRAL)
         return 1.0f;
 

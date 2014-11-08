@@ -299,7 +299,7 @@ public:
             {
                 FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : NULL;
 
-                std::string name = factionEntry->name;
+                std::string name = factionEntry->Name_lang;
                 if (name.empty())
                     continue;
 
