@@ -30,6 +30,7 @@
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Callback.h"
+#include "Realm/Realm.h"
 
 #include <atomic>
 #include <map>
@@ -204,6 +205,7 @@ enum WorldIntConfigs
     CONFIG_INTERVAL_CHANGEWEATHER,
     CONFIG_INTERVAL_DISCONNECT_TOLERANCE,
     CONFIG_PORT_WORLD,
+    CONFIG_PORT_INSTANCE,
     CONFIG_SOCKET_TIMEOUTTIME,
     CONFIG_SESSION_ADD_DELAY,
     CONFIG_GAME_TYPE,
@@ -887,6 +889,7 @@ class World
 };
 
 extern Battlenet::RealmHandle realmHandle;
+extern Realm realm;
 uint32 GetVirtualRealmAddress();
 
 #define sWorld World::instance()

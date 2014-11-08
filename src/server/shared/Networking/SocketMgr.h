@@ -33,6 +33,7 @@ class SocketMgr
 public:
     virtual ~SocketMgr()
     {
+        delete _acceptor;
         delete[] _threads;
     }
 

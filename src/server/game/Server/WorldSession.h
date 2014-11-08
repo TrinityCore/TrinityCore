@@ -54,7 +54,6 @@ struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
 struct TradeStatusInfo;
-struct z_stream_s;
 
 namespace lfg
 {
@@ -228,7 +227,7 @@ class WorldSession
         WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
-        bool PlayerLoading() const { return m_playerLoading; }
+        bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }
         bool PlayerRecentlyLoggedOut() const { return m_playerRecentlyLogout; }
@@ -238,7 +237,7 @@ class WorldSession
         bool IsAddonRegistered(const std::string& prefix) const;
 
         void SendPacket(WorldPacket const* packet, bool forced = false);
-        uint32 CompressPacket(uint8* buffer, WorldPacket const& packet);
+        void AddInstanceConnection(std::shared_ptr<WorldSocket> sock) { m_Socket[1] = sock; }
 
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
@@ -424,8 +423,6 @@ class WorldSession
         uint32 GetRecruiterId() const { return recruiterId; }
         bool IsARecruiter() const { return isRecruiter; }
 
-        z_stream_s* GetCompressionStream() { return _compressionStream; }
-
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPacket& recvPacket);          // not used
@@ -441,6 +438,7 @@ class WorldSession
         void HandleCharCreateOpcode(WorldPackets::Character::CharacterCreate& charCreate);
         void HandleCharCreateCallback(PreparedQueryResult result, WorldPackets::Character::CharacterCreateInfo* createInfo);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
+        void HandleContinuePlayerLogin();
         void HandleLoadScreenOpcode(WorldPacket& recvPacket);
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharRenameOpcode(WorldPacket& recvData);
@@ -1091,7 +1089,7 @@ class WorldSession
 
         ObjectGuid::LowType m_GUIDLow;                      // set logined or recently logout player (while m_playerRecentlyLogout set)
         Player* _player;
-        std::shared_ptr<WorldSocket> m_Socket;
+        std::shared_ptr<WorldSocket> m_Socket[2];
         std::string m_Address;                              // Current Remote Address
      // std::string m_LAddress;                             // Last Attempted Remote Adress - we can not set attempted ip for a non-existing session!
 
@@ -1107,7 +1105,7 @@ class WorldSession
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
-        bool m_playerLoading;                               // code processed in LoginPlayer
+        ObjectGuid m_playerLoading;                         // code processed in LoginPlayer
         bool m_playerLogout;                                // code processed in LogoutPlayer
         bool m_playerRecentlyLogout;
         bool m_playerSave;
@@ -1124,7 +1122,6 @@ class WorldSession
         uint32 recruiterId;
         bool isRecruiter;
         LockedQueue<WorldPacket*> _recvQueue;
-        z_stream_s* _compressionStream;
         rbac::RBACData* _RBACData;
         uint32 expireTime;
         bool forceExit;

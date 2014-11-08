@@ -25,6 +25,7 @@
 #include "SHA1.h"
 #include "PacketLog.h"
 #include "BattlenetAccountMgr.h"
+#include "World.h"
 #include <zlib.h>
 #include <memory>
 
@@ -53,10 +54,20 @@ uint32 const SizeOfClientHeader[2][2] =
 
 uint32 const SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint32), sizeof(uint32) };
 
-WorldSocket::WorldSocket(tcp::socket&& socket)
-    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
+WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
+    _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr),
+    _initialized(false), _type(CONNECTION_TYPE_REALM)
 {
     _headerBuffer.Resize(SizeOfClientHeader[0][0]);
+}
+
+WorldSocket::~WorldSocket()
+{
+    if (_compressionStream)
+    {
+        deflateEnd(_compressionStream);
+        delete _compressionStream;
+    }
 }
 
 void WorldSocket::Start()
@@ -75,15 +86,13 @@ void WorldSocket::Start()
 
 void WorldSocket::HandleSendAuthSession()
 {
-    BigNumber seed1;
-    BigNumber seed2;
-    seed1.SetRand(16 * 8);
-    seed2.SetRand(16 * 8);
+    _encryptSeed.SetRand(16 * 8);
+    _decryptSeed.SetRand(16 * 8);
 
     WorldPackets::Auth::AuthChallenge challenge;
     challenge.Challenge = _authSeed;
-    memcpy(&challenge.DosChallenge[0], seed1.AsByteArray(16).get(), 16);
-    memcpy(&challenge.DosChallenge[4], seed2.AsByteArray(16).get(), 16);
+    memcpy(&challenge.DosChallenge[0], _encryptSeed.AsByteArray(16).get(), 16);
+    memcpy(&challenge.DosChallenge[4], _decryptSeed.AsByteArray(16).get(), 16);
     challenge.DosZeroBits = 1;
 
     SendPacket(*challenge.Write());
@@ -204,7 +213,7 @@ bool WorldSocket::ReadDataHandler()
 
         std::string opcodeName = GetOpcodeNameForLogging(opcode);
 
-        WorldPacket packet(opcode, std::move(_packetBuffer));
+        WorldPacket packet(opcode, std::move(_packetBuffer), GetConnectionType());
 
         if (sPacketLog->CanLogPacket())
             sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
@@ -217,15 +226,32 @@ bool WorldSocket::ReadDataHandler()
                 HandlePing(packet);
                 break;
             case CMSG_AUTH_SESSION:
+            {
                 if (_worldSession)
                 {
                     TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
                     break;
                 }
 
-                HandleAuthSession(packet);
+                WorldPackets::Auth::AuthSession authSession(std::move(packet));
+                authSession.Read();
+                HandleAuthSession(authSession);
                 break;
-            /*
+            }
+            case CMSG_AUTH_CONTINUED_SESSION:
+            {
+                if (_worldSession)
+                {
+                    TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_CONTINUED_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
+                    break;
+                }
+
+                WorldPackets::Auth::AuthContinuedSession authSession(std::move(packet));
+                authSession.Read();
+                HandleAuthContinuedSession(authSession);
+                break;
+            }
+                /*
             case CMSG_KEEP_ALIVE:
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
@@ -286,6 +312,20 @@ bool WorldSocket::ReadDataHandler()
             return false;
         }
 
+        _compressionStream = new z_stream();
+        _compressionStream->zalloc = (alloc_func)NULL;
+        _compressionStream->zfree = (free_func)NULL;
+        _compressionStream->opaque = (voidpf)NULL;
+        _compressionStream->avail_in = 0;
+        _compressionStream->next_in = NULL;
+        int32 z_res = deflateInit2(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
+        if (z_res != Z_OK)
+        {
+            TC_LOG_ERROR("network", "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
+            CloseSocket();
+            return false;
+        }
+
         _initialized = true;
         _headerBuffer.Resize(SizeOfClientHeader[1][0]);
         _packetBuffer.Reset();
@@ -293,6 +333,35 @@ bool WorldSocket::ReadDataHandler()
     }
 
     return true;
+}
+
+void WorldSocket::SendPacket(WorldPacket const& packet)
+{
+    if (!IsOpen())
+        return;
+
+    if (sPacketLog->CanLogPacket())
+        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
+
+    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
+
+    uint32 packetSize = packet.size();
+    uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
+    if (packetSize > 0x400)
+        packetSize = compressBound(packetSize) + sizeof(CompressedWorldPacket);
+
+    std::unique_lock<std::mutex> guard(_writeLock);
+
+#ifndef TC_SOCKET_USE_IOCP
+    if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= sizeOfHeader + packetSize)
+        WritePacketToBuffer(packet, _writeBuffer);
+    else
+#endif
+    {
+        MessageBuffer buffer(sizeOfHeader + packetSize);
+        WritePacketToBuffer(packet, buffer);
+        QueuePacket(std::move(buffer), guard);
+    }
 }
 
 void WorldSocket::WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer)
@@ -306,7 +375,7 @@ void WorldSocket::WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& 
     uint8* headerPos = buffer.GetWritePointer();
     buffer.WriteCompleted(sizeOfHeader);
 
-    if (packetSize > 0x400 && _worldSession)
+    if (packetSize > 0x400)
     {
         CompressedWorldPacket cmp;
         cmp.UncompressedSize = packetSize + 4;
@@ -316,7 +385,7 @@ void WorldSocket::WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& 
         uint8* compressionInfo = buffer.GetWritePointer();
         buffer.WriteCompleted(sizeof(CompressedWorldPacket));
 
-        uint32 compressedSize = _worldSession->CompressPacket(buffer.GetWritePointer(), packet);
+        uint32 compressedSize = CompressPacket(buffer.GetWritePointer(), packet);
 
         cmp.CompressedAdler = adler32(0x9827D8F1, buffer.GetWritePointer(), compressedSize);
 
@@ -344,40 +413,39 @@ void WorldSocket::WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& 
     memcpy(headerPos, &header, sizeOfHeader);
 }
 
-void WorldSocket::SendPacket(WorldPacket const& packet)
+uint32 WorldSocket::CompressPacket(uint8* buffer, WorldPacket const& packet)
 {
-    if (!IsOpen())
-        return;
+    uint32 opcode = packet.GetOpcode();
+    uint32 bufferSize = deflateBound(_compressionStream, packet.size() + sizeof(opcode));
 
-    if (sPacketLog->CanLogPacket())
-        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
+    _compressionStream->next_out = buffer;
+    _compressionStream->avail_out = bufferSize;
+    _compressionStream->next_in = (Bytef*)&opcode;
+    _compressionStream->avail_in = sizeof(uint32);
 
-    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
-
-    uint32 packetSize = packet.size();
-    uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
-    if (packetSize > 0x400 && _worldSession)
-        packetSize = compressBound(packetSize) + sizeof(CompressedWorldPacket);
-
-    std::unique_lock<std::mutex> guard(_writeLock);
-
-#ifndef TC_SOCKET_USE_IOCP
-    if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= sizeOfHeader + packetSize)
-        WritePacketToBuffer(packet, _writeBuffer);
-    else
-#endif
+    int32 z_res = deflate(_compressionStream, Z_BLOCK);
+    if (z_res != Z_OK)
     {
-        MessageBuffer buffer(sizeOfHeader + packetSize);
-        WritePacketToBuffer(packet, buffer);
-        QueuePacket(std::move(buffer), guard);
+        TC_LOG_ERROR("network", "Can't compress packet opcode (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
+        return 0;
     }
+
+    _compressionStream->next_in = (Bytef*)packet.contents();
+    _compressionStream->avail_in = packet.size();
+
+    z_res = deflate(_compressionStream, Z_SYNC_FLUSH);
+    if (z_res != Z_OK)
+    {
+        TC_LOG_ERROR("network", "Can't compress packet data (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
+        return 0;
+    }
+
+
+    return bufferSize - _compressionStream->avail_out;
 }
 
-void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
+void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession)
 {
-    WorldPackets::Auth::AuthSession authSession(std::move(recvPacket));
-    authSession.Read();
-
     uint8 security;
     uint32 id;
     LocaleConstant locale;
@@ -596,6 +664,56 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         _worldSession->InitWarden(&k, os);
 
     sWorld->AddSession(_worldSession);
+}
+
+void WorldSocket::HandleAuthContinuedSession(WorldPackets::Auth::AuthContinuedSession& authSession)
+{
+    uint32 accountId = PAIR64_LOPART(authSession.Key);
+    _type = ConnectionType(PAIR64_HIPART(authSession.Key));
+    QueryResult result = LoginDatabase.PQuery("SELECT username, sessionkey FROM account WHERE id = %u", accountId);
+    if (!result)
+    {
+        SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
+        DelayedCloseSocket();
+        return;
+    }
+
+    Field* fields = result->Fetch();
+    std::string login = fields[0].GetString();
+    BigNumber k;
+    k.SetHexStr(fields[1].GetCString());
+
+    _authCrypt.Init(&k, _encryptSeed.AsByteArray().get(), _decryptSeed.AsByteArray().get());
+    _headerBuffer.Resize(SizeOfClientHeader[1][1]);
+
+    SHA1Hash sha;
+    sha.UpdateData(login);
+    sha.UpdateBigNumbers(&k, NULL);
+    sha.UpdateData((uint8*)&_authSeed, 4);
+    sha.Finalize();
+
+    if (memcmp(sha.GetDigest(), authSession.Digest, sha.GetLength()))
+    {
+        SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthContinuedSession: Authentication failed for account: %u ('%s') address: %s", accountId, login.c_str(), GetRemoteIpAddress().to_string().c_str());
+        DelayedCloseSocket();
+        return;
+    }
+
+    _worldSession = sWorld->FindSession(accountId);
+    if (!_worldSession)
+    {
+        SendAuthResponseError(AUTH_SESSION_EXPIRED);
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthContinuedSession: No active session found for account: %u ('%s') address: %s", accountId, login.c_str(), GetRemoteIpAddress().to_string().c_str());
+        DelayedCloseSocket();
+        return;
+    }
+
+    WorldPackets::Auth::ResumeComms resumeComms;
+    SendPacket(*resumeComms.Write());
+
+    _worldSession->AddInstanceConnection(shared_from_this());
+    _worldSession->HandleContinuePlayerLogin();
 }
 
 void WorldSocket::SendAuthResponseError(uint8 code)

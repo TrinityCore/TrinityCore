@@ -35,6 +35,8 @@ class WorldSocketMgr : public SocketMgr<WorldSocket>
     typedef SocketMgr<WorldSocket> BaseSocketMgr;
 
 public:
+    ~WorldSocketMgr();
+
     static WorldSocketMgr& Instance()
     {
         static WorldSocketMgr instance;
@@ -55,6 +57,7 @@ protected:
     NetworkThread<WorldSocket>* CreateThreads() const override;
 
 private:
+    AsyncAcceptor* _instanceAcceptor;
     int32 _socketSendBufferSize;
     int32 m_SockOutUBuff;
     bool _tcpNoDelay;

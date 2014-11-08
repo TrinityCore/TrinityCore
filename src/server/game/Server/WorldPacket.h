@@ -27,17 +27,18 @@ class WorldPacket : public ByteBuffer
 {
     public:
                                                             // just container for later use
-        WorldPacket() : ByteBuffer(0), m_opcode(UNKNOWN_OPCODE)
+        WorldPacket() : ByteBuffer(0), m_opcode(UNKNOWN_OPCODE), _connection(CONNECTION_TYPE_REALM)
         {
         }
 
-        explicit WorldPacket(uint32 opcode, size_t res = 200) : ByteBuffer(res), m_opcode(opcode) { }
+        WorldPacket(uint32 opcode, size_t res = 200, ConnectionType connection = CONNECTION_TYPE_REALM) : ByteBuffer(res),
+            m_opcode(opcode), _connection(connection) { }
 
-        WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode)
+        WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), _connection(packet._connection)
         {
         }
 
-        WorldPacket(WorldPacket const& right) : ByteBuffer(right), m_opcode(right.m_opcode)
+        WorldPacket(WorldPacket const& right) : ByteBuffer(right), m_opcode(right.m_opcode), _connection(right._connection)
         {
         }
 
@@ -46,26 +47,31 @@ class WorldPacket : public ByteBuffer
             if (this != &right)
             {
                 m_opcode = right.m_opcode;
+                _connection = right._connection;
                 ByteBuffer::operator =(right);
             }
 
             return *this;
         }
 
-        WorldPacket(uint32 opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
+        WorldPacket(uint32 opcode, MessageBuffer&& buffer, ConnectionType connection) : ByteBuffer(std::move(buffer)), m_opcode(opcode), _connection(connection) { }
 
-        void Initialize(uint32 opcode, size_t newres = 200)
+        void Initialize(uint32 opcode, size_t newres = 200, ConnectionType connection = CONNECTION_TYPE_REALM)
         {
             clear();
             _storage.reserve(newres);
             m_opcode = opcode;
+            _connection = connection;
         }
 
         uint32 GetOpcode() const { return m_opcode; }
         void SetOpcode(uint32 opcode) { m_opcode = opcode; }
 
+        ConnectionType GetConnection() const { return _connection; }
+
     protected:
         uint32 m_opcode;
+        ConnectionType _connection;
 };
 
 #endif

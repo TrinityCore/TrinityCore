@@ -168,6 +168,29 @@ namespace WorldPackets
             BigNumber dmq1;
             BigNumber iqmp;
         };
+
+        class AuthContinuedSession final : public ClientPacket
+        {
+        public:
+            AuthContinuedSession(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            {
+                memset(Digest, 0, SHA_DIGEST_LENGTH);
+            }
+
+            void Read() override;
+
+            uint64 DosResponse = 0;
+            uint64 Key = 0;
+            uint8 Digest[SHA_DIGEST_LENGTH];
+        };
+
+        class ResumeComms final : public ServerPacket
+        {
+        public:
+            ResumeComms() : ServerPacket(SMSG_RESUME_COMMS, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 

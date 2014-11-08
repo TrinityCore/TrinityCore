@@ -26,6 +26,12 @@
 #include "Common.h"
 #include <iomanip>
 
+enum ConnectionType
+{
+    CONNECTION_TYPE_REALM       = 0,
+    CONNECTION_TYPE_INSTANCE    = 1
+};
+
 enum OpcodeMisc : uint32
 {
     MAX_OPCODE                                        = 0x1FFF,
@@ -70,6 +76,7 @@ enum OpcodeClient : uint32
     CMSG_AUCTION_PLACE_BID                            = 0xBADD,
     CMSG_AUCTION_REMOVE_ITEM                          = 0xBADD,
     CMSG_AUCTION_SELL_ITEM                            = 0xBADD,
+    CMSG_AUTH_CONTINUED_SESSION                       = 0x0485,
     CMSG_AUTH_SESSION                                 = 0x0487,
     CMSG_AUTOBANK_ITEM                                = 0xBADD,
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0xBADD,
@@ -466,7 +473,6 @@ enum OpcodeClient : uint32
     CMSG_READ_ITEM                                    = 0xBADD,
     CMSG_REALM_SPLIT                                  = 0xBADD,
     CMSG_RECLAIM_CORPSE                               = 0xBADD,
-    CMSG_REDIRECTION_AUTH_PROOF                       = 0x0485,
     CMSG_REFORGE_ITEM                                 = 0xBADD,
     CMSG_REORDER_CHARACTERS                           = 0x0DAA,
     CMSG_REPAIR_ITEM                                  = 0xBADD,
@@ -552,7 +558,7 @@ enum OpcodeClient : uint32
     CMSG_SUBMIT_COMPLAIN                              = 0xBADD,
     CMSG_SUGGESTION_SUBMIT                            = 0xBADD,
     CMSG_SUMMON_RESPONSE                              = 0xBADD,
-    CMSG_SUSPEND_TOKEN                                = 0x0142,
+    CMSG_SUSPEND_TOKEN_RESPONSE                       = 0x0142,
     CMSG_SWAP_INV_ITEM                                = 0xBADD,
     CMSG_SWAP_ITEM                                    = 0xBADD,
     CMSG_SYNC_DANCE                                   = 0xBADD,
@@ -887,7 +893,6 @@ enum OpcodeServer : uint32
     SMSG_FORCED_DEATH_UPDATE                          = 0xBADD,
     SMSG_FORCE_ANIM                                   = 0xBADD,
     SMSG_FORCE_DISPLAY_UPDATE                         = 0xBADD,
-    SMSG_FORCE_SEND_QUEUED_PACKETS                    = 0xBADD,
     SMSG_FORCE_SET_VEHICLE_REC_ID                     = 0xBADD,
     SMSG_FORGE_MASTER_SET                             = 0xBADD,
     SMSG_FRIEND_STATUS                                = 0xBADD,
@@ -1248,6 +1253,7 @@ enum OpcodeServer : uint32
     SMSG_RESET_FAILED_NOTIFY                          = 0xBADD,
     SMSG_RESISTLOG                                    = 0xBADD,
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0xBADD,
+    SMSG_RESUME_COMMS                                 = 0x07C9,
     SMSG_RESURRECT_FAILED                             = 0xBADD,
     SMSG_RESURRECT_REQUEST                            = 0xBADD,
     SMSG_RESYNC_RUNES                                 = 0xBADD,
@@ -1347,7 +1353,7 @@ enum OpcodeServer : uint32
     SMSG_SUPERCEDED_SPELL                             = 0xBADD,
     SMSG_SUPPRESS_NPC_GREETINGS                       = 0xBADD,
     SMSG_SUSPEND_COMMS                                = 0x076A,
-    SMSG_SUSPEND_TOKEN_RESPONSE                       = 0x12A2,
+    SMSG_SUSPEND_TOKEN                                = 0x12A2,
     SMSG_TALENTS_ERROR                                = 0xBADD,
     SMSG_TALENTS_INFO                                 = 0x012D,
     SMSG_TALENTS_INVOLUNTARILY_RESET                  = 0xBADD,

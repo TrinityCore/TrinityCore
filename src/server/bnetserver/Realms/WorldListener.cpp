@@ -98,7 +98,9 @@ void WorldListener::HandleToonOnlineStatusChange(Battlenet::RealmHandle const& r
         if (online)
         {
             Battlenet::WoWRealm::ToonReady* toonReady = new Battlenet::WoWRealm::ToonReady();
-            toonReady->Realm = realm;
+            toonReady->Realm.Battlegroup = realm.Battlegroup;
+            toonReady->Realm.Index = realm.Index;
+            toonReady->Realm.Region = realm.Region;
             toonReady->Guid = toonHandle.Guid;
             toonReady->Name = toonHandle.Name;
             session->AsyncWrite(toonReady);
