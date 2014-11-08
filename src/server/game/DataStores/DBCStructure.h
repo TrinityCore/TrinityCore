@@ -1286,6 +1286,7 @@ struct ItemPriceBaseEntry
     float WeaponFactor;                                     // 4        Price factor for weapons
 };
 
+// 6.x - removeme
 struct ItemReforgeEntry
 {
     uint32 Id;
@@ -1425,100 +1426,100 @@ typedef std::unordered_map<uint32, ItemSetSpells> ItemSetSpellsStore;
 
 struct LFGDungeonEntry
 {
-    uint32  ID;                                             // 0
-    char*   name;                                           // 1
-    uint32  minlevel;                                       // 2
-    uint32  maxlevel;                                       // 3
-    uint32  reclevel;                                       // 4
-    uint32  recminlevel;                                    // 5
-    uint32  recmaxlevel;                                    // 6
-    int32   map;                                            // 7
-    uint32  difficulty;                                     // 8
-    uint32  flags;                                          // 9
-    uint32  type;                                           // 10
-    //uint32  unk2;                                         // 11
-    //char*   iconname;                                     // 12
-    uint32  expansion;                                      // 13
-    //uint32  unk4;                                         // 14
-    uint32  grouptype;                                      // 15
-    //char*   desc;                                         // 16 Description
-    uint32  randomCategoryId;                               // 17 RandomDungeonID assigned for this dungeon
+    uint32      ID;                                         // 0
+    char*       Name_lang;                                  // 1
+    uint32      MinLevel;                                   // 2
+    uint32      MaxLevel;                                   // 3
+    uint32      TargetLevel;                                // 4
+    //uint32    TargetLevelMin;                             // 5
+    //uint32    TargetLevelMax;                             // 6
+    int32       MapID;                                      // 7
+    uint32      DifficultyID;                               // 8
+    uint32      Flags;                                      // 9
+    uint32      Type;                                       // 10
+    //uint32    Faction;                                    // 11
+    //char*     TextureFilename;                            // 12
+    uint32      Expansion;                                  // 13
+    //uint32    OrderIndex;                                 // 14
+    uint32      GroupID;                                    // 15
+    //char*     Description_lang;                           // 16
+    //uint32    RandomID;                                   // 17
+    //uint32    CountTank;                                  // 18
+    //uint32    CountHealer;                                // 19
+    //uint32    CountDamage;                                // 20
+    //uint32    ScenarioID;                                 // 21
+    //uint32    SubType;                                    // 22
+    //uint32    BonusReputationAmount;                      // 23
+    //uint32    MentorCharLevel;                            // 24
+    //uint32    MentorItemLevel;                            // 25
+    
     // Helpers
-    uint32 Entry() const { return ID + (type << 24); }
+    uint32 Entry() const { return ID + (Type << 24); }
 };
 
 struct LightEntry
 {
-    uint32 Id;
-    uint32 MapId;
-    float X;
-    float Y;
-    float Z;
-    //float FalloffStart;
-    //float FalloffEnd;
-    //uint32 SkyAndFog;
-    //uint32 WaterSettings;
-    //uint32 SunsetParams;
-    //uint32 OtherParams;
-    //uint32 DeathParams;
-    //uint32 Unknown;
-    //uint32 Unknown;
-    //uint32 Unknown;
+    uint32          ID;                                     // 0
+    uint32          MapID;                                  // 1
+    DBCPosition3D   Pos;                                    // 2-4
+    //float         FalloffStart;                           // 5
+    //float         FalloffEnd;                             // 6
+    //uint32        LightParamsID[8];                       // 7-14
 };
 
 struct LiquidTypeEntry
 {
-    uint32 Id;
-    //char*  Name;
-    //uint32 Flags;
-    uint32 Type;
-    //uint32 SoundId;
-    uint32 SpellId;
-    //float MaxDarkenDepth;
-    //float FogDarkenIntensity;
-    //float AmbDarkenIntensity;
-    //float DirDarkenIntensity;
-    //uint32 LightID;
-    //float ParticleScale;
-    //uint32 ParticleMovement;
-    //uint32 ParticleTexSlots;
-    //uint32 LiquidMaterialID;
-    //char* Texture[6];
-    //uint32 Color[2];
-    //float Unk1[18];
-    //uint32 Unk2[4];
+    uint32      ID;                                         // 0
+    //char*     Name;                                       // 1
+    //uint32    Flags;                                      // 2
+    uint32      Type;                                       // 3 m_soundBank
+    //uint32    SoundID;                                    // 4
+    uint32      SpellID;                                    // 5
+    //float     MaxDarkenDepth;                             // 6
+    //float     FogDarkenIntensity;                         // 7
+    //float     AmbDarkenIntensity;                         // 8
+    //float     DirDarkenIntensity;                         // 9
+    //uint32    LightID;                                    // 10
+    //float     ParticleScale;                              // 11
+    //uint32    ParticleMovement;                           // 12
+    //uint32    ParticleTexSlots;                           // 13
+    //uint32    MaterialID;                                 // 14
+    //char*     Texture[6];                                 // 15-20
+    //uint32    Color[2];                                   // 21-23
+    //float     Unk1[18];                                   // 24-41
+    //uint32    Unk2[4];                                    // 42-45
 };
 
 #define MAX_LOCK_CASE 8
 
 struct LockEntry
 {
-    uint32      ID;                                         // 0        m_ID
-    uint32      Type[MAX_LOCK_CASE];                        // 1-8      m_Type
-    uint32      Index[MAX_LOCK_CASE];                       // 9-16     m_Index
-    uint32      Skill[MAX_LOCK_CASE];                       // 17-24    m_Skill
-    //uint32      Action[MAX_LOCK_CASE];                    // 25-32    m_Action
+    uint32      ID;                                         // 0
+    uint32      Type[MAX_LOCK_CASE];                        // 1-8
+    uint32      Index[MAX_LOCK_CASE];                       // 9-16
+    uint32      Skill[MAX_LOCK_CASE];                       // 17-24
+    //uint32    Action[MAX_LOCK_CASE];                      // 25-32
 };
 
 struct PhaseEntry
 {
-    uint32    ID;                                           // 0
-    char*     Name;                                         // 1
-    uint32    flag;                                         // 2
+    uint32      ID;                                         // 0
+    char*       Name;                                       // 1
+    uint32      Flaga;                                      // 2
 };
 
 struct PhaseGroupEntry
 {
-    uint32 ID;
-    uint32 PhaseId;
-    uint32 GroupId;
+    uint32      ID;
+    uint32      PhaseID;
+    uint32      PhaseGroupID;
 };
 
 struct MailTemplateEntry
 {
     uint32      ID;                                         // 0
-    //char*       subject;                                  // 1        m_subject_lang
-    char* content;                                          // 2        m_body_lang
+    //char*     Subject_lang;                               // 1
+    char*       Body_lang;                                  // 2
 };
 
 struct MapEntry
@@ -1577,55 +1578,50 @@ struct MapEntry
 
 struct MapDifficultyEntry
 {
-    //uint32      Id;                                       // 0
-    uint32      MapId;                                      // 1
-    uint32      Difficulty;                                 // 2 (for arenas: arena slot)
-    char*   areaTriggerText;                                // 3        m_message_lang (text showed when transfer to map failed)
-    uint32      resetTime;                                  // 4,       m_raidDuration in secs, 0 if no fixed reset time
-    uint32      maxPlayers;                                 // 5,       m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
-    //char*       difficultyString;                         // 6        m_difficultystring
+    //uint32    ID;                                         // 0
+    uint32      MapID;                                      // 1
+    uint32      DifficultyID;                               // 2 (for arenas: arena slot)
+    char*       Message_lang;                               // 3 m_message_lang (text showed when transfer to map failed)
+    uint32      RaidDuration;                               // 4 m_raidDuration in secs, 0 if no fixed reset time
+    uint32      MaxPlayers;                                 // 5 m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
+    //char*     LockID;                                     // 6
 };
 
 struct MountCapabilityEntry
 {
-    uint32 Id;
-    uint32 Flags;
-    uint32 RequiredRidingSkill;
-    uint32 RequiredArea;
-    uint32 RequiredAura;
-    uint32 RequiredSpell;
-    uint32 SpeedModSpell;
-    int32  RequiredMap;
+    uint32      ID;                                         // 0
+    uint32      Flags;                                      // 1
+    uint32      RequiredRidingSkill;                        // 2
+    uint32      RequiredArea;                               // 3
+    uint32      RequiredAura;                               // 4
+    uint32      RequiredSpell;                              // 5
+    uint32      SpeedModSpell;                              // 6
+    int32       RequiredMap;                                // 7
 };
 
 #define MAX_MOUNT_CAPABILITIES 24
 
 struct MountTypeEntry
 {
-    uint32 Id;
-    uint32 MountCapability[MAX_MOUNT_CAPABILITIES];
+    uint32      ID;                                         // 0
+    uint32      MountCapability[MAX_MOUNT_CAPABILITIES];    // 1-24
 };
 
 struct MovieEntry
 {
-    uint32      Id;                                         // 0 index
-    //char*       filename;                                 // 1
-    //uint32      unk1;                                     // 2        m_volume
-    //uint32      unk2;                                     // 3 4.0.0
+    uint32      ID;                                         // 0 index
+    //uint32    Volume;                                     // 1
+    //uint32    KeyID;                                      // 2
+    //uint32    AudioFileDataID;                            // 3
+    //uint32    SubtitleFileDataID;                         // 4
 };
 
 struct NameGenEntry
 {
-    //uint32 id;
-    char*  name;
-    uint32 race;
-    uint32 gender;
-};
-
-struct NumTalentsAtLevelEntry
-{
-    //uint32 Level;                                         // 0 index
-    float Talents;                                         // 1 talent count
+    //uint32    ID;                                         // 0
+    char*       Name;                                       // 1
+    uint32      Race;                                       // 2
+    uint32      Sex;                                        // 3
 };
 
 #define MAX_OVERRIDE_SPELL 10
