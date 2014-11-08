@@ -373,10 +373,10 @@ void LoadDBCStores(const std::string& dataPath)
         {
             uint32 index = 0;
             for (uint32 j = 0; j < MAX_POWERS; ++j)
-                if (PowersByClass[power->classId][j] != MAX_POWERS)
+                if (PowersByClass[power->ClassID][j] != MAX_POWERS)
                     ++index;
 
-            PowersByClass[power->classId][power->power] = index;
+            PowersByClass[power->ClassID][power->PowerType] = index;
         }
     }
 
