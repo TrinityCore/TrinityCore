@@ -16,7 +16,6 @@
  */
 
 #include "GuildPackets.h"
-#include "ObjectGuid.h"
 
 WorldPackets::Guild::QueryGuildInfo::QueryGuildInfo(WorldPacket&& packet)
     : ClientPacket(std::move(packet))

@@ -125,7 +125,7 @@ class instance_stonecore : public InstanceMapScript
                         {
                             for (int8 i = 0; i < MAX_STONECORE_TELEPORTERS; i++)
                             {
-                                if (Creature* teleporter = GetCreature(stonecoreTeleporterGUID[i]))
+                                if (Creature* teleporter = instance->GetCreature(stonecoreTeleporterGUID[i]))
                                 {
                                     teleporter->CastSpell(teleporter, SPELL_TELEPORTER_ACTIVE_VISUAL, true);
                                     teleporter->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
