@@ -23,6 +23,7 @@
 #include "DetourAlloc.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include "World.h"
 #include <string>
 #include <unordered_map>
 #include <set>
@@ -33,31 +34,58 @@ namespace MMAP
     typedef std::unordered_map<uint32, dtTileRef> MMapTileSet;
     typedef std::unordered_map<uint32, dtNavMeshQuery*> NavMeshQuerySet;
 
-    // dummy struct to hold map's mmap data
-    struct MMapData
+
+    typedef std::set<uint32> TerrainSet;
+
+    struct NavMeshHolder
     {
-        MMapData(dtNavMesh* mesh) : navMesh(mesh) { }
-        ~MMapData()
-        {
-            for (NavMeshQuerySet::iterator i = navMeshQueries.begin(); i != navMeshQueries.end(); ++i)
-                dtFreeNavMeshQuery(i->second);
-
-            if (navMesh)
-                dtFreeNavMesh(navMesh);
-        }
-
+        // Pre-built navMesh
         dtNavMesh* navMesh;
+
+        // List of terrain swap map ids used to build the navMesh
+        TerrainSet terrainIds;
+
+        MMapTileSet loadedTileRefs;
+    };
+
+    struct PhasedTile
+    {
+        unsigned char* data;
+        MmapTileHeader fileHeader;
+        int32 dataSize;
+    };
+
+    typedef std::unordered_map<uint32, PhasedTile*> PhaseTileContainer;
+    typedef std::unordered_map<uint32, PhaseTileContainer> PhaseTileMap;
+
+
+    typedef std::unordered_map<uint32, TerrainSet> TerrainSetMap;
+
+    class MMapData
+    {
+    public:
+        MMapData(dtNavMesh* mesh, uint32 mapId);
+        ~MMapData();
+
+        dtNavMesh* GetNavMesh(TerrainSet swaps);
 
         // we have to use single dtNavMeshQuery for every instance, since those are not thread safe
         NavMeshQuerySet navMeshQueries;     // instanceId to query
-        MMapTileSet mmapLoadedTiles;        // maps [map grid coords] to [dtTile]
+
+        dtNavMesh* navMesh;
+        MMapTileSet loadedTileRefs;
+        TerrainSetMap loadedPhasedTiles;
+
+    private:
+        uint32 _mapId;
+        PhaseTileContainer _baseTiles;
+        std::set<uint32> _activeSwaps;
+        void RemoveSwap(PhasedTile* ptile, uint32 swap, uint32 packedXY);
+        void AddSwap(PhasedTile* tile, uint32 swap, uint32 packedXY);
     };
 
 
     typedef std::unordered_map<uint32, MMapData*> MMapDataSet;
-
-    typedef std::unordered_map<uint32, unsigned char*> PhaseTileContainer;
-    typedef std::unordered_map<uint32, PhaseTileContainer> PhaseTileMap;
 
     // singleton class
     // holds all all access to mmap loading unloading and meshes
@@ -73,16 +101,15 @@ namespace MMAP
             bool unloadMapInstance(uint32 mapId, uint32 instanceId);
 
             // the returned [dtNavMeshQuery const*] is NOT threadsafe
-            dtNavMeshQuery const* GetNavMeshQuery(uint32 mapId, uint32 instanceId);
-            dtNavMesh const* GetNavMesh(uint32 mapId);
+            dtNavMeshQuery const* GetNavMeshQuery(uint32 mapId, uint32 instanceId, TerrainSet swaps);
+            dtNavMesh const* GetNavMesh(uint32 mapId, TerrainSet swaps);
 
             uint32 getLoadedTilesCount() const { return loadedTiles; }
             uint32 getLoadedMapsCount() const { return loadedMMaps.size(); }
 
             void LoadPhaseTiles(uint32 mapId, int32 x, int32 y);
             void UnloadPhaseTile(uint32 mapId, int32 x, int32 y);
-            PhaseTileMap& GetPhaseTileStore() { return _phaseTiles; }
-            PhaseTileContainer& GetPhaseTileContainer(uint32 mapId) { return _phaseTiles[mapId]; }
+            PhaseTileContainer GetPhaseTileContainer(uint32 mapId) { return _phaseTiles[mapId]; }
 
         private:
             bool loadMapData(uint32 mapId);
@@ -91,7 +118,7 @@ namespace MMAP
             MMapDataSet loadedMMaps;
             uint32 loadedTiles;
 
-            unsigned char* LoadTile(uint32 mapId, int32 x, int32 y);
+            PhasedTile* LoadTile(uint32 mapId, int32 x, int32 y);
             PhaseTileMap _phaseTiles;
     };
 }
