@@ -24,49 +24,6 @@
 #include "RealmList.h"
 #include <boost/asio/ip/tcp.hpp>
 
-Battlenet::RealmId& Battlenet::RealmId::operator=(Battlenet::RealmHandle const& handle)
-{
-    Region = handle.Region;
-    Battlegroup = handle.Battlegroup;
-    Index = handle.Index;
-    return *this;
-}
-
-ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) const
-{
-    ip::address realmIp;
-
-    // Attempt to send best address for client
-    if (clientAddr.is_loopback())
-    {
-        // Try guessing if realm is also connected locally
-        if (LocalAddress.is_loopback() || ExternalAddress.is_loopback())
-            realmIp = clientAddr;
-        else
-        {
-            // Assume that user connecting from the machine that bnetserver is located on
-            // has all realms available in his local network
-            realmIp = LocalAddress;
-        }
-    }
-    else
-    {
-        if (clientAddr.is_v4() &&
-            (clientAddr.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()) ==
-            (LocalAddress.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()))
-        {
-            realmIp = LocalAddress;
-        }
-        else
-            realmIp = ExternalAddress;
-    }
-
-    ip::tcp::endpoint endpoint(realmIp, Port);
-
-    // Return external IP
-    return endpoint;
-}
-
 RealmList::RealmList() : _updateInterval(0), _updateTimer(nullptr), _resolver(nullptr), _worldListener(nullptr)
 {
 }

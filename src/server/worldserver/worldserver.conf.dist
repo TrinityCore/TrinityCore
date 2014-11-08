@@ -141,6 +141,13 @@ MaxPingTime = 30
 WorldServerPort = 8085
 
 #
+#    InstanceServerPort
+#        Description: TCP port to for second world connection.
+#        Default:     8086
+
+InstanceServerPort = 8086
+
+#
 #    BindIP
 #        Description: Bind world server to IP/hostname.
 #        Default:     "0.0.0.0" - (Bind to all IPs on the system)

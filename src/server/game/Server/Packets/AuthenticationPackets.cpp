@@ -585,3 +585,10 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
     _worldPacket << uint8(Con);
     return &_worldPacket;
 }
+
+void WorldPackets::Auth::AuthContinuedSession::Read()
+{
+    _worldPacket >> DosResponse;
+    _worldPacket >> Key;
+    _worldPacket.read(Digest, SHA_DIGEST_LENGTH);
+}
