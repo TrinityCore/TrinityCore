@@ -626,6 +626,11 @@ class TC_GAME_API World
         /// Allow/Disallow object movements
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
 
+        /// Set a new Message of the Day
+        void SetMotd(std::string motd);
+        /// Get the current Message of the Day
+        std::vector<std::string> const& GetMotd() const;
+
         /// Set the string for new characters (first login)
         void SetNewCharString(std::string const& str) { m_newCharString = str; }
         /// Get the string for new characters (first login)
@@ -828,6 +833,7 @@ class TC_GAME_API World
         uint32 m_availableDbcLocaleMask;                       // by loaded DBC
         void DetectDBCLang();
         bool m_allowMovement;
+        std::vector<std::string> _motd;
         std::string m_dataPath;
 
         // for max speed access
@@ -889,6 +895,7 @@ class TC_GAME_API World
 };
 
 TC_GAME_API extern Realm realm;
+uint32 GetVirtualRealmAddress();
 
 #define sWorld World::instance()
 

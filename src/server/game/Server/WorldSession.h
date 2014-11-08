@@ -51,7 +51,6 @@ class Unit;
 class Warden;
 class WorldPacket;
 class WorldSocket;
-struct AddonInfo;
 struct AreaTableEntry;
 struct AuctionEntry;
 struct DeclinedName;
@@ -449,6 +448,20 @@ struct PacketCounter
 {
     time_t lastReceiveTime;
     uint32 amountCounter;
+};
+
+struct SecureAddonInfo
+{
+    enum SecureAddonStatus : uint8
+    {
+        BANNED          = 0,
+        SECURE_VISIBLE  = 1,
+        SECURE_HIDDEN   = 2
+    };
+
+    std::string Name;
+    SecureAddonStatus Status = BANNED;
+    bool HasKey = false;
 };
 
 /// Player session in the World
@@ -1289,20 +1302,6 @@ class TC_GAME_API WorldSession
 
         struct Addons
         {
-            struct SecureAddonInfo
-            {
-                enum SecureAddonStatus : uint8
-                {
-                    BANNED          = 0,
-                    SECURE_VISIBLE  = 1,
-                    SECURE_HIDDEN   = 2
-                };
-
-                std::string Name;
-                SecureAddonStatus Status = BANNED;
-                bool HasKey = false;
-            };
-
             static uint32 constexpr MaxSecureAddons = 25;
 
             std::vector<SecureAddonInfo> SecureAddons;

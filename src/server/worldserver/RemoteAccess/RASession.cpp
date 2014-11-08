@@ -20,7 +20,6 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "ServerMotd.h"
 #include "SRP6.h"
 #include "Util.h"
 #include "World.h"
@@ -77,7 +76,9 @@ void RASession::Start()
     TC_LOG_INFO("commands.ra", "User {} (IP: {}) authenticated correctly to RA", username, GetRemoteIpAddress());
 
     // Authentication successful, send the motd
-    Send(std::string(std::string(Motd::GetMotd()) + "\r\n").c_str());
+    for (std::string const& line : sWorld->GetMotd())
+        Send(line.c_str());
+    Send("\r\n");
 
     // Read commands
     for (;;)
