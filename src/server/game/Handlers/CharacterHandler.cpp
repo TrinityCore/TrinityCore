@@ -1395,7 +1395,7 @@ void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
     {
         if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
         {
-            _player->RemoveAurasDueToSpell(gp->SpellId);
+            _player->RemoveAurasDueToSpell(gp->SpellID);
             _player->SetGlyph(slot, 0);
             _player->SendTalentsInfoData(false);
         }

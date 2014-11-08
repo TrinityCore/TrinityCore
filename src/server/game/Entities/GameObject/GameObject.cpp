@@ -1875,9 +1875,9 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
     float cosB = dy / dist;
     dx = dist * (cosA * cosB + sinA * sinB);
     dy = dist * (cosA * sinB - sinA * cosB);
-    return dx < info->maxX + radius && dx > info->minX - radius
-        && dy < info->maxY + radius && dy > info->minY - radius
-        && dz < info->maxZ + radius && dz > info->minZ - radius;
+    return dx < info->GeoBoxMax.X + radius && dx > info->GeoBoxMin.X - radius
+        && dy < info->GeoBoxMax.Y + radius && dy > info->GeoBoxMin.Y - radius
+        && dz < info->GeoBoxMax.Z + radius && dz > info->GeoBoxMin.Z - radius;
 }
 
 void GameObject::EventInform(uint32 eventId, WorldObject* invoker /*= NULL*/)
