@@ -65,6 +65,8 @@
 #include "WeatherMgr.h"
 #include "WorldSession.h"
 
+#include <boost/algorithm/string.hpp>
+
 std::atomic<bool> World::m_stopEvent(false);
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 std::atomic<uint32> World::m_worldLoopCounter(0);
@@ -172,16 +174,18 @@ void World::SetClosed(bool val)
     sScriptMgr->OnOpenStateChange(!val);
 }
 
-void World::SetMotd(const std::string& motd)
+void World::SetMotd(std::string motd)
 {
-    m_motd = motd;
+    /// we are using a string copy here to allow modifications in script hooks
+    sScriptMgr->OnMotdChange(motd);
 
-    sScriptMgr->OnMotdChange(m_motd);
+    _motd.clear();
+    boost::split(_motd, motd, boost::is_any_of("@"));
 }
 
-const char* World::GetMotd() const
+std::vector<std::string> const& World::GetMotd() const
 {
-    return m_motd.c_str();
+    return _motd;
 }
 
 /// Find a session by its id
@@ -3319,4 +3323,9 @@ void World::ReloadRBAC()
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (WorldSession* session = itr->second)
             session->InvalidateRBACData();
+}
+
+uint32 GetVirtualRealmAddress()
+{
+    return uint32(realmHandle.Region) << 24 | uint32(realmHandle.Battlegroup) << 16 | realmHandle.Index;
 }

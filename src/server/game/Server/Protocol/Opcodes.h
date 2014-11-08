@@ -34,7 +34,7 @@ enum OpcodeMisc : uint32
     NULL_OPCODE                                       = 0xBADD
 };
 
-// CMSGs 6.0.3.19103
+// CMSGs 6.0.3.19116
 enum OpcodeClient : uint32
 {
     CMSG_ACCEPT_LEVEL_GRANT                           = 0xBADD,
@@ -42,8 +42,9 @@ enum OpcodeClient : uint32
     CMSG_ACTIVATETAXI                                 = 0xBADD,
     CMSG_ACTIVATETAXIEXPRESS                          = 0xBADD,
     CMSG_ADDON_REGISTERED_PREFIXES                    = 0x03F4,
-    CMSG_ADD_FRIEND                                   = 0xBADD,
+    CMSG_ADD_FRIEND                                   = 0x0DB9,
     CMSG_ADD_IGNORE                                   = 0x1321,
+    CMSG_ADD_MUTE                                     = 0x098A,
     CMSG_ADD_VOICE_IGNORE                             = 0xBADD,
     CMSG_ALTER_APPEARANCE                             = 0xBADD,
     CMSG_AREATRIGGER                                  = 0x01B4,
@@ -96,6 +97,7 @@ enum OpcodeClient : uint32
     CMSG_BATTLEMASTER_JOIN_ARENA                      = 0xBADD,
     CMSG_BATTLEMASTER_JOIN_RATED                      = 0xBADD,
     CMSG_BATTLEMASTER_HELLO                           = 0xBADD,
+    CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY            = 0x1389,
     CMSG_BEGIN_TRADE                                  = 0xBADD,
     CMSG_BINDER_ACTIVATE                              = 0xBADD,
     CMSG_BOT_DETECTED2                                = 0xBADD,
@@ -187,8 +189,9 @@ enum OpcodeClient : uint32
     CMSG_DANCE_QUERY                                  = 0xBADD,
     CMSG_DB_QUERY_BULK                                = 0x138B,
     CMSG_DECLINE_CHANNEL_INVITE                       = 0xBADD,
-    CMSG_DEL_FRIEND                                   = 0xBADD,
-    CMSG_DEL_IGNORE                                   = 0xBADD,
+    CMSG_DEL_FRIEND                                   = 0x0F2A,
+    CMSG_DEL_IGNORE                                   = 0x033D,
+    CMSG_DEL_MUTE                                     = 0x0128,
     CMSG_DEL_VOICE_IGNORE                             = 0xBADD,
     CMSG_DESTROY_ITEM                                 = 0xBADD,
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0xBADD,
@@ -666,7 +669,7 @@ enum OpcodeClient : uint32
     MSG_TALENT_WIPE_CONFIRM                           = 0xBADD
 };
 
-// SMSGs 6.0.3.19103
+// SMSGs 6.0.3.19116
 enum OpcodeServer : uint32
 {
     SMSG_ACCOUNT_DATA_TIMES                           = 0x0120,
@@ -741,6 +744,7 @@ enum OpcodeServer : uint32
     SMSG_BATTLEGROUND_INFO_THROTTLED                  = 0xBADD,
     SMSG_BATTLEGROUND_PLAYER_JOINED                   = 0xBADD,
     SMSG_BATTLEGROUND_PLAYER_LEFT                     = 0xBADD,
+    SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE         = 0x12A4,
     SMSG_BATTLE_PET_JOURNAL                           = 0x19A2,
     SMSG_BINDER_CONFIRM                               = 0xBADD,
     SMSG_BINDPOINTUPDATE                              = 0x0A30,
@@ -819,6 +823,7 @@ enum OpcodeServer : uint32
     SMSG_COMSAT_DISCONNECT                            = 0xBADD,
     SMSG_COMSAT_RECONNECT_TRY                         = 0xBADD,
     SMSG_CONTACT_LIST                                 = 0xBADD,
+    SMSG_CONTACT_STATUS                               = 0x1BEA,
     SMSG_CONVERT_RUNE                                 = 0xBADD,
     SMSG_COOLDOWN_CHEAT                               = 0xBADD,
     SMSG_COOLDOWN_EVENT                               = 0xBADD,
@@ -1221,7 +1226,7 @@ enum OpcodeServer : uint32
     SMSG_RAID_MARKERS_CHANGED                         = 0xBADD,
     SMSG_RAID_READY_CHECK_THROTTLED_ERROR             = 0xBADD,
     SMSG_RAID_SUMMON_FAILED                           = 0xBADD,
-    SMSG_RANDOMIZE_CHAR_NAME                          = 0xBADD,
+    SMSG_RANDOMIZE_CHAR_NAME                          = 0x0D8F,
     SMSG_RATED_BG_RATING                              = 0xBADD,
     SMSG_RATED_BG_STATS                               = 0xBADD,
     SMSG_READ_ITEM_FAILED                             = 0xBADD,

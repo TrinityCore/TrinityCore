@@ -26,52 +26,53 @@ namespace WorldPackets
 {
     namespace Guild
     {
-        class GuildQuery final : public ClientPacket
+        class QueryGuildInfo final : public ClientPacket
         {
         public:
-            GuildQuery(WorldPacket&& packet);
+            QueryGuildInfo(WorldPacket&& packet);
 
             void Read() override;
 
-            ObjectGuid GuildGuid;
             ObjectGuid PlayerGuid;
+            ObjectGuid GuildGuid;
         };
 
-        class GuildQueryResponse final : public ServerPacket
+        class QueryGuildInfoResponse final : public ServerPacket
         {
         public:
             struct GuildInfo
             {
-                ObjectGuid GuildGuid;
+                ObjectGuid GuildGUID;
 
-                uint32 VirtualRealmAddress = 0;
+                uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
+
+                std::string GuildName;
+
+                struct GuildInfoRank
+                {
+                    GuildInfoRank(uint32 id, uint32 order, std::string const& name)
+                        : RankID(id), RankOrder(order), RankName(name) { }
+
+                    uint32 RankID;
+                    uint32 RankOrder;
+                    std::string RankName;
+
+                    bool operator<(GuildInfoRank const& right) const
+                    {
+                        return RankID < right.RankID;
+                    }
+                };
+
+                std::set<GuildInfoRank> Ranks;
+
                 uint32 EmblemStyle = 0;
                 uint32 EmblemColor = 0;
                 uint32 BorderStyle = 0;
                 uint32 BorderColor = 0;
                 uint32 BackgroundColor = 0;
-
-                struct RankInfo
-                {
-                    RankInfo(uint32 id, uint32 order, std::string const& name)
-                        : Id(id), Order(order), Name(name) { }
-
-                    uint32 Id;
-                    uint32 Order;
-                    std::string Name;
-
-                    bool operator<(RankInfo const& right) const
-                    {
-                        return Id < right.Id;
-                    }
-                };
-
-                std::set<RankInfo> Ranks;
-
-                std::string Name;
             };
 
-            GuildQueryResponse();
+            QueryGuildInfoResponse();
 
             WorldPacket const* Write() override;
 

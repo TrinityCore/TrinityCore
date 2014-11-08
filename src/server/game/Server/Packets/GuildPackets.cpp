@@ -18,29 +18,29 @@
 #include "GuildPackets.h"
 #include "ObjectGuid.h"
 
-WorldPackets::Guild::GuildQuery::GuildQuery(WorldPacket&& packet)
+WorldPackets::Guild::QueryGuildInfo::QueryGuildInfo(WorldPacket&& packet)
     : ClientPacket(std::move(packet))
 {
     ASSERT(_worldPacket.GetOpcode() == CMSG_GUILD_QUERY);
 }
 
-void WorldPackets::Guild::GuildQuery::Read()
+void WorldPackets::Guild::QueryGuildInfo::Read()
 {
     _worldPacket >> GuildGuid;
     _worldPacket >> PlayerGuid;
 }
 
-WorldPackets::Guild::GuildQueryResponse::GuildQueryResponse()
+WorldPackets::Guild::QueryGuildInfoResponse::QueryGuildInfoResponse()
     : ServerPacket(SMSG_GUILD_QUERY_RESPONSE) { }
 
-WorldPacket const* WorldPackets::Guild::GuildQueryResponse::Write()
+WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
 {
     _worldPacket << GuildGuid;
     _worldPacket.WriteBit(Info.HasValue);
 
     if (Info.HasValue)
     {
-        _worldPacket << Info.value.GuildGuid;
+        _worldPacket << Info.value.GuildGUID;
         _worldPacket << uint32(Info.value.VirtualRealmAddress);
         _worldPacket << uint32(Info.value.Ranks.size());
         _worldPacket << uint32(Info.value.EmblemStyle);
@@ -49,17 +49,17 @@ WorldPacket const* WorldPackets::Guild::GuildQueryResponse::Write()
         _worldPacket << uint32(Info.value.BorderColor);
         _worldPacket << uint32(Info.value.BackgroundColor);
 
-        for (GuildInfo::RankInfo const& rank : Info.value.Ranks)
+        for (GuildInfo::GuildInfoRank const& rank : Info.value.Ranks)
         {
-            _worldPacket << uint32(rank.Id);
-            _worldPacket << uint32(rank.Order);
+            _worldPacket << uint32(rank.RankID);
+            _worldPacket << uint32(rank.RankOrder);
 
-            _worldPacket.WriteBits(rank.Name.size(), 7);
-            _worldPacket << rank.Name;
+            _worldPacket.WriteBits(rank.RankName.size(), 7);
+            _worldPacket.WriteString(rank.RankName);
         }
 
-        _worldPacket.WriteBits(Info.value.Name.size(), 7);
-        _worldPacket << Info.value.Name;
+        _worldPacket.WriteBits(Info.value.GuildName.size(), 7);
+        _worldPacket.WriteString(Info.value.GuildName);
     }
     _worldPacket.FlushBits();
 
