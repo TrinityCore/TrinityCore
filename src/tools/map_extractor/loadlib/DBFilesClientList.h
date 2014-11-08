@@ -525,6 +525,7 @@ char const* DBFilesClientList[] =
     "DBFilesClient\\ModelFileData.dbc",
     "DBFilesClient\\ManifestMP3.dbc",
     "DBFilesClient\\FileData.dbc",
+    "DBFilesClient\\WorldSafeLocs.dbc",
     nullptr // terminator
 };
 
