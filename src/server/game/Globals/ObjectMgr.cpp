@@ -2373,7 +2373,7 @@ uint32 FillItemArmor(uint32 itemlevel, uint32 itemClass, uint32 itemSubclass, ui
         if (itemSubclass < ITEM_SUBCLASS_ARMOR_CLOTH || itemSubclass > ITEM_SUBCLASS_ARMOR_PLATE)
             return 0;
 
-        return uint32(armorQuality->Value[quality] * armorTotal->Value[itemSubclass - 1] * location->Modifier[itemSubclass - 1] + 0.5f);
+        return uint32(armorQuality->QualityMod[quality] * armorTotal->Value[itemSubclass - 1] * location->Modifier[itemSubclass - 1] + 0.5f);
     }
 
     // shields
@@ -2381,7 +2381,7 @@ uint32 FillItemArmor(uint32 itemlevel, uint32 itemClass, uint32 itemSubclass, ui
     if (!shield)
         return 0;
 
-    return uint32(shield->Value[quality] + 0.5f);
+    return uint32(shield->Quality[quality] + 0.5f);
 }
 
 uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventoryType, uint32 quality, uint32 itemLevel)
@@ -2490,18 +2490,18 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
             disenchant->MinItemLevel <= itemTemplate.ItemLevel &&
             disenchant->MaxItemLevel >= itemTemplate.ItemLevel)
         {
-            if (disenchant->Id == 60 || disenchant->Id == 61)   // epic item disenchant ilvl range 66-99 (classic)
+            if (disenchant->ID == 60 || disenchant->ID == 61)   // epic item disenchant ilvl range 66-99 (classic)
             {
                 if (itemTemplate.RequiredLevel > 60 || itemTemplate.RequiredSkillRank > 300)
                     continue;                                   // skip to epic item disenchant ilvl range 90-199 (TBC)
             }
-            else if (disenchant->Id == 66 || disenchant->Id == 67)  // epic item disenchant ilvl range 90-199 (TBC)
+            else if (disenchant->ID == 66 || disenchant->ID == 67)  // epic item disenchant ilvl range 90-199 (TBC)
             {
                 if (itemTemplate.RequiredLevel <= 60 || (itemTemplate.RequiredSkill && itemTemplate.RequiredSkillRank <= 300))
                     continue;
             }
 
-            *disenchantID = disenchant->Id;
+            *disenchantID = disenchant->ID;
             *requiredDisenchantSkill = disenchant->RequiredDisenchantSkill;
             return;
         }

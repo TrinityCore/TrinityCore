@@ -10496,13 +10496,13 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
             return EQUIP_ERR_NOT_EQUIPPABLE;
         }
 
-        if (limitEntry->mode == ITEM_LIMIT_CATEGORY_MODE_HAVE)
+        if (limitEntry->Flags == ITEM_LIMIT_CATEGORY_MODE_HAVE)
         {
             uint32 curcount = GetItemCountWithLimitCategory(pProto->ItemLimitCategory, pItem);
-            if (curcount + count > uint32(limitEntry->maxCount))
+            if (curcount + count > uint32(limitEntry->Quantity))
             {
                 if (no_space_count)
-                    *no_space_count = count + curcount - limitEntry->maxCount;
+                    *no_space_count = count + curcount - limitEntry->Quantity;
                 if (itemLimitCategory)
                     *itemLimitCategory = pProto->ItemLimitCategory;
                 return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS;
@@ -13761,11 +13761,11 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                                 if (item_rand)
                                 {
                                     // Search enchant_amount
-                                    for (int k = 0; k < 5; ++k)
+                                    for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
                                     {
-                                        if (item_rand->enchant_id[k] == enchant_id)
+                                        if (item_rand->Enchantment[k] == enchant_id)
                                         {
-                                            basepoints = int32((item_rand->prefix[k] * item->GetItemSuffixFactor()) / 10000);
+                                            basepoints = int32((item_rand->AllocationPct[k] * item->GetItemSuffixFactor()) / 10000);
                                             break;
                                         }
                                     }
@@ -13789,9 +13789,9 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         {
                             for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
                             {
-                                if (item_rand->enchant_id[k] == enchant_id)
+                                if (item_rand->Enchantment[k] == enchant_id)
                                 {
-                                    enchant_amount = uint32((item_rand->prefix[k] * item->GetItemSuffixFactor()) / 10000);
+                                    enchant_amount = uint32((item_rand->AllocationPct[k] * item->GetItemSuffixFactor()) / 10000);
                                     break;
                                 }
                             }
@@ -13807,11 +13807,11 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
                         if (item_rand_suffix)
                         {
-                            for (int k = 0; k < 5; ++k)
+                            for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
                             {
-                                if (item_rand_suffix->enchant_id[k] == enchant_id)
+                                if (item_rand_suffix->Enchantment[k] == enchant_id)
                                 {
-                                    enchant_amount = uint32((item_rand_suffix->prefix[k] * item->GetItemSuffixFactor()) / 10000);
+                                    enchant_amount = uint32((item_rand_suffix->AllocationPct[k] * item->GetItemSuffixFactor()) / 10000);
                                     break;
                                 }
                             }
@@ -25521,11 +25521,11 @@ InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 
 
         // NOTE: limitEntry->mode not checked because if item have have-limit then it applied and to equip case
 
-        if (limit_count > limitEntry->maxCount)
+        if (limit_count > limitEntry->Quantity)
             return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS;
 
         // there is an equip limit on this item
-        if (HasItemOrGemWithLimitCategoryEquipped(itemProto->ItemLimitCategory, limitEntry->maxCount - limit_count + 1, except_slot))
+        if (HasItemOrGemWithLimitCategoryEquipped(itemProto->ItemLimitCategory, limitEntry->Quantity - limit_count + 1, except_slot))
             return EQUIP_ERR_ITEM_MAX_COUNT_EQUIPPED_SOCKETED;
     }
 

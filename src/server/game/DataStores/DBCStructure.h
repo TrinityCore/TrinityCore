@@ -1306,116 +1306,122 @@ struct ItemReforgeEntry
 // ItemDamageWand.dbc
 struct ItemDamageEntry
 {
-    uint32    Id;                                             // 0 item level
-    float     DPS[7];                                         // 1-7 multiplier for item quality
-    uint32    Id2;                                            // 8 item level
+    uint32      ID;                                         // 0 item level
+    float       DPS[7];                                     // 1-7 multiplier for item quality
+    uint32      ItemLevel;                                  // 8 item level
 };
 
 struct ItemArmorQualityEntry
 {
-    uint32    Id;                                             // 0 item level
-    float     Value[7];                                       // 1-7 multiplier for item quality
-    uint32    Id2;                                            // 8 item level
+    uint32      ID;                                         // 0 item level
+    float       QualityMod[7];                              // 1-7 multiplier for item quality
+    uint32      ItemLevel;                                  // 8 item level
 };
 
 struct ItemArmorShieldEntry
 {
-    uint32    Id;                                             // 0 item level
-    uint32    Id2;                                            // 1 item level
-    float     Value[7];                                       // 2-8 multiplier for item quality
+    uint32      ID;                                         // 0 item level
+    uint32      ItemLevel;                                  // 1 item level
+    float       Quality[7];                                 // 2-8 quality
 };
 
 struct ItemArmorTotalEntry
 {
-    uint32    Id;                                             // 0 item level
-    uint32    Id2;                                            // 1 item level
-    float     Value[4];                                       // 2-5 multiplier for armor types (cloth...plate)
+    uint32      ID;                                         // 0 item level
+    uint32      ItemLevel;                                  // 1 item level
+    float       Value[4];                                   // 2-5 multiplier for armor types (cloth...plate)
 };
 
 // ItemClass.dbc
 struct ItemClassEntry
 {
-    uint32    Class;                                          // 1 item class id
-  //uint32    Unk;                                            // 2 unk
-  //uint32    IsWeapon;                                       // 3 1 for weapon, 0 for everything else
-    float     PriceFactor;                                    // 4 used to calculate certain prices
-  //char*     Name;                                           // class name
+    uint32      ID;                                          // 0 item class id
+    //uint32    Flags;                                       // 1 Weapon - 1, others - 0
+    float       PriceMod;                                    // 2 used to calculate certain prices
+    //char*     Name_lang;                                   // 3 class name
 };
 
 struct ItemBagFamilyEntry
 {
-    uint32   ID;                                            // 0
-    //char*     name;                                       // 1        m_name_lang
+    uint32      ID;                                         // 0
+    //char*     Name_lang;                                  // 1        m_name_lang
 };
 
 struct ItemDisplayInfoEntry
 {
-    uint32      ID;                                         // 0        m_ID
-                                                            // 1        m_modelName[2]
-                                                            // 2        m_modelTexture[2]
-                                                            // 3        m_inventoryIcon
-                                                            // 4        m_geosetGroup[3]
-                                                            // 5        m_flags
-                                                            // 6        m_spellVisualID
-                                                            // 7        m_groupSoundIndex
-                                                            // 8        m_helmetGeosetVis[2]
-                                                            // 9        m_texture[2]
-                                                            // 10       m_itemVisual[8]
-                                                            // 11       m_particleColorID
+    uint32      ID;                                         // 0
+    //char*     ModelName[2];                               // 1-2
+    //char*     ModelTexture[2];                            // 3-4
+    //uint32    GeoSetGroup[3];                             // 5-7
+    //uint32    Flags;                                      // 8
+    //uint32    SpellVisualID;                              // 9
+    //uint32    HelmetGeosetVis[2];                         // 10-11
+    //char*     Texture[9];                                 // 12-20
+    //uint32    ItemVisual;                                 // 21
+    //uint32    ParticleColorID;                            // 22
 };
 
 struct ItemDisenchantLootEntry
 {
-    uint32 Id;
-    uint32 ItemClass;
-    int32 ItemSubClass;
-    uint32 ItemQuality;
-    uint32 MinItemLevel;
-    uint32 MaxItemLevel;
-    uint32 RequiredDisenchantSkill;
+    uint32      ID;                                         // 0
+    uint32      ItemClass;                                  // 1
+    int32       ItemSubClass;                               // 2
+    uint32      ItemQuality;                                // 3
+    uint32      MinItemLevel;                               // 4
+    uint32      MaxItemLevel;                               // 5
+    uint32      RequiredDisenchantSkill;                    // 6
 };
 
 struct ItemLimitCategoryEntry
 {
     uint32      ID;                                         // 0 Id
-    //char*     name;                                       // 1        m_name_lang
-    uint32      maxCount;                                   // 2,       m_quantity max allowed equipped as item or in gem slot
-    uint32      mode;                                       // 3,       m_flags 0 = have, 1 = equip (enum ItemLimitCategoryMode)
+    //char*     Name_lang;                                  // 1        m_name_lang
+    uint32      Quantity;                                   // 2,       m_quantity max allowed equipped as item or in gem slot
+    uint32      Flags;                                      // 3,       m_flags 0 = have, 1 = equip (enum ItemLimitCategoryMode)
 };
 
-#define MAX_ITEM_ENCHANTMENT_EFFECTS 3
+#define MAX_ITEM_ENCHANTMENT_EFFECTS 5
 
 struct ItemRandomPropertiesEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    //char* internalName                                    // 1        m_Name
-    uint32    enchant_id[MAX_ITEM_ENCHANTMENT_EFFECTS];     // 2-4      m_Enchantment
-                                                            // 5-6      unused
-    char* nameSuffix;                                       // 7        m_name_lang
+    uint32      ID;                                         // 0
+    //char*     Name;                                       // 1
+    uint32      Enchantment[MAX_ITEM_ENCHANTMENT_EFFECTS];  // 2-6 
+    char*       Name_lang;                                  // 7
 };
 
 struct ItemRandomSuffixEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    char* nameSuffix;                                       // 1        m_name_lang
-                                                            // 2        m_internalName
-    uint32    enchant_id[5];                                // 3-7      m_enchantment
-    uint32    prefix[5];                                    // 8-12     m_allocationPct
+    uint32      ID;                                         // 0 
+    char*       Name_lang;                                  // 1
+    //char*     InternalName;                               // 2
+    uint32      Enchantment[MAX_ITEM_ENCHANTMENT_EFFECTS];  // 3-7
+    uint32      AllocationPct[MAX_ITEM_ENCHANTMENT_EFFECTS];// 8-12
 };
 
-#define MAX_ITEM_SET_ITEMS 10
+#define MAX_ITEM_SET_ITEMS 17
 #define MAX_ITEM_SET_SPELLS 8
 
 struct ItemSetEntry
 {
-    //uint32    id                                          // 0        m_ID
-    char* name;                                             // 1        m_name_lang
-    uint32    itemId[MAX_ITEM_SET_ITEMS];                   // 2-18     m_itemID
-    uint32    spells[MAX_ITEM_SET_SPELLS];                  // 19-26    m_setSpellID
-    uint32    items_to_triggerspell[MAX_ITEM_SET_SPELLS];   // 27-34    m_setThreshold
-    uint32    required_skill_id;                            // 35       m_requiredSkill
-    uint32    required_skill_value;                         // 36       m_requiredSkillRank
+    uint32      ID;                                         // 0
+    char*       Name_lang;                                  // 1
+    uint32      ItemID[MAX_ITEM_SET_ITEMS];                 // 2-18
+    uint32      RequiredSkill;                              // 19
+    uint32      RequiredSkillRank;                          // 20
 };
+
+struct ItemSetSpellEntry
+{
+    uint32      ID;                                         // 0
+    uint32      ItemSetID;                                  // 1
+    uint32      SpellID;                                    // 2
+    uint32      Threshold;                                  // 3
+    uint32      ChrSpecID;                                  // 4
+};
+
+typedef std::vector<ItemSetSpellEntry const*> ItemSetSpells;
+typedef std::unordered_map<uint32, ItemSetSpells> ItemSetSpellsStore;
 
 struct LFGDungeonEntry
 {
