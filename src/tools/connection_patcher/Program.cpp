@@ -60,7 +60,8 @@ namespace Connection_Patcher
             if (!fs::exists(modulePath))
                 fs::create_directories(modulePath);
 
-            fs::permissions(modulePath / moduleName, fs::add_perms | fs::others_write | fs::group_write | fs::owner_write);
+            if (fs::exists(modulePath / modulePath))
+                fs::permissions(modulePath / moduleName, fs::add_perms | fs::others_write | fs::group_write | fs::owner_write);
             patcher.Finish(modulePath / moduleName);
             fs::permissions(modulePath / moduleName, fs::remove_perms | fs::others_write | fs::group_write | fs::owner_write);
 
