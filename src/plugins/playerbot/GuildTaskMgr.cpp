@@ -511,6 +511,45 @@ bool GuildTaskMgr::HandleConsoleCommand(ChatHandler* handler, char const* args)
         return true;
     }
 
+    if (cmd == "reward")
+    {
+        sLog->outMessage("gtask", LOG_LEVEL_INFO, "Usage: gtask reward <player name>");
+        return true;
+    }
+
+    if (cmd.find("reward ") != string::npos)
+    {
+        string charName = cmd.substr(cmd.find("reward ") + 7);
+        ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(charName);
+        if (!guid)
+        {
+            sLog->outMessage("gtask", LOG_LEVEL_ERROR, "Player %s not found", charName.c_str());
+            return false;
+        }
+
+        uint32 owner = (uint32)guid.GetRawValue();
+        QueryResult result = CharacterDatabase.PQuery(
+                "select distinct guildid from ai_playerbot_guild_tasks where owner = '%u'",
+                owner);
+
+        if (result)
+        {
+            do
+            {
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[0].GetUInt32();
+                Guild *guild = sGuildMgr->GetGuildById(guildId);
+                if (!guild)
+                    continue;
+
+                sGuildTaskMgr.Reward(owner, guildId);
+            } while (result->NextRow());
+
+            Field* fields = result->Fetch();
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -614,7 +653,7 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     MailDraft draft("Thank You", body.str());
 
-    uint32 count = urand(1, 5);
+    uint32 count = urand(1, 3);
     for (uint32 i = 0; i < count; ++i)
     {
         uint32 itemId = sRandomItemMgr.GetRandomItem(RANDOM_ITEM_GUILD_TASK_REWARD);
