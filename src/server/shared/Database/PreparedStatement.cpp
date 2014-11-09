@@ -72,6 +72,7 @@ void PreparedStatement::BindParameters()
                 break;
             case TYPE_BINARY:
                 m_stmt->setBinary(i, statement_data[i].binary, false);
+                break;
             case TYPE_NULL:
                 m_stmt->setNull(i);
                 break;
@@ -357,7 +358,7 @@ void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     size_t len = value.size();
-    param->buffer_type = MYSQL_TYPE_VAR_STRING;
+    param->buffer_type = MYSQL_TYPE_BLOB;
     delete [] static_cast<char *>(param->buffer);
     param->buffer = new char[len];
     param->buffer_length = len;
@@ -365,7 +366,10 @@ void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint
     delete param->length;
     param->length = new unsigned long(len);
     if (isString)
+    {
         *param->length -= 1;
+        param->buffer_type = MYSQL_TYPE_VAR_STRING;
+    }
 
     memcpy(param->buffer, value.data(), len);
 }

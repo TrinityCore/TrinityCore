@@ -2678,7 +2678,7 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.ItemId                    = itemId;
             itemTemplate.Class                     = uint32(fields[1].GetUInt8());
             itemTemplate.SubClass                  = uint32(fields[2].GetUInt8());
-            itemTemplate.SoundOverrideSubclass     = fields[3].GetInt32();
+            itemTemplate.SoundOverrideSubclass     = fields[3].GetInt8();
             itemTemplate.Name1                     = fields[4].GetString();
             itemTemplate.DisplayInfoID             = fields[5].GetUInt32();
             itemTemplate.Quality                   = uint32(fields[6].GetUInt8());
@@ -6365,11 +6365,11 @@ void ObjectMgr::SetHighestGuids()
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
-        _gameObjectGuidGenerator.Set((*result)[0].GetUInt32() + 1);
+        _gameObjectGuidGenerator.Set((*result)[0].GetUInt64() + 1);
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
     if (result)
-        _moTransportGuidGenerator.Set((*result)[0].GetUInt32() + 1);
+        _moTransportGuidGenerator.Set((*result)[0].GetUInt64() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
@@ -8832,8 +8832,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
             }
         }
 
-        stats.BaseMana = fields[8].GetUInt16();
-        stats.BaseArmor = fields[9].GetUInt16();
+        stats.BaseMana = fields[8].GetUInt32();
+        stats.BaseArmor = fields[9].GetUInt32();
 
         stats.AttackPower = fields[10].GetUInt16();
         stats.RangedAttackPower = fields[11].GetUInt16();
