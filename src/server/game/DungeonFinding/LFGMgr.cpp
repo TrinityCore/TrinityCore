@@ -768,7 +768,7 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& playe
                 bool eraseDungeon = true;
 
                 // Don't remove the dungeon if team members are trying to continue a locked instance
-                if (it2->second == LFG_LOCKSTATUS_RAID_LOCKED && isContinue)
+                if (it2->second.lockStatus == LFG_LOCKSTATUS_RAID_LOCKED && isContinue)
                 {
                     LFGDungeonData const* dungeon = GetLFGDungeon(dungeonId);
                     ASSERT(dungeon);
@@ -786,10 +786,10 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& playe
                         }
                     }
                 }
-                
+
                 if (eraseDungeon)
                     dungeons.erase(itDungeon);
-                
+
                 lockMap[guid][dungeonId] = it2->second;
             }
         }
