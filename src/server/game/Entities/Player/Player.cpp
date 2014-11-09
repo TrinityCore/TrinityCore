@@ -3687,13 +3687,13 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
             // not ranked skills
             for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
             {
-                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
+                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->SkillLine);
                 if (!pSkill)
                     continue;
 
                 ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
-                if ((_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id)) || (pSkill->id == SKILL_LOCKPICKING && _spell_idx->second->max_value == 0))
-                    LearnDefaultSkill(pSkill->id, 0);
+                if ((_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->ID)) || (pSkill->ID == SKILL_LOCKPICKING && _spell_idx->second->TrivialSkillLineRankHigh == 0))
+                    LearnDefaultSkill(pSkill->ID, 0);
             }
         }
     }
@@ -3717,8 +3717,8 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         // not ranked skills
         for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
         {
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE, _spell_idx->second->skillId);
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS, _spell_idx->second->skillId);
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE, _spell_idx->second->SkillLine);
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS, _spell_idx->second->SkillLine);
         }
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL, spellId);
@@ -5858,24 +5858,24 @@ bool Player::UpdateCraftSkill(uint32 spellid)
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
-        if (_spell_idx->second->skillId)
+        if (_spell_idx->second->SkillLine)
         {
-            uint32 SkillValue = GetPureSkillValue(_spell_idx->second->skillId);
+            uint32 SkillValue = GetPureSkillValue(_spell_idx->second->SkillLine);
 
             // Alchemy Discoveries here
             SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellid);
             if (spellEntry && spellEntry->Mechanic == MECHANIC_DISCOVERY)
             {
-                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->skillId, spellid, this))
+                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->SkillLine, spellid, this))
                     LearnSpell(discoveredSpell, false);
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
 
-            return UpdateSkillPro(_spell_idx->second->skillId, SkillGainChance(SkillValue,
-                _spell_idx->second->max_value,
-                (_spell_idx->second->max_value + _spell_idx->second->min_value)/2,
-                _spell_idx->second->min_value),
+            return UpdateSkillPro(_spell_idx->second->SkillLine, SkillGainChance(SkillValue,
+                _spell_idx->second->TrivialSkillLineRankHigh,
+                (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow)/2,
+                _spell_idx->second->TrivialSkillLineRankLow),
                 craft_skill_gain);
         }
     }
@@ -6015,7 +6015,7 @@ void Player::UpdateSkillsForLevel()
         if (GetSkillRangeType(rcEntry) != SKILL_RANGE_LEVEL)
             continue;
 
-        if (IsWeaponSkill(rcEntry->SkillId))
+        if (IsWeaponSkill(rcEntry->SkillID))
             continue;
 
         uint16 field = itr->second.pos / 2;
@@ -6047,10 +6047,10 @@ void Player::UpdateSkillsToMaxSkillsForLevel()
         if (!rcEntry)
             continue;
 
-        if (IsProfessionOrRidingSkill(rcEntry->SkillId))
+        if (IsProfessionOrRidingSkill(rcEntry->SkillID))
             continue;
 
-        if (IsWeaponSkill(rcEntry->SkillId))
+        if (IsWeaponSkill(rcEntry->SkillID))
             continue;
 
         uint16 field = itr->second.pos / 2;
@@ -6128,8 +6128,8 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             // remove all spells that related to this skill
             for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
                 if (SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j))
-                    if (pAbility->skillId == id)
-                        RemoveSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
+                    if (pAbility->SkillLine == id)
+                        RemoveSpell(sSpellMgr->GetFirstSpellInChain(pAbility->SpellID));
 
             // Clear profession lines
             if (GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1) == id)
@@ -6156,7 +6156,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 }
 
                 SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, id);
-                if (skillEntry->categoryId == SKILL_CATEGORY_PROFESSION)
+                if (skillEntry->CategoryID == SKILL_CATEGORY_PROFESSION)
                 {
                     if (!GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1))
                         SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1, id);
@@ -7882,9 +7882,9 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         // If set ScalingStatDistribution need get stats and values from it
         if (ssd && ssv)
         {
-            if (ssd->StatMod[i] < 0)
+            if (ssd->StatID[i] < 0)
                 continue;
-            statType = ssd->StatMod[i];
+            statType = ssd->StatID[i];
             val = (ssv->GetStatMultiplier(proto->InventoryType) * ssd->Modifier[i]) / 10000;
         }
         else
@@ -8060,7 +8060,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
 
     // Apply Spell Power from ScalingStatValue if set
     if (ssv && proto->Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
-        if (int32 spellbonus = int32(ssv->Spellpower))
+        if (int32 spellbonus = int32(ssv->SpellPower))
             ApplySpellPowerBonus(spellbonus, apply);
 
     // If set ScalingStatValue armor get it or use item armor
@@ -23490,8 +23490,8 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
             if (!rank)
                 break;
 
-            SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcInfo->SkillTier);
-            uint16 maxValue = tier->MaxSkill[std::max<int32>(rank - 1, 0)];
+            SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcInfo->SkillTierID);
+            uint16 maxValue = tier->Value[std::max<int32>(rank - 1, 0)];
             uint16 skillValue = 1;
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
                 skillValue = maxValue;
@@ -23606,31 +23606,31 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
     {
         SkillLineAbilityEntry const* ability = sSkillLineAbilityStore.LookupEntry(j);
-        if (!ability || ability->skillId != skillId)
+        if (!ability || ability->SkillLine != skillId)
             continue;
 
-        if (!sSpellMgr->GetSpellInfo(ability->spellId))
+        if (!sSpellMgr->GetSpellInfo(ability->SpellID))
             continue;
 
-        if (ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+        if (ability->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
             continue;
 
         // Check race if set
-        if (ability->racemask && !(ability->racemask & raceMask))
+        if (ability->RaceMask && !(ability->RaceMask & raceMask))
             continue;
 
         // Check class if set
-        if (ability->classmask && !(ability->classmask & classMask))
+        if (ability->ClassMask && !(ability->ClassMask & classMask))
             continue;
 
         // need unlearn spell
-        if (skillValue < ability->req_skill_value && ability->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
-            RemoveSpell(ability->spellId);
+        if (skillValue < ability->MinSkillLineRank && ability->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
+            RemoveSpell(ability->SpellID);
         // need learn
         else if (!IsInWorld())
-            AddSpell(ability->spellId, true, true, true, false, false, true);
+            AddSpell(ability->SpellID, true, true, true, false, false, true);
         else
-            LearnSpell(ability->spellId, true, true);
+            LearnSpell(ability->SpellID, true, true);
     }
 }
 
@@ -23897,11 +23897,11 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
         // skip wrong race skills
-        if (_spell_idx->second->racemask && (_spell_idx->second->racemask & racemask) == 0)
+        if (_spell_idx->second->RaceMask && (_spell_idx->second->RaceMask & racemask) == 0)
             continue;
 
         // skip wrong class skills
-        if (_spell_idx->second->classmask && (_spell_idx->second->classmask & classmask) == 0)
+        if (_spell_idx->second->ClassMask && (_spell_idx->second->ClassMask & classmask) == 0)
             continue;
 
         return true;
@@ -25418,13 +25418,13 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, skill);
             uint16 step = 0;
 
-            SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(rcEntry->SkillId);
+            SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(rcEntry->SkillID);
             if (skillLine)
             {
-                if (skillLine->categoryId == SKILL_CATEGORY_SECONDARY)
+                if (skillLine->CategoryID == SKILL_CATEGORY_SECONDARY)
                     step = max / 75;
 
-                if (skillLine->categoryId == SKILL_CATEGORY_PROFESSION)
+                if (skillLine->CategoryID == SKILL_CATEGORY_PROFESSION)
                 {
                     step = max / 75;
 

@@ -724,7 +724,7 @@ public:
             SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(id);
             if (skillInfo)
             {
-                std::string name = skillInfo->name;
+                std::string name = skillInfo->DisplayName_lang;
                 if (name.empty())
                     continue;
 

@@ -1628,80 +1628,80 @@ struct NameGenEntry
 
 struct OverrideSpellDataEntry
 {
-    uint32      id;                                         // 0
-    uint32      spellId[MAX_OVERRIDE_SPELL];                // 1-10
-    //uint32      unk0;                                     // 11
-    //char*     SpellBarName;                               // 12
+    uint32      ID;                                         // 0
+    uint32      SpellID[MAX_OVERRIDE_SPELL];                // 1-10
+    //uint32    Flags;                                      // 11
+    //char*     PlayerActionbarFileDataID;                  // 12
 };
 
 struct PowerDisplayEntry
 {
-    uint32 Id;                                              // 0
-    uint32 PowerType;                                       // 1
-    //char*  Name;                                          // 2
-    //uint32 R;                                             // 3
-    //uint32 G;                                             // 4
-    //uint32 B;                                             // 5
+    uint32      ID;                                         // 0
+    uint32      PowerType;                                  // 1
+    //char*     GlobalStringBaseTag;                        // 2
+    //uint8     Red;                                        // 3
+    //uint8     Green;                                      // 3
+    //uint8     Blue;                                       // 3
+    //uint8     _padding0;                                  // 3
 };
 
 struct PvPDifficultyEntry
 {
-    //uint32      id;                                       // 0        m_ID
-    uint32      mapId;                                      // 1
-    uint32      bracketId;                                  // 2
-    uint32      minLevel;                                   // 3
-    uint32      maxLevel;                                   // 4
-    uint32      difficulty;                                 // 5
+    //uint32    ID;                                         // 0
+    uint32      MapID;                                      // 1
+    uint32      BracketID;                                  // 2 m_rangeIndex
+    uint32      MinLevel;                                   // 3
+    uint32      MaxLevel;                                   // 4
 
     // helpers
-    BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(bracketId); }
+    BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(BracketID); }
 };
 
 struct QuestSortEntry
 {
-    uint32      id;                                         // 0        m_ID
-    //char*       name;                                     // 1        m_SortName_lang
+    uint32      ID;                                         // 0
+    //char*     SortName_lang;                              // 1
 };
 
 struct QuestXPEntry
 {
-  uint32      id;
-  uint32      Exp[10];
+    uint32      ID;                                         // 0
+    uint32      Exp[10];                                    // 1
 };
 
 struct QuestFactionRewEntry
 {
-  uint32      id;
-  int32       QuestRewFactionValue[10];
+  uint32        ID;                                         // 0
+  int32         QuestRewFactionValue[10];                   // 1-10
 };
 
 struct RandomPropertiesPointsEntry
 {
-    //uint32  Id;                                           // 0 hidden key
-    uint32    itemLevel;                                    // 1
-    uint32    EpicPropertiesPoints[5];                      // 2-6
-    uint32    RarePropertiesPoints[5];                      // 7-11
-    uint32    UncommonPropertiesPoints[5];                  // 12-16
+    uint32      ItemLevel;                                  // 0
+    uint32      EpicPropertiesPoints[5];                    // 1-5
+    uint32      RarePropertiesPoints[5];                    // 6-10
+    uint32      UncommonPropertiesPoints[5];                // 11-15
 };
 
 struct ScalingStatDistributionEntry
 {
-    uint32  Id;                                             // 0
-    int32   StatMod[10];                                    // 1-10
-    uint32  Modifier[10];                                   // 11-20
-    //uint32 unk1;                                          // 21
-    uint32  MaxLevel;                                       // 22       m_maxlevel
+    uint32      ID;                                         // 0
+    int32       StatID[10];                                 // 1-10
+    uint32      Modifier[10];                               // 11-20
+    //uint32    MinLevel;                                   // 21
+    uint32      MaxLevel;                                   // 22       m_maxlevel
 };
 
 struct ScalingStatValuesEntry
 {
-    uint32 Id;                                              // 0
-    uint32 Level;                                           // 1
-    uint32 dpsMod[6];                                       // 2-7 DPS mod for level
-    uint32 Spellpower;                                      // 8 spell power for level
-    uint32 StatMultiplier[5];                               // 9-13 Multiplier for ScalingStatDistribution
-    uint32 Armor[8][4];                                     // 14-46 Armor for level
-    uint32 CloakArmor;                                      // 47 armor for cloak
+    uint32      ID;                                         // 0
+    uint32      CharLevel;                                  // 1
+    uint32      DPSMod[6];                                  // 2-7 DPS mod for level
+    uint32      SpellPower;                                 // 8 spell power for level
+    uint32      StatMultiplier[5];                          // 9-13 Multiplier for ScalingStatDistribution
+    uint32      Armor[8][4];                                // 14-46 Armor for level
+    uint32      ArmorBack;                                  // 47
+    uint32      ArmorShield;                                // 48
 
     uint32 GetStatMultiplier(uint32 inventoryType) const;
     uint32 GetArmor(uint32 inventoryType, uint32 armorType) const;
@@ -1717,73 +1717,74 @@ struct ScalingStatValuesEntry
 
 struct SkillLineEntry
 {
-    uint32    id;                                           // 0        m_ID
-    int32     categoryId;                                   // 1        m_categoryID
-    //uint32    skillCostID;                                // 2        m_skillCostsID
-    char* name;                                             // 3        m_displayName_lang
-    //char*     description;                                // 4        m_description_lang
-    uint32    spellIcon;                                    // 5        m_spellIconID
-    //char*     alternateVerb;                              // 6        m_alternateVerb_lang
-    uint32    canLink;                                      // 7        m_canLink (prof. with recipes)
+    uint32      ID;                                         // 0        m_ID
+    int32       CategoryID;                                 // 1        m_categoryID
+    char*       DisplayName_lang;                           // 2        m_displayName_lang
+    //char*     Description_lang;                           // 3        m_description_lang
+    uint32      SpellIconID;                                // 4        m_spellIconID
+    //char*     AlternateVerb_lang;                         // 5        m_alternateVerb_lang
+    uint32      CanLink;                                    // 6        m_canLink (prof. with recipes)
+    //uint32    ParentSkillLineID;                          // 7
+    //uint32    Flags;                                      // 8
 };
 
 struct SkillLineAbilityEntry
 {
-    uint32    id;                                           // 0        m_ID
-    uint32    skillId;                                      // 1        m_skillLine
-    uint32    spellId;                                      // 2        m_spell
-    uint32    racemask;                                     // 3        m_raceMask
-    uint32    classmask;                                    // 4        m_classMask
-    //uint32    racemaskNot;                                // 5        m_excludeRace
-    //uint32    classmaskNot;                               // 6        m_excludeClass
-    uint32    req_skill_value;                              // 7        m_minSkillLineRank
-    uint32    forward_spellid;                              // 8        m_supercededBySpell
-    uint32    AutolearnType;                                // 9        m_acquireMethod
-    uint32    max_value;                                    // 10       m_trivialSkillLineRankHigh
-    uint32    min_value;                                    // 11       m_trivialSkillLineRankLow
-    uint32    character_points[2];                          // 12-13    m_characterPoints
+    uint32      ID;                                         // 0
+    uint32      SkillLine;                                  // 1
+    uint32      SpellID;                                    // 2
+    uint32      RaceMask;                                   // 3
+    uint32      ClassMask;                                  // 4
+    uint32      MinSkillLineRank;                           // 7
+    uint32      SupercedesSpell;                            // 8
+    uint32      AquireMethod;                               // 9
+    uint32      TrivialSkillLineRankHigh;                   // 10
+    uint32      TrivialSkillLineRankLow;                    // 11
+    uint32      NumSkillUps;                                // 12
+    uint32      UniqueBit;                                  // 13
+    uint32      TradeSkillCategoryID;                       // 14
 };
 
 struct SkillRaceClassInfoEntry
 {
-    //uint32 Id;                                            // 0      m_ID
-    uint32 SkillId;                                         // 1      m_skillID
-    uint32 RaceMask;                                        // 2      m_raceMask
-    uint32 ClassMask;                                       // 3      m_classMask
-    uint32 Flags;                                           // 4      m_flags
-    //uint32 Unk;                                           // 5      m_unk
-    //uint32 MinLevel;                                      // 6      m_minLevel
-    uint32 SkillTier;                                       // 7      m_skillTierID
-    //uint32 SkillCostType;                                 // 8      m_skillCostIndex
+    //uint32    ID;                                         // 0
+    uint32      SkillID;                                    // 1
+    uint32      RaceMask;                                   // 2
+    uint32      ClassMask;                                  // 3
+    uint32      Flags;                                      // 4
+    //uint32    Availability;                               // 5
+    //uint32    MinLevel;                                   // 6
+    uint32      SkillTierID;                                // 7
 };
 
 #define MAX_SKILL_STEP 16
 
 struct SkillTiersEntry
 {
-    uint32 Id;                                              // 0      m_ID
-    //uint32 StepCost[MAX_SKILL_STEP];                      // 1-16   m_cost
-    uint32 MaxSkill[MAX_SKILL_STEP];                        // 17-32  m_valueMax
+    uint32      ID;                                         // 0
+    uint32      Value[MAX_SKILL_STEP];                      // 1-16
 };
 
 struct SoundEntriesEntry
 {
-    uint32    Id;                                           // 0        m_ID
-    //uint32    Type;                                       // 1        m_soundType
-    //char*     InternalName;                               // 2        m_name
-    //char*     FileName[10];                               // 3-12     m_File[10]
-    //uint32    Unk13[10];                                  // 13-22    m_Freq[10]
-    //char*     Path;                                       // 23       m_DirectoryBase
-                                                            // 24       m_volumeFloat
-                                                            // 25       m_flags
-                                                            // 26       m_minDistance
-                                                            // 27       m_distanceCutoff
-                                                            // 28       m_EAXDef
-                                                            // 29       m_soundEntriesAdvancedID, new in 3.1
-    //unk                                                   // 30       4.0.0
-    //unk                                                   // 31       4.0.0
-    //unk                                                   // 32       4.0.0
-    //unk                                                   // 33       4.0.0
+    uint32      ID;                                         // 0
+    //uint32    SoundType;                                  // 1
+    //char*     Name;                                       // 2
+    //uint32    FileDataID[20];                             // 3-22
+    //uint32    Freq[20];                                   // 23-42
+    //float     VolumeFloat;                                // 43
+    //uint32    Flags;                                      // 44
+    //float     MinDistance;                                // 45
+    //float     DistanceCutoff;                             // 46
+    //uint32    EAXDef;                                     // 47
+    //uint32    SoundEntriesAdvancedID;                     // 48
+    //float     VolumeVariationPlus;                        // 49
+    //float     VolumeVariationMinus;                       // 50
+    //float     PitchVariationPlus;                         // 51
+    //float     PitchVariationMinus;                        // 52
+    //float     PitchAdjust;                                // 53
+    //uint32    DialogType;                                 // 54
+    //uint32    BusOverwriteID;                             // 55
 };
 
 // SpellEffect.dbc

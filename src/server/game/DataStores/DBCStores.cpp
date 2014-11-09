@@ -515,7 +515,7 @@ void LoadDBCStores(const std::string& dataPath)
 
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
-            if (entry->bracketId > MAX_BATTLEGROUND_BRACKETS)
+            if (entry->BracketID > MAX_BATTLEGROUND_BRACKETS)
                 ASSERT(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestXPStore,                dbcPath, "QuestXP.dbc");//15595
@@ -531,8 +531,8 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillRaceClassInfoStore,     dbcPath, "SkillRaceClassInfo.dbc");
     for (uint32 i = 0; i < sSkillRaceClassInfoStore.GetNumRows(); ++i)
         if (SkillRaceClassInfoEntry const* entry = sSkillRaceClassInfoStore.LookupEntry(i))
-            if (sSkillLineStore.LookupEntry(entry->SkillId))
-                SkillRaceClassInfoBySkill.emplace(entry->SkillId, entry);
+            if (sSkillLineStore.LookupEntry(entry->SkillID))
+                SkillRaceClassInfoBySkill.emplace(entry->SkillID, entry);
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillTiersStore,             dbcPath, "SkillTiers.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSoundEntriesStore,           dbcPath, "SoundEntries.dbc");//15595
@@ -584,7 +584,7 @@ void LoadDBCStores(const std::string& dataPath)
         if (!skillLine)
             continue;
 
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->SpellID);
         if (!spellInfo)
             continue;
 
@@ -600,10 +600,10 @@ void LoadDBCStores(const std::string& dataPath)
                 if (!cFamily)
                     continue;
 
-                if (skillLine->skillId != cFamily->SkillLine[0] && skillLine->skillId != cFamily->SkillLine[1])
+                if (skillLine->SkillLine != cFamily->SkillLine[0] && skillLine->SkillLine != cFamily->SkillLine[1])
                     continue;
 
-                if (skillLine->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                if (skillLine->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
                 sPetFamilySpellsStore[i].insert(spellInfo->Id);
@@ -1081,15 +1081,15 @@ PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 lev
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
         {
             // skip unrelated and too-high brackets
-            if (entry->mapId != mapid || entry->minLevel > level)
+            if (entry->MapID != mapid || entry->MinLevel > level)
                 continue;
 
             // exactly fit
-            if (entry->maxLevel >= level)
+            if (entry->MaxLevel >= level)
                 return entry;
 
             // remember for possible out-of-range case (search higher from existed)
-            if (!maxEntry || maxEntry->maxLevel < entry->maxLevel)
+            if (!maxEntry || maxEntry->MaxLevel < entry->MaxLevel)
                 maxEntry = entry;
         }
     }
@@ -1101,7 +1101,7 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
 {
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
-            if (entry->mapId == mapid && entry->GetBracketId() == id)
+            if (entry->MapID == mapid && entry->GetBracketId() == id)
                 return entry;
 
     return NULL;
@@ -1203,7 +1203,6 @@ uint32 ScalingStatValuesEntry::GetArmor(uint32 inventoryType, uint32 armorType) 
             case INVTYPE_FINGER:
             case INVTYPE_TRINKET:
             case INVTYPE_WEAPON:
-            case INVTYPE_SHIELD:
             case INVTYPE_RANGED:
             case INVTYPE_2HWEAPON:
             case INVTYPE_BAG:
@@ -1227,7 +1226,9 @@ uint32 ScalingStatValuesEntry::GetArmor(uint32 inventoryType, uint32 armorType) 
             case INVTYPE_WRISTS:
                 return Armor[7][armorType];
             case INVTYPE_CLOAK:
-                return CloakArmor;
+                return ArmorBack;
+            case INVTYPE_SHIELD:
+                return ArmorShield;
             default:
                 break;
         }
@@ -1247,7 +1248,7 @@ uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool i
             case ITEM_SUBCLASS_WEAPON_DAGGER:
             case ITEM_SUBCLASS_WEAPON_THROWN:
                 *damageMultiplier = 0.3f;
-                return dpsMod[0];
+                return DPSMod[0];
             case ITEM_SUBCLASS_WEAPON_AXE2:
             case ITEM_SUBCLASS_WEAPON_MACE2:
             case ITEM_SUBCLASS_WEAPON_POLEARM:
@@ -1255,12 +1256,12 @@ uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool i
             case ITEM_SUBCLASS_WEAPON_STAFF:
             case ITEM_SUBCLASS_WEAPON_FISHING_POLE:
                 *damageMultiplier = 0.2f;
-                return dpsMod[1];
+                return DPSMod[1];
             case ITEM_SUBCLASS_WEAPON_BOW:
             case ITEM_SUBCLASS_WEAPON_GUN:
             case ITEM_SUBCLASS_WEAPON_CROSSBOW:
                 *damageMultiplier = 0.3f;
-                return dpsMod[4];
+                return DPSMod[4];
             case ITEM_SUBCLASS_WEAPON_Obsolete:
             case ITEM_SUBCLASS_WEAPON_EXOTIC:
             case ITEM_SUBCLASS_WEAPON_EXOTIC2:
@@ -1280,17 +1281,17 @@ uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool i
             if (mask & 0x562)
             {
                 *damageMultiplier = 0.2f;
-                return dpsMod[3];
+                return DPSMod[3];
             }
 
             if (mask & (1 << ITEM_SUBCLASS_WEAPON_WAND))
             {
                 *damageMultiplier = 0.3f;
-                return dpsMod[5];
+                return DPSMod[5];
             }
         }
         *damageMultiplier = 0.3f;
-        return dpsMod[2];
+        return DPSMod[2];
     }
     return 0;
 }

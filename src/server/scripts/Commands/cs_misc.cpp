@@ -1359,7 +1359,7 @@ public:
         // add the skill to the player's book with step 1 (which is the first rank, in most cases something
         // like 'Apprentice <skill>'.
         target->SetSkill(skill, targetHasSkill ? target->GetSkillStep(skill) : 1, level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name, handler->GetNameLink(target).c_str(), level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->DisplayName_lang, handler->GetNameLink(target).c_str(), level, max);
         return true;
     }
 
