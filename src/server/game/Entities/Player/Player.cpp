@@ -20978,7 +20978,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     OpcodeServer opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
     int i = 0;
-    flag96 _mask = 0;
+    flag96 _mask;
     uint32 modTypeCount = 0; // count of mods per one mod->op
     WorldPacket data(opcode);
     data << uint32(1);  // count of different mod->op's in packet

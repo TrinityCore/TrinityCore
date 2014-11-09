@@ -233,14 +233,14 @@ class SpellEffectInfo
 public:
     uint32    Effect;
     uint32    ApplyAuraName;
-    uint32    Amplitude;
+    uint32    ApplyAuraPeriod;
     int32     DieSides;
     float     RealPointsPerLevel;
     int32     BasePoints;
-    float     PointsPerComboPoint;
-    float     ValueMultiplier;
-    float     DamageMultiplier;
-    float     BonusMultiplier;
+    float     PointsPerResource;
+    float     Amplitude;
+    float     ChainAmplitude;
+    float     BonusCoefficient;
     int32     MiscValue;
     int32     MiscValueB;
     Mechanics Mechanic;
@@ -248,19 +248,19 @@ public:
     SpellImplicitTargetInfo TargetB;
     SpellRadiusEntry const* RadiusEntry;
     SpellRadiusEntry const* MaxRadiusEntry;
-    uint32    ChainTarget;
+    uint32    ChainTargets;
     uint32    ItemType;
     uint32    TriggerSpell;
-    flag96    SpellClassMask;
+    flag128   SpellClassMask;
     std::list<Condition*>* ImplicitTargetConditions;
     // SpellScalingEntry
     float     ScalingMultiplier;
     float     DeltaScalingMultiplier;
     float     ComboScalingMultiplier;
 
-    SpellEffectInfo() : _spellInfo(NULL), _effIndex(0), Effect(0), ApplyAuraName(0), Amplitude(0), DieSides(0),
-                        RealPointsPerLevel(0), BasePoints(0), PointsPerComboPoint(0), ValueMultiplier(0), DamageMultiplier(0),
-                        BonusMultiplier(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(NULL), ChainTarget(0),
+    SpellEffectInfo() : _spellInfo(NULL), _effIndex(0), Effect(0), ApplyAuraName(0), ApplyAuraPeriod(0), DieSides(0),
+                        RealPointsPerLevel(0), BasePoints(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
+                        BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(NULL), ChainTargets(0),
                         ItemType(0), TriggerSpell(0), ImplicitTargetConditions(NULL) {}
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);
 
@@ -316,6 +316,9 @@ public:
     uint32 AttributesEx8;
     uint32 AttributesEx9;
     uint32 AttributesEx10;
+    uint32 AttributesEx11;
+    uint32 AttributesEx12;
+    uint32 AttributesEx13;
     uint32 AttributesCu;
     uint32 Stances;
     uint32 StancesNot;
@@ -325,8 +328,8 @@ public:
     uint32 FacingCasterFlags;
     uint32 CasterAuraState;
     uint32 TargetAuraState;
-    uint32 CasterAuraStateNot;
-    uint32 TargetAuraStateNot;
+    uint32 ExcludeCasterAuraState;
+    uint32 ExcludeTargetAuraState;
     uint32 CasterAuraSpell;
     uint32 TargetAuraSpell;
     uint32 ExcludeCasterAuraSpell;
@@ -370,10 +373,10 @@ public:
     uint32 MaxTargetLevel;
     uint32 MaxAffectedTargets;
     uint32 SpellFamilyName;
-    flag96 SpellFamilyFlags;
+    flag128 SpellFamilyFlags;
     uint32 DmgClass;
     uint32 PreventionType;
-    int32  AreaGroupId;
+    int32  RequiredAreasID;
     uint32 SchoolMask;
     uint32 SpellDifficultyId;
     uint32 SpellScalingId;
@@ -391,6 +394,7 @@ public:
     uint32 SpellShapeshiftId;
     uint32 SpellTargetRestrictionsId;
     uint32 SpellTotemsId;
+    uint32 SpellMiscId;
     // SpellScalingEntry
     int32  CastTimeMin;
     int32  CastTimeMax;
@@ -418,6 +422,7 @@ public:
     SpellScalingEntry const* GetSpellScaling() const;
     SpellShapeshiftEntry const* GetSpellShapeshift() const;
     SpellTotemsEntry const* GetSpellTotems() const;
+    SpellMiscEntry const* GetSpellMisc() const;
 
     SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects);
     ~SpellInfo();

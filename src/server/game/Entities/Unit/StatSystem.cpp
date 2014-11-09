@@ -542,11 +542,11 @@ void Player::UpdateMastery()
                 if (!aura->HasEffect(j))
                     continue;
 
-                float mult = aura->GetSpellInfo()->Effects[j].BonusMultiplier;
+                float mult = aura->GetSpellInfo()->Effects[j].BonusCoefficient;
                 if (G3D::fuzzyEq(mult, 0.0f))
                     continue;
 
-                aura->GetEffect(j)->ChangeAmount(int32(value * aura->GetSpellInfo()->Effects[j].BonusMultiplier));
+                aura->GetEffect(j)->ChangeAmount(int32(value * aura->GetSpellInfo()->Effects[j].BonusCoefficient));
             }
         }
     }

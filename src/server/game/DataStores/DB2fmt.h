@@ -23,5 +23,7 @@ char const ItemCurrencyCostfmt[]="xn";
 char const ItemSparsefmt[]="niiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
 char const ItemExtendedCostEntryfmt[]="nxxiiiiiiiiiiiixiiiiiiiiiiiiiii";
 char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+char const SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";
+char const SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiif";
 
 #endif

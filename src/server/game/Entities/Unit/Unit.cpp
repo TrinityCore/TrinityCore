@@ -3728,7 +3728,7 @@ void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, ui
         if (!casterGUID || aura->GetCasterGUID() == casterGUID)
         {
             SpellInfo const* spell = aura->GetSpellInfo();
-            if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
+            if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags & flag96(familyFlag1, familyFlag2, familyFlag3))
             {
                 RemoveAura(iter);
                 continue;
@@ -3990,7 +3990,7 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, uint32 f
     for (AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
     {
         SpellInfo const* spell = (*i)->GetSpellInfo();
-        if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
+        if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags & flag96(familyFlag1, familyFlag2, familyFlag3))
         {
             if (!casterGUID.IsEmpty() && (*i)->GetCasterGUID() != casterGUID)
                 continue;
@@ -5521,7 +5521,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 return true;
             }
             // Seed of Corruption (Mobs cast) - no die req
-            if (dummySpell->SpellFamilyFlags.IsEqual(0, 0, 0) && dummySpell->SpellIconID == 1932)
+            if (!dummySpell->SpellFamilyFlags && dummySpell->SpellIconID == 1932)
             {
                 // if damage is more than need deal finish spell
                 if (triggeredByAura->GetAmount() <= int32(damage))
@@ -5625,7 +5625,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         SpellInfo const* blessHealing = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!blessHealing)
                             return false;
-                        basepoints0 = int32(CalculatePct(damage, triggerAmount) / (blessHealing->GetMaxDuration() / blessHealing->Effects[0].Amplitude));
+                        basepoints0 = int32(CalculatePct(damage, triggerAmount) / (blessHealing->GetMaxDuration() / blessHealing->Effects[0].ApplyAuraPeriod));
                     }
                     break;
             }
@@ -5745,7 +5745,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!triggeredSpell)
                             return false;
-                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->Effects[0].Amplitude);
+                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->Effects[0].ApplyAuraPeriod);
                         // Add remaining ticks to damage done
                         basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                     }
@@ -6129,7 +6129,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!triggeredSpell)
                             return false;
-                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->Effects[0].Amplitude);
+                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->Effects[0].ApplyAuraPeriod);
                     }
                     break;
                 }
@@ -6143,7 +6143,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!triggeredSpell)
                             return false;
-                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->Effects[0].Amplitude);
+                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->Effects[0].ApplyAuraPeriod);
                         // Add remaining ticks to healing done
                         basepoints0 += GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_HEAL);
                     }
@@ -6159,7 +6159,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     {
                         Aura* flameShock  = aurEff->GetBase();
                         int32 maxDuration = flameShock->GetMaxDuration();
-                        int32 newDuration = flameShock->GetDuration() + 2 * aurEff->GetAmplitude();
+                        int32 newDuration = flameShock->GetDuration() + 2 * aurEff->GetPeriod();
 
                         flameShock->SetDuration(newDuration);
                         // is it blizzlike to change max duration for FS?
@@ -6303,7 +6303,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (AuraEffect* glyph=GetAuraEffect(63332, 0))
                     AddPct(basepoints0, glyph->GetAmount());
 
-                basepoints0 = basepoints0 / (unholyBlight->GetMaxDuration() / unholyBlight->Effects[0].Amplitude);
+                basepoints0 = basepoints0 / (unholyBlight->GetMaxDuration() / unholyBlight->Effects[0].ApplyAuraPeriod);
                 basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                 break;
             }
@@ -6777,7 +6777,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     if (!TriggerPS)
                         return false;
 
-                    basepoints0 = CalculatePct(int32(damage), triggerAmount) / (TriggerPS->GetMaxDuration() / TriggerPS->Effects[0].Amplitude);
+                    basepoints0 = CalculatePct(int32(damage), triggerAmount) / (TriggerPS->GetMaxDuration() / TriggerPS->Effects[0].ApplyAuraPeriod);
                     basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), trigger_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                     break;
                 }
