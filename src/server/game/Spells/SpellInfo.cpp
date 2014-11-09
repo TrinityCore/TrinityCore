@@ -349,8 +349,8 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
 } };
 
 SpellEffectInfo::SpellEffectInfo() : _spellInfo(nullptr), EffectIndex(EFFECT_0), Effect(SPELL_EFFECT_NONE), ApplyAuraName(SPELL_AURA_NONE),
-    Amplitude(0), DieSides(0), RealPointsPerLevel(0), BasePoints(0), PointsPerComboPoint(0), ValueMultiplier(0), DamageMultiplier(0),
-    BonusMultiplier(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(nullptr), ChainTarget(0), ItemType(0),
+    ApplyAuraPeriod(0), DieSides(0), RealPointsPerLevel(0), BasePoints(0), PointsPerComboPoint(0), Amplitude(0), ChainAmplitude(0),
+    BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(nullptr), ChainTargets(0), ItemType(0),
     TriggerSpell(0), ImplicitTargetConditions(nullptr), _immunityInfo(nullptr)
 {
 }
@@ -361,21 +361,21 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     EffectIndex = SpellEffIndex(effIndex);
     Effect = SpellEffects(spellEntry->Effect[effIndex]);
     ApplyAuraName = AuraType(spellEntry->EffectAura[effIndex]);
-    Amplitude = spellEntry->EffectAuraPeriod[effIndex];
+    ApplyAuraPeriod = spellEntry->EffectAuraPeriod[effIndex];
     DieSides = spellEntry->EffectDieSides[effIndex];
     RealPointsPerLevel = spellEntry->EffectRealPointsPerLevel[effIndex];
     BasePoints = spellEntry->EffectBasePoints[effIndex];
     PointsPerComboPoint = spellEntry->EffectPointsPerCombo[effIndex];
-    ValueMultiplier = spellEntry->EffectAmplitude[effIndex];
-    DamageMultiplier = spellEntry->EffectChainAmplitude[effIndex];
-    BonusMultiplier = spellEntry->EffectBonusCoefficient[effIndex];
+    Amplitude = spellEntry->EffectAmplitude[effIndex];
+    ChainAmplitude = spellEntry->EffectChainAmplitude[effIndex];
+    BonusCoefficient = spellEntry->EffectBonusCoefficient[effIndex];
     MiscValue = spellEntry->EffectMiscValue[effIndex];
     MiscValueB = spellEntry->EffectMiscValueB[effIndex];
     Mechanic = Mechanics(spellEntry->EffectMechanic[effIndex]);
     TargetA = SpellImplicitTargetInfo(spellEntry->EffectImplicitTargetA[effIndex]);
     TargetB = SpellImplicitTargetInfo(spellEntry->EffectImplicitTargetB[effIndex]);
     RadiusEntry = spellEntry->EffectRadiusIndex[effIndex] ? sSpellRadiusStore.LookupEntry(spellEntry->EffectRadiusIndex[effIndex]) : nullptr;
-    ChainTarget = spellEntry->EffectChainTargets[effIndex];
+    ChainTargets = spellEntry->EffectChainTargets[effIndex];
     ItemType = spellEntry->EffectItemType[effIndex];
     TriggerSpell = spellEntry->EffectTriggerSpell[effIndex];
     SpellClassMask = spellEntry->EffectSpellClassMask[effIndex];
@@ -550,7 +550,7 @@ int32 SpellEffectInfo::CalcBaseValue(int32 value) const
 
 float SpellEffectInfo::CalcValueMultiplier(WorldObject* caster, Spell* spell /*= nullptr*/) const
 {
-    float multiplier = ValueMultiplier;
+    float multiplier = Amplitude;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
         modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_VALUE_MULTIPLIER, multiplier, spell);
 
@@ -559,7 +559,7 @@ float SpellEffectInfo::CalcValueMultiplier(WorldObject* caster, Spell* spell /*=
 
 float SpellEffectInfo::CalcDamageMultiplier(WorldObject* caster, Spell* spell /*= nullptr*/) const
 {
-    float multiplierPercent = DamageMultiplier * 100.0f;
+    float multiplierPercent = ChainAmplitude * 100.0f;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
         modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplierPercent, spell);
 
@@ -823,8 +823,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     FacingCasterFlags = spellEntry->FacingCasterFlags;
     CasterAuraState = spellEntry->CasterAuraState;
     TargetAuraState = spellEntry->TargetAuraState;
-    CasterAuraStateNot = spellEntry->ExcludeCasterAuraState;
-    TargetAuraStateNot = spellEntry->ExcludeTargetAuraState;
+    ExcludeCasterAuraState = spellEntry->ExcludeCasterAuraState;
+    ExcludeTargetAuraState = spellEntry->ExcludeTargetAuraState;
     CasterAuraSpell = spellEntry->CasterAuraSpell;
     TargetAuraSpell = spellEntry->TargetAuraSpell;
     ExcludeCasterAuraSpell = spellEntry->ExcludeCasterAuraSpell;
@@ -873,7 +873,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     SpellFamilyFlags = spellEntry->SpellClassMask;
     DmgClass = spellEntry->DefenseType;
     PreventionType = spellEntry->PreventionType;
-    AreaGroupId = spellEntry->RequiredAreasID;
+    RequiredAreasID = spellEntry->RequiredAreasID;
     SchoolMask = spellEntry->SchoolMask;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         _effects[i] = SpellEffectInfo(spellEntry, this, i);
@@ -1512,10 +1512,10 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player /*= nullptr*/, bool strict /*= true*/) const
 {
     // normal case
-    if (AreaGroupId > 0)
+    if (RequiredAreasID > 0)
     {
         bool found = false;
-        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(AreaGroupId);
+        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(RequiredAreasID);
         while (groupEntry)
         {
             for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
@@ -1768,7 +1768,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
             if (TargetAuraState && !unitTarget->HasAuraState(AuraStateType(TargetAuraState), this, unitCaster))
                 return SPELL_FAILED_TARGET_AURASTATE;
 
-            if (TargetAuraStateNot && unitTarget->HasAuraState(AuraStateType(TargetAuraStateNot), this, unitCaster))
+            if (ExcludeTargetAuraState && unitTarget->HasAuraState(AuraStateType(ExcludeTargetAuraState), this, unitCaster))
                 return SPELL_FAILED_TARGET_AURASTATE;
         }
     }
@@ -2175,7 +2175,7 @@ void SpellInfo::_LoadSpellSpecific()
                     return SPELL_SPECIFIC_STING;
 
                 // only hunter aspects have this (but not all aspects in hunter family)
-                if (SpellFamilyFlags.HasFlag(0x00380000, 0x00440000, 0x00001010))
+                if (SpellFamilyFlags & flag96(0x00380000, 0x00440000, 0x00001010))
                     return SPELL_SPECIFIC_ASPECT;
 
                 break;
@@ -3209,9 +3209,9 @@ uint32 SpellInfo::GetMaxTicks() const
                 case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
                 case SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR:
                     // skip infinite periodics
-                    if (effect.Amplitude > 0 && DotDuration > 0)
+                    if (effect.ApplyAuraPeriod > 0 && DotDuration > 0)
                     {
-                        totalTicks = static_cast<uint32>(DotDuration) / effect.Amplitude;
+                        totalTicks = static_cast<uint32>(DotDuration) / effect.ApplyAuraPeriod;
                         if (HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
                             ++totalTicks;
                     }

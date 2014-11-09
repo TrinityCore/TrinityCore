@@ -378,10 +378,10 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //316 SPELL_AURA_PERIODIC_HASTE implemented in AuraEffect::CalculatePeriodic
 };
 
-AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster):
-m_base(base), m_spellInfo(base->GetSpellInfo()), m_spellEffectInfo(spellEfffectInfo),
+AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :
+m_base(base), m_spellInfo(base->GetSpellInfo()), m_effectInfo(spellEfffectInfo), m_spellmod(nullptr),
 m_baseAmount(baseAmount ? *baseAmount : spellEfffectInfo.BasePoints),
-_amount(), m_spellmod(nullptr), _periodicTimer(0), _amplitude(0), _ticksDone(0),
+_amount(), _periodicTimer(0), _period(0), _ticksDone(0),
 m_canBeRecalculated(true), m_isPeriodic(false)
 {
     CalculatePeriodic(caster, true, false);
@@ -538,9 +538,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 uint32 AuraEffect::GetTotalTicks() const
 {
     uint32 totalTicks = 0;
-    if (_amplitude && !GetBase()->IsPermanent())
+    if (_period && !GetBase()->IsPermanent())
     {
-        totalTicks = static_cast<uint32>(GetBase()->GetMaxDuration() / _amplitude);
+        totalTicks = static_cast<uint32>(GetBase()->GetMaxDuration() / _period);
         if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
             ++totalTicks;
     }
@@ -556,13 +556,13 @@ void AuraEffect::ResetPeriodic(bool resetPeriodicTimer /*= false*/)
         _periodicTimer = 0;
         // Start periodic on next tick or at aura apply
         if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
-            _periodicTimer = _amplitude;
+            _periodicTimer = _period;
     }
 }
 
 void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
 {
-    _amplitude = GetSpellEffectInfo().Amplitude;
+    _period = GetSpellEffectInfo().ApplyAuraPeriod;
 
     // prepare periodics
     switch (GetAuraType())
@@ -588,27 +588,27 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
             break;
     }
 
-    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, _amplitude);
+    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, _period);
 
     if (!m_isPeriodic)
         return;
 
     Player* modOwner = caster ? caster->GetSpellModOwner() : nullptr;
     // Apply casting time mods
-    if (_amplitude)
+    if (_period)
     {
         // Apply periodic time mod
         if (modOwner)
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_ACTIVATION_TIME, _amplitude);
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_ACTIVATION_TIME, _period);
 
         if (caster)
         {
             // Haste modifies periodic time of channeled spells
             if (m_spellInfo->IsChanneled())
-                caster->ModSpellDurationTime(m_spellInfo, _amplitude);
+                caster->ModSpellDurationTime(m_spellInfo, _period);
             // and periodic time of auras affected by SPELL_AURA_PERIODIC_HASTE
             else if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellInfo) || m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
-                _amplitude = int32(_amplitude * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+                _period = int32(_period * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
         }
     }
     else // prevent infinite loop on Update
@@ -616,11 +616,11 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
 
     if (load) // aura loaded from db
     {
-        if (_amplitude && !GetBase()->IsPermanent())
+        if (_period && !GetBase()->IsPermanent())
         {
             uint32 elapsedTime = GetBase()->GetMaxDuration() - GetBase()->GetDuration();
-            _ticksDone = elapsedTime / uint32(_amplitude);
-            _periodicTimer = elapsedTime % uint32(_amplitude);
+            _ticksDone = elapsedTime / uint32(_period);
+            _periodicTimer = elapsedTime % uint32(_period);
         }
 
         if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
@@ -818,9 +818,9 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
     uint32 totalTicks = GetTotalTicks();
 
     _periodicTimer += diff;
-    while (_periodicTimer >= _amplitude)
+    while (_periodicTimer >= _period)
     {
-        _periodicTimer -= _amplitude;
+        _periodicTimer -= _period;
 
         if (!GetBase()->IsPermanent() && (_ticksDone + 1) > totalTicks)
             break;
@@ -1075,7 +1075,7 @@ void AuraEffect::CleanupTriggeredSpells(Unit* target)
     // needed for spell 43680, maybe others
     /// @todo is there a spell flag, which can solve this in a more sophisticated way?
     if (GetSpellEffectInfo().ApplyAuraName == SPELL_AURA_PERIODIC_TRIGGER_SPELL &&
-            uint32(m_spellInfo->GetDuration()) == GetSpellEffectInfo().Amplitude)
+            uint32(m_spellInfo->GetDuration()) == GetSpellEffectInfo().ApplyAuraPeriod)
         return;
 
     target->RemoveAurasDueToSpell(tSpellId, GetCasterGUID());
