@@ -1249,7 +1249,7 @@ class spell_warl_soul_swap_dot_marker : public SpellScriptLoader
                 if (!warlock || !swapVictim)
                     return;
 
-                flag96 classMask = GetSpellInfo()->Effects[effIndex].SpellClassMask;
+                flag128 classMask = GetSpellInfo()->Effects[effIndex].SpellClassMask;
 
                 Unit::AuraApplicationMap const& appliedAuras = swapVictim->GetAppliedAuras();
                 SoulSwapOverrideAuraScript* swapSpellScript = NULL;

@@ -205,7 +205,6 @@ DBCStorage <SpellEquippedItemsEntry> sSpellEquippedItemsStore(SpellEquippedItems
 DBCStorage <SpellClassOptionsEntry> sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
 DBCStorage <SpellCooldownsEntry> sSpellCooldownsStore(SpellCooldownsEntryfmt);
 DBCStorage <SpellAuraOptionsEntry> sSpellAuraOptionsStore(SpellAuraOptionsEntryfmt);
-DBCStorage <SpellAuraRestrictionsEntry> sSpellAuraRestrictionsStore(SpellAuraRestrictionsEntryfmt);
 DBCStorage <SpellCastingRequirementsEntry> sSpellCastingRequirementsStore(SpellCastingRequirementsEntryfmt);
 DBCStorage <SpellCastTimesEntry> sSpellCastTimesStore(SpellCastTimefmt);
 DBCStorage <SpellCategoriesEntry> sSpellCategoriesStore(SpellCategoriesEntryfmt);
@@ -545,7 +544,7 @@ void LoadDBCStores(const std::string& dataPath)
         if (!spell)
             continue;
 
-        if (SpellCategoriesEntry const* category = sSpellCategoriesStore.LookupEntry(spell->SpellCategoriesId))
+        if (SpellCategoriesEntry const* category = sSpellCategoriesStore.LookupEntry(spell->CategoriesID))
             sSpellsByCategoryStore[category->Category].insert(i);
     }
 
@@ -560,7 +559,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellClassOptionsStore,      dbcPath,"SpellClassOptions.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCooldownsStore,         dbcPath,"SpellCooldowns.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellAuraOptionsStore,       dbcPath,"SpellAuraOptions.dbc");//15595
-    LoadDBC(availableDbcLocales, bad_dbc_files, sSpellAuraRestrictionsStore,  dbcPath,"SpellAuraRestrictions.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCastingRequirementsStore, dbcPath,"SpellCastingRequirements.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellEffectStore,            dbcPath,"SpellEffect.dbc", &CustomSpellEffectEntryfmt, &CustomSpellEffectEntryIndex);//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCastTimesStore,         dbcPath, "SpellCastTimes.dbc");//15595
@@ -578,6 +576,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSummonPropertiesStore,       dbcPath, "SummonProperties.dbc");//15595
 
     // Must be done when sSkillLineAbilityStore, sSpellStore, sSpellLevelsStore and sCreatureFamilyStore are all loaded
+    /* TODO: Requires spells attributes from SpellMisc.db2 is loaded after dbc
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
     {
         SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
@@ -588,8 +587,8 @@ void LoadDBCStores(const std::string& dataPath)
         if (!spellInfo)
             continue;
 
-        SpellLevelsEntry const* levels = sSpellLevelsStore.LookupEntry(spellInfo->SpellLevelsId);
-        if (spellInfo->SpellLevelsId && (!levels || levels->spellLevel))
+        SpellLevelsEntry const* levels = sSpellLevelsStore.LookupEntry(spellInfo->SpellLevelsID);
+        if (spellInfo->SpellLevelsID && (!levels || levels->spellLevel))
             continue;
 
         if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
@@ -606,10 +605,11 @@ void LoadDBCStores(const std::string& dataPath)
                 if (skillLine->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
-                sPetFamilySpellsStore[i].insert(spellInfo->Id);
+                sPetFamilySpellsStore[i].insert(spellInfo->ID);
             }
         }
     }
+    */
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");//15595
 

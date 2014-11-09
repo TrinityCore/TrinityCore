@@ -2813,7 +2813,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (!effect)
             continue;
 
-        effectsBySpell[effect->EffectSpellId].effects[effect->EffectIndex] = effect;
+        effectsBySpell[effect->SpellID].effects[effect->EffectIndex] = effect;
     }
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
@@ -3188,7 +3188,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->ProcCharges = 1;
                 break;
             case 44544: // Fingers of Frost
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(685904631, 1151048, 0);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(685904631, 1151048, 0, 0);
                 break;
             case 74396: // Fingers of Frost visual buff
                 spellInfo->ProcCharges = 2;
@@ -3212,7 +3212,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].MiscValue |= 1;
                 break;
             case 51912: // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
-                spellInfo->Effects[EFFECT_0].Amplitude = 3000;
+                spellInfo->Effects[EFFECT_0].ApplyAuraPeriod = 3000;
                 break;
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
@@ -3231,7 +3231,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 spellInfo->Effects[EFFECT_1].MiscValue = SPELLMOD_EFFECT2;
-                spellInfo->Effects[EFFECT_1].SpellClassMask = flag96(0x00000000, 0x00004000, 0x00000000);
+                spellInfo->Effects[EFFECT_1].SpellClassMask = flag128(0x00000000, 0x00004000, 0x00000000, 0x00000000);
                 break;
             case 47569: // Improved Shadowform (Rank 1)
                 // with this spell atrribute aura can be stacked several times
@@ -3273,7 +3273,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00067801, 0x10820001, 0x00000801);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00067801, 0x10820001, 0x00000801, 0x00000000);
                 break;
             case 5176:  // Wrath
             case 2912:  // Starfire
@@ -3294,22 +3294,22 @@ void SpellMgr::LoadSpellInfoCorrections()
                         // this is done because another spell also uses the same SpellFamilyFlags as Icy Touch
                         // SpellFamilyFlags[0] & 0x00000040 in SPELLFAMILY_DEATHKNIGHT is currently unused (3.3.5a)
                         // this needs research on modifier applying rules, does not seem to be in Attributes fields
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00000040, 0x00000000, 0x00000000);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00000040, 0x00000000, 0x00000000, 0x00000000);
                 break;
             case 64949: // Idol of the Flourishing Life
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00000000, 0x02000000, 0x00000000);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00000000, 0x02000000, 0x00000000, 0x00000000);
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 break;
             case 34231: // Libram of the Lightbringer
             case 60792: // Libram of Tolerance
             case 64956: // Libram of the Resolute
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x80000000, 0x00000000, 0x00000000);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x80000000, 0x00000000, 0x00000000, 0x00000000);
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 break;
             case 28851: // Libram of Light
             case 28853: // Libram of Divinity
             case 32403: // Blessed Book of Nagrand
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x40000000, 0x00000000, 0x00000000);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x40000000, 0x00000000, 0x00000000, 0x00000000);
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 break;
             case 45602: // Ride Carpet
@@ -3540,7 +3540,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 71266: // Swarming Shadows
             case 72890: // Swarming Shadows
-                spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
+                spellInfo->RequiredAreasID = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
                 break;
             case 70602: // Corruption
             case 48278: // Paralyze

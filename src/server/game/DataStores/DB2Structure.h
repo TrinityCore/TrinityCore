@@ -150,6 +150,47 @@ struct KeyChainEntry
     uint8       Key[KEYCHAIN_SIZE];
 };
 
+struct SpellAuraRestrictionsEntry
+{
+    //uint32    ID;                                         // 0
+    uint32      CasterAuraState;                            // 1
+    uint32      TargetAuraState;                            // 2
+    uint32      ExcludeCasterAuraState;                     // 3
+    uint32      ExcludeTargetAuraState;                     // 4
+    uint32      CasterAuraSpell;                            // 5
+    uint32      TargetAuraSpell;                            // 6
+    uint32      ExcludeCasterAuraSpell;                     // 7
+    uint32      ExcludeTargetAuraSpell;                     // 8
+};
+
+struct SpellMiscEntry
+{
+    uint32      ID;                                         // 0
+    uint32      Attributes;                                 // 1
+    uint32      AttributesEx;                               // 2
+    uint32      AttributesExB;                              // 3
+    uint32      AttributesExC;                              // 4
+    uint32      AttributesExD;                              // 5
+    uint32      AttributesExE;                              // 6
+    uint32      AttributesExF;                              // 7
+    uint32      AttributesExG;                              // 8
+    uint32      AttributesExH;                              // 9
+    uint32      AttributesExI;                              // 10
+    uint32      AttributesExJ;                              // 11
+    uint32      AttributesExK;                              // 12
+    uint32      AttributesExL;                              // 13
+    uint32      AttributesExM;                              // 14
+    uint32      CastingTimeIndex;                           // 15
+    uint32      DurationIndex;                              // 16
+    uint32      RangeIndex;                                 // 17
+    uint32      Speed;                                      // 18
+    uint32      SpellVisualID[2];                           // 19-20
+    uint32      SpellIconID;                                // 21
+    uint32      ActiveIconID;                               // 22
+    uint32      SchoolMask;                                 // 23
+    //float     Unk;                                        // 24
+};
+
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()
