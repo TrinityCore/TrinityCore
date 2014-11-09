@@ -2248,8 +2248,8 @@ class Player : public Unit, public GridObject<Player>
         void DeleteEquipmentSet(uint64 setGuid);
 
         void SendInitWorldStates(uint32 zone, uint32 area);
-        void SendUpdateWorldState(uint32 Field, uint32 Value);
-        void SendDirectMessage(WorldPacket* data);
+        void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false);
+        void SendDirectMessage(WorldPacket const* data);
         void SendBGWeekendWorldStates();
         void SendBattlefieldWorldStates();
 

@@ -200,7 +200,7 @@ class Battlefield : public ZoneScript
         virtual bool SetupBattlefield() { return true; }
 
         /// Update data of a worldstate to all players present in zone
-        void SendUpdateWorldState(uint32 field, uint32 value);
+        void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false);
 
         /**
          * \brief Called every time for update bf data and time
@@ -397,9 +397,9 @@ class Battlefield : public ZoneScript
         virtual void SendRemoveWorldStates(Player* /*player*/) { }
 
         // use for send a packet for all player list
-        void BroadcastPacketToZone(WorldPacket& data) const;
-        void BroadcastPacketToQueue(WorldPacket& data) const;
-        void BroadcastPacketToWar(WorldPacket& data) const;
+        void BroadcastPacketToZone(WorldPacket const* data) const;
+        void BroadcastPacketToQueue(WorldPacket const* data) const;
+        void BroadcastPacketToWar(WorldPacket const* data) const;
 
         // CapturePoint system
         void AddCapturePoint(BfCapturePoint* cp) { m_capturePoints[cp->GetCapturePointEntry()] = cp; }

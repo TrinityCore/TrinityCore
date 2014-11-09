@@ -662,9 +662,9 @@ class World
         void SendGlobalText(const char* text, WorldSession* self);
         void SendGMText(uint32 string_id, ...);
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
-        void SendGlobalMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
-        void SendGlobalGMMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
-        bool SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
+        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, uint32 team = 0);
 
         /// Are we in the middle of a shutdown?

@@ -511,6 +511,7 @@ bool LoadRealmInfo()
     realm.Id.Build = fields[11].GetUInt32();
     realm.Id.Region = fields[12].GetUInt8();
     realm.Id.Battlegroup = fields[13].GetUInt8();
+    return true;
 }
 
 /// Initialize connection to the databases

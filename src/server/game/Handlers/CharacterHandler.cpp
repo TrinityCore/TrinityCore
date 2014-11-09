@@ -19,7 +19,10 @@
 #include "AccountMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "AuthenticationPackets.h"
 #include "Battleground.h"
+#include "BattlegroundPackets.h"
+#include "BattlenetServerManager.h"
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
@@ -50,8 +53,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "BattlenetServerManager.h"
-#include "AuthenticationPackets.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -890,6 +891,20 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         motd.Text = &sWorld->GetMotd();
         SendPacket(motd.Write());
         TC_LOG_DEBUG("network", "WORLD: Sent motd (SMSG_MOTD)");
+    }
+
+    SendSetTimeZoneInformation();
+
+    // Send PVPSeason
+    {
+        WorldPackets::Battleground::PVPSeason season;
+        season.PreviousSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS);
+
+        if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
+            season.CurrentSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID);
+
+        SendPacket(season.Write());
+        TC_LOG_DEBUG("network", "WORLD: Sent PVPSeason");
     }
 
     // send server info

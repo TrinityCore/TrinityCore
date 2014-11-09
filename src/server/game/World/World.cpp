@@ -1086,11 +1086,11 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ARENA_RATED_UPDATE_TIMER]                   = sConfigMgr->GetIntDefault ("Arena.RatedUpdateTimer", 5 * IN_MILLISECONDS);
     m_bool_configs[CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE]              = sConfigMgr->GetBoolDefault("Arena.QueueAnnouncer.Enable", false);
     m_bool_configs[CONFIG_ARENA_QUEUE_ANNOUNCER_PLAYERONLY]          = sConfigMgr->GetBoolDefault("Arena.QueueAnnouncer.PlayerOnly", false);
-    m_int_configs[CONFIG_ARENA_SEASON_ID]                            = sConfigMgr->GetIntDefault ("Arena.ArenaSeason.ID", 1);
+    m_int_configs[CONFIG_ARENA_SEASON_ID]                            = sConfigMgr->GetIntDefault ("Arena.ArenaSeason.ID", 15);
     m_int_configs[CONFIG_ARENA_START_RATING]                         = sConfigMgr->GetIntDefault ("Arena.ArenaStartRating", 0);
     m_int_configs[CONFIG_ARENA_START_PERSONAL_RATING]                = sConfigMgr->GetIntDefault ("Arena.ArenaStartPersonalRating", 1000);
     m_int_configs[CONFIG_ARENA_START_MATCHMAKER_RATING]              = sConfigMgr->GetIntDefault ("Arena.ArenaStartMatchmakerRating", 1500);
-    m_bool_configs[CONFIG_ARENA_SEASON_IN_PROGRESS]                  = sConfigMgr->GetBoolDefault("Arena.ArenaSeason.InProgress", true);
+    m_bool_configs[CONFIG_ARENA_SEASON_IN_PROGRESS]                  = sConfigMgr->GetBoolDefault("Arena.ArenaSeason.InProgress", false);
     m_bool_configs[CONFIG_ARENA_LOG_EXTENDED_INFO]                   = sConfigMgr->GetBoolDefault("ArenaLog.ExtendedInfo", false);
 
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfigMgr->GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
@@ -2216,7 +2216,7 @@ void World::ForceGameEventUpdate()
 }
 
 /// Send a packet to all players (except self if mentioned)
-void World::SendGlobalMessage(WorldPacket* packet, WorldSession* self, uint32 team)
+void World::SendGlobalMessage(WorldPacket const* packet, WorldSession* self, uint32 team)
 {
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2233,7 +2233,7 @@ void World::SendGlobalMessage(WorldPacket* packet, WorldSession* self, uint32 te
 }
 
 /// Send a packet to all GMs (except self if mentioned)
-void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, uint32 team)
+void World::SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self, uint32 team)
 {
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
@@ -2361,7 +2361,7 @@ void World::SendGlobalText(const char* text, WorldSession* self)
 }
 
 /// Send a packet to all players (or players selected team) in the zone (except self if mentioned)
-bool World::SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self, uint32 team)
+bool World::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self, uint32 team)
 {
     bool foundPlayerToSend = false;
     SessionMap::const_iterator itr;
