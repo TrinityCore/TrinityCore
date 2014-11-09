@@ -141,14 +141,9 @@ enum Events
     EVENT_SPIRIT_HEAL                = 24
 };
 
-struct Location
-{
-    float x, y, z;
-};
+G3D::Vector3 const ShadeWP = { 512.4877f, 400.7993f, 112.7837f };
 
-static Location ShadeWP = { 512.4877f, 400.7993f, 112.7837f };
-
-static Location AkamaWP[] =
+G3D::Vector3 const AkamaWP[] =
 {
     { 517.4877f, 400.7993f, 112.7837f },
     { 468.4435f, 401.1062f, 118.5379f }
