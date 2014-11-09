@@ -660,6 +660,7 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
         if (itemId)
         {
             Item* item = Item::CreateItem(itemId, 1, leader);
+            item->SaveToDB(trans);
             draft.AddItem(item);
         }
     }
