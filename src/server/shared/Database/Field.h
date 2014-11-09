@@ -239,9 +239,11 @@ class Field
             {
                 char const* string = GetCString();
                 if (!string)
-                    string = "";
+                    return "";
+
                 return std::string(string, data.length);
             }
+
             return std::string((char*)data.value, data.length);
         }
 
@@ -284,7 +286,7 @@ class Field
         #endif
 
         void SetByteValue(void const* newValue, size_t const newSize, enum_field_types newType, uint32 length);
-        void SetStructuredValue(char* newValue, enum_field_types newType, uint32 length, bool isBinary);
+        void SetStructuredValue(char* newValue, enum_field_types newType, uint32 length);
 
         void CleanUp()
         {
