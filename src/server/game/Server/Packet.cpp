@@ -61,12 +61,12 @@ inline bool IsInstanceOnlyOpcode(uint32 opcode)
         case 0x0F90: // ClientSpell
         case 0x0F9F: // ClientSpell
         case 0x0FA0: // ClientSpell
-        case 0x1382: // Client
+        case SMSG_ATTACKSTOP: // Client
         case 0x14C9: // Client
         case 0x154A: // Client
         case 0x155A: // Client
         case 0x155C: // Client
-        case 0x1567: // ClientQuest
+        case SMSG_QUESTGIVER_STATUS: // ClientQuest
         case 0x156A: // Client
         case 0x156B: // Client
         case 0x157A: // Client
@@ -85,7 +85,7 @@ inline bool IsInstanceOnlyOpcode(uint32 opcode)
         case 0x1790: // ClientSpell
         case 0x179B: // ClientSpell
         case 0x179F: // ClientSpell
-        case 0x1D3E: // Client
+        case SMSG_ATTACKSTART: // Client
         case 0x1D82: // ClientQuest
         case 0x1D83: // ClientQuest
         case 0x1D85: // ClientQuest
@@ -99,7 +99,7 @@ inline bool IsInstanceOnlyOpcode(uint32 opcode)
         case 0x1DA4: // ClientQuest
         case 0x1DA5: // ClientQuest
         case 0x1DA7: // ClientQuest
-        case 0x1DB0: // Client
+        case SMSG_QUERY_TIME_RESPONSE: // Client
         case 0x1DC2: // ClientQuest
         case 0x1DC6: // ClientQuest
         case 0x1DC7: // ClientQuest
