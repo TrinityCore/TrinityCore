@@ -56,6 +56,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "DB2Stores.h"
+#include "CharacterPackets.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -373,7 +374,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: Send SMSG_WHO Message");
 }
 
-void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& /*logoutRequest*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_REQUEST Message, security - %u", GetSecurity());
 
@@ -395,14 +396,14 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     else if (GetPlayer()->duel || GetPlayer()->HasAura(9454)) // is dueling or frozen by GM via freeze command
         reason = 2;                                         // FIXME - Need the correct value
 
-    WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
-    data << uint32(reason);
-    data << uint8(instantLogout);
-    SendPacket(&data);
+    WorldPackets::Character::LogoutResponse logoutResponse;
+    logoutResponse.LogoutResult = reason;
+    logoutResponse.Instant = instantLogout;
+    SendPacket(logoutResponse.Write());
 
     if (reason)
     {
-        LogoutRequest(0);
+        SetLogoutStartTime(0);
         return;
     }
 
@@ -422,15 +423,10 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
-    LogoutRequest(time(NULL));
+    SetLogoutStartTime(time(NULL));
 }
 
-void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& /*recvData*/)
-{
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PLAYER_LOGOUT Message");
-}
-
-void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCancel& /*logoutCancel*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_CANCEL Message");
 
@@ -438,10 +434,9 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     if (!GetPlayer())
         return;
 
-    LogoutRequest(0);
+    SetLogoutStartTime(0);
 
-    WorldPacket data(SMSG_LOGOUT_CANCEL_ACK, 0);
-    SendPacket(&data);
+    SendPacket(WorldPackets::Character::LogoutCancelAck().Write());
 
     // not remove flags if can't free move - its not set in Logout request code.
     if (GetPlayer()->CanFreeMove())

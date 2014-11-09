@@ -142,7 +142,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 
 std::string const WorldPackets::Auth::ConnectTo::Haiku("An island of peace\nCorruption is brought ashore\nPandarens will rise\n\0\0", 71);
 
-uint8 const WorldPackets::Auth::ConnectTo::PiDigits[260] =
+uint8 const WorldPackets::Auth::ConnectTo::PiDigits[130] =
 {
     0x31, 0x41, 0x59, 0x26, 0x53, 0x58, 0x97, 0x93, 0x23, 0x84,
     0x62, 0x64, 0x33, 0x83, 0x27, 0x95, 0x02, 0x88, 0x41, 0x97,

@@ -87,6 +87,8 @@ namespace WorldPackets
         class ReorderCharacters;
         class UndeleteCharacter;
         class PlayerLogin;
+        class LogoutRequest;
+        class LogoutCancel;
     }
 
     namespace Guild
@@ -276,7 +278,7 @@ class WorldSession
         bool isLogingOut() const { return _logoutTime || m_playerLogout; }
 
         /// Engage the logout process for the user
-        void LogoutRequest(time_t requestTime)
+        void SetLogoutStartTime(time_t requestTime)
         {
             _logoutTime = requestTime;
         }
@@ -511,9 +513,8 @@ class WorldSession
         void HandleLootReleaseOpcode(WorldPacket& recvPacket);
         void HandleLootMasterGiveOpcode(WorldPacket& recvPacket);
         void HandleWhoOpcode(WorldPacket& recvPacket);
-        void HandleLogoutRequestOpcode(WorldPacket& recvPacket);
-        void HandlePlayerLogoutOpcode(WorldPacket& recvPacket);
-        void HandleLogoutCancelOpcode(WorldPacket& recvPacket);
+        void HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& logoutRequest);
+        void HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCancel& logoutCancel);
 
         // GM Ticket opcodes
         void HandleGMTicketCreateOpcode(WorldPacket& recvPacket);

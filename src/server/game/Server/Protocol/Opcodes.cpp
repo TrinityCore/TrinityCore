@@ -378,8 +378,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LF_GUILD_SET_GUILD_POST,                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderSetGuildPost   );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LIST_INVENTORY,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleListInventoryOpcode       );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOAD_SCREEN,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLoadScreenOpcode          );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_LOGOUT_CANCEL,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLogoutCancelOpcode        );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_LOGOUT_REQUEST,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLogoutRequestOpcode       );
+    DEFINE_HANDLER(CMSG_LOGOUT_CANCEL,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::LogoutCancel, &WorldSession::HandleLogoutCancelOpcode);
+    DEFINE_HANDLER(CMSG_LOGOUT_REQUEST,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::LogoutRequest, &WorldSession::HandleLogoutRequestOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOG_DISCONNECT,                          STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT,                                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLootOpcode                );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT_CURRENCY,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -1034,9 +1034,9 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOAD_CUF_PROFILES,                       STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOGIN_SETTIMESPEED,                      STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOGIN_VERIFY_WORLD,                      STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOGOUT_CANCEL_ACK,                       STATUS_UNHANDLED);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOGOUT_COMPLETE,                         STATUS_UNHANDLED);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOGOUT_RESPONSE,                         STATUS_UNHANDLED);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOGOUT_CANCEL_ACK,                       STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOGOUT_COMPLETE,                         STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOGOUT_RESPONSE,                         STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOG_XPGAIN,                              STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_ALL_PASSED,                         STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_CLEAR_MONEY,                        STATUS_UNHANDLED);

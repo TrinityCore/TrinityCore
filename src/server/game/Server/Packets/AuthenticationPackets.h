@@ -141,7 +141,7 @@ namespace WorldPackets
         class ConnectTo final : public ServerPacket
         {
             static std::string const Haiku;
-            static uint8 const PiDigits[260];
+            static uint8 const PiDigits[130];
 
             struct ConnectPayload
             {

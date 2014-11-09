@@ -670,7 +670,10 @@ void WorldSocket::HandleAuthContinuedSession(WorldPackets::Auth::AuthContinuedSe
 {
     uint32 accountId = PAIR64_LOPART(authSession.Key);
     _type = ConnectionType(PAIR64_HIPART(authSession.Key));
-    QueryResult result = LoginDatabase.PQuery("SELECT username, sessionkey FROM account WHERE id = %u", accountId);
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION);
+    stmt->setUInt32(0, accountId);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
     {
         SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
