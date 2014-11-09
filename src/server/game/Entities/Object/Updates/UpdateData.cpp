@@ -23,7 +23,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "World.h"
-#include "zlib.h"
 
 UpdateData::UpdateData(uint16 map) : m_map(map), m_blockCount(0) { }
 
@@ -46,20 +45,21 @@ void UpdateData::AddUpdateBlock(const ByteBuffer &block)
 bool UpdateData::BuildPacket(WorldPacket* packet)
 {
     ASSERT(packet->empty());                                // shouldn't happen
-    packet->Initialize(SMSG_UPDATE_OBJECT, 2 + 4 + (m_outOfRangeGUIDs.empty() ? 0 : 1 + 4 + 9 * m_outOfRangeGUIDs.size()) + m_data.wpos());
+    packet->Initialize(SMSG_UPDATE_OBJECT, 2 + 4 + (m_outOfRangeGUIDs.empty() ? 0 : 1 + 4 + 9 * m_outOfRangeGUIDs.size()) + m_data.wpos(), CONNECTION_TYPE_INSTANCE);
 
+    *packet << uint32(m_blockCount);
     *packet << uint16(m_map);
-    *packet << uint32(m_blockCount + (m_outOfRangeGUIDs.empty() ? 0 : 1));
 
-    if (!m_outOfRangeGUIDs.empty())
+    if (packet->WriteBit(!m_outOfRangeGUIDs.empty()))
     {
-        *packet << uint8(UPDATETYPE_OUT_OF_RANGE_OBJECTS);
+        *packet << uint16(0);
         *packet << uint32(m_outOfRangeGUIDs.size());
 
         for (GuidSet::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
             *packet << i->WriteAsPacked();
     }
 
+    *packet << uint32(m_data.size());
     packet->append(m_data);
     return true;
 }

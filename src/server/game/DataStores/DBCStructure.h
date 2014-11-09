@@ -1578,10 +1578,10 @@ struct MovieEntry
 
 struct NameGenEntry
 {
-    //uint32 id;
-    char*  name;
-    uint32 race;
-    uint32 gender;
+    //uint32 Id;
+    char*  Name;
+    uint32 Race;
+    uint32 Sex;
 };
 
 struct NumTalentsAtLevelEntry
@@ -2426,7 +2426,8 @@ struct WorldSafeLocsEntry
     float     x;                                            // 2
     float     y;                                            // 3
     float     z;                                            // 4
-    //char*   name;                                         // 5        m_AreaName_lang
+    float     Facing;                                       // 5 values are in degrees
+    //char*   name;                                         // 6        m_AreaName_lang
 };
 
 /*
@@ -2474,10 +2475,10 @@ struct WorldStateUI
 
 struct VectorArray
 {
-    std::vector<std::string> stringVectorArray[2];
+    std::vector<std::string> Contents[2];
 };
 
-typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
+typedef std::map<uint32, VectorArray> NameGenContainer;
 
 // Structures not used for casting to loaded DBC data and not required then packing
 struct MapDifficulty

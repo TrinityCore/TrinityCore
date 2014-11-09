@@ -34,7 +34,7 @@ template<HashCreateFn HashCreator, uint32 DigestLength>
 class HmacHash
 {
     public:
-        HmacHash(uint32 len, uint8 *seed);
+        HmacHash(uint32 len, uint8 const* seed);
         ~HmacHash();
         void UpdateData(std::string const& str);
         void UpdateData(uint8 const* data, size_t len);

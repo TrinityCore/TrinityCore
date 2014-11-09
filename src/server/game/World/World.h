@@ -30,6 +30,7 @@
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Callback.h"
+#include "Realm/Realm.h"
 
 #include <atomic>
 #include <map>
@@ -170,6 +171,8 @@ enum WorldBoolConfigs
     CONFIG_ALLOW_TRACK_BOTH_RESOURCES,
     CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA,
     CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA,
+    CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED,
+    CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -202,6 +205,7 @@ enum WorldIntConfigs
     CONFIG_INTERVAL_CHANGEWEATHER,
     CONFIG_INTERVAL_DISCONNECT_TOLERANCE,
     CONFIG_PORT_WORLD,
+    CONFIG_PORT_INSTANCE,
     CONFIG_SOCKET_TIMEOUTTIME,
     CONFIG_SESSION_ADD_DELAY,
     CONFIG_GAME_TYPE,
@@ -358,6 +362,7 @@ enum WorldIntConfigs
     CONFIG_BG_REWARD_WINNER_CONQUEST_LAST,
     CONFIG_CREATURE_PICKPOCKET_REFILL,
     CONFIG_AHBOT_UPDATE_INTERVAL,
+    CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_COOLDOWN,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -510,6 +515,8 @@ enum WorldStates
     WS_GUILD_WEEKLY_RESET_TIME  = 20050,                     // Next guild week reset time
 };
 
+#define MAX_CHARACTERS_PER_REALM 11
+
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
 {
@@ -612,9 +619,9 @@ class World
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
 
         /// Set a new Message of the Day
-        void SetMotd(std::string const& motd);
+        void SetMotd(std::string motd);
         /// Get the current Message of the Day
-        const char* GetMotd() const;
+        std::vector<std::string> const& GetMotd() const;
 
         /// Set the string for new characters (first login)
         void SetNewCharString(std::string const& str) { m_newCharString = str; }
@@ -655,9 +662,9 @@ class World
         void SendGlobalText(const char* text, WorldSession* self);
         void SendGMText(uint32 string_id, ...);
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
-        void SendGlobalMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
-        void SendGlobalGMMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
-        bool SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
+        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, uint32 team = 0);
 
         /// Are we in the middle of a shutdown?
@@ -835,7 +842,7 @@ class World
         LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales
         uint32 m_availableDbcLocaleMask;                       // by loaded DBC
         bool m_allowMovement;
-        std::string m_motd;
+        std::vector<std::string> _motd;
         std::string m_dataPath;
 
         // for max speed access
@@ -878,10 +885,12 @@ class World
         void LoadCharacterNameData();
 
         void ProcessQueryCallbacks();
-        std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
+        std::deque<PreparedQueryResultFuture> m_realmCharCallbacks;
 };
 
 extern Battlenet::RealmHandle realmHandle;
+extern Realm realm;
+uint32 GetVirtualRealmAddress();
 
 #define sWorld World::instance()
 #endif

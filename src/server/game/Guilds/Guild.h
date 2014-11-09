@@ -285,7 +285,6 @@ public:
     void LoadFromDB(Field* fields);
     void SaveToDB(ObjectGuid::LowType guildId) const;
     void ReadPacket(WorldPacket& recv);
-    void WritePacket(WorldPacket& data) const;
 
     uint32 GetStyle() const { return m_style; }
     uint32 GetColor() const { return m_color; }
@@ -790,7 +789,7 @@ public:
 
     // Handle client commands
     void HandleRoster(WorldSession* session);
-    void HandleQuery(WorldSession* session);
+    void SendQueryResponse(WorldSession* session);
     void HandleSetAchievementTracking(WorldSession* session, std::set<uint32> const& achievementIds);
     void HandleSetMOTD(WorldSession* session, std::string const& motd);
     void HandleSetInfo(WorldSession* session, std::string const& info);

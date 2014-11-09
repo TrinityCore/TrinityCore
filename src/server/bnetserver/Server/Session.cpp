@@ -434,14 +434,14 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
 {
     WoWRealm::JoinResponseV2* joinResponse = new WoWRealm::JoinResponseV2();
     Realm const* realm = sRealmList->GetRealm(joinRequest.Realm);
-    if (!realm || realm->Flags & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE))
+    if (!realm || realm->Flags & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE) || realm->Id.Build != _build)
     {
         joinResponse->Response = WoWRealm::JoinResponseV2::FAILURE;
         AsyncWrite(joinResponse);
         return;
     }
 
-    joinResponse->ServerSeed = uint32(rand32());
+    joinResponse->ServerSeed = rand32();
 
     uint8 sessionKey[40];
     HmacSha1 hmac(K.GetNumBytes(), K.AsByteArray().get());
@@ -619,7 +619,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
     clientM1.SetBinary(dataStream->ReadBytes(32).get(), 32);
     clientChallenge.SetBinary(dataStream->ReadBytes(128).get(), 128);
 
-    if (A.isZero())
+    if (A.IsZero())
     {
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_CORRUPTED_MODULE);

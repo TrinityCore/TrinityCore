@@ -25,10 +25,10 @@ add_executable(mapextractor
 )
 
 target_link_libraries(mapextractor
+  casc
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${Boost_LIBRARIES}
-  casc
 )
 
 add_dependencies(mapextractor casc)

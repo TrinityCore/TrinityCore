@@ -107,6 +107,7 @@ void PackedGuid::Set(ObjectGuid const& guid)
 {
     uint8 lowMask = 0;
     uint8 highMask = 0;
+    _packedGuid.clear();
     _packedGuid << uint8(lowMask);
     _packedGuid << uint8(highMask);
 

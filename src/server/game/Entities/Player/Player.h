@@ -44,7 +44,6 @@ struct VendorItem;
 template<class T> class AchievementMgr;
 class ReputationMgr;
 class Channel;
-class CharacterCreateInfo;
 class Creature;
 class DynamicObject;
 class Group;
@@ -55,8 +54,6 @@ class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
-
-struct CharacterCustomizeInfo;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -1289,7 +1286,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSummonPoint(uint32 mapid, float x, float y, float z);
         void SummonIfPossible(bool agree);
 
-        bool Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo);
+        bool Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo);
 
         void Update(uint32 time) override;
 
@@ -1711,7 +1708,7 @@ class Player : public Unit, public GridObject<Player>
 
         static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
         static void SetFloatValueInArray(Tokenizer& data, uint16 index, float value);
-        static void Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans);
+        static void Customize(WorldPackets::Character::CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
@@ -2251,8 +2248,8 @@ class Player : public Unit, public GridObject<Player>
         void DeleteEquipmentSet(uint64 setGuid);
 
         void SendInitWorldStates(uint32 zone, uint32 area);
-        void SendUpdateWorldState(uint32 Field, uint32 Value);
-        void SendDirectMessage(WorldPacket* data);
+        void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false);
+        void SendDirectMessage(WorldPacket const* data);
         void SendBGWeekendWorldStates();
         void SendBattlefieldWorldStates();
 
@@ -2487,7 +2484,7 @@ class Player : public Unit, public GridObject<Player>
         uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         Player* GetNextRandomRaidMember(float radius);
-        PartyResult CanUninviteFromGroup() const;
+        PartyResult CanUninviteFromGroup(ObjectGuid guidMember = ObjectGuid::Empty) const;
 
         // Battleground / Battlefield Group System
         void SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup = -1);

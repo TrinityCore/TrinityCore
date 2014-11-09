@@ -19,8 +19,13 @@
 #define AuthenticationPacketsWorld_h__
 
 #include "Packet.h"
+#include "ObjectMgr.h"
 #include "Util.h"
-#include <SHA1.h>
+#include "BigNumber.h"
+#include "SHA1.h"
+#include <boost/asio/ip/tcp.hpp>
+
+using boost::asio::ip::tcp;
 
 namespace WorldPackets
 {
@@ -29,9 +34,9 @@ namespace WorldPackets
         class AuthChallenge final : public ServerPacket
         {
         public:
-            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 8 + 32 + 1), Challenge(0) { }
+            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 4 + 32 + 1), Challenge(0) { }
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             uint32 Challenge;
             uint32 DosChallenge[8]; ///< Encryption seeds
@@ -100,7 +105,7 @@ namespace WorldPackets
                 uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
                 uint8 TimeOptions = 0; ///< controls the behavior of the client regarding billing, used in Asia realms, as they don't have monthly subscriptions, possible values are in @ref BillingPlanFlags. It is not currently implemented and will probably never be.
 
-                uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region. @todo implement
+                uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
                 uint32 RealmNamesCount = 0; ///< the number of realms connected to this one (inclusive). @todo implement
                 uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
@@ -126,11 +131,65 @@ namespace WorldPackets
 
             AuthResponse();
 
-            void Write() override;
+            WorldPacket const* Write() override;
 
             Optional<AuthSuccessInfo> SuccessInfo; ///< contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
             Optional<AuthWaitInfo> WaitInfo; ///< contains the queue wait information in case the account is in the login queue.
             uint8 Result = 0; ///< the result of the authentication process, it is AUTH_OK if it succeeded and the account is ready to log in. It can also be AUTH_WAIT_QUEUE if the account entered the login queue (Queued, QueuePos), possible values are @ref ResponseCodes
+        };
+
+        class ConnectTo final : public ServerPacket
+        {
+            static std::string const Haiku;
+            static uint8 const PiDigits[260];
+
+            struct ConnectPayload
+            {
+                tcp::endpoint Where;
+                uint32 Adler32 = 0;
+                uint8 XorMagic = 0x2A;
+                uint8 PanamaKey[32];
+            };
+
+        public:
+            ConnectTo();
+
+            WorldPacket const* Write() override;
+
+            uint64 Key = 0;
+            uint32 Serial = 0;
+            ConnectPayload Payload;
+            uint8 Con = 0;
+
+        private:
+            BigNumber p;
+            BigNumber q;
+            BigNumber dmp1;
+            BigNumber dmq1;
+            BigNumber iqmp;
+        };
+
+        class AuthContinuedSession final : public ClientPacket
+        {
+        public:
+            AuthContinuedSession(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            {
+                memset(Digest, 0, SHA_DIGEST_LENGTH);
+            }
+
+            void Read() override;
+
+            uint64 DosResponse = 0;
+            uint64 Key = 0;
+            uint8 Digest[SHA_DIGEST_LENGTH];
+        };
+
+        class ResumeComms final : public ServerPacket
+        {
+        public:
+            ResumeComms() : ServerPacket(SMSG_RESUME_COMMS, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
     }
 }

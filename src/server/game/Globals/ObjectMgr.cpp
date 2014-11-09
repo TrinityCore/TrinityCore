@@ -279,7 +279,6 @@ ObjectMgr::~ObjectMgr()
         itr->second.Clear();
 
     _cacheTrainerSpellStore.clear();
-    _graveyardOrientations.clear();
 
     for (DungeonEncounterContainer::iterator itr =_dungeonEncounterStore.begin(); itr != _dungeonEncounterStore.end(); ++itr)
         for (DungeonEncounterList::iterator encounterItr = itr->second.begin(); encounterItr != itr->second.end(); ++encounterItr)
@@ -298,34 +297,6 @@ void ObjectMgr::AddLocaleString(std::string const& s, LocaleConstant locale, Str
 
         data[locale] = s;
     }
-}
-
-void ObjectMgr::LoadGraveyardOrientations()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _graveyardOrientations.clear();
-
-    QueryResult result = WorldDatabase.Query("SELECT id, orientation FROM graveyard_orientation");
-
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 id = fields[0].GetUInt32();
-        if (!sWorldSafeLocsStore.LookupEntry(id))
-        {
-            TC_LOG_ERROR("server.loading", "Graveyard %u referenced in graveyard_orientation doesn't exist.", id);
-            continue;
-        }
-        _graveyardOrientations[id] = fields[1].GetFloat();
-
-    } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %lu graveyard orientations in %u ms", (unsigned long)_graveyardOrientations.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureLocales()
@@ -6176,10 +6147,10 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 {
     uint32 oldMSTime = getMSTime();
 
-    _areaTriggerStore.clear();                                  // need for reload case
+    _areaTriggerStore.clear(); // needed for reload case
 
-    //                                                        0            1                  2                  3                  4                   5
-    QueryResult result = WorldDatabase.Query("SELECT id,  target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
+    //                                               0   1
+    QueryResult result = WorldDatabase.Query("SELECT ID, PortLocID FROM areatrigger_teleport");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 area trigger teleport definitions. DB table `areatrigger_teleport` is empty.");
@@ -6195,32 +6166,27 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         ++count;
 
         uint32 Trigger_ID = fields[0].GetUInt32();
+        uint32 PortLocID  = fields[1].GetUInt32();
+
+        WorldSafeLocsEntry const* portLoc = sWorldSafeLocsStore.LookupEntry(PortLocID);
+        if (!portLoc)
+        {
+            TC_LOG_ERROR("sql.sql", "Area Trigger (ID: %u) has a non-existing Port Loc (ID: %u) in WorldSafeLocs.dbc, skipped", Trigger_ID, PortLocID);
+            continue;
+        }
 
         AreaTriggerStruct at;
 
-        at.target_mapId             = fields[1].GetUInt16();
-        at.target_X                 = fields[2].GetFloat();
-        at.target_Y                 = fields[3].GetFloat();
-        at.target_Z                 = fields[4].GetFloat();
-        at.target_Orientation       = fields[5].GetFloat();
+        at.target_mapId       = portLoc->map_id;
+        at.target_X           = portLoc->x;
+        at.target_Y           = portLoc->y;
+        at.target_Z           = portLoc->z;
+        at.target_Orientation = (portLoc->Facing * M_PI) / 180; // Orientation is initially in degrees
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if (!atEntry)
         {
-            TC_LOG_ERROR("sql.sql", "Area trigger (ID:%u) does not exist in `AreaTrigger.dbc`.", Trigger_ID);
-            continue;
-        }
-
-        MapEntry const* mapEntry = sMapStore.LookupEntry(at.target_mapId);
-        if (!mapEntry)
-        {
-            TC_LOG_ERROR("sql.sql", "Area trigger (ID:%u) target map (ID: %u) does not exist in `Map.dbc`.", Trigger_ID, at.target_mapId);
-            continue;
-        }
-
-        if (at.target_X == 0 && at.target_Y == 0 && at.target_Z == 0)
-        {
-            TC_LOG_ERROR("sql.sql", "Area trigger (ID:%u) target coordinates not provided.", Trigger_ID);
+            TC_LOG_ERROR("sql.sql", "Area Trigger (ID: %u) does not exist in AreaTrigger.dbc.", Trigger_ID);
             continue;
         }
 

@@ -86,7 +86,7 @@ void PacketLog::Initialize()
         header.Signature[0] = 'P'; header.Signature[1] = 'K'; header.Signature[2] = 'T';
         header.FormatVersion = 0x0301;
         header.SnifferId = 'T';
-        header.Build = 19034;
+        header.Build = 19103;
         header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
         std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
         header.SniffStartUnixtime = time(NULL);
