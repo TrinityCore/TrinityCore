@@ -115,6 +115,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest3 const&
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_INVALID_PROGRAM);
         AsyncWrite(logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in with game other than WoW (using %s)!", GetClientInfo().c_str(), logonRequest.Program.c_str());
         return;
     }
 
@@ -123,6 +124,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest3 const&
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_INVALID_OS);
         AsyncWrite(logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in from an unsupported platform (using %s)!", GetClientInfo().c_str(), logonRequest.Platform.c_str());
         return;
     }
 
@@ -131,6 +133,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest3 const&
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_UNSUPPORTED_LANGUAGE);
         AsyncWrite(logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in with unsupported locale (using %s)!", GetClientInfo().c_str(), logonRequest.Locale.c_str());
         return;
     }
 
@@ -140,15 +143,23 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest3 const&
         {
             Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
             if (!sComponentMgr->HasProgram(component.Program))
+            {
                 logonResponse->SetAuthResult(AUTH_INVALID_PROGRAM);
+                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component program %s!", GetClientInfo().c_str(), component.Program.c_str());
+            }
             else if (!sComponentMgr->HasPlatform(component.Platform))
+            {
                 logonResponse->SetAuthResult(AUTH_INVALID_OS);
+                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component platform %s!", GetClientInfo().c_str(), component.Platform.c_str());
+            }
             else
             {
                 if (component.Program != "WoW" || AuthHelper::IsBuildSupportingBattlenet(component.Build))
                     logonResponse->SetAuthResult(AUTH_REGION_BAD_VERSION);
                 else
                     logonResponse->SetAuthResult(AUTH_USE_GRUNT_LOGON);
+
+                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component version %u!", GetClientInfo().c_str(), component.Build);
             }
 
             AsyncWrite(logonResponse);
@@ -173,6 +184,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest3 const&
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         AsyncWrite(logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is trying to log in from unknown account!", GetClientInfo().c_str());
         return;
     }
 
@@ -700,6 +712,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         ReplaceResponse(response, logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::Password] %s attempted to log in with invalid password!", GetClientInfo().c_str());
         return false;
     }
 
@@ -715,6 +728,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
         ReplaceResponse(response, logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::Password] %s does not have any linked game accounts!", GetClientInfo().c_str());
         return false;
     }
 
@@ -845,6 +859,7 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
         Authentication::LogonResponse* complete = new Authentication::LogonResponse();
         complete->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
         ReplaceResponse(response, complete);
+        TC_LOG_DEBUG("session", "[Battlenet::SelectGameAccount] %s attempted to log in with invalid game account name %s!", GetClientInfo().c_str(), account.c_str());
         return false;
     }
 
@@ -966,7 +981,7 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
         stmt->setString(0, _accountName);
         LoginDatabase.Execute(stmt);
 
-        TC_LOG_DEBUG("session", "[Battlenet::Resume] Invalid proof!");
+        TC_LOG_DEBUG("session", "[Battlenet::Resume] %s attempted to reconnect with invalid password!", GetClientInfo().c_str());
         Authentication::ResumeResponse* resumeResponse = new Authentication::ResumeResponse();
         resumeResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         ReplaceResponse(response, resumeResponse);
