@@ -27,6 +27,9 @@
 #    CONSOLE AND REMOTE ACCESS
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
+#    AUCTION HOUSE BOT SETTINGS
+#    AUCTION HOUSE BOT ITEM FINE TUNING
+#    AUCTION HOUSE BOT BUYER CONFIG
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #
@@ -2901,8 +2904,8 @@ AuctionHouseBot.Class.Glyph = 3
 ###################################################################################################
 
 ###################################################################################################
+# AUCTION HOUSE BOT ITEM FINE TUNING
 #
-# AHBot ITEM FINE TUNING
 #    The following are usefull for limiting what character levels can
 #    benefit from the auction house
 #
@@ -2975,7 +2978,7 @@ AuctionHouseBot.forceExcludeItems = ""
 ###################################################################################################
 
 ###################################################################################################
-#    AHBot Buyer config
+# AUCTION HOUSE BOT BUYER CONFIG
 #
 #    AuctionHouseBot.Buyer.Enabled
 #       Description: General enable or disable AuctionHouseBot Buyer functionality

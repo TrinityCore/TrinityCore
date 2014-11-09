@@ -1449,6 +1449,13 @@ void Position::GetPositionOffsetTo(const Position & endPos, Position & retOffset
     retOffset.SetOrientation(endPos.GetOrientation() - GetOrientation());
 }
 
+Position Position::GetPositionWithOffset(Position const& offset) const
+{
+    Position ret(*this);
+    ret.RelocateOffset(offset);
+    return ret;
+}
+
 float Position::GetAngle(const Position* obj) const
 {
     if (!obj)
@@ -2593,7 +2600,7 @@ void WorldObject::DestroyForNearbyPlayers()
         if (!player->HaveAtClient(this))
             continue;
 
-        if (isType(TYPEMASK_UNIT) && ((Unit*)this)->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
+        if (isType(TYPEMASK_UNIT) && ToUnit()->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
             continue;
 
         DestroyForPlayer(player);
