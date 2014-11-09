@@ -337,3 +337,17 @@ WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
     _worldPacket << uint32(Reason);
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Character::LogoutResponse::Write()
+{
+    _worldPacket << int32(LogoutResult);
+    _worldPacket.WriteBit(Instant);
+    _worldPacket.FlushBits();
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Character::LogoutComplete::Write()
+{
+    _worldPacket << SwitchToCharacter;
+    return &_worldPacket;
+}
