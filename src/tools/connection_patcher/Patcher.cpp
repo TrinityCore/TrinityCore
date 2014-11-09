@@ -24,6 +24,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <set>
 #include <stdexcept>
 
 namespace
@@ -50,17 +51,15 @@ namespace
         std::copy(data.begin(), data.end(), std::ostream_iterator<unsigned char>(ofs));
     }
 
-    size_t SearchOffset (std::vector<unsigned char> const& binary, std::vector<unsigned char> const& pattern)
+    std::set<size_t> SearchOffset (std::vector<unsigned char> const& binary, std::vector<unsigned char> const& pattern)
     {
-        for (size_t i = 0; i < binary.size(); i++)
+        std::set<size_t> offsets;
+        for (size_t i = 0; (i + pattern.size()) < binary.size(); i++)
         {
             size_t matches = 0;
 
             for (size_t j = 0; j < pattern.size(); j++)
             {
-                if (pattern.size() > (binary.size() - i))
-                    throw std::runtime_error("unable to find pattern");
-
                 if (pattern[j] == 0)
                 {
                     matches++;
@@ -74,10 +73,13 @@ namespace
             }
 
             if (matches == pattern.size())
-                return i;
+            {
+                offsets.insert(i);
+                i += matches;
+            }
         }
 
-        throw std::runtime_error("unable to find pattern");
+        return offsets.empty() ? throw std::runtime_error("unable to find pattern") : offsets;
     }
 }
 
@@ -96,12 +98,14 @@ namespace Connection_Patcher
         if (pattern.empty())
             return;
 
-        size_t const offset(SearchOffset(binary, pattern));
-        std::cout << "Found offset " << offset << std::endl;
+        for (size_t const offset : SearchOffset(binary, pattern))
+        {
+            std::cout << "Found offset " << offset << std::endl;
 
-        if (offset != 0 && binary.size() >= bytes.size())
-            for (size_t i = 0; i < bytes.size(); i++)
-                binary[offset + i] = bytes[i];
+            if (offset != 0 && binary.size() >= bytes.size())
+                for (size_t i = 0; i < bytes.size(); i++)
+                    binary[offset + i] = bytes[i];
+        }
     }
 
     void Patcher::Finish(boost::filesystem::path out)
