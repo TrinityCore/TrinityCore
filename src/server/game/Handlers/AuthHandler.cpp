@@ -15,11 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "WorldSession.h"
-#include "WorldPacket.h"
+#include "ObjectMgr.h"
 #include "AuthenticationPackets.h"
+#include "ClientConfigPackets.h"
 #include "SystemPackets.h"
 
 void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
@@ -33,12 +32,12 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
     {
         response.SuccessInfo.value.AccountExpansionLevel = Expansion();
         response.SuccessInfo.value.ActiveExpansionLevel = Expansion();
-        response.SuccessInfo.value.VirtualRealmAddress = realmHandle.Index;
+        response.SuccessInfo.value.VirtualRealmAddress = GetVirtualRealmAddress();
 
         std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);
 
         // Send current home realm. Also there is no need to send it later in realm queries.
-        response.SuccessInfo.value.VirtualRealms.emplace_back(realmHandle.Index, true, false, realmName, realmName);
+        response.SuccessInfo.value.VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
 
         response.SuccessInfo.value.AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
         response.SuccessInfo.value.AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
@@ -70,9 +69,10 @@ void WorldSession::SendAuthWaitQue(uint32 position)
 
 void WorldSession::SendClientCacheVersion(uint32 version)
 {
-    WorldPacket data(SMSG_CLIENTCACHE_VERSION, 4);
-    data << uint32(version);
-    SendPacket(&data);
+    WorldPackets::ClientConfig::ClientCacheVersion cache;
+    cache.CacheVersion = version;
+
+    SendPacket(cache.Write());
 }
 
 void WorldSession::SendSetTimeZoneInformation()

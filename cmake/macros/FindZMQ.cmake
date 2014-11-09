@@ -49,8 +49,16 @@ if (MSVC)
   # Get Visual studio version number
   string(REGEX REPLACE "Visual Studio ([0-9]+).*" "\\1" ZMQ_VS_VERSION ${CMAKE_GENERATOR})
 
-  # Format ZMQ library file name
-  set(ZMQ_LIBRARY_NAME "libzmq-v${ZMQ_VS_VERSION}0-mt-${ZMQ_NAME}")
+  if (${ZMQ_NAME} MATCHES "registry") # if key was not found, the string "registry" is returned
+    set(_ZMQ_VERSIONS "4_0_4" "4_0_3" "4_0_2" "4_0_1" "4_0_0" "3_2_5" "3_2_4" "3_2_3" "3_2_2"  "3_2_1" "3_2_0" "3_1_0")
+    set(ZMQ_LIBRARY_NAME)
+    foreach(ver ${_ZMQ_VERSIONS})
+      list(APPEND ZMQ_LIBRARY_NAME "libzmq-v${ZMQ_VS_VERSION}0-mt-${ver}")
+    endforeach()
+  else()
+    # Format ZMQ library file name
+    set(ZMQ_LIBRARY_NAME "libzmq-v${ZMQ_VS_VERSION}0-mt-${ZMQ_NAME}")
+  endif()
 endif()
 
 find_library(ZMQ_LIBRARY

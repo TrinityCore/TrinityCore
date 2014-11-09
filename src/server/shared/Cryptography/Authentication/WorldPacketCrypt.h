@@ -29,6 +29,7 @@ class WorldPacketCrypt : public PacketCrypt
         WorldPacketCrypt();
 
         void Init(BigNumber* K) override;
+        void Init(BigNumber* k, uint8 const* serverKey, uint8 const* clientKey);
 };
 
 #endif // _WORLDPACKETCRYPT_H

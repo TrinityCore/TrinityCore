@@ -46,6 +46,11 @@ WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _socketSendBufferSize(-1), m
 {
 }
 
+WorldSocketMgr::~WorldSocketMgr()
+{
+    delete _instanceAcceptor;
+}
+
 bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port)
 {
     _tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
@@ -64,8 +69,10 @@ bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string 
     }
 
     BaseSocketMgr::StartNetwork(service, bindIp, port);
+    _instanceAcceptor = new AsyncAcceptor(service, bindIp, uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE)));
 
     _acceptor->AsyncAcceptManaged(&OnSocketAccept);
+    _instanceAcceptor->AsyncAcceptManaged(&OnSocketAccept);
 
     sScriptMgr->OnNetworkStart();
     return true;

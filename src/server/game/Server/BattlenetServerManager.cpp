@@ -62,5 +62,13 @@ void Battlenet::ServerManager::SendChangeToonOnlineState(uint32 battlenetAccount
     msg << toon;
     msg << online;
 
-    _socket->Send(&msg);
+    Send(&msg);
+}
+
+void Battlenet::ServerManager::Send(zmqpp::message* msg)
+{
+    if (!_socket)
+        return;
+
+    _socket->Send(msg);
 }

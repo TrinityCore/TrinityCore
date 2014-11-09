@@ -16,6 +16,8 @@
  */
 
 #include "CharacterPackets.h"
+#include "ObjectMgr.h"
+#include "World.h"
 
 WorldPackets::Character::CharEnumResult::CharacterInfo::CharacterInfo(Field* fields)
 {
@@ -237,6 +239,47 @@ WorldPacket const* WorldPackets::Character::CharacterDeleteResponse::Write()
 {
     _worldPacket << uint8(Code);
     return &_worldPacket;
+}
+
+WorldPackets::Character::GenerateRandomCharacterName::GenerateRandomCharacterName(WorldPacket&& packet)
+    : ClientPacket(std::move(packet))
+{
+    ASSERT(_worldPacket.GetOpcode() == CMSG_RANDOMIZE_CHAR_NAME);
+}
+
+void WorldPackets::Character::GenerateRandomCharacterName::Read()
+{
+    _worldPacket >> Race;
+    _worldPacket >> Sex;
+}
+
+WorldPackets::Character::GenerateRandomCharacterNameResult::GenerateRandomCharacterNameResult()
+    : ServerPacket(SMSG_RANDOMIZE_CHAR_NAME, 20) { }
+
+WorldPacket const* WorldPackets::Character::GenerateRandomCharacterNameResult::Write()
+{
+    _worldPacket.WriteBit(Success);
+    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.WriteString(Name);
+    return &_worldPacket;
+}
+
+WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet)
+    : ClientPacket(std::move(packet))
+{
+    ASSERT(_worldPacket.GetOpcode() == CMSG_REORDER_CHARACTERS);
+}
+
+void WorldPackets::Character::ReorderCharacters::Read()
+{
+    uint32 count = std::min<uint32>(_worldPacket.ReadBits(9), sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM));
+    while (count--)
+    {
+        ReorderInfo reorderInfo;
+        _worldPacket >> reorderInfo.PlayerGUID;
+        _worldPacket >> reorderInfo.NewPosition;
+        Entries.emplace_back(reorderInfo);
+    }
 }
 
 WorldPackets::Character::UndeleteCharacter::UndeleteCharacter(WorldPacket&& packet)

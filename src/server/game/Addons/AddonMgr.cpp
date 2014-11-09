@@ -21,7 +21,6 @@
 #include "DBCStores.h"
 #include "Log.h"
 #include "Timer.h"
-#include <openssl/md5.h>
 
 namespace AddonMgr
 {

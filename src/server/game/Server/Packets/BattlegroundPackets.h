@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,28 +15,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ADDONHANDLER_H
-#define __ADDONHANDLER_H
+#ifndef BattlegroundPackets_h__
+#define BattlegroundPackets_h__
 
-#include "Common.h"
-#include "Config.h"
-#include "WorldPacket.h"
+#include "Packet.h"
 
-class AddonHandler
+namespace WorldPackets
 {
-    public:
-        static AddonHandler* instance()
+    namespace Battleground
+    {
+        class PVPSeason final : public ServerPacket
         {
-            static AddonHandler instance;
-            return &instance;
-        }
+        public:
+            PVPSeason() : ServerPacket(SMSG_PVP_SEASON, 8) { }
 
-        bool BuildAddonPacket(WorldPacket* Source, WorldPacket* Target);
+            WorldPacket const* Write() override;
 
-    private:
-        AddonHandler() { }
-        ~AddonHandler() { }
-};
-#define sAddOnHandler AddonHandler::instance()
-#endif
+            uint32 PreviousSeason = 0;
+            uint32 CurrentSeason = 0;
+        };
+    }
+}
 
+#endif // BattlegroundPackets_h__

@@ -65,7 +65,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
     if (!ahEntry)
         return;
 
-    WorldPacket data(MSG_AUCTION_HELLO, 12);
+    WorldPacket data(SMSG_AUCTION_HELLO, 12);
     data << guid;
     data << uint32(ahEntry->houseId);
     data << uint8(1);                                       // 3.3.3: 1 - AH enabled, 0 - AH disabled
@@ -74,7 +74,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
 
 void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action, uint32 errorCode, uint32 /*bidError = 0*/)
 {
-    WorldPackets::AuctionHousePackets::AuctionCommandResult auctionCommandResult;
+    WorldPackets::AuctionHouse::AuctionCommandResult auctionCommandResult;
     auctionCommandResult.InitializeAuction(auction);
     auctionCommandResult.Action = action;
     auctionCommandResult.ErrorCode = errorCode;

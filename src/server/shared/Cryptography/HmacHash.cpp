@@ -21,7 +21,7 @@
 #include "Common.h"
 
 template<HashCreateFn HashCreator, uint32 DigestLength>
-HmacHash<HashCreator, DigestLength>::HmacHash(uint32 len, uint8 *seed)
+HmacHash<HashCreator, DigestLength>::HmacHash(uint32 len, uint8 const* seed)
 {
     HMAC_CTX_init(&_ctx);
     HMAC_Init_ex(&_ctx, seed, len, HashCreator(), NULL);

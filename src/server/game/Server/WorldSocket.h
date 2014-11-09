@@ -31,10 +31,16 @@
 #include <boost/asio/buffer.hpp>
 
 using boost::asio::ip::tcp;
+struct z_stream_s;
 
 namespace WorldPackets
 {
     class ServerPacket;
+    namespace Auth
+    {
+        class AuthSession;
+        class AuthContinuedSession;
+    }
 }
 
 #pragma pack(push, 1)
@@ -67,6 +73,7 @@ class WorldSocket : public Socket<WorldSocket>
 
 public:
     WorldSocket(tcp::socket&& socket);
+    ~WorldSocket();
 
     WorldSocket(WorldSocket const& right) = delete;
     WorldSocket& operator=(WorldSocket const& right) = delete;
@@ -74,7 +81,8 @@ public:
     void Start() override;
 
     void SendPacket(WorldPacket const& packet);
-    void WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer);
+
+    ConnectionType GetConnectionType() const { return _type; }
 
 protected:
     void ReadHandler() override;
@@ -82,16 +90,24 @@ protected:
     bool ReadDataHandler();
 
 private:
+    void WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer);
+    uint32 CompressPacket(uint8* buffer, WorldPacket const& packet);
+
     void HandleSendAuthSession();
-    void HandleAuthSession(WorldPacket& recvPacket);
+    void HandleAuthSession(WorldPackets::Auth::AuthSession& authSession);
+    void HandleAuthContinuedSession(WorldPackets::Auth::AuthContinuedSession& authSession);
     void SendAuthResponseError(uint8 code);
 
     void HandlePing(WorldPacket& recvPacket);
 
     void ExtractOpcodeAndSize(ClientPktHeader const* header, uint32& opcode, uint32& size) const;
 
+    ConnectionType _type;
+
     uint32 _authSeed;
     WorldPacketCrypt _authCrypt;
+    BigNumber _encryptSeed;
+    BigNumber _decryptSeed;
 
     std::chrono::steady_clock::time_point _LastPingTime;
     uint32 _OverSpeedPings;
@@ -100,6 +116,8 @@ private:
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
+
+    z_stream_s* _compressionStream;
 
     bool _initialized;
 };

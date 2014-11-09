@@ -49,6 +49,7 @@
 #include "WardenMac.h"
 #include "BattlenetServerManager.h"
 #include "CharacterPackets.h"
+#include "ClientConfigPackets.h"
 
 namespace {
 
@@ -105,7 +106,6 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
     AntiDOS(this),
     m_GUIDLow(UI64LIT(0)),
     _player(NULL),
-    m_Socket(sock),
     _security(sec),
     _accountId(id),
     _battlenetAccountId(battlenetAccountId),
@@ -113,7 +113,6 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
     _warden(NULL),
     _logoutTime(0),
     m_inQueue(false),
-    m_playerLoading(false),
     m_playerLogout(false),
     m_playerRecentlyLogout(false),
     m_playerSave(false),
@@ -139,17 +138,9 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
 
-    InitializeQueryCallbackParameters();
+    m_Socket[0] = sock;
 
-    _compressionStream = new z_stream();
-    _compressionStream->zalloc = (alloc_func)NULL;
-    _compressionStream->zfree = (free_func)NULL;
-    _compressionStream->opaque = (voidpf)NULL;
-    _compressionStream->avail_in = 0;
-    _compressionStream->next_in = NULL;
-    int32 z_res = deflateInit2(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
-    if (z_res != Z_OK)
-        TC_LOG_ERROR("network", "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
+    InitializeQueryCallbackParameters();
 }
 
 /// WorldSession destructor
@@ -160,10 +151,13 @@ WorldSession::~WorldSession()
         LogoutPlayer (true);
 
     /// - If have unclosed socket, close it
-    if (m_Socket)
+    for (uint8 i = 0; i < 2; ++i)
     {
-        m_Socket->CloseSocket();
-        m_Socket = nullptr;
+        if (m_Socket[i])
+        {
+            m_Socket[i]->CloseSocket();
+            m_Socket[i].reset();
+        }
     }
 
     delete _warden;
@@ -175,12 +169,6 @@ WorldSession::~WorldSession()
         delete packet;
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
-
-    int32 z_res = deflateEnd(_compressionStream);
-    if (z_res != Z_OK && z_res != Z_DATA_ERROR) // Z_DATA_ERROR signals that internal state was BUSY
-        TC_LOG_ERROR("network", "Can't close packet compression stream (zlib: deflateEnd) Error code: %i (%s)", z_res, zError(z_res));
-
-    delete _compressionStream;
 }
 
 std::string const & WorldSession::GetPlayerName() const
@@ -204,7 +192,7 @@ std::string WorldSession::GetPlayerInfo() const
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
 {
-    if (!m_Socket)
+    if (!m_Socket[packet->GetConnection()])
         return;
 
     if (packet->GetOpcode() == NULL_OPCODE)
@@ -264,38 +252,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     sScriptMgr->OnPacketSend(this, *packet);
 
-    m_Socket->SendPacket(*packet);
-}
-
-uint32 WorldSession::CompressPacket(uint8* buffer, WorldPacket const& packet)
-{
-    uint32 opcode = packet.GetOpcode();
-    uint32 bufferSize = deflateBound(_compressionStream, packet.size() + sizeof(opcode));
-
-    _compressionStream->next_out = buffer;
-    _compressionStream->avail_out = bufferSize;
-    _compressionStream->next_in = (Bytef*)&opcode;
-    _compressionStream->avail_in = sizeof(uint32);
-
-    int32 z_res = deflate(_compressionStream, Z_BLOCK);
-    if (z_res != Z_OK)
-    {
-        TC_LOG_ERROR("network", "Can't compress packet opcode (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
-        return 0;
-    }
-
-    _compressionStream->next_in = (Bytef*)packet.contents();
-    _compressionStream->avail_in = packet.size();
-
-    z_res = deflate(_compressionStream, Z_SYNC_FLUSH);
-    if (z_res != Z_OK)
-    {
-        TC_LOG_ERROR("network", "Can't compress packet data (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
-        return 0;
-    }
-
-
-    return bufferSize - _compressionStream->avail_out;
+    m_Socket[packet->GetConnection()]->SendPacket(*packet);
 }
 
 /// Add an incoming packet to the queue
@@ -331,7 +288,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     ///- Before we process anything:
     /// If necessary, kick the player from the character select screen
     if (IsConnectionIdle())
-        m_Socket->CloseSocket();
+        m_Socket[0]->CloseSocket();
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
@@ -348,7 +305,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     uint32 processedPackets = 0;
     time_t currentTime = time(NULL);
 
-    while (m_Socket && !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket && _recvQueue.next(packet, updater))
+    while (m_Socket[0] && !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket && _recvQueue.next(packet, updater))
     {
         if (!AntiDOS.EvaluateOpcode(*packet, currentTime))
             KickPlayer();
@@ -457,7 +414,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             break;
     }
 
-    if (m_Socket && m_Socket->IsOpen() && _warden)
+    if (m_Socket[0] && m_Socket[0]->IsOpen() && _warden)
         _warden->Update();
 
     ProcessQueryCallbacks();
@@ -468,23 +425,24 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     {
         time_t currTime = time(NULL);
         ///- If necessary, log the player out
-        if (ShouldLogOut(currTime) && !m_playerLoading)
+        if (ShouldLogOut(currTime) && m_playerLoading.IsEmpty())
             LogoutPlayer(true);
 
-        if (m_Socket && GetPlayer() && _warden)
+        if (m_Socket[0] && GetPlayer() && _warden)
             _warden->Update();
 
         ///- Cleanup socket pointer if need
-        if (m_Socket && !m_Socket->IsOpen())
+        if ((m_Socket[0] && !m_Socket[0]->IsOpen()) || (m_Socket[1] && !m_Socket[1]->IsOpen()))
         {
             expireTime -= expireTime > diff ? diff : expireTime;
             if (expireTime < diff || forceExit || !GetPlayer())
             {
-                m_Socket = nullptr;
+                m_Socket[0].reset();
+                m_Socket[1].reset();
             }
         }
 
-        if (!m_Socket)
+        if (!m_Socket[0])
             return false;                                       //Will remove this session from the world session map
     }
 
@@ -586,7 +544,7 @@ void WorldSession::LogoutPlayer(bool save)
 
         // remove player from the group if he is:
         // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
-        if (_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
+        if (_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket[0])
             _player->RemoveFromGroup();
 
         //! Send update to group and reset stored max enchanting level
@@ -639,10 +597,13 @@ void WorldSession::LogoutPlayer(bool save)
 /// Kick a player out of the World
 void WorldSession::KickPlayer()
 {
-    if (m_Socket)
+    for (uint8 i = 0; i < 2; ++i)
     {
-        m_Socket->CloseSocket();
-        forceExit = true;
+        if (m_Socket[i])
+        {
+            m_Socket[i]->CloseSocket();
+            forceExit = true;
+        }
     }
 }
 
@@ -781,21 +742,8 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string c
         CharacterDatabase.Execute(stmt);
     }
 
-
     m_accountData[type].Time = tm;
     m_accountData[type].Data = data;
-}
-
-void WorldSession::SendAccountDataTimes(uint32 mask)
-{
-    WorldPacket data(SMSG_ACCOUNT_DATA_TIMES, 4 + 1 + 4 + NUM_ACCOUNT_DATA_TYPES * 4);
-    data << uint32(time(NULL));                             // Server time
-    data << uint8(1);
-    data << uint32(mask);                                   // type mask
-    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
-        if (mask & (1 << i))
-            data << uint32(GetAccountData(AccountDataType(i))->Time);// also unix time
-    SendPacket(&data);
 }
 
 void WorldSession::LoadTutorialsData()
@@ -861,6 +809,8 @@ void WorldSession::ReadAddonsInfo(ByteBuffer& data)
     ByteBuffer addonInfo;
     addonInfo.resize(size);
 
+    m_addonsList.clear();
+
     if (uncompress(addonInfo.contents(), &uSize, data.contents() + pos, data.size() - pos) == Z_OK)
     {
         uint32 addonsCount;
@@ -913,70 +863,10 @@ void WorldSession::ReadAddonsInfo(ByteBuffer& data)
 
 void WorldSession::SendAddonsInfo()
 {
-    uint8 addonPublicKey[256] =
-    {
-        0xC3, 0x5B, 0x50, 0x84, 0xB9, 0x3E, 0x32, 0x42, 0x8C, 0xD0, 0xC7, 0x48, 0xFA, 0x0E, 0x5D, 0x54,
-        0x5A, 0xA3, 0x0E, 0x14, 0xBA, 0x9E, 0x0D, 0xB9, 0x5D, 0x8B, 0xEE, 0xB6, 0x84, 0x93, 0x45, 0x75,
-        0xFF, 0x31, 0xFE, 0x2F, 0x64, 0x3F, 0x3D, 0x6D, 0x07, 0xD9, 0x44, 0x9B, 0x40, 0x85, 0x59, 0x34,
-        0x4E, 0x10, 0xE1, 0xE7, 0x43, 0x69, 0xEF, 0x7C, 0x16, 0xFC, 0xB4, 0xED, 0x1B, 0x95, 0x28, 0xA8,
-        0x23, 0x76, 0x51, 0x31, 0x57, 0x30, 0x2B, 0x79, 0x08, 0x50, 0x10, 0x1C, 0x4A, 0x1A, 0x2C, 0xC8,
-        0x8B, 0x8F, 0x05, 0x2D, 0x22, 0x3D, 0xDB, 0x5A, 0x24, 0x7A, 0x0F, 0x13, 0x50, 0x37, 0x8F, 0x5A,
-        0xCC, 0x9E, 0x04, 0x44, 0x0E, 0x87, 0x01, 0xD4, 0xA3, 0x15, 0x94, 0x16, 0x34, 0xC6, 0xC2, 0xC3,
-        0xFB, 0x49, 0xFE, 0xE1, 0xF9, 0xDA, 0x8C, 0x50, 0x3C, 0xBE, 0x2C, 0xBB, 0x57, 0xED, 0x46, 0xB9,
-        0xAD, 0x8B, 0xC6, 0xDF, 0x0E, 0xD6, 0x0F, 0xBE, 0x80, 0xB3, 0x8B, 0x1E, 0x77, 0xCF, 0xAD, 0x22,
-        0xCF, 0xB7, 0x4B, 0xCF, 0xFB, 0xF0, 0x6B, 0x11, 0x45, 0x2D, 0x7A, 0x81, 0x18, 0xF2, 0x92, 0x7E,
-        0x98, 0x56, 0x5D, 0x5E, 0x69, 0x72, 0x0A, 0x0D, 0x03, 0x0A, 0x85, 0xA2, 0x85, 0x9C, 0xCB, 0xFB,
-        0x56, 0x6E, 0x8F, 0x44, 0xBB, 0x8F, 0x02, 0x22, 0x68, 0x63, 0x97, 0xBC, 0x85, 0xBA, 0xA8, 0xF7,
-        0xB5, 0x40, 0x68, 0x3C, 0x77, 0x86, 0x6F, 0x4B, 0xD7, 0x88, 0xCA, 0x8A, 0xD7, 0xCE, 0x36, 0xF0,
-        0x45, 0x6E, 0xD5, 0x64, 0x79, 0x0F, 0x17, 0xFC, 0x64, 0xDD, 0x10, 0x6F, 0xF3, 0xF5, 0xE0, 0xA6,
-        0xC3, 0xFB, 0x1B, 0x8C, 0x29, 0xEF, 0x8E, 0xE5, 0x34, 0xCB, 0xD1, 0x2A, 0xCE, 0x79, 0xC3, 0x9A,
-        0x0D, 0x36, 0xEA, 0x01, 0xE0, 0xAA, 0x91, 0x20, 0x54, 0xF0, 0x72, 0xD8, 0x1E, 0xC7, 0x89, 0xD2
-    };
-
-
-    WorldPacket data(SMSG_ADDON_INFO, 4);
-    AddonMgr::BannedAddonList const* bannedAddons = AddonMgr::GetBannedAddons();
-
-    data << uint32(m_addonsList.size());
-    data << uint32(bannedAddons->size());
-
-    for (AddonsList::iterator itr = m_addonsList.begin(); itr != m_addonsList.end(); ++itr)
-    {
-        bool sendCRC = itr->UsePublicKeyOrCRC && itr->CRC != STANDARD_ADDON_CRC;
-        data << uint8(itr->State);
-
-        data.WriteBit(itr->Enabled);
-        data.WriteBit(sendCRC);
-        data.WriteBit(0); // Has URL
-
-        if (itr->Enabled)
-        {
-            data << uint8(itr->Enabled);
-            data << uint32(0);
-        }
-
-        if (sendCRC)
-        {
-            TC_LOG_INFO("misc", "ADDON: CRC (0x%x) for addon %s is wrong (does not match expected 0x%x), sending pubkey",
-                itr->CRC, itr->Name.c_str(), STANDARD_ADDON_CRC);
-
-            data.append(addonPublicKey, sizeof(addonPublicKey));
-        }
-    }
-
-    m_addonsList.clear();
-
-    for (AddonMgr::BannedAddonList::const_iterator itr = bannedAddons->begin(); itr != bannedAddons->end(); ++itr)
-    {
-        data << uint32(itr->Id);
-        data.append(itr->NameMD5, sizeof(itr->NameMD5));
-        data.append(itr->VersionMD5, sizeof(itr->VersionMD5));
-        data << uint32(itr->Timestamp);
-        data << uint32(1);  // IsBanned
-    }
-
-
-    SendPacket(&data);
+    WorldPackets::ClientConfig::AddonInfo addonInfo;
+    addonInfo.Addons = &m_addonsList;
+    addonInfo.BannedAddons = AddonMgr::GetBannedAddons();
+    SendPacket(addonInfo.Write());
 }
 
 bool WorldSession::IsAddonRegistered(const std::string& prefix) const

@@ -18,12 +18,18 @@
 #ifndef PacketBaseWorld_h__
 #define PacketBaseWorld_h__
 
+#include "WorldPacket.h"
+
 namespace WorldPackets
 {
     class Packet
     {
     public:
-        Packet(WorldPacket&& worldPacket) : _worldPacket(std::move(worldPacket)) { }
+        Packet(WorldPacket&& worldPacket) : _worldPacket(std::move(worldPacket))
+        {
+            _connectionIndex = _worldPacket.GetConnection();
+        }
+
         virtual ~Packet() = default;
 
         Packet(Packet const& right) = delete;
@@ -33,9 +39,11 @@ namespace WorldPackets
         virtual void Read() = 0;
 
         size_t GetSize() const { return _worldPacket.size(); }
+        ConnectionType GetConnection() const { return _connectionIndex; }
 
     protected:
         WorldPacket _worldPacket;
+        ConnectionType _connectionIndex;
     };
 
     class ServerPacket : public Packet

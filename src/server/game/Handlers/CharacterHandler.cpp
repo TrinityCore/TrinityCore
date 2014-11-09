@@ -19,10 +19,14 @@
 #include "AccountMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "AuthenticationPackets.h"
 #include "Battleground.h"
+#include "BattlegroundPackets.h"
+#include "BattlenetServerManager.h"
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
+#include "ClientConfigPackets.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -43,12 +47,12 @@
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SystemConfig.h"
+#include "SystemPackets.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "BattlenetServerManager.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -759,7 +763,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
 
     TC_LOG_DEBUG("network", "WORLD: Recvd Player Logon Message");
 
-    m_playerLoading = true;
+    m_playerLoading = playerLogin.Guid;
 
     TC_LOG_DEBUG("network", "Character %s logging in", playerLogin.Guid.ToString().c_str());
 
@@ -770,11 +774,32 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
         return;
     }
 
-    LoginQueryHolder* holder = new LoginQueryHolder(GetAccountId(), playerLogin.Guid);
+    boost::system::error_code ignored_error;
+    boost::asio::ip::tcp::endpoint instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
+    instanceAddress.port(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
+
+    WorldPackets::Auth::ConnectTo connectTo;
+    connectTo.Key = MAKE_PAIR64(GetAccountId(), CONNECTION_TYPE_INSTANCE);
+    connectTo.Serial = 1;
+    connectTo.Payload.Where = instanceAddress;
+    connectTo.Con = CONNECTION_TYPE_INSTANCE;
+
+    SendPacket(connectTo.Write());
+}
+
+void WorldSession::HandleContinuePlayerLogin()
+{
+    if (!PlayerLoading() || GetPlayer())
+    {
+        KickPlayer();
+        return;
+    }
+
+    LoginQueryHolder* holder = new LoginQueryHolder(GetAccountId(), m_playerLoading);
     if (!holder->Initialize())
     {
         delete holder;                                      // delete all unprocessed queries
-        m_playerLoading = false;
+        m_playerLoading.Clear();
         return;
     }
 
@@ -807,7 +832,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         KickPlayer();                                       // disconnect client, player no set to session and it will not deleted or saved at kick
         delete pCurrChar;                                   // delete it manually
         delete holder;                                      // delete all unprocessed queries
-        m_playerLoading = false;
+        m_playerLoading.Clear();
         return;
     }
 
@@ -821,7 +846,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
-    SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
+
+    WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
+    accountDataTimes.PlayerGuid = playerGuid;
+    accountDataTimes.ServerTime = uint32(sWorld->GetGameTime());
+    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+        accountDataTimes.AccountTimes[i] = uint32(GetAccountData(AccountDataType(i))->Time);
+
+    SendPacket(accountDataTimes.Write());
 
     bool featureBit4 = true;
     WorldPacket data(SMSG_FEATURE_SYSTEM_STATUS, 7);         // checked in 4.2.2
@@ -855,36 +887,28 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // Send MOTD
     {
-        data.Initialize(SMSG_MOTD, 50);                     // new in 2.0.1
-        data << (uint32)0;
-
-        uint32 linecount=0;
-        std::string str_motd = sWorld->GetMotd();
-        std::string::size_type pos, nextpos;
-
-        pos = 0;
-        while ((nextpos= str_motd.find('@', pos)) != std::string::npos)
-        {
-            if (nextpos != pos)
-            {
-                data << str_motd.substr(pos, nextpos-pos);
-                ++linecount;
-            }
-            pos = nextpos+1;
-        }
-
-        if (pos<str_motd.length())
-        {
-            data << str_motd.substr(pos);
-            ++linecount;
-        }
-
-        data.put(0, linecount);
-
-        SendPacket(&data);
+        WorldPackets::System::MOTD motd;
+        motd.Text = &sWorld->GetMotd();
+        SendPacket(motd.Write());
         TC_LOG_DEBUG("network", "WORLD: Sent motd (SMSG_MOTD)");
+    }
 
-        // send server info
+    SendSetTimeZoneInformation();
+
+    // Send PVPSeason
+    {
+        WorldPackets::Battleground::PVPSeason season;
+        season.PreviousSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS);
+
+        if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
+            season.CurrentSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID);
+
+        SendPacket(season.Write());
+        TC_LOG_DEBUG("network", "WORLD: Sent PVPSeason");
+    }
+
+    // send server info
+    {
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
 
@@ -1062,7 +1086,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (!pCurrChar->IsStandState() && !pCurrChar->HasUnitState(UNIT_STATE_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
 
-    m_playerLoading = false;
+    m_playerLoading.Clear();
 
     // Handle Login-Achievements (should be handled after loading)
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
@@ -2155,70 +2179,37 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     SendCharFactionChange(RESPONSE_SUCCESS, factionChangeInfo);
 }
 
-void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
+void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::GenerateRandomCharacterName& packet)
 {
-    uint8 gender, race;
-
-    recvData >> race;
-    recvData >> gender;
-
-    if (!Player::IsValidRace(race))
+    if (!Player::IsValidRace(packet.Race))
     {
-        TC_LOG_ERROR("misc", "Invalid race (%u) sent by accountId: %u", race, GetAccountId());
+        TC_LOG_ERROR("misc", "Invalid race (%u) sent by accountId: %u", packet.Race, GetAccountId());
         return;
     }
 
-    if (!Player::IsValidGender(gender))
+    if (!Player::IsValidGender(packet.Sex))
     {
-        TC_LOG_ERROR("misc", "Invalid gender (%u) sent by accountId: %u", gender, GetAccountId());
+        TC_LOG_ERROR("misc", "Invalid gender (%u) sent by accountId: %u", packet.Sex, GetAccountId());
         return;
     }
 
-    std::string const* name = GetRandomCharacterName(race, gender);
-    WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
-    data.WriteBit(0); // unk
-    data.WriteBits(name->size(), 7);
-    data.WriteString(*name);
-    SendPacket(&data);
+    WorldPackets::Character::GenerateRandomCharacterNameResult result;
+    result.Success = true;
+    result.Name = GetRandomCharacterName(packet.Race, packet.Sex);
+
+    SendPacket(result.Write());
 }
 
-void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
+void WorldSession::HandleReorderCharacters(WorldPackets::Character::ReorderCharacters& reorderChars)
 {
-    uint32 charactersCount = std::min<uint32>(recvData.ReadBits(10), sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM));
-
-    std::vector<ObjectGuid> guids(charactersCount);
-    uint8 position;
-
-    for (uint8 i = 0; i < charactersCount; ++i)
-    {
-        guids[i][1] = recvData.ReadBit();
-        guids[i][4] = recvData.ReadBit();
-        guids[i][5] = recvData.ReadBit();
-        guids[i][3] = recvData.ReadBit();
-        guids[i][0] = recvData.ReadBit();
-        guids[i][7] = recvData.ReadBit();
-        guids[i][6] = recvData.ReadBit();
-        guids[i][2] = recvData.ReadBit();
-    }
-
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    for (uint8 i = 0; i < charactersCount; ++i)
+
+    for (WorldPackets::Character::ReorderCharacters::ReorderInfo const& reorderInfo : reorderChars.Entries)
     {
-        recvData.ReadByteSeq(guids[i][6]);
-        recvData.ReadByteSeq(guids[i][5]);
-        recvData.ReadByteSeq(guids[i][1]);
-        recvData.ReadByteSeq(guids[i][4]);
-        recvData.ReadByteSeq(guids[i][0]);
-        recvData.ReadByteSeq(guids[i][3]);
-
-        recvData >> position;
-
-        recvData.ReadByteSeq(guids[i][2]);
-        recvData.ReadByteSeq(guids[i][7]);
-
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_LIST_SLOT);
-        stmt->setUInt8(0, position);
-        stmt->setUInt64(1, guids[i].GetCounter());
+        stmt->setUInt8(0, reorderInfo.NewPosition);
+        stmt->setUInt64(1, reorderInfo.PlayerGUID.GetCounter());
+        stmt->setUInt32(2, GetAccountId());
         trans->Append(stmt);
     }
 

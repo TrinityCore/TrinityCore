@@ -66,6 +66,7 @@
   #include <stdlib.h>
   #include <dirent.h>
   #include <errno.h>
+  #include <stddef.h>
 
   // Support for PowerPC on Max OS X
   #if (__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)

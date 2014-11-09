@@ -18,14 +18,13 @@
 #ifndef AuctionHousePackets_h__
 
 #include "Packet.h"
-
-class ObjectGuid;
+#include "ObjectGuid.h"
 
 struct AuctionEntry;
 
 namespace WorldPackets
 {
-    namespace AuctionHousePackets
+    namespace AuctionHouse
     {
         class AuctionCommandResult final : public ServerPacket
         {
@@ -53,4 +52,5 @@ namespace WorldPackets
         };
     }
 }
-#endif
+
+#endif // AuctionHousePackets_h__
