@@ -19,10 +19,10 @@
 #include "AuctionHouseMgr.h"
 #include "ObjectGuid.h"
 
-WorldPackets::AuctionHousePackets::AuctionCommandResult::AuctionCommandResult()
+WorldPackets::AuctionHouse::AuctionCommandResult::AuctionCommandResult()
     : ServerPacket(SMSG_AUCTION_COMMAND_RESULT, 4 + 4 + 4 + 8 + 4 + 8 + 8 + 8) { }
 
-void WorldPackets::AuctionHousePackets::AuctionCommandResult::InitializeAuction(AuctionEntry* auction)
+void WorldPackets::AuctionHouse::AuctionCommandResult::InitializeAuction(AuctionEntry* auction)
 {
     if (auction)
     {
@@ -33,7 +33,7 @@ void WorldPackets::AuctionHousePackets::AuctionCommandResult::InitializeAuction(
     }
 }
 
-WorldPacket const* WorldPackets::AuctionHousePackets::AuctionCommandResult::Write()
+WorldPacket const* WorldPackets::AuctionHouse::AuctionCommandResult::Write()
 {
     _worldPacket << uint32(AuctionId);
     _worldPacket << uint32(Action);
