@@ -139,7 +139,7 @@ namespace WorldPackets
                 uint8 Race = 0;
             };
 
-            CharEnumResult();
+            CharEnumResult() : ServerPacket(SMSG_CHAR_ENUM) { }
 
             WorldPacket const* Write() override;
 
@@ -153,7 +153,7 @@ namespace WorldPackets
         class CharacterCreate final : public ClientPacket
         {
         public:
-            CharacterCreate(WorldPacket&& packet);
+            CharacterCreate(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_CREATE, std::move(packet)) { }
 
             void Read() override;
 
@@ -176,7 +176,7 @@ namespace WorldPackets
         class CharacterCreateResponse final : public ServerPacket
         {
         public:
-            CharacterCreateResponse();
+            CharacterCreateResponse() : ServerPacket(SMSG_CHAR_CREATE, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -186,7 +186,7 @@ namespace WorldPackets
         class CharacterDelete final : public ClientPacket
         {
         public:
-            CharacterDelete(WorldPacket&& packet);
+            CharacterDelete(WorldPacket&& packet): ClientPacket(CMSG_CHAR_DELETE, std::move(packet)) { }
 
             void Read() override;
 
@@ -196,7 +196,7 @@ namespace WorldPackets
         class CharacterDeleteResponse final : public ServerPacket
         {
         public:
-            CharacterDeleteResponse();
+            CharacterDeleteResponse(): ServerPacket(SMSG_CHAR_DELETE, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -206,7 +206,7 @@ namespace WorldPackets
         class GenerateRandomCharacterName final : public ClientPacket
         {
         public:
-            GenerateRandomCharacterName(WorldPacket&& packet);
+            GenerateRandomCharacterName(WorldPacket&& packet) : ClientPacket(CMSG_RANDOMIZE_CHAR_NAME, std::move(packet)) { }
 
             void Read() override;
 
@@ -217,7 +217,7 @@ namespace WorldPackets
         class GenerateRandomCharacterNameResult final : public ServerPacket
         {
         public:
-            GenerateRandomCharacterNameResult();
+            GenerateRandomCharacterNameResult(): ServerPacket(SMSG_RANDOMIZE_CHAR_NAME, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -234,7 +234,7 @@ namespace WorldPackets
                 uint8 NewPosition = 0;
             };
 
-            ReorderCharacters(WorldPacket&& packet);
+            ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet)) { }
 
             void Read() override;
 
@@ -244,7 +244,7 @@ namespace WorldPackets
         class UndeleteCharacter final : public ClientPacket
         {
         public:
-            UndeleteCharacter(WorldPacket&& packet);
+            UndeleteCharacter(WorldPacket&& packet) : ClientPacket(CMSG_UNDELETE_CHARACTER, std::move(packet)) { }
 
             void Read() override;
 
@@ -258,7 +258,7 @@ namespace WorldPackets
         class UndeleteCharacterResponse final : public ServerPacket
         {
         public:
-            UndeleteCharacterResponse();
+            UndeleteCharacterResponse() : ServerPacket(SMSG_UNDELETE_CHARACTER_RESPONSE, 26) { }
 
             WorldPacket const* Write() override;
 
@@ -273,7 +273,7 @@ namespace WorldPackets
         class UndeleteCooldownStatusResponse final : public ServerPacket
         {
         public:
-            UndeleteCooldownStatusResponse();
+            UndeleteCooldownStatusResponse() : ServerPacket(SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE, 9) { }
 
             WorldPacket const* Write() override;
 
@@ -285,7 +285,7 @@ namespace WorldPackets
         class PlayerLogin final : public ClientPacket
         {
         public:
-            PlayerLogin(WorldPacket&& packet);
+            PlayerLogin(WorldPacket&& packet) : ClientPacket(CMSG_PLAYER_LOGIN, std::move(packet)) { }
 
             void Read() override;
 
@@ -308,7 +308,7 @@ namespace WorldPackets
         class LogoutRequest final : public ClientPacket
         {
         public:
-            LogoutRequest(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            LogoutRequest(WorldPacket&& packet) : ClientPacket(CMSG_LOGOUT_REQUEST, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -337,7 +337,7 @@ namespace WorldPackets
         class LogoutCancel final : public ClientPacket
         {
         public:
-            LogoutCancel(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            LogoutCancel(WorldPacket&& packet) : ClientPacket(CMSG_LOGOUT_CANCEL, std::move(packet)) { }
 
             void Read() override { }
         };
