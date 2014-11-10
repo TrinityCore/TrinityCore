@@ -1491,7 +1491,11 @@ void Guild::SendQueryResponse(WorldSession* session)
     response.Info.value.BackgroundColor = m_emblemInfo.GetBackgroundColor();
 
     for (uint8 i = 0; i < _GetRanksSize(); ++i)
-        response.Info.value.Ranks.emplace(m_ranks[i].GetId(), i, m_ranks[i].GetName());
+    {
+        WorldPackets::Guild::QueryGuildInfoResponse::GuildInfo::GuildInfoRank info
+            (m_ranks[i].GetId(), i, m_ranks[i].GetName());
+        response.Info.value.Ranks.insert(info);
+    }
 
     response.Info.value.GuildName = m_name;
 
