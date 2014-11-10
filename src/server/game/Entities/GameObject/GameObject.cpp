@@ -1875,9 +1875,9 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
     float cosB = dy / dist;
     dx = dist * (cosA * cosB + sinA * sinB);
     dy = dist * (cosA * sinB - sinA * cosB);
-    return dx < info->maxX + radius && dx > info->minX - radius
-        && dy < info->maxY + radius && dy > info->minY - radius
-        && dz < info->maxZ + radius && dz > info->minZ - radius;
+    return dx < info->GeoBoxMax.X + radius && dx > info->GeoBoxMin.X - radius
+        && dy < info->GeoBoxMax.Y + radius && dy > info->GeoBoxMin.Y - radius
+        && dz < info->GeoBoxMax.Z + radius && dz > info->GeoBoxMin.Z - radius;
 }
 
 void GameObject::EventInform(uint32 eventId, WorldObject* invoker /*= NULL*/)
@@ -2017,8 +2017,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
-                if (modelData->DamagedDisplayId)
-                    modelId = modelData->DamagedDisplayId;
+                if (modelData->StateDamaged.DisplayID)
+                    modelId = modelData->StateDamaged.DisplayID;
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2045,8 +2045,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
-                if (modelData->DestroyedDisplayId)
-                    modelId = modelData->DestroyedDisplayId;
+                if (modelData->StateDestroyed.DisplayID)
+                    modelId = modelData->StateDestroyed.DisplayID;
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2064,8 +2064,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
-                if (modelData->RebuildingDisplayId)
-                    modelId = modelData->RebuildingDisplayId;
+                if (modelData->StateRebuilding.DisplayID)
+                    modelId = modelData->StateRebuilding.DisplayID;
             SetDisplayId(modelId);
 
             // restores to full health
