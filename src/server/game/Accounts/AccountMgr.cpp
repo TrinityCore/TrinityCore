@@ -33,7 +33,7 @@ AccountMgr::~AccountMgr()
     ClearRBAC();
 }
 
-AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/)
+AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/, uint32 bnetAccountId /*= 0*/, uint8 bnetIndex /*= 0*/)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long
@@ -51,6 +51,16 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     stmt->setString(1, CalculateShaPassHash(username, password));
     stmt->setString(2, email);
     stmt->setString(3, email);
+    if (bnetAccountId && bnetIndex)
+    {
+        stmt->setUInt32(4, bnetAccountId);
+        stmt->setUInt8(5, bnetIndex);
+    }
+    else
+    {
+        stmt->setNull(4);
+        stmt->setNull(5);
+    }
 
     LoginDatabase.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
 
