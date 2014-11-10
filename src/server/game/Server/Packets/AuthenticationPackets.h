@@ -46,7 +46,7 @@ namespace WorldPackets
         class AuthSession final : public ClientPacket
         {
         public:
-            AuthSession(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            AuthSession(WorldPacket&& packet) : ClientPacket(CMSG_AUTH_SESSION, std::move(packet))
             {
                 memset(Digest, 0, SHA_DIGEST_LENGTH);
             }
@@ -172,7 +172,7 @@ namespace WorldPackets
         class AuthContinuedSession final : public ClientPacket
         {
         public:
-            AuthContinuedSession(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            AuthContinuedSession(WorldPacket&& packet) : ClientPacket(CMSG_AUTH_CONTINUED_SESSION, std::move(packet))
             {
                 memset(Digest, 0, SHA_DIGEST_LENGTH);
             }

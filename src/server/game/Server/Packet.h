@@ -59,7 +59,7 @@ namespace WorldPackets
     class ClientPacket : public Packet
     {
     public:
-        ClientPacket(WorldPacket&& packet) : Packet(std::move(packet)) { }
+        ClientPacket(OpcodeClient expectedOpcode, WorldPacket&& packet) : Packet(std::move(packet)) { ASSERT(packet.GetOpcode() == expectedOpcode); }
 
         WorldPacket const* Write() override final
         {
