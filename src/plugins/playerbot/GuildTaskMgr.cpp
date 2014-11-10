@@ -668,6 +668,7 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
     draft.AddMoney(GetTaskValue(owner, guildId, "payment")).SendMailTo(trans, MailReceiver(player), MailSender(leader));
     CharacterDatabase.CommitTransaction(trans);
 
+    SetTaskValue(owner, guildId, "activeTask", 0, 0);
     return true;
 }
 
