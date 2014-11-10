@@ -297,7 +297,7 @@ public:
                 else
                 {
                     handler->PSendSysMessage("[IP2NATION] Table empty");
-                    TC_LOG_DEBUG("server.authserver", "[IP2NATION] Table empty");
+                    TC_LOG_DEBUG("server.bnetserver", "[IP2NATION] Table empty");
                 }
             }
             else if (param == "off")
