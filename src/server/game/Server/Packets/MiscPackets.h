@@ -27,11 +27,11 @@ namespace WorldPackets
         class ViolenceLevel final : public ClientPacket
         {
         public:
-            ViolenceLevel(WorldPacket&& packet) : ClientPacket(CMSG_VIOLENCE_LEVEL, std::move(packet) { }
+            ViolenceLevel(WorldPacket&& packet) : ClientPacket(CMSG_VIOLENCE_LEVEL, std::move(packet)) { }
 
             void Read() override;
 
-            int8 ViolenceLevel;
+            int8 ViolenceLevel = -1; ///< 0 - no combat effects, 1 - display some combat effects, 2 - blood, 3 - bloody, 4 - bloodier, 5 - bloodiest
         };
     }
 }
