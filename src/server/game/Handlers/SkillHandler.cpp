@@ -29,15 +29,17 @@
 
 void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 {
+    /* TODO: 6.x update packet struct (note: LearnTalent no longer has rank argument)
     uint32 talentId, requestedRank;
     recvData >> talentId >> requestedRank;
 
     if (_player->LearnTalent(talentId, requestedRank))
-        _player->SendTalentsInfoData(false);
+        _player->SendTalentsInfoData(false);*/
 }
 
 void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
 {
+    /* TODO: 6.x update packet struct
     TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS");
 
     int32 tabPage;
@@ -77,7 +79,7 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
 
     _player->SendTalentsInfoData(false);
 
-    recvPacket.rfinish();
+    recvPacket.rfinish();*/
 }
 
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)

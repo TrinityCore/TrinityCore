@@ -116,9 +116,6 @@ public:
         else
             targetPlayer->LearnSpell(spell, false);
 
-        if (GetTalentSpellCost(spellInfo->GetFirstRankSpell()->Id))
-            targetPlayer->SendTalentsInfoData(false);
-
         return true;
     }
 
@@ -176,10 +173,6 @@ public:
             if (spellInfo->SpellFamilyName != family)
                 continue;
 
-            // skip spells with first rank learned as talent (and all talents then also)
-            if (GetTalentSpellCost(spellInfo->GetFirstRankSpell()->Id) > 0)
-                continue;
-
             // skip broken spells
             if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
@@ -194,7 +187,7 @@ public:
     static bool HandleLearnAllMyTalentsCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 classMask = player->getClassMask();
+        uint32 playerClass = player->getClass();
 
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         {
@@ -202,37 +195,17 @@ public:
             if (!talentInfo)
                 continue;
 
-            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
-            if (!talentTabInfo)
+            if (playerClass != talentInfo->ClassID)
                 continue;
 
-            if ((classMask & talentTabInfo->ClassMask) == 0)
-                continue;
-
-            // search highest talent rank
-            uint32 spellId = 0;
-            for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
-            {
-                if (talentInfo->RankID[rank] != 0)
-                {
-                    spellId = talentInfo->RankID[rank];
-                    break;
-                }
-            }
-
-            if (!spellId)                                        // ??? none spells in talent
-                continue;
-
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
             // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
-            player->LearnSpellHighestRank(spellId);
-            player->AddTalent(spellId, player->GetActiveSpec(), true);
+            player->LearnSpellHighestRank(talentInfo->SpellID);
+            player->AddTalent(talentInfo->SpellID, player->GetActiveSpec(), true);
         }
-
-        player->SetFreeTalentPoints(0);
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
         return true;
@@ -240,6 +213,7 @@ public:
 
     static bool HandleLearnAllMyPetTalentsCommand(ChatHandler* handler, char const* /*args*/)
     {
+        /* TODO: 6.x remove pet talents
         Player* player = handler->GetSession()->GetPlayer();
 
         Pet* pet = player->GetPet();
@@ -312,7 +286,7 @@ public:
 
         pet->SetFreeTalentPoints(0);
 
-        handler->SendSysMessage(LANG_COMMAND_LEARN_PET_TALENTS);
+        handler->SendSysMessage(LANG_COMMAND_LEARN_PET_TALENTS);*/
         return true;
     }
 
@@ -483,9 +457,6 @@ public:
             target->RemoveSpell(spellId, false, !allRanks);
         else
             handler->SendSysMessage(LANG_FORGET_SPELL);
-
-        if (GetTalentSpellCost(spellId))
-            target->SendTalentsInfoData(false);
 
         return true;
     }
