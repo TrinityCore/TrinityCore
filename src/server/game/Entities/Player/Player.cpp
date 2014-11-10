@@ -25518,8 +25518,8 @@ bool Player::LearnTalent(uint32 talentId)
         return false;
 
     // Check if such tier talent hasn't been picked already
-    TalentSpecInfo* = GetTalentSpecInfo(spec);
-    if (TalentSpecInfo->Talents[talentInfo->TierID].SpellID != 0)
+    TalentSpecInfo* talentSpecInfo = GetTalentSpecInfo(spec);
+    if (talentSpecInfo->Talents[talentInfo->TierID].SpellID != 0)
         return false;
 
     // spell not set in talent.dbc
