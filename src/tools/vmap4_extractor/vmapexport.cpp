@@ -76,7 +76,7 @@ const char* szRawVMAPMagic = "VMAP042";
 
 bool OpenCascStorage()
 {
-    if (!CascOpenStorage(".\\Data", 0, &CascStorage))
+    if (!CascOpenStorage("Data", 0, &CascStorage))
     {
         printf("Error %d\n", GetLastError());
         return false;
