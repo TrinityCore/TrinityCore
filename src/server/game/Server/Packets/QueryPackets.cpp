@@ -54,6 +54,33 @@ void WorldPackets::Query::QueryPlayerName::Read()
     _worldPacket >> Player;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupData const& lookupData)
+{
+    data << lookupData.Name;
+    data << lookupData.RealmName;
+    data << uint8(lookupData.Race);
+    data << uint8(lookupData.Sex);
+    data << uint8(lookupData.ClassID);
+    data << uint8(lookupData.DeclinedNames != nullptr);
+
+    if (lookupData.DeclinedNames)
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            data << lookupData.DeclinedNames->name[i];
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
+{
+    _worldPacket << Player.WriteAsPacked();
+    _worldPacket << uint8(Result);
+
+    if (Data)
+        _worldPacket << *Data;
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Query::QueryGameObject::Read()
 {
     _worldPacket >> GameObjectID;
