@@ -550,7 +550,7 @@ public:
 
     inline bool HasFlag(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0, uint32 p4 = 0) const
     {
-        return (part[0] & p1 || part[1] & p2 || part[2] & p3 && part[3] & p4);
+        return (part[0] & p1 || part[1] & p2 || part[2] & p3 || part[3] & p4);
     }
 
     inline void Set(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0, uint32 p4 = 0)
