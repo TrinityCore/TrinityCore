@@ -107,12 +107,12 @@ void LoadDB2Stores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemExtendedCostStore,     db2Path,    "ItemExtendedCost.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sKeyChainStore,             db2Path,    "KeyChain.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sSpellAuraRestrictionsStore, db2Path,   "SpellAuraRestrictions.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sSpellClassOptionsStore,    db2Path,    "SpellClassOptions.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sSpellMiscStore,            db2Path,    "SpellMisc.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sSpellPowerStore,           db2Path,    "SpellPower.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sSpellReagentsStore,        db2Path,    "SpellReagents.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sSpellRuneCostStore,        db2Path,    "SpellRuneCost.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sSpellAuraRestrictionsStore, db2Path,   "SpellAuraRestrictions.db2");//19116
+    LoadDB2(availableDb2Locales, bad_db2_files, sSpellClassOptionsStore,    db2Path,    "SpellClassOptions.db2");//19116
+    LoadDB2(availableDb2Locales, bad_db2_files, sSpellMiscStore,            db2Path,    "SpellMisc.db2");//19116
+    LoadDB2(availableDb2Locales, bad_db2_files, sSpellPowerStore,           db2Path,    "SpellPower.db2");//19116
+    LoadDB2(availableDb2Locales, bad_db2_files, sSpellReagentsStore,        db2Path,    "SpellReagents.db2");//19116
+    LoadDB2(availableDb2Locales, bad_db2_files, sSpellRuneCostStore,        db2Path,    "SpellRuneCost.db2");//19116
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
