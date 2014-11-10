@@ -1641,9 +1641,8 @@ struct PowerDisplayEntry
     uint32      PowerType;                                  // 1
     //char*     GlobalStringBaseTag;                        // 2
     //uint8     Red;                                        // 3
-    //uint8     Green;                                      // 3
-    //uint8     Blue;                                       // 3
-    //uint8     _padding0;                                  // 3
+    //uint8     Green;                                      // 4
+    //uint8     Blue;                                       // 5
 };
 
 struct PvPDifficultyEntry
