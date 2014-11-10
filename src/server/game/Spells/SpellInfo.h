@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "Util.h"
 #include "DBCStructure.h"
+#include "DB2Structure.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
 
@@ -370,7 +371,7 @@ public:
     uint32 MaxTargetLevel;
     uint32 MaxAffectedTargets;
     uint32 SpellFamilyName;
-    flag96 SpellFamilyFlags;
+    flag128 SpellFamilyFlags;
     uint32 DmgClass;
     uint32 PreventionType;
     int32  AreaGroupId;
