@@ -64,15 +64,9 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleNameQueryOpcode(WorldPackets::Character::QueryPlayerName& queryPlayerName)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    // This is disable by default to prevent lots of console spam
-    // TC_LOG_INFO("network", "HandleNameQueryOpcode %u", guid);
-
-    SendNameQueryOpcode(guid);
+    SendNameQueryOpcode(queryPlayerName.Player);
 }
 
 void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)

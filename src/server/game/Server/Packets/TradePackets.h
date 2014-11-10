@@ -27,7 +27,7 @@ namespace WorldPackets
         class CancelTrade final : public ClientPacket
         {
         public:
-            CancelTrade(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_TRADE, std::move(packet) { }
+            CancelTrade(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_TRADE, std::move(packet)) { }
 
             void Read() override { }
         };
