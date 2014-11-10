@@ -303,3 +303,17 @@ void WorldPackets::Character::LoadingScreenNotify::Read()
     _worldPacket >> MapID;
     Showing = _worldPacket.ReadBit();
 }
+
+void WorldPackets::Character::QueryPlayerName::Read()
+{
+    _worldPacket >> Player;
+
+    Hint.VirtualRealmAddress.HasValue = _worldPacket.ReadBit();
+    Hint.NativeRealmAddress.HasValue = _worldPacket.ReadBit();
+
+    if (Hint.VirtualRealmAddress.HasValue)
+        _worldPacket >> Hint.VirtualRealmAddress;
+
+    if (Hint.NativeRealmAddress.HasValue)
+        _worldPacket >> Hint.NativeRealmAddress;
+}

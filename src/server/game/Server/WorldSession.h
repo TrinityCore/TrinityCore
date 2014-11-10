@@ -90,6 +90,7 @@ namespace WorldPackets
         class LogoutRequest;
         class LogoutCancel;
         class LoadingScreenNotify;
+        class QueryPlayerName;
     }
 
     namespace Guild
@@ -452,7 +453,7 @@ class WorldSession
         void HandleCharCreateCallback(PreparedQueryResult result, WorldPackets::Character::CharacterCreateInfo* createInfo);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
         void HandleContinuePlayerLogin();
-        void HandleLoadScreenOpcode(WorldPacket& recvPacket);
+        void HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& loadingScreenNotify);
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharRenameOpcode(WorldPacket& recvData);
         void HandleCharRenameCallBack(PreparedQueryResult result, WorldPackets::Character::CharacterRenameInfo const* renameInfo);
@@ -568,7 +569,7 @@ class WorldSession
         void HandleMeetingStoneInfo(WorldPacket& recPacket);
         void HandleGameobjectReportUse(WorldPacket& recvPacket);
 
-        void HandleNameQueryOpcode(WorldPacket& recvPacket);
+        void HandleNameQueryOpcode(WorldPackets::Character::QueryPlayerName& queryPlayerName);
 
         void HandleQueryTimeOpcode(WorldPacket& recvPacket);
 

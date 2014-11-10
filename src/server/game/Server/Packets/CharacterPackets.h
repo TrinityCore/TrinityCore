@@ -25,6 +25,12 @@ namespace WorldPackets
 {
     namespace Character
     {
+        struct PlayerGuidLookupHint
+        {
+            public Optional<uint32> VirtualRealmAddress; ///< current realm (?) (identifier made from the Index, BattleGroup and Region)
+            public Optional<uint32> NativeRealmAddress; ///< original realm (?) (identifier made from the Index, BattleGroup and Region)
+        };
+
         struct CharacterCreateInfo
         {
             /// User specified variables
@@ -359,6 +365,17 @@ namespace WorldPackets
 
             int32 MapID = -1;
             bool Showing = false;
+        };
+
+        class QueryPlayerName final : public ClientPacket
+        {
+        public:
+            QueryPlayerName(WorldPacket&& packet) : ClientPacket(CMSG_NAME_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Player;
+            PlayerGuidLookupHint Hint;
         };
     }
 }
