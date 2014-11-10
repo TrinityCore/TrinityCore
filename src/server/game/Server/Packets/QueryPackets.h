@@ -72,6 +72,16 @@ namespace WorldPackets
                 uint32 CreatureID = 0;
         };
 
+        class QueryPlayerName final : public ClientPacket
+        {
+        public:
+            explicit QueryPlayerName(WorldPacket&& packet) : ClientPacket(CMSG_NAME_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Player;
+        };
+
         class QueryGameObject final : public ClientPacket
         {
             public:

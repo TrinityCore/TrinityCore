@@ -49,6 +49,11 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Query::QueryPlayerName::Read()
+{
+    _worldPacket >> Player;
+}
+
 void WorldPackets::Query::QueryGameObject::Read()
 {
     _worldPacket >> GameObjectID;
