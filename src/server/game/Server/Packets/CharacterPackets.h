@@ -349,6 +349,17 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        class LoadingScreenNotify final : public ClientPacket
+        {
+        public:
+            LoadingScreenNotify(WorldPacket&& packet) : ClientPacket(CMSG_LOAD_SCREEN, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 MapID = -1;
+            bool Showing = false;
+        };
     }
 }
 

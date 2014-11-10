@@ -89,6 +89,7 @@ namespace WorldPackets
         class PlayerLogin;
         class LogoutRequest;
         class LogoutCancel;
+        class LoadingScreenNotify;
     }
 
     namespace Guild
