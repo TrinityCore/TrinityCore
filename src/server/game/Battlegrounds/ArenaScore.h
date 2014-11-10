@@ -33,8 +33,9 @@ struct ArenaScore : public BattlegroundScore
         void AppendToPacket(WorldPacket& data, ByteBuffer& content) final override
         {
             uint32 primaryTree = 0;
+            /* TODO: 6.x update to new talent system (and probably rewrite this packet)
             if (Player* player = ObjectAccessor::FindPlayer(PlayerGuid))
-                primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
+                primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());*/
 
             data.WriteBit(0);                   // Unk 1
             data.WriteBit(0);                   // Unk 2

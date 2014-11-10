@@ -1227,6 +1227,7 @@ void SpellMgr::UnloadSpellInfoChains()
 
 void SpellMgr::LoadSpellTalentRanks()
 {
+    /* TODO: 6.x remove this
     // cleanup core data before reload - remove reference to ChainNode from SpellInfo
     UnloadSpellInfoChains();
 
@@ -1283,7 +1284,7 @@ void SpellMgr::LoadSpellTalentRanks()
 
             prevSpell = currentSpell;
         }
-    }
+    }*/
 }
 
 void SpellMgr::LoadSpellRanks()
@@ -1538,7 +1539,7 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
         }
 
-        if (GetTalentSpellCost(node.spell))
+        if (GetTalentBySpellID(node.spell))
         {
             TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` attempt learning talent spell %u, skipped", spell_id, node.spell);
             continue;
@@ -1576,7 +1577,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 // talent or passive spells or skill-step spells auto-cast and not need dependent learning,
                 // pet teaching spells must not be dependent learning (cast)
                 // other required explicit dependent learning
-                dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || GetTalentSpellCost(spell) > 0 || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
+                dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || GetTalentBySpellID(spell) || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
 
                 SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spell);
 
@@ -1602,22 +1603,22 @@ void SpellMgr::LoadSpellLearnSpells()
     }
 
     uint32 mastery_count = 0;
-    for (uint32 i = 0; i < sTalentTabStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sChrSpecializationStore.GetNumRows(); ++i)
     {
-        TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(i);
-        if (!talentTab)
+        ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(i);
+        if (!chrSpec)
             continue;
 
         for (uint32 c = CLASS_WARRIOR; c < MAX_CLASSES; ++c)
         {
-            if (!(talentTab->ClassMask & (1 << (c - 1))))
+            if (chrSpec->ClassID != c)
                 continue;
 
             uint32 masteryMainSpell = MasterySpells[c];
 
             for (uint32 m = 0; m < MAX_MASTERY_SPELLS; ++m)
             {
-                uint32 mastery = talentTab->MasterySpellId[m];
+                uint32 mastery = chrSpec->MasterySpellID[m];
                 if (!mastery)
                     continue;
 

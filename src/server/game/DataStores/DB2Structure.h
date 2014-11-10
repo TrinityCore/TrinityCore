@@ -191,7 +191,7 @@ struct SpellMiscEntry
     uint32      CastingTimeIndex;                           // 15
     uint32      DurationIndex;                              // 16
     uint32      RangeIndex;                                 // 17
-    uint32      Speed;                                      // 18
+    float       Speed;                                      // 18
     uint32      SpellVisualID[2];                           // 19-20
     uint32      SpellIconID;                                // 21
     uint32      ActiveIconID;                               // 22

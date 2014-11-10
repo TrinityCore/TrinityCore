@@ -526,16 +526,16 @@ void Player::UpdateMastery()
     value += GetRatingBonusValue(CR_MASTERY);
     SetFloatValue(PLAYER_MASTERY, value);
 
-    TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(GetPrimaryTalentTree(GetActiveSpec()));
-    if (!talentTab)
+    ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetTalentSpec(GetActiveSpec()));
+    if (!chrSpec)
         return;
 
     for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
     {
-        if (!talentTab->MasterySpellId[i])
+        if (!chrSpec->MasterySpellID[i])
             continue;
 
-        if (Aura* aura = GetAura(talentTab->MasterySpellId[i]))
+        if (Aura* aura = GetAura(chrSpec->MasterySpellID[i]))
         {
             for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
             {
