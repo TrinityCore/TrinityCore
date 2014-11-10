@@ -401,7 +401,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Player;
-            uint8 Result = -1; // 0 - full packet, != 0 - only guid
+            uint8 Result = 0; // 0 - full packet, != 0 - only guid
             PlayerGuidLookupData Data;
         };
     }

@@ -123,7 +123,7 @@ Position const AbovePlatformPos = { 1336.21f, 960.813f, 215.0f };
 
 // TO-DO:
 // - Find out why NPCs summoned by boss are usually two times bigger than their normal size.
-// - Find more sniffs and script Force Grip spell (79351) 
+// - Find more sniffs and script Force Grip spell (79351)
 
 class boss_high_priestess_azil : public CreatureScript
 {
@@ -164,9 +164,9 @@ class boss_high_priestess_azil : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                me->Say(SAY_DEATH);
+                Talk(SAY_DEATH);
             }
 
             /*
@@ -327,7 +327,7 @@ class boss_high_priestess_azil : public CreatureScript
         }
 };
 
-// 42428 - Devout Follower 
+// 42428 - Devout Follower
 class npc_devout_follower : public CreatureScript
 {
 public:
@@ -515,7 +515,7 @@ public:
         {
             Unit* caster = GetCaster();
             for (uint8 i = 0; i < 3; i++)
-                GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_ADD_SOUTH, true);
+                caster->CastSpell(caster, SPELL_SUMMON_ADD_SOUTH, true);
         }
 
         void Register() override
@@ -551,7 +551,7 @@ public:
         {
             Unit* caster = GetCaster();
             for (uint8 i = 0; i < 10; i++)
-                GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_ADD_WEST, true);
+                caster->CastSpell(caster, SPELL_SUMMON_ADD_WEST, true);
         }
 
         void Register() override

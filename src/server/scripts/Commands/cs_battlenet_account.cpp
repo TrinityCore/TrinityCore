@@ -358,6 +358,8 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_ALREADY_LINKED, gameAccountName.c_str());
                 handler->SetSentErrorMessage(true);
                 break;
+            default:
+                break;
         }
 
         return true;
@@ -386,6 +388,8 @@ public:
             case AccountOpResult::AOR_ACCOUNT_BAD_LINK:
                 handler->PSendSysMessage(LANG_ACCOUNT_BNET_NOT_LINKED, gameAccountName.c_str());
                 handler->SetSentErrorMessage(true);
+                break;
+            default:
                 break;
         }
 
