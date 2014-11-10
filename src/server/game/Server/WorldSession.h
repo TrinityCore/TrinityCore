@@ -569,7 +569,7 @@ class WorldSession
         void HandleMeetingStoneInfo(WorldPacket& recPacket);
         void HandleGameobjectReportUse(WorldPacket& recvPacket);
 
-        void HandleNameQueryOpcode(WorldPackets::Character::QueryPlayerName& queryPlayerName);
+        void HandleNameQueryOpcode(WorldPackets::Character::QueryPlayerName& packet);
 
         void HandleQueryTimeOpcode(WorldPacket& recvPacket);
 
