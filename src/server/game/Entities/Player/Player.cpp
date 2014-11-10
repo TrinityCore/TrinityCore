@@ -3310,7 +3310,6 @@ void DeleteSpellFromAllPlayers(uint32 spellId)
 
 bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
 {
-    /* TODO: 6.x update talent system
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
@@ -3342,37 +3341,25 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
         return false;
     }
 
-    PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(spellId);
-    if (itr != GetTalentMap(spec)->end())
-        itr->second->state = PLAYERSPELL_UNCHANGED;
-    else if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
-    {
-        if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
-        {
-            for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
-            {
-                // skip learning spell and no rank spell case
-                uint32 rankSpellId = talentInfo->RankID[rank];
-                if (!rankSpellId || rankSpellId == spellId)
-                    continue;
+    TalentEntry const* talentEntry = GetTalentBySpellID(spellId);
 
-                itr = GetTalentMap(spec)->find(rankSpellId);
-                if (itr != GetTalentMap(spec)->end())
-                    itr->second->state = PLAYERSPELL_REMOVED;
-            }
-        }
-
-        PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
-        PlayerTalent* newtalent = new PlayerTalent();
-
-        newtalent->state = state;
-        newtalent->spec = spec;
-
-        (*GetTalentMap(spec))[spellId] = newtalent;
-        return true;
+    // Check if talent exists in Talent.dbc
+    if (!talentEntry) {
+        TC_LOG_ERROR("spells", "Player::addTalent: Learning non-talent spell %u not allowed.", spellId);
+        return false;
     }
-    */
-    return false;
+    
+    TalentSpecInfo* talentSpecInfo = GetTalentSpecInfo(spec);
+
+    // Check if player already has this talent
+    if (talentSpecInfo->HasTalent(spellId))
+        return false;
+
+    talentSpecInfo->Talents[talentEntry->TierID].SpellID = spellId;
+    if (learning)
+        talentSpecInfo->Talents[talentEntry->TierID].State = PLAYERSPELL_NEW;
+
+    return true;
 }
 
 bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool fromSkill /*= false*/)
@@ -4133,6 +4120,8 @@ bool Player::ResetTalents(bool no_cost)
     }
 
     RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+    
+    uint8 spec = GetActiveSpec();
 
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
@@ -4159,10 +4148,8 @@ bool Player::ResetTalents(bool no_cost)
             if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                 RemoveSpell(_spellEntry->Effects[i].TriggerSpell, true);
 
-        // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
-        PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveSpec())->find(talentInfo->SpellID);
-        if (plrTalent != GetTalentMap(GetActiveSpec())->end())
-            plrTalent->second->state = PLAYERSPELL_REMOVED;
+        // Reset talents store
+        GetTalentSpecInfo(spec)->Reset();
     }
 
     // Remove all specialization specific spells and give default ones which were overriden
@@ -4181,12 +4168,12 @@ bool Player::ResetTalents(bool no_cost)
     }
 
     // Unlearn masteries
-    ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetTalentSpec(GetActiveSpec()));
+    ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetTalentSpec(spec));
     for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
         if (uint32 mastery = chrSpec->MasterySpellID[i])
             RemoveAurasDueToSpell(mastery);
     
-    SetTalentSpec(GetActiveSpec(), 0);
+    SetTalentSpec(spec, 0);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     _SaveTalents(trans);
@@ -4278,10 +4265,9 @@ bool Player::HasSpell(uint32 spell) const
         !itr->second->disabled);
 }
 
-bool Player::HasTalent(uint32 spell, uint8 spec) const
+bool Player::HasTalent(uint32 spell, uint8 spec)
 {
-    PlayerTalentMap::const_iterator itr = GetTalentMap(spec)->find(spell);
-    return (itr != GetTalentMap(spec)->end() && itr->second->state != PLAYERSPELL_REMOVED);
+    return GetTalentSpecInfo(spec)->HasTalent(spell);
 }
 
 bool Player::HasActiveSpell(uint32 spell) const
@@ -26142,38 +26128,36 @@ void Player::_SaveTalents(SQLTransaction& trans)
 {
     PreparedStatement* stmt = NULL;
 
-    for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+    for (uint8 spec = 0; spec < MAX_TALENT_SPECS; ++spec)
     {
-        for (PlayerTalentMap::iterator itr = GetTalentMap(i)->begin(); itr != GetTalentMap(i)->end();)
+        TalentSpecInfo* talentSpecInfo = GetTalentSpecInfo(spec);
+
+        for (uint32 tier = 0; tier < MAX_TALENT_TIERS; ++tier)
         {
-            if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->state == PLAYERSPELL_CHANGED)
+            PlayerTalent* talent = &talentSpecInfo->Talents[tier];
+
+            if (talent->State == PLAYERSPELL_REMOVED || talent->State == PLAYERSPELL_CHANGED)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TALENT_BY_SPELL_SPEC);
                 stmt->setUInt64(0, GetGUID().GetCounter());
-                stmt->setUInt32(1, itr->first);
-                stmt->setUInt8(2, itr->second->spec);
+                stmt->setUInt32(1, talent->SpellID);
+                stmt->setUInt8(2, spec);
                 trans->Append(stmt);
             }
 
-            if (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED)
+            if (talent->State == PLAYERSPELL_NEW || talent->State == PLAYERSPELL_CHANGED)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
                 stmt->setUInt64(0, GetGUID().GetCounter());
-                stmt->setUInt32(1, itr->first);
-                stmt->setUInt8(2, itr->second->spec);
+                stmt->setUInt32(1, talent->SpellID);
+                stmt->setUInt8(2, spec);
                 trans->Append(stmt);
             }
 
-            if (itr->second->state == PLAYERSPELL_REMOVED)
-            {
-                delete itr->second;
-                GetTalentMap(i)->erase(itr++);
-            }
-            else
-            {
-                itr->second->state = PLAYERSPELL_UNCHANGED;
-                ++itr;
-            }
+            if (talent->State == PLAYERSPELL_REMOVED)
+                talent->SpellID = 0;
+            
+            talent->State = PLAYERSPELL_UNCHANGED;
         }
     }
 }

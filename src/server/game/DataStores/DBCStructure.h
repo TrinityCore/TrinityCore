@@ -2139,7 +2139,7 @@ struct SummonPropertiesEntry
     uint32      Flags;                                          // 5
 };
 
-#define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
+#define MAX_TALENT_TIERS 7
 
 struct TalentEntry
 {

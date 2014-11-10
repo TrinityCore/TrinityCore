@@ -117,8 +117,8 @@ struct PlayerSpell
 
 struct PlayerTalent
 {
-    PlayerSpellState state : 8;
-    uint8 spec             : 8;
+    PlayerSpellState State : 8;
+    uint32  SpellID        : 32;
 };
 
 extern uint32 const MasterySpells[MAX_CLASSES];
@@ -189,7 +189,6 @@ struct PlayerCurrency
    uint32 weekCount;
 };
 
-typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
 typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
@@ -1218,35 +1217,42 @@ private:
     bool _isPvP;
 };
 
+struct TalentSpecInfo
+{
+    PlayerTalent Talents[MAX_TALENT_TIERS];
+    uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
+    uint32 TalentSpec;
+    
+    bool HasTalent(uint32 spellId)
+    {
+        for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i)
+            if (Talents[i].SpellID == spellId)
+                return true;
+        return false;
+    }
+    
+    void Reset()
+    {
+        for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i) {
+            Talents[i].State = PLAYERSPELL_REMOVED;
+            Talents[i].SpellID = 0;
+        }
+    }
+};
+
 struct PlayerTalentInfo
 {
     PlayerTalentInfo() : ResetTalentsCost(0), ResetTalentsTime(0), ActiveSpec(0), SpecsCount(1)
     {
         for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
         {
-            SpecInfo[i].Talents = new PlayerTalentMap();
+            memset(SpecInfo[i].Talents, 0, sizeof(PlayerTalent)*MAX_TALENT_TIERS);
             memset(SpecInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
             SpecInfo[i].TalentSpec = 0;
         }
     }
 
-    ~PlayerTalentInfo()
-    {
-        for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
-        {
-            for (PlayerTalentMap::const_iterator itr = SpecInfo[i].Talents->begin(); itr != SpecInfo[i].Talents->end(); ++itr)
-                delete itr->second;
-            delete SpecInfo[i].Talents;
-        }
-    }
-
-    struct TalentSpecInfo
-    {
-        PlayerTalentMap* Talents;
-        uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
-        uint32 TalentSpec;
-    } SpecInfo[MAX_TALENT_SPECS];
-
+    TalentSpecInfo SpecInfo[MAX_TALENT_SPECS];
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
     uint8 ActiveSpec;
@@ -1835,7 +1841,7 @@ class Player : public Unit, public GridObject<Player>
         void SendTalentsInfoData(bool pet);
         bool LearnTalent(uint32 talentId);
         bool AddTalent(uint32 spellId, uint8 spec, bool learning);
-        bool HasTalent(uint32 spell_id, uint8 spec) const;
+        bool HasTalent(uint32 spell_id, uint8 spec);
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
@@ -1848,8 +1854,7 @@ class Player : public Unit, public GridObject<Player>
         void SetGlyph(uint8 slot, uint32 glyph);
         uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
 
-        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->SpecInfo[spec].Talents; }
-        PlayerTalentMap* GetTalentMap(uint8 spec) { return _talentMgr->SpecInfo[spec].Talents; }
+        TalentSpecInfo* GetTalentSpecInfo(uint8 spec) { return &_talentMgr->SpecInfo[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
 
         uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS); }
