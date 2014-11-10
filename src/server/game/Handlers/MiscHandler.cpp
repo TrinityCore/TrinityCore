@@ -57,6 +57,7 @@
 #include "BattlefieldMgr.h"
 #include "DB2Stores.h"
 #include "CharacterPackets.h"
+#include "MiscPackets.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -2005,11 +2006,8 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleViolenceLevel(WorldPacket& recvPacket)
+void WorldSession::HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& /*violenceLevel*/)
 {
-    uint8 violenceLevel;
-    recvPacket >> violenceLevel;
-
     // do something?
 }
 

@@ -100,6 +100,11 @@ namespace WorldPackets
     {
         class CancelTrade;
     }
+
+    namespace Misc
+    {
+        class ViolenceLevel;
+    }
 }
 
 enum AccountDataType
@@ -1017,7 +1022,7 @@ class WorldSession
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleRequestHotfix(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
-        void HandleViolenceLevel(WorldPacket& recvPacket);
+        void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);
         int32 HandleEnableNagleAlgorithm();
