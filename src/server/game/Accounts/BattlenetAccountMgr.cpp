@@ -101,7 +101,7 @@ AccountOpResult Battlenet::AccountMgr::LinkWithGameAccount(std::string const& em
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LINK);
     stmt->setUInt32(0, bnetAccountId);
     stmt->setUInt8(1, GetMaxIndex(bnetAccountId) + 1);
-    stmt->setUInt32(gameAccountId);
+    stmt->setUInt32(2, gameAccountId);
     LoginDatabase.Execute(stmt);
     return AccountOpResult::AOR_OK;
 }
@@ -118,7 +118,7 @@ AccountOpResult Battlenet::AccountMgr::UnlinkGameAccount(std::string const& game
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LINK);
     stmt->setNull(0);
     stmt->setNull(1);
-    stmt->setUInt32(gameAccountId);
+    stmt->setUInt32(2, gameAccountId);
     LoginDatabase.Execute(stmt);
     return AccountOpResult::AOR_OK;
 }
