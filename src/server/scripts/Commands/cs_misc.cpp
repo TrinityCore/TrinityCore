@@ -79,6 +79,7 @@ public:
             { "pinfo",            rbac::RBAC_PERM_COMMAND_PINFO,             true, &HandlePInfoCommand,            "", NULL },
             { "playall",          rbac::RBAC_PERM_COMMAND_PLAYALL,          false, &HandlePlayAllCommand,          "", NULL },
             { "possess",          rbac::RBAC_PERM_COMMAND_POSSESS,          false, &HandlePossessCommand,          "", NULL },
+            { "pvpstats",         rbac::RBAC_PERM_COMMAND_PVPSTATS,          true, &HandlePvPstatsCommand,         "", NULL },
             { "recall",           rbac::RBAC_PERM_COMMAND_RECALL,           false, &HandleRecallCommand,           "", NULL },
             { "repairitems",      rbac::RBAC_PERM_COMMAND_REPAIRITEMS,       true, &HandleRepairitemsCommand,      "", NULL },
             { "respawn",          rbac::RBAC_PERM_COMMAND_RESPAWN,          false, &HandleRespawnCommand,          "", NULL },
@@ -99,6 +100,35 @@ public:
             { NULL,               0,                                  false, NULL,                           "", NULL }
         };
         return commandTable;
+    }
+
+    static bool HandlePvPstatsCommand(ChatHandler * handler, char const* /*args*/)
+    {
+        if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_FACTIONS_OVERALL);
+            PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+            if (result)
+            {
+                Field* fields = result->Fetch();
+                uint32 horde_victories = fields[1].GetUInt32();
+
+                if (!(result->NextRow()))
+                    return false;
+
+                fields = result->Fetch();
+                uint32 alliance_victories = fields[1].GetUInt32();
+
+                handler->PSendSysMessage(LANG_PVPSTATS, alliance_victories, horde_victories);
+            }
+            else
+                return false;
+        }
+        else
+            handler->PSendSysMessage(LANG_PVPSTATS_DISABLED);
+
+        return true;
     }
 
     static bool HandleDevCommand(ChatHandler* handler, char const* args)

@@ -110,14 +110,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY                     = 204,
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE                   = 205,
     RBAC_PERM_COMMAND_RBAC_LIST                              = 206,
-    // 207 - reuse
-    // 208 - reuse
-    // 209 - reuse
-    // 210 - reuse
-    // 211 - reuse
-    // 212 - reuse
-    // 213 - reuse
-    // 214 - reuse
+    // 207 - 213 do NOT use
+    RBAC_PERM_COMMAND_PVPSTATS                               = 214,
     // 215 - reuse
     // 216 - reuse
     RBAC_PERM_COMMAND_ACCOUNT                                = 217,
