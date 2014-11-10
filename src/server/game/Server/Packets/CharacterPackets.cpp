@@ -317,3 +317,32 @@ void WorldPackets::Character::QueryPlayerName::Read()
     if (Hint.NativeRealmAddress.HasValue)
         _worldPacket >> Hint.NativeRealmAddress;
 }
+
+WorldPacket const* WorldPackets::Character::PlayerNameResponse::Write()
+{
+    _worldPacket << Result;
+    _worldPacket << Player;
+
+    if (Result == 0)
+    {
+        _worldPacket.WriteBits(Data.Name.length(), 7);
+
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteBits(Data.DeclinedNames.name[i].length(), 7);
+
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteString(Data.DeclinedNames.name[i]);
+
+        _worldPacket << Data.AccountID;
+        _worldPacket << Data.BnetAccountID;
+        _worldPacket << Data.GuidActual;
+        _worldPacket << Data.VirtualRealmAddress;
+        _worldPacket << Data.Race;
+        _worldPacket << Data.Sex;
+        _worldPacket << Data.ClassID;
+        _worldPacket << Data.Level;
+        _worldPacket.WriteString(Data.Name);
+    }
+
+    return &_worldPacket;
+}
