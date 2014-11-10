@@ -312,10 +312,10 @@ void WorldPackets::Character::QueryPlayerName::Read()
     Hint.NativeRealmAddress.HasValue = _worldPacket.ReadBit();
 
     if (Hint.VirtualRealmAddress.HasValue)
-        _worldPacket >> Hint.VirtualRealmAddress;
+        _worldPacket >> Hint.VirtualRealmAddress.value;
 
     if (Hint.NativeRealmAddress.HasValue)
-        _worldPacket >> Hint.NativeRealmAddress;
+        _worldPacket >> Hint.NativeRealmAddress.value;
 }
 
 WorldPacket const* WorldPackets::Character::PlayerNameResponse::Write()

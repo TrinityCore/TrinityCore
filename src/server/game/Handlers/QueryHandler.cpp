@@ -30,6 +30,8 @@
 #include "NPCHandler.h"
 #include "Pet.h"
 #include "MapManager.h"
+#include "BattlenetAccountMgr.h"
+#include "CharacterPackets.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
@@ -57,7 +59,7 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 
         if (DeclinedName const* names = (player ? player->GetDeclinedNames() : nullptr))
             for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                response.Data.DeclinedNames.name[i] = names[i];
+                response.Data.DeclinedNames.name[i] = names->name[i];
     }
     else
     {
