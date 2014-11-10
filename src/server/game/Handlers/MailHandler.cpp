@@ -810,7 +810,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
             return;
         }
 
-        bodyItem->SetText(mailTemplateEntry->content);
+        bodyItem->SetText(mailTemplateEntry->Body_lang);
     }
     else
         bodyItem->SetText(m->body);

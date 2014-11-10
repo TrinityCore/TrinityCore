@@ -247,6 +247,7 @@ char const* DBFilesClientList[] =
     "DBFilesClient\\WorldStateZoneSounds.dbc",
     "DBFilesClient\\ZoneMusic.dbc",
     "DBFilesClient\\ZoneIntroMusicTable.dbc",
+    "DBFilesClient\\WorldSafeLocs.dbc",
     "DBFilesClient\\WorldStateUI.dbc",
     "DBFilesClient\\WorldState.dbc",
     "DBFilesClient\\WorldMapTransforms.dbc",

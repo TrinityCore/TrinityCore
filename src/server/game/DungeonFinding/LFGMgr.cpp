@@ -183,7 +183,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         if (!dungeon)
             continue;
 
-        switch (dungeon->type)
+        switch (dungeon->Type)
         {
             case LFG_TYPE_DUNGEON:
             case LFG_TYPE_HEROIC:
