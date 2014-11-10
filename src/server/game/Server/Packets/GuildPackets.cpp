@@ -17,12 +17,6 @@
 
 #include "GuildPackets.h"
 
-WorldPackets::Guild::QueryGuildInfo::QueryGuildInfo(WorldPacket&& packet)
-    : ClientPacket(std::move(packet))
-{
-    ASSERT(_worldPacket.GetOpcode() == CMSG_GUILD_QUERY);
-}
-
 void WorldPackets::Guild::QueryGuildInfo::Read()
 {
     _worldPacket >> GuildGuid;

@@ -33,7 +33,7 @@ AccountMgr::~AccountMgr()
     ClearRBAC();
 }
 
-AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/)
+AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/, uint32 bnetAccountId /*= 0*/, uint8 bnetIndex /*= 0*/)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long
@@ -51,6 +51,16 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     stmt->setString(1, CalculateShaPassHash(username, password));
     stmt->setString(2, email);
     stmt->setString(3, email);
+    if (bnetAccountId && bnetIndex)
+    {
+        stmt->setUInt32(4, bnetAccountId);
+        stmt->setUInt8(5, bnetIndex);
+    }
+    else
+    {
+        stmt->setNull(4);
+        stmt->setNull(5);
+    }
 
     LoginDatabase.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
 
@@ -144,7 +154,7 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     if (utf8length(newUsername) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;
 
-    if (utf8length(newPassword) > MAX_ACCOUNT_STR)
+    if (utf8length(newPassword) > MAX_PASS_STR)
         return AccountOpResult::AOR_PASS_TOO_LONG;
 
     Utf8ToUpperOnlyLatin(newUsername);
@@ -171,7 +181,7 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
         return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist
     }
 
-    if (utf8length(newPassword) > MAX_ACCOUNT_STR)
+    if (utf8length(newPassword) > MAX_PASS_STR)
     {
         sScriptMgr->OnFailedPasswordChange(accountId);
         return AccountOpResult::AOR_PASS_TOO_LONG;

@@ -806,14 +806,8 @@ void WorldSession::HandleContinuePlayerLogin()
     _charLoginCallback = CharacterDatabase.DelayQueryHolder(holder);
 }
 
-void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& /*loadingScreenNotify*/)
 {
-    TC_LOG_INFO("misc", "WORLD: Recvd CMSG_LOAD_SCREEN");
-    uint32 mapID;
-
-    recvPacket >> mapID;
-    recvPacket.ReadBit();
-
     // TODO: Do something with this packet
 }
 
