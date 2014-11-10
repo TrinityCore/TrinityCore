@@ -24,4 +24,10 @@ char const ItemSparsefmt[]="niiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
 char const ItemExtendedCostEntryfmt[]="nxxiiiiiiiiiiiixiiiiiiiiiiiiiii";
 char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 
+char const SpellMiscfmt[] = "diiiiiiiiiiiiiiiiifiiiiix";
+char const SpellClassOptionsEntryfmt[] = "dxiiiii";
+char const SpellPowerEntryfmt[] = "diiiiiifxixxxx";
+char const SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";
+char const OverrideSpellDatafmt[] = "diiiiiiiiiixx";
+
 #endif

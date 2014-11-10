@@ -934,10 +934,10 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     TargetAuraState = _aura ? _aura->TargetAuraState : 0;
     CasterAuraStateNot = _aura ? _aura->CasterAuraStateNot : 0;
     TargetAuraStateNot = _aura ? _aura->TargetAuraStateNot : 0;
-    CasterAuraSpell = _aura ? _aura->casterAuraSpell : 0;
-    TargetAuraSpell = _aura ? _aura->targetAuraSpell : 0;
-    ExcludeCasterAuraSpell = _aura ? _aura->excludeCasterAuraSpell : 0;
-    ExcludeTargetAuraSpell = _aura ? _aura->excludeTargetAuraSpell : 0;
+    CasterAuraSpell = _aura ? _aura->CasterAuraSpell : 0;
+    TargetAuraSpell = _aura ? _aura->TargetAuraSpell : 0;
+    ExcludeCasterAuraSpell = _aura ? _aura->ExcludeCasterAuraSpell : 0;
+    ExcludeTargetAuraSpell = _aura ? _aura->ExcludeTargetAuraSpell : 0;
 
     // SpellCastingRequirementsEntry
     SpellCastingRequirementsEntry const* _castreq = GetSpellCastingRequirements();
@@ -957,7 +957,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     // SpellClassOptionsEntry
     SpellClassOptionsEntry const* _class = GetSpellClassOptions();
     SpellFamilyName = _class ? _class->SpellFamilyName : 0;
-    SpellFamilyFlags = _class ? _class->SpellFamilyFlags : flag96(0);
+    SpellFamilyFlags = _class ? _class->SpellFamilyFlags : flag128(0);
 
     // SpellCooldownsEntry
     SpellCooldownsEntry const* _cooldowns = GetSpellCooldowns();
@@ -985,10 +985,10 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
 
     // SpellPowerEntry
     SpellPowerEntry const* _power = GetSpellPower();
-    ManaCost = _power ? _power->manaCost : 0;
-    ManaCostPerlevel = _power ? _power->manaCostPerlevel : 0;
+    ManaCost = _power ? _power->ManaCost : 0;
+    ManaCostPerlevel = _power ? _power->ManaCostPerlevel : 0;
     ManaCostPercentage = _power ? _power->ManaCostPercentage : 0;
-    ManaPerSecond = _power ? _power->manaPerSecond : 0;
+    ManaPerSecond = _power ? _power->ManaPerSecond : 0;
 
     // SpellReagentsEntry
     SpellReagentsEntry const* _reagents = GetSpellReagents();

@@ -1590,16 +1590,6 @@ struct NumTalentsAtLevelEntry
     float Talents;                                         // 1 talent count
 };
 
-#define MAX_OVERRIDE_SPELL 10
-
-struct OverrideSpellDataEntry
-{
-    uint32      id;                                         // 0
-    uint32      spellId[MAX_OVERRIDE_SPELL];                // 1-10
-    //uint32      unk0;                                     // 11
-    //char*     SpellBarName;                               // 12
-};
-
 struct PowerDisplayEntry
 {
     uint32 Id;                                              // 0
@@ -1796,20 +1786,6 @@ struct SpellAuraOptionsEntry
     uint32    procFlags;                                    // 4       m_procTypeMask
 };
 
-// SpellAuraRestrictions.dbc/
-struct SpellAuraRestrictionsEntry
-{
-    //uint32    Id;                                           // 0        m_ID
-    uint32    CasterAuraState;                              // 1       m_casterAuraState
-    uint32    TargetAuraState;                              // 2       m_targetAuraState
-    uint32    CasterAuraStateNot;                           // 3       m_excludeCasterAuraState
-    uint32    TargetAuraStateNot;                           // 4       m_excludeTargetAuraState
-    uint32    casterAuraSpell;                              // 5       m_casterAuraSpell
-    uint32    targetAuraSpell;                              // 6       m_targetAuraSpell
-    uint32    excludeCasterAuraSpell;                       // 7       m_excludeCasterAuraSpell
-    uint32    excludeTargetAuraSpell;                       // 8       m_excludeTargetAuraSpell
-};
-
 // SpellCastingRequirements.dbc
 struct SpellCastingRequirementsEntry
 {
@@ -1967,16 +1943,6 @@ struct SpellCooldownsEntry
     uint32    StartRecoveryTime;                            // 146      m_startRecoveryTime
 };
 
-// SpellClassOptions.dbc
-struct SpellClassOptionsEntry
-{
-    //uint32    Id;                                         // 0        m_ID
-    //uint32    modalNextSpell;                             // 1       m_modalNextSpell not used
-    flag96    SpellFamilyFlags;                             // 2-4
-    uint32    SpellFamilyName;                              // 5       m_spellClassSet
-    //char*   Description;                                  // 6 4.0.0
-};
-
 // SpellInterrupts.dbc
 struct SpellInterruptsEntry
 {
@@ -1995,19 +1961,6 @@ struct SpellLevelsEntry
     uint32    baseLevel;                                    // 1       m_baseLevel
     uint32    maxLevel;                                     // 2       m_maxLevel
     uint32    spellLevel;                                   // 3       m_spellLevel
-};
-
-// SpellPower.dbc
-struct SpellPowerEntry
-{
-    //uint32    Id;                                           // 0        m_ID
-    uint32    manaCost;                                     // 1       m_manaCost
-    uint32    manaCostPerlevel;                             // 2       m_manaCostPerLevel
-    uint32    ManaCostPercentage;                           // 3       m_manaCostPct
-    uint32    manaPerSecond;                                // 4       m_manaPerSecond
-    uint32    manaPerSecondPerLevel;                        // 5       m_manaPerSecondPerLevel
-    //uint32  PowerDisplayId;                               // 6       m_powerDisplayID - id from PowerDisplay.dbc, new in 3.1
-    float     ManaCostPercentageFloat;                      // 7       4.3.0
 };
 
 struct SpellRuneCostEntry
