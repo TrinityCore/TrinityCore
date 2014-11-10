@@ -489,7 +489,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sNameGenStore,                dbcPath, "NameGen.dbc"); // 19116
     for (uint32 i = 0; i < sNameGenStore.GetNumRows(); ++i)
         if (NameGenEntry const* entry = sNameGenStore.LookupEntry(i))
-            sGenNameVectoArraysMap[entry->Race].stringVectorArray[entry->Sex].push_back(std::string(entry->Name));
+            sGenerateNamesMap[entry->Race].Contents[entry->Sex].push_back(std::string(entry->Name));
     sNameGenStore.Clear();
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");//15595
