@@ -271,6 +271,11 @@ namespace WorldPackets
     {
         class TotemDestroyed;
     }
+
+    namespace Trade
+    {
+        class CancelTrade;
+    }
 }
 
 enum AccountDataType
@@ -899,7 +904,7 @@ class TC_GAME_API WorldSession
         void HandleAcceptTradeOpcode(WorldPacket& recvPacket);
         void HandleBeginTradeOpcode(WorldPacket& recvPacket);
         void HandleBusyTradeOpcode(WorldPacket& recvPacket);
-        void HandleCancelTradeOpcode(WorldPacket& recvPacket);
+        void HandleCancelTradeOpcode(WorldPackets::Trade::CancelTrade& cancelTrade);
         void HandleClearTradeItemOpcode(WorldPacket& recvPacket);
         void HandleIgnoreTradeOpcode(WorldPacket& recvPacket);
         void HandleInitiateTradeOpcode(WorldPacket& recvPacket);

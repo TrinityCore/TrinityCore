@@ -40,6 +40,7 @@
 #include "SystemPackets.h"
 #include "TalentPackets.h"
 #include "TotemPackets.h"
+#include "TradePackets.h"
 #include "WorldStatePackets.h"
 
 #endif // AllPackets_h__

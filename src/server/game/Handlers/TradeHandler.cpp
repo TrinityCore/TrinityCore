@@ -28,6 +28,7 @@
 #include "SpellMgr.h"
 #include "SocialMgr.h"
 #include "TradeData.h"
+#include "TradePackets.h"
 #include "World.h"
 #include "WorldPacket.h"
 
@@ -578,7 +579,7 @@ void WorldSession::SendCancelTrade(TradeStatus status)
     SendTradeStatus(info);
 }
 
-void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleCancelTradeOpcode(WorldPackets::Trade::CancelTrade& /*cancelTrade*/)
 {
     // sended also after LOGOUT COMPLETE
     if (_player)                                             // needed because STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT
