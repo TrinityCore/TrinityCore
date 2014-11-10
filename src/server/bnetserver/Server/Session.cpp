@@ -771,8 +771,9 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
             fields = result->Fetch();
             std::ostringstream name;
             std::string originalName = fields[1].GetString();
-            if (originalName.find('#') != std::string::npos)
-                name << "WoW" << uint32(fields[0].GetUInt8());
+            std::size_t hashPos = originalName.find('#');
+            if (hashPos != std::string::npos)
+                name << "WoW" << originalName.substr(hashPos + 1);
             else
                 name << originalName;
 

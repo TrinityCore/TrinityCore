@@ -44,17 +44,20 @@ public:
 
         static ChatCommand accountCommandTable[] =
         {
-            { "create",     rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,      true,  &HandleAccountCreateCommand,     "", NULL                    },
-            { "lock",       rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,             false, NULL,                            "", accountLockCommandTable },
-            { "set",        rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,         true,  NULL,                            "", accountSetCommandTable  },
-            { "password",   rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_PASSWORD,    false, &HandleAccountPasswordCommand,   "", NULL                    },
-            { NULL,         0,                                                false, NULL,                            "", NULL                    }
+            { "create",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,      true,  &HandleAccountCreateCommand,     "", NULL                    },
+            { "gameaccountcreate", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE_GAME, true,  &HandleGameAccountCreateCommand, "", NULL                    },
+            { "lock",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,             false, NULL,                            "", accountLockCommandTable },
+            { "set",               rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,         true,  NULL,                            "", accountSetCommandTable  },
+            { "password",          rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_PASSWORD,    false, &HandleAccountPasswordCommand,   "", NULL                    },
+            { "link",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LINK,        true,  &HandleAccountLinkCommand,       "", NULL                    },
+            { "unlink",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_UNLINK,      true,  &HandleAccountUnlinkCommand,     "", NULL                    },
+            { NULL,                0,                                                false, NULL,                            "", NULL                    }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "battlenetaccount", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT, true,  NULL, "", accountCommandTable },
-            { NULL,               0,                                    false, NULL, "", NULL                }
+            { "bnetaccount", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT, true,  NULL, "", accountCommandTable },
+            { NULL,          0,                                    false, NULL, "", NULL                }
         };
 
         return commandTable;
@@ -326,6 +329,120 @@ public:
             default:
                 break;
         }
+        return true;
+    }
+
+    static bool HandleAccountLinkCommand(ChatHandler* handler, char const* args)
+    {
+        Tokenizer tokens(args, ' ', 2);
+        if (tokens.size() != 2)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        std::string bnetAccountName = tokens[0];
+        std::string gameAccountName = tokens[1];
+
+        switch (Battlenet::AccountMgr::LinkWithGameAccount(bnetAccountName, gameAccountName))
+        {
+            case AccountOpResult::AOR_OK:
+                handler->PSendSysMessage(LANG_ACCOUNT_BNET_LINKED, bnetAccountName.c_str(), gameAccountName.c_str());
+                break;
+            case AccountOpResult::AOR_NAME_NOT_EXIST:
+                handler->PSendSysMessage(LANG_ACCOUNT_OR_BNET_DOES_NOT_EXIST, bnetAccountName.c_str(), gameAccountName.c_str());
+                handler->SetSentErrorMessage(true);
+                break;
+            case AccountOpResult::AOR_ACCOUNT_BAD_LINK:
+                handler->PSendSysMessage(LANG_ACCOUNT_ALREADY_LINKED, gameAccountName.c_str());
+                handler->SetSentErrorMessage(true);
+                break;
+        }
+
+        return true;
+    }
+
+    static bool HandleAccountUnlinkCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        std::string gameAccountName = args;
+
+        switch (Battlenet::AccountMgr::UnlinkGameAccount(gameAccountName))
+        {
+            case AccountOpResult::AOR_OK:
+                handler->PSendSysMessage(LANG_ACCOUNT_BNET_UNLINKED, gameAccountName.c_str());
+                break;
+            case AccountOpResult::AOR_NAME_NOT_EXIST:
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, gameAccountName.c_str());
+                handler->SetSentErrorMessage(true);
+                break;
+            case AccountOpResult::AOR_ACCOUNT_BAD_LINK:
+                handler->PSendSysMessage(LANG_ACCOUNT_BNET_NOT_LINKED, gameAccountName.c_str());
+                handler->SetSentErrorMessage(true);
+                break;
+        }
+
+        return true;
+    }
+
+    static bool HandleGameAccountCreateCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        std::string bnetAccountName = args;
+        uint32 accountId = Battlenet::AccountMgr::GetId(bnetAccountName);
+        if (!accountId)
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, bnetAccountName.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint8 index = Battlenet::AccountMgr::GetMaxIndex(accountId) + 1;
+        std::string accountName = std::to_string(accountId) + '#' + std::to_string(uint32(index));
+
+        switch (sAccountMgr->CreateAccount(accountName, "DUMMY", bnetAccountName, accountId, index))
+        {
+            case AccountOpResult::AOR_OK:
+                handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName.c_str());
+                if (handler->GetSession())
+                {
+                    TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) created Account %s (Email: '%s')",
+                        handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
+                        handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
+                        accountName.c_str(), bnetAccountName.c_str());
+                }
+                break;
+            case AccountOpResult::AOR_NAME_TOO_LONG:
+                handler->SendSysMessage(LANG_ACCOUNT_TOO_LONG);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case AccountOpResult::AOR_NAME_ALREADY_EXIST:
+                handler->SendSysMessage(LANG_ACCOUNT_ALREADY_EXIST);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case AccountOpResult::AOR_DB_INTERNAL_ERROR:
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED_SQL_ERROR, accountName.c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            default:
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED, accountName.c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+        }
+
         return true;
     }
 };
