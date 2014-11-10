@@ -23,11 +23,11 @@ char const ItemCurrencyCostfmt[]="xn";
 char const ItemSparsefmt[]="niiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
 char const ItemExtendedCostEntryfmt[]="nxxiiiiiiiiiiiixiiiiiiiiiiiiiii";
 char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
-
-char const SpellMiscfmt[] = "diiiiiiiiiiiiiiiiifiiiiix";
-char const SpellClassOptionsEntryfmt[] = "dxiiiii";
-char const SpellPowerEntryfmt[] = "diiiiiifxixxxx";
 char const SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";
-char const OverrideSpellDatafmt[] = "diiiiiiiiiixx";
+char const SpellClassOptionsEntryfmt[] = "niiiiii";
+char const SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiix";
+char const SpellPowerEntryfmt[] = "nixxiiixxxfxx";
+char const SpellReagentsEntryfmt[] = "niiiiiiiiiiiiiiiixx";
+char const SpellRuneCostEntryfmt[] = "niiixi";
 
 #endif

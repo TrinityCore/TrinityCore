@@ -150,84 +150,92 @@ struct KeyChainEntry
     uint8       Key[KEYCHAIN_SIZE];
 };
 
-struct SpellMiscEntry
-{
-    //uint32 ID;                                         // 0        m_ID
-    uint32 Attributes;                                   // 1        m_attribute
-    uint32 AttributesEx;                                 // 2        m_attributesEx
-    uint32 AttributesEx2;                                // 3        m_attributesExB
-    uint32 AttributesEx3;                                // 4        m_attributesExC
-    uint32 AttributesEx4;                                // 5        m_attributesExD
-    uint32 AttributesEx5;                                // 6        m_attributesExE
-    uint32 AttributesEx6;                                // 7        m_attributesExF
-    uint32 AttributesEx7;                                // 8        m_attributesExG
-    uint32 AttributesEx8;                                // 9        m_attributesExH
-    uint32 AttributesEx9;                                // 10       m_attributesExI
-    uint32 AttributesEx10;                               // 11       m_attributesExJ
-    uint32 AttributesEx11;                               // 12       m_attributesExK
-    uint32 AttributesEx12;                               // 13       m_attributesExL
-    uint32 AttributesEx13;                               // 14       m_attributesExL
-    uint32 CastingTimeIndex;                             // 15       m_castingTimeIndex
-    uint32 DurationIndex;                                // 16       m_durationIndex
-    uint32 RangeIndex;                                   // 17       m_rangeIndex
-    float Speed;                                         // 18       m_speed
-    uint32 SpellVisual[2];                               // 19-20    m_spellVisualID
-    uint32 SpellIconID;                                  // 21       m_spellIconID
-    uint32 ActiveIconID;                                 // 22       m_activeIconID
-    uint32 SchoolMask;                                   // 23       m_schoolMask
-    //float UnkWod;                                      // 24
-};
-
-// SpellClassOptions.db2
-struct SpellClassOptionsEntry
-{
-    //uint32    ID;                                         // 0       m_ID
-    //uint32    modalNextSpell;                             // 1       m_modalNextSpell
-    flag128   SpellFamilyFlags;                             // 2-5
-    uint32    SpellFamilyName;                              // 6       m_spellClassSet
-};
-
-// SpellPower.db2
-struct SpellPowerEntry
-{
-    //uint32   ID;                                          // 0
-    uint32   PowerType;                                     // 1
-    uint32   ManaCost;                                      // 2
-    uint32   ManaCostPerlevel;                              // 3
-    uint32   ManaPerSecond;                                 // 4
-    uint32   ManaPerSecondPerLevel;                         // 5
-    uint32   PowerDisplayId;                                // 6
-    float    ManaCostPercentage;                            // 7
-    //float    UnkMop1;                                     // 8
-    uint32   RequiredAura;                                  // 9
-    //float    UnkMop2;                                     // 10
-    //uint32   UnkWod1;                                     // 11
-    //uint32   UnkWod2;                                     // 12
-    //uint32   UnkWod3;                                     // 13
-};
-
-// SpellAuraRestrictions.db2
 struct SpellAuraRestrictionsEntry
 {
-    //uint32    ID;                                         // 0        m_ID
-    uint32    CasterAuraState;                              // 1       m_casterAuraState
-    uint32    TargetAuraState;                              // 2       m_targetAuraState
-    uint32    CasterAuraStateNot;                           // 3       m_excludeCasterAuraState
-    uint32    TargetAuraStateNot;                           // 4       m_excludeTargetAuraState
-    uint32    CasterAuraSpell;                              // 5       m_casterAuraSpell
-    uint32    TargetAuraSpell;                              // 6       m_targetAuraSpell
-    uint32    ExcludeCasterAuraSpell;                       // 7       m_excludeCasterAuraSpell
-    uint32    ExcludeTargetAuraSpell;                       // 8       m_excludeTargetAuraSpell
+    //uint32    ID;                                         // 0
+    uint32      CasterAuraState;                            // 1
+    uint32      TargetAuraState;                            // 2
+    uint32      ExcludeCasterAuraState;                     // 3
+    uint32      ExcludeTargetAuraState;                     // 4
+    uint32      CasterAuraSpell;                            // 5
+    uint32      TargetAuraSpell;                            // 6
+    uint32      ExcludeCasterAuraSpell;                     // 7
+    uint32      ExcludeTargetAuraSpell;                     // 8
 };
 
-#define MAX_OVERRIDE_SPELL 10
-
-struct OverrideSpellDataEntry
+struct SpellClassOptionsEntry
 {
-    //uint32      id;                                       // 0
-    uint32      SpellID[MAX_OVERRIDE_SPELL];                // 1-10
-    //uint32    Unk1;                                       // 11
-    //int32     Unk2;                                       // 12    SpellBarNameId?
+    uint32      ID;                                         // 0
+    uint32      ModalNextSpell;                             // 1
+    flag128     SpellClassMask;                             // 2
+    uint32      SpellClassSet;                              // 3
+};
+
+struct SpellMiscEntry
+{
+    uint32      ID;                                         // 0
+    uint32      Attributes;                                 // 1
+    uint32      AttributesEx;                               // 2
+    uint32      AttributesExB;                              // 3
+    uint32      AttributesExC;                              // 4
+    uint32      AttributesExD;                              // 5
+    uint32      AttributesExE;                              // 6
+    uint32      AttributesExF;                              // 7
+    uint32      AttributesExG;                              // 8
+    uint32      AttributesExH;                              // 9
+    uint32      AttributesExI;                              // 10
+    uint32      AttributesExJ;                              // 11
+    uint32      AttributesExK;                              // 12
+    uint32      AttributesExL;                              // 13
+    uint32      AttributesExM;                              // 14
+    uint32      CastingTimeIndex;                           // 15
+    uint32      DurationIndex;                              // 16
+    uint32      RangeIndex;                                 // 17
+    uint32      Speed;                                      // 18
+    uint32      SpellVisualID[2];                           // 19-20
+    uint32      SpellIconID;                                // 21
+    uint32      ActiveIconID;                               // 22
+    uint32      SchoolMask;                                 // 23
+    //float     Unk;                                        // 24
+};
+
+struct SpellPowerEntry
+{
+    uint32      ID;                                         // 0
+    uint32      SpellID;                                    // 1
+    //uint32    Unk2;                                       // 2
+    //uint32    Unk3;                                       // 3
+    uint32      ManaCost;                                   // 4
+    uint32      ManaCostPerLevel;                           // 5
+    uint32      ManaCostPerSecond;                          // 6
+    //uint32    Unk4;                                       // 7 (All 0 except one spell: 22570)
+    //uint32    Unk5;                                       // 8
+    //uint32    Unk6;                                       // 9
+    float       ManaCostPercentage;                         // 10
+    //float     Unk7;                                       // 11
+    //uint32    Unk8;                                       // 12
+};
+
+#define MAX_SPELL_REAGENTS 8
+
+struct SpellReagentsEntry
+{
+    uint32      ID;                                         // 0
+    int32       Reagent[MAX_SPELL_REAGENTS];                // 1-8
+    uint32      ReagentCount[MAX_SPELL_REAGENTS];           // 9-16
+    //uint32    Unk1;                                       // 17
+    //uint32    Unk2;                                       // 18
+};
+
+struct SpellRuneCostEntry
+{
+    uint32      ID;                                         // 0
+    uint32      RuneCost[3];                                // 1-3 (0=blood, 1=frost, 2=unholy)
+    //uint32    Unk;                                        // 4 (All 0 except for 2 ids: 2510, 2748)
+    uint32      RunePowerGain;                              // 5
+
+    bool NoRuneCost() const { return RuneCost[0] == 0 && RuneCost[1] == 0 && RuneCost[2] == 0; }
+    bool NoRunicPowerGain() const { return RunePowerGain == 0; }
 };
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
