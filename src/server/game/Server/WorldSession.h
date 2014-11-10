@@ -95,6 +95,11 @@ namespace WorldPackets
     {
         class QueryGuildInfo;
     }
+
+    namespace Trade
+    {
+        class CancelTrade;
+    }
 }
 
 enum AccountDataType
@@ -687,7 +692,7 @@ class WorldSession
         void HandleAcceptTradeOpcode(WorldPacket& recvPacket);
         void HandleBeginTradeOpcode(WorldPacket& recvPacket);
         void HandleBusyTradeOpcode(WorldPacket& recvPacket);
-        void HandleCancelTradeOpcode(WorldPacket& recvPacket);
+        void HandleCancelTradeOpcode(WorldPackets::Trade::CancelTrade& cancelTrade);
         void HandleClearTradeItemOpcode(WorldPacket& recvPacket);
         void HandleIgnoreTradeOpcode(WorldPacket& recvPacket);
         void HandleInitiateTradeOpcode(WorldPacket& recvPacket);
