@@ -154,7 +154,7 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     if (utf8length(newUsername) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;
 
-    if (utf8length(newPassword) > MAX_ACCOUNT_STR)
+    if (utf8length(newPassword) > MAX_PASS_STR)
         return AccountOpResult::AOR_PASS_TOO_LONG;
 
     Utf8ToUpperOnlyLatin(newUsername);
@@ -181,7 +181,7 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
         return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist
     }
 
-    if (utf8length(newPassword) > MAX_ACCOUNT_STR)
+    if (utf8length(newPassword) > MAX_PASS_STR)
     {
         sScriptMgr->OnFailedPasswordChange(accountId);
         return AccountOpResult::AOR_PASS_TOO_LONG;
