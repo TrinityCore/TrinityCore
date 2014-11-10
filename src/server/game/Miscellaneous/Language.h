@@ -110,7 +110,9 @@ enum TrinityStrings
     LANG_RBAC_PERM_DENIED               = 77,
     LANG_RBAC_PERM_REVOKED              = 78,
     LANG_RBAC_PERM_REVOKED_NOT_IN_LIST  = 79,
-    // Free 80 - 95
+    LANG_PVPSTATS                       = 80,
+    LANG_PVPSTATS_DISABLED              = 81,
+    // Free 82 - 95
 
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
