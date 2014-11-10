@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "Util.h"
 #include "DBCStructure.h"
+#include "DB2Structure.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
 
