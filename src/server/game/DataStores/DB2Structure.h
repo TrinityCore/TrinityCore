@@ -163,6 +163,14 @@ struct SpellAuraRestrictionsEntry
     uint32      ExcludeTargetAuraSpell;                     // 8
 };
 
+struct SpellClassOptionsEntry
+{
+    uint32      ID;                                         // 0
+    uint32      ModalNextSpell;                             // 1
+    flag128     SpellClassMask;                             // 2
+    uint32      SpellClassSet;                              // 3
+};
+
 struct SpellMiscEntry
 {
     uint32      ID;                                         // 0
@@ -189,6 +197,45 @@ struct SpellMiscEntry
     uint32      ActiveIconID;                               // 22
     uint32      SchoolMask;                                 // 23
     //float     Unk;                                        // 24
+};
+
+struct SpellPowerEntry
+{
+    uint32      ID;                                         // 0
+    uint32      SpellID;                                    // 1
+    //uint32    Unk2;                                       // 2
+    //uint32    Unk3;                                       // 3
+    uint32      ManaCost;                                   // 4
+    uint32      ManaCostPerLevel;                           // 5
+    uint32      ManaCostPerSecond;                          // 6
+    //uint32    Unk4;                                       // 7 (All 0 except one spell: 22570)
+    //uint32    Unk5;                                       // 8
+    //uint32    Unk6;                                       // 9
+    float       ManaCostPercentage;                         // 10
+    //float     Unk7;                                       // 11
+    //uint32    Unk8;                                       // 12
+};
+
+#define MAX_SPELL_REAGENTS 8
+
+struct SpellReagentsEntry
+{
+    uint32      ID;                                         // 0
+    int32       Reagent[MAX_SPELL_REAGENTS];                // 1-8
+    uint32      ReagentCount[MAX_SPELL_REAGENTS];           // 9-16
+    //uint32    Unk1;                                       // 17
+    //uint32    Unk2;                                       // 18
+};
+
+struct SpellRuneCostEntry
+{
+    uint32      ID;                                         // 0
+    uint32      RuneCost[3];                                // 1-3 (0=blood, 1=frost, 2=unholy)
+    //uint32    Unk;                                        // 4 (All 0 except for 2 ids: 2510, 2748)
+    uint32      RunePowerGain;                              // 5
+
+    bool NoRuneCost() const { return RuneCost[0] == 0 && RuneCost[1] == 0 && RuneCost[2] == 0; }
+    bool NoRunicPowerGain() const { return RunePowerGain == 0; }
 };
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform

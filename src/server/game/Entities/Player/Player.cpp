@@ -8439,7 +8439,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
 
         for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
         {
-            if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
+            if (pEnchant->Effect[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                 continue;
 
             SpellEnchantProcEntry const* entry = sSpellMgr->GetSpellEnchantProcEvent(enchant_id);
@@ -8458,15 +8458,15 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
                     continue;
             }
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->spellid[s]);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->EffectSpellID[s]);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell(%s, name: %s, enchant: %i): unknown spell %i is cast, ignoring...",
-                    GetGUID().ToString().c_str(), GetName().c_str(), pEnchant->ID, pEnchant->spellid[s]);
+                    GetGUID().ToString().c_str(), GetName().c_str(), pEnchant->ID, pEnchant->EffectSpellID[s]);
                 continue;
             }
 
-            float chance = pEnchant->amount[s] != 0 ? float(pEnchant->amount[s]) : GetWeaponProcChance();
+            float chance = pEnchant->EffectPointsMin[s] != 0 ? float(pEnchant->EffectPointsMin[s]) : GetWeaponProcChance();
 
             if (entry)
             {
@@ -8477,7 +8477,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             }
 
             // Apply spell mods
-            ApplySpellMod(pEnchant->spellid[s], SPELLMOD_CHANCE_OF_SUCCESS, chance);
+            ApplySpellMod(pEnchant->EffectSpellID[s], SPELLMOD_CHANCE_OF_SUCCESS, chance);
 
             // Shiv has 100% chance to apply the poison
             if (FindCurrentSpellBySpellId(5938) && e_slot == TEMP_ENCHANTMENT_SLOT)
@@ -8563,13 +8563,13 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
             continue;
         for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
         {
-            if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_USE_SPELL)
+            if (pEnchant->Effect[s] != ITEM_ENCHANTMENT_TYPE_USE_SPELL)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->spellid[s]);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->EffectSpellID[s]);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell Enchant %i, cast unknown spell %i", pEnchant->ID, pEnchant->spellid[s]);
+                TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell Enchant %i, cast unknown spell %i", pEnchant->ID, pEnchant->EffectSpellID[s]);
                 continue;
             }
 
@@ -13700,17 +13700,17 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
     if (!pEnchant)
         return;
 
-    if (!ignore_condition && pEnchant->EnchantmentCondition && !EnchantmentFitsRequirements(pEnchant->EnchantmentCondition, -1))
+    if (!ignore_condition && pEnchant->ConditionID && !EnchantmentFitsRequirements(pEnchant->ConditionID, -1))
         return;
 
-    if (pEnchant->requiredLevel > getLevel())
+    if (pEnchant->MinLevel > getLevel())
         return;
 
-    if (pEnchant->requiredSkill > 0 && pEnchant->requiredSkillValue > GetSkillValue(pEnchant->requiredSkill))
+    if (pEnchant->RequiredSkillID > 0 && pEnchant->RequiredSkillRank > GetSkillValue(pEnchant->RequiredSkillID))
         return;
 
     // Cogwheel gems dont have requirement data set in SpellItemEnchantment.dbc, but they do have it in Item-sparse.db2
-    if (ItemTemplate const* gem = sObjectMgr->GetItemTemplate(pEnchant->GemID))
+    if (ItemTemplate const* gem = sObjectMgr->GetItemTemplate(pEnchant->SRCItemID))
         if (gem->RequiredSkill && GetSkillValue(gem->RequiredSkill) < gem->RequiredSkillRank)
             return;
 
@@ -13720,18 +13720,18 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
         && !item->GetTemplate()->Socket[slot-SOCK_ENCHANTMENT_SLOT].Color)
     {
         // Check if the requirements for the prismatic socket are met before applying the gem stats
-         SpellItemEnchantmentEntry const* pPrismaticEnchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT));
-         if (!pPrismaticEnchant || (pPrismaticEnchant->requiredSkill > 0 && pPrismaticEnchant->requiredSkillValue > GetSkillValue(pPrismaticEnchant->requiredSkill)))
-             return;
+        SpellItemEnchantmentEntry const* pPrismaticEnchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT));
+        if (!pPrismaticEnchant || (pPrismaticEnchant->RequiredSkillID > 0 && pPrismaticEnchant->RequiredSkillRank > GetSkillValue(pPrismaticEnchant->RequiredSkillID)))
+            return;
     }
 
     if (!item->IsBroken())
     {
         for (int s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
         {
-            uint32 enchant_display_type = pEnchant->type[s];
-            uint32 enchant_amount = pEnchant->amount[s];
-            uint32 enchant_spell_id = pEnchant->spellid[s];
+            uint32 enchant_display_type = pEnchant->Effect[s];
+            uint32 enchant_amount = pEnchant->EffectPointsMin[s];
+            uint32 enchant_spell_id = pEnchant->EffectSpellID[s];
 
             switch (enchant_display_type)
             {
@@ -14075,12 +14075,12 @@ void Player::UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 
                 if (!Enchant)
                     return;
 
-                if (Enchant->requiredSkill == skill_id)
+                if (Enchant->RequiredSkillID == skill_id)
                 {
                     // Checks if the enchantment needs to be applied or removed
-                    if (curr_value < Enchant->requiredSkillValue && new_value >= Enchant->requiredSkillValue)
+                    if (curr_value < Enchant->RequiredSkillRank && new_value >= Enchant->RequiredSkillRank)
                         ApplyEnchantment(m_items[i], EnchantmentSlot(slot), true);
-                    else if (new_value < Enchant->requiredSkillValue && curr_value >= Enchant->requiredSkillValue)
+                    else if (new_value < Enchant->RequiredSkillRank && curr_value >= Enchant->RequiredSkillRank)
                         ApplyEnchantment(m_items[i], EnchantmentSlot(slot), false);
                 }
 
@@ -14091,11 +14091,11 @@ void Player::UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 
                 {
                     SpellItemEnchantmentEntry const* pPrismaticEnchant = sSpellItemEnchantmentStore.LookupEntry(m_items[i]->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT));
 
-                    if (pPrismaticEnchant && pPrismaticEnchant->requiredSkill == skill_id)
+                    if (pPrismaticEnchant && pPrismaticEnchant->RequiredSkillID == skill_id)
                     {
-                        if (curr_value < pPrismaticEnchant->requiredSkillValue && new_value >= pPrismaticEnchant->requiredSkillValue)
+                        if (curr_value < pPrismaticEnchant->RequiredSkillRank && new_value >= pPrismaticEnchant->RequiredSkillRank)
                             ApplyEnchantment(m_items[i], EnchantmentSlot(slot), true);
-                        else if (new_value < pPrismaticEnchant->requiredSkillValue && curr_value >= pPrismaticEnchant->requiredSkillValue)
+                        else if (new_value < pPrismaticEnchant->RequiredSkillRank && curr_value >= pPrismaticEnchant->RequiredSkillRank)
                             ApplyEnchantment(m_items[i], EnchantmentSlot(slot), false);
                     }
                 }
@@ -21590,10 +21590,10 @@ void Player::InitDataForForm(bool reapplyMods)
     ShapeshiftForm form = GetShapeshiftForm();
 
     SpellShapeshiftFormEntry const* ssEntry = sSpellShapeshiftFormStore.LookupEntry(form);
-    if (ssEntry && ssEntry->attackSpeed)
+    if (ssEntry && ssEntry->CombatRoundTime)
     {
-        SetAttackTime(BASE_ATTACK, ssEntry->attackSpeed);
-        SetAttackTime(OFF_ATTACK, ssEntry->attackSpeed);
+        SetAttackTime(BASE_ATTACK, ssEntry->CombatRoundTime);
+        SetAttackTime(OFF_ATTACK, ssEntry->CombatRoundTime);
         SetAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
     }
     else
@@ -22482,7 +22482,7 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
                 if (!enchantEntry)
                     continue;
 
-                uint32 gemid = enchantEntry->GemID;
+                uint32 gemid = enchantEntry->SRCItemID;
                 if (!gemid)
                     continue;
 
@@ -22509,15 +22509,15 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
 
     for (uint8 i = 0; i < 5; i++)
     {
-        if (!Condition->Color[i])
+        if (!Condition->LTOperandType[i])
             continue;
 
-        uint32 _cur_gem = curcount[Condition->Color[i] - 1];
+        uint32 _cur_gem = curcount[Condition->LTOperandType[i] - 1];
 
         // if have <CompareColor> use them as count, else use <value> from Condition
-        uint32 _cmp_gem = Condition->CompareColor[i] ? curcount[Condition->CompareColor[i] - 1]: Condition->Value[i];
+        uint32 _cmp_gem = Condition->RTOperandType[i] ? curcount[Condition->RTOperandType[i] - 1]: Condition->RTOperand[i];
 
-        switch (Condition->Comparator[i])
+        switch (Condition->Operator[i])
         {
             case 2:                                         // requires less <color> than (<value> || <comparecolor>) gems
                 activate &= (_cur_gem < _cmp_gem) ? true : false;
@@ -22560,7 +22560,7 @@ void Player::CorrectMetaGemEnchants(uint8 exceptslot, bool apply)
             if (!enchantEntry)
                 continue;
 
-            uint32 condition = enchantEntry->EnchantmentCondition;
+            uint32 condition = enchantEntry->ConditionID;
             if (condition)
             {
                                                             //was enchant active with/without item?
@@ -22604,7 +22604,7 @@ void Player::ToggleMetaGemsActive(uint8 exceptslot, bool apply)
                 continue;
 
             //only metagems to be (de)activated, so only enchants with condition
-            uint32 condition = enchantEntry->EnchantmentCondition;
+            uint32 condition = enchantEntry->ConditionID;
             if (condition)
                 ApplyEnchantment(pItem, EnchantmentSlot(enchant_slot), apply);
         }
@@ -25489,7 +25489,7 @@ InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limi
         if (!enchantEntry)
             continue;
 
-        ItemTemplate const* pGem = sObjectMgr->GetItemTemplate(enchantEntry->GemID);
+        ItemTemplate const* pGem = sObjectMgr->GetItemTemplate(enchantEntry->SRCItemID);
         if (!pGem)
             continue;
 

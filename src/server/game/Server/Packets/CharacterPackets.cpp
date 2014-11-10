@@ -112,7 +112,7 @@ WorldPackets::Character::CharEnumResult::CharacterInfo::CharacterInfo(Field* fie
 
                 if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId))
                 {
-                    VisualItems[slot].DisplayEnchantId = enchant->aura_id;
+                    VisualItems[slot].DisplayEnchantId = enchant->ItemVisual;
                     break;
                 }
             }

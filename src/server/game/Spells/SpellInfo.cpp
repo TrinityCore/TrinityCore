@@ -367,9 +367,10 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128();
     ImplicitTargetConditions = NULL;
-    ScalingMultiplier = scaling ? scaling->Multiplier[_effIndex] : 0.0f;
-    DeltaScalingMultiplier = scaling ? scaling->RandomMultiplier[_effIndex] : 0.0f;
-    ComboScalingMultiplier = scaling ? scaling->OtherMultiplier[_effIndex] : 0.0f;
+    // TODO: 6.x these values are no longer in dbc
+    ScalingMultiplier = /*scaling ? scaling->Multiplier[_effIndex] :*/ 0.0f;
+    DeltaScalingMultiplier = /*scaling ? scaling->RandomMultiplier[_effIndex] :*/ 0.0f;
+    ComboScalingMultiplier = /*scaling ? scaling->OtherMultiplier[_effIndex] :*/ 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -925,8 +926,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     CastTimeMax = _scaling ?_scaling->CastTimeMax : 0;
     CastTimeMaxLevel = _scaling ? _scaling->CastTimeMaxLevel : 0;
     ScalingClass = _scaling ? _scaling->ScalingClass : 0;
-    CoefBase = _scaling ? _scaling->CoefBase : 0;
-    CoefLevelBase = _scaling ? _scaling->CoefLevelBase : 0;
+    CoefBase = _scaling ? _scaling->NerfFactor : 0;
+    CoefLevelBase = _scaling ? _scaling->NerfMaxLevel : 0;
 
     // SpellAuraOptionsEntry
     SpellAuraOptionsEntry const* _options = GetSpellAuraOptions();
@@ -955,16 +956,16 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     // SpellCategoriesEntry
     SpellCategoriesEntry const* _categorie = GetSpellCategories();
     CategoryEntry = _categorie ? sSpellCategoryStore.LookupEntry(_categorie->Category) : NULL;
-    Dispel = _categorie ? _categorie->Dispel : 0;
+    Dispel = _categorie ? _categorie->DispelType : 0;
     Mechanic = _categorie ? _categorie->Mechanic : 0;
     StartRecoveryCategory = _categorie ? _categorie->StartRecoveryCategory : 0;
-    DmgClass = _categorie ? _categorie->DmgClass : 0;
+    DmgClass = _categorie ? _categorie->DefenseType : 0;
     PreventionType = _categorie ? _categorie->PreventionType : 0;
 
     // SpellClassOptionsEntry
     SpellClassOptionsEntry const* _class = GetSpellClassOptions();
-    SpellFamilyName = _class ? _class->SpellFamilyName : 0;
-    SpellFamilyFlags = _class ? _class->SpellFamilyFlags : flag96(0);
+    SpellFamilyName = _class ? _class->SpellClassSet : 0;
+    SpellFamilyFlags = _class ? _class->SpellClassMask : flag128(0);
 
     // SpellCooldownsEntry
     SpellCooldownsEntry const* _cooldowns = GetSpellCooldowns();
@@ -981,21 +982,22 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     // SpellInterruptsEntry
     SpellInterruptsEntry const* _interrupt = GetSpellInterrupts();
     InterruptFlags = _interrupt ? _interrupt->InterruptFlags : 0;
-    AuraInterruptFlags = _interrupt ? _interrupt->AuraInterruptFlags : 0;
-    ChannelInterruptFlags = _interrupt ? _interrupt->ChannelInterruptFlags : 0;
+    // TODO: 6.x these flags have 2 parts
+    AuraInterruptFlags = _interrupt ? _interrupt->AuraInterruptFlags[0] : 0;
+    ChannelInterruptFlags = _interrupt ? _interrupt->ChannelInterruptFlags[0] : 0;
 
     // SpellLevelsEntry
     SpellLevelsEntry const* _levels = GetSpellLevels();
-    MaxLevel = _levels ? _levels->maxLevel : 0;
-    BaseLevel = _levels ? _levels->baseLevel : 0;
-    SpellLevel = _levels ? _levels->spellLevel : 0;
+    MaxLevel = _levels ? _levels->MaxLevel : 0;
+    BaseLevel = _levels ? _levels->BaseLevel : 0;
+    SpellLevel = _levels ? _levels->SpellLevel : 0;
 
     // SpellPowerEntry
     SpellPowerEntry const* _power = GetSpellPower();
-    ManaCost = _power ? _power->manaCost : 0;
-    ManaCostPerlevel = _power ? _power->manaCostPerlevel : 0;
+    ManaCost = _power ? _power->ManaCost : 0;
+    ManaCostPerlevel = _power ? _power->ManaCostPerLevel : 0;
     ManaCostPercentage = _power ? _power->ManaCostPercentage : 0;
-    ManaPerSecond = _power ? _power->manaPerSecond : 0;
+    ManaPerSecond = _power ? _power->ManaCostPerSecond : 0;
 
     // SpellReagentsEntry
     SpellReagentsEntry const* _reagents = GetSpellReagents();
@@ -1006,8 +1008,9 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
 
     // SpellShapeshiftEntry
     SpellShapeshiftEntry const* _shapeshift = GetSpellShapeshift();
-    Stances = _shapeshift ? _shapeshift->Stances : 0;
-    StancesNot = _shapeshift ? _shapeshift->StancesNot : 0;
+    // TODO: 6.x these maks have 2 parts
+    Stances = _shapeshift ? _shapeshift->ShapeshiftMask[0] : 0;
+    StancesNot = _shapeshift ? _shapeshift->ShapeshiftExclude[0] : 0;
 
     // SpellTargetRestrictionsEntry
     SpellTargetRestrictionsEntry const* _target = GetSpellTargetRestrictions();
@@ -1033,7 +1036,7 @@ SpellInfo::~SpellInfo()
 
 uint32 SpellInfo::GetCategory() const
 {
-    return CategoryEntry ? CategoryEntry->Id : 0;
+    return CategoryEntry ? CategoryEntry->ID : 0;
 }
 
 bool SpellInfo::HasEffect(SpellEffects effect) const
@@ -1497,7 +1500,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
             TC_LOG_ERROR("spells", "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
             return SPELL_CAST_OK;
         }
-        actAsShifted = !(shapeInfo->flags1 & 1);            // shapeshift acts as normal form for spells
+        actAsShifted = !(shapeInfo->Flags & 1);            // shapeshift acts as normal form for spells
     }
 
     if (actAsShifted)
@@ -1517,7 +1520,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
     // Check if stance disables cast of not-stance spells
     // Example: cannot cast any other spells in zombie or ghoul form
     /// @todo Find a way to disable use of these spells clientside
-    if (shapeInfo && shapeInfo->flags1 & 0x400)
+    if (shapeInfo && shapeInfo->Flags & 0x400)
     {
         if (!(stanceMask & Stances))
             return SPELL_FAILED_ONLY_SHAPESHIFT;
@@ -1872,7 +1875,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
             if (Effects[effIndex].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
             {
                 SpellShapeshiftFormEntry const* shapeShiftFromEntry = sSpellShapeshiftFormStore.LookupEntry(Effects[effIndex].MiscValue);
-                if (shapeShiftFromEntry && (shapeShiftFromEntry->flags1 & 1) == 0)  // unk flag
+                if (shapeShiftFromEntry && (shapeShiftFromEntry->Flags & 1) == 0)  // unk flag
                     checkMask |= VEHICLE_SEAT_FLAG_UNCONTROLLED;
                 break;
             }
@@ -2245,8 +2248,8 @@ float SpellInfo::GetMinRange(bool positive) const
     if (!RangeEntry)
         return 0.0f;
     if (positive)
-        return RangeEntry->minRangeFriend;
-    return RangeEntry->minRangeHostile;
+        return RangeEntry->MinRangeFriend;
+    return RangeEntry->MinRangeHostile;
 }
 
 float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
@@ -2255,9 +2258,9 @@ float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
         return 0.0f;
     float range;
     if (positive)
-        range = RangeEntry->maxRangeFriend;
+        range = RangeEntry->MaxRangeFriend;
     else
-        range = RangeEntry->maxRangeHostile;
+        range = RangeEntry->MaxRangeHostile;
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(Id, SPELLMOD_RANGE, range, spell);

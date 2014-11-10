@@ -773,7 +773,7 @@ bool Item::HasEnchantRequiredSkill(const Player* player) const
 
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-                if (enchantEntry->requiredSkill && player->GetSkillValue(enchantEntry->requiredSkill) < enchantEntry->requiredSkillValue)
+                if (enchantEntry->RequiredSkillID && player->GetSkillValue(enchantEntry->RequiredSkillID) < enchantEntry->RequiredSkillRank)
                     return false;
     }
 
@@ -792,8 +792,8 @@ uint32 Item::GetEnchantRequiredLevel() const
 
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-                if (enchantEntry->requiredLevel > level)
-                    level = enchantEntry->requiredLevel;
+                if (enchantEntry->MinLevel > level)
+                    level = enchantEntry->MinLevel;
     }
 
     return level;
@@ -809,7 +809,7 @@ bool Item::IsBoundByEnchant() const
 
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-                if (enchantEntry->slot & ENCHANTMENT_CAN_SOULBOUND)
+                if (enchantEntry->Flags & ENCHANTMENT_CAN_SOULBOUND)
                     return true;
     }
 
@@ -939,7 +939,7 @@ bool Item::GemsFitSockets() const
 
         uint8 GemColor = 0;
 
-        uint32 gemid = enchantEntry->GemID;
+        uint32 gemid = enchantEntry->SRCItemID;
         if (gemid)
         {
             ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemid);
@@ -970,7 +970,7 @@ uint8 Item::GetGemCountWithID(uint32 GemID) const
         if (!enchantEntry)
             continue;
 
-        if (GemID == enchantEntry->GemID)
+        if (GemID == enchantEntry->SRCItemID)
             ++count;
     }
     return count;
@@ -989,7 +989,7 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
         if (!enchantEntry)
             continue;
 
-        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(enchantEntry->GemID);
+        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(enchantEntry->SRCItemID);
         if (!gemProto)
             continue;
 
@@ -1495,7 +1495,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
         for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
             if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
                 for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
-                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->spellid[f]) == statType)
+                    if (enchant->Effect[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->EffectSpellID[f]) == statType)
                         for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
                             if (randomSuffix->Enchantment[k] == enchant->ID)
                                 return int32((randomSuffix->AllocationPct[k] * GetItemSuffixFactor()) / 10000);
@@ -1509,10 +1509,10 @@ int32 Item::GetReforgableStat(ItemModType statType) const
         for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
             if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
                 for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
-                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->spellid[f]) == statType)
+                    if (enchant->Effect[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->EffectSpellID[f]) == statType)
                         for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
                             if (randomProp->Enchantment[k] == enchant->ID)
-                                return int32(enchant->amount[k]);
+                                return int32(enchant->EffectPointsMin[k]);
     }
 
     return 0;

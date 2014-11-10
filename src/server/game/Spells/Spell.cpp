@@ -4546,7 +4546,7 @@ void Spell::TakeRunePower(bool didHit)
 
     // you can gain some runic power when use runes
     if (didHit)
-        if (int32 rp = int32(runeCostData->runePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
+        if (int32 rp = int32(runeCostData->RunePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
             player->ModifyPower(POWER_RUNIC_POWER, int32(rp));
 }
 
@@ -5812,7 +5812,7 @@ SpellCastResult Spell::CheckRange(bool strict)
         if (m_spellInfo->RangeEntry->ID == 1)
             return SPELL_CAST_OK;
 
-        range_type = m_spellInfo->RangeEntry->type;
+        range_type = m_spellInfo->RangeEntry->Flags;
     }
 
     Unit* target = m_targets.GetUnitTarget();
@@ -6132,7 +6132,7 @@ SpellCastResult Spell::CheckItems()
                 {
                     for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
                     {
-                        switch (enchantEntry->type[s])
+                        switch (enchantEntry->Effect[s])
                         {
                             case ITEM_ENCHANTMENT_TYPE_USE_SPELL:
                                 if (isItemUsable)
@@ -6158,7 +6158,7 @@ SpellCastResult Spell::CheckItems()
                 {
                     if (!enchantEntry)
                         return SPELL_FAILED_ERROR;
-                    if (enchantEntry->slot & ENCHANTMENT_CAN_SOULBOUND)
+                    if (enchantEntry->Flags & ENCHANTMENT_CAN_SOULBOUND)
                         return SPELL_FAILED_NOT_TRADEABLE;
                 }
                 break;
@@ -6175,7 +6175,7 @@ SpellCastResult Spell::CheckItems()
                     SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
                     if (!pEnchant)
                         return SPELL_FAILED_ERROR;
-                    if (pEnchant->slot & ENCHANTMENT_CAN_SOULBOUND)
+                    if (pEnchant->Flags & ENCHANTMENT_CAN_SOULBOUND)
                         return SPELL_FAILED_NOT_TRADEABLE;
                 }
                 break;
