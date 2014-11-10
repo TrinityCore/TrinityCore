@@ -628,7 +628,7 @@ class spell_dk_death_strike : public SpellScriptLoader
                 if (AuraEffect* enabler = GetCaster()->GetAuraEffect(SPELL_DK_DEATH_STRIKE_ENABLER, EFFECT_0, GetCaster()->GetGUID()))
                 {
                     // Call CalculateAmount() to constantly fire the AuraEffect's HandleCalcAmount method
-                    int32 heal = CalculatePct(enabler->CalculateAmount(GetCaster()), GetSpellInfo()->Effects[EFFECT_0].DamageMultiplier);
+                    int32 heal = CalculatePct(enabler->CalculateAmount(GetCaster()), GetSpellInfo()->Effects[EFFECT_0].ChainAmplitude);
 
                     if (AuraEffect const* aurEff = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_DEATH_STRIKE, EFFECT_2))
                         heal = AddPct(heal, aurEff->GetAmount());

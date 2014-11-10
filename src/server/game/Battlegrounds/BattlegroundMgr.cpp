@@ -735,8 +735,8 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
         AddBattleground(bg);
     }
 
-    bg->SetMapId(bgTemplate->BattlemasterEntry->mapid[0]);
-    bg->SetName(bgTemplate->BattlemasterEntry->name);
+    bg->SetMapId(bgTemplate->BattlemasterEntry->MapID[0]);
+    bg->SetName(bgTemplate->BattlemasterEntry->Name_lang);
     bg->SetInstanceID(0);
     bg->SetArenaorBGType(bgTemplate->IsArena());
     bg->SetMinPlayersPerTeam(bgTemplate->MinPlayersPerTeam);
@@ -845,8 +845,8 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
 
         _battlegroundTemplates[bgTypeId] = bgTemplate;
 
-        if (bgTemplate.BattlemasterEntry->mapid[1] == -1) // in this case we have only one mapId
-            _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->mapid[0]] = &_battlegroundTemplates[bgTypeId];
+        if (bgTemplate.BattlemasterEntry->MapID[1] == -1) // in this case we have only one mapId
+            _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->MapID[0]] = &_battlegroundTemplates[bgTypeId];
 
         ++count;
     }
@@ -1204,7 +1204,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
         uint32 weight = 0;
         BattlegroundSelectionWeightMap selectionWeights;
 
-        for (int32 mapId : bgTemplate->BattlemasterEntry->mapid)
+        for (int32 mapId : bgTemplate->BattlemasterEntry->MapID)
         {
             if (mapId == -1)
                 break;
