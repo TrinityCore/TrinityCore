@@ -1144,7 +1144,7 @@ void ExtractDBFilesClient(int l)
     HANDLE dbcFile;
     while (fileName)
     {
-        if (CascOpenFile(CascStorage, fileName, 1 << l, 0, &dbcFile))
+        if (CascOpenFile(CascStorage, fileName, CASC_LOCALE_NONE, 0, &dbcFile))
         {
             std::string filename = fileName;
             filename = outputPath + filename.substr(filename.rfind('\\') + 1);
