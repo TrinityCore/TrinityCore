@@ -25502,6 +25502,8 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 
 bool Player::LearnTalent(uint32 talentId)
 {
+    uint8 spec = GetActiveSpec();
+
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
 
     if (!talentInfo)
@@ -25513,6 +25515,11 @@ bool Player::LearnTalent(uint32 talentId)
 
     // Check player level.
     if (getLevel() < (15*talentInfo->TierID + 15))
+        return false;
+
+    // Check if such tier talent hasn't been picked already
+    TalentSpecInfo* = GetTalentSpecInfo(spec);
+    if (TalentSpecInfo->Talents[talentInfo->TierID].SpellID != 0)
         return false;
 
     // spell not set in talent.dbc
@@ -25529,14 +25536,14 @@ bool Player::LearnTalent(uint32 talentId)
 
     // learn! (other talent ranks will unlearned at learning)
     LearnSpell(spellid, false);
-    AddTalent(spellid, GetActiveSpec(), true);
+    AddTalent(spellid, spec, true);
 
-    TC_LOG_INFO("misc", "TalentID: %u Spell: %u Spec: %u\n", talentId, spellid, GetActiveSpec());
+    TC_LOG_INFO("misc", "TalentID: %u Spell: %u Spec: %u\n", talentId, spellid, spec);
 
     // set talent tree for player
-    if (!GetTalentSpec(GetActiveSpec()))
+    if (!GetTalentSpec(spec))
     {
-        SetTalentSpec(GetActiveSpec(), talentInfo->SpecID);
+        SetTalentSpec(spec, talentInfo->SpecID);
 
         // Replace default spells by specialization spells
         auto specSpells = sSpecializationSpellsBySpecStore.find(talentInfo->SpecID);
