@@ -70,6 +70,7 @@ struct AchievementEntry
     //uint32    CriteriaTree;                               // 14
 };
 
+//19116
 struct AchievementCategoryEntry
 {
     uint32      ID;                                         // 0
