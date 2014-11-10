@@ -28,12 +28,6 @@ extern DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore;
 extern DB2Storage<ItemSparseEntry> sItemSparseStore;
 extern DB2Storage<KeyChainEntry> sKeyChainStore;
 
-extern DB2Storage<SpellMiscEntry> sSpellMiscStore;
-extern DB2Storage <SpellClassOptionsEntry> sSpellClassOptionsStore;
-extern DB2Storage <SpellPowerEntry> sSpellPowerStore;
-extern DB2Storage <SpellAuraRestrictionsEntry> sSpellAuraRestrictionsStore;
-extern DB2Storage <OverrideSpellDataEntry> sOverrideSpellDataStore;
-
 void LoadDB2Stores(std::string const& dataPath);
 
 DB2StorageBase const* GetDB2Storage(uint32 type);
