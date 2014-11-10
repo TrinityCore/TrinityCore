@@ -55,8 +55,8 @@ uint32 const SizeOfClientHeader[2][2] =
 uint32 const SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint32), sizeof(uint32) };
 
 WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
-    _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr),
-    _initialized(false), _type(CONNECTION_TYPE_REALM)
+    _type(CONNECTION_TYPE_REALM), _authSeed(rand32()),
+    _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
 {
     _headerBuffer.Resize(SizeOfClientHeader[0][0]);
 }
@@ -184,11 +184,11 @@ bool WorldSocket::ReadHeaderHandler()
         if (_worldSession)
         {
             Player* player = _worldSession->GetPlayer();
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client (account: %u, char [%s, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
+            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client (account: %u, char [%s, name: %s]) sent malformed packet (size: %u, cmd: %u)",
                 _worldSession->GetAccountId(), player ? player->GetGUID().ToString().c_str() : "GUID: Empty", player ? player->GetName().c_str() : "<none>", size, opcode);
         }
         else
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
+            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %u, cmd: %u)",
                 GetRemoteIpAddress().to_string().c_str(), size, opcode);
 
         CloseSocket();

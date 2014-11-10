@@ -108,7 +108,7 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
 
         struct npc_twilight_flame_callerAI : public ScriptedAI
         {
-            npc_twilight_flame_callerAI(Creature* creature) : ScriptedAI(creature), _summons(me), _instance(creature->GetInstanceScript())
+            npc_twilight_flame_callerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me)
             {
                 Initialize();
             }

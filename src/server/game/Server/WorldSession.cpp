@@ -951,7 +951,7 @@ void WorldSession::ProcessQueryCallbacks()
     {
         _charEnumCallback.GetResult(result);
 
-        if (bool undelete = _charEnumCallback.GetParam())
+        if (_charEnumCallback.GetParam())
             HandleCharUndeleteEnum(result);
         else
             HandleCharEnum(result);
