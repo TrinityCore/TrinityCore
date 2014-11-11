@@ -420,6 +420,7 @@ public:
     //Edit Player TP
     static bool HandleModifyTalentCommand (ChatHandler* handler, const char* args)
     {
+        /* TODO: 6.x remove this
         if (!*args)
             return false;
 
@@ -460,7 +461,7 @@ public:
 
         handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
         handler->SetSentErrorMessage(true);
-        return false;
+        return false;*/
     }
 
     //Edit Player Aspeed

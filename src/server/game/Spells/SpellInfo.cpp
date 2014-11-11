@@ -1478,9 +1478,10 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 {
     // talents that learn spells can have stance requirements that need ignore
     // (this requirement only for client-side stance show in talent description)
+    /* TODO: 6.x fix this in proper way (probably spell flags/attributes?)
     if (GetTalentSpellCost(Id) > 0 &&
         (Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[1].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[2].Effect == SPELL_EFFECT_LEARN_SPELL))
-        return SPELL_CAST_OK;
+        return SPELL_CAST_OK;*/
 
     uint32 stanceMask = (form ? 1 << (form - 1) : 0);
 

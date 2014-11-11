@@ -1066,12 +1066,11 @@ void Battleground::AddPlayer(Player* player)
     // score struct must be created in inherited class
 
     uint32 team = player->GetBGTeam();
-    int32  primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
-    bp.PrimaryTree = primaryTree;
+    bp.ActiveSpec = player->GetTalentSpec(player->GetActiveSpec());
 
     // Add to list/maps
     m_Players[player->GetGUID()] = bp;
