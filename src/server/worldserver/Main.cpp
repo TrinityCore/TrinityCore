@@ -80,6 +80,7 @@ uint32 _maxCoreStuckTimeInMs(0);
 
 WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
+HotFixDatabaseWorkerPool HotFixDatabase;                    ///< Accessor to the hotfix database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
 Battlenet::RealmHandle realmHandle;                         ///< Id of the realm
 Realm realm;
@@ -567,6 +568,31 @@ bool StartDB()
     if (!CharacterDatabase.Open(dbString, asyncThreads, synchThreads))
     {
         TC_LOG_ERROR("server.worldserver", "Cannot connect to Character database %s", dbString.c_str());
+        return false;
+    }
+
+    ///- Get hotfix database info from configuration file
+    dbString = sConfigMgr->GetStringDefault("HotFixDatabaseInfo", "");
+    if (dbString.empty())
+    {
+        TC_LOG_ERROR("server.worldserver", "HotFix database not specified in configuration file");
+        return false;
+    }
+
+    asyncThreads = uint8(sConfigMgr->GetIntDefault("HotFixDatabase.WorkerThreads", 1));
+    if (asyncThreads < 1 || asyncThreads > 32)
+    {
+        TC_LOG_ERROR("server.worldserver", "HotFix database: invalid number of worker threads specified. "
+            "Please pick a value between 1 and 32.");
+        return false;
+    }
+
+    synchThreads = uint8(sConfigMgr->GetIntDefault("HotFixDatabase.SynchThreads", 2));
+
+    ///- Initialize the HotFix database
+    if (!HotFixDatabase.Open(dbString, asyncThreads, synchThreads))
+    {
+        TC_LOG_ERROR("server.worldserver", "Cannot connect to HotFix database %s", dbString.c_str());
         return false;
     }
 
