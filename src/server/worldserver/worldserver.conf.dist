@@ -93,10 +93,12 @@ LogsDir = ""
 #        Default:     "127.0.0.1;3306;trinity;trinity;auth"       - (LoginDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
+#                     "127.0.0.1;3306;trinity;trinity;hotfix" - (HotFixDatabaseInfo)
 
 LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
 CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+HotFixDatabaseInfo    = "127.0.0.1;3306;trinity;trinity;hotfix"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -108,10 +110,12 @@ CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     1 - (CharacterDatabase.WorkerThreads)
+#                     1 - (HotFixDatabase.WorkerThreads)
 
 LoginDatabase.WorkerThreads     = 1
 WorldDatabase.WorkerThreads     = 1
 CharacterDatabase.WorkerThreads = 1
+HotFixDatabase.WorkerThreads    = 1
 
 #
 #    LoginDatabase.SynchThreads
@@ -121,10 +125,12 @@ CharacterDatabase.WorkerThreads = 1
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     2 - (CharacterDatabase.WorkerThreads)
+#                     1 - (HotFixDatabase.WorkerThreads)
 
 LoginDatabase.SynchThreads     = 1
 WorldDatabase.SynchThreads     = 1
 CharacterDatabase.SynchThreads = 2
+HotFixDatabase.SynchThreads    = 1
 
 #
 #    MaxPingTime
