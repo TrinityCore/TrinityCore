@@ -236,7 +236,7 @@ public:
                 {
                     uint32 Spell = 0;
 
-                    switch (pFaction->faction)
+                    switch (pFaction->Faction)
                     {
                         case 1011: Spell = SPELL_REP_LC; break;
                         case 935: Spell = SPELL_REP_SHAT; break;

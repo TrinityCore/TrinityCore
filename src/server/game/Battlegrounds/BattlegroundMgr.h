@@ -51,7 +51,7 @@ struct BattlegroundTemplate
     uint32 ScriptId;
     BattlemasterListEntry const* BattlemasterEntry;
 
-    bool IsArena() const { return BattlemasterEntry->type == MAP_ARENA; }
+    bool IsArena() const { return BattlemasterEntry->InstanceType == MAP_ARENA; }
 };
 
 class BattlegroundMgr

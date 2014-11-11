@@ -318,17 +318,17 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
     {
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
-        val2 = (level + std::max(GetStat(STAT_AGILITY) - 10.0f, 0.0f)) * entry->RAPPerAgility;
+        val2 = (level + std::max(GetStat(STAT_AGILITY) - 10.0f, 0.0f)) * entry->RangedAttackPowerPerAgility;
     }
     else
     {
-        float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * entry->APPerStrenth, 0.0f);
-        float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerAgility, 0.0f);
+        float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * entry->AttackPowerPerStrength, 0.0f);
+        float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->AttackPowerPerAgility, 0.0f);
 
         SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
         // Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
-        if (form && form->flags1 & 0x20)
-            agilityValue += std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerStrenth, 0.0f);
+        if (form && form->Flags & 0x20)
+            agilityValue += std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->AttackPowerPerStrength, 0.0f);
 
         val2 = strengthValue + agilityValue;
     }
@@ -526,27 +526,27 @@ void Player::UpdateMastery()
     value += GetRatingBonusValue(CR_MASTERY);
     SetFloatValue(PLAYER_MASTERY, value);
 
-    TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(GetPrimaryTalentTree(GetActiveSpec()));
-    if (!talentTab)
+    ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetTalentSpec(GetActiveSpec()));
+    if (!chrSpec)
         return;
 
     for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
     {
-        if (!talentTab->MasterySpellId[i])
+        if (!chrSpec->MasterySpellID[i])
             continue;
 
-        if (Aura* aura = GetAura(talentTab->MasterySpellId[i]))
+        if (Aura* aura = GetAura(chrSpec->MasterySpellID[i]))
         {
             for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
             {
                 if (!aura->HasEffect(j))
                     continue;
 
-                float mult = aura->GetSpellInfo()->Effects[j].BonusMultiplier;
+                float mult = aura->GetSpellInfo()->Effects[j].BonusCoefficient;
                 if (G3D::fuzzyEq(mult, 0.0f))
                     continue;
 
-                aura->GetEffect(j)->ChangeAmount(int32(value * aura->GetSpellInfo()->Effects[j].BonusMultiplier));
+                aura->GetEffect(j)->ChangeAmount(int32(value * aura->GetSpellInfo()->Effects[j].BonusCoefficient));
             }
         }
     }

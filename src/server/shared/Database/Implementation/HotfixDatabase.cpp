@@ -15,15 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _TOTP_H
-#define _TOTP_H
+#include "HotfixDatabase.h"
 
-#include "openssl/hmac.h"
-#include "openssl/evp.h"
-
-namespace TOTP
+void HotfixDatabaseConnection::DoPrepareStatements()
 {
-    unsigned int GenerateToken(const char* b32key);
+    if (!m_reconnecting)
+        m_stmts.resize(MAX_HOTFIXDATABASE_STATEMENTS);
 }
-
-#endif

@@ -30,6 +30,8 @@
 #include "NPCHandler.h"
 #include "Pet.h"
 #include "MapManager.h"
+#include "BattlenetAccountMgr.h"
+#include "CharacterPackets.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
@@ -57,7 +59,7 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 
         if (DeclinedName const* names = (player ? player->GetDeclinedNames() : nullptr))
             for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                response.Data.DeclinedNames.name[i] = names[i];
+                response.Data.DeclinedNames.name[i] = names->name[i];
     }
     else
     {
@@ -249,14 +251,14 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
         // search entrance map for proper show entrance
         if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapid))
         {
-            if (corpseMapEntry->IsDungeon() && corpseMapEntry->entrance_map >= 0)
+            if (corpseMapEntry->IsDungeon() && corpseMapEntry->CorpseMapID >= 0)
             {
                 // if corpse map have entrance
-                if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->entrance_map))
+                if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->CorpseMapID))
                 {
-                    mapid = corpseMapEntry->entrance_map;
-                    x = corpseMapEntry->entrance_x;
-                    y = corpseMapEntry->entrance_y;
+                    mapid = corpseMapEntry->CorpseMapID;
+                    x = corpseMapEntry->CorpsePos.X;
+                    y = corpseMapEntry->CorpsePos.Y;
                     z = entranceMap->GetHeight(GetPlayer()->GetPhaseMask(), x, y, MAX_HEIGHT);
                 }
             }

@@ -35,20 +35,20 @@
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
     SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
-    return pSkill && pSkill->categoryId == SKILL_CATEGORY_PROFESSION;
+    return pSkill && pSkill->CategoryID == SKILL_CATEGORY_PROFESSION;
 }
 
 bool IsWeaponSkill(uint32 skill)
 {
     SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
-    return pSkill && pSkill->categoryId == SKILL_CATEGORY_WEAPON;
+    return pSkill && pSkill->CategoryID == SKILL_CATEGORY_WEAPON;
 }
 
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
 {
     SkillLineAbilityMapBounds skillBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
     for (SkillLineAbilityMap::const_iterator itr = skillBounds.first; itr != skillBounds.second; ++itr)
-        if (itr->second->skillId == skillId)
+        if (itr->second->SkillLine == skillId)
             return true;
 
     return false;
@@ -466,9 +466,10 @@ void SpellMgr::SetSpellDifficultyId(uint32 spellId, uint32 id)
     mSpellDifficultySearcherMap[spellId] = id;
 }
 
+// TODO: 6.x adapt to new spell diff system
 uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const
 {
-    if (!GetSpellInfo(spellId))
+    /*if (!GetSpellInfo(spellId))
         return spellId;
 
     if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
@@ -506,6 +507,8 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
 
     TC_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: spellid for spell %u in mode %u is %d", spellId, mode, difficultyEntry->SpellID[mode]);
     return uint32(difficultyEntry->SpellID[mode]);
+    */
+    return 0;
 }
 
 SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const
@@ -1224,6 +1227,7 @@ void SpellMgr::UnloadSpellInfoChains()
 
 void SpellMgr::LoadSpellTalentRanks()
 {
+    /* TODO: 6.x remove this
     // cleanup core data before reload - remove reference to ChainNode from SpellInfo
     UnloadSpellInfoChains();
 
@@ -1280,7 +1284,7 @@ void SpellMgr::LoadSpellTalentRanks()
 
             prevSpell = currentSpell;
         }
-    }
+    }*/
 }
 
 void SpellMgr::LoadSpellRanks()
@@ -1535,7 +1539,7 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
         }
 
-        if (GetTalentSpellCost(node.spell))
+        if (GetTalentBySpellID(node.spell))
         {
             TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` attempt learning talent spell %u, skipped", spell_id, node.spell);
             continue;
@@ -1573,7 +1577,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 // talent or passive spells or skill-step spells auto-cast and not need dependent learning,
                 // pet teaching spells must not be dependent learning (cast)
                 // other required explicit dependent learning
-                dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || GetTalentSpellCost(spell) > 0 || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
+                dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || GetTalentBySpellID(spell) || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
 
                 SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spell);
 
@@ -1599,22 +1603,22 @@ void SpellMgr::LoadSpellLearnSpells()
     }
 
     uint32 mastery_count = 0;
-    for (uint32 i = 0; i < sTalentTabStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sChrSpecializationStore.GetNumRows(); ++i)
     {
-        TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(i);
-        if (!talentTab)
+        ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(i);
+        if (!chrSpec)
             continue;
 
         for (uint32 c = CLASS_WARRIOR; c < MAX_CLASSES; ++c)
         {
-            if (!(talentTab->ClassMask & (1 << (c - 1))))
+            if (chrSpec->ClassID != c)
                 continue;
 
             uint32 masteryMainSpell = MasterySpells[c];
 
             for (uint32 m = 0; m < MAX_MASTERY_SPELLS; ++m)
             {
-                uint32 mastery = talentTab->MasterySpellId[m];
+                uint32 mastery = chrSpec->MasterySpellID[m];
                 if (!mastery)
                     continue;
 
@@ -1893,8 +1897,8 @@ void SpellMgr::LoadSpellProcEvents()
 
     mSpellProcEventMap.clear();                             // need for reload case
 
-    //                                                0      1           2                3                 4                 5                 6          7       8        9             10
-    QueryResult result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
+    //                                                0      1           2                3                 4                 5                 6                 7          8       9        10            11
+    QueryResult result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, SpellFamilyMask3, procFlags, procEx, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell proc event conditions. DB table `spell_proc_event` is empty.");
@@ -1942,11 +1946,12 @@ void SpellMgr::LoadSpellProcEvents()
         spellProcEvent.spellFamilyMask[0] = fields[3].GetUInt32();
         spellProcEvent.spellFamilyMask[1] = fields[4].GetUInt32();
         spellProcEvent.spellFamilyMask[2] = fields[5].GetUInt32();
-        spellProcEvent.procFlags          = fields[6].GetUInt32();
-        spellProcEvent.procEx             = fields[7].GetUInt32();
-        spellProcEvent.ppmRate            = fields[8].GetFloat();
-        spellProcEvent.customChance       = fields[9].GetFloat();
-        spellProcEvent.cooldown           = fields[10].GetUInt32();
+        spellProcEvent.spellFamilyMask[3] = fields[6].GetUInt32();
+        spellProcEvent.procFlags          = fields[7].GetUInt32();
+        spellProcEvent.procEx             = fields[8].GetUInt32();
+        spellProcEvent.ppmRate            = fields[9].GetFloat();
+        spellProcEvent.customChance       = fields[10].GetFloat();
+        spellProcEvent.cooldown           = fields[11].GetUInt32();
 
         while (spellInfo)
         {
@@ -1980,8 +1985,8 @@ void SpellMgr::LoadSpellProcs()
 
     mSpellProcMap.clear();                             // need for reload case
 
-    //                                                 0        1           2                3                 4                 5                 6         7              8               9        10              11             12      13        14
-    QueryResult result = WorldDatabase.Query("SELECT spellId, schoolMask, spellFamilyName, spellFamilyMask0, spellFamilyMask1, spellFamilyMask2, typeMask, spellTypeMask, spellPhaseMask, hitMask, attributesMask, ratePerMinute, chance, cooldown, charges FROM spell_proc");
+    //                                                 0        1           2                3                 4                 5                 6                7         8              9               10        11             12             13     14         15
+    QueryResult result = WorldDatabase.Query("SELECT spellId, schoolMask, spellFamilyName, spellFamilyMask0, spellFamilyMask1, spellFamilyMask2, spellFamilyMask3, typeMask, spellTypeMask, spellPhaseMask, hitMask, attributesMask, ratePerMinute, chance, cooldown, charges FROM spell_proc");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell proc conditions and data. DB table `spell_proc` is empty.");
@@ -2028,16 +2033,17 @@ void SpellMgr::LoadSpellProcs()
         baseProcEntry.spellFamilyMask[0] = fields[3].GetUInt32();
         baseProcEntry.spellFamilyMask[1] = fields[4].GetUInt32();
         baseProcEntry.spellFamilyMask[2] = fields[5].GetUInt32();
-        baseProcEntry.typeMask        = fields[6].GetUInt32();
-        baseProcEntry.spellTypeMask   = fields[7].GetUInt32();
-        baseProcEntry.spellPhaseMask  = fields[8].GetUInt32();
-        baseProcEntry.hitMask         = fields[9].GetUInt32();
-        baseProcEntry.attributesMask  = fields[10].GetUInt32();
-        baseProcEntry.ratePerMinute   = fields[11].GetFloat();
-        baseProcEntry.chance          = fields[12].GetFloat();
-        float cooldown                = fields[13].GetFloat();
+        baseProcEntry.spellFamilyMask[3] = fields[6].GetUInt32();
+        baseProcEntry.typeMask        = fields[7].GetUInt32();
+        baseProcEntry.spellTypeMask   = fields[8].GetUInt32();
+        baseProcEntry.spellPhaseMask  = fields[9].GetUInt32();
+        baseProcEntry.hitMask         = fields[10].GetUInt32();
+        baseProcEntry.attributesMask  = fields[11].GetUInt32();
+        baseProcEntry.ratePerMinute   = fields[12].GetFloat();
+        baseProcEntry.chance          = fields[13].GetFloat();
+        float cooldown                = fields[14].GetFloat();
         baseProcEntry.cooldown        = uint32(cooldown);
-        baseProcEntry.charges         = fields[14].GetUInt32();
+        baseProcEntry.charges         = fields[15].GetUInt32();
 
         while (spellInfo)
         {
@@ -2207,7 +2213,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
         if (!SkillInfo)
             continue;
 
-        mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->spellId, SkillInfo));
+        mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->SpellID, SkillInfo));
         ++count;
     }
 
@@ -2432,7 +2438,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
 
         for (uint8 j = 0; j < 2; ++j)
         {
-            if (!creatureFamily->skillLine[j])
+            if (!creatureFamily->SkillLine[j])
                 continue;
 
             for (uint32 k = 0; k < sSkillLineAbilityStore.GetNumRows(); ++k)
@@ -2441,17 +2447,17 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (!skillLine)
                     continue;
 
-                //if (skillLine->skillId != creatureFamily->skillLine[0] &&
-                //    (!creatureFamily->skillLine[1] || skillLine->skillId != creatureFamily->skillLine[1]))
+                //if (skillLine->skillId != creatureFamily->SkillLine[0] &&
+                //    (!creatureFamily->SkillLine[1] || skillLine->skillId != creatureFamily->SkillLine[1]))
                 //    continue;
 
-                if (skillLine->skillId != creatureFamily->skillLine[j])
+                if (skillLine->SkillLine != creatureFamily->SkillLine[j])
                     continue;
 
-                if (skillLine->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                if (skillLine->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
-                SpellInfo const* spell = GetSpellInfo(skillLine->spellId);
+                SpellInfo const* spell = GetSpellInfo(skillLine->SpellID);
                 if (!spell) // not exist or triggered or talent
                     continue;
 
@@ -2543,7 +2549,7 @@ void SpellMgr::LoadPetDefaultSpells()
         int32 petSpellsId = -int32(itr->second.PetSpellDataId);
         PetDefaultSpellsEntry petDefSpells;
         for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
-            petDefSpells.spellid[j] = spellDataEntry->spellId[j];
+            petDefSpells.spellid[j] = spellDataEntry->Spells[j];
 
         if (LoadPetDefaultSpells_helper(&itr->second, petDefSpells))
         {
@@ -2813,7 +2819,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (!effect)
             continue;
 
-        effectsBySpell[effect->EffectSpellId].effects[effect->EffectIndex] = effect;
+        effectsBySpell[effect->SpellID].effects[effect->EffectIndex] = effect;
     }
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
@@ -2951,10 +2957,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
                         for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
                         {
-                            if (enchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
+                            if (enchant->Effect[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                                 continue;
 
-                            SpellInfo* procInfo = _GetSpellInfo(enchant->spellid[s]);
+                            SpellInfo* procInfo = _GetSpellInfo(enchant->EffectSpellID[s]);
                             if (!procInfo)
                                 continue;
 
@@ -3188,7 +3194,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->ProcCharges = 1;
                 break;
             case 44544: // Fingers of Frost
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(685904631, 1151048, 0);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(685904631, 1151048, 0, 0);
                 break;
             case 74396: // Fingers of Frost visual buff
                 spellInfo->ProcCharges = 2;
@@ -3212,7 +3218,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].MiscValue |= 1;
                 break;
             case 51912: // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
-                spellInfo->Effects[EFFECT_0].Amplitude = 3000;
+                spellInfo->Effects[EFFECT_0].ApplyAuraPeriod = 3000;
                 break;
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
@@ -3231,7 +3237,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 spellInfo->Effects[EFFECT_1].MiscValue = SPELLMOD_EFFECT2;
-                spellInfo->Effects[EFFECT_1].SpellClassMask = flag96(0x00000000, 0x00004000, 0x00000000);
+                spellInfo->Effects[EFFECT_1].SpellClassMask = flag128(0x00000000, 0x00004000, 0x00000000, 0x00000000);
                 break;
             case 47569: // Improved Shadowform (Rank 1)
                 // with this spell atrribute aura can be stacked several times
@@ -3273,7 +3279,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00067801, 0x10820001, 0x00000801);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00067801, 0x10820001, 0x00000801, 0x00000000);
                 break;
             case 5176:  // Wrath
             case 2912:  // Starfire
@@ -3294,22 +3300,22 @@ void SpellMgr::LoadSpellInfoCorrections()
                         // this is done because another spell also uses the same SpellFamilyFlags as Icy Touch
                         // SpellFamilyFlags[0] & 0x00000040 in SPELLFAMILY_DEATHKNIGHT is currently unused (3.3.5a)
                         // this needs research on modifier applying rules, does not seem to be in Attributes fields
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00000040, 0x00000000, 0x00000000);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00000040, 0x00000000, 0x00000000, 0x00000000);
                 break;
             case 64949: // Idol of the Flourishing Life
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00000000, 0x02000000, 0x00000000);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00000000, 0x02000000, 0x00000000, 0x00000000);
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 break;
             case 34231: // Libram of the Lightbringer
             case 60792: // Libram of Tolerance
             case 64956: // Libram of the Resolute
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x80000000, 0x00000000, 0x00000000);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x80000000, 0x00000000, 0x00000000, 0x00000000);
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 break;
             case 28851: // Libram of Light
             case 28853: // Libram of Divinity
             case 32403: // Blessed Book of Nagrand
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x40000000, 0x00000000, 0x00000000);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x40000000, 0x00000000, 0x00000000, 0x00000000);
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 break;
             case 45602: // Ride Carpet
@@ -3540,7 +3546,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 71266: // Swarming Shadows
             case 72890: // Swarming Shadows
-                spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
+                spellInfo->RequiredAreasID = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
                 break;
             case 70602: // Corruption
             case 48278: // Paralyze

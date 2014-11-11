@@ -78,6 +78,7 @@ public:
             { "pinfo",            rbac::RBAC_PERM_COMMAND_PINFO,             true, &HandlePInfoCommand,            "", NULL },
             { "playall",          rbac::RBAC_PERM_COMMAND_PLAYALL,          false, &HandlePlayAllCommand,          "", NULL },
             { "possess",          rbac::RBAC_PERM_COMMAND_POSSESS,          false, &HandlePossessCommand,          "", NULL },
+            { "pvpstats",         rbac::RBAC_PERM_COMMAND_PVPSTATS,          true, &HandlePvPstatsCommand,         "", NULL },
             { "recall",           rbac::RBAC_PERM_COMMAND_RECALL,           false, &HandleRecallCommand,           "", NULL },
             { "repairitems",      rbac::RBAC_PERM_COMMAND_REPAIRITEMS,       true, &HandleRepairitemsCommand,      "", NULL },
             { "respawn",          rbac::RBAC_PERM_COMMAND_RESPAWN,          false, &HandleRespawnCommand,          "", NULL },
@@ -98,6 +99,35 @@ public:
             { NULL,               0,                                  false, NULL,                           "", NULL }
         };
         return commandTable;
+    }
+
+    static bool HandlePvPstatsCommand(ChatHandler * handler, char const* /*args*/)
+    {
+        if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_FACTIONS_OVERALL);
+            PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+            if (result)
+            {
+                Field* fields = result->Fetch();
+                uint32 horde_victories = fields[1].GetUInt32();
+
+                if (!(result->NextRow()))
+                    return false;
+
+                fields = result->Fetch();
+                uint32 alliance_victories = fields[1].GetUInt32();
+
+                handler->PSendSysMessage(LANG_PVPSTATS, alliance_victories, horde_victories);
+            }
+            else
+                return false;
+        }
+        else
+            handler->PSendSysMessage(LANG_PVPSTATS_DISABLED);
+
+        return true;
     }
 
     static bool HandleDevCommand(ChatHandler* handler, char const* args)
@@ -202,7 +232,7 @@ public:
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->name : unknown),
+            mapId, (mapEntry ? mapEntry->MapName_lang : unknown),
             zoneId, (zoneEntry ? zoneEntry->area_name : unknown),
             areaId, (areaEntry ? areaEntry->area_name : unknown),
             object->GetPhaseMask(),
@@ -1359,7 +1389,7 @@ public:
         // add the skill to the player's book with step 1 (which is the first rank, in most cases something
         // like 'Apprentice <skill>'.
         target->SetSkill(skill, targetHasSkill ? target->GetSkillStep(skill) : 1, level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name, handler->GetNameLink(target).c_str(), level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->DisplayName_lang, handler->GetNameLink(target).c_str(), level, max);
         return true;
     }
 
@@ -1714,7 +1744,7 @@ public:
         }
 
         if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name,
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->MapName_lang,
                 (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)),
                 (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
 

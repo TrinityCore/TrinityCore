@@ -379,7 +379,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LF_GUILD_REMOVE_RECRUIT,                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderRemoveRecruit  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LF_GUILD_SET_GUILD_POST,                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderSetGuildPost   );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LIST_INVENTORY,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleListInventoryOpcode       );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_LOAD_SCREEN,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLoadScreenOpcode          );
+    DEFINE_HANDLER(CMSG_LOAD_SCREEN,                                        STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::LoadingScreenNotify, &WorldSession::HandleLoadScreenOpcode);
     DEFINE_HANDLER(CMSG_LOGOUT_CANCEL,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::LogoutCancel, &WorldSession::HandleLogoutCancelOpcode);
     DEFINE_HANDLER(CMSG_LOGOUT_REQUEST,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::LogoutRequest, &WorldSession::HandleLogoutRequestOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOG_DISCONNECT,                          STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
@@ -447,7 +447,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_STOP,                               STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_TIME_SKIPPED,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleMoveTimeSkippedOpcode     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_WATER_WALK_ACK,                     STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveWaterWalkAck          );
-    DEFINE_OPCODE(CMSG_NAME_QUERY,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::QueryPlayerName, &WorldSession::HandleNameQueryOpcode);
+    DEFINE_HANDLER(CMSG_NAME_QUERY,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::QueryPlayerName, &WorldSession::HandleNameQueryOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_NEXT_CINEMATIC_CAMERA,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleNextCinematicCamera       );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_NPC_TEXT_QUERY,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleNpcTextQueryOpcode        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OBJECT_UPDATE_FAILED,                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleObjectUpdateFailedOpcode  );
@@ -615,7 +615,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UPDATE_PROJECTILE_POSITION,              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateProjectilePosition  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_USED_FOLLOW,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_USE_ITEM,                                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleUseItemOpcode             );
-    DEFINE_HANDLER(CMSG_VIOLENCE_LEVEL,                                     STATUS_AUTHED,    PROCESS_INPLACE,      WorldPackets::&WorldSession::HandleViolenceLevel);
+    DEFINE_HANDLER(CMSG_VIOLENCE_LEVEL,                                     STATUS_AUTHED,    PROCESS_INPLACE,      WorldPackets::Misc::ViolenceLevel, &WorldSession::HandleViolenceLevel);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_VOICE_SESSION_ENABLE,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleVoiceSessionEnableOpcode  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_VOID_STORAGE_QUERY,                      STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleVoidStorageQuery          );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_VOID_STORAGE_TRANSFER,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleVoidStorageTransfer       );

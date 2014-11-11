@@ -19,5 +19,5 @@
 
 void WorldPackets::Misc::ViolenceLevel::Read()
 {
-    _worldPacket >> ViolenceLevel;
+    _worldPacket >> ViolenceLvl;
 }

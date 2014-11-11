@@ -135,7 +135,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     Difficulty targetDifficulty, requestedDifficulty;
     targetDifficulty = requestedDifficulty = player->GetDifficulty(entry->IsRaid());
     // Get the highest available difficulty if current setting is higher than the instance allows
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty);
+    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
     if (!mapDiff)
     {
         player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, requestedDifficulty);
@@ -146,7 +146,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (player->IsGameMaster())
         return true;
 
-    char const* mapName = entry->name;
+    char const* mapName = entry->MapName_lang;
 
     Group* group = player->GetGroup();
     if (entry->IsRaid())

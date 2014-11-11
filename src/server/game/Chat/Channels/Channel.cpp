@@ -44,13 +44,13 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
 
         _flags |= CHANNEL_FLAG_GENERAL;                    // for all built-in channels
 
-        if (ch->flags & CHANNEL_DBC_FLAG_TRADE)             // for trade channel
+        if (ch->Flags & CHANNEL_DBC_FLAG_TRADE)             // for trade channel
             _flags |= CHANNEL_FLAG_TRADE;
 
-        if (ch->flags & CHANNEL_DBC_FLAG_CITY_ONLY2)        // for city only channels
+        if (ch->Flags & CHANNEL_DBC_FLAG_CITY_ONLY2)        // for city only channels
             _flags |= CHANNEL_FLAG_CITY;
 
-        if (ch->flags & CHANNEL_DBC_FLAG_LFG)               // for LFG channel
+        if (ch->Flags & CHANNEL_DBC_FLAG_LFG)               // for LFG channel
             _flags |= CHANNEL_FLAG_LFG;
         else                                                // for all other channels
             _flags |= CHANNEL_FLAG_NOT_LFG;
