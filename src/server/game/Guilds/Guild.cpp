@@ -1490,17 +1490,12 @@ void Guild::SendQueryResponse(WorldSession* session)
     response.Info.value.BorderColor = m_emblemInfo.GetBorderColor();
     response.Info.value.BackgroundColor = m_emblemInfo.GetBackgroundColor();
 
-<<<<<<< HEAD
-	//for (uint8 i = 0; i < _GetRanksSize(); ++i)
-		 //response.Info.value.Ranks.emplace(m_ranks[i].GetId(), i, m_ranks[i].GetName());
-=======
     for (uint8 i = 0; i < _GetRanksSize(); ++i)
     {
         WorldPackets::Guild::QueryGuildInfoResponse::GuildInfo::GuildInfoRank info
             (m_ranks[i].GetId(), i, m_ranks[i].GetName());
         response.Info.value.Ranks.insert(info);
     }
->>>>>>> Trinity6.x
 
     response.Info.value.GuildName = m_name;
 
