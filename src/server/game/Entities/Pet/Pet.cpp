@@ -1405,25 +1405,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
         newspell.active = active;
 
     // talent: unlearn all other talent ranks (high and low)
-    if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
-    {
-        if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
-        {
-            for (uint8 i = 0; i < MAX_TALENT_RANK; ++i)
-            {
-                // skip learning spell and no rank spell case
-                uint32 rankSpellId = talentInfo->RankID[i];
-                if (!rankSpellId || rankSpellId == spellId)
-                    continue;
-
-                // skip unknown ranks
-                if (!HasSpell(rankSpellId))
-                    continue;
-                removeSpell(rankSpellId, false, false);
-            }
-        }
-    }
-    else if (spellInfo->IsRanked())
+    if (spellInfo->IsRanked())
     {
         for (PetSpellMap::const_iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
         {
@@ -1465,15 +1447,6 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     if (newspell.active == ACT_ENABLED)
         ToggleAutocast(spellInfo, true);
 
-    uint32 talentCost = GetTalentSpellCost(spellId);
-    if (talentCost)
-    {
-        int32 free_points = GetMaxTalentPointsForLevel(getLevel());
-        m_usedTalentCount += talentCost;
-        // update free talent points
-        free_points-=m_usedTalentCount;
-        SetFreeTalentPoints(free_points > 0 ? free_points : 0);
-    }
     return true;
 }
 
@@ -1563,18 +1536,6 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
 
     RemoveAurasDueToSpell(spell_id);
 
-    uint32 talentCost = GetTalentSpellCost(spell_id);
-    if (talentCost > 0)
-    {
-        if (m_usedTalentCount > talentCost)
-            m_usedTalentCount -= talentCost;
-        else
-            m_usedTalentCount = 0;
-        // update free talent points
-        int32 free_points = GetMaxTalentPointsForLevel(getLevel()) - m_usedTalentCount;
-        SetFreeTalentPoints(free_points > 0 ? free_points : 0);
-    }
-
     if (learn_prev)
     {
         if (uint32 prev_id = sSpellMgr->GetPrevSpellInChain (spell_id))
@@ -1622,6 +1583,7 @@ void Pet::InitPetCreateSpells()
 
 bool Pet::resetTalents()
 {
+    /* TODO: 6.x remove pet talents
     Player* player = GetOwner();
 
     // not need after this call
@@ -1689,12 +1651,13 @@ bool Pet::resetTalents()
     SetFreeTalentPoints(talentPointsForLevel);
 
     if (!m_loading)
-        player->PetSpellInitialize();
+        player->PetSpellInitialize();*/
     return true;
 }
 
 void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= NULL*/)
 {
+    /* TODO: 6.x remove pet talents
     // not need after this call
     if (owner->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
         owner->RemoveAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS, true);
@@ -1767,7 +1730,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= NULL*/)
 
     ss << ')';
 
-    CharacterDatabase.Execute(ss.str().c_str());
+    CharacterDatabase.Execute(ss.str().c_str());*/
 }
 
 void Pet::InitTalentForLevel()

@@ -28,6 +28,7 @@
 #include <list>
 #include <map>
 #include <stdarg.h>
+#include <cstring>
 
 template<typename T>
 struct Optional
@@ -400,18 +401,18 @@ public:
     {
         memset(part, 0, sizeof(uint32)*T_size);
     }
-    
+
     flag(uint32 first, ...)
     {
         va_list ap;
         part[0] = first;
-        
+
         va_start(ap, first);
         for (int i = 1; i < T_size; ++i)
             part[i] = va_arg(ap, uint32);
         va_end(ap);
     }
-    
+
     inline bool operator <(const flag<T_size>& right) const
     {
         for (uint8 i = T_size; i > 0; --i)
@@ -423,7 +424,7 @@ public:
         }
         return false;
     }
-    
+
     inline bool operator ==(const flag<T_size>& right) const
     {
         for (uint8 i = 0; i < T_size; ++i)
@@ -431,19 +432,19 @@ public:
                 return false;
         return true;
     }
-    
+
     inline bool operator !=(const flag<T_size>& right) const
     {
         return !this->operator ==(right);
     }
-    
+
     inline flag<T_size>& operator =(const flag<T_size>& right)
     {
         for (uint8 i = 0; i < T_size; ++i)
             part[i] = right.part[i];
         return *this;
     }
-    
+
     inline flag<T_size> operator &(const flag<T_size> &right) const
     {
         flag<T_size> fl;
@@ -451,7 +452,7 @@ public:
             fl.part[i] = part[i] & right.part[i];
         return fl;
     }
-    
+
     inline flag<T_size>& operator &=(const flag<T_size> &right)
     {
         for (uint8 i = 0; i < T_size; ++i)
@@ -523,139 +524,6 @@ public:
 
 typedef flag<3> flag96;
 typedef flag<4> flag128;
-
-/*class flag96
-{
-private:
-    uint32 part[3];
-
-public:
-    flag96(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0)
-    {
-        part[0] = p1;
-        part[1] = p2;
-        part[2] = p3;
-    }
-
-    inline bool IsEqual(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0) const
-    {
-        return (part[0] == p1 && part[1] == p2 && part[2] == p3);
-    }
-
-    inline bool HasFlag(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0) const
-    {
-        return (part[0] & p1 || part[1] & p2 || part[2] & p3);
-    }
-
-    inline void Set(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0)
-    {
-        part[0] = p1;
-        part[1] = p2;
-        part[2] = p3;
-    }
-
-    inline bool operator <(const flag96 &right) const
-    {
-        for (uint8 i = 3; i > 0; --i)
-        {
-            if (part[i - 1] < right.part[i - 1])
-                return true;
-            else if (part[i - 1] > right.part[i - 1])
-                return false;
-        }
-        return false;
-    }
-
-    inline bool operator ==(const flag96 &right) const
-    {
-        return
-        (
-            part[0] == right.part[0] &&
-            part[1] == right.part[1] &&
-            part[2] == right.part[2]
-        );
-    }
-
-    inline bool operator !=(const flag96 &right) const
-    {
-        return !this->operator ==(right);
-    }
-
-    inline flag96 & operator =(const flag96 &right)
-    {
-        part[0] = right.part[0];
-        part[1] = right.part[1];
-        part[2] = right.part[2];
-        return *this;
-    }
-
-    inline flag96 operator &(const flag96 &right) const
-    {
-        return flag96(part[0] & right.part[0], part[1] & right.part[1],
-            part[2] & right.part[2]);
-    }
-
-    inline flag96 & operator &=(const flag96 &right)
-    {
-        part[0] &= right.part[0];
-        part[1] &= right.part[1];
-        part[2] &= right.part[2];
-        return *this;
-    }
-
-    inline flag96 operator |(const flag96 &right) const
-    {
-        return flag96(part[0] | right.part[0], part[1] | right.part[1],
-            part[2] | right.part[2]);
-    }
-
-    inline flag96 & operator |=(const flag96 &right)
-    {
-        part[0] |= right.part[0];
-        part[1] |= right.part[1];
-        part[2] |= right.part[2];
-        return *this;
-    }
-
-    inline flag96 operator ~() const
-    {
-        return flag96(~part[0], ~part[1], ~part[2]);
-    }
-
-    inline flag96 operator ^(const flag96 &right) const
-    {
-        return flag96(part[0] ^ right.part[0], part[1] ^ right.part[1],
-            part[2] ^ right.part[2]);
-    }
-
-    inline flag96 & operator ^=(const flag96 &right)
-    {
-        part[0] ^= right.part[0];
-        part[1] ^= right.part[1];
-        part[2] ^= right.part[2];
-        return *this;
-    }
-
-    inline operator bool() const
-    {
-        return (part[0] != 0 || part[1] != 0 || part[2] != 0);
-    }
-
-    inline bool operator !() const
-    {
-        return !this->operator bool();
-    }
-
-    inline uint32 & operator [](uint8 el)
-    {
-        return part[el];
-    }
-
-    inline const uint32 & operator [](uint8 el) const
-    {
-        return part[el];
-    }
-};*/
 
 enum ComparisionType
 {

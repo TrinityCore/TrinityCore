@@ -29,8 +29,8 @@ typedef std::list<uint32> SimpleFactionsList;
 SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 
 char const* GetPetName(uint32 petfamily, uint32 dbclang);
-uint32 GetTalentSpellCost(uint32 spellId);
-TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
+
+TalentEntry const* GetTalentBySpellID(uint32 spellID);
 
 int32 GetAreaFlagByAreaID(uint32 area_id);                  // -1 if not found
 AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id);
@@ -70,9 +70,6 @@ typedef std::map<uint32/*pair32(map, diff)*/, MapDifficulty> MapDifficultyMap;
 MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
 MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
 
-uint32 const* /*[MAX_TALENT_TABS]*/ GetTalentTabPages(uint8 cls);
-std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree);
-
 uint32 GetLiquidFlags(uint32 liquidType);
 
 PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
@@ -91,6 +88,10 @@ typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRac
 typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
 SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
 
+typedef std::set<SpecializationSpellsEntry const*> SpecializationSpellsBySpecEntry;
+typedef std::unordered_map<uint32, SpecializationSpellsBySpecEntry> SpecializationSpellsBySpecStore;
+typedef std::unordered_map<uint32, TalentEntry const*> TalentBySpellIDMap;
+
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
@@ -108,6 +109,7 @@ extern DBCStorage <CharTitlesEntry>              sCharTitlesStore;
 extern DBCStorage <ChrClassesEntry>              sChrClassesStore;
 extern DBCStorage <ChrRacesEntry>                sChrRacesStore;
 extern DBCStorage <ChrPowerTypesEntry>           sChrPowerTypesStore;
+extern DBCStorage <ChrSpecializationEntry>       sChrSpecializationStore;
 extern DBCStorage <CinematicSequencesEntry>      sCinematicSequencesStore;
 extern DBCStorage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStore;
 extern DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore;
@@ -197,6 +199,8 @@ extern DBCStorage <SkillLineEntry>               sSkillLineStore;
 extern DBCStorage <SkillLineAbilityEntry>        sSkillLineAbilityStore;
 extern DBCStorage <SkillTiersEntry>              sSkillTiersStore;
 extern DBCStorage <SoundEntriesEntry>            sSoundEntriesStore;
+extern DBCStorage <SpecializationSpellsEntry>    sSpecializationSpellsStore;
+extern SpecializationSpellsBySpecStore           sSpecializationSpellsBySpecStore;
 extern DBCStorage <SpellCastTimesEntry>          sSpellCastTimesStore;
 extern DBCStorage <SpellCategoryEntry>           sSpellCategoryStore;
 extern DBCStorage <SpellDurationEntry>           sSpellDurationStore;
@@ -224,7 +228,7 @@ extern DBCStorage <SpellTotemsEntry>             sSpellTotemsStore;
 //extern DBCStorage <StableSlotPricesEntry>        sStableSlotPricesStore;
 extern DBCStorage <SummonPropertiesEntry>        sSummonPropertiesStore;
 extern DBCStorage <TalentEntry>                  sTalentStore;
-extern DBCStorage <TalentTabEntry>               sTalentTabStore;
+extern TalentBySpellIDMap                        sTalentBySpellIDMap;
 extern DBCStorage <TaxiNodesEntry>               sTaxiNodesStore;
 extern DBCStorage <TaxiPathEntry>                sTaxiPathStore;
 extern TaxiMask                                  sTaxiNodesMask;

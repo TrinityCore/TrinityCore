@@ -74,6 +74,8 @@ DBCStorage <ChatChannelsEntry> sChatChannelsStore(ChatChannelsEntryfmt);
 DBCStorage <ChrClassesEntry> sChrClassesStore(ChrClassesEntryfmt);
 DBCStorage <ChrRacesEntry> sChrRacesStore(ChrRacesEntryfmt);
 DBCStorage <ChrPowerTypesEntry> sChrPowerTypesStore(ChrClassesXPowerTypesfmt);
+DBCStorage <ChrSpecializationEntry> sChrSpecializationStore(ChrSpecializationEntryfmt);
+SpecializationSpellsBySpecStore sSpecializationSpellsBySpecStore;
 DBCStorage <CinematicSequencesEntry> sCinematicSequencesStore(CinematicSequencesEntryfmt);
 DBCStorage <CreatureDisplayInfoEntry> sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
 DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore(CreatureDisplayInfoExtrafmt);
@@ -188,6 +190,7 @@ DBCStorage <SkillTiersEntry> sSkillTiersStore(SkillTiersfmt);
 
 DBCStorage <SoundEntriesEntry> sSoundEntriesStore(SoundEntriesfmt);
 
+DBCStorage <SpecializationSpellsEntry> sSpecializationSpellsStore(SpecializationSpellsEntryfmt);
 DBCStorage <SpellItemEnchantmentEntry> sSpellItemEnchantmentStore(SpellItemEnchantmentfmt);
 DBCStorage <SpellItemEnchantmentConditionEntry> sSpellItemEnchantmentConditionStore(SpellItemEnchantmentConditionfmt);
 DBCStorage <SpellEntry> sSpellStore(SpellEntryfmt);
@@ -217,14 +220,7 @@ DBCStorage <SpellShapeshiftFormEntry> sSpellShapeshiftFormStore(SpellShapeshiftF
 DBCStorage <StableSlotPricesEntry> sStableSlotPricesStore(StableSlotPricesfmt);
 DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
 DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
-TalentSpellPosMap sTalentSpellPosMap;
-DBCStorage <TalentTabEntry> sTalentTabStore(TalentTabEntryfmt);
-DBCStorage <TalentTreePrimarySpellsEntry> sTalentTreePrimarySpellsStore(TalentTreePrimarySpellsfmt);
-typedef std::map<uint32, std::vector<uint32> > TalentTreePrimarySpellsMap;
-TalentTreePrimarySpellsMap sTalentTreePrimarySpellsMap;
-
-// store absolute bit position for first rank for talent inspect
-static uint32 sTalentTabPages[MAX_CLASSES][3];
+TalentBySpellIDMap sTalentBySpellIDMap;
 
 DBCStorage <TaxiNodesEntry> sTaxiNodesStore(TaxiNodesEntryfmt);
 TaxiMask sTaxiNodesMask;
@@ -375,6 +371,8 @@ void LoadDBCStores(const std::string& dataPath)
             PowersByClass[power->ClassID][power->PowerType] = index;
         }
     }
+    
+    LoadDBC(availableDbcLocales, bad_dbc_files, sChrSpecializationStore,      dbcPath, "ChrSpecialization.dbc");
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sCinematicSequencesStore,     dbcPath, "CinematicSequences.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureDisplayInfoStore,    dbcPath, "CreatureDisplayInfo.dbc");//19116
@@ -529,10 +527,18 @@ void LoadDBCStores(const std::string& dataPath)
             if (sSkillLineStore.LookupEntry(entry->SkillID))
                 SkillRaceClassInfoBySkill.emplace(entry->SkillID, entry);
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sSkillTiersStore,             dbcPath, "SkillTiers.dbc");//19116
-    LoadDBC(availableDbcLocales, bad_dbc_files, sSoundEntriesStore,           dbcPath, "SoundEntries.dbc");//19116
-    LoadDBC(availableDbcLocales, bad_dbc_files, sSpellStore,                  dbcPath, "Spell.dbc"/*, &CustomSpellEntryfmt, &CustomSpellEntryIndex*/);//19116
-    LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoriesStore,        dbcPath,"SpellCategories.dbc");//19116
+    LoadDBC(availableDbcLocales, bad_dbc_files, sSkillTiersStore,             dbcPath, "SkillTiers.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sSoundEntriesStore,           dbcPath, "SoundEntries.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sSpecializationSpellsStore,   dbcPath, "SpecializationSpells.dbc");
+    for (uint32 i = 1; i < sSpecializationSpellsStore.GetNumRows(); ++i)
+    {
+        SpecializationSpellsEntry const* specSpells = sSpecializationSpellsStore.LookupEntry(i);
+        if (!specSpells)
+            continue;
+        sSpecializationSpellsBySpecStore[specSpells->SpecID].insert(specSpells);
+    }
+    LoadDBC(availableDbcLocales, bad_dbc_files, sSpellStore,                  dbcPath, "Spell.dbc"/*, &CustomSpellEntryfmt, &CustomSpellEntryIndex*/);
+    LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoriesStore,        dbcPath, "SpellCategories.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoryStore,          dbcPath, "SpellCategory.dbc");
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
@@ -634,19 +640,17 @@ void LoadDBCStores(const std::string& dataPath)
                 sSpellMgr->SetSpellDifficultyId(uint32(newEntry.SpellID[x]), spellDiff->ID);
     }*/
 
-    // create talent spells set
     for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
         TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
         if (!talentInfo)
             continue;
 
-        for (int j = 0; j < MAX_TALENT_RANK; j++)
-            if (talentInfo->RankID[j])
-                sTalentSpellPosMap[talentInfo->RankID[j]] = TalentSpellPos(i, j);
+        sTalentBySpellIDMap[talentInfo->SpellID] = talentInfo;
     }
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sTalentTabStore,              dbcPath, "TalentTab.dbc");//15595
+    // create talent spells set
+    /* TODO: 6.x update to new talent system
 
     // prepare fast data access to bit pos of talent ranks for use at inspecting
     {
@@ -672,8 +676,8 @@ void LoadDBCStores(const std::string& dataPath)
     for (uint32 i = 0; i < sTalentTreePrimarySpellsStore.GetNumRows(); ++i)
         if (TalentTreePrimarySpellsEntry const* talentSpell = sTalentTreePrimarySpellsStore.LookupEntry(i))
             sTalentTreePrimarySpellsMap[talentSpell->TalentTree].push_back(talentSpell->SpellId);
-    sTalentTreePrimarySpellsStore.Clear();
-
+    sTalentTreePrimarySpellsStore.Clear();*/
+    
     LoadDBC(availableDbcLocales, bad_dbc_files, sTaxiNodesStore,              dbcPath, "TaxiNodes.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sTaxiPathStore,               dbcPath, "TaxiPath.dbc");//15595
     for (uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
@@ -849,23 +853,6 @@ char const* GetPetName(uint32 petfamily, uint32 /*dbclang*/)
     if (!pet_family)
         return NULL;
     return pet_family->Name_lang ? pet_family->Name_lang : NULL;
-}
-
-TalentSpellPos const* GetTalentSpellPos(uint32 spellId)
-{
-    TalentSpellPosMap::const_iterator itr = sTalentSpellPosMap.find(spellId);
-    if (itr == sTalentSpellPosMap.end())
-        return NULL;
-
-    return &itr->second;
-}
-
-uint32 GetTalentSpellCost(uint32 spellId)
-{
-    if (TalentSpellPos const* pos = GetTalentSpellPos(spellId))
-        return pos->rank+1;
-
-    return 0;
 }
 
 int32 GetAreaFlagByAreaID(uint32 area_id)
@@ -1097,18 +1084,12 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
     return NULL;
 }
 
-uint32 const* GetTalentTabPages(uint8 cls)
+TalentEntry const* GetTalentBySpellID(uint32 spellID)
 {
-    return sTalentTabPages[cls];
-}
-
-std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree)
-{
-    TalentTreePrimarySpellsMap::const_iterator itr = sTalentTreePrimarySpellsMap.find(talentTree);
-    if (itr == sTalentTreePrimarySpellsMap.end())
-        return NULL;
-
-    return &itr->second;
+    auto itr = sTalentBySpellIDMap.find(spellID);
+    if (itr != sTalentBySpellIDMap.end())
+        return itr->second;
+    return nullptr;
 }
 
 uint32 GetLiquidFlags(uint32 liquidType)
