@@ -853,6 +853,7 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
 
 void WorldSession::HandlePetLearnTalent(WorldPacket& recvData)
 {
+    /* TODO: 6.x remove pet talents (add pet specializations)
     TC_LOG_DEBUG("network", "WORLD: CMSG_PET_LEARN_TALENT");
 
     ObjectGuid guid;
@@ -860,11 +861,12 @@ void WorldSession::HandlePetLearnTalent(WorldPacket& recvData)
     recvData >> guid >> talentId >> requestedRank;
 
     _player->LearnPetTalent(guid, talentId, requestedRank);
-    _player->SendTalentsInfoData(true);
+    _player->SendTalentsInfoData(true);*/
 }
 
 void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket& recvData)
 {
+    /* TODO: 6.x remove pet talents (add pet specializations)
     TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS_PET");
 
     ObjectGuid guid;
@@ -887,5 +889,5 @@ void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket& recvData)
 
     _player->SendTalentsInfoData(true);
 
-    recvData.rfinish();
+    recvData.rfinish();*/
 }

@@ -776,6 +776,26 @@ struct ChrPowerTypesEntry
     uint32      PowerType;                                  // 2
 };
 
+#define MAX_MASTERY_SPELLS 2
+
+struct ChrSpecializationEntry
+{
+    uint32      ID;                                         // 0 Specialization ID
+    //char*     BackgroundFile;                             // 1
+    uint32      ClassID;                                    // 2
+    uint32      MasterySpellID[MAX_MASTERY_SPELLS];         // 3
+    uint32      OrderIndex;                                 // 4
+    uint32      PetTalentType;                              // 5
+    uint32      Role;                                       // 6 (0 - Tank, 1 - Healer, 2 - DPS)
+    uint32      SpellIconID;                                // 7
+    uint32      RaidBuffs;                                  // 8
+    uint32      Flags;                                      // 9
+    //char*     Name_lang;                                  // 10
+    //char*     Name2_lang;                                 // 11 Same as name_lang?
+    //char*     Description_lang;                           // 12
+    uint32      PrimaryStatOrder[2];                        // 13-14
+};
+
 struct CinematicSequencesEntry
 {
     uint32      ID;                                         // 0
@@ -1787,6 +1807,16 @@ struct SoundEntriesEntry
     //uint32    BusOverwriteID;                             // 55
 };
 
+// SpecializationSpells.dbc
+struct SpecializationSpellsEntry
+{
+    uint32      ID;                                         // 0
+    uint32      SpecID;                                     // 1
+    uint32      SpellID;                                    // 2
+    uint32      OverridesSpellID;                           // 3
+    //char*     Description_lang;                           // 4
+};
+
 // SpellEffect.dbc
 struct SpellEffectEntry
 {
@@ -2091,14 +2121,6 @@ struct SpellItemEnchantmentConditionEntry
     uint32      RTOperand[5];                                   // 10-14
     uint8       Logic[5];                                       // 15-16
     //uint8     Padding[3];                                     // 16
-
-    /*uint32  ID;                                             // 0        m_ID
-    uint8   Color[5];                                       // 1-5      m_lt_operandType[5]
-    //uint32  LT_Operand[5];                                // 6-10     m_lt_operand[5]
-    uint8   Comparator[5];                                  // 11-15    m_operator[5]
-    uint8   CompareColor[5];                                // 15-20    m_rt_operandType[5]
-    uint32  Value[5];                                       // 21-25    m_rt_operand[5]
-    //uint8   Logic[5]                                      // 25-30    m_logic[5]*/
 };
 
 struct StableSlotPricesEntry
@@ -2109,56 +2131,28 @@ struct StableSlotPricesEntry
 
 struct SummonPropertiesEntry
 {
-    uint32  Id;                                             // 0
-    uint32  Category;                                       // 1, 0 - can't be controlled?, 1 - something guardian?, 2 - pet?, 3 - something controllable?, 4 - taxi/mount?
-    uint32  Faction;                                        // 2, 14 rows > 0
-    uint32  Type;                                           // 3, see enum
-    int32   Slot;                                           // 4, 0-6
-    uint32  Flags;                                          // 5
+    uint32      ID;                                             // 0
+    uint32      Category;                                       // 1, 0 - can't be controlled?, 1 - something guardian?, 2 - pet?, 3 - something controllable?, 4 - taxi/mount?
+    uint32      Faction;                                        // 2, 14 rows > 0
+    uint32      Type;                                           // 3, see enum
+    int32       Slot;                                           // 4, 0-6
+    uint32      Flags;                                          // 5
 };
 
-#define MAX_TALENT_RANK 5
-#define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
-#define MAX_TALENT_TABS 3
+#define MAX_TALENT_TIERS 7
 
 struct TalentEntry
 {
-    uint32    TalentID;                                     // 0
-    uint32    TalentTab;                                    // 1 index in TalentTab.dbc (TalentTabEntry)
-    uint32    Row;                                          // 2
-    uint32    Col;                                          // 3
-    uint32    RankID[MAX_TALENT_RANK];                      // 4-8
-    uint32    DependsOn;                                    // 9        m_prereqTalent (Talent.dbc)
-                                                            // 10-11 part of prev field
-    uint32    DependsOnRank;                                // 12       m_prereqRank
-                                                            // 13-14 part of prev field
-    //uint32  needAddInSpellBook;                           // 15       m_flags also need disable higest ranks on reset talent tree
-    //uint32  unk2;                                         // 16       m_requiredSpellID
-    //uint64  allowForPet;                                  // 17       m_categoryMask its a 64 bit mask for pet 1<<m_categoryEnumID in CreatureFamily.dbc
-};
-
-#define MAX_MASTERY_SPELLS 2
-
-struct TalentTabEntry
-{
-    uint32  TalentTabID;                                    // 0
-    //char* name;                                           // 1        m_name_lang
-    //unit32  spellicon;                                    // 2        m_spellIconID
-    uint32  ClassMask;                                      // 3        m_classMask
-    uint32  petTalentMask;                                  // 4        m_petTalentMask
-    uint32  tabpage;                                        // 5        m_orderIndex
-    //char* internalname;                                   // 6        m_backgroundFile
-    //char* description;                                    // 7
-    //uint32 rolesMask;                                     // 8 4.0.0
-    uint32 MasterySpellId[MAX_MASTERY_SPELLS];              // 9-10 passive mastery bonus spells?
-};
-
-struct TalentTreePrimarySpellsEntry
-{
-    //uint32 Id;                                            // 0 index
-    uint32 TalentTree;                                      // 1 entry from TalentTab.dbc
-    uint32 SpellId;                                         // 2 spell id to learn
-    //uint32 Flags;                                         // 3 some kind of flags
+    uint32      ID;                                             // 0
+    uint32      SpecID;                                         // 1 0 - any specialization
+    uint32      TierID;                                         // 2 0-6
+    uint32      ColumnIndex;                                    // 3 0-2
+    uint32      SpellID;                                        // 4
+    uint32      Flags;                                          // 5 All 0
+    uint32      CategoryMask[2];                                // 6 All 0
+    uint32      ClassID;                                        // 7
+    uint32      OverridesSpellID;                               // 8 spellid that is replaced by talent
+    //char*     Description_lang
 };
 
 struct TaxiNodesEntry
@@ -2471,16 +2465,7 @@ struct MapDifficulty
     bool hasErrorMessage;
 };
 
-struct TalentSpellPos
-{
-    TalentSpellPos() : talent_id(0), rank(0) { }
-    TalentSpellPos(uint16 _talent_id, uint8 _rank) : talent_id(_talent_id), rank(_rank) { }
-
-    uint16 talent_id;
-    uint8  rank;
-};
-
-typedef std::map<uint32, TalentSpellPos> TalentSpellPosMap;
+typedef std::map<uint32, uint32> TalentSpellPosMap;
 
 struct TaxiPathBySourceAndDestination
 {

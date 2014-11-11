@@ -435,7 +435,7 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         {
-            bool talent = GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
+            bool talent = (GetTalentBySpellID(itr->second->GetBase()->GetId()) != nullptr);
 
             AuraApplication const* aurApp = itr->second;
             Aura const* aura = aurApp->GetBase();
