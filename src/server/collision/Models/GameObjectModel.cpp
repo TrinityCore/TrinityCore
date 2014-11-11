@@ -96,7 +96,7 @@ GameObjectModel::~GameObjectModel()
 
 bool GameObjectModel::initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info)
 {
-    ModelList::const_iterator it = model_list.find(info.Displayid);
+    ModelList::const_iterator it = model_list.find(info.ID);
     if (it == model_list.end())
         return false;
 

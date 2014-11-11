@@ -98,13 +98,13 @@ void PacketLog::Initialize()
     }
 }
 
-void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port)
+void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port, ConnectionType connectionType)
 {
     std::lock_guard<std::mutex> lock(_logPacketLock);
 
     PacketHeader header;
     *reinterpret_cast<uint32*>(header.Direction) = direction == CLIENT_TO_SERVER ? 0x47534d43 : 0x47534d53;
-    header.ConnectionId = 0;
+    header.ConnectionId = connectionType;
     header.ArrivalTicks = getMSTime();
 
     header.OptionalDataSize = sizeof(header.OptionalData);

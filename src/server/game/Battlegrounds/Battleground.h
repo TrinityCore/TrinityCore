@@ -160,7 +160,7 @@ struct BattlegroundPlayer
 {
     time_t  OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
     uint32  Team;                                           // Player's team
-    int32   PrimaryTree;                                    // Player's primary tree
+    int32   ActiveSpec;                                     // Player's active spec
 };
 
 struct BattlegroundObjectInfo

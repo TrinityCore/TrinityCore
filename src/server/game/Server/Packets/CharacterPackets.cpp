@@ -113,7 +113,7 @@ WorldPackets::Character::CharEnumResult::CharacterInfo::CharacterInfo(Field* fie
 
                 if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId))
                 {
-                    VisualItems[slot].DisplayEnchantId = enchant->aura_id;
+                    VisualItems[slot].DisplayEnchantId = enchant->ItemVisual;
                     break;
                 }
             }
@@ -123,9 +123,6 @@ WorldPackets::Character::CharEnumResult::CharacterInfo::CharacterInfo(Field* fie
         }
     }
 }
-
-WorldPackets::Character::CharEnumResult::CharEnumResult()
-    : ServerPacket(SMSG_CHAR_ENUM) { }
 
 WorldPacket const* WorldPackets::Character::CharEnumResult::Write()
 {
@@ -187,12 +184,6 @@ WorldPacket const* WorldPackets::Character::CharEnumResult::Write()
     return &_worldPacket;
 }
 
-WorldPackets::Character::CharacterCreate::CharacterCreate(WorldPacket&& packet)
-    : ClientPacket(std::move(packet))
-{
-    ASSERT(_worldPacket.GetOpcode() == CMSG_CHAR_CREATE);
-}
-
 void WorldPackets::Character::CharacterCreate::Read()
 {
     CreateInfo.reset(new CharacterCreateInfo());
@@ -212,19 +203,10 @@ void WorldPackets::Character::CharacterCreate::Read()
         _worldPacket >> CreateInfo->TemplateSet.value;
 }
 
-WorldPackets::Character::CharacterCreateResponse::CharacterCreateResponse()
-    : ServerPacket(SMSG_CHAR_CREATE, 1) { }
-
 WorldPacket const* WorldPackets::Character::CharacterCreateResponse::Write()
 {
     _worldPacket << uint8(Code);
     return &_worldPacket;
-}
-
-WorldPackets::Character::CharacterDelete::CharacterDelete(WorldPacket&& packet)
-    : ClientPacket(std::move(packet))
-{
-    ASSERT(_worldPacket.GetOpcode() == CMSG_CHAR_DELETE);
 }
 
 void WorldPackets::Character::CharacterDelete::Read()
@@ -232,19 +214,10 @@ void WorldPackets::Character::CharacterDelete::Read()
     _worldPacket >> Guid;
 }
 
-WorldPackets::Character::CharacterDeleteResponse::CharacterDeleteResponse()
-    : ServerPacket(SMSG_CHAR_DELETE, 1) { }
-
 WorldPacket const* WorldPackets::Character::CharacterDeleteResponse::Write()
 {
     _worldPacket << uint8(Code);
     return &_worldPacket;
-}
-
-WorldPackets::Character::GenerateRandomCharacterName::GenerateRandomCharacterName(WorldPacket&& packet)
-    : ClientPacket(std::move(packet))
-{
-    ASSERT(_worldPacket.GetOpcode() == CMSG_RANDOMIZE_CHAR_NAME);
 }
 
 void WorldPackets::Character::GenerateRandomCharacterName::Read()
@@ -253,21 +226,12 @@ void WorldPackets::Character::GenerateRandomCharacterName::Read()
     _worldPacket >> Sex;
 }
 
-WorldPackets::Character::GenerateRandomCharacterNameResult::GenerateRandomCharacterNameResult()
-    : ServerPacket(SMSG_RANDOMIZE_CHAR_NAME, 20) { }
-
 WorldPacket const* WorldPackets::Character::GenerateRandomCharacterNameResult::Write()
 {
     _worldPacket.WriteBit(Success);
     _worldPacket.WriteBits(Name.length(), 6);
     _worldPacket.WriteString(Name);
     return &_worldPacket;
-}
-
-WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet)
-    : ClientPacket(std::move(packet))
-{
-    ASSERT(_worldPacket.GetOpcode() == CMSG_REORDER_CHARACTERS);
 }
 
 void WorldPackets::Character::ReorderCharacters::Read()
@@ -282,21 +246,12 @@ void WorldPackets::Character::ReorderCharacters::Read()
     }
 }
 
-WorldPackets::Character::UndeleteCharacter::UndeleteCharacter(WorldPacket&& packet)
-    : ClientPacket(std::move(packet))
-{
-    ASSERT(_worldPacket.GetOpcode() == CMSG_UNDELETE_CHARACTER);
-}
-
 void WorldPackets::Character::UndeleteCharacter::Read()
 {
     UndeleteInfo.reset(new CharacterUndeleteInfo());
     _worldPacket >> UndeleteInfo->ClientToken;
     _worldPacket >> UndeleteInfo->CharacterGuid;
 }
-
-WorldPackets::Character::UndeleteCharacterResponse::UndeleteCharacterResponse()
-    : ServerPacket(SMSG_UNDELETE_CHARACTER_RESPONSE, 26) { }
 
 WorldPacket const* WorldPackets::Character::UndeleteCharacterResponse::Write()
 {
@@ -307,21 +262,12 @@ WorldPacket const* WorldPackets::Character::UndeleteCharacterResponse::Write()
     return &_worldPacket;
 }
 
-WorldPackets::Character::UndeleteCooldownStatusResponse::UndeleteCooldownStatusResponse()
-    : ServerPacket(SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE, 9) { }
-
 WorldPacket const* WorldPackets::Character::UndeleteCooldownStatusResponse::Write()
 {
     _worldPacket.WriteBit(OnCooldown);
     _worldPacket << uint32(MaxCooldown);
     _worldPacket << uint32(CurrentCooldown);
     return &_worldPacket;
-}
-
-WorldPackets::Character::PlayerLogin::PlayerLogin(WorldPacket&& packet)
-    : ClientPacket(std::move(packet))
-{
-    ASSERT(_worldPacket.GetOpcode() == CMSG_PLAYER_LOGIN);
 }
 
 void WorldPackets::Character::PlayerLogin::Read()
@@ -335,5 +281,68 @@ WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
     _worldPacket << int32(MapID);
     _worldPacket << Pos.PositionXYZOStream();
     _worldPacket << uint32(Reason);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Character::LogoutResponse::Write()
+{
+    _worldPacket << int32(LogoutResult);
+    _worldPacket.WriteBit(Instant);
+    _worldPacket.FlushBits();
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Character::LogoutComplete::Write()
+{
+    _worldPacket << SwitchToCharacter;
+    return &_worldPacket;
+}
+
+void WorldPackets::Character::LoadingScreenNotify::Read()
+{
+    _worldPacket >> MapID;
+    Showing = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Character::QueryPlayerName::Read()
+{
+    _worldPacket >> Player;
+
+    Hint.VirtualRealmAddress.HasValue = _worldPacket.ReadBit();
+    Hint.NativeRealmAddress.HasValue = _worldPacket.ReadBit();
+
+    if (Hint.VirtualRealmAddress.HasValue)
+        _worldPacket >> Hint.VirtualRealmAddress.value;
+
+    if (Hint.NativeRealmAddress.HasValue)
+        _worldPacket >> Hint.NativeRealmAddress.value;
+}
+
+WorldPacket const* WorldPackets::Character::PlayerNameResponse::Write()
+{
+    _worldPacket << Result;
+    _worldPacket << Player;
+
+    if (Result == 0)
+    {
+        _worldPacket.WriteBits(Data.Name.length(), 7);
+
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteBits(Data.DeclinedNames.name[i].length(), 7);
+
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteString(Data.DeclinedNames.name[i]);
+
+        _worldPacket << Data.AccountID;
+        _worldPacket << Data.BnetAccountID;
+        _worldPacket << Data.GuidActual;
+        _worldPacket << Data.VirtualRealmAddress;
+        _worldPacket << Data.Race;
+        _worldPacket << Data.Sex;
+        _worldPacket << Data.ClassID;
+        _worldPacket << Data.Level;
+        _worldPacket.WriteString(Data.Name);
+    }
+
     return &_worldPacket;
 }

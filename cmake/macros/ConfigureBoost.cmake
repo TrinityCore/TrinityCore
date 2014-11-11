@@ -48,7 +48,11 @@ unset(CMAKE_REQUIRED_LIBRARIES CACHE)
 unset(CMAKE_REQUIRED_FLAGS CACHE)
 
 if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
-  add_definitions(-DBOOST_NO_CXX11_SCOPED_ENUMS)
+  if (Boost_VERSION LESS 105100) # 1.51
+    add_definitions(-DBOOST_NO_SCOPED_ENUMS)
+  else()
+    add_definitions(-DBOOST_NO_CXX11_SCOPED_ENUMS)
+  endif()
 endif()
 
 if(Boost_FOUND)

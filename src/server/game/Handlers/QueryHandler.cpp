@@ -30,49 +30,48 @@
 #include "NPCHandler.h"
 #include "Pet.h"
 #include "MapManager.h"
+#include "BattlenetAccountMgr.h"
+#include "CharacterPackets.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid);
 
-    WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));
-    data << guid.WriteAsPacked();
-    if (!nameData)
-    {
-        data << uint8(1);                           // name unknown
-        SendPacket(&data);
-        return;
-    }
+    WorldPackets::Character::PlayerNameResponse response;
+    response.Player = guid;
 
-    data << uint8(0);                               // name known
-    data << nameData->m_name;                       // played name
-    data << uint8(0);                               // realm name - only set for cross realm interaction (such as Battlegrounds)
-    data << uint8(nameData->m_race);
-    data << uint8(nameData->m_gender);
-    data << uint8(nameData->m_class);
-
-    if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
+    if (nameData)
     {
-        data << uint8(1);                           // Name is declined
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << names->name[i];
+        uint32 accountId = player ? player->GetSession()->GetAccountId() : sObjectMgr->GetPlayerAccountIdByGUID(guid);
+        uint32 bnetAccountId = player ? player->GetSession()->GetBattlenetAccountId() : Battlenet::AccountMgr::GetIdByGameAccount(accountId);
+
+        response.Result = 0; // name known
+        response.Data.IsDeleted = false; // TODO: send deletes as well
+        response.Data.AccountID = ObjectGuid::Create<HighGuid::WowAccount>(accountId);
+        response.Data.BnetAccountID = ObjectGuid::Create<HighGuid::BNetAccount>(bnetAccountId);
+        response.Data.Name = nameData->m_name;
+        response.Data.VirtualRealmAddress = GetVirtualRealmAddress();
+        response.Data.Race = nameData->m_race;
+        response.Data.Sex = nameData->m_gender;
+        response.Data.ClassID = nameData->m_class;
+        response.Data.Level = nameData->m_level;
+
+        if (DeclinedName const* names = (player ? player->GetDeclinedNames() : nullptr))
+            for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+                response.Data.DeclinedNames.name[i] = names->name[i];
     }
     else
-        data << uint8(0);                           // Name is not declined
+    {
+        response.Result = 1; // name unknown
+    }
 
-    SendPacket(&data);
+    SendPacket(response.Write());
 }
 
-void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleNameQueryOpcode(WorldPackets::Character::QueryPlayerName& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    // This is disable by default to prevent lots of console spam
-    // TC_LOG_INFO("network", "HandleNameQueryOpcode %u", guid);
-
-    SendNameQueryOpcode(guid);
+    SendNameQueryOpcode(packet.Player);
 }
 
 void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
@@ -252,14 +251,14 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
         // search entrance map for proper show entrance
         if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapid))
         {
-            if (corpseMapEntry->IsDungeon() && corpseMapEntry->entrance_map >= 0)
+            if (corpseMapEntry->IsDungeon() && corpseMapEntry->CorpseMapID >= 0)
             {
                 // if corpse map have entrance
-                if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->entrance_map))
+                if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->CorpseMapID))
                 {
-                    mapid = corpseMapEntry->entrance_map;
-                    x = corpseMapEntry->entrance_x;
-                    y = corpseMapEntry->entrance_y;
+                    mapid = corpseMapEntry->CorpseMapID;
+                    x = corpseMapEntry->CorpsePos.X;
+                    y = corpseMapEntry->CorpsePos.Y;
                     z = entranceMap->GetHeight(GetPlayer()->GetPhaseMask(), x, y, MAX_HEIGHT);
                 }
             }

@@ -55,8 +55,8 @@ uint32 const SizeOfClientHeader[2][2] =
 uint32 const SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint32), sizeof(uint32) };
 
 WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
-    _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr),
-    _initialized(false), _type(CONNECTION_TYPE_REALM)
+    _type(CONNECTION_TYPE_REALM), _authSeed(rand32()),
+    _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
 {
     _headerBuffer.Resize(SizeOfClientHeader[0][0]);
 }
@@ -184,11 +184,11 @@ bool WorldSocket::ReadHeaderHandler()
         if (_worldSession)
         {
             Player* player = _worldSession->GetPlayer();
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client (account: %u, char [%s, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
+            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client (account: %u, char [%s, name: %s]) sent malformed packet (size: %u, cmd: %u)",
                 _worldSession->GetAccountId(), player ? player->GetGUID().ToString().c_str() : "GUID: Empty", player ? player->GetName().c_str() : "<none>", size, opcode);
         }
         else
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
+            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %u, cmd: %u)",
                 GetRemoteIpAddress().to_string().c_str(), size, opcode);
 
         CloseSocket();
@@ -216,7 +216,7 @@ bool WorldSocket::ReadDataHandler()
         WorldPacket packet(opcode, std::move(_packetBuffer), GetConnectionType());
 
         if (sPacketLog->CanLogPacket())
-            sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
+            sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort(), GetConnectionType());
 
         TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
 
@@ -341,7 +341,7 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
         return;
 
     if (sPacketLog->CanLogPacket())
-        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
+        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort(), GetConnectionType());
 
     TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
 
@@ -670,7 +670,10 @@ void WorldSocket::HandleAuthContinuedSession(WorldPackets::Auth::AuthContinuedSe
 {
     uint32 accountId = PAIR64_LOPART(authSession.Key);
     _type = ConnectionType(PAIR64_HIPART(authSession.Key));
-    QueryResult result = LoginDatabase.PQuery("SELECT username, sessionkey FROM account WHERE id = %u", accountId);
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION);
+    stmt->setUInt32(0, accountId);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
     {
         SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);

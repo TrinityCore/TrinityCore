@@ -56,6 +56,8 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "DB2Stores.h"
+#include "CharacterPackets.h"
+#include "MiscPackets.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -373,7 +375,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: Send SMSG_WHO Message");
 }
 
-void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& /*logoutRequest*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_REQUEST Message, security - %u", GetSecurity());
 
@@ -395,14 +397,14 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     else if (GetPlayer()->duel || GetPlayer()->HasAura(9454)) // is dueling or frozen by GM via freeze command
         reason = 2;                                         // FIXME - Need the correct value
 
-    WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
-    data << uint32(reason);
-    data << uint8(instantLogout);
-    SendPacket(&data);
+    WorldPackets::Character::LogoutResponse logoutResponse;
+    logoutResponse.LogoutResult = reason;
+    logoutResponse.Instant = instantLogout;
+    SendPacket(logoutResponse.Write());
 
     if (reason)
     {
-        LogoutRequest(0);
+        SetLogoutStartTime(0);
         return;
     }
 
@@ -422,15 +424,10 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
-    LogoutRequest(time(NULL));
+    SetLogoutStartTime(time(NULL));
 }
 
-void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& /*recvData*/)
-{
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PLAYER_LOGOUT Message");
-}
-
-void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCancel& /*logoutCancel*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_CANCEL Message");
 
@@ -438,10 +435,9 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     if (!GetPlayer())
         return;
 
-    LogoutRequest(0);
+    SetLogoutStartTime(0);
 
-    WorldPacket data(SMSG_LOGOUT_CANCEL_ACK, 0);
-    SendPacket(&data);
+    SendPacket(WorldPackets::Character::LogoutCancelAck().Write());
 
     // not remove flags if can't free move - its not set in Logout request code.
     if (GetPlayer()->CanFreeMove())
@@ -867,24 +863,24 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (player->GetMapId() != atEntry->mapid)
+    if (player->GetMapId() != atEntry->MapID)
     {
         TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
-            player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->mapid, player->GetMapId(), triggerId);
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->MapID, player->GetMapId(), triggerId);
         return;
     }
 
     // delta is safe radius
     const float delta = 5.0f;
 
-    if (atEntry->radius > 0)
+    if (atEntry->Radius > 0)
     {
         // if we have radius check it
-        float dist = player->GetDistance(atEntry->x, atEntry->y, atEntry->z);
-        if (dist > atEntry->radius + delta)
+        float dist = player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z);
+        if (dist > atEntry->Radius + delta)
         {
             TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
-                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->radius, dist, triggerId);
+                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->Radius, dist, triggerId);
             return;
         }
     }
@@ -896,26 +892,26 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         // is-in-cube check and we have to calculate only one point instead of 4
 
         // 2PI = 360°, keep in mind that ingame orientation is counter-clockwise
-        double rotation = 2 * M_PI - atEntry->box_orientation;
+        double rotation = 2 * M_PI - atEntry->BoxYaw;
         double sinVal = std::sin(rotation);
         double cosVal = std::cos(rotation);
 
-        float playerBoxDistX = player->GetPositionX() - atEntry->x;
-        float playerBoxDistY = player->GetPositionY() - atEntry->y;
+        float playerBoxDistX = player->GetPositionX() - atEntry->Pos.X;
+        float playerBoxDistY = player->GetPositionY() - atEntry->Pos.Y;
 
-        float rotPlayerX = float(atEntry->x + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
-        float rotPlayerY = float(atEntry->y + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
+        float rotPlayerX = float(atEntry->Pos.X + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
+        float rotPlayerY = float(atEntry->Pos.Y + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
 
         // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
-        float dz = player->GetPositionZ() - atEntry->z;
-        float dx = rotPlayerX - atEntry->x;
-        float dy = rotPlayerY - atEntry->y;
-        if ((std::fabs(dx) > atEntry->box_x / 2 + delta) ||
-            (std::fabs(dy) > atEntry->box_y / 2 + delta) ||
-            (std::fabs(dz) > atEntry->box_z / 2 + delta))
+        float dz = player->GetPositionZ() - atEntry->Pos.Z;
+        float dx = rotPlayerX - atEntry->Pos.X;
+        float dy = rotPlayerY - atEntry->Pos.Y;
+        if ((std::fabs(dx) > atEntry->BoxLength / 2 + delta) ||
+            (std::fabs(dy) > atEntry->BoxWidth / 2 + delta) ||
+            (std::fabs(dz) > atEntry->BoxHeight / 2 + delta))
         {
             TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
-                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->box_x / 2, atEntry->box_y / 2, atEntry->box_z / 2, rotPlayerX, rotPlayerY, dz, triggerId);
+                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->BoxLength / 2, atEntry->BoxWidth / 2, atEntry->BoxHeight / 2, rotPlayerX, rotPlayerY, dz, triggerId);
             return;
         }
     }
@@ -935,7 +931,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     {
         // set resting flag we are in the inn
         player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-        player->InnEnter(time(NULL), atEntry->mapid, atEntry->x, atEntry->y, atEntry->z);
+        player->InnEnter(time(NULL), atEntry->MapID, atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z);
         player->SetRestType(REST_TYPE_IN_TAVERN);
 
         if (sWorld->IsFFAPvPRealm())
@@ -2010,11 +2006,8 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleViolenceLevel(WorldPacket& recvPacket)
+void WorldSession::HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& /*violenceLevel*/)
 {
-    uint8 violenceLevel;
-    recvPacket >> violenceLevel;
-
     // do something?
 }
 

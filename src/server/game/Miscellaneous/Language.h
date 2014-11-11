@@ -110,7 +110,9 @@ enum TrinityStrings
     LANG_RBAC_PERM_DENIED               = 77,
     LANG_RBAC_PERM_REVOKED              = 78,
     LANG_RBAC_PERM_REVOKED_NOT_IN_LIST  = 79,
-    // Free 80 - 95
+    LANG_PVPSTATS                       = 80,
+    LANG_PVPSTATS_DISABLED              = 81,
+    // Free 82 - 95
 
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
@@ -978,7 +980,12 @@ enum TrinityStrings
     LANG_GUILD_INFO_MOTD                = 1182,
     LANG_GUILD_INFO_EXTRA_INFO          = 1183,
     LANG_GUILD_INFO_LEVEL               = 1184,
-    // Room for more level 3              1184-1199 not used
+    LANG_ACCOUNT_BNET_LINKED            = 1185,
+    LANG_ACCOUNT_OR_BNET_DOES_NOT_EXIST = 1186,
+    LANG_ACCOUNT_ALREADY_LINKED         = 1187,
+    LANG_ACCOUNT_BNET_UNLINKED          = 1188,
+    LANG_ACCOUNT_BNET_NOT_LINKED        = 1189,
+    // Room for more level 3              1190-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,

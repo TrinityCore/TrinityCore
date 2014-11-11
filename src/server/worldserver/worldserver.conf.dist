@@ -93,10 +93,12 @@ LogsDir = ""
 #        Default:     "127.0.0.1;3306;trinity;trinity;auth"       - (LoginDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
+#                     "127.0.0.1;3306;trinity;trinity;hotfixes"     - (HotfixDatabaseInfo)
 
 LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
 CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+HotfixDatabaseInfo    = "127.0.0.1;3306;trinity;trinity;hotfixes"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -108,10 +110,12 @@ CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     1 - (CharacterDatabase.WorkerThreads)
+#                     1 - (HotfixDatabase.WorkerThreads)
 
 LoginDatabase.WorkerThreads     = 1
 WorldDatabase.WorkerThreads     = 1
 CharacterDatabase.WorkerThreads = 1
+HotfixDatabase.WorkerThreads    = 1
 
 #
 #    LoginDatabase.SynchThreads
@@ -121,10 +125,12 @@ CharacterDatabase.WorkerThreads = 1
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     2 - (CharacterDatabase.WorkerThreads)
+#                     1 - (HotfixDatabase.WorkerThreads)
 
 LoginDatabase.SynchThreads     = 1
 WorldDatabase.SynchThreads     = 1
 CharacterDatabase.SynchThreads = 2
+HotfixDatabase.SynchThreads    = 1
 
 #
 #    MaxPingTime
@@ -3159,7 +3165,7 @@ Logger.sql.sql=5,Console DBErrors
 #Logger.rbac=3,Console Server
 #Logger.scripts=3,Console Server
 #Logger.scripts.ai=3,Console Server
-#Logger.server.authserver=3,Console Server
+#Logger.server.bnetserver=3,Console Server
 #Logger.spells=3,Console Server
 #Logger.sql.dev=3,Console Server
 #Logger.sql.driver=3,Console Server

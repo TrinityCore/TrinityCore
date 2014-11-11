@@ -271,10 +271,10 @@ struct LFGDungeonData
         maxlevel(0), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
         requiredItemLevel(0)
         { }
-    LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->name), map(dbc->map),
-        type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
-        minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
-        seasonal((dbc->flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
+    LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->Name_lang), map(dbc->MapID),
+        type(dbc->Type), expansion(dbc->Expansion), group(dbc->GroupID),
+        minlevel(dbc->MinLevel), maxlevel(dbc->MaxLevel), difficulty(Difficulty(dbc->DifficultyID)),
+        seasonal((dbc->Flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
         requiredItemLevel(0)
         { }
 
@@ -436,7 +436,7 @@ class LFGMgr
         void DecreaseKicksLeft(ObjectGuid guid);
         void SetState(ObjectGuid guid, LfgState state);
         void RemovePlayerData(ObjectGuid guid);
-        void GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& players, LfgLockPartyMap& lockMap);
+        void GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& players, LfgLockPartyMap& lockMap, bool isContinue);
         void _SaveToDB(ObjectGuid guid, uint32 db_guid);
         LFGDungeonData const* GetLFGDungeon(uint32 id);
 

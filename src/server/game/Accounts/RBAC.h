@@ -117,9 +117,9 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_BNET_ACCOUNT_PASSWORD                  = 211,
     RBAC_PERM_COMMAND_BNET_ACCOUNT_SET                       = 212,
     RBAC_PERM_COMMAND_BNET_ACCOUNT_SET_PASSWORD              = 213,
-    // 214 - reuse
-    // 215 - reuse
-    // 216 - reuse
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_LINK                      = 214,
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_UNLINK                    = 215,
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE_GAME               = 216,
     RBAC_PERM_COMMAND_ACCOUNT                                = 217,
     RBAC_PERM_COMMAND_ACCOUNT_ADDON                          = 218,
     RBAC_PERM_COMMAND_ACCOUNT_CREATE                         = 219,
@@ -700,6 +700,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GUILD_INFO                             = 794,
     RBAC_PERM_COMMAND_INSTANCE_SET_BOSS_STATE                = 795,
     RBAC_PERM_COMMAND_INSTANCE_GET_BOSS_STATE                = 796,
+    RBAC_PERM_COMMAND_PVPSTATS                               = 797,
+    RBAC_PERM_COMMAND_MODIFY_XP                              = 798,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

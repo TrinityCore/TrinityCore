@@ -15,15 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _TOTP_H
-#define _TOTP_H
+#include "MiscPackets.h"
 
-#include "openssl/hmac.h"
-#include "openssl/evp.h"
-
-namespace TOTP
+void WorldPackets::Misc::ViolenceLevel::Read()
 {
-    unsigned int GenerateToken(const char* b32key);
+    _worldPacket >> ViolenceLvl;
 }
-
-#endif
