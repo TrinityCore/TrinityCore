@@ -21235,13 +21235,28 @@ void Player::SetRestBonus(float rest_bonus_new)
         m_rest_bonus = rest_bonus_new;
 
     // update data for client
+    
+    bool m_raf_bonus = false;
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
-        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RAF_LINKED);
-    else if (m_rest_bonus > 10)
-        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RESTED);              // Set Reststate = Rested
-    else if (m_rest_bonus <= 1)
-        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_NOT_RAF_LINKED);              // Set Reststate = Normal
-
+        m_raf_bonus = true;
+    switch(m_raf_bonus)
+    {
+    case true:
+        // This function can check distance and returns true or false
+        if(GetsRecruitAFriendBonus(true))
+        {
+            SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RAF_LINKED);
+            break;
+        }
+        // if we dont have it valid we will go onto the next case so we can check for rested xp
+    case false:
+        if(m_rest_bonus > 10)
+            SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RESTED);
+        else if(m_rest_bonus <= 1)
+            SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_NOT_RAF_LINKED);
+        break;
+    }
+    
     //RestTickUpdate
     SetUInt32Value(PLAYER_REST_STATE_EXPERIENCE, uint32(m_rest_bonus));
 }
