@@ -571,28 +571,28 @@ bool StartDB()
         return false;
     }
 
-    ///- Get hotfix database info from configuration file
+    ///- Get hotfixes database info from configuration file
     dbString = sConfigMgr->GetStringDefault("HotfixDatabaseInfo", "");
     if (dbString.empty())
     {
-        TC_LOG_ERROR("server.worldserver", "Hotfix database not specified in configuration file");
+        TC_LOG_ERROR("server.worldserver", "Hotfixes database not specified in configuration file");
         return false;
     }
 
     asyncThreads = uint8(sConfigMgr->GetIntDefault("HotfixDatabase.WorkerThreads", 1));
     if (asyncThreads < 1 || asyncThreads > 32)
     {
-        TC_LOG_ERROR("server.worldserver", "Hotfix database: invalid number of worker threads specified. "
+        TC_LOG_ERROR("server.worldserver", "Hotfixes database: invalid number of worker threads specified. "
             "Please pick a value between 1 and 32.");
         return false;
     }
 
     synchThreads = uint8(sConfigMgr->GetIntDefault("HotfixDatabase.SynchThreads", 2));
 
-    ///- Initialize the Hotfix database
+    ///- Initialize the hotfixes database
     if (!HotfixDatabase.Open(dbString, asyncThreads, synchThreads))
     {
-        TC_LOG_ERROR("server.worldserver", "Cannot connect to Hotfix database %s", dbString.c_str());
+        TC_LOG_ERROR("server.worldserver", "Cannot connect to the hotfix database %s", dbString.c_str());
         return false;
     }
 
