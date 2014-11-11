@@ -460,8 +460,8 @@ public:
         }
 
         handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
-        handler->SetSentErrorMessage(true);
-        return false;*/
+        handler->SetSentErrorMessage(true);*/
+        return false;
     }
 
     //Edit Player Aspeed
