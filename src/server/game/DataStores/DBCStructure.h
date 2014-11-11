@@ -572,6 +572,9 @@ struct AreaTableEntry
     //uint32 unk23;                                         // 23 4.0.0
     //uint32 unk24;                                         // 24 - worldStateId
     //uint32 unk25                                          // 25
+	//uint32 unk26;                                         // 23 6.0.3
+	//uint32 unk27;                                         // 24 6.0.3
+	//uint32 unk28                                          // 25 6.0.3
 
     // helpers
     bool IsSanctuary() const
