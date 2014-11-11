@@ -19,6 +19,7 @@
 #define TRINITY_PACKETLOG_H
 
 #include "Common.h"
+#include "Opcodes.h"
 
 #include <boost/asio/ip/address.hpp>
 #include <mutex>

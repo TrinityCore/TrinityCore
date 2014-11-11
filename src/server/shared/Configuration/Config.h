@@ -30,7 +30,7 @@ class ConfigMgr
     ~ConfigMgr() { }
 
 public:
-    /// Method used only for loading main configuration files (authserver.conf and worldserver.conf)
+    /// Method used only for loading main configuration files
     bool LoadInitial(std::string const& file, std::string& error);
 
     static ConfigMgr* instance()

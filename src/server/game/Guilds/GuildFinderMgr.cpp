@@ -62,10 +62,9 @@ void GuildFinderMgr::LoadGuildSettings()
         bool   listed       = (fields[5].GetUInt8() != 0);
         std::string comment = fields[6].GetString();
 
-        TeamId guildTeam = TEAM_ALLIANCE;
+        TeamId guildTeam = TEAM_NEUTRAL;
         if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(fields[7].GetUInt8()))
-            if (raceEntry->TeamID == 1)
-                guildTeam = TEAM_HORDE;
+            guildTeam = (TeamId)raceEntry->TeamID;
 
         LFGuildSettings settings(listed, guildTeam, guildId, classRoles, availability, interests, level, comment);
         _guildSettings[guildId] = settings;

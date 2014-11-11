@@ -1,7 +1,7 @@
 ###############################################
 # Trinity Core Auth Server configuration file #
 ###############################################
-[authserver]
+[bnetserver]
 
 ###################################################################################################
 # SECTION INDEX
@@ -71,7 +71,7 @@ BindIP = "0.0.0.0"
 #
 #    PidFile
 #        Description: Auth server PID file.
-#        Example:     "./authserver.pid"  - (Enabled)
+#        Example:     "./bnetserver.pid"  - (Enabled)
 #        Default:     ""                  - (Disabled)
 
 PidFile = ""
