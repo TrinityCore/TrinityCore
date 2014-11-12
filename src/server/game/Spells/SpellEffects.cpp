@@ -3808,7 +3808,7 @@ void Spell::EffectApplyGlyph()
             }
 
             // remove old glyph
-            if (uint32 oldGlyph = player->GetGlyph(player->GetActiveSpec(), m_glyphIndex))
+            if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_glyphIndex))
             {
                 if (GlyphPropertiesEntry const* oldGlyphProperties = sGlyphPropertiesStore.LookupEntry(oldGlyph))
                 {
@@ -5317,7 +5317,7 @@ void Spell::EffectSpecCount()
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->UpdateSpecCount(damage);
+    unitTarget->ToPlayer()->UpdateTalentGroupCount(damage);
 }
 
 void Spell::EffectActivateSpec()
@@ -5328,7 +5328,7 @@ void Spell::EffectActivateSpec()
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->ActivateSpec(damage-1);  // damage is 1 or 2, spec is 0 or 1
+    unitTarget->ToPlayer()->ActivateTalentGroup(damage-1);  // damage is 1 or 2, spec is 0 or 1
 }
 
 void Spell::EffectPlaySound()

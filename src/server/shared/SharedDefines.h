@@ -711,10 +711,10 @@ enum SpellAttr7 : uint32
     SPELL_ATTR7_CLIENT_INDICATOR                 = 0x80000000  // TITLE Client indicator (client only)
 };
 
-#define MIN_TALENT_SPEC         0
-#define MAX_TALENT_SPEC         1
-#define MIN_TALENT_SPECS        1
-#define MAX_TALENT_SPECS        2
+#define MIN_TALENT_GROUP         0
+#define MAX_TALENT_GROUP         1
+#define MIN_TALENT_GROUPS        1
+#define MAX_TALENT_GROUPS        2
 #define MAX_GLYPH_SLOT_INDEX    6
 
 // Custom values
