@@ -2155,7 +2155,9 @@ struct TalentEntry
     uint32      CategoryMask[2];                                // 6 All 0
     uint32      ClassID;                                        // 7
     uint32      OverridesSpellID;                               // 8 spellid that is replaced by talent
-    //char*     Description_lang
+	uint32		TalentID;                                       // 9 Talens ID
+	uint32      Unk;                                            // 10 Unk
+	//char*     Description_lang
 };
 
 struct TaxiNodesEntry

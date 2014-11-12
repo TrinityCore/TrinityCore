@@ -608,7 +608,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
     */
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");//19119
 
     // Create Spelldifficulty searcher
     /* TODO: 6.x update to new spell diffs
