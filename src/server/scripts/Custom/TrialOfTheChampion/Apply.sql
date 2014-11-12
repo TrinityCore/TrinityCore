@@ -52,7 +52,6 @@ UPDATE `creature_template` SET `ScriptName` = 'TW_generic_vehicleAI_toc5' WHERE 
 UPDATE `creature_template` SET `ScriptName` = 'TW_generic_vehicleAI_toc5' WHERE `entry` = '35641';
 UPDATE `creature_template` SET `faction` = '84', `spell1` = '62544',`spell3` = '63010',`VehicleId` = '486' WHERE `entry` = '35644';
 UPDATE `creature_template` SET `ScriptName` = 'TW_generic_vehicleAI_toc5' WHERE `entry` = '35768';
-UPDATE `creature_template` SET `faction_A` = '83',`faction_H` = '83', `spell1` = '62544',`spell2` = '62575',`spell3` = '63010',`spell4` = '66482' WHERE `entry` = '36558';
 UPDATE `creature_template` SET `ScriptName` = 'TW_npc_risen_ghoul' WHERE `entry` = '35590';
 
 UPDATE `instance_template` SET `Script` = 'TW_instance_trial_of_the_champion' WHERE `map` = 650;
