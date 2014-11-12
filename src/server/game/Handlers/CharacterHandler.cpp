@@ -246,8 +246,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             if (!(charInfo.Flags & (CHARACTER_FLAG_LOCKED_FOR_TRANSFER | CHARACTER_FLAG_LOCKED_BY_BILLING)))
                 _legitCharacters.insert(charInfo.Guid);
 
-            if (!sWorld->HasCharacterNameData(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                sWorld->AddCharacterNameData(charInfo.Guid, charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level);
+            if (!sWorld->HasCharacterInfo(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                sWorld->AddCharacterInfo(charInfo.Guid, charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, false);
 
             charEnum.Characters.emplace_back(charInfo);
         }
@@ -291,6 +291,9 @@ void WorldSession::HandleCharUndeleteEnum(PreparedQueryResult result)
             WorldPackets::Character::CharEnumResult::CharacterInfo charInfo(fields);
 
             TC_LOG_INFO("network", "Loading undeleted char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
+
+            if (!sWorld->HasCharacterInfo(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                sWorld->AddCharacterInfo(charInfo.Guid, charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, true);
 
             charEnum.Characters.emplace_back(charInfo);
         }
@@ -675,7 +678,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
 
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Create Character: %s %s", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUID().ToString().c_str());
             sScriptMgr->OnPlayerCreate(&newChar);
-            sWorld->AddCharacterNameData(newChar.GetGUID(), newChar.GetName(), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel());
+            sWorld->AddCharacterInfo(newChar.GetGUID(), newChar.GetName(), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel(), false);
 
             newChar.CleanupsBeforeDelete();
             _charCreateCallback.Reset();
@@ -1261,7 +1264,7 @@ void WorldSession::HandleCharRenameCallBack(PreparedQueryResult result, WorldPac
 
     SendCharRename(RESPONSE_SUCCESS, renameInfo);
 
-    sWorld->UpdateCharacterNameData(renameInfo->Guid, renameInfo->NewName);
+    sWorld->UpdateCharacterInfo(renameInfo->Guid, renameInfo->NewName);
 }
 
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
@@ -1272,7 +1275,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
 
     // not accept declined names for unsupported languages
     std::string name;
-    if (!sObjectMgr->GetPlayerNameByGUID(guid, name))
+    if (!ObjectMgr::GetPlayerNameByGUID(guid, name))
     {
         SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, guid);
         return;
@@ -1488,7 +1491,7 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
 
     // character with this name already exist
     /// @todo: make async
-    ObjectGuid newGuid = sObjectMgr->GetPlayerGUIDByName(customizeInfo->CharName);
+    ObjectGuid newGuid = ObjectMgr::GetPlayerGUIDByName(customizeInfo->CharName);
     if (!newGuid.IsEmpty())
     {
         if (newGuid != customizeInfo->CharGUID)
@@ -1535,7 +1538,7 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
 
     CharacterDatabase.CommitTransaction(trans);
 
-    sWorld->UpdateCharacterNameData(customizeInfo->CharGUID, customizeInfo->CharName, customizeInfo->SexID);
+    sWorld->UpdateCharacterInfo(customizeInfo->CharGUID, customizeInfo->CharName, customizeInfo->SexID);
 
     SendCharCustomize(RESPONSE_SUCCESS, customizeInfo);
 
@@ -1694,16 +1697,16 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
     }
 
     // get the players old (at this moment current) race
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(factionChangeInfo->Guid);
-    if (!nameData)
+    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(factionChangeInfo->Guid);
+    if (!characterInfo)
     {
         SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo);
         return;
     }
 
-    uint8 oldRace = nameData->m_race;
-    uint8 playerClass = nameData->m_class;
-    uint8 level = nameData->m_level;
+    uint8 oldRace     = characterInfo->Race;
+    uint8 playerClass = characterInfo->Class;
+    uint8 level       = characterInfo->Level;
 
     if (!sObjectMgr->GetPlayerInfo(factionChangeInfo->RaceID, playerClass))
     {
@@ -1769,7 +1772,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
     }
 
     // character with this name already exist
-    ObjectGuid newGuid = sObjectMgr->GetPlayerGUIDByName(factionChangeInfo->Name);
+    ObjectGuid newGuid = ObjectMgr::GetPlayerGUIDByName(factionChangeInfo->Name);
     if (!newGuid.IsEmpty())
     {
         if (newGuid != factionChangeInfo->Guid)
@@ -1872,7 +1875,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         trans->Append(stmt);
     }
 
-    sWorld->UpdateCharacterNameData(factionChangeInfo->Guid, factionChangeInfo->Name, factionChangeInfo->SexID, factionChangeInfo->RaceID);
+    sWorld->UpdateCharacterInfo(factionChangeInfo->Guid, factionChangeInfo->Name, factionChangeInfo->SexID, factionChangeInfo->RaceID);
 
     if (oldRace != factionChangeInfo->RaceID)
     {
@@ -2477,25 +2480,7 @@ void WorldSession::HandleCharUndeleteCallback(PreparedQueryResult result, WorldP
             stmt->setUInt32(0, GetBattlenetAccountId());
             LoginDatabase.Execute(stmt);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
-            stmt->setUInt64(0, undeleteInfo->CharacterGuid.GetCounter());
-
-            _charUndeleteCallback.FreeResult();
-            _charUndeleteCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
-            _charUndeleteCallback.NextStage();
-            break;
-        }
-        case 5:
-        {
-            if (!result)
-            {
-                SendUndeleteCharacterResponse(CHARACTER_UNDELETE_RESULT_ERROR_UNKNOWN, undeleteInfo);
-                _charUndeleteCallback.Reset();
-                return;
-            }
-
-            Field* fields = result->Fetch();
-            sWorld->AddCharacterNameData(undeleteInfo->CharacterGuid, undeleteInfo->Name, fields[2].GetUInt8(), fields[0].GetUInt8(), fields[1].GetUInt8(), fields[3].GetUInt8());
+            sWorld->UpdateCharacterInfoDeleted(undeleteInfo->CharacterGuid, false, &undeleteInfo->Name);
 
             SendUndeleteCharacterResponse(CHARACTER_UNDELETE_RESULT_OK, undeleteInfo);
             _charUndeleteCallback.Reset();

@@ -211,7 +211,7 @@ public:
             return;
         }
 
-        if (!sObjectMgr->GetPlayerGUIDByName(delInfo.name).IsEmpty())
+        if (!ObjectMgr::GetPlayerGUIDByName(delInfo.name).IsEmpty())
         {
             handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.guid.ToString().c_str(), delInfo.accountId);
             return;
@@ -223,10 +223,7 @@ public:
         stmt->setUInt64(2, delInfo.guid.GetCounter());
         CharacterDatabase.Execute(stmt);
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
-        stmt->setUInt64(0, delInfo.guid.GetCounter());
-        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-            sWorld->AddCharacterNameData(delInfo.guid, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
+        sWorld->UpdateCharacterInfoDeleted(delInfo.guid, false, &delInfo.name);
     }
 
     static void HandleCharacterLevel(Player* player, ObjectGuid playerGuid, uint32 oldLevel, uint32 newLevel, ChatHandler* handler)
@@ -329,7 +326,7 @@ public:
                 if (handler->HasLowerSecurity(NULL, targetGuid))
                     return false;
 
-                sObjectMgr->GetPlayerNameByGUID(targetGuid, playerOldName);
+                ObjectMgr::GetPlayerNameByGUID(targetGuid, playerOldName);
             }
 
             if (!normalizePlayerName(newName))
@@ -386,14 +383,14 @@ public:
                 CharacterDatabase.Execute(stmt);
             }
 
-            sWorld->UpdateCharacterNameData(targetGuid, newName);
+            sWorld->UpdateCharacterInfo(targetGuid, newName);
 
             handler->PSendSysMessage(LANG_RENAME_PLAYER_WITH_NEW_NAME, playerOldName.c_str(), newName.c_str());
 
             if (WorldSession* session = handler->GetSession())
             {
                 if (Player* player = session->GetPlayer())
-                    sLog->outCommand(session->GetAccountId(), "GM %s (Account: %u) forced rename %s to player %s (Account: %u)", player->GetName().c_str(), session->GetAccountId(), newName.c_str(), playerOldName.c_str(), sObjectMgr->GetPlayerAccountIdByGUID(targetGuid));
+                    sLog->outCommand(session->GetAccountId(), "GM %s (Account: %u) forced rename %s to player %s (Account: %u)", player->GetName().c_str(), session->GetAccountId(), newName.c_str(), playerOldName.c_str(), ObjectMgr::GetPlayerAccountIdByGUID(targetGuid));
             }
             else
                 sLog->outCommand(0, "CONSOLE forced rename '%s' to '%s' (%s)", playerOldName.c_str(), newName.c_str(), targetGuid.ToString().c_str());
@@ -785,14 +782,14 @@ public:
         }
         else
         {
-            characterGuid = sObjectMgr->GetPlayerGUIDByName(characterName);
+            characterGuid = ObjectMgr::GetPlayerGUIDByName(characterName);
             if (!characterGuid)
             {
                 handler->PSendSysMessage(LANG_NO_PLAYER, characterName.c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            accountId = sObjectMgr->GetPlayerAccountIdByGUID(characterGuid);
+            accountId = ObjectMgr::GetPlayerAccountIdByGUID(characterGuid);
         }
 
         std::string accountName;
@@ -921,7 +918,7 @@ public:
                 return false;
             }
 
-            if (sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid::Create<HighGuid::Player>(guid)))
+            if (ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid::Create<HighGuid::Player>(guid)))
             {
                 handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, guid);
                 handler->SetSentErrorMessage(true);
@@ -980,10 +977,10 @@ public:
                 return false;
             }
 
-            guid = sObjectMgr->GetPlayerGUIDByName(name);
+            guid = ObjectMgr::GetPlayerGUIDByName(name);
         }
 
-        if (!sObjectMgr->GetPlayerAccountIdByGUID(guid))
+        if (!ObjectMgr::GetPlayerAccountIdByGUID(guid))
         {
             handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
             handler->SetSentErrorMessage(true);

@@ -478,7 +478,7 @@ public:
 
         ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
 
-        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
+        if (ObjectMgr::GetPlayerNameByGUID(parseGUID, targetName))
         {
             target = ObjectAccessor::FindPlayer(parseGUID);
             targetGuid = parseGUID;

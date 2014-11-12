@@ -136,7 +136,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
 
     uint32 rc_account = 0;
     if (!receiver)
-        rc_account = sObjectMgr->GetPlayerAccountIdByGUID(receiverGuid);
+        rc_account = ObjectMgr::GetPlayerAccountIdByGUID(receiverGuid);
 
     if (!receiver && !rc_account)                            // sender not exist
     {
