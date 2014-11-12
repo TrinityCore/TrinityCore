@@ -3314,7 +3314,8 @@ bool Player::AddTalent(uint32 talentId, uint8 spec)
     TalentEntry const* talentEntry = sTalentStore.LookupEntry(talentId);
 
     // Check if talent exists in Talent.dbc
-    if (!talentEntry) {
+    if (!talentEntry)
+    {
         TC_LOG_ERROR("spells", "Player::addTalent: Talent %u not found", talentId);
         return false;
     }
@@ -3349,7 +3350,7 @@ bool Player::AddTalent(uint32 talentId, uint8 spec)
 
         return false;
     }
-    
+
     TalentGroupInfo* talentGroupInfo = GetTalentGroupInfo(spec);
 
     // Check if player already has this talent
@@ -4119,7 +4120,7 @@ bool Player::ResetTalents(bool no_cost)
     }
 
     RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
-    
+
     uint8 group = GetActiveTalentGroup();
     uint32 specID = GetActiveTalentSpec();
 
@@ -4142,7 +4143,7 @@ bool Player::ResetTalents(bool no_cost)
             continue;
 
         RemoveSpell(talentInfo->SpellID, true);
-        
+
         // search for spells that the talent teaches and unlearn them
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
@@ -4364,19 +4365,19 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
     // Convert guid to low GUID for CharacterNameData, but also other methods on success
     ObjectGuid::LowType guid = playerguid.GetCounter();
-    uint32 charDelete_method = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
+    uint32 charDeleteMethod = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
 
     if (deleteFinally)
-        charDelete_method = CHAR_DELETE_REMOVE;
-    else if (CharacterNameData const* nameData = sWorld->GetCharacterNameData(playerguid))    // To avoid a query, we select loaded data. If it doesn't exist, return.
+        charDeleteMethod = CHAR_DELETE_REMOVE;
+    else if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(playerguid)) // To avoid a query, we select loaded data. If it doesn't exist, return.
     {
         // Define the required variables
-        uint32 charDelete_minLvl = sWorld->getIntConfig(nameData->m_class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
+        uint32 charDeleteMinLvl = sWorld->getIntConfig(characterInfo->Class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
 
         // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
         // we set it to mode CHAR_DELETE_REMOVE
-        if (nameData->m_level < charDelete_minLvl)
-            charDelete_method = CHAR_DELETE_REMOVE;
+        if (characterInfo->Level < charDeleteMinLvl)
+            charDeleteMethod = CHAR_DELETE_REMOVE;
     }
 
     // convert corpse to bones if exist (to prevent exiting Corpse in World without DB entry)
@@ -4402,7 +4403,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     // Remove signs from petitions (also remove petitions if owner);
     RemovePetitionsAndSigns(playerguid, 10);
 
-    switch (charDelete_method)
+    switch (charDeleteMethod)
     {
         // Completely remove from the database
         case CHAR_DELETE_REMOVE:
@@ -4491,7 +4492,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     stmt->setUInt32(0, mail_id);
                     trans->Append(stmt);
 
-                    uint32 pl_account = sObjectMgr->GetPlayerAccountIdByGUID(playerguid);
+                    uint32 pl_account = ObjectMgr::GetPlayerAccountIdByGUID(playerguid);
 
                     draft.AddMoney(money).SendReturnToSender(pl_account, guid, sender, trans);
                 }
@@ -4672,27 +4673,28 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             CharacterDatabase.CommitTransaction(trans);
+
+            sWorld->DeleteCharacterInfo(playerguid);
             break;
         }
         // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
         case CHAR_DELETE_UNLINK:
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_DELETE_INFO);
-
             stmt->setUInt64(0, guid);
 
             CharacterDatabase.Execute(stmt);
+
+            sWorld->UpdateCharacterInfoDeleted(playerguid, true);
             break;
         }
         default:
-            TC_LOG_ERROR("entities.player", "Player::DeleteFromDB: Unsupported delete method: %u.", charDelete_method);
+            TC_LOG_ERROR("entities.player", "Player::DeleteFromDB: Unsupported delete method: %u.", charDeleteMethod);
             return;
     }
 
     if (updateRealmChars)
         sWorld->UpdateRealmCharCount(accountId);
-
-    sWorld->DeleteCharacterNameData(playerguid);
 }
 
 /**
@@ -6535,6 +6537,15 @@ uint32 Player::TeamForRace(uint8 race)
         TC_LOG_ERROR("entities.player", "Race (%u) not found in DBC: wrong DBC files?", uint32(race));
 
     return ALLIANCE;
+}
+
+TeamId Player::TeamIdForRace(uint8 race)
+{
+    if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race))
+        return TeamId(rEntry->TeamID);
+
+    TC_LOG_ERROR("entities.player", "Race (%u) not found in DBC: wrong DBC files?", race);
+    return TEAM_NEUTRAL;
 }
 
 void Player::setFactionForRace(uint8 race)
@@ -16919,7 +16930,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     if (!result)
     {
         std::string name = "<unknown>";
-        sObjectMgr->GetPlayerNameByGUID(guid, name);
+        ObjectMgr::GetPlayerNameByGUID(guid, name);
         TC_LOG_ERROR("entities.player", "Player %s %s not found in table `characters`, can't load. ", name.c_str(), guid.ToString().c_str());
         return false;
     }
@@ -18002,7 +18013,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         }
 
         std::string name;
-        if (!creatorGuid.IsEmpty() && !sObjectMgr->GetPlayerNameByGUID(creatorGuid, name))
+        if (!creatorGuid.IsEmpty() && !ObjectMgr::GetPlayerNameByGUID(creatorGuid, name))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (%s, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creator: %s).", GetGUID().ToString().c_str(), GetName().c_str(), itemId, itemEntry, creatorGuid.ToString().c_str());
             creatorGuid.Clear();
@@ -20134,31 +20145,6 @@ void Player::SetUInt32ValueInArray(Tokenizer& Tokenizer, uint16 index, uint32 va
         return;
 
     Tokenizer[index] = buf;
-}
-
-void Player::Customize(WorldPackets::Character::CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PLAYERBYTES2);
-    stmt->setUInt64(0, customizeInfo->Guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-        return;
-
-    Field* fields = result->Fetch();
-
-    uint32 playerBytes2 = fields[0].GetUInt32();
-    playerBytes2 &= ~0xFF;
-    playerBytes2 |= customizeInfo->FacialHair;
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_PLAYERBYTES);
-
-    stmt->setUInt8(0, customizeInfo->Gender);
-    stmt->setUInt32(1, customizeInfo->Skin | (customizeInfo->Face << 8) | (customizeInfo->HairStyle << 16) | (customizeInfo->HairColor << 24));
-    stmt->setUInt32(2, playerBytes2);
-    stmt->setUInt64(3, customizeInfo->Guid.GetCounter());
-
-    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void Player::SendAttackSwingDeadTarget()
