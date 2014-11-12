@@ -69,8 +69,8 @@ GameObject::~GameObject()
 {
     delete m_AI;
     delete m_model;
-    if (m_goInfo->type == GAMEOBJECT_TYPE_TRANSPORT)
-        delete m_goValue.Transport.StopFrames;
+   // if (m_goInfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+       // delete m_goValue.Transport.StopFrames;
     //if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     //    CleanupsBeforeDelete();
 }
