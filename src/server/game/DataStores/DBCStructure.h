@@ -864,7 +864,7 @@ struct CreatureModelDataEntry
 {
     uint32    ID;                                         // 0
     uint32    Flags;                                      // 1
-    uint32    FileDataID;                                 // 2
+    //uint32    FileDataID;                                 // 2
     uint32    SizeClass;                                  // 3
     float     ModelScale;                                 // 4
     uint32    BloodID;                                    // 5
@@ -900,7 +900,7 @@ struct CreatureSpellDataEntry
 {
     uint32      ID;                                         // 0
     uint32      Spells[MAX_CREATURE_SPELL_DATA_SLOT];       // 1-4
-    //uint32    Availability[MAX_CREATURE_SPELL_DATA_SLOT]; // 4-7
+    uint32      Availability[MAX_CREATURE_SPELL_DATA_SLOT]; // 4-7
 };
 
 struct CreatureTypeEntry
