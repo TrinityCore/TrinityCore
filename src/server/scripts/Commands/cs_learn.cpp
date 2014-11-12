@@ -204,7 +204,7 @@ public:
 
             // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
             player->LearnSpellHighestRank(talentInfo->SpellID);
-            player->AddTalent(talentInfo->SpellID, player->GetActiveSpec(), true);
+            player->AddTalent(talentInfo->SpellID, player->GetActiveTalentGroup());
         }
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
