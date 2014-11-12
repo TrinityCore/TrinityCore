@@ -10,7 +10,7 @@ UPDATE `creature_template` SET `faction` = '16', `unit_flags2` = '0',`mechanic_i
 UPDATE `creature_template` SET `faction` = '16', `unit_flags2` = '0',`mechanic_immune_mask` = '2',`ScriptName` = 'TW_generic_vehicleAI_toc5' WHERE `entry` = '33323';
 UPDATE `creature_template` SET `faction` = '16', `unit_flags2` = '0',`mechanic_immune_mask` = '2',`ScriptName` = 'TW_generic_vehicleAI_toc5' WHERE `entry` = '33324';
 UPDATE `creature_template` SET `unit_flags2` = '0',`ScriptName` = 'TW_boss_hunter_toc5' WHERE `entry` = '34657';
-UPDATE `creature_template` SET `rank` = '1',`mindmg` = '420',`maxdmg` = '630',`attackpower` = '157',`unit_flags` = '0',`unit_flags2` = '0',`Health_mod` = '15',`ScriptName` = 'TW_generic_vehicleAI_toc5' WHERE `entry` = '34658';
+UPDATE `creature_template` SET `unit_flags` = '0',`unit_flags2` = '0',`ScriptName` = 'TW_generic_vehicleAI_toc5' WHERE `entry` = '34658';
 UPDATE `creature_template` SET `unit_flags2` = '0',`ScriptName` = 'TW_boss_shaman_toc5' WHERE `entry` = '34701';
 UPDATE `creature_template` SET `unit_flags2` = '0',`ScriptName` = 'TW_boss_mage_toc5' WHERE `entry` = '34702';
 UPDATE `creature_template` SET `unit_flags2` = '0',`ScriptName` = 'TW_boss_rogue_toc5' WHERE `entry` = '34703';
@@ -34,7 +34,7 @@ UPDATE `creature_template` SET `unit_flags` = '33554434',`unit_flags2` = '0',`AI
 UPDATE `creature_template` SET `unit_flags` = '33554434',`unit_flags2` = '0',`AIName` = '' WHERE `entry` = '35331';
 UPDATE `creature_template` SET `unit_flags` = '33554434',`unit_flags2` = '0',`AIName` = '' WHERE `entry` = '35332';
 UPDATE `creature_template` SET `unit_flags` = '64',`unit_flags2` = '0',`mechanic_immune_mask` = '805257215',`ScriptName` = 'TW_boss_black_knight' WHERE `entry` = '35451';
-UPDATE `creature_template` SET `faction_H` = '1',`mindmg` = '0',`maxdmg` = '0',`attackpower` = '0',`dmg_multiplier` = '0',`baseattacktime` = '0',`unit_flags` = '33554432',`unit_flags2` = '0',`dynamicflags` = '0',`minrangedmg` = '0',`maxrangedmg` = '0',`rangedattackpower` = '0',`VehicleId` = '486',`ScriptName` = 'TW_npc_black_knight_skeletal_gryphon' WHERE `entry` = '35491';
+UPDATE `creature_template` SET `VehicleId` = '486',`ScriptName` = 'TW_npc_black_knight_skeletal_gryphon' WHERE `entry` = '35491';
 UPDATE `creature_template` SET `unit_flags2` = '0',`ScriptName` = 'TW_npc_gr' WHERE `entry` = '35492';
 UPDATE `creature_template` SET `unit_flags2` = '0',`ScriptName` = 'TW_npc_risen_announcer' WHERE `entry` = '35545';
 UPDATE `creature_template` SET `unit_flags2` = '0',`ScriptName` = 'TW_npc_risen_announcer' WHERE `entry` = '35564';
@@ -109,7 +109,7 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_t
 (35491,46598,1,0); -- Black Knight - Ride Vehicle Hardcoded
 
 -- Black Knight Gryphon
-UPDATE `creature_template` SET `faction_A`=35, `faction_H`=35, `mindmg`=0, `maxdmg`=0, `attackpower`=0, `dmg_multiplier`=0, `baseattacktime`=0, `unit_flags`=33554432, `dynamicflags`=0, `minrangedmg`=0, `maxrangedmg`=0, `rangedattackpower`=0, `VehicleId`=486 WHERE `entry`=35491;
+UPDATE `creature_template` SET `VehicleId`=486 WHERE `entry`=35491;
 
 -- SpellScripts
 DELETE FROM spell_script_names WHERE `spell_id` IN (67680, 66903, 66515);
