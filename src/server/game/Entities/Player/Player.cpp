@@ -4365,19 +4365,19 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
     // Convert guid to low GUID for CharacterNameData, but also other methods on success
     ObjectGuid::LowType guid = playerguid.GetCounter();
-    uint32 charDelete_method = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
+    uint32 charDeleteMethod = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
 
     if (deleteFinally)
-        charDelete_method = CHAR_DELETE_REMOVE;
-    else if (CharacterNameData const* nameData = sWorld->GetCharacterNameData(playerguid))    // To avoid a query, we select loaded data. If it doesn't exist, return.
+        charDeleteMethod = CHAR_DELETE_REMOVE;
+    else if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(playerguid)) // To avoid a query, we select loaded data. If it doesn't exist, return.
     {
         // Define the required variables
-        uint32 charDelete_minLvl = sWorld->getIntConfig(nameData->m_class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
+        uint32 charDeleteMinLvl = sWorld->getIntConfig(characterInfo->Class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
 
         // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
         // we set it to mode CHAR_DELETE_REMOVE
-        if (nameData->m_level < charDelete_minLvl)
-            charDelete_method = CHAR_DELETE_REMOVE;
+        if (characterInfo->Level < charDeleteMinLvl)
+            charDeleteMethod = CHAR_DELETE_REMOVE;
     }
 
     // convert corpse to bones if exist (to prevent exiting Corpse in World without DB entry)
@@ -4403,7 +4403,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     // Remove signs from petitions (also remove petitions if owner);
     RemovePetitionsAndSigns(playerguid, 10);
 
-    switch (charDelete_method)
+    switch (charDeleteMethod)
     {
         // Completely remove from the database
         case CHAR_DELETE_REMOVE:
@@ -4492,7 +4492,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     stmt->setUInt32(0, mail_id);
                     trans->Append(stmt);
 
-                    uint32 pl_account = sObjectMgr->GetPlayerAccountIdByGUID(playerguid);
+                    uint32 pl_account = ObjectMgr::GetPlayerAccountIdByGUID(playerguid);
 
                     draft.AddMoney(money).SendReturnToSender(pl_account, guid, sender, trans);
                 }
@@ -4673,27 +4673,28 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             CharacterDatabase.CommitTransaction(trans);
+
+            sWorld->DeleteCharacterInfo(playerguid);
             break;
         }
         // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
         case CHAR_DELETE_UNLINK:
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_DELETE_INFO);
-
             stmt->setUInt64(0, guid);
 
             CharacterDatabase.Execute(stmt);
+
+            sWorld->UpdateCharacterInfoDeleted(playerguid, true);
             break;
         }
         default:
-            TC_LOG_ERROR("entities.player", "Player::DeleteFromDB: Unsupported delete method: %u.", charDelete_method);
+            TC_LOG_ERROR("entities.player", "Player::DeleteFromDB: Unsupported delete method: %u.", charDeleteMethod);
             return;
     }
 
     if (updateRealmChars)
         sWorld->UpdateRealmCharCount(accountId);
-
-    sWorld->DeleteCharacterNameData(playerguid);
 }
 
 /**
@@ -16927,7 +16928,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     if (!result)
     {
         std::string name = "<unknown>";
-        sObjectMgr->GetPlayerNameByGUID(guid, name);
+        ObjectMgr::GetPlayerNameByGUID(guid, name);
         TC_LOG_ERROR("entities.player", "Player %s %s not found in table `characters`, can't load. ", name.c_str(), guid.ToString().c_str());
         return false;
     }
@@ -18010,7 +18011,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         }
 
         std::string name;
-        if (!creatorGuid.IsEmpty() && !sObjectMgr->GetPlayerNameByGUID(creatorGuid, name))
+        if (!creatorGuid.IsEmpty() && !ObjectMgr::GetPlayerNameByGUID(creatorGuid, name))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (%s, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creator: %s).", GetGUID().ToString().c_str(), GetName().c_str(), itemId, itemEntry, creatorGuid.ToString().c_str());
             creatorGuid.Clear();

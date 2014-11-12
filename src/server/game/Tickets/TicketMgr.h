@@ -102,7 +102,7 @@ public:
         std::string name;
         // save queries if ticket is not assigned
         if (!_assignedTo.IsEmpty())
-            sObjectMgr->GetPlayerNameByGUID(_assignedTo, name);
+            ObjectMgr::GetPlayerNameByGUID(_assignedTo, name);
 
         return name;
     }

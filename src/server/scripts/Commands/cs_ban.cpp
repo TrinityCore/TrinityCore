@@ -305,7 +305,7 @@ public:
 
         if (!target)
         {
-            targetGuid = sObjectMgr->GetPlayerGUIDByName(name);
+            targetGuid = ObjectMgr::GetPlayerGUIDByName(name);
             if (targetGuid.IsEmpty())
             {
                 handler->PSendSysMessage(LANG_BANINFO_NOCHARACTER);

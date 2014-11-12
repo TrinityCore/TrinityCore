@@ -272,7 +272,7 @@ public:
         ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
 
         // ... and try to extract a player out of it.
-        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
+        if (ObjectMgr::GetPlayerNameByGUID(parseGUID, nameTarget))
         {
             playerTarget = ObjectAccessor::FindPlayer(parseGUID);
             guidTarget = parseGUID;

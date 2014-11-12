@@ -1917,7 +1917,7 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Calculate next currency reset time...");
     InitCurrencyResetTime();
 
-    LoadCharacterNameData();
+    LoadCharacterInfoStore();
 
     TC_LOG_INFO("misc", "Loading hotfix info...");
     sObjectMgr->LoadHotfixData();
@@ -2510,7 +2510,7 @@ bool World::RemoveBanAccount(BanMode mode, std::string const& nameOrIP)
         if (mode == BAN_ACCOUNT)
             account = AccountMgr::GetId(nameOrIP);
         else if (mode == BAN_CHARACTER)
-            account = sObjectMgr->GetPlayerAccountIdByPlayerName(nameOrIP);
+            account = ObjectMgr::GetPlayerAccountIdByPlayerName(nameOrIP);
 
         if (!account)
             return false;
@@ -2534,7 +2534,7 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
     /// Pick a player to ban if not online
     if (!pBanned)
     {
-        guid = sObjectMgr->GetPlayerGUIDByName(name);
+        guid = ObjectMgr::GetPlayerGUIDByName(name);
         if (guid.IsEmpty())
             return BAN_NOTFOUND;                                    // Nobody to ban
     }
@@ -2568,7 +2568,7 @@ bool World::RemoveBanCharacter(std::string const& name)
     /// Pick a player to ban if not online
     if (!pBanned)
     {
-        guid = sObjectMgr->GetPlayerGUIDByName(name);
+        guid = ObjectMgr::GetPlayerGUIDByName(name);
         if (guid.IsEmpty())
             return false;                                    // Nobody to ban
     }
@@ -2836,9 +2836,9 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 
 void World::InitWeeklyQuestResetTime()
 {
-    time_t wstime = uint64(sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME));
+    time_t wstime = sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME);
     time_t curtime = time(NULL);
-    m_NextWeeklyQuestReset = wstime < curtime ? curtime : time_t(wstime);
+    m_NextWeeklyQuestReset = wstime < curtime ? curtime : wstime;
 }
 
 void World::InitDailyQuestResetTime()
@@ -2878,16 +2878,16 @@ void World::InitDailyQuestResetTime()
 
 void World::InitMonthlyQuestResetTime()
 {
-    time_t wstime = uint64(sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME));
+    time_t wstime = sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME);
     time_t curtime = time(NULL);
-    m_NextMonthlyQuestReset = wstime < curtime ? curtime : time_t(wstime);
+    m_NextMonthlyQuestReset = wstime < curtime ? curtime : wstime;
 }
 
 void World::InitRandomBGResetTime()
 {
-    time_t bgtime = uint64(sWorld->getWorldState(WS_BG_DAILY_RESET_TIME));
+    time_t bgtime = sWorld->getWorldState(WS_BG_DAILY_RESET_TIME);
     if (!bgtime)
-        m_NextRandomBGReset = time_t(time(NULL));         // game time not yet init
+        m_NextRandomBGReset = time(NULL);         // game time not yet init
 
     // generate time by config
     time_t curTime = time(NULL);
@@ -2913,9 +2913,9 @@ void World::InitRandomBGResetTime()
 
 void World::InitGuildResetTime()
 {
-    time_t gtime = uint64(getWorldState(WS_GUILD_DAILY_RESET_TIME));
+    time_t gtime = getWorldState(WS_GUILD_DAILY_RESET_TIME);
     if (!gtime)
-        m_NextGuildReset = time_t(time(NULL));         // game time not yet init
+        m_NextGuildReset = time(NULL);         // game time not yet init
 
     // generate time by config
     time_t curTime = time(NULL);
@@ -2941,9 +2941,9 @@ void World::InitGuildResetTime()
 
 void World::InitCurrencyResetTime()
 {
-    time_t currencytime = uint64(sWorld->getWorldState(WS_CURRENCY_RESET_TIME));
+    time_t currencytime = sWorld->getWorldState(WS_CURRENCY_RESET_TIME);
     if (!currencytime)
-        m_NextCurrencyReset = time_t(time(NULL));         // game time not yet init
+        m_NextCurrencyReset = time(NULL);         // game time not yet init
 
     // generate time by config
     time_t curTime = time(NULL);
@@ -3227,95 +3227,108 @@ void World::ProcessQueryCallbacks()
 }
 
 /**
-* @brief Loads several pieces of information on server startup with the GUID
-* There is no further database query necessary.
-* These are a number of methods that work into the calling function.
-*
-* @param guid Requires a guid to call
-* @return Name, Gender, Race, Class and Level of player character
-* Example Usage:
-* @code
-*    CharacterNameData const* nameData = sWorld->GetCharacterNameData(GUID);
-*    if (!nameData)
-*        return;
-*
-* std::string playerName = nameData->m_name;
-* uint8 playerGender = nameData->m_gender;
-* uint8 playerRace = nameData->m_race;
-* uint8 playerClass = nameData->m_class;
-* uint8 playerLevel = nameData->m_level;
-* @endcode
-**/
+ * @brief Loads several pieces of information on server startup with the GUID
+ * There is no further database query necessary.
+ * These are a number of methods that work into the calling function.
+ *
+ * @param guid Requires a guid to call
+ * @return Name, Sex, Race, Class and Level of player character
+ * Example Usage:
+ * @code
+ *    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(GUID);
+ *    if (!nameData)
+ *        return;
+ *
+ *    std::string playerName = characterInfo->Name;
+ *    uint8 playerGender = characterInfo->Sex;
+ *    uint8 playerRace = characterInfo->Race;
+ *    uint8 playerClass = characterInfo->Class;
+ *    uint8 playerLevel = characterInfo->Level;
+ * @endcode
+ */
 
-void World::LoadCharacterNameData()
+CharacterInfo const* World::GetCharacterInfo(ObjectGuid const& guid) const
 {
-    TC_LOG_INFO("server.loading", "Loading character name data");
+    CharacterInfoContainer::const_iterator itr = _characterInfoStore.find(guid);
+    if (itr != _characterInfoStore.end())
+        return &itr->second;
 
-    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class, level FROM characters WHERE deleteDate IS NULL");
+    return nullptr;
+}
+
+void World::LoadCharacterInfoStore()
+{
+    TC_LOG_INFO("server.loading", "Loading character info store");
+
+    _characterInfoStore.clear();
+
+    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class, level, deleteDate FROM characters");
     if (!result)
     {
         TC_LOG_INFO("server.loading", "No character name data loaded, empty query");
         return;
     }
 
-    uint32 count = 0;
-
     do
     {
         Field* fields = result->Fetch();
-        AddCharacterNameData(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()), fields[1].GetString(),
-            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/);
-        ++count;
-    } while (result->NextRow());
+        AddCharacterInfo(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()), fields[1].GetString(),
+            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/, fields[6].GetUInt32() != 0);
+    }
+    while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", "Loaded name data for %u characters", count);
+    TC_LOG_INFO("server.loading", "Loaded character infos for " SZFMTD " characters", _characterInfoStore.size());
 }
 
-void World::AddCharacterNameData(ObjectGuid guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+void World::AddCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted)
 {
-    CharacterNameData& data = _characterNameDataMap[guid];
-    data.m_name = name;
-    data.m_race = race;
-    data.m_gender = gender;
-    data.m_class = playerClass;
-    data.m_level = level;
+    CharacterInfo& data = _characterInfoStore[guid];
+    data.Name = name;
+    data.Race = race;
+    data.Sex = gender;
+    data.Class = playerClass;
+    data.Level = level;
+    data.IsDeleted = isDeleted;
 }
 
-void World::UpdateCharacterNameData(ObjectGuid guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
+void World::UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
 {
-    std::map<ObjectGuid, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
-    if (itr == _characterNameDataMap.end())
+    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
         return;
 
-    itr->second.m_name = name;
+    itr->second.Name = name;
 
     if (gender != GENDER_NONE)
-        itr->second.m_gender = gender;
+        itr->second.Sex = gender;
 
     if (race != RACE_NONE)
-        itr->second.m_race = race;
+        itr->second.Race = race;
 
     WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
     data << guid;
     SendGlobalMessage(&data);
 }
 
-void World::UpdateCharacterNameDataLevel(ObjectGuid guid, uint8 level)
+void World::UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level)
 {
-    std::map<ObjectGuid, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
-    if (itr == _characterNameDataMap.end())
+    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
         return;
 
-    itr->second.m_level = level;
+    itr->second.Level = level;
 }
 
-CharacterNameData const* World::GetCharacterNameData(ObjectGuid guid) const
+void World::UpdateCharacterInfoDeleted(ObjectGuid const& guid, bool deleted, std::string const* name /*= nullptr*/)
 {
-    std::map<ObjectGuid, CharacterNameData>::const_iterator itr = _characterNameDataMap.find(guid);
-    if (itr != _characterNameDataMap.end())
-        return &itr->second;
-    else
-        return NULL;
+    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
+        return;
+
+    itr->second.IsDeleted = deleted;
+
+    if (name)
+        itr->second.Name = *name;
 }
 
 void World::UpdatePhaseDefinitions()

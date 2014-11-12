@@ -2152,103 +2152,67 @@ Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const
 }
 
 // name must be checked to correctness (if received) before call this function
-ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
+ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
-
     stmt->setString(0, name);
 
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         return ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt64());
 
     return ObjectGuid::Empty;
 }
 
-bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const
+bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
 {
-    // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
     {
         name = player->GetName();
         return true;
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME);
-
-    stmt->setUInt64(0, guid.GetCounter());
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
+    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
     {
-        name = (*result)[0].GetString();
+        name = characterInfo->Name;
         return true;
     }
 
     return false;
 }
 
-uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
+uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)
 {
-    // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-    {
-        return Player::TeamForRace(player->getRace());
-    }
+        return player->GetTeam();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
-
-    stmt->setUInt64(0, guid.GetCounter());
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        uint8 race = (*result)[0].GetUInt8();
-        return Player::TeamForRace(race);
-    }
+    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
+        return Player::TeamForRace(characterInfo->Race);
 
     return 0;
 }
 
-uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid guid) const
+uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid)
 {
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-    {
         return player->GetSession()->GetAccountId();
-    }
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_GUID);
-
     stmt->setUInt64(0, guid.GetCounter());
 
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        uint32 acc = (*result)[0].GetUInt32();
-        return acc;
-    }
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        return (*result)[0].GetUInt32();
 
     return 0;
 }
 
-uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(const std::string& name) const
+uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(std::string const& name)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_NAME);
-
     stmt->setString(0, name);
 
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        uint32 acc = (*result)[0].GetUInt32();
-        return acc;
-    }
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        return (*result)[0].GetUInt32();
 
     return 0;
 }
