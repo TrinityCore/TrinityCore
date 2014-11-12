@@ -32,7 +32,7 @@ WorldPacket const* WorldPackets::WorldState::InitWorldStates::Write()
     for (WorldStateInfo const& wsi : Worldstates)
     {
         _worldPacket << uint32(wsi.VariableID);
-        _worldPacket << uint32(wsi.Value);
+        _worldPacket << int32(wsi.Value);
     }
 
     return &_worldPacket;

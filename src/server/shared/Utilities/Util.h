@@ -37,6 +37,18 @@ struct Optional
 
     T value;
     bool HasValue;
+
+    inline void Set(T const& v)
+    {
+        HasValue = true;
+        value = v;
+    }
+
+    inline void Clear()
+    {
+        HasValue = false;
+        value = T();
+    }
 };
 
 // Searcher for map of structs

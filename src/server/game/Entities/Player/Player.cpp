@@ -3348,7 +3348,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
         TC_LOG_ERROR("spells", "Player::addTalent: Learning non-talent spell %u not allowed.", spellId);
         return false;
     }
-    
+
     TalentSpecInfo* talentSpecInfo = GetTalentSpecInfo(spec);
 
     // Check if player already has this talent
@@ -4120,7 +4120,7 @@ bool Player::ResetTalents(bool no_cost)
     }
 
     RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
-    
+
     uint8 spec = GetActiveSpec();
 
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
@@ -4142,7 +4142,7 @@ bool Player::ResetTalents(bool no_cost)
             continue;
 
         RemoveSpell(talentInfo->SpellID, true);
-        
+
         // search for spells that the talent teaches and unlearn them
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
@@ -4172,7 +4172,7 @@ bool Player::ResetTalents(bool no_cost)
     for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
         if (uint32 mastery = chrSpec->MasterySpellID[i])
             RemoveAurasDueToSpell(mastery);
-    
+
     SetTalentSpec(spec, 0);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -6536,6 +6536,15 @@ uint32 Player::TeamForRace(uint8 race)
         TC_LOG_ERROR("entities.player", "Race (%u) not found in DBC: wrong DBC files?", uint32(race));
 
     return ALLIANCE;
+}
+
+TeamId Player::TeamIdForRace(uint8 race)
+{
+    if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race))
+        return TeamId(rEntry->TeamID);
+
+    TC_LOG_ERROR("entities.player", "Race (%u) not found in DBC: wrong DBC files?", race);
+    return TEAM_NEUTRAL;
 }
 
 void Player::setFactionForRace(uint8 race)
@@ -20135,31 +20144,6 @@ void Player::SetUInt32ValueInArray(Tokenizer& Tokenizer, uint16 index, uint32 va
     Tokenizer[index] = buf;
 }
 
-void Player::Customize(WorldPackets::Character::CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PLAYERBYTES2);
-    stmt->setUInt64(0, customizeInfo->Guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-        return;
-
-    Field* fields = result->Fetch();
-
-    uint32 playerBytes2 = fields[0].GetUInt32();
-    playerBytes2 &= ~0xFF;
-    playerBytes2 |= customizeInfo->FacialHair;
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_PLAYERBYTES);
-
-    stmt->setUInt8(0, customizeInfo->Gender);
-    stmt->setUInt32(1, customizeInfo->Skin | (customizeInfo->Face << 8) | (customizeInfo->HairStyle << 16) | (customizeInfo->HairColor << 24));
-    stmt->setUInt32(2, playerBytes2);
-    stmt->setUInt64(3, customizeInfo->Guid.GetCounter());
-
-    CharacterDatabase.ExecuteOrAppend(trans, stmt);
-}
-
 void Player::SendAttackSwingDeadTarget()
 {
     WorldPacket data(SMSG_ATTACKSWING_DEADTARGET, 0);
@@ -26163,7 +26147,7 @@ void Player::_SaveTalents(SQLTransaction& trans)
 
             if (talent->State == PLAYERSPELL_REMOVED)
                 talent->SpellID = 0;
-            
+
             talent->State = PLAYERSPELL_UNCHANGED;
         }
     }
