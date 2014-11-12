@@ -1222,7 +1222,7 @@ struct TalentSpecInfo
     PlayerTalent Talents[MAX_TALENT_TIERS];
     uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
     uint32 TalentSpec;
-    
+
     bool HasTalent(uint32 spellId)
     {
         for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i)
@@ -1230,7 +1230,7 @@ struct TalentSpecInfo
                 return true;
         return false;
     }
-    
+
     void Reset()
     {
         for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i) {
@@ -1712,7 +1712,6 @@ class Player : public Unit, public GridObject<Player>
 
         static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
         static void SetFloatValueInArray(Tokenizer& data, uint16 index, float value);
-        static void Customize(WorldPackets::Character::CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
@@ -2146,6 +2145,7 @@ class Player : public Unit, public GridObject<Player>
         void CheckAreaExploreAndOutdoor(void);
 
         static uint32 TeamForRace(uint8 race);
+        static TeamId TeamIdForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void setFactionForRace(uint8 race);

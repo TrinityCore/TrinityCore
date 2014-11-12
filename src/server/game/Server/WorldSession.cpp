@@ -939,7 +939,6 @@ void WorldSession::InitializeQueryCallbackParameters()
 {
     // Callback parameters that have pointers in them should be properly
     // initialized to nullptr here.
-    _charRenameCallback.SetParam(nullptr);
 }
 
 void WorldSession::ProcessQueryCallbacks()
@@ -966,6 +965,22 @@ void WorldSession::ProcessQueryCallbacks()
         HandleCharCreateCallback(result, _charCreateCallback.GetParam().get());
     }
 
+    //! HandleCharCustomizeOpcode
+    if (_charCustomizeCallback.IsReady())
+    {
+        _charCustomizeCallback.GetResult(result);
+        HandleCharCustomizeCallback(result, _charCustomizeCallback.GetParam().get());
+        _charCustomizeCallback.Reset();
+    }
+
+    //! HandleCharRaceOrFactionChangeOpcode
+    if (_charFactionChangeCallback.IsReady())
+    {
+        _charFactionChangeCallback.GetResult(result);
+        HandleCharRaceOrFactionChangeCallback(result, _charFactionChangeCallback.GetParam().get());
+        _charFactionChangeCallback.Reset();
+    }
+
     //! HandlePlayerLoginOpcode
     if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
@@ -986,9 +1001,7 @@ void WorldSession::ProcessQueryCallbacks()
     if (_charRenameCallback.IsReady())
     {
         _charRenameCallback.GetResult(result);
-        WorldPackets::Character::CharacterRenameInfo* renameInfo = _charRenameCallback.GetParam();
-        HandleCharRenameCallBack(result, renameInfo);
-        delete renameInfo;
+        HandleCharRenameCallBack(result, _charRenameCallback.GetParam().get());
         _charRenameCallback.Reset();
     }
 

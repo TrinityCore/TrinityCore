@@ -46,23 +46,34 @@ namespace WorldPackets
 
         struct CharacterRenameInfo
         {
+            std::string NewName;
             ObjectGuid Guid;
+        };
+
+        struct CharCustomizeInfo
+        {
+            uint8 HairStyleID       = 0;
+            uint8 FaceID            = 0;
+            ObjectGuid CharGUID;
+            uint8 SexID             = GENDER_NONE;
+            std::string CharName;
+            uint8 HairColorID       = 0;
+            uint8 FacialHairStyleID = 0;
+            uint8 SkinID            = 0;
+        };
+
+        struct CharRaceOrFactionChangeInfo
+        {
+            Optional<uint8> HairColorID;
+            uint8 RaceID            = RACE_NONE;
+            uint8 SexID             = GENDER_NONE;
+            Optional<uint8> SkinID;
+            Optional<uint8> FacialHairStyleID;
+            ObjectGuid Guid;
+            bool FactionChange      = false;
             std::string Name;
-        };
-
-        struct CharacterCustomizeInfo : public CharacterRenameInfo
-        {
-            uint8 Gender     = GENDER_NONE;
-            uint8 Skin       = 0;
-            uint8 Face       = 0;
-            uint8 HairStyle  = 0;
-            uint8 HairColor  = 0;
-            uint8 FacialHair = 0;
-        };
-
-        struct CharacterFactionChangeInfo : public CharacterCustomizeInfo
-        {
-            uint8 Race = RACE_NONE;
+            Optional<uint8> FaceID;
+            Optional<uint8> HairStyleID;
         };
 
         struct CharacterUndeleteInfo
@@ -203,6 +214,100 @@ namespace WorldPackets
             uint8 Code = 0; ///< Result code @see enum ResponseCodes
         };
 
+        class CharacterRenameRequest final : public ClientPacket
+        {
+        public:
+            CharacterRenameRequest(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_RENAME, std::move(packet)) { }
+
+            void Read() override;
+
+            /**
+             * @var std::string NewName
+             * @var ObjectGuid Guid
+             */
+            std::shared_ptr<CharacterRenameInfo> RenameInfo;
+        };
+
+        class CharacterRenameResult final : public ServerPacket
+        {
+        public:
+            CharacterRenameResult() : ServerPacket(SMSG_CHAR_RENAME, 20) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+            uint8 Result = 0;
+            Optional<ObjectGuid> Guid;
+        };
+
+        class CharCustomize final : public ClientPacket
+        {
+        public:
+            CharCustomize(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_CUSTOMIZE, std::move(packet)) { }
+
+            void Read() override;
+
+            /**
+             * @var uint8 HairStyleID
+             * @var uint8 FaceID
+             * @var ObjectGuid CharGUID
+             * @var uint8 SexID
+             * @var std::string CharName
+             * @var uint8 HairColorID
+             * @var uint8 FacialHairStyleID
+             * @var uint8 SkinID
+             */
+            std::shared_ptr<CharCustomizeInfo> CustomizeInfo;
+        };
+
+        /// @todo: CharCustomizeResult
+
+        class CharRaceOrFactionChange final : public ClientPacket
+        {
+        public:
+            CharRaceOrFactionChange(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_RACE_OR_FACTION_CHANGE, std::move(packet)) { }
+
+            void Read() override;
+
+            /**
+             * @var Optional<uint8> HairColorID
+             * @var uint8 RaceID
+             * @var uint8 SexID
+             * @var Optional<uint8> SkinID
+             * @var Optional<uint8> FacialHairStyleID
+             * @var ObjectGuid Guid
+             * @var bool FactionChange
+             * @var std::string Name
+             * @var Optional<uint8> FaceID
+             * @var Optional<uint8> HairStyleID
+             */
+            std::shared_ptr<CharRaceOrFactionChangeInfo> RaceOrFactionChangeInfo;
+        };
+
+        class CharFactionChangeResult final : public ServerPacket
+        {
+        public:
+            struct CharFactionChangeDisplayInfo
+            {
+                std::string Name;
+                uint8 SexID             = 0;
+                uint8 SkinID            = 0;
+                uint8 HairColorID       = 0;
+                uint8 HairStyleID       = 0;
+                uint8 FacialHairStyleID = 0;
+                uint8 FaceID            = 0;
+                uint8 RaceID            = RACE_NONE;
+            };
+
+            CharFactionChangeResult() : ServerPacket(SMSG_CHAR_FACTION_CHANGE, 20 + sizeof(CharFactionChangeDisplayInfo)) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Result = 0; ///< @see enum ResponseCodes
+            ObjectGuid Guid;
+            Optional<CharFactionChangeDisplayInfo> Display;
+        };
+
         class GenerateRandomCharacterName final : public ClientPacket
         {
         public:
@@ -217,7 +322,7 @@ namespace WorldPackets
         class GenerateRandomCharacterNameResult final : public ServerPacket
         {
         public:
-            GenerateRandomCharacterNameResult(): ServerPacket(SMSG_RANDOMIZE_CHAR_NAME, 20) { }
+            GenerateRandomCharacterNameResult() : ServerPacket(SMSG_RANDOMIZE_CHAR_NAME, 20) { }
 
             WorldPacket const* Write() override;
 
