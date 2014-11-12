@@ -197,34 +197,6 @@ INSERT INTO achievement_criteria_data (criteria_id, TYPE, value1, value2, Script
 (12317, 12, 1, 0, ''),
 (11789, 11, 0, 0, 'TW_achievement_ive_had_worse');
 
--- Heroic memories stat corrections
-UPDATE `creature_template` SET `minlevel` = '82', `maxlevel` = '82', `faction_A` = '14', `faction_H` = '14', `ScriptName` = 'TW_npc_memory', `exp`='2', `mindmg`='488', `maxdmg`='642', `attackpower`='782', `dmg_multiplier`='7.5', `dynamicflags`='8', `minrangedmg`='363', `maxrangedmg`='521', `rangedattackpower`='121' WHERE `entry` IN 
-('35531', -- Memory of Hogger
-'35541', -- Memory of VanCleef
-'35538', -- Memory of Mutanus
-'35530', -- Memory of Herod
-'35536', -- Memory of Lucifron
-'35540', -- Memory of Thunderaan
-'35521', -- Memory of Chromaggus
-'35528', -- Memory of Hakkar
-'35543', -- Memory of Vek'nilash
-'35535', -- Memory of Kalithresh
-'35527', -- Memory of Gruul
-'35542', -- Memory of Vashj
-'35520', -- Memory of Archimonde
-'35533', -- Memory of Illidan
-'35523', -- Memory of Delrissa
-'35525', -- Memory of Entropius
-'35534', -- Memory of Ingvar
-'35522', -- Memory of Cyanigosa
-'35524', -- Memory of Eck
-'35539', -- Memory of Onyxia
-'35529', -- Memory of Heigan
-'35532', -- Memory of Ignis
-'35544', -- Memory of Vezax
-'35519', -- Memory of Algalon
-'35537'); -- Memory of Malchezaar
-
 -- Horde Herald
 DELETE FROM `creature_text` WHERE `entry` = 35004 AND `groupid` BETWEEN 20 AND 27;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) 
