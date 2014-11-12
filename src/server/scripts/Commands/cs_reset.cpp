@@ -204,6 +204,7 @@ public:
         Player* target;
         ObjectGuid targetGuid;
         std::string targetName;
+        /* TODO: 6.x remove/update pet talents
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
         {
             // Try reset talents as Hunter Pet
@@ -227,19 +228,22 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+        */
 
         if (target)
         {
             target->ResetTalents(true);
-            target->SendTalentsInfoData(false);
+            target->SendTalentsInfoData();
             ChatHandler(target->GetSession()).SendSysMessage(LANG_RESET_TALENTS);
             if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)
                 handler->PSendSysMessage(LANG_RESET_TALENTS_ONLINE, handler->GetNameLink(target).c_str());
 
+            /* TODO: 6.x remove/update pet talents
             Pet* pet = target->GetPet();
             Pet::resetTalentsForAllPetsOf(target, pet);
             if (pet)
                 target->SendTalentsInfoData(true);
+            */
             return true;
         }
         else if (!targetGuid.IsEmpty())
