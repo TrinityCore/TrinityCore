@@ -17,6 +17,128 @@
 
 #include "CharacterPackets.h"
 
+void WorldPackets::Character::CreateCharacter::Read()
+{
+    CreateInfo = std::make_shared<CharacterCreateInfo>();
+
+    _worldPacket >> CreateInfo->Name;
+    _worldPacket >> CreateInfo->Race;
+    _worldPacket >> CreateInfo->Class;
+    _worldPacket >> CreateInfo->Sex;
+    _worldPacket >> CreateInfo->Skin;
+    _worldPacket >> CreateInfo->Face;
+    _worldPacket >> CreateInfo->HairStyle;
+    _worldPacket >> CreateInfo->HairColor;
+    _worldPacket >> CreateInfo->FacialHairStyle;
+    _worldPacket >> CreateInfo->OutfitId;
+}
+
+WorldPacket const* WorldPackets::Character::CreateChar::Write()
+{
+    _worldPacket << uint8(Code);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Character::CharDelete::Read()
+{
+    _worldPacket >> Guid;
+}
+
+WorldPacket const* WorldPackets::Character::DeleteChar::Write()
+{
+    _worldPacket << uint8(Code);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Character::CharacterRenameRequest::Read()
+{
+    RenameInfo = std::make_shared<CharacterRenameInfo>();
+
+    _worldPacket >> RenameInfo->Guid;
+    _worldPacket >> RenameInfo->NewName;
+}
+
+WorldPacket const* WorldPackets::Character::CharacterRenameResult::Write()
+{
+    _worldPacket << uint8(Result);
+    if (Result == RESPONSE_SUCCESS)
+    {
+        _worldPacket << Guid;
+        _worldPacket << Name;
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Character::CharCustomize::Read()
+{
+    CustomizeInfo = std::make_shared<CharCustomizeInfo>();
+
+    _worldPacket >> CustomizeInfo->CharGUID;
+    _worldPacket >> CustomizeInfo->CharName;
+    _worldPacket >> CustomizeInfo->SexID;
+    _worldPacket >> CustomizeInfo->SkinID;
+    _worldPacket >> CustomizeInfo->HairColorID;
+    _worldPacket >> CustomizeInfo->HairStyleID;
+    _worldPacket >> CustomizeInfo->FacialHairStyleID;
+    _worldPacket >> CustomizeInfo->FaceID;
+}
+
+WorldPacket const* WorldPackets::Character::CharCustomizeResult::Write()
+{
+    _worldPacket << uint8(Code);
+    if (Code == RESPONSE_SUCCESS)
+    {
+        _worldPacket << CustomizeInfo->CharGUID;
+        _worldPacket << CustomizeInfo->CharName;
+        _worldPacket << uint8(CustomizeInfo->SexID);
+        _worldPacket << uint8(CustomizeInfo->SkinID);
+        _worldPacket << uint8(CustomizeInfo->FaceID);
+        _worldPacket << uint8(CustomizeInfo->HairStyleID);
+        _worldPacket << uint8(CustomizeInfo->HairColorID);
+        _worldPacket << uint8(CustomizeInfo->FacialHairStyleID);
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Character::CharRaceOrFactionChange::Read()
+{
+    RaceOrFactionChangeInfo = std::make_shared<CharRaceOrFactionChangeInfo>();
+
+    _worldPacket >> RaceOrFactionChangeInfo->Guid;
+    _worldPacket >> RaceOrFactionChangeInfo->Name;
+    _worldPacket >> RaceOrFactionChangeInfo->SexID;
+    _worldPacket >> RaceOrFactionChangeInfo->SkinID;
+    _worldPacket >> RaceOrFactionChangeInfo->HairColorID;
+    _worldPacket >> RaceOrFactionChangeInfo->HairStyleID;
+    _worldPacket >> RaceOrFactionChangeInfo->FacialHairStyleID;
+    _worldPacket >> RaceOrFactionChangeInfo->FaceID;
+    _worldPacket >> RaceOrFactionChangeInfo->RaceID;
+    RaceOrFactionChangeInfo->FactionChange = GetOpcode() == CMSG_CHAR_FACTION_CHANGE;
+}
+
+WorldPacket const* WorldPackets::Character::CharFactionChangeResult::Write()
+{
+    _worldPacket << uint8(Result);
+    if (Result == RESPONSE_SUCCESS)
+    {
+        _worldPacket << RaceOrFactionChangeInfo->Guid;
+        _worldPacket << RaceOrFactionChangeInfo->Name;
+        _worldPacket << uint8(RaceOrFactionChangeInfo->SexID);
+        _worldPacket << uint8(RaceOrFactionChangeInfo->SkinID);
+        _worldPacket << uint8(RaceOrFactionChangeInfo->FaceID);
+        _worldPacket << uint8(RaceOrFactionChangeInfo->HairStyleID);
+        _worldPacket << uint8(RaceOrFactionChangeInfo->HairColorID);
+        _worldPacket << uint8(RaceOrFactionChangeInfo->FacialHairStyleID);
+        _worldPacket << uint8(RaceOrFactionChangeInfo->RaceID);
+    }
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Character::ShowingCloak::Read()
 {
     _worldPacket >> ShowCloak;

@@ -1369,7 +1369,7 @@ void OpcodeTable::Initialize()
     /*0x4D6*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_USE_RESULT,  STATUS_NEVER);
     /*0x4D7*/ DEFINE_HANDLER(CMSG_FORCE_ANIM,                              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x4D8*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_FORCE_ANIM,                STATUS_NEVER);
-    /*0x4D9*/ DEFINE_HANDLER(CMSG_CHAR_FACTION_CHANGE,                     STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleCharFactionOrRaceChange   );
+    /*0x4D9*/ DEFINE_HANDLER(CMSG_CHAR_FACTION_CHANGE,                     STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleCharRaceOrFactionChange   );
     /*0x4DA*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_FACTION_CHANGE,       STATUS_NEVER);
     /*0x4DB*/ DEFINE_HANDLER(CMSG_PVP_QUEUE_STATS_REQUEST,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x4DC*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_PVP_QUEUE_STATS,           STATUS_NEVER);
@@ -1400,7 +1400,7 @@ void OpcodeTable::Initialize()
     /*0x4F5*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_SERVERINFO,                STATUS_NEVER);
     /*0x4F6*/ DEFINE_HANDLER(CMSG_WORLD_STATE_UI_TIMER_UPDATE,             STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleWorldStateUITimerUpdate   );
     /*0x4F7*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_WORLD_STATE_UI_TIMER_UPDATE, STATUS_NEVER);
-    /*0x4F8*/ DEFINE_HANDLER(CMSG_CHAR_RACE_CHANGE,                        STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleCharFactionOrRaceChange   );
+    /*0x4F8*/ DEFINE_HANDLER(CMSG_CHAR_RACE_CHANGE,                        STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleCharRaceOrFactionChange   );
     /*0x4F9*/ DEFINE_HANDLER(MSG_VIEW_PHASE_SHIFT,                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x4FA*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_TALENTS_INVOLUNTARILY_RESET, STATUS_NEVER);
     /*0x4FB*/ DEFINE_HANDLER(CMSG_DEBUG_SERVER_GEO,                        STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
