@@ -220,6 +220,98 @@ WorldPacket const* WorldPackets::Character::CharacterDeleteResponse::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Character::CharacterRenameRequest::Read()
+{
+    RenameInfo.reset(new CharacterRenameInfo());
+    _worldPacket >> RenameInfo->Guid;
+    RenameInfo->NewName = _worldPacket.ReadString(_worldPacket.ReadBits(6));
+}
+
+WorldPacket const* WorldPackets::Character::CharacterRenameResult::Write()
+{
+    _worldPacket << uint8(Result);
+    _worldPacket.WriteBit(Guid.HasValue);
+    _worldPacket.WriteBits(Name.length(), 6);
+
+    if (Guid.HasValue)
+        _worldPacket << Guid.value;
+
+    _worldPacket.WriteString(Name);
+    return &_worldPacket;
+}
+
+void WorldPackets::Character::CharCustomize::Read()
+{
+    CustomizeInfo.reset(new CharCustomizeInfo());
+    _worldPacket >> CustomizeInfo->CharGUID;
+    _worldPacket >> CustomizeInfo->SexID;
+    _worldPacket >> CustomizeInfo->SkinID;
+    _worldPacket >> CustomizeInfo->HairColorID;
+    _worldPacket >> CustomizeInfo->HairStyleID;
+    _worldPacket >> CustomizeInfo->FacialHairStyleID;
+    _worldPacket >> CustomizeInfo->FaceID;
+    CustomizeInfo->CharName = _worldPacket.ReadString(_worldPacket.ReadBits(6));
+}
+
+void WorldPackets::Character::CharRaceOrFactionChange::Read()
+{
+    RaceOrFactionChangeInfo.reset(new CharRaceOrFactionChangeInfo());
+
+    RaceOrFactionChangeInfo->FactionChange = _worldPacket.ReadBit();
+
+    uint32 nameLength = _worldPacket.ReadBits(6);
+
+    RaceOrFactionChangeInfo->SkinID.HasValue = _worldPacket.ReadBit();
+    RaceOrFactionChangeInfo->HairColorID.HasValue = _worldPacket.ReadBit();
+    RaceOrFactionChangeInfo->HairStyleID.HasValue = _worldPacket.ReadBit();
+    RaceOrFactionChangeInfo->FacialHairStyleID.HasValue = _worldPacket.ReadBit();
+    RaceOrFactionChangeInfo->FaceID.HasValue = _worldPacket.ReadBit();
+
+    _worldPacket >> RaceOrFactionChangeInfo->Guid;
+    _worldPacket >> RaceOrFactionChangeInfo->SexID;
+    _worldPacket >> RaceOrFactionChangeInfo->RaceID;
+
+    RaceOrFactionChangeInfo->Name = _worldPacket.ReadString(nameLength);
+
+    if (RaceOrFactionChangeInfo->SkinID.HasValue)
+        _worldPacket >> RaceOrFactionChangeInfo->SkinID.value;
+
+    if (RaceOrFactionChangeInfo->HairColorID.HasValue)
+        _worldPacket >> RaceOrFactionChangeInfo->HairColorID.value;
+
+    if (RaceOrFactionChangeInfo->HairStyleID.HasValue)
+        _worldPacket >> RaceOrFactionChangeInfo->HairStyleID.value;
+
+    if (RaceOrFactionChangeInfo->FacialHairStyleID.HasValue)
+        _worldPacket >> RaceOrFactionChangeInfo->FacialHairStyleID.value;
+
+    if (RaceOrFactionChangeInfo->FaceID.HasValue)
+        _worldPacket >> RaceOrFactionChangeInfo->FaceID.value;
+}
+
+WorldPacket const* WorldPackets::Character::CharFactionChangeResult::Write()
+{
+    _worldPacket << uint8(Result);
+    _worldPacket << Guid;
+    _worldPacket.WriteBit(Display.HasValue);
+    _worldPacket.FlushBits();
+
+    if (Display.HasValue)
+    {
+        _worldPacket.WriteBits(Display.value.Name.length(), 6);
+        _worldPacket << uint8(Display.value.SexID);
+        _worldPacket << uint8(Display.value.SkinID);
+        _worldPacket << uint8(Display.value.HairColorID);
+        _worldPacket << uint8(Display.value.HairStyleID);
+        _worldPacket << uint8(Display.value.FacialHairStyleID);
+        _worldPacket << uint8(Display.value.FaceID);
+        _worldPacket << uint8(Display.value.RaceID);
+        _worldPacket.WriteString(Display.value.Name);
+    }
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Character::GenerateRandomCharacterName::Read()
 {
     _worldPacket >> Race;

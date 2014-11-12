@@ -367,7 +367,7 @@ public:
             }
 
             // Remove declined name from db
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
             stmt->setUInt64(0, targetGuid.GetCounter());
             CharacterDatabase.Execute(stmt);
 
