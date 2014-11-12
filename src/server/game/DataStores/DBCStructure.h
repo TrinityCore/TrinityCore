@@ -831,17 +831,18 @@ struct CreatureDisplayInfoEntry
 
 struct CreatureDisplayInfoExtraEntry
 {
-    //uint32    ID;                                         // 0
-    uint32      DisplayRaceID;                              // 1
-    //uint32    DisplaySexID;                               // 2
-    //uint32    SkinID;                                     // 3
-    //uint32    FaceID;                                     // 4
-    //uint32    HairStyleID;                                // 5
-    //uint32    HairColorID;                                // 6
-    //uint32    FacialHairID;                               // 7
-    //uint32    NPCItemDisplay[11];                         // 8-18
-    //uint32    Flags;                                      // 19
+    uint32    ID;                                         // 0
+    uint32    DisplayRaceID;                              // 1
+    uint32    DisplaySexID;                               // 2
+    uint32    SkinID;                                     // 3
+    uint32    FaceID;                                     // 4
+    uint32    HairStyleID;                                // 5
+    uint32    HairColorID;                                // 6
+    uint32    FacialHairID;                               // 7
+    uint32    NPCItemDisplay[11];                         // 8-18
+    uint32    Flags;                                      // 19
     //char*     FileName;                                   // 20
+    //unit32    Unk                                         // 21
 };
 
 struct CreatureFamilyEntry
@@ -861,36 +862,36 @@ struct CreatureFamilyEntry
 
 struct CreatureModelDataEntry
 {
-    uint32      ID;                                         // 0
-    uint32      Flags;                                      // 1
-    //uint32    FileDataID;                                 // 2
-    //uint32    SizeClass;                                  // 3
-    //float     ModelScale;                                 // 4
-    //uint32    BloodID;                                    // 5
-    //uint32    FootprintTextureID;                         // 6
-    //float     FootprintTextureLength;                     // 7
-    //float     FootprintTextureWidth;                      // 8
-    //float     FootprintParticleScale;                     // 9
-    //uint32    FoleyMaterialID;                            // 10
-    //uint32    FootstepShakeSize;                          // 11
-    //uint32    DeathThudShakeSize;                         // 12
-    //uint32    SoundID;                                    // 13
-    //float     CollisionWidth;                             // 14
-    float       CollisionHeight;                            // 15
-    float       MountHeight;                                // 16
-    //float     GeoBoxMin[3];                               // 17-19
-    //float     GeoBoxMax[3];                               // 20-22
-    //float     WorldEffectScale;                           // 23
-    //float     AttachedEffectScale;                        // 24
-    //float     MissileCollisionRadius;                     // 25
-    //float     MissileCollisionPush;                       // 26
-    //float     MissileCollisionRaise;                      // 27
-    //float     OverrideLootEffectScale;                    // 28
-    //float     OverrideNameScale;                          // 29
-    //float     OverrideSelectionRadius;                    // 30
-    //float     TamedPetBaseScale;                          // 31
-    //uint32    CreatureGeosetDataID;                       // 32
-    //float     HoverHeight;                                // 33
+    uint32    ID;                                         // 0
+    uint32    Flags;                                      // 1
+    uint32    FileDataID;                                 // 2
+    uint32    SizeClass;                                  // 3
+    float     ModelScale;                                 // 4
+    uint32    BloodID;                                    // 5
+    uint32    FootprintTextureID;                         // 6
+    float     FootprintTextureLength;                     // 7
+    float     FootprintTextureWidth;                      // 8
+    float     FootprintParticleScale;                     // 9
+    uint32    FoleyMaterialID;                            // 10
+    uint32    FootstepShakeSize;                          // 11
+    uint32    DeathThudShakeSize;                         // 12
+    uint32    SoundID;                                    // 13
+    float     CollisionWidth;                             // 14
+    float     CollisionHeight;                            // 15
+    float     MountHeight;                                // 16
+    float     GeoBoxMin[3];                               // 17-19
+    float     GeoBoxMax[3];                               // 20-22
+    float     WorldEffectScale;                           // 23
+    float     AttachedEffectScale;                        // 24
+    float     MissileCollisionRadius;                     // 25
+    float     MissileCollisionPush;                       // 26
+    float     MissileCollisionRaise;                      // 27
+    float     OverrideLootEffectScale;                    // 28
+    float     OverrideNameScale;                          // 29
+    float     OverrideSelectionRadius;                    // 30
+    float     TamedPetBaseScale;                          // 31
+    uint32    CreatureGeosetDataID;                       // 32
+    float     HoverHeight;                                // 33
 };
 
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
@@ -980,10 +981,11 @@ struct DungeonEncounterEntry
     uint32      MapID;                                      // 1
     uint32      DifficultyID;                               // 2
     uint32      OrderIndex;                                 // 3
-    //uint32    Bit;                                        // 4
+    uint32      Bit;                                        // 4
     char*       Name_lang;                                  // 5
-    //uint32    CreatureDisplayID;                          // 6
-    //uint32    Flags;                                      // 7
+    uint32      CreatureDisplayID;                          // 6
+    uint32      Flags;                                      // 7
+	uint32      UnkInt;                                      //8
 };
 
 struct DurabilityCostsEntry
@@ -2149,7 +2151,7 @@ struct TalentEntry
     uint32      ID;                                             // 0
     uint32      SpecID;                                         // 1 0 - any specialization
     uint32      TierID;                                         // 2 0-6
-    uint32      ColumnIndex;                                    // 3 0-2
+    //char*      ColumnIndex;                                    // 3 0-2
     uint32      SpellID;                                        // 4
     uint32      Flags;                                          // 5 All 0
     uint32      CategoryMask[2];                                // 6 All 0
