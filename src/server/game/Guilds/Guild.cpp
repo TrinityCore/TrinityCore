@@ -1854,7 +1854,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
 {
     Player* player = session->GetPlayer();
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) &&
-        player->GetTeam() != sObjectMgr->GetPlayerTeamByGUID(GetLeaderGUID()))
+        player->GetTeam() != ObjectMgr::GetPlayerTeamByGUID(GetLeaderGUID()))
         return;
 
     AddMember(player->GetGUID());

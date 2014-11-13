@@ -11693,7 +11693,7 @@ void Unit::SetLevel(uint8 lvl)
         if (player->GetGroup())
             player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_LEVEL);
 
-        sWorld->UpdateCharacterNameDataLevel(GetGUID(), lvl);
+        sWorld->UpdateCharacterInfoLevel(GetGUID(), lvl);
     }
 }
 

@@ -1070,7 +1070,7 @@ void Battleground::AddPlayer(Player* player)
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
-    bp.ActiveSpec = player->GetTalentSpec(player->GetActiveSpec());
+    bp.ActiveSpec = player->GetActiveTalentSpec();
 
     // Add to list/maps
     m_Players[player->GetGUID()] = bp;

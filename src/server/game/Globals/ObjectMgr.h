@@ -784,7 +784,7 @@ class ObjectMgr
 
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
-        ObjectGuid GetPlayerGUIDByName(std::string const& name) const;
+        static ObjectGuid GetPlayerGUIDByName(std::string const& name);
 
         /**
         * Retrieves the player name by guid.
@@ -799,10 +799,10 @@ class ObjectMgr
         *
         * @return true if player was found, false otherwise
         */
-        bool GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const;
-        uint32 GetPlayerTeamByGUID(ObjectGuid guid) const;
-        uint32 GetPlayerAccountIdByGUID(ObjectGuid guid) const;
-        uint32 GetPlayerAccountIdByPlayerName(std::string const& name) const;
+        static bool GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name);
+        static uint32 GetPlayerTeamByGUID(ObjectGuid const& guid);
+        static uint32 GetPlayerAccountIdByGUID(ObjectGuid const& guid);
+        static uint32 GetPlayerAccountIdByPlayerName(std::string const& name);
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);

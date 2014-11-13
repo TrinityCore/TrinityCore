@@ -1246,7 +1246,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             // Also do it for Glyphs
             for (uint32 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             {
-                if (uint32 glyphId = plrTarget->GetGlyph(plrTarget->GetActiveSpec(), i))
+                if (uint32 glyphId = plrTarget->GetGlyph(plrTarget->GetActiveTalentGroup(), i))
                 {
                     if (GlyphPropertiesEntry const* glyph = sGlyphPropertiesStore.LookupEntry(glyphId))
                     {

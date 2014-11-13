@@ -4034,7 +4034,7 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
             }
 
             // remove old glyph
-            if (uint32 oldGlyph = player->GetGlyph(player->GetActiveSpec(), m_glyphIndex))
+            if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_glyphIndex))
             {
                 if (GlyphPropertiesEntry const* oldGlyphProperties = sGlyphPropertiesStore.LookupEntry(oldGlyph))
                 {
@@ -4045,16 +4045,16 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
 
             player->CastSpell(m_caster, newGlyphProperties->SpellID, true);
             player->SetGlyph(m_glyphIndex, newGlyph);
-            player->SendTalentsInfoData(false);
+            player->SendTalentsInfoData();
         }
     }
-    else if (uint32 oldGlyph = player->GetGlyph(player->GetActiveSpec(), m_glyphIndex)) // Removing the glyph, get the old one
+    else if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_glyphIndex)) // Removing the glyph, get the old one
     {
         if (GlyphPropertiesEntry const* oldGlyphProperties = sGlyphPropertiesStore.LookupEntry(oldGlyph))
         {
             player->RemoveAurasDueToSpell(oldGlyphProperties->SpellID);
             player->SetGlyph(m_glyphIndex, 0);
-            player->SendTalentsInfoData(false);
+            player->SendTalentsInfoData();
         }
     }
 }
@@ -5494,7 +5494,7 @@ void Spell::EffectSpecCount(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->UpdateSpecCount(damage);
+    unitTarget->ToPlayer()->UpdateTalentGroupCount(damage);
 }
 
 void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)
@@ -5505,7 +5505,7 @@ void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->ActivateSpec(damage-1);  // damage is 1 or 2, spec is 0 or 1
+    unitTarget->ToPlayer()->ActivateTalentGroup(damage-1);  // damage is 1 or 2, spec is 0 or 1
 }
 
 void Spell::EffectPlaySound(SpellEffIndex effIndex)

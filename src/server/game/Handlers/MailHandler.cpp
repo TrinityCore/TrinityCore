@@ -154,7 +154,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     ObjectGuid receiverGuid;
     if (normalizePlayerName(receiverName))
-        receiverGuid = sObjectMgr->GetPlayerGUIDByName(receiverName);
+        receiverGuid = ObjectMgr::GetPlayerGUIDByName(receiverName);
 
     if (!receiverGuid)
     {
@@ -212,7 +212,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     }
     else
     {
-        receiverTeam = sObjectMgr->GetPlayerTeamByGUID(receiverGuid);
+        receiverTeam = ObjectMgr::GetPlayerTeamByGUID(receiverGuid);
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
         stmt->setUInt64(0, receiverGuid.GetCounter());
@@ -234,7 +234,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
             receiverLevel = fields[0].GetUInt8();
         }
 
-        receiverAccountId = sObjectMgr->GetPlayerAccountIdByGUID(receiverGuid);
+        receiverAccountId = ObjectMgr::GetPlayerAccountIdByGUID(receiverGuid);
         receiverBnetAccountId = Battlenet::AccountMgr::GetIdByGameAccount(receiverAccountId);
     }
 
@@ -569,16 +569,16 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                 else
                 {
                     // can be calculated early
-                    sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
+                    sender_accId = ObjectMgr::GetPlayerAccountIdByGUID(sender_guid);
 
-                    if (!sObjectMgr->GetPlayerNameByGUID(sender_guid, sender_name))
+                    if (!ObjectMgr::GetPlayerNameByGUID(sender_guid, sender_name))
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: " UI64FMTD " to player: %s (Account: %u)",
                     GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receiver)
-                sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
+                sender_accId = ObjectMgr::GetPlayerAccountIdByGUID(sender_guid);
 
             // check player existence
             if (receiver || sender_accId)

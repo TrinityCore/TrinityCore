@@ -175,7 +175,7 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, bool detailed) c
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(curTime - _lastModifiedTime, true, false)).c_str());
 
     std::string name;
-    if (sObjectMgr->GetPlayerNameByGUID(_assignedTo, name))
+    if (ObjectMgr::GetPlayerNameByGUID(_assignedTo, name))
         ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name.c_str());
 
     if (detailed)

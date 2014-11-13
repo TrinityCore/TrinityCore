@@ -828,9 +828,9 @@ void Channel::MakeNotOwner(WorldPacket* data)
 
 void Channel::MakeChannelOwner(WorldPacket* data)
 {
-    std::string name = "";
+    std::string name;
 
-    if (!sObjectMgr->GetPlayerNameByGUID(_ownerGUID, name) || name.empty())
+    if (!ObjectMgr::GetPlayerNameByGUID(_ownerGUID, name) || name.empty())
         name = "PLAYER_NOT_FOUND";
 
     MakeNotifyPacket(data, CHAT_CHANNEL_OWNER_NOTICE);
