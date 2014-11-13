@@ -111,7 +111,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         return;
     }
 
-    _player->SendTalentsInfoData(false);
+    _player->SendTalentsInfoData();
     unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 

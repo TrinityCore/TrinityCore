@@ -526,7 +526,7 @@ void Player::UpdateMastery()
     value += GetRatingBonusValue(CR_MASTERY);
     SetFloatValue(PLAYER_MASTERY, value);
 
-    ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetTalentSpec(GetActiveSpec()));
+    ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetActiveTalentSpec());
     if (!chrSpec)
         return;
 
