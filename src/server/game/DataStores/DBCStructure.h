@@ -1613,6 +1613,14 @@ struct MapDifficultyEntry
     //char*     LockID;                                     // 6
 };
 
+struct MinorTalentEntry
+{
+    uint32      ID;                                         // 0
+    uint32      SpecID;                                     // 1
+    uint32      SpellID;                                    // 2
+    uint32      OrderIndex;                                 // 3
+};
+
 struct MountCapabilityEntry
 {
     uint32      ID;                                         // 0
