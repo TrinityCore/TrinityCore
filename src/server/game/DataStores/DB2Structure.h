@@ -19,6 +19,7 @@
 #define TRINITY_DB2STRUCTURE_H
 
 #include "Common.h"
+#include "DBCEnums.h"
 #include "ItemPrototype.h"
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
@@ -29,22 +30,43 @@
 #endif
 
 // Structures used to access raw DB2 data and required packing to portability
+
+#define MAX_HOLIDAY_DURATIONS 10
+#define MAX_HOLIDAY_DATES 16
+#define MAX_HOLIDAY_FLAGS 10
+
+struct HolidaysEntry
+{
+    uint32      ID;                                         // 0
+    uint32      Duration[MAX_HOLIDAY_DURATIONS];            // 1-10
+    uint32      Date[MAX_HOLIDAY_DATES];                    // 11-26 (dates in unix time starting at January, 1, 2000)
+    uint32      Region;                                     // 27
+    uint32      Looping;                                    // 28
+    uint32      CalendarFlags[MAX_HOLIDAY_FLAGS];           // 29-38
+    //uint32    HolidayNameID;                              // 39 HolidayNames.dbc
+    //uint32    HolidayDescriptionID;                       // 40 HolidayDescriptions.dbc
+    char*       TextureFilename;                            // 41
+    uint32      Priority;                                   // 42
+    uint32      CalendarFilterType;                         // 43 (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
+    //uint32    Flags;                                      // 44 (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
+};
+
 struct ItemEntry
 {
-    uint32   ID;                                             // 0
-    uint32   Class;                                          // 1
-    uint32   SubClass;                                       // 2
-    int32    SoundOverrideSubclass;                          // 3
-    int32    Material;                                       // 4
-    uint32   DisplayId;                                      // 5
-    uint32   InventoryType;                                  // 6
-    uint32   Sheath;                                         // 7
+    uint32      ID;                                         // 0
+    uint32      Class;                                      // 1
+    uint32      SubClass;                                   // 2
+    int32       SoundOverrideSubclass;                      // 3
+    int32       Material;                                   // 4
+    uint32      DisplayId;                                  // 5
+    uint32      InventoryType;                              // 6
+    uint32      Sheath;                                     // 7
 };
 
 struct ItemCurrencyCostEntry
 {
-    //uint32  Id;
-    uint32  ItemId;
+    //uint32    ID;                                         // 0
+    uint32      ItemId;                                     // 1
 };
 
 struct ItemSparseEntry
@@ -138,7 +160,6 @@ struct ItemExtendedCostEntry
     uint32      RequiredFactionId;
     uint32      RequiredFactionStanding;
     uint32      RequirementFlags;
-    uint32      RequiredGuildLevel;
     uint32      RequiredAchievement;
 };
 
@@ -148,6 +169,23 @@ struct KeyChainEntry
 {
     uint32      Id;
     uint8       Key[KEYCHAIN_SIZE];
+};
+
+#define MAX_OVERRIDE_SPELL 10
+
+struct OverrideSpellDataEntry
+{
+    uint32      ID;                                         // 0
+    uint32      SpellID[MAX_OVERRIDE_SPELL];                // 1-10
+    //uint32    Flags;                                      // 11
+    //char*     PlayerActionbarFileDataID;                  // 12
+};
+
+struct PhaseGroupEntry
+{
+    uint32      ID;
+    uint32      PhaseID;
+    uint32      PhaseGroupID;
 };
 
 struct SpellAuraRestrictionsEntry
@@ -161,6 +199,17 @@ struct SpellAuraRestrictionsEntry
     uint32      TargetAuraSpell;                            // 6
     uint32      ExcludeCasterAuraSpell;                     // 7
     uint32      ExcludeTargetAuraSpell;                     // 8
+};
+
+struct SpellCastingRequirementsEntry
+{
+    //uint32    ID;                                         // 0
+    uint32      FacingCasterFlags;                          // 1
+    //uint32    MinFactionID;                               // 1
+    //uint32    MinReputation;                              // 3
+    uint32      RequiredAreasID;                            // 4
+    //uint32    RequiredAuraVision;                         // 5
+    uint32      RequiresSpellFocus;                         // 6
 };
 
 struct SpellClassOptionsEntry
@@ -214,6 +263,7 @@ struct SpellPowerEntry
     float       ManaCostPercentage;                         // 10
     //float     Unk7;                                       // 11
     //uint32    Unk8;                                       // 12
+    //uint32    Unk9;                                       // 13
 };
 
 #define MAX_SPELL_REAGENTS 8
@@ -238,11 +288,78 @@ struct SpellRuneCostEntry
     bool NoRunicPowerGain() const { return RunePowerGain == 0; }
 };
 
+#define MAX_SPELL_TOTEMS 2
+
+struct SpellTotemsEntry
+{
+    uint32      ID;                                         // 0
+    uint32      TotemCategory[MAX_SPELL_TOTEMS];            // 1
+    uint32      Totem[MAX_SPELL_TOTEMS];                    // 2
+};
+
+struct TaxiNodesEntry
+{
+    uint32          ID;                                     // 0
+    uint32          MapID;                                  // 1
+    DBCPosition3D   Pos;                                    // 2-4
+    char*           Name_lang;                              // 5
+    uint32          MountCreatureID[2];                     // 6-7
+    uint32          ConditionID;                            // 8
+    uint32          Flags;                                  // 9
+    float           MapOffset[2];                           // 10-11
+};
+
+struct TaxiPathEntry
+{
+    uint32          ID;                                     // 0
+    uint32          From;                                   // 1
+    uint32          To;                                     // 2
+    uint32          Cost;                                   // 3
+};
+
+struct TaxiPathNodeEntry
+{
+    uint32          ID;                                     // 0
+    uint32          PathID;                                 // 1
+    uint32          NodeIndex;                              // 2
+    uint32          MapID;                                  // 3
+    DBCPosition3D   Loc;                                    // 4-6
+    uint32          Flags;                                  // 7
+    uint32          Delay;                                  // 8
+    uint32          ArrivalEventID;                         // 9
+    uint32          DepartureEventID;                       // 10
+};
+
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
 #endif
+
+struct TaxiPathBySourceAndDestination
+{
+    TaxiPathBySourceAndDestination() : ID(0), price(0) { }
+    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) { }
+
+    uint32    ID;
+    uint32    price;
+};
+typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
+typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
+
+struct TaxiPathNodePtr
+{
+    TaxiPathNodePtr() : i_ptr(NULL) { }
+    TaxiPathNodePtr(TaxiPathNodeEntry const* ptr) : i_ptr(ptr) { }
+    TaxiPathNodeEntry const* i_ptr;
+    operator TaxiPathNodeEntry const& () const { return *i_ptr; }
+};
+
+typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
+typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
+
+#define TaxiMaskSize 114
+typedef uint8 TaxiMask[TaxiMaskSize];
 
 #endif

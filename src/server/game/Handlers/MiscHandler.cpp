@@ -332,7 +332,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
         std::string aname;
         if (AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(pzoneid))
-            aname = areaEntry->area_name[GetSessionDbcLocale()];
+            aname = areaEntry->ZoneName;
 
         bool s_show = true;
         for (uint32 i = 0; i < str_count; ++i)
@@ -1242,6 +1242,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     WorldPacket data(SMSG_INSPECT_TALENT, 8 + 4 + 1 + 1 + talent_points + 8 + 4 + 8 + 4);
     data << player->GetGUID();
 
+    /* TODO: 6.x update packet structure (BuildPlayerTalentsInfoData no longer exists)
     if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || _player->IsGameMaster())
         player->BuildPlayerTalentsInfoData(&data);
     else
@@ -1250,6 +1251,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         data << uint8(0);                                   // talentGroupCount
         data << uint8(0);                                   // talentGroupIndex
     }
+    */
 
     player->BuildEnchantmentsInfoData(&data);
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
@@ -1866,7 +1868,7 @@ void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
     }
 
     AreaTableEntry const* atEntry = GetAreaEntryByAreaID(_player->GetAreaId());
-    if (!atEntry || !(atEntry->flags & AREA_FLAG_WINTERGRASP_2))
+    if (!atEntry || !(atEntry->Flags[0] & AREA_FLAG_WINTERGRASP_2))
         return;
 
     _player->BuildPlayerRepop();
