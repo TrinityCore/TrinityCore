@@ -341,7 +341,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (owner->GetGroup())
         owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
 
-    owner->SendTalentsInfoData(true);
+    // TODO: 6.x remove/update pet talents
+    //owner->SendTalentsInfoData(true);
 
     if (getPetType() == HUNTER_PET)
     {
@@ -1735,6 +1736,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= NULL*/)
 
 void Pet::InitTalentForLevel()
 {
+    /* TODO: 6.x remove/update pet talents
     uint8 level = getLevel();
     uint32 talentPointsForLevel = GetMaxTalentPointsForLevel(level);
     // Reset talents in case low level (on level down) or wrong points for level (hunter can unlearn TP increase talent)
@@ -1745,6 +1747,7 @@ void Pet::InitTalentForLevel()
 
     if (!m_loading)
         GetOwner()->SendTalentsInfoData(true);
+    */
 }
 
 uint8 Pet::GetMaxTalentPointsForLevel(uint8 level)

@@ -763,7 +763,7 @@ DROP TABLE IF EXISTS `character_glyphs`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_glyphs` (
   `guid` bigint(20) unsigned NOT NULL,
-  `spec` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `talentGroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `glyph1` smallint(5) unsigned DEFAULT '0',
   `glyph2` smallint(5) unsigned DEFAULT '0',
   `glyph3` smallint(5) unsigned DEFAULT '0',
@@ -773,7 +773,7 @@ CREATE TABLE `character_glyphs` (
   `glyph7` smallint(5) unsigned DEFAULT '0',
   `glyph8` smallint(5) unsigned DEFAULT '0',
   `glyph9` smallint(5) unsigned DEFAULT '0',
-  PRIMARY KEY (`guid`,`spec`)
+  PRIMARY KEY (`guid`,`talentGroup`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1276,8 +1276,8 @@ DROP TABLE IF EXISTS `character_talent`;
 CREATE TABLE `character_talent` (
   `guid` bigint(20) unsigned NOT NULL,
   `spell` mediumint(8) unsigned NOT NULL,
-  `spec` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spell`,`spec`)
+  `talentGroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`spell`,`talentGroup`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1383,8 +1383,8 @@ CREATE TABLE `characters` (
   `power4` int(10) unsigned NOT NULL DEFAULT '0',
   `power5` int(10) unsigned NOT NULL DEFAULT '0',
   `latency` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `speccount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `activespec` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `talentGroupsCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `activeTalentGroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `exploredZones` longtext,
   `equipmentCache` longtext,
   `knownTitles` longtext,
