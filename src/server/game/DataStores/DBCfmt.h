@@ -112,7 +112,6 @@ char const MountCapabilityfmt[] = "niiiiiii";
 char const MountTypefmt[] = "niiiiiiiiiiiiiiiiiiiiiiii";
 char const NameGenfmt[] = "dsii";
 char const NumTalentsAtLevelfmt[] = "df";
-char const OverrideSpellDatafmt[] = "niiiiiiiiiixx";
 char const QuestFactionRewardfmt[] = "niiiiiiiiii";
 char const QuestSortEntryfmt[] = "nx";
 char const QuestXPfmt[] = "niiiiiiiiii";

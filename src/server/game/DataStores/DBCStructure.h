@@ -1654,15 +1654,6 @@ struct NameGenEntry
     uint32      Sex;                                        // 3
 };
 
-#define MAX_OVERRIDE_SPELL 10
-
-struct OverrideSpellDataEntry
-{
-    uint32      ID;                                         // 0
-    uint32      SpellID[MAX_OVERRIDE_SPELL];                // 1-10
-    //uint32    Flags;                                      // 11
-    //char*     PlayerActionbarFileDataID;                  // 12
-};
 
 struct PowerDisplayEntry
 {
