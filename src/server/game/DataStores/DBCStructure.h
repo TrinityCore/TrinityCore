@@ -1713,7 +1713,7 @@ struct ScalingStatDistributionEntry
 
 struct ScalingStatValuesEntry
 {
-    uint32      ID;                                     // 0
+    uint32      ID;                                         // 0
     uint32      CharLevel;                                  // 1
     uint32      DPSMod[6];                                  // 2-7 DPS mod for level
     uint32      SpellPower;                                 // 8 spell power for level
