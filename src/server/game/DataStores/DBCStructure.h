@@ -1534,8 +1534,7 @@ struct LockEntry
 struct PhaseEntry
 {
     uint32      ID;                                         // 0
-    char*       Name;                                       // 1
-    uint32      Flaga;                                      // 2
+    uint32      Flaga;                                      // 1
 };
 
 struct PhaseGroupEntry
@@ -1614,7 +1613,8 @@ struct MapDifficultyEntry
     char*       Message_lang;                               // 3 m_message_lang (text showed when transfer to map failed)
     uint32      RaidDuration;                               // 4 m_raidDuration in secs, 0 if no fixed reset time
     uint32      MaxPlayers;                                 // 5 m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
-    //char*     LockID;                                     // 6
+    uint32      LockID;                                     // 6
+	uint32      Unk;                                        // 7 6.0.3
 };
 
 struct MountCapabilityEntry
@@ -1715,15 +1715,14 @@ struct RandomPropertiesPointsEntry
 struct ScalingStatDistributionEntry
 {
     uint32      ID;                                         // 0
-    int32       StatID[10];                                 // 1-10
-    uint32      Modifier[10];                               // 11-20
-    //uint32    MinLevel;                                   // 21
-    uint32      MaxLevel;                                   // 22       m_maxlevel
+    uint32      MinLevel;                                   // 1
+    uint32      MaxLevel;                                   // 2
+	uint32      Unk;                                        // 4 6.0.3
 };
 
 struct ScalingStatValuesEntry
 {
-    uint32      ID;                                         // 0
+    uint32      ID;                                     // 0
     uint32      CharLevel;                                  // 1
     uint32      DPSMod[6];                                  // 2-7 DPS mod for level
     uint32      SpellPower;                                 // 8 spell power for level
@@ -1823,7 +1822,7 @@ struct SpecializationSpellsEntry
     uint32      SpecID;                                     // 1
     uint32      SpellID;                                    // 2
     uint32      OverridesSpellID;                           // 3
-    //char*     Description_lang;                           // 4
+    uint32      Unk;                                        // 4
 };
 
 // SpellEffect.dbc
@@ -2103,15 +2102,15 @@ struct SpellItemEnchantmentEntry
     uint32      Effect[MAX_ITEM_ENCHANTMENT_EFFECTS];           // 2-4
     uint32      EffectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS];  // 5-7
     uint32      EffectSpellID[MAX_ITEM_ENCHANTMENT_EFFECTS];    // 8-10
-    //char*     Name_lang                                       // 11
+    //char*     Name_lang                                       // 11  -8- 6.0.3
     uint32      ItemVisual;                                     // 12
     uint32      Flags;                                          // 13
-    uint32      SRCItemID;                                      // 14
-    uint32      ConditionID;                                    // 15
-    uint32      RequiredSkillID;                                // 16
+    uint32      SRCItemID;                                      // 14  -11-6.0.3
+    uint32      ConditionID;                                    // 15  -12-6.0.3
+    uint32      RequiredSkillID;                                // 16  -
     uint32      RequiredSkillRank;                              // 17
     uint32      MinLevel;                                       // 18
-    uint32      MaxLevel;                                       // 19
+    uint32      MaxLevel;                                       // 19  - 13-6.0.3
     uint32      ItemLevel;                                      // 20
     int32       ScalingClass;                                   // 21
     int32       ScalingClassRestricted;                         // 22
