@@ -20,6 +20,7 @@
 #define _PLAYER_H
 
 #include "DBCStores.h"
+#include "DB2Stores.h"
 #include "GroupReference.h"
 #include "MapReference.h"
 
