@@ -4925,11 +4925,11 @@ void ObjectMgr::LoadEventScripts()
         {
             TaxiPathNodeEntry const& node = sTaxiPathNodesByPath[path_idx][node_idx];
 
-            if (node.arrivalEventID)
-                evt_scripts.insert(node.arrivalEventID);
+            if (node.ArrivalEventID)
+                evt_scripts.insert(node.ArrivalEventID);
 
-            if (node.departureEventID)
-                evt_scripts.insert(node.departureEventID);
+            if (node.DepartureEventID)
+                evt_scripts.insert(node.DepartureEventID);
         }
     }
 
@@ -5712,7 +5712,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     {
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
 
-        if (!node || node->map_id != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
+        if (!node || node->MapID != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
             continue;
 
         uint8  field   = (uint8)((i - 1) / 8);
@@ -5722,7 +5722,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         if ((sTaxiNodesMask[field] & submask) == 0)
             continue;
 
-        float dist2 = (node->x - x)*(node->x - x)+(node->y - y)*(node->y - y)+(node->z - z)*(node->z - z);
+        float dist2 = (node->Pos.X - x)*(node->Pos.X - x)+(node->Pos.Y - y)*(node->Pos.Y - y)+(node->Pos.Z - z)*(node->Pos.Z - z);
         if (found)
         {
             if (dist2 < dist)
@@ -5944,12 +5944,12 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             continue;
 
         // find now nearest graveyard at other map
-        if (MapId != entry->map_id)
+        if (MapId != entry->MapID)
         {
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry
                 || mapEntry->CorpseMapID < 0
-                || uint32(mapEntry->CorpseMapID) != entry->map_id
+                || uint32(mapEntry->CorpseMapID) != entry->MapID
                 || (mapEntry->CorpsePos.X == 0 && mapEntry->CorpsePos.Y == 0)) // Check X and Y
             {
                 // not have any corrdinates for check distance anyway
@@ -5958,8 +5958,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->x - mapEntry->CorpsePos.X)*(entry->x - mapEntry->CorpsePos.X)
-                +(entry->y - mapEntry->CorpsePos.Y)*(entry->y - mapEntry->CorpsePos.Y);
+            float dist2 = (entry->Loc.X - mapEntry->CorpsePos.X)*(entry->Loc.X - mapEntry->CorpsePos.X)
+                +(entry->Loc.Y - mapEntry->CorpsePos.Y)*(entry->Loc.Y - mapEntry->CorpsePos.Y);
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -5978,7 +5978,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
         // find now nearest graveyard at same map
         else
         {
-            float dist2 = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y)+(entry->z - z)*(entry->z - z);
+            float dist2 = (entry->Loc.X - x)*(entry->Loc.X - x)+(entry->Loc.Y - y)*(entry->Loc.Y - y)+(entry->Loc.Z - z)*(entry->Loc.Z - z);
             if (foundNear)
             {
                 if (dist2 < distNear)
@@ -6127,10 +6127,10 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         AreaTriggerStruct at;
 
-        at.target_mapId       = portLoc->map_id;
-        at.target_X           = portLoc->x;
-        at.target_Y           = portLoc->y;
-        at.target_Z           = portLoc->z;
+        at.target_mapId       = portLoc->MapID;
+        at.target_X           = portLoc->Loc.X;
+        at.target_Y           = portLoc->Loc.Y;
+        at.target_Z           = portLoc->Loc.Z;
         at.target_Orientation = (portLoc->Facing * M_PI) / 180; // Orientation is initially in degrees
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);

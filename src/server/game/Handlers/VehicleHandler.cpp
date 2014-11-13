@@ -60,7 +60,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
     {
         recvData.rfinish();                                // prevent warnings spam
         TC_LOG_ERROR("network", "HandleChangeSeatsOnControlledVehicle, Opcode: %u, %s tried to switch seats but current seatflags %u don't permit that.",
-            recvData.GetOpcode(), GetPlayer()->GetGUID().ToString().c_str(), seat->m_flags);
+            recvData.GetOpcode(), GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
@@ -209,7 +209,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)
                 GetPlayer()->ExitVehicle();
             else
                 TC_LOG_ERROR("network", "%s tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.",
-                    GetPlayer()->GetGUID().ToString().c_str(), seat->m_ID, seat->m_flags);
+                    GetPlayer()->GetGUID().ToString().c_str(), seat->ID, seat->Flags);
         }
     }
 }

@@ -62,7 +62,7 @@ struct KeyFrame
     uint32 NextArriveTime;
 
     bool IsTeleportFrame() const { return Teleport; }
-    bool IsStopFrame() const { return Node->actionFlag == 2; }
+    bool IsStopFrame() const { return Node->Flags == 2; }
 };
 
 struct TransportTemplate

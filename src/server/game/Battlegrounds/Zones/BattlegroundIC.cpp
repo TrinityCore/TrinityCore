@@ -869,7 +869,7 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
             WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_IC_GraveyardIds[nodes[i]]);
             if (!entry)
                 continue;
-            float dist = (entry->x - player_x)*(entry->x - player_x)+(entry->y - player_y)*(entry->y - player_y);
+            float dist = (entry->Loc.X - player_x)*(entry->Loc.X - player_x)+(entry->Loc.Y - player_y)*(entry->Loc.Y - player_y);
             if (mindist > dist)
             {
                 mindist = dist;
