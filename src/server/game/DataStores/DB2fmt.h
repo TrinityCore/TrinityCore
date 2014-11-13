@@ -18,16 +18,24 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+char const HolidaysEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
 char const Itemfmt[]="niiiiiii";
 char const ItemCurrencyCostfmt[]="xn";
 char const ItemSparsefmt[]="niiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
-char const ItemExtendedCostEntryfmt[]="nxxiiiiiiiiiiiixiiiiiiiiiiiiiii";
+char const ItemExtendedCostEntryfmt[]="nxxiiiiiiiiiiiixiiiiiiiiiiiiii";
 char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+char const OverrideSpellDataEntryfmt[] = "niiiiiiiiiixx";
+char const PhaseGroupEntryfmt[] = "nii";
 char const SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";
+char const SpellCastingRequirementsEntryfmt[] = "dixxixi";
 char const SpellClassOptionsEntryfmt[] = "niiiiii";
-char const SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiix";
-char const SpellPowerEntryfmt[] = "nixxiiixxxfxx";
+char const SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiifiiiiix";
+char const SpellPowerEntryfmt[] = "nixxiiixxxfxxx";
 char const SpellReagentsEntryfmt[] = "niiiiiiiiiiiiiiiixx";
 char const SpellRuneCostEntryfmt[] = "niiixi";
+char const SpellTotemsEntryfmt[] = "niiii";
+char const TaxiNodesEntryfmt[] = "nifffsiiiiff";
+char const TaxiPathEntryfmt[] = "niii";
+char const TaxiPathNodeEntryfmt[] = "niiifffiiii";
 
 #endif

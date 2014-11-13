@@ -2221,8 +2221,8 @@ bool Map::IsOutdoors(float x, float y, float z) const
     WMOAreaTableEntry const* wmoEntry= GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
     if (wmoEntry)
     {
-        TC_LOG_DEBUG("maps", "Got WMOAreaTableEntry! flag %u, areaid %u", wmoEntry->Flags, wmoEntry->areaId);
-        atEntry = GetAreaEntryByAreaID(wmoEntry->areaId);
+        TC_LOG_DEBUG("maps", "Got WMOAreaTableEntry! flag %u, areaid %u", wmoEntry->Flags, wmoEntry->AreaTableID);
+        atEntry = GetAreaEntryByAreaID(wmoEntry->AreaTableID);
     }
     return IsOutdoorWMO(mogpFlags, adtId, rootId, groupId, wmoEntry, atEntry);
 }
@@ -2259,7 +2259,7 @@ uint16 Map::GetAreaFlag(float x, float y, float z, bool *isOutdoors) const
         haveAreaInfo = true;
         wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
         if (wmoEntry)
-            atEntry = GetAreaEntryByAreaID(wmoEntry->areaId);
+            atEntry = GetAreaEntryByAreaID(wmoEntry->AreaTableID);
     }
 
     uint16 areaflag;

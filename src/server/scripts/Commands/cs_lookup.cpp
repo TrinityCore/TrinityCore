@@ -949,7 +949,7 @@ public:
             TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(id);
             if (nodeEntry)
             {
-                std::string name = nodeEntry->name;
+                std::string name = nodeEntry->Name_lang;
                 if (name.empty())
                     continue;
 
@@ -965,10 +965,10 @@ public:
                 // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
                 if (handler->GetSession())
                     handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CHAT, id, id, name.c_str(), "",
-                        nodeEntry->map_id, nodeEntry->x, nodeEntry->y, nodeEntry->z);
+                        nodeEntry->MapID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
                 else
                     handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CONSOLE, id, name.c_str(), "",
-                        nodeEntry->map_id, nodeEntry->x, nodeEntry->y, nodeEntry->z);
+                        nodeEntry->MapID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
 
                 if (!found)
                     found = true;
