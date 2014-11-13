@@ -534,38 +534,43 @@ struct AchievementCriteriaEntry
     uint32 additionalConditionValue[MAX_ADDITIONAL_CRITERIA_CONDITIONS];    // 20-22
 };
 
+// Temporary define until max depth is found somewhere (adt?)
+#define MAX_MAP_DEPTH -5000
+
 struct AreaTableEntry
 {
-    uint32  ID;                                             // 0
-    uint32  mapid;                                          // 1
-    uint32  zone;                                           // 2 if 0 then it's zone, else it's zone id of this area
-    uint32  exploreFlag;                                    // 3, main index
-    uint32  flags;                                          // 4,
-    //uint32 unk5;                                          // 5,
-    //uint32 unk6;                                          // 6,
-    //uint32 unk7;                                          // 7,
-    //uint32 unk8;                                          // 8,
-    //uint32 unk9;                                          // 9,
-    int32   area_level;                                     // 10
-    char*   area_name;                                      // 11
-    uint32  team;                                           // 12
-    uint32  LiquidTypeOverride[4];                          // 13-16 liquid override by type
-    float   MaxDepth;                                       // 17,
-    float   AmbientMultiplier;                              // 18 client only?
-    uint32  LightId;                                        // 19
-    //uint32 unk20;                                         // 20 4.0.0 - Mounting related
-    //uint32 unk21;                                         // 21 4.0.0
-    //uint32 unk22;                                         // 22 4.0.0
-    //uint32 unk23;                                         // 23 4.0.0
-    //uint32 unk24;                                         // 24 - worldStateId
-    //uint32 unk25                                          // 25
+    uint32      ID;                                         // 0
+    uint32      MapID;                                      // 1
+    uint32      ParentAreaID;                               // 2 if 0 then it's zone, else it's zone id of this area
+    uint32      AreaBit;                                    // 3, main index
+    uint32      Flags[2];                                   // 4-5,
+    //uint32    SoundProviderPref;                          // 6,
+    //uint32    SoundProviderPrefUnderwater;                // 7,
+    //uint32    AmbienceID;                                 // 8,
+    //uint32    ZoneMusic;                                  // 9,
+    char*       ZoneName;                                   // 10
+    //uint32    IntroSound;                                 // 11
+    uint32      ExplorationLevel;                           // 12
+    //char*     AreaName_lang                               // 13
+    uint32      FactionGroupMask;                           // 14
+    uint32      LiquidTypeID[4];                            // 15-18
+    //float     AmbientMultiplier;                          // 19
+    //uint32    MountFlags;                                 // 20
+    //uint32    UWIntroMusic;                               // 21
+    //uint32    UWZoneMusic;                                // 22
+    //uint32    UWAmbience;                                 // 23
+    //uint32    WorldPvPID;                                 // 24 World_PVP_Area.dbc
+    //uint32    PvPCombastWorldStateID;                     // 25
+    //uint32    WildBattlePetLevelMin;                      // 26
+    //uint32    WildBattlePetLevelMax;                      // 27
+    //uint32    WindSettingsID;                             // 28
 
     // helpers
     bool IsSanctuary() const
     {
-        if (mapid == 609)
+        if (MapID == 609)
             return true;
-        return (flags & AREA_FLAG_SANCTUARY) != 0;
+        return (Flags[0] & AREA_FLAG_SANCTUARY) != 0;
     }
 };
 
