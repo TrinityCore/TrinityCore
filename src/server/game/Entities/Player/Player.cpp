@@ -26014,6 +26014,9 @@ void Player::_SaveTalents(SQLTransaction& trans)
 
         for (uint32 tier = 0; tier < MAX_TALENT_TIERS; ++tier)
         {
+            if (!talentGroupInfo->Talents[tier])
+                continue;
+
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
             stmt->setUInt64(0, GetGUID().GetCounter());
             stmt->setUInt32(1, talentGroupInfo->Talents[tier]);
