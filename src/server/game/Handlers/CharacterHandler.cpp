@@ -854,35 +854,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     SendPacket(accountDataTimes.Write());
 
-    bool featureBit4 = true;
-    WorldPacket data(SMSG_FEATURE_SYSTEM_STATUS, 7);         // checked in 4.2.2
-    data << uint8(2);                                       // unknown value
-    data << uint32(1);
-    data << uint32(1);
-    data << uint32(2);
-    data << uint32(0);
-    data.WriteBit(1);
-    data.WriteBit(1);
-    data.WriteBit(0);
-    data.WriteBit(featureBit4);
-    data.WriteBit(0);
-    data.WriteBit(0);
-    data.FlushBits();
-    if (featureBit4)
+    /// Send FeatureSystemStatus
     {
-        data << uint32(1);
-        data << uint32(0);
-        data << uint32(10);
-        data << uint32(60);
-    }
+        WorldPackets::System::FeatureSystemStatus features;
+        features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
+        features.BpayStoreEnabled    = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
 
-    //if (featureBit5)
-    //{
-    //    data << uint32(0);
-    //    data << uint32(0);
-    //    data << uint32(0);
-    //}
-    SendPacket(&data);
+        SendPacket(features.Write());
+    }
 
     // Send MOTD
     {
@@ -930,7 +909,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SetGuildLevel(0);
     }
 
-    data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4+4);
+    WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4+4);
     data << uint64(0);
     SendPacket(&data);
 
