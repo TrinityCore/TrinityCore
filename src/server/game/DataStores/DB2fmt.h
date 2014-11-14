@@ -19,10 +19,12 @@
 #define TRINITY_DB2SFRM_H
 
 char const HolidaysEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
-char const Itemfmt[]="niiiiiii";
+char const Itemfmt[]="niiiiiiix";
+char const ItemAppearanceEntryfmt[]="nii";
 char const ItemCurrencyCostfmt[]="xn";
-char const ItemSparsefmt[]="niiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
+char const ItemSparsefmt[]="niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifisssssiiiiiiiiiiiiiiiiiiifiiifiix";
 char const ItemExtendedCostEntryfmt[]="nxxiiiiiiiiiiiixiiiiiiiiiiiiii";
+char const ItemEffectEntryfmt[]="niiiiiiii";
 char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 char const OverrideSpellDataEntryfmt[] = "niiiiiiiiiixx";
 char const PhaseGroupEntryfmt[] = "nii";

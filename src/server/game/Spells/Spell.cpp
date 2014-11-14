@@ -4301,30 +4301,27 @@ void Spell::TakeCastItem()
     bool expendable = false;
     bool withoutCharges = false;
 
-    for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (int i = 0; i < proto->Effects.size(); ++i)
     {
-        if (proto->Spells[i].SpellId)
+        // item has limited charges
+        if (proto->Effects[i].Charges)
         {
-            // item has limited charges
-            if (proto->Spells[i].SpellCharges)
+            if (proto->Effects[i].Charges < 0)
+                expendable = true;
+
+            int32 charges = m_CastItem->GetSpellCharges(i);
+
+            // item has charges left
+            if (charges)
             {
-                if (proto->Spells[i].SpellCharges < 0)
-                    expendable = true;
-
-                int32 charges = m_CastItem->GetSpellCharges(i);
-
-                // item has charges left
-                if (charges)
-                {
-                    (charges > 0) ? --charges : ++charges;  // abs(charges) less at 1 after use
-                    if (proto->Stackable == 1)
-                        m_CastItem->SetSpellCharges(i, charges);
-                    m_CastItem->SetState(ITEM_CHANGED, player);
-                }
-
-                // all charges used
-                withoutCharges = (charges == 0);
+                (charges > 0) ? --charges : ++charges;  // abs(charges) less at 1 after use
+                if (proto->Stackable == 1)
+                    m_CastItem->SetSpellCharges(i, charges);
+                m_CastItem->SetState(ITEM_CHANGED, player);
             }
+
+            // all charges used
+            withoutCharges = (charges == 0);
         }
     }
 
@@ -4558,7 +4555,7 @@ void Spell::TakeReagents()
     ItemTemplate const* castItemTemplate = m_CastItem ? m_CastItem->GetTemplate() : NULL;
 
     // do not take reagents for these item casts
-    if (castItemTemplate && castItemTemplate->Flags & ITEM_PROTO_FLAG_TRIGGERED_CAST)
+    if (castItemTemplate && castItemTemplate->Flags[0] & ITEM_PROTO_FLAG_TRIGGERED_CAST)
         return;
 
     Player* p_caster = m_caster->ToPlayer();
@@ -4576,11 +4573,11 @@ void Spell::TakeReagents()
         // if CastItem is also spell reagent
         if (castItemTemplate && castItemTemplate->ItemId == itemid)
         {
-            for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+            for (int s = 0; s < castItemTemplate->Effects.size(); ++s)
             {
                 // CastItem will be used up and does not count as reagent
                 int32 charges = m_CastItem->GetSpellCharges(s);
-                if (castItemTemplate->Spells[s].SpellCharges < 0 && abs(charges) < 2)
+                if (castItemTemplate->Effects[s].Charges < 0 && abs(charges) < 2)
                 {
                     ++itemcount;
                     break;
@@ -5914,8 +5911,8 @@ SpellCastResult Spell::CheckItems()
         if (!proto)
             return SPELL_FAILED_ITEM_NOT_READY;
 
-        for (uint8 i = 0; i < MAX_ITEM_SPELLS; ++i)
-            if (proto->Spells[i].SpellCharges)
+        for (uint8 i = 0; i < proto->Effects.size(); ++i)
+            if (proto->Effects[i].Charges)
                 if (m_CastItem->GetSpellCharges(i) == 0)
                     return SPELL_FAILED_NO_CHARGES_REMAIN;
 
@@ -5989,7 +5986,7 @@ SpellCastResult Spell::CheckItems()
     }
 
     // do not take reagents for these item casts
-    if (!(m_CastItem && m_CastItem->GetTemplate()->Flags & ITEM_PROTO_FLAG_TRIGGERED_CAST))
+    if (!(m_CastItem && m_CastItem->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_TRIGGERED_CAST))
     {
         bool checkReagents = !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST) && !player->CanNoReagentCast(m_spellInfo);
         // Not own traded item (in trader trade slot) requires reagents even if triggered spell
@@ -6015,11 +6012,11 @@ SpellCastResult Spell::CheckItems()
                     ItemTemplate const* proto = m_CastItem->GetTemplate();
                     if (!proto)
                         return SPELL_FAILED_ITEM_NOT_READY;
-                    for (uint8 s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+                    for (uint8 s = 0; s < proto->Effects.size(); ++s)
                     {
                         // CastItem will be used up and does not count as reagent
                         int32 charges = m_CastItem->GetSpellCharges(s);
-                        if (proto->Spells[s].SpellCharges < 0 && abs(charges) < 2)
+                        if (proto->Effects[s].Charges < 0 && abs(charges) < 2)
                         {
                             ++itemcount;
                             break;
@@ -6093,7 +6090,7 @@ SpellCastResult Spell::CheckItems()
                     if (m_targets.GetItemTarget()->GetOwner() != m_caster)
                         return SPELL_FAILED_NOT_TRADEABLE;
                     // do not allow to enchant vellum from scroll made by vellum-prevent exploit
-                    if (m_CastItem && m_CastItem->GetTemplate()->Flags & ITEM_PROTO_FLAG_TRIGGERED_CAST)
+                    if (m_CastItem && m_CastItem->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_TRIGGERED_CAST)
                         return SPELL_FAILED_TOTEM_CATEGORY;
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->Effects[i].ItemType, 1);
@@ -6114,12 +6111,12 @@ SpellCastResult Spell::CheckItems()
                     return SPELL_FAILED_LOWLEVEL;
 
                 bool isItemUsable = false;
-                for (uint8 e = 0; e < MAX_ITEM_PROTO_SPELLS; ++e)
+                ItemTemplate const* proto = targetItem->GetTemplate();
+                for (uint8 e = 0; e < proto->Effects.size(); ++e)
                 {
-                    ItemTemplate const* proto = targetItem->GetTemplate();
-                    if (proto->Spells[e].SpellId && (
-                        proto->Spells[e].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE ||
-                        proto->Spells[e].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
+                    if (proto->Effects[e].SpellID && (
+                        proto->Effects[e].Trigger == ITEM_SPELLTRIGGER_ON_USE ||
+                        proto->Effects[e].Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
                     {
                         isItemUsable = true;
                         break;
@@ -6216,7 +6213,7 @@ SpellCastResult Spell::CheckItems()
                 if (!m_targets.GetItemTarget())
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //ensure item is a prospectable ore
-                if (!(m_targets.GetItemTarget()->GetTemplate()->Flags & ITEM_PROTO_FLAG_PROSPECTABLE))
+                if (!(m_targets.GetItemTarget()->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_PROSPECTABLE))
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //prevent prospecting in trade slot
                 if (m_targets.GetItemTarget()->GetOwnerGUID() != m_caster->GetGUID())
@@ -6239,7 +6236,7 @@ SpellCastResult Spell::CheckItems()
                 if (!m_targets.GetItemTarget())
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //ensure item is a millable herb
-                if (!(m_targets.GetItemTarget()->GetTemplate()->Flags & ITEM_PROTO_FLAG_MILLABLE))
+                if (!(m_targets.GetItemTarget()->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_MILLABLE))
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //prevent milling in trade slot
                 if (m_targets.GetItemTarget()->GetOwnerGUID() != m_caster->GetGUID())
@@ -6296,8 +6293,8 @@ SpellCastResult Spell::CheckItems()
 
                  if (Item* pitem = player->GetItemByEntry(item_id))
                  {
-                     for (int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-                         if (pProto->Spells[x].SpellCharges != 0 && pitem->GetSpellCharges(x) == pProto->Spells[x].SpellCharges)
+                     for (int x = 0; x < pProto->Effects.size(); ++x)
+                         if (pProto->Effects[x].Charges != 0 && pitem->GetSpellCharges(x) == pProto->Effects[x].Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
                  break;
