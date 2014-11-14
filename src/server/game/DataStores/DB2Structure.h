@@ -58,9 +58,17 @@ struct ItemEntry
     uint32      SubClass;                                   // 2
     int32       SoundOverrideSubclass;                      // 3
     int32       Material;                                   // 4
-    uint32      DisplayId;                                  // 5
-    uint32      InventoryType;                              // 6
-    uint32      Sheath;                                     // 7
+    uint32      InventoryType;                              // 5
+    uint32      Sheath;                                     // 6
+    uint32      AppearanceID;                               // 7 (ItemAppearance.db2)
+    //uint32    Unk;                                        // 8
+};
+
+struct ItemAppearanceEntry
+{
+    uint32      ID;                                         // 0 (reference to ItemModifiedAppearance.db2?)
+    uint32      DisplayID;                                  // 1
+    uint32      AppearanceID;                               // 2
 };
 
 struct ItemCurrencyCostEntry
@@ -69,9 +77,85 @@ struct ItemCurrencyCostEntry
     uint32      ItemId;                                     // 1
 };
 
+struct ItemEffectEntry
+{
+    uint32      ID;                                         // 0
+    uint32      ItemID;                                     // 1
+    uint32      OrderIndex;                                 // 2
+    uint32      SpellID;                                    // 3
+    uint32      Trigger;                                    // 4
+    uint32      Charges;                                    // 5
+    int32       Cooldown;                                   // 6
+    uint32      Category;                                   // 7
+    int32       CategoryCooldown;                           // 8
+};
+
 struct ItemSparseEntry
 {
-    uint32     ID;                                           // 0
+    uint32      ID;                                         // 0
+    uint32      Quality;                                    // 1
+    uint32      Flags[3];                                   // 2-4
+    float       Unk1;                                       // 5
+    float       Unk2;                                       // 6
+    uint32      BuyCount;                                   // 7
+    uint32      BuyPrice;                                   // 8
+    uint32      SellPrice;                                  // 9
+    uint32      InventoryType;                              // 10
+    int32       AllowableClass;                             // 11
+    int32       AllowableRace;                              // 12
+    uint32      ItemLevel;                                  // 13
+    int32       RequiredLevel;                              // 14
+    uint32      RequiredSkill;                              // 15
+    uint32      RequiredSkillRank;                          // 16
+    uint32      RequiredSpell;                              // 17
+    uint32      RequiredHonorRank;                          // 18
+    uint32      RequiredCityRank;                           // 19
+    uint32      RequiredReputationFaction;                  // 20
+    uint32      RequiredReputationRank;                     // 21
+    uint32      MaxCount;                                   // 22
+    uint32      Stackable;                                  // 23
+    uint32      ContainerSlots;                             // 24
+    int32       ItemStatType[MAX_ITEM_PROTO_STATS];         // 25 - 34
+    uint32      ItemStatValue[MAX_ITEM_PROTO_STATS];        // 35 - 44
+    int32       ItemStatUnk1[MAX_ITEM_PROTO_STATS];         // 45 - 54
+    int32       ItemStatUnk2[MAX_ITEM_PROTO_STATS];         // 55 - 64
+    uint32      ScalingStatDistribution;                    // 65
+    uint32      DamageType;                                 // 66
+    uint32      Delay;                                      // 67
+    float       RangedModRange;                             // 68
+    uint32      Bonding;                                    // 69
+    LocalizedString* Name;                                  // 70
+    LocalizedString* Name2;                                 // 71
+    LocalizedString* Name3;                                 // 72
+    LocalizedString* Name4;                                 // 73
+    LocalizedString* Description;                           // 74
+    uint32      PageText;                                   // 75
+    uint32      LanguageID;                                 // 76
+    uint32      PageMaterial;                               // 77
+    uint32      StartQuest;                                 // 78
+    uint32      LockID;                                     // 79
+    int32       Material;                                   // 80
+    uint32      Sheath;                                     // 81
+    uint32      RandomProperty;                             // 82
+    uint32      RandomSuffix;                               // 83
+    uint32      ItemSet;                                    // 84
+    uint32      Area;                                       // 85
+    uint32      Map;                                        // 86
+    uint32      BagFamily;                                  // 87
+    uint32      TotemCategory;                              // 88
+    uint32      SocketColor[MAX_ITEM_PROTO_SOCKETS];        // 89-91
+    uint32      SocketBonus;                                // 92
+    uint32      GemProperties;                              // 93
+    float       ArmorDamageModifier;                        // 94
+    uint32      Duration;                                   // 95
+    uint32      ItemLimitCategory;                          // 96
+    uint32      HolidayID;                                  // 97
+    float       StatScalingFactor;                          // 98
+    uint32      CurrencySubstitutionID;                     // 99
+    uint32      CurrencySubstitutionCount;                  // 100
+    //uint32    Unk3;                                       // 101
+    
+    /*uint32     ID;                                           // 0
     uint32     Quality;                                      // 1
     uint32     Flags;                                        // 2
     uint32     Flags2;                                       // 3
@@ -139,7 +223,7 @@ struct ItemSparseEntry
     uint32     HolidayId;                                    // 127
     float      StatScalingFactor;                            // 128
     int32      CurrencySubstitutionId;                       // 129
-    int32      CurrencySubstitutionCount;                    // 130
+    int32      CurrencySubstitutionCount;                    // 130*/
 };
 
 #define MAX_ITEM_EXT_COST_ITEMS         5
@@ -336,6 +420,8 @@ struct TaxiPathNodeEntry
 #else
 #pragma pack(pop)
 #endif
+
+typedef std::map<uint32, uint32> ItemDisplayIDMap;
 
 struct TaxiPathBySourceAndDestination
 {

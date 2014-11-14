@@ -2435,7 +2435,7 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
 {
     *disenchantID = 0;
     *(int32*)requiredDisenchantSkill = -1;
-    if ((itemTemplate.Flags & (ITEM_PROTO_FLAG_CONJURED | ITEM_PROTO_FLAG_UNK6)) ||
+    if ((itemTemplate.Flags[0] & (ITEM_PROTO_FLAG_CONJURED | ITEM_PROTO_FLAG_UNK6)) ||
         itemTemplate.Bonding == BIND_QUEST_ITEM || itemTemplate.Area || itemTemplate.Map ||
         itemTemplate.Stackable > 1 ||
         itemTemplate.Quality < ITEM_QUALITY_UNCOMMON || itemTemplate.Quality > ITEM_QUALITY_EPIC ||
@@ -2492,12 +2492,11 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.SubClass = db2Data->SubClass;
         itemTemplate.SoundOverrideSubclass = db2Data->SoundOverrideSubclass;
         itemTemplate.Name1 = sparse->Name->Str[sWorld->GetDefaultDbcLocale()];
-        itemTemplate.DisplayInfoID = db2Data->DisplayId;
+        itemTemplate.DisplayInfoID = GetItemDisplayID(db2Data->AppearanceID);
         itemTemplate.Quality = sparse->Quality;
-        itemTemplate.Flags = sparse->Flags;
-        itemTemplate.Flags2 = sparse->Flags2;
-        itemTemplate.Unk430_1 = sparse->Unk430_1;
-        itemTemplate.Unk430_2 = sparse->Unk430_2;
+        memcpy(itemTemplate.Flags, sparse->Flags, sizeof(itemTemplate.Flags));
+        itemTemplate.Unk1 = sparse->Unk1;
+        itemTemplate.Unk2 = sparse->Unk2;
         itemTemplate.BuyCount = std::max(sparse->BuyCount, 1u);
         itemTemplate.BuyPrice = sparse->BuyPrice;
         itemTemplate.SellPrice = sparse->SellPrice;
@@ -2529,21 +2528,12 @@ void ObjectMgr::LoadItemTemplates()
         // cache item damage
         FillItemDamageFields(&itemTemplate.DamageMin, &itemTemplate.DamageMax, &itemTemplate.DPS, sparse->ItemLevel,
                              db2Data->Class, db2Data->SubClass, sparse->Quality, sparse->Delay, sparse->StatScalingFactor,
-                             sparse->InventoryType, sparse->Flags2);
+                             sparse->InventoryType, sparse->Flags[1]);
 
         itemTemplate.DamageType = sparse->DamageType;
         itemTemplate.Armor = FillItemArmor(sparse->ItemLevel, db2Data->Class, db2Data->SubClass, sparse->Quality, sparse->InventoryType);
         itemTemplate.Delay = sparse->Delay;
         itemTemplate.RangedModRange = sparse->RangedModRange;
-        for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-        {
-            itemTemplate.Spells[i].SpellId = sparse->SpellId[i];
-            itemTemplate.Spells[i].SpellTrigger = sparse->SpellTrigger[i];
-            itemTemplate.Spells[i].SpellCharges = sparse->SpellCharges[i];
-            itemTemplate.Spells[i].SpellCooldown = sparse->SpellCooldown[i];
-            itemTemplate.Spells[i].SpellCategory = sparse->SpellCategory[i];
-            itemTemplate.Spells[i].SpellCategoryCooldown = sparse->SpellCategoryCooldown[i];
-        }
 
         itemTemplate.SpellPPMRate = 0.0f;
         itemTemplate.Bonding = sparse->Bonding;
@@ -2565,8 +2555,9 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.TotemCategory = sparse->TotemCategory;
         for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
         {
-            itemTemplate.Socket[i].Color = sparse->Color[i];
-            itemTemplate.Socket[i].Content = sparse->Content[i];
+            itemTemplate.Socket[i].Color = sparse->SocketColor[i];
+            // TODO: 6.x update/remove this
+            itemTemplate.Socket[i].Content = 0;
         }
 
         itemTemplate.socketBonus = sparse->SocketBonus;
@@ -2576,15 +2567,38 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.ArmorDamageModifier = sparse->ArmorDamageModifier;
         itemTemplate.Duration = sparse->Duration;
         itemTemplate.ItemLimitCategory = sparse->ItemLimitCategory;
-        itemTemplate.HolidayId = sparse->HolidayId;
+        itemTemplate.HolidayId = sparse->HolidayID;
         itemTemplate.StatScalingFactor = sparse->StatScalingFactor;
-        itemTemplate.CurrencySubstitutionId = sparse->CurrencySubstitutionId;
+        itemTemplate.CurrencySubstitutionId = sparse->CurrencySubstitutionID;
         itemTemplate.CurrencySubstitutionCount = sparse->CurrencySubstitutionCount;
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
         itemTemplate.MaxMoneyLoot = 0;
         ++sparseCount;
+    }
+
+    // Load item effects (spells)
+    for (uint32 effectId = 0; effectId < sItemEffectStore.GetNumRows(); ++effectId)
+    {
+        ItemEffectEntry const* effectEntry = sItemEffectStore.LookupEntry(effectId);
+        if (!effectEntry)
+            continue;
+
+        auto itemItr = _itemTemplateStore.find(effectEntry->ItemID);
+        if (itemItr == _itemTemplateStore.end())
+            continue;
+
+        ItemTemplate& itemTemplate = itemItr->second;
+        
+        ItemEffect effect;
+        effect.SpellID = effectEntry->SpellID;
+        effect.Trigger = effectEntry->Trigger;
+        effect.Charges = effectEntry->Charges;
+        effect.Cooldown = effectEntry->Cooldown;
+        effect.Category = effectEntry->Category;
+        effect.CategoryCooldown = effectEntry->CategoryCooldown;
+        itemTemplate.Effects.push_back(effect);
     }
 
     // Load missing items from item_template AND overwrite data from Item-sparse.db2 (item_template is supposed to contain Item-sparse.adb data)
@@ -2646,10 +2660,10 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.Name1                     = fields[4].GetString();
             itemTemplate.DisplayInfoID             = fields[5].GetUInt32();
             itemTemplate.Quality                   = uint32(fields[6].GetUInt8());
-            itemTemplate.Flags                     = fields[7].GetUInt32();
-            itemTemplate.Flags2                    = fields[8].GetUInt32();
-            itemTemplate.Unk430_1                  = fields[9].GetFloat();
-            itemTemplate.Unk430_2                  = fields[10].GetFloat();
+            itemTemplate.Flags[0]                  = fields[7].GetUInt32();
+            itemTemplate.Flags[1]                  = fields[8].GetUInt32();
+            itemTemplate.Unk1                      = fields[9].GetFloat();
+            itemTemplate.Unk2                      = fields[10].GetFloat();
             itemTemplate.BuyCount                  = uint32(fields[11].GetUInt8());
             itemTemplate.BuyPrice                  = int32(fields[12].GetInt64());
             itemTemplate.SellPrice                 = fields[13].GetUInt32();
@@ -2682,7 +2696,7 @@ void ObjectMgr::LoadItemTemplates()
             // cache item damage
             FillItemDamageFields(&itemTemplate.DamageMin, &itemTemplate.DamageMax, &itemTemplate.DPS, itemTemplate.ItemLevel,
                                  itemTemplate.Class, itemTemplate.SubClass, itemTemplate.Quality, fields[71].GetUInt16(),
-                                 fields[131].GetFloat(), itemTemplate.InventoryType, itemTemplate.Flags2);
+                                 fields[131].GetFloat(), itemTemplate.InventoryType, itemTemplate.Flags[1]);
 
             itemTemplate.DamageType                = fields[70].GetUInt8();
             itemTemplate.Armor                     = FillItemArmor(itemTemplate.ItemLevel, itemTemplate.Class,
@@ -2691,14 +2705,16 @@ void ObjectMgr::LoadItemTemplates()
 
             itemTemplate.Delay                     = fields[71].GetUInt16();
             itemTemplate.RangedModRange            = fields[72].GetFloat();
-            for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+            // TODO: 6.x move this to new itemeffect table (probably itemeffect_dbc?)
+            itemTemplate.Effects.resize(3);
+            for (uint32 i = 0; i < 3; ++i)
             {
-                itemTemplate.Spells[i].SpellId               = fields[73 + 6 * i + 0].GetInt32();
-                itemTemplate.Spells[i].SpellTrigger          = uint32(fields[73 + 6 * i + 1].GetUInt8());
-                itemTemplate.Spells[i].SpellCharges          = int32(fields[73 + 6 * i + 2].GetInt16());
-                itemTemplate.Spells[i].SpellCooldown         = fields[73 + 6 * i + 3].GetInt32();
-                itemTemplate.Spells[i].SpellCategory         = uint32(fields[73 + 6 * i + 4].GetUInt16());
-                itemTemplate.Spells[i].SpellCategoryCooldown = fields[73 + 6 * i + 5].GetInt32();
+                itemTemplate.Effects[i].SpellID             = fields[73 + 6 * i + 0].GetInt32();
+                itemTemplate.Effects[i].Trigger             = uint32(fields[73 + 6 * i + 1].GetUInt8());
+                itemTemplate.Effects[i].Charges             = int32(fields[73 + 6 * i + 2].GetInt16());
+                itemTemplate.Effects[i].Cooldown            = fields[73 + 6 * i + 3].GetInt32();
+                itemTemplate.Effects[i].Category            = uint32(fields[73 + 6 * i + 4].GetUInt16());
+                itemTemplate.Effects[i].CategoryCooldown    = fields[73 + 6 * i + 5].GetInt32();
             }
 
             itemTemplate.SpellPPMRate   = 0.0f;
