@@ -1145,7 +1145,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
             // special amount for food/drink
             if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
             {
-                switch (iProto->Spells[0].SpellCategory)
+                switch (iProto->Effects[0].Category)
                 {
                     case SPELL_CATEGORY_FOOD:                                // food
                         count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
@@ -7927,7 +7927,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     }
 
     // Apply Spell Power from ScalingStatValue if set
-    if (ssv && proto->Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
+    if (ssv && proto->Flags[1] & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
         if (int32 spellbonus = int32(ssv->SpellPower))
             ApplySpellPowerBonus(spellbonus, apply);
 
@@ -8002,7 +8002,7 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingSt
     if (ssv)
     {
         float damageMultiplier = 0.0f;
-        extraDPS = ssv->GetDPSAndDamageMultiplier(proto->SubClass, (proto->Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON) != 0, &damageMultiplier);
+        extraDPS = ssv->GetDPSAndDamageMultiplier(proto->SubClass, (proto->Flags[1] & ITEM_FLAGS_EXTRA_CASTER_WEAPON) != 0, &damageMultiplier);
         if (extraDPS)
         {
             float average = extraDPS * proto->Delay / 1000.0f;
@@ -8128,20 +8128,16 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
     if (!proto)
         return;
 
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
-        _Spell const& spellData = proto->Spells[i];
-
-        // no spell
-        if (!spellData.SpellId)
-            continue;
+        ItemEffect const& effectData = proto->Effects[i];
 
         // wrong triggering type
-        if (apply && spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_EQUIP)
+        if (apply && effectData.Trigger != ITEM_SPELLTRIGGER_ON_EQUIP)
             continue;
 
         // check if it is valid spell
-        SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(spellData.SpellId);
+        SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(effectData.SpellID);
         if (!spellproto)
             continue;
 
@@ -8256,22 +8252,18 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
     if (procVictim & PROC_FLAG_TAKEN_DAMAGE)
     //if (damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE)
     {
-        for (uint8 i = 0; i < MAX_ITEM_SPELLS; ++i)
+        for (uint8 i = 0; i < proto->Effects.size(); ++i)
         {
-            _Spell const& spellData = proto->Spells[i];
-
-            // no spell
-            if (!spellData.SpellId)
-                continue;
+            ItemEffect const& effectData = proto->Effects[i];
 
             // wrong triggering type
-            if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
+            if (effectData.Trigger != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellData.SpellId);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData.SpellID);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.player.items", "WORLD: unknown Item spellid %i", spellData.SpellId);
+                TC_LOG_ERROR("entities.player.items", "WORLD: unknown Item spellid %i", effectData.SpellID);
                 continue;
             }
 
@@ -8366,10 +8358,10 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
 {
     ItemTemplate const* proto = item->GetTemplate();
     // special learning case
-    if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
+    if (proto->Effects[0].SpellID == 483 || proto->Effects[0].SpellID == 55884)
     {
-        uint32 learn_spell_id = proto->Spells[0].SpellId;
-        uint32 learning_spell_id = proto->Spells[1].SpellId;
+        uint32 learn_spell_id = proto->Effects[0].SpellID;
+        uint32 learning_spell_id = proto->Effects[1].SpellID;
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
         if (!spellInfo)
@@ -8391,22 +8383,18 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     uint8 count = 0;
 
     // item spells cast at use
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
-        _Spell const& spellData = proto->Spells[i];
-
-        // no spell
-        if (!spellData.SpellId)
-            continue;
+        ItemEffect const& effectData = proto->Effects[i];
 
         // wrong triggering type
-        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+        if (effectData.Trigger != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellData.SpellId);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData.SpellID);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring", proto->ItemId, spellData.SpellId);
+            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring", proto->ItemId, effectData.SpellID);
             continue;
         }
 
@@ -11521,10 +11509,10 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     if (!proto)
         return EQUIP_ERR_ITEM_NOT_FOUND;
 
-    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetTeam() != HORDE)
+    if ((proto->Flags[1] & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetTeam() != HORDE)
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
-    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
+    if ((proto->Flags[1] & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
     if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getRaceMask()) == 0)
@@ -11549,8 +11537,8 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
         return EQUIP_ERR_CLIENT_LOCKED_OUT;
 
     // learning (recipes, mounts, pets, etc.)
-    if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
-        if (HasSpell(proto->Spells[1].SpellId))
+    if (proto->Effects[0].SpellID == 483 || proto->Effects[0].SpellID == 55884)
+        if (HasSpell(proto->Effects[1].SpellID))
             return EQUIP_ERR_INTERNAL_BAG_ERROR;
 
     return EQUIP_ERR_OK;
@@ -11752,11 +11740,11 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         AddItemDurations(pItem);
 
         const ItemTemplate* proto = pItem->GetTemplate();
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-            if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
+        for (uint8 i = 0; i < proto->Effects.size(); ++i)
+            if (proto->Effects[i].Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
                 if (bag == INVENTORY_SLOT_BAG_0 || (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END))
-                    if (!HasAura(proto->Spells[i].SpellId))
-                        CastSpell(this, proto->Spells[i].SpellId, true, pItem);
+                    if (!HasAura(proto->Effects[i].SpellID))
+                        CastSpell(this, proto->Effects[i].SpellID, true, pItem);
 
         return pItem;
     }
@@ -11795,11 +11783,11 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         pItem2->SetState(ITEM_CHANGED, this);
 
         const ItemTemplate* proto = pItem2->GetTemplate();
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-            if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
+        for (uint8 i = 0; i < proto->Effects.size(); ++i)
+            if (proto->Effects[i].Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
                 if (bag == INVENTORY_SLOT_BAG_0 || (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END))
-                    if (!HasAura(proto->Spells[i].SpellId))
-                        CastSpell(this, proto->Spells[i].SpellId, true, pItem2);
+                    if (!HasAura(proto->Effects[i].SpellID))
+                        CastSpell(this, proto->Effects[i].SpellID, true, pItem2);
 
         return pItem2;
     }
@@ -12141,9 +12129,9 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         RemoveTradeableItem(pItem);
 
         const ItemTemplate* proto = pItem->GetTemplate();
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-            if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
-                RemoveAurasDueToSpell(proto->Spells[i].SpellId);
+        for (uint8 i = 0; i < proto->Effects.size(); ++i)
+            if (proto->Effects[i].Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
+                RemoveAurasDueToSpell(proto->Effects[i].SpellID);
 
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
         sScriptMgr->OnItemRemove(this, pItem);
@@ -12197,7 +12185,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         // Delete rolled money / loot from db.
         // MUST be done before RemoveFromWorld() or GetTemplate() fails
         if (ItemTemplate const* pTmp = pItem->GetTemplate())
-            if (pTmp->Flags & ITEM_PROTO_FLAG_OPENABLE)
+            if (pTmp->Flags[0] & ITEM_PROTO_FLAG_OPENABLE)
                 pItem->ItemContainerDeleteLootMoneyAndLootItemsFromDB();
 
         if (IsInWorld() && update)
@@ -17998,7 +17986,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 remove = true;
             }
             // "Conjured items disappear if you are logged out for more than 15 minutes"
-            else if (timeDiff > 15 * MINUTE && proto->Flags & ITEM_PROTO_FLAG_CONJURED)
+            else if (timeDiff > 15 * MINUTE && proto->Flags[0] & ITEM_PROTO_FLAG_CONJURED)
             {
                 TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (%s, name: '%s', diff: %u) has conjured item (%s, entry: %u) with expired lifetime (15 minutes). Deleting item.",
                     GetGUID().ToString().c_str(), GetName().c_str(), timeDiff, item->GetGUID().ToString().c_str(), item->GetEntry());
@@ -21538,7 +21526,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         if (!bStore)
             AutoUnequipOffhandIfNeed();
 
-        if (pProto->Flags & ITEM_PROTO_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
+        if (pProto->Flags[0] & ITEM_PROTO_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {
             it->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE);
             it->SetRefundRecipient(GetGUID());
@@ -21730,7 +21718,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
     }
 
-    if (!IsGameMaster() && ((pProto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && GetTeam() == ALLIANCE) || (pProto->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && GetTeam() == HORDE)))
+    if (!IsGameMaster() && ((pProto->Flags[1] & ITEM_FLAGS_EXTRA_HORDE_ONLY && GetTeam() == ALLIANCE) || (pProto->Flags[1] == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && GetTeam() == HORDE)))
         return false;
 
     Creature* creature = GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
@@ -22063,13 +22051,13 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     {
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId))
         {
-            for (uint8 idx = 0; idx < MAX_ITEM_SPELLS; ++idx)
+            for (uint8 idx = 0; idx < proto->Effects.size(); ++idx)
             {
-                if (uint32(proto->Spells[idx].SpellId) == spellInfo->Id)
+                if (uint32(proto->Effects[idx].SpellID) == spellInfo->Id)
                 {
-                    cat    = proto->Spells[idx].SpellCategory;
-                    rec    = proto->Spells[idx].SpellCooldown;
-                    catrec = proto->Spells[idx].SpellCategoryCooldown;
+                    cat    = proto->Effects[idx].Category;
+                    rec    = proto->Effects[idx].Cooldown;
+                    catrec = proto->Effects[idx].CategoryCooldown;
                     break;
                 }
             }
@@ -22244,9 +22232,9 @@ void Player::UpdatePotionCooldown(Spell* spell)
     {
         // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
-            for (uint8 idx = 0; idx < MAX_ITEM_SPELLS; ++idx)
-                if (proto->Spells[idx].SpellId && proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
-                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
+            for (uint8 idx = 0; idx < proto->Effects.size(); ++idx)
+                if (proto->Effects[idx].Trigger == ITEM_SPELLTRIGGER_ON_USE)
+                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Effects[idx].SpellID))
                         SendCooldownEvent(spellInfo, m_lastPotionId);
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
@@ -23157,28 +23145,26 @@ void Player::ApplyEquipCooldown(Item* pItem)
     if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN))
         return;
 
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-    {
-        _Spell const& spellData = pItem->GetTemplate()->Spells[i];
+    ItemTemplate const* proto = pItem->GetTemplate();
 
-        // no spell
-        if (!spellData.SpellId)
-            continue;
+    for (uint8 i = 0; i < proto->Effects.size(); ++i)
+    {
+        ItemEffect const& effectData = proto->Effects[i];
 
         // wrong triggering type (note: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE not have cooldown)
-        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+        if (effectData.Trigger != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
         // Don't replace longer cooldowns by equip cooldown if we have any.
-        SpellCooldowns::iterator itr = m_spellCooldowns.find(spellData.SpellId);
+        SpellCooldowns::iterator itr = m_spellCooldowns.find(effectData.SpellID);
         if (itr != m_spellCooldowns.end() && itr->second.itemid == pItem->GetEntry() && itr->second.end > time(NULL) + 30)
             continue;
 
-        AddSpellCooldown(spellData.SpellId, pItem->GetEntry(), time(NULL) + 30);
+        AddSpellCooldown(effectData.SpellID, pItem->GetEntry(), time(NULL) + 30);
 
         WorldPacket data(SMSG_ITEM_COOLDOWN, 12);
         data << pItem->GetGUID();
-        data << uint32(spellData.SpellId);
+        data << uint32(effectData.SpellID);
         GetSession()->SendPacket(&data);
     }
 }
@@ -25290,7 +25276,7 @@ InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limi
 InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot, uint32 limit_count) const
 {
     // check unique-equipped on item
-    if (itemProto->Flags & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
+    if (itemProto->Flags[0] & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
     {
         // there is an equip limit on this item
         if (HasItemOrGemWithIdEquipped(itemProto->ItemId, 1, except_slot))

@@ -25,8 +25,11 @@
 
 DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
 DB2Storage<ItemEntry>                       sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
+DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceEntryfmt);
+ItemDisplayIDMap                            sItemDisplayIDMap;
 DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedCostEntryfmt);
+DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectEntryfmt);
 DB2Storage<ItemSparseEntry>                 sItemSparseStore(ItemSparsefmt, &DB2Utilities::HasItemSparseEntry, &DB2Utilities::WriteItemSparseDbReply);
 DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainfmt);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore(OverrideSpellDataEntryfmt);
@@ -120,9 +123,11 @@ void LoadDB2Stores(std::string const& dataPath)
 
     LoadDB2(availableDb2Locales, bad_db2_files, sHolidaysStore,             db2Path,    "Holidays.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemStore,                 db2Path,    "Item.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemAppearanceStore,       db2Path,    "ItemAppearance.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemCurrencyCostStore,     db2Path,    "ItemCurrencyCost.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemExtendedCostStore,     db2Path,    "ItemExtendedCost.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemEffectStore,           db2Path,    "ItemEffect.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sKeyChainStore,             db2Path,    "KeyChain.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sOverrideSpellDataStore,    db2Path,    "OverrideSpellData.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sPhaseGroupStore,           db2Path,    "PhaseXPhaseGroup.db2");
@@ -137,6 +142,10 @@ void LoadDB2Stores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiNodesStore,            db2Path,    "TaxiNodes.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiPathStore,             db2Path,    "TaxiPath.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiPathNodeStore,         db2Path,    "TaxiPathNode.db2");
+    
+    for (uint32 i = 0; i < sItemAppearanceStore.GetNumRows(); ++i)
+        if (ItemAppearanceEntry const* entry = sItemAppearanceStore.LookupEntry(i))
+            sItemDisplayIDMap[entry->AppearanceID] = entry->DisplayID;
     
     for (uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
         if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
@@ -259,4 +268,12 @@ DB2StorageBase const* GetDB2Storage(uint32 type)
         return itr->second;
 
     return NULL;
+}
+
+uint32 GetItemDisplayID(uint32 appearanceID)
+{
+    auto itr = sItemDisplayIDMap.find(appearanceID);
+    if (itr != sItemDisplayIDMap.end())
+        return itr->second;
+    return 0;
 }
