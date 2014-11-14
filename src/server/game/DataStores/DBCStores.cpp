@@ -373,7 +373,7 @@ void LoadDBCStores(const std::string& dataPath)
             PowersByClass[power->ClassID][power->PowerType] = index;
         }
     }
-    
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sChrSpecializationStore,      dbcPath, "ChrSpecialization.dbc");
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sCinematicSequencesStore,     dbcPath, "CinematicSequences.dbc");//19116

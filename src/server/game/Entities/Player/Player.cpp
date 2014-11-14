@@ -3272,7 +3272,7 @@ bool Player::AddTalent(uint32 talentId, uint8 spec)
         TC_LOG_ERROR("spells", "Player::addTalent: Talent %u not found", talentId);
         return false;
     }
-    
+
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentEntry->SpellID);
     if (!spellInfo)
     {
@@ -4119,10 +4119,10 @@ bool Player::ResetTalents(bool no_cost)
     }
 
     // Unlearn masteries
-    ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(specID);
-    for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
-        if (uint32 mastery = chrSpec->MasterySpellID[i])
-            RemoveAurasDueToSpell(mastery);
+    if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(specID))
+        for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
+            if (uint32 mastery = chrSpec->MasterySpellID[i])
+                RemoveAurasDueToSpell(mastery);
 
     // Reset talents store
     GetTalentGroupInfo(group)->Reset();
@@ -25598,16 +25598,16 @@ void Player::SendTalentsInfoData()
     WorldPackets::Talent::UpdateTalentData packet;
 
     packet.Info.ActiveGroup = GetActiveTalentGroup();
-    
+
     uint8 groupsCount = GetTalentGroupsCount();
 
     for (uint8 i = 0; i < groupsCount; ++i)
     {
         TalentGroupInfo* groupInfo = GetTalentGroupInfo(i);
         WorldPackets::Talent::TalentGroupInfo groupInfoPkt;
-        
+
         groupInfoPkt.SpecID = groupInfo->SpecID;
-        
+
         groupInfoPkt.TalentIDs.reserve(MAX_TALENT_TIERS);
         for (uint32 x = 0; x < MAX_TALENT_TIERS; ++x)
         {
@@ -25617,10 +25617,10 @@ void Player::SendTalentsInfoData()
 
             groupInfoPkt.TalentIDs.push_back(groupInfo->Talents[x]);
         }
-        
+
         for (uint32 x = 0; x < MAX_GLYPH_SLOT_INDEX; ++x)
             groupInfoPkt.GlyphIDs[x] = groupInfo->Glyphs[x];
-        
+
         packet.Info.TalentGroups.push_back(groupInfoPkt);
     }
 

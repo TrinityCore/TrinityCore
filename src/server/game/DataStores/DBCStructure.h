@@ -1408,13 +1408,13 @@ struct ItemRandomPropertiesEntry
 {
     uint32      ID;                                         // 0
     //char*     Name;                                       // 1
-    uint32      Enchantment[MAX_ITEM_ENCHANTMENT_EFFECTS];  // 2-6 
+    uint32      Enchantment[MAX_ITEM_ENCHANTMENT_EFFECTS];  // 2-6
     char*       Name_lang;                                  // 7
 };
 
 struct ItemRandomSuffixEntry
 {
-    uint32      ID;                                         // 0 
+    uint32      ID;                                         // 0
     char*       Name_lang;                                  // 1
     //char*     InternalName;                               // 2
     uint32      Enchantment[MAX_ITEM_ENCHANTMENT_EFFECTS];  // 3-7
@@ -1473,7 +1473,7 @@ struct LFGDungeonEntry
     //uint32    BonusReputationAmount;                      // 23
     //uint32    MentorCharLevel;                            // 24
     //uint32    MentorItemLevel;                            // 25
-    
+
     // Helpers
     uint32 Entry() const { return ID + (Type << 24); }
 };

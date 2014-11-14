@@ -8160,7 +8160,7 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
 
 bool Unit::IsMagnet() const
 {
-    // Grounding Totem 
+    // Grounding Totem
     if (GetUInt32Value(UNIT_CREATED_BY_SPELL) == 8177) /// @todo: find a more generic solution
         return true;
 

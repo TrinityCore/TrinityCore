@@ -70,6 +70,7 @@ enum CreatureFlagsExtra
 #define MAX_KILL_CREDIT 2
 #define MAX_CREATURE_MODELS 4
 #define MAX_CREATURE_QUEST_ITEMS 6
+#define MAX_CREATURE_NAMES 4
 #define CREATURE_MAX_SPELLS 8
 
 // from `creature_template` table
