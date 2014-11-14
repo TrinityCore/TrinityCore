@@ -2426,7 +2426,7 @@ public:
         void HandleDummyEffect()
         {
             Unit* caster = GetCaster();
-            
+
             if (Creature* injuredStormwindInfantry = caster->FindNearestCreature(NPC_INJURED_STORMWIND_INFANTRY, 5.0f, true))
             {
                 injuredStormwindInfantry->SetCreatorGUID(caster->GetGUID());

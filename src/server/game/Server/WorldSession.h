@@ -110,6 +110,11 @@ namespace WorldPackets
     {
         class ViolenceLevel;
     }
+
+    namespace Query
+    {
+        class QueryCreature;
+    }
 }
 
 enum AccountDataType
@@ -579,7 +584,7 @@ class WorldSession
 
         void HandleQueryTimeOpcode(WorldPacket& recvPacket);
 
-        void HandleCreatureQueryOpcode(WorldPacket& recvPacket);
+        void HandleCreatureQuery(WorldPackets::Query::QueryCreature& packet);
 
         void HandleGameObjectQueryOpcode(WorldPacket& recvPacket);
 
@@ -1032,6 +1037,9 @@ class WorldSession
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);
+
+        void SendSpellCategoryCooldowns();
+
         int32 HandleEnableNagleAlgorithm();
 
         // Compact Unit Frames (4.x)

@@ -35,6 +35,7 @@
 #include "SpellAuraEffects.h"
 #include "Player.h"
 #include "Config.h"
+#include "SpellPackets.h"
 
 void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
 {
@@ -754,25 +755,28 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
 
 void WorldSession::HandleRequestCategoryCooldowns(WorldPacket& /*recvPacket*/)
 {
-    std::map<uint32, int32> categoryMods;
+    SendSpellCategoryCooldowns();
+}
+
+void WorldSession::SendSpellCategoryCooldowns()
+{
+    WorldPackets::Spell::CategoryCooldown cooldowns;
+
     Unit::AuraEffectList const& categoryCooldownAuras = _player->GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
-    for (Unit::AuraEffectList::const_iterator itr = categoryCooldownAuras.begin(); itr != categoryCooldownAuras.end(); ++itr)
+    for (AuraEffect* aurEff : categoryCooldownAuras)
     {
-        std::map<uint32, int32>::iterator cItr = categoryMods.find((*itr)->GetMiscValue());
-        if (cItr == categoryMods.end())
-            categoryMods[(*itr)->GetMiscValue()] = (*itr)->GetAmount();
+        uint32 categoryId = aurEff->GetMiscValue();
+        auto cItr = std::find_if(cooldowns.CategoryCooldowns.begin(), cooldowns.CategoryCooldowns.end(),
+            [categoryId](WorldPackets::Spell::CategoryCooldown::CategoryCooldownInfo const& cooldown)
+        {
+            return cooldown.Category == categoryId;
+        });
+
+        if (cItr == cooldowns.CategoryCooldowns.end())
+            cooldowns.CategoryCooldowns.emplace_back(aurEff->GetMiscValue(), -aurEff->GetAmount());
         else
-            cItr->second += (*itr)->GetAmount();
+            cItr->ModCooldown -= aurEff->GetAmount();
     }
 
-    WorldPacket data(SMSG_SPELL_CATEGORY_COOLDOWN, 11);
-    data.WriteBits(categoryMods.size(), 23);
-    data.FlushBits();
-    for (std::map<uint32, int32>::const_iterator itr = categoryMods.begin(); itr != categoryMods.end(); ++itr)
-    {
-        data << uint32(itr->first);
-        data << int32(-itr->second);
-    }
-
-    SendPacket(&data);
+    SendPacket(cooldowns.Write());
 }

@@ -74,7 +74,7 @@ void AddItemsSetItem(Player* player, Item* item)
     }
 
     ++eff->item_count;
-    
+
     ItemSetSpells& spells = sItemSetSpellsStore[setid];
 
     for (uint32 x = 0; x < spells.size(); ++x)
@@ -140,7 +140,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
         return;
 
     --eff->item_count;
-    
+
     ItemSetSpells& spells = sItemSetSpellsStore[setid];
 
     for (uint32 x = 0; x < spells.size(); x++)

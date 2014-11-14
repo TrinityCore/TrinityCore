@@ -246,7 +246,7 @@ class instance_stonecore : public InstanceMapScript
             ObjectGuid highPriestessAzilGUID;
             ObjectGuid stonecoreTeleporterGUID[2];
             GuidVector slabhideRockWallGUIDs;
-            
+
             EncounterState slabhideIntro;
         };
 

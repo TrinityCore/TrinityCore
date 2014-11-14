@@ -687,7 +687,7 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
     /********************/
 
     // everything's fine, do it
-    WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
+    WorldPacket data(SMSG_MINIMAP_PING, (8+4+4));
     data << GetPlayer()->GetGUID();
     data << float(x);
     data << float(y);

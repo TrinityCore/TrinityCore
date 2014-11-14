@@ -73,6 +73,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "Transport.h"
 #include "UpdateData.h"
 #include "UpdateFieldFlags.h"
@@ -3157,73 +3158,25 @@ void Player::InitStatsForLevel(bool reapplyMods)
         pet->SynchronizeLevelWithOwner();
 }
 
-void Player::SendInitialSpells()
+void Player::SendKnownSpells()
 {
-    time_t curTime = time(NULL);
-    time_t infTime = curTime + infinityCooldownDelayCheck;
+    WorldPackets::Spell::SendKnownSpells knownSpells;
+    knownSpells.InitialLogin = false; /// @todo
 
-    uint16 spellCount = 0;
-
-    WorldPacket data(SMSG_INITIAL_SPELLS, (1+2+4*m_spells.size()+2+m_spellCooldowns.size()*(2+2+2+4+4)));
-    data << uint8(0);
-
-    size_t countPos = data.wpos();
-    data << uint16(spellCount);                             // spell count placeholder
-
-    for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+    for (PlayerSpellMap::value_type const& spell : m_spells)
     {
-        if (itr->second->state == PLAYERSPELL_REMOVED)
+        if (spell.second->state == PLAYERSPELL_REMOVED)
             continue;
 
-        if (!itr->second->active || itr->second->disabled)
+        if (!spell.second->active || spell.second->disabled)
             continue;
 
-        data << uint32(itr->first);
-        data << uint16(0);                                  // it's not slot id
-
-        ++spellCount;
+        knownSpells.KnownSpells.push_back(spell.first);
     }
 
-    data.put<uint16>(countPos, spellCount);                  // write real count value
+    SendDirectMessage(knownSpells.Write());
 
-    uint16 spellCooldowns = m_spellCooldowns.size();
-    data << uint16(spellCooldowns);
-    for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
-    {
-        SpellInfo const* sEntry = sSpellMgr->GetSpellInfo(itr->first);
-        if (!sEntry)
-            continue;
-
-        data << uint32(itr->first);
-
-        data << uint32(itr->second.itemid);                 // cast item id
-        data << uint16(sEntry->GetCategory());              // spell category
-
-        // send infinity cooldown in special format
-        if (itr->second.end >= infTime)
-        {
-            data << uint32(1);                              // cooldown
-            data << uint32(0x80000000);                     // category cooldown
-            continue;
-        }
-
-        time_t cooldown = itr->second.end > curTime ? (itr->second.end-curTime)*IN_MILLISECONDS : 0;
-
-        if (sEntry->GetCategory())                          // may be wrong, but anyway better than nothing...
-        {
-            data << uint32(0);                              // cooldown
-            data << uint32(cooldown);                       // category cooldown
-        }
-        else
-        {
-            data << uint32(cooldown);                       // cooldown
-            data << uint32(0);                              // category cooldown
-        }
-    }
-
-    GetSession()->SendPacket(&data);
-
-    TC_LOG_DEBUG("network", "CHARACTER: Sent Initial Spells");
+    TC_LOG_DEBUG("network", "CHARACTER: Sent Known Spells");
 }
 
 void Player::RemoveMail(uint32 id)
@@ -3319,7 +3272,7 @@ bool Player::AddTalent(uint32 talentId, uint8 spec)
         TC_LOG_ERROR("spells", "Player::addTalent: Talent %u not found", talentId);
         return false;
     }
-    
+
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentEntry->SpellID);
     if (!spellInfo)
     {
@@ -4166,10 +4119,10 @@ bool Player::ResetTalents(bool no_cost)
     }
 
     // Unlearn masteries
-    ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(specID);
-    for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
-        if (uint32 mastery = chrSpec->MasterySpellID[i])
-            RemoveAurasDueToSpell(mastery);
+    if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(specID))
+        for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
+            if (uint32 mastery = chrSpec->MasterySpellID[i])
+                RemoveAurasDueToSpell(mastery);
 
     // Reset talents store
     GetTalentGroupInfo(group)->Reset();
@@ -23044,6 +22997,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     // guild bank list wtf?
 
+    GetSession()->SendSpellCategoryCooldowns();
+
     // Homebind
     WorldPacket data(SMSG_BINDPOINTUPDATE, 5*4);
     data << m_homebindX << m_homebindY << m_homebindZ;
@@ -23076,7 +23031,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     data << uint32(GetMap()->GetDifficulty());
     GetSession()->SendPacket(&data);
 
-    SendInitialSpells();
+    SendKnownSpells();
 
     data.Initialize(SMSG_SEND_UNLEARN_SPELLS, 4);
     data << uint32(0);                                      // count, for (count) uint32;
@@ -25643,16 +25598,16 @@ void Player::SendTalentsInfoData()
     WorldPackets::Talent::UpdateTalentData packet;
 
     packet.Info.ActiveGroup = GetActiveTalentGroup();
-    
+
     uint8 groupsCount = GetTalentGroupsCount();
 
     for (uint8 i = 0; i < groupsCount; ++i)
     {
         TalentGroupInfo* groupInfo = GetTalentGroupInfo(i);
         WorldPackets::Talent::TalentGroupInfo groupInfoPkt;
-        
+
         groupInfoPkt.SpecID = groupInfo->SpecID;
-        
+
         groupInfoPkt.TalentIDs.reserve(MAX_TALENT_TIERS);
         for (uint32 x = 0; x < MAX_TALENT_TIERS; ++x)
         {
@@ -25662,10 +25617,10 @@ void Player::SendTalentsInfoData()
 
             groupInfoPkt.TalentIDs.push_back(groupInfo->Talents[x]);
         }
-        
+
         for (uint32 x = 0; x < MAX_GLYPH_SLOT_INDEX; ++x)
             groupInfoPkt.GlyphIDs[x] = groupInfo->Glyphs[x];
-        
+
         packet.Info.TalentGroups.push_back(groupInfoPkt);
     }
 

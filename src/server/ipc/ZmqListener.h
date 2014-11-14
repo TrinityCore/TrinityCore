@@ -24,8 +24,8 @@
 class ZmqListener : public ZMQTask
 {
 /*
- * Read broadcasts from remote PUB socket, and forward them to 
- * another socket. 
+ * Read broadcasts from remote PUB socket, and forward them to
+ * another socket.
  *
  * from - client SUB socket
  * to - listen PUSH socket

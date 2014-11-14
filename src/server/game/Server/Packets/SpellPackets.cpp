@@ -15,41 +15,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ZMQCONTEX_H
-#define __ZMQCONTEX_H
+#include "SpellPackets.h"
 
-#include <zmqpp/zmqpp.hpp>
-#include <mutex>
-
-/*
- * We need to serialize access to zmq context otherwise stuff blows up.
- */
-class ZmqContext
+WorldPacket const* WorldPackets::Spell::CategoryCooldown::Write()
 {
-public:
-    ~ZmqContext();
+    _worldPacket.reserve(4 + 8 * CategoryCooldowns.size());
 
-    static ZmqContext* Instance()
+    _worldPacket << uint32(CategoryCooldowns.size());
+
+    for (CategoryCooldownInfo const& cooldown : CategoryCooldowns)
     {
-        static ZmqContext instance;
-        return &instance;
+        _worldPacket << uint32(cooldown.Category);
+        _worldPacket << int32(cooldown.ModCooldown);
     }
 
-    zmqpp::socket* CreateNewSocket(zmqpp::socket_type);
-    void Initialize();
-    zmqpp::socket* CreateInprocSubscriber();
-    void Close();
+    return &_worldPacket;
+}
 
-private:
-    ZmqContext();
-    ZmqContext(ZmqContext const&) = delete;
-    ZmqContext& operator=(ZmqContext const&) = delete;
+WorldPacket const* WorldPackets::Spell::SendKnownSpells::Write()
+{
+    _worldPacket.reserve(1 + 4 * KnownSpells.size());
 
-    zmqpp::context _context;
-    std::mutex _mutex;
-    zmqpp::socket* _inproc;
-};
+    _worldPacket.WriteBit(InitialLogin);
+    _worldPacket << uint32(KnownSpells.size());
 
-#define sIpcContext ZmqContext::Instance()
+    for (uint32 spellId : KnownSpells)
+        _worldPacket << uint32(spellId);
 
-#endif
+    return &_worldPacket;
+}
