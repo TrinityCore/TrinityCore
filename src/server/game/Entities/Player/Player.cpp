@@ -5150,7 +5150,7 @@ void Player::RepopAtGraveyard()
     AreaTableEntry const* zone = GetAreaEntryByAreaID(GetAreaId());
 
     // Such zones are considered unreachable as a ghost and the player must be automatically revived
-    if ((!IsAlive() && zone && zone->flags & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < (zone ? zone->MaxDepth : -500.0f))
+    if ((!IsAlive() && zone && zone->Flags[0] & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < MAX_MAP_DEPTH)
     {
         ResurrectPlayer(0.5f);
         SpawnCorpseBones();
@@ -5176,27 +5176,27 @@ void Player::RepopAtGraveyard()
     // and don't show spirit healer location
     if (ClosestGrave)
     {
-        TeleportTo(ClosestGrave->map_id, ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, (ClosestGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
+        TeleportTo(ClosestGrave->MapID, ClosestGrave->Loc.X, ClosestGrave->Loc.Y, ClosestGrave->Loc.Z, (ClosestGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
             WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);  // show spirit healer position on minimap
-            data << ClosestGrave->map_id;
-            data << ClosestGrave->x;
-            data << ClosestGrave->y;
-            data << ClosestGrave->z;
+            data << ClosestGrave->MapID;
+            data << ClosestGrave->Loc.X;
+            data << ClosestGrave->Loc.Y;
+            data << ClosestGrave->Loc.Z;
             GetSession()->SendPacket(&data);
         }
     }
-    else if (GetPositionZ() < zone->MaxDepth)
+    else if (GetPositionZ() < MAX_MAP_DEPTH)
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
 }
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
 {
-    if (channel->Flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)
+    if (channel->Flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->Flags[0] & AREA_FLAG_ARENA_INSTANCE)
         return false;
 
-    if ((channel->Flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->flags & AREA_FLAG_SLAVE_CAPITAL)))
+    if ((channel->Flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->Flags[0] & AREA_FLAG_SLAVE_CAPITAL)))
         return false;
 
     if ((channel->Flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())
@@ -5241,7 +5241,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
     if (!cMgr)
         return;
 
-    std::string current_zone_name = current_zone->area_name;
+    std::string current_zone_name = current_zone->ZoneName;
 
     for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
     {
@@ -6439,7 +6439,7 @@ void Player::CheckAreaExploreAndOutdoor()
             return;
         }
 
-        if (areaEntry->area_level > 0)
+        if (areaEntry->ExplorationLevel > 0)
         {
             uint32 area = areaEntry->ID;
             if (getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
@@ -6448,7 +6448,7 @@ void Player::CheckAreaExploreAndOutdoor()
             }
             else
             {
-                int32 diff = int32(getLevel()) - areaEntry->area_level;
+                int32 diff = int32(getLevel()) - areaEntry->ExplorationLevel;
                 uint32 XP = 0;
                 if (diff < -5)
                 {
@@ -6460,11 +6460,11 @@ void Player::CheckAreaExploreAndOutdoor()
                     if (exploration_percent < 0)
                         exploration_percent = 0;
 
-                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level)*exploration_percent/100*sWorld->getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->ExplorationLevel)*exploration_percent/100*sWorld->getRate(RATE_XP_EXPLORE));
                 }
                 else
                 {
-                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level)*sWorld->getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->ExplorationLevel)*sWorld->getRate(RATE_XP_EXPLORE));
                 }
 
                 GiveXP(XP, NULL);
@@ -7399,7 +7399,7 @@ void Player::UpdateArea(uint32 newArea)
     m_areaUpdateId    = newArea;
 
     AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
-    pvpInfo.IsInFFAPvPArea = area && (area->flags & AREA_FLAG_ARENA);
+    pvpInfo.IsInFFAPvPArea = area && (area->Flags[0] & AREA_FLAG_ARENA);
     UpdatePvPState(true);
 
     UpdateAreaDependentAuras(newArea);
@@ -7417,7 +7417,7 @@ void Player::UpdateArea(uint32 newArea)
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
 
     uint32 const areaRestFlag = (GetTeam() == ALLIANCE) ? AREA_FLAG_REST_ZONE_ALLIANCE : AREA_FLAG_REST_ZONE_HORDE;
-    if (area && area->flags & areaRestFlag)
+    if (area && area->Flags[0] & areaRestFlag)
     {
         SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
         SetRestType(REST_TYPE_IN_FACTION_AREA);
@@ -7470,17 +7470,17 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     // in PvP, any not controlled zone (except zone->team == 6, default case)
     // in PvE, only opposition team capital
-    switch (zone->team)
+    switch (zone->FactionGroupMask)
     {
         case AREATEAM_ALLY:
-            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->Flags[0] & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_HORDE:
-            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zone->Flags[0] & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_NONE:
             // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
-            pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() || zone->flags & AREA_FLAG_WINTERGRASP;
+            pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() || zone->Flags[0] & AREA_FLAG_WINTERGRASP;
             break;
         default:                                            // 6 in fact
             pvpInfo.IsInHostileArea = false;
@@ -7490,7 +7490,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     // Treat players having a quest flagging for PvP as always in hostile area
     pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest();
 
-    if (zone->flags & AREA_FLAG_CAPITAL)                     // Is in a capital city
+    if (zone->Flags[0] & AREA_FLAG_CAPITAL) // Is in a capital city
     {
         if (!pvpInfo.IsHostile || zone->IsSanctuary())
         {
@@ -13631,7 +13631,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                                 if (item_rand)
                                 {
                                     // Search enchant_amount
-                                    for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
+                                    for (int k = 0; k < MAX_ITEM_RANDOM_PROPERTIES; ++k)
                                     {
                                         if (item_rand->Enchantment[k] == enchant_id)
                                         {
@@ -13657,7 +13657,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
                         if (item_rand)
                         {
-                            for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
+                            for (int k = 0; k < MAX_ITEM_RANDOM_PROPERTIES; ++k)
                             {
                                 if (item_rand->Enchantment[k] == enchant_id)
                                 {
@@ -13677,7 +13677,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
                         if (item_rand_suffix)
                         {
-                            for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
+                            for (int k = 0; k < MAX_ITEM_RANDOM_PROPERTIES; ++k)
                             {
                                 if (item_rand_suffix->Enchantment[k] == enchant_id)
                                 {
@@ -17175,8 +17175,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
             else                                                // have start node, to it
             {
                 TC_LOG_ERROR("entities.player", "%s have too short taxi destination list, teleport to original node.", GetGUID().ToString().c_str());
-                mapId = nodeEntry->map_id;
-                Relocate(nodeEntry->x, nodeEntry->y, nodeEntry->z, 0.0f);
+                mapId = nodeEntry->MapID;
+                Relocate(nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z, 0.0f);
             }
             m_taxi.ClearTaxiDestinations();
         }
@@ -17185,11 +17185,11 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         {
             // save source node as recall coord to prevent recall and fall from sky
             TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(node_id);
-            if (nodeEntry && nodeEntry->map_id == GetMapId())
+            if (nodeEntry && nodeEntry->MapID == GetMapId())
             {
                 ASSERT(nodeEntry);                                  // checked in m_taxi.LoadTaxiDestinationsFromString
-                mapId = nodeEntry->map_id;
-                Relocate(nodeEntry->x, nodeEntry->y, nodeEntry->z, 0.0f);
+                mapId = nodeEntry->MapID;
+                Relocate(nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z, 0.0f);
             }
 
             // flight will started later
@@ -21176,12 +21176,12 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
 
     // check node starting pos data set case if provided
-    if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
+    if (node->Pos.X != 0.0f || node->Pos.Y != 0.0f || node->Pos.Z != 0.0f)
     {
-        if (node->map_id != GetMapId() ||
-            (node->x - GetPositionX())*(node->x - GetPositionX())+
-            (node->y - GetPositionY())*(node->y - GetPositionY())+
-            (node->z - GetPositionZ())*(node->z - GetPositionZ()) >
+        if (node->MapID != GetMapId() ||
+            (node->Pos.X - GetPositionX())*(node->Pos.X - GetPositionX())+
+            (node->Pos.Y - GetPositionY())*(node->Pos.Y - GetPositionY())+
+            (node->Pos.Z - GetPositionZ())*(node->Pos.Z - GetPositionZ()) >
             (2*INTERACTION_DISTANCE)*(2*INTERACTION_DISTANCE)*(2*INTERACTION_DISTANCE))
         {
             GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
@@ -21284,7 +21284,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         TaxiNodesEntry const* lastPathNode = sTaxiNodesStore.LookupEntry(nodes[nodes.size()-1]);
         ASSERT(lastPathNode);
         m_taxi.ClearTaxiDestinations();
-        TeleportTo(lastPathNode->map_id, lastPathNode->x, lastPathNode->y, lastPathNode->z, GetOrientation());
+        TeleportTo(lastPathNode->MapID, lastPathNode->Pos.X, lastPathNode->Pos.Y, lastPathNode->Pos.Z, GetOrientation());
         return false;
     }
     else
@@ -21304,8 +21304,8 @@ bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/)
     std::vector<uint32> nodes;
 
     nodes.resize(2);
-    nodes[0] = entry->from;
-    nodes[1] = entry->to;
+    nodes[0] = entry->From;
+    nodes[1] = entry->To;
 
     return ActivateTaxiPathTo(nodes, NULL, spellid);
 }
@@ -21339,9 +21339,9 @@ void Player::ContinueTaxiFlight()
 
     float distPrev = MAP_SIZE*MAP_SIZE;
     float distNext =
-        (nodeList[0].x-GetPositionX())*(nodeList[0].x-GetPositionX())+
-        (nodeList[0].y-GetPositionY())*(nodeList[0].y-GetPositionY())+
-        (nodeList[0].z-GetPositionZ())*(nodeList[0].z-GetPositionZ());
+        (nodeList[0].Loc.X-GetPositionX())*(nodeList[0].Loc.X-GetPositionX())+
+        (nodeList[0].Loc.Y-GetPositionY())*(nodeList[0].Loc.Y-GetPositionY())+
+        (nodeList[0].Loc.Z-GetPositionZ())*(nodeList[0].Loc.Z-GetPositionZ());
 
     for (uint32 i = 1; i < nodeList.size(); ++i)
     {
@@ -21349,20 +21349,20 @@ void Player::ContinueTaxiFlight()
         TaxiPathNodeEntry const& prevNode = nodeList[i-1];
 
         // skip nodes at another map
-        if (node.mapid != GetMapId())
+        if (node.MapID != GetMapId())
             continue;
 
         distPrev = distNext;
 
         distNext =
-            (node.x-GetPositionX())*(node.x-GetPositionX())+
-            (node.y-GetPositionY())*(node.y-GetPositionY())+
-            (node.z-GetPositionZ())*(node.z-GetPositionZ());
+            (node.Loc.X-GetPositionX())*(node.Loc.X-GetPositionX())+
+            (node.Loc.Y-GetPositionY())*(node.Loc.Y-GetPositionY())+
+            (node.Loc.Z-GetPositionZ())*(node.Loc.Z-GetPositionZ());
 
         float distNodes =
-            (node.x-prevNode.x)*(node.x-prevNode.x)+
-            (node.y-prevNode.y)*(node.y-prevNode.y)+
-            (node.z-prevNode.z)*(node.z-prevNode.z);
+            (node.Loc.X-prevNode.Loc.X)*(node.Loc.X-prevNode.Loc.X)+
+            (node.Loc.Y-prevNode.Loc.Y)*(node.Loc.Y-prevNode.Loc.Y)+
+            (node.Loc.Z-prevNode.Loc.Z)*(node.Loc.Z-prevNode.Loc.Z);
 
         if (distNext + distPrev < distNodes)
         {
@@ -21666,12 +21666,6 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
             return false;
         }
 
-        if (iece->RequiredGuildLevel && iece->RequiredGuildLevel < GetGuildLevel())
-        {
-            SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // Find correct error
-            return false;
-        }
-
         if (iece->RequiredAchievement && !HasAchieved(iece->RequiredAchievement))
         {
             SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // Find correct error
@@ -21857,12 +21851,6 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         }
 
         if (iece->RequirementFlags & ITEM_EXT_COST_FLAG_REQUIRE_GUILD && !GetGuildId())
-        {
-            SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // Find correct error
-            return false;
-        }
-
-        if (iece->RequiredGuildLevel && iece->RequiredGuildLevel < GetGuildLevel())
         {
             SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // Find correct error
             return false;
@@ -22468,7 +22456,7 @@ void Player::SetBattlegroundEntryPoint()
         if (GetMap()->IsDungeon())
         {
             if (const WorldSafeLocsEntry* entry = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam()))
-                m_bgData.joinPos = WorldLocation(entry->map_id, entry->x, entry->y, entry->z, 0.0f);
+                m_bgData.joinPos = WorldLocation(entry->MapID, entry->Loc.X, entry->Loc.Y, entry->Loc.Z, 0.0f);
             else
                 TC_LOG_ERROR("entities.player", "SetBattlegroundEntryPoint: Dungeon map %u has no linked graveyard, setting home location as entry point.", GetMapId());
         }
@@ -26739,10 +26727,9 @@ std::string Player::GetMapAreaAndZoneString()
     std::string zoneName = "Unknown";
     if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
     {
-        int locale = GetSession()->GetSessionDbcLocale();
-        areaName = area->area_name[locale];
-        if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
-            zoneName = zone->area_name[locale];
+        areaName = area->ZoneName;
+        if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID))
+            zoneName = zone->ZoneName;
     }
 
     std::ostringstream str;

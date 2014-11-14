@@ -541,7 +541,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     if (VehicleCreate)
     {
         Unit const* unit = ToUnit();
-        *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->m_ID); // RecID
+        *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->ID); // RecID
         *data << float(unit->GetOrientation());                         // InitialRawFacing
     }
 

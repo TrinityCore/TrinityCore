@@ -19,6 +19,19 @@
 #ifndef DBCENUMS_H
 #define DBCENUMS_H
 
+struct DBCPosition2D
+{
+    float X;
+    float Y;
+};
+
+struct DBCPosition3D
+{
+    float X;
+    float Y;
+    float Z;
+};
+
 enum LevelLimit
 {
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"
@@ -49,7 +62,7 @@ enum AreaTeams
     AREATEAM_NONE  = 0,
     AREATEAM_ALLY  = 2,
     AREATEAM_HORDE = 4,
-    AREATEAM_ANY   = 6
+    AREATEAM_ANY   = AREATEAM_ALLY+AREATEAM_HORDE
 };
 
 enum AchievementFaction
