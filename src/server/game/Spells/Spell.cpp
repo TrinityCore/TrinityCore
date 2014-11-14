@@ -3555,7 +3555,7 @@ void Spell::SendSpellCooldown()
     {
         // Handle pet cooldowns here if needed instead of in PetAI to avoid hidden cooldown restarts
         Creature* _creature = m_caster->ToCreature();
-        if (_creature && _creature->IsPet())
+        if (_creature && (_creature->IsPet() || _creature->IsGuardian()))
             _creature->AddCreatureSpellCooldown(m_spellInfo->Id);
 
         return;
