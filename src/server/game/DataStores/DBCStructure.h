@@ -981,10 +981,12 @@ struct DungeonEncounterEntry
     uint32      MapID;                                      // 1
     uint32      DifficultyID;                               // 2
     uint32      OrderIndex;                                 // 3
-    //uint32    Bit;                                        // 4
+    uint32    Bit;                                          // 4
     char*       Name_lang;                                  // 5
-    //uint32    CreatureDisplayID;                          // 6
-    //uint32    Flags;                                      // 7
+    uint32      CreatureDisplayID;                          // 6
+    uint32      Flags;                                      // 7
+    uint32      Unk;                                        // 8  
+
 };
 
 struct DurabilityCostsEntry
