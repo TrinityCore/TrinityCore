@@ -7750,10 +7750,10 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         // If set ScalingStatDistribution need get stats and values from it
         if (ssd && ssv)
         {
-            if (ssd->StatID[i] < 0)
-                continue;
-            statType = ssd->StatID[i];
-            val = (ssv->GetStatMultiplier(proto->InventoryType) * ssd->Modifier[i]) / 10000;
+            //if (ssd->StatID[i] < 0)
+            //    continue;
+            //statType = ssd->StatID[i];
+            //val = (ssv->GetStatMultiplier(proto->InventoryType) * ssd->Modifier[i]) / 10000;
         }
         else
         {
