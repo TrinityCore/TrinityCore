@@ -150,16 +150,6 @@ struct KeyChainEntry
     uint8       Key[KEYCHAIN_SIZE];
 };
 
-#define MAX_OVERRIDE_SPELL 10
-
-struct OverrideSpellDataEntry
-{
-	uint32      ID;                                         // 0
-	uint32      SpellID[MAX_OVERRIDE_SPELL];                // 1-10
-	uint32      Flags;                                      // 11
-	uint32      PlayerActionbarFileDataID;                  // 12
-};
-
 struct SpellAuraRestrictionsEntry
 {
     //uint32    ID;                                         // 0
