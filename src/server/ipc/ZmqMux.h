@@ -23,7 +23,7 @@
 #include <boost/thread/tss.hpp>
 
 /*
- * Multiplexes zmq messages from many threads, 
+ * Multiplexes zmq messages from many threads,
  * and then passes them to another socket.
  */
 class ZmqMux : public ZMQTask

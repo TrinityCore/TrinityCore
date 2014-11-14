@@ -865,7 +865,7 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
 SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects)
 {
     Id = spellEntry->ID;
-    
+
     SpellName = spellEntry->Name_lang;
     //Rank = spellEntry->Rank;
     RuneCostID = spellEntry->RuneCostID;
@@ -886,7 +886,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     SpellTargetRestrictionsId = spellEntry->TargetRestrictionsID;
     SpellTotemsId = spellEntry->TotemsID;
     SpellMiscId = spellEntry->MiscID;
-    
+
     // SpellMiscEntry
     SpellMiscEntry const* _misc = GetSpellMisc();
     Attributes = _misc ? _misc->Attributes : 0;

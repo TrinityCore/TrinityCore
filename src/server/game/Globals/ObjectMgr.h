@@ -1353,7 +1353,7 @@ class ObjectMgr
         void LoadRealmNames();
 
         std::string GetRealmName(uint32 realm) const;
-        
+
         ExpansionRequirementContainer const& GetRaceExpansionRequirements() const { return _raceExpansionRequirementStore; }
         uint8 GetRaceExpansionRequirement(uint8 race) const
         {
@@ -1362,7 +1362,7 @@ class ObjectMgr
                 return itr->second;
             return EXPANSION_CLASSIC;
         }
-        
+
         ExpansionRequirementContainer const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
         uint8 GetClassExpansionRequirement(uint8 class_) const
         {

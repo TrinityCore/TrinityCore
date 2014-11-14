@@ -32,6 +32,7 @@
 #include "MapManager.h"
 #include "BattlenetAccountMgr.h"
 #include "CharacterPackets.h"
+#include "QueryPackets.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
@@ -86,84 +87,48 @@ void WorldSession::SendQueryTimeResponse()
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packet)
 {
-    uint32 entry;
-    recvData >> entry;
-    ObjectGuid guid;
-    recvData >> guid;
+    WorldPackets::Query::QueryCreatureResponse response;
 
-    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
+    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(packet.CreatureID);
+
+    response.CreatureID = packet.CreatureID;
+
     if (creatureInfo)
     {
-        std::string Name, FemaleName, SubName;
-        Name = creatureInfo->Name;
-        FemaleName = creatureInfo->FemaleName;
-        SubName = creatureInfo->SubName;
+        response.Allow = true;
 
-        LocaleConstant locale = GetSessionDbLocaleIndex();
-        if (locale >= 0)
-        {
-            if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(entry))
-            {
-                ObjectMgr::GetLocaleString(creatureLocale->Name, locale, Name);
-                ObjectMgr::GetLocaleString(creatureLocale->FemaleName, locale, FemaleName);
-                ObjectMgr::GetLocaleString(creatureLocale->SubName, locale, SubName);
-            }
-        }
+        WorldPackets::Query::CreatureStats& stats = response.Stats;
 
-        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", creatureInfo->Name.c_str(), entry);
-
-        WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 100);          // guess size
-        data << uint32(entry);                                        // creature entry
-        data << Name;                                                 // Name
-
-        for (uint8 i = 0; i < 3; i++)
-            data << uint8(0);                                         // name2, ..., name3
-
-        data << FemaleName;                                           // FemaleName
-
-        for (uint8 i = 0; i < 3; i++)
-            data << uint8(0);                                         // name5, ..., name8
-
-        data << SubName;                                              // SubName
-        data << creatureInfo->IconName;                               // "Directions" for guard, string for Icons 2.3.0
-        data << uint32(creatureInfo->type_flags);                     // flags
-        data << uint32(creatureInfo->type_flags2);                    // unknown meaning
-        data << uint32(creatureInfo->type);                           // CreatureType.dbc
-        data << uint32(creatureInfo->family);                         // CreatureFamily.dbc
-        data << uint32(creatureInfo->rank);                           // Creature Rank (elite, boss, etc)
-        data << uint32(creatureInfo->KillCredit[0]);                  // new in 3.1, kill credit
-        data << uint32(creatureInfo->KillCredit[1]);                  // new in 3.1, kill credit
-        data << uint32(creatureInfo->Modelid1);                       // Modelid1
-        data << uint32(creatureInfo->Modelid2);                       // Modelid2
-        data << uint32(creatureInfo->Modelid3);                       // Modelid3
-        data << uint32(creatureInfo->Modelid4);                       // Modelid4
-        data << float(creatureInfo->ModHealth);                       // dmg/hp modifier
-        data << float(creatureInfo->ModMana);                         // dmg/mana modifier
-        data << uint8(creatureInfo->RacialLeader);                    // RacialLeader
-
+        stats.Title = creatureInfo->SubName;
+        stats.CursorName = creatureInfo->IconName;
+        stats.CreatureType = creatureInfo->type;
+        stats.CreatureFamily = creatureInfo->family;
+        stats.Classification = creatureInfo->rank;
+        stats.HpMulti = creatureInfo->ModHealth;
+        stats.EnergyMulti = creatureInfo->ModMana;
+        stats.Leader = creatureInfo->RacialLeader;
         for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            data << uint32(creatureInfo->questItems[i]);              // itemId[6], quest drop
-
-        data << uint32(creatureInfo->movementId);                     // CreatureMovementInfo.dbc
-        data << uint32(creatureInfo->expansionUnknown);               // unknown meaning
-
-        SendPacket(&data);
-
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
+            if (creatureInfo->questItems[i])
+                stats.QuestItems.push_back(creatureInfo->questItems[i]);
+        stats.CreatureMovementInfoID = creatureInfo->movementId;
+        stats.RequiredExpansion = creatureInfo->expansionUnknown;
+        stats.Flags[0] = creatureInfo->type_flags;
+        stats.Flags[1] = creatureInfo->type_flags2;
+        for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
+            stats.ProxyCreatureID[i] = creatureInfo->KillCredit[i];
+        stats.CreatureDisplayID[0] = creatureInfo->Modelid1;
+        stats.CreatureDisplayID[1] = creatureInfo->Modelid2;
+        stats.CreatureDisplayID[2] = creatureInfo->Modelid3;
+        stats.CreatureDisplayID[3] = creatureInfo->Modelid4;
+        stats.Name[0] = creatureInfo->Name;
+        stats.NameAlt[0] = creatureInfo->FemaleName;
     }
     else
-    {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY - NO CREATURE INFO! (%s, ENTRY: %u)",
-            guid.ToString().c_str(), entry);
+        response.Allow = false;
 
-        WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 4);
-        data << uint32(entry | 0x80000000);
-        SendPacket(&data);
-
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
-    }
+    SendPacket(response.Write());
 }
 
 /// Only _static_ data is sent in this packet !!!
