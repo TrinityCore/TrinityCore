@@ -1032,6 +1032,9 @@ class WorldSession
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);
+
+        void SendSpellCategoryCooldowns();
+
         int32 HandleEnableNagleAlgorithm();
 
         // Compact Unit Frames (4.x)
