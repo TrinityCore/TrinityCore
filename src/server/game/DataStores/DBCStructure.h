@@ -572,6 +572,9 @@ struct AreaTableEntry
     //uint32 unk23;                                         // 23 4.0.0
     //uint32 unk24;                                         // 24 - worldStateId
     //uint32 unk25                                          // 25
+    //uint32 unk26                                          // 27
+    //uint32 unk27                                          // 28
+    //uint32 unk28                                          // 29
 
     // helpers
     bool IsSanctuary() const
@@ -676,16 +679,16 @@ struct BattlemasterListEntry
 
 struct CharStartOutfitEntry
 {
-    //uint32    ID;                                         // 0
+    uint32      ID;                                         // 0 Not index 
     uint8       RaceID;                                     // 1
     uint8       ClassID;                                    // 2
     uint8       GenderID;                                   // 3
-    //uint8     OutfitID;                                   // 4
+    uint8       OutfitID;                                   // 4
     int32       ItemID[MAX_OUTFIT_ITEMS];                   // 5-28
     //int32     ItemDisplayID[MAX_OUTFIT_ITEMS];            // 29-52 not required at server side
     //int32     InventoryType[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
-    uint32      PetDisplayID;                               // 77 Pet Model ID for starting pet
-    uint32      PetFamilyID;                                // 78 Pet Family Entry for starting pet
+    uint32      PetDisplayID;                               // 29 Pet Model ID for starting pet
+    uint32      PetFamilyID;                                // 30 Pet Family Entry for starting pet
 };
 
 struct CharTitlesEntry
@@ -828,17 +831,18 @@ struct CreatureDisplayInfoEntry
 
 struct CreatureDisplayInfoExtraEntry
 {
-    //uint32    ID;                                         // 0
+    uint32    ID;                                           // 0
     uint32      DisplayRaceID;                              // 1
-    //uint32    DisplaySexID;                               // 2
-    //uint32    SkinID;                                     // 3
-    //uint32    FaceID;                                     // 4
-    //uint32    HairStyleID;                                // 5
-    //uint32    HairColorID;                                // 6
-    //uint32    FacialHairID;                               // 7
-    //uint32    NPCItemDisplay[11];                         // 8-18
-    //uint32    Flags;                                      // 19
-    //char*     FileName;                                   // 20
+    uint32    DisplaySexID;                                 // 2
+    uint32    SkinID;                                       // 3
+    uint32    FaceID;                                       // 4
+    uint32    HairStyleID;                                  // 5
+    uint32    HairColorID;                                  // 6
+    uint32    FacialHairID;                                 // 7
+    uint32    NPCItemDisplay[11];                           // 8-18
+    uint32    Flags;                                        // 19
+    uint32    FileName;                                     // 20
+    uint32    Unk;                                          // 21  6.0.3
 };
 
 struct CreatureFamilyEntry
@@ -977,10 +981,12 @@ struct DungeonEncounterEntry
     uint32      MapID;                                      // 1
     uint32      DifficultyID;                               // 2
     uint32      OrderIndex;                                 // 3
-    //uint32    Bit;                                        // 4
+    uint32    Bit;                                          // 4
     char*       Name_lang;                                  // 5
-    //uint32    CreatureDisplayID;                          // 6
-    //uint32    Flags;                                      // 7
+    uint32      CreatureDisplayID;                          // 6
+    uint32      Flags;                                      // 7
+    uint32      Unk;                                        // 8  
+
 };
 
 struct DurabilityCostsEntry
