@@ -115,6 +115,11 @@ namespace WorldPackets
     {
         class QueryCreature;
     }
+
+    namespace Movement
+    {
+        class ClientPlayerMovement;
+    }
 }
 
 enum AccountDataType
@@ -591,7 +596,7 @@ class WorldSession
         void HandleMoveWorldportAckOpcode(WorldPacket& recvPacket);
         void HandleMoveWorldportAckOpcode();                // for server-side calls
 
-        void HandleMovementOpcodes(WorldPacket& recvPacket);
+        void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
         void HandleSetActiveMoverOpcode(WorldPacket& recvData);
         void HandleMoveNotActiveMover(WorldPacket& recvData);
         void HandleDismissControlledVehicle(WorldPacket& recvData);
