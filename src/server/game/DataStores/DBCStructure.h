@@ -831,17 +831,18 @@ struct CreatureDisplayInfoEntry
 
 struct CreatureDisplayInfoExtraEntry
 {
-    //uint32    ID;                                         // 0
+    uint32    ID;                                           // 0
     uint32      DisplayRaceID;                              // 1
-    //uint32    DisplaySexID;                               // 2
-    //uint32    SkinID;                                     // 3
-    //uint32    FaceID;                                     // 4
-    //uint32    HairStyleID;                                // 5
-    //uint32    HairColorID;                                // 6
-    //uint32    FacialHairID;                               // 7
-    //uint32    NPCItemDisplay[11];                         // 8-18
-    //uint32    Flags;                                      // 19
-    //char*     FileName;                                   // 20
+    uint32    DisplaySexID;                                 // 2
+    uint32    SkinID;                                       // 3
+    uint32    FaceID;                                       // 4
+    uint32    HairStyleID;                                  // 5
+    uint32    HairColorID;                                  // 6
+    uint32    FacialHairID;                                 // 7
+    uint32    NPCItemDisplay[11];                           // 8-18
+    uint32    Flags;                                        // 19
+    uint32    FileName;                                     // 20
+    uint32    Unk;                                          // 21  6.0.3
 };
 
 struct CreatureFamilyEntry
