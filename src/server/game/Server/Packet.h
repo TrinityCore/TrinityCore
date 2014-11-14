@@ -54,11 +54,14 @@ namespace WorldPackets
         void Read() override final { ASSERT(!"Read not implemented for server packets."); }
 
         void Reset() { _worldPacket.clear(); }
+
+        OpcodeServer GetOpcode() const { return OpcodeServer(_worldPacket.GetOpcode()); }
     };
 
     class ClientPacket : public Packet
     {
     public:
+        ClientPacket(WorldPacket&& packet) : Packet(std::move(packet)) { }
         ClientPacket(OpcodeClient expectedOpcode, WorldPacket&& packet) : Packet(std::move(packet)) { ASSERT(packet.GetOpcode() == expectedOpcode); }
 
         WorldPacket const* Write() override final
@@ -67,6 +70,8 @@ namespace WorldPackets
             // Shut up some compilers
             return nullptr;
         }
+
+        OpcodeClient GetOpcode() const { return OpcodeClient(_worldPacket.GetOpcode()); }
     };
 }
 
