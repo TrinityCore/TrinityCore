@@ -1841,6 +1841,7 @@ class Player : public Unit, public GridObject<Player>
         bool LearnTalent(uint32 talentId);
         bool AddTalent(uint32 talentId, uint8 spec);
         bool HasTalent(uint32 talentId, uint8 spec);
+        void LearnTalentSpecialization(uint32 talentSpec);
 
         // Dual Spec
         void UpdateTalentGroupCount(uint8 count);

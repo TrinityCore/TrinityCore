@@ -106,6 +106,11 @@ namespace WorldPackets
     {
         class QueryGuildInfo;
     }
+    
+    namespace Talent
+    {
+        class SetSpecialization;
+    }
 
     namespace Trade
     {
@@ -787,6 +792,7 @@ class WorldSession
         void HandleLearnPreviewTalents(WorldPacket& recvPacket);
         void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
+        void HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverStatusMultipleQuery(WorldPacket& recvPacket);

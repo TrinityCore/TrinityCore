@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "DBCStore.h"
 #include "DBCStructure.h"
+#include "SharedDefines.h"
 
 #include <list>
 
@@ -90,6 +91,7 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
 
 typedef std::set<SpecializationSpellsEntry const*> SpecializationSpellsBySpecEntry;
 typedef std::unordered_map<uint32, SpecializationSpellsBySpecEntry> SpecializationSpellsBySpecStore;
+typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES][MAX_SPECIALIZATIONS];
 typedef std::unordered_map<uint32, TalentEntry const*> TalentBySpellIDMap;
 
 extern DBCStorage <AchievementEntry>             sAchievementStore;
@@ -110,6 +112,7 @@ extern DBCStorage <ChrClassesEntry>              sChrClassesStore;
 extern DBCStorage <ChrRacesEntry>                sChrRacesStore;
 extern DBCStorage <ChrPowerTypesEntry>           sChrPowerTypesStore;
 extern DBCStorage <ChrSpecializationEntry>       sChrSpecializationStore;
+extern ChrSpecializationByIndexArray             sChrSpecializationByIndexStore;
 extern DBCStorage <CinematicSequencesEntry>      sCinematicSequencesStore;
 extern DBCStorage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStore;
 extern DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore;
