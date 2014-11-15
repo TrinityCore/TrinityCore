@@ -64,6 +64,16 @@ namespace WorldPackets
 
             uint32 Time = 0;
         };
+        
+        class TutorialFlags : public ServerPacket
+        {
+        public:
+            TutorialFlags() : ServerPacket(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 32) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TutorialData[8];
+        };
     }
 }
 
