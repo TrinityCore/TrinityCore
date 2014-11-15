@@ -91,6 +91,13 @@ WorldPacket const* WorldPackets::Misc::UITime::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::TutorialFlags::Write()
+{
+    _worldPacket.append(TutorialData.data(), MAX_ACCOUNT_TUTORIAL_VALUES);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()
 {
     _worldPacket << uint32(Remaining);

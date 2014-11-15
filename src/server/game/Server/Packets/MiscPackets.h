@@ -151,6 +151,16 @@ namespace WorldPackets
             uint32 Time = 0;
         };
 
+        class TutorialFlags : public ServerPacket
+        {
+        public:
+            explicit TutorialFlags() : ServerPacket(SMSG_TUTORIAL_FLAGS, 32) { }
+
+            WorldPacket const* Write() override;
+
+            std::array<uint32, MAX_ACCOUNT_TUTORIAL_VALUES> TutorialData = { };
+        };
+
         class CorpseReclaimDelay : public ServerPacket
         {
         public:
