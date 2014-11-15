@@ -1479,6 +1479,9 @@ struct LFGDungeonEntry
     //uint32    BonusReputationAmount;                      // 23
     //uint32    MentorCharLevel;                            // 24
     //uint32    MentorItemLevel;                            // 25
+    //uint32    Unk1;                                       // 26 6.0.3
+    //uint32    Unk2;                                       // 27 6.0.3
+    //uint32    Unk3;                                       // 28 6.0.3
 
     // Helpers
     uint32 Entry() const { return ID + (Type << 24); }
@@ -1514,7 +1517,7 @@ struct LiquidTypeEntry
     //char*     Texture[6];                                 // 15-20
     //uint32    Color[2];                                   // 21-23
     //float     Unk1[18];                                   // 24-41
-    //uint32    Unk2[4];                                    // 42-45
+    //uint32    Unk2[9];                                    // 42-50
 };
 
 #define MAX_LOCK_CASE 8
@@ -1531,8 +1534,7 @@ struct LockEntry
 struct PhaseEntry
 {
     uint32      ID;                                         // 0
-    char*       Name;                                       // 1
-    uint32      Flaga;                                      // 2
+    uint32      Flaga;                                      // 1
 };
 
 struct PhaseGroupEntry
@@ -1612,6 +1614,7 @@ struct MapDifficultyEntry
     uint32      RaidDuration;                               // 4 m_raidDuration in secs, 0 if no fixed reset time
     uint32      MaxPlayers;                                 // 5 m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
     //char*     LockID;                                     // 6
+    //uint32    Unk;                                        // 7 6.0.2
 };
 
 struct MinorTalentEntry
@@ -1730,10 +1733,11 @@ struct ScalingStatValuesEntry
 {
     uint32      ID;                                         // 0
     uint32      CharLevel;                                  // 1
-    uint32      DPSMod[6];                                  // 2-7 DPS mod for level
-    uint32      SpellPower;                                 // 8 spell power for level
-    uint32      StatMultiplier[5];                          // 9-13 Multiplier for ScalingStatDistribution
-    uint32      Armor[8][4];                                // 14-46 Armor for level
+    uint32      Unk;                                        // 3
+    uint32      DPSMod[6];                                  // 4-8 DPS mod for level
+    uint32      SpellPower;                                 // 9 spell power for level
+    uint32      StatMultiplier[5];                          // 10-14 Multiplier for ScalingStatDistribution
+    uint32      Armor[8][4];                                // 15-46 Armor for level
     uint32      ArmorBack;                                  // 47
     uint32      ArmorShield;                                // 48
 
