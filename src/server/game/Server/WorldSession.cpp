@@ -50,6 +50,7 @@
 #include "BattlenetServerManager.h"
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
+#include "MiscPackets.h"
 
 namespace {
 
@@ -767,10 +768,9 @@ void WorldSession::LoadTutorialsData()
 
 void WorldSession::SendTutorialsData()
 {
-    WorldPacket data(SMSG_TUTORIAL_FLAGS, 4 * MAX_ACCOUNT_TUTORIAL_VALUES);
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        data << m_Tutorials[i];
-    SendPacket(&data);
+    WorldPackets::Misc::TutorialFlags packet;
+    memcpy(packet.TutorialData, m_Tutorials, sizeof(packet.TutorialData));
+    SendPacket(packet.Write());
 }
 
 void WorldSession::SaveTutorialsData(SQLTransaction &trans)
