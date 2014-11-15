@@ -284,8 +284,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owne
     SetUInt32Value(ITEM_FIELD_MAXDURABILITY, itemProto->MaxDurability);
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
 
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-        SetSpellCharges(i, itemProto->Spells[i].SpellCharges);
+    for (uint8 i = 0; i < itemProto->Effects.size(); ++i)
+        SetSpellCharges(i, itemProto->Effects[i].Charges);
 
     SetUInt32Value(ITEM_FIELD_DURATION, itemProto->Duration);
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
@@ -340,8 +340,9 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_DURATION));
 
             std::ostringstream ssSpells;
-            for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-                ssSpells << GetSpellCharges(i) << ' ';
+            if (ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(GetEntry()))
+                for (uint8 i = 0; i < itemProto->Effects.size(); ++i)
+                    ssSpells << GetSpellCharges(i) << ' ';
             stmt->setString(++index, ssSpells.str());
 
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_FLAGS));
@@ -440,9 +441,9 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         need_save = true;
     }
 
-    Tokenizer tokens(fields[4].GetString(), ' ', MAX_ITEM_PROTO_SPELLS);
-    if (tokens.size() == MAX_ITEM_PROTO_SPELLS)
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    Tokenizer tokens(fields[4].GetString(), ' ', proto->Effects.size());
+    if (tokens.size() == proto->Effects.size())
+        for (uint8 i = 0; i < proto->Effects.size(); ++i)
             SetSpellCharges(i, atoi(tokens[i]));
 
     SetUInt32Value(ITEM_FIELD_FLAGS, fields[5].GetUInt32());
@@ -1236,7 +1237,7 @@ bool Item::CanBeTransmogrified() const
     if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
+    if (proto->Flags[1] & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
         return false;
 
     if (!HasStats())
@@ -1252,7 +1253,7 @@ bool Item::CanTransmogrify() const
     if (!proto)
         return false;
 
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
+    if (proto->Flags[1] & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
         return false;
 
     if (proto->Quality == ITEM_QUALITY_LEGENDARY)
@@ -1265,7 +1266,7 @@ bool Item::CanTransmogrify() const
     if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+    if (proto->Flags[1] & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
         return true;
 
     if (!HasStats())
@@ -1326,7 +1327,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
 {
     normalSellPrice = true;
 
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
+    if (proto->Flags[1] & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
     {
         return proto->BuyPrice;
     }
@@ -1437,7 +1438,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
         }
 
         normalSellPrice = false;
-        return uint32(qualityFactor * proto->Unk430_2 * proto->Unk430_1 * typeFactor * baseFactor);
+        return uint32(qualityFactor * proto->Unk1 * proto->Unk2 * typeFactor * baseFactor);
     }
 }
 
@@ -1445,7 +1446,7 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
 {
     uint32 cost = 0;
 
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
+    if (proto->Flags[1] & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
         cost = proto->SellPrice;
     else
     {

@@ -15,25 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MiscPackets_h__
-#define MiscPackets_h__
+#ifndef MovementPackets_h__
+#define MovementPackets_h__
 
 #include "Packet.h"
 
 namespace WorldPackets
 {
-    namespace Misc
+    namespace Movement
     {
-        class ViolenceLevel final : public ClientPacket
+        class ClientPlayerMovement final : public ClientPacket
         {
         public:
-            ViolenceLevel(WorldPacket&& packet) : ClientPacket(CMSG_VIOLENCE_LEVEL, std::move(packet)) { }
+            ClientPlayerMovement(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 
-            int8 ViolenceLvl = -1; ///< 0 - no combat effects, 1 - display some combat effects, 2 - blood, 3 - bloody, 4 - bloodier, 5 - bloodiest
+            MovementInfo movementInfo;
+        };
+
+        class ServerPlayerMovement final : public ServerPacket
+        {
+        public:
+            ServerPlayerMovement() : ServerPacket(SMSG_PLAYER_MOVE) {}
+
+            WorldPacket const* Write() override;
+
+            Unit* mover;
         };
     }
 }
 
-#endif // MiscPackets_h__
+#endif // MovementPackets_h__

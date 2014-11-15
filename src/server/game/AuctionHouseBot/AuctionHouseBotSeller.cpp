@@ -320,7 +320,7 @@ bool AuctionBotSeller::Initialize()
                             continue;
                 }
 
-                if (prototype->Flags & ITEM_FLAG_UNLOCKED)
+                if (prototype->Flags[0] & ITEM_FLAG_UNLOCKED)
                 {
                     // skip any not locked lootable items (mostly quest specific or reward cases)
                     if (!prototype->LockID)
