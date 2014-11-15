@@ -34,3 +34,10 @@ void WorldPackets::Misc::TimeSyncResponse::Read()
     _worldPacket >> SequenceIndex;
     _worldPacket >> ClientTime;
 }
+
+WorldPacket const* WorldPackets::Misc::UITime::Write()
+{
+    _worldPacket << Time;
+
+    return &_worldPacket;
+}
