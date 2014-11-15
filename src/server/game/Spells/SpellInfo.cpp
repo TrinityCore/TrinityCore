@@ -909,7 +909,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     Speed = _misc ? _misc->Speed : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
     AttributesCu = 0;
-    //PowerType = _misc ? _misc->powerType : 0;
+
     for (uint8 i = 0; i < 2; ++i)
         SpellVisual[i] = _misc ? _misc->SpellVisualID[i] : 0;
 
@@ -998,6 +998,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     ManaCostPerlevel = _power ? _power->ManaCostPerLevel : 0;
     ManaCostPercentage = _power ? _power->ManaCostPercentage : 0;
     ManaPerSecond = _power ? _power->ManaCostPerSecond : 0;
+    PowerType = _power ? _power->PowerType : 0;
 
     // SpellReagentsEntry
     SpellReagentsEntry const* _reagents = GetSpellReagents();

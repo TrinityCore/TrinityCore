@@ -39,7 +39,7 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
 
-    WorldPackets::Character::PlayerNameResponse response;
+    WorldPackets::Query::QueryPlayerNameResponse response;
     response.Player = guid;
 
     if (characterInfo)
@@ -68,7 +68,7 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleNameQueryOpcode(WorldPackets::Character::QueryPlayerName& packet)
+void WorldSession::HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet)
 {
     SendNameQueryOpcode(packet.Player);
 }
@@ -326,41 +326,39 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_PAGE_TEXT_QUERY");
-
-    uint32 pageID;
-    recvData >> pageID;
-    recvData.read_skip<uint64>();                          // guid
+    
+    uint32 pageID = packet.PageTextID;
 
     while (pageID)
     {
         PageText const* pageText = sObjectMgr->GetPageText(pageID);
-                                                            // guess size
-        WorldPacket data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
-        data << pageID;
+
+        WorldPackets::Query::QueryPageTextResponse response;
+        response.PageTextID = pageID;
 
         if (!pageText)
         {
-            data << "Item page missing.";
-            data << uint32(0);
+            response.Allow = false;
             pageID = 0;
         }
         else
         {
-            std::string Text = pageText->Text;
-
+            response.Allow = true;
+            response.Info.ID = pageID;
+            
             int loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
                 if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(player->Text, loc_idx, Text);
+                    ObjectMgr::GetLocaleString(player->Text, loc_idx, response.Info.Text);
 
-            data << Text;
-            data << uint32(pageText->NextPageID);
+            response.Info.NextPageID = pageText->NextPageID;
             pageID = pageText->NextPageID;
         }
-        SendPacket(&data);
+        
+        SendPacket(response.Write());
 
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE");
     }

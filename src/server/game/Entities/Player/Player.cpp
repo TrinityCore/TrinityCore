@@ -86,6 +86,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
+#include "MiscPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -1145,14 +1146,17 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
             // special amount for food/drink
             if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
             {
-                switch (iProto->Effects[0].Category)
+                if (iProto->Effects.size() >= 1)
                 {
-                    case SPELL_CATEGORY_FOOD:                                // food
-                        count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
-                        break;
-                    case SPELL_CATEGORY_DRINK:                                // drink
-                        count = 2;
-                        break;
+                    switch (iProto->Effects[0].Category)
+                    {
+                        case SPELL_CATEGORY_FOOD:                                // food
+                            count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
+                            break;
+                        case SPELL_CATEGORY_DRINK:                                // drink
+                            count = 2;
+                            break;
+                    }
                 }
                 if (iProto->GetMaxStackSize() < count)
                     count = iProto->GetMaxStackSize();
@@ -8358,25 +8362,28 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
 {
     ItemTemplate const* proto = item->GetTemplate();
     // special learning case
-    if (proto->Effects[0].SpellID == 483 || proto->Effects[0].SpellID == 55884)
+    if (proto->Effects.size() >= 2)
     {
-        uint32 learn_spell_id = proto->Effects[0].SpellID;
-        uint32 learning_spell_id = proto->Effects[1].SpellID;
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
-        if (!spellInfo)
+        if (proto->Effects[0].SpellID == 483 || proto->Effects[0].SpellID == 55884)
         {
-            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring ", proto->ItemId, learn_spell_id);
-            SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, item, NULL);
+            uint32 learn_spell_id = proto->Effects[0].SpellID;
+            uint32 learning_spell_id = proto->Effects[1].SpellID;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
+            if (!spellInfo)
+            {
+                TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring ", proto->ItemId, learn_spell_id);
+                SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, item, NULL);
+                return;
+            }
+
+            Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
+            spell->m_CastItem = item;
+            spell->m_cast_count = cast_count;                   //set count of casts
+            spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
+            spell->prepare(&targets);
             return;
         }
-
-        Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
-        spell->m_CastItem = item;
-        spell->m_cast_count = cast_count;                   //set count of casts
-        spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
-        spell->prepare(&targets);
-        return;
     }
 
     // use triggered flag only for items with many spell casts and for not first cast
@@ -11537,9 +11544,10 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
         return EQUIP_ERR_CLIENT_LOCKED_OUT;
 
     // learning (recipes, mounts, pets, etc.)
-    if (proto->Effects[0].SpellID == 483 || proto->Effects[0].SpellID == 55884)
-        if (HasSpell(proto->Effects[1].SpellID))
-            return EQUIP_ERR_INTERNAL_BAG_ERROR;
+    if (proto->Effects.size() >= 2)
+        if (proto->Effects[0].SpellID == 483 || proto->Effects[0].SpellID == 55884)
+            if (HasSpell(proto->Effects[1].SpellID))
+                return EQUIP_ERR_INTERNAL_BAG_ERROR;
 
     return EQUIP_ERR_OK;
 }
@@ -26163,9 +26171,9 @@ void Player::SendTimeSync()
 {
     m_timeSyncQueue.push(m_movementCounter++);
 
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
-    data << uint32(m_timeSyncQueue.back());
-    GetSession()->SendPacket(&data);
+    WorldPackets::Misc::TimeSyncRequest packet;
+    packet.SequenceIndex = m_timeSyncQueue.back();
+    GetSession()->SendPacket(packet.Write());
 
     // Schedule next sync in 10 sec
     m_timeSyncTimer = 10000;

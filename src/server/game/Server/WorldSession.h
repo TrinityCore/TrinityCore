@@ -94,7 +94,6 @@ namespace WorldPackets
         class LogoutRequest;
         class LogoutCancel;
         class LoadingScreenNotify;
-        class QueryPlayerName;
     }
 
     namespace Guild
@@ -110,11 +109,14 @@ namespace WorldPackets
     namespace Misc
     {
         class ViolenceLevel;
+        class TimeSyncResponse;
     }
 
     namespace Query
     {
         class QueryCreature;
+        class QueryPlayerName;
+        class QueryPageText;
     }
 
     namespace Movement
@@ -586,7 +588,7 @@ class WorldSession
         void HandleMeetingStoneInfo(WorldPacket& recPacket);
         void HandleGameobjectReportUse(WorldPacket& recvPacket);
 
-        void HandleNameQueryOpcode(WorldPackets::Character::QueryPlayerName& packet);
+        void HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet);
 
         void HandleQueryTimeOpcode(WorldPacket& recvPacket);
 
@@ -839,7 +841,7 @@ class WorldSession
         void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
 
-        void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
+        void HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet);
 
         void HandleTutorialFlag (WorldPacket& recvData);
         void HandleTutorialClear(WorldPacket& recvData);
@@ -899,7 +901,7 @@ class WorldSession
         void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
         void HandleSetTitleOpcode(WorldPacket& recvData);
         void HandleRealmSplitOpcode(WorldPacket& recvData);
-        void HandleTimeSyncResp(WorldPacket& recvData);
+        void HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& packet);
         void HandleWhoisOpcode(WorldPacket& recvData);
         void HandleResetInstancesOpcode(WorldPacket& recvData);
         void HandleHearthAndResurrect(WorldPacket& recvData);
