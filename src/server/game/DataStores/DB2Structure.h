@@ -336,8 +336,8 @@ struct SpellPowerEntry
 {
     uint32      ID;                                         // 0
     uint32      SpellID;                                    // 1
-    //uint32    Unk2;                                       // 2
-    //uint32    Unk3;                                       // 3
+    uint32      PowerIndex;                                 // 2
+    uint32      PowerType;                                  // 3
     uint32      ManaCost;                                   // 4
     uint32      ManaCostPerLevel;                           // 5
     uint32      ManaCostPerSecond;                          // 6
@@ -345,8 +345,8 @@ struct SpellPowerEntry
     //uint32    Unk5;                                       // 8
     //uint32    Unk6;                                       // 9
     float       ManaCostPercentage;                         // 10
-    //float     Unk7;                                       // 11
-    //uint32    Unk8;                                       // 12
+    float       ManaCostPercentagePerSecond;                // 11
+    uint32      RequiredAura;                               // 12
     //uint32    Unk9;                                       // 13
 };
 
