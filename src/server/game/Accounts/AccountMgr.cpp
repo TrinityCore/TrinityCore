@@ -517,7 +517,7 @@ bool AccountMgr::HasPermission(uint32 accountId, uint32 permissionId, uint32 rea
         return false;
     }
 
-	rbac::RBACData rbac(accountId, "", realmId, GetSecurity(accountId));
+	rbac::RBACData rbac(accountId, "", realmId,);
     rbac.LoadFromDB();
     bool hasPermission = rbac.HasPermission(permissionId);
 
