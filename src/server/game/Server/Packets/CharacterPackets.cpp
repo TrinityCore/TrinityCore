@@ -19,7 +19,7 @@
 #include "ObjectMgr.h"
 #include "World.h"
 
-WorldPackets::Character::CharEnumResult::CharacterInfo::CharacterInfo(Field* fields)
+WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
 {
     //         0                1                2                3                 4                  5                       6                        7
     // "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
@@ -124,7 +124,7 @@ WorldPackets::Character::CharEnumResult::CharacterInfo::CharacterInfo(Field* fie
     }
 }
 
-WorldPacket const* WorldPackets::Character::CharEnumResult::Write()
+WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
 {
     _worldPacket.reserve(9 + Characters.size() * sizeof(CharacterInfo) + FactionChangeRestrictions.size() * sizeof(RestrictedFactionChangeRuleInfo));
 
@@ -184,7 +184,7 @@ WorldPacket const* WorldPackets::Character::CharEnumResult::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Character::CharacterCreate::Read()
+void WorldPackets::Character::CreateChar::Read()
 {
     CreateInfo.reset(new CharacterCreateInfo());
     uint32 nameLength = _worldPacket.ReadBits(6);
@@ -209,7 +209,7 @@ WorldPacket const* WorldPackets::Character::CharacterCreateResponse::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Character::CharacterDelete::Read()
+void WorldPackets::Character::DeleteChar::Read()
 {
     _worldPacket >> Guid;
 }

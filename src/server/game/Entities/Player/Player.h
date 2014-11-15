@@ -20,6 +20,7 @@
 #define _PLAYER_H
 
 #include "DBCStores.h"
+#include "DB2Stores.h"
 #include "GroupReference.h"
 #include "MapReference.h"
 
@@ -1803,7 +1804,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        void SendInitialSpells();
+        void SendKnownSpells();
         bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool fromSkill = false);
         void LearnSpell(uint32 spell_id, bool dependent, bool fromSkill = false);
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);

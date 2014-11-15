@@ -256,7 +256,7 @@ void MotionMaster::MoveChase(Unit* target, float dist, float angle)
     else
     {
         TC_LOG_DEBUG("misc", "Creature (Entry: %u %s) chase %s",
-            _owner->GetEntry(), 
+            _owner->GetEntry(),
             _owner->GetGUID().ToString().c_str(),
             target->GetGUID().ToString().c_str());
         Mutate(new ChaseMovementGenerator<Creature>(target, dist, angle), MOTION_SLOT_ACTIVE);

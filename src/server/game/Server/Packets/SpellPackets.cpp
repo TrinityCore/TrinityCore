@@ -15,25 +15,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MiscPackets_h__
-#define MiscPackets_h__
+#include "SpellPackets.h"
 
-#include "Packet.h"
-
-namespace WorldPackets
+WorldPacket const* WorldPackets::Spell::CategoryCooldown::Write()
 {
-    namespace Misc
+    _worldPacket.reserve(4 + 8 * CategoryCooldowns.size());
+
+    _worldPacket << uint32(CategoryCooldowns.size());
+
+    for (CategoryCooldownInfo const& cooldown : CategoryCooldowns)
     {
-        class ViolenceLevel final : public ClientPacket
-        {
-        public:
-            ViolenceLevel(WorldPacket&& packet) : ClientPacket(CMSG_VIOLENCE_LEVEL, std::move(packet)) { }
-
-            void Read() override;
-
-            int8 ViolenceLvl = -1; ///< 0 - no combat effects, 1 - display some combat effects, 2 - blood, 3 - bloody, 4 - bloodier, 5 - bloodiest
-        };
+        _worldPacket << uint32(cooldown.Category);
+        _worldPacket << int32(cooldown.ModCooldown);
     }
+
+    return &_worldPacket;
 }
 
-#endif // MiscPackets_h__
+WorldPacket const* WorldPackets::Spell::SendKnownSpells::Write()
+{
+    _worldPacket.reserve(1 + 4 * KnownSpells.size());
+
+    _worldPacket.WriteBit(InitialLogin);
+    _worldPacket << uint32(KnownSpells.size());
+
+    for (uint32 spellId : KnownSpells)
+        _worldPacket << uint32(spellId);
+
+    return &_worldPacket;
+}

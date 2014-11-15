@@ -81,8 +81,9 @@ namespace WorldPackets
         struct CharRaceOrFactionChangeInfo;
         struct CharacterUndeleteInfo;
 
-        class CharacterCreate;
-        class CharacterDelete;
+        class EnumCharacters;
+        class CreateChar;
+        class DeleteChar;
         class CharacterRenameRequest;
         class CharCustomize;
         class CharRaceOrFactionChange;
@@ -109,6 +110,16 @@ namespace WorldPackets
     namespace Misc
     {
         class ViolenceLevel;
+    }
+
+    namespace Query
+    {
+        class QueryCreature;
+    }
+
+    namespace Movement
+    {
+        class ClientPlayerMovement;
     }
 }
 
@@ -448,11 +459,11 @@ class WorldSession
         void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
         void HandleCharEnum(PreparedQueryResult result);
-        void HandleCharEnumOpcode(WorldPacket& /*recvData*/);
+        void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
         void HandleCharUndeleteEnum(PreparedQueryResult result);
         void HandleCharUndeleteEnumOpcode(WorldPacket& /*recvData*/);
-        void HandleCharDeleteOpcode(WorldPackets::Character::CharacterDelete& charDelete);
-        void HandleCharCreateOpcode(WorldPackets::Character::CharacterCreate& charCreate);
+        void HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& charDelete);
+        void HandleCharCreateOpcode(WorldPackets::Character::CreateChar& charCreate);
         void HandleCharCreateCallback(PreparedQueryResult result, WorldPackets::Character::CharacterCreateInfo* createInfo);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
         void HandleContinuePlayerLogin();
@@ -579,14 +590,14 @@ class WorldSession
 
         void HandleQueryTimeOpcode(WorldPacket& recvPacket);
 
-        void HandleCreatureQueryOpcode(WorldPacket& recvPacket);
+        void HandleCreatureQuery(WorldPackets::Query::QueryCreature& packet);
 
         void HandleGameObjectQueryOpcode(WorldPacket& recvPacket);
 
         void HandleMoveWorldportAckOpcode(WorldPacket& recvPacket);
         void HandleMoveWorldportAckOpcode();                // for server-side calls
 
-        void HandleMovementOpcodes(WorldPacket& recvPacket);
+        void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
         void HandleSetActiveMoverOpcode(WorldPacket& recvData);
         void HandleMoveNotActiveMover(WorldPacket& recvData);
         void HandleDismissControlledVehicle(WorldPacket& recvData);
@@ -1032,6 +1043,9 @@ class WorldSession
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);
+
+        void SendSpellCategoryCooldowns();
+
         int32 HandleEnableNagleAlgorithm();
 
         // Compact Unit Frames (4.x)

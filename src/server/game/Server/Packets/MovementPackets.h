@@ -15,33 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ZMQMUX_H
-#define __ZMQMUX_H
+#ifndef MovementPackets_h__
+#define MovementPackets_h__
 
-#include "ZMQTask.h"
-#include <string>
-#include <boost/thread/tss.hpp>
+#include "Packet.h"
 
-/*
- * Multiplexes zmq messages from many threads,
- * and then passes them to another socket.
- */
-class ZmqMux : public ZMQTask
+namespace WorldPackets
 {
-public:
-    ZmqMux(std::string from, std::string to);
-    ~ZmqMux();
-    bool Send(zmqpp::message*, bool dont_block = false);
-    void Run() override;
+    namespace Movement
+    {
+        class ClientPlayerMovement final : public ClientPacket
+        {
+        public:
+            ClientPlayerMovement(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
-protected:
-    void HandleOpen() override;
+            void Read() override;
 
-private:
-    boost::thread_specific_ptr<zmqpp::socket> _socket;
-    zmqpp::socket* _from;
-    zmqpp::socket* _to;
-    std::string const _fromAddress;
-};
+            MovementInfo movementInfo;
+        };
 
-#endif
+        class ServerPlayerMovement final : public ServerPacket
+        {
+        public:
+            ServerPlayerMovement() : ServerPacket(SMSG_PLAYER_MOVE) {}
+
+            WorldPacket const* Write() override;
+
+            Unit* mover;
+        };
+    }
+}
+
+#endif // MovementPackets_h__

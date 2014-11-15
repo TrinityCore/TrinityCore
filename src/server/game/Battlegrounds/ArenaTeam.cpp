@@ -102,20 +102,13 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
         playerClass = player->getClass();
         playerName = player->GetName();
     }
-    else
+    else if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(playerGuid))
     {
-        //          0     1
-        // SELECT name, class FROM characters WHERE guid = ?
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_CLASS);
-        stmt->setUInt64(0, playerGuid.GetCounter());
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-            return false;
-
-        playerName = (*result)[0].GetString();
-        playerClass = (*result)[1].GetUInt8();
+        playerName = characterInfo->Name;
+        playerClass = characterInfo->Class;
     }
+    else
+        return false;
 
     // Check if player is already in a similar arena team
     if ((player && player->GetArenaTeamId(GetSlot())) || Player::GetArenaTeamIdFromDB(playerGuid, GetType()) != 0)

@@ -21,21 +21,42 @@
 #include "DB2Store.h"
 #include "DB2Structure.h"
 #include <string>
+#include <map>
 
-extern DB2Storage<ItemEntry> sItemStore;
-extern DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore;
-extern DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore;
-extern DB2Storage<ItemSparseEntry> sItemSparseStore;
-extern DB2Storage<KeyChainEntry> sKeyChainStore;
-extern DB2Storage<SpellAuraRestrictionsEntry> sSpellAuraRestrictionsStore;
-extern DB2Storage<SpellClassOptionsEntry> sSpellClassOptionsStore;
-extern DB2Storage<SpellMiscEntry> sSpellMiscStore;
-extern DB2Storage<SpellPowerEntry> sSpellPowerStore;
-extern DB2Storage<SpellReagentsEntry> sSpellReagentsStore;
-extern DB2Storage<SpellRuneCostEntry> sSpellRuneCostStore;
+extern DB2Storage<HolidaysEntry>                sHolidaysStore;
+extern DB2Storage<ItemEntry>                    sItemStore;
+extern DB2Storage<ItemAppearanceEntry>          sItemAppearanceStore;
+extern ItemDisplayIDMap                         sItemDisplayIDMap;
+extern DB2Storage<ItemCurrencyCostEntry>        sItemCurrencyCostStore;
+extern DB2Storage<ItemExtendedCostEntry>        sItemExtendedCostStore;
+extern DB2Storage<ItemEffectEntry>              sItemEffectStore;
+extern DB2Storage<ItemSparseEntry>              sItemSparseStore;
+extern DB2Storage<KeyChainEntry>                sKeyChainStore;
+extern DB2Storage<OverrideSpellDataEntry>       sOverrideSpellDataStore;
+extern DB2Storage<PhaseGroupEntry>              sPhaseGroupStore;
+extern DB2Storage<SpellAuraRestrictionsEntry>   sSpellAuraRestrictionsStore;
+extern DB2Storage<SpellCastingRequirementsEntry> sSpellCastingRequirementsStore;
+extern DB2Storage<SpellClassOptionsEntry>       sSpellClassOptionsStore;
+extern DB2Storage<SpellMiscEntry>               sSpellMiscStore;
+extern DB2Storage<SpellPowerEntry>              sSpellPowerStore;
+extern DB2Storage<SpellReagentsEntry>           sSpellReagentsStore;
+extern DB2Storage<SpellRuneCostEntry>           sSpellRuneCostStore;
+extern DB2Storage<SpellTotemsEntry>             sSpellTotemsStore;
+extern DB2Storage<TaxiNodesEntry>               sTaxiNodesStore;
+extern DB2Storage<TaxiPathEntry>                sTaxiPathStore;
+extern DB2Storage<TaxiPathNodeEntry>            sTaxiPathNodeStore;
+extern TaxiMask                                 sTaxiNodesMask;
+extern TaxiMask                                 sOldContinentsNodesMask;
+extern TaxiMask                                 sHordeTaxiNodesMask;
+extern TaxiMask                                 sAllianceTaxiNodesMask;
+extern TaxiMask                                 sDeathKnightTaxiNodesMask;
+extern TaxiPathSetBySource                      sTaxiPathSetBySource;
+extern TaxiPathNodesByPath                      sTaxiPathNodesByPath;
 
 void LoadDB2Stores(std::string const& dataPath);
 
 DB2StorageBase const* GetDB2Storage(uint32 type);
+
+uint32 GetItemDisplayID(uint32 appearanceID);
 
 #endif

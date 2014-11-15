@@ -37,7 +37,7 @@ namespace Battlenet
     {
         typedef ClientPacket*(*PacketCreateFn)(PacketHeader const& header, BitStream& stream);
 
-        struct PacketInfo 
+        struct PacketInfo
         {
             PacketCreateFn Constructor;
             char const* Name;
