@@ -33,6 +33,27 @@ namespace WorldPackets
 
             int8 ViolenceLvl = -1; ///< 0 - no combat effects, 1 - display some combat effects, 2 - blood, 3 - bloody, 4 - bloodier, 5 - bloodiest
         };
+
+        class TimeSyncRequest final : public ServerPacket
+        {
+        public:
+            TimeSyncRequest() : ServerPacket(SMSG_TIME_SYNC_REQ, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SequenceIndex = 0;
+        };
+
+        class TimeSyncResponse final : public ClientPacket
+        {
+        public:
+            TimeSyncResponse(WorldPacket&& packet) : ClientPacket(CMSG_TIME_SYNC_RESP, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ClientTime = 0; // Client ticks in ms
+            uint32 SequenceIndex = 0; // Same index as in request
+        };
     }
 }
 

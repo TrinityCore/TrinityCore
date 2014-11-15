@@ -86,6 +86,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
+#include "MiscPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -26163,9 +26164,9 @@ void Player::SendTimeSync()
 {
     m_timeSyncQueue.push(m_movementCounter++);
 
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
-    data << uint32(m_timeSyncQueue.back());
-    GetSession()->SendPacket(&data);
+    WorldPackets::Misc::TimeSyncRequest packet;
+    packet.SequenceIndex = m_timeSyncQueue.back();
+    GetSession()->SendPacket(packet.Write());
 
     // Schedule next sync in 10 sec
     m_timeSyncTimer = 10000;
