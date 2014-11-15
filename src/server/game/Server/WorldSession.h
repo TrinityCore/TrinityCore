@@ -219,6 +219,7 @@ namespace WorldPackets
 
     namespace Misc
     {
+        class TimeSyncResponse;
         class CompleteCinematic;
         class CompleteMovie;
         class NextCinematicCamera;
@@ -1057,7 +1058,7 @@ class TC_GAME_API WorldSession
         void HandleSetRaidDifficultyOpcode(WorldPacket& recvData);
         void HandleSetTitleOpcode(WorldPacket& recvData);
         void HandleRealmSplitOpcode(WorldPacket& recvData);
-        void HandleTimeSyncResponse(WorldPacket& recvData);
+        void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet);
         void HandleWhoIsOpcode(WorldPacket& recvData);
         void HandleResetInstancesOpcode(WorldPacket& recvData);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);

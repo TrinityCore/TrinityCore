@@ -41,6 +41,19 @@ WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::TimeSyncRequest::Write()
+{
+    _worldPacket << SequenceIndex;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::TimeSyncResponse::Read()
+{
+    _worldPacket >> SequenceIndex;
+    _worldPacket >> ClientTime;
+}
+
 WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
 {
     _worldPacket << uint32(Timer);

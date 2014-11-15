@@ -39,6 +39,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "Metric.h"
+#include "MiscPackets.h"
 #include "MovementPackets.h"
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
@@ -1523,9 +1524,9 @@ void WorldSession::ResetTimeSync()
 
 void WorldSession::SendTimeSync()
 {
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
-    data << uint32(_timeSyncNextCounter);
-    SendPacket(&data);
+    WorldPackets::Misc::TimeSyncRequest timeSyncRequest;
+    timeSyncRequest.SequenceIndex = _timeSyncNextCounter;
+    SendPacket(timeSyncRequest.Write());
 
     _pendingTimeSyncRequests[_timeSyncNextCounter] = getMSTime();
 

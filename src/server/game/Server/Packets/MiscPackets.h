@@ -67,6 +67,29 @@ namespace WorldPackets
             ObjectGuid Unit;
         };
 
+        class TimeSyncRequest final : public ServerPacket
+        {
+        public:
+            explicit TimeSyncRequest() : ServerPacket(SMSG_TIME_SYNC_REQ, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SequenceIndex = 0;
+        };
+
+        class TimeSyncResponse final : public ClientPacket
+        {
+        public:
+            explicit TimeSyncResponse(WorldPacket&& packet) : ClientPacket(CMSG_TIME_SYNC_RESP, std::move(packet)) { }
+
+            void Read() override;
+
+            TimePoint GetReceivedTime() const { return _worldPacket.GetReceivedTime(); }
+
+            uint32 ClientTime = 0; // Client ticks in ms
+            uint32 SequenceIndex = 0; // Same index as in request
+        };
+
         class StartMirrorTimer final : public ServerPacket
         {
         public:
