@@ -15,29 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TalentPackets.h"
+#include "CombatPackets.h"
 
-WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
+void WorldPackets::Combat::AttackSwing::Read()
 {
-    _worldPacket << Info.ActiveGroup;
-    _worldPacket << uint32(Info.TalentGroups.size());
-
-    for (auto& talentGroupInfo : Info.TalentGroups)
-    {
-        _worldPacket << talentGroupInfo.SpecID;
-        _worldPacket << uint32(talentGroupInfo.TalentIDs.size());
-
-        for (uint32 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            _worldPacket << talentGroupInfo.GlyphIDs[i];
-
-        for (uint16 talentID : talentGroupInfo.TalentIDs)
-            _worldPacket << talentID;
-    }
-
-    return &_worldPacket;
-}
-
-void WorldPackets::Talent::SetSpecialization::Read()
-{
-    _worldPacket >> SpecGroupIndex;
+    _worldPacket >> Victim;
 }

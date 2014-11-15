@@ -48,6 +48,16 @@ namespace WorldPackets
 
             TalentInfoUpdate Info;
         };
+
+        class SetSpecialization final : public ClientPacket
+        {
+        public:
+            SetSpecialization(WorldPacket&& packet) : ClientPacket(CMSG_SET_SPECIALIZATION, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SpecGroupIndex = 0;
+        };
     }
 }
 

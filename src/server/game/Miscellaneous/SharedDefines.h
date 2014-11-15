@@ -815,12 +815,13 @@ enum SpellAttr13
     SPELL_ATTR13_UNK23                            = 0x00800000  // 23
 };
 
-#define MIN_TALENT_GROUP         0
-#define MAX_TALENT_GROUP         1
-#define MIN_TALENT_GROUPS        1
-#define MAX_TALENT_GROUPS        2
-#define MAX_GLYPH_SLOT_INDEX    9
-#define REQ_PRIMARY_TREE_TALENTS 31
+#define MIN_TALENT_GROUP            0
+#define MAX_TALENT_GROUP            1
+#define MIN_TALENT_GROUPS           1
+#define MAX_TALENT_GROUPS           2
+#define MAX_GLYPH_SLOT_INDEX        9
+#define MIN_SPECIALIZATION_LEVEL    10
+#define MAX_SPECIALIZATIONS         4
 
 // Custom values
 enum SpellClickUserTypes

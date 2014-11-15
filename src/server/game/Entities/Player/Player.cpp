@@ -25427,6 +25427,10 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 bool Player::LearnTalent(uint32 talentId)
 {
     uint8 group = GetActiveTalentGroup();
+    
+    // check if talent specialization is learnt
+    if (!GetTalentSpec(group))
+        return false;
 
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
 
@@ -25460,34 +25464,6 @@ bool Player::LearnTalent(uint32 talentId)
     if (HasSpell(spellid))
         return false;
 
-    // set talent spec for player
-    if (!GetTalentSpec(group))
-    {
-        SetTalentSpec(group, talentInfo->SpecID);
-
-        // Replace default spells by specialization spells
-        auto specSpells = sSpecializationSpellsBySpecStore.find(talentInfo->SpecID);
-        if (specSpells != sSpecializationSpellsBySpecStore.end())
-        {
-            for (auto it = specSpells->second.begin(); it != specSpells->second.end(); ++it)
-            {
-                SpecializationSpellsEntry const* specSpell = *it;
-                if (HasSpell(specSpell->OverridesSpellID)) {
-                    RemoveSpell(specSpell->OverridesSpellID, true);
-                    LearnSpell(specSpell->SpellID, false);
-                }
-            }
-        }
-
-        if (CanUseMastery()) {
-            ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(talentInfo->SpecID);
-            for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
-                if (SpellInfo const* masterySpell = sSpellMgr->GetSpellInfo(chrSpec->MasterySpellID[i]))
-                    if (masterySpell->IsPassive() && IsNeedCastPassiveSpellAtLearn(masterySpell))
-                        CastSpell(this, masterySpell->Id, true);
-        }
-    }
-
     // Check talent spec
     if (talentInfo->SpecID != GetTalentSpec(group))
         return false;
@@ -25499,6 +25475,35 @@ bool Player::LearnTalent(uint32 talentId)
     TC_LOG_INFO("misc", "TalentID: %u Spell: %u Group: %u\n", talentId, spellid, group);
 
     return true;
+}
+
+void Player::LearnTalentSpecialization(uint32 talentSpec)
+{
+    SetTalentSpec(GetActiveTalentGroup(), talentSpec);
+
+    // Replace default spells by specialization spells
+    auto specSpells = sSpecializationSpellsBySpecStore.find(talentSpec);
+    if (specSpells != sSpecializationSpellsBySpecStore.end())
+    {
+        for (auto it = specSpells->second.begin(); it != specSpells->second.end(); ++it)
+        {
+            SpecializationSpellsEntry const* specSpell = *it;
+            if (HasSpell(specSpell->OverridesSpellID)) {
+                RemoveSpell(specSpell->OverridesSpellID, true);
+                LearnSpell(specSpell->SpellID, false);
+            }
+        }
+    }
+
+    if (CanUseMastery()) {
+        ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(talentSpec);
+        for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
+            if (SpellInfo const* masterySpell = sSpellMgr->GetSpellInfo(chrSpec->MasterySpellID[i]))
+                if (masterySpell->IsPassive() && IsNeedCastPassiveSpellAtLearn(masterySpell))
+                    CastSpell(this, masterySpell->Id, true);
+    }
+    
+    SendTalentsInfoData();
 }
 
 void Player::AddKnownCurrency(uint32 itemId)

@@ -15,29 +15,33 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TalentPackets.h"
+#ifndef CombatPackets_h__
+#define CombatPackets_h__
 
-WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
+#include "Packet.h"
+
+namespace WorldPackets
 {
-    _worldPacket << Info.ActiveGroup;
-    _worldPacket << uint32(Info.TalentGroups.size());
-
-    for (auto& talentGroupInfo : Info.TalentGroups)
+    namespace Combat
     {
-        _worldPacket << talentGroupInfo.SpecID;
-        _worldPacket << uint32(talentGroupInfo.TalentIDs.size());
+        class AttackSwing final : public ClientPacket
+        {
+        public:
+            AttackSwing(WorldPacket&& packet) : ClientPacket(CMSG_ATTACKSWING, std::move(packet)) { }
 
-        for (uint32 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            _worldPacket << talentGroupInfo.GlyphIDs[i];
+            void Read() override;
 
-        for (uint16 talentID : talentGroupInfo.TalentIDs)
-            _worldPacket << talentID;
+            ObjectGuid Victim;
+        };
+
+        class AttackStop final : public ClientPacket
+        {
+        public:
+            AttackStop(WorldPacket&& packet) : ClientPacket(CMSG_ATTACKSTOP, std::move(packet)) { }
+
+            void Read() override {};
+        };
     }
-
-    return &_worldPacket;
 }
 
-void WorldPackets::Talent::SetSpecialization::Read()
-{
-    _worldPacket >> SpecGroupIndex;
-}
+#endif // CombatPackets_h__

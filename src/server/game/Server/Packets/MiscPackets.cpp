@@ -34,3 +34,18 @@ void WorldPackets::Misc::TimeSyncResponse::Read()
     _worldPacket >> SequenceIndex;
     _worldPacket >> ClientTime;
 }
+
+WorldPacket const* WorldPackets::Misc::UITime::Write()
+{
+    _worldPacket << Time;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::TutorialFlags::Write()
+{
+    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
+        _worldPacket << TutorialData[i];
+
+    return &_worldPacket;
+}

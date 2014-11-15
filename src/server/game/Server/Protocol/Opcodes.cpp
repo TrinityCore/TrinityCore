@@ -19,10 +19,12 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "Packets/CharacterPackets.h"
+#include "Packets/CombatPackets.h"
 #include "Packets/GuildPackets.h"
 #include "Packets/MiscPackets.h"
 #include "Packets/MovementPackets.h"
 #include "Packets/QueryPackets.h"
+#include "Packets/TalentPackets.h"
 #include "Packets/TradePackets.h"
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
@@ -132,8 +134,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ARENA_TEAM_QUERY,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamQueryOpcode      );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ARENA_TEAM_REMOVE,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamRemoveOpcode     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ARENA_TEAM_ROSTER,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamRosterOpcode     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_ATTACKSTOP,                              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleAttackStopOpcode          );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_ATTACKSWING,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleAttackSwingOpcode         );
+    DEFINE_HANDLER(CMSG_ATTACKSTOP,                                         STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Combat::AttackStop, &WorldSession::HandleAttackStopOpcode);
+    DEFINE_HANDLER(CMSG_ATTACKSWING,                                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Combat::AttackSwing, &WorldSession::HandleAttackSwingOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_HELLO,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionHelloOpcode        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_LIST_BIDDER_ITEMS,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionListBidderItems    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_LIST_ITEMS,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionListItems          );
@@ -590,7 +592,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_SAVED_INSTANCE_EXTEND,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetSavedInstanceExtend    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_SELECTION,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleSetSelectionOpcode        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_SKILL_CHEAT,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_SPECIALIZATION,                      STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_HANDLER(CMSG_SET_SPECIALIZATION,                                 STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Talent::SetSpecialization, &WorldSession::HandleSetSpecializationOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_TAXI_BENCHMARK_MODE,                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetTaxiBenchmarkOpcode    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_TITLE,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetTitleOpcode            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_TRADE_CURRENCY,                      STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -653,7 +655,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_WARGAME_START,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_WHO,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWhoOpcode                 );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_WHOIS,                                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWhoisOpcode               );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_WORLD_STATE_UI_TIMER_UPDATE,             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleWorldStateUITimerUpdate   );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_WORLD_STATE_UI_TIMER_UPDATE,             STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleWorldStateUITimerUpdate   );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_WORLD_TELEPORT,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWorldTeleportOpcode       );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_WRAP_ITEM,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWrapItemOpcode            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ZONEUPDATE,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleZoneUpdateOpcode          );
@@ -1342,7 +1344,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SUSPEND_COMMS,                           STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SUSPEND_TOKEN,                           STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TALENTS_ERROR,                           STATUS_UNHANDLED);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_TALENTS_INFO,                            STATUS_UNHANDLED);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_TALENTS_INFO,                            STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TALENTS_INVOLUNTARILY_RESET,             STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TAXINODE_STATUS,                         STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TEST_DROP_RATE_RESULT,                   STATUS_UNHANDLED);
@@ -1409,7 +1411,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_WHO,                                     STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_WHOIS,                                   STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_WORLD_SERVER_INFO,                       STATUS_UNHANDLED);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_WORLD_STATE_UI_TIMER_UPDATE,             STATUS_UNHANDLED);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_WORLD_STATE_UI_TIMER_UPDATE,             STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_XP_GAIN_ABORTED,                         STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ZONE_UNDER_ATTACK,                       STATUS_UNHANDLED);
 

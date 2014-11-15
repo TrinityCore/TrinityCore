@@ -96,9 +96,20 @@ namespace WorldPackets
         class LoadingScreenNotify;
     }
 
+    namespace Combat
+    {
+        class AttackSwing;
+        class AttackStop;
+    }
+
     namespace Guild
     {
         class QueryGuildInfo;
+    }
+    
+    namespace Talent
+    {
+        class SetSpecialization;
     }
 
     namespace Trade
@@ -765,8 +776,8 @@ class WorldSession
         void HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket);
         void HandleWrapItemOpcode(WorldPacket& recvPacket);
 
-        void HandleAttackSwingOpcode(WorldPacket& recvPacket);
-        void HandleAttackStopOpcode(WorldPacket& recvPacket);
+        void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
+        void HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& packet);
         void HandleSetSheathedOpcode(WorldPacket& recvPacket);
 
         void HandleUseItemOpcode(WorldPacket& recvPacket);
@@ -781,6 +792,7 @@ class WorldSession
         void HandleLearnPreviewTalents(WorldPacket& recvPacket);
         void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
+        void HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverStatusMultipleQuery(WorldPacket& recvPacket);
