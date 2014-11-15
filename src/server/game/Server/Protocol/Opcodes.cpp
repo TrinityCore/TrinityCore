@@ -19,6 +19,7 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "Packets/CharacterPackets.h"
+#include "Packets/CombatPackets.h"
 #include "Packets/GuildPackets.h"
 #include "Packets/MiscPackets.h"
 #include "Packets/MovementPackets.h"
@@ -132,8 +133,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ARENA_TEAM_QUERY,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamQueryOpcode      );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ARENA_TEAM_REMOVE,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamRemoveOpcode     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ARENA_TEAM_ROSTER,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamRosterOpcode     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_ATTACKSTOP,                              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleAttackStopOpcode          );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_ATTACKSWING,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleAttackSwingOpcode         );
+    DEFINE_HANDLER(CMSG_ATTACKSTOP,                                         STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Combat::AttackStop, &WorldSession::HandleAttackStopOpcode);
+    DEFINE_HANDLER(CMSG_ATTACKSWING,                                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Combat::AttackSwing, &WorldSession::HandleAttackSwingOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_HELLO,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionHelloOpcode        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_LIST_BIDDER_ITEMS,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionListBidderItems    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_LIST_ITEMS,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionListItems          );
