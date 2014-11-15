@@ -33,6 +33,16 @@ namespace WorldPackets
 
             MovementInfo movementInfo;
         };
+
+        class ServerPlayerMovement final : public ServerPacket
+        {
+        public:
+            ServerPlayerMovement() : ServerPacket(SMSG_PLAYER_MOVE) {}
+
+            WorldPacket const* Write() override;
+
+            Unit* mover;
+        };
     }
 }
 
