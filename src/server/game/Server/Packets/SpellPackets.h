@@ -32,8 +32,8 @@ namespace WorldPackets
                 CategoryCooldownInfo(uint32 category, int32 cooldown)
                     : Category(category), ModCooldown(cooldown) { }
 
-                uint32 Category = 0;
-                int32 ModCooldown = 0;
+                uint32 Category   = 0; ///< SpellCategory Id
+                int32 ModCooldown = 0; ///< Reduced Cooldown in ms
             };
 
             CategoryCooldown() : ServerPacket(SMSG_SPELL_CATEGORY_COOLDOWN, 4) { }
