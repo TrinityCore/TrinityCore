@@ -25,6 +25,14 @@ namespace WorldPackets
 {
     namespace Character
     {
+        class EnumCharacters final : public ClientPacket
+        {
+        public:
+            EnumCharacters(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_ENUM, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         struct CharacterCreateInfo
         {
             /// User specified variables
@@ -86,13 +94,13 @@ namespace WorldPackets
             std::string Name;
         };
 
-        class CharEnumResult final : public ServerPacket
+        class EnumCharactersResult final : public ServerPacket
         {
         public:
             struct CharacterInfo
             {
                 /**
-                 * @fn  void WorldPackets::Character::CharEnumResult::CharacterInfo::CharacterInfo(Field* fields);
+                 * @fn  void WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields);
                  *
                  * @brief   Initialize the struct with values from QueryResult
                  *
@@ -150,7 +158,7 @@ namespace WorldPackets
                 uint8 Race = 0;
             };
 
-            CharEnumResult() : ServerPacket(SMSG_CHAR_ENUM) { }
+            EnumCharactersResult() : ServerPacket(SMSG_CHAR_ENUM) { }
 
             WorldPacket const* Write() override;
 
@@ -161,10 +169,10 @@ namespace WorldPackets
             std::list<RestrictedFactionChangeRuleInfo> FactionChangeRestrictions; ///< @todo: research
         };
 
-        class CharacterCreate final : public ClientPacket
+        class CreateChar final : public ClientPacket
         {
         public:
-            CharacterCreate(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_CREATE, std::move(packet)) { }
+            CreateChar(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_CREATE, std::move(packet)) { }
 
             void Read() override;
 
@@ -194,10 +202,10 @@ namespace WorldPackets
             uint8 Code = 0; ///< Result code @see enum ResponseCodes
         };
 
-        class CharacterDelete final : public ClientPacket
+        class DeleteChar final : public ClientPacket
         {
         public:
-            CharacterDelete(WorldPacket&& packet): ClientPacket(CMSG_CHAR_DELETE, std::move(packet)) { }
+            DeleteChar(WorldPacket&& packet): ClientPacket(CMSG_CHAR_DELETE, std::move(packet)) { }
 
             void Read() override;
 

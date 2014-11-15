@@ -227,7 +227,7 @@ bool LoginQueryHolder::Initialize()
 
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
-    WorldPackets::Character::CharEnumResult charEnum;
+    WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
 
@@ -238,7 +238,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            WorldPackets::Character::CharEnumResult::CharacterInfo charInfo(fields);
+            WorldPackets::Character::EnumCharactersResult::CharacterInfo charInfo(fields);
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
@@ -257,7 +257,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     SendPacket(charEnum.Write());
 }
 
-void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
 {
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
@@ -279,7 +279,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleCharUndeleteEnum(PreparedQueryResult result)
 {
-    WorldPackets::Character::CharEnumResult charEnum;
+    WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = true;
 
@@ -288,7 +288,7 @@ void WorldSession::HandleCharUndeleteEnum(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            WorldPackets::Character::CharEnumResult::CharacterInfo charInfo(fields);
+            WorldPackets::Character::EnumCharactersResult::CharacterInfo charInfo(fields);
 
             TC_LOG_INFO("network", "Loading undeleted char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
@@ -319,7 +319,7 @@ void WorldSession::HandleCharUndeleteEnumOpcode(WorldPacket& /*recvData*/)
     _charEnumCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CharacterCreate& charCreate)
+void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateChar& charCreate)
 {
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_TEAMMASK))
     {
@@ -687,7 +687,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
     }
 }
 
-void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharacterDelete& charDelete)
+void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& charDelete)
 {
     // Initiating
     uint32 initAccountId = GetAccountId();

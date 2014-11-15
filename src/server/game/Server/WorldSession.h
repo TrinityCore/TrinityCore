@@ -81,8 +81,9 @@ namespace WorldPackets
         struct CharRaceOrFactionChangeInfo;
         struct CharacterUndeleteInfo;
 
-        class CharacterCreate;
-        class CharacterDelete;
+        class EnumCharacters;
+        class CreateChar;
+        class DeleteChar;
         class CharacterRenameRequest;
         class CharCustomize;
         class CharRaceOrFactionChange;
@@ -458,11 +459,11 @@ class WorldSession
         void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
         void HandleCharEnum(PreparedQueryResult result);
-        void HandleCharEnumOpcode(WorldPacket& /*recvData*/);
+        void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
         void HandleCharUndeleteEnum(PreparedQueryResult result);
         void HandleCharUndeleteEnumOpcode(WorldPacket& /*recvData*/);
-        void HandleCharDeleteOpcode(WorldPackets::Character::CharacterDelete& charDelete);
-        void HandleCharCreateOpcode(WorldPackets::Character::CharacterCreate& charCreate);
+        void HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& charDelete);
+        void HandleCharCreateOpcode(WorldPackets::Character::CreateChar& charCreate);
         void HandleCharCreateCallback(PreparedQueryResult result, WorldPackets::Character::CharacterCreateInfo* createInfo);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
         void HandleContinuePlayerLogin();
