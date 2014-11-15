@@ -1548,7 +1548,7 @@ struct MapEntry
 
     bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_DYNAMIC_DIFFICULTY) != 0; }
 };
-
+    // MapDifficulty.dbc 
 struct MapDifficultyEntry
 {
     //uint32    ID;                                         // 0
@@ -1729,13 +1729,13 @@ struct SkillRaceClassInfoEntry
 };
 
 #define MAX_SKILL_STEP 16
-
+ // SkillTiers.dbc
 struct SkillTiersEntry
 {
     uint32      ID;                                         // 0
     uint32      Value[MAX_SKILL_STEP];                      // 1-16
 };
-
+ // SoundEntries.dbc
 struct SoundEntriesEntry
 {
     uint32      ID;                                         // 0
@@ -2071,7 +2071,7 @@ struct SummonPropertiesEntry
 };
 
 #define MAX_TALENT_TIERS 7
-
+    // Talent.dbc
 struct TalentEntry
 {
     uint32      ID;                                             // 0
@@ -2080,10 +2080,10 @@ struct TalentEntry
     uint32      ColumnIndex;                                    // 3 0-2
     uint32      SpellID;                                        // 4
     uint32      Flags;                                          // 5 All 0
-    uint32      CategoryMask[2];                                // 6 All 0
-    uint32      ClassID;                                        // 7
-    uint32      OverridesSpellID;                               // 8 spellid that is replaced by talent
-    //char*     Description_lang
+    uint32      CategoryMask[2];                                // 6-7 All 0
+    uint32      ClassID;                                        // 8
+    uint32      OverridesSpellID;                               // 9 spellid that is replaced by talent
+    //char*     Description_lang                                // 10
 };
 
 struct TotemCategoryEntry

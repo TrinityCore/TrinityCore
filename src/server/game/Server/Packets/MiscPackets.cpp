@@ -21,3 +21,16 @@ void WorldPackets::Misc::ViolenceLevel::Read()
 {
     _worldPacket >> ViolenceLvl;
 }
+
+WorldPacket const* WorldPackets::Misc::TimeSyncRequest::Write()
+{
+    _worldPacket << SequenceIndex;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::TimeSyncResponse::Read()
+{
+    _worldPacket >> SequenceIndex;
+    _worldPacket >> ClientTime;
+}

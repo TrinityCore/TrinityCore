@@ -44,7 +44,7 @@ void WorldPackets::Movement::ClientPlayerMovement::Read()
 
     movementInfo.flags = _worldPacket.ReadBits(30);
     movementInfo.flags2 = _worldPacket.ReadBits(15);
-    
+
     bool hasTransport = _worldPacket.ReadBit();
     bool hasFall = _worldPacket.ReadBit();
 
@@ -170,7 +170,7 @@ WorldPacket const* WorldPackets::Movement::ServerPlayerMovement::Write()
             _worldPacket << movementInfo.jump.xyspeed;
         }
     }
-    
+
     _worldPacket.FlushBits();
 
     return &_worldPacket;
