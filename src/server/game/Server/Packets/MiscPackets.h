@@ -54,6 +54,16 @@ namespace WorldPackets
             uint32 ClientTime = 0; // Client ticks in ms
             uint32 SequenceIndex = 0; // Same index as in request
         };
+        
+        class UITime final : public ServerPacket
+        {
+        public:
+            UITime() : ServerPacket(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Time = 0;
+        };
     }
 }
 

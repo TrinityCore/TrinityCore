@@ -634,7 +634,7 @@ enum OpcodeClient : uint32
     CMSG_WARGAME_START                                = 0xBADD,
     CMSG_WHO                                          = 0x1322,
     CMSG_WHOIS                                        = 0xBADD,
-    CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0xBADD,
+    CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0302,
     CMSG_WORLD_TELEPORT                               = 0xBADD,
     CMSG_WRAP_ITEM                                    = 0xBADD,
     CMSG_ZONEUPDATE                                   = 0xBADD,
@@ -1442,7 +1442,7 @@ enum OpcodeServer : uint32
     SMSG_WHO                                          = 0x0601,
     SMSG_WHOIS                                        = 0xBADD,
     SMSG_WORLD_SERVER_INFO                            = 0x11AC,
-    SMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0xBADD,
+    SMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0B83,
     SMSG_XP_GAIN_ABORTED                              = 0xBADD,
     SMSG_ZONE_UNDER_ATTACK                            = 0x1401
 };
