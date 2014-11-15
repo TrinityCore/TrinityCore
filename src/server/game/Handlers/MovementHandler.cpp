@@ -383,10 +383,9 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
 
     mover->UpdatePosition(movementInfo.pos);
 
-    // TODO:
-    /*WorldPacket data(SMSG_PLAYER_MOVE, recvPacket.size());
-    mover->WriteMovementInfo(data);
-    mover->SendMessageToSet(&data, _player);
+    WorldPackets::Movement::ServerPlayerMovement playerMovement;
+    playerMovement.mover = mover;
+    mover->SendMessageToSet(const_cast<WorldPacket*>(playerMovement.Write()), _player);
 
     if (plrMover)                                            // nothing is charmed, or player charmed
     {
@@ -415,7 +414,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
                 }
             }
         }
-    }*/
+    }
 }
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)

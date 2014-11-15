@@ -87,3 +87,91 @@ void WorldPackets::Movement::ClientPlayerMovement::Read()
         }
     }
 }
+
+WorldPacket const* WorldPackets::Movement::ServerPlayerMovement::Write()
+{
+    MovementInfo const movementInfo = mover->m_movementInfo;
+
+    bool hasMovementFlags = mover->GetUnitMovementFlags() != 0;
+    bool hasMovementFlags2 = mover->GetExtraUnitMovementFlags() != 0;
+    bool hasTransportData = !mover->GetTransGUID().IsEmpty();
+    bool hasSpline = mover->IsSplineEnabled();
+
+    bool hasTransportPrevTime = hasTransportData && movementInfo.transport.prevTime != 0;
+    bool hasTransportVehicleId = hasTransportData && movementInfo.transport.vehicleId != 0;
+    bool hasPitch = mover->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || mover->HasExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+    bool hasFallDirection = mover->HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
+    bool hasFallData = hasFallDirection || movementInfo.jump.fallTime != 0;
+    bool hasSplineElevation = mover->HasUnitMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
+
+    _worldPacket << movementInfo.guid;
+    _worldPacket << movementInfo.time;
+    _worldPacket << movementInfo.pos.m_positionX;
+    _worldPacket << movementInfo.pos.m_positionY;
+    _worldPacket << movementInfo.pos.m_positionZ;
+    _worldPacket << movementInfo.pos.m_orientation;
+    _worldPacket << movementInfo.pitch;
+    _worldPacket << movementInfo.splineElevation;
+
+    uint32 removeMovementForcesCount = 0;
+    _worldPacket << removeMovementForcesCount;
+
+    uint32 int168 = 0;
+    _worldPacket << int168;
+
+    /*for (uint32 i = 0; i < removeMovementForcesCount; ++i)
+    {
+        _worldPacket << ObjectGuid;
+    }*/
+
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteBits(movementInfo.flags, 30);
+    _worldPacket.WriteBits(movementInfo.flags2, 15);
+
+    _worldPacket.WriteBit(hasTransportData);
+    _worldPacket.WriteBit(hasFallData);
+
+    _worldPacket.WriteBit(0); // HeightChangeFailed
+    _worldPacket.WriteBit(0); // RemoteTimeValid
+
+    if (hasTransportData)
+    {
+        _worldPacket << movementInfo.transport.guid;
+        _worldPacket << movementInfo.transport.pos.m_positionX;
+        _worldPacket << movementInfo.transport.pos.m_positionY;
+        _worldPacket << movementInfo.transport.pos.m_positionZ;
+        _worldPacket << movementInfo.transport.pos.m_orientation;
+        _worldPacket << movementInfo.transport.seat;
+        _worldPacket << movementInfo.transport.time;
+
+        _worldPacket.WriteBit(hasTransportPrevTime);
+        _worldPacket.WriteBit(hasTransportVehicleId);
+
+        if (hasTransportPrevTime)
+            _worldPacket << movementInfo.transport.prevTime;
+
+        if (hasTransportVehicleId)
+            _worldPacket << movementInfo.transport.vehicleId;
+    }
+
+    if (hasFallData)
+    {
+        _worldPacket << movementInfo.jump.fallTime;
+        _worldPacket << movementInfo.jump.zspeed;
+
+        _worldPacket.FlushBits();
+
+        _worldPacket.WriteBit(hasFallDirection);
+        if (hasFallDirection)
+        {
+            _worldPacket << movementInfo.jump.sinAngle;
+            _worldPacket << movementInfo.jump.cosAngle;
+            _worldPacket << movementInfo.jump.xyspeed;
+        }
+    }
+    
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
