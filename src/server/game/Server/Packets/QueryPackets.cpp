@@ -88,3 +88,68 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Query::QueryPlayerName::Read()
+{
+    _worldPacket >> Player;
+
+    Hint.VirtualRealmAddress.HasValue = _worldPacket.ReadBit();
+    Hint.NativeRealmAddress.HasValue = _worldPacket.ReadBit();
+
+    if (Hint.VirtualRealmAddress.HasValue)
+        _worldPacket >> Hint.VirtualRealmAddress.value;
+
+    if (Hint.NativeRealmAddress.HasValue)
+        _worldPacket >> Hint.NativeRealmAddress.value;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
+{
+    _worldPacket << Result;
+    _worldPacket << Player;
+
+    if (Result == 0)
+    {
+        _worldPacket.WriteBits(Data.Name.length(), 7);
+
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteBits(Data.DeclinedNames.name[i].length(), 7);
+
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteString(Data.DeclinedNames.name[i]);
+
+        _worldPacket << Data.AccountID;
+        _worldPacket << Data.BnetAccountID;
+        _worldPacket << Data.GuidActual;
+        _worldPacket << Data.VirtualRealmAddress;
+        _worldPacket << Data.Race;
+        _worldPacket << Data.Sex;
+        _worldPacket << Data.ClassID;
+        _worldPacket << Data.Level;
+        _worldPacket.WriteString(Data.Name);
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryPageText::Read()
+{
+    _worldPacket >> PageTextID;
+    _worldPacket >> ItemGUID;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
+{
+    _worldPacket << PageTextID;
+    _worldPacket.WriteBit(Allow);
+    
+    if (Allow)
+    {
+        _worldPacket << Info.ID;
+        _worldPacket << Info.NextPageID;
+        _worldPacket.WriteBits(Info.Text.length(), 12);
+        _worldPacket.WriteString(Info.Text);
+    }
+
+    return &_worldPacket;
+}
