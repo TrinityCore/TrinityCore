@@ -161,7 +161,7 @@ bool RASession::CheckPassword(const std::string& user, const std::string& pass)
 
     std::string hash = AccountMgr::CalculateShaPassHash(safe_user, safe_pass);
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD_BY_NAME);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RA_CHECK_PASSWORD_BY_NAME);
 
     stmt->setString(0, safe_user);
     stmt->setString(1, hash);
