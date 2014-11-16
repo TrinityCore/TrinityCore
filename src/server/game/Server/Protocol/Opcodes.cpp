@@ -19,7 +19,7 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "Packets/CharacterPackets.h"
-#include "Packets/ClientConfigpackets.h"
+#include "Packets/ClientConfigPackets.h"
 #include "Packets/CombatPackets.h"
 #include "Packets/GuildPackets.h"
 #include "Packets/MiscPackets.h"
