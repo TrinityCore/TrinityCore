@@ -27,7 +27,36 @@ enum SpellEffIndex
 {
     EFFECT_0 = 0,
     EFFECT_1 = 1,
-    EFFECT_2 = 2
+    EFFECT_2 = 2,
+    EFFECT_3 = 3,
+    EFFECT_4 = 4,
+    EFFECT_5 = 5,
+    EFFECT_6 = 6,
+    EFFECT_7 = 7,
+    EFFECT_8 = 8,
+    EFFECT_9 = 9,
+    EFFECT_10 = 10,
+    EFFECT_11 = 11,
+    EFFECT_12 = 12,
+    EFFECT_13 = 13,
+    EFFECT_14 = 14,
+    EFFECT_15 = 15,
+    EFFECT_16 = 16,
+    EFFECT_17 = 17,
+    EFFECT_18 = 18,
+    EFFECT_19 = 19,
+    EFFECT_20 = 20,
+    EFFECT_21 = 21,
+    EFFECT_22 = 22,
+    EFFECT_23 = 23,
+    EFFECT_24 = 24,
+    EFFECT_25 = 25,
+    EFFECT_26 = 26,
+    EFFECT_27 = 27,
+    EFFECT_28 = 28,
+    EFFECT_29 = 29,
+    EFFECT_30 = 30,
+    EFFECT_31 = 31
 };
 
 // used in script definitions
@@ -973,7 +1002,7 @@ enum Team
     TEAM_OTHER               = 0                            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
 
-enum SpellEffects
+enum SpellEffectName
 {
     SPELL_EFFECT_INSTAKILL                          = 1,
     SPELL_EFFECT_SCHOOL_DAMAGE                      = 2,

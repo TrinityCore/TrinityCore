@@ -192,7 +192,7 @@ class SpellCastTargets
 struct SpellValue
 {
     explicit  SpellValue(SpellInfo const* proto);
-    int32     EffectBasePoints[MAX_SPELL_EFFECTS];
+    std::vector<int32> EffectBasePoints;
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     uint8     AuraStackAmount;
@@ -377,7 +377,7 @@ class Spell
         void SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, WorldObject* target, uint32 effMask);
         void SelectImplicitTrajTargets(SpellEffIndex effIndex);
 
-        void SelectEffectTypeImplicitTargets(uint8 effIndex);
+        void SelectEffectTypeImplicitTargets(uint32 effIndex);
 
         uint32 GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionList* condList);
         template<class SEARCHER> void SearchTargets(SEARCHER& searcher, uint32 containerMask, Unit* referer, Position const* pos, float radius);
@@ -394,7 +394,6 @@ class Spell
         void cast(bool skipCheck = false);
         void finish(bool ok = true);
         void TakePower();
-        void TakeAmmo();
 
         void TakeRunePower(bool didHit);
         void TakeReagents();
@@ -503,6 +502,18 @@ class Spell
         void CleanupTargetList();
 
         void SetSpellValue(SpellValueMod mod, int32 value);
+
+        SpellEffectInfoVector GetEffects() const { return difficultyEffects; }
+        SpellEffectInfo const* GetEffect(uint32 index) const
+        {
+            if (index >= difficultyEffects.size())
+                return nullptr;
+
+            return difficultyEffects[index];
+        }
+
+        bool HasEffect(SpellEffectName effect) const;
+
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
@@ -591,7 +602,7 @@ class Spell
             uint64 timeDelay;
             SpellMissInfo missCondition:8;
             SpellMissInfo reflectResult:8;
-            uint8  effectMask:8;
+            uint32  effectMask:32;
             bool   processed:1;
             bool   alive:1;
             bool   crit:1;
@@ -599,13 +610,13 @@ class Spell
             int32  damage;
         };
         std::list<TargetInfo> m_UniqueTargetInfo;
-        uint8 m_channelTargetEffectMask;                        // Mask req. alive targets
+        uint32 m_channelTargetEffectMask;                        // Mask req. alive targets
 
         struct GOTargetInfo
         {
             ObjectGuid targetGUID;
             uint64 timeDelay;
-            uint8  effectMask:8;
+            uint32  effectMask:32;
             bool   processed:1;
         };
         std::list<GOTargetInfo> m_UniqueGOTargetInfo;
@@ -613,7 +624,7 @@ class Spell
         struct ItemTargetInfo
         {
             Item  *item;
-            uint8 effectMask;
+            uint32 effectMask;
         };
         std::list<ItemTargetInfo> m_UniqueItemInfo;
 
@@ -638,7 +649,7 @@ class Spell
         void FinishTargetProcessing();
 
         // spell execution log
-        void InitEffectExecuteData(uint8 effIndex);
+        void InitEffectExecuteData(uint32 effIndex);
         void CheckEffectExecuteData();
 
         // Scripting system
@@ -689,7 +700,7 @@ class Spell
         SpellInfo const* m_triggeredByAuraSpell;
 
         bool m_skipCheck;
-        uint8 m_auraScaleMask;
+        uint32 m_auraScaleMask;
         PathGenerator m_preGeneratedPath;
 
         ByteBuffer * m_effectExecuteData[MAX_SPELL_EFFECTS];
@@ -704,6 +715,8 @@ class Spell
 
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;
+
+        SpellEffectInfoVector difficultyEffects;
 };
 
 namespace Trinity

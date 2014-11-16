@@ -175,7 +175,7 @@ class InstanceSaveManager
             uint16 mapid;
             uint16 instanceId;
 
-            InstResetEvent() : type(0), difficulty(DUNGEON_DIFFICULTY_NORMAL), mapid(0), instanceId(0) { }
+            InstResetEvent() : type(0), difficulty(DIFFICULTY_NORMAL), mapid(0), instanceId(0) { }
             InstResetEvent(uint8 t, uint32 _mapid, Difficulty d, uint16 _instanceid)
                 : type(t), difficulty(d), mapid(_mapid), instanceId(_instanceid) { }
             bool operator == (const InstResetEvent& e) const { return e.instanceId == instanceId; }

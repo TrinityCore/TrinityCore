@@ -453,81 +453,6 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
     return true;
 }
 
-uint32 SpellMgr::GetSpellDifficultyId(uint32 spellId) const
-{
-    SpellDifficultySearcherMap::const_iterator i = mSpellDifficultySearcherMap.find(spellId);
-    return i == mSpellDifficultySearcherMap.end() ? 0 : i->second;
-}
-
-void SpellMgr::SetSpellDifficultyId(uint32 spellId, uint32 id)
-{
-    if (uint32 i = GetSpellDifficultyId(spellId))
-        TC_LOG_ERROR("spells", "SpellMgr::SetSpellDifficultyId: Spell %u has already spellDifficultyId %u. Will override with spellDifficultyId %u.", spellId, i, id);
-    mSpellDifficultySearcherMap[spellId] = id;
-}
-
-// TODO: 6.x adapt to new spell diff system
-uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const
-{
-    /*if (!GetSpellInfo(spellId))
-        return spellId;
-
-    if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
-        return spellId;
-
-    uint32 mode = uint32(caster->GetMap()->GetSpawnMode());
-    if (mode >= MAX_DIFFICULTY)
-    {
-        TC_LOG_ERROR("spells", "SpellMgr::GetSpellIdForDifficulty: Incorrect Difficulty for spell %u.", spellId);
-        return spellId; //return source spell
-    }
-
-    uint32 difficultyId = GetSpellDifficultyId(spellId);
-    if (!difficultyId)
-        return spellId; //return source spell, it has only REGULAR_DIFFICULTY
-
-    SpellDifficultyEntry const* difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
-    if (!difficultyEntry)
-    {
-        TC_LOG_ERROR("spells", "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
-        return spellId; //return source spell
-    }
-
-    if (difficultyEntry->SpellID[mode] <= 0 && mode > DUNGEON_DIFFICULTY_HEROIC)
-    {
-        TC_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is NULL, using mode %u", spellId, mode, mode - 2);
-        mode -= 2;
-    }
-
-    if (difficultyEntry->SpellID[mode] <= 0)
-    {
-        TC_LOG_ERROR("sql.sql", "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spellId, mode);
-        return spellId;
-    }
-
-    TC_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: spellid for spell %u in mode %u is %d", spellId, mode, difficultyEntry->SpellID[mode]);
-    return uint32(difficultyEntry->SpellID[mode]);
-    */
-    return 0;
-}
-
-SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const
-{
-    if (!spell)
-        return NULL;
-
-    uint32 newSpellId = GetSpellIdForDifficulty(spell->Id, caster);
-    SpellInfo const* newSpell = GetSpellInfo(newSpellId);
-    if (!newSpell)
-    {
-        TC_LOG_DEBUG("spells", "SpellMgr::GetSpellForDifficultyFromSpell: spell %u not found. Check spelldifficulty_dbc!", newSpellId);
-        return spell;
-    }
-
-    TC_LOG_DEBUG("spells", "SpellMgr::GetSpellForDifficultyFromSpell: Spell id for instance mode is %u (original %u)", newSpell->Id, spell->Id);
-    return newSpell;
-}
-
 SpellChainNode const* SpellMgr::GetSpellChainNode(uint32 spell_id) const
 {
     SpellChainMap::const_iterator itr = mSpellChains.find(spell_id);
@@ -2791,18 +2716,7 @@ void SpellMgr::LoadSpellAreas()
     TC_LOG_INFO("server.loading", ">> Loaded %u spell area requirements in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-// Temporary structure to hold spell effect entries for faster loading
-struct SpellEffectArray
-{
-    SpellEffectArray()
-    {
-        effects[0] = NULL;
-        effects[1] = NULL;
-        effects[2] = NULL;
-    }
-
-    SpellEffectEntry const* effects[MAX_SPELL_EFFECTS];
-};
+typedef std::vector<SpellEffectEntry const*> SpellEffectVector;
 
 void SpellMgr::LoadSpellInfoStore()
 {
@@ -2811,7 +2725,7 @@ void SpellMgr::LoadSpellInfoStore()
     UnloadSpellInfoStore();
     mSpellInfoMap.resize(sSpellStore.GetNumRows(), NULL);
 
-    std::map<uint32, SpellEffectArray> effectsBySpell;
+    std::map<uint32, SpellEffectInfoMap> effectsBySpell;
 
     for (uint32 i = 0; i < sSpellEffectStore.GetNumRows(); ++i)
     {
@@ -2819,17 +2733,17 @@ void SpellMgr::LoadSpellInfoStore()
         if (!effect)
             continue;
         
-        // TODO: 6.x implement dynamic spell effect storage and remove MAX_SPELL_EFFECTS
-        // This is a temporary fix to avoid crash when loading spells
         if (effect->EffectIndex >= MAX_SPELL_EFFECTS)
+        {
+            TC_LOG_ERROR("server.loading", "Spell %u has invalid EffectIndex %u, max is %u, skipped", i, effect->EffectIndex, uint32(MAX_SPELL_EFFECTS));
             continue;
-
-        effectsBySpell[effect->SpellID].effects[effect->EffectIndex] = effect;
+        }
+        effectsBySpell[effect->SpellID][effect->DifficultyID][effect->EffectIndex] = effect;
     }
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
-            mSpellInfoMap[i] = new SpellInfo(spellEntry, effectsBySpell[i].effects);
+            mSpellInfoMap[i] = new SpellInfo(spellEntry, effectsBySpell[i]);
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }

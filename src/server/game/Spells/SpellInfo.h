@@ -230,8 +230,8 @@ private:
 class SpellEffectInfo
 {
     SpellInfo const* _spellInfo;
-    uint8 _effIndex;
 public:
+    uint32    EffectIndex;
     uint32    Effect;
     uint32    ApplyAuraName;
     uint32    ApplyAuraPeriod;
@@ -259,14 +259,14 @@ public:
     float     DeltaScalingMultiplier;
     float     ComboScalingMultiplier;
 
-    SpellEffectInfo() : _spellInfo(NULL), _effIndex(0), Effect(0), ApplyAuraName(0), ApplyAuraPeriod(0), DieSides(0),
+    SpellEffectInfo() : _spellInfo(NULL), EffectIndex(0), Effect(0), ApplyAuraName(0), ApplyAuraPeriod(0), DieSides(0),
                         RealPointsPerLevel(0), BasePoints(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
                         BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(NULL), ChainTargets(0),
                         ItemType(0), TriggerSpell(0), ImplicitTargetConditions(NULL) {}
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);
 
     bool IsEffect() const;
-    bool IsEffect(SpellEffects effectName) const;
+    bool IsEffect(SpellEffectName effectName) const;
     bool IsAura() const;
     bool IsAura(AuraType aura) const;
     bool IsTargetingArea() const;
@@ -298,6 +298,9 @@ private:
     };
     static StaticData _data[TOTAL_SPELL_EFFECTS];
 };
+
+typedef std::vector<SpellEffectInfo const*> SpellEffectInfoVector;
+typedef std::unordered_map<uint32, SpellEffectInfoVector> SpellEffectInfoMap;
 
 class SpellInfo
 {
@@ -403,7 +406,6 @@ public:
     int32  ScalingClass;
     float  CoefBase;
     int32  CoefLevelBase;
-    SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
 
@@ -425,26 +427,26 @@ public:
     SpellTotemsEntry const* GetSpellTotems() const;
     SpellMiscEntry const* GetSpellMisc() const;
 
-    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects);
+    SpellInfo(SpellEntry const* spellEntry, SpellEffectInfoMap effects);
     ~SpellInfo();
 
     uint32 GetCategory() const;
-    bool HasEffect(SpellEffects effect) const;
-    bool HasAura(AuraType aura) const;
-    bool HasAreaAuraEffect() const;
+    bool HasEffect(uint32 difficulty, SpellEffectName effect) const;
+    bool HasAura(uint32 difficulty, AuraType aura) const;
+    bool HasAreaAuraEffect(uint32 difficulty) const;
 
     bool IsExplicitDiscovery() const;
     bool IsLootCrafting() const;
     bool IsQuestTame() const;
-    bool IsProfessionOrRiding() const;
-    bool IsProfession() const;
-    bool IsPrimaryProfession() const;
-    bool IsPrimaryProfessionFirstRank() const;
+    bool IsProfessionOrRiding(uint32 difficulty = DIFFICULTY_NONE) const;
+    bool IsProfession(uint32 difficulty = DIFFICULTY_NONE) const;
+    bool IsPrimaryProfession(uint32 difficulty = DIFFICULTY_NONE) const;
+    bool IsPrimaryProfessionFirstRank(uint32 difficulty = DIFFICULTY_NONE) const;
     bool IsAbilityLearnedWithProfession() const;
     bool IsAbilityOfSkillType(uint32 skillType) const;
 
-    bool IsAffectingArea() const;
-    bool IsTargetingArea() const;
+    bool IsAffectingArea(uint32 difficulty) const;
+    bool IsTargetingArea(uint32 difficulty) const;
     bool NeedsExplicitUnitTarget() const;
     bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
 
@@ -529,6 +531,11 @@ public:
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();
+
+    SpellEffectInfoVector GetEffectsForDifficulty(uint32 difficulty) const;
+    SpellEffectInfo const* GetEffect(uint32 difficulty, uint32 index) const;
+
+    SpellEffectInfoMap Effects;
 };
 
 #endif // _SPELLINFO_H
