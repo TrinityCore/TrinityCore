@@ -35,9 +35,9 @@ namespace WorldPackets
             std::string Sender;
             ObjectGuid SenderGuid;
             ObjectGuid SenderBnetAccountID;
-            uint8 Type                = 0;
-            uint8 OldFlags            = 0;
-            uint8 NewFlags            = 0;
+            uint8 Type                = 0; ///< @see enum ChatNotify
+            uint8 OldFlags            = 0; ///< @see enum ChannelMemberFlags
+            uint8 NewFlags            = 0; ///< @see enum ChannelMemberFlags
             std::string Channel;
             uint32 SenderVirtualRealm = 0;
             ObjectGuid TargetGuid;
@@ -55,7 +55,7 @@ namespace WorldPackets
             std::string ChannelWelcomeMsg;
             int32 ChatChannelID = 0;
             int32 InstanceID    = 0;
-            uint8 ChannelFlags  = 0;
+            uint8 ChannelFlags  = 0; ///< @see enum ChannelFlags
             std::string Channel;
         };
 

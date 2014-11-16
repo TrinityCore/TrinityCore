@@ -303,7 +303,7 @@ class ByteBuffer
         {
             if (size_t len = value.length())
                 append((uint8 const*)value.c_str(), len);
-            append((uint8)0);
+            append<uint8>(0);
             return *this;
         }
 
@@ -311,7 +311,7 @@ class ByteBuffer
         {
             if (size_t len = (str ? strlen(str) : 0))
                 append((uint8 const*)str, len);
-            append((uint8)0);
+            append<uint8>(0);
             return *this;
         }
 
@@ -475,7 +475,7 @@ class ByteBuffer
 
         void read(uint8 *dest, size_t len)
         {
-            if (_rpos  + len > size())
+            if (_rpos + len > size())
                throw ByteBufferPositionException(false, _rpos, len, size());
 
             ResetBitPos();

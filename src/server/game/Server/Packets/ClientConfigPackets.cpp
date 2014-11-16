@@ -94,3 +94,36 @@ WorldPacket const* WorldPackets::ClientConfig::ClientCacheVersion::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::ClientConfig::RequestAccountData::Read()
+{
+    _worldPacket >> PlayerGuid;
+    DataType = _worldPacket.ReadBits(3);
+}
+
+WorldPacket const* WorldPackets::ClientConfig::UpdateAccountData::Write()
+{
+    _worldPacket << Player;
+    _worldPacket << uint32(Time);
+    _worldPacket << uint32(Size);
+    _worldPacket.WriteBits(DataType, 3);
+    _worldPacket << uint32(CompressedData.size());
+    _worldPacket.append(CompressedData);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::ClientConfig::UserClientUpdateAccountData::Read()
+{
+    _worldPacket >> PlayerGuid;
+    _worldPacket >> Time;
+    _worldPacket >> Size;
+    DataType = _worldPacket.ReadBits(3);
+
+    uint32 compressedSize = _worldPacket.read<uint32>();
+    if (compressedSize)
+    {
+        CompressedData.resize(compressedSize);
+        _worldPacket.read(CompressedData.contents(), compressedSize);
+    }
+}
