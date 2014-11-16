@@ -58,8 +58,8 @@ WorldPacket const* WorldPackets::Spell::UpdateActionButtons::Write()
 WorldPacket const* WorldPackets::Spell::SendUnlearnSpells::Write()
 {
     _worldPacket << uint32(Spells.size());
-    for (uint32 i = 0; i < Spells.size(); ++i)
-        _worldPacket << Spells[0];
+    for (uint32 spellId : Spells)
+        _worldPacket << uint32(spellId);
 
     return &_worldPacket;
 }

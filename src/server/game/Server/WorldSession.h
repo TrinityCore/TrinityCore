@@ -96,6 +96,12 @@ namespace WorldPackets
         class LoadingScreenNotify;
     }
 
+    namespace ClientConfig
+    {
+        class RequestAccountData;
+        class UserClientUpdateAccountData;
+    }
+
     namespace Combat
     {
         class AttackSwing;
@@ -157,9 +163,7 @@ enum AccountDataType
 
 struct AccountData
 {
-    AccountData() : Time(0), Data("") { }
-
-    time_t Time;
+    time_t Time = 0;
     std::string Data;
 };
 
@@ -373,7 +377,7 @@ class WorldSession
         bool CheckStableMaster(ObjectGuid guid);
 
         // Account Data
-        AccountData* GetAccountData(AccountDataType type) { return &m_accountData[type]; }
+        AccountData const* GetAccountData(AccountDataType type) const { return &m_accountData[type]; }
         void SetAccountData(AccountDataType type, time_t tm, std::string const& data);
         void LoadGlobalAccountData();
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
@@ -591,8 +595,8 @@ class WorldSession
         void HandleSetWatchedFactionOpcode(WorldPacket& recvData);
         void HandleSetFactionInactiveOpcode(WorldPacket& recvData);
 
-        void HandleUpdateAccountData(WorldPacket& recvPacket);
-        void HandleRequestAccountData(WorldPacket& recvPacket);
+        void HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet);
+        void HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request);
         void HandleSetActionButtonOpcode(WorldPacket& recvPacket);
 
         void HandleGameObjectUseOpcode(WorldPacket& recPacket);

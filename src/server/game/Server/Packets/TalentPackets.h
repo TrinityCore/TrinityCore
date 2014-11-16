@@ -20,7 +20,6 @@
 
 #include "Packet.h"
 #include "Player.h"
-#include <vector>
 
 namespace WorldPackets
 {

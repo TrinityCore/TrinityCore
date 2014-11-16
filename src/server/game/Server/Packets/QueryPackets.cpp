@@ -108,7 +108,7 @@ WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
     _worldPacket << Result;
     _worldPacket << Player;
 
-    if (Result == 0)
+    if (Result == RESPONSE_SUCCESS)
     {
         _worldPacket.WriteBits(Data.Name.length(), 7);
 
@@ -142,7 +142,7 @@ WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
 {
     _worldPacket << PageTextID;
     _worldPacket.WriteBit(Allow);
-    
+
     if (Allow)
     {
         _worldPacket << Info.ID;
