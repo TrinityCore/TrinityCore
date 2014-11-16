@@ -287,8 +287,8 @@ struct CreatureModelInfo
 {
     float bounding_radius;
     float combat_reach;
-    uint8 gender;
-    uint32 modelid_other_gender;
+    int8 gender;
+    uint32 displayId_other_gender;
 };
 
 // Benchmarked: Faster than std::map (insert/find)
