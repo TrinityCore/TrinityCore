@@ -44,3 +44,23 @@ WorldPacket const* WorldPackets::Spell::SendKnownSpells::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spell::UpdateActionButtons::Write()
+{
+    for (uint32 i = 0; i < MAX_ACTION_BUTTONS; ++i)
+        _worldPacket << ActionButtons[i];
+
+    _worldPacket << Reason;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spell::SendUnlearnSpells::Write()
+{
+    _worldPacket << uint32(Spells.size());
+    for (uint32 i = 0; i < Spells.size(); ++i)
+        _worldPacket << Spells[0];
+
+    return &_worldPacket;
+}
+
