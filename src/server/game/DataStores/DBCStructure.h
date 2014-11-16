@@ -812,7 +812,7 @@ struct CreatureDisplayInfoEntry
     //uint32    ObjectEffectPackageID;                      // 16
     //uint32    AnimReplacementSetID;                       // 17
     //uint32    Flags;                                      // 18
-    //uint32    Gender;                                     // 19
+    int32       Gender;                                     // 19
     //uint32    StateSpellVisualKitID;                      // 20
 };
 
