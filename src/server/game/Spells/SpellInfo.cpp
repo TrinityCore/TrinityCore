@@ -344,7 +344,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     SpellScalingEntry const* scaling = spellInfo->GetSpellScaling();
 
     _spellInfo = spellInfo;
-    _effIndex = _effect ? _effect->EffectIndex : effIndex;
+    EffectIndex = _effect ? _effect->EffectIndex : effIndex;
     Effect = _effect ? _effect->Effect : 0;
     ApplyAuraName = _effect ? _effect->EffectAura : 0;
     ApplyAuraPeriod = _effect ? _effect->EffectAuraPeriod : 0;
@@ -368,9 +368,9 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128();
     ImplicitTargetConditions = NULL;
     // TODO: 6.x these values are no longer in dbc
-    ScalingMultiplier = /*scaling ? scaling->Multiplier[_effIndex] :*/ 0.0f;
-    DeltaScalingMultiplier = /*scaling ? scaling->RandomMultiplier[_effIndex] :*/ 0.0f;
-    ComboScalingMultiplier = /*scaling ? scaling->OtherMultiplier[_effIndex] :*/ 0.0f;
+    ScalingMultiplier = /*scaling ? scaling->Multiplier[EffectIndex] :*/ 0.0f;
+    DeltaScalingMultiplier = /*scaling ? scaling->RandomMultiplier[EffectIndex] :*/ 0.0f;
+    ComboScalingMultiplier = /*scaling ? scaling->OtherMultiplier[EffectIndex] :*/ 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -378,7 +378,7 @@ bool SpellEffectInfo::IsEffect() const
     return Effect != 0;
 }
 
-bool SpellEffectInfo::IsEffect(SpellEffects effectName) const
+bool SpellEffectInfo::IsEffect(SpellEffectName effectName) const
 {
     return Effect == uint32(effectName);
 }
@@ -441,7 +441,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         if (caster)
         {
             int32 level = caster->getLevel();
-            if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+            if (target && _spellInfo->IsPositiveEffect(EffectIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
                 level = target->getLevel();
 
             if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
@@ -508,7 +508,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
             if (uint8 comboPoints = caster->m_movedPlayer->GetComboPoints())
                 value += comboDamage * comboPoints;
 
-        value = caster->ApplyEffectModifiers(_spellInfo, _effIndex, value);
+        value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
 
         // amount multiplication based on caster's level
 /* REVIEW - MERGE <<<<<<< HEAD
@@ -862,9 +862,11 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_UNIT}, // 182 SPELL_EFFECT_182
 };
 
-SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects)
+SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectInfoMap effects)
 {
     Id = spellEntry->ID;
+
+    Effects = effects;
 
     SpellName = spellEntry->Name_lang;
     //Rank = spellEntry->Rank;
@@ -915,10 +917,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
 
     SpellIconID = _misc ? _misc->SpellIconID : 0;
     ActiveIconID = _misc ? _misc->ActiveIconID : 0;
-
-    // SpellDifficultyEntry
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        Effects[i] = SpellEffectInfo(spellEntry, this, i, effects[i]);
 
     // SpellScalingEntry
     SpellScalingEntry const* _scaling = GetSpellScaling();
@@ -1040,27 +1038,35 @@ uint32 SpellInfo::GetCategory() const
     return CategoryEntry ? CategoryEntry->ID : 0;
 }
 
-bool SpellInfo::HasEffect(SpellEffects effect) const
+bool SpellInfo::HasEffect(uint32 difficulty, SpellEffectName effect) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect(effect))
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
+    {
+        if ((*itr)->IsEffect(effect))
             return true;
+    }
     return false;
 }
 
-bool SpellInfo::HasAura(AuraType aura) const
+bool SpellInfo::HasAura(uint32 difficulty, AuraType aura) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsAura(aura))
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
+    {
+        if ((*itr)->IsAura(aura))
             return true;
-    return false;
+    }
 }
 
-bool SpellInfo::HasAreaAuraEffect() const
+bool SpellInfo::HasAreaAuraEffect(uint32 difficulty) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsAreaAuraEffect())
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
+    {
+        if ((*itr)->IsAreaAuraEffect())
             return true;
+    }
     return false;
 }
 
@@ -1085,13 +1091,14 @@ bool SpellInfo::IsQuestTame() const
     return Effects[0].Effect == SPELL_EFFECT_THREAT && Effects[1].Effect == SPELL_EFFECT_APPLY_AURA && Effects[1].ApplyAuraName == SPELL_AURA_DUMMY;
 }
 
-bool SpellInfo::IsProfessionOrRiding() const
+bool SpellInfo::IsProfessionOrRiding(uint32 difficulty) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
+        if ((*itr)->Effect == SPELL_EFFECT_SKILL)
         {
-            uint32 skill = Effects[i].MiscValue;
+            uint32 skill = (*itr)->MiscValue;
 
             if (IsProfessionOrRidingSkill(skill))
                 return true;
@@ -1100,13 +1107,14 @@ bool SpellInfo::IsProfessionOrRiding() const
     return false;
 }
 
-bool SpellInfo::IsProfession() const
+bool SpellInfo::IsProfession(uint32 difficulty) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
+        if ((*itr)->Effect == SPELL_EFFECT_SKILL)
         {
-            uint32 skill = Effects[i].MiscValue;
+            uint32 skill = (*itr)->MiscValue;
 
             if (IsProfessionSkill(skill))
                 return true;
@@ -1115,13 +1123,14 @@ bool SpellInfo::IsProfession() const
     return false;
 }
 
-bool SpellInfo::IsPrimaryProfession() const
+bool SpellInfo::IsPrimaryProfession(uint32 difficulty) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
+        if ((*itr)->Effect == SPELL_EFFECT_SKILL)
         {
-            uint32 skill = Effects[i].MiscValue;
+            uint32 skill = (*itr)->MiscValue;
 
             if (IsPrimaryProfessionSkill(skill))
                 return true;
@@ -1130,9 +1139,9 @@ bool SpellInfo::IsPrimaryProfession() const
     return false;
 }
 
-bool SpellInfo::IsPrimaryProfessionFirstRank() const
+bool SpellInfo::IsPrimaryProfessionFirstRank(uint32 difficulty) const
 {
-    return IsPrimaryProfession() && GetRank() == 1;
+    return IsPrimaryProfession(difficulty) && GetRank() == 1;
 }
 
 bool SpellInfo::IsAbilityLearnedWithProfession() const
@@ -1163,20 +1172,26 @@ bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
     return false;
 }
 
-bool SpellInfo::IsAffectingArea() const
+bool SpellInfo::IsAffectingArea(uint32 difficulty) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect() && (Effects[i].IsTargetingArea() || Effects[i].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) || Effects[i].IsAreaAuraEffect()))
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
+    {
+        if ((*itr)->IsEffect() && ((*itr)->IsTargetingArea() || (*itr)->IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) || (*itr)->IsAreaAuraEffect()))
             return true;
+    }
     return false;
 }
 
 // checks if spell targets are selected from area, doesn't include spell effects in check (like area wide auras for example)
-bool SpellInfo::IsTargetingArea() const
+bool SpellInfo::IsTargetingArea(uint32 difficulty) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect() && Effects[i].IsTargetingArea())
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
+    {
+        if ((*itr)->IsEffect() && (*itr)->IsTargetingArea())
             return true;
+    }
     return false;
 }
 
@@ -2931,16 +2946,46 @@ SpellCooldownsEntry const* SpellInfo::GetSpellCooldowns() const
 void SpellInfo::_UnloadImplicitTargetConditionLists()
 {
     // find the same instances of ConditionList and delete them.
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint32 d = 0; d < DIFFICULTY_MAX; ++d)
     {
-        ConditionList* cur = Effects[i].ImplicitTargetConditions;
-        if (!cur)
-            continue;
-        for (uint8 j = i; j < MAX_SPELL_EFFECTS; ++j)
+        for (uint32 i = 0; i < Effects.size(); ++i)
         {
-            if (Effects[j].ImplicitTargetConditions == cur)
-                Effects[j].ImplicitTargetConditions = NULL;
+            if (SpellEffectInfo const* effect = GetEffect(d, i))
+            {
+                ConditionList* cur = effect->ImplicitTargetConditions;
+                if (!cur)
+                    continue;
+                for (uint8 j = i; j < Effects.size(); ++j)
+                {
+                    if (SpellEffectInfo const* eff = GetEffect(d, j))
+                    {
+                        if (eff->ImplicitTargetConditions == cur)
+                            const_cast<SpellEffectInfo*>(eff)->ImplicitTargetConditions = NULL;
+                    }
+                }
+                delete cur;
+            }
         }
-        delete cur;
     }
+}
+
+SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) const
+{
+    // downscale difficulty if original was not found
+    for (; difficulty >= DIFFICULTY_NONE; --difficulty)
+    {
+        SpellEffectInfoMap::const_iterator itr = Effects.find(difficulty);
+        if (itr != Effects.end())
+            return itr->second;
+    }
+    return SpellEffectInfoVector();
+}
+
+SpellEffectInfo const* SpellInfo::GetEffect(uint32 difficulty, uint32 index) const
+{
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    if (index >= effects.size())
+        return nullptr;
+
+    return effects[index];
 }

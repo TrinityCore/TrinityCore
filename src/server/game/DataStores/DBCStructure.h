@@ -1800,8 +1800,8 @@ struct SpellEffectEntry
     float       BonusCoefficientFromAP;                     // 30
 };
 
-#define MAX_SPELL_EFFECTS 3
-#define MAX_EFFECT_MASK 7
+#define MAX_SPELL_EFFECTS 32
+#define MAX_EFFECT_MASK 0xFFFFFFFF
 
 // SpellAuraOptions.dbc
 struct SpellAuraOptionsEntry

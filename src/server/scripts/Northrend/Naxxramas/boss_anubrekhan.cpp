@@ -80,7 +80,7 @@ public:
 
             Initialize();
 
-            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+            if (GetDifficulty() == DIFFICULTY_25_N)
             {
                 Position pos;
 
@@ -121,7 +121,7 @@ public:
             events.ScheduleEvent(EVENT_LOCUST, 90000);
             events.ScheduleEvent(EVENT_BERSERK, 600000);
 
-            if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+            if (GetDifficulty() == DIFFICULTY_10_N)
                 events.ScheduleEvent(EVENT_SPAWN_GUARDIAN_NORMAL, urand(15000, 20000));
         }
 

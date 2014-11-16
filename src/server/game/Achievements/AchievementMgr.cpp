@@ -2533,7 +2533,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
                         if (!achievIdForDungeon[j][2])
                             break;                      // for
                     }
-                    else if (referencePlayer->GetDungeonDifficulty() == DUNGEON_DIFFICULTY_NORMAL)
+                    else if (referencePlayer->GetDungeonDifficulty() == DIFFICULTY_NORMAL)
                     {
                         // dungeon in normal mode accepted
                         if (!achievIdForDungeon[j][1])

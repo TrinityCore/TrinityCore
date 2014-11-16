@@ -268,7 +268,7 @@ struct LfgPlayerBoot
 struct LFGDungeonData
 {
     LFGDungeonData(): id(0), name(""), map(0), type(0), expansion(0), group(0), minlevel(0),
-        maxlevel(0), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
+        maxlevel(0), difficulty(DIFFICULTY_NONE), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
         requiredItemLevel(0)
         { }
     LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->Name_lang), map(dbc->MapID),

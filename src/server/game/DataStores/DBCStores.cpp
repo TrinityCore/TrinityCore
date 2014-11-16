@@ -891,7 +891,7 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &di
     MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
     if (!mapDiff)
     {
-        if (tmpDiff > RAID_DIFFICULTY_25MAN_NORMAL) // heroic, downscale to normal
+        if (tmpDiff > DIFFICULTY_25_N) // heroic, downscale to normal
             tmpDiff -= 2;
         else
             tmpDiff -= 1;   // any non-normal mode for raids like tbc (only one mode)

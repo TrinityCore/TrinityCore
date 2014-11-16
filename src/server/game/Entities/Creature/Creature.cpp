@@ -283,7 +283,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
         }
 
         // for instances heroic to normal, other cases attempt to retrieve previous difficulty
-        if (diff >= RAID_DIFFICULTY_10MAN_HEROIC && GetMap()->IsRaid())
+        if (diff >= DIFFICULTY_10_HC && GetMap()->IsRaid())
             diff -= 2;                                      // to normal raid difficulty cases
         else
             --diff;
