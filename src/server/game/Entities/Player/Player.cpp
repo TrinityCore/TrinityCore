@@ -2733,11 +2733,7 @@ void Player::SendInitialSpells()
 
 void Player::SendUnlearnSpells()
 {
-    WorldPacket data(SMSG_SEND_UNLEARN_SPELLS, 4 + 4 * m_spells.size());
-
-    uint32 spellCount = 0;
-    size_t countPos = data.wpos();
-    data << uint32(spellCount);                             // spell count placeholder
+    WorldPackets::Spells::SendUnlearnSpells sendUnlearnSpells;
 
     for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
     {
@@ -2768,14 +2764,10 @@ void Player::SendUnlearnSpells()
         if (!nextRank || !HasSpell(nextRank))
             continue;
 
-        data << uint32(itr->first);
-
-        ++spellCount;
+        sendUnlearnSpells.Spells.push_back(itr->first);
     }
 
-    data.put<uint32>(countPos, spellCount);                  // write real count value
-
-    SendDirectMessage(&data);
+    SendDirectMessage(sendUnlearnSpells.Write());
 }
 
 void Player::SendTameFailure(uint8 result)
@@ -5983,27 +5975,15 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 state) const
 {
-    WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*4));
-    data << uint8(state);
-    /*
-        state can be 0, 1, 2
-        0 - Sends initial action buttons, client does not validate if we have the spell or not
-        1 - Used used after spec swaps, client validates if a spell is known.
-        2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
-    */
-    if (state != 2)
-    {
-        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
-        {
-            ActionButtonList::const_iterator itr = m_actionButtons.find(button);
-            if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
-                data << uint32(itr->second.packedData);
-            else
-                data << uint32(0);
-        }
-    }
+    WorldPackets::Spells::UpdateActionButtons packet;
 
-    SendDirectMessage(&data);
+    for (auto const& [i, button] : m_actionButtons)
+        if (button.uState != ACTIONBUTTON_DELETED && i < packet.ActionButtons.size())
+            packet.ActionButtons[i] = button.packedData;
+
+    packet.Reason = state;
+
+    GetSession()->SendPacket(packet.Write());
 }
 
 bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) const

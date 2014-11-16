@@ -39,6 +39,24 @@ void PetCancelAura::Read()
     _worldPacket >> SpellID;
 }
 
+WorldPacket const* UpdateActionButtons::Write()
+{
+    _worldPacket << Reason;
+    if (Reason == 0 || Reason == 1)
+        _worldPacket.append(ActionButtons.data(), ActionButtons.size());
+
+    return &_worldPacket;
+}
+
+WorldPacket const* SendUnlearnSpells::Write()
+{
+    _worldPacket << uint32(Spells.size());
+    for (uint32 spellId : Spells)
+        _worldPacket << uint32(spellId);
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, InitialSpell const& initialSpell)
 {
     data << uint32(initialSpell.SpellID);

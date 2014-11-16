@@ -111,6 +111,35 @@ namespace WorldPackets
             std::vector<SpellHistoryEntry> SpellHistory;
         };
 
+        class UpdateActionButtons final : public ServerPacket
+        {
+        public:
+            static std::size_t constexpr NumActionButtons = 144;
+
+            explicit UpdateActionButtons() : ServerPacket(SMSG_ACTION_BUTTONS, NumActionButtons * 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            std::array<uint32, NumActionButtons> ActionButtons = { };
+            uint8 Reason = 0;
+            /*
+                Reason can be 0, 1, 2
+                0 - Sends initial action buttons, client does not validate if we have the spell or not
+                1 - Used used after spec swaps, client validates if a spell is known.
+                2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
+            */
+        };
+
+        class SendUnlearnSpells final : public ServerPacket
+        {
+        public:
+            explicit SendUnlearnSpells() : ServerPacket(SMSG_SEND_UNLEARN_SPELLS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<uint32> Spells;
+        };
+
         struct TargetLocation
         {
             ObjectGuid Transport;
