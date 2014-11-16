@@ -122,13 +122,13 @@ void LoadDB2Stores(std::string const& dataPath)
     uint32 availableDb2Locales = 0xFF;
 
     LoadDB2(availableDb2Locales, bad_db2_files, sHolidaysStore,             db2Path,    "Holidays.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemStore,                 db2Path,    "Item.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemStore,                  db2Path,    "Item.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemAppearanceStore,       db2Path,    "ItemAppearance.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemCurrencyCostStore,     db2Path,    "ItemCurrencyCost.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemExtendedCostStore,     db2Path,    "ItemExtendedCost.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemCurrencyCostStore,      db2Path,    "ItemCurrencyCost.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore,            db2Path,    "Item-sparse.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemExtendedCostStore,      db2Path,    "ItemExtendedCost.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemEffectStore,           db2Path,    "ItemEffect.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sKeyChainStore,             db2Path,    "KeyChain.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sKeyChainStore,              db2Path,    "KeyChain.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sOverrideSpellDataStore,    db2Path,    "OverrideSpellData.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sPhaseGroupStore,           db2Path,    "PhaseXPhaseGroup.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sSpellAuraRestrictionsStore, db2Path,   "SpellAuraRestrictions.db2");
