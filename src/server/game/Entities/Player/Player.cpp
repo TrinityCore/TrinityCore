@@ -87,6 +87,7 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 #include "MiscPackets.h"
+#include "ChatPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -1930,18 +1931,18 @@ void Player::ToggleDND()
     ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_DND);
 }
 
-uint8 Player::GetChatTag() const
+uint8 Player::GetChatFlags() const
 {
-    uint8 tag = CHAT_TAG_NONE;
+    uint8 tag = CHAT_FLAG_NONE;
 
     if (isGMChat())
-        tag |= CHAT_TAG_GM;
+        tag |= CHAT_FLAG_GM;
     if (isDND())
-        tag |= CHAT_TAG_DND;
+        tag |= CHAT_FLAG_DND;
     if (isAFK())
-        tag |= CHAT_TAG_AFK;
+        tag |= CHAT_FLAG_AFK;
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
-        tag |= CHAT_TAG_DEV;
+        tag |= CHAT_FLAG_DEV;
 
     return tag;
 }
@@ -6346,7 +6347,7 @@ void Player::SaveRecallPosition()
     m_recallO = GetOrientation();
 }
 
-void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self)
+void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self)
 {
     if (self)
         GetSession()->SendPacket(data);
@@ -6355,7 +6356,7 @@ void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self)
     VisitNearbyWorldObject(dist, notifier);
 }
 
-void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only)
+void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only)
 {
     if (self)
         GetSession()->SendPacket(data);
@@ -6364,7 +6365,7 @@ void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self, b
     VisitNearbyWorldObject(dist, notifier);
 }
 
-void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
+void Player::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr)
 {
     if (skipped_rcvr != this)
         GetSession()->SendPacket(data);
@@ -6375,7 +6376,7 @@ void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
-void Player::SendDirectMessage(WorldPacket const* data)
+void Player::SendDirectMessage(WorldPacket const* data) const
 {
     m_session->SendPacket(data);
 }
@@ -20416,9 +20417,9 @@ void Player::Say(std::string const& text, Language language, WorldObject const* 
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
 
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_SAY, language, this, this, _text);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    WorldPackets::Chat::Chat packet;
+    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_SAY, language, this, this, _text);
+    SendMessageToSetInRange(packet.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
 void Player::Yell(std::string const& text, Language language, WorldObject const* /*= nullptr*/)
@@ -20426,9 +20427,9 @@ void Player::Yell(std::string const& text, Language language, WorldObject const*
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
 
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_YELL, language, this, this, _text);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
+    WorldPackets::Chat::Chat packet;
+    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_YELL, language, this, this, _text);
+    SendMessageToSetInRange(packet.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
 }
 
 void Player::TextEmote(std::string const& text, WorldObject const* /*= nullptr*/, bool /*= false*/)
@@ -20436,9 +20437,9 @@ void Player::TextEmote(std::string const& text, WorldObject const* /*= nullptr*/
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
 
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, _text);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT));
+    WorldPackets::Chat::Chat packet;
+    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, _text);
+    SendMessageToSetInRange(packet.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT));
 }
 
 void Player::WhisperAddon(std::string const& text, const std::string& prefix, Player* receiver)
@@ -20449,9 +20450,9 @@ void Player::WhisperAddon(std::string const& text, const std::string& prefix, Pl
     if (!receiver->GetSession()->IsAddonRegistered(prefix))
         return;
 
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, LANG_ADDON, this, this, text, 0, "", DEFAULT_LOCALE, prefix);
-    receiver->GetSession()->SendPacket(&data);
+    WorldPackets::Chat::Chat packet;
+    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_WHISPER, LANG_ADDON, this, this, text, 0, "", DEFAULT_LOCALE, prefix);
+    receiver->GetSession()->SendPacket(packet.Write());
 }
 
 void Player::Whisper(std::string const& text, Language language, Player* target, bool /*= false*/)
@@ -20466,16 +20467,16 @@ void Player::Whisper(std::string const& text, Language language, Player* target,
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, target);
 
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, Language(language), this, this, _text);
-    target->GetSession()->SendPacket(&data);
+    WorldPackets::Chat::Chat packet;
+    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_WHISPER, Language(language), this, this, _text);
+    target->GetSession()->SendPacket(packet.Write());
 
     // rest stuff shouldn't happen in case of addon message
     if (isAddonMessage)
         return;
 
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER_INFORM, Language(language), target, target, _text);
-    GetSession()->SendPacket(&data);
+    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_WHISPER_INFORM, Language(language), target, target, _text);
+    GetSession()->SendPacket(packet.Write());
 
     if (!isAcceptWhispers() && !IsGameMaster() && !target->IsGameMaster())
     {
@@ -26742,7 +26743,13 @@ std::string Player::GetCoordsMapAreaAndZoneString()
 Guild* Player::GetGuild()
 {
     ObjectGuid::LowType guildId = GetGuildId();
-    return guildId ? sGuildMgr->GetGuildById(guildId) : NULL;
+    return guildId ? sGuildMgr->GetGuildById(guildId) : nullptr;
+}
+
+Guild const* Player::GetGuild() const
+{
+    ObjectGuid::LowType guildId = GetGuildId();
+    return guildId ? sGuildMgr->GetGuildById(guildId) : nullptr;
 }
 
 Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)

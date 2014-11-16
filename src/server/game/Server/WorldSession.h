@@ -102,6 +102,11 @@ namespace WorldPackets
         class UserClientUpdateAccountData;
     }
 
+    namespace Chat
+    {
+        class ChatMessage;
+    }
+
     namespace Combat
     {
         class AttackSwing;
@@ -815,7 +820,7 @@ class WorldSession
         void HandlePushQuestToParty(WorldPacket& recvPacket);
         void HandleQuestPushResult(WorldPacket& recvPacket);
 
-        void HandleMessagechatOpcode(WorldPacket& recvPacket);
+        void HandleMessagechatOpcode(WorldPackets::Chat::ChatMessage& packet);
         void HandleAddonMessagechatOpcode(WorldPacket& recvPacket);
         void SendPlayerNotFoundNotice(std::string const& name);
         void SendPlayerAmbiguousNotice(std::string const& name);
