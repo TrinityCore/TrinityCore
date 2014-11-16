@@ -25478,14 +25478,20 @@ void Player::LearnTalentSpecialization(uint32 talentSpec)
         for (auto it = specSpells->second.begin(); it != specSpells->second.end(); ++it)
         {
             SpecializationSpellsEntry const* specSpell = *it;
-            if (HasSpell(specSpell->OverridesSpellID)) {
+
+            // Unlearn spell if it is replaced by new specialization
+            if (specSpell->OverridesSpellID)
                 RemoveSpell(specSpell->OverridesSpellID, true);
-                LearnSpell(specSpell->SpellID, false);
-            }
+
+            // Learn new spell
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID))
+                if (spellInfo->BaseLevel <= getLevel())
+                    LearnSpell(specSpell->SpellID, false);
         }
     }
 
-    if (CanUseMastery()) {
+    if (CanUseMastery())
+    {
         ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(talentSpec);
         for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
             if (SpellInfo const* masterySpell = sSpellMgr->GetSpellInfo(chrSpec->MasterySpellID[i]))
