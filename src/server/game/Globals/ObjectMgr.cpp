@@ -9014,6 +9014,12 @@ void ObjectMgr::LoadMissingKeyChains()
         uint32 id = fields[0].GetUInt32();
 
         KeyChainEntry* kce = sKeyChainStore.CreateEntry(id, true);
+        if (!kce)
+        {
+            TC_LOG_ERROR("sql.sql", "Could not create KeyChainEntry %u, skipped.", id);
+            continue;
+        }
+
         kce->Id = id;
         for (uint32 i = 0; i < KEYCHAIN_SIZE; ++i)
             kce->Key[i] = fields[1 + i].GetUInt8();
