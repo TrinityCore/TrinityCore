@@ -622,13 +622,17 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang)
         return;
     }
 
-    WorldPacket data;
+    WorldPackets::Chat::Chat packet;
     if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-        ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, _name);
+        ChatHandler::BuildChatPacket(&packet, CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, _name);
     else
-        ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), guid, guid, what, 0, "", "", 0, false, _name);
+    {
+        ChatHandler::BuildChatPacket(&packet, CHAT_MSG_CHANNEL, Language(lang), NULL, NULL, what, 0,  _name);
+        packet.SenderGUID = guid;
+        packet.TargetGUID = guid;
+    }
 
-    SendToAll(&data, !playersStore[guid].IsModerator() ? guid : ObjectGuid::Empty);
+    SendToAll(packet.Write(), !playersStore[guid].IsModerator() ? guid : ObjectGuid::Empty);
 }
 
 void Channel::Invite(Player const* player, std::string const& newname)
@@ -722,7 +726,7 @@ void Channel::SetOwner(ObjectGuid guid, bool exclaim)
     }
 }
 
-void Channel::SendToAll(WorldPacket* data, ObjectGuid guid)
+void Channel::SendToAll(WorldPacket const* data, ObjectGuid guid)
 {
     for (PlayerContainer::const_iterator i = playersStore.begin(); i != playersStore.end(); ++i)
         if (Player* player = ObjectAccessor::FindConnectedPlayer(i->first))
@@ -730,7 +734,7 @@ void Channel::SendToAll(WorldPacket* data, ObjectGuid guid)
                 player->GetSession()->SendPacket(data);
 }
 
-void Channel::SendToAllButOne(WorldPacket* data, ObjectGuid who)
+void Channel::SendToAllButOne(WorldPacket const* data, ObjectGuid who)
 {
     for (PlayerContainer::const_iterator i = playersStore.begin(); i != playersStore.end(); ++i)
         if (i->first != who)
@@ -738,7 +742,7 @@ void Channel::SendToAllButOne(WorldPacket* data, ObjectGuid who)
                 player->GetSession()->SendPacket(data);
 }
 
-void Channel::SendToOne(WorldPacket* data, ObjectGuid who)
+void Channel::SendToOne(WorldPacket const* data, ObjectGuid who)
 {
     if (Player* player = ObjectAccessor::FindConnectedPlayer(who))
         player->GetSession()->SendPacket(data);

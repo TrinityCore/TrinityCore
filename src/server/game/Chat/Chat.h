@@ -22,6 +22,7 @@
 #include "SharedDefines.h"
 #include "WorldSession.h"
 #include "RBAC.h"
+#include "Packets/ChatPackets.h"
 
 #include <vector>
 
@@ -53,14 +54,7 @@ class ChatHandler
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
-        // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
-        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, ObjectGuid senderGUID, ObjectGuid receiverGUID, std::string const& message, uint8 chatTag,
-                                    std::string const& senderName = "", std::string const& receiverName = "",
-                                    uint32 achievementId = 0, bool gmMessage = false, std::string const& channelName = "",
-                                    std::string const& addonPrefix = "");
-
-        // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
-        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message, uint32 achievementId = 0, std::string const& channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string const& addonPrefix = "");
+        static void BuildChatPacket(WorldPackets::Chat::Chat* packet, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message, uint32 achievementId = 0, std::string const& channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string const& addonPrefix = "");
 
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = NULL; return start; }
 

@@ -226,9 +226,9 @@ class Channel
         void MakeVoiceOn(WorldPacket* data, ObjectGuid guid);                   //+ 0x22
         void MakeVoiceOff(WorldPacket* data, ObjectGuid guid);                  //+ 0x23
 
-        void SendToAll(WorldPacket* data, ObjectGuid guid = ObjectGuid::Empty);
-        void SendToAllButOne(WorldPacket* data, ObjectGuid who);
-        void SendToOne(WorldPacket* data, ObjectGuid who);
+        void SendToAll(WorldPacket const* data, ObjectGuid guid = ObjectGuid::Empty);
+        void SendToAllButOne(WorldPacket const* data, ObjectGuid who);
+        void SendToOne(WorldPacket const* data, ObjectGuid who);
 
         bool IsOn(ObjectGuid who) const { return playersStore.find(who) != playersStore.end(); }
         bool IsBanned(ObjectGuid guid) const { return bannedStore.find(guid) != bannedStore.end(); }

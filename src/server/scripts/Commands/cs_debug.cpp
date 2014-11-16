@@ -481,9 +481,9 @@ public:
 
         char const* msg = "testtest";
         uint8 type = atoi(args);
-        WorldPacket data;
-        ChatHandler::BuildChatPacket(data, ChatMsg(type), LANG_UNIVERSAL, handler->GetSession()->GetPlayer(), handler->GetSession()->GetPlayer(), msg, 0, "chan");
-        handler->GetSession()->SendPacket(&data);
+        WorldPackets::Chat::Chat packet;
+        ChatHandler::BuildChatPacket(&packet, ChatMsg(type), LANG_UNIVERSAL, handler->GetSession()->GetPlayer(), handler->GetSession()->GetPlayer(), msg, 0, "chan");
+        handler->GetSession()->SendPacket(packet.Write());
         return true;
     }
 

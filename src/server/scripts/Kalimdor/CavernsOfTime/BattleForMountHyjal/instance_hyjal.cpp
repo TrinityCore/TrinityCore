@@ -31,6 +31,7 @@ EndScriptData */
 #include "WorldPacket.h"
 #include "Chat.h"
 #include "WorldSession.h"
+#include "Packets/ChatPackets.h"
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event
@@ -173,10 +174,9 @@ public:
                                     {
                                          if (Player* player = i->GetSource())
                                          {
-                                            WorldPacket packet;
-
-                                            ChatHandler::BuildChatPacket(packet, CHAT_MSG_MONSTER_YELL, LANG_UNIVERSAL, unit, player, YELL_EFFORTS);
-                                            player->SendDirectMessage(&packet);
+                                            WorldPackets::Chat::Chat packet;
+                                            ChatHandler::BuildChatPacket(&packet, CHAT_MSG_MONSTER_YELL, LANG_UNIVERSAL, unit, player, YELL_EFFORTS);
+                                            player->SendDirectMessage(packet.Write());
                                             player->PlayDirectSound(10986, player);
                                          }
                                     }

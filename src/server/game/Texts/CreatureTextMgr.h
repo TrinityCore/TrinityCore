@@ -24,6 +24,7 @@
 #include "SharedDefines.h"
 #include "Opcodes.h"
 #include "Group.h"
+#include "Packets/ChatPackets.h"
 
 enum CreatureTextRange
 {
@@ -133,50 +134,38 @@ class CreatureTextLocalizer
         ~CreatureTextLocalizer()
         {
             for (size_t i = 0; i < _packetCache.size(); ++i)
-            {
-                if (_packetCache[i])
-                    delete _packetCache[i]->first;
                 delete _packetCache[i];
-            }
         }
 
         void operator()(Player* player)
         {
             LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-            WorldPacket* messageTemplate;
-            size_t whisperGUIDpos;
+            WorldPackets::Chat::Chat* messageTemplate;
 
             // create if not cached yet
             if (!_packetCache[loc_idx])
             {
-                messageTemplate = new WorldPacket();
-                whisperGUIDpos = _builder(messageTemplate, loc_idx);
-                ASSERT(messageTemplate->GetOpcode() != NULL_OPCODE);
-                _packetCache[loc_idx] = new std::pair<WorldPacket*, size_t>(messageTemplate, whisperGUIDpos);
+                messageTemplate = new WorldPackets::Chat::Chat();
+                _packetCache[loc_idx] = messageTemplate;
             }
             else
-            {
-                messageTemplate = _packetCache[loc_idx]->first;
-                whisperGUIDpos = _packetCache[loc_idx]->second;
-            }
+                messageTemplate = _packetCache[loc_idx];
 
-            WorldPacket data(*messageTemplate);
             switch (_msgType)
             {
                 case CHAT_MSG_MONSTER_WHISPER:
                 case CHAT_MSG_RAID_BOSS_WHISPER:
-                    // TODO: Fix this. GUIDs are now always written packed and can have different packed lengths
-                    //data.put<uint64>(whisperGUIDpos, player->GetGUID().GetRawValue());
+                    messageTemplate->TargetGUID = player->GetGUID();
                     break;
                 default:
                     break;
             }
 
-            player->SendDirectMessage(&data);
+            player->SendDirectMessage(messageTemplate->Write());
         }
 
     private:
-        std::vector<std::pair<WorldPacket*, size_t>* > _packetCache;
+        std::vector<WorldPackets::Chat::Chat*> _packetCache;
         Builder const& _builder;
         ChatMsg _msgType;
 };
