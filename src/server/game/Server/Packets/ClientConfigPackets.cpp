@@ -84,4 +84,42 @@ WorldPacket const* ClientCacheVersion::Write()
 
     return &_worldPacket;
 }
+
+void RequestAccountData::Read()
+{
+    _worldPacket >> DataType;
+}
+
+WorldPacket const* UpdateAccountData::Write()
+{
+    _worldPacket << Player;
+    _worldPacket << int32(DataType);
+    _worldPacket << uint32(Time);
+    _worldPacket << uint32(Size);
+    if (!CompressedData.empty())
+        _worldPacket.append(CompressedData.data(), CompressedData.size());
+
+    return &_worldPacket;
+}
+
+void UserClientUpdateAccountData::Read()
+{
+    _worldPacket >> DataType;
+    _worldPacket >> Time;
+    _worldPacket >> Size;
+
+    std::size_t pos = _worldPacket.rpos();
+    std::size_t remainingSize = _worldPacket.size() - pos;
+
+    CompressedData = { _worldPacket.contents() + pos, remainingSize };
+    _worldPacket.rpos(pos + remainingSize);
+}
+
+WorldPacket const* UpdateAccountDataComplete::Write()
+{
+    _worldPacket << int32(DataType);
+    _worldPacket << int32(Result);
+
+    return &_worldPacket;
+}
 }

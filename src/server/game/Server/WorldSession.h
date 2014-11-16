@@ -144,6 +144,12 @@ namespace WorldPackets
         class PlayedTimeClient;
     }
 
+    namespace ClientConfig
+    {
+        class RequestAccountData;
+        class UserClientUpdateAccountData;
+    }
+
     namespace Chat
     {
         class EmoteClient;
@@ -323,9 +329,7 @@ uint32 constexpr MAX_CHARACTERS_PER_REALM = 10; // max supported by client in ch
 
 struct AccountData
 {
-    AccountData() : Time(0), Data("") { }
-
-    time_t Time;
+    time_t Time = 0;
     std::string Data;
 };
 
@@ -559,7 +563,7 @@ class TC_GAME_API WorldSession
         bool CheckStableMaster(ObjectGuid guid);
 
         // Account Data
-        AccountData* GetAccountData(AccountDataType type) { return &m_accountData[type]; }
+        AccountData const* GetAccountData(AccountDataType type) const { return &m_accountData[type]; }
         void SetAccountData(AccountDataType type, time_t tm, std::string const& data);
         void SendAccountDataTimes(uint32 mask);
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
@@ -762,8 +766,8 @@ class TC_GAME_API WorldSession
         void HandleSetWatchedFactionOpcode(WorldPacket& recvData);
         void HandleSetFactionInactiveOpcode(WorldPacket& recvData);
 
-        void HandleUpdateAccountData(WorldPacket& recvPacket);
-        void HandleRequestAccountData(WorldPacket& recvPacket);
+        void HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet);
+        void HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request);
         void HandleSetActionButtonOpcode(WorldPacket& recvPacket);
 
         void HandleGameObjectUseOpcode(WorldPacket& recPacket);

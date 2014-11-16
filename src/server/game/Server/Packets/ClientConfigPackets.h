@@ -18,6 +18,7 @@
 #ifndef TRINITYCORE_CLIENT_CONFIG_PACKETS_H
 #define TRINITYCORE_CLIENT_CONFIG_PACKETS_H
 
+#include "ObjectGuid.h"
 #include "Packet.h"
 #include <span>
 
@@ -49,6 +50,54 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 CacheVersion = 0;
+        };
+
+        class RequestAccountData final : public ClientPacket
+        {
+        public:
+            explicit RequestAccountData(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_ACCOUNT_DATA, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 DataType = 0; ///< @see enum AccountDataType
+        };
+
+        class UpdateAccountData final : public ServerPacket
+        {
+        public:
+            explicit UpdateAccountData() : ServerPacket(SMSG_UPDATE_ACCOUNT_DATA) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Player;
+            uint32 Time    = 0; ///< UnixTime
+            uint32 Size    = 0; ///< decompressed size
+            int32 DataType = 0; ///< @see enum AccountDataType
+            std::vector<uint8> CompressedData;
+        };
+
+        class UserClientUpdateAccountData final : public ClientPacket
+        {
+        public:
+            explicit UserClientUpdateAccountData(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_ACCOUNT_DATA, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Time    = 0; ///< UnixTime
+            uint32 Size    = 0; ///< decompressed size
+            int32 DataType = 0; ///< @see enum AccountDataType
+            std::span<uint8 const> CompressedData;
+        };
+
+        class UpdateAccountDataComplete final : public ServerPacket
+        {
+        public:
+            explicit UpdateAccountDataComplete() : ServerPacket(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 DataType = 0; ///< @see enum AccountDataType
+            int32 Result = 0;
         };
     }
 }

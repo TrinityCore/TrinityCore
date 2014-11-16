@@ -354,7 +354,7 @@ class TC_SHARED_API ByteBuffer
 
         void read(uint8 *dest, size_t len)
         {
-            if (_rpos  + len > size())
+            if (_rpos + len > size())
                throw ByteBufferPositionException(false, _rpos, len, size());
             std::memcpy(dest, &_storage[_rpos], len);
             _rpos += len;
