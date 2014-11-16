@@ -6203,29 +6203,20 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 state) const
 {
-    WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*4));
-    /*
-        state can be 0, 1, 2
-        0 - Sends initial action buttons, client does not validate if we have the spell or not
-        1 - Used used after spec swaps, client validates if a spell is known.
-        2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
-    */
-    if (state != 2)
-    {
-        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
-        {
-            ActionButtonList::const_iterator itr = m_actionButtons.find(button);
-            if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
-                data << uint32(itr->second.packedData);
-            else
-                data << uint32(0);
-        }
-    }
-    else
-        data.resize(MAX_ACTION_BUTTONS * 4);    // insert crap, client doesnt even parse this for state == 2
+    WorldPackets::Spell::UpdateActionButtons packet;
 
-    data << uint8(state);
-    GetSession()->SendPacket(&data);
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ActionButtonList::const_iterator itr = m_actionButtons.find(button);
+        if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
+            packet.ActionButtons[button] = uint32(itr->second.packedData);
+        else
+            packet.ActionButtons[button] = 0;
+    }
+
+    packet.Reason = state;
+
+    GetSession()->SendPacket(packet.Write());
     TC_LOG_INFO("network", "Action Buttons for '%s' group '%u' Sent", GetGUID().ToString().c_str(), GetActiveTalentGroup());
 }
 
@@ -23017,9 +23008,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendKnownSpells();
 
-    data.Initialize(SMSG_SEND_UNLEARN_SPELLS, 4);
-    data << uint32(0);                                      // count, for (count) uint32;
-    GetSession()->SendPacket(&data);
+    WorldPackets::Spell::SendUnlearnSpells packet;
+    GetSession()->SendPacket(packet.Write());
 
     SendInitialActionButtons();
     m_reputationMgr->SendInitialReputations();

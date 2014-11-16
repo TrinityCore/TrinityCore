@@ -68,7 +68,7 @@ namespace WorldPackets
         class TutorialFlags : public ServerPacket
         {
         public:
-            TutorialFlags() : ServerPacket(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 32) { }
+            TutorialFlags() : ServerPacket(SMSG_TUTORIAL_FLAGS, 32) { }
 
             WorldPacket const* Write() override;
 

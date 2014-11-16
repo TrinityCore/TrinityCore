@@ -328,15 +328,15 @@ enum ReputationSource
     REPUTATION_SOURCE_SPELL
 };
 
-#define ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
-#define ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
-#define MAX_ACTION_BUTTON_ACTION_VALUE (0x00FFFFFF+1)
+#define ACTION_BUTTON_ACTION(X) (uint64(X) & 0x00000000FFFFFFFF)
+#define ACTION_BUTTON_TYPE(X)   ((uint64(X) & 0xFFFFFFFF00000000) >> 32)
+#define MAX_ACTION_BUTTON_ACTION_VALUE (0xFFFFFFFF)
 
 struct ActionButton
 {
     ActionButton() : packedData(0), uState(ACTIONBUTTON_NEW) { }
 
-    uint32 packedData;
+    uint64 packedData;
     ActionButtonUpdateState uState;
 
     // helpers
@@ -344,7 +344,7 @@ struct ActionButton
     uint32 GetAction() const { return ACTION_BUTTON_ACTION(packedData); }
     void SetActionAndType(uint32 action, ActionButtonType type)
     {
-        uint32 newData = action | (uint32(type) << 24);
+        uint64 newData = uint64(action) | (uint64(type) << 32);
         if (newData != packedData || uState == ACTIONBUTTON_DELETED)
         {
             packedData = newData;
@@ -354,7 +354,7 @@ struct ActionButton
     }
 };
 
-#define  MAX_ACTION_BUTTONS 144                             //checked in 3.2.0
+#define MAX_ACTION_BUTTONS 132
 
 typedef std::map<uint8, ActionButton> ActionButtonList;
 
