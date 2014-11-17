@@ -144,6 +144,7 @@ namespace WorldPackets
     namespace Movement
     {
         class ClientPlayerMovement;
+        class WorldPortAck;
     }
 }
 
@@ -616,7 +617,7 @@ class WorldSession
 
         void HandleGameObjectQueryOpcode(WorldPacket& recvPacket);
 
-        void HandleMoveWorldportAckOpcode(WorldPacket& recvPacket);
+        void HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortAck& packet);
         void HandleMoveWorldportAckOpcode();                // for server-side calls
 
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
