@@ -173,7 +173,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
     if (type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
         sender->UpdateSpeakTime(lang == LANG_ADDON ? Player::ChatFloodThrottle::ADDON : Player::ChatFloodThrottle::REGULAR);
 
-    if (sender->HasAura(1852) && type != CHAT_MSG_WHISPER)
+    if (sender->HasAura(GM_SILENCE_AURA) && type != CHAT_MSG_WHISPER)
     {
         SendNotification(GetTrinityString(LANG_GM_SILENCE), sender->GetName().c_str());
         return;
@@ -315,7 +315,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
                 }
             }
 
-            if (GetPlayer()->HasAura(1852) && !receiver->IsGameMaster())
+            if (GetPlayer()->HasAura(GM_SILENCE_AURA) && !receiver->IsGameMaster())
             {
                 SendNotification(GetTrinityString(LANG_GM_SILENCE), GetPlayer()->GetName().c_str());
                 return;
@@ -552,34 +552,32 @@ namespace Trinity
     class EmoteChatBuilder
     {
         public:
-            EmoteChatBuilder(Player const& player, uint32 text_emote, uint32 emote_num, Unit const* target)
+            EmoteChatBuilder(Player const& player, int32 text_emote, int32 emote_num, Unit const* target)
                 : i_player(player), i_text_emote(text_emote), i_emote_num(emote_num), i_target(target) { }
 
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            void operator()(WorldPacket& data, LocaleConstant loc_idx) const
             {
-                std::string const name(i_target ? i_target->GetNameForLocaleIdx(loc_idx) : "");
-                uint32 namlen = name.size();
+                using namespace std::string_view_literals;
 
-                data.Initialize(SMSG_TEXT_EMOTE, 20 + namlen);
-                data << i_player.GetGUID();
-                data << uint32(i_text_emote);
-                data << uint32(i_emote_num);
-                data << uint32(namlen);
-                if (namlen > 1)
-                    data << name;
-                else
-                    data << uint8(0x00);
+                WorldPackets::Chat::STextEmote packet;
+                packet.SourceGUID = i_player.GetGUID();
+                packet.TargetName = i_target ? i_target->GetNameForLocaleIdx(loc_idx) : ""sv;
+                packet.EmoteID = i_text_emote;
+                packet.SoundIndex = i_emote_num;
+                packet.Write();
+
+                data = packet.Move();
             }
 
         private:
             Player const& i_player;
-            uint32        i_text_emote;
-            uint32        i_emote_num;
+            int32         i_text_emote;
+            int32         i_emote_num;
             Unit const*   i_target;
     };
-}                                                           // namespace Trinity
+}
 
-void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
+void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
 {
     if (!GetPlayer()->IsAlive())
         return;
@@ -591,16 +589,9 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
         return;
     }
 
-    uint32 text_emote, emoteNum;
-    ObjectGuid guid;
+    sScriptMgr->OnPlayerTextEmote(GetPlayer(), packet.EmoteID, packet.SoundIndex, packet.Target);
 
-    recvData >> text_emote;
-    recvData >> emoteNum;
-    recvData >> guid;
-
-    sScriptMgr->OnPlayerTextEmote(GetPlayer(), text_emote, emoteNum, guid);
-
-    EmotesTextEntry const* em = sEmotesTextStore.LookupEntry(text_emote);
+    EmotesTextEntry const* em = sEmotesTextStore.LookupEntry(packet.EmoteID);
     if (!em)
         return;
 
@@ -624,24 +615,18 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
             break;
     }
 
-    Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
+    Unit* unit = ObjectAccessor::GetUnit(*_player, packet.Target);
 
-    CellCoord p = Trinity::ComputeCellCoord(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
-
-    Cell cell(p);
-    cell.SetNoCreate();
-
-    Trinity::EmoteChatBuilder emote_builder(*GetPlayer(), text_emote, emoteNum, unit);
+    Trinity::EmoteChatBuilder emote_builder(*GetPlayer(), packet.EmoteID, packet.SoundIndex, unit);
     Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > emote_do(emote_builder);
     Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > > emote_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), emote_do);
-    TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder> >, WorldTypeMapContainer> message(emote_worker);
-    cell.Visit(p, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+    Cell::VisitWorldObjects(GetPlayer(), emote_worker, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
 
-    GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, unit);
+    GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, packet.EmoteID, 0, unit);
 
     //Send scripted event call
-    if (unit && unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())
-        ((Creature*)unit)->AI()->ReceiveEmote(GetPlayer(), text_emote);
+    if (Creature* creature = Object::ToCreature(unit))
+        creature->AI()->ReceiveEmote(_player, packet.EmoteID);
 }
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)

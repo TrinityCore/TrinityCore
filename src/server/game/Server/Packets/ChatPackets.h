@@ -78,8 +78,33 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 EmoteID = 0;
             ObjectGuid Guid;
+            uint32 EmoteID = 0;
+        };
+
+        class CTextEmote final : public ClientPacket
+        {
+        public:
+            explicit CTextEmote(WorldPacket&& packet) : ClientPacket(CMSG_TEXT_EMOTE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Target;
+            int32 EmoteID = 0;
+            int32 SoundIndex = 0;
+        };
+
+        class STextEmote final : public ServerPacket
+        {
+        public:
+            explicit STextEmote() : ServerPacket(SMSG_TEXT_EMOTE, 8 + 4 + 4 + 4 + 48) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceGUID;
+            std::string_view TargetName;
+            int32 EmoteID = 0;
+            int32 SoundIndex = 0;
         };
 
         class EmoteClient final : public ClientPacket

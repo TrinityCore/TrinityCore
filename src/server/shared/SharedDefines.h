@@ -3278,6 +3278,8 @@ enum ChatMsg : uint8
     MAX_CHAT_MSG_TYPE
 };
 
+#define GM_SILENCE_AURA 1852
+
 enum PlayerChatTag
 {
     CHAT_TAG_NONE       = 0x00,

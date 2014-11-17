@@ -209,3 +209,22 @@ WorldPacket const* WorldPackets::Chat::ChatServerMessage::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Chat::CTextEmote::Read()
+{
+    _worldPacket >> EmoteID;
+    _worldPacket >> SoundIndex;
+    _worldPacket >> Target;
+}
+
+WorldPacket const* WorldPackets::Chat::STextEmote::Write()
+{
+    _worldPacket << SourceGUID;
+    _worldPacket << int32(EmoteID);
+    _worldPacket << int32(SoundIndex);
+    _worldPacket << uint32(TargetName.size());
+    if (!TargetName.empty())
+        _worldPacket.append(TargetName.data(), TargetName.size());
+
+    return &_worldPacket;
+}

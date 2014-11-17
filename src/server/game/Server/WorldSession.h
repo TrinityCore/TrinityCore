@@ -153,6 +153,7 @@ namespace WorldPackets
     namespace Chat
     {
         class ChatMessage;
+        class CTextEmote;
         class EmoteClient;
     }
 
@@ -974,7 +975,7 @@ class TC_GAME_API WorldSession
         void SendPlayerAmbiguousNotice(std::string const& name);
         void SendWrongFactionNotice();
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
-        void HandleTextEmoteOpcode(WorldPacket& recvPacket);
+        void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
         void HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& packet);
