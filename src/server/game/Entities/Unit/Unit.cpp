@@ -1410,10 +1410,10 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 
 void Unit::HandleEmoteCommand(uint32 anim_id)
 {
-    WorldPacket data(SMSG_EMOTE, 4 + 8);
-    data << uint32(anim_id);
-    data << GetGUID();
-    SendMessageToSet(&data, true);
+    WorldPackets::Chat::Emote packet;
+    packet.Guid = GetGUID();
+    packet.EmoteID = anim_id;
+    SendMessageToSet(packet.Write(), true);
 }
 
 bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo, uint8 effIndex)

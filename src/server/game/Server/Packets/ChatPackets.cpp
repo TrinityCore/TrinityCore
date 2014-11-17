@@ -24,6 +24,61 @@ void WorldPackets::Chat::ChatMessage::Read()
     Text = _worldPacket.ReadString(len);
 }
 
+void WorldPackets::Chat::ChatMessageWhisper::Read()
+{
+    _worldPacket >> Language;
+    uint32 targetLen = _worldPacket.ReadBits(9);
+    uint32 textLen = _worldPacket.ReadBits(8);
+    Target = _worldPacket.ReadString(targetLen);
+    Text = _worldPacket.ReadString(textLen);
+}
+
+void WorldPackets::Chat::ChatMessageChannel::Read()
+{
+    _worldPacket >> Language;
+    uint32 targetLen = _worldPacket.ReadBits(9);
+    uint32 textLen = _worldPacket.ReadBits(8);
+    _worldPacket.ResetBitPos();
+    Target = _worldPacket.ReadString(targetLen);
+    Text = _worldPacket.ReadString(textLen);
+}
+
+void WorldPackets::Chat::ChatAddonMessage::Read()
+{
+    uint32 prefixLen = _worldPacket.ReadBits(5);
+    uint32 textLen = _worldPacket.ReadBits(8);
+    Prefix = _worldPacket.ReadString(prefixLen);
+    Text = _worldPacket.ReadString(textLen);
+}
+
+void WorldPackets::Chat::ChatAddonMessageWhisper::Read()
+{
+    uint32 targetLen = _worldPacket.ReadBits(9);
+    uint32 prefixLen = _worldPacket.ReadBits(5);
+    uint32 textLen = _worldPacket.ReadBits(8);
+    Target = _worldPacket.ReadString(targetLen);
+    Prefix = _worldPacket.ReadString(prefixLen);
+    Text = _worldPacket.ReadString(textLen);
+}
+
+void WorldPackets::Chat::ChatMessageDND::Read()
+{
+    uint32 len = _worldPacket.ReadBits(8);
+    Text = _worldPacket.ReadString(len);
+}
+
+void WorldPackets::Chat::ChatMessageAFK::Read()
+{
+    uint32 len = _worldPacket.ReadBits(8);
+    Text = _worldPacket.ReadString(len);
+}
+
+void WorldPackets::Chat::ChatMessageEmote::Read()
+{
+    uint32 len = _worldPacket.ReadBits(8);
+    Text = _worldPacket.ReadString(len);
+}
+
 WorldPacket const* WorldPackets::Chat::Chat::Write()
 {
     _worldPacket << SlashCmd;
@@ -51,5 +106,31 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteString(Channel);
     _worldPacket.WriteString(ChatText);
 
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Chat::Emote::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << EmoteID;
+    
+    return &_worldPacket;
+}
+
+void WorldPackets::Chat::CTextEmote::Read()
+{
+    _worldPacket >> Target;
+    _worldPacket >> EmoteID;
+    _worldPacket >> SoundIndex;
+}
+
+WorldPacket const* WorldPackets::Chat::STextEmote::Write()
+{
+    _worldPacket << SourceGUID;
+    _worldPacket << SourceAccountGUID;
+    _worldPacket << SoundIndex;
+    _worldPacket << EmoteID;
+    _worldPacket << TargetGUID;
+    
     return &_worldPacket;
 }

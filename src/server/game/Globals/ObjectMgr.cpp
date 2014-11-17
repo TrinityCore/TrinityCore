@@ -155,6 +155,16 @@ bool normalizePlayerName(std::string& name)
     return true;
 }
 
+// Extracts player and realm names delimited by -
+ExtendedPlayerName ExtractExtendedPlayerName(std::string& name)
+{
+    size_t pos = name.find('-');
+    if (pos != std::string::npos)
+        return ExtendedPlayerName(name.substr(0, pos), name.substr(pos+1));
+    else
+        return ExtendedPlayerName(name, "");
+}
+
 LanguageDesc lang_description[LANGUAGES_COUNT] =
 {
     { LANG_ADDON,           0, 0                       },
