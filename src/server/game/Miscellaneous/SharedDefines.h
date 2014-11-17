@@ -4129,6 +4129,8 @@ enum ChatMsg
     CHAT_MSG_CURRENCY                           = 0x40
 };
 
+#define GM_SILENCE_AURA 1852
+
 #define MAX_CHAT_MSG_TYPE 0x41
 
 enum ChatFlags

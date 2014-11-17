@@ -102,9 +102,22 @@ namespace WorldPackets
         class UserClientUpdateAccountData;
     }
 
+    namespace Channel
+    {
+        class JoinChannel;
+    }
+
     namespace Chat
     {
         class ChatMessage;
+        class ChatMessageWhisper;
+        class ChatMessageChannel;
+        class ChatAddonMessage;
+        class ChatAddonMessageWhisper;
+        class ChatMessageAFK;
+        class ChatMessageDND;
+        class ChatMessageEmote;
+        class CTextEmote;
     }
 
     namespace Combat
@@ -308,7 +321,9 @@ class WorldSession
 
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
+        ObjectGuid GetAccountGUID() const { return ObjectGuid::Create<HighGuid::WowAccount>(GetAccountId()); }
         uint32 GetBattlenetAccountId() const { return _battlenetAccountId; }
+        ObjectGuid GetBattlenetAccountGUID() const { return ObjectGuid::Create<HighGuid::BNetAccount>(GetBattlenetAccountId()); }
         Player* GetPlayer() const { return _player; }
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
@@ -821,13 +836,21 @@ class WorldSession
         void HandlePushQuestToParty(WorldPacket& recvPacket);
         void HandleQuestPushResult(WorldPacket& recvPacket);
 
-        void HandleMessagechatOpcode(WorldPackets::Chat::ChatMessage& packet);
-        void HandleAddonMessagechatOpcode(WorldPacket& recvPacket);
+        void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& packet);
+        void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& packet);
+        void HandleChatMessageChannelOpcode(WorldPackets::Chat::ChatMessageChannel& packet);
+        void HandleChatMessage(ChatMsg type, uint32 lang, std::string msg, std::string target = "");
+        void HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMessage& packet);
+        void HandleChatAddonMessageWhisperOpcode(WorldPackets::Chat::ChatAddonMessageWhisper& packet);
+        void HandleChatAddonMessage(ChatMsg type, std::string prefix, std::string text, std::string target = "");
+        void HandleChatMessageAFKOpcode(WorldPackets::Chat::ChatMessageAFK& packet);
+        void HandleChatMessageDNDOpcode(WorldPackets::Chat::ChatMessageDND& packet);
+        void HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& packet);
         void SendPlayerNotFoundNotice(std::string const& name);
         void SendPlayerAmbiguousNotice(std::string const& name);
         void SendWrongFactionNotice();
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
-        void HandleTextEmoteOpcode(WorldPacket& recvPacket);
+        void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);

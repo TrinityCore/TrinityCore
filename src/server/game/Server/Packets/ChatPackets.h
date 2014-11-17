@@ -24,6 +24,13 @@ namespace WorldPackets
 {
     namespace Chat
     {
+        // CMSG_MESSAGECHAT_GUILD
+        // CMSG_MESSAGECHAT_OFFICER
+        // CMSG_MESSAGECHAT_YELL
+        // CMSG_MESSAGECHAT_SAY
+        // CMSG_MESSAGECHAT_PARTY
+        // CMSG_MESSAGECHAT_RAID
+        // CMSG_MESSAGECHAT_RAID_WARNING
         class ChatMessage final : public ClientPacket
         {
         public:
@@ -35,6 +42,91 @@ namespace WorldPackets
             int32 Language = LANG_UNIVERSAL;
         };
 
+        // CMSG_MESSAGECHAT_WHISPER
+        class ChatMessageWhisper final : public ClientPacket
+        {
+        public:
+            ChatMessageWhisper(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            int32 Language = LANG_UNIVERSAL;
+            std::string Text;
+            std::string Target;
+        };
+
+        // CMSG_MESSAGECHAT_CHANNEL
+        class ChatMessageChannel final : public ClientPacket
+        {
+        public:
+            ChatMessageChannel(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            int32 Language = LANG_UNIVERSAL;
+            std::string Text;
+            std::string Target;
+        };
+
+        // CMSG_MESSAGECHAT_ADDON_GUILD
+        // CMSG_MESSAGECHAT_ADDON_OFFICER
+        // CMSG_MESSAGECHAT_ADDON_PARTY
+        // CMSG_MESSAGECHAT_ADDON_RAID
+        class ChatAddonMessage final : public ClientPacket
+        {
+        public:
+            ChatAddonMessage(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            std::string Prefix;
+            std::string Text;
+        };
+
+        // CMSG_MESSAGECHAT_ADDON_WHISPER
+        class ChatAddonMessageWhisper final : public ClientPacket
+        {
+        public:
+            ChatAddonMessageWhisper(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            std::string Prefix;
+            std::string Target;
+            std::string Text;
+        };
+
+        class ChatMessageDND final : public ClientPacket
+        {
+        public:
+            ChatMessageDND(WorldPacket&& packet) : ClientPacket(CMSG_MESSAGECHAT_DND, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string Text;
+        };
+
+        class ChatMessageAFK final : public ClientPacket
+        {
+        public:
+            ChatMessageAFK(WorldPacket&& packet) : ClientPacket(CMSG_MESSAGECHAT_AFK, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string Text;
+        };
+
+        class ChatMessageEmote final : public ClientPacket
+        {
+        public:
+            ChatMessageEmote(WorldPacket&& packet) : ClientPacket(CMSG_MESSAGECHAT_EMOTE, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string Text;
+        };
+
+        // SMSG_MESSAGECHAT
         class Chat final : public ServerPacket
         {
         public:
@@ -61,6 +153,43 @@ namespace WorldPackets
             float DisplayTime = 0.0f;
             bool HideChatLog = false;
             bool FakeSenderName = false;
+        };
+
+        class Emote final : public ServerPacket
+        {
+        public:
+            Emote() : ServerPacket(SMSG_EMOTE, 8+4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            int32 EmoteID;
+        };
+
+        class CTextEmote final : public ClientPacket
+        {
+        public:
+            CTextEmote(WorldPacket&& packet) : ClientPacket(CMSG_TEXT_EMOTE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Target;
+            int32 EmoteID;
+            int32 SoundIndex;
+        };
+
+        class STextEmote final : public ServerPacket
+        {
+        public:
+            STextEmote() : ServerPacket(SMSG_TEXT_EMOTE, 8+8+4+4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceGUID;
+            ObjectGuid SourceAccountGUID; // Not in JAM
+            ObjectGuid TargetGUID;
+            int32 SoundIndex;
+            int32 EmoteID;
         };
     }
 }

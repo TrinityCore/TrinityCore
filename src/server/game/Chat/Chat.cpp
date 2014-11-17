@@ -634,6 +634,7 @@ void ChatHandler::BuildChatPacket(WorldPackets::Chat::Chat* packet, ChatMsg chat
                                   uint32 achievementId /*= 0*/, std::string const& channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string const& addonPrefix /*= ""*/)
 {
     // Clear everything because same packet can be used multiple times
+    packet->Reset();
     packet->SenderGUID.Clear();
     packet->SenderAccountGUID.Clear();
     packet->SenderGuildGUID.Clear();
@@ -655,7 +656,7 @@ void ChatHandler::BuildChatPacket(WorldPackets::Chat::Chat* packet, ChatMsg chat
 
         if (Player const* playerSender = sender->ToPlayer())
         {
-            packet->SenderAccountGUID = ObjectGuid::Create<HighGuid::WowAccount>(playerSender->GetSession()->GetAccountId());
+            packet->SenderAccountGUID = playerSender->GetSession()->GetAccountGUID();
             packet->ChatFlags = playerSender->GetChatFlags();
 
             if (Guild const* guild = playerSender->GetGuild())

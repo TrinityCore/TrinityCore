@@ -677,6 +677,15 @@ SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry);
 
 bool normalizePlayerName(std::string& name);
 
+struct ExtendedPlayerName
+{
+    ExtendedPlayerName(std::string name, std::string realm) : Name(name), Realm(realm) {}
+    std::string Name;
+    std::string Realm;
+};
+
+ExtendedPlayerName ExtractExtendedPlayerName(std::string& name);
+
 struct LanguageDesc
 {
     Language lang_id;
