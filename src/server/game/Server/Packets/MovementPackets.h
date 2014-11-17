@@ -38,7 +38,7 @@ namespace WorldPackets
         class ServerPlayerMovement final : public ServerPacket
         {
         public:
-            ServerPlayerMovement() : ServerPacket(SMSG_PLAYER_MOVE) {}
+            ServerPlayerMovement() : ServerPacket(SMSG_PLAYER_MOVE) { }
 
             WorldPacket const* Write() override;
 
@@ -48,7 +48,7 @@ namespace WorldPackets
         class NewWorld final : public ServerPacket
         {
         public:
-            NewWorld() : ServerPacket(SMSG_NEW_WORLD, 24) {}
+            NewWorld() : ServerPacket(SMSG_NEW_WORLD, 24) { }
 
             WorldPacket const* Write() override;
 
@@ -62,7 +62,7 @@ namespace WorldPackets
         public:
             WorldPortAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
-            void Read() override {};
+            void Read() override { }
         };
     }
 }

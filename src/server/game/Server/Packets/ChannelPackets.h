@@ -25,6 +25,29 @@ namespace WorldPackets
 {
     namespace Channel
     {
+        class ChannelList final : public ServerPacket
+        {
+        public:
+            struct ChannelPlayer
+            {
+                ChannelPlayer(ObjectGuid const& guid, uint32 realm, uint8 flags) :
+                    Guid(guid), VirtualRealmAddress(realm), Flags(flags) { }
+
+                ObjectGuid Guid; ///< Player Guid
+                uint32 VirtualRealmAddress;
+                uint8 Flags = 0; ///< @see enum ChannelMemberFlags
+            };
+
+            ChannelList() : ServerPacket(SMSG_CHANNEL_LIST) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<ChannelPlayer> Members;
+            std::string Channel; ///< Channel Name
+            uint8 ChannelFlags = 0; ///< @see enum ChannelFlags
+            bool Display = false;
+        };
+
         class ChannelNotify final : public ServerPacket
         {
         public:

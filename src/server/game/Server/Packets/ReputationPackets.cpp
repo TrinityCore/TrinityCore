@@ -15,34 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CombatPackets_h__
-#define CombatPackets_h__
+#include "ReputationPackets.h"
 
-#include "Packet.h"
-#include "ObjectGuid.h"
-
-namespace WorldPackets
+WorldPacket const* WorldPackets::Reputation::InitializeFactions::Write()
 {
-    namespace Combat
+    for (uint16 i = 0; i < FactionCount; ++i)
     {
-        class AttackSwing final : public ClientPacket
-        {
-        public:
-            AttackSwing(WorldPacket&& packet) : ClientPacket(CMSG_ATTACKSWING, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid Victim;
-        };
-
-        class AttackStop final : public ClientPacket
-        {
-        public:
-            AttackStop(WorldPacket&& packet) : ClientPacket(CMSG_ATTACKSTOP, std::move(packet)) { }
-
-            void Read() override { }
-        };
+        _worldPacket << uint8(FactionFlags[i]);
+        _worldPacket << int32(FactionStandings[i]);
     }
-}
 
-#endif // CombatPackets_h__
+    for (uint16 i = 0; i < FactionCount; ++i)
+        _worldPacket.WriteBit(FactionHasBonus[i]);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

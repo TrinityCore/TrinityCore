@@ -18,6 +18,24 @@
 #include "ChannelPackets.h"
 #include "Channel.h"
 
+WorldPacket const* WorldPackets::Channel::ChannelList::Write()
+{
+    _worldPacket.WriteBit(Display);
+    _worldPacket.WriteBits(Channel.length(), 7);
+    _worldPacket << uint8(ChannelFlags);
+    _worldPacket << uint32(Members.size());
+    _worldPacket.WriteString(Channel);
+
+    for (ChannelPlayer const& player : Members)
+    {
+        _worldPacket << player.Guid;
+        _worldPacket << uint32(player.VirtualRealmAddress);
+        _worldPacket << uint8(player.Flags);
+    }
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Channel::ChannelNotify::Write()
 {
     _worldPacket.WriteBits(Type, 6);

@@ -15831,7 +15831,7 @@ void Unit::SendTeleportPacket(Position& pos)
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldPacket data2(MSG_MOVE_TELEPORT, 38);
+        WorldPacket data2(SMSG_MOVE_TELEPORT, 38);
         data2.WriteBit(guid[6]);
         data2.WriteBit(guid[0]);
         data2.WriteBit(guid[3]);

@@ -15,34 +15,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CombatPackets_h__
-#define CombatPackets_h__
+#pragma once
 
 #include "Packet.h"
-#include "ObjectGuid.h"
 
 namespace WorldPackets
 {
-    namespace Combat
+    namespace Reputation
     {
-        class AttackSwing final : public ClientPacket
+        static uint16 const FactionCount = 256;
+
+        class InitializeFactions final : public ServerPacket
         {
         public:
-            AttackSwing(WorldPacket&& packet) : ClientPacket(CMSG_ATTACKSWING, std::move(packet)) { }
+            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS)
+            {
+                for (uint16 i = 0; i < FactionCount; ++i)
+                {
+                    FactionStandings[i] = 0;
+                    FactionHasBonus[i] = false;
+                    FactionFlags[i] = 0;
+                }
+            }
 
-            void Read() override;
+            WorldPacket const* Write() override;
 
-            ObjectGuid Victim;
-        };
-
-        class AttackStop final : public ClientPacket
-        {
-        public:
-            AttackStop(WorldPacket&& packet) : ClientPacket(CMSG_ATTACKSTOP, std::move(packet)) { }
-
-            void Read() override { }
+            int32 FactionStandings[FactionCount];
+            bool FactionHasBonus[FactionCount]; ///< @todo: implement faction bonus
+            uint8 FactionFlags[FactionCount]; ///< @see enum FactionFlags
         };
     }
 }
-
-#endif // CombatPackets_h__
