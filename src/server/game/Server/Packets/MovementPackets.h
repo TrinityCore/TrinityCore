@@ -19,6 +19,7 @@
 #define MovementPackets_h__
 
 #include "Packet.h"
+#include "Object.h"
 
 namespace WorldPackets
 {
@@ -42,6 +43,26 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             Unit* mover;
+        };
+
+        class NewWorld final : public ServerPacket
+        {
+        public:
+            NewWorld() : ServerPacket(SMSG_NEW_WORLD, 24) {}
+
+            WorldPacket const* Write() override;
+
+            int32 MapID         = 0;
+            uint32 Reason       = 0;
+            Position Pos;
+        };
+
+        class WorldPortAck final : public ClientPacket
+        {
+        public:
+            WorldPortAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override {};
         };
     }
 }

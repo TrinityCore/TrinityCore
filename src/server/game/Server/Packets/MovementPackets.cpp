@@ -175,3 +175,11 @@ WorldPacket const* WorldPackets::Movement::ServerPlayerMovement::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Movement::NewWorld::Write()
+{
+    _worldPacket << MapID;
+    _worldPacket << Pos.PositionXYZOStream();
+    _worldPacket << Reason;
+    return &_worldPacket;
+}

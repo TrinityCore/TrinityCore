@@ -88,6 +88,7 @@
 #include "WorldStatePackets.h"
 #include "MiscPackets.h"
 #include "ChatPackets.h"
+#include "MovementPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -2159,14 +2160,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             if (!GetSession()->PlayerLogout())
             {
-                WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-                data << float(m_teleport_dest.GetPositionX());
-                data << float(m_teleport_dest.GetOrientation());
-                data << float(m_teleport_dest.GetPositionZ());
-                data << uint32(mapid);
-                data << float(m_teleport_dest.GetPositionY());
+                WorldPackets::Movement::NewWorld packet;
+                packet.MapID = mapid;
+                packet.Pos = m_teleport_dest;
+                packet.Reason = 16;
 
-                GetSession()->SendPacket(&data);
+                GetSession()->SendPacket(packet.Write());
                 SendSavedInstances();
             }
 
