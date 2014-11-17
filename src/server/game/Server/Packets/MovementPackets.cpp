@@ -115,4 +115,12 @@ WorldPacket const* FlightSplineSync::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* NewWorld::Write()
+{
+    _worldPacket << MapID;
+    _worldPacket << Pos.PositionXYZOStream();
+
+    return &_worldPacket;
+}
 }

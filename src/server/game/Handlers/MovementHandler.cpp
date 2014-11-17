@@ -182,7 +182,7 @@ uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
         return uint32(movementTime);
 }
 
-void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvPacket*/)
+void WorldSession::HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAck();

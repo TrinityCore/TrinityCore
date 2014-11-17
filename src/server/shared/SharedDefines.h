@@ -715,7 +715,7 @@ enum SpellAttr7 : uint32
 #define MAX_TALENT_GROUP         1
 #define MIN_TALENT_GROUPS        1
 #define MAX_TALENT_GROUPS        2
-#define MAX_GLYPH_SLOT_INDEX    6
+#define MAX_GLYPH_SLOT_INDEX     6
 
 // Custom values
 enum SpellClickUserTypes

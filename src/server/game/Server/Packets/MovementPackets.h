@@ -56,6 +56,25 @@ namespace WorldPackets
             ObjectGuid Guid;
             float SplineDist = 0.0f;
         };
+
+        class NewWorld final : public ServerPacket
+        {
+        public:
+            explicit NewWorld() : ServerPacket(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4) {}
+
+            WorldPacket const* Write() override;
+
+            int32 MapID = 0;
+            Position Pos;
+        };
+
+        class WorldPortResponse final : public ClientPacket
+        {
+        public:
+            explicit WorldPortResponse(WorldPacket&& packet) : ClientPacket(MSG_MOVE_WORLDPORT_ACK, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 

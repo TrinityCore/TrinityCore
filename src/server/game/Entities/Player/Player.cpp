@@ -70,6 +70,7 @@
 #include "MapManager.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
+#include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -1737,14 +1738,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             if (!GetSession()->PlayerLogout())
             {
-                WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-                data << uint32(mapid);
-                if (GetTransport())
-                    data << m_movementInfo.transport.pos.PositionXYZOStream();
-                else
-                    data << m_teleport_dest.PositionXYZOStream();
+                WorldPackets::Movement::NewWorld packet;
+                packet.MapID = mapid;
+                packet.Pos = GetTransport() ? m_movementInfo.transport.pos : m_teleport_dest.GetPosition();
 
-                SendDirectMessage(&data);
+                SendDirectMessage(packet.Write());
                 SendSavedInstances();
             }
 
