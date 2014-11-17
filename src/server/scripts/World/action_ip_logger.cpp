@@ -16,13 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "Channel.h"
-#include "Guild.h"
-#include "Group.h"
+#include "Player.h"
 
 enum IPLoggingTypes
 {
-
     // AccountActionIpLogger();
     ACCOUNT_LOGIN                = 0,
     ACCOUNT_FAIL_LOGIN           = 1,
