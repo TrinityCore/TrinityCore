@@ -431,17 +431,14 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //370 SPELL_AURA_SET_FAIR_FAR_CLIP
 };
 
-AuraEffect::AuraEffect(Aura* base, uint32 effIndex, int32 baseAmount, Unit* caster) :
+AuraEffect::AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster) :
 m_base(base), m_spellInfo(base->GetSpellInfo()),
-m_baseAmount(baseAmount),
+_effectInfo(base->GetSpellEffectInfo(effIndex)),
+m_baseAmount(baseAmount ? *baseAmount : base->GetSpellEffectInfo(effIndex)->BasePoints),
 m_damage(0), m_critChance(0.0f), m_donePct(1.0f),
 m_spellmod(NULL), m_periodicTimer(0), m_tickNumber(0), m_effIndex(effIndex),
 m_canBeRecalculated(true), m_isPeriodic(false)
 {
-    _effectInfo = base->GetSpellEffectInfo(effIndex);
-
-    ASSERT(_effectInfo);
-
     CalculatePeriodic(caster, true, false);
 
     m_amount = CalculateAmount(caster);
