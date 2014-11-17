@@ -1427,10 +1427,10 @@ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* s
             return false;
 
         // bleeding effects are not reduced by armor
-        if (effIndex != MAX_SPELL_EFFECTS)
+        if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficulty(), effIndex))
         {
-            if (spellInfo->Effects[effIndex].ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE ||
-                spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_SCHOOL_DAMAGE)
+            if (effect->ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE ||
+                effect->Effect == SPELL_EFFECT_SCHOOL_DAMAGE)
                 if (spellInfo->GetEffectMechanicMask(effIndex) & (1<<MECHANIC_BLEED))
                     return false;
         }
@@ -1696,7 +1696,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         int32 manaReduction = currentAbsorb;
 
         // lower absorb amount by talents
-        if (float manaMultiplier = absorbAurEff->GetSpellInfo()->Effects[absorbAurEff->GetEffIndex()].CalcValueMultiplier(absorbAurEff->GetCaster()))
+        if (float manaMultiplier = absorbAurEff->GetSpellEffectInfo()->CalcValueMultiplier(absorbAurEff->GetCaster()))
             manaReduction = int32(float(manaReduction) * manaMultiplier);
 
         int32 manaTaken = -victim->ModifyPower(POWER_MANA, -manaReduction);
@@ -2166,12 +2166,12 @@ int32 Unit::GetMechanicResistChance(SpellInfo const* spellInfo) const
         return 0;
 
     int32 resistMech = 0;
-    for (uint8 eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
+    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
     {
-        if (!spellInfo->Effects[eff].IsEffect())
+        if (!effect || !effect->IsEffect())
             break;
 
-        int32 effectMech = spellInfo->GetEffectMechanic(eff);
+        int32 effectMech = spellInfo->GetEffectMechanic(effect->EffectIndex, GetMap()->GetDifficulty());
         if (effectMech)
         {
             int32 temp = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MECHANIC_RESISTANCE, effectMech);
@@ -2990,7 +2990,7 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
-Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= 0*/)
+Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= 0*/)
 {
     ASSERT(!casterGUID.IsEmpty() || caster);
 
@@ -3016,25 +3016,25 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8
                 return NULL;
 
             // update basepoints with new values - effect amount will be recalculated in ModStackAmount
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (SpellEffectInfo const* effect : foundAura->GetSpellEffectInfos())
             {
-                if (!foundAura->HasEffect(i))
+                if (!effect)
                     continue;
 
                 int bp;
                 if (baseAmount)
-                    bp = *(baseAmount + i);
+                    bp = *(baseAmount + effect->EffectIndex);
                 else
-                    bp = foundAura->GetSpellInfo()->Effects[i].BasePoints;
+                    bp = effect->BasePoints;
 
-                int32* oldBP = const_cast<int32*>(&(foundAura->GetEffect(i)->m_baseAmount));
+                int32* oldBP = const_cast<int32*>(&(foundAura->GetEffect(effect->EffectIndex)->GetBaseAmount())); // todo 6.x review GetBaseAmount and GetCastItemGUID in this case
                 *oldBP = bp;
             }
 
             // correct cast item guid if needed
             if (castItemGUID != foundAura->GetCastItemGUID())
             {
-                ObjectGuid* oldGUID = const_cast<ObjectGuid*>(&foundAura->m_castItemGuid);
+                ObjectGuid* oldGUID = const_cast<ObjectGuid*>(&foundAura->GetCastItemGUID());
                 *oldGUID = castItemGUID;
             }
 
@@ -3087,7 +3087,7 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
 
 // creates aura application instance and registers it in lists
 // aura application effects are handled separately to prevent aura list corruption
-AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint8 effMask)
+AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint32 effMask)
 {
     // can't apply aura on unit which is going to be deleted - to not create a memory leak
     ASSERT(!m_cleanupDone);
@@ -3278,7 +3278,7 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
     SpellInfo const* spellProto = aura->GetSpellInfo();
 
     // passive spell special case (only non stackable with ranks)
-    if (spellProto->IsPassiveStackableWithRanks())
+    if (spellProto->IsPassiveStackableWithRanks(GetMap()->GetDifficulty()))
         return;
 
     if (!IsHighestExclusiveAura(aura))
@@ -4196,9 +4196,9 @@ bool Unit::HasAuraWithMechanic(uint32 mechanicMask) const
         if (spellInfo->Mechanic && (mechanicMask & (1 << spellInfo->Mechanic)))
             return true;
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (iter->second->HasEffect(i) && spellInfo->Effects[i].Effect && spellInfo->Effects[i].Mechanic)
-                if (mechanicMask & (1 << spellInfo->Effects[i].Mechanic))
+        for (SpellEffectInfo const* effect : iter->second->GetBase()->GetSpellEffectInfos())
+        if (effect && effect->Effect && effect->Mechanic)
+        if (mechanicMask & (1 << effect->Mechanic))
                     return true;
     }
 
@@ -4934,13 +4934,17 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
     // Get effect index used for the proc
     uint32 effIndex = triggeredByAura->GetEffIndex();
 
+    SpellEffectInfo const* effect = triggeredByAura->GetSpellEffectInfo();
+    if (!effect)
+        return false;
+
     // Power amount required to proc the spell
     int32 powerAmountRequired = triggeredByAura->GetAmount();
     // Power type required to proc
-    Powers powerRequired = Powers(auraSpellInfo->Effects[triggeredByAura->GetEffIndex()].MiscValue);
+    Powers powerRequired = Powers(effect->MiscValue);
 
     // Set trigger spell id, target, custom basepoints
-    uint32 trigger_spell_id = auraSpellInfo->Effects[triggeredByAura->GetEffIndex()].TriggerSpell;
+    uint32 trigger_spell_id = effect->TriggerSpell;
 
     Unit*  target = NULL;
     int32  basepoints0 = 0;
@@ -5616,18 +5620,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 28810;
                     break;
                 }
-                // Priest T10 Healer 2P Bonus
-                case 70770:
-                    // Flash Heal
-                    if (procSpell->SpellFamilyFlags[0] & 0x800)
-                    {
-                        triggered_spell_id = 70772;
-                        SpellInfo const* blessHealing = sSpellMgr->GetSpellInfo(triggered_spell_id);
-                        if (!blessHealing)
-                            return false;
-                        basepoints0 = int32(CalculatePct(damage, triggerAmount) / (blessHealing->GetMaxDuration() / blessHealing->Effects[0].ApplyAuraPeriod));
-                    }
-                    break;
+                break;
             }
             break;
         }
@@ -5745,7 +5738,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!triggeredSpell)
                             return false;
-                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->Effects[0].ApplyAuraPeriod);
+                        SpellEffectInfo const* effect = triggeredSpell->GetEffect(DIFFICULTY_NONE, EFFECT_0);
+                        if (!effect)
+                            return false;
+                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / effect->ApplyAuraPeriod);
                         // Add remaining ticks to damage done
                         basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                     }
@@ -6129,7 +6125,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!triggeredSpell)
                             return false;
-                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->Effects[0].ApplyAuraPeriod);
+                        if (SpellEffectInfo const* effect = triggeredSpell->GetEffect(DIFFICULTY_NONE, EFFECT_0))
+                            basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / effect->ApplyAuraPeriod);
                     }
                     break;
                 }
@@ -6143,9 +6140,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!triggeredSpell)
                             return false;
-                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->Effects[0].ApplyAuraPeriod);
-                        // Add remaining ticks to healing done
-                        basepoints0 += GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_HEAL);
+                        if (SpellEffectInfo const* effect = triggeredSpell->GetEffect(DIFFICULTY_NONE, EFFECT_0))
+                        {
+                            basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / effect->ApplyAuraPeriod);
+                            // Add remaining ticks to healing done
+                            basepoints0 += GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_HEAL);
+                        }
                     }
                     break;
                 }
@@ -6187,53 +6187,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 triggered_spell_id = 63685;
                 break;
             }
-            // Flametongue Weapon (Passive)
-            if (dummySpell->SpellFamilyFlags[0] & 0x200000)
-            {
-                if (GetTypeId() != TYPEID_PLAYER  || !victim || !victim->IsAlive() || !castItem || !castItem->IsEquipped())
-                    return false;
-
-                WeaponAttackType attType = WeaponAttackType(Player::GetAttackBySlot(castItem->GetSlot()));
-                if ((attType != BASE_ATTACK && attType != OFF_ATTACK)
-                    || (attType == BASE_ATTACK && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                    || (attType == OFF_ATTACK && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK))
-                    return false;
-
-                float fire_onhit = float(CalculatePct(dummySpell->Effects[EFFECT_0]. CalcValue(), 1.0f));
-
-                float add_spellpower = (float)(SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE)
-                                     + victim->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_FIRE));
-
-                // 1.3speed = 5%, 2.6speed = 10%, 4.0 speed = 15%, so, 1.0speed = 3.84%
-                ApplyPct(add_spellpower, 3.84f);
-
-                // Enchant on Off-Hand and ready?
-                if (castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                {
-                    float BaseWeaponSpeed = GetAttackTime(OFF_ATTACK) / 1000.0f;
-
-                    // Value1: add the tooltip damage by swingspeed + Value2: add spelldmg by swingspeed
-                    basepoints0 = int32((fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed));
-                    triggered_spell_id = 10444;
-                }
-
-                // Enchant on Main-Hand and ready?
-                else if (castItem->GetSlot() == EQUIPMENT_SLOT_MAINHAND && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
-                {
-                    float BaseWeaponSpeed = GetAttackTime(BASE_ATTACK) / 1000.0f;
-
-                    // Value1: add the tooltip damage by swingspeed +  Value2: add spelldmg by swingspeed
-                    basepoints0 = int32((fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed));
-                    triggered_spell_id = 10444;
-                }
-
-                // If not ready, we should  return, shouldn't we?!
-                else
-                    return false;
-
-                CastCustomSpell(victim, triggered_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
-                return true;
-            }
             // Static Shock
             if (dummySpell->SpellIconID == 3059)
             {
@@ -6255,15 +6208,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
-            // Blood-Caked Blade
-            if (dummySpell->SpellIconID == 138)
-            {
-                if (!target || !target->IsAlive())
-                    return false;
-
-                triggered_spell_id = dummySpell->Effects[effIndex].TriggerSpell;
-                break;
-            }
             // Dancing Rune Weapon
             if (dummySpell->Id == 49028)
             {
@@ -6288,24 +6232,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 else
                     return false;
-            }
-            // Unholy Blight
-            if (dummySpell->Id == 49194)
-            {
-                triggered_spell_id = 50536;
-                SpellInfo const* unholyBlight = sSpellMgr->GetSpellInfo(triggered_spell_id);
-                if (!unholyBlight)
-                    return false;
-
-                basepoints0 = CalculatePct(int32(damage), triggerAmount);
-
-                //Glyph of Unholy Blight
-                if (AuraEffect* glyph=GetAuraEffect(63332, 0))
-                    AddPct(basepoints0, glyph->GetAmount());
-
-                basepoints0 = basepoints0 / (unholyBlight->GetMaxDuration() / unholyBlight->Effects[0].ApplyAuraPeriod);
-                basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
-                break;
             }
             // Threat of Thassarian
             if (dummySpell->SpellIconID == 2023)
@@ -6347,26 +6273,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         }
         case SPELLFAMILY_PET:
         {
-            switch (dummySpell->SpellIconID)
-            {
-                // Guard Dog
-                case 201:
-                {
-                    if (!victim)
-                        return false;
-
-                    triggered_spell_id = 54445;
-                    target = this;
-                    float addThreat = float(CalculatePct(procSpell->Effects[0].CalcValue(this), triggerAmount));
-                    victim->AddThreat(this, addThreat);
-                    break;
-                }
-                // Silverback
-                case 1582:
-                    triggered_spell_id = dummySpell->Id == 62765 ? 62801 : 62800;
-                    target = this;
-                    break;
-            }
             break;
         }
         default:
@@ -6375,7 +6281,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
     // if not handled by custom case, get triggered spell from dummySpell proto
     if (!triggered_spell_id)
-        triggered_spell_id = dummySpell->Effects[triggeredByAura->GetEffIndex()].TriggerSpell;
+        triggered_spell_id = triggeredByAura->GetSpellEffectInfo()->TriggerSpell;
 
     // processed charge only counting case
     if (!triggered_spell_id)
@@ -6459,9 +6365,12 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
                 // Swift Hand of Justice
                 case 59906:
                 {
-                    int32 bp0 = CalculatePct(GetMaxHealth(), dummySpell->Effects[EFFECT_0]. CalcValue());
-                    CastCustomSpell(this, 59913, &bp0, NULL, NULL, true);
-                    *handled = true;
+                    if (SpellEffectInfo const* effect = triggeredByAura->GetSpellEffectInfo(EFFECT_0))
+                    {
+                        int32 bp0 = CalculatePct(GetMaxHealth(), effect->CalcValue());
+                        CastCustomSpell(this, 59913, &bp0, NULL, NULL, true);
+                        *handled = true;
+                    }
                     break;
                 }
             }
@@ -6476,49 +6385,10 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
                 CastSpell(victim, 68055, true);
                 return true;
             }
-            // Glyph of Divinity
-            else if (dummySpell->Id == 54939)
-            {
-                if (!procSpell)
-                    return false;
-                *handled = true;
-                // Check if we are the target and prevent mana gain
-                if (victim && triggeredByAura->GetCasterGUID() == victim->GetGUID())
-                    return false;
-                // Lookup base amount mana restore
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
-                {
-                    if (procSpell->Effects[i].Effect == SPELL_EFFECT_ENERGIZE)
-                    {
-                        // value multiplied by 2 because you should get twice amount
-                        int32 mana = procSpell->Effects[i].CalcValue() * 2;
-                        CastCustomSpell(this, 54986, 0, &mana, NULL, true);
-                    }
-                }
-                return true;
-            }
             break;
         }
         case SPELLFAMILY_MAGE:
         {
-            switch (dummySpell->Id)
-            {
-                // Empowered Fire
-                case 31656:
-                case 31657:
-                case 31658:
-                {
-                    *handled = true;
-
-                    SpellInfo const* spInfo = sSpellMgr->GetSpellInfo(67545);
-                    if (!spInfo)
-                        return false;
-
-                    int32 bp0 = int32(CalculatePct(GetCreateMana(), spInfo->Effects[0].CalcValue()));
-                    CastCustomSpell(this, 67545, &bp0, NULL, NULL, true, NULL, triggeredByAura->GetEffect(EFFECT_0), GetGUID());
-                    return true;
-                }
-            }
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
@@ -6603,8 +6473,11 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
                 // Item - Warrior T10 Protection 4P Bonus
                 case 70844:
                 {
-                    int32 basepoints0 = CalculatePct(GetMaxHealth(), dummySpell->Effects[EFFECT_1]. CalcValue());
-                    CastCustomSpell(this, 70845, &basepoints0, NULL, NULL, true);
+                    if (SpellEffectInfo const* effect = triggeredByAura->GetSpellEffectInfo(EFFECT_1))
+                    {
+                        int32 basepoints0 = CalculatePct(GetMaxHealth(), effect->CalcValue());
+                        CastCustomSpell(this, 70845, &basepoints0, NULL, NULL, true);
+                    }
                     break;
                 }
                 // Recklessness
@@ -6635,7 +6508,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     int32 triggerAmount = triggeredByAura->GetAmount();
 
     // Set trigger spell id, target, custom basepoints
-    uint32 trigger_spell_id = auraSpellInfo->Effects[triggeredByAura->GetEffIndex()].TriggerSpell;
+    uint32 trigger_spell_id = triggeredByAura->GetSpellEffectInfo()->TriggerSpell;
 
     Unit*  target = NULL;
     int32  basepoints0 = 0;
@@ -6655,11 +6528,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             case SPELLFAMILY_GENERIC:
                 switch (auraSpellInfo->Id)
                 {
-                    case 43820:             // Charm of the Witch Doctor (Amani Charm of the Witch Doctor trinket)
-                        // Pct value stored in dummy
-                        basepoints0 = victim->GetCreateHealth() * auraSpellInfo->Effects[1].CalcValue() / 100;
-                        target = victim;
-                        break;
                     case 57345:             // Darkmoon Card: Greatness
                     {
                         float stat = 0.0f;
@@ -6760,19 +6628,9 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             }
             case SPELLFAMILY_HUNTER:
             {
-                if (auraSpellInfo->SpellIconID == 3247)     // Piercing Shots
+                /*if (auraSpellInfo->SpellIconID == 3247)     // Piercing Shots
                 {
-                    switch (auraSpellInfo->Id)
-                    {
-                        case 53234:  // Rank 1
-                        case 53237:  // Rank 2
-                        case 53238:  // Rank 3
-                            trigger_spell_id = 63468;
-                            break;
-                        default:
-                            TC_LOG_ERROR("entities.unit", "Unit::HandleProcTriggerSpell: Spell %u miss posibly Piercing Shots", auraSpellInfo->Id);
-                            return false;
-                    }
+                    trigger_spell_id = 63468; // 6.x missing from dbc but it is in the tooltip
                     SpellInfo const* TriggerPS = sSpellMgr->GetSpellInfo(trigger_spell_id);
                     if (!TriggerPS)
                         return false;
@@ -6780,7 +6638,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     basepoints0 = CalculatePct(int32(damage), triggerAmount) / (TriggerPS->GetMaxDuration() / TriggerPS->Effects[0].ApplyAuraPeriod);
                     basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), trigger_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                     break;
-                }
+                }*/
                 // Item - Hunter T9 4P Bonus
                 if (auraSpellInfo->Id == 67151)
                 {
@@ -6983,10 +6841,9 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             break;
         }
         // Decimation
-        case 63156:
-        case 63158:
+        case 108869:
             // Can proc only if target has hp below 25%
-            if (!victim || !victim->HealthBelowPct(auraSpellInfo->Effects[EFFECT_1].CalcValue()))
+            if (!victim || !victim->HealthBelowPct(triggeredByAura->GetSpellEffectInfo()->CalcValue()))
                 return false;
             break;
         // Deathbringer Saurfang - Blood Beast's Blood Link
@@ -7961,14 +7818,14 @@ void Unit::SetMinion(Minion *minion, bool apply)
         else if (minion->IsTotem())
         {
             // All summoned by totem minions must disappear when it is removed.
-        if (SpellInfo const* spInfo = sSpellMgr->GetSpellInfo(minion->ToTotem()->GetSpell()))
-            for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            {
-                if (spInfo->Effects[i].Effect != SPELL_EFFECT_SUMMON)
-                    continue;
+            if (SpellInfo const* spInfo = sSpellMgr->GetSpellInfo(minion->ToTotem()->GetSpell()))
+                for (SpellEffectInfo const* effect : spInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+                    {
+                        if (!effect || effect->Effect != SPELL_EFFECT_SUMMON)
+                            continue;
 
-                RemoveAllMinionsByEntry(spInfo->Effects[i].MiscValue);
-            }
+                        RemoveAllMinionsByEntry(effect->MiscValue);
+                    }
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
@@ -8462,32 +8319,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     }
 
     // Custom scripted damage
-    switch (spellProto->SpellFamilyName)
+    /*switch (spellProto->SpellFamilyName)
     {
         case SPELLFAMILY_DEATHKNIGHT:
-            // Impurity (dummy effect)
-            if (GetTypeId() == TYPEID_PLAYER)
-            {
-                PlayerSpellMap playerSpells = ToPlayer()->GetSpellMap();
-                for (PlayerSpellMap::const_iterator itr = playerSpells.begin(); itr != playerSpells.end(); ++itr)
-                {
-                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
-                        continue;
-                    switch (itr->first)
-                    {
-                        case 49220:
-                        case 49633:
-                        case 49635:
-                        case 49636:
-                        case 49638:
-                            if (SpellInfo const* proto = sSpellMgr->GetSpellInfo(itr->first))
-                                AddPct(ApCoeffMod, proto->Effects[0].CalcValue());
-                        break;
-                    }
-                }
-            }
             break;
-    }
+    }*/
 
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
@@ -9236,9 +9072,11 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
     }
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfo const* effect : spellProto->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
     {
-        switch (spellProto->Effects[i].ApplyAuraName)
+        if (!effect)
+            continue;
+        switch (effect->ApplyAuraName)
         {
             // Bonus healing does not apply to these spells
             case SPELL_AURA_PERIODIC_LEECH:
@@ -9246,7 +9084,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
                 DoneTotal = 0;
                 break;
         }
-        if (spellProto->Effects[i].Effect == SPELL_EFFECT_HEALTH_LEECH)
+        if (effect->Effect == SPELL_EFFECT_HEALTH_LEECH)
             DoneTotal = 0;
     }
 
@@ -9401,17 +9239,19 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         if (caster->GetGUID() == (*i)->GetCasterGUID() && (*i)->IsAffectingSpell(spellProto))
             AddPct(TakenTotalMod, (*i)->GetAmount());
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfo const* effect : spellProto->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
     {
-        switch (spellProto->Effects[i].ApplyAuraName)
+        if (!effect)
+            continue;
+        switch (effect->ApplyAuraName)
         {
             // Bonus healing does not apply to these spells
-            case SPELL_AURA_PERIODIC_LEECH:
-            case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                TakenTotal = 0;
-                break;
+        case SPELL_AURA_PERIODIC_LEECH:
+        case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
+            TakenTotal = 0;
+            break;
         }
-        if (spellProto->Effects[i].Effect == SPELL_EFFECT_HEALTH_LEECH)
+        if (effect->Effect == SPELL_EFFECT_HEALTH_LEECH)
             TakenTotal = 0;
     }
 
@@ -9444,7 +9284,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
         for (AuraEffectList::const_iterator i = mHealingDoneOfStatPercent.begin(); i != mHealingDoneOfStatPercent.end(); ++i)
         {
             // stat used dependent from misc value (stat index)
-            Stats usedStat = Stats((*i)->GetSpellInfo()->Effects[(*i)->GetEffIndex()].MiscValue);
+            Stats usedStat = Stats((*i)->GetSpellEffectInfo()->MiscValue);
             advertisedBenefit += int32(CalculatePct(GetStat(usedStat), (*i)->GetAmount()));
         }
 
@@ -16693,43 +16533,40 @@ int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEf
 
 bool Unit::IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications /*= false*/)
 {
-    for (uint32 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
+    for (AuraEffect* aurEff : aura->GetAuraEffects())
     {
-        if (AuraEffect const* aurEff = aura->GetEffect(i))
+        AuraType const auraType = AuraType(aurEff->GetSpellEffectInfo()->ApplyAuraName);
+        AuraEffectList const& auras = GetAuraEffectsByType(auraType);
+        for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end();)
         {
-            AuraType const auraType = AuraType(aura->GetSpellInfo()->Effects[i].ApplyAuraName);
-            AuraEffectList const& auras = GetAuraEffectsByType(auraType);
-            for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end();)
+            AuraEffect const* existingAurEff = (*itr);
+            ++itr;
+
+            if (sSpellMgr->CheckSpellGroupStackRules(aura->GetSpellInfo(), existingAurEff->GetSpellInfo())
+                == SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST)
             {
-                AuraEffect const* existingAurEff = (*itr);
-                ++itr;
+                int32 diff = abs(aurEff->GetAmount()) - abs(existingAurEff->GetAmount());
+                if (!diff)
+                    diff = int32(aura->GetEffectMask()) - int32(existingAurEff->GetBase()->GetEffectMask());
 
-                if (sSpellMgr->CheckSpellGroupStackRules(aura->GetSpellInfo(), existingAurEff->GetSpellInfo())
-                    == SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST)
+                if (diff > 0)
                 {
-                    int32 diff = abs(aurEff->GetAmount()) - abs(existingAurEff->GetAmount());
-                    if (!diff)
-                        diff = int32(aura->GetEffectMask()) - int32(existingAurEff->GetBase()->GetEffectMask());
-
-                    if (diff > 0)
+                    Aura const* base = existingAurEff->GetBase();
+                    // no removing of area auras from the original owner, as that completely cancels them
+                    if (removeOtherAuraApplications && (!base->IsArea() || base->GetOwner() != this))
                     {
-                        Aura const* base = existingAurEff->GetBase();
-                        // no removing of area auras from the original owner, as that completely cancels them
-                        if (removeOtherAuraApplications && (!base->IsArea() || base->GetOwner() != this))
+                        if (AuraApplication* aurApp = existingAurEff->GetBase()->GetApplicationOfTarget(GetGUID()))
                         {
-                            if (AuraApplication* aurApp = existingAurEff->GetBase()->GetApplicationOfTarget(GetGUID()))
-                            {
-                                bool hasMoreThanOneEffect = base->HasMoreThanOneEffectForType(auraType);
-                                uint32 removedAuras = m_removedAurasCount;
-                                RemoveAura(aurApp);
-                                if (hasMoreThanOneEffect || m_removedAurasCount > removedAuras + 1)
-                                    itr = auras.begin();
-                            }
+                            bool hasMoreThanOneEffect = base->HasMoreThanOneEffectForType(auraType);
+                            uint32 removedAuras = m_removedAurasCount;
+                            RemoveAura(aurApp);
+                            if (hasMoreThanOneEffect || m_removedAurasCount > removedAuras + 1)
+                                itr = auras.begin();
                         }
                     }
-                    else if (diff < 0)
-                        return false;
                 }
+                else if (diff < 0)
+                    return false;
             }
         }
     }

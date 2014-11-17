@@ -302,6 +302,8 @@ private:
 typedef std::vector<SpellEffectInfo const*> SpellEffectInfoVector;
 typedef std::unordered_map<uint32, SpellEffectInfoVector> SpellEffectInfoMap;
 
+typedef std::vector<AuraEffect*> AuraEffectVector;
+
 class SpellInfo
 {
 public:
@@ -448,12 +450,12 @@ public:
     bool IsAffectingArea(uint32 difficulty) const;
     bool IsTargetingArea(uint32 difficulty) const;
     bool NeedsExplicitUnitTarget() const;
-    bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
+    bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell, uint32 difficulty) const;
 
     bool IsPassive() const;
     bool IsAutocastable() const;
     bool IsStackableWithRanks() const;
-    bool IsPassiveStackableWithRanks() const;
+    bool IsPassiveStackableWithRanks(uint32 difficulty) const;
     bool IsMultiSlotAura() const;
     bool IsStackableOnOneSlotWithDifferentCasters() const;
     bool IsCooldownStartedOnEvent() const;
@@ -488,15 +490,15 @@ public:
 
     SpellSchoolMask GetSchoolMask() const;
     uint32 GetAllEffectsMechanicMask() const;
-    uint32 GetEffectMechanicMask(uint8 effIndex) const;
+    uint32 GetEffectMechanicMask(uint32 effIndex) const;
     uint32 GetSpellMechanicMaskByEffectMask(uint32 effectMask) const;
-    Mechanics GetEffectMechanic(uint8 effIndex) const;
-    bool HasAnyEffectMechanic() const;
+    Mechanics GetEffectMechanic(uint32 effIndex, uint32 difficulty) const;
+    //bool HasAnyEffectMechanic() const;
     uint32 GetDispelMask() const;
     static uint32 GetDispelMask(DispelType type);
     uint32 GetExplicitTargetMask() const;
 
-    AuraStateType GetAuraState() const;
+    AuraStateType GetAuraState(uint32 difficulty) const;
     SpellSpecificType GetSpellSpecific() const;
 
     float GetMinRange(bool positive = false) const;
@@ -505,7 +507,7 @@ public:
     int32 GetDuration() const;
     int32 GetMaxDuration() const;
 
-    uint32 GetMaxTicks() const;
+    uint32 GetMaxTicks(uint32 difficulty) const;
 
     uint32 CalcCastTime(uint8 level = 0, Spell* spell = NULL) const;
     uint32 GetRecoveryTime() const;
@@ -525,7 +527,7 @@ public:
 
     // loading helpers
     void _InitializeExplicitTargetMask();
-    bool _IsPositiveEffect(uint8 effIndex, bool deep) const;
+    bool _IsPositiveEffect(uint32 effIndex, bool deep) const;
     bool _IsPositiveSpell() const;
     static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
 
@@ -535,7 +537,7 @@ public:
     SpellEffectInfoVector GetEffectsForDifficulty(uint32 difficulty) const;
     SpellEffectInfo const* GetEffect(uint32 difficulty, uint32 index) const;
 
-    SpellEffectInfoMap Effects;
+    SpellEffectInfoMap _effects;
 };
 
 #endif // _SPELLINFO_H
