@@ -29,13 +29,13 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 
 class AuraEffect
 {
-    friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID);
+    friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID);
     friend Aura::~Aura();
-    private:
-        ~AuraEffect();
-        explicit AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster);
+
     public:
+        ~AuraEffect();
+        AuraEffect(Aura* base, uint32 effIndex, int32 baseAmount, Unit* caster);
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
         ObjectGuid GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         Aura* GetBase() const { return m_base; }
@@ -49,9 +49,9 @@ class AuraEffect
         int32 GetBaseAmount() const { return m_baseAmount; }
         int32 GetPeriod() const { return m_period; }
 
-        int32 GetMiscValueB() const { return m_spellInfo->Effects[m_effIndex].MiscValueB; }
-        int32 GetMiscValue() const { return m_spellInfo->Effects[m_effIndex].MiscValue; }
-        AuraType GetAuraType() const { return (AuraType)m_spellInfo->Effects[m_effIndex].ApplyAuraName; }
+        int32 GetMiscValueB() const { return GetSpellEffectInfo()->MiscValueB; }
+        int32 GetMiscValue() const { return GetSpellEffectInfo()->MiscValue; }
+        AuraType GetAuraType() const { return (AuraType)GetSpellEffectInfo()->ApplyAuraName; }
         int32 GetAmount() const { return m_amount; }
         void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false;}
 
@@ -87,7 +87,7 @@ class AuraEffect
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
         bool IsAffectingSpell(SpellInfo const* spell) const;
-        bool HasSpellClassMask() const { return m_spellInfo->Effects[m_effIndex].SpellClassMask; }
+        bool HasSpellClassMask() const { return GetSpellEffectInfo()->SpellClassMask; }
 
         void SendTickImmune(Unit* target, Unit* caster) const;
         void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
@@ -98,10 +98,18 @@ class AuraEffect
 
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
+
+        SpellEffectInfo const* GetSpellEffectInfo() const { return _effectInfo; }
+
+        bool IsEffect() const { return _effectInfo->Effect != 0; }
+        bool IsEffect(SpellEffectName effectName) const { return _effectInfo->Effect == uint32(effectName); }
+        bool IsAreaAuraEffect() const;
+
     private:
         Aura* const m_base;
 
         SpellInfo const* const m_spellInfo;
+        SpellEffectInfo const* _effectInfo;
         int32 const m_baseAmount;
 
         int32 m_amount;

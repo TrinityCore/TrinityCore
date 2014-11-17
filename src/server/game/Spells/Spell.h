@@ -192,7 +192,7 @@ class SpellCastTargets
 struct SpellValue
 {
     explicit  SpellValue(SpellInfo const* proto);
-    std::vector<int32> EffectBasePoints;
+    int32     EffectBasePoints[MAX_SPELL_EFFECTS];
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     uint8     AuraStackAmount;
@@ -503,13 +503,13 @@ class Spell
 
         void SetSpellValue(SpellValueMod mod, int32 value);
 
-        SpellEffectInfoVector GetEffects() const { return difficultyEffects; }
+        SpellEffectInfoVector GetEffects() const { return _effects; }
         SpellEffectInfo const* GetEffect(uint32 index) const
         {
-            if (index >= difficultyEffects.size())
+            if (index >= _effects.size())
                 return nullptr;
 
-            return difficultyEffects[index];
+            return _effects[index];
         }
 
         bool HasEffect(SpellEffectName effect) const;
@@ -716,7 +716,7 @@ class Spell
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;
 
-        SpellEffectInfoVector difficultyEffects;
+        SpellEffectInfoVector _effects;
 };
 
 namespace Trinity
