@@ -60,7 +60,7 @@ namespace WorldPackets
         class NewWorld final : public ServerPacket
         {
         public:
-            explicit NewWorld() : ServerPacket(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4) {}
+            explicit NewWorld() : ServerPacket(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 

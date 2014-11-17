@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef TRINITYCORE_ALL_PACKETS_H
+#define TRINITYCORE_ALL_PACKETS_H
 
 #include "AuthenticationPackets.h"
 #include "BankPackets.h"
@@ -38,6 +38,7 @@
 #include "PetPackets.h"
 #include "QueryPackets.h"
 #include "QuestPackets.h"
+#include "ReputationPackets.h"
 #include "SpellPackets.h"
 #include "SystemPackets.h"
 #include "TalentPackets.h"
@@ -45,4 +46,4 @@
 #include "TradePackets.h"
 #include "WorldStatePackets.h"
 
-#endif // AllPackets_h__
+#endif // TRINITYCORE_ALL_PACKETS_H
