@@ -35,7 +35,7 @@ class AuraEffect
 
     public:
         ~AuraEffect();
-        AuraEffect(Aura* base, uint32 effIndex, int32 baseAmount, Unit* caster);
+        AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster);
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
         ObjectGuid GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         Aura* GetBase() const { return m_base; }
