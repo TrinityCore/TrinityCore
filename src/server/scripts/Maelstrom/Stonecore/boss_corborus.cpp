@@ -119,7 +119,7 @@ class boss_corborus : public CreatureScript
 
                         events.ScheduleEvent(EVENT_CORBORUS_CHARGE, 1000);
                         break;
-                    }   
+                    }
                     default:
                         break;
                 }
@@ -192,7 +192,7 @@ class boss_corborus : public CreatureScript
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                             me->AttackStop();
-                            
+
                             DoCast(me, SPELL_SUBMERGE);
 
                             countTrashingCharge = 0;
@@ -298,7 +298,7 @@ class npc_rock_borer : public CreatureScript
                             break;
                     }
                 }
-                
+
                 DoMeleeAttackIfReady();
             }
 

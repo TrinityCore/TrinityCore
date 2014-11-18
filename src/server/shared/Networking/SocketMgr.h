@@ -47,7 +47,16 @@ public:
             return false;
         }
 
-        _acceptor = new AsyncAcceptor(service, bindIp, port);
+        try
+        {
+            _acceptor = new AsyncAcceptor(service, bindIp, port);
+        }
+        catch (boost::system::system_error const& err)
+        {
+            TC_LOG_ERROR("network", "Exception caught in SocketMgr.StartNetwork (%s:%u): %s", bindIp.c_str(), port, err.what());
+            return false;
+        }
+
         _threads = CreateThreads();
 
         ASSERT(_threads);

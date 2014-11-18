@@ -27,15 +27,13 @@
 #include "VehicleDefines.h"
 #include "Player.h"
 #include "Opcodes.h"
+#include "CombatPackets.h"
 
-void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
+void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message %s", packet.Victim.ToString().c_str());
 
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message %s", guid.ToString().c_str());
-
-    Unit* pEnemy = ObjectAccessor::GetUnit(*_player, guid);
+    Unit* pEnemy = ObjectAccessor::GetUnit(*_player, packet.Victim);
 
     if (!pEnemy)
     {
@@ -58,7 +56,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
     {
         VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(_player);
         ASSERT(seat);
-        if (!(seat->m_flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
+        if (!(seat->Flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
         {
             SendAttackStop(pEnemy);
             return;
@@ -68,7 +66,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
     _player->Attack(pEnemy, true);
 }
 
-void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& /*recvData*/)
 {
     GetPlayer()->AttackStop();
 }

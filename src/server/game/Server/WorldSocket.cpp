@@ -440,7 +440,6 @@ uint32 WorldSocket::CompressPacket(uint8* buffer, WorldPacket const& packet)
         return 0;
     }
 
-
     return bufferSize - _compressionStream->avail_out;
 }
 

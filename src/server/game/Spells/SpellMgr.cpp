@@ -2818,6 +2818,11 @@ void SpellMgr::LoadSpellInfoStore()
         SpellEffectEntry const* effect = sSpellEffectStore.LookupEntry(i);
         if (!effect)
             continue;
+        
+        // TODO: 6.x implement dynamic spell effect storage and remove MAX_SPELL_EFFECTS
+        // This is a temporary fix to avoid crash when loading spells
+        if (effect->EffectIndex >= MAX_SPELL_EFFECTS)
+            continue;
 
         effectsBySpell[effect->SpellID].effects[effect->EffectIndex] = effect;
     }

@@ -49,7 +49,7 @@ enum Spells
     SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND = 81220,
     SPELL_IMPENDING_DOOM                  = 86838,
     SPELL_IMPENDING_DOOM_CHANNEL          = 86830,
-    
+
 //  SPELL_PORTAL_VISUAL                   = 79754,
 };
 
@@ -340,7 +340,7 @@ class spell_sc_twilight_documents : public SpellScriptLoader
                     return false;
                 return true;
             }
- 
+
             void SetTarget(WorldObject*& target)
             {
                 target = GetCaster()->FindNearestCreature(NPC_GENERIC_TRIGGER_LAB, 100.0f);

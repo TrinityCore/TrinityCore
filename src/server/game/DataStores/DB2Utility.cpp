@@ -50,6 +50,7 @@ void DB2Utilities::WriteItemDbReply(DB2Storage<ItemEntry> const& /*store*/, uint
 
 void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*store*/, uint32 id, uint32 locale, ByteBuffer& buffer)
 {
+    /* TODO: 6.x update
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(id);
     ASSERT(proto);
 
@@ -168,4 +169,5 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
     buffer << float(proto->StatScalingFactor);    // StatScalingFactor
     buffer << uint32(proto->CurrencySubstitutionId);
     buffer << uint32(proto->CurrencySubstitutionCount);
+    */
 }

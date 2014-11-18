@@ -272,7 +272,7 @@ public:
         ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
 
         // ... and try to extract a player out of it.
-        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
+        if (ObjectMgr::GetPlayerNameByGUID(parseGUID, nameTarget))
         {
             playerTarget = ObjectAccessor::FindPlayer(parseGUID);
             guidTarget = parseGUID;
@@ -348,14 +348,13 @@ public:
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";
                 phase = (!p->IsGameMaster() ? p->GetPhaseMask() : -1);
-                uint32 locale = handler->GetSessionDbcLocale();
 
                 AreaTableEntry const* area = GetAreaEntryByAreaID(p->GetAreaId());
                 if (area)
                 {
-                    AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone);
+                    AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID);
                     if (zone)
-                        zoneName = zone->area_name[locale];
+                        zoneName = zone->ZoneName;
                 }
             }
             else

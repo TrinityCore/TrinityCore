@@ -20,6 +20,7 @@
 #define _PLAYER_H
 
 #include "DBCStores.h"
+#include "DB2Stores.h"
 #include "GroupReference.h"
 #include "MapReference.h"
 
@@ -113,12 +114,6 @@ struct PlayerSpell
     bool active            : 1;                             // show in spellbook
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
-};
-
-struct PlayerTalent
-{
-    PlayerSpellState State : 8;
-    uint32  SpellID        : 32;
 };
 
 extern uint32 const MasterySpells[MAX_CLASSES];
@@ -333,15 +328,15 @@ enum ReputationSource
     REPUTATION_SOURCE_SPELL
 };
 
-#define ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
-#define ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
-#define MAX_ACTION_BUTTON_ACTION_VALUE (0x00FFFFFF+1)
+#define ACTION_BUTTON_ACTION(X) (uint64(X) & 0x00000000FFFFFFFF)
+#define ACTION_BUTTON_TYPE(X)   ((uint64(X) & 0xFFFFFFFF00000000) >> 32)
+#define MAX_ACTION_BUTTON_ACTION_VALUE (0xFFFFFFFF)
 
 struct ActionButton
 {
     ActionButton() : packedData(0), uState(ACTIONBUTTON_NEW) { }
 
-    uint32 packedData;
+    uint64 packedData;
     ActionButtonUpdateState uState;
 
     // helpers
@@ -349,7 +344,7 @@ struct ActionButton
     uint32 GetAction() const { return ACTION_BUTTON_ACTION(packedData); }
     void SetActionAndType(uint32 action, ActionButtonType type)
     {
-        uint32 newData = action | (uint32(type) << 24);
+        uint64 newData = uint64(action) | (uint64(type) << 32);
         if (newData != packedData || uState == ACTIONBUTTON_DELETED)
         {
             packedData = newData;
@@ -359,7 +354,7 @@ struct ActionButton
     }
 };
 
-#define  MAX_ACTION_BUTTONS 144                             //checked in 3.2.0
+#define MAX_ACTION_BUTTONS 132
 
 typedef std::map<uint8, ActionButton> ActionButtonList;
 
@@ -863,18 +858,6 @@ enum EnviromentalDamage
     DAMAGE_FALL_TO_VOID = 6                                 // custom case for fall without durability loss
 };
 
-enum PlayerChatTag
-{
-    CHAT_TAG_NONE       = 0x00,
-    CHAT_TAG_AFK        = 0x01,
-    CHAT_TAG_DND        = 0x02,
-    CHAT_TAG_GM         = 0x04,
-    CHAT_TAG_COM        = 0x08, // Commentator
-    CHAT_TAG_DEV        = 0x10,
-    CHAT_TAG_BOSS_SOUND = 0x20, // Plays "RaidBossEmoteWarning" sound on raid boss emote/whisper
-    CHAT_TAG_MOBILE     = 0x40
-};
-
 enum PlayedTimeIndex
 {
     PLAYED_TIME_TOTAL = 0,
@@ -1217,46 +1200,52 @@ private:
     bool _isPvP;
 };
 
-struct TalentSpecInfo
+struct TalentGroupInfo
 {
-    PlayerTalent Talents[MAX_TALENT_TIERS];
+    uint32 Talents[MAX_TALENT_TIERS];
     uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
-    uint32 TalentSpec;
-    
-    bool HasTalent(uint32 spellId)
+    uint32 SpecID;
+
+    bool HasTalent(uint32 talentId)
     {
         for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i)
-            if (Talents[i].SpellID == spellId)
+            if (Talents[i] == talentId)
                 return true;
         return false;
     }
-    
+
+    uint32 TalentCount()
+    {
+        for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i)
+            if (!Talents[i])
+                return i;
+        return MAX_TALENT_TIERS;
+    }
+
     void Reset()
     {
-        for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i) {
-            Talents[i].State = PLAYERSPELL_REMOVED;
-            Talents[i].SpellID = 0;
-        }
+        for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i)
+            Talents[i] = 0;
     }
 };
 
 struct PlayerTalentInfo
 {
-    PlayerTalentInfo() : ResetTalentsCost(0), ResetTalentsTime(0), ActiveSpec(0), SpecsCount(1)
+    PlayerTalentInfo() : ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0), GroupsCount(1)
     {
-        for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+        for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
         {
-            memset(SpecInfo[i].Talents, 0, sizeof(PlayerTalent)*MAX_TALENT_TIERS);
-            memset(SpecInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
-            SpecInfo[i].TalentSpec = 0;
+            memset(GroupInfo[i].Talents, 0, sizeof(uint32)*MAX_TALENT_TIERS);
+            memset(GroupInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
+            GroupInfo[i].SpecID = 0;
         }
     }
 
-    TalentSpecInfo SpecInfo[MAX_TALENT_SPECS];
+    TalentGroupInfo GroupInfo[MAX_TALENT_GROUPS];
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
-    uint8 ActiveSpec;
-    uint8 SpecsCount;
+    uint8 ActiveGroup;
+    uint8 GroupsCount;
 
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
@@ -1313,7 +1302,7 @@ class Player : public Unit, public GridObject<Player>
         void ToggleDND();
         bool isAFK() const { return HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK); }
         bool isDND() const { return HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DND); }
-        uint8 GetChatTag() const;
+        uint8 GetChatFlags() const;
         std::string autoReplyMsg;
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=NULL);
@@ -1712,7 +1701,6 @@ class Player : public Unit, public GridObject<Player>
 
         static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
         static void SetFloatValueInArray(Tokenizer& data, uint16 index, float value);
-        static void Customize(WorldPackets::Character::CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
@@ -1804,7 +1792,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        void SendInitialSpells();
+        void SendKnownSpells();
         bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool fromSkill = false);
         void LearnSpell(uint32 spell_id, bool dependent, bool fromSkill = false);
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
@@ -1826,35 +1814,35 @@ class Player : public Unit, public GridObject<Player>
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
         uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
-        uint8 GetActiveSpec() const { return _talentMgr->ActiveSpec; }
-        void SetActiveSpec(uint8 spec){ _talentMgr->ActiveSpec = spec; }
-        uint8 GetSpecsCount() const { return _talentMgr->SpecsCount; }
-        void SetSpecsCount(uint8 count) { _talentMgr->SpecsCount = count; }
-        uint32 GetTalentSpec(uint8 spec) const { return _talentMgr->SpecInfo[spec].TalentSpec; }
-        void SetTalentSpec(uint8 spec, uint32 talentSpec) const { _talentMgr->SpecInfo[spec].TalentSpec = talentSpec; }
+        uint8 GetActiveTalentGroup() const { return _talentMgr->ActiveGroup; }
+        void SetActiveTalentGroup(uint8 group){ _talentMgr->ActiveGroup = group; }
+        uint8 GetTalentGroupsCount() const { return _talentMgr->GroupsCount; }
+        void SetTalentGroupsCount(uint8 count) { _talentMgr->GroupsCount = count; }
+        uint32 GetTalentSpec(uint8 group) const { return _talentMgr->GroupInfo[group].SpecID; }
+        void SetTalentSpec(uint8 group, uint32 talentSpec) const { _talentMgr->GroupInfo[group].SpecID = talentSpec; }
+        uint32 GetActiveTalentSpec() const { return _talentMgr->GroupInfo[_talentMgr->ActiveGroup].SpecID; }
 
         bool ResetTalents(bool no_cost = false);
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
-        void BuildPlayerTalentsInfoData(WorldPacket* data);
-        void BuildPetTalentsInfoData(WorldPacket* data);
-        void SendTalentsInfoData(bool pet);
+        void SendTalentsInfoData();
         bool LearnTalent(uint32 talentId);
-        bool AddTalent(uint32 spellId, uint8 spec, bool learning);
-        bool HasTalent(uint32 spell_id, uint8 spec);
+        bool AddTalent(uint32 talentId, uint8 spec);
+        bool HasTalent(uint32 talentId, uint8 spec);
+        void LearnTalentSpecialization(uint32 talentSpec);
 
         // Dual Spec
-        void UpdateSpecCount(uint8 count);
-        void ActivateSpec(uint8 spec);
+        void UpdateTalentGroupCount(uint8 count);
+        void ActivateTalentGroup(uint8 group);
 
         void InitGlyphsForLevel();
         void SetGlyphSlot(uint8 slot, uint32 slottype) { SetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot, slottype); }
 
         uint32 GetGlyphSlot(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot); }
         void SetGlyph(uint8 slot, uint32 glyph);
-        uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
+        uint32 GetGlyph(uint8 group, uint8 slot) const { return _talentMgr->GroupInfo[group].Glyphs[slot]; }
 
-        TalentSpecInfo* GetTalentSpecInfo(uint8 spec) { return &_talentMgr->SpecInfo[spec]; }
+        TalentGroupInfo* GetTalentGroupInfo(uint8 group) { return &_talentMgr->GroupInfo[group]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
 
         uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS); }
@@ -1968,6 +1956,7 @@ class Player : public Unit, public GridObject<Player>
         void SetGuildIdInvited(ObjectGuid::LowType GuildId) { m_GuildIdInvited = GuildId; }
         ObjectGuid::LowType GetGuildId() const { return GetUInt64Value(OBJECT_FIELD_DATA); /* return only lower part */ }
         Guild* GetGuild();
+        Guild const* GetGuild() const;
         static ObjectGuid::LowType GetGuildIdFromDB(ObjectGuid guid);
         static uint8 GetRankFromDB(ObjectGuid guid);
         ObjectGuid::LowType GetGuildIdInvited() { return m_GuildIdInvited; }
@@ -2089,10 +2078,10 @@ class Player : public Unit, public GridObject<Player>
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
-        void SendMessageToSet(WorldPacket* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet
-        void SendMessageToSetInRange(WorldPacket* data, float fist, bool self) override;// overwrite Object::SendMessageToSetInRange
-        void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
-        void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr) override;
+        void SendMessageToSet(WorldPacket const* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet
+        void SendMessageToSetInRange(WorldPacket const* data, float fist, bool self) override;// overwrite Object::SendMessageToSetInRange
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only);
+        void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) override;
 
         Corpse* GetCorpse() const;
         void SpawnCorpseBones();
@@ -2146,6 +2135,7 @@ class Player : public Unit, public GridObject<Player>
         void CheckAreaExploreAndOutdoor(void);
 
         static uint32 TeamForRace(uint8 race);
+        static TeamId TeamIdForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void setFactionForRace(uint8 race);
@@ -2244,7 +2234,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendInitWorldStates(uint32 zone, uint32 area);
         void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false);
-        void SendDirectMessage(WorldPacket const* data);
+        void SendDirectMessage(WorldPacket const* data) const;
         void SendBGWeekendWorldStates();
         void SendBattlefieldWorldStates();
 

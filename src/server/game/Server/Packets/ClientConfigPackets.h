@@ -60,6 +60,45 @@ namespace WorldPackets
 
             uint32 CacheVersion = 0;
         };
+
+        class RequestAccountData final : public ClientPacket
+        {
+        public:
+            RequestAccountData(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_ACCOUNT_DATA, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PlayerGuid;
+            uint8 DataType = 0; ///< @see enum AccountDataType
+        };
+
+        class UpdateAccountData final : public ServerPacket
+        {
+        public:
+            UpdateAccountData() : ServerPacket(SMSG_UPDATE_ACCOUNT_DATA) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Player;
+            uint32 Time    = 0; ///< UnixTime
+            uint32 Size    = 0; ///< decompressed size
+            uint8 DataType = 0; ///< @see enum AccountDataType
+            ByteBuffer CompressedData;
+        };
+
+        class UserClientUpdateAccountData final : public ClientPacket
+        {
+        public:
+            UserClientUpdateAccountData(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_ACCOUNT_DATA, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PlayerGuid;
+            uint32 Time    = 0; ///< UnixTime
+            uint32 Size    = 0; ///< decompressed size
+            uint8 DataType = 0; ///< @see enum AccountDataType
+            ByteBuffer CompressedData;
+        };
     }
 }
 

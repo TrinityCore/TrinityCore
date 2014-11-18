@@ -677,6 +677,15 @@ SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry);
 
 bool normalizePlayerName(std::string& name);
 
+struct ExtendedPlayerName
+{
+    ExtendedPlayerName(std::string name, std::string realm) : Name(name), Realm(realm) {}
+    std::string Name;
+    std::string Realm;
+};
+
+ExtendedPlayerName ExtractExtendedPlayerName(std::string& name);
+
 struct LanguageDesc
 {
     Language lang_id;
@@ -784,7 +793,7 @@ class ObjectMgr
 
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
-        ObjectGuid GetPlayerGUIDByName(std::string const& name) const;
+        static ObjectGuid GetPlayerGUIDByName(std::string const& name);
 
         /**
         * Retrieves the player name by guid.
@@ -799,10 +808,10 @@ class ObjectMgr
         *
         * @return true if player was found, false otherwise
         */
-        bool GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const;
-        uint32 GetPlayerTeamByGUID(ObjectGuid guid) const;
-        uint32 GetPlayerAccountIdByGUID(ObjectGuid guid) const;
-        uint32 GetPlayerAccountIdByPlayerName(std::string const& name) const;
+        static bool GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name);
+        static uint32 GetPlayerTeamByGUID(ObjectGuid const& guid);
+        static uint32 GetPlayerAccountIdByGUID(ObjectGuid const& guid);
+        static uint32 GetPlayerAccountIdByPlayerName(std::string const& name);
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
@@ -1353,7 +1362,7 @@ class ObjectMgr
         void LoadRealmNames();
 
         std::string GetRealmName(uint32 realm) const;
-        
+
         ExpansionRequirementContainer const& GetRaceExpansionRequirements() const { return _raceExpansionRequirementStore; }
         uint8 GetRaceExpansionRequirement(uint8 race) const
         {
@@ -1362,7 +1371,7 @@ class ObjectMgr
                 return itr->second;
             return EXPANSION_CLASSIC;
         }
-        
+
         ExpansionRequirementContainer const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
         uint8 GetClassExpansionRequirement(uint8 class_) const
         {

@@ -24,7 +24,7 @@
 /*
  * We need to serialize access to zmq context otherwise stuff blows up.
  */
-class ZmqContext 
+class ZmqContext
 {
 public:
     ~ZmqContext();

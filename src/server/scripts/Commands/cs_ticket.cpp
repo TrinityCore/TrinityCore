@@ -95,8 +95,8 @@ public:
             return true;
         }
 
-        ObjectGuid targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
-        uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
+        ObjectGuid targetGuid = ObjectMgr::GetPlayerGUIDByName(target);
+        uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(targetGuid);
         // Target must exist and have administrative rights
         if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realmHandle.Index))
         {
@@ -375,7 +375,7 @@ public:
         else
         {
             ObjectGuid guid = ticket->GetAssignedToGUID();
-            uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(guid);
+            uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(guid);
             security = AccountMgr::GetSecurity(accountId, realmHandle.Index);
         }
 
@@ -436,7 +436,7 @@ public:
         if (Player* player = ObjectAccessor::FindPlayerByName(name))
             guid = player->GetGUID();
         else
-            guid = sObjectMgr->GetPlayerGUIDByName(name);
+            guid = ObjectMgr::GetPlayerGUIDByName(name);
 
         // Target must exist
         if (!guid)

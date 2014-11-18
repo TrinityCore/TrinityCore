@@ -70,6 +70,7 @@ enum CreatureFlagsExtra
 #define MAX_KILL_CREDIT 2
 #define MAX_CREATURE_MODELS 4
 #define MAX_CREATURE_QUEST_ITEMS 6
+#define MAX_CREATURE_NAMES 4
 #define CREATURE_MAX_SPELLS 8
 
 // from `creature_template` table
@@ -286,8 +287,8 @@ struct CreatureModelInfo
 {
     float bounding_radius;
     float combat_reach;
-    uint8 gender;
-    uint32 modelid_other_gender;
+    int8 gender;
+    uint32 displayId_other_gender;
 };
 
 // Benchmarked: Faster than std::map (insert/find)
@@ -348,7 +349,7 @@ struct VendorItem
     uint8  Type;
 
     //helpers
-    bool IsGoldRequired(ItemTemplate const* pProto) const { return pProto->Flags2 & ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD || !ExtendedCost; }
+    bool IsGoldRequired(ItemTemplate const* pProto) const { return pProto->Flags[1] & ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD || !ExtendedCost; }
 };
 typedef std::vector<VendorItem*> VendorItemList;
 

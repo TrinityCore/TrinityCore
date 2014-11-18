@@ -24,6 +24,60 @@ namespace WorldPackets
 {
     namespace System
     {
+        class FeatureSystemStatus final : public ServerPacket
+        {
+        public:
+            struct SavedThrottleObjectState
+            {
+                uint32 MaxTries               = 0;
+                uint32 PerMilliseconds        = 0;
+                uint32 TryCount               = 0;
+                uint32 LastResetTimeBeforeNow = 0;
+            };
+
+            struct EuropaTicketConfig
+            {
+                bool UnkBit0             = false;
+                bool UnkBit1             = false;
+                bool TicketSystemEnabled = false;
+                bool SubmitBugEnabled    = false;
+
+                SavedThrottleObjectState ThrottleState;
+            };
+
+            struct SessionAlertConfig
+            {
+                int32 Delay       = 0;
+                int32 Period      = 0;
+                int32 DisplayTime = 0;
+            };
+
+            FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 48) { }
+
+            WorldPacket const* Write() override;
+
+            bool VoiceEnabled                        = false;
+            bool BrowserEnabled                      = false;
+            bool BpayStoreAvailable                  = false;
+            bool RecruitAFriendSendingEnabled        = false;
+            bool BpayStoreEnabled                    = false;
+            Optional<SessionAlertConfig> SessionAlert;
+            uint32 ScrollOfResurrectionMaxRequestsPerDay = 0;
+            bool ScrollOfResurrectionEnabled         = false;
+            Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
+            uint32 ScrollOfResurrectionRequestsRemaining = 0;
+            uint32 CfgRealmID                            = 0;
+            uint8 ComplaintStatus                        = 0;
+            int32 CfgRealmRecID                          = 0;
+            bool ItemRestorationButtonEnabled        = false;
+            bool CharUndeleteEnabled                 = false; ///< Implemented
+            bool BpayStoreDisabledByParentalControls = false;
+
+            bool UnkBit21                            = false;
+            bool UnkBit22                            = false;
+            bool UnkBit90                            = false;
+        };
+
         class FeatureSystemStatusGlueScreen final : public ServerPacket
         {
         public:
@@ -33,7 +87,7 @@ namespace WorldPackets
 
             bool BpayStoreAvailable                  = false; // NYI
             bool BpayStoreDisabledByParentalControls = false; // NYI
-            bool CharUndeleteEnabled                 = false; // NYI
+            bool CharUndeleteEnabled                 = false;
             bool BpayStoreEnabled                    = false; // NYI
         };
 
