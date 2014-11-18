@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QuestPackets_h__
-#define QuestPackets_h__
+#ifndef TRINITYCORE_QUEST_PACKETS_H
+#define TRINITYCORE_QUEST_PACKETS_H
 
 #include "ObjectGuid.h"
 #include "Packet.h"
@@ -26,6 +26,56 @@ namespace WorldPackets
 {
     namespace Quest
     {
+        class QuestGiverStatusQuery final : public ClientPacket
+        {
+        public:
+            explicit QuestGiverStatusQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_STATUS_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+        };
+
+        // Empty packet, server replies with quest giver status of visible creatures
+        class QuestGiverStatusMultipleQuery final : public ClientPacket
+        {
+        public:
+            explicit QuestGiverStatusMultipleQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        struct QuestGiverInfo
+        {
+            QuestGiverInfo() { }
+            QuestGiverInfo(ObjectGuid const& guid, ::QuestGiverStatus status)
+                : Guid(guid), Status(status)
+            { }
+
+            ObjectGuid Guid;
+            ::QuestGiverStatus Status = DIALOG_STATUS_NONE;
+        };
+
+        class QuestGiverStatus final : public ServerPacket
+        {
+        public:
+            explicit QuestGiverStatus() : ServerPacket(SMSG_QUESTGIVER_STATUS, 8 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            QuestGiverInfo QuestGiver;
+        };
+
+        class QuestGiverStatusMultiple final : public ServerPacket
+        {
+        public:
+            explicit QuestGiverStatusMultiple() : ServerPacket(SMSG_QUESTGIVER_STATUS_MULTIPLE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<QuestGiverInfo> QuestGiver;
+        };
+
         class QueryQuestInfo final : public ClientPacket
         {
             public:
@@ -187,4 +237,4 @@ namespace WorldPackets
     }
 }
 
-#endif // QuestPackets_h__
+#endif // TRINITYCORE_QUEST_PACKETS_H

@@ -17,6 +17,31 @@
 
 #include "QuestPackets.h"
 
+void WorldPackets::Quest::QuestGiverStatusQuery::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverStatus::Write()
+{
+    _worldPacket << QuestGiver.Guid;
+    _worldPacket << uint8(QuestGiver.Status);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverStatusMultiple::Write()
+{
+    _worldPacket << uint32(QuestGiver.size());
+    for (QuestGiverInfo const& questGiver : QuestGiver)
+    {
+        _worldPacket << questGiver.Guid;
+        _worldPacket << uint8(questGiver.Status);
+    }
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Quest::QueryQuestInfo::Read()
 {
     _worldPacket >> QuestID;

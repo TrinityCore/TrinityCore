@@ -79,5 +79,13 @@ void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& pa
 
 void WorldSession::SendAttackStop(Unit const* enemy)
 {
-    SendPacket(WorldPackets::Combat::SAttackStop(GetPlayer(), enemy).Write());
+    WorldPackets::Combat::SAttackStop attackStop;
+    attackStop.Attacker = _player->GetPackGUID();
+    if (enemy)
+    {
+        attackStop.Victim = enemy->GetPackGUID();
+        attackStop.NowDead = !enemy->IsAlive();
+    }
+
+    SendPacket(attackStop.Write());
 }

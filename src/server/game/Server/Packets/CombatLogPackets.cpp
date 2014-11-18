@@ -27,3 +27,58 @@ WorldPacket const* WorldPackets::CombatLog::EnvironmentalDamageLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
+{
+    _worldPacket << uint32(Flags);
+    _worldPacket << AttackerGUID.WriteAsPacked();
+    _worldPacket << VictimGUID.WriteAsPacked();
+    _worldPacket << uint32(Damage);
+    _worldPacket << uint32(OverDamage);
+    _worldPacket << uint8(SubDmgCount);
+
+    for (uint32 i = 0; i < SubDmgCount; ++i)
+    {
+        _worldPacket << uint32(SubDmg[i].SchoolMask);
+        _worldPacket << float(SubDmg[i].FDamage);
+        _worldPacket << uint32(SubDmg[i].Damage);
+    }
+
+    if (Flags & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
+        for (uint32 i = 0; i < SubDmgCount; ++i)
+            _worldPacket << uint32(SubDmg[i].Absorbed);
+
+    if (Flags & (HITINFO_FULL_RESIST | HITINFO_PARTIAL_RESIST))
+        for (uint32 i = 0; i < SubDmgCount; ++i)
+            _worldPacket << uint32(SubDmg[i].Resisted);
+
+    _worldPacket << uint8(VictimState);
+    _worldPacket << uint32(AttackerState);
+    _worldPacket << uint32(MeleeSpellID);
+
+    if (Flags & HITINFO_BLOCK)
+        _worldPacket << uint32(BlockAmount);
+
+    if (Flags & HITINFO_RAGE_GAIN)
+        _worldPacket << uint32(RageGained);
+
+    if (Flags & HITINFO_UNK1)
+    {
+        _worldPacket << uint32(HitInfo.ArmorReduction);
+        _worldPacket << float(HitInfo.CritRollNeeded);
+        _worldPacket << float(HitInfo.CombatRoll);
+        _worldPacket << float(HitInfo.MissChance);
+        _worldPacket << float(HitInfo.DodgeChance);
+        _worldPacket << float(HitInfo.ParryChance);
+        _worldPacket << float(HitInfo.BlockChance);
+        _worldPacket << float(HitInfo.GlanceChance);
+        _worldPacket << float(HitInfo.CrushChance);
+        _worldPacket << float(HitInfo.MinDamage[0]);
+        _worldPacket << float(HitInfo.MaxDamage[0]);
+        _worldPacket << float(HitInfo.MinDamage[1]);
+        _worldPacket << float(HitInfo.MaxDamage[1]);
+        _worldPacket << uint32(HitInfo.SinceLastSwing);
+    }
+
+    return &_worldPacket;
+}

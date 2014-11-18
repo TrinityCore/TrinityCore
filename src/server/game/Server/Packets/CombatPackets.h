@@ -91,14 +91,64 @@ namespace WorldPackets
         class SAttackStop final : public ServerPacket
         {
         public:
-            SAttackStop() : ServerPacket(SMSG_ATTACK_STOP, 8 + 8 + 4) { }
-            SAttackStop(Unit const* attacker, Unit const* victim);
+            explicit SAttackStop() : ServerPacket(SMSG_ATTACK_STOP, 8 + 8 + 4) { }
 
             WorldPacket const* Write() override;
 
             PackedGuid Attacker;
             PackedGuid Victim;
             bool NowDead = false;
+        };
+
+        struct ThreatInfo
+        {
+            ObjectGuid UnitGUID;
+            int32 Threat = 0;
+        };
+
+        class ThreatUpdate final : public ServerPacket
+        {
+        public:
+            explicit ThreatUpdate() : ServerPacket(SMSG_THREAT_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            std::vector<ThreatInfo> ThreatList;
+        };
+
+        class HighestThreatUpdate final : public ServerPacket
+        {
+        public:
+            explicit HighestThreatUpdate() : ServerPacket(SMSG_HIGHEST_THREAT_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            std::vector<ThreatInfo> ThreatList;
+            ObjectGuid HighestThreatGUID;
+        };
+
+        class ThreatRemove final : public ServerPacket
+        {
+        public:
+            explicit ThreatRemove() : ServerPacket(SMSG_THREAT_REMOVE, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid AboutGUID; // Unit to remove threat from (e.g. player, pet, guardian)
+            ObjectGuid UnitGUID; // Unit being attacked (e.g. creature, boss)
+        };
+
+        class AIReaction final : public ServerPacket
+        {
+        public:
+            explicit AIReaction() : ServerPacket(SMSG_AI_REACTION, 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            uint32 Reaction = 0;
         };
 
         class CancelCombat final : public ServerPacket
