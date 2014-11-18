@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "Object.h"
+#include <G3D/Vector3.h>
 
 namespace WorldPackets
 {
@@ -45,6 +46,86 @@ namespace WorldPackets
             Unit* mover;
         };
 
+        struct MonsterSplineFilterKey
+        {
+            int16 Idx;
+            int16 Speed;
+        };
+
+        struct MonsterSplineFilter
+        {
+            std::vector<MonsterSplineFilterKey> FilterKeys;
+            uint8 FilterFlags;
+            float BaseSpeed;
+            int16 StartOffset;
+            float DistToPrevFilterKey;
+            int16 AddedToStart;
+        };
+
+        struct MovementSpline
+        {
+            uint32 Flags                = 0;    // Spline flags
+            uint8 Face                  = 0;    // Movement direction (see MonsterMoveType enum)
+            uint8 AnimTier              = 0;
+            uint32 TierTransStartTime   = 0;
+            uint32 Elapsed              = 0;
+            uint32 MoveTime             = 0;
+            float JumpGravity           = 0.0f;
+            uint32 SpecialTime          = 0;
+            std::vector<G3D::Vector3> Points;        // Spline path
+            uint8 Mode                  = 0;
+            uint8 VehicleExitVoluntary  = 0;
+            ObjectGuid TransportGUID;
+            uint8 VehicleSeat           = 255;
+            std::vector<G3D::Vector3> PackedDeltas;
+            Optional<MonsterSplineFilter> SplineFilter;
+            float FaceDirection         = 0.0f;
+            ObjectGuid FaceGUID;
+            G3D::Vector3 FaceSpot;
+        };
+
+        struct MovementMonsterSpline
+        {
+            uint32 ID;
+            G3D::Vector3 Destination;
+            bool CrzTeleport = false;
+            MovementSpline Move;
+        };
+
+        class MonsterMove final : public ServerPacket
+        {
+        public:
+            MonsterMove() : ServerPacket(SMSG_MONSTER_MOVE) { }
+
+            WorldPacket const* Write() override;
+
+            MovementMonsterSpline SplineData;
+            ObjectGuid MoverGUID;
+            G3D::Vector3 Pos;
+        };
+
+        class MoveSplineSet : public ServerPacket
+        {
+        public:
+            MoveSplineSet(OpcodeServer opcode) : ServerPacket(opcode, 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            float Speed;
+        };
+
+        class MoveUpdate : public ServerPacket
+        {
+        public:
+            MoveUpdate(OpcodeServer opcode) : ServerPacket(opcode) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo movementInfo;
+            float Speed;
+        };
+
         class NewWorld final : public ServerPacket
         {
         public:
@@ -66,5 +147,16 @@ namespace WorldPackets
         };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, const G3D::Vector3& v);
+ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v);
+
+ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo);
+ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo);
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilter const& monsterSplineFilter);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline const& movementSpline);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonsterSpline const& movementMonsterSpline);
 
 #endif // MovementPackets_h__

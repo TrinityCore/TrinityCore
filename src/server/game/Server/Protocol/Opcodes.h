@@ -1102,7 +1102,7 @@ enum OpcodeServer : uint32
     SMSG_MISSILE_CANCEL                               = 0xBADD,
     SMSG_MODIFY_COOLDOWN                              = 0xBADD,
     SMSG_MONEY_NOTIFY                                 = 0xBADD,
-    SMSG_MONSTER_MOVE                                 = 0xBADD,
+    SMSG_MONSTER_MOVE                                 = 0x0994,
     SMSG_MONSTER_MOVE_TRANSPORT                       = 0xBADD,
     SMSG_MOTD                                         = 0x0442,
     SMSG_MOUNTRESULT                                  = 0xBADD,
