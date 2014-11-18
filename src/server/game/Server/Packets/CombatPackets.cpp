@@ -16,8 +16,126 @@
  */
 
 #include "CombatPackets.h"
+#include "SpellPackets.h"
 
 void WorldPackets::Combat::AttackSwing::Read()
 {
     _worldPacket >> Victim;
+}
+
+WorldPacket const* WorldPackets::Combat::AttackStart::Write()
+{
+    _worldPacket << Attacker;
+    _worldPacket << Victim;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::SAttackStop::Write()
+{
+    _worldPacket << Attacker;
+    _worldPacket << Victim;
+    _worldPacket.WriteBit(Dead);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::ThreatUpdate::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket << int32(ThreatList.size());
+    for (WorldPackets::Combat::ThreatInfo const& threatInfo : ThreatList)
+    {
+        _worldPacket << threatInfo.UnitGUID;
+        _worldPacket << threatInfo.Threat;
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::HighestThreatUpdate::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket << HighestThreatGUID;
+    _worldPacket << int32(ThreatList.size());
+    for (WorldPackets::Combat::ThreatInfo const& threatInfo : ThreatList)
+    {
+        _worldPacket << threatInfo.UnitGUID;
+        _worldPacket << threatInfo.Threat;
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::ThreatRemove::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket << AboutGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::AIReaction::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket << Reaction;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::AttackerStateUpdate::Write()
+{
+    if (_worldPacket.WriteBit(LogData.HasValue))
+        _worldPacket << LogData.value;
+
+    // Placeholder for size which will be calculated at the end based on packet size
+    // Client uses this size to copy remaining packet to another CDataStore
+    _worldPacket << int32(0);
+    size_t pos = _worldPacket.wpos();
+
+    _worldPacket << HitInfo;
+    _worldPacket << AttackerGUID;
+    _worldPacket << VictimGUID;
+    _worldPacket << Damage;
+    _worldPacket << OverDamage;
+    if (_worldPacket.WriteBit(SubDmg.HasValue))
+    {
+        _worldPacket << SubDmg.value.SchoolMask;
+        _worldPacket << SubDmg.value.FDamage;
+        _worldPacket << SubDmg.value.Damage;
+        if (HitInfo & (HITINFO_FULL_ABSORB|HITINFO_PARTIAL_ABSORB))
+            _worldPacket << SubDmg.value.Absorbed;
+        if (HitInfo & (HITINFO_FULL_RESIST|HITINFO_PARTIAL_RESIST))
+            _worldPacket << SubDmg.value.Resisted;
+    }
+    _worldPacket << VictimState;
+    _worldPacket << AttackerState;
+    _worldPacket << MeleeSpellID;
+    if (HitInfo & HITINFO_BLOCK)
+        _worldPacket << BlockAmount;
+    if (HitInfo & HITINFO_RAGE_GAIN)
+        _worldPacket << RageGained;
+    if (HitInfo & HITINFO_UNK1)
+    {
+        _worldPacket << UnkState.State1;
+        _worldPacket << UnkState.State2;
+        _worldPacket << UnkState.State3;
+        _worldPacket << UnkState.State4;
+        _worldPacket << UnkState.State5;
+        _worldPacket << UnkState.State6;
+        _worldPacket << UnkState.State7;
+        _worldPacket << UnkState.State8;
+        _worldPacket << UnkState.State9;
+        _worldPacket << UnkState.State10;
+        _worldPacket << UnkState.State11;
+        _worldPacket << UnkState.State12;
+    }
+    if (HitInfo & (HITINFO_BLOCK|HITINFO_UNK12))
+        _worldPacket << Unk;
+
+    // Update size placeholder
+    _worldPacket.put<int32>(pos-sizeof(int32), _worldPacket.wpos()-pos);
+
+    return &_worldPacket;
 }

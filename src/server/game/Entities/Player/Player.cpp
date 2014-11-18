@@ -89,6 +89,7 @@
 #include "MiscPackets.h"
 #include "ChatPackets.h"
 #include "MovementPackets.h"
+#include "ItemPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -20976,9 +20977,10 @@ void Player::SetSpellModTakingSpell(Spell* spell, bool apply)
 // send Proficiency
 void Player::SendProficiency(ItemClass itemClass, uint32 itemSubclassMask)
 {
-    WorldPacket data(SMSG_SET_PROFICIENCY, 1 + 4);
-    data << uint8(itemClass) << uint32(itemSubclassMask);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Item::SetProficiency packet;
+    packet.ProficiencyMask = itemSubclassMask;
+    packet.ProficiencyClass = itemClass;
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)

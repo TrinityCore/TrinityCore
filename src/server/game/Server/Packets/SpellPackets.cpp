@@ -64,3 +64,20 @@ WorldPacket const* WorldPackets::Spell::SendUnlearnSpells::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spell::SpellCastLogData& spellCastLogData)
+{
+    data << spellCastLogData.Health;
+    data << spellCastLogData.AttackPower;
+    data << spellCastLogData.SpellPower;
+    data << int32(spellCastLogData.PowerData.size());
+    for (WorldPackets::Spell::SpellLogPowerData const& powerData : spellCastLogData.PowerData)
+    {
+        data << powerData.PowerType;
+        data << powerData.Amount;
+    }
+    data.FlushBits();
+    data.WriteBit(false);
+    // data << float // Unk data if bit is true
+    data.FlushBits();
+}
+

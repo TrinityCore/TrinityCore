@@ -23,6 +23,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Formulas.h"
+#include "QuestPackets.h"
 
 GossipMenu::GossipMenu()
 {
@@ -373,11 +374,11 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
 
 void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const
 {
-    WorldPacket data(SMSG_QUESTGIVER_STATUS, 8 + 4);
-    data << npcGUID;
-    data << uint32(questStatus);
+    WorldPackets::Quest::QuestGiverStatus packet;
+    packet.QuestGiver.Guid = npcGUID;
+    packet.QuestGiver.Status = questStatus;
 
-    _session->SendPacket(&data);
+    _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC=%s, status=%u", npcGUID.ToString().c_str(), questStatus);
 }
 
