@@ -64,6 +64,7 @@
 #include "WorldSession.h"
 #include "ChatPackets.h"
 #include "MovementPackets.h"
+#include "CombatPackets.h"
 
 #include <cmath>
 
@@ -2110,24 +2111,24 @@ float Unit::CalculateLevelPenalty(SpellInfo const* spellProto) const
 
 void Unit::SendMeleeAttackStart(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACKSTART, 8 + 8);
-    data << GetGUID();
-    data << victim->GetGUID();
-    SendMessageToSet(&data, true);
+    WorldPackets::Combat::AttackStart packet;
+    packet.Attacker = GetGUID();
+    packet.Victim = victim->GetGUID();
+    SendMessageToSet(packet.Write(), true);
     TC_LOG_DEBUG("entities.unit", "WORLD: Sent SMSG_ATTACKSTART");
 }
 
 void Unit::SendMeleeAttackStop(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));
-    data << GetPackGUID();
+    WorldPackets::Combat::SAttackStop packet;
+    packet.Attacker = GetGUID();
     if (victim)
-        data << victim->GetPackGUID();
-    else
-        data << uint8(0);
+    {
+        packet.Victim = victim->GetGUID();
+        packet.Dead = victim->isDead();
+    }
 
-    data << uint32(0);                                     //! Can also take the value 0x01, which seems related to updating rotation
-    SendMessageToSet(&data, true);
+    SendMessageToSet(packet.Write(), true);
     TC_LOG_DEBUG("entities.unit", "WORLD: Sent SMSG_ATTACKSTOP");
 
     if (victim)
@@ -4849,68 +4850,27 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
     TC_LOG_DEBUG("entities.unit", "WORLD: Sending SMSG_ATTACKERSTATEUPDATE");
-
-    uint32 count = 1;
-    size_t maxsize = 4+5+5+4+4+1+4+4+4+4+4+1+4+4+4+4+4*12;
-    WorldPacket data(SMSG_ATTACKERSTATEUPDATE, maxsize);    // we guess size
-    data << uint32(damageInfo->HitInfo);
-    data << damageInfo->attacker->GetPackGUID();
-    data << damageInfo->target->GetPackGUID();
-    data << uint32(damageInfo->damage);                     // Full damage
+    
+    WorldPackets::Combat::AttackerStateUpdate packet;
+    packet.HitInfo = damageInfo->HitInfo;
+    packet.AttackerGUID = damageInfo->attacker->GetGUID();
+    packet.VictimGUID = damageInfo->target->GetGUID();
+    packet.Damage = damageInfo->damage;
     int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
-    data << uint32(overkill < 0 ? 0 : overkill);            // Overkill
-    data << uint8(count);                                   // Sub damage count
+    packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
-    for (uint32 i = 0; i < count; ++i)
-    {
-        data << uint32(damageInfo->damageSchoolMask);       // School of sub damage
-        data << float(damageInfo->damage);                  // sub damage
-        data << uint32(damageInfo->damage);                 // Sub Damage
-    }
+    WorldPackets::Combat::SubDamage& subDmg = packet.SubDmg.value;
+    subDmg.SchoolMask = damageInfo->damageSchoolMask;   // School of sub damage
+    subDmg.FDamage = damageInfo->damage;                // sub damage
+    subDmg.Damage = damageInfo->damage;                 // Sub Damage
+    subDmg.Absorbed = damageInfo->absorb;
+    subDmg.Resisted = damageInfo->resist;
+    packet.SubDmg.HasValue = true;
 
-    if (damageInfo->HitInfo & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
-    {
-        for (uint32 i = 0; i < count; ++i)
-            data << uint32(damageInfo->absorb);             // Absorb
-    }
+    packet.VictimState = damageInfo->TargetState;
+    packet.BlockAmount = damageInfo->blocked_amount;
 
-    if (damageInfo->HitInfo & (HITINFO_FULL_RESIST | HITINFO_PARTIAL_RESIST))
-    {
-        for (uint32 i = 0; i < count; ++i)
-            data << uint32(damageInfo->resist);             // Resist
-    }
-
-    data << uint8(damageInfo->TargetState);
-    data << uint32(0);  // Unknown attackerstate
-    data << uint32(0);  // Melee spellid
-
-    if (damageInfo->HitInfo & HITINFO_BLOCK)
-        data << uint32(damageInfo->blocked_amount);
-
-    if (damageInfo->HitInfo & HITINFO_RAGE_GAIN)
-        data << uint32(0);
-
-    //! Probably used for debugging purposes, as it is not known to appear on retail servers
-    if (damageInfo->HitInfo & HITINFO_UNK1)
-    {
-        data << uint32(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        for (uint8 i = 0; i < 2; ++i)
-        {
-            data << float(0);
-            data << float(0);
-        }
-        data << uint32(0);
-    }
-
-    SendMessageToSet(&data, true);
+    SendMessageToSet(packet.Write(), true);
 }
 
 void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType*/, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount)
@@ -12905,10 +12865,10 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_AI_REACTION, 8 + 4);
-    data << guid;
-    data << uint32(AI_REACTION_HOSTILE);
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPackets::Combat::AIReaction packet;
+    packet.UnitGUID = guid;
+    packet.Reaction = AI_REACTION_HOSTILE;
+    owner->ToPlayer()->GetSession()->SendPacket(packet.Write());
 }
 
 ///----------End of Pet responses methods----------
@@ -15969,16 +15929,17 @@ void Unit::SendThreatListUpdate()
         uint32 count = getThreatManager().getThreatList().size();
 
         TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_UPDATE Message");
-        WorldPacket data(SMSG_THREAT_UPDATE, 8 + count * 8);
-        data << GetPackGUID();
-        data << uint32(count);
+        WorldPackets::Combat::ThreatUpdate packet;
+        packet.UnitGUID = GetGUID();
         ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
-            data << (*itr)->getUnitGuid().WriteAsPacked();
-            data << uint32((*itr)->getThreat() * 100);
+            WorldPackets::Combat::ThreatInfo info;
+            info.UnitGUID = (*itr)->getUnitGuid();
+            info.Threat = (*itr)->getThreat() * 100;
+            packet.ThreatList.push_back(info);
         }
-        SendMessageToSet(&data, false);
+        SendMessageToSet(packet.Write(), false);
     }
 }
 
@@ -15989,17 +15950,18 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
         uint32 count = getThreatManager().getThreatList().size();
 
         TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
-        WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE, 8 + 8 + count * 8);
-        data << GetPackGUID();
-        data << pHostileReference->getUnitGuid().WriteAsPacked();
-        data << uint32(count);
+        WorldPackets::Combat::HighestThreatUpdate packet;
+        packet.UnitGUID = GetGUID();
+        packet.HighestThreatGUID = pHostileReference->getUnitGuid();
         ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
-            data << (*itr)->getUnitGuid().WriteAsPacked();
-            data << uint32((*itr)->getThreat());
+            WorldPackets::Combat::ThreatInfo info;
+            info.UnitGUID = (*itr)->getUnitGuid();
+            info.Threat = int32((*itr)->getThreat());
+            packet.ThreatList.push_back(info);
         }
-        SendMessageToSet(&data, false);
+        SendMessageToSet(packet.Write(), false);
     }
 }
 
@@ -16014,10 +15976,10 @@ void Unit::SendClearThreatListOpcode()
 void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
 {
     TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_REMOVE Message");
-    WorldPacket data(SMSG_THREAT_REMOVE, 8 + 8);
-    data << GetPackGUID();
-    data << pHostileReference->getUnitGuid().WriteAsPacked();
-    SendMessageToSet(&data, false);
+    WorldPackets::Combat::ThreatRemove packet;
+    packet.UnitGUID = GetGUID();
+    packet.AboutGUID = pHostileReference->getUnitGuid();
+    SendMessageToSet(packet.Write(), false);
 }
 
 // baseRage means damage taken when attacker = false

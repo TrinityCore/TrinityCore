@@ -154,6 +154,12 @@ namespace WorldPackets
         class QueryPageText;
     }
 
+    namespace Quest
+    {
+        class QuestGiverStatusQuery;
+        class QuestGiverStatusMultipleQuery;
+    }
+
     namespace Movement
     {
         class ClientPlayerMovement;
@@ -833,8 +839,8 @@ class WorldSession
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
         void HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet);
 
-        void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);
-        void HandleQuestgiverStatusMultipleQuery(WorldPacket& recvPacket);
+        void HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet);
+        void HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& packet);
         void HandleQuestgiverHelloOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverQueryQuestOpcode(WorldPacket& recvPacket);
