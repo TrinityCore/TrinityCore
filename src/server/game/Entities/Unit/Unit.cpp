@@ -63,6 +63,7 @@
 #include "MovementStructures.h"
 #include "WorldSession.h"
 #include "ChatPackets.h"
+#include "MovementPackets.h"
 
 #include <cmath>
 
@@ -10793,11 +10794,22 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 pet->SetSpeed(mtype, m_speed_rate[mtype], forced);
     }
 
-    static MovementStatusElements const speedVal = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extra(&speedVal);
-    extra.Data.floatData = GetSpeed(mtype);
-
-    Movement::PacketSender(this, moveTypeToOpcode[mtype][0], moveTypeToOpcode[mtype][1], moveTypeToOpcode[mtype][2], &extra).Send();
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER)
+    {
+        /// @todo fix SMSG_MOVE_SET packets (were they removed?)
+        //_selfOpcode = playerControl;
+        WorldPackets::Movement::MoveUpdate packet(moveTypeToOpcode[mtype][2]);
+        packet.movementInfo = m_movementInfo;
+        packet.Speed = rate;
+        SendMessageToSet(packet.Write(), false);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSet packet(moveTypeToOpcode[mtype][0]);
+        packet.MoverGUID = GetGUID();
+        packet.Speed = rate;
+        SendMessageToSet(packet.Write(), true);
+    }
 }
 
 void Unit::setDeathState(DeathState s)

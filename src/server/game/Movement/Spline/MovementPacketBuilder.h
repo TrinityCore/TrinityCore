@@ -22,6 +22,7 @@
 
 #include "Define.h" // for uint32
 #include "G3D/Vector3.h"
+#include "MovementPackets.h"
 using G3D::Vector3;
 
 class ByteBuffer;
@@ -35,7 +36,7 @@ namespace Movement
         static void WriteCommonMonsterMovePart(const MoveSpline& mov, WorldPacket& data);
     public:
 
-        static void WriteMonsterMove(const MoveSpline& mov, WorldPacket& data);
+        static void WriteMonsterMove(const MoveSpline& mov, WorldPackets::Movement::MovementMonsterSpline& movementMonsterSpline);
         static void WriteStopMovement(Vector3 const& loc, uint32 splineId, ByteBuffer& data);
         static void WriteCreate(MoveSpline const& moveSpline, ByteBuffer& data);
     };
