@@ -642,14 +642,10 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::Ques
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY");
 
-    uint32 count = 0;
-
     WorldPackets::Quest::QuestGiverStatusMultiple response;
 
     for (GuidSet::const_iterator itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
     {
-        uint32 questStatus = DIALOG_STATUS_NONE;
-
         if (itr->IsAnyTypeCreature())
         {
             // need also pet quests case support
@@ -659,12 +655,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::Ques
             if (!questgiver->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
                 continue;
 
-            questStatus = _player->GetQuestDialogStatus(questgiver);
-
-            WorldPackets::Quest::QuestGiverInfo info;
-            info.Guid = questgiver->GetGUID();
-            info.Status = questStatus;
-            response.QuestGiver.push_back(info);
+            response.QuestGiver.emplace_back(questgiver->GetGUID(), _player->GetQuestDialogStatus(questgiver));
         }
         else if (itr->IsGameObject())
         {
@@ -672,12 +663,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::Ques
             if (!questgiver || questgiver->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
                 continue;
 
-            questStatus = _player->GetQuestDialogStatus(questgiver);
-
-            WorldPackets::Quest::QuestGiverInfo info;
-            info.Guid = questgiver->GetGUID();
-            info.Status = questStatus;
-            response.QuestGiver.push_back(info);
+            response.QuestGiver.emplace_back(questgiver->GetGUID(), _player->GetQuestDialogStatus(questgiver));
         }
     }
 

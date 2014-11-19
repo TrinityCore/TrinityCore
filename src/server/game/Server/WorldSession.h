@@ -126,6 +126,11 @@ namespace WorldPackets
         class AttackStop;
     }
 
+    namespace EquipmentSet
+    {
+        class SaveEquipmentSet;
+    }
+
     namespace Guild
     {
         class QueryGuildInfo;
@@ -1095,7 +1100,7 @@ class WorldSession
         void HandleRemoveGlyph(WorldPacket& recvData);
         void HandleQueryInspectAchievements(WorldPacket& recvData);
         void HandleGuildAchievementProgressQuery(WorldPacket& recvData);
-        void HandleEquipmentSetSave(WorldPacket& recvData);
+        void HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet);
         void HandleEquipmentSetDelete(WorldPacket& recvData);
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleWorldStateUITimerUpdate(WorldPacket& recvData);

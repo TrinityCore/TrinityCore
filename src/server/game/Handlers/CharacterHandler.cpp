@@ -29,6 +29,7 @@
 #include "ClientConfigPackets.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "EquipmentSetPackets.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildFinderMgr.h"
@@ -857,6 +858,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     /// Send FeatureSystemStatus
     {
         WorldPackets::System::FeatureSystemStatus features;
+
+        /// START OF DUMMY VALUES
+        features.ComplaintStatus = 2;
+        features.ScrollOfResurrectionRequestsRemaining = 1;
+        features.ScrollOfResurrectionMaxRequestsPerDay = 1;
+        features.CfgRealmID = 2;
+        features.CfgRealmRecID = 0;
+        features.VoiceEnabled = true;
+        /// END OF DUMMY VALUES
+
         features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
         features.BpayStoreEnabled    = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
 
@@ -1525,59 +1536,36 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
         GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), customizeInfo->CharGUID.ToString().c_str(), customizeInfo->CharName.c_str());
 }
 
-void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
+void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_SAVE");
 
-    uint64 setGuid;
-    recvData.ReadPackedUInt64(setGuid);
-
-    uint32 index;
-    recvData >> index;
-    if (index >= MAX_EQUIPMENT_SET_INDEX)                    // client set slots amount
+    if (packet.Set.SetID >= MAX_EQUIPMENT_SET_INDEX) // client set slots amount
         return;
 
-    std::string name;
-    recvData >> name;
-
-    std::string iconName;
-    recvData >> iconName;
-
-    EquipmentSet eqSet;
-
-    eqSet.Guid      = setGuid;
-    eqSet.Name      = name;
-    eqSet.IconName  = iconName;
-    eqSet.state     = EQUIPMENT_SET_NEW;
-
-    ObjectGuid ignoredItemGuid;
-    ignoredItemGuid.SetRawValue(0, 1);
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        ObjectGuid itemGuid;
-        recvData >> itemGuid.ReadAsPacked();
-
-        // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuid == ignoredItemGuid)
+        if (!(packet.Set.IgnoreMask & (1 << i)))
         {
-            // ignored slots saved as bit mask because we have no free special values for Items[i]
-            eqSet.IgnoreMask |= 1 << i;
-            continue;
+            ObjectGuid const& itemGuid = packet.Set.Pieces[i];
+
+            Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+
+            /// cheating check 1 (item equipped but sent empty guid)
+            if (!item && !itemGuid.IsEmpty())
+                return;
+
+            /// cheating check 2 (sent guid does not match equipped item)
+            if (item && item->GetGUID() != itemGuid)
+                return;
         }
-
-        Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-
-        if (!item && !itemGuid.IsEmpty())                    // cheating check 1
-            return;
-
-        if (item && item->GetGUID() != itemGuid)             // cheating check 2
-            return;
-
-        eqSet.Items[i] = itemGuid.GetCounter();
+        else
+            packet.Set.Pieces[i].Clear();
     }
 
-    _player->SetEquipmentSet(index, eqSet);
+    packet.Set.IgnoreMask &= 0x7FFFF; /// clear invalid bits (i > EQUIPMENT_SLOT_END)
+
+    _player->SetEquipmentSet(std::move(packet.Set));
 }
 
 void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)

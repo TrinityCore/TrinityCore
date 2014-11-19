@@ -41,11 +41,15 @@ namespace WorldPackets
         public:
             QuestGiverStatusMultipleQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY, std::move(packet)) { }
 
-            void Read() override {};
+            void Read() override { }
         };
 
         struct QuestGiverInfo
         {
+            QuestGiverInfo() { }
+            QuestGiverInfo(ObjectGuid const& guid, uint32 status)
+                : Guid(guid), Status(status) { }
+
             ObjectGuid Guid;
             uint32 Status = DIALOG_STATUS_NONE;
         };
@@ -53,7 +57,7 @@ namespace WorldPackets
         class QuestGiverStatus final : public ServerPacket
         {
         public:
-            QuestGiverStatus() : ServerPacket(SMSG_QUESTGIVER_STATUS, 12) { }
+            QuestGiverStatus() : ServerPacket(SMSG_QUESTGIVER_STATUS, 22) { }
 
             WorldPacket const* Write() override;
 
