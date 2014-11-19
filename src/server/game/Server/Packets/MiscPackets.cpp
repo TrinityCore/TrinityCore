@@ -17,6 +17,35 @@
 
 #include "MiscPackets.h"
 
+WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
+{
+    _worldPacket << float(BindPosition.x);
+    _worldPacket << float(BindPosition.y);
+    _worldPacket << float(BindPosition.z);
+    _worldPacket << uint32(BindMapID);
+    _worldPacket << uint32(BindAreaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::InvalidatePlayer::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
+{
+    _worldPacket.AppendPackedTime(ServerTime);
+    _worldPacket.AppendPackedTime(GameTime);
+    _worldPacket << float(NewSpeed);
+    _worldPacket << uint32(ServerTimeHolidayOffset);
+    _worldPacket << uint32(GameTimeHolidayOffset);
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Misc::ViolenceLevel::Read()
 {
     _worldPacket >> ViolenceLvl;
@@ -44,8 +73,34 @@ WorldPacket const* WorldPackets::Misc::UITime::Write()
 
 WorldPacket const* WorldPackets::Misc::TutorialFlags::Write()
 {
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        _worldPacket << TutorialData[i];
+    _worldPacket.append(TutorialData, MAX_ACCOUNT_TUTORIAL_VALUES);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
+{
+    _worldPacket << uint32(DifficultyID);
+    _worldPacket << uint8(IsTournamentRealm);
+    _worldPacket << uint32(WeeklyReset);
+    _worldPacket.WriteBit(IneligibleForLootMask.HasValue);
+    _worldPacket.WriteBit(InstanceGroupSize.HasValue);
+    _worldPacket.WriteBit(RestrictedAccountMaxLevel.HasValue);
+    _worldPacket.WriteBit(RestrictedAccountMaxMoney.HasValue);
+
+    if (IneligibleForLootMask.HasValue)
+        _worldPacket << uint32(IneligibleForLootMask.value);
+
+    if (InstanceGroupSize.HasValue)
+        _worldPacket << uint32(InstanceGroupSize.value);
+
+    if (RestrictedAccountMaxLevel.HasValue)
+        _worldPacket << uint32(RestrictedAccountMaxLevel.value);
+
+    if (RestrictedAccountMaxMoney.HasValue)
+        _worldPacket << uint32(RestrictedAccountMaxMoney.value);
+
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

@@ -28,7 +28,6 @@
 #include "BattlegroundMgr.h"
 #include "BattlegroundScore.h"
 #include "CellImpl.h"
-#include "Channel.h"
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "CharacterPackets.h"
@@ -16830,6 +16829,17 @@ void Player::SetHomebind(WorldLocation const& loc, uint32 areaId)
     CharacterDatabase.Execute(stmt);
 }
 
+void Player::SendBindPointUpdate()
+{
+    WorldPackets::Misc::BindPointUpdate packet;
+    packet.BindPosition.x = m_homebindX;
+    packet.BindPosition.y = m_homebindY;
+    packet.BindPosition.z = m_homebindZ;
+    packet.BindMapID = m_homebindMapId;
+    packet.BindAreaID = m_homebindAreaId;
+    SendDirectMessage(packet.Write());
+}
+
 uint32 Player::GetUInt32ValueFromArray(Tokenizer const& data, uint16 index)
 {
     if (index >= data.size())
@@ -22972,65 +22982,71 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     // guild bank list wtf?
 
+    /// SMSG_SPELL_CATEGORY_COOLDOWN
     GetSession()->SendSpellCategoryCooldowns();
 
-    // Homebind
-    WorldPacket data(SMSG_BINDPOINTUPDATE, 5*4);
-    data << m_homebindX << m_homebindY << m_homebindZ;
-    data << (uint32) m_homebindMapId;
-    data << (uint32) m_homebindAreaId;
-    GetSession()->SendPacket(&data);
+    /// SMSG_BINDPOINTUPDATE
+    SendBindPointUpdate();
 
     // SMSG_SET_PROFICIENCY
     // SMSG_SET_PCT_SPELL_MODIFIER
     // SMSG_SET_FLAT_SPELL_MODIFIER
     // SMSG_UPDATE_AURA_DURATION
 
+    /// SMSG_TALENTS_INFO
     SendTalentsInfoData();
-
-    data.Initialize(SMSG_WORLD_SERVER_INFO, 1 + 1 + 4 + 4);
-    data.WriteBit(0);                                               // HasRestrictedLevel
-    data.WriteBit(0);                                               // HasRestrictedMoney
-    data.WriteBit(0);                                               // IneligibleForLoot
-    data.FlushBits();
-    //if (IneligibleForLoot)
-    //    data << uint32(0);                                        // EncounterMask
-
-    data << uint8(0);                                               // IsOnTournamentRealm
-    //if (HasRestrictedMoney)
-    //    data << uint32(100000);                                   // RestrictedMoney (starter accounts)
-    //if (HasRestrictedLevel)
-    //    data << uint32(20);                                       // RestrictedLevel (starter accounts)
-
-    data << uint32(sWorld->GetNextWeeklyQuestsResetTime() - WEEK);  // LastWeeklyReset (not instance reset)
-    data << uint32(GetMap()->GetDifficulty());
-    GetSession()->SendPacket(&data);
-
+    /// SMSG_INITIAL_SPELLS
     SendKnownSpells();
 
-    WorldPackets::Spell::SendUnlearnSpells packet;
-    GetSession()->SendPacket(packet.Write());
+    /// SMSG_SEND_UNLEARN_SPELLS
+    {
+        WorldPackets::Spell::SendUnlearnSpells packet;
+        SendDirectMessage(packet.Write());
+    }
 
+    /// SMSG_ACTION_BUTTONS
     SendInitialActionButtons();
-    m_reputationMgr->SendInitialReputations();
-    m_achievementMgr->SendAllAchievementData(this);
 
+    /// SMSG_INITIALIZE_FACTIONS
+    m_reputationMgr->SendInitialReputations();
+    /// SMSG_SET_FORCED_REACTIONS
+    m_reputationMgr->SendForceReactions();
+
+    SendCurrencies();
     SendEquipmentSetList();
 
-    data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
-    data.AppendPackedTime(sWorld->GetGameTime());
-    data << float(0.01666667f);                             // game speed
-    data << uint32(0);                                      // added in 3.1.2
-    GetSession()->SendPacket(&data);
+    m_achievementMgr->SendAllAchievementData(this);
 
-    GetReputationMgr().SendForceReactions();                // SMSG_SET_FORCED_REACTIONS
+    /// SMSG_LOGIN_SETTIMESPEED
+    {
+        static float const TimeSpeed = 0.01666667f;
+        WorldPackets::Misc::LoginSetTimeSpeed packet;
+        packet.NewSpeed = TimeSpeed;
+        packet.GameTime = sWorld->GetGameTime();
+        packet.ServerTime = sWorld->GetGameTime();
+        packet.GameTimeHolidayOffset = 0; /// @todo
+        packet.ServerTimeHolidayOffset = 0; /// @todo
+        SendDirectMessage(packet.Write());
+    }
+
+    /// SMSG_WORLD_SERVER_INFO
+    {
+        WorldPackets::Misc::WorldServerInfo packet;
+        packet.IneligibleForLootMask.Clear();     /// @todo
+        packet.WeeklyReset = sWorld->GetNextWeeklyQuestsResetTime() - WEEK;
+        packet.InstanceGroupSize.Clear();         /// @todo
+        packet.IsTournamentRealm = 0;             /// @todo
+        packet.RestrictedAccountMaxLevel.Clear(); /// @todo
+        packet.RestrictedAccountMaxMoney.Clear(); /// @todo
+        packet.DifficultyID = GetMap()->GetDifficulty();
+        SendDirectMessage(packet.Write());
+    }
 
     // SMSG_TALENTS_INFO x 2 for pet (unspent points and talents in separate packets...)
     // SMSG_PET_GUIDS
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
 
-    SendCurrencies();
     SetMover(this);
 }
 
@@ -25417,7 +25433,7 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 bool Player::LearnTalent(uint32 talentId)
 {
     uint8 group = GetActiveTalentGroup();
-    
+
     // check if talent specialization is learnt
     if (!GetTalentSpec(group))
         return false;
@@ -25498,7 +25514,7 @@ void Player::LearnTalentSpecialization(uint32 talentSpec)
                 if (masterySpell->IsPassive() && IsNeedCastPassiveSpellAtLearn(masterySpell))
                     CastSpell(this, masterySpell->Id, true);
     }
-    
+
     SendTalentsInfoData();
 }
 

@@ -130,7 +130,7 @@ namespace WorldPackets
     {
         class QueryGuildInfo;
     }
-    
+
     namespace Talent
     {
         class SetSpecialization;
@@ -179,6 +179,20 @@ enum AccountDataType
 #define PER_CHARACTER_CACHE_MASK    0xEA
 
 #define REGISTERED_ADDON_PREFIX_SOFTCAP 64
+
+enum Tutorials
+{
+    TUTORIAL_TALENT           = 0,
+    TUTORIAL_SPEC             = 1,
+    TUTORIAL_GLYPH            = 2,
+    TUTORIAL_SPELLBOOK        = 3,
+    TUTORIAL_PROFESSIONS      = 4,
+    TUTORIAL_CORE_ABILITITES  = 5,
+    TUTORIAL_PET_JOURNAL      = 6,
+    TUTORIAL_WHAT_HAS_CHANGED = 7
+};
+
+#define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
 struct AccountData
 {
@@ -398,8 +412,8 @@ class WorldSession
         bool CheckStableMaster(ObjectGuid guid);
 
         // Account Data
-        AccountData const* GetAccountData(AccountDataType type) const { return &m_accountData[type]; }
-        void SetAccountData(AccountDataType type, time_t tm, std::string const& data);
+        AccountData const* GetAccountData(AccountDataType type) const { return &_accountData[type]; }
+        void SetAccountData(AccountDataType type, uint32 time, std::string const& data);
         void LoadGlobalAccountData();
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
 
@@ -1194,8 +1208,8 @@ class WorldSession
         LocaleConstant m_sessionDbLocaleIndex;
         std::atomic<uint32> m_latency;
         std::atomic<uint32> m_clientTimeDelay;
-        AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
-        uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
+        AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
+        uint32 _tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         bool   m_TutorialsChanged;
         AddonsList m_addonsList;
         std::vector<std::string> _registeredAddonPrefixes;
