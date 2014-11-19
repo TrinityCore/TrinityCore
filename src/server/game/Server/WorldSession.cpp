@@ -121,7 +121,7 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
     m_sessionDbLocaleIndex(locale),
     m_latency(0),
     m_clientTimeDelay(0),
-    m_TutorialsChanged(false),
+    _tutorialsChanged(false),
     _filterAddonMessages(false),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
@@ -130,7 +130,7 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
     forceExit(false),
     m_currentBankerGUID()
 {
-    memset(m_Tutorials, 0, sizeof(m_Tutorials));
+    memset(_tutorials, 0, sizeof(_tutorials));
 
     if (sock)
     {
@@ -763,7 +763,7 @@ void WorldSession::LoadTutorialsData()
         for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
             _tutorials[i] = (*result)[i].GetUInt32();
 
-    m_TutorialsChanged = false;
+    _tutorialsChanged = false;
 }
 
 void WorldSession::SendTutorialsData()
@@ -775,7 +775,7 @@ void WorldSession::SendTutorialsData()
 
 void WorldSession::SaveTutorialsData(SQLTransaction& trans)
 {
-    if (!m_TutorialsChanged)
+    if (!_tutorialsChanged)
         return;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HAS_TUTORIALS);
@@ -788,7 +788,7 @@ void WorldSession::SaveTutorialsData(SQLTransaction& trans)
     stmt->setUInt32(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
     trans->Append(stmt);
 
-    m_TutorialsChanged = false;
+    _tutorialsChanged = false;
 }
 
 void WorldSession::ReadAddonsInfo(ByteBuffer& data)
