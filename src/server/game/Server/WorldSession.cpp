@@ -130,7 +130,7 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
     forceExit(false),
     m_currentBankerGUID()
 {
-    memset(m_Tutorials, 0, sizeof(m_Tutorials));
+    memset(_tutorials, 0, sizeof(_tutorials));
 
     if (sock)
     {

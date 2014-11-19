@@ -420,12 +420,12 @@ class WorldSession
         void LoadTutorialsData();
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
-        uint32 GetTutorialInt(uint8 index) const { return m_Tutorials[index]; }
+        uint32 GetTutorialInt(uint8 index) const { return _tutorials[index]; }
         void SetTutorialInt(uint8 index, uint32 value)
         {
-            if (m_Tutorials[index] != value)
+            if (_tutorials[index] != value)
             {
-                m_Tutorials[index] = value;
+                _tutorials[index] = value;
                 m_TutorialsChanged = true;
             }
         }
