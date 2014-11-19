@@ -420,13 +420,13 @@ class WorldSession
         void LoadTutorialsData();
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
-        uint32 GetTutorialInt(uint8 index) const { return m_Tutorials[index]; }
+        uint32 GetTutorialInt(uint8 index) const { return _tutorials[index]; }
         void SetTutorialInt(uint8 index, uint32 value)
         {
-            if (m_Tutorials[index] != value)
+            if (_tutorials[index] != value)
             {
-                m_Tutorials[index] = value;
-                m_TutorialsChanged = true;
+                _tutorials[index] = value;
+                _tutorialsChanged = true;
             }
         }
         //used with item_page table
@@ -1210,7 +1210,7 @@ class WorldSession
         std::atomic<uint32> m_clientTimeDelay;
         AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 _tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
-        bool   m_TutorialsChanged;
+        bool   _tutorialsChanged;
         AddonsList m_addonsList;
         std::vector<std::string> _registeredAddonPrefixes;
         bool _filterAddonMessages;

@@ -39,6 +39,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
+#include "EquipmentSetPackets.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
@@ -23011,8 +23012,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
     m_reputationMgr->SendInitialReputations();
     /// SMSG_SET_FORCED_REACTIONS
     m_reputationMgr->SendForceReactions();
-
+    /// SMSG_INIT_CURRENCY
     SendCurrencies();
+    /// SMSG_EQUIPMENT_SET_LIST
     SendEquipmentSetList();
 
     m_achievementMgr->SendAllAchievementData(this);
@@ -25671,33 +25673,30 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 
 void Player::SendEquipmentSetList()
 {
-    ObjectGuid ignoredItemGuid;
-    ignoredItemGuid.SetRawValue(0, 1);
-    uint32 count = 0;
-    WorldPacket data(SMSG_EQUIPMENT_SET_LIST, 4);
-    size_t count_pos = data.wpos();
-    data << uint32(count);                                  // count placeholder
+    WorldPackets::EquipmentSet::LoadEquipmentSet data;
+
     for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
     {
         if (itr->second.state == EQUIPMENT_SET_DELETED)
             continue;
-        data.AppendPackedUInt64(itr->second.Guid);
-        data << uint32(itr->first);
-        data << itr->second.Name;
-        data << itr->second.IconName;
+
+        WorldPackets::EquipmentSet::EquipmentSetData setData;
+        setData.Guid = itr->second.Guid;
+        setData.SetID = itr->first;
+        setData.IgnoreMask = itr->second.IgnoreMask;
+        setData.SetName = itr->second.Name;
+        setData.SetIcon = itr->second.IconName;
+
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         {
-            // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
-            if (itr->second.IgnoreMask & (1 << i))
-                data << ignoredItemGuid;
-            else
-                data << ObjectGuid::Create<HighGuid::Item>(itr->second.Items[i]);
+            if (!(itr->second.IgnoreMask & (1 << i)))
+                setData.Pieces[i] = ObjectGuid::Create<HighGuid::Item>(itr->second.Items[i]);
         }
 
-        ++count;                                            // client have limit but it checked at loading and set
+        data.SetData.emplace_back(setData);
     }
-    data.put<uint32>(count_pos, count);
-    GetSession()->SendPacket(&data);
+
+    SendDirectMessage(data.Write());
 }
 
 void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
