@@ -197,7 +197,7 @@ public:
                     break;
                 // Move Ryga into position
                 case 48:
-                    if (Creature * ryga = me->FindNearestCreature(NPC_RYGA,70))
+                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA,70))
                     {
                         if (ryga->IsAlive() && !ryga->IsInCombat())
                         {
@@ -211,7 +211,7 @@ public:
                     break;
                 // Ryga Kneels and welcomes spirit wolf
                 case 50:
-                    if (Creature * ryga = me->FindNearestCreature(NPC_RYGA,70))
+                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA,70))
                     {
                         if (ryga->IsAlive() && !ryga->IsInCombat())
                         {
@@ -225,7 +225,7 @@ public:
                     break;
                 // Ryga returns to spawn point
                 case 51:
-                    if (Creature * ryga = me->FindNearestCreature(NPC_RYGA,70))
+                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA,70))
                     {
                         if (ryga->IsAlive() && !ryga->IsInCombat())
                         {
