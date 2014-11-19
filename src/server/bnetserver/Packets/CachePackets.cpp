@@ -21,7 +21,7 @@
 
 void Battlenet::Cache::GetStreamItemsRequest::Read()
 {
-    _stream.WriteSkip(31);
+    _stream.ReadSkip(31);
     Index = _stream.Read<uint32>(32);
     ReferenceTime = _stream.Read<int32>(32) - std::numeric_limits<int32>::min();
     _stream.Read<bool>(1);  // StreamDirection
