@@ -28,7 +28,7 @@ namespace WorldPackets
         class InitializeFactions final : public ServerPacket
         {
         public:
-            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS)
+            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, 1312)
             {
                 for (uint16 i = 0; i < FactionCount; ++i)
                 {

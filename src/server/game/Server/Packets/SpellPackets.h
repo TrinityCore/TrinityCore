@@ -58,7 +58,10 @@ namespace WorldPackets
         class UpdateActionButtons final : public ServerPacket
         {
         public:
-            UpdateActionButtons() : ServerPacket(SMSG_ACTION_BUTTONS, MAX_ACTION_BUTTONS*8+1) { }
+            UpdateActionButtons() : ServerPacket(SMSG_ACTION_BUTTONS, MAX_ACTION_BUTTONS * 8 + 1)
+            {
+                std::memset(ActionButtons, 0, sizeof(ActionButtons));
+            }
 
             WorldPacket const* Write() override;
 

@@ -46,6 +46,7 @@
 #include "LFGMgr.h"
 #include "MapManager.h"
 #include "Memory.h"
+#include "MiscPackets.h"
 #include "MMapFactory.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -3307,9 +3308,9 @@ void World::UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name,
     if (race != RACE_NONE)
         itr->second.Race = race;
 
-    WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
-    data << guid;
-    SendGlobalMessage(&data);
+    WorldPackets::Misc::InvalidatePlayer data;
+    data.Guid = guid;
+    SendGlobalMessage(data.Write());
 }
 
 void World::UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level)
