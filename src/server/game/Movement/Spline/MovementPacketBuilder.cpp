@@ -25,23 +25,15 @@
 
 namespace Movement
 {
-    void PacketBuilder::WriteStopMovement(Vector3 const& pos, uint32 splineId, ByteBuffer& data)
-    {
-        /*data << uint8(0);                                       // sets/unsets MOVEMENTFLAG2_UNK7 (0x40)
-        data << pos;
-        data << splineId;
-        data << uint8(MonsterMoveStop);*/
-    }
-
     void PacketBuilder::WriteMonsterMove(const MoveSpline& move_spline, WorldPackets::Movement::MovementMonsterSpline& movementMonsterSpline)
     {
         movementMonsterSpline.ID = move_spline.m_Id;
         WorldPackets::Movement::MovementSpline& movementSpline = movementMonsterSpline.Move;
-        
+
         MoveSplineFlag splineflags = move_spline.splineflags;
         splineflags.enter_cycle = move_spline.isCyclic();
         movementSpline.Flags = uint32(splineflags & uint32(~MoveSplineFlag::Mask_No_Monster_Move));
-        
+
         switch (move_spline.splineflags & MoveSplineFlag::Mask_Final_Facing)
         {
             case MoveSplineFlag::Final_Point:
@@ -60,24 +52,24 @@ namespace Movement
                 movementSpline.Face = MONSTER_MOVE_NORMAL;
                 break;
         }
-        
+
         if (splineflags.animation)
         {
             movementSpline.AnimTier = splineflags.getAnimationId();
             movementSpline.TierTransStartTime = move_spline.effect_start_time;
         }
-        
+
         movementSpline.MoveTime = move_spline.Duration();
-        
+
         if (splineflags.parabolic)
         {
             movementSpline.JumpGravity = move_spline.vertical_acceleration;
             movementSpline.SpecialTime = move_spline.effect_start_time;
         }
-        
+
         Spline<int32> const& spline = move_spline.spline;
         std::vector<Vector3> const& array = spline.getPoints();
-        
+
         if (splineflags & MoveSplineFlag::UncompressedPath)
         {
             if (!splineflags.cyclic)

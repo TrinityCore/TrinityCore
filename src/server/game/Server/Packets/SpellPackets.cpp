@@ -75,7 +75,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spell::SpellCastLogData& 
         data << powerData.PowerType;
         data << powerData.Amount;
     }
-    data.FlushBits();
     data.WriteBit(false);
     // data << float // Unk data if bit is true
     data.FlushBits();
