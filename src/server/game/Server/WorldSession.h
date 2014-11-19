@@ -566,20 +566,20 @@ class TC_GAME_API WorldSession
         bool CheckStableMaster(ObjectGuid guid);
 
         // Account Data
-        AccountData const* GetAccountData(AccountDataType type) const { return &m_accountData[type]; }
-        void SetAccountData(AccountDataType type, time_t tm, std::string const& data);
+        AccountData const* GetAccountData(AccountDataType type) const { return &_accountData[type]; }
+        void SetAccountData(AccountDataType type, time_t time, std::string const& data);
         void SendAccountDataTimes(uint32 mask);
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
 
         void LoadTutorialsData(PreparedQueryResult result);
         void SendTutorialsData();
         void SaveTutorialsData(CharacterDatabaseTransaction trans);
-        uint32 GetTutorialInt(uint8 index) const { return m_Tutorials[index]; }
+        uint32 GetTutorialInt(uint8 index) const { return _tutorials[index]; }
         void SetTutorialInt(uint8 index, uint32 value)
         {
-            if (m_Tutorials[index] != value)
+            if (_tutorials[index] != value)
             {
-                m_Tutorials[index] = value;
+                _tutorials[index] = value;
                 m_TutorialsChanged |= TUTORIALS_FLAG_CHANGED;
             }
         }
@@ -1278,8 +1278,8 @@ class TC_GAME_API WorldSession
         LocaleConstant m_sessionDbLocaleIndex;
         Minutes _timezoneOffset;
         std::atomic<uint32> m_latency;
-        AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
-        uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
+        AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
+        std::array<uint32, MAX_ACCOUNT_TUTORIAL_VALUES> _tutorials;
         uint8  m_TutorialsChanged;
 
         std::unordered_map<uint32 /*instanceId*/, SystemTimePoint/*releaseTime*/> _instanceResetTimes;

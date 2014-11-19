@@ -22,6 +22,7 @@
 #include "Position.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "SharedDefines.h"
 #include "Weather.h"
 #include "WowTime.h"
 #include <array>

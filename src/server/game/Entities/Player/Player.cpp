@@ -16846,6 +16846,12 @@ void Player::SendBindPointUpdate()
     SendDirectMessage(packet.Write());
 }
 
+void Player::SendPlayerBound(ObjectGuid const& binderGuid, uint32 areaId) const
+{
+    WorldPackets::Misc::PlayerBound packet(binderGuid, areaId);
+    SendDirectMessage(packet.Write());
+}
+
 bool Player::IsLoading() const
 {
     return GetSession()->PlayerLoading();
@@ -22411,6 +22417,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_INITIAL_SPELLS
     SendInitialSpells();
+
     /// SMSG_SEND_UNLEARN_SPELLS
     SendUnlearnSpells();
 

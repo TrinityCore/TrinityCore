@@ -5477,8 +5477,7 @@ void Spell::EffectBind()
         homeLoc.GetPositionX(), homeLoc.GetPositionY(), homeLoc.GetPositionZ(), homeLoc.GetMapId(), areaId);
 
     // zone update
-    WorldPackets::Misc::PlayerBound packet(m_caster->GetGUID(), areaId);
-    player->SendDirectMessage(packet.Write());
+    player->SendPlayerBound(m_caster->GetGUID(), areaId);
 }
 
 void Spell::EffectSummonRaFFriend()
