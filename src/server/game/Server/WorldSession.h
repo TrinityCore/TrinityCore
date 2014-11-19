@@ -164,6 +164,11 @@ namespace WorldPackets
         class SetSheathed;
     }
 
+    namespace EquipmentSet
+    {
+        class SaveEquipmentSet;
+    }
+
     namespace Guild
     {
         class QueryGuildInfo;
@@ -1179,7 +1184,7 @@ class TC_GAME_API WorldSession
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
         void HandleRemoveGlyph(WorldPacket& recvData);
         void HandleQueryInspectAchievements(WorldPacket& recvData);
-        void HandleEquipmentSetSave(WorldPacket& recvData);
+        void HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& saveEquipmentSet);
         void HandleEquipmentSetDelete(WorldPacket& recvData);
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleWorldStateUITimerUpdate(WorldPackets::Misc::UITimeRequest& recvData);

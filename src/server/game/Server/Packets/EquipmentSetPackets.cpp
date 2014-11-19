@@ -17,6 +17,14 @@
 
 #include "EquipmentSetPackets.h"
 
+WorldPacket const* WorldPackets::EquipmentSet::EquipmentSetID::Write()
+{
+    _worldPacket << uint32(SetID);
+    _worldPacket.appendPackGUID(GUID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
 {
     _worldPacket << uint32(SetData.size());
@@ -39,4 +47,15 @@ WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
     }
 
     return &_worldPacket;
+}
+
+void WorldPackets::EquipmentSet::SaveEquipmentSet::Read()
+{
+    _worldPacket.readPackGUID(Set.Guid);
+    _worldPacket >> Set.SetID;
+    _worldPacket >> Set.SetName;
+    _worldPacket >> Set.SetIcon;
+
+    for (uint8 i = 0; i < EQUIPMENT_SET_SLOTS; ++i)
+        _worldPacket >> Set.Pieces[i].ReadAsPacked();
 }

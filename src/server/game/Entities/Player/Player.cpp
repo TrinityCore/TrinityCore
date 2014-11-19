@@ -5985,7 +5985,7 @@ void Player::SendActionButtons(uint32 state) const
 
     packet.Reason = state;
 
-    GetSession()->SendPacket(packet.Write());
+    SendDirectMessage(packet.Write());
 }
 
 bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) const
@@ -25373,33 +25373,33 @@ void Player::SendEquipmentSetList()
     SendDirectMessage(data.Write());
 }
 
-void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& eqSet)
+void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet)
 {
-    if (eqSet.Guid != 0)
+    if (newEqSet.Guid != 0)
     {
         // something wrong...
-        auto itr = _equipmentSets.find(eqSet.Guid);
-        if (itr == _equipmentSets.end() || itr->second.Data.Guid != eqSet.Guid)
+        auto itr = _equipmentSets.find(newEqSet.Guid);
+        if (itr == _equipmentSets.end() || itr->second.Data.Guid != newEqSet.Guid)
         {
             TC_LOG_ERROR("entities.player", "Player::SetEquipmentSet: Player '{}' ({}) tried to save nonexistent equipment set {} (index: {})",
-                GetName(), GetGUID().ToString(), eqSet.Guid, eqSet.SetID);
+                GetName(), GetGUID().ToString(), newEqSet.Guid, newEqSet.SetID);
             return;
         }
     }
 
-    uint64 setGuid = (eqSet.Guid != 0) ? eqSet.Guid : sObjectMgr->GenerateEquipmentSetGuid();
+    uint64 setGuid = (newEqSet.Guid != 0) ? newEqSet.Guid : sObjectMgr->GenerateEquipmentSetGuid();
 
     EquipmentSetInfo& eqSlot = _equipmentSets[setGuid];
-    eqSlot.Data = eqSet;
+    eqSlot.Data = newEqSet;
 
-    if (eqSet.Guid == 0)
+    if (eqSlot.Data.Guid == 0)
     {
         eqSlot.Data.Guid = setGuid;
 
-        WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 1);
-        data << uint32(eqSlot.Data.SetID);
-        data.appendPackGUID(eqSlot.Data.Guid);
-        SendDirectMessage(&data);
+        WorldPackets::EquipmentSet::EquipmentSetID data;
+        data.GUID = eqSlot.Data.Guid;
+        data.SetID = eqSlot.Data.SetID;
+        SendDirectMessage(data.Write());
     }
 
     eqSlot.State = (eqSlot.State == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED);
@@ -25476,11 +25476,11 @@ void Player::_SaveBGData(CharacterDatabaseTransaction trans)
     trans->Append(stmt);
 }
 
-void Player::DeleteEquipmentSet(uint64 setGuid)
+void Player::DeleteEquipmentSet(uint64 id)
 {
     for (EquipmentSetContainer::iterator itr = _equipmentSets.begin(); itr != _equipmentSets.end();)
     {
-        if (itr->second.Data.Guid == setGuid)
+        if (itr->second.Data.Guid == id)
         {
             if (itr->second.State == EQUIPMENT_SET_NEW)
                 itr = _equipmentSets.erase(itr);

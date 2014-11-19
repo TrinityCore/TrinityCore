@@ -49,8 +49,7 @@ namespace WorldPackets
         {
             QuestGiverInfo() { }
             QuestGiverInfo(ObjectGuid const& guid, ::QuestGiverStatus status)
-                : Guid(guid), Status(status)
-            { }
+                : Guid(guid), Status(status) { }
 
             ObjectGuid Guid;
             ::QuestGiverStatus Status = DIALOG_STATUS_NONE;
