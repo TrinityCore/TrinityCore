@@ -44,6 +44,7 @@
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
+#include "EquipmentSetPackets.h"
 #include "Formulas.h"
 #include "GameClient.h"
 #include "GameEventMgr.h"
@@ -25361,43 +25362,26 @@ void Player::SendTalentsInfoData(bool pet)
     SendDirectMessage(updateTalentData.Write());
 }
 
+ObjectGuid const EquipmentSetInfo::IgnoredSlot = []
+{
+    ObjectGuid guid;
+    guid.SetRawValue(1);
+    return guid;
+}();
+
 void Player::SendEquipmentSetList()
 {
-    uint32 count = 0;
-    WorldPacket data(SMSG_EQUIPMENT_SET_LIST, 1000); // guess size
-    size_t count_pos = data.wpos();
-    data << uint32(count);                                  // count placeholder
-
-    static ObjectGuid const IgnoredSlot = []
-    {
-        ObjectGuid guid;
-        guid.SetRawValue(1);
-        return guid;
-    }();
+    WorldPackets::EquipmentSet::LoadEquipmentSet data;
 
     for (EquipmentSetContainer::value_type const& eqSet : _equipmentSets)
     {
         if (eqSet.second.State == EQUIPMENT_SET_DELETED)
             continue;
 
-        data.appendPackGUID(eqSet.first);
-        data << uint32(eqSet.second.Data.SetID);
-        data << eqSet.second.Data.SetName;
-        data << eqSet.second.Data.SetIcon;
-
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-        {
-            // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HighGuid::Item
-            if (eqSet.second.Data.IgnoreMask & (1 << i))
-                data << IgnoredSlot.WriteAsPacked();
-            else
-                data << eqSet.second.Data.Pieces[i].WriteAsPacked();
-        }
-
-        ++count;                                            // client have limit but it checked at loading and set
+        data.SetData.push_back(&eqSet.second.Data);
     }
-    data.put<uint32>(count_pos, count);
-    SendDirectMessage(&data);
+
+    SendDirectMessage(data.Write());
 }
 
 void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& eqSet)

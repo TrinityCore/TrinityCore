@@ -27,6 +27,7 @@
 #include "ClientConfigPackets.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
+#include "EquipmentSetPackets.h"
 #include "GuildPackets.h"
 #include "InspectPackets.h"
 #include "LFGPackets.h"

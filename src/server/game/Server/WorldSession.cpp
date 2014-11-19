@@ -134,7 +134,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     _timezoneOffset(timezoneOffset),
     m_latency(0),
     _tutorials(),
-    m_TutorialsChanged(TUTORIALS_FLAG_NONE),
+    _tutorialsChanged(TUTORIALS_FLAG_NONE),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
     _RBACData(nullptr),
@@ -849,10 +849,10 @@ void WorldSession::LoadTutorialsData(PreparedQueryResult result)
     {
         for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
             _tutorials[i] = (*result)[i].GetUInt32();
-        m_TutorialsChanged |= TUTORIALS_FLAG_LOADED_FROM_DB;
+        _tutorialsChanged |= TUTORIALS_FLAG_LOADED_FROM_DB;
     }
 
-    m_TutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
+    _tutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
 }
 
 void WorldSession::SendTutorialsData()
@@ -864,10 +864,10 @@ void WorldSession::SendTutorialsData()
 
 void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction trans)
 {
-    if (!(m_TutorialsChanged & TUTORIALS_FLAG_CHANGED))
+    if (!(_tutorialsChanged & TUTORIALS_FLAG_CHANGED))
         return;
 
-    bool const hasTutorialsInDB = (m_TutorialsChanged & TUTORIALS_FLAG_LOADED_FROM_DB) != 0;
+    bool const hasTutorialsInDB = (_tutorialsChanged & TUTORIALS_FLAG_LOADED_FROM_DB) != 0;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(hasTutorialsInDB ? CHAR_UPD_TUTORIALS : CHAR_INS_TUTORIALS);
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
         stmt->setUInt32(i, _tutorials[i]);
@@ -876,9 +876,9 @@ void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction trans)
 
     // now has, set flag so next save uses update query
     if (!hasTutorialsInDB)
-        m_TutorialsChanged |= TUTORIALS_FLAG_LOADED_FROM_DB;
+        _tutorialsChanged |= TUTORIALS_FLAG_LOADED_FROM_DB;
 
-    m_TutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
+    _tutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
 }
 
 void WorldSession::LoadInstanceTimeRestrictions(PreparedQueryResult result)

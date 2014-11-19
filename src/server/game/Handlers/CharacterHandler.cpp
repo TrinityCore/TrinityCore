@@ -1509,7 +1509,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
             continue;
 
         // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuid.GetRawValue() == 1)
+        if (itemGuid == EquipmentSetInfo::IgnoredSlot)
         {
             // ignored slots saved as bit mask because we have no free special values for Items[i]
             eqData.IgnoreMask |= 1 << i;
@@ -1552,7 +1552,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         TC_LOG_DEBUG("entities.player.items", "{}: srcbag {}, srcslot {}", itemGuid.ToString(), srcbag, srcslot);
 
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid.GetRawValue() == 1)
+        if (itemGuid == EquipmentSetInfo::IgnoredSlot)
             continue;
 
         // Only equip weapons in combat

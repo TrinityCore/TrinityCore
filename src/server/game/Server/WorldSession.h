@@ -580,7 +580,7 @@ class TC_GAME_API WorldSession
             if (_tutorials[index] != value)
             {
                 _tutorials[index] = value;
-                m_TutorialsChanged |= TUTORIALS_FLAG_CHANGED;
+                _tutorialsChanged |= TUTORIALS_FLAG_CHANGED;
             }
         }
         void LoadInstanceTimeRestrictions(PreparedQueryResult result);
@@ -1280,7 +1280,7 @@ class TC_GAME_API WorldSession
         std::atomic<uint32> m_latency;
         AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
         std::array<uint32, MAX_ACCOUNT_TUTORIAL_VALUES> _tutorials;
-        uint8  m_TutorialsChanged;
+        uint8  _tutorialsChanged;
 
         std::unordered_map<uint32 /*instanceId*/, SystemTimePoint/*releaseTime*/> _instanceResetTimes;
 
