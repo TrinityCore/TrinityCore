@@ -1832,7 +1832,7 @@ void Creature::SendAIReaction(AiReaction reactionType)
     packet.UnitGUID = GetGUID();
     packet.Reaction = reactionType;
 
-    ((WorldObject*)this)->SendMessageToSet(packet.Write(), true);
+    SendMessageToSet(packet.Write(), true);
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_AI_REACTION, type %u.", reactionType);
 }

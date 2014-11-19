@@ -23,6 +23,7 @@
 #include "Packets/ChatPackets.h"
 #include "Packets/ClientConfigPackets.h"
 #include "Packets/CombatPackets.h"
+#include "Packets/EquipmentSetPackets.h"
 #include "Packets/GuildPackets.h"
 #include "Packets/MiscPackets.h"
 #include "Packets/MovementPackets.h"
@@ -278,7 +279,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ENABLETAXI,                              STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleTaxiQueryAvailableNodes   );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ENABLE_NAGLE,                            STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_EQUIPMENT_SET_DELETE,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetDelete        );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_EQUIPMENT_SET_SAVE,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetSave          );
+    DEFINE_HANDLER(CMSG_EQUIPMENT_SET_SAVE,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::EquipmentSet::SaveEquipmentSet, &WorldSession::HandleEquipmentSetSave);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_EQUIPMENT_SET_USE,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetUse           );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_FACTION_BONUS_INFO,                      STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_FAR_SIGHT,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleFarSightOpcode            );
@@ -889,8 +890,8 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ENABLE_BARBER_SHOP,                      STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ENCHANTMENTLOG,                          STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ENVIRONMENTALDAMAGELOG,                  STATUS_UNHANDLED);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_LIST,                      STATUS_UNHANDLED);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_SAVED,                     STATUS_UNHANDLED);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_LIST,                      STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_SAVED,                     STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_USE_RESULT,                STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_EXPECTED_SPAM_RECORDS,                   STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_EXPLORATION_EXPERIENCE,                  STATUS_UNHANDLED);

@@ -747,24 +747,26 @@ enum EquipmentSetUpdateState
     EQUIPMENT_SET_DELETED   = 3
 };
 
-struct EquipmentSet
+struct EquipmentSetInfo
 {
-    EquipmentSet() : Guid(0), IgnoreMask(0), state(EQUIPMENT_SET_NEW)
+    /// Data sent in EquipmentSet related packets
+    struct EquipmentSetData
     {
-        memset(Items, 0, sizeof(Items));
-    }
+        uint64 Guid       = 0; ///< Set Identifier
+        uint32 SetID      = 0; ///< Index
+        uint32 IgnoreMask = 0; ///< Mask of EquipmentSlot
+        std::string SetName;
+        std::string SetIcon;
+        ObjectGuid Pieces[EQUIPMENT_SLOT_END];
+    } Data;
 
-    uint64 Guid;
-    std::string Name;
-    std::string IconName;
-    uint32 IgnoreMask;
-    ObjectGuid::LowType Items[EQUIPMENT_SLOT_END];
-    EquipmentSetUpdateState state;
+    /// Server-side data
+    EquipmentSetUpdateState State = EQUIPMENT_SET_NEW;
 };
 
 #define MAX_EQUIPMENT_SET_INDEX 10                          // client limit
 
-typedef std::map<uint32, EquipmentSet> EquipmentSets;
+typedef std::map<uint32, EquipmentSetInfo> EquipmentSetContainer;
 
 struct ItemPosCount
 {
@@ -2229,7 +2231,7 @@ class Player : public Unit, public GridObject<Player>
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item* item, ItemTemplate const* proto);
 
         void SendEquipmentSetList();
-        void SetEquipmentSet(uint32 index, EquipmentSet eqset);
+        void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData&& newEqSet);
         void DeleteEquipmentSet(uint64 setGuid);
 
         void SendInitWorldStates(uint32 zone, uint32 area);
@@ -2842,7 +2844,7 @@ class Player : public Unit, public GridObject<Player>
 
         DeclinedName *m_declinedname;
         Runes *m_runes;
-        EquipmentSets m_EquipmentSets;
+        EquipmentSetContainer _equipmentSets;
 
         bool CanAlwaysSee(WorldObject const* obj) const override;
 

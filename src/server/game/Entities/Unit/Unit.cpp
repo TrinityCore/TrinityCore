@@ -12868,7 +12868,7 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
     WorldPackets::Combat::AIReaction packet;
     packet.UnitGUID = guid;
     packet.Reaction = AI_REACTION_HOSTILE;
-    owner->ToPlayer()->GetSession()->SendPacket(packet.Write());
+    owner->ToPlayer()->SendDirectMessage(packet.Write());
 }
 
 ///----------End of Pet responses methods----------

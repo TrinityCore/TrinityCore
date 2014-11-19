@@ -148,7 +148,7 @@ namespace WorldPackets
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, const G3D::Vector3& v);
+ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v);
 ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v);
 
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo);

@@ -650,7 +650,7 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 
     WorldPackets::Chat::Chat packet;
     ChatHandler::BuildChatPacket(&packet, CHAT_MSG_IGNORED, LANG_UNIVERSAL, _player, _player, GetPlayer()->GetName());
-    player->GetSession()->SendPacket(packet.Write());
+    player->SendDirectMessage(packet.Write());
 }
 
 void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)

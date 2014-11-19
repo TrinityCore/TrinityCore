@@ -24,14 +24,15 @@ namespace WorldPackets
 {
     namespace EquipmentSet
     {
-        struct EquipmentSetData
+        class EquipmentSetID final : public ServerPacket
         {
-            uint64 Guid  = 0; ///< Set Identifier
+        public:
+            EquipmentSetID() : ServerPacket(SMSG_EQUIPMENT_SET_SAVED, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 GUID  = 0; ///< Set Identifier
             uint32 SetID = 0; ///< Index
-            uint32 IgnoreMask = 0;
-            std::string SetName;
-            std::string SetIcon;
-            ObjectGuid Pieces[EQUIPMENT_SLOT_END];
         };
 
         class LoadEquipmentSet final : public ServerPacket
@@ -41,7 +42,17 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<EquipmentSetData> SetData;
+            std::vector<EquipmentSetInfo::EquipmentSetData const*> SetData;
+        };
+
+        class SaveEquipmentSet final : public ClientPacket
+        {
+        public:
+            SaveEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_EQUIPMENT_SET_SAVE, std::move(packet)) { }
+
+            void Read() override;
+
+            EquipmentSetInfo::EquipmentSetData Set;
         };
     }
 }

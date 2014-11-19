@@ -2166,7 +2166,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 packet.Pos = m_teleport_dest;
                 packet.Reason = 16;
 
-                GetSession()->SendPacket(packet.Write());
+                SendDirectMessage(packet.Write());
                 SendSavedInstances();
             }
 
@@ -6217,7 +6217,7 @@ void Player::SendActionButtons(uint32 state) const
 
     packet.Reason = state;
 
-    GetSession()->SendPacket(packet.Write());
+    SendDirectMessage(packet.Write());
     TC_LOG_INFO("network", "Action Buttons for '%s' group '%u' Sent", GetGUID().ToString().c_str(), GetActiveTalentGroup());
 }
 
@@ -16745,28 +16745,25 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
     if (!result)
         return;
 
-    uint32 count = 0;
     do
     {
         Field* fields = result->Fetch();
-        EquipmentSet eqSet;
+        EquipmentSetInfo eqSet;
 
-        eqSet.Guid      = fields[0].GetUInt64();
-        uint8 index    = fields[1].GetUInt8();
-        eqSet.Name      = fields[2].GetString();
-        eqSet.IconName  = fields[3].GetString();
-        eqSet.IgnoreMask = fields[4].GetUInt32();
-        eqSet.state     = EQUIPMENT_SET_UNCHANGED;
+        eqSet.Data.Guid       = fields[0].GetUInt64();
+        eqSet.Data.SetID      = fields[1].GetUInt8();
+        eqSet.Data.SetName    = fields[2].GetString();
+        eqSet.Data.SetIcon    = fields[3].GetString();
+        eqSet.Data.IgnoreMask = fields[4].GetUInt32();
+        eqSet.State           = EQUIPMENT_SET_UNCHANGED;
 
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            eqSet.Items[i] = fields[5 + i].GetUInt64();
+            eqSet.Data.Pieces[i] = ObjectGuid::Create<HighGuid::Item>(fields[5 + i].GetUInt64());
 
-        m_EquipmentSets[index] = eqSet;
+        if (eqSet.Data.SetID >= MAX_EQUIPMENT_SET_INDEX)   // client limit
+            continue;
 
-        ++count;
-
-        if (count >= MAX_EQUIPMENT_SET_INDEX)                // client limit
-            break;
+        _equipmentSets[eqSet.Data.SetID] = eqSet;
     }
     while (result->NextRow());
 }
@@ -20463,7 +20460,7 @@ void Player::WhisperAddon(std::string const& text, const std::string& prefix, Pl
 
     WorldPackets::Chat::Chat packet;
     ChatHandler::BuildChatPacket(&packet, CHAT_MSG_WHISPER, LANG_ADDON, this, this, text, 0, "", DEFAULT_LOCALE, prefix);
-    receiver->GetSession()->SendPacket(packet.Write());
+    receiver->SendDirectMessage(packet.Write());
 }
 
 void Player::Whisper(std::string const& text, Language language, Player* target, bool /*= false*/)
@@ -20480,14 +20477,14 @@ void Player::Whisper(std::string const& text, Language language, Player* target,
 
     WorldPackets::Chat::Chat packet;
     ChatHandler::BuildChatPacket(&packet, CHAT_MSG_WHISPER, Language(language), this, this, _text);
-    target->GetSession()->SendPacket(packet.Write());
+    target->SendDirectMessage(packet.Write());
 
     // rest stuff shouldn't happen in case of addon message
     if (isAddonMessage)
         return;
 
     ChatHandler::BuildChatPacket(&packet, CHAT_MSG_WHISPER_INFORM, Language(language), target, target, _text);
-    GetSession()->SendPacket(packet.Write());
+    SendDirectMessage(packet.Write());
 
     if (!isAcceptWhispers() && !IsGameMaster() && !target->IsGameMaster())
     {
@@ -20980,7 +20977,7 @@ void Player::SendProficiency(ItemClass itemClass, uint32 itemSubclassMask)
     WorldPackets::Item::SetProficiency packet;
     packet.ProficiencyMask = itemSubclassMask;
     packet.ProficiencyClass = itemClass;
-    GetSession()->SendPacket(packet.Write());
+    SendDirectMessage(packet.Write());
 }
 
 void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
@@ -25627,7 +25624,7 @@ void Player::SendTalentsInfoData()
         packet.Info.TalentGroups.push_back(groupInfoPkt);
     }
 
-    GetSession()->SendPacket(packet.Write());
+    SendDirectMessage(packet.Write());
 }
 
 void Player::BuildEnchantmentsInfoData(WorldPacket* data)
@@ -25677,117 +25674,98 @@ void Player::SendEquipmentSetList()
 {
     WorldPackets::EquipmentSet::LoadEquipmentSet data;
 
-    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
+    for (EquipmentSetContainer::value_type const& eqSet : _equipmentSets)
     {
-        if (itr->second.state == EQUIPMENT_SET_DELETED)
+        if (eqSet.second.State == EQUIPMENT_SET_DELETED)
             continue;
 
-        WorldPackets::EquipmentSet::EquipmentSetData setData;
-        setData.Guid = itr->second.Guid;
-        setData.SetID = itr->first;
-        setData.IgnoreMask = itr->second.IgnoreMask;
-        setData.SetName = itr->second.Name;
-        setData.SetIcon = itr->second.IconName;
-
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-        {
-            if (!(itr->second.IgnoreMask & (1 << i)))
-                setData.Pieces[i] = ObjectGuid::Create<HighGuid::Item>(itr->second.Items[i]);
-        }
-
-        data.SetData.emplace_back(setData);
+        data.SetData.push_back(&eqSet.second.Data);
     }
 
     SendDirectMessage(data.Write());
 }
 
-void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
+void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData&& newEqSet)
 {
-    if (eqset.Guid != 0)
+    if (newEqSet.Guid != 0)
     {
-        bool found = false;
-
-        for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
+        // something wrong...
+        EquipmentSetContainer::const_iterator itr = _equipmentSets.find(newEqSet.SetID);
+        if (itr == _equipmentSets.end() || itr->second.Data.Guid != newEqSet.Guid)
         {
-            if ((itr->second.Guid == eqset.Guid) && (itr->first == index))
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found)                                          // something wrong...
-        {
-            TC_LOG_ERROR("entities.player", "Player %s tried to save equipment set " UI64FMTD " (index %u), but that equipment set not found!", GetName().c_str(), eqset.Guid, index);
+            TC_LOG_ERROR("entities.player", "Player %s tried to save equipment set " UI64FMTD " (index: %u), but that equipment set not found!", GetName().c_str(), newEqSet.Guid, newEqSet.SetID);
             return;
         }
     }
 
-    EquipmentSet& eqslot = m_EquipmentSets[index];
+    EquipmentSetInfo& eqSlot = _equipmentSets[newEqSet.SetID];
 
-    EquipmentSetUpdateState old_state = eqslot.state;
+    EquipmentSetUpdateState oldState = eqSlot.State;
 
-    eqslot = eqset;
+    eqSlot.Data = newEqSet;
 
-    if (eqset.Guid == 0)
+    if (eqSlot.Data.Guid == 0)
     {
-        eqslot.Guid = sObjectMgr->GenerateEquipmentSetGuid();
+        eqSlot.Data.Guid = sObjectMgr->GenerateEquipmentSetGuid();
 
-        WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 1);
-        data << uint32(index);
-        data.AppendPackedUInt64(eqslot.Guid);
-        GetSession()->SendPacket(&data);
+        WorldPackets::EquipmentSet::EquipmentSetID data;
+        data.GUID = eqSlot.Data.Guid;
+        data.SetID = eqSlot.Data.SetID;
+        SendDirectMessage(data.Write());
     }
 
-    eqslot.state = old_state == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
+    eqSlot.State = oldState == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
 }
 
 void Player::_SaveEquipmentSets(SQLTransaction& trans)
 {
-    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end();)
+    for (EquipmentSetContainer::iterator itr = _equipmentSets.begin(); itr != _equipmentSets.end();)
     {
-        uint32 index = itr->first;
-        EquipmentSet& eqset = itr->second;
-        PreparedStatement* stmt = NULL;
+        EquipmentSetInfo& eqSet = itr->second;
+        PreparedStatement* stmt = nullptr;
         uint8 j = 0;
-        switch (eqset.state)
+        switch (eqSet.State)
         {
             case EQUIPMENT_SET_UNCHANGED:
                 ++itr;
                 break;                                      // nothing do
             case EQUIPMENT_SET_CHANGED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_EQUIP_SET);
-                stmt->setString(j++, eqset.Name.c_str());
-                stmt->setString(j++, eqset.IconName.c_str());
-                stmt->setUInt32(j++, eqset.IgnoreMask);
-                for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
-                    stmt->setUInt64(j++, eqset.Items[i]);
+                stmt->setString(j++, eqSet.Data.SetName);
+                stmt->setString(j++, eqSet.Data.SetIcon);
+                stmt->setUInt32(j++, eqSet.Data.IgnoreMask);
+
+                for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+                    stmt->setUInt64(j++, eqSet.Data.Pieces[i].GetCounter());
+
                 stmt->setUInt64(j++, GetGUID().GetCounter());
-                stmt->setUInt64(j++, eqset.Guid);
-                stmt->setUInt32(j, index);
+                stmt->setUInt64(j++, eqSet.Data.Guid);
+                stmt->setUInt32(j, eqSet.Data.SetID);
                 trans->Append(stmt);
-                eqset.state = EQUIPMENT_SET_UNCHANGED;
+                eqSet.State = EQUIPMENT_SET_UNCHANGED;
                 ++itr;
                 break;
             case EQUIPMENT_SET_NEW:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_EQUIP_SET);
                 stmt->setUInt64(j++, GetGUID().GetCounter());
-                stmt->setUInt64(j++, eqset.Guid);
-                stmt->setUInt32(j++, index);
-                stmt->setString(j++, eqset.Name.c_str());
-                stmt->setString(j++, eqset.IconName.c_str());
-                stmt->setUInt32(j++, eqset.IgnoreMask);
-                for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
-                    stmt->setUInt64(j++, eqset.Items[i]);
+                stmt->setUInt64(j++, eqSet.Data.Guid);
+                stmt->setUInt32(j++, eqSet.Data.SetID);
+                stmt->setString(j++, eqSet.Data.SetName);
+                stmt->setString(j++, eqSet.Data.SetIcon);
+                stmt->setUInt32(j++, eqSet.Data.IgnoreMask);
+
+                for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+                    stmt->setUInt64(j++, eqSet.Data.Pieces[i].GetCounter());
+
                 trans->Append(stmt);
-                eqset.state = EQUIPMENT_SET_UNCHANGED;
+                eqSet.State = EQUIPMENT_SET_UNCHANGED;
                 ++itr;
                 break;
             case EQUIPMENT_SET_DELETED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EQUIP_SET);
-                stmt->setUInt64(0, eqset.Guid);
+                stmt->setUInt64(0, eqSet.Data.Guid);
                 trans->Append(stmt);
-                m_EquipmentSets.erase(itr++);
+                itr = _equipmentSets.erase(itr);
                 break;
         }
     }
@@ -25816,16 +25794,17 @@ void Player::_SaveBGData(SQLTransaction& trans)
 
 void Player::DeleteEquipmentSet(uint64 setGuid)
 {
-    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
+    for (EquipmentSetContainer::iterator itr = _equipmentSets.begin(); itr != _equipmentSets.end();)
     {
-        if (itr->second.Guid == setGuid)
+        if (itr->second.Data.Guid == setGuid)
         {
-            if (itr->second.state == EQUIPMENT_SET_NEW)
-                m_EquipmentSets.erase(itr);
+            if (itr->second.State == EQUIPMENT_SET_NEW)
+                itr = _equipmentSets.erase(itr);
             else
-                itr->second.state = EQUIPMENT_SET_DELETED;
+                itr->second.State = EQUIPMENT_SET_DELETED;
             break;
         }
+        ++itr;
     }
 }
 
@@ -26191,7 +26170,7 @@ void Player::SendTimeSync()
 
     WorldPackets::Misc::TimeSyncRequest packet;
     packet.SequenceIndex = m_timeSyncQueue.back();
-    GetSession()->SendPacket(packet.Write());
+    SendDirectMessage(packet.Write());
 
     // Schedule next sync in 10 sec
     m_timeSyncTimer = 10000;

@@ -18,14 +18,16 @@
 #include "MovementPackets.h"
 #include "MovementTypedefs.h"
 
-ByteBuffer& operator << (ByteBuffer& data, const G3D::Vector3& v)
+ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v)
 {
     data << v.x << v.y << v.z;
+    return data;
 }
 
-ByteBuffer& operator >> (ByteBuffer& data, G3D::Vector3& v)
+ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
 {
     data >> v.x >> v.y >> v.z;
+    return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
@@ -52,8 +54,6 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
     {
         data << ObjectGuid;
     }*/
-
-    data.FlushBits();
 
     data.WriteBits(movementInfo.flags, 30);
     data.WriteBits(movementInfo.flags2, 15);
@@ -86,8 +86,6 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
         data << movementInfo.jump.fallTime;
         data << movementInfo.jump.zspeed;
 
-        data.FlushBits();
-
         data.WriteBit(hasFallDirection);
         if (hasFallDirection)
         {
@@ -98,6 +96,8 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
     }
 
     data.FlushBits();
+
+    return data;
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
@@ -161,6 +161,8 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
             data >> movementInfo.jump.xyspeed;
         }
     }
+
+    return data;
 }
 
 void WorldPackets::Movement::ClientPlayerMovement::Read()
@@ -172,6 +174,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFi
 {
     data << monsterSplineFilterKey.Idx;
     data << monsterSplineFilterKey.Speed;
+
+    return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilter& monsterSplineFilter)
@@ -183,8 +187,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFi
     for (WorldPackets::Movement::MonsterSplineFilterKey& filterKey : monsterSplineFilter.FilterKeys)
         data << filterKey;
     data << monsterSplineFilter.AddedToStart;
-    data.FlushBits();
     data.WriteBits(monsterSplineFilter.FilterFlags, 2);
+    data.FlushBits();
+
+    return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline& movementSpline)
@@ -202,13 +208,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline&
     data << movementSpline.TransportGUID;
     data << movementSpline.VehicleSeat;
     data << int32(movementSpline.PackedDeltas.size());
-    for (G3D::Vector3& pos : movementSpline.Points)
+    for (G3D::Vector3 const& pos : movementSpline.Points)
         data << pos;
-    for (G3D::Vector3& pos : movementSpline.PackedDeltas)
+    for (G3D::Vector3 const& pos : movementSpline.PackedDeltas)
         data.appendPackXYZ(pos.x, pos.y, pos.z);
-    data.FlushBits();
     data.WriteBits(movementSpline.Face, 2);
     data.WriteBit(movementSpline.SplineFilter.HasValue);
+    data.FlushBits();
+
     switch (movementSpline.Face)
     {
         case MONSTER_MOVE_FACING_SPOT:
@@ -222,8 +229,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline&
             data << movementSpline.FaceDirection;
             break;
     }
+
     if (movementSpline.SplineFilter.HasValue)
         data << movementSpline.SplineFilter.value;
+
+    return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonsterSpline& movementMonsterSpline)
@@ -231,8 +241,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonster
     data << movementMonsterSpline.ID;
     data << movementMonsterSpline.Destination;
     data << movementMonsterSpline.Move;
-    data.FlushBits();
     data.WriteBit(movementMonsterSpline.CrzTeleport);
+    data.FlushBits();
+
+    return data;
 }
 
 WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
