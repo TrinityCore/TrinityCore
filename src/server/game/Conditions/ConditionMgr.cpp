@@ -1497,13 +1497,13 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s in `condition` table, SourceEntry does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
 
             if ((cond->SourceGroup > MAX_EFFECT_MASK) || !cond->SourceGroup)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, has incorrect SourceGroup %u (spell effectMask) set, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s in `condition` table, has incorrect SourceGroup (spell effectMask) set, ignoring.", cond->ToString().c_str());
                 return false;
             }
 
@@ -1511,7 +1511,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
 
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (!((1<<i) & cond->SourceGroup))
+                if (!((1 << i) & cond->SourceGroup))
                     continue;
 
                 switch (spellInfo->Effects[i].TargetA.GetSelectionCategory())
@@ -1563,16 +1563,10 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             break;
         }
         case CONDITION_SOURCE_TYPE_QUEST_ACCEPT:
-            if (!sObjectMgr->GetQuestTemplate(cond->SourceEntry))
-            {
-                TC_LOG_ERROR("sql.sql", "%s specifies non-existing quest (%u), skipped.", cond->ToString().c_str());
-                return false;
-            }
-            break;
         case CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK:
             if (!sObjectMgr->GetQuestTemplate(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s specifies non-existing quest (%u), skipped.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry specifies non-existing quest, skipped.", cond->ToString().c_str());
                 return false;
             }
             break;
