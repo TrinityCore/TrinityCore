@@ -1719,12 +1719,16 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
-                WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
-                data << uint32(mapid);
+                WorldPackets::Movement::TransferPending transferPending;
+                transferPending.MapID = mapid;
                 if (Transport* transport = GetTransport())
-                    data << transport->GetEntry() << GetMapId();
+                {
+                    WorldPackets::Movement::ShipTransferPending& shipTransferPending = transferPending.Ship.emplace();
+                    shipTransferPending.ID = transport->GetEntry();
+                    shipTransferPending.OriginMapID = GetMapId();
+                }
 
-                SendDirectMessage(&data);
+                SendDirectMessage(transferPending.Write());
             }
 
             // remove from old map now
@@ -22553,21 +22557,11 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
 
 void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg) const
 {
-    WorldPacket data(SMSG_TRANSFER_ABORTED, 4+2);
-    data << uint32(mapid);
-    data << uint8(reason);                                 // transfer abort reason
-    switch (reason)
-    {
-        case TRANSFER_ABORT_INSUF_EXPAN_LVL:
-        case TRANSFER_ABORT_DIFFICULTY:
-        case TRANSFER_ABORT_UNIQUE_MESSAGE:
-            // these are the ONLY cases that have an extra argument in the packet!!!
-            data << uint8(arg);
-            break;
-        default:
-            break;
-    }
-    SendDirectMessage(&data);
+    WorldPackets::Movement::TransferAborted transferAborted;
+    transferAborted.MapID = mapid;
+    transferAborted.Arg = arg;
+    transferAborted.TransfertAbort = reason;
+    SendDirectMessage(transferAborted.Write());
 }
 
 void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time, bool welcome) const

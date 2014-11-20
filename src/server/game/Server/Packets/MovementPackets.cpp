@@ -16,6 +16,7 @@
  */
 
 #include "MovementPackets.h"
+#include "Map.h"
 #include "MoveSpline.h"
 #include "MoveSplineFlag.h"
 #include "MovementTypedefs.h"
@@ -339,6 +340,36 @@ WorldPacket const* MoveUpdateSpeed::Write()
     _worldPacket << Status->guid.WriteAsPacked();
     _worldPacket << *Status;
     _worldPacket << float(Speed);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* TransferPending::Write()
+{
+    _worldPacket << int32(MapID);
+    if (Ship)
+    {
+        _worldPacket << uint32(Ship->ID);
+        _worldPacket << int32(Ship->OriginMapID);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* TransferAborted::Write()
+{
+    _worldPacket << uint32(MapID);
+    _worldPacket << uint8(TransfertAbort);
+    switch (TransfertAbort)
+    {
+        case TRANSFER_ABORT_INSUF_EXPAN_LVL:
+        case TRANSFER_ABORT_DIFFICULTY:
+        case TRANSFER_ABORT_UNIQUE_MESSAGE:
+            _worldPacket << uint8(Arg);
+            break;
+        default:
+            break;
+    }
 
     return &_worldPacket;
 }
