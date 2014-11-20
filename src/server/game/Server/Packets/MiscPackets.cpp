@@ -89,16 +89,16 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     _worldPacket.WriteBit(RestrictedAccountMaxMoney.HasValue);
 
     if (IneligibleForLootMask.HasValue)
-        _worldPacket << uint32(IneligibleForLootMask.value);
+        _worldPacket << uint32(IneligibleForLootMask.Value);
 
     if (InstanceGroupSize.HasValue)
-        _worldPacket << uint32(InstanceGroupSize.value);
+        _worldPacket << uint32(InstanceGroupSize.Value);
 
     if (RestrictedAccountMaxLevel.HasValue)
-        _worldPacket << uint32(RestrictedAccountMaxLevel.value);
+        _worldPacket << uint32(RestrictedAccountMaxLevel.Value);
 
     if (RestrictedAccountMaxMoney.HasValue)
-        _worldPacket << uint32(RestrictedAccountMaxMoney.value);
+        _worldPacket << uint32(RestrictedAccountMaxMoney.Value);
 
     _worldPacket.FlushBits();
 

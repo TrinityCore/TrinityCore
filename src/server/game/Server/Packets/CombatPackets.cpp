@@ -87,7 +87,7 @@ WorldPacket const* WorldPackets::Combat::AIReaction::Write()
 WorldPacket const* WorldPackets::Combat::AttackerStateUpdate::Write()
 {
     if (_worldPacket.WriteBit(LogData.HasValue))
-        _worldPacket << LogData.value;
+        _worldPacket << LogData.Value;
 
     // Placeholder for size which will be calculated at the end based on packet size
     // Client uses this size to copy remaining packet to another CDataStore
@@ -101,14 +101,15 @@ WorldPacket const* WorldPackets::Combat::AttackerStateUpdate::Write()
     _worldPacket << OverDamage;
     if (_worldPacket.WriteBit(SubDmg.HasValue))
     {
-        _worldPacket << SubDmg.value.SchoolMask;
-        _worldPacket << SubDmg.value.FDamage;
-        _worldPacket << SubDmg.value.Damage;
-        if (HitInfo & (HITINFO_FULL_ABSORB|HITINFO_PARTIAL_ABSORB))
-            _worldPacket << SubDmg.value.Absorbed;
-        if (HitInfo & (HITINFO_FULL_RESIST|HITINFO_PARTIAL_RESIST))
-            _worldPacket << SubDmg.value.Resisted;
+        _worldPacket << SubDmg.Value.SchoolMask;
+        _worldPacket << SubDmg.Value.FDamage;
+        _worldPacket << SubDmg.Value.Damage;
+        if (HitInfo & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
+            _worldPacket << SubDmg.Value.Absorbed;
+        if (HitInfo & (HITINFO_FULL_RESIST | HITINFO_PARTIAL_RESIST))
+            _worldPacket << SubDmg.Value.Resisted;
     }
+
     _worldPacket << VictimState;
     _worldPacket << AttackerState;
     _worldPacket << MeleeSpellID;
@@ -135,7 +136,7 @@ WorldPacket const* WorldPackets::Combat::AttackerStateUpdate::Write()
         _worldPacket << Unk;
 
     // Update size placeholder
-    _worldPacket.put<int32>(pos-sizeof(int32), _worldPacket.wpos()-pos);
+    _worldPacket.put<int32>(pos - sizeof(int32), _worldPacket.wpos() - pos);
 
     return &_worldPacket;
 }

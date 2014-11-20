@@ -1482,23 +1482,23 @@ void Guild::SendQueryResponse(WorldSession* session)
     response.GuildGuid = GetGUID();
     response.Info.HasValue = true;
 
-    response.Info.value.GuildGUID = GetGUID();
-    response.Info.value.VirtualRealmAddress = GetVirtualRealmAddress();
+    response.Info.Value.GuildGUID = GetGUID();
+    response.Info.Value.VirtualRealmAddress = GetVirtualRealmAddress();
 
-    response.Info.value.EmblemStyle = m_emblemInfo.GetStyle();
-    response.Info.value.EmblemColor = m_emblemInfo.GetColor();
-    response.Info.value.BorderStyle = m_emblemInfo.GetBorderStyle();
-    response.Info.value.BorderColor = m_emblemInfo.GetBorderColor();
-    response.Info.value.BackgroundColor = m_emblemInfo.GetBackgroundColor();
+    response.Info.Value.EmblemStyle = m_emblemInfo.GetStyle();
+    response.Info.Value.EmblemColor = m_emblemInfo.GetColor();
+    response.Info.Value.BorderStyle = m_emblemInfo.GetBorderStyle();
+    response.Info.Value.BorderColor = m_emblemInfo.GetBorderColor();
+    response.Info.Value.BackgroundColor = m_emblemInfo.GetBackgroundColor();
 
     for (uint8 i = 0; i < _GetRanksSize(); ++i)
     {
         WorldPackets::Guild::QueryGuildInfoResponse::GuildInfo::GuildInfoRank info
             (m_ranks[i].GetId(), i, m_ranks[i].GetName());
-        response.Info.value.Ranks.insert(info);
+        response.Info.Value.Ranks.insert(info);
     }
 
-    response.Info.value.GuildName = m_name;
+    response.Info.Value.GuildName = m_name;
 
     session->SendPacket(response.Write());
     TC_LOG_DEBUG("guild", "SMSG_GUILD_QUERY_RESPONSE [%s]", session->GetPlayerInfo().c_str());
