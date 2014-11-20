@@ -97,10 +97,10 @@ void WorldPackets::Query::QueryPlayerName::Read()
     Hint.NativeRealmAddress.HasValue = _worldPacket.ReadBit();
 
     if (Hint.VirtualRealmAddress.HasValue)
-        _worldPacket >> Hint.VirtualRealmAddress.value;
+        _worldPacket >> Hint.VirtualRealmAddress.Value;
 
     if (Hint.NativeRealmAddress.HasValue)
-        _worldPacket >> Hint.NativeRealmAddress.value;
+        _worldPacket >> Hint.NativeRealmAddress.Value;
 }
 
 WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()

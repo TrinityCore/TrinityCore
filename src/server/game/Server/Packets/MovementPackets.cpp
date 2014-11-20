@@ -231,7 +231,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline&
     }
 
     if (movementSpline.SplineFilter.HasValue)
-        data << movementSpline.SplineFilter.value;
+        data << movementSpline.SplineFilter.Value;
 
     return data;
 }

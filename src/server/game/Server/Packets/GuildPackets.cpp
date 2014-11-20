@@ -33,16 +33,16 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
 
     if (Info.HasValue)
     {
-        _worldPacket << Info.value.GuildGUID;
-        _worldPacket << uint32(Info.value.VirtualRealmAddress);
-        _worldPacket << uint32(Info.value.Ranks.size());
-        _worldPacket << uint32(Info.value.EmblemStyle);
-        _worldPacket << uint32(Info.value.EmblemColor);
-        _worldPacket << uint32(Info.value.BorderStyle);
-        _worldPacket << uint32(Info.value.BorderColor);
-        _worldPacket << uint32(Info.value.BackgroundColor);
+        _worldPacket << Info.Value.GuildGUID;
+        _worldPacket << uint32(Info.Value.VirtualRealmAddress);
+        _worldPacket << uint32(Info.Value.Ranks.size());
+        _worldPacket << uint32(Info.Value.EmblemStyle);
+        _worldPacket << uint32(Info.Value.EmblemColor);
+        _worldPacket << uint32(Info.Value.BorderStyle);
+        _worldPacket << uint32(Info.Value.BorderColor);
+        _worldPacket << uint32(Info.Value.BackgroundColor);
 
-        for (GuildInfo::GuildInfoRank const& rank : Info.value.Ranks)
+        for (GuildInfo::GuildInfoRank const& rank : Info.Value.Ranks)
         {
             _worldPacket << uint32(rank.RankID);
             _worldPacket << uint32(rank.RankOrder);
@@ -51,8 +51,8 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
             _worldPacket.WriteString(rank.RankName);
         }
 
-        _worldPacket.WriteBits(Info.value.GuildName.size(), 7);
-        _worldPacket.WriteString(Info.value.GuildName);
+        _worldPacket.WriteBits(Info.Value.GuildName.size(), 7);
+        _worldPacket.WriteString(Info.Value.GuildName);
     }
     _worldPacket.FlushBits();
 

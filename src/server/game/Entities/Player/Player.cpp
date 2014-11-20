@@ -3168,6 +3168,7 @@ void Player::SendKnownSpells()
     WorldPackets::Spell::SendKnownSpells knownSpells;
     knownSpells.InitialLogin = false; /// @todo
 
+    knownSpells.KnownSpells.reserve(m_spells.size());
     for (PlayerSpellMap::value_type const& spell : m_spells)
     {
         if (spell.second->state == PLAYERSPELL_REMOVED)
@@ -22980,8 +22981,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this);
 
-    // guild bank list wtf?
-
     /// SMSG_SPELL_CATEGORY_COOLDOWN
     GetSession()->SendSpellCategoryCooldowns();
 
@@ -22991,7 +22990,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_SET_PROFICIENCY
     // SMSG_SET_PCT_SPELL_MODIFIER
     // SMSG_SET_FLAT_SPELL_MODIFIER
-    // SMSG_UPDATE_AURA_DURATION
 
     /// SMSG_TALENTS_INFO
     SendTalentsInfoData();
@@ -22999,10 +22997,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendKnownSpells();
 
     /// SMSG_SEND_UNLEARN_SPELLS
-    {
-        WorldPackets::Spell::SendUnlearnSpells packet;
-        SendDirectMessage(packet.Write());
-    }
+    SendDirectMessage(WorldPackets::Spell::SendUnlearnSpells().Write());
 
     /// SMSG_ACTION_BUTTONS
     SendInitialActionButtons();
@@ -23019,29 +23014,25 @@ void Player::SendInitialPacketsBeforeAddToMap()
     m_achievementMgr->SendAllAchievementData(this);
 
     /// SMSG_LOGIN_SETTIMESPEED
-    {
-        static float const TimeSpeed = 0.01666667f;
-        WorldPackets::Misc::LoginSetTimeSpeed packet;
-        packet.NewSpeed = TimeSpeed;
-        packet.GameTime = sWorld->GetGameTime();
-        packet.ServerTime = sWorld->GetGameTime();
-        packet.GameTimeHolidayOffset = 0; /// @todo
-        packet.ServerTimeHolidayOffset = 0; /// @todo
-        SendDirectMessage(packet.Write());
-    }
+    static float const TimeSpeed = 0.01666667f;
+    WorldPackets::Misc::LoginSetTimeSpeed loginSetTimeSpeed;
+    loginSetTimeSpeed.NewSpeed = TimeSpeed;
+    loginSetTimeSpeed.GameTime = sWorld->GetGameTime();
+    loginSetTimeSpeed.ServerTime = sWorld->GetGameTime();
+    loginSetTimeSpeed.GameTimeHolidayOffset = 0; /// @todo
+    loginSetTimeSpeed.ServerTimeHolidayOffset = 0; /// @todo
+    SendDirectMessage(loginSetTimeSpeed.Write());
 
     /// SMSG_WORLD_SERVER_INFO
-    {
-        WorldPackets::Misc::WorldServerInfo packet;
-        packet.IneligibleForLootMask.Clear();     /// @todo
-        packet.WeeklyReset = sWorld->GetNextWeeklyQuestsResetTime() - WEEK;
-        packet.InstanceGroupSize.Clear();         /// @todo
-        packet.IsTournamentRealm = 0;             /// @todo
-        packet.RestrictedAccountMaxLevel.Clear(); /// @todo
-        packet.RestrictedAccountMaxMoney.Clear(); /// @todo
-        packet.DifficultyID = GetMap()->GetDifficulty();
-        SendDirectMessage(packet.Write());
-    }
+    WorldPackets::Misc::WorldServerInfo worldServerInfo;
+    worldServerInfo.IneligibleForLootMask.Clear();     /// @todo
+    worldServerInfo.WeeklyReset = sWorld->GetNextWeeklyQuestsResetTime() - WEEK;
+    worldServerInfo.InstanceGroupSize.Clear();         /// @todo
+    worldServerInfo.IsTournamentRealm = 0;             /// @todo
+    worldServerInfo.RestrictedAccountMaxLevel.Clear(); /// @todo
+    worldServerInfo.RestrictedAccountMaxMoney.Clear(); /// @todo
+    worldServerInfo.DifficultyID = GetMap()->GetDifficulty();
+    SendDirectMessage(worldServerInfo.Write());
 
     // SMSG_TALENTS_INFO x 2 for pet (unspent points and talents in separate packets...)
     // SMSG_PET_GUIDS

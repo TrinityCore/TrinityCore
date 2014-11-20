@@ -200,7 +200,7 @@ void WorldPackets::Character::CreateChar::Read()
     _worldPacket >> CreateInfo->OutfitId;
     CreateInfo->Name = _worldPacket.ReadString(nameLength);
     if (CreateInfo->TemplateSet.HasValue)
-        _worldPacket >> CreateInfo->TemplateSet.value;
+        _worldPacket >> CreateInfo->TemplateSet.Value;
 }
 
 WorldPacket const* WorldPackets::Character::CharacterCreateResponse::Write()
@@ -234,7 +234,7 @@ WorldPacket const* WorldPackets::Character::CharacterRenameResult::Write()
     _worldPacket.WriteBits(Name.length(), 6);
 
     if (Guid.HasValue)
-        _worldPacket << Guid.value;
+        _worldPacket << Guid.Value;
 
     _worldPacket.WriteString(Name);
     return &_worldPacket;
@@ -274,19 +274,19 @@ void WorldPackets::Character::CharRaceOrFactionChange::Read()
     RaceOrFactionChangeInfo->Name = _worldPacket.ReadString(nameLength);
 
     if (RaceOrFactionChangeInfo->SkinID.HasValue)
-        _worldPacket >> RaceOrFactionChangeInfo->SkinID.value;
+        _worldPacket >> RaceOrFactionChangeInfo->SkinID.Value;
 
     if (RaceOrFactionChangeInfo->HairColorID.HasValue)
-        _worldPacket >> RaceOrFactionChangeInfo->HairColorID.value;
+        _worldPacket >> RaceOrFactionChangeInfo->HairColorID.Value;
 
     if (RaceOrFactionChangeInfo->HairStyleID.HasValue)
-        _worldPacket >> RaceOrFactionChangeInfo->HairStyleID.value;
+        _worldPacket >> RaceOrFactionChangeInfo->HairStyleID.Value;
 
     if (RaceOrFactionChangeInfo->FacialHairStyleID.HasValue)
-        _worldPacket >> RaceOrFactionChangeInfo->FacialHairStyleID.value;
+        _worldPacket >> RaceOrFactionChangeInfo->FacialHairStyleID.Value;
 
     if (RaceOrFactionChangeInfo->FaceID.HasValue)
-        _worldPacket >> RaceOrFactionChangeInfo->FaceID.value;
+        _worldPacket >> RaceOrFactionChangeInfo->FaceID.Value;
 }
 
 WorldPacket const* WorldPackets::Character::CharFactionChangeResult::Write()
@@ -298,15 +298,15 @@ WorldPacket const* WorldPackets::Character::CharFactionChangeResult::Write()
 
     if (Display.HasValue)
     {
-        _worldPacket.WriteBits(Display.value.Name.length(), 6);
-        _worldPacket << uint8(Display.value.SexID);
-        _worldPacket << uint8(Display.value.SkinID);
-        _worldPacket << uint8(Display.value.HairColorID);
-        _worldPacket << uint8(Display.value.HairStyleID);
-        _worldPacket << uint8(Display.value.FacialHairStyleID);
-        _worldPacket << uint8(Display.value.FaceID);
-        _worldPacket << uint8(Display.value.RaceID);
-        _worldPacket.WriteString(Display.value.Name);
+        _worldPacket.WriteBits(Display.Value.Name.length(), 6);
+        _worldPacket << uint8(Display.Value.SexID);
+        _worldPacket << uint8(Display.Value.SkinID);
+        _worldPacket << uint8(Display.Value.HairColorID);
+        _worldPacket << uint8(Display.Value.HairStyleID);
+        _worldPacket << uint8(Display.Value.FacialHairStyleID);
+        _worldPacket << uint8(Display.Value.FaceID);
+        _worldPacket << uint8(Display.Value.RaceID);
+        _worldPacket.WriteString(Display.Value.Name);
     }
 
     return &_worldPacket;

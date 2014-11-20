@@ -1787,7 +1787,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         if (factionChangeInfo->SkinID.HasValue)
         {
             playerBytes &= ~uint32(0xFF);
-            playerBytes |= factionChangeInfo->SkinID.value;
+            playerBytes |= factionChangeInfo->SkinID.Value;
         }
         else
             factionChangeInfo->SkinID.Set(uint8(playerBytes & 0xFF));
@@ -1795,7 +1795,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         if (factionChangeInfo->FaceID.HasValue)
         {
             playerBytes &= ~(uint32(0xFF) << 8);
-            playerBytes |= uint32(factionChangeInfo->FaceID.value) << 8;
+            playerBytes |= uint32(factionChangeInfo->FaceID.Value) << 8;
         }
         else
             factionChangeInfo->FaceID.Set(uint8((playerBytes2 >> 8) & 0xFF));
@@ -1803,7 +1803,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         if (factionChangeInfo->HairStyleID.HasValue)
         {
             playerBytes &= ~(uint32(0xFF) << 16);
-            playerBytes |= uint32(factionChangeInfo->HairStyleID.value) << 16;
+            playerBytes |= uint32(factionChangeInfo->HairStyleID.Value) << 16;
         }
         else
             factionChangeInfo->HairStyleID.Set(uint8((playerBytes2 >> 16) & 0xFF));
@@ -1811,7 +1811,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         if (factionChangeInfo->HairColorID.HasValue)
         {
             playerBytes &= ~(uint32(0xFF) << 24);
-            playerBytes |= uint32(factionChangeInfo->HairColorID.value) << 24;
+            playerBytes |= uint32(factionChangeInfo->HairColorID.Value) << 24;
         }
         else
             factionChangeInfo->HairColorID.Set(uint8((playerBytes2 >> 24) & 0xFF));
@@ -1819,7 +1819,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         if (factionChangeInfo->FacialHairStyleID.HasValue)
         {
             playerBytes2 &= ~0xFF;
-            playerBytes2 |= factionChangeInfo->FacialHairStyleID.value;
+            playerBytes2 |= factionChangeInfo->FacialHairStyleID.Value;
         }
         else
             factionChangeInfo->FacialHairStyleID.Set(uint8(playerBytes2 & 0xFF));
@@ -2514,14 +2514,14 @@ void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Cha
     if (result == RESPONSE_SUCCESS)
     {
         packet.Display.HasValue = true;
-        packet.Display.value.Name = factionChangeInfo->Name;
-        packet.Display.value.SexID = factionChangeInfo->SexID;
-        packet.Display.value.SkinID = factionChangeInfo->SkinID.value;
-        packet.Display.value.HairColorID = factionChangeInfo->HairColorID.value;
-        packet.Display.value.HairStyleID = factionChangeInfo->HairStyleID.value;
-        packet.Display.value.FacialHairStyleID = factionChangeInfo->FacialHairStyleID.value;
-        packet.Display.value.FaceID = factionChangeInfo->FaceID.value;
-        packet.Display.value.RaceID = factionChangeInfo->RaceID;
+        packet.Display.Value.Name = factionChangeInfo->Name;
+        packet.Display.Value.SexID = factionChangeInfo->SexID;
+        packet.Display.Value.SkinID = factionChangeInfo->SkinID.Value;
+        packet.Display.Value.HairColorID = factionChangeInfo->HairColorID.Value;
+        packet.Display.Value.HairStyleID = factionChangeInfo->HairStyleID.Value;
+        packet.Display.Value.FacialHairStyleID = factionChangeInfo->FacialHairStyleID.Value;
+        packet.Display.Value.FaceID = factionChangeInfo->FaceID.Value;
+        packet.Display.Value.RaceID = factionChangeInfo->RaceID;
     }
 
     SendPacket(packet.Write());

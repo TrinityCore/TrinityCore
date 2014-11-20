@@ -65,20 +65,20 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 
     if (SuccessInfo.HasValue)
     {
-        _worldPacket << uint32(SuccessInfo.value.VirtualRealmAddress);
-        _worldPacket << uint32(SuccessInfo.value.VirtualRealms.size());
-        _worldPacket << uint32(SuccessInfo.value.TimeRemain);
-        _worldPacket << uint32(SuccessInfo.value.TimeOptions);
-        _worldPacket << uint32(SuccessInfo.value.TimeRested);
-        _worldPacket << uint8(SuccessInfo.value.ActiveExpansionLevel);
-        _worldPacket << uint8(SuccessInfo.value.AccountExpansionLevel);
-        _worldPacket << uint32(SuccessInfo.value.TimeSecondsUntilPCKick);
-        _worldPacket << uint32(SuccessInfo.value.AvailableRaces->size());
-        _worldPacket << uint32(SuccessInfo.value.AvailableClasses->size());
-        _worldPacket << uint32(SuccessInfo.value.Templates.size());
-        _worldPacket << uint32(SuccessInfo.value.CurrencyID);
+        _worldPacket << uint32(SuccessInfo.Value.VirtualRealmAddress);
+        _worldPacket << uint32(SuccessInfo.Value.VirtualRealms.size());
+        _worldPacket << uint32(SuccessInfo.Value.TimeRemain);
+        _worldPacket << uint32(SuccessInfo.Value.TimeOptions);
+        _worldPacket << uint32(SuccessInfo.Value.TimeRested);
+        _worldPacket << uint8(SuccessInfo.Value.ActiveExpansionLevel);
+        _worldPacket << uint8(SuccessInfo.Value.AccountExpansionLevel);
+        _worldPacket << uint32(SuccessInfo.Value.TimeSecondsUntilPCKick);
+        _worldPacket << uint32(SuccessInfo.Value.AvailableRaces->size());
+        _worldPacket << uint32(SuccessInfo.Value.AvailableClasses->size());
+        _worldPacket << uint32(SuccessInfo.Value.Templates.size());
+        _worldPacket << uint32(SuccessInfo.Value.CurrencyID);
 
-        for (auto& realm : SuccessInfo.value.VirtualRealms)
+        for (auto& realm : SuccessInfo.Value.VirtualRealms)
         {
             _worldPacket << uint32(realm.RealmAddress);
             _worldPacket.WriteBit(realm.IsLocal);
@@ -89,19 +89,19 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
             _worldPacket.WriteString(realm.RealmNameNormalized);
         }
 
-        for (auto& race : *SuccessInfo.value.AvailableRaces)
+        for (auto& race : *SuccessInfo.Value.AvailableRaces)
         {
             _worldPacket << uint8(race.first); /// the current race
             _worldPacket << uint8(race.second); /// the required Expansion
         }
 
-        for (auto& klass : *SuccessInfo.value.AvailableClasses)
+        for (auto& klass : *SuccessInfo.Value.AvailableClasses)
         {
             _worldPacket << uint8(klass.first); /// the current class
             _worldPacket << uint8(klass.second); /// the required Expansion
         }
 
-        for (auto& templat : SuccessInfo.value.Templates)
+        for (auto& templat : SuccessInfo.Value.Templates)
         {
             _worldPacket << uint32(templat.TemplateSetId);
             _worldPacket << uint32(templat.TemplateClasses.size());
@@ -117,23 +117,23 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
             _worldPacket.WriteString(templat.Description);
         }
 
-        _worldPacket.WriteBit(SuccessInfo.value.IsExpansionTrial);
-        _worldPacket.WriteBit(SuccessInfo.value.ForceCharacterTemplate);
-        _worldPacket.WriteBit(SuccessInfo.value.NumPlayersHorde != 0);
-        _worldPacket.WriteBit(SuccessInfo.value.NumPlayersAlliance != 0);
-        _worldPacket.WriteBit(SuccessInfo.value.IsVeteranTrial);
+        _worldPacket.WriteBit(SuccessInfo.Value.IsExpansionTrial);
+        _worldPacket.WriteBit(SuccessInfo.Value.ForceCharacterTemplate);
+        _worldPacket.WriteBit(SuccessInfo.Value.NumPlayersHorde.HasValue);
+        _worldPacket.WriteBit(SuccessInfo.Value.NumPlayersAlliance.HasValue);
+        _worldPacket.WriteBit(SuccessInfo.Value.IsVeteranTrial);
 
-        if (SuccessInfo.value.NumPlayersHorde)
-            _worldPacket << uint16(SuccessInfo.value.NumPlayersHorde);
+        if (SuccessInfo.Value.NumPlayersHorde.HasValue)
+            _worldPacket << uint16(SuccessInfo.Value.NumPlayersHorde.Value);
 
-        if (SuccessInfo.value.NumPlayersAlliance)
-            _worldPacket << uint16(SuccessInfo.value.NumPlayersAlliance);
+        if (SuccessInfo.Value.NumPlayersAlliance.HasValue)
+            _worldPacket << uint16(SuccessInfo.Value.NumPlayersAlliance.Value);
     }
 
     if (WaitInfo.HasValue)
     {
-        _worldPacket << uint32(WaitInfo.value.WaitCount);
-        _worldPacket.WriteBit(WaitInfo.value.HasFCM);
+        _worldPacket << uint32(WaitInfo.Value.WaitCount);
+        _worldPacket.WriteBit(WaitInfo.Value.HasFCM);
     }
 
     _worldPacket.FlushBits();

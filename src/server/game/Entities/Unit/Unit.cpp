@@ -4850,7 +4850,7 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
     TC_LOG_DEBUG("entities.unit", "WORLD: Sending SMSG_ATTACKERSTATEUPDATE");
-    
+
     WorldPackets::Combat::AttackerStateUpdate packet;
     packet.HitInfo = damageInfo->HitInfo;
     packet.AttackerGUID = damageInfo->attacker->GetGUID();
@@ -4859,7 +4859,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
     packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
-    WorldPackets::Combat::SubDamage& subDmg = packet.SubDmg.value;
+    WorldPackets::Combat::SubDamage& subDmg = packet.SubDmg.Value;
     subDmg.SchoolMask = damageInfo->damageSchoolMask;   // School of sub damage
     subDmg.FDamage = damageInfo->damage;                // sub damage
     subDmg.Damage = damageInfo->damage;                 // Sub Damage
@@ -15926,12 +15926,11 @@ void Unit::SendThreatListUpdate()
 {
     if (!getThreatManager().isThreatListEmpty())
     {
-        uint32 count = getThreatManager().getThreatList().size();
-
         TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_UPDATE Message");
         WorldPackets::Combat::ThreatUpdate packet;
         packet.UnitGUID = GetGUID();
         ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
+        packet.ThreatList.reserve(tlist.size());
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
             WorldPackets::Combat::ThreatInfo info;
@@ -15947,13 +15946,12 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 {
     if (!getThreatManager().isThreatListEmpty())
     {
-        uint32 count = getThreatManager().getThreatList().size();
-
         TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
         WorldPackets::Combat::HighestThreatUpdate packet;
         packet.UnitGUID = GetGUID();
         packet.HighestThreatGUID = pHostileReference->getUnitGuid();
         ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
+        packet.ThreatList.reserve(tlist.size());
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
             WorldPackets::Combat::ThreatInfo info;
