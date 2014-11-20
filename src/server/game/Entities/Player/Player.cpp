@@ -2162,7 +2162,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 WorldPackets::Movement::NewWorld packet;
                 packet.MapID = mapid;
                 packet.Pos = m_teleport_dest;
-                packet.Reason = 16;
+                packet.Reason = NEW_WORLD_NORMAL;
 
                 SendDirectMessage(packet.Write());
                 SendSavedInstances();
