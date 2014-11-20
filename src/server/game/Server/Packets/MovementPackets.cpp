@@ -287,6 +287,34 @@ WorldPacket const* WorldPackets::Movement::ServerPlayerMovement::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Movement::TransferPending::Write()
+{
+    _worldPacket << int32(MapID);
+    _worldPacket.WriteBit(Ship.HasValue);
+    _worldPacket.WriteBit(TransferSpellID.HasValue);
+    if (Ship.HasValue)
+    {
+        _worldPacket << uint32(Ship.Value.ID);
+        _worldPacket << int32(Ship.Value.OriginMapID);
+    }
+
+    if (TransferSpellID.HasValue)
+        _worldPacket << int32(TransferSpellID.Value);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::TransferAborted::Write()
+{
+    _worldPacket << uint32(MapID);
+    _worldPacket << uint8(Arg);
+    _worldPacket.WriteBits(TransfertAbort, 5);
+    _worldPacket.FlushBits();
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Movement::NewWorld::Write()
 {
     _worldPacket << MapID;

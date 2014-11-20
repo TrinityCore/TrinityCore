@@ -126,6 +126,36 @@ namespace WorldPackets
             float Speed;
         };
 
+        class TransferPending final : public ServerPacket
+        {
+            struct ShipTransferPending
+            {
+                uint32 ID = 0;              ///< gameobject_template.entry of the transport the player is teleporting on
+                int32 OriginMapID = -1;     ///< Map id the player is currently on (before teleport)
+            };
+
+        public:
+            TransferPending() : ServerPacket(SMSG_TRANSFER_PENDING, 16) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MapID = -1;
+            Optional<ShipTransferPending> Ship;
+            Optional<int32> TransferSpellID;
+        };
+
+        class TransferAborted final : public ServerPacket
+        {
+        public:
+            TransferAborted() : ServerPacket(SMSG_TRANSFER_ABORTED, 4 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TransfertAbort = 0;
+            uint8 Arg = 0;
+            uint32 MapID = 0;
+        };
+
         class NewWorld final : public ServerPacket
         {
         public:

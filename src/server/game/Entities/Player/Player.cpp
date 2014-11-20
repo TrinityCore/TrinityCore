@@ -2136,18 +2136,16 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
-                WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
-                data.WriteBit(0);       // unknown
+                WorldPackets::Movement::TransferPending transferPending;
+                transferPending.MapID = mapid;
                 if (Transport* transport = GetTransport())
                 {
-                    data.WriteBit(1);   // has transport
-                    data << GetMapId() << transport->GetEntry();
+                    transferPending.Ship.HasValue = true;
+                    transferPending.Ship.Value.ID = transport->GetEntry();
+                    transferPending.Ship.Value.OriginMapID = GetMapId();
                 }
-                else
-                    data.WriteBit(0);   // has transport
 
-                data << uint32(mapid);
-                GetSession()->SendPacket(&data);
+                GetSession()->SendPacket(transferPending.Write());
             }
 
             // remove from old map now
@@ -23113,11 +23111,11 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
 
 void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg)
 {
-    WorldPacket data(SMSG_TRANSFER_ABORTED, 4+2);
-    data << uint32(mapid);
-    data << uint8(reason); // transfer abort reason
-    data << uint8(arg);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Movement::TransferAborted transferAborted;
+    transferAborted.MapID = mapid;
+    transferAborted.Arg = arg;
+    transferAborted.TransfertAbort = reason;
+    GetSession()->SendPacket(transferAborted.Write());
 }
 
 void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time)
