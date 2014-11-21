@@ -27,11 +27,11 @@
 
 enum Events
 {
-	EVENT_MAGIC_BANE			= 1,
-	EVENT_SHADOW_BOLT			= 2,
-	EVENT_CORRUPT_SOUL			= 3,
-	EVENT_SOULSTORM				= 4,
-	EVENT_FEAR					= 5
+	EVENT_MAGIC_BANE	        = 1,
+	EVENT_SHADOW_BOLT	        = 2,
+	EVENT_CORRUPT_SOUL	        = 3,
+	EVENT_SOULSTORM		        = 4,
+    EVENT_FEAR		            = 5
 };
 
 enum Spells
@@ -50,16 +50,16 @@ enum Spells
 
 enum Text
 {
-	SAY_AGGRO					= 0,
-	SAY_KILL					= 1,
-	SAY_SOUL_STORM				= 2,
-	SAY_CORRUPT_SOUL			= 3
+	SAY_AGGRO		            = 0,
+	SAY_KILL		            = 1,
+	SAY_SOUL_STORM		        = 2,
+	SAY_CORRUPT_SOUL	        = 3
 };
 
 enum Phases
 {
-    PHASE_1						= 1,
-    PHASE_2						= 2
+    PHASE_1			            = 1,
+    PHASE_2			            = 2
 };
 
 class boss_bronjahm : public CreatureScript
@@ -76,7 +76,7 @@ public:
 
         void Reset() override
         {
-			_Reset();
+        	_Reset();
             events.Reset();
             events.SetPhase(PHASE_1);
             events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
@@ -85,22 +85,22 @@ public:
             _soulFragmentsSpawned = 0;
         }
 
-		void EnterCombat(Unit* /*who*/) override
-		{
-			_EnterCombat();
-			me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
-			Talk(SAY_AGGRO);
-		}
+	    void EnterCombat(Unit* /*who*/) override
+	    {
+		    _EnterCombat();
+		    me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
+		    Talk(SAY_AGGRO);
+	    }
 
-		void JustDied(Unit* /*killer*/) override
-		{
-			_JustDied();
-			sCreatureTextMgr->SendSound(me, SOUND_DEATH, CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
-		}
+	    void JustDied(Unit* /*killer*/) override
+	    {
+		    _JustDied();
+		    sCreatureTextMgr->SendSound(me, SOUND_DEATH, CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
+	    }
 
         void JustReachedHome() override
         {
-			_JustReachedHome();
+		    _JustReachedHome();
             DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
         }
 
@@ -163,16 +163,16 @@ public:
                         break;
                     case EVENT_SHADOW_BOLT: // While Bronjahm is within the Soulstorm he hurls bolts of dark magic at a random player, inflicting Shadow damage.
                     {
-						if (events.IsInPhase(PHASE_1))
-						{
-							if (!me->IsWithinMeleeRange(me->GetVictim()))
-								DoCastVictim(SPELL_SHADOW_BOLT);
-						}
-						else if (events.IsInPhase(PHASE_2))
-						{
-							if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-								DoCast(target, SPELL_SHADOW_BOLT);
-						}
+			            if (events.IsInPhase(PHASE_1))
+			            {
+				            if (!me->IsWithinMeleeRange(me->GetVictim()))
+					            DoCastVictim(SPELL_SHADOW_BOLT);
+			            }
+			            else if (events.IsInPhase(PHASE_2))
+			            {
+				            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+					            DoCast(target, SPELL_SHADOW_BOLT);
+			            }
                         events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
                         break;
                     }
@@ -190,8 +190,8 @@ public:
                         me->CastSpell(me, SPELL_SOULSTORM, false);
                         break;
                     case EVENT_FEAR:
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true)) // Doesn't he fear just one enemy?
-							DoCast(target, SPELL_FEAR);
+			            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true)) // Doesn't he fear just one enemy?
+				            DoCast(target, SPELL_FEAR);
                         events.ScheduleEvent(EVENT_FEAR, urand(8000, 12000), 0, PHASE_2);
                         break;
                     default:
@@ -233,11 +233,11 @@ public:
                 ObjectGuid BronjahmGUID(instance->GetGuidData(DATA_BRONJAHM));
                 if (BronjahmGUID.GetCounter() != id)
                     return;
-				if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))
-				{
-					if (me->GetExactDist2d(bronjahm) <= 2.0f)
-						me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
-				}
+		        if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))
+		        {
+			        if (me->GetExactDist2d(bronjahm) <= 2.0f)
+			            me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
+		        }
                 summ->UnSummon();
             }
         }
