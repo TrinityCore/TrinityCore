@@ -76,7 +76,7 @@ public:
 
         void Reset() override
         {
-        	_Reset();
+            _Reset();
             events.Reset();
             events.SetPhase(PHASE_1);
             events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
