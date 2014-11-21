@@ -2016,8 +2016,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
-            if (cond->ConditionValue3)
-                TC_LOG_ERROR("sql.sql", "%s has useless data in value3 (%u)!", cond->ToString(true).c_str(), cond->ConditionValue3);
             break;
         }
         case CONDITION_HP_PCT:
@@ -2032,8 +2030,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
-            if (cond->ConditionValue3)
-                TC_LOG_ERROR("sql.sql", "%s has useless data in value3 (%u)!", cond->ToString().c_str(), cond->ConditionValue3);
             break;
         }
         case CONDITION_WORLD_STATE:
@@ -2093,7 +2089,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_INSTANCE_INFO:
         case CONDITION_AREAID:
-        case CONDITION_PHASEMASK:
         case CONDITION_ALIVE:
             break;
         default:
