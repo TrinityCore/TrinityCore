@@ -2478,7 +2478,7 @@ PlayerStart.AllReputation = 0
 #        Description: If enabled, players will start with all their class spells (not talents).
 #                     You must populate playercreateinfo_spell_custom table with the spells you
 #                     want, or this will not work! The table has data for all classes / races up
-#                     to TBC expansion.
+#                     to WoTLK expansion.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
