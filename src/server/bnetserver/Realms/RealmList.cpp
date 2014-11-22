@@ -207,3 +207,23 @@ Realm const* RealmList::GetRealm(Battlenet::RealmId const& id) const
 
     return NULL;
 }
+
+void RealmList::SetRealmOffline(Battlenet::RealmId const& id)
+{
+    auto itr = _realms.find(id);
+    if (itr != _realms.end())
+    {
+        itr->second.Flags = RealmFlags(itr->second.Flags | REALM_FLAG_OFFLINE);
+        LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag | %u) WHERE id = '%d'", REALM_FLAG_OFFLINE, id.Index);
+    }
+}
+
+void RealmList::SetRealmOnline(Battlenet::RealmId const& id)
+{
+    auto itr = _realms.find(id);
+    if (itr != _realms.end())
+    {
+        itr->second.Flags = RealmFlags(itr->second.Flags & ~REALM_FLAG_OFFLINE);
+        LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) WHERE id = '%d'", REALM_FLAG_OFFLINE, id.Index);
+    }
+}

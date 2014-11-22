@@ -24,7 +24,7 @@ void Battlenet::ServerManager::InitializeConnection()
 {
     std::string bnetserverAddress = sConfigMgr->GetStringDefault("BnetServer.Address", "127.0.0.1");
     int32 bnetserverPort = sConfigMgr->GetIntDefault("BnetServer.Port", 1118);
-    _socket = new ZmqMux("inproc://bnetmgr", "tcp://" + bnetserverAddress + ":" + std::to_string(bnetserverPort));
+    _socket = new ZmqMux("inproc://bnetmgr", "tcp://" + bnetserverAddress + ":" + std::to_string(bnetserverPort), realmHandle.Index);
     _socket->Start();
 }
 
@@ -63,6 +63,15 @@ void Battlenet::ServerManager::SendChangeToonOnlineState(uint32 battlenetAccount
     msg << online;
 
     Send(&msg);
+}
+
+zmqpp::message* Battlenet::ServerManager::CreatePingMsg()
+{
+    Header header = CreateHeader(BNET_PING);
+    zmqpp::message msg;
+    msg << header;
+
+    return &msg;
 }
 
 void Battlenet::ServerManager::Send(zmqpp::message* msg)

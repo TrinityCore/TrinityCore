@@ -30,6 +30,7 @@ enum Channels
 
 enum BnetCommands
 {
+    BNET_PING,
     BNET_CHANGE_TOON_ONLINE_STATE,
 
     IPC_BNET_MAX_COMMAND

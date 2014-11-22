@@ -49,6 +49,7 @@ namespace Battlenet
         void Send(zmqpp::message* msg);
 
         static Header CreateHeader(BnetCommands command);
+        static zmqpp::message* CreatePingMsg();
         ZmqMux* _socket;
     };
 }

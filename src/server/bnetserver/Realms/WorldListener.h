@@ -54,6 +54,8 @@ private:
     };
 
     void HandleToonOnlineStatusChange(Battlenet::RealmHandle const& realm, zmqpp::message& msg) const;
+    void HandlePing(Battlenet::RealmHandle const& realm, zmqpp::message& msg) const;
+    void CheckOfflineRealms() const;
 
     zmqpp::socket* _worldSocket;
     uint16 _worldListenPort;
