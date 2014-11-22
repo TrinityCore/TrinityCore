@@ -1131,6 +1131,9 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
     std::list<uint32> sharedMasks;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
+        SpellEffectInfo const* effect = spellInfo->GetEffect(DIFFICULTY_NONE, i);
+        if (!effect)
+            continue;
         // check if effect is already a part of some shared mask
         bool found = false;
         for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
@@ -1146,10 +1149,13 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
 
         // build new shared mask with found effect
         uint32 sharedMask = (1<<i);
-        ConditionList* cmp = spellInfo->Effects[i].ImplicitTargetConditions;
+        ConditionList* cmp = effect->ImplicitTargetConditions;
         for (uint8 effIndex = i+1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         {
-            if (spellInfo->Effects[effIndex].ImplicitTargetConditions == cmp)
+            SpellEffectInfo const* inner = spellInfo->GetEffect(DIFFICULTY_NONE, effIndex);
+            if (!inner)
+                continue;
+            if (inner->ImplicitTargetConditions == cmp)
                 sharedMask |= 1<<effIndex;
         }
         sharedMasks.push_back(sharedMask);
@@ -1168,8 +1174,12 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
             if (firstEffIndex >= MAX_SPELL_EFFECTS)
                 return false;
 
+            SpellEffectInfo const* effect = spellInfo->GetEffect(DIFFICULTY_NONE, firstEffIndex);
+            if (!effect)
+                continue;
+
             // get shared data
-            ConditionList* sharedList = spellInfo->Effects[firstEffIndex].ImplicitTargetConditions;
+            ConditionList* sharedList = effect->ImplicitTargetConditions;
 
             // there's already data entry for that sharedMask
             if (sharedList)
@@ -1190,9 +1200,13 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
                 bool assigned = false;
                 for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
                 {
+                    SpellEffectInfo const* eff = spellInfo->GetEffect(DIFFICULTY_NONE, firstEffIndex);
+                    if (!eff)
+                        continue;
+
                     if ((1<<i) & commonMask)
                     {
-                        spellInfo->Effects[i].ImplicitTargetConditions = sharedList;
+                        const_cast<SpellEffectInfo*>(eff)->ImplicitTargetConditions = sharedList;
                         assigned = true;
                     }
                 }
@@ -1443,7 +1457,11 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 if (!((1<<i) & cond->SourceGroup))
                     continue;
 
-                switch (spellInfo->Effects[i].TargetA.GetSelectionCategory())
+                SpellEffectInfo const* effect = spellInfo->GetEffect(DIFFICULTY_NONE, i);
+                if (!effect)
+                    continue;
+
+                switch (effect->TargetA.GetSelectionCategory())
                 {
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:
@@ -1453,7 +1471,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                         break;
                 }
 
-                switch (spellInfo->Effects[i].TargetB.GetSelectionCategory())
+                switch (effect->TargetB.GetSelectionCategory())
                 {
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:

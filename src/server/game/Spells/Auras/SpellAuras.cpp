@@ -381,8 +381,8 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
 
     for (SpellEffectInfo const* effect : GetSpellEffectInfos())
     {
-        //if (effMask & (uint8(1) << effect->EffectIndex))
-        _effects[effect->EffectIndex] = new AuraEffect(this, effect->EffectIndex, baseAmount[effect->EffectIndex], caster);
+        if (effect && effMask & (uint8(1) << effect->EffectIndex))
+            _effects[effect->EffectIndex] = new AuraEffect(this, effect->EffectIndex, baseAmount ? baseAmount + effect->EffectIndex : NULL, caster);
     }
 }
 
