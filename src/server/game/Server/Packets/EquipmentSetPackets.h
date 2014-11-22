@@ -18,31 +18,41 @@
 #pragma once
 
 #include "Packet.h"
+#include "Player.h"
 
 namespace WorldPackets
 {
-    namespace Reputation
+    namespace EquipmentSet
     {
-        static uint16 const FactionCount = 256;
-
-        class InitializeFactions final : public ServerPacket
+        class EquipmentSetID final : public ServerPacket
         {
         public:
-            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, 1312)
-            {
-                for (uint16 i = 0; i < FactionCount; ++i)
-                {
-                    FactionStandings[i] = 0;
-                    FactionHasBonus[i] = false;
-                    FactionFlags[i] = 0;
-                }
-            }
+            EquipmentSetID() : ServerPacket(SMSG_EQUIPMENT_SET_SAVED, 8 + 4) { }
 
             WorldPacket const* Write() override;
 
-            int32 FactionStandings[FactionCount];
-            bool FactionHasBonus[FactionCount]; ///< @todo: implement faction bonus
-            uint8 FactionFlags[FactionCount]; ///< @see enum FactionFlags
+            uint64 GUID  = 0; ///< Set Identifier
+            uint32 SetID = 0; ///< Index
+        };
+
+        class LoadEquipmentSet final : public ServerPacket
+        {
+        public:
+            LoadEquipmentSet() : ServerPacket(SMSG_EQUIPMENT_SET_LIST, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<EquipmentSetInfo::EquipmentSetData const*> SetData;
+        };
+
+        class SaveEquipmentSet final : public ClientPacket
+        {
+        public:
+            SaveEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_EQUIPMENT_SET_SAVE, std::move(packet)) { }
+
+            void Read() override;
+
+            EquipmentSetInfo::EquipmentSetData Set;
         };
     }
 }

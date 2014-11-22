@@ -126,11 +126,16 @@ namespace WorldPackets
         class AttackStop;
     }
 
+    namespace EquipmentSet
+    {
+        class SaveEquipmentSet;
+    }
+
     namespace Guild
     {
         class QueryGuildInfo;
     }
-    
+
     namespace Talent
     {
         class SetSpecialization;
@@ -152,6 +157,12 @@ namespace WorldPackets
         class QueryCreature;
         class QueryPlayerName;
         class QueryPageText;
+    }
+
+    namespace Quest
+    {
+        class QuestGiverStatusQuery;
+        class QuestGiverStatusMultipleQuery;
     }
 
     namespace Movement
@@ -179,6 +190,20 @@ enum AccountDataType
 #define PER_CHARACTER_CACHE_MASK    0xEA
 
 #define REGISTERED_ADDON_PREFIX_SOFTCAP 64
+
+enum Tutorials
+{
+    TUTORIAL_TALENT           = 0,
+    TUTORIAL_SPEC             = 1,
+    TUTORIAL_GLYPH            = 2,
+    TUTORIAL_SPELLBOOK        = 3,
+    TUTORIAL_PROFESSIONS      = 4,
+    TUTORIAL_CORE_ABILITITES  = 5,
+    TUTORIAL_PET_JOURNAL      = 6,
+    TUTORIAL_WHAT_HAS_CHANGED = 7
+};
+
+#define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
 struct AccountData
 {
@@ -398,21 +423,21 @@ class WorldSession
         bool CheckStableMaster(ObjectGuid guid);
 
         // Account Data
-        AccountData const* GetAccountData(AccountDataType type) const { return &m_accountData[type]; }
-        void SetAccountData(AccountDataType type, time_t tm, std::string const& data);
+        AccountData const* GetAccountData(AccountDataType type) const { return &_accountData[type]; }
+        void SetAccountData(AccountDataType type, uint32 time, std::string const& data);
         void LoadGlobalAccountData();
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
 
         void LoadTutorialsData();
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
-        uint32 GetTutorialInt(uint8 index) const { return m_Tutorials[index]; }
+        uint32 GetTutorialInt(uint8 index) const { return _tutorials[index]; }
         void SetTutorialInt(uint8 index, uint32 value)
         {
-            if (m_Tutorials[index] != value)
+            if (_tutorials[index] != value)
             {
-                m_Tutorials[index] = value;
-                m_TutorialsChanged = true;
+                _tutorials[index] = value;
+                _tutorialsChanged = true;
             }
         }
         //used with item_page table
@@ -819,8 +844,8 @@ class WorldSession
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
         void HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet);
 
-        void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);
-        void HandleQuestgiverStatusMultipleQuery(WorldPacket& recvPacket);
+        void HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet);
+        void HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& packet);
         void HandleQuestgiverHelloOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverQueryQuestOpcode(WorldPacket& recvPacket);
@@ -1075,7 +1100,7 @@ class WorldSession
         void HandleRemoveGlyph(WorldPacket& recvData);
         void HandleQueryInspectAchievements(WorldPacket& recvData);
         void HandleGuildAchievementProgressQuery(WorldPacket& recvData);
-        void HandleEquipmentSetSave(WorldPacket& recvData);
+        void HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet);
         void HandleEquipmentSetDelete(WorldPacket& recvData);
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleWorldStateUITimerUpdate(WorldPacket& recvData);
@@ -1194,9 +1219,9 @@ class WorldSession
         LocaleConstant m_sessionDbLocaleIndex;
         std::atomic<uint32> m_latency;
         std::atomic<uint32> m_clientTimeDelay;
-        AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
-        uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
-        bool   m_TutorialsChanged;
+        AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
+        uint32 _tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
+        bool   _tutorialsChanged;
         AddonsList m_addonsList;
         std::vector<std::string> _registeredAddonPrefixes;
         bool _filterAddonMessages;

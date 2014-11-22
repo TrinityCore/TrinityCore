@@ -1672,8 +1672,8 @@ void SpellMgr::LoadSpellTargetPositions()
 
     mSpellTargetPositions.clear();                                // need for reload case
 
-    //                                                0      1          2             3                  4                  5                   6
-    QueryResult result = WorldDatabase.Query("SELECT id, effIndex, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM spell_target_position");
+    //                                               0   1         2           3                  4                  5
+    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ FROM spell_target_position");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
@@ -1694,27 +1694,32 @@ void SpellMgr::LoadSpellTargetPositions()
         st.target_X           = fields[3].GetFloat();
         st.target_Y           = fields[4].GetFloat();
         st.target_Z           = fields[5].GetFloat();
-        st.target_Orientation = fields[6].GetFloat();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(st.target_mapId);
         if (!mapEntry)
         {
-            TC_LOG_ERROR("sql.sql", "Spell (Id: %u, effIndex: %u) target map (ID: %u) does not exist in `Map.dbc`.", Spell_ID, effIndex, st.target_mapId);
+            TC_LOG_ERROR("sql.sql", "Spell (ID: %u, EffectIndex: %u) is using a non-existant MapID (ID: %u).", Spell_ID, effIndex, st.target_mapId);
             continue;
         }
 
-        if (st.target_X==0 && st.target_Y==0 && st.target_Z==0)
+        if (st.target_X == 0 && st.target_Y == 0 && st.target_Z == 0)
         {
-            TC_LOG_ERROR("sql.sql", "Spell (Id: %u, effIndex: %u) target coordinates not provided.", Spell_ID, effIndex);
+            TC_LOG_ERROR("sql.sql", "Spell (ID: %u, EffectIndex: %u): target coordinates not provided.", Spell_ID, effIndex);
             continue;
         }
 
         SpellInfo const* spellInfo = GetSpellInfo(Spell_ID);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Spell (Id: %u) listed in `spell_target_position` does not exist.", Spell_ID);
+            TC_LOG_ERROR("sql.sql", "Spell (ID: %u) listed in `spell_target_position` does not exist.", Spell_ID);
             continue;
         }
+
+        // target facing is in degrees for 6484 & 9268... (blizz sucks)
+        if (spellInfo->Effects[effIndex].PositionFacing > 2 * M_PI)
+            st.target_Orientation = spellInfo->Effects[effIndex].PositionFacing * M_PI / 180;
+        else
+            st.target_Orientation = spellInfo->Effects[effIndex].PositionFacing;
 
         if (spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_DEST_DB || spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_DEST_DB)
         {

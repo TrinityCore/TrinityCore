@@ -118,8 +118,8 @@ namespace WorldPackets
 
                 bool IsExpansionTrial = false;
                 bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
-                uint16 NumPlayersHorde = 0; ///< number of horde players in this realm. @todo implement
-                uint16 NumPlayersAlliance = 0; ///< number of alliance players in this realm. @todo implement
+                Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
+                Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
                 bool IsVeteranTrial = false; ///< @todo research
             };
 

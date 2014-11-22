@@ -33,21 +33,21 @@
 template<typename T>
 struct Optional
 {
-    Optional() : value(), HasValue(false) { }
+    Optional() : Value(), HasValue(false) { }
 
-    T value;
+    T Value;
     bool HasValue;
 
     inline void Set(T const& v)
     {
         HasValue = true;
-        value = v;
+        Value = v;
     }
 
     inline void Clear()
     {
         HasValue = false;
-        value = T();
+        Value = T();
     }
 };
 

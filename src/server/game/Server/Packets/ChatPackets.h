@@ -130,7 +130,7 @@ namespace WorldPackets
         class Chat final : public ServerPacket
         {
         public:
-            Chat() : ServerPacket(SMSG_MESSAGECHAT, 1+1+8+8+8+8+8+4+4+4+1+4+20) { }
+            Chat() : ServerPacket(SMSG_MESSAGECHAT, 100) { }
 
             WorldPacket const* Write() override;
 
@@ -138,7 +138,7 @@ namespace WorldPackets
             uint8 Language = LANG_UNIVERSAL;
             ObjectGuid SenderGUID;
             ObjectGuid SenderGuildGUID;
-            ObjectGuid SenderAccountGUID; // Not in JAM messages but appears in packet?
+            ObjectGuid SenderAccountGUID;
             ObjectGuid TargetGUID;
             ObjectGuid PartyGUID;
             uint32 SenderVirtualAddress;
@@ -158,7 +158,7 @@ namespace WorldPackets
         class Emote final : public ServerPacket
         {
         public:
-            Emote() : ServerPacket(SMSG_EMOTE, 8+4) { }
+            Emote() : ServerPacket(SMSG_EMOTE, 18 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -181,12 +181,12 @@ namespace WorldPackets
         class STextEmote final : public ServerPacket
         {
         public:
-            STextEmote() : ServerPacket(SMSG_TEXT_EMOTE, 8+8+4+4) { }
+            STextEmote() : ServerPacket(SMSG_TEXT_EMOTE, 3 * 18 + 2 * 4) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid SourceGUID;
-            ObjectGuid SourceAccountGUID; // Not in JAM
+            ObjectGuid SourceAccountGUID;
             ObjectGuid TargetGUID;
             int32 SoundIndex;
             int32 EmoteID;

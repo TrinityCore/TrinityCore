@@ -58,7 +58,10 @@ namespace WorldPackets
         class UpdateActionButtons final : public ServerPacket
         {
         public:
-            UpdateActionButtons() : ServerPacket(SMSG_ACTION_BUTTONS, MAX_ACTION_BUTTONS*8+1) { }
+            UpdateActionButtons() : ServerPacket(SMSG_ACTION_BUTTONS, MAX_ACTION_BUTTONS * 8 + 1)
+            {
+                std::memset(ActionButtons, 0, sizeof(ActionButtons));
+            }
 
             WorldPacket const* Write() override;
 
@@ -81,7 +84,23 @@ namespace WorldPackets
 
             std::vector<uint32> Spells;
         };
+
+        struct SpellLogPowerData
+        {
+            int32 PowerType = 0;
+            int32 Amount    = 0;
+        };
+
+        struct SpellCastLogData
+        {
+            int32 Health        = 0;
+            int32 AttackPower   = 0;
+            int32 SpellPower    = 0;
+            std::vector<SpellLogPowerData> PowerData;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spell::SpellCastLogData& spellCastLogData);
 
 #endif // SpellPackets_h__

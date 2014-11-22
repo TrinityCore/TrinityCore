@@ -15,34 +15,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#ifndef ItemPackets_h__
+#define ItemPackets_h__
 
 #include "Packet.h"
 
 namespace WorldPackets
 {
-    namespace Reputation
+    namespace Item
     {
-        static uint16 const FactionCount = 256;
-
-        class InitializeFactions final : public ServerPacket
+        class SetProficiency final : public ServerPacket
         {
         public:
-            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, 1312)
-            {
-                for (uint16 i = 0; i < FactionCount; ++i)
-                {
-                    FactionStandings[i] = 0;
-                    FactionHasBonus[i] = false;
-                    FactionFlags[i] = 0;
-                }
-            }
+            SetProficiency() : ServerPacket(SMSG_SET_PROFICIENCY, 5) { }
 
             WorldPacket const* Write() override;
 
-            int32 FactionStandings[FactionCount];
-            bool FactionHasBonus[FactionCount]; ///< @todo: implement faction bonus
-            uint8 FactionFlags[FactionCount]; ///< @see enum FactionFlags
+            uint32 ProficiencyMask;
+            uint8 ProficiencyClass;
         };
     }
 }
+
+#endif // ItemPackets_h__

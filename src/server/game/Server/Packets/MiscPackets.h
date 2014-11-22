@@ -19,11 +19,49 @@
 #define MiscPackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
+#include "WorldSession.h"
 
 namespace WorldPackets
 {
     namespace Misc
     {
+        class BindPointUpdate final : public ServerPacket
+        {
+        public:
+            BindPointUpdate() : ServerPacket(SMSG_BINDPOINTUPDATE, 20) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 BindMapID = MAPID_INVALID;
+            G3D::Vector3 BindPosition;
+            uint32 BindAreaID = 0;
+        };
+
+        class InvalidatePlayer final : public ServerPacket
+        {
+        public:
+            InvalidatePlayer() : ServerPacket(SMSG_INVALIDATE_PLAYER, 18) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class LoginSetTimeSpeed final : public ServerPacket
+        {
+        public:
+            LoginSetTimeSpeed() : ServerPacket(SMSG_LOGIN_SETTIMESPEED, 20) { }
+
+            WorldPacket const* Write() override;
+
+            float NewSpeed = 0.0f;
+            int32 ServerTimeHolidayOffset = 0;
+            uint32 GameTime = 0;
+            uint32 ServerTime = 0;
+            int32 GameTimeHolidayOffset = 0;
+        };
+
         class ViolenceLevel final : public ClientPacket
         {
         public:
@@ -54,7 +92,7 @@ namespace WorldPackets
             uint32 ClientTime = 0; // Client ticks in ms
             uint32 SequenceIndex = 0; // Same index as in request
         };
-        
+
         class UITime final : public ServerPacket
         {
         public:
@@ -64,15 +102,34 @@ namespace WorldPackets
 
             uint32 Time = 0;
         };
-        
+
         class TutorialFlags : public ServerPacket
         {
         public:
-            TutorialFlags() : ServerPacket(SMSG_TUTORIAL_FLAGS, 32) { }
+            TutorialFlags() : ServerPacket(SMSG_TUTORIAL_FLAGS, 32)
+            {
+                std::memset(TutorialData, 0, sizeof(TutorialData));
+            }
 
             WorldPacket const* Write() override;
 
-            uint32 TutorialData[8];
+            uint32 TutorialData[MAX_ACCOUNT_TUTORIAL_VALUES];
+        };
+
+        class WorldServerInfo final : public ServerPacket
+        {
+        public:
+            WorldServerInfo() : ServerPacket(SMSG_WORLD_SERVER_INFO, 26) { }
+
+            WorldPacket const* Write() override;
+
+            Optional<uint32> IneligibleForLootMask; ///< Encountermask?
+            uint32 WeeklyReset      = 0; ///< UnixTime of last Weekly Reset Time
+            Optional<uint32> InstanceGroupSize;
+            uint8 IsTournamentRealm = 0;
+            Optional<uint32> RestrictedAccountMaxLevel;
+            Optional<uint32> RestrictedAccountMaxMoney;
+            uint32 DifficultyID     = 0;
         };
     }
 }

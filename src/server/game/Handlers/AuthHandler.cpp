@@ -27,20 +27,20 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
     response.SuccessInfo.HasValue = code == AUTH_OK;
     response.Result = code;
     response.WaitInfo.HasValue = queued;
-    response.WaitInfo.value.WaitCount = queuePos;
+    response.WaitInfo.Value.WaitCount = queuePos;
     if (code == AUTH_OK)
     {
-        response.SuccessInfo.value.AccountExpansionLevel = Expansion();
-        response.SuccessInfo.value.ActiveExpansionLevel = Expansion();
-        response.SuccessInfo.value.VirtualRealmAddress = GetVirtualRealmAddress();
+        response.SuccessInfo.Value.AccountExpansionLevel = Expansion();
+        response.SuccessInfo.Value.ActiveExpansionLevel = Expansion();
+        response.SuccessInfo.Value.VirtualRealmAddress = GetVirtualRealmAddress();
 
         std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);
 
         // Send current home realm. Also there is no need to send it later in realm queries.
-        response.SuccessInfo.value.VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
+        response.SuccessInfo.Value.VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
 
-        response.SuccessInfo.value.AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
-        response.SuccessInfo.value.AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
+        response.SuccessInfo.Value.AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
+        response.SuccessInfo.Value.AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
     }
 
     SendPacket(response.Write());
@@ -60,7 +60,7 @@ void WorldSession::SendAuthWaitQue(uint32 position)
     {
         response.WaitInfo.HasValue = true;
         response.SuccessInfo.HasValue = false;
-        response.WaitInfo.value.WaitCount = position;
+        response.WaitInfo.Value.WaitCount = position;
         response.Result = AUTH_WAIT_QUEUE;
     }
 
