@@ -2574,7 +2574,7 @@ void Creature::SetDisplayId(uint32 modelId)
     }
 }
 
-void Creature::SetTarget(ObjectGuid guid)
+void Creature::SetTarget(ObjectGuid const& guid)
 {
     if (!_focusSpell)
         SetGuidValue(UNIT_FIELD_TARGET, guid);

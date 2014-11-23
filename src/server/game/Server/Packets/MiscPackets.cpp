@@ -46,6 +46,11 @@ WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::SetSelection::Read()
+{
+    _worldPacket >> Selection;
+}
+
 void WorldPackets::Misc::ViolenceLevel::Read()
 {
     _worldPacket >> ViolenceLvl;
@@ -76,6 +81,12 @@ WorldPacket const* WorldPackets::Misc::TutorialFlags::Write()
     _worldPacket.append(TutorialData, MAX_ACCOUNT_TUTORIAL_VALUES);
 
     return &_worldPacket;
+}
+
+void WorldPackets::Misc::TutorialSetFlag::Read()
+{
+    Action = _worldPacket.ReadBits(2);
+    _worldPacket >> TutorialBit;
 }
 
 WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()

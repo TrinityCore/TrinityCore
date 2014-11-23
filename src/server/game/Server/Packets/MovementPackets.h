@@ -171,7 +171,7 @@ namespace WorldPackets
         class WorldPortAck final : public ClientPacket
         {
         public:
-            WorldPortAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            WorldPortAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_WORLDPORT_ACK, std::move(packet)) { }
 
             void Read() override { }
         };

@@ -5225,8 +5225,8 @@ void Player::CleanupChannels()
     {
         Channel* ch = *m_channels.begin();
         m_channels.erase(m_channels.begin());               // remove from player's channel list
-        ch->LeaveChannel(this, false);                     // not send to client, not remove from player's channel list
-        if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetTeam()))
+        ch->LeaveChannel(this, false);                      // not send to client, not remove from player's channel list
+        if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetTeam()))
             cMgr->LeftChannel(ch->GetName());               // deleted channel if empty
     }
     TC_LOG_DEBUG("chat.system", "Player %s: channels cleaned up!", GetName().c_str());
@@ -5241,11 +5241,9 @@ void Player::UpdateLocalChannels(uint32 newZone)
     if (!current_zone)
         return;
 
-    ChannelMgr* cMgr = ChannelMgr::forTeam(GetTeam());
+    ChannelMgr* cMgr = ChannelMgr::ForTeam(GetTeam());
     if (!cMgr)
         return;
-
-    std::string current_zone_name = current_zone->ZoneName;
 
     for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
     {
@@ -5279,7 +5277,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                     if (channel->Flags & CHANNEL_DBC_FLAG_CITY_ONLY)
                         currentNameExt = sObjectMgr->GetTrinityStringForDBCLocale(LANG_CHANNEL_CITY);
                     else
-                        currentNameExt = current_zone_name.c_str();
+                        currentNameExt = current_zone->ZoneName;
 
                     snprintf(new_channel_name_buf, 100, channel->Name_lang, currentNameExt);
 
@@ -16757,7 +16755,8 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
         eqSet.State           = EQUIPMENT_SET_UNCHANGED;
 
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            eqSet.Data.Pieces[i] = ObjectGuid::Create<HighGuid::Item>(fields[5 + i].GetUInt64());
+            if (uint64 guid = fields[5 + i].GetUInt64())
+                eqSet.Data.Pieces[i] = ObjectGuid::Create<HighGuid::Item>(guid);
 
         if (eqSet.Data.SetID >= MAX_EQUIPMENT_SET_INDEX)   // client limit
             continue;
@@ -22996,6 +22995,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_SEND_UNLEARN_SPELLS
     SendDirectMessage(WorldPackets::Spell::SendUnlearnSpells().Write());
+
+    /// @todo: SMSG_SEND_SPELL_HISTORY
+    /// @todo: SMSG_SEND_SPELL_CHARGES
 
     /// SMSG_ACTION_BUTTONS
     SendInitialActionButtons();

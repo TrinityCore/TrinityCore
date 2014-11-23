@@ -2164,7 +2164,7 @@ class Unit : public WorldObject
         TempSummon const* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<TempSummon const*>(this); else return NULL; }
 
         ObjectGuid GetTarget() const { return GetGuidValue(UNIT_FIELD_TARGET); }
-        virtual void SetTarget(ObjectGuid /*guid*/) = 0;
+        virtual void SetTarget(ObjectGuid const& /*guid*/) = 0;
 
         // Movement info
         Movement::MoveSpline * movespline;

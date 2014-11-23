@@ -674,7 +674,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool m_isTempWorldObject; //true when possessed
 
         // Handling caster facing during spellcast
-        void SetTarget(ObjectGuid guid) override;
+        void SetTarget(ObjectGuid const& guid) override;
         void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         void ReleaseFocus(Spell const* focusSpell);
 
