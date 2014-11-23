@@ -62,6 +62,16 @@ namespace WorldPackets
             int32 GameTimeHolidayOffset = 0;
         };
 
+        class SetSelection final : public ClientPacket
+        {
+        public:
+            SetSelection(WorldPacket&& packet) : ClientPacket(CMSG_SET_SELECTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Selection; ///< Target
+        };
+
         class ViolenceLevel final : public ClientPacket
         {
         public:
@@ -114,6 +124,17 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 TutorialData[MAX_ACCOUNT_TUTORIAL_VALUES];
+        };
+
+        class TutorialSetFlag final : public ClientPacket
+        {
+        public:
+            TutorialSetFlag(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_FLAG, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Action = 0;
+            uint32 TutorialBit = 0;
         };
 
         class WorldServerInfo final : public ServerPacket

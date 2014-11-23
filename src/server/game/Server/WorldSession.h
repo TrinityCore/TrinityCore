@@ -104,7 +104,9 @@ namespace WorldPackets
 
     namespace Channel
     {
+        class ChannelListRequest;
         class JoinChannel;
+        class LeaveChannel;
     }
 
     namespace Chat
@@ -148,8 +150,10 @@ namespace WorldPackets
 
     namespace Misc
     {
+        class SetSelection;
         class ViolenceLevel;
         class TimeSyncResponse;
+        class TutorialSetFlag;
     }
 
     namespace Query
@@ -191,17 +195,38 @@ enum AccountDataType
 
 #define REGISTERED_ADDON_PREFIX_SOFTCAP 64
 
+enum TutorialAction
+{
+    TUTORIAL_ACTION_UPDATE = 0,
+    TUTORIAL_ACTION_CLEAR  = 1,
+    TUTORIAL_ACTION_RESET  = 2
+};
+
+/*
 enum Tutorials
 {
-    TUTORIAL_TALENT           = 0,
-    TUTORIAL_SPEC             = 1,
-    TUTORIAL_GLYPH            = 2,
-    TUTORIAL_SPELLBOOK        = 3,
-    TUTORIAL_PROFESSIONS      = 4,
-    TUTORIAL_CORE_ABILITITES  = 5,
-    TUTORIAL_PET_JOURNAL      = 6,
-    TUTORIAL_WHAT_HAS_CHANGED = 7
+    TUTORIAL_TALENT                   = 0,
+    TUTORIAL_SPEC                     = 1,
+    TUTORIAL_GLYPH                    = 2,
+    TUTORIAL_SPELLBOOK                = 3,
+    TUTORIAL_PROFESSIONS              = 4,
+    TUTORIAL_CORE_ABILITITES          = 5,
+    TUTORIAL_PET_JOURNAL              = 6,
+    TUTORIAL_WHAT_HAS_CHANGED         = 7,
+    TUTORIAL_GARRISON_BUILDING        = 8,
+    TUTORIAL_GARRISON_MISSION_LIST    = 9,
+    TUTORIAL_GARRISON_MISSION_PAGE    = 10,
+    TUTORIAL_GARRISON_LANDING         = 11,
+    TUTORIAL_GARRISON_ZONE_ABILITY    = 12,
+    TUTORIAL_WORLD_MAP_FRAME          = 13,
+    TUTORIAL_CLEAN_UP_BAGS            = 14,
+    TUTORIAL_BAG_SETTINGS             = 15,
+    TUTORIAL_REAGENT_BANK_UNLOCK      = 16,
+    TUTORIAL_TOYBOX_FAVORITE          = 17,
+    TUTORIAL_TOYBOX_MOUSEWHEEL_PAGING = 18,
+    TUTORIAL_LFG_LIST                 = 19
 };
+*/
 
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
@@ -621,7 +646,7 @@ class WorldSession
         void HandleTogglePvP(WorldPacket& recvPacket);
 
         void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
-        void HandleSetSelectionOpcode(WorldPacket& recvPacket);
+        void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPacket& recvPacket);
         void HandleEmoteOpcode(WorldPacket& recvPacket);
         void HandleContactListOpcode(WorldPacket& recvPacket);
@@ -887,9 +912,9 @@ class WorldSession
         void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
 
-        void HandleJoinChannel(WorldPacket& recvPacket);
-        void HandleLeaveChannel(WorldPacket& recvPacket);
-        void HandleChannelList(WorldPacket& recvPacket);
+        void HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet);
+        void HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet);
+        void HandleChannelList(WorldPackets::Channel::ChannelListRequest& packet);
         void HandleChannelPassword(WorldPacket& recvPacket);
         void HandleChannelSetOwner(WorldPacket& recvPacket);
         void HandleChannelOwner(WorldPacket& recvPacket);
@@ -904,7 +929,6 @@ class WorldSession
         void HandleChannelAnnouncements(WorldPacket& recvPacket);
         void HandleChannelModerate(WorldPacket& recvPacket);
         void HandleChannelDeclineInvite(WorldPacket& recvPacket);
-        void HandleChannelDisplayListQuery(WorldPacket& recvPacket);
         void HandleGetChannelMemberCount(WorldPacket& recvPacket);
         void HandleSetChannelWatch(WorldPacket& recvPacket);
 
@@ -913,9 +937,7 @@ class WorldSession
 
         void HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet);
 
-        void HandleTutorialFlag (WorldPacket& recvData);
-        void HandleTutorialClear(WorldPacket& recvData);
-        void HandleTutorialReset(WorldPacket& recvData);
+        void HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet);
 
         //Pet
         void HandlePetAction(WorldPacket& recvData);

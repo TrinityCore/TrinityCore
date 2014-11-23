@@ -242,6 +242,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonster
     data << movementMonsterSpline.Destination;
     data << movementMonsterSpline.Move;
     data.WriteBit(movementMonsterSpline.CrzTeleport);
+
+    // Unk bits. 0 if monster is moving, 1 or 2 if stopped
+    if (movementMonsterSpline.Move.Flags)
+        data.WriteBits(0, 2);
+    else
+        data.WriteBits(2, 2);
+
     data.FlushBits();
 
     return data;
@@ -252,15 +259,6 @@ WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
     _worldPacket << MoverGUID;
     _worldPacket << Pos;
     _worldPacket << SplineData;
-
-    // Unk bits. 0 if monster is moving, 1 or 2 if stopped
-    if (SplineData.Move.Flags)
-        _worldPacket.WriteBits(0, 2);
-    else
-        _worldPacket.WriteBits(2, 2);
-
-    _worldPacket.FlushBits();
-
     return &_worldPacket;
 }
 

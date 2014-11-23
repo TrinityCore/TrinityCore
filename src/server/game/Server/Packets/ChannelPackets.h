@@ -25,7 +25,20 @@ namespace WorldPackets
 {
     namespace Channel
     {
-        class ChannelList final : public ServerPacket
+        class ChannelListRequest final : public ClientPacket
+        {
+        public:
+            ChannelListRequest(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            {
+                ASSERT(packet.GetOpcode() == CMSG_CHANNEL_LIST || packet.GetOpcode() == CMSG_CHANNEL_DISPLAY_LIST);
+            }
+
+            void Read() override;
+
+            std::string ChannelName;
+        };
+
+        class ChannelListResponse final : public ServerPacket
         {
         public:
             struct ChannelPlayer
@@ -38,7 +51,7 @@ namespace WorldPackets
                 uint8 Flags = 0; ///< @see enum ChannelMemberFlags
             };
 
-            ChannelList() : ServerPacket(SMSG_CHANNEL_LIST) { }
+            ChannelListResponse() : ServerPacket(SMSG_CHANNEL_LIST) { }
 
             WorldPacket const* Write() override;
 
@@ -57,11 +70,11 @@ namespace WorldPackets
 
             std::string Sender;
             ObjectGuid SenderGuid;
-            ObjectGuid SenderBnetAccountID;
+            ObjectGuid SenderAccountID;
             uint8 Type                = 0; ///< @see enum ChatNotify
             uint8 OldFlags            = 0; ///< @see enum ChannelMemberFlags
             uint8 NewFlags            = 0; ///< @see enum ChannelMemberFlags
-            std::string Channel;
+            std::string Channel;           ///< Channel Name
             uint32 SenderVirtualRealm = 0;
             ObjectGuid TargetGuid;
             uint32 TargetVirtualRealm = 0;
@@ -79,7 +92,7 @@ namespace WorldPackets
             int32 ChatChannelID = 0;
             int32 InstanceID    = 0;
             uint8 ChannelFlags  = 0; ///< @see enum ChannelFlags
-            std::string Channel;
+            std::string Channel;     ///< Channel Name
         };
 
         class ChannelNotifyLeft final : public ServerPacket
@@ -89,9 +102,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::string Channel;
+            std::string Channel;    ///< Channel Name
             int32 ChatChannelID = 0;
-            bool Suspended = false;
+            bool Suspended = false; ///< User Leave - false, On Zone Change - true
         };
 
         class JoinChannel final : public ClientPacket
@@ -106,6 +119,17 @@ namespace WorldPackets
             bool CreateVoiceSession = false;
             int32 ChatChannelId         = 0;
             bool Internal           = false;
+        };
+
+        class LeaveChannel final : public ClientPacket
+        {
+        public:
+            LeaveChannel(WorldPacket&& packet) : ClientPacket(CMSG_LEAVE_CHANNEL, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 ZoneChannelID = 0;
+            std::string ChannelName;
         };
     }
 }
