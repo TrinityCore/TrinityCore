@@ -57,6 +57,11 @@ WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::SetSelection::Read()
+{
+    _worldPacket >> Selection;
+}
+
 WorldPacket const* WorldPackets::Misc::TimeSyncRequest::Write()
 {
     _worldPacket << SequenceIndex;
@@ -96,6 +101,11 @@ WorldPacket const* WorldPackets::Misc::TutorialFlags::Write()
     _worldPacket.append(TutorialData.data(), MAX_ACCOUNT_TUTORIAL_VALUES);
 
     return &_worldPacket;
+}
+
+void WorldPackets::Misc::TutorialSetFlag::Read()
+{
+    _worldPacket >> TutorialBit;
 }
 
 WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()

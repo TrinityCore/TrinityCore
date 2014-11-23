@@ -150,6 +150,13 @@ namespace WorldPackets
         class UserClientUpdateAccountData;
     }
 
+    namespace Channel
+    {
+        class ChannelListRequest;
+        class JoinChannel;
+        class LeaveChannel;
+    }
+
     namespace Chat
     {
         class ChatMessage;
@@ -232,7 +239,11 @@ namespace WorldPackets
 
     namespace Misc
     {
+        class SetSelection;
         class TimeSyncResponse;
+        class TutorialSetFlag;
+        class TutorialClear;
+        class TutorialReset;
         class ReclaimCorpse;
         class RepopRequest;
         class ResurrectResponse;
@@ -754,7 +765,7 @@ class TC_GAME_API WorldSession
         void HandleTogglePvP(WorldPackets::Misc::TogglePvP& togglePvP);
 
         void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
-        void HandleSetSelectionOpcode(WorldPacket& recvPacket);
+        void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPacket& recvPacket);
         void HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet);
 
@@ -991,9 +1002,9 @@ class TC_GAME_API WorldSession
         void HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse& packet);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
 
-        void HandleJoinChannel(WorldPacket& recvPacket);
-        void HandleLeaveChannel(WorldPacket& recvPacket);
-        void HandleChannelList(WorldPacket& recvPacket);
+        void HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet);
+        void HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet);
+        void HandleChannelList(WorldPackets::Channel::ChannelListRequest& packet);
         void HandleChannelPassword(WorldPacket& recvPacket);
         void HandleChannelSetOwner(WorldPacket& recvPacket);
         void HandleChannelOwner(WorldPacket& recvPacket);
@@ -1007,7 +1018,6 @@ class TC_GAME_API WorldSession
         void HandleChannelUnban(WorldPacket& recvPacket);
         void HandleChannelAnnouncements(WorldPacket& recvPacket);
         void HandleChannelDeclineInvite(WorldPacket& recvPacket);
-        void HandleChannelDisplayListQuery(WorldPacket& recvPacket);
         void HandleGetChannelMemberCount(WorldPacket& recvPacket);
         void HandleSetChannelWatch(WorldPacket& recvPacket);
 
@@ -1017,9 +1027,9 @@ class TC_GAME_API WorldSession
 
         void HandleQueryPageText(WorldPackets::Query::QueryPageText& packet);
 
-        void HandleTutorialFlag (WorldPacket& recvData);
-        void HandleTutorialClear(WorldPacket& recvData);
-        void HandleTutorialReset(WorldPacket& recvData);
+        void HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet);
+        void HandleTutorialClear(WorldPackets::Misc::TutorialClear& tutorialClear);
+        void HandleTutorialReset(WorldPackets::Misc::TutorialReset& tutorialReset);
 
         //Pet
         void HandlePetAction(WorldPacket& recvData);

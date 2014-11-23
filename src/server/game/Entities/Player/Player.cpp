@@ -4851,7 +4851,7 @@ void Player::CleanupChannels()
         ch->LeaveChannel(this, false);                     // not send to client, not remove from player's channel list
 
         // delete channel if empty
-        if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetTeam()))
+        if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetTeam()))
             if (ch->IsConstant())
                 cMgr->LeftChannel(ch->GetChannelId(), ch->GetZoneEntry());
     }
@@ -4867,7 +4867,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
     if (!current_zone)
         return;
 
-    ChannelMgr* cMgr = ChannelMgr::forTeam(GetTeam());
+    ChannelMgr* cMgr = ChannelMgr::ForTeam(GetTeam());
     if (!cMgr)
         return;
 
@@ -4921,7 +4921,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
         if (removeChannel)
         {
-            removeChannel->LeaveChannel(this, sendRemove);                                      // Leave old channel
+            removeChannel->LeaveChannel(this, sendRemove, true);                                // Leave old channel
 
             LeftChannel(removeChannel);                                                         // Remove from player's channel list
             cMgr->LeftChannel(removeChannel->GetChannelId(), removeChannel->GetZoneEntry());    // Delete if empty
@@ -22414,6 +22414,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_SEND_UNLEARN_SPELLS
     SendUnlearnSpells();
+
+    /// @todo: SMSG_SEND_SPELL_HISTORY
+    /// @todo: SMSG_SEND_SPELL_CHARGES
 
     /// SMSG_ACTION_BUTTONS
     SendInitialActionButtons();

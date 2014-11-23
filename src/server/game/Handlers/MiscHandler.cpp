@@ -468,24 +468,21 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)
     //GetPlayer()->SendInitWorldStates(true, newZone);
 }
 
-void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    _player->SetSelection(guid);
+    _player->SetSelection(packet.Selection);
 
     // Update target of current autoshoot spell
-    if (!guid.IsEmpty())
+    if (!packet.Selection.IsEmpty())
     {
         if (Spell* autoReapeatSpell = _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (!autoReapeatSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR4_UNK24) // client automatically handles spells with SPELL_ATTR4_AUTO_RANGED_COMBAT
-                && autoReapeatSpell->m_targets.GetUnitTargetGUID() != guid)
+                && autoReapeatSpell->m_targets.GetUnitTargetGUID() != packet.Selection)
             {
                 Unit* unitTarget = [&]() -> Unit*
                 {
-                    Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
+                    Unit* unit = ObjectAccessor::GetUnit(*_player, packet.Selection);
                     if (unit && _player->IsValidAttackTarget(unit, autoReapeatSpell->GetSpellInfo()))
                         return unit;
                     return nullptr;

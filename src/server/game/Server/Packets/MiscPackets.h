@@ -91,6 +91,16 @@ namespace WorldPackets
             int32 GameTimeHolidayOffset = 0;
         };
 
+        class SetSelection final : public ClientPacket
+        {
+        public:
+            explicit SetSelection(WorldPacket&& packet) : ClientPacket(CMSG_SET_SELECTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Selection; ///< Target
+        };
+
         class TimeSyncRequest final : public ServerPacket
         {
         public:
@@ -160,6 +170,32 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::array<uint32, MAX_ACCOUNT_TUTORIAL_VALUES> TutorialData = { };
+        };
+
+        class TutorialSetFlag final : public ClientPacket
+        {
+        public:
+            explicit TutorialSetFlag(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_FLAG, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 TutorialBit = 0;
+        };
+
+        class TutorialClear final : public ClientPacket
+        {
+        public:
+            explicit TutorialClear(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_CLEAR, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class TutorialReset final : public ClientPacket
+        {
+        public:
+            explicit TutorialReset(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_RESET, std::move(packet)) { }
+
+            void Read() override { }
         };
 
         class CorpseReclaimDelay : public ServerPacket

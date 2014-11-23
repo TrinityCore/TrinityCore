@@ -649,7 +649,14 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
 {
-    TC_LOG_DEBUG("network", "Opcode {}", recvPacket.GetOpcode());
+    std::string channelName;
+    recvPacket >> channelName;
+
+    TC_LOG_DEBUG("chat.system", "CMSG_DECLINE_CHANNEL_INVITE {} ChannelName: {}",
+        GetPlayerInfo(), channelName);
+
+    if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(channelName, GetPlayer()))
+        channel->DeclineInvite(GetPlayer());
 }
 
 void WorldSession::SendPlayerNotFoundNotice(std::string const& name)

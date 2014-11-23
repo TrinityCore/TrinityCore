@@ -22,6 +22,7 @@
 #include "BankPackets.h"
 #include "BattlegroundPackets.h"
 #include "CalendarPackets.h"
+#include "ChannelPackets.h"
 #include "CharacterPackets.h"
 #include "ChatPackets.h"
 #include "ClientConfigPackets.h"
