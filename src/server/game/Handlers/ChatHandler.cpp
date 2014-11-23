@@ -354,7 +354,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
                 }
             }
 
-            if (ChannelMgr* cMgr = ChannelMgr::forTeam(sender->GetTeam()))
+            if (ChannelMgr* cMgr = ChannelMgr::ForTeam(sender->GetTeam()))
             {
                 if (Channel* chn = cMgr->GetChannel(target, sender))
                 {

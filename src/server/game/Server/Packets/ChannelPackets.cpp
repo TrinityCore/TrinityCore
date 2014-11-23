@@ -18,7 +18,12 @@
 #include "ChannelPackets.h"
 #include "Channel.h"
 
-WorldPacket const* WorldPackets::Channel::ChannelList::Write()
+void WorldPackets::Channel::ChannelListRequest::Read()
+{
+    ChannelName = _worldPacket.ReadString(_worldPacket.ReadBits(7));
+}
+
+WorldPacket const* WorldPackets::Channel::ChannelListResponse::Write()
 {
     _worldPacket.WriteBit(Display);
     _worldPacket.WriteBits(Channel.length(), 7);
@@ -43,7 +48,7 @@ WorldPacket const* WorldPackets::Channel::ChannelNotify::Write()
     _worldPacket.WriteBits(Sender.length(), 6);
 
     _worldPacket << SenderGuid;
-    _worldPacket << SenderBnetAccountID;
+    _worldPacket << SenderAccountID;
     _worldPacket << uint32(SenderVirtualRealm);
     _worldPacket << TargetGuid;
     _worldPacket << uint32(TargetVirtualRealm);
@@ -93,4 +98,10 @@ void WorldPackets::Channel::JoinChannel::Read()
     uint32 passwordLength = _worldPacket.ReadBits(7);
     ChannelName = _worldPacket.ReadString(channelLength);
     Password = _worldPacket.ReadString(passwordLength);
+}
+
+void WorldPackets::Channel::LeaveChannel::Read()
+{
+    _worldPacket >> ZoneChannelID;
+    ChannelName = _worldPacket.ReadString(_worldPacket.ReadBits(7));
 }

@@ -538,12 +538,9 @@ void WorldSession::HandleRequestCemeteryList(WorldPacket& /*recvPacket*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    _player->SetSelection(guid);
+    _player->SetSelection(packet.Selection);
 }
 
 void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
