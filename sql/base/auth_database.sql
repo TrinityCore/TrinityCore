@@ -45,7 +45,7 @@ CREATE TABLE `account` (
   `mutereason` varchar(255) NOT NULL DEFAULT '',
   `muteby` varchar(50) NOT NULL DEFAULT '',
   `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `os` varchar(3) NOT NULL DEFAULT '',
+  `os` varchar(4) NOT NULL DEFAULT '',
   `recruiter` int(10) unsigned NOT NULL DEFAULT '0',
   `battlenet_account` int(10) unsigned DEFAULT NULL,
   `battlenet_index` tinyint(3) unsigned DEFAULT NULL,
