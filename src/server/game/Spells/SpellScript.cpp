@@ -110,11 +110,14 @@ std::string _SpellScript::EffectHook::EffIndexToString()
 
 bool _SpellScript::EffectNameCheck::Check(SpellInfo const* spellEntry, uint8 effIndex)
 {
-    if (!spellEntry->Effects[effIndex].Effect && !effName)
-        return true;
-    if (!spellEntry->Effects[effIndex].Effect)
+    SpellEffectInfo const* effect = spellEntry->GetEffect(effIndex);
+    if (!effect)
         return false;
-    return (effName == SPELL_EFFECT_ANY) || (spellEntry->Effects[effIndex].Effect == effName);
+    if (!effect->Effect && !effName)
+        return true;
+    if (!effect->Effect)
+        return false;
+    return (effName == SPELL_EFFECT_ANY) || (effect->Effect == effName);
 }
 
 std::string _SpellScript::EffectNameCheck::ToString()
@@ -132,11 +135,14 @@ std::string _SpellScript::EffectNameCheck::ToString()
 
 bool _SpellScript::EffectAuraNameCheck::Check(SpellInfo const* spellEntry, uint8 effIndex)
 {
-    if (!spellEntry->Effects[effIndex].ApplyAuraName && !effAurName)
-        return true;
-    if (!spellEntry->Effects[effIndex].ApplyAuraName)
+    SpellEffectInfo const* effect = spellEntry->GetEffect(effIndex);
+    if (!effect)
         return false;
-    return (effAurName == SPELL_AURA_ANY) || (spellEntry->Effects[effIndex].ApplyAuraName == effAurName);
+    if (!effect->ApplyAuraName && !effAurName)
+        return true;
+    if (!effect->ApplyAuraName)
+        return false;
+    return (effAurName == SPELL_AURA_ANY) || (effect->ApplyAuraName == effAurName);
 }
 
 std::string _SpellScript::EffectAuraNameCheck::ToString()
@@ -218,8 +224,12 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
     if (!targetType)
         return false;
 
-    if (spellEntry->Effects[effIndex].TargetA.GetTarget() != targetType &&
-        spellEntry->Effects[effIndex].TargetB.GetTarget() != targetType)
+    SpellEffectInfo const* effect = spellEntry->GetEffect(effIndex);
+    if (!effect)
+        return false;
+
+    if (effect->TargetA.GetTarget() != targetType &&
+        effect->TargetB.GetTarget() != targetType)
         return false;
 
     SpellImplicitTargetInfo targetInfo(targetType);

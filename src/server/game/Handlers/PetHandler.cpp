@@ -312,9 +312,9 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 return;
             }
 
-            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (SpellEffectInfo const* effect: spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
             {
-                if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_SRC_AREA_ENEMY || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_DEST_AREA_ENEMY || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
+                if (effect && (effect->TargetA.GetTarget() == TARGET_UNIT_SRC_AREA_ENEMY || effect->TargetA.GetTarget() == TARGET_UNIT_DEST_AREA_ENEMY || effect->TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY))
                     return;
             }
 

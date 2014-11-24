@@ -369,7 +369,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
                 PreventDefaultAction();
 
                 SpellInfo const* triggeredSpellInfo = sSpellMgr->EnsureSpellInfo(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL);
-                int32 heal = int32(CalculatePct(int32(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount()) / triggeredSpellInfo->GetMaxTicks());
+                int32 heal = int32(CalculatePct(int32(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount()) / triggeredSpellInfo->GetMaxTicks(DIFFICULTY_NONE));
                 GetTarget()->CastCustomSpell(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL, SPELLVALUE_BASE_POINT0, heal, eventInfo.GetProcTarget(), true, NULL, aurEff);
             }
 
@@ -402,7 +402,7 @@ class spell_pri_improved_power_word_shield : public SpellScriptLoader
                     spellMod->op = SpellModOp(aurEff->GetMiscValue());
                     spellMod->type = SPELLMOD_PCT;
                     spellMod->spellId = GetId();
-                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
+                    spellMod->mask = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->SpellClassMask;
                 }
 
                 spellMod->value = aurEff->GetAmount();
@@ -483,7 +483,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
 
             bool Load() override
             {
-                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                healPct = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
                 return true;
             }
 

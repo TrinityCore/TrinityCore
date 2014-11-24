@@ -1809,9 +1809,9 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true
         return;
 
     bool self = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
     {
-        if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)
+        if (effect && effect->TargetA.GetTarget() == TARGET_UNIT_CASTER)
         {
             self = true;
             break;

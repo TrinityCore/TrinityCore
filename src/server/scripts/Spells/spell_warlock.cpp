@@ -201,15 +201,16 @@ class spell_warl_conflagrate : public SpellScriptLoader
                 return true;
             }
 
-            void HandleHit(SpellEffIndex /*effIndex*/)
-            {
-                if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffect(SPELL_WARLOCK_IMMOLATE, EFFECT_2, GetCaster()->GetGUID()))
-                    SetHitDamage(CalculatePct(aurEff->GetAmount(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())));
-            }
+            // 6.x dmg formula in tooltip
+            // void HandleHit(SpellEffIndex /*effIndex*/)
+            // {
+            //     if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffect(SPELL_WARLOCK_IMMOLATE, EFFECT_2, GetCaster()->GetGUID()))
+            //         SetHitDamage(CalculatePct(aurEff->GetAmount(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())));
+            // }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warl_conflagrate_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                //OnEffectHitTarget += SpellEffectFn(spell_warl_conflagrate_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -563,43 +564,6 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
         }
 };
 
-// 77799 - Fel Flame - Updated to 4.3.4
-class spell_warl_fel_flame : public SpellScriptLoader
-{
-    public:
-        spell_warl_fel_flame() : SpellScriptLoader("spell_warl_fel_flame") { }
-
-        class spell_warl_fel_flame_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_fel_flame_SpellScript);
-
-            void OnHitTarget(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                Unit* target = GetHitUnit();
-                Aura* aura = target->GetAura(SPELL_WARLOCK_UNSTABLE_AFFLICTION, caster->GetGUID());
-                if (!aura)
-                    aura = target->GetAura(SPELL_WARLOCK_IMMOLATE, caster->GetGUID());
-
-                if (!aura)
-                    return;
-
-                int32 newDuration = aura->GetDuration() + GetSpellInfo()->Effects[EFFECT_1].CalcValue() * 1000;
-                aura->SetDuration(std::min(newDuration, aura->GetMaxDuration()));
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warl_fel_flame_SpellScript::OnHitTarget, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warl_fel_flame_SpellScript;
-        }
-};
-
 // -47230 - Fel Synergy
 class spell_warl_fel_synergy : public SpellScriptLoader
 {
@@ -868,7 +832,8 @@ class spell_warl_improved_soul_fire : public SpellScriptLoader
 
 // 1454 - Life Tap
 /// Updated 4.3.4
-class spell_warl_life_tap : public SpellScriptLoader
+// 6.x fully changed this
+/*class spell_warl_life_tap : public SpellScriptLoader
 {
     public:
         spell_warl_life_tap() : SpellScriptLoader("spell_warl_life_tap") { }
@@ -882,7 +847,7 @@ class spell_warl_life_tap : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-             bool Validate(SpellInfo const* /*spellInfo*/) override
+             bool Validate(SpellInfo const* spellInfo) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_LIFE_TAP_ENERGIZE) ||
                     !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2))
@@ -890,7 +855,7 @@ class spell_warl_life_tap : public SpellScriptLoader
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleDummy(SpellEffIndex effIndex)
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (Unit* target = GetHitUnit())
@@ -935,7 +900,7 @@ class spell_warl_life_tap : public SpellScriptLoader
         {
             return new spell_warl_life_tap_SpellScript();
         }
-};
+};*/
 
 // 687 - Demon Armor
 // 28176 - Fel Armor
@@ -1249,7 +1214,9 @@ class spell_warl_soul_swap_dot_marker : public SpellScriptLoader
                 if (!warlock || !swapVictim)
                     return;
 
-                flag128 classMask = GetSpellInfo()->Effects[effIndex].SpellClassMask;
+                // effect existance checked in dbc, should not be removed by core at any time, so no need to check for null
+                SpellEffectInfo const* effect = GetSpellInfo()->GetEffect(DIFFICULTY_NONE, EFFECT_0);
+                flag128 classMask = effect->SpellClassMask;
 
                 Unit::AuraApplicationMap const& appliedAuras = swapVictim->GetAppliedAuras();
                 SoulSwapOverrideAuraScript* swapSpellScript = NULL;
@@ -1452,14 +1419,14 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_empowerment();
     new spell_warl_demon_soul();
     new spell_warl_everlasting_affliction();
-    new spell_warl_fel_flame();
+    //new spell_warl_fel_flame();
     new spell_warl_fel_synergy();
     new spell_warl_glyph_of_shadowflame();
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_healthstone_heal();
     new spell_warl_improved_soul_fire();
-    new spell_warl_life_tap();
+    //new spell_warl_life_tap();
     new spell_warl_nether_ward_overrride();
     new spell_warl_seduction();
     new spell_warl_seed_of_corruption();

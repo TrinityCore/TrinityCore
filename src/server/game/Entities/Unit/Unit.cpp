@@ -16555,6 +16555,8 @@ bool Unit::IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplicat
 {
     for (AuraEffect* aurEff : aura->GetAuraEffects())
     {
+        if (!aurEff)
+            continue;
         AuraType const auraType = AuraType(aurEff->GetSpellEffectInfo()->ApplyAuraName);
         AuraEffectList const& auras = GetAuraEffectsByType(auraType);
         for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end();)

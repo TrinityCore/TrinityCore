@@ -156,6 +156,11 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
 {
     AuraEffect* aurEff = GetBase()->GetEffect(effIndex);
+    if (!aurEff)
+    {
+        TC_LOG_ERROR("spells", "Aura %u has no effect at effectIndex %u but _HandleEffect was called", GetBase()->GetSpellInfo()->Id, uint32(effIndex));
+        return;
+    }
     ASSERT(aurEff);
     ASSERT(HasEffect(effIndex) == (!apply));
     ASSERT((1<<effIndex) & _effectsToApply);
@@ -378,6 +383,8 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
     _spelEffectInfos = m_spellInfo->GetEffectsForDifficulty(GetOwner()->GetMap()->GetDifficulty());
 
     ASSERT(!_spelEffectInfos.empty());
+
+    _effects.resize(MAX_SPELL_EFFECTS);
 
     for (SpellEffectInfo const* effect : GetSpellEffectInfos())
     {

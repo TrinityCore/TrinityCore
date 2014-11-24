@@ -862,11 +862,22 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_UNIT}, // 182 SPELL_EFFECT_182
 };
 
-SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectInfoMap effects)
+SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap effects)
 {
     Id = spellEntry->ID;
 
-    _effects = effects;
+    // SpellDifficultyEntry
+    for (SpellEffectEntryMap::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
+    {
+        _effects[itr->first].resize(MAX_SPELL_EFFECTS);
+        for (SpellEffectEntryVector::const_iterator i = itr->second.begin(); i != itr->second.end(); ++i)
+        {
+            if (!(*i))
+                continue;
+
+            _effects[itr->first][(*i)->EffectIndex] = new SpellEffectInfo(spellEntry, this, (*i)->EffectIndex, (*i));
+        }
+    }
 
     SpellName = spellEntry->Name_lang;
     //Rank = spellEntry->Rank;
@@ -1049,6 +1060,19 @@ bool SpellInfo::HasEffect(uint32 difficulty, SpellEffectName effect) const
     return false;
 }
 
+bool SpellInfo::HasEffect(SpellEffectName effect) const
+{
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
+    {
+        for (SpellEffectInfo const* eff : itr->second)
+        {
+            if (eff && eff->IsEffect(effect))
+                return true;
+        }
+    }
+    return false;
+}
+
 bool SpellInfo::HasAura(uint32 difficulty, AuraType aura) const
 {
     SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
@@ -1067,6 +1091,19 @@ bool SpellInfo::HasAreaAuraEffect(uint32 difficulty) const
     {
         if (effect && effect->IsAreaAuraEffect())
             return true;
+    }
+    return false;
+}
+
+bool SpellInfo::HasAreaAuraEffect() const
+{
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
+    {
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (effect && effect->IsAreaAuraEffect())
+                return true;
+        }
     }
     return false;
 }
@@ -3063,7 +3100,7 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
 SpellEffectInfo const* SpellInfo::GetEffect(uint32 difficulty, uint32 index) const
 {
     SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
-    if (index >= _effects.size())
+    if (index >= effects.size())
         return nullptr;
 
     return effects[index];

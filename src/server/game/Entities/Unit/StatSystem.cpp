@@ -537,16 +537,16 @@ void Player::UpdateMastery()
 
         if (Aura* aura = GetAura(chrSpec->MasterySpellID[i]))
         {
-            for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            for (SpellEffectInfo const* effect : aura->GetSpellEffectInfos())
             {
-                if (!aura->HasEffect(j))
+                if (!effect)
                     continue;
 
-                float mult = aura->GetSpellInfo()->Effects[j].BonusCoefficient;
+                float mult = effect->BonusCoefficient;
                 if (G3D::fuzzyEq(mult, 0.0f))
                     continue;
 
-                aura->GetEffect(j)->ChangeAmount(int32(value * aura->GetSpellInfo()->Effects[j].BonusCoefficient));
+                aura->GetEffect(effect->EffectIndex)->ChangeAmount(int32(value * effect->BonusCoefficient));
             }
         }
     }
@@ -989,8 +989,9 @@ bool Guardian::UpdateStats(Stats stat)
         AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
         if (aurEff)
         {
-            SpellInfo const* spellInfo = aurEff->GetSpellInfo();                                                 // Then get the SpellProto and add the dummy effect value
-            AddPct(mod, spellInfo->Effects[EFFECT_1].CalcValue(owner));                                              // Ravenous Dead edits the original scale
+            SpellInfo const* spellInfo = aurEff->GetSpellInfo();                                               // Then get the SpellProto and add the dummy effect value
+            if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficulty(), EFFECT_1))
+                AddPct(mod, effect->CalcValue(owner));                                                         // Ravenous Dead edits the original scale
         }
         // Glyph of the Ghoul
         aurEff = owner->GetAuraEffect(58686, 0);

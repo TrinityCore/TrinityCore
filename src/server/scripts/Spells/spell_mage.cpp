@@ -497,7 +497,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
 
             void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
-                Unit* target = GetTarget();
+                /*Unit* target = GetTarget();
                 if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
                 {
                     int32 chance = talentAurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(); // SPELL_EFFECT_DUMMY with NO_TARGET
@@ -510,7 +510,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
                         absorbAmount = 0;
                         PreventDefaultAction();
                     }
-                }
+                }*/
             }
 
             void Register() override
@@ -738,7 +738,7 @@ class spell_mage_living_bomb : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo)
             {
-                if (!sSpellMgr->GetSpellInfo(uint32(spellInfo->Effects[EFFECT_1].CalcValue())))
+                if (!sSpellMgr->GetSpellInfo(uint32(spellInfo->GetEffect(EFFECT_1)->CalcValue())))
                     return false;
                 return true;
             }
@@ -836,7 +836,7 @@ class spell_mage_ignite : public SpellScriptLoader
                 SpellInfo const* igniteDot = sSpellMgr->EnsureSpellInfo(SPELL_MAGE_IGNITE);
                 int32 pct = 8 * GetSpellInfo()->GetRank();
 
-                int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
+                int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks(DIFFICULTY_NONE));
                 amount += eventInfo.GetProcTarget()->GetRemainingPeriodicAmount(eventInfo.GetActor()->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
                 GetTarget()->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, NULL, aurEff);
             }
@@ -1254,7 +1254,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
             void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 std::list<Creature*> MinionList;
-                GetTarget()->GetAllMinionsByEntry(MinionList, GetSpellInfo()->Effects[EFFECT_0].MiscValue);
+                GetTarget()->GetAllMinionsByEntry(MinionList, GetSpellInfo()->GetEffect(EFFECT_0)->MiscValue);
 
                 // Get the last summoned RoF, save it and despawn older ones
                 for (std::list<Creature*>::iterator itr = MinionList.begin(); itr != MinionList.end(); itr++)
@@ -1313,7 +1313,7 @@ class spell_mage_ring_of_frost_freeze : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                float outRadius = sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON)->Effects[EFFECT_0].CalcRadius();
+                float outRadius = sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON)->GetEffect(EFFECT_0)->CalcRadius();
                 float inRadius  = 4.7f;
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)

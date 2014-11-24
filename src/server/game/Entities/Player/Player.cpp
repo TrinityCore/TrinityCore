@@ -3526,7 +3526,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     // cast talents with SPELL_EFFECT_LEARN_SPELL (other dependent spells will learned later as not auto-learned)
     // note: all spells with SPELL_EFFECT_LEARN_SPELL isn't passive
-    if (!loading && spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
+    if (!loading && spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL))
     {
         // ignore stance requirement for talent learn spell (stance set for spell only for client spell description show)
         CastSpell(this, spellId, true);
@@ -3537,7 +3537,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         if (IsNeedCastPassiveSpellAtLearn(spellInfo))
             CastSpell(this, spellId, true);
     }
-    else if (spellInfo->HasEffect(SPELL_EFFECT_SKILL_STEP))
+    else if (spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_SKILL_STEP))
     {
         CastSpell(this, spellId, true);
         return false;
@@ -3849,8 +3849,8 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
         if (spellInfo->IsPassive())
         {
-            for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
-                if (spellInfo->Effects[i].Effect == SPELL_EFFECT_DUAL_WIELD)
+            for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+                if (effect && effect->Effect == SPELL_EFFECT_DUAL_WIELD)
                 {
                     SetCanDualWield(false);
                     break;
@@ -4098,9 +4098,9 @@ bool Player::ResetTalents(bool no_cost)
         RemoveSpell(talentInfo->SpellID, true);
 
         // search for spells that the talent teaches and unlearn them
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                RemoveSpell(_spellEntry->Effects[i].TriggerSpell, true);
+        for (SpellEffectInfo const* effect : _spellEntry->GetEffectsForDifficulty(DIFFICULTY_NONE))
+            if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
+                RemoveSpell(effect->TriggerSpell, true);
     }
 
     // Remove all specialization specific spells and give default ones which were overriden
@@ -8268,7 +8268,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             }
 
             // not allow proc extra attack spell at extra attack
-            if (m_extraAttacks && spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+            if (m_extraAttacks && spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_ADD_EXTRA_ATTACKS))
                 return;
 
             float chance = (float)spellInfo->ProcChance;
@@ -15128,7 +15128,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (quest->GetRewSpellCast() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpellCast());
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM))
+        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_CREATE_ITEM))
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpellCast(), true);
@@ -15139,7 +15139,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     else if (quest->GetRewSpell() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM))
+        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_CREATE_ITEM))
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpell(), true);
@@ -23326,9 +23326,9 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
 
     // check learned spells state
     bool found = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
     {
-        if (spellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL && !HasSpell(spellInfo->Effects[i].TriggerSpell))
+        if (effect && effect->Effect == SPELL_EFFECT_LEARN_SPELL && !HasSpell(effect->TriggerSpell))
         {
             found = true;
             break;
@@ -23339,8 +23339,12 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
     if (!found)
         return;
 
+    SpellEffectInfo const* effect = spellInfo->GetEffect(DIFFICULTY_NONE, EFFECT_0);
+    if (!effect)
+        return;
+
     // prevent learn non first rank unknown profession and second specialization for same profession)
-    uint32 learned_0 = spellInfo->Effects[0].TriggerSpell;
+    uint32 learned_0 = effect->TriggerSpell;
     if (sSpellMgr->GetSpellRank(learned_0) > 1 && !HasSpell(learned_0))
     {
         SpellInfo const* learnedInfo = sSpellMgr->GetSpellInfo(learned_0);
@@ -23356,8 +23360,15 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
         {
             uint32 profSpell = itr2->second;
 
+            SpellEffectInfo const* effect0 = learnedInfo->GetEffect(DIFFICULTY_NONE, EFFECT_0);
+            if (!effect0)
+                continue;
+            SpellEffectInfo const* effect1 = learnedInfo->GetEffect(DIFFICULTY_NONE, EFFECT_1);
+            if (!effect1)
+                continue;
+
             // specialization
-            if (learnedInfo->Effects[0].Effect == SPELL_EFFECT_TRADE_SKILL && learnedInfo->Effects[1].Effect == 0 && profSpell)
+            if (effect0->Effect == SPELL_EFFECT_TRADE_SKILL && effect1->Effect == 0 && profSpell)
             {
                 // search other specialization for same prof
                 for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
@@ -23369,8 +23380,16 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
                     if (!itrInfo)
                         return;
 
+
+                    SpellEffectInfo const* itrEffect0 = itrInfo->GetEffect(DIFFICULTY_NONE, EFFECT_0);
+                    if (!itrEffect0)
+                        continue;
+                    SpellEffectInfo const* itrEffect1 = itrInfo->GetEffect(DIFFICULTY_NONE, EFFECT_1);
+                    if (!itrEffect1)
+                        continue;
+
                     // compare only specializations
-                    if (itrInfo->Effects[0].Effect != SPELL_EFFECT_TRADE_SKILL || itrInfo->Effects[1].Effect != 0)
+                    if (itrEffect0->Effect != SPELL_EFFECT_TRADE_SKILL || itrEffect1->Effect != 0)
                         continue;
 
                     // compare same chain spells

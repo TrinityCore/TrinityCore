@@ -581,7 +581,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
                 continue;
             }
 
-            if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+            if (AdditionalSpellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_CONTROL_VEHICLE))
                 TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
 
             creatureAddon.auras[i++] = uint32(atol(*itr));
@@ -1029,7 +1029,7 @@ void ObjectMgr::LoadCreatureAddons()
                 continue;
             }
 
-            if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+            if (AdditionalSpellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_CONTROL_VEHICLE))
                 TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_addon`.", guid, uint32(atol(*itr)));
 
             creatureAddon.auras[i++] = uint32(atol(*itr));
@@ -4501,12 +4501,12 @@ void ObjectMgr::LoadQuests()
         if (!spellInfo)
             continue;
 
-        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
         {
-            if (spellInfo->Effects[j].Effect != SPELL_EFFECT_QUEST_COMPLETE)
+            if (!effect || effect->Effect != SPELL_EFFECT_QUEST_COMPLETE)
                 continue;
 
-            uint32 quest_id = spellInfo->Effects[j].MiscValue;
+            uint32 quest_id = effect->MiscValue;
 
             Quest const* quest = GetQuestTemplate(quest_id);
 
@@ -4911,7 +4911,8 @@ void ObjectMgr::LoadSpellScripts()
 
         uint8 i = (uint8)((uint32(itr->first) >> 24) & 0x000000FF);
         //check for correct spellEffect
-        if (!spellInfo->Effects[i].Effect || (spellInfo->Effects[i].Effect != SPELL_EFFECT_SCRIPT_EFFECT && spellInfo->Effects[i].Effect != SPELL_EFFECT_DUMMY))
+        SpellEffectInfo const* effect = spellInfo->GetEffect(i);
+        if (effect && (!effect->Effect || (effect->Effect != SPELL_EFFECT_SCRIPT_EFFECT && effect->Effect != SPELL_EFFECT_DUMMY)))
             TC_LOG_ERROR("sql.sql", "Table `spell_scripts` - spell %u effect %u is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY", spellId, i);
     }
 }
@@ -4930,10 +4931,10 @@ void ObjectMgr::LoadEventScripts()
     // Load all possible script entries from spells
     for (uint32 i = 1; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(i))
-            for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-                if (spell->Effects[j].Effect == SPELL_EFFECT_SEND_EVENT)
-                    if (spell->Effects[j].MiscValue)
-                        evt_scripts.insert(spell->Effects[j].MiscValue);
+            for (SpellEffectInfo const* effect : spell->GetEffectsForDifficulty(DIFFICULTY_NONE))
+                if (effect && effect->Effect == SPELL_EFFECT_SEND_EVENT)
+                    if (effect->MiscValue)
+                        evt_scripts.insert(effect->MiscValue);
 
     for (size_t path_idx = 0; path_idx < sTaxiPathNodesByPath.size(); ++path_idx)
     {
@@ -8114,25 +8115,25 @@ void ObjectMgr::AddSpellToTrainer(uint32 ID, uint32 SpellID, uint32 MoneyCost, u
 
     // calculate learned spell for profession case when stored cast-spell
     trainerSpell.ReqAbility[0] = SpellID;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfo const* effect : spellinfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
     {
-        if (spellinfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
+        if (!effect || effect->Effect != SPELL_EFFECT_LEARN_SPELL)
             continue;
         if (trainerSpell.ReqAbility[0] == SpellID)
             trainerSpell.ReqAbility[0] = 0;
         // player must be able to cast spell on himself
-        if (spellinfo->Effects[i].TargetA.GetTarget() != 0 && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_TARGET_ALLY
-            && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_TARGET_ANY && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER)
+        if (effect->TargetA.GetTarget() != 0 && effect->TargetA.GetTarget() != TARGET_UNIT_TARGET_ALLY
+            && effect->TargetA.GetTarget() != TARGET_UNIT_TARGET_ANY && effect->TargetA.GetTarget() != TARGET_UNIT_CASTER)
         {
             TC_LOG_ERROR("sql.sql", "Table `npc_trainer` has spell %u for trainer entry %u with learn effect which has incorrect target type, ignoring learn effect!", SpellID, ID);
             continue;
         }
 
-        trainerSpell.ReqAbility[i] = spellinfo->Effects[i].TriggerSpell;
+        trainerSpell.ReqAbility[effect->EffectIndex] = effect->TriggerSpell;
 
-        if (trainerSpell.ReqAbility[i])
+        if (trainerSpell.ReqAbility[effect->EffectIndex])
         {
-            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainerSpell.ReqAbility[i]);
+            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainerSpell.ReqAbility[effect->EffectIndex]);
             if (learnedSpellInfo && learnedSpellInfo->IsProfession())
                 data.trainerType = 2;
         }

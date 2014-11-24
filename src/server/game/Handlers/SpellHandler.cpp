@@ -485,7 +485,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
     _player->RemoveOwnedAura(spellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
 
     // If spell being removed is a resource tracker, see if player was tracking both (herbs / minerals) and remove the other
-    if (sWorld->getBoolConfig(CONFIG_ALLOW_TRACK_BOTH_RESOURCES) && spellInfo->HasAura(SPELL_AURA_TRACK_RESOURCES))
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_TRACK_BOTH_RESOURCES) && spellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_TRACK_RESOURCES))
     {
         Unit::AuraEffectList const& auraEffects = _player->GetAuraEffectsByType(SPELL_AURA_TRACK_RESOURCES);
         if (!auraEffects.empty())

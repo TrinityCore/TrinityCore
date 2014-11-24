@@ -236,7 +236,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
                     if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0, 0x10, GetCaster()->GetGUID()))
                     {
                         riptide = true;
-                        amount = aurEff->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                        amount = aurEff->GetSpellInfo()->GetEffect(DIFFICULTY_NONE, EFFECT_2)->CalcValue();
                         // Consume it
                         GetHitUnit()->RemoveAura(aurEff->GetBase());
                     }
@@ -558,44 +558,6 @@ class spell_sha_flame_shock : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_sha_flame_shock_AuraScript();
-        }
-};
-
-// 77794 - Focused Insight
-class spell_sha_focused_insight : public SpellScriptLoader
-{
-    public:
-        spell_sha_focused_insight() : SpellScriptLoader("spell_sha_focused_insight") { }
-
-        class spell_sha_focused_insight_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_focused_insight_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FOCUSED_INSIGHT))
-                    return false;
-                return true;
-            }
-
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                int32 basePoints0 = aurEff->GetAmount();
-                int32 basePoints1 = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-
-                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_FOCUSED_INSIGHT, &basePoints0, &basePoints1, &basePoints1, true, NULL, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_sha_focused_insight_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_sha_focused_insight_AuraScript();
         }
 };
 
@@ -1072,7 +1034,7 @@ class spell_sha_nature_guardian : public SpellScriptLoader
                     eventInfo.GetProcTarget()->getThreatManager().modifyThreatPercent(GetTarget(), -10);
 
                 if (Player* player = GetTarget()->ToPlayer())
-                    player->AddSpellCooldown(GetSpellInfo()->Id, 0, time(NULL) + aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());
+                    player->AddSpellCooldown(GetSpellInfo()->Id, 0, time(NULL) + aurEff->GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue());
             }
 
             void Register() override
@@ -1242,7 +1204,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_feedback();
     new spell_sha_fire_nova();
     new spell_sha_flame_shock();
-    new spell_sha_focused_insight();
     new spell_sha_glyph_of_healing_wave();
     new spell_sha_healing_stream_totem();
     new spell_sha_heroism();

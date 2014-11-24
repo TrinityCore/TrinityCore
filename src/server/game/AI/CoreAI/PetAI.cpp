@@ -181,7 +181,7 @@ void PetAI::UpdateAI(uint32 diff)
                     }
                 }
 
-                if (spellInfo->HasEffect(SPELL_EFFECT_JUMP_DEST))
+                if (spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_JUMP_DEST))
                 {
                     if (!spellUsed)
                         delete spell;

@@ -405,7 +405,7 @@ struct TrainerSpell
     uint32 ReqSkillLine;
     uint32 ReqSkillRank;
     uint32 ReqLevel;
-    uint32 ReqAbility[3];
+    uint32 ReqAbility[MAX_SPELL_EFFECTS];
 
     // helpers
     bool IsCastable() const { return ReqAbility[0] != SpellID; }

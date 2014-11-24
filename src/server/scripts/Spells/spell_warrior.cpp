@@ -120,34 +120,6 @@ class spell_warr_bloodthirst : public SpellScriptLoader
 };
 
 /// Updated 4.3.4
-class spell_warr_bloodthirst_heal : public SpellScriptLoader
-{
-    public:
-        spell_warr_bloodthirst_heal() : SpellScriptLoader("spell_warr_bloodthirst_heal") { }
-
-        class spell_warr_bloodthirst_heal_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
-
-            void HandleHeal(SpellEffIndex /*effIndex*/)
-            {
-                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_BLOODTHIRST_DAMAGE))
-                    SetHitHeal(GetCaster()->CountPctFromMaxHealth(spellInfo->Effects[EFFECT_1].CalcValue(GetCaster())) / 100);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warr_bloodthirst_heal_SpellScript();
-        }
-};
-
-/// Updated 4.3.4
 class spell_warr_charge : public SpellScriptLoader
 {
     public:
@@ -216,59 +188,6 @@ class spell_warr_concussion_blow : public SpellScriptLoader
         }
 };
 
-// -12162 - Deep Wounds
-class spell_warr_deep_wounds : public SpellScriptLoader
-{
-    public:
-        spell_warr_deep_wounds() : SpellScriptLoader("spell_warr_deep_wounds") { }
-
-        class spell_warr_deep_wounds_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_deep_wounds_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_2) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_3) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                int32 damage = GetEffectValue();
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
-                {
-                    ApplyPct(damage, 16 * GetSpellInfo()->GetRank());
-
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC);
-                    uint32 ticks = uint32(spellInfo->GetDuration()) / spellInfo->Effects[EFFECT_0].ApplyAuraPeriod;
-
-                    // Add remaining ticks to damage done
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, EFFECT_0, caster->GetGUID()))
-                        damage += aurEff->GetDamage() * int32(ticks - aurEff->GetTickNumber());
-
-                    damage /= int32(ticks);
-
-                    caster->CastCustomSpell(target, SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, &damage, NULL, NULL, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_deep_wounds_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warr_deep_wounds_SpellScript();
-        }
-};
-
 /// Updated 4.3.4
 class spell_warr_execute : public SpellScriptLoader
 {
@@ -281,7 +200,7 @@ class spell_warr_execute : public SpellScriptLoader
 
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
+                /*Unit* caster = GetCaster();
                 if (GetHitUnit())
                 {
                     SpellInfo const* spellInfo = GetSpellInfo();
@@ -302,7 +221,7 @@ class spell_warr_execute : public SpellScriptLoader
                     /// Formula taken from the DBC: "${$ap*0.874*$m1/100-1} = 20 rage"
                     int32 moreDamage = int32(rageUsed * (caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.874f * GetEffectValue() / 100.0f - 1) / 200);
                     SetHitDamage(baseDamage + moreDamage);
-                }
+                }*/
             }
 
             void Register() override
@@ -314,42 +233,6 @@ class spell_warr_execute : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_warr_execute_SpellScript();
-        }
-};
-
-// 58387 - Glyph of Sunder Armor
-class spell_warr_glyph_of_sunder_armor : public SpellScriptLoader
-{
-    public:
-        spell_warr_glyph_of_sunder_armor() : SpellScriptLoader("spell_warr_glyph_of_sunder_armor") { }
-
-        class spell_warr_glyph_of_sunder_armor_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warr_glyph_of_sunder_armor_AuraScript);
-
-            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
-            {
-                if (!spellMod)
-                {
-                    spellMod = new SpellModifier(aurEff->GetBase());
-                    spellMod->op = SpellModOp(aurEff->GetMiscValue());
-                    spellMod->type = SPELLMOD_FLAT;
-                    spellMod->spellId = GetId();
-                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
-                }
-
-                spellMod->value = aurEff->GetAmount();
-            }
-
-            void Register() override
-            {
-                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_warr_glyph_of_sunder_armor_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_warr_glyph_of_sunder_armor_AuraScript();
         }
 };
 
@@ -991,11 +874,11 @@ class spell_warr_vigilance : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                PreventDefaultAction();
+                /*PreventDefaultAction();
                 int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
 
                 GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_VIGILANCE_PROC, true, NULL, aurEff);
-                _procTarget->CastCustomSpell(_procTarget, SPELL_WARRIOR_VENGEANCE, &damage, &damage, &damage, true, NULL, aurEff);
+                _procTarget->CastCustomSpell(_procTarget, SPELL_WARRIOR_VENGEANCE, &damage, &damage, &damage, true, NULL, aurEff);*/
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1058,12 +941,9 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
-    new spell_warr_bloodthirst_heal();
     new spell_warr_charge();
     new spell_warr_concussion_blow();
-    new spell_warr_deep_wounds();
     new spell_warr_execute();
-    new spell_warr_glyph_of_sunder_armor();
     new spell_warr_improved_spell_reflection();
     new spell_warr_intimidating_shout();
     new spell_warr_lambs_to_the_slaughter();
