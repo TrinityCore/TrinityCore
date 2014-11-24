@@ -128,8 +128,8 @@ WorldPacket const* WorldPackets::Chat::STextEmote::Write()
 {
     _worldPacket << SourceGUID;
     _worldPacket << SourceAccountGUID;
-    _worldPacket << SoundIndex;
     _worldPacket << EmoteID;
+    _worldPacket << SoundIndex;
     _worldPacket << TargetGUID;
     
     return &_worldPacket;
