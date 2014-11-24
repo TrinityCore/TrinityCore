@@ -54,4 +54,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
         for (uint32 itemMod : itemInstance.Modifications)
             data << itemMod;
     }
+
+    return data;
 }

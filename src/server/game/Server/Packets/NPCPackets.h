@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ItemPackets.h"
+#include "Creature.h"
 
 namespace WorldPackets
 {
@@ -100,6 +101,31 @@ namespace WorldPackets
             uint8 Reason = 0;
             std::vector<VendorItem> Items;
             ObjectGuid Vendor;
+        };
+
+        struct TrainerListSpell
+        {
+            int32 SpellID       = 0;
+            int32 MoneyCost     = 0;
+            int32 ReqSkillLine  = 0;
+            int32 ReqSkillRank  = 0;
+            int32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
+            uint8 Usable        = 0;
+            uint8 ReqLevel      = 0;
+        };
+
+        class TrainerList final : public ServerPacket
+        {
+        public:
+            TrainerList() : ServerPacket(SMSG_TRAINER_LIST, 150) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Greeting;
+            int32 TrainerType   = 0;
+            ObjectGuid TrainerGUID;
+            int32 TrainerID     = 1;
+            std::vector<TrainerListSpell> Spells;
         };
     }
 }

@@ -90,3 +90,31 @@ WorldPacket const* WorldPackets::NPC::VendorInventory::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::NPC::TrainerList::Write()
+{
+    _worldPacket << TrainerGUID;
+    _worldPacket << TrainerType;
+    _worldPacket << TrainerID;
+
+    _worldPacket << int32(Spells.size());
+    for (TrainerListSpell const& spell : Spells)
+    {
+        _worldPacket << spell.SpellID;
+        _worldPacket << spell.MoneyCost;
+        _worldPacket << spell.ReqSkillLine;
+        _worldPacket << spell.ReqSkillRank;
+
+        for (uint32 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
+            _worldPacket << spell.ReqAbility[i];
+
+        _worldPacket << spell.Usable;
+        _worldPacket << spell.ReqLevel;
+    }
+
+    _worldPacket.WriteBits(Greeting.length(), 11);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(Greeting);
+
+    return &_worldPacket;
+}
