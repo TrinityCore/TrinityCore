@@ -18,11 +18,13 @@
 #include "WorldSession.h"
 #include "Bag.h"
 #include "Common.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "Opcodes.h"
 #include "Item.h"
 #include "Log.h"
+#include "NPCPackets.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SpellInfo.h"
@@ -578,18 +580,14 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
     GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, NULL_BAG, NULL_SLOT);
 }
 
-void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
+void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
 {
-    ObjectGuid guid;
-
-    recvData >> guid;
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LIST_INVENTORY");
 
     if (!GetPlayer()->IsAlive())
         return;
 
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LIST_INVENTORY");
-
-    SendListInventory(guid);
+    SendListInventory(packet.Unit);
 }
 
 void WorldSession::SendListInventory(ObjectGuid vendorGuid)
@@ -611,86 +609,75 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
         vendor->PauseMovement(pause);
     vendor->SetHomePosition(vendor->GetPosition());
 
-    VendorItemData const* items = vendor->GetVendorItems();
-    if (!items)
-    {
-        WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + 1);
-        data << vendorGuid;
-        data << uint8(0);                                   // count == 0, next will be error code
-        data << uint8(0);                                   // "Vendor has no inventory"
-        SendPacket(&data);
-        return;
-    }
+    VendorItemData const* vendorItems = vendor->GetVendorItems();
+    uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
-    uint8 itemCount = items->GetItemCount();
+    WorldPackets::NPC::VendorInventory packet;
+    packet.Vendor = vendor->GetGUID();
+
+    packet.Items.resize(rawItemCount);
+
+    const float discountMod = _player->GetReputationPriceDiscount(vendor);
     uint8 count = 0;
-
-    WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
-    data << vendorGuid;
-
-    size_t countPos = data.wpos();
-    data << uint8(count);
-
-    float discountMod = _player->GetReputationPriceDiscount(vendor);
-
-    for (uint8 slot = 0; slot < itemCount; ++slot)
+    for (uint32 slot = 0; slot < rawItemCount; ++slot)
     {
-        if (VendorItem const* item = items->GetItem(slot))
+        VendorItem const* vendorItem = vendorItems->GetItem(slot);
+        if (!vendorItem)
+            continue;
+
+        WorldPackets::NPC::VendorItem& item = packet.Items[count];
+
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
+        if (!itemTemplate)
+            continue;
+
+        int32 leftInStock = !vendorItem->maxcount ? -1 : int32(vendor->GetVendorItemCurrentCount(vendorItem));
+        if (!_player->IsGameMaster()) // ignore conditions if GM on
         {
-            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item);
-            if (!itemTemplate)
+            // Respect allowed class
+            if (!(itemTemplate->AllowableClass & _player->GetClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
                 continue;
 
-            uint32 leftInStock = !item->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(item);
-            if (!_player->IsGameMaster()) // ignore conditions if GM on
-            {
-                // Respect allowed class
-                if (!(itemTemplate->AllowableClass & _player->GetClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
-                    continue;
-
-                // Only display items in vendor lists for the team the
-                // player is on. If GM on, display all items.
-                if ((itemTemplate->HasFlag(ITEM_FLAG2_FACTION_HORDE) && _player->GetTeam() == ALLIANCE) ||
-                    (itemTemplate->HasFlag(ITEM_FLAG2_FACTION_ALLIANCE) && _player->GetTeam() == HORDE))
-                    continue;
-
-                // Items sold out are not displayed in list
-                if (leftInStock == 0)
-                    continue;
-            }
-
-            if (!sConditionMgr->IsObjectMeetingVendorItemConditions(vendor->GetEntry(), item->item, _player, vendor))
-            {
-                TC_LOG_DEBUG("condition", "SendListInventory: conditions not met for creature entry {} item {}", vendor->GetEntry(), item->item);
+            // Only display items in vendor lists for the team the
+            // player is on. If GM on, display all items.
+            if ((itemTemplate->HasFlag(ITEM_FLAG2_FACTION_HORDE) && _player->GetTeam() == ALLIANCE) ||
+                (itemTemplate->HasFlag(ITEM_FLAG2_FACTION_ALLIANCE) && _player->GetTeam() == HORDE))
                 continue;
-            }
 
-            // reputation discount
-            int32 price = item->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
-
-            data << uint32(slot + 1);       // client expects counting to start at 1
-            data << uint32(item->item);
-            data << uint32(itemTemplate->DisplayInfoID);
-            data << int32(leftInStock);
-            data << uint32(price);
-            data << uint32(itemTemplate->MaxDurability);
-            data << uint32(itemTemplate->BuyCount);
-            data << uint32(item->ExtendedCost);
-
-            if (++count >= MAX_VENDOR_ITEMS)
-                break;
+            // Items sold out are not displayed in list
+            if (leftInStock == 0)
+                continue;
         }
+
+        if (!sConditionMgr->IsObjectMeetingVendorItemConditions(vendor->GetEntry(), vendorItem->item, _player, vendor))
+        {
+            TC_LOG_DEBUG("condition", "SendListInventory: conditions not met for creature entry {} item {}", vendor->GetEntry(), vendorItem->item);
+            continue;
+        }
+
+        // reputation discount
+        int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
+
+        item.MuID = slot + 1; // client expects counting to start at 1
+        item.Item = vendorItem->item;
+        item.ItemDisplayInfoID = itemTemplate->DisplayInfoID;
+        item.Quantity = leftInStock;
+        item.Price = price;
+        item.Durability = itemTemplate->MaxDurability;
+        item.StackCount = itemTemplate->BuyCount;
+        item.ExtendedCostID = vendorItem->ExtendedCost;
+
+        if (++count >= MAX_VENDOR_ITEMS)
+            break;
     }
 
-    if (count == 0)
-    {
-        data << uint8(0);
-        SendPacket(&data);
-        return;
-    }
+    // Resize vector to real size (some items can be skipped due to checks)
+    packet.Items.resize(count);
 
-    data.put<uint8>(countPos, count);
-    SendPacket(&data);
+    if (packet.Items.empty())
+        packet.Reason = AsUnderlyingType(VendorInventoryReason::Empty);
+
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)

@@ -105,6 +105,35 @@ WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Query::QueryNPCText::Read()
+{
+    _worldPacket >> TextID;
+    _worldPacket >> Guid;
+}
+
+WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
+{
+    _worldPacket << uint32(TextID | (Allow ? 0x00000000 : 0x80000000));
+
+    if (Allow)
+    {
+        for (NPCText const& option : Options)
+        {
+            _worldPacket << float(option.Probability);
+            _worldPacket << option.Text;
+            _worldPacket << option.Text1;
+            _worldPacket << int32(option.LanguageID);
+            for (std::size_t i = 0; i < MAX_GOSSIP_TEXT_EMOTES; ++i)
+            {
+                _worldPacket << uint32(option.EmoteDelay[i]);
+                _worldPacket << uint32(option.EmoteID[i]);
+            }
+        }
+    }
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Query::QueryGameObject::Read()
 {
     _worldPacket >> GameObjectID;

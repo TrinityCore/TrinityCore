@@ -15,17 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QueryPackets_h__
-#define QueryPackets_h__
+#ifndef TRINITYCORE_QUERY_PACKETS_H
+#define TRINITYCORE_QUERY_PACKETS_H
 
-#include "Packet.h"
-#include "ObjectGuid.h"
-
-#include "SharedDefines.h"
-#include "Creature.h"
-#include "GameObject.h"
+#include "CreatureData.h"
+#include "GameObjectData.h"
 #include "ItemTemplate.h"
+#include "NPCHandler.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
+#include "Packet.h"
 #include "QuestDef.h"
+#include "SharedDefines.h"
 
 namespace WorldPackets
 {
@@ -33,13 +34,13 @@ namespace WorldPackets
     {
         class QueryCreature final : public ClientPacket
         {
-            public:
-                QueryCreature(WorldPacket&& packet) : ClientPacket(CMSG_CREATURE_QUERY, std::move(packet)) { }
+        public:
+            QueryCreature(WorldPacket&& packet) : ClientPacket(CMSG_CREATURE_QUERY, std::move(packet)) { }
 
-                void Read() override;
+            void Read() override;
 
-                uint32 CreatureID = 0;
-                ObjectGuid Guid;
+            uint32 CreatureID = 0;
+            ObjectGuid Guid;
         };
 
         struct CreatureStats
@@ -62,14 +63,14 @@ namespace WorldPackets
 
         class QueryCreatureResponse final : public ServerPacket
         {
-            public:
-                QueryCreatureResponse() : ServerPacket(SMSG_CREATURE_QUERY_RESPONSE, 100) { }
+        public:
+            QueryCreatureResponse() : ServerPacket(SMSG_CREATURE_QUERY_RESPONSE, 100) { }
 
-                WorldPacket const* Write() override;
+            WorldPacket const* Write() override;
 
-                bool Allow = false;
-                CreatureStats Stats;
-                uint32 CreatureID = 0;
+            bool Allow = false;
+            CreatureStats Stats;
+            uint32 CreatureID = 0;
         };
 
         class QueryPlayerName final : public ClientPacket
@@ -133,15 +134,48 @@ namespace WorldPackets
             PageTextInfo Page;
         };
 
+        class QueryNPCText final : public ClientPacket
+        {
+        public:
+            explicit QueryNPCText(WorldPacket&& packet) : ClientPacket(CMSG_NPC_TEXT_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid;
+            uint32 TextID = 0;
+        };
+
+        struct NPCText
+        {
+            float Probability = 0.0f;
+            std::string_view Text;
+            std::string_view Text1;
+            int32 LanguageID = 0;
+            std::array<uint32, MAX_GOSSIP_TEXT_EMOTES> EmoteDelay = { };
+            std::array<uint32, MAX_GOSSIP_TEXT_EMOTES> EmoteID = { };
+        };
+
+        class QueryNPCTextResponse final : public ServerPacket
+        {
+        public:
+            explicit QueryNPCTextResponse() : ServerPacket(SMSG_NPC_TEXT_UPDATE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TextID = 0;
+            bool Allow = false;
+            std::array<NPCText, MAX_GOSSIP_TEXT_OPTIONS> Options;
+        };
+
         class QueryGameObject final : public ClientPacket
         {
-            public:
-                QueryGameObject(WorldPacket&& packet) : ClientPacket(CMSG_GAMEOBJECT_QUERY, std::move(packet)) { }
+        public:
+            QueryGameObject(WorldPacket&& packet) : ClientPacket(CMSG_GAMEOBJECT_QUERY, std::move(packet)) { }
 
-                void Read() override;
+            void Read() override;
 
-                uint32 GameObjectID = 0;
-                ObjectGuid Guid;
+            uint32 GameObjectID = 0;
+            ObjectGuid Guid;
         };
 
         struct GameObjectStats
@@ -159,14 +193,14 @@ namespace WorldPackets
 
         class QueryGameObjectResponse final : public ServerPacket
         {
-            public:
-                QueryGameObjectResponse() : ServerPacket(SMSG_GAMEOBJECT_QUERY_RESPONSE, 150) { }
+        public:
+            QueryGameObjectResponse() : ServerPacket(SMSG_GAMEOBJECT_QUERY_RESPONSE, 150) { }
 
-                WorldPacket const* Write() override;
+            WorldPacket const* Write() override;
 
-                uint32 GameObjectID = 0;
-                bool Allow = false;
-                GameObjectStats Stats;
+            uint32 GameObjectID = 0;
+            bool Allow = false;
+            GameObjectStats Stats;
         };
 
         class QueryCorpseLocationFromClient final : public ClientPacket
@@ -214,12 +248,12 @@ namespace WorldPackets
 
         class QueryItemSingle final : public ClientPacket
         {
-            public:
-                QueryItemSingle(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_QUERY_SINGLE, std::move(packet)) { }
+        public:
+            QueryItemSingle(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_QUERY_SINGLE, std::move(packet)) { }
 
-                void Read() override;
+            void Read() override;
 
-                uint32 ItemID = 0;
+            uint32 ItemID = 0;
         };
 
         struct ItemDamageData
@@ -318,27 +352,27 @@ namespace WorldPackets
 
         class QueryItemSingleResponse final : public ServerPacket
         {
-            public:
-                QueryItemSingleResponse() : ServerPacket(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 500) { }
+        public:
+            QueryItemSingleResponse() : ServerPacket(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 500) { }
 
-                WorldPacket const* Write() override;
+            WorldPacket const* Write() override;
 
-                uint32 ItemID = 0;
-                bool Allow = false;
-                ItemStats Stats;
+            uint32 ItemID = 0;
+            bool Allow = false;
+            ItemStats Stats;
         };
 
         class QuestPOIQuery final : public ClientPacket
         {
-            public:
-                QuestPOIQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_POI_QUERY, std::move(packet)) { }
+        public:
+            QuestPOIQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_POI_QUERY, std::move(packet)) { }
 
-                void Read() override;
+            void Read() override;
 
-                uint32 MissingQuestCount = 0;
-                uint32 MissingQuestPOIs[MAX_QUEST_LOG_SIZE] = { };
+            uint32 MissingQuestCount = 0;
+            uint32 MissingQuestPOIs[MAX_QUEST_LOG_SIZE] = { };
         };
     }
 }
 
-#endif // QueryPackets_h__
+#endif // TRINITYCORE_QUERY_PACKETS_H

@@ -145,7 +145,7 @@ struct LinkValidator<LinkTags::item>
         {
             if (!locale && i != DEFAULT_LOCALE)
                 continue;
-            std::string_view name = (i == DEFAULT_LOCALE) ? data.Item->Name1 : ObjectMgr::GetLocaleString(locale->Name, i);
+            std::string_view name = (i == DEFAULT_LOCALE) ? data.Item->Name1 : ObjectMgr::GetLocaleString(locale->Name, LocaleConstant(i));
             if (name.empty())
                 continue;
             if (randomSuffixes)
@@ -192,7 +192,7 @@ struct LinkValidator<LinkTags::quest>
             if (i == DEFAULT_LOCALE)
                 continue;
 
-            std::string_view name = ObjectMgr::GetLocaleString(locale->Title, i);
+            std::string_view name = ObjectMgr::GetLocaleString(locale->Title, LocaleConstant(i));
             if (!name.empty() && (text == name))
                 return true;
         }
