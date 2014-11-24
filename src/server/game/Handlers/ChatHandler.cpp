@@ -538,43 +538,46 @@ namespace Trinity
     class EmoteChatBuilder
     {
         public:
-            EmoteChatBuilder(Player const& player, uint32 text_emote, uint32 emote_num, Unit const* target)
-                : i_player(player), i_text_emote(text_emote), i_emote_num(emote_num), i_target(target) { }
+            EmoteChatBuilder(Player const& player, uint32 soundIndex, uint32 emoteID, Unit const* target)
+                : _player(player), _soundIndex(soundIndex), _emoteID(emoteID), _target(target) { }
 
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
                 WorldPackets::Chat::STextEmote packet;
-                packet.SourceGUID = i_player.GetGUID();
-                packet.SourceAccountGUID = i_player.GetSession()->GetAccountGUID();
-                packet.TargetGUID = i_target->GetGUID();
-                packet.EmoteID = i_emote_num;
-                packet.SoundIndex = i_text_emote;
+                packet.SourceGUID = _player.GetGUID();
+                packet.SourceAccountGUID = _player.GetSession()->GetAccountGUID();
+                if (_target)
+                    packet.TargetGUID = _target->GetGUID();
+                packet.EmoteID = _emoteID;
+                packet.SoundIndex = _soundIndex;
                 data = *packet.Write();
             }
 
         private:
-            Player const& i_player;
-            uint32        i_text_emote;
-            uint32        i_emote_num;
-            Unit const*   i_target;
+            Player const& _player;
+            uint32        _soundIndex;
+            uint32        _emoteID;
+            Unit const*   _target;
     };
 }
 
 void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
 {
-    if (!GetPlayer()->IsAlive())
+    Player* player = GetPlayer();
+
+    if (!player->IsAlive())
         return;
 
-    if (!GetPlayer()->CanSpeak())
+    if (!player->CanSpeak())
     {
         std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
         SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
         return;
     }
 
-    sScriptMgr->OnPlayerTextEmote(GetPlayer(), packet.SoundIndex, packet.EmoteID, packet.Target);
+    sScriptMgr->OnPlayerTextEmote(player, packet.SoundIndex, packet.EmoteID, packet.Target);
 
-    EmotesTextEntry const* em = sEmotesTextStore.LookupEntry(packet.SoundIndex);
+    EmotesTextEntry const* em = sEmotesTextStore.LookupEntry(packet.EmoteID);
     if (!em)
         return;
 
@@ -589,34 +592,34 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
             break;
         case EMOTE_STATE_DANCE:
         case EMOTE_STATE_READ:
-            GetPlayer()->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote_anim);
+            player->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote_anim);
             break;
         default:
             // Only allow text-emotes for "dead" entities (feign death included)
-            if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+            if (player->HasUnitState(UNIT_STATE_DIED))
                 break;
-            GetPlayer()->HandleEmoteCommand(emote_anim);
+            player->HandleEmoteCommand(emote_anim);
             break;
     }
 
     Unit* unit = ObjectAccessor::GetUnit(*_player, packet.Target);
 
-    CellCoord p = Trinity::ComputeCellCoord(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
+    CellCoord p = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
 
     Cell cell(p);
     cell.SetNoCreate();
 
-    Trinity::EmoteChatBuilder emote_builder(*GetPlayer(), packet.SoundIndex, packet.EmoteID, unit);
+    Trinity::EmoteChatBuilder emote_builder(*player, packet.SoundIndex, packet.EmoteID, unit);
     Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > emote_do(emote_builder);
-    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > > emote_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), emote_do);
+    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > > emote_worker(player, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), emote_do);
     TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder> >, WorldTypeMapContainer> message(emote_worker);
-    cell.Visit(p, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+    cell.Visit(p, message, *player->GetMap(), *player, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
 
-    GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, packet.SoundIndex, 0, 0, unit);
+    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, packet.SoundIndex, 0, 0, unit);
 
     //Send scripted event call
     if (unit && unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())
-        ((Creature*)unit)->AI()->ReceiveEmote(GetPlayer(), packet.SoundIndex);
+        ((Creature*)unit)->AI()->ReceiveEmote(player, packet.SoundIndex);
 }
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
