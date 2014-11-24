@@ -145,7 +145,7 @@ void LoadDB2Stores(std::string const& dataPath)
     
     for (uint32 i = 0; i < sItemAppearanceStore.GetNumRows(); ++i)
         if (ItemAppearanceEntry const* entry = sItemAppearanceStore.LookupEntry(i))
-            sItemDisplayIDMap[entry->AppearanceID] = entry->DisplayID;
+            sItemDisplayIDMap[entry->FileDataID] = entry->DisplayID;
     
     for (uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
         if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))

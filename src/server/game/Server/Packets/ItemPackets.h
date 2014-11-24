@@ -34,7 +34,25 @@ namespace WorldPackets
             uint32 ProficiencyMask;
             uint8 ProficiencyClass;
         };
+
+        struct ItemBonusInstanceData
+        {
+            uint8 Context                   = 0;
+            std::vector<int32> BonusListIDs;
+        };
+
+        struct ItemInstance
+        {
+            uint32 ItemID                   = 0;
+            uint32 RandomPropertiesSeed     = 0;
+            uint32 RandomPropertiesID       = 0;
+            Optional<ItemBonusInstanceData> ItemBonus;
+            std::vector<int32> Modifications;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData const& itemBonusInstanceData);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const& itemInstance);
 
 #endif // ItemPackets_h__

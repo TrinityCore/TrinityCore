@@ -20,6 +20,8 @@
 
 #include "Packet.h"
 #include "Creature.h"
+#include "NPCHandler.h"
+#include "DB2Stores.h"
 
 namespace WorldPackets
 {
@@ -140,6 +142,63 @@ namespace WorldPackets
             bool Allow = false;
             PageTextInfo Info;
             uint32 PageTextID = 0;
+        };
+
+        class QueryNPCText final : public ClientPacket
+        {
+        public:
+            QueryNPCText(WorldPacket&& packet) : ClientPacket(CMSG_NPC_TEXT_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid;
+            uint32 TextID = 0;
+        };
+
+        class QueryNPCTextResponse final : public ServerPacket
+        {
+        public:
+            QueryNPCTextResponse() : ServerPacket(SMSG_NPC_TEXT_UPDATE, 73) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TextID = 0;
+            bool Allow = false;
+            float Probabilities[MAX_GOSSIP_TEXT_OPTIONS];
+            uint32 BroadcastTextID[MAX_GOSSIP_TEXT_OPTIONS];
+        };
+
+        struct DBQueryRecord
+        {
+            ObjectGuid GUID;
+            uint32 RecordID;
+        };
+
+        class DBQueryBulk final : public ClientPacket
+        {
+        public:
+            DBQueryBulk(WorldPacket&& packet) : ClientPacket(CMSG_DB_QUERY_BULK, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 TableHash;
+            std::vector<DBQueryRecord> Queries;
+        };
+
+        class DBReply final : public ServerPacket
+        {
+        public:
+            DBReply() : ServerPacket(SMSG_DB_REPLY, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TableHash = 0;
+            uint32 Timestamp = 0;
+            int32 RecordID   = 0;
+
+            // These are not sent directly
+            uint32 Locale = 0;
+            DB2StorageBase const* Data = nullptr;
         };
     }
 }

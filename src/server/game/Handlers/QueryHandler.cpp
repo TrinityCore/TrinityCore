@@ -239,88 +239,27 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet)
 {
-    uint32 textID;
-    uint64 guid;
+    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY TextId: %u", packet.TextID);
 
-    recvData >> textID;
-    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY TextId: %u", textID);
+    GossipText const* gossip = sObjectMgr->GetGossipText(packet.TextID);
 
-    recvData >> guid;
-
-    GossipText const* gossip = sObjectMgr->GetGossipText(textID);
-
-    WorldPacket data(SMSG_NPC_TEXT_UPDATE, 100);          // guess size
-    data << textID;
-
-    if (!gossip)
+    WorldPackets::Query::QueryNPCTextResponse response;
+    response.TextID = packet.TextID;
+    
+    if (gossip)
     {
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
-            data << float(0);
-            data << "Greetings $N";
-            data << "Greetings $N";
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
+            response.Probabilities[i] = gossip->Options[i].Probability;
+            response.BroadcastTextID[i] = gossip->Options[i].BroadcastTextID;
         }
-    }
-    else
-    {
-        std::string text0[MAX_GOSSIP_TEXT_OPTIONS], text1[MAX_GOSSIP_TEXT_OPTIONS];
-        LocaleConstant locale = GetSessionDbLocaleIndex();
 
-        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
-        {
-            BroadcastText const* bct = sObjectMgr->GetBroadcastText(gossip->Options[i].BroadcastTextID);
-            if (bct)
-            {
-                text0[i] = bct->GetText(locale, GENDER_MALE, true);
-                text1[i] = bct->GetText(locale, GENDER_FEMALE, true);
-            }
-            else
-            {
-                text0[i] = gossip->Options[i].Text_0;
-                text1[i] = gossip->Options[i].Text_1;
-            }
-
-            if (locale != DEFAULT_LOCALE && !bct)
-            {
-                if (NpcTextLocale const* npcTextLocale = sObjectMgr->GetNpcTextLocale(textID))
-                {
-                    ObjectMgr::GetLocaleString(npcTextLocale->Text_0[i], locale, text0[i]);
-                    ObjectMgr::GetLocaleString(npcTextLocale->Text_1[i], locale, text1[i]);
-                }
-            }
-
-            data << gossip->Options[i].Probability;
-
-            if (text0[i].empty())
-                data << text1[i];
-            else
-                data << text0[i];
-
-            if (text1[i].empty())
-                data << text0[i];
-            else
-                data << text1[i];
-
-            data << gossip->Options[i].Language;
-
-            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
-            {
-                data << gossip->Options[i].Emotes[j]._Delay;
-                data << gossip->Options[i].Emotes[j]._Emote;
-            }
-        }
+        response.Allow = true;
     }
 
-    SendPacket(&data);
+    SendPacket(response.Write());
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 }
@@ -491,4 +430,35 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
     }
 
     SendPacket(&data);
+}
+
+void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
+{
+    DB2StorageBase const* store = GetDB2Storage(packet.TableHash);
+    if (!store)
+    {
+        TC_LOG_ERROR("network", "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", packet.TableHash);
+        return;
+    }
+
+    for (WorldPackets::Query::DBQueryRecord const& rec : packet.Queries)
+    {
+        WorldPackets::Query::DBReply response;
+        response.TableHash = packet.TableHash;
+
+        if (store->HasRecord(rec.RecordID))
+        {
+            response.RecordID = rec.RecordID;
+            response.Locale = GetSessionDbcLocale();
+            response.Timestamp = sObjectMgr->GetHotfixDate(rec.RecordID, packet.TableHash);
+            response.Data = store;
+        }
+        else
+        {
+            response.RecordID = -rec.RecordID;
+            response.Timestamp = time(NULL);
+        }
+        
+        SendPacket(response.Write());
+    }
 }

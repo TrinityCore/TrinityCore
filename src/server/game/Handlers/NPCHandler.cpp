@@ -37,6 +37,7 @@
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "SpellInfo.h"
+#include "NPCPackets.h"
 
 enum StableResultCode
 {
@@ -75,18 +76,14 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet)
 {
-    ObjectGuid guid;
-
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BANKER_ACTIVATE");
 
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_BANKER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBankerActivateOpcode - %s not found or you can not interact with him.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleBankerActivateOpcode - %s not found or you can not interact with him.", packet.Unit.ToString().c_str());
         return;
     }
 
@@ -94,7 +91,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendShowBank(guid);
+    SendShowBank(packet.Unit);
 }
 
 void WorldSession::SendShowBank(ObjectGuid guid)
@@ -112,12 +109,9 @@ void WorldSession::SendShowMailBox(ObjectGuid guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleTrainerListOpcode(WorldPacket& recvData)
+void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
 {
-    ObjectGuid guid;
-
-    recvData >> guid;
-    SendTrainerList(guid);
+    SendTrainerList(packet.Unit);
 }
 
 void WorldSession::SendTrainerList(ObjectGuid guid)
@@ -312,17 +306,14 @@ void WorldSession::SendTrainerBuyFailed(ObjectGuid guid, uint32 spellId, uint32 
     SendPacket(&data);
 }
 
-void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
+void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_GOSSIP_HELLO");
 
-    ObjectGuid guid;
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_NONE);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleGossipHelloOpcode - %s not found or you can not interact with him.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipHelloOpcode - %s not found or you can not interact with him.", packet.Unit.ToString().c_str());
         return;
     }
 
@@ -453,18 +444,15 @@ void WorldSession::SendSpiritResurrect()
         _player->UpdateObjectVisibility();
 }
 
-void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet)
 {
-    ObjectGuid npcGUID;
-    recvData >> npcGUID;
-
     if (!GetPlayer()->IsInWorld() || !GetPlayer()->IsAlive())
         return;
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_INNKEEPER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_INNKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBinderActivateOpcode - %s not found or you can not interact with him.", npcGUID.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleBinderActivateOpcode - %s not found or you can not interact with him.", packet.Unit.ToString().c_str());
         return;
     }
 
