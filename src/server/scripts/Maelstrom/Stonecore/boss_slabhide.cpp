@@ -199,7 +199,7 @@ class boss_slabhide : public CreatureScript
                         events.ScheduleEvent(EVENT_STALACTITE, 400);
                         break;
                     case POINT_SLABHIDE_LAND:
-                        //DoCast(SPELL_COOLDOWN_5S); // unknown purpose
+                        //DoCast(me, SPELL_COOLDOWN_5S); // unknown purpose
                         events.ScheduleEvent(EVENT_ATTACK, 1200);
                         break;
                     default:
@@ -225,11 +225,12 @@ class boss_slabhide : public CreatureScript
                             instance->SetData(DATA_SLABHIDE_ROCK_WALL, false);
                             break;
                         case EVENT_LAVA_FISSURE:
-                            DoCast(SPELL_LAVA_FISSURE);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(target, SPELL_LAVA_FISSURE);
                             events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
                             break;
                         case EVENT_SAND_BLAST:
-                            DoCast(SPELL_SAND_BLAST);
+                            DoCast(me, SPELL_SAND_BLAST);
                             events.ScheduleEvent(EVENT_SAND_BLAST, urand(8000, 11000));
                             break;
                         case EVENT_AIR_PHASE:
@@ -248,7 +249,7 @@ class boss_slabhide : public CreatureScript
                             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->SetHover(true);
 
-                            DoCast(SPELL_STALACTITE_SUMMON);
+                            DoCast(me, SPELL_STALACTITE_SUMMON);
 
                             events.ScheduleEvent(EVENT_LAND, 8000);
                             break;
@@ -267,7 +268,7 @@ class boss_slabhide : public CreatureScript
 
                             events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
                             events.ScheduleEvent(EVENT_SAND_BLAST, urand(8000, 10000));
-                            DoCast(SPELL_CRYSTAL_STORM);
+                            DoCast(me, SPELL_CRYSTAL_STORM);
                             me->SetReactState(REACT_AGGRESSIVE);
                             break;
                         default:
@@ -315,8 +316,7 @@ public:
     {
         npc_lava_fissureAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetReactState(REACT_PASSIVE);
-            me->CastSpell(me, SPELL_LAVA_FISSURE_CRACK, true);
+            DoCast(me, SPELL_LAVA_FISSURE_CRACK, true);
             events.ScheduleEvent(EVENT_LAVA_FISSURE_ERUPTION, 6000);
         }
 
@@ -330,7 +330,7 @@ public:
                 {
                     case EVENT_LAVA_FISSURE_ERUPTION:
                         me->RemoveAurasDueToSpell(SPELL_LAVA_FISSURE_CRACK);
-                        me->CastSpell(me, SPELL_LAVA_FISSURE_ERUPTION, true);
+                        DoCast(me, SPELL_LAVA_FISSURE_ERUPTION, true);
                         me->DespawnOrUnsummon(14000);
                         break;
                     default:
@@ -359,14 +359,16 @@ public:
     {
         npc_stalactite_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetReactState(REACT_PASSIVE);
             me->SetDisableGravity(true);
-            me->CastSpell(me, SPELL_STALACTITE_SHADE, true);
+            DoCast(me, SPELL_STALACTITE_SHADE, true);
             events.ScheduleEvent(EVENT_STALACTITE_MISSLE, 5600);
         }
 
         void UpdateAI(uint32 diff) override
         {
+            if (events.Empty())
+                return;
+
             events.Update(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -374,7 +376,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_STALACTITE_MISSLE:
-                        DoCast(SPELL_STALACTITE_MISSLE);
+                        DoCast(me, SPELL_STALACTITE_MISSLE);
                         me->DespawnOrUnsummon(11000);
                         break;
                     default:
@@ -394,15 +396,6 @@ public:
 };
 
 // 81035 - Stalactite (check if player is near to summon stalactite)
-class NotPlayerCheck
-{
-    public:
-        bool operator()(WorldObject* object) const
-        {
-            return (object->GetTypeId() != TYPEID_PLAYER);
-        }
-};
-
 class spell_s81035_stalactite : public SpellScriptLoader
 {
 public:
@@ -412,11 +405,6 @@ public:
     {
         PrepareSpellScript(spell_s81035_stalactite_SpellScript);
 
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            targets.remove_if(NotPlayerCheck());
-        }
-
         void SummonStalactiteTrigger()
         {
             Unit* caster = GetCaster();
@@ -425,7 +413,6 @@ public:
 
         void Register() override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_s81035_stalactite_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             OnHit += SpellHitFn(spell_s81035_stalactite_SpellScript::SummonStalactiteTrigger);
         }
     };
