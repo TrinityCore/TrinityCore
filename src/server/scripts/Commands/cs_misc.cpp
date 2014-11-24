@@ -2248,7 +2248,7 @@ public:
 
         SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
 
-        if (Unit::IsDamageReducedByArmor(schoolmask))
+        if (handler->GetSession()->GetPlayer()->IsDamageReducedByArmor(schoolmask))
             damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, BASE_ATTACK);
 
         char* spellStr = strtok((char*)NULL, " ");

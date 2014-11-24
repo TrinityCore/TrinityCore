@@ -89,7 +89,7 @@ class spell_dk_anti_magic_shell_raid : public SpellScriptLoader
 
             bool Load() override
             {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                absorbPct = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(GetCaster());
                 return true;
             }
 
@@ -138,8 +138,8 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
             uint32 absorbPct, hpPct;
             bool Load() override
             {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-                hpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+                absorbPct = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(GetCaster());
+                hpPct = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue(GetCaster());
                 return true;
             }
 
@@ -203,7 +203,7 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
 
             bool Load() override
             {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                absorbPct = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(GetCaster());
                 return true;
             }
 
@@ -217,7 +217,7 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 SpellInfo const* talentSpell = sSpellMgr->EnsureSpellInfo(SPELL_DK_ANTI_MAGIC_SHELL_TALENT);
-                amount = talentSpell->Effects[EFFECT_0].CalcValue(GetCaster());
+                amount = talentSpell->GetEffect(EFFECT_0)->CalcValue(GetCaster());
                 if (Player* player = GetCaster()->ToPlayer())
                      amount += int32(2 * player->GetTotalAttackPowerValue(BASE_ATTACK));
             }
@@ -628,7 +628,7 @@ class spell_dk_death_strike : public SpellScriptLoader
                 if (AuraEffect* enabler = GetCaster()->GetAuraEffect(SPELL_DK_DEATH_STRIKE_ENABLER, EFFECT_0, GetCaster()->GetGUID()))
                 {
                     // Call CalculateAmount() to constantly fire the AuraEffect's HandleCalcAmount method
-                    int32 heal = CalculatePct(enabler->CalculateAmount(GetCaster()), GetSpellInfo()->Effects[EFFECT_0].ChainAmplitude);
+                    int32 heal = CalculatePct(enabler->CalculateAmount(GetCaster()), GetSpellInfo()->GetEffect(EFFECT_0)->ChainAmplitude);
 
                     if (AuraEffect const* aurEff = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_DEATH_STRIKE, EFFECT_2))
                         heal = AddPct(heal, aurEff->GetAmount());
@@ -1231,12 +1231,13 @@ class spell_dk_raise_dead : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].CalcValue())
-                    || !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_2].CalcValue())
+                // 6.x effects changed
+                /*if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_1)->CalcValue())
+                    || !sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_2)->CalcValue())
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_DEAD_USE_REAGENT)
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_MASTER_OF_GHOULS))
-                    return false;
-                return true;
+                    return false;*/
+                return false;
             }
 
             bool Load() override
@@ -1314,10 +1315,10 @@ class spell_dk_raise_dead : public SpellScriptLoader
                 // Do we have talent Master of Ghouls?
                 if (GetCaster()->HasAura(SPELL_DK_MASTER_OF_GHOULS))
                     // summon as pet
-                    return GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                    return GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue();
 
                 // or guardian
-                return GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                return GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
             }
 
             void HandleRaiseDead(SpellEffIndex /*effIndex*/)

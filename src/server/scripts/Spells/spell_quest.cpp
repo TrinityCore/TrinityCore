@@ -635,12 +635,12 @@ class spell_q12683_take_sputum_sample : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                uint32 reqAuraId = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                uint32 reqAuraId = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
 
                 Unit* caster = GetCaster();
                 if (caster->HasAuraEffect(reqAuraId, 0))
                 {
-                    uint32 spellId = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                    uint32 spellId = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
                     caster->CastSpell(caster, spellId, true, NULL);
                 }
             }
@@ -1850,7 +1850,7 @@ class spell_q13086_cannons_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
+                if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->CalcValue()))
                     return false;
                 return true;
             }
@@ -2011,7 +2011,7 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScriptLoa
 
             void ModDest(SpellDestination& dest)
             {
-                float dist = GetSpellInfo()->Effects[EFFECT_0].CalcRadius(GetCaster());
+                float dist = GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(GetCaster());
                 float angle = frand(0.75f, 1.25f) * float(M_PI);
 
                 Position pos = GetCaster()->GetNearPosition(dist, angle);
@@ -2151,7 +2151,7 @@ class spell_q12619_emblazon_runeblade : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true, NULL, aurEff);
+                    caster->CastSpell(caster, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, true, NULL, aurEff);
             }
 
             void Register() override

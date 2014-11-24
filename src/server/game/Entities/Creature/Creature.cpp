@@ -1619,11 +1619,11 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo) const
     // This check must be done instead of 'if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))' for not break
     // the check of mechanic immunity on DB (tested) because GetCreatureTemplate()->MechanicImmuneMask and m_spellImmune[IMMUNITY_MECHANIC] don't have same data.
     bool immunedToAllEffects = true;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
     {
-        if (!spellInfo->Effects[i].IsEffect())
+        if (!effect || !effect->IsEffect())
             continue;
-        if (!IsImmunedToSpellEffect(spellInfo, i))
+        if (!IsImmunedToSpellEffect(spellInfo, effect->EffectIndex))
         {
             immunedToAllEffects = false;
             break;
@@ -1637,10 +1637,13 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo) const
 
 bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
-    if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Effects[index].Mechanic - 1)))
+    SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficulty());
+    if (!effect)
+        return true;
+    if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (effect->Mechanic - 1)))
         return true;
 
-    if (GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && spellInfo->Effects[index].Effect == SPELL_EFFECT_HEAL)
+    if (GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && effect->Effect == SPELL_EFFECT_HEAL)
         return true;
 
     return Unit::IsImmunedToSpellEffect(spellInfo, index);
@@ -1680,13 +1683,13 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
         }
 
         bool bcontinue = true;
-        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; j++)
+        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
         {
-            if ((spellInfo->Effects[j].Effect == SPELL_EFFECT_SCHOOL_DAMAGE)       ||
-                (spellInfo->Effects[j].Effect == SPELL_EFFECT_INSTAKILL)            ||
-                (spellInfo->Effects[j].Effect == SPELL_EFFECT_ENVIRONMENTAL_DAMAGE) ||
-                (spellInfo->Effects[j].Effect == SPELL_EFFECT_HEALTH_LEECH)
-                )
+            if (effect && ((effect->Effect == SPELL_EFFECT_SCHOOL_DAMAGE)       ||
+                (effect->Effect == SPELL_EFFECT_INSTAKILL)            ||
+                (effect->Effect == SPELL_EFFECT_ENVIRONMENTAL_DAMAGE) ||
+                (effect->Effect == SPELL_EFFECT_HEALTH_LEECH)
+                ))
             {
                 bcontinue = false;
                 break;
@@ -1728,9 +1731,9 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
         }
 
         bool bcontinue = true;
-        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; j++)
+        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
         {
-            if ((spellInfo->Effects[j].Effect == SPELL_EFFECT_HEAL))
+            if (effect && (effect->Effect == SPELL_EFFECT_HEAL))
             {
                 bcontinue = false;
                 break;

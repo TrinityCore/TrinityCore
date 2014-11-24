@@ -302,6 +302,9 @@ private:
 typedef std::vector<SpellEffectInfo const*> SpellEffectInfoVector;
 typedef std::unordered_map<uint32, SpellEffectInfoVector> SpellEffectInfoMap;
 
+typedef std::vector<SpellEffectEntry const*> SpellEffectEntryVector;
+typedef std::unordered_map<uint32, SpellEffectEntryVector> SpellEffectEntryMap;
+
 typedef std::vector<AuraEffect*> AuraEffectVector;
 
 class SpellInfo
@@ -429,13 +432,15 @@ public:
     SpellTotemsEntry const* GetSpellTotems() const;
     SpellMiscEntry const* GetSpellMisc() const;
 
-    SpellInfo(SpellEntry const* spellEntry, SpellEffectInfoMap effects);
+    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap effects);
     ~SpellInfo();
 
     uint32 GetCategory() const;
     bool HasEffect(uint32 difficulty, SpellEffectName effect) const;
+    bool HasEffect(SpellEffectName effect) const;
     bool HasAura(uint32 difficulty, AuraType aura) const;
     bool HasAreaAuraEffect(uint32 difficulty) const;
+    bool HasAreaAuraEffect() const;
 
     bool IsExplicitDiscovery() const;
     bool IsLootCrafting() const;
@@ -536,6 +541,7 @@ public:
 
     SpellEffectInfoVector GetEffectsForDifficulty(uint32 difficulty) const;
     SpellEffectInfo const* GetEffect(uint32 difficulty, uint32 index) const;
+    SpellEffectInfo const* GetEffect(uint32 index) const { return GetEffect(DIFFICULTY_NONE, index); }
 
     SpellEffectInfoMap _effects;
 };

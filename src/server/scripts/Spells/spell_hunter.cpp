@@ -231,42 +231,6 @@ class spell_hun_disengage : public SpellScriptLoader
         }
 };
 
-// 82926 - Fire!
-class spell_hun_fire : public SpellScriptLoader
-{
-    public:
-        spell_hun_fire() : SpellScriptLoader("spell_hun_fire") { }
-
-        class spell_hun_fire_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_fire_AuraScript);
-
-            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
-            {
-                if (!spellMod)
-                {
-                    spellMod = new SpellModifier(GetAura());
-                    spellMod->op = SPELLMOD_CASTING_TIME;
-                    spellMod->type = SPELLMOD_PCT;
-                    spellMod->spellId = GetId();
-                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
-                }
-
-                spellMod->value = -aurEff->GetAmount();
-            }
-
-            void Register() override
-            {
-                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_hun_fire_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_hun_fire_AuraScript();
-        }
-};
-
 // -19572 - Improved Mend Pet
 class spell_hun_improved_mend_pet : public SpellScriptLoader
 {
@@ -305,42 +269,6 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_hun_improved_mend_pet_AuraScript();
-        }
-};
-
-// -19464 Improved Serpent Sting
-class spell_hun_improved_serpent_sting : public SpellScriptLoader
-{
-    public:
-        spell_hun_improved_serpent_sting() : SpellScriptLoader("spell_hun_improved_serpent_sting") { }
-
-        class spell_hun_improved_serpent_sting_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_improved_serpent_sting_AuraScript);
-
-            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
-            {
-                if (!spellMod)
-                {
-                    spellMod = new SpellModifier(GetAura());
-                    spellMod->op = SpellModOp(aurEff->GetMiscValue());
-                    spellMod->type = SPELLMOD_PCT;
-                    spellMod->spellId = GetId();
-                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
-                }
-
-                spellMod->value = aurEff->GetAmount();
-            }
-
-            void Register() override
-            {
-                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_hun_improved_serpent_sting_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_hun_improved_serpent_sting_AuraScript();
         }
 };
 
@@ -430,7 +358,7 @@ class spell_hun_masters_call : public SpellScriptLoader
             bool Validate(SpellInfo const* spellInfo) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MASTERS_CALL_TRIGGERED) ||
-                    !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
+                    !sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->CalcValue()))
                     return false;
                 return true;
             }
@@ -1087,9 +1015,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_chimera_shot();
     new spell_hun_cobra_shot();
     new spell_hun_disengage();
-    new spell_hun_fire();
     new spell_hun_improved_mend_pet();
-    new spell_hun_improved_serpent_sting();
     new spell_hun_invigoration();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();

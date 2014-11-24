@@ -175,7 +175,7 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
                 {
                     case SPELL_DRUID_WRATH:
                     {
-                        energizeAmount = -GetSpellInfo()->Effects[effIndex].BasePoints; // -13
+                        energizeAmount = -GetSpellInfo()->GetEffect(effIndex)->BasePoints; // -13
                         // If we are set to fill the lunar side or we've just logged in with 0 power..
                         if ((!caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER) && caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE_MARKER))
                             || caster->GetPower(POWER_ECLIPSE) == 0)
@@ -192,7 +192,7 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
                     }
                     case SPELL_DRUID_STARFIRE:
                     {
-                        energizeAmount = GetSpellInfo()->Effects[effIndex].BasePoints; // 20
+                        energizeAmount = GetSpellInfo()->GetEffect(effIndex)->BasePoints; // 20
                         // If we are set to fill the solar side or we've just logged in with 0 power..
                         if ((!caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE_MARKER) && caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER))
                             || caster->GetPower(POWER_ECLIPSE) == 0)
@@ -213,7 +213,7 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
                         if ((!caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE_MARKER) && caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER))
                             || caster->GetPower(POWER_ECLIPSE) == 0)
                         {
-                            energizeAmount = GetSpellInfo()->Effects[effIndex].BasePoints; // 15
+                            energizeAmount = GetSpellInfo()->GetEffect(effIndex)->BasePoints; // 15
                             caster->CastCustomSpell(caster, SPELL_DRUID_STARSURGE_ENERGIZE, &energizeAmount, 0, 0, true);
 
                             // If the energize was due to 0 power, cast the eclipse marker aura
@@ -222,7 +222,7 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
                         }
                         else if (!caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER) && caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE_MARKER))
                         {
-                            energizeAmount = -GetSpellInfo()->Effects[effIndex].BasePoints; // -15
+                            energizeAmount = -GetSpellInfo()->GetEffect(effIndex)->BasePoints; // -15
                             caster->CastCustomSpell(caster, SPELL_DRUID_STARSURGE_ENERGIZE, &energizeAmount, 0, 0, true);
                         }
                         // The energizing effect brought us out of the lunar eclipse, remove the aura
@@ -430,7 +430,7 @@ class spell_dru_idol_lifebloom : public SpellScriptLoader
                     spellMod->op = SPELLMOD_DOT;
                     spellMod->type = SPELLMOD_FLAT;
                     spellMod->spellId = GetId();
-                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
+                    spellMod->mask = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->SpellClassMask;
                 }
                 spellMod->value = aurEff->GetAmount() / 7;
             }
@@ -757,7 +757,7 @@ class spell_dru_savage_defense : public SpellScriptLoader
 
             bool Load() override
             {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                absorbPct = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(GetCaster());
                 return true;
             }
 
@@ -1191,7 +1191,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (spellInfo->Effects[EFFECT_2].IsEffect() || spellInfo->Effects[EFFECT_2].CalcValue() <= 0)
+                if (spellInfo->GetEffect(EFFECT_2)->IsEffect() || spellInfo->GetEffect(EFFECT_2)->CalcValue() <= 0)
                     return false;
                 return true;
             }
@@ -1200,7 +1200,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
             {
                 targets.remove_if(RaidCheck(GetCaster()));
 
-                uint32 const maxTargets = uint32(GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster()));
+                uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue(GetCaster()));
 
                 if (targets.size() > maxTargets)
                 {
