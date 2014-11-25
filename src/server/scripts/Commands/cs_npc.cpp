@@ -28,6 +28,7 @@ EndScriptData */
 #include "Transport.h"
 #include "CreatureGroups.h"
 #include "Language.h"
+#include "PoolMgr.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureAI.h"
 #include "Player.h"
@@ -725,6 +726,8 @@ public:
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
         uint32 Entry = target->GetEntry();
+        uint32 npcPool = sPoolMgr->IsPartOfAPool<Creature>(target->GetDBTableGUIDLow());
+        PoolTemplateData *tempPoolTemp;
 
         int64 curRespawnDelay = target->GetRespawnTimeEx()-time(NULL);
         if (curRespawnDelay < 0)
@@ -733,6 +736,9 @@ public:
         std::string defRespawnDelayStr = secsToTimeString(target->GetRespawnDelay(), true);
 
         handler->PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetDBTableGUIDLow(), target->GetGUIDLow(), faction, npcflags, Entry, displayid, nativeid);
+        if (npcPool)
+            handler->PSendSysMessage(LANG_NPCINFO_POOLINFO, npcPool, sPoolMgr->GetPoolTemplate(npcPool)->MinLimit, sPoolMgr->GetPoolTemplate(npcPool)->MaxLimit, sPoolMgr->GetAliveCreatures(target->GetDBTableGUIDLow()));
+
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
