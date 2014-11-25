@@ -21,6 +21,8 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "WorldSession.h"
+#include "G3D/Vector3.h"
+#include "Object.h"
 
 namespace WorldPackets
 {

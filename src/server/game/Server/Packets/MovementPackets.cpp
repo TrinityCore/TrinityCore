@@ -17,6 +17,7 @@
 
 #include "MovementPackets.h"
 #include "MovementTypedefs.h"
+#include "Unit.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v)
 {
