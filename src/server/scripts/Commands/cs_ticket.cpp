@@ -459,7 +459,11 @@ public:
             std::ostringstream smsg;
             ircchan += sIRC->ticann;
             smsg << "[\00304Ticket Assigned\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Unssigned From: \00304"
+                << assignedTo.c_str() << " \003][By: \00304" << (GetSession() ? GetSession()->GetPLayer()->GetName().c_str() : 'Console') << " \003]";
+                /*
+                Keeping old line incase i fubar this :D
                 << assignedTo.c_str() << " \003][By: \00304" << handler->GetSession()->GetPlayer()->GetName().c_str() << " \003]";
+            	*/
             sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
         }
 
