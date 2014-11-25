@@ -19,6 +19,8 @@
 #define ChatPackets_h__
 
 #include "Packet.h"
+#include "SharedDefines.h"
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {

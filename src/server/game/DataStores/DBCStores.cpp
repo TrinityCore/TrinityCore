@@ -17,6 +17,7 @@
  */
 
 #include "DBCStores.h"
+#include "DB2Stores.h"
 #include "Containers.h"
 #include "Log.h"
 #include "SharedDefines.h"

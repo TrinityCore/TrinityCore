@@ -22,6 +22,7 @@
 #include "Spline.h"
 #include "DBCStores.h"
 #include "ObjectGuid.h"
+#include "DB2Structure.h"
 
 struct KeyFrame;
 struct GameObjectTemplate;
