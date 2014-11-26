@@ -79,8 +79,8 @@
 
 inline float finiteAlways(float f) { return std::isfinite(f) ? f : 0.0f; }
 
-inline unsigned long atoul(char const* str) { return strtoul(str, nullptr, 10); }
-inline unsigned long long atoull(char const* str) { return strtoull(str, nullptr, 10); }
+inline uint32 atoul(char const* str) { return strtoul(str, nullptr, 10); }
+inline uint64 atoull(char const* str) { return strtoull(str, nullptr, 10); }
 
 #define STRINGIZE(a) #a
 
