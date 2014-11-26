@@ -65,7 +65,7 @@ public:
         if (!id)
             return false;
 
-        uint32 creatureId = atol(id);
+        uint32 creatureId = atoul(id);
         if (!creatureId)
         {
             handler->PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, creatureId);
@@ -82,7 +82,7 @@ public:
         }
 
         char* countStr = strtok(NULL, " ");
-        uint32 count = countStr ? atol(countStr) : 10;
+        uint32 count = countStr ? atoul(countStr) : 10;
 
         if (count == 0)
             return false;
@@ -133,11 +133,11 @@ public:
         if (!*args)
             return false;
 
-        char* id = handler->extractKeyFromLink((char*)args, "Hitem");
+        char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
         if (!id)
             return false;
 
-        uint32 itemId = atol(id);
+        uint32 itemId = atoul(id);
         if (!itemId)
         {
             handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
@@ -154,7 +154,7 @@ public:
         }
 
         char* countStr = strtok(NULL, " ");
-        uint32 count = countStr ? atol(countStr) : 10;
+        uint32 count = countStr ? atoul(countStr) : 10;
 
         if (count == 0)
             return false;
@@ -354,7 +354,7 @@ public:
         if (!id)
             return false;
 
-        uint32 gameObjectId = atol(id);
+        uint32 gameObjectId = atoul(id);
         if (!gameObjectId)
         {
             handler->PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, gameObjectId);
@@ -371,7 +371,7 @@ public:
         }
 
         char* countStr = strtok(NULL, " ");
-        uint32 count = countStr ? atol(countStr) : 10;
+        uint32 count = countStr ? atoul(countStr) : 10;
 
         if (count == 0)
             return false;
@@ -476,7 +476,7 @@ public:
         if (!*args)
             return false;
 
-        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atol((char*)args)));
+        ObjectGuid parseGUID(HIGHGUID_PLAYER, atoul(args));
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
         {

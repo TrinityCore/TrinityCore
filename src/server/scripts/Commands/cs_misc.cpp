@@ -1134,7 +1134,7 @@ public:
             char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
             if (!id)
                 return false;
-            itemId = uint32(atol(id));
+            itemId = atoul(id);
         }
 
         char const* ccount = strtok(NULL, " ");
@@ -1216,7 +1216,7 @@ public:
         if (!id)
             return false;
 
-        uint32 itemSetId = atol(id);
+        uint32 itemSetId = atoul(id);
 
         // prevent generation all items with itemset field value '0'
         if (itemSetId == 0)
@@ -1357,7 +1357,7 @@ public:
             return false;
         }
 
-        int32 level = uint32(atol(levelStr));
+        int32 level = atol(levelStr);
 
         Player* target = handler->getSelectedPlayer();
         if (!target)
@@ -1379,7 +1379,7 @@ public:
 
         // If our target does not yet have the skill they are trying to add to them, the chosen level also becomes
         // the max level of the new profession.
-        uint16 max = maxPureSkill ? atol (maxPureSkill) : targetHasSkill ? target->GetPureMaxSkillValue(skill) : uint16(level);
+        uint16 max = maxPureSkill ? atoul(maxPureSkill) : targetHasSkill ? target->GetPureMaxSkillValue(skill) : uint16(level);
 
         if (level <= 0 || level > max || max <= 0)
             return false;
@@ -1419,7 +1419,7 @@ public:
         PreparedStatement* stmt = NULL;
 
         // To make sure we get a target, we convert our guid to an omniversal...
-        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atol((char*)args)));
+        ObjectGuid parseGUID(HIGHGUID_PLAYER, atoul(args));
 
         // ... and make sure we get a target, somehow.
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
@@ -1780,7 +1780,7 @@ public:
             uint32 totalmail      = uint32(fields[1].GetUInt64());
 
             // ... we have to convert it from Char to int. We can use totalmail as it is
-            rmailint = atol(readmail.c_str());
+            rmailint = atoul(readmail.c_str());
 
             // Output XXI. LANG_INFO_CHR_MAILS if at least one mail is given
             if (totalmail >= 1)

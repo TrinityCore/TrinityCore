@@ -203,7 +203,7 @@ void PlayerTaxi::LoadTaxiMask(std::string const &data)
     for (Tokenizer::const_iterator iter = tokens.begin(); index < TaxiMaskSize && iter != tokens.end(); ++iter, ++index)
     {
         // load and set bits only for existing taxi nodes
-        m_taximask[index] = sTaxiNodesMask[index] & uint32(atol(*iter));
+        m_taximask[index] = sTaxiNodesMask[index] & atoul(*iter);
     }
 }
 
@@ -229,7 +229,7 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
 
     for (Tokenizer::const_iterator iter = Tokenizer.begin(); iter != Tokenizer.end(); ++iter)
     {
-        uint32 node = uint32(atol(*iter));
+        uint32 node = atoul(*iter);
         AddTaxiDestination(node);
     }
 
