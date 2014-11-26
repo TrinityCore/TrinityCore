@@ -607,7 +607,7 @@ void Object::_LoadIntoDataField(std::string const& data, uint32 startOffset, uin
 
     for (uint32 index = 0; index < count; ++index)
     {
-        m_uint32Values[startOffset + index] = atol(tokens[index]);
+        m_uint32Values[startOffset + index] = atoul(tokens[index]);
         _changesMask.SetBit(startOffset + index);
     }
 }
