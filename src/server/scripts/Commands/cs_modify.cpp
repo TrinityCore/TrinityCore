@@ -1004,7 +1004,7 @@ public:
         if (strchr(args, 'g') || strchr(args, 's') || strchr(args, 'c'))
             moneyToAdd = MoneyStringToMoney(std::string(args));
         else
-            moneyToAdd = atol(args);
+            moneyToAdd = atoll(args);
 
         uint64 targetMoney = target->GetMoney();
 
