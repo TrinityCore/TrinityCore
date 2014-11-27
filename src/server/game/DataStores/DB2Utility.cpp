@@ -42,15 +42,15 @@ void DB2Utilities::WriteItemDbReply(DB2Storage<ItemEntry> const& /*store*/, uint
     buffer << uint32(proto->Class);
     buffer << uint32(proto->SubClass);
     buffer << int32(proto->SoundOverrideSubclass);
-    buffer << uint32(proto->Material);
-    buffer << uint32(proto->DisplayInfoID);
+    buffer << int32(proto->Material);
     buffer << uint32(proto->InventoryType);
     buffer << uint32(proto->Sheath);
+    buffer << uint32(proto->FileDataID);
+    buffer << uint32(proto->GroupSoundsID);
 }
 
 void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*store*/, uint32 id, uint32 locale, ByteBuffer& buffer)
 {
-    /* TODO: 6.x update
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(id);
     ASSERT(proto);
 
@@ -58,10 +58,12 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
 
     buffer << uint32(proto->ItemId);
     buffer << uint32(proto->Quality);
-    buffer << uint32(proto->Flags);
-    buffer << uint32(proto->Flags2);
-    buffer << float(proto->Unk430_1);
-    buffer << float(proto->Unk430_2);
+
+    for (uint32 i = 0; i < MAX_ITEM_PROTO_FLAGS; ++i)
+        buffer << uint32(proto->Flags[i]);
+
+    buffer << float(proto->Unk1);
+    buffer << float(proto->Unk2);
     buffer << uint32(proto->BuyCount);
     buffer << int32(proto->BuyPrice);
     buffer << uint32(proto->SellPrice);
@@ -97,25 +99,6 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
     buffer << uint32(proto->DamageType);
     buffer << uint32(proto->Delay);
     buffer << float(proto->RangedModRange);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buffer << int32(proto->Spells[x].SpellId);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buffer << uint32(proto->Spells[x].SpellTrigger);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buffer << int32(proto->Spells[x].SpellCharges);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buffer << int32(proto->Spells[x].SpellCooldown);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buffer << uint32(proto->Spells[x].SpellCategory);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buffer << int32(proto->Spells[x].SpellCategoryCooldown);
-
     buffer << uint32(proto->Bonding);
 
     // item name
@@ -145,8 +128,8 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
     buffer << uint32(proto->LockID);
     buffer << int32(proto->Material);
     buffer << uint32(proto->Sheath);
-    buffer << int32(proto->RandomProperty);
-    buffer << int32(proto->RandomSuffix);
+    buffer << uint32(proto->RandomProperty);
+    buffer << uint32(proto->RandomSuffix);
     buffer << uint32(proto->ItemSet);
 
     buffer << uint32(proto->Area);
@@ -157,9 +140,6 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
     for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
         buffer << uint32(proto->Socket[x].Color);
 
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
-        buffer << uint32(proto->Socket[x].Content);
-
     buffer << uint32(proto->socketBonus);
     buffer << uint32(proto->GemProperties);
     buffer << float(proto->ArmorDamageModifier);
@@ -169,5 +149,5 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
     buffer << float(proto->StatScalingFactor);    // StatScalingFactor
     buffer << uint32(proto->CurrencySubstitutionId);
     buffer << uint32(proto->CurrencySubstitutionCount);
-    */
+    buffer << uint32(proto->ItemNameDescriptionID);
 }
