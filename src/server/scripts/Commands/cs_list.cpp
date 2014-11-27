@@ -476,7 +476,7 @@ public:
         if (!*args)
             return false;
 
-        ObjectGuid parseGUID(HIGHGUID_PLAYER, atoul(args));
+        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atoul(args)));
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
         {
