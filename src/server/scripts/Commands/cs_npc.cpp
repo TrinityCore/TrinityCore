@@ -1321,7 +1321,7 @@ public:
             return false;
         }
 
-        ObjectGuid receiver_guid(HIGHGUID_PLAYER, atoul(receiver_str));
+        ObjectGuid receiver_guid(HIGHGUID_PLAYER, uint32(atoul(receiver_str)));
 
         // check online security
         Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);
