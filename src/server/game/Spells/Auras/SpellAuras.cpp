@@ -1634,14 +1634,14 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     for (SpellEffectInfo const* effect : existingAura->GetSpellEffectInfos())
     {
         // prevent remove triggering aura by triggered aura
-        if (effect->TriggerSpell == GetId())
+        if (effect && effect->TriggerSpell == GetId())
             return true;
     }
 
     for (SpellEffectInfo const* effect : GetSpellEffectInfos())
     {
         // prevent remove triggered aura by triggering aura refresh
-        if (effect->TriggerSpell == existingAura->GetId())
+        if (effect && effect->TriggerSpell == existingAura->GetId())
             return true;
     }
 
