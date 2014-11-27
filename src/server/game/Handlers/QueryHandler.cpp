@@ -437,7 +437,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
     DB2StorageBase const* store = GetDB2Storage(packet.TableHash);
     if (!store)
     {
-        TC_LOG_ERROR("network", "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", packet.TableHash);
+        TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: Received unknown hotfix type: %u", packet.TableHash);
         return;
     }
 
@@ -455,6 +455,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
         }
         else
         {
+            TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: Entry %u does not exist in datastore: %u", rec.RecordID, packet.TableHash);
             response.RecordID = -rec.RecordID;
             response.Timestamp = time(NULL);
         }

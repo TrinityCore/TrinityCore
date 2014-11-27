@@ -2509,6 +2509,8 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.SoundOverrideSubclass = db2Data->SoundOverrideSubclass;
         itemTemplate.Name1 = sparse->Name->Str[sWorld->GetDefaultDbcLocale()];
         itemTemplate.DisplayInfoID = GetItemDisplayID(db2Data->FileDataID);
+        itemTemplate.FileDataID = db2Data->FileDataID;
+        itemTemplate.GroupSoundsID = db2Data->GroupSoundsID;
         itemTemplate.Quality = sparse->Quality;
         memcpy(itemTemplate.Flags, sparse->Flags, sizeof(itemTemplate.Flags));
         itemTemplate.Unk1 = sparse->Unk1;
@@ -2587,6 +2589,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.StatScalingFactor = sparse->StatScalingFactor;
         itemTemplate.CurrencySubstitutionId = sparse->CurrencySubstitutionID;
         itemTemplate.CurrencySubstitutionCount = sparse->CurrencySubstitutionCount;
+        itemTemplate.ItemNameDescriptionID = sparse->ItemNameDescriptionID;
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
