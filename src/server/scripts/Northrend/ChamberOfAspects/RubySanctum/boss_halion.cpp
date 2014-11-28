@@ -1499,8 +1499,8 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 Unit* caster = GetCaster();
-                uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
-                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->Effects[effIndex].MiscValueB));
+                uint32 entry = uint32(GetSpellInfo()->GetEffect(effIndex)->MiscValue);
+                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->GetEffect(effIndex)->MiscValueB));
                 uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
                 Position pos = caster->GetPosition();
@@ -1607,8 +1607,8 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex effIndex)
             {
-                if (GetHitUnit()->HasAura(GetSpellInfo()->Effects[effIndex].CalcValue()))
-                    GetHitUnit()->RemoveAurasDueToSpell(GetSpellInfo()->Effects[effIndex].CalcValue());
+                if (GetHitUnit()->HasAura(GetSpellInfo()->GetEffect(effIndex)->CalcValue()))
+                    GetHitUnit()->RemoveAurasDueToSpell(GetSpellInfo()->GetEffect(effIndex)->CalcValue());
             }
 
             void Register() override

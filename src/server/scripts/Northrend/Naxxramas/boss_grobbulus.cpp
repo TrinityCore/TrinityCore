@@ -194,7 +194,7 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
+                if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->TriggerSpell))
                     return false;
                 return true;
             }
@@ -203,7 +203,7 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                uint32 triggerSpell = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell;
                 int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
                 GetTarget()->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, mod, (Unit*)NULL, TRIGGERED_FULL_MASK, NULL, aurEff);
             }

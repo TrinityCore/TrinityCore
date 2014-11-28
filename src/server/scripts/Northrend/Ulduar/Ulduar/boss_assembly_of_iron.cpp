@@ -615,7 +615,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             break;
                         case EVENT_GROUND:
                             //me->SetLevitate(false);
-                            me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHTNING_TENDRILS, me));
+                            me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS);
                             me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_VISUAL);
                             DoStartMovement(me->GetVictim());
                             events.CancelEvent(EVENT_GROUND);

@@ -182,7 +182,7 @@ class spell_krystallus_shatter_effect : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                float radius = GetSpellInfo()->Effects[EFFECT_0].CalcRadius(GetCaster());
+                float radius = GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(GetCaster());
                 if (!radius)
                     return;
 

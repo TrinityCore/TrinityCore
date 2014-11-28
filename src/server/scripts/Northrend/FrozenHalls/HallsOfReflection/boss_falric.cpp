@@ -89,7 +89,7 @@ class boss_falric : public CreatureScript
                     || (_hopelessnessCount < 3 && me->HealthBelowPctDamaged(10, damage)))
                 {
                     if (_hopelessnessCount)
-                        me->RemoveOwnedAura(sSpellMgr->GetSpellIdForDifficulty(HopelessnessHelper[_hopelessnessCount - 1], me));
+                        me->RemoveOwnedAura(HopelessnessHelper[_hopelessnessCount - 1]);
                     DoCast(me, HopelessnessHelper[_hopelessnessCount]);
                     ++_hopelessnessCount;
                 }

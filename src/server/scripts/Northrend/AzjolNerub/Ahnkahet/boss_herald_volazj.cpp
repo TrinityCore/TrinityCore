@@ -142,7 +142,7 @@ public:
                         // clone
                         player->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                         // phase the summon
-                        summon->SetInPhase(spellInfo->Effects[EFFECT_0].MiscValueB, true, true);
+                        summon->SetInPhase(spellInfo->GetEffect(EFFECT_0)->MiscValueB, true, true);
                     }
                 }
                 ++insanityHandled;

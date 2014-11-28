@@ -485,23 +485,23 @@ public:
         void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell) override
         {
             //We only care about interrupt effects and only if they are durring a spell currently being cast
-            if ((Spell->Effects[0].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
-                Spell->Effects[1].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
-                Spell->Effects[2].Effect != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCast(false))
-                return;
+            for (SpellEffectInfo const* effect : Spell->GetEffectsForDifficulty(me->GetMap()->GetDifficulty()))
+                if (effect && effect->Effect == SPELL_EFFECT_INTERRUPT_CAST && me->IsNonMeleeSpellCast(false))
+                {
+                    //Interrupt effect
+                    me->InterruptNonMeleeSpells(false);
 
-            //Interrupt effect
-            me->InterruptNonMeleeSpells(false);
+                    //Normally we would set the cooldown equal to the spell duration
+                    //but we do not have access to the DurationStore
 
-            //Normally we would set the cooldown equal to the spell duration
-            //but we do not have access to the DurationStore
-
-            switch (CurrentNormalSpell)
-            {
-                case SPELL_ARCMISSLE: ArcaneCooldown = 5000; break;
-                case SPELL_FIREBALL: FireCooldown = 5000; break;
-                case SPELL_FROSTBOLT: FrostCooldown = 5000; break;
-            }
+                    switch (CurrentNormalSpell)
+                    {
+                    case SPELL_ARCMISSLE: ArcaneCooldown = 5000; break;
+                    case SPELL_FIREBALL: FireCooldown = 5000; break;
+                    case SPELL_FROSTBOLT: FrostCooldown = 5000; break;
+                    }
+                    return;
+                }
         }
     };
 };

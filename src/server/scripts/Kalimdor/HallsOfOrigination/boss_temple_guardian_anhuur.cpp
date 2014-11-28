@@ -378,7 +378,7 @@ public:
             {
                 CustomSpellValues values;
                 values.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
-                caster->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, values, GetTarget());
+                caster->CastCustomSpell(GetSpellInfo()->GetEffect(caster, EFFECT_0)->TriggerSpell, values, GetTarget());
             }
         }
 

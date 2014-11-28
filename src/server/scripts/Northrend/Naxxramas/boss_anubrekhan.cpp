@@ -160,7 +160,7 @@ public:
                     case EVENT_IMPALE:
                         //Cast Impale on a random target
                         //Do NOT cast it when we are afflicted by locust swarm
-                        if (!me->HasAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_LOCUST_SWARM, me)))
+                        if (!me->HasAura(SPELL_LOCUST_SWARM))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_IMPALE);
                         events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
