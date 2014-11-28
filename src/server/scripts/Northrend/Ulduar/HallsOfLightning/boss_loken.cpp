@@ -161,7 +161,7 @@ public:
                 Talk(EMOTE_NOVA);
                 DoCast(me, SPELL_LIGHTNING_NOVA);
 
-                me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_PULSING_SHOCKWAVE, me));
+                me->RemoveAurasDueToSpell(SPELL_PULSING_SHOCKWAVE);
                 m_uiResumePulsingShockwave_Timer = DUNGEON_MODE(5000, 4000); // Pause Pulsing Shockwave aura
                 m_uiLightningNova_Timer = urand(20000, 21000);
             }

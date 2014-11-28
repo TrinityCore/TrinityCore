@@ -1075,7 +1075,7 @@ class spell_razorscale_devouring_flame : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 Unit* caster = GetCaster();
-                uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
+                uint32 entry = uint32(GetSpellInfo()->GetEffect(effIndex)->MiscValue);
                 WorldLocation const* summonLocation = GetExplTargetDest();
                 if (!caster || !summonLocation)
                     return;

@@ -412,9 +412,14 @@ public:
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* Spell) override
         {
-            for (uint8 i = 0; i < 3; ++i)
-                if (Spell->Effects[i].Effect == 38)
+            for (SpellEffectInfo const* effect : Spell->GetEffectsForDifficulty(DIFFICULTY_NONE))
+            {
+                if (effect && effect->Effect == 38)
+                {
                     me->DisappearAndDie();
+                    return;
+                }
+            }
         }
 
         void UpdateAI(uint32 diff) override

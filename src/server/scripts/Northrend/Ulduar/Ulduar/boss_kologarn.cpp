@@ -455,10 +455,10 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
                 switch (target->GetMap()->GetDifficulty())
                 {
                     case DIFFICULTY_10_N:
-                        target->RemoveAura(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
+                        target->RemoveAura(GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue());
                         break;
                     case DIFFICULTY_25_N:
-                        target->RemoveAura(GetSpellInfo()->Effects[EFFECT_1].CalcValue());
+                        target->RemoveAura(GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue());
                         break;
                     default:
                         break;
@@ -643,7 +643,7 @@ class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
             void HandleForceCast(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetCaster()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
+                GetCaster()->CastSpell(GetCaster(), GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, true);
             }
 
             void Register() override
