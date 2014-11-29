@@ -95,7 +95,7 @@ struct ItemSparseEntry
 {
     uint32      ID;                                         // 0
     uint32      Quality;                                    // 1
-    uint32      Flags[3];                                   // 2-4
+    uint32      Flags[MAX_ITEM_PROTO_FLAGS];                // 2-4
     float       Unk1;                                       // 5
     float       Unk2;                                       // 6
     uint32      BuyCount;                                   // 7

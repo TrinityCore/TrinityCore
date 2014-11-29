@@ -126,6 +126,27 @@ namespace WorldPackets
             float Speed;
         };
 
+        class MoveSplineSetFlag final : public ServerPacket
+        {
+        public:
+            MoveSplineSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+        };
+
+        class MoveSetFlag final : public ServerPacket
+        {
+        public:
+            MoveSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
+        };
+
         class TransferPending final : public ServerPacket
         {
             struct ShipTransferPending

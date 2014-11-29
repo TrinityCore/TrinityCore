@@ -277,6 +277,19 @@ WorldPacket const* WorldPackets::Movement::MoveUpdate::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Movement::MoveSplineSetFlag::Write()
+{
+    _worldPacket << MoverGUID;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveSetFlag::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Movement::ServerPlayerMovement::Write()
 {
     MovementInfo movementInfo = mover->m_movementInfo;
