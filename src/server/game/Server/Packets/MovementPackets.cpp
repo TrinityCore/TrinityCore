@@ -344,6 +344,21 @@ WorldPacket const* MoveUpdateSpeed::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* MoveSplineSetFlag::Write()
+{
+    _worldPacket << MoverGUID.WriteAsPacked();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* MoveSetFlag::Write()
+{
+    _worldPacket << MoverGUID.WriteAsPacked();
+    _worldPacket << uint32(SequenceIndex);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* TransferPending::Write()
 {
     _worldPacket << int32(MapID);

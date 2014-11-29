@@ -13249,9 +13249,9 @@ bool Unit::SetWalk(bool enable)
 
     static OpcodeServer const walkModeTable[2] = { SMSG_SPLINE_MOVE_SET_RUN_MODE, SMSG_SPLINE_MOVE_SET_WALK_MODE };
 
-    WorldPacket data(walkModeTable[enable], 9);
-    data << GetPackGUID();
-    SendMessageToSet(&data, true);
+    WorldPackets::Movement::MoveSplineSetFlag packet(walkModeTable[enable]);
+    packet.MoverGUID = GetGUID();
+    SendMessageToSet(packet.Write(), true);
     return true;
 }
 
@@ -13278,21 +13278,20 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
     {
         Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
 
-        WorldPacket data(gravityOpcodeTable[disable][1], 12);
-        data << GetPackGUID();
-        data << uint32(0);          //! movement counter
-        playerMover->SendDirectMessage(&data);
+        WorldPackets::Movement::MoveSetFlag packet(gravityOpcodeTable[disable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(packet.Write());
 
-        data.Initialize(MSG_MOVE_GRAVITY_CHNG, 64);
-        data << GetPackGUID();
-        BuildMovementPacket(&data);
-        SendMessageToSet(&data, playerMover);
+        WorldPackets::Movement::MoveUpdate moveUpdate(MSG_MOVE_GRAVITY_CHNG);
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
     {
-        WorldPacket data(gravityOpcodeTable[disable][0], 9);
-        data << GetPackGUID();
-        SendMessageToSet(&data, true);
+        WorldPackets::Movement::MoveSplineSetFlag packet(gravityOpcodeTable[disable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
     }
 
     if (IsCreature() && updateAnimTier && !HasUnitState(UNIT_STATE_ROOT) && !ToCreature()->GetMovementTemplate().IsRooted())
@@ -13336,9 +13335,9 @@ bool Unit::SetSwim(bool enable)
 
     static OpcodeServer const swimOpcodeTable[2] = { SMSG_SPLINE_MOVE_STOP_SWIM, SMSG_SPLINE_MOVE_START_SWIM };
 
-    WorldPacket data(swimOpcodeTable[enable], 9);
-    data << GetPackGUID();
-    SendMessageToSet(&data, true);
+    WorldPackets::Movement::MoveSplineSetFlag packet(swimOpcodeTable[enable]);
+    packet.MoverGUID = GetGUID();
+    SendMessageToSet(packet.Write(), true);
 
     return true;
 }
@@ -13372,21 +13371,20 @@ bool Unit::SetCanFly(bool enable, bool packetOnly /*= false */)
     {
         Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
 
-        WorldPacket data(flyOpcodeTable[enable][1], 12);
-        data << GetPackGUID();
-        data << uint32(0);          //! movement counter
-        playerMover->SendDirectMessage(&data);
+        WorldPackets::Movement::MoveSetFlag packet(flyOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(packet.Write());
 
-        data.Initialize(MSG_MOVE_UPDATE_CAN_FLY, 64);
-        data << GetPackGUID();
-        BuildMovementPacket(&data);
-        SendMessageToSet(&data, playerMover);
+        WorldPackets::Movement::MoveUpdate moveUpdate(MSG_MOVE_UPDATE_CAN_FLY);
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
     {
-        WorldPacket data(flyOpcodeTable[enable][0], 9);
-        data << GetPackGUID();
-        SendMessageToSet(&data, true);
+        WorldPackets::Movement::MoveSplineSetFlag packet(flyOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
     }
 
     return true;
@@ -13412,21 +13410,20 @@ bool Unit::SetWaterWalking(bool enable)
     {
         Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
 
-        WorldPacket data(waterWalkingOpcodeTable[enable][1], 12);
-        data << GetPackGUID();
-        data << uint32(0);          //! movement counter
-        GetGameClientMovingMe()->GetBasePlayer()->SendDirectMessage(&data);
+        WorldPackets::Movement::MoveSetFlag packet(waterWalkingOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(packet.Write());
 
-        data.Initialize(MSG_MOVE_WATER_WALK, 64);
-        data << GetPackGUID();
-        BuildMovementPacket(&data);
-        SendMessageToSet(&data, playerMover);
+        WorldPackets::Movement::MoveUpdate moveUpdate(MSG_MOVE_WATER_WALK);
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
     {
-        WorldPacket data(waterWalkingOpcodeTable[enable][0], 9);
-        data << GetPackGUID();
-        SendMessageToSet(&data, true);
+        WorldPackets::Movement::MoveSplineSetFlag packet(waterWalkingOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
     }
 
     return true;
@@ -13452,21 +13449,20 @@ bool Unit::SetFeatherFall(bool enable)
     {
         Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
 
-        WorldPacket data(featherFallOpcodeTable[enable][1], 12);
-        data << GetPackGUID();
-        data << uint32(0);          //! movement counter
-        playerMover->SendDirectMessage(&data);
+        WorldPackets::Movement::MoveSetFlag packet(featherFallOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(packet.Write());
 
-        data.Initialize(MSG_MOVE_FEATHER_FALL, 64);
-        data << GetPackGUID();
-        BuildMovementPacket(&data);
-        SendMessageToSet(&data, playerMover);
+        WorldPackets::Movement::MoveUpdate moveUpdate(MSG_MOVE_FEATHER_FALL);
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
     {
-        WorldPacket data(featherFallOpcodeTable[enable][0], 9);
-        data << GetPackGUID();
-        SendMessageToSet(&data, true);
+        WorldPackets::Movement::MoveSplineSetFlag packet(featherFallOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
     }
 
     return true;
@@ -13508,21 +13504,20 @@ bool Unit::SetHover(bool enable, bool updateAnimTier /*= true*/)
     {
         Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
 
-        WorldPacket data(hoverOpcodeTable[enable][1], 12);
-        data << GetPackGUID();
-        data << uint32(0);          //! movement counter
-        playerMover->SendDirectMessage(&data);
+        WorldPackets::Movement::MoveSetFlag packet(hoverOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(packet.Write());
 
-        data.Initialize(MSG_MOVE_HOVER, 64);
-        data << GetPackGUID();
-        BuildMovementPacket(&data);
-        SendMessageToSet(&data, playerMover);
+        WorldPackets::Movement::MoveUpdate moveUpdate(MSG_MOVE_HOVER);
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
     {
-        WorldPacket data(hoverOpcodeTable[enable][0], 9);
-        data << GetPackGUID();
-        SendMessageToSet(&data, true);
+        WorldPackets::Movement::MoveSplineSetFlag packet(hoverOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
     }
 
     if (IsCreature() && updateAnimTier && !HasUnitState(UNIT_STATE_ROOT) && !ToCreature()->GetMovementTemplate().IsRooted())

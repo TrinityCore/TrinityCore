@@ -158,6 +158,27 @@ namespace WorldPackets
             float Speed = 1.0f;
         };
 
+        class MoveSplineSetFlag final : public ServerPacket
+        {
+        public:
+            explicit MoveSplineSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 9) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+        };
+
+        class MoveSetFlag final : public ServerPacket
+        {
+        public:
+            explicit MoveSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 9 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
+        };
+
         struct ShipTransferPending
         {
             uint32 ID = 0;              ///< gameobject_template.entry of the transport the player is teleporting on
