@@ -1048,7 +1048,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
                 *data << uint32(aurApp->GetBase()->GetId());
                 *data << uint16(aurApp->GetFlags());
 
-                if (aurApp->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                if (aurApp->GetFlags() & AFLAG_SCALABLE)
                 {
                     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
@@ -1150,7 +1150,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
                     *data << uint32(aurApp->GetBase()->GetId());
                     *data << uint16(aurApp->GetFlags());
 
-                    if (aurApp->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                    if (aurApp->GetFlags() & AFLAG_SCALABLE)
                     {
                         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                         {
@@ -1285,7 +1285,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
             data << uint32(aurApp->GetBase()->GetId());
             data << uint16(aurApp->GetFlags());
 
-            if (aurApp->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+            if (aurApp->GetFlags() & AFLAG_SCALABLE)
             {
                 for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
@@ -1338,7 +1338,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
                 data << uint32(aurApp->GetBase()->GetId());
                 data << uint16(aurApp->GetFlags());
 
-                if (aurApp->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                if (aurApp->GetFlags() & AFLAG_SCALABLE)
                 {
                     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {

@@ -52,8 +52,9 @@ class AuraApplication
         AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
         uint8 _slot;                                   // Aura slot on unit
         uint8 _flags;                                  // Aura info flag
-        uint8 _effectsToApply;                         // Used only at spell hit to determine which effect should be applied
+        uint32 _effectsToApply;                         // Used only at spell hit to determine which effect should be applied
         bool _needClientUpdate:1;
+        uint32 _effectMask;
 
         explicit AuraApplication(Unit* target, Unit* caster, Aura* base, uint32 effMask);
         void _Remove();
@@ -67,10 +68,10 @@ class AuraApplication
 
         uint8 GetSlot() const { return _slot; }
         uint8 GetFlags() const { return _flags; }
-        uint8 GetEffectMask() const { return _flags & (AFLAG_EFF_INDEX_0 | AFLAG_EFF_INDEX_1 | AFLAG_EFF_INDEX_2); }
-        bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return (_flags & (1 << effect)) != 0; }
+        uint32 GetEffectMask() const { return _effectMask; }
+        bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return (_effectMask & (1 << effect)) != 0; }
         bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
-        bool IsSelfcast() const { return (_flags & AFLAG_CASTER) != 0; }
+        bool IsSelfcast() const { return (_flags & AFLAG_NOCASTER) == 0; }
         uint8 GetEffectsToApply() const { return _effectsToApply; }
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
@@ -113,7 +114,7 @@ class Aura
         void _Remove(AuraRemoveMode removeMode);
         virtual void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) = 0;
 
-        virtual void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) = 0;
+        virtual void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) = 0;
         void UpdateTargetMap(Unit* caster, bool apply = true);
 
         void _RegisterForTargets() {Unit* caster = GetCaster(); UpdateTargetMap(caster, false);}
@@ -294,7 +295,7 @@ class UnitAura : public Aura
 
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) override;
+        void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) override;
 
         // Allow Apply Aura Handler to modify and access m_AuraDRGroup
         void SetDiminishGroup(DiminishingGroup group) { m_AuraDRGroup = group; }
@@ -312,7 +313,7 @@ class DynObjAura : public Aura
 
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) override;
+        void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) override;
 };
 
 class ChargeDropEvent : public BasicEvent
