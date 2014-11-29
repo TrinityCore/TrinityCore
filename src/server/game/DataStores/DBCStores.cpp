@@ -17,6 +17,7 @@
  */
 
 #include "DBCStores.h"
+#include "DB2Stores.h"
 #include "Containers.h"
 #include "Log.h"
 #include "SharedDefines.h"
@@ -75,6 +76,7 @@ DBCStorage <ChrClassesEntry> sChrClassesStore(ChrClassesEntryfmt);
 DBCStorage <ChrRacesEntry> sChrRacesStore(ChrRacesEntryfmt);
 DBCStorage <ChrPowerTypesEntry> sChrPowerTypesStore(ChrClassesXPowerTypesfmt);
 DBCStorage <ChrSpecializationEntry> sChrSpecializationStore(ChrSpecializationEntryfmt);
+ChrSpecializationByIndexArray sChrSpecializationByIndexStore;
 SpecializationSpellsBySpecStore sSpecializationSpellsBySpecStore;
 DBCStorage <CinematicSequencesEntry> sCinematicSequencesStore(CinematicSequencesEntryfmt);
 DBCStorage <CreatureDisplayInfoEntry> sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
@@ -352,6 +354,10 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sChrSpecializationStore,      dbcPath, "ChrSpecialization.dbc");
+    memset(sChrSpecializationByIndexStore, 0, sizeof(sChrSpecializationByIndexStore));
+    for (uint32 i = 0; i < sChrSpecializationStore.GetNumRows(); ++i)
+        if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(i))
+            sChrSpecializationByIndexStore[chrSpec->ClassID][chrSpec->OrderIndex] = chrSpec;
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sCinematicSequencesStore,     dbcPath, "CinematicSequences.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureDisplayInfoStore,    dbcPath, "CreatureDisplayInfo.dbc");//19116

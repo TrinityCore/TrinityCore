@@ -21,6 +21,14 @@
 
 #include "Common.h"
 
+enum MonsterMoveType
+{
+    MONSTER_MOVE_NORMAL         = 0,
+    MONSTER_MOVE_FACING_SPOT    = 1,
+    MONSTER_MOVE_FACING_TARGET  = 2,
+    MONSTER_MOVE_FACING_ANGLE   = 3
+};
+
 namespace G3D
 {
     class Vector3;

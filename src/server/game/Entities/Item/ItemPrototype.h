@@ -611,6 +611,7 @@ struct ItemEffect
 #pragma pack(pop)
 #endif
 
+#define MAX_ITEM_PROTO_FLAGS 3
 #define MAX_ITEM_PROTO_DAMAGES 2                            // changed in 3.1.0
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
@@ -623,8 +624,10 @@ struct ItemTemplate
     int32  SoundOverrideSubclass;                           // < 0: id from ItemSubClass.dbc, used to override weapon sound from actual SubClass
     std::string Name1;
     uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
+    uint32 FileDataID;
+    uint32 GroupSoundsID;
     uint32 Quality;
-    uint32 Flags[3];
+    uint32 Flags[MAX_ITEM_PROTO_FLAGS];
     float Unk1;
     float Unk2;
     uint32 BuyCount;
@@ -678,6 +681,7 @@ struct ItemTemplate
     float  StatScalingFactor;
     uint32 CurrencySubstitutionId;                          // May be used instead of a currency
     uint32 CurrencySubstitutionCount;
+    uint32 ItemNameDescriptionID;
 
     // extra fields, not part of db2 files
     float  DamageMin;

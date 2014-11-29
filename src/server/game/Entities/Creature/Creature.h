@@ -287,8 +287,8 @@ struct CreatureModelInfo
 {
     float bounding_radius;
     float combat_reach;
-    uint8 gender;
-    uint32 modelid_other_gender;
+    int8 gender;
+    uint32 displayId_other_gender;
 };
 
 // Benchmarked: Faster than std::map (insert/find)
@@ -392,11 +392,13 @@ struct VendorItemCount
 
 typedef std::list<VendorItemCount> VendorItemCounts;
 
+#define MAX_TRAINERSPELL_ABILITY_REQS 3
+
 struct TrainerSpell
 {
     TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0)
     {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
             ReqAbility[i] = 0;
     }
 
@@ -405,7 +407,7 @@ struct TrainerSpell
     uint32 ReqSkillLine;
     uint32 ReqSkillRank;
     uint32 ReqLevel;
-    uint32 ReqAbility[MAX_SPELL_EFFECTS];
+    uint32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
 
     // helpers
     bool IsCastable() const { return ReqAbility[0] != SpellID; }
@@ -674,7 +676,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool m_isTempWorldObject; //true when possessed
 
         // Handling caster facing during spellcast
-        void SetTarget(ObjectGuid guid) override;
+        void SetTarget(ObjectGuid const& guid) override;
         void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         void ReleaseFocus(Spell const* focusSpell);
 

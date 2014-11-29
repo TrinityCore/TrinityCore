@@ -29,6 +29,7 @@
 #include "ClientConfigPackets.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "EquipmentSetPackets.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildFinderMgr.h"
@@ -36,6 +37,7 @@
 #include "Language.h"
 #include "LFGMgr.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -835,6 +837,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         return;
     }
 
+    SendTutorialsData();
+
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
 
@@ -857,6 +861,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     /// Send FeatureSystemStatus
     {
         WorldPackets::System::FeatureSystemStatus features;
+
+        /// START OF DUMMY VALUES
+        features.ComplaintStatus = 2;
+        features.ScrollOfResurrectionRequestsRemaining = 1;
+        features.ScrollOfResurrectionMaxRequestsPerDay = 1;
+        features.CfgRealmID = 2;
+        features.CfgRealmRecID = 0;
+        features.VoiceEnabled = true;
+        /// END OF DUMMY VALUES
+
         features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
         features.BpayStoreEnabled    = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
 
@@ -1096,32 +1110,35 @@ void WorldSession::HandleSetFactionCheat(WorldPacket& /*recvData*/)
     GetPlayer()->GetReputationMgr().SendStates();
 }
 
-void WorldSession::HandleTutorialFlag(WorldPacket& recvData)
+void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet)
 {
-    uint32 data;
-    recvData >> data;
-
-    uint8 index = uint8(data / 32);
-    if (index >= MAX_ACCOUNT_TUTORIAL_VALUES)
-        return;
-
-    uint32 value = (data % 32);
-
-    uint32 flag = GetTutorialInt(index);
-    flag |= (1 << value);
-    SetTutorialInt(index, flag);
-}
-
-void WorldSession::HandleTutorialClear(WorldPacket& /*recvData*/)
-{
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        SetTutorialInt(i, 0xFFFFFFFF);
-}
-
-void WorldSession::HandleTutorialReset(WorldPacket& /*recvData*/)
-{
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        SetTutorialInt(i, 0x00000000);
+    switch (packet.Action)
+    {
+        case TUTORIAL_ACTION_UPDATE:
+        {
+            uint8 index = uint8(packet.TutorialBit >> 5);
+            if (index >= MAX_ACCOUNT_TUTORIAL_VALUES)
+            {
+                TC_LOG_ERROR("network", "CMSG_TUTORIAL_FLAG received bad TutorialBit %u.", packet.TutorialBit);
+                return;
+            }
+            uint32 flag = GetTutorialInt(index);
+            flag |= (1 << (packet.TutorialBit & 0x1F));
+            SetTutorialInt(index, flag);
+            break;
+        }
+        case TUTORIAL_ACTION_CLEAR:
+            for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
+                SetTutorialInt(i, 0xFFFFFFFF);
+            break;
+        case TUTORIAL_ACTION_RESET:
+            for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
+                SetTutorialInt(i, 0x00000000);
+            break;
+        default:
+            TC_LOG_ERROR("network", "CMSG_TUTORIAL_FLAG received unknown TutorialAction %u.", packet.Action);
+            return;
+    }
 }
 
 void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
@@ -1525,59 +1542,36 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
         GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), customizeInfo->CharGUID.ToString().c_str(), customizeInfo->CharName.c_str());
 }
 
-void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
+void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_SAVE");
 
-    uint64 setGuid;
-    recvData.ReadPackedUInt64(setGuid);
-
-    uint32 index;
-    recvData >> index;
-    if (index >= MAX_EQUIPMENT_SET_INDEX)                    // client set slots amount
+    if (packet.Set.SetID >= MAX_EQUIPMENT_SET_INDEX) // client set slots amount
         return;
 
-    std::string name;
-    recvData >> name;
-
-    std::string iconName;
-    recvData >> iconName;
-
-    EquipmentSet eqSet;
-
-    eqSet.Guid      = setGuid;
-    eqSet.Name      = name;
-    eqSet.IconName  = iconName;
-    eqSet.state     = EQUIPMENT_SET_NEW;
-
-    ObjectGuid ignoredItemGuid;
-    ignoredItemGuid.SetRawValue(0, 1);
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        ObjectGuid itemGuid;
-        recvData >> itemGuid.ReadAsPacked();
-
-        // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuid == ignoredItemGuid)
+        if (!(packet.Set.IgnoreMask & (1 << i)))
         {
-            // ignored slots saved as bit mask because we have no free special values for Items[i]
-            eqSet.IgnoreMask |= 1 << i;
-            continue;
+            ObjectGuid const& itemGuid = packet.Set.Pieces[i];
+
+            Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+
+            /// cheating check 1 (item equipped but sent empty guid)
+            if (!item && !itemGuid.IsEmpty())
+                return;
+
+            /// cheating check 2 (sent guid does not match equipped item)
+            if (item && item->GetGUID() != itemGuid)
+                return;
         }
-
-        Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-
-        if (!item && !itemGuid.IsEmpty())                    // cheating check 1
-            return;
-
-        if (item && item->GetGUID() != itemGuid)             // cheating check 2
-            return;
-
-        eqSet.Items[i] = itemGuid.GetCounter();
+        else
+            packet.Set.Pieces[i].Clear();
     }
 
-    _player->SetEquipmentSet(index, eqSet);
+    packet.Set.IgnoreMask &= 0x7FFFF; /// clear invalid bits (i > EQUIPMENT_SLOT_END)
+
+    _player->SetEquipmentSet(std::move(packet.Set));
 }
 
 void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
@@ -1799,7 +1793,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         if (factionChangeInfo->SkinID.HasValue)
         {
             playerBytes &= ~uint32(0xFF);
-            playerBytes |= factionChangeInfo->SkinID.value;
+            playerBytes |= factionChangeInfo->SkinID.Value;
         }
         else
             factionChangeInfo->SkinID.Set(uint8(playerBytes & 0xFF));
@@ -1807,7 +1801,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         if (factionChangeInfo->FaceID.HasValue)
         {
             playerBytes &= ~(uint32(0xFF) << 8);
-            playerBytes |= uint32(factionChangeInfo->FaceID.value) << 8;
+            playerBytes |= uint32(factionChangeInfo->FaceID.Value) << 8;
         }
         else
             factionChangeInfo->FaceID.Set(uint8((playerBytes2 >> 8) & 0xFF));
@@ -1815,7 +1809,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         if (factionChangeInfo->HairStyleID.HasValue)
         {
             playerBytes &= ~(uint32(0xFF) << 16);
-            playerBytes |= uint32(factionChangeInfo->HairStyleID.value) << 16;
+            playerBytes |= uint32(factionChangeInfo->HairStyleID.Value) << 16;
         }
         else
             factionChangeInfo->HairStyleID.Set(uint8((playerBytes2 >> 16) & 0xFF));
@@ -1823,7 +1817,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         if (factionChangeInfo->HairColorID.HasValue)
         {
             playerBytes &= ~(uint32(0xFF) << 24);
-            playerBytes |= uint32(factionChangeInfo->HairColorID.value) << 24;
+            playerBytes |= uint32(factionChangeInfo->HairColorID.Value) << 24;
         }
         else
             factionChangeInfo->HairColorID.Set(uint8((playerBytes2 >> 24) & 0xFF));
@@ -1831,7 +1825,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         if (factionChangeInfo->FacialHairStyleID.HasValue)
         {
             playerBytes2 &= ~0xFF;
-            playerBytes2 |= factionChangeInfo->FacialHairStyleID.value;
+            playerBytes2 |= factionChangeInfo->FacialHairStyleID.Value;
         }
         else
             factionChangeInfo->FacialHairStyleID.Set(uint8(playerBytes2 & 0xFF));
@@ -2181,7 +2175,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
                 }
 
                 for (uint32 index = 0; index < ktcount; ++index)
-                    knownTitles[index] = atol(tokens[index]);
+                    knownTitles[index] = atoul(tokens[index]);
 
                 for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChangeTitles.begin(); it != sObjectMgr->FactionChangeTitles.end(); ++it)
                 {
@@ -2526,14 +2520,14 @@ void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Cha
     if (result == RESPONSE_SUCCESS)
     {
         packet.Display.HasValue = true;
-        packet.Display.value.Name = factionChangeInfo->Name;
-        packet.Display.value.SexID = factionChangeInfo->SexID;
-        packet.Display.value.SkinID = factionChangeInfo->SkinID.value;
-        packet.Display.value.HairColorID = factionChangeInfo->HairColorID.value;
-        packet.Display.value.HairStyleID = factionChangeInfo->HairStyleID.value;
-        packet.Display.value.FacialHairStyleID = factionChangeInfo->FacialHairStyleID.value;
-        packet.Display.value.FaceID = factionChangeInfo->FaceID.value;
-        packet.Display.value.RaceID = factionChangeInfo->RaceID;
+        packet.Display.Value.Name = factionChangeInfo->Name;
+        packet.Display.Value.SexID = factionChangeInfo->SexID;
+        packet.Display.Value.SkinID = factionChangeInfo->SkinID.Value;
+        packet.Display.Value.HairColorID = factionChangeInfo->HairColorID.Value;
+        packet.Display.Value.HairStyleID = factionChangeInfo->HairStyleID.Value;
+        packet.Display.Value.FacialHairStyleID = factionChangeInfo->FacialHairStyleID.Value;
+        packet.Display.Value.FaceID = factionChangeInfo->FaceID.Value;
+        packet.Display.Value.RaceID = factionChangeInfo->RaceID;
     }
 
     SendPacket(packet.Write());

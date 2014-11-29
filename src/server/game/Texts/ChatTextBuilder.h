@@ -20,6 +20,7 @@
 
 #include "Chat.h"
 #include "ObjectMgr.h"
+#include "Packets/ChatPackets.h"
 
 namespace Trinity
 {
@@ -32,13 +33,9 @@ namespace Trinity
             void operator()(WorldPacket& data, LocaleConstant locale)
             {
                 BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-                ChatHandler::BuildChatPacket(data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _source->getGender()) : "", _achievementId, "", locale);
-            }
-
-            size_t operator()(WorldPacket* data, LocaleConstant locale) const
-            {
-                BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-                return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _source->getGender()) : "", _achievementId, "", locale);
+                WorldPackets::Chat::Chat packet;
+                ChatHandler::BuildChatPacket(&packet, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _source->getGender()) : "", _achievementId, "", locale);
+                data = *packet.Write();
             }
 
         private:
@@ -57,7 +54,9 @@ namespace Trinity
 
             void operator()(WorldPacket& data, LocaleConstant locale)
             {
-                ChatHandler::BuildChatPacket(data, _msgType, _language, _source, _target, _text, 0, "", locale);
+                WorldPackets::Chat::Chat packet;
+                ChatHandler::BuildChatPacket(&packet, _msgType, _language, _source, _target, _text, 0, "", locale);
+                data = *packet.Write();
             }
 
         private:

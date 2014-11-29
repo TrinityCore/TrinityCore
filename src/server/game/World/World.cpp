@@ -46,6 +46,7 @@
 #include "LFGMgr.h"
 #include "MapManager.h"
 #include "Memory.h"
+#include "MiscPackets.h"
 #include "MMapFactory.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -64,6 +65,7 @@
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "WorldSession.h"
+#include "ChatPackets.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -2287,7 +2289,9 @@ namespace Trinity
                 while (char* line = lineFromMessage(pos))
                 {
                     WorldPacket* data = new WorldPacket();
-                    ChatHandler::BuildChatPacket(*data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+                    WorldPackets::Chat::Chat packet;
+                    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+                    *data = *packet.Write();
                     data_list.push_back(data);
                 }
             }
@@ -2345,16 +2349,15 @@ void World::SendGMText(uint32 string_id, ...)
 /// DEPRECATED, only for debug purpose. Send a System Message to all players (except self if mentioned)
 void World::SendGlobalText(const char* text, WorldSession* self)
 {
-    WorldPacket data;
-
     // need copy to prevent corruption by strtok call in LineFromMessage original string
     char* buf = strdup(text);
     char* pos = buf;
 
     while (char* line = ChatHandler::LineFromMessage(pos))
     {
-        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
-        SendGlobalMessage(&data, self);
+        WorldPackets::Chat::Chat packet;
+        ChatHandler::BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+        SendGlobalMessage(packet.Write(), self);
     }
 
     free(buf);
@@ -2386,9 +2389,9 @@ bool World::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession
 /// Send a System Message to all players in the zone (except self if mentioned)
 void World::SendZoneText(uint32 zone, const char* text, WorldSession* self, uint32 team)
 {
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, text);
-    SendZoneMessage(zone, &data, self, team);
+    WorldPackets::Chat::Chat packet;
+    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, text);
+    SendZoneMessage(zone, packet.Write(), self, team);
 }
 
 /// Kick (and save) all players
@@ -3305,9 +3308,9 @@ void World::UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name,
     if (race != RACE_NONE)
         itr->second.Race = race;
 
-    WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
-    data << guid;
-    SendGlobalMessage(&data);
+    WorldPackets::Misc::InvalidatePlayer data;
+    data.Guid = guid;
+    SendGlobalMessage(data.Write());
 }
 
 void World::UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level)

@@ -18,6 +18,7 @@
 
 #include "DatabaseEnv.h"
 #include "ReputationMgr.h"
+#include "ReputationPackets.h"
 #include "DBCStores.h"
 #include "Player.h"
 #include "WorldPacket.h"
@@ -199,38 +200,17 @@ void ReputationMgr::SendState(FactionState const* faction)
 
 void ReputationMgr::SendInitialReputations()
 {
-    uint16 count = 256;
-    WorldPacket data(SMSG_INITIALIZE_FACTIONS, 4 + count * 5);
-    data << uint32(count);
-
-    RepListID a = 0;
+    WorldPackets::Reputation::InitializeFactions initFactions;
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
-        // fill in absent fields
-        for (; a != itr->first; ++a)
-        {
-            data << uint8(0);
-            data << uint32(0);
-        }
-
-        // fill in encountered data
-        data << uint8(itr->second.Flags);
-        data << uint32(itr->second.Standing);
-
+        initFactions.FactionFlags[itr->first] = itr->second.Flags;
+        initFactions.FactionStandings[itr->first] = itr->second.Standing;
+        /// @todo faction bonus
         itr->second.needSend = false;
-
-        ++a;
     }
 
-    // fill in absent fields
-    for (; a != count; ++a)
-    {
-        data << uint8(0);
-        data << uint32(0);
-    }
-
-    _player->SendDirectMessage(&data);
+    _player->SendDirectMessage(initFactions.Write());
 }
 
 void ReputationMgr::SendStates()

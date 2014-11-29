@@ -23,11 +23,11 @@
 
 ChannelMgr::~ChannelMgr()
 {
-    for (ChannelMap::iterator itr = channels.begin(); itr != channels.end(); ++itr)
+    for (ChannelMap::iterator itr = _channels.begin(); itr != _channels.end(); ++itr)
         delete itr->second;
 }
 
-ChannelMgr* ChannelMgr::forTeam(uint32 team)
+ChannelMgr* ChannelMgr::ForTeam(uint32 team)
 {
     static ChannelMgr allianceChannelMgr;
     static ChannelMgr hordeChannelMgr;
@@ -40,49 +40,43 @@ ChannelMgr* ChannelMgr::forTeam(uint32 team)
     if (team == HORDE)
         return &hordeChannelMgr;
 
-    return NULL;
+    return nullptr;
 }
 
 Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)
 {
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
-        return NULL;
+        return nullptr;
 
     wstrToLower(wname);
 
-    ChannelMap::const_iterator i = channels.find(wname);
-
-    if (i == channels.end())
+    ChannelMap::const_iterator i = _channels.find(wname);
+    if (i == _channels.end())
     {
-        Channel* nchan = new Channel(name, channelId, team);
-        channels[wname] = nchan;
+        Channel* nchan = new Channel(name, channelId, _team);
+        _channels[wname] = nchan;
         return nchan;
     }
 
     return i->second;
 }
 
-Channel* ChannelMgr::GetChannel(std::string const& name, Player* player, bool pkt)
+Channel* ChannelMgr::GetChannel(std::string const& name, Player* player, bool notify /*= true*/)
 {
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
-        return NULL;
+        return nullptr;
 
     wstrToLower(wname);
 
-    ChannelMap::const_iterator i = channels.find(wname);
-
-    if (i == channels.end())
+    ChannelMap::const_iterator i = _channels.find(wname);
+    if (i == _channels.end())
     {
-        if (pkt)
-        {
-            WorldPacket data;
-            MakeNotOnPacket(&data, name);
-            player->GetSession()->SendPacket(&data);
-        }
+        if (notify)
+            SendNotOnChannelNotify(player, name);
 
-        return NULL;
+        return nullptr;
     }
 
     return i->second;
@@ -96,22 +90,23 @@ void ChannelMgr::LeftChannel(std::string const& name)
 
     wstrToLower(wname);
 
-    ChannelMap::const_iterator i = channels.find(wname);
-
-    if (i == channels.end())
+    ChannelMap::const_iterator i = _channels.find(wname);
+    if (i == _channels.end())
         return;
 
     Channel* channel = i->second;
 
     if (!channel->GetNumPlayers() && !channel->IsConstant())
     {
-        channels.erase(wname);
+        _channels.erase(i);
         delete channel;
     }
 }
 
-void ChannelMgr::MakeNotOnPacket(WorldPacket* data, std::string const& name)
+void ChannelMgr::SendNotOnChannelNotify(Player const* player, std::string const& name)
 {
-    data->Initialize(SMSG_CHANNEL_NOTIFY, 1 + name.size());
-    (*data) << uint8(5) << name;
+    WorldPackets::Channel::ChannelNotify notify;
+    notify.Type = CHAT_NOT_MEMBER_NOTICE;
+    notify.Channel = name;
+    player->SendDirectMessage(notify.Write());
 }

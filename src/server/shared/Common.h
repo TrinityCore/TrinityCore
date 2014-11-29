@@ -79,6 +79,9 @@
 
 inline float finiteAlways(float f) { return std::isfinite(f) ? f : 0.0f; }
 
+inline unsigned long atoul(char const* str) { return strtoul(str, nullptr, 10); }
+inline unsigned long long atoull(char const* str) { return strtoull(str, nullptr, 10); }
+
 #define STRINGIZE(a) #a
 
 enum TimeConstants
@@ -118,7 +121,6 @@ const uint8 TOTAL_LOCALES = 9;
 #define DEFAULT_LOCALE LOCALE_enUS
 
 #define MAX_LOCALES 8
-#define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
 extern char const* localeNames[TOTAL_LOCALES];
 

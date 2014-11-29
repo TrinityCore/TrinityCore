@@ -36,3 +36,8 @@ WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Talent::SetSpecialization::Read()
+{
+    _worldPacket >> SpecGroupIndex;
+}

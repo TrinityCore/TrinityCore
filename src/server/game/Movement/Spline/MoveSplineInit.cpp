@@ -24,6 +24,7 @@
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include "Opcodes.h"
+#include "MovementPackets.h"
 
 namespace Movement
 {
@@ -115,17 +116,11 @@ namespace Movement
         unit->m_movementInfo.SetMovementFlags(moveFlags);
         move_spline.Initialize(args);
 
-        WorldPacket data(SMSG_MONSTER_MOVE, 64);
-        data << unit->GetPackGUID();
-        if (!unit->GetTransGUID().IsEmpty())
-        {
-            data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
-            data << unit->GetTransGUID().WriteAsPacked();
-            data << int8(unit->GetTransSeat());
-        }
-
-        PacketBuilder::WriteMonsterMove(move_spline, data);
-        unit->SendMessageToSet(&data, true);
+        WorldPackets::Movement::MonsterMove packet;
+        packet.MoverGUID = unit->GetGUID();
+        packet.Pos = real_position;
+        PacketBuilder::WriteMonsterMove(move_spline, packet.SplineData);
+        unit->SendMessageToSet(packet.Write(), true);
 
         return move_spline.Duration();
     }
@@ -161,17 +156,18 @@ namespace Movement
         move_spline.onTransport = transport;
         move_spline.Initialize(args);
 
-        WorldPacket data(SMSG_MONSTER_MOVE, 64);
-        data << unit->GetPackGUID();
+        WorldPackets::Movement::MonsterMove packet;
+        packet.MoverGUID = unit->GetGUID();
+        packet.Pos = loc;
+        packet.SplineData.ID = move_spline.GetId();
+
         if (transport)
         {
-            data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
-            data << unit->GetTransGUID().WriteAsPacked();
-            data << int8(unit->GetTransSeat());
+            packet.SplineData.Move.TransportGUID = unit->GetTransGUID();
+            packet.SplineData.Move.VehicleSeat = unit->GetTransSeat();
         }
 
-        PacketBuilder::WriteStopMovement(loc, args.splineId, data);
-        unit->SendMessageToSet(&data, true);
+        unit->SendMessageToSet(packet.Write(), true);
     }
 
     MoveSplineInit::MoveSplineInit(Unit* m) : unit(m)

@@ -35,6 +35,8 @@
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
+#include "Guild.h"
+#include "Group.h"
 
 bool ChatHandler::load_command_table = true;
 
@@ -202,7 +204,7 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
 
 void ChatHandler::SendSysMessage(const char *str)
 {
-    WorldPacket data;
+    WorldPackets::Chat::Chat packet;
 
     // need copy to prevent corruption by strtok call in LineFromMessage original string
     char* buf = strdup(str);
@@ -210,8 +212,8 @@ void ChatHandler::SendSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
-        m_session->SendPacket(&data);
+        BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+        m_session->SendPacket(packet.Write());
     }
 
     free(buf);
@@ -220,7 +222,7 @@ void ChatHandler::SendSysMessage(const char *str)
 void ChatHandler::SendGlobalSysMessage(const char *str)
 {
     // Chat output
-    WorldPacket data;
+    WorldPackets::Chat::Chat packet;
 
     // need copy to prevent corruption by strtok call in LineFromMessage original string
     char* buf = strdup(str);
@@ -228,8 +230,8 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
-        sWorld->SendGlobalMessage(&data);
+        BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+        sWorld->SendGlobalMessage(packet.Write());
     }
 
     free(buf);
@@ -238,7 +240,7 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
 void ChatHandler::SendGlobalGMSysMessage(const char *str)
 {
     // Chat output
-    WorldPacket data;
+    WorldPackets::Chat::Chat packet;
 
     // need copy to prevent corruption by strtok call in LineFromMessage original string
     char* buf = strdup(str);
@@ -246,8 +248,8 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
-        sWorld->SendGlobalGMMessage(&data);
+        BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+        sWorld->SendGlobalGMMessage(packet.Write());
     }
 
     free(buf);
@@ -628,132 +630,56 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
     return ShowHelpForSubCommands(table, "", cmd);
 }
 
-size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, ObjectGuid senderGUID, ObjectGuid receiverGUID, std::string const& message, uint8 chatTag,
-                                  std::string const& senderName /*= ""*/, std::string const& receiverName /*= ""*/,
-                                  uint32 achievementId /*= 0*/, bool gmMessage /*= false*/, std::string const& channelName /*= ""*/,
-                                  std::string const& addonPrefix /*= ""*/)
-{
-    size_t receiverGUIDPos = 0;
-    data.Initialize(!gmMessage ? SMSG_MESSAGECHAT : SMSG_GM_MESSAGECHAT);
-    data << uint8(chatType);
-    data << int32(language);
-    data << senderGUID;
-    data << uint32(0);  // some flags
-    switch (chatType)
-    {
-        case CHAT_MSG_MONSTER_SAY:
-        case CHAT_MSG_MONSTER_PARTY:
-        case CHAT_MSG_MONSTER_YELL:
-        case CHAT_MSG_MONSTER_WHISPER:
-        case CHAT_MSG_MONSTER_EMOTE:
-        case CHAT_MSG_RAID_BOSS_EMOTE:
-        case CHAT_MSG_RAID_BOSS_WHISPER:
-        case CHAT_MSG_BATTLENET:
-            data << uint32(senderName.length() + 1);
-            data << senderName;
-            receiverGUIDPos = data.wpos();
-            data << receiverGUID;
-            if (!receiverGUID.IsEmpty() && !receiverGUID.IsPlayer() && !receiverGUID.IsPet())
-            {
-                data << uint32(receiverName.length() + 1);
-                data << receiverName;
-            }
-
-            if (language == LANG_ADDON)
-                data << addonPrefix;
-            break;
-        case CHAT_MSG_WHISPER_FOREIGN:
-            data << uint32(senderName.length() + 1);
-            data << senderName;
-            receiverGUIDPos = data.wpos();
-            data << receiverGUID;
-            if (language == LANG_ADDON)
-                data << addonPrefix;
-            break;
-        case CHAT_MSG_BG_SYSTEM_NEUTRAL:
-        case CHAT_MSG_BG_SYSTEM_ALLIANCE:
-        case CHAT_MSG_BG_SYSTEM_HORDE:
-            receiverGUIDPos = data.wpos();
-            data << receiverGUID;
-            if (!receiverGUID.IsEmpty() && !receiverGUID.IsPlayer())
-            {
-                data << uint32(receiverName.length() + 1);
-                data << receiverName;
-            }
-
-            if (language == LANG_ADDON)
-                data << addonPrefix;
-            break;
-        case CHAT_MSG_ACHIEVEMENT:
-        case CHAT_MSG_GUILD_ACHIEVEMENT:
-            receiverGUIDPos = data.wpos();
-            data << receiverGUID;
-            if (language == LANG_ADDON)
-                data << addonPrefix;
-            break;
-        default:
-            if (gmMessage)
-            {
-                data << uint32(senderName.length() + 1);
-                data << senderName;
-            }
-
-            if (chatType == CHAT_MSG_CHANNEL)
-            {
-                ASSERT(channelName.length() > 0);
-                data << channelName;
-            }
-
-            receiverGUIDPos = data.wpos();
-            data << receiverGUID;
-
-            if (language == LANG_ADDON)
-                data << addonPrefix;
-            break;
-    }
-
-    data << uint32(message.length() + 1);
-    data << message;
-    data << uint8(chatTag);
-
-    if (chatType == CHAT_MSG_ACHIEVEMENT || chatType == CHAT_MSG_GUILD_ACHIEVEMENT)
-        data << uint32(achievementId);
-    else if (chatType == CHAT_MSG_RAID_BOSS_WHISPER || chatType == CHAT_MSG_RAID_BOSS_EMOTE)
-    {
-        data << float(0.0f);                        // Display time in middle of the screen (in seconds), defaults to 10 if not set (cannot be below 1)
-        data << uint8(0);                           // Hide in chat frame (only shows in middle of the screen)
-    }
-
-    return receiverGUIDPos;
-}
-
-size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message,
+void ChatHandler::BuildChatPacket(WorldPackets::Chat::Chat* packet, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message,
                                   uint32 achievementId /*= 0*/, std::string const& channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string const& addonPrefix /*= ""*/)
 {
-    ObjectGuid senderGUID;
-    std::string senderName = "";
-    uint8 chatTag = 0;
-    bool gmMessage = false;
-    ObjectGuid receiverGUID;
-    std::string receiverName = "";
+    // Clear everything because same packet can be used multiple times
+    packet->Reset();
+    packet->SenderGUID.Clear();
+    packet->SenderAccountGUID.Clear();
+    packet->SenderGuildGUID.Clear();
+    packet->PartyGUID.Clear();
+    packet->TargetGUID.Clear();
+    packet->SenderName.clear();
+    packet->TargetName.clear();
+    packet->ChatFlags = CHAT_FLAG_NONE;
+    
+    packet->SlashCmd = chatType;
+    packet->Language = language;
+
     if (sender)
     {
-        senderGUID = sender->GetGUID();
-        senderName = sender->GetNameForLocaleIdx(locale);
+        packet->SenderGUID = sender->GetGUID();
+
+        if (Creature const* creatureSender = sender->ToCreature())
+            packet->SenderName = creatureSender->GetNameForLocaleIdx(locale);
+
         if (Player const* playerSender = sender->ToPlayer())
         {
-            chatTag = playerSender->GetChatTag();
-            gmMessage = playerSender->GetSession()->HasPermission(rbac::RBAC_PERM_COMMAND_GM_CHAT);
+            packet->SenderAccountGUID = playerSender->GetSession()->GetAccountGUID();
+            packet->ChatFlags = playerSender->GetChatFlags();
+
+            if (Guild const* guild = playerSender->GetGuild())
+                packet->SenderGuildGUID = guild->GetGUID();
+
+            if (Group const* group = playerSender->GetGroup())
+                packet->PartyGUID = group->GetGUID();
         }
     }
 
     if (receiver)
     {
-        receiverGUID = receiver->GetGUID();
-        receiverName = receiver->GetNameForLocaleIdx(locale);
+        packet->TargetGUID = receiver->GetGUID();
+        if (Creature const* creatureReceiver = receiver->ToCreature())
+            packet->TargetName = creatureReceiver->GetNameForLocaleIdx(locale);
     }
 
-    return BuildChatPacket(data, chatType, language, senderGUID, receiverGUID, message, chatTag, senderName, receiverName, achievementId, gmMessage, channelName, addonPrefix);
+    packet->SenderVirtualAddress = GetVirtualRealmAddress();
+    packet->TargetVirtualAddress = GetVirtualRealmAddress();
+    packet->AchievementID = achievementId;
+    packet->Channel = channelName;
+    packet->Prefix = addonPrefix;
+    packet->ChatText = message;
 }
 
 Player* ChatHandler::getSelectedPlayer()
@@ -1000,7 +926,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
     if (!idS)
         return 0;
 
-    uint32 id = (uint32)atol(idS);
+    uint32 id = atoul(idS);
 
     switch (type)
     {
@@ -1020,7 +946,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
             return id;
         case SPELL_LINK_GLYPH:
         {
-            uint32 glyph_prop_id = param1_str ? (uint32)atol(param1_str) : 0;
+            uint32 glyph_prop_id = param1_str ? atoul(param1_str) : 0;
 
             GlyphPropertiesEntry const* glyphPropEntry = sGlyphPropertiesStore.LookupEntry(glyph_prop_id);
             if (!glyphPropEntry)

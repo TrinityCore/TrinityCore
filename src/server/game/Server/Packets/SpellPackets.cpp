@@ -46,6 +46,43 @@ WorldPacket const* WorldPackets::Spell::SendKnownSpells::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spell::UpdateActionButtons::Write()
+{
+    for (uint32 i = 0; i < MAX_ACTION_BUTTONS; ++i)
+        _worldPacket << ActionButtons[i];
+
+    _worldPacket << Reason;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spell::SendUnlearnSpells::Write()
+{
+    _worldPacket << uint32(Spells.size());
+    for (uint32 spellId : Spells)
+        _worldPacket << uint32(spellId);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spell::SpellCastLogData& spellCastLogData)
+{
+    data << spellCastLogData.Health;
+    data << spellCastLogData.AttackPower;
+    data << spellCastLogData.SpellPower;
+    data << int32(spellCastLogData.PowerData.size());
+    for (WorldPackets::Spell::SpellLogPowerData const& powerData : spellCastLogData.PowerData)
+    {
+        data << powerData.PowerType;
+        data << powerData.Amount;
+    }
+    data.WriteBit(false);
+    // data << float // Unk data if bit is true
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Spell::SendAuraUpdate::Write()
 {
     return &_worldPacket;
