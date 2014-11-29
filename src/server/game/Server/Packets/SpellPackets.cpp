@@ -16,6 +16,7 @@
  */
 
 #include "SpellPackets.h"
+#include "SpellAuraEffects.h"
 
 WorldPacket const* WorldPackets::Spell::CategoryCooldown::Write()
 {
@@ -43,4 +44,85 @@ WorldPacket const* WorldPackets::Spell::SendKnownSpells::Write()
         _worldPacket << uint32(spellId);
 
     return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spell::SendAuraUpdate::Write()
+{
+    return &_worldPacket;
+}
+
+void WorldPackets::Spell::SendAuraUpdate::Init(bool IsFullUpdate, ObjectGuid Target, uint32 Count)
+{
+    _worldPacket.WriteBit(IsFullUpdate);
+    _worldPacket << Target;
+    _worldPacket << uint32(Count);
+}
+
+void WorldPackets::Spell::SendAuraUpdate::BuildUpdatePacket(AuraApplication* aurApp, bool remove, uint16 level)
+{
+    _worldPacket << uint8(aurApp->GetSlot());
+    _worldPacket.ResetBitPos();
+    _worldPacket.WriteBit(!remove);
+
+    if (remove)
+        return;
+
+    Aura const* aura = aurApp->GetBase();
+    _worldPacket << uint32(aura->GetId());
+
+    uint8 flags = aurApp->GetFlags();
+    if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
+        flags |= AFLAG_DURATION;
+    _worldPacket << uint8(flags);
+    
+    _worldPacket << uint32(aurApp->GetEffectMask());
+
+    _worldPacket << uint16(level);
+
+    // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
+    // stack amount has priority over charges (checked on retail with spell 50262)
+    _worldPacket << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
+    
+    uint32 int72 = 0;
+    _worldPacket << int72;
+
+    size_t pos = _worldPacket.wpos();
+    uint32 count = 0;
+    _worldPacket << count;
+
+    //for (int72)
+    //    float
+
+    if (flags & AFLAG_SCALABLE)
+    {
+        for (AuraEffect const* effect : aura->GetAuraEffects())
+        {
+            if (effect && aurApp->HasEffect(effect->GetEffIndex()))       // Not all of aura's effects have to be applied on every target
+            {
+                _worldPacket << int32(effect->GetAmount());
+                count++;
+            }
+        }
+    }
+
+    _worldPacket.put<uint32>(pos, count);
+
+    _worldPacket.ResetBitPos();
+    
+    _worldPacket.WriteBit(!(flags & AFLAG_NOCASTER));
+    _worldPacket.WriteBit(aura->GetDuration());
+    _worldPacket.WriteBit(aura->GetMaxDuration());
+
+    if (!(flags & AFLAG_NOCASTER))
+        _worldPacket << aura->GetCasterGUID().WriteAsPacked();
+
+    if (aura->GetDuration())
+    {
+        _worldPacket << uint32(aura->GetDuration());
+    }
+
+    if (aura->GetMaxDuration())
+    {
+        _worldPacket << uint32(aura->GetMaxDuration());
+    }
 }

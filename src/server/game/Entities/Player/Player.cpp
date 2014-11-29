@@ -23468,17 +23468,18 @@ void Player::SendAurasForTarget(Unit* target)
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SetHover(true, true);
 
-    WorldPacket data(SMSG_AURA_UPDATE_ALL);
-    data << target->GetPackGUID();
-
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
+
+    WorldPackets::Spell::SendAuraUpdate update;
+    update.Init(true, GetGUID(), visibleAuras->size());
+
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
     {
         AuraApplication * auraApp = itr->second;
-        auraApp->BuildUpdatePacket(data, false);
+        update.BuildUpdatePacket(auraApp, false, getLevel()); // TODO 6.x should be caster's level
     }
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(const_cast<WorldPacket*>(update.Write()));
 }
 
 void Player::SetDailyQuestStatus(uint32 quest_id)

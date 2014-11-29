@@ -19,6 +19,7 @@
 #define SpellPackets_h__
 
 #include "Packet.h"
+#include "SpellAuras.h"
 
 namespace WorldPackets
 {
@@ -52,6 +53,16 @@ namespace WorldPackets
 
             bool InitialLogin = false;
             std::vector<uint32> KnownSpells;
+        };
+
+        class SendAuraUpdate final : public ServerPacket
+        {
+        public:
+            SendAuraUpdate() : ServerPacket(SMSG_AURA_UPDATE) { }
+
+            WorldPacket const* Write() override;
+            void Init(bool IsFullUpdate, ObjectGuid Target, uint32 Count);
+            void BuildUpdatePacket(AuraApplication* aurApp, bool remove, uint16 level);
         };
     }
 }
