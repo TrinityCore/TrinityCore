@@ -27,9 +27,6 @@
 #include "ScriptMgr.h"
 #include "ConditionMgr.h"
 #include "Player.h"
-#ifdef ELUNA
-#include "LuaEngine.h"
-#endif
 #include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
@@ -260,9 +257,6 @@ Item::Item()
 
 Item::~Item()
 {
-#ifdef ELUNA
-    Eluna::RemoveRef(this);
-#endif
 }
 
 bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)

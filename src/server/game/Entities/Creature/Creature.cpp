@@ -173,10 +173,6 @@ m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(
 
 Creature::~Creature()
 {
-#ifdef ELUNA
-    Eluna::RemoveRef(this);
-#endif
-
     delete i_AI;
     i_AI = NULL;
 

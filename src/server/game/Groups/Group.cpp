@@ -35,9 +35,6 @@
 #include "Util.h"
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
-#ifdef ELUNA
-#include "LuaEngine.h"
-#endif
 
 Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -67,10 +64,6 @@ m_masterLooterGuid(), m_subGroupsCounts(NULL), m_guid(), m_counter(0), m_maxEnch
 
 Group::~Group()
 {
-#ifdef ELUNA
-    Eluna::RemoveRef(this);
-#endif
-
     if (m_bgGroup)
     {
         TC_LOG_DEBUG("bg.battleground", "Group::~Group: battleground group being deleted.");

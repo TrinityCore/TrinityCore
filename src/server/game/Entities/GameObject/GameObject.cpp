@@ -70,10 +70,6 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 
 GameObject::~GameObject()
 {
-#ifdef ELUNA
-    Eluna::RemoveRef(this);
-#endif
-
     delete m_AI;
     delete m_model;
     //if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded

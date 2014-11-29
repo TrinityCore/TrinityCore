@@ -738,7 +738,7 @@ class WorldObject : public Object, public WorldLocation
         virtual float GetStationaryO() const { return GetOrientation(); }
 
 #ifdef ELUNA
-        ElunaEventProcessor* const elunaEvents;
+        ElunaEventProcessor* elunaEvents;
 #endif
 
     protected:

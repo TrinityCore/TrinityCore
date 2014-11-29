@@ -56,10 +56,6 @@ Map::~Map()
 {
     sScriptMgr->OnDestroyMap(this);
 
-#ifdef ELUNA
-    Eluna::RemoveRef(this);
-#endif
-
     UnloadAll();
 
     while (!i_worldObjects.empty())

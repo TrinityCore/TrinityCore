@@ -31,9 +31,6 @@
 #include "Language.h"
 #include "Log.h"
 #include <vector>
-#ifdef ELUNA
-#include "LuaEngine.h"
-#endif
 
 enum eAuctionHouse
 {
@@ -429,10 +426,6 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
 
 AuctionHouseObject::~AuctionHouseObject()
 {
-#ifdef ELUNA
-    Eluna::RemoveRef(this);
-#endif
-
     for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
         delete itr->second;
 }

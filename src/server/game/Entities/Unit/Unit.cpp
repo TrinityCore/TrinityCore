@@ -63,7 +63,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #ifdef ELUNA
-#include "LuaEngine.h"
 #include "ElunaEventMgr.h"
 #endif
 
@@ -283,10 +282,6 @@ void GlobalCooldownMgr::CancelGlobalCooldown(SpellInfo const* spellInfo)
 // Methods of class Unit
 Unit::~Unit()
 {
-#ifdef ELUNA
-    Eluna::RemoveRef(this);
-#endif
-
     // set current spells as deletable
     for (uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
         if (m_currentSpells[i])
