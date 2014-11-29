@@ -87,9 +87,10 @@ enum Expansions
 
 enum Gender
 {
-    GENDER_MALE                        = 0,
-    GENDER_FEMALE                      = 1,
-    GENDER_NONE                        = 2
+    GENDER_UNKNOWN                     = -1,
+    GENDER_MALE                        =  0,
+    GENDER_FEMALE                      =  1,
+    GENDER_NONE                        =  2
 };
 
 // ChrRaces.dbc (6.0.2.18988)
@@ -844,12 +845,13 @@ enum SpellAttr13
     SPELL_ATTR13_UNK23                            = 0x00800000  // 23
 };
 
-#define MIN_TALENT_GROUP         0
-#define MAX_TALENT_GROUP         1
-#define MIN_TALENT_GROUPS        1
-#define MAX_TALENT_GROUPS        2
-#define MAX_GLYPH_SLOT_INDEX    9
-#define REQ_PRIMARY_TREE_TALENTS 31
+#define MIN_TALENT_GROUP            0
+#define MAX_TALENT_GROUP            1
+#define MIN_TALENT_GROUPS           1
+#define MAX_TALENT_GROUPS           2
+#define MAX_GLYPH_SLOT_INDEX        6
+#define MIN_SPECIALIZATION_LEVEL    10
+#define MAX_SPECIALIZATIONS         4
 
 // Custom values
 enum SpellClickUserTypes
@@ -4156,7 +4158,21 @@ enum ChatMsg
     CHAT_MSG_CURRENCY                           = 0x40
 };
 
+#define GM_SILENCE_AURA 1852
+
 #define MAX_CHAT_MSG_TYPE 0x41
+
+enum ChatFlags
+{
+    CHAT_FLAG_NONE       = 0x00,
+    CHAT_FLAG_AFK        = 0x01,
+    CHAT_FLAG_DND        = 0x02,
+    CHAT_FLAG_GM         = 0x04,
+    CHAT_FLAG_COM        = 0x08, // Commentator
+    CHAT_FLAG_DEV        = 0x10,
+    CHAT_FLAG_BOSS_SOUND = 0x20, // Plays "RaidBossEmoteWarning" sound on raid boss emote/whisper
+    CHAT_FLAG_MOBILE     = 0x40
+};
 
 enum ChatLinkColors
 {

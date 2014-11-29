@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DBCEnums.h"
 #include "ItemPrototype.h"
+#include "Path.h"
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
@@ -60,15 +61,15 @@ struct ItemEntry
     int32       Material;                                   // 4
     uint32      InventoryType;                              // 5
     uint32      Sheath;                                     // 6
-    uint32      AppearanceID;                               // 7 (ItemAppearance.db2)
-    //uint32    Unk;                                        // 8
+    uint32      FileDataID;                                 // 7
+    uint32      GroupSoundsID;                              // 8
 };
 
 struct ItemAppearanceEntry
 {
     uint32      ID;                                         // 0 (reference to ItemModifiedAppearance.db2?)
     uint32      DisplayID;                                  // 1
-    uint32      AppearanceID;                               // 2
+    uint32      FileDataID;                                 // 2
 };
 
 struct ItemCurrencyCostEntry
@@ -153,77 +154,7 @@ struct ItemSparseEntry
     float       StatScalingFactor;                          // 98
     uint32      CurrencySubstitutionID;                     // 99
     uint32      CurrencySubstitutionCount;                  // 100
-    //uint32    Unk3;                                       // 101
-    
-    /*uint32     ID;                                           // 0
-    uint32     Quality;                                      // 1
-    uint32     Flags;                                        // 2
-    uint32     Flags2;                                       // 3
-    float      Unk430_1;
-    float      Unk430_2;
-    uint32     BuyCount;
-    uint32     BuyPrice;                                     // 4
-    uint32     SellPrice;                                    // 5
-    uint32     InventoryType;                                // 6
-    int32      AllowableClass;                               // 7
-    int32      AllowableRace;                                // 8
-    uint32     ItemLevel;                                    // 9
-    int32      RequiredLevel;                                // 10
-    uint32     RequiredSkill;                                // 11
-    uint32     RequiredSkillRank;                            // 12
-    uint32     RequiredSpell;                                // 13
-    uint32     RequiredHonorRank;                            // 14
-    uint32     RequiredCityRank;                             // 15
-    uint32     RequiredReputationFaction;                    // 16
-    uint32     RequiredReputationRank;                       // 17
-    uint32     MaxCount;                                     // 18
-    uint32     Stackable;                                    // 19
-    uint32     ContainerSlots;                               // 20
-    int32      ItemStatType[MAX_ITEM_PROTO_STATS];           // 21 - 30
-    uint32     ItemStatValue[MAX_ITEM_PROTO_STATS];          // 31 - 40
-    int32      ItemStatUnk1[MAX_ITEM_PROTO_STATS];           // 41 - 50
-    int32      ItemStatUnk2[MAX_ITEM_PROTO_STATS];           // 51 - 60
-    uint32     ScalingStatDistribution;                      // 61
-    uint32     DamageType;                                   // 62
-    uint32     Delay;                                        // 63
-    float      RangedModRange;                               // 64
-    int32      SpellId[MAX_ITEM_PROTO_SPELLS];               // 65 - 69
-    int32      SpellTrigger[MAX_ITEM_PROTO_SPELLS];          // 70 - 74
-    int32      SpellCharges[MAX_ITEM_PROTO_SPELLS];          // 75 - 79
-    int32      SpellCooldown[MAX_ITEM_PROTO_SPELLS];         // 80 - 84
-    int32      SpellCategory[MAX_ITEM_PROTO_SPELLS];         // 85 - 89
-    int32      SpellCategoryCooldown[MAX_ITEM_PROTO_SPELLS]; // 90 - 94
-    uint32     Bonding;                                      // 95
-    LocalizedString* Name;                                   // 96
-    LocalizedString* Name2;                                  // 97
-    LocalizedString* Name3;                                  // 98
-    LocalizedString* Name4;                                  // 99
-    LocalizedString* Description;                            // 100
-    uint32     PageText;                                     // 101
-    uint32     LanguageID;                                   // 102
-    uint32     PageMaterial;                                 // 103
-    uint32     StartQuest;                                   // 104
-    uint32     LockID;                                       // 105
-    int32      Material;                                     // 106
-    uint32     Sheath;                                       // 107
-    uint32     RandomProperty;                               // 108
-    uint32     RandomSuffix;                                 // 109
-    uint32     ItemSet;                                      // 110
-    uint32     Area;                                         // 112
-    uint32     Map;                                          // 113
-    uint32     BagFamily;                                    // 114
-    uint32     TotemCategory;                                // 115
-    uint32     Color[MAX_ITEM_PROTO_SOCKETS];                // 116 - 118
-    uint32     Content[MAX_ITEM_PROTO_SOCKETS];              // 119 - 121
-    int32      SocketBonus;                                  // 122
-    uint32     GemProperties;                                // 123
-    float      ArmorDamageModifier;                          // 124
-    uint32     Duration;                                     // 125
-    uint32     ItemLimitCategory;                            // 126
-    uint32     HolidayId;                                    // 127
-    float      StatScalingFactor;                            // 128
-    int32      CurrencySubstitutionId;                       // 129
-    int32      CurrencySubstitutionCount;                    // 130*/
+    uint32      ItemNameDescriptionID;                      // 101
 };
 
 #define MAX_ITEM_EXT_COST_ITEMS         5
@@ -232,13 +163,13 @@ struct ItemSparseEntry
 struct ItemExtendedCostEntry
 {
     uint32      ID;                                         // 0 extended-cost entry id
-    //uint32    reqhonorpoints;                             // 1 required honor points
-    //uint32    reqarenapoints;                             // 2 required arena points
+    uint32      RequiredHonorPoints;                        // 1 required honor points
+    uint32      RequiredArenaPoints;                        // 2 required arena points
     uint32      RequiredArenaSlot;                          // 3 arena slot restrictions (min slot value)
     uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];      // 4-8 required item id
     uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS]; // 9-13 required count of 1st item
     uint32      RequiredPersonalArenaRating;                // 14 required personal arena rating
-    //uint32    ItemPurchaseGroup;                          // 15
+    uint32      ItemPurchaseGroup;                          // 15
     uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];// 16-20 required curency id
     uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];// 21-25 required curency count
     uint32      RequiredFactionId;

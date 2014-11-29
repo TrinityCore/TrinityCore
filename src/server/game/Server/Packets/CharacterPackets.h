@@ -473,50 +473,6 @@ namespace WorldPackets
             int32 MapID = -1;
             bool Showing = false;
         };
-
-        struct PlayerGuidLookupHint
-        {
-            Optional<uint32> VirtualRealmAddress; ///< current realm (?) (identifier made from the Index, BattleGroup and Region)
-            Optional<uint32> NativeRealmAddress; ///< original realm (?) (identifier made from the Index, BattleGroup and Region)
-        };
-
-        struct PlayerGuidLookupData
-        {
-            bool IsDeleted             = false;
-            ObjectGuid AccountID;
-            ObjectGuid BnetAccountID;
-            ObjectGuid GuidActual;
-            std::string Name;
-            uint32 VirtualRealmAddress = 0;
-            uint8 Race                 = RACE_NONE;
-            uint8 Sex                  = GENDER_NONE;
-            uint8 ClassID              = CLASS_NONE;
-            uint8 Level                = 0;
-            DeclinedName DeclinedNames;
-        };
-
-        class QueryPlayerName final : public ClientPacket
-        {
-        public:
-            QueryPlayerName(WorldPacket&& packet) : ClientPacket(CMSG_NAME_QUERY, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid Player;
-            PlayerGuidLookupHint Hint;
-        };
-
-        class PlayerNameResponse final : public ServerPacket
-        {
-        public:
-            PlayerNameResponse() : ServerPacket(SMSG_NAME_QUERY_RESPONSE, 60) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Player;
-            uint8 Result = 0; // 0 - full packet, != 0 - only guid
-            PlayerGuidLookupData Data;
-        };
     }
 }
 

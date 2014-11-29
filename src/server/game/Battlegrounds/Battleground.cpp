@@ -70,7 +70,9 @@ namespace Trinity
         private:
             void do_helper(WorldPacket& data, char const* text)
             {
-                ChatHandler::BuildChatPacket(data, _msgtype, LANG_UNIVERSAL, _source, _source, text);
+                WorldPackets::Chat::Chat packet;
+                ChatHandler::BuildChatPacket(&packet, _msgtype, LANG_UNIVERSAL, _source, _source, text);
+                data = *packet.Write();
             }
 
             ChatMsg _msgtype;
@@ -94,7 +96,9 @@ namespace Trinity
                 char str[2048];
                 snprintf(str, 2048, text, arg1str, arg2str);
 
-                ChatHandler::BuildChatPacket(data, _msgtype, LANG_UNIVERSAL, _source, _source, str);
+                WorldPackets::Chat::Chat packet;
+                ChatHandler::BuildChatPacket(&packet, _msgtype, LANG_UNIVERSAL, _source, _source, str);
+                data = *packet.Write();
             }
 
         private:
@@ -1693,11 +1697,12 @@ void Battleground::SendWarningToAll(uint32 entry, ...)
     if (!entry)
         return;
 
-    std::map<uint32, WorldPacket> localizedPackets;
+    std::map<uint32, WorldPackets::Chat::Chat> localizedPackets;
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayer(itr, "SendWarningToAll"))
         {
-            if (localizedPackets.find(player->GetSession()->GetSessionDbLocaleIndex()) == localizedPackets.end())
+            auto packetItr = localizedPackets.find(player->GetSession()->GetSessionDbLocaleIndex());
+            if (packetItr == localizedPackets.end())
             {
                 char const* format = sObjectMgr->GetTrinityString(entry, player->GetSession()->GetSessionDbLocaleIndex());
 
@@ -1707,10 +1712,10 @@ void Battleground::SendWarningToAll(uint32 entry, ...)
                 vsnprintf(str, 1024, format, ap);
                 va_end(ap);
 
-                ChatHandler::BuildChatPacket(localizedPackets[player->GetSession()->GetSessionDbLocaleIndex()], CHAT_MSG_RAID_BOSS_EMOTE, LANG_UNIVERSAL, NULL, NULL, str);
+                ChatHandler::BuildChatPacket(&packetItr->second, CHAT_MSG_RAID_BOSS_EMOTE, LANG_UNIVERSAL, NULL, NULL, str);
             }
 
-            player->SendDirectMessage(&localizedPackets[player->GetSession()->GetSessionDbLocaleIndex()]);
+            player->SendDirectMessage(packetItr->second.Write());
         }
 }
 

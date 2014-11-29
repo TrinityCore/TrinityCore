@@ -332,15 +332,15 @@ public:
         char* fmaxcount = strtok(NULL, " ");                    //add maxcount, default: 0
         uint32 maxcount = 0;
         if (fmaxcount)
-            maxcount = atol(fmaxcount);
+            maxcount = atoul(fmaxcount);
 
         char* fincrtime = strtok(NULL, " ");                    //add incrtime, default: 0
         uint32 incrtime = 0;
         if (fincrtime)
-            incrtime = atol(fincrtime);
+            incrtime = atoul(fincrtime);
 
         char* fextendedcost = strtok(NULL, " ");                //add ExtendedCost, default: 0
-        uint32 extendedcost = fextendedcost ? atol(fextendedcost) : 0;
+        uint32 extendedcost = fextendedcost ? atoul(fextendedcost) : 0;
         Creature* vendor = handler->getSelectedCreature();
         if (!vendor)
         {
@@ -570,7 +570,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        uint32 itemId = atol(pitem);
+        uint32 itemId = atoul(pitem);
 
         const uint8 type = 1; // FIXME: make type (1 item, 2 currency) an argument
 

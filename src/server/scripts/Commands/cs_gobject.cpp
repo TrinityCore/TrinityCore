@@ -118,7 +118,7 @@ public:
         if (!id)
             return false;
 
-        uint32 objectId = atol(id);
+        uint32 objectId = atoul(id);
         if (!objectId)
             return false;
 
@@ -241,7 +241,7 @@ public:
             if (!id)
                 return false;
 
-            uint32 objectId = atol(id);
+            uint32 objectId = atoul(id);
 
             if (objectId)
                 result = WorldDatabase.PQuery("SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM gameobject WHERE map = '%i' AND id = '%u' ORDER BY order_ ASC LIMIT 1",
@@ -675,12 +675,8 @@ public:
         if (objectType < 4)
             object->SetByteValue(GAMEOBJECT_BYTES_1, objectType, objectState);
         else if (objectType == 4)
-        {
-            WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
-            data << object->GetGUID();
-            data << (uint32)(objectState);
-            object->SendMessageToSet(&data, true);
-        }
+            object->SendCustomAnim(objectState);
+
         handler->PSendSysMessage("Set gobject type %d state %d", objectType, objectState);
         return true;
     }

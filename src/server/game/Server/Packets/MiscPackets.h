@@ -19,11 +19,61 @@
 #define MiscPackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
+#include "WorldSession.h"
+#include "G3D/Vector3.h"
+#include "Object.h"
 
 namespace WorldPackets
 {
     namespace Misc
     {
+        class BindPointUpdate final : public ServerPacket
+        {
+        public:
+            BindPointUpdate() : ServerPacket(SMSG_BINDPOINTUPDATE, 20) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 BindMapID = MAPID_INVALID;
+            G3D::Vector3 BindPosition;
+            uint32 BindAreaID = 0;
+        };
+
+        class InvalidatePlayer final : public ServerPacket
+        {
+        public:
+            InvalidatePlayer() : ServerPacket(SMSG_INVALIDATE_PLAYER, 18) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class LoginSetTimeSpeed final : public ServerPacket
+        {
+        public:
+            LoginSetTimeSpeed() : ServerPacket(SMSG_LOGIN_SETTIMESPEED, 20) { }
+
+            WorldPacket const* Write() override;
+
+            float NewSpeed = 0.0f;
+            int32 ServerTimeHolidayOffset = 0;
+            uint32 GameTime = 0;
+            uint32 ServerTime = 0;
+            int32 GameTimeHolidayOffset = 0;
+        };
+
+        class SetSelection final : public ClientPacket
+        {
+        public:
+            SetSelection(WorldPacket&& packet) : ClientPacket(CMSG_SET_SELECTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Selection; ///< Target
+        };
+
         class ViolenceLevel final : public ClientPacket
         {
         public:
@@ -32,6 +82,77 @@ namespace WorldPackets
             void Read() override;
 
             int8 ViolenceLvl = -1; ///< 0 - no combat effects, 1 - display some combat effects, 2 - blood, 3 - bloody, 4 - bloodier, 5 - bloodiest
+        };
+
+        class TimeSyncRequest final : public ServerPacket
+        {
+        public:
+            TimeSyncRequest() : ServerPacket(SMSG_TIME_SYNC_REQ, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SequenceIndex = 0;
+        };
+
+        class TimeSyncResponse final : public ClientPacket
+        {
+        public:
+            TimeSyncResponse(WorldPacket&& packet) : ClientPacket(CMSG_TIME_SYNC_RESP, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ClientTime = 0; // Client ticks in ms
+            uint32 SequenceIndex = 0; // Same index as in request
+        };
+
+        class UITime final : public ServerPacket
+        {
+        public:
+            UITime() : ServerPacket(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Time = 0;
+        };
+
+        class TutorialFlags : public ServerPacket
+        {
+        public:
+            TutorialFlags() : ServerPacket(SMSG_TUTORIAL_FLAGS, 32)
+            {
+                std::memset(TutorialData, 0, sizeof(TutorialData));
+            }
+
+            WorldPacket const* Write() override;
+
+            uint32 TutorialData[MAX_ACCOUNT_TUTORIAL_VALUES];
+        };
+
+        class TutorialSetFlag final : public ClientPacket
+        {
+        public:
+            TutorialSetFlag(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_FLAG, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Action = 0;
+            uint32 TutorialBit = 0;
+        };
+
+        class WorldServerInfo final : public ServerPacket
+        {
+        public:
+            WorldServerInfo() : ServerPacket(SMSG_WORLD_SERVER_INFO, 26) { }
+
+            WorldPacket const* Write() override;
+
+            Optional<uint32> IneligibleForLootMask; ///< Encountermask?
+            uint32 WeeklyReset      = 0; ///< UnixTime of last Weekly Reset Time
+            Optional<uint32> InstanceGroupSize;
+            uint8 IsTournamentRealm = 0;
+            Optional<uint32> RestrictedAccountMaxLevel;
+            Optional<uint32> RestrictedAccountMaxMoney;
+            uint32 DifficultyID     = 0;
         };
     }
 }

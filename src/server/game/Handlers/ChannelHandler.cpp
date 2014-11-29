@@ -18,31 +18,20 @@
 
 #include "ObjectMgr.h"                                      // for normalizePlayerName
 #include "ChannelMgr.h"
+#include "ChannelPackets.h"
 #include "Player.h"
 #include "WorldSession.h"
 
 #include <cctype>
 
-void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
+void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
 {
-    uint32 channelId;
-    uint32 channelLength, passLength;
-    std::string channelName, password;
+    TC_LOG_DEBUG("chat.system", "CMSG_JOIN_CHANNEL %s ChatChannelId: %u, CreateVoiceSession: %u, Internal: %u, ChannelName: %s, Password: %s",
+        GetPlayerInfo().c_str(), packet.ChatChannelId, packet.CreateVoiceSession, packet.Internal, packet.ChannelName.c_str(), packet.Password.c_str());
 
-    recvPacket >> channelId;
-    uint8 unknown1 = recvPacket.ReadBit();   // unknowns
-    uint8 unknown2 = recvPacket.ReadBit();
-    channelLength = recvPacket.ReadBits(8);
-    passLength = recvPacket.ReadBits(8);
-    channelName = recvPacket.ReadString(channelLength);
-    password = recvPacket.ReadString(passLength);
-
-    TC_LOG_DEBUG("chat.system", "CMSG_JOIN_CHANNEL %s Channel: %u, unk1: %u, unk2: %u, channel: %s, password: %s",
-        GetPlayerInfo().c_str(), channelId, unknown1, unknown2, channelName.c_str(), password.c_str());
-
-    if (channelId)
+    if (packet.ChatChannelId)
     {
-        ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(channelId);
+        ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(packet.ChatChannelId);
         if (!channel)
             return;
 
@@ -51,53 +40,43 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
             return;
     }
 
-    if (channelName.empty())
+    if (packet.ChannelName.empty())
         return;
 
-    if (isdigit(channelName[0]))
+    if (isdigit(packet.ChannelName[0]))
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
     {
-        cMgr->setTeam(GetPlayer()->GetTeam());
-        if (Channel* channel = cMgr->GetJoinChannel(channelName, channelId))
-            channel->JoinChannel(GetPlayer(), password);
+        cMgr->SetTeam(GetPlayer()->GetTeam());
+        if (Channel* channel = cMgr->GetJoinChannel(packet.ChannelName, packet.ChatChannelId))
+            channel->JoinChannel(GetPlayer(), packet.Password);
     }
 }
 
-void WorldSession::HandleLeaveChannel(WorldPacket& recvPacket)
+void WorldSession::HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet)
 {
-    uint32 unk;
-    std::string channelName;
-    recvPacket >> unk;                                      // channel id?
-    uint32 length = recvPacket.ReadBits(8);
-    channelName = recvPacket.ReadString(length);
+    TC_LOG_DEBUG("chat.system", "CMSG_LEAVE_CHANNEL %s ChannelName: %s, ZoneChannelID: %u",
+        GetPlayerInfo().c_str(), packet.ChannelName.c_str(), packet.ZoneChannelID);
 
-    TC_LOG_DEBUG("chat.system", "CMSG_LEAVE_CHANNEL %s Channel: %s, unk1: %u",
-        GetPlayerInfo().c_str(), channelName.c_str(), unk);
-
-    if (channelName.empty())
+    if (packet.ChannelName.empty())
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
     {
-        if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
+        if (Channel* channel = cMgr->GetChannel(packet.ChannelName, GetPlayer()))
             channel->LeaveChannel(GetPlayer(), true);
-        cMgr->LeftChannel(channelName);
+        cMgr->LeftChannel(packet.ChannelName);
     }
 }
 
-void WorldSession::HandleChannelList(WorldPacket& recvPacket)
+void WorldSession::HandleChannelList(WorldPackets::Channel::ChannelListRequest& packet)
 {
-    uint32 length = recvPacket.ReadBits(8);
-    std::string channelName = recvPacket.ReadString(length);
+    TC_LOG_DEBUG("chat.system", "%s %s ChannelName: %s",
+        GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str());
 
-    TC_LOG_DEBUG("chat.system", "%s %s Channel: %s",
-        recvPacket.GetOpcode() == CMSG_CHANNEL_DISPLAY_LIST ? "CMSG_CHANNEL_DISPLAY_LIST" : "CMSG_CHANNEL_LIST",
-        GetPlayerInfo().c_str(), channelName.c_str());
-
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
-        if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
+        if (Channel* channel = cMgr->GetChannel(packet.ChannelName, GetPlayer()))
             channel->List(GetPlayer());
 }
 
@@ -115,7 +94,7 @@ void WorldSession::HandleChannelPassword(WorldPacket& recvPacket)
     if (password.length() > MAX_CHANNEL_PASS_STR)
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->Password(GetPlayer(), password);
 }
@@ -134,7 +113,7 @@ void WorldSession::HandleChannelSetOwner(WorldPacket& recvPacket)
     if (!normalizePlayerName(targetName))
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->SetOwner(GetPlayer(), targetName);
 }
@@ -147,9 +126,9 @@ void WorldSession::HandleChannelOwner(WorldPacket& recvPacket)
     TC_LOG_DEBUG("chat.system", "CMSG_CHANNEL_OWNER %s Channel: %s",
         GetPlayerInfo().c_str(), channelName.c_str());
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
-            channel->SendWhoOwner(GetPlayer()->GetGUID());
+            channel->SendWhoOwner(GetPlayer());
 }
 
 void WorldSession::HandleChannelModerator(WorldPacket& recvPacket)
@@ -166,7 +145,7 @@ void WorldSession::HandleChannelModerator(WorldPacket& recvPacket)
     if (!normalizePlayerName(targetName))
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->SetModerator(GetPlayer(), targetName);
 }
@@ -185,7 +164,7 @@ void WorldSession::HandleChannelUnmoderator(WorldPacket& recvPacket)
     if (!normalizePlayerName(targetName))
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->UnsetModerator(GetPlayer(), targetName);
 }
@@ -204,7 +183,7 @@ void WorldSession::HandleChannelMute(WorldPacket& recvPacket)
     if (!normalizePlayerName(targetName))
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->SetMute(GetPlayer(), targetName);
 }
@@ -223,7 +202,7 @@ void WorldSession::HandleChannelUnmute(WorldPacket& recvPacket)
     if (!normalizePlayerName(targetName))
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->UnsetMute(GetPlayer(), targetName);
 }
@@ -242,7 +221,7 @@ void WorldSession::HandleChannelInvite(WorldPacket& recvPacket)
     if (!normalizePlayerName(targetName))
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->Invite(GetPlayer(), targetName);
 }
@@ -261,7 +240,7 @@ void WorldSession::HandleChannelKick(WorldPacket& recvPacket)
     if (!normalizePlayerName(targetName))
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->Kick(GetPlayer(), targetName);
 }
@@ -283,7 +262,7 @@ void WorldSession::HandleChannelBan(WorldPacket& recvPacket)
     if (!normalizePlayerName(targetName))
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->Ban(GetPlayer(), targetName);
 }
@@ -302,7 +281,7 @@ void WorldSession::HandleChannelUnban(WorldPacket& recvPacket)
     if (!normalizePlayerName(targetName))
         return;
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->UnBan(GetPlayer(), targetName);
 }
@@ -315,15 +294,9 @@ void WorldSession::HandleChannelAnnouncements(WorldPacket& recvPacket)
     TC_LOG_DEBUG("chat.system", "CMSG_CHANNEL_ANNOUNCEMENTS %s Channel: %s",
         GetPlayerInfo().c_str(), channelName.c_str());
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->Announce(GetPlayer());
-}
-
-void WorldSession::HandleChannelDisplayListQuery(WorldPacket &recvPacket)
-{
-    // this should be OK because the 2 function _were_ the same
-    HandleChannelList(recvPacket);
 }
 
 void WorldSession::HandleGetChannelMemberCount(WorldPacket &recvPacket)
@@ -334,7 +307,7 @@ void WorldSession::HandleGetChannelMemberCount(WorldPacket &recvPacket)
     TC_LOG_DEBUG("chat.system", "CMSG_GET_CHANNEL_MEMBER_COUNT %s Channel: %s",
         GetPlayerInfo().c_str(), channelName.c_str());
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
     {
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
         {

@@ -23,6 +23,8 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Formulas.h"
+#include "QuestPackets.h"
+#include "NPCPackets.h"
 
 GossipMenu::GossipMenu()
 {
@@ -192,44 +194,45 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
 {
     _gossipMenu.SetSenderGUID(objectGUID);
 
-    WorldPacket data(SMSG_GOSSIP_MESSAGE, 100);         // guess size
-    data << objectGUID;
-    data << uint32(_gossipMenu.GetMenuId());            // new 2.4.0
-    data << uint32(titleTextId);
-    data << uint32(_gossipMenu.GetMenuItemCount());     // max count 0x10
+    WorldPackets::NPC::GossipMessage packet;
+    packet.GossipGUID = objectGUID;
+    packet.TextID = titleTextId;
 
+    packet.GossipOptions.resize(_gossipMenu.GetMenuItems().size());
+    uint32 count = 0;
     for (GossipMenuItemContainer::const_iterator itr = _gossipMenu.GetMenuItems().begin(); itr != _gossipMenu.GetMenuItems().end(); ++itr)
     {
+        WorldPackets::NPC::ClientGossipOptions& opt = packet.GossipOptions[count];
         GossipMenuItem const& item = itr->second;
-        data << uint32(itr->first);
-        data << uint8(item.MenuItemIcon);
-        data << uint8(item.IsCoded);                    // makes pop up box password
-        data << uint32(item.BoxMoney);                  // money required to open menu, 2.0.3
-        data << item.Message;                           // text for gossip item
-        data << item.BoxMessage;                        // accept text (related to money) pop up box, 2.0.3
+        opt.ClientOption = itr->first;
+        opt.OptionNPC = item.MenuItemIcon;
+        opt.OptionFlags = item.IsCoded;     // makes pop up box password
+        opt.OptionCost = item.BoxMoney;     // money required to open menu, 2.0.3
+        opt.Text = item.Message;            // text for gossip item
+        opt.Confirm = item.BoxMessage;      // accept text (related to money) pop up box, 2.0.3
+        ++count;
     }
-
-    size_t count_pos = data.wpos();
-    data << uint32(0);                                  // max count 0x20
-    uint32 count = 0;
 
     // Store this instead of checking the Singleton every loop iteration
     bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
 
+    packet.GossipText.resize(_questMenu.GetMenuItemCount());
+    count = 0;
     for (uint8 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
     {
         QuestMenuItem const& item = _questMenu.GetItem(i);
         uint32 questID = item.QuestId;
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
-            ++count;
-            data << uint32(questID);
-            data << uint32(item.QuestIcon);
-            data << int32(quest->GetQuestLevel());
-            data << uint32(quest->GetFlags());              // 3.3.3 quest flags
-            data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
-            std::string title = quest->GetTitle();
+            WorldPackets::NPC::ClientGossipText& text = packet.GossipText[count];
+            text.QuestID = questID;
+            text.QuestType = item.QuestIcon;
+            text.QuestLevel = quest->GetQuestLevel();
+            text.QuestFlags[0] = quest->GetFlags();
+            text.QuestFlags[1] = 0;
+            text.Repeatable = quest->IsRepeatable();
 
+            std::string title = quest->GetTitle();
             int32 locale = _session->GetSessionDbLocaleIndex();
             if (locale >= 0)
                 if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
@@ -238,12 +241,15 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             if (questLevelInTitle)
                 AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
-            data << title;                                  // max 0x200
+            text.QuestTitle = title;
+            ++count;
         }
     }
 
-    data.put<uint8>(count_pos, count);
-    _session->SendPacket(&data);
+    // Shrink to the real size
+    packet.GossipText.resize(count);
+
+    _session->SendPacket(packet.Write());
 }
 
 void PlayerMenu::SendCloseGossip()
@@ -373,11 +379,11 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
 
 void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const
 {
-    WorldPacket data(SMSG_QUESTGIVER_STATUS, 8 + 4);
-    data << npcGUID;
-    data << uint32(questStatus);
+    WorldPackets::Quest::QuestGiverStatus packet;
+    packet.QuestGiver.Guid = npcGUID;
+    packet.QuestGiver.Status = questStatus;
 
-    _session->SendPacket(&data);
+    _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC=%s, status=%u", npcGUID.ToString().c_str(), questStatus);
 }
 

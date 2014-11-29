@@ -33,6 +33,7 @@
 #include "CreatureAI.h"
 #include "Spell.h"
 #include "WorldSession.h"
+#include "Packets/ChatPackets.h"
 
 class Player;
 //class Map;
@@ -125,11 +126,11 @@ namespace Trinity
     struct MessageDistDeliverer
     {
         WorldObject* i_source;
-        WorldPacket* i_message;
+        WorldPacket const* i_message;
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject* src, WorldPacket* msg, float dist, bool own_team_only = false, Player const* skipped = NULL)
+        MessageDistDeliverer(WorldObject* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = NULL)
             : i_source(src), i_message(msg), i_distSq(dist * dist)
             , team(0)
             , skipped_receiver(skipped)

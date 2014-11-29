@@ -204,9 +204,10 @@ public:
         Player* target;
         ObjectGuid targetGuid;
         std::string targetName;
-        /* TODO: 6.x remove/update pet talents
+
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
         {
+            /* TODO: 6.x remove/update pet talents
             // Try reset talents as Hunter Pet
             Creature* creature = handler->getSelectedCreature();
             if (!*args && creature && creature->IsPet())
@@ -223,12 +224,12 @@ public:
                 }
                 return true;
             }
+            */
 
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
             handler->SetSentErrorMessage(true);
             return false;
         }
-        */
 
         if (target)
         {

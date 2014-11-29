@@ -24,6 +24,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
+#include "ChatPackets.h"
 
 class CreatureTextBuilder
 {
@@ -31,11 +32,12 @@ class CreatureTextBuilder
         CreatureTextBuilder(WorldObject const* obj, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
             : _source(obj), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
-        size_t operator()(WorldPacket* data, LocaleConstant locale) const
+        void operator()(WorldPacket& data, LocaleConstant locale) const
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
-
-            return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _source, _target, text, 0, "", locale);
+            WorldPackets::Chat::Chat packet;
+            ChatHandler::BuildChatPacket(&packet, _msgType, Language(_language), _source, _target, text, 0, "", locale);
+            data = *packet.Write();
         }
 
     private:
@@ -54,11 +56,12 @@ class PlayerTextBuilder
         PlayerTextBuilder(WorldObject const* obj, WorldObject const* speaker, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
             : _source(obj), _talker(speaker), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
-        size_t operator()(WorldPacket* data, LocaleConstant locale) const
+        void operator()(WorldPacket& data, LocaleConstant locale) const
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
-
-            return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            WorldPackets::Chat::Chat packet;
+            return ChatHandler::BuildChatPacket(&packet, _msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            data = *packet.Write();
         }
 
     private:

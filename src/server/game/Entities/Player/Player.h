@@ -328,15 +328,15 @@ enum ReputationSource
     REPUTATION_SOURCE_SPELL
 };
 
-#define ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
-#define ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
-#define MAX_ACTION_BUTTON_ACTION_VALUE (0x00FFFFFF+1)
+#define ACTION_BUTTON_ACTION(X) (uint64(X) & 0x00000000FFFFFFFF)
+#define ACTION_BUTTON_TYPE(X)   ((uint64(X) & 0xFFFFFFFF00000000) >> 32)
+#define MAX_ACTION_BUTTON_ACTION_VALUE (0xFFFFFFFF)
 
 struct ActionButton
 {
     ActionButton() : packedData(0), uState(ACTIONBUTTON_NEW) { }
 
-    uint32 packedData;
+    uint64 packedData;
     ActionButtonUpdateState uState;
 
     // helpers
@@ -344,7 +344,7 @@ struct ActionButton
     uint32 GetAction() const { return ACTION_BUTTON_ACTION(packedData); }
     void SetActionAndType(uint32 action, ActionButtonType type)
     {
-        uint32 newData = action | (uint32(type) << 24);
+        uint64 newData = uint64(action) | (uint64(type) << 32);
         if (newData != packedData || uState == ACTIONBUTTON_DELETED)
         {
             packedData = newData;
@@ -354,7 +354,7 @@ struct ActionButton
     }
 };
 
-#define  MAX_ACTION_BUTTONS 144                             //checked in 3.2.0
+#define MAX_ACTION_BUTTONS 132
 
 typedef std::map<uint8, ActionButton> ActionButtonList;
 
@@ -747,24 +747,26 @@ enum EquipmentSetUpdateState
     EQUIPMENT_SET_DELETED   = 3
 };
 
-struct EquipmentSet
+struct EquipmentSetInfo
 {
-    EquipmentSet() : Guid(0), IgnoreMask(0), state(EQUIPMENT_SET_NEW)
+    /// Data sent in EquipmentSet related packets
+    struct EquipmentSetData
     {
-        memset(Items, 0, sizeof(Items));
-    }
+        uint64 Guid       = 0; ///< Set Identifier
+        uint32 SetID      = 0; ///< Index
+        uint32 IgnoreMask = 0; ///< Mask of EquipmentSlot
+        std::string SetName;
+        std::string SetIcon;
+        ObjectGuid Pieces[EQUIPMENT_SLOT_END];
+    } Data;
 
-    uint64 Guid;
-    std::string Name;
-    std::string IconName;
-    uint32 IgnoreMask;
-    ObjectGuid::LowType Items[EQUIPMENT_SLOT_END];
-    EquipmentSetUpdateState state;
+    /// Server-side data
+    EquipmentSetUpdateState State = EQUIPMENT_SET_NEW;
 };
 
 #define MAX_EQUIPMENT_SET_INDEX 10                          // client limit
 
-typedef std::map<uint32, EquipmentSet> EquipmentSets;
+typedef std::map<uint32, EquipmentSetInfo> EquipmentSetContainer;
 
 struct ItemPosCount
 {
@@ -785,24 +787,45 @@ enum TradeSlots
 
 enum TransferAbortReason
 {
-    TRANSFER_ABORT_NONE                         = 0x00,
-    TRANSFER_ABORT_ERROR                        = 0x01,
-    TRANSFER_ABORT_MAX_PLAYERS                  = 0x02,         // Transfer Aborted: instance is full
-    TRANSFER_ABORT_NOT_FOUND                    = 0x03,         // Transfer Aborted: instance not found
-    TRANSFER_ABORT_TOO_MANY_INSTANCES           = 0x04,         // You have entered too many instances recently.
-    TRANSFER_ABORT_ZONE_IN_COMBAT               = 0x06,         // Unable to zone in while an encounter is in progress.
-    TRANSFER_ABORT_INSUF_EXPAN_LVL              = 0x07,         // You must have <TBC, WotLK> expansion installed to access this area.
-    TRANSFER_ABORT_DIFFICULTY                   = 0x08,         // <Normal, Heroic, Epic> difficulty mode is not available for %s.
-    TRANSFER_ABORT_UNIQUE_MESSAGE               = 0x09,         // Until you've escaped TLK's grasp, you cannot leave this place!
-    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES     = 0x0A,         // Additional instances cannot be launched, please try again later.
-    TRANSFER_ABORT_NEED_GROUP                   = 0x0B,         // 3.1
-    TRANSFER_ABORT_NOT_FOUND1                   = 0x0C,         // 3.1
-    TRANSFER_ABORT_NOT_FOUND2                   = 0x0D,         // 3.1
-    TRANSFER_ABORT_NOT_FOUND3                   = 0x0E,         // 3.2
-    TRANSFER_ABORT_REALM_ONLY                   = 0x0F,         // All players on party must be from the same realm.
-    TRANSFER_ABORT_MAP_NOT_ALLOWED              = 0x10,         // Map can't be entered at this time.
-    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE = 0x12,         // 4.2.2
-    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER  = 0x13         // 4.2.2
+    TRANSFER_ABORT_NONE                          = 0,
+    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES      = 1,   // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_DIFFICULTY                    = 3,   // <Normal, Heroic, Epic> difficulty mode is not available for %s.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL               = 8,   // You must have <TBC, WotLK> expansion installed to access this area.
+    TRANSFER_ABORT_NOT_FOUND                     = 10,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TOO_MANY_INSTANCES            = 11,  // You have entered too many instances recently.
+    TRANSFER_ABORT_MAX_PLAYERS                   = 12,  // Transfer Aborted: instance is full
+    TRANSFER_ABORT_XREALM_ZONE_DOWN              = 14,  // Transfer Aborted: cross-realm zone is down
+    TRANSFER_ABORT_NOT_FOUND_2                   = 15,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_DIFFICULTY_NOT_FOUND          = 16,  // client writes to console "Unable to resolve requested difficultyID %u to actual difficulty for map %d"
+    TRANSFER_ABORT_NOT_FOUND_3                   = 17,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_NOT_FOUND_4                   = 18,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_ZONE_IN_COMBAT                = 19,  // Unable to zone in while an encounter is in progress.
+    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER   = 20,  // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
+    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE  = 24,  // You are already locked to %s
+    TRANSFER_ABORT_REALM_ONLY                    = 25,  // All players in the party must be from the same realm to enter %s.
+    TRANSFER_ABORT_MAP_NOT_ALLOWED               = 27,  // Map cannot be entered at this time.
+    TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY = 28,  // This instance is already in progress. You may only switch difficulties from inside the instance.
+    TRANSFER_ABORT_NEED_GROUP                    = 29,  // Transfer Aborted: you must be in a raid group to enter this instance
+    TRANSFER_ABORT_UNIQUE_MESSAGE                = 30,  // Until you've escaped TLK's grasp, you cannot leave this place!
+    TRANSFER_ABORT_ERROR                         = 31,
+    /*
+    // Unknown values - not used by the client to display any error
+    TRANSFER_ABORT_MANY_REALM_INSTANCES
+    TRANSFER_ABORT_AREA_NOT_ZONED
+    TRANSFER_ABORT_TIMEOUT
+    TRANSFER_ABORT_SHUTTING_DOWN
+    TRANSFER_ABORT_PLAYER_CONDITION
+    TRANSFER_ABORT_BUSY
+    TRANSFER_ABORT_DISCONNECTED
+    TRANSFER_ABORT_LOGGING_OUT
+    TRANSFER_ABORT_NEED_SERVER
+    */
+};
+
+enum NewWorldReason
+{
+    NEW_WORLD_NORMAL    = 16,   // Normal map change
+    NEW_WORLD_SEAMLESS  = 21,   // Teleport to another map without a loading screen, used for outdoor scenarios
 };
 
 enum InstanceResetWarningType
@@ -856,18 +879,6 @@ enum EnviromentalDamage
     DAMAGE_SLIME     = 4,
     DAMAGE_FIRE      = 5,
     DAMAGE_FALL_TO_VOID = 6                                 // custom case for fall without durability loss
-};
-
-enum PlayerChatTag
-{
-    CHAT_TAG_NONE       = 0x00,
-    CHAT_TAG_AFK        = 0x01,
-    CHAT_TAG_DND        = 0x02,
-    CHAT_TAG_GM         = 0x04,
-    CHAT_TAG_COM        = 0x08, // Commentator
-    CHAT_TAG_DEV        = 0x10,
-    CHAT_TAG_BOSS_SOUND = 0x20, // Plays "RaidBossEmoteWarning" sound on raid boss emote/whisper
-    CHAT_TAG_MOBILE     = 0x40
 };
 
 enum PlayedTimeIndex
@@ -1314,7 +1325,7 @@ class Player : public Unit, public GridObject<Player>
         void ToggleDND();
         bool isAFK() const { return HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK); }
         bool isDND() const { return HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DND); }
-        uint8 GetChatTag() const;
+        uint8 GetChatFlags() const;
         std::string autoReplyMsg;
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=NULL);
@@ -1747,8 +1758,8 @@ class Player : public Unit, public GridObject<Player>
         Unit* GetSelectedUnit() const;
         Player* GetSelectedPlayer() const;
 
-        void SetTarget(ObjectGuid /*guid*/) override { } /// Used for serverside target changes, does not apply to players
-        void SetSelection(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_TARGET, guid); }
+        void SetTarget(ObjectGuid const& /*guid*/) override { } /// Used for serverside target changes, does not apply to players
+        void SetSelection(ObjectGuid const& guid) { SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() const { return m_comboPoints; }
         ObjectGuid GetComboTarget() const { return m_comboTarget; }
@@ -1841,6 +1852,7 @@ class Player : public Unit, public GridObject<Player>
         bool LearnTalent(uint32 talentId);
         bool AddTalent(uint32 talentId, uint8 spec);
         bool HasTalent(uint32 talentId, uint8 spec);
+        void LearnTalentSpecialization(uint32 talentSpec);
 
         // Dual Spec
         void UpdateTalentGroupCount(uint8 count);
@@ -1967,6 +1979,7 @@ class Player : public Unit, public GridObject<Player>
         void SetGuildIdInvited(ObjectGuid::LowType GuildId) { m_GuildIdInvited = GuildId; }
         ObjectGuid::LowType GetGuildId() const { return GetUInt64Value(OBJECT_FIELD_DATA); /* return only lower part */ }
         Guild* GetGuild();
+        Guild const* GetGuild() const;
         static ObjectGuid::LowType GetGuildIdFromDB(ObjectGuid guid);
         static uint8 GetRankFromDB(ObjectGuid guid);
         ObjectGuid::LowType GetGuildIdInvited() { return m_GuildIdInvited; }
@@ -2088,10 +2101,10 @@ class Player : public Unit, public GridObject<Player>
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
-        void SendMessageToSet(WorldPacket* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet
-        void SendMessageToSetInRange(WorldPacket* data, float fist, bool self) override;// overwrite Object::SendMessageToSetInRange
-        void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
-        void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr) override;
+        void SendMessageToSet(WorldPacket const* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet
+        void SendMessageToSetInRange(WorldPacket const* data, float fist, bool self) override;// overwrite Object::SendMessageToSetInRange
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only);
+        void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) override;
 
         Corpse* GetCorpse() const;
         void SpawnCorpseBones();
@@ -2239,12 +2252,12 @@ class Player : public Unit, public GridObject<Player>
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item* item, ItemTemplate const* proto);
 
         void SendEquipmentSetList();
-        void SetEquipmentSet(uint32 index, EquipmentSet eqset);
+        void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData&& newEqSet);
         void DeleteEquipmentSet(uint64 setGuid);
 
         void SendInitWorldStates(uint32 zone, uint32 area);
         void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false);
-        void SendDirectMessage(WorldPacket const* data);
+        void SendDirectMessage(WorldPacket const* data) const;
         void SendBGWeekendWorldStates();
         void SendBattlefieldWorldStates();
 
@@ -2378,6 +2391,7 @@ class Player : public Unit, public GridObject<Player>
         void   SaveRecallPosition();
 
         void SetHomebind(WorldLocation const& loc, uint32 areaId);
+        void SendBindPointUpdate();
 
         // Homebind coordinates
         uint32 m_homebindMapId;
@@ -2851,7 +2865,7 @@ class Player : public Unit, public GridObject<Player>
 
         DeclinedName *m_declinedname;
         Runes *m_runes;
-        EquipmentSets m_EquipmentSets;
+        EquipmentSetContainer _equipmentSets;
 
         bool CanAlwaysSee(WorldObject const* obj) const override;
 

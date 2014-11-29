@@ -88,3 +88,123 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Query::QueryPlayerName::Read()
+{
+    _worldPacket >> Player;
+
+    Hint.VirtualRealmAddress.HasValue = _worldPacket.ReadBit();
+    Hint.NativeRealmAddress.HasValue = _worldPacket.ReadBit();
+
+    if (Hint.VirtualRealmAddress.HasValue)
+        _worldPacket >> Hint.VirtualRealmAddress.Value;
+
+    if (Hint.NativeRealmAddress.HasValue)
+        _worldPacket >> Hint.NativeRealmAddress.Value;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
+{
+    _worldPacket << Result;
+    _worldPacket << Player;
+
+    if (Result == RESPONSE_SUCCESS)
+    {
+        _worldPacket.WriteBits(Data.Name.length(), 7);
+
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteBits(Data.DeclinedNames.name[i].length(), 7);
+
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteString(Data.DeclinedNames.name[i]);
+
+        _worldPacket << Data.AccountID;
+        _worldPacket << Data.BnetAccountID;
+        _worldPacket << Data.GuidActual;
+        _worldPacket << Data.VirtualRealmAddress;
+        _worldPacket << Data.Race;
+        _worldPacket << Data.Sex;
+        _worldPacket << Data.ClassID;
+        _worldPacket << Data.Level;
+        _worldPacket.WriteString(Data.Name);
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryPageText::Read()
+{
+    _worldPacket >> PageTextID;
+    _worldPacket >> ItemGUID;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
+{
+    _worldPacket << PageTextID;
+    _worldPacket.WriteBit(Allow);
+
+    if (Allow)
+    {
+        _worldPacket << Info.ID;
+        _worldPacket << Info.NextPageID;
+        _worldPacket.WriteBits(Info.Text.length(), 12);
+        _worldPacket.WriteString(Info.Text);
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryNPCText::Read()
+{
+    _worldPacket >> TextID;
+    _worldPacket >> Guid;
+}
+
+WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
+{
+    _worldPacket << TextID;
+    _worldPacket.WriteBit(Allow);
+
+    if (Allow)
+    {
+        _worldPacket << int32(MAX_GOSSIP_TEXT_OPTIONS * (4 + 4));
+        for (uint32 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+            _worldPacket << Probabilities[i];
+        for (uint32 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+            _worldPacket << BroadcastTextID[i];
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::DBQueryBulk::Read()
+{
+    _worldPacket >> TableHash;
+
+    uint32 count = _worldPacket.ReadBits(13);
+    _worldPacket.ResetBitPos();
+
+    Queries.resize(count);
+    for (uint32 i = 0; i < count; ++i)
+    {
+        _worldPacket >> Queries[i].GUID;
+        _worldPacket >> Queries[i].RecordID;
+    }
+}
+
+WorldPacket const* WorldPackets::Query::DBReply::Write()
+{
+    _worldPacket << TableHash;
+    _worldPacket << RecordID;
+    _worldPacket << Timestamp;
+
+    size_t sizePos = _worldPacket.wpos();
+    _worldPacket << int32(0); // size of next block
+
+    if (Data)
+        Data->WriteRecord(RecordID, Locale, _worldPacket);
+
+    _worldPacket.put<int32>(sizePos, _worldPacket.wpos() - sizePos - 4);
+
+    return &_worldPacket;
+}
