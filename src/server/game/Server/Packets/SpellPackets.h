@@ -309,6 +309,17 @@ namespace WorldPackets
             SpellCastData Cast;
         };
 
+        class LearnedSpell final : public ServerPacket
+        {
+        public:
+            explicit LearnedSpell() : ServerPacket(SMSG_LEARNED_SPELL, 4 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            uint16 ActionBarSlot = 0; // unused on client
+        };
+
         class PlaySpellVisualKit final : public ServerPacket
         {
         public:

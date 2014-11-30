@@ -375,6 +375,14 @@ WorldPacket const* SpellGo::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* LearnedSpell::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << uint16(ActionBarSlot);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* PlaySpellVisualKit::Write()
 {
     _worldPacket << Unit;
