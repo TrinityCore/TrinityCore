@@ -17,7 +17,6 @@
  */
 
 #include "DBCStores.h"
-#include "DB2Stores.h"
 #include "Containers.h"
 #include "Log.h"
 #include "SharedDefines.h"
@@ -229,8 +228,6 @@ DBCStorage <WorldMapAreaEntry> sWorldMapAreaStore(WorldMapAreaEntryfmt);
 DBCStorage <WorldMapOverlayEntry> sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
 DBCStorage <PhaseEntry> sPhaseStore(PhaseEntryfmt);
-
-PhaseGroupContainer sPhasesByGroup;
 
 typedef std::list<std::string> StoreProblemList;
 
@@ -478,11 +475,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");//19116
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sPhaseStore,                  dbcPath, "Phase.dbc"); // 19116
-
-    for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
-        if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
-            if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
-                sPhasesByGroup[group->PhaseGroupID].insert(phase->ID);
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath, "PowerDisplay.dbc");//19116
 
@@ -1177,9 +1169,4 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     }
 
     return NULL;
-}
-
-std::set<uint32> const& GetPhasesForGroup(uint32 group)
-{
-    return sPhasesByGroup[group];
 }

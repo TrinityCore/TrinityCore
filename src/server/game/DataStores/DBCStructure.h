@@ -2371,6 +2371,4 @@ struct MapDifficulty
 };
 
 typedef std::map<uint32, uint32> TalentSpellPosMap;
-
-typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
 #endif

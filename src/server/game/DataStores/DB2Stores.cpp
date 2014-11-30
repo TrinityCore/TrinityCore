@@ -52,6 +52,7 @@ TaxiMask                                    sAllianceTaxiNodesMask;
 TaxiMask                                    sDeathKnightTaxiNodesMask;
 TaxiPathSetBySource                         sTaxiPathSetBySource;
 TaxiPathNodesByPath                         sTaxiPathNodesByPath;
+PhaseGroupContainer sPhasesByGroup;
 
 typedef std::list<std::string> DB2StoreProblemList;
 
@@ -142,6 +143,11 @@ void LoadDB2Stores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiNodesStore,            db2Path,    "TaxiNodes.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiPathStore,             db2Path,    "TaxiPath.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiPathNodeStore,         db2Path,    "TaxiPathNode.db2");
+
+    for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
+        if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
+            if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
+                sPhasesByGroup[group->PhaseGroupID].insert(phase->ID);
     
     for (uint32 i = 0; i < sItemAppearanceStore.GetNumRows(); ++i)
         if (ItemAppearanceEntry const* entry = sItemAppearanceStore.LookupEntry(i))
@@ -276,4 +282,9 @@ uint32 GetItemDisplayID(uint32 appearanceID)
     if (itr != sItemDisplayIDMap.end())
         return itr->second;
     return 0;
+}
+
+std::set<uint32> const& GetPhasesForGroup(uint32 group)
+{
+    return sPhasesByGroup[group];
 }
