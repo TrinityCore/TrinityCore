@@ -59,4 +59,6 @@ DB2StorageBase const* GetDB2Storage(uint32 type);
 
 uint32 GetItemDisplayID(uint32 appearanceID);
 
+std::set<uint32> const& GetPhasesForGroup(uint32 group);
+
 #endif
