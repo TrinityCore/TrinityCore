@@ -104,10 +104,10 @@ namespace WorldPackets
             G3D::Vector3 Pos;
         };
 
-        class MoveSplineSet : public ServerPacket
+        class MoveSplineSetSpeed : public ServerPacket
         {
         public:
-            MoveSplineSet(OpcodeServer opcode) : ServerPacket(opcode, 12) { }
+            MoveSplineSetSpeed(OpcodeServer opcode) : ServerPacket(opcode, 12) { }
 
             WorldPacket const* Write() override;
 
@@ -115,10 +115,22 @@ namespace WorldPackets
             float Speed;
         };
 
-        class MoveUpdate : public ServerPacket
+        class MoveSetSpeed : public ServerPacket
         {
         public:
-            MoveUpdate(OpcodeServer opcode) : ServerPacket(opcode) { }
+            MoveSetSpeed(OpcodeServer opcode) : ServerPacket(opcode) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
+            float Speed;
+        };
+
+        class MoveUpdateSpeed : public ServerPacket
+        {
+        public:
+            MoveUpdateSpeed(OpcodeServer opcode) : ServerPacket(opcode) { }
 
             WorldPacket const* Write() override;
 
