@@ -227,7 +227,7 @@ void AuraApplication::ClientUpdate(bool remove)
 {
     _needClientUpdate = false;
 
-    WorldPackets::Spell::SendAuraUpdate update;
+    WorldPackets::Spells::SendAuraUpdate update;
     update.Init(false, GetTarget()->GetGUID(), 1);
     update.BuildUpdatePacket(this, remove, GetTarget()->getLevel()); // TODO 6.x should be caster's level
 

@@ -752,10 +752,10 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     charmInfo->SetSpellAutocast(spellInfo, state != 0);
 }
 
-void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
+void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::SpellCastRequest& castRequest)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL");
-
+    /*
     ObjectGuid guid;
     uint8  castCount;
     uint32 spellId;
@@ -835,7 +835,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
         spell->finish(false);
         delete spell;
-    }
+    }*/
 }
 
 void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName)

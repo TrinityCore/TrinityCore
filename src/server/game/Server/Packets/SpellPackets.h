@@ -21,10 +21,11 @@
 #include "Packet.h"
 #include "Player.h"
 #include "SpellAuras.h"
+#include "Spell.h"
 
 namespace WorldPackets
 {
-    namespace Spell
+    namespace Spells
     {
         class CategoryCooldown final : public ServerPacket
         {
@@ -109,9 +110,52 @@ namespace WorldPackets
             void Init(bool IsFullUpdate, ObjectGuid Target, uint32 Count);
             void BuildUpdatePacket(AuraApplication* aurApp, bool remove, uint16 level);
         };    
+
+        class SpellCastRequest final : public ClientPacket
+        {
+        public:
+            SpellCastRequest(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            {
+                ASSERT(packet.GetOpcode() == CMSG_CAST_SPELL || packet.GetOpcode() == CMSG_PET_CAST_SPELL);
+            }
+
+            void Read() override;
+
+            ObjectGuid PetGuid;
+            uint8 CastID;
+            uint32 SpellID;
+            uint32 Misc;
+            uint32 TargetFlags;
+            ObjectGuid UnitGuid;
+            ObjectGuid ItemGuid;
+            
+            ObjectGuid SrcTransportGuid;
+            ObjectGuid DstTransportGuid;
+            Position SrcPos;
+            Position DstPos;
+            float Orientation;
+
+            std::string Name;
+            float Pitch;
+            float Speed;
+            ObjectGuid Guid;
+            uint32 SendCastFlags;
+
+            MovementInfo movementInfo;
+        };
+
+        class SendSpellStart final : public ServerPacket
+        {
+        public:
+            SendSpellStart() : ServerPacket(SMSG_SPELL_START) { }
+
+            WorldPacket const* Write() override;
+
+            Spell* spell;
+        }; 
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spell::SpellCastLogData& spellCastLogData);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData& spellCastLogData);
 
 #endif // SpellPackets_h__

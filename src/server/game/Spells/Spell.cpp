@@ -57,6 +57,7 @@
 #include "DB2Stores.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "SpellPackets.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -116,6 +117,28 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
     m_itemTargetEntry  = 0;
 
     m_targetMask = 0;
+}
+
+SpellCastTargets::SpellCastTargets(Unit* caster, uint32 targetMask, ObjectGuid targetGuid, ObjectGuid itemTargetGuid, ObjectGuid srcTransportGuid, ObjectGuid destTransportGuid, Position srcPos, Position destPos, float elevation, float missileSpeed, std::string targetString) :
+    m_targetMask(targetMask), m_objectTargetGUID(targetGuid), m_itemTargetGUID(itemTargetGuid), m_elevation(elevation), m_speed(missileSpeed), m_strTarget(targetString)
+{
+    m_objectTarget = NULL;
+    m_itemTarget = NULL;
+    m_itemTargetEntry = 0;
+
+    m_src._transportGUID = srcTransportGuid;
+    if (m_src._transportGUID != ObjectGuid::Empty)
+        m_src._transportOffset.Relocate(srcPos);
+    else
+        m_src._position.Relocate(srcPos);
+
+    m_dst._transportGUID = destTransportGuid;
+    if (m_dst._transportGUID != ObjectGuid::Empty)
+        m_dst._transportOffset.Relocate(destPos);
+    else
+        m_dst._position.Relocate(destPos);
+
+    Update(caster);
 }
 
 SpellCastTargets::~SpellCastTargets() { }
@@ -3841,7 +3864,10 @@ void Spell::SendSpellStart()
     if (m_spellInfo->RuneCostID && m_spellInfo->PowerType == POWER_RUNES)
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
-    WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
+    WorldPackets::Spells::SendSpellStart spellStart;
+    spellStart.spell = this;
+
+    /*WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
     if (m_CastItem)
         data << m_CastItem->GetPackGUID();
     else
@@ -3901,9 +3927,9 @@ void Spell::SendSpellStart()
         data << uint8(0); // unkByte
         // if (unkByte == 2)
             // data.append(0);
-    }
+    }*/
 
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendMessageToSet(spellStart.Write(), true);
 }
 
 void Spell::SendSpellGo()
