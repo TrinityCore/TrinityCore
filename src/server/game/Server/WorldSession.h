@@ -138,6 +138,11 @@ namespace WorldPackets
         class QueryGuildInfo;
     }
 
+    namespace Spells
+    {
+        class SpellCastRequest;
+    }
+
     namespace Talent
     {
         class SetSpecialization;
@@ -863,7 +868,7 @@ class WorldSession
 
         void HandleUseItemOpcode(WorldPacket& recvPacket);
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
-        void HandleCastSpellOpcode(WorldPacket& recvPacket);
+        void HandleCastSpellOpcode(WorldPackets::Spells::SpellCastRequest& castRequest);
         void HandleCancelCastOpcode(WorldPacket& recvPacket);
         void HandleCancelAuraOpcode(WorldPacket& recvPacket);
         void HandleCancelGrowthAuraOpcode(WorldPacket& recvPacket);
@@ -955,7 +960,7 @@ class WorldSession
         void HandlePetRename(WorldPacket& recvData);
         void HandlePetCancelAuraOpcode(WorldPacket& recvPacket);
         void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
-        void HandlePetCastSpellOpcode(WorldPacket& recvPacket);
+        void HandlePetCastSpellOpcode(WorldPackets::Spells::SpellCastRequest& castRequest);
         void HandlePetLearnTalent(WorldPacket& recvPacket);
         void HandleLearnPreviewTalentsPet(WorldPacket& recvPacket);
 

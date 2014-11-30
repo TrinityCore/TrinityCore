@@ -65,6 +65,11 @@ enum SpellCastTargetFlags
     TARGET_FLAG_DEST_TARGET     = 0x00040000,               // sometimes appears with DEST_TARGET spells (may appear or not for a given spell)
     TARGET_FLAG_EXTRA_TARGETS   = 0x00080000,               // uint32 counter, loop { vec3 - screen position (?), guid }, not used so far
     TARGET_FLAG_UNIT_PASSENGER  = 0x00100000,               // guessed, used to validate target (if vehicle passenger)
+    TARGET_FLAG_UNK400000       = 0X00400000,
+    TARGET_FLAG_UNK1000000      = 0X01000000,
+    TARGET_FLAG_UNK4000000      = 0X04000000,
+    TARGET_FLAG_UNK10000000     = 0X10000000,
+    TARGET_FLAG_UNK40000000     = 0X40000000,
 
     TARGET_FLAG_UNIT_MASK = TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY
         | TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_DEAD | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER,

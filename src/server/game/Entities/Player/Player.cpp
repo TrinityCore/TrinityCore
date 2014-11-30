@@ -3163,7 +3163,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
 void Player::SendKnownSpells()
 {
-    WorldPackets::Spell::SendKnownSpells knownSpells;
+    WorldPackets::Spells::SendKnownSpells knownSpells;
     knownSpells.InitialLogin = false; /// @todo
 
     knownSpells.KnownSpells.reserve(m_spells.size());
@@ -6201,7 +6201,7 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 state) const
 {
-    WorldPackets::Spell::UpdateActionButtons packet;
+    WorldPackets::Spells::UpdateActionButtons packet;
 
     for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
     {
@@ -22994,7 +22994,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendKnownSpells();
 
     /// SMSG_SEND_UNLEARN_SPELLS
-    SendDirectMessage(WorldPackets::Spell::SendUnlearnSpells().Write());
+    SendDirectMessage(WorldPackets::Spells::SendUnlearnSpells().Write());
 
     /// @todo: SMSG_SEND_SPELL_HISTORY
     /// @todo: SMSG_SEND_SPELL_CHARGES
@@ -23476,7 +23476,7 @@ void Player::SendAurasForTarget(Unit* target)
 
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
 
-    WorldPackets::Spell::SendAuraUpdate update;
+    WorldPackets::Spells::SendAuraUpdate update;
     update.Init(true, GetGUID(), visibleAuras->size());
 
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)

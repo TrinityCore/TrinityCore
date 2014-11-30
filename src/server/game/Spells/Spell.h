@@ -99,6 +99,7 @@ class SpellCastTargets
 {
     public:
         SpellCastTargets();
+        SpellCastTargets(Unit* caster, uint32 targetMask, ObjectGuid targetGuid, ObjectGuid itemTargetGuid, ObjectGuid srcTransportGuid, ObjectGuid destTransportGuid, Position srcPos, Position destPos, float elevation, float missileSpeed, std::string targetString);
         ~SpellCastTargets();
 
         void Read(ByteBuffer& data, Unit* caster);
@@ -168,6 +169,7 @@ class SpellCastTargets
 
         void Update(Unit* caster);
         void OutDebug() const;
+        std::string GetTargetString() const { return m_strTarget; }
 
     private:
         uint32 m_targetMask;
@@ -515,6 +517,10 @@ class Spell
         bool HasEffect(SpellEffectName effect) const;
 
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
+
+        SpellInfo const* GetTriggeredByAuraSpell() const { return m_triggeredByAuraSpell; }
+
+        int32 GetTimer() const { return m_timer; }
 
     protected:
         bool HasGlobalCooldown() const;

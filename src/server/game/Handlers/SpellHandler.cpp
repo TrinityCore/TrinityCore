@@ -329,58 +329,46 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
 }
 
-void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::SpellCastRequest& castRequest)
 {
-    uint32 spellId, glyphIndex;
-    uint8  castCount, castFlags;
 
-    recvPacket >> castCount;
-    recvPacket >> spellId;
-    recvPacket >> glyphIndex;
-    recvPacket >> castFlags;
-
-    TC_LOG_DEBUG("network", "WORLD: got cast spell packet, castCount: %u, spellId: %u, castFlags: %u, data length = %u", castCount, spellId, castFlags, (uint32)recvPacket.size());
+    TC_LOG_DEBUG("network", "WORLD: got cast spell packet, castCount: %u, spellId: %u, castFlags: %u", castRequest.CastID, castRequest.SpellID, castRequest.SendCastFlags);
 
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
     {
-        recvPacket.rfinish(); // prevent spam at ignore packet
         return;
     }
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(castRequest.SpellID);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("network", "WORLD: unknown spell id %u", spellId);
-        recvPacket.rfinish(); // prevent spam at ignore packet
+        TC_LOG_ERROR("network", "WORLD: unknown spell id %u", castRequest.SpellID);
         return;
     }
 
     if (spellInfo->IsPassive())
     {
-        recvPacket.rfinish(); // prevent spam at ignore packet
         return;
     }
 
     Unit* caster = mover;
-    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellId))
+    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(castRequest.SpellID))
     {
         // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
         // change caster to player and let him cast
         if (!_player->IsOnVehicle(caster) || spellInfo->CheckVehicle(_player) != SPELL_CAST_OK)
         {
-            recvPacket.rfinish(); // prevent spam at ignore packet
             return;
         }
 
         caster = _player;
     }
 
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellId))
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(castRequest.SpellID))
     {
         // not have spell in spellbook
-        recvPacket.rfinish(); // prevent spam at ignore packet
         return;
     }
 
@@ -398,7 +386,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo((*itr)->GetAmount()))
                 {
                     spellInfo = newInfo;
-                    spellId = newInfo->Id;
+                    castRequest.SpellID = newInfo->Id;
                 }
                 break;
             }
@@ -410,21 +398,20 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     if (spellInfo->IsAutoRepeatRangedSpell() && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)
         && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_spellInfo == spellInfo)
     {
-        recvPacket.rfinish();
         return;
     }
 
     // can't use our own spells when we're in possession of another unit,
     if (_player->isPossessing())
     {
-        recvPacket.rfinish(); // prevent spam at ignore packet
         return;
     }
 
     // client provided targets
-    SpellCastTargets targets;
-    targets.Read(recvPacket, caster);
-    HandleClientCastFlags(recvPacket, castFlags, targets);
+    SpellCastTargets targets(caster, castRequest.TargetFlags, castRequest.UnitGuid, castRequest.ItemGuid, castRequest.SrcTransportGuid, castRequest.DstTransportGuid, castRequest.SrcPos, castRequest.DstPos, castRequest.Pitch, castRequest.Speed, castRequest.Name);
+
+
+    //HandleClientCastFlags(recvPacket, castFlags, targets);
 
     // auto-selection buff level base at target level (in spellInfo)
     if (targets.GetUnitTarget())
@@ -437,8 +424,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     }
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
-    spell->m_cast_count = castCount;                       // set count of casts
-    spell->m_glyphIndex = glyphIndex;
+    spell->m_cast_count = castRequest.CastID;                       // set count of casts
+    spell->m_glyphIndex = castRequest.Misc; // 6.x Misc is just a guess
     spell->prepare(&targets);
 }
 
@@ -764,14 +751,14 @@ void WorldSession::HandleRequestCategoryCooldowns(WorldPacket& /*recvPacket*/)
 
 void WorldSession::SendSpellCategoryCooldowns()
 {
-    WorldPackets::Spell::CategoryCooldown cooldowns;
+    WorldPackets::Spells::CategoryCooldown cooldowns;
 
     Unit::AuraEffectList const& categoryCooldownAuras = _player->GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
     for (AuraEffect* aurEff : categoryCooldownAuras)
     {
         uint32 categoryId = aurEff->GetMiscValue();
         auto cItr = std::find_if(cooldowns.CategoryCooldowns.begin(), cooldowns.CategoryCooldowns.end(),
-            [categoryId](WorldPackets::Spell::CategoryCooldown::CategoryCooldownInfo const& cooldown)
+            [categoryId](WorldPackets::Spells::CategoryCooldown::CategoryCooldownInfo const& cooldown)
         {
             return cooldown.Category == categoryId;
         });
