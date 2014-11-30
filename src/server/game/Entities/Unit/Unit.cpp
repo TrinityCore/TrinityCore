@@ -9474,7 +9474,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         bool normalized = false;
         if (spellProto)
             for (SpellEffectInfo const* effect : spellProto->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
-                if (effect->Effect == SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
+                if (effect && effect->Effect == SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
                 {
                     normalized = true;
                     break;
@@ -13044,6 +13044,8 @@ uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectTyp
     // 50% for damage and healing spells for leech spells from damage bonus and 0% from healing
     for (SpellEffectInfo const* effect : spellProto->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
     {
+        if (!effect)
+            continue;
         if (effect->Effect == SPELL_EFFECT_HEALTH_LEECH ||
             (effect->Effect == SPELL_EFFECT_APPLY_AURA && effect->ApplyAuraName == SPELL_AURA_PERIODIC_LEECH))
         {
@@ -15233,7 +15235,8 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             {
                 int32 bp0[MAX_SPELL_EFFECTS];
                 for (SpellEffectInfo const* effect : spellEntry->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
-                    bp0[effect->EffectIndex] = effect->BasePoints;
+                    if (effect)
+                        bp0[effect->EffectIndex] = effect->BasePoints;
 
                 bp0[i] = seatId;
                 Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, bp0, NULL, origCasterGUID);
