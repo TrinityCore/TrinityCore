@@ -263,14 +263,22 @@ WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Movement::MoveSplineSet::Write()
+WorldPacket const* WorldPackets::Movement::MoveSplineSetSpeed::Write()
 {
     _worldPacket << MoverGUID;
     _worldPacket << Speed;
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Movement::MoveUpdate::Write()
+WorldPacket const* WorldPackets::Movement::MoveSetSpeed::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << Speed;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateSpeed::Write()
 {
     _worldPacket << movementInfo;
     _worldPacket << Speed;
