@@ -15,12 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SpellPackets_h__
-#define SpellPackets_h__
+#ifndef TRINITYCORE_SPELL_PACKETS_H
+#define TRINITYCORE_SPELL_PACKETS_H
 
-#include "Packet.h"
+#include "MovementInfo.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "Packet.h"
 #include "Position.h"
 #include "SharedDefines.h"
 
@@ -182,7 +183,7 @@ namespace WorldPackets
         struct TargetLocation
         {
             ObjectGuid Transport;
-            Position Location;
+            TaggedPosition<Position::XYZ> Location;
         };
 
         struct SpellTargetData
@@ -192,7 +193,44 @@ namespace WorldPackets
             Optional<ObjectGuid> Item;
             Optional<TargetLocation> SrcLocation;
             Optional<TargetLocation> DstLocation;
-            Optional<std::string> Name;
+            Optional<std::array<char, 128>> Name;
+        };
+
+        struct MissileTrajectoryRequest
+        {
+            float Pitch = 0.0f;
+            float Speed = 0.0f;
+            Optional<MovementInfo> MoveUpdate;
+        };
+
+        struct SpellCastRequest
+        {
+            uint8 CastID = 0;
+            int32 SpellID = 0;
+            uint8 SendCastFlags = 0;
+            SpellTargetData Target;
+            Optional<MissileTrajectoryRequest> MissileTrajectory;
+        };
+
+        class CastSpell final : public ClientPacket
+        {
+        public:
+            explicit CastSpell(WorldPacket&& packet) : ClientPacket(CMSG_CAST_SPELL, std::move(packet)) { }
+
+            void Read() override;
+
+            SpellCastRequest Cast;
+        };
+
+        class PetCastSpell final : public ClientPacket
+        {
+        public:
+            explicit PetCastSpell(WorldPacket&& packet) : ClientPacket(CMSG_PET_CAST_SPELL, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+            SpellCastRequest Cast;
         };
 
         struct SpellMissStatus
@@ -322,4 +360,4 @@ namespace WorldPackets
     }
 }
 
-#endif // SpellPackets_h__
+#endif // TRINITYCORE_SPELL_PACKETS_H

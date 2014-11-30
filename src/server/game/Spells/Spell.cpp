@@ -115,7 +115,7 @@ void SpellDestination::RelocateOffset(Position const& offset)
     _position.RelocateOffset(offset);
 }
 
-SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
+SpellCastTargets::SpellCastTargets() : m_pitch(0), m_speed(0), m_strTarget()
 {
     m_objectTarget = nullptr;
     m_itemTarget = nullptr;
@@ -123,6 +123,47 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
     m_itemTargetEntry  = 0;
 
     m_targetMask = 0;
+}
+
+SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest) :
+    m_targetMask(spellCastRequest.Target.Flags), m_objectTarget(nullptr), m_itemTarget(nullptr),
+    m_objectTargetGUID(spellCastRequest.Target.Unit.value_or(ObjectGuid::Empty)), m_itemTargetGUID(spellCastRequest.Target.Item.value_or(ObjectGuid::Empty)),
+    m_itemTargetEntry(0), m_pitch(0.0f), m_speed(0.0f)
+{
+    if (spellCastRequest.Target.SrcLocation)
+    {
+        m_src._transportGUID = spellCastRequest.Target.SrcLocation->Transport;
+        Position* pos;
+        if (!m_src._transportGUID.IsEmpty())
+            pos = &m_src._transportOffset;
+        else
+            pos = &m_src._position;
+
+        pos->Relocate(spellCastRequest.Target.SrcLocation->Location.Pos);
+    }
+
+    if (spellCastRequest.Target.DstLocation)
+    {
+        m_dst._transportGUID = spellCastRequest.Target.DstLocation->Transport;
+        Position* pos;
+        if (!m_dst._transportGUID.IsEmpty())
+            pos = &m_dst._transportOffset;
+        else
+            pos = &m_dst._position;
+
+        pos->Relocate(spellCastRequest.Target.DstLocation->Location.Pos);
+    }
+
+    if (spellCastRequest.MissileTrajectory)
+    {
+        SetPitch(spellCastRequest.MissileTrajectory->Pitch);
+        SetSpeed(spellCastRequest.MissileTrajectory->Speed);
+    }
+
+    if (spellCastRequest.Target.Name)
+        m_strTarget.assign(spellCastRequest.Target.Name->begin(), std::ranges::find(*spellCastRequest.Target.Name, '\0'));
+
+    Update(caster);
 }
 
 SpellCastTargets::~SpellCastTargets() { }
@@ -215,7 +256,10 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
     }
 
     if (m_targetMask & TARGET_FLAG_STRING)
-        data.Name = m_strTarget;
+    {
+        std::array<char, 128>& name = data.Name.emplace();
+        std::ranges::copy_n(m_strTarget.begin(), std::min(std::ssize(m_strTarget), std::ssize(name)), name.begin());
+    }
 }
 
 ObjectGuid SpellCastTargets::GetUnitTargetGUID() const
@@ -1664,7 +1708,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffectInfo const& spellEffectInfo, Sp
 
     targets.sort(Trinity::ObjectDistanceOrderPred(m_caster));
 
-    float b = tangent(m_targets.GetElevation());
+    float b = tangent(m_targets.GetPitch());
     float a = (srcToDestDelta - dist2d * b) / (dist2d * dist2d);
     if (a > -0.0001f)
         a = 0.f;
@@ -4397,7 +4441,7 @@ void Spell::SendSpellGo()
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
     {
         castData.MissileTrajectory.emplace();
-        castData.MissileTrajectory->Pitch = m_targets.GetElevation();
+        castData.MissileTrajectory->Pitch = m_targets.GetPitch();
         castData.MissileTrajectory->TravelTime = m_delayMoment;
     }
 

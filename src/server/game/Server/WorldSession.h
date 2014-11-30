@@ -305,13 +305,15 @@ namespace WorldPackets
 
     namespace Spells
     {
-        class CancelCast;
         class CancelAura;
-        class PetCancelAura;
-        class CancelGrowthAura;
-        class CancelMountAura;
         class CancelAutoRepeatSpell;
         class CancelChannelling;
+        class CancelGrowthAura;
+        class CancelMountAura;
+        class PetCancelAura;
+        class CancelCast;
+        class CastSpell;
+        class PetCastSpell;
     }
 
     namespace Talent
@@ -956,7 +958,7 @@ class TC_GAME_API WorldSession
         void HandleUseItemOpcode(WorldPacket& recvPacket);
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
         void HandleOpenWrappedItemCallback(uint16 pos, ObjectGuid itemGuid, PreparedQueryResult result);
-        void HandleCastSpellOpcode(WorldPacket& recvPacket);
+        void HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest);
         void HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& cancelCast);
         void HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& cancelAura);
         void HandleCancelGrowthAuraOpcode(WorldPackets::Spells::CancelGrowthAura& cancelGrowthAura);
@@ -1040,7 +1042,7 @@ class TC_GAME_API WorldSession
         void HandlePetRename(WorldPacket& recvData);
         void HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura& packet);
         void HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet);
-        void HandlePetCastSpellOpcode(WorldPacket& recvPacket);
+        void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell);
         void HandlePetLearnTalent(WorldPacket& recvPacket);
         void HandleLearnPreviewTalentsPet(WorldPacket& recvPacket);
 

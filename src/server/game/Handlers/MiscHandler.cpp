@@ -1375,7 +1375,7 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
     spell->m_targets.ModSrc(firePos);
     spell->m_targets.ModDst(impactPos);
 
-    spell->m_targets.SetElevation(elevation);
+    spell->m_targets.SetPitch(elevation);
     spell->m_targets.SetSpeed(speed);
 
     if (moveStop)

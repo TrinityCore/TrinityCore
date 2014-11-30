@@ -16,6 +16,7 @@
  */
 
 #include "SpellPackets.h"
+#include "MovementPackets.h"
 #include "SharedDefines.h"
 #include "Spell.h"
 #include "SpellAuraDefines.h"
@@ -105,6 +106,80 @@ WorldPacket const* AuraUpdateAll::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator>>(ByteBuffer& buffer, TargetLocation& location)
+{
+    buffer >> location.Transport.ReadAsPacked();
+    buffer >> location.Location;
+
+    return buffer;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buffer, SpellTargetData& targetData)
+{
+    buffer >> targetData.Flags;
+
+    if (targetData.Flags & (TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_CORPSE_ALLY))
+        buffer >> targetData.Unit.emplace().ReadAsPacked();
+
+    if (targetData.Flags & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
+        buffer >> targetData.Item.emplace().ReadAsPacked();
+
+    if (targetData.Flags & TARGET_FLAG_SOURCE_LOCATION)
+        buffer >> targetData.SrcLocation.emplace();
+
+    if (targetData.Flags & TARGET_FLAG_DEST_LOCATION)
+        buffer >> targetData.DstLocation.emplace();
+
+    if (targetData.Flags & TARGET_FLAG_STRING)
+    {
+        std::array<char, 128>& name = targetData.Name.emplace();
+        buffer.read(reinterpret_cast<uint8*>(name.data()), name.size());
+    }
+
+    return buffer;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buffer, MissileTrajectoryRequest& trajectory)
+{
+    buffer >> trajectory.Pitch;
+    buffer >> trajectory.Speed;
+
+    if (buffer.read<uint8>()) // has movement update
+    {
+        MovementInfo& moveUpdate = trajectory.MoveUpdate.emplace();
+        buffer.read_skip<uint32>(); // opcode, always MSG_MOVE_STOP
+        buffer >> moveUpdate.guid.ReadAsPacked();
+        buffer >> moveUpdate;
+    }
+
+    return buffer;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request)
+{
+    buffer >> request.CastID;
+    buffer >> request.SpellID;
+    buffer >> request.SendCastFlags;
+
+    buffer >> request.Target;
+
+    if (request.SendCastFlags & 0x2)
+        buffer >> request.MissileTrajectory.emplace();
+
+    return buffer;
+}
+
+void CastSpell::Read()
+{
+    _worldPacket >> Cast;
+}
+
+void PetCastSpell::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> Cast;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, InitialSpell const& initialSpell)
 {
     data << uint32(initialSpell.SpellID);
@@ -151,7 +226,7 @@ WorldPacket const* InitialSpells::Write()
 ByteBuffer& operator<<(ByteBuffer& data, TargetLocation const& targetLocation)
 {
     data << targetLocation.Transport.WriteAsPacked(); // relative position guid here - transport for example
-    data << targetLocation.Location.PositionXYZStream();
+    data << targetLocation.Location;
     return data;
 }
 
@@ -172,7 +247,7 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellTargetData const& spellTargetData)
         data << *spellTargetData.DstLocation;
 
     if (spellTargetData.Name)
-        data << *spellTargetData.Name;
+        data.append(spellTargetData.Name->data(), spellTargetData.Name->size());
 
     return data;
 }
@@ -278,7 +353,7 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
         data << int32(spellCastData.TargetPoints->size());
         for (TargetLocation const& targetPoint : *spellCastData.TargetPoints)
         {
-            data << targetPoint.Location.PositionXYZStream();
+            data << targetPoint.Location;
             data << targetPoint.Transport;
         }
     }
