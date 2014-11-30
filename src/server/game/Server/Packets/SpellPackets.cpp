@@ -383,6 +383,42 @@ WorldPacket const* LearnedSpell::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* SpellFailure::Write()
+{
+    _worldPacket << CasterUnit.WriteAsPacked();
+    _worldPacket << uint8(CastID);
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* SpellFailedOther::Write()
+{
+    _worldPacket << CasterUnit.WriteAsPacked();
+    _worldPacket << uint8(CastID);
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, SpellModifier const& spellModifier)
+{
+    data << uint8(spellModifier.ClassIndex);
+    data << uint8(spellModifier.ModIndex);
+    data << int32(spellModifier.ModifierValue);
+
+    return data;
+}
+
+WorldPacket const* SetSpellModifier::Write()
+{
+    _worldPacket << Modifier;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* PlaySpellVisualKit::Write()
 {
     _worldPacket << Unit;

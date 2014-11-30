@@ -320,6 +320,49 @@ namespace WorldPackets
             uint16 ActionBarSlot = 0; // unused on client
         };
 
+        class SpellFailure final : public ServerPacket
+        {
+        public:
+            explicit SpellFailure() : ServerPacket(SMSG_SPELL_FAILURE, 8 + 1 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterUnit;
+            uint32 SpellID  = 0;
+            uint8 Reason    = 0;
+            uint8 CastID    = 0;
+        };
+
+        class SpellFailedOther final : public ServerPacket
+        {
+        public:
+            explicit SpellFailedOther() : ServerPacket(SMSG_SPELL_FAILED_OTHER, 8 + 1 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterUnit;
+            uint32 SpellID  = 0;
+            uint8 Reason    = 0;
+            uint8 CastID    = 0;
+        };
+
+        struct SpellModifier
+        {
+            uint8 ClassIndex = 0;
+            uint8 ModIndex = 0;
+            int32 ModifierValue = 0;
+        };
+
+        class TC_GAME_API SetSpellModifier final : public ServerPacket
+        {
+        public:
+            explicit SetSpellModifier(OpcodeServer opcode) : ServerPacket(opcode, 1 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            SpellModifier Modifier;
+        };
+
         class PlaySpellVisualKit final : public ServerPacket
         {
         public:
