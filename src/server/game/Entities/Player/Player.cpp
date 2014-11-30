@@ -20797,14 +20797,18 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     TC_LOG_DEBUG("spells", "Player::AddSpellMod %d", mod->spellId);
     OpcodeServer opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
+    WorldPackets::Spells::SetSpellModifier packet(opcode);
+
     int i = 0;
     flag96 _mask;
     uint32 modTypeCount = 0; // count of mods per one mod->op
-    WorldPacket data(opcode);
-    data << uint32(1);  // count of different mod->op's in packet
-    size_t writePos = data.wpos();
-    data << uint32(modTypeCount);
-    data << uint8(mod->op);
+
+    /// @todo Implement sending of bulk modifiers instead of single
+    packet.Modifiers.resize(1);
+    WorldPackets::Spells::SpellModifier& spellMod = packet.Modifiers[0];
+
+    spellMod.ModIndex = mod->op;
+
     for (int eff = 0; eff < 96; ++eff)
     {
         if (eff != 0 && (eff % 32) == 0)
@@ -20813,19 +20817,21 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
         _mask[i] = uint32(1) << (eff - (32 * i));
         if (mod->mask & _mask)
         {
-            int32 val = 0;
+            WorldPackets::Spells::SpellModifierData modData;
+
             for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
                 if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                    val += (*itr)->value;
-            val += apply ? mod->value : -(mod->value);
+                    modData.ModifierValue += (*itr)->value;
 
-            data << uint8(eff);
-            data << float(val);
-            ++modTypeCount;
+            modData.ModifierValue += apply ? mod->value : -(mod->value);
+            modData.ClassIndex = eff;
+
+            spellMod.ModifierData.push_back(modData);
         }
     }
-    data.put<uint32>(writePos, modTypeCount);
-    SendDirectMessage(&data);
+
+    SendDirectMessage(packet.Write());
+
     if (apply)
         m_spellMods[mod->op].push_back(mod);
     else

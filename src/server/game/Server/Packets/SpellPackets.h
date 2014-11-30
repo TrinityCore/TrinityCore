@@ -164,9 +164,59 @@ namespace WorldPackets
             std::vector<int32> SpellID;
             bool SuppressMessaging = false;
         };
+
+        class SpellFailure final : public ServerPacket
+        {
+        public:
+            SpellFailure() : ServerPacket(SMSG_SPELL_FAILURE, 16+4+1+1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterUnit;
+            uint32 SpellID  = 0;
+            uint8 Reason    = 0;
+            uint8 CastID    = 0;
+        };
+
+        class SpellFailedOther final : public ServerPacket
+        {
+        public:
+            SpellFailedOther() : ServerPacket(SMSG_SPELL_FAILED_OTHER, 16+4+1+1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterUnit;
+            uint32 SpellID  = 0;
+            uint8 Reason    = 0;
+            uint8 CastID    = 0;
+        };
+
+        struct SpellModifierData
+        {
+            float ModifierValue = 0.0f;
+            uint8 ClassIndex = 0;
+        };
+
+        struct SpellModifier
+        {
+            uint8 ModIndex = 0;
+            std::vector<SpellModifierData> ModifierData;
+        };
+
+        class SetSpellModifier final : public ServerPacket
+        {
+        public:
+            SetSpellModifier(OpcodeServer opcode) : ServerPacket(opcode, 20) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<SpellModifier> Modifiers;
+        };
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData& spellCastLogData);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifierData const& spellModifierData);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifier const& spellModifier);
 
 #endif // SpellPackets_h__
