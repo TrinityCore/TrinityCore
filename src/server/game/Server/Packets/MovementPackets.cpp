@@ -280,7 +280,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetSpeed::Write()
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateSpeed::Write()
 {
-    _worldPacket << movementInfo;
+    _worldPacket << *movementInfo;
     _worldPacket << Speed;
     return &_worldPacket;
 }
@@ -341,4 +341,91 @@ WorldPacket const* WorldPackets::Movement::NewWorld::Write()
     _worldPacket << Pos.PositionXYZOStream();
     _worldPacket << Reason;
     return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << Pos.PositionXYZOStream();
+    _worldPacket << Facing;
+
+    _worldPacket.WriteBit(TransportGUID.HasValue);
+    _worldPacket.WriteBit(Vehicle.HasValue);
+    _worldPacket.FlushBits();
+
+    if (TransportGUID.HasValue)
+        _worldPacket << TransportGUID.Value;
+
+    if (Vehicle.HasValue)
+    {
+        _worldPacket << Vehicle.Value.VehicleSeatIndex;
+        _worldPacket.WriteBit(Vehicle.Value.VehicleExitVoluntary);
+        _worldPacket.WriteBit(Vehicle.Value.VehicleExitTeleport);
+        _worldPacket.FlushBits();
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
+{
+    _worldPacket << *movementInfo;
+
+    _worldPacket << int32(MovementForces.size());
+    for (WorldPackets::Movement::MovementForce const& force : MovementForces)
+    {
+        _worldPacket << force.ID;
+        _worldPacket << force.Direction;
+        _worldPacket << force.TransportID;
+        _worldPacket << force.Magnitude;
+        _worldPacket.WriteBits(force.Type, 2);
+        _worldPacket.FlushBits();
+    }
+
+    _worldPacket.WriteBit(WalkSpeed.HasValue);
+    _worldPacket.WriteBit(RunSpeed.HasValue);
+    _worldPacket.WriteBit(RunBackSpeed.HasValue);
+    _worldPacket.WriteBit(SwimSpeed.HasValue);
+    _worldPacket.WriteBit(SwimBackSpeed.HasValue);
+    _worldPacket.WriteBit(FlightSpeed.HasValue);
+    _worldPacket.WriteBit(FlightBackSpeed.HasValue);
+    _worldPacket.WriteBit(TurnRate.HasValue);
+    _worldPacket.WriteBit(PitchRate.HasValue);
+
+    if (WalkSpeed.HasValue)
+        _worldPacket << WalkSpeed.Value;
+
+    if (RunSpeed.HasValue)
+        _worldPacket << RunSpeed.Value;
+
+    if (RunBackSpeed.HasValue)
+        _worldPacket << RunBackSpeed.Value;
+
+    if (SwimSpeed.HasValue)
+        _worldPacket << SwimSpeed.Value;
+
+    if (SwimBackSpeed.HasValue)
+        _worldPacket << SwimBackSpeed.Value;
+
+    if (FlightSpeed.HasValue)
+        _worldPacket << FlightSpeed.Value;
+
+    if (FlightBackSpeed.HasValue)
+        _worldPacket << FlightBackSpeed.Value;
+
+    if (TurnRate.HasValue)
+        _worldPacket << TurnRate.Value;
+
+    if (PitchRate.HasValue)
+        _worldPacket << PitchRate.Value;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Movement::MoveTeleportAck::Read()
+{
+    _worldPacket >> MoverGUID;
+    _worldPacket >> AckIndex;
+    _worldPacket >> MoveTime;
 }
