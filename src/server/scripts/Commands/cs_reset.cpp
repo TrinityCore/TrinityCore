@@ -100,8 +100,7 @@ public:
             player->SetShapeshiftForm(FORM_NONE);
 
         player->setFactionForRace(player->getRace());
-
-        player->SetUInt32Value(UNIT_FIELD_BYTES_0, ((player->getRace()) | (player->getClass() << 8) | (player->getGender() << 16) | (powerType << 24)));
+        player->SetUInt32Value(UNIT_FIELD_DISPLAY_POWER, powerType);
 
         // reset only if player not in some form;
         if (player->GetShapeshiftForm() == FORM_NONE)
