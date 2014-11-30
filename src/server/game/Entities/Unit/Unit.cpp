@@ -10766,7 +10766,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
         // Send notification to other players
         WorldPackets::Movement::MoveUpdateSpeed packet(moveTypeToOpcode[mtype][2]);
-        packet.movementInfo = m_movementInfo;
+        packet.movementInfo = &m_movementInfo;
         packet.Speed = rate;
         SendMessageToSet(packet.Write(), false);
     }
@@ -15805,61 +15805,26 @@ void Unit::SendTeleportPacket(Position& pos)
     ObjectGuid guid = GetGUID();
     ObjectGuid transGuid = GetTransGUID();
 
-    WorldPacket data(SMSG_MOVE_UPDATE_TELEPORT, 38);
-    WriteMovementInfo(data);
+    WorldPackets::Movement::MoveUpdateTeleport packet;
+    packet.movementInfo = &m_movementInfo;
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldPacket data2(SMSG_MOVE_TELEPORT, 38);
-        data2.WriteBit(guid[6]);
-        data2.WriteBit(guid[0]);
-        data2.WriteBit(guid[3]);
-        data2.WriteBit(guid[2]);
-        data2.WriteBit(0); // unknown
-        data2.WriteBit(!transGuid.IsEmpty());
-        data2.WriteBit(guid[1]);
-        if (!transGuid.IsEmpty())
-        {
-            data2.WriteBit(transGuid[1]);
-            data2.WriteBit(transGuid[3]);
-            data2.WriteBit(transGuid[2]);
-            data2.WriteBit(transGuid[5]);
-            data2.WriteBit(transGuid[0]);
-            data2.WriteBit(transGuid[7]);
-            data2.WriteBit(transGuid[6]);
-            data2.WriteBit(transGuid[4]);
-        }
-        data2.WriteBit(guid[4]);
-        data2.WriteBit(guid[7]);
-        data2.WriteBit(guid[5]);
-        data2.FlushBits();
+        WorldPackets::Movement::MoveTeleport selfPacket;
+
+        selfPacket.MoverGUID = guid;
 
         if (!transGuid.IsEmpty())
         {
-            data2.WriteByteSeq(transGuid[6]);
-            data2.WriteByteSeq(transGuid[5]);
-            data2.WriteByteSeq(transGuid[1]);
-            data2.WriteByteSeq(transGuid[7]);
-            data2.WriteByteSeq(transGuid[0]);
-            data2.WriteByteSeq(transGuid[2]);
-            data2.WriteByteSeq(transGuid[4]);
-            data2.WriteByteSeq(transGuid[3]);
+            selfPacket.TransportGUID.Value = transGuid;
+            selfPacket.TransportGUID.HasValue = true;
         }
 
-        data2 << uint32(0); // counter
-        data2.WriteByteSeq(guid[1]);
-        data2.WriteByteSeq(guid[2]);
-        data2.WriteByteSeq(guid[3]);
-        data2.WriteByteSeq(guid[5]);
-        data2 << float(GetPositionX());
-        data2.WriteByteSeq(guid[4]);
-        data2 << float(GetOrientation());
-        data2.WriteByteSeq(guid[7]);
-        data2 << float(GetPositionZMinusOffset());
-        data2.WriteByteSeq(guid[0]);
-        data2.WriteByteSeq(guid[6]);
-        data2 << float(GetPositionY());
-        ToPlayer()->SendDirectMessage(&data2); // Send the MSG_MOVE_TELEPORT packet to self.
+        selfPacket.Pos.Relocate(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+        selfPacket.Facing = GetOrientation();
+        selfPacket.SequenceIndex = m_movementCounter++;
+
+        ToPlayer()->SendDirectMessage(selfPacket.Write());
     }
 
     // Relocate the player/creature to its old position, so we can broadcast to nearby players correctly
@@ -15869,7 +15834,7 @@ void Unit::SendTeleportPacket(Position& pos)
         Relocate(&oldPos);
 
     // Broadcast the packet to everyone except self.
-    SendMessageToSet(&data, false);
+    SendMessageToSet(packet.Write(), false);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)

@@ -112,7 +112,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid MoverGUID;
-            float Speed;
+            float Speed = 1.0f;
         };
 
         class MoveSetSpeed : public ServerPacket
@@ -124,7 +124,7 @@ namespace WorldPackets
 
             ObjectGuid MoverGUID;
             uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
-            float Speed;
+            float Speed = 1.0f;
         };
 
         class MoveUpdateSpeed : public ServerPacket
@@ -134,8 +134,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo movementInfo;
-            float Speed;
+            MovementInfo* movementInfo;
+            float Speed = 1.0f;
         };
 
         class MoveSplineSetFlag final : public ServerPacket
@@ -207,6 +207,69 @@ namespace WorldPackets
             WorldPortAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_WORLDPORT_ACK, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        struct VehicleTeleport
+        {
+            uint8 VehicleSeatIndex      = 0;
+            bool VehicleExitVoluntary   = false;
+            bool VehicleExitTeleport    = false;
+        };
+
+        class MoveTeleport final : public ServerPacket
+        {
+        public:
+            MoveTeleport() : ServerPacket(SMSG_MOVE_TELEPORT, 12+4+16+16+4) { }
+
+            WorldPacket const* Write() override;
+
+            Position Pos;
+            Optional<VehicleTeleport> Vehicle;
+            uint32 SequenceIndex = 0;
+            ObjectGuid MoverGUID;
+            Optional<ObjectGuid> TransportGUID;
+            float Facing = 0.0f;
+        };
+
+        struct MovementForce
+        {
+            ObjectGuid ID;
+            G3D::Vector3 Direction;
+            uint32 TransportID  = 0;
+            float Magnitude     = 0;
+            uint8 Type          = 0;
+        };
+
+        class MoveUpdateTeleport final : public ServerPacket
+        {
+        public:
+            MoveUpdateTeleport() : ServerPacket(SMSG_MOVE_UPDATE_TELEPORT) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* movementInfo;
+            std::vector<MovementForce> MovementForces;
+            Optional<float> SwimBackSpeed;
+            Optional<float> FlightSpeed;
+            Optional<float> SwimSpeed;
+            Optional<float> WalkSpeed;
+            Optional<float> TurnRate;
+            Optional<float> RunSpeed;
+            Optional<float> FlightBackSpeed;
+            Optional<float> RunBackSpeed;
+            Optional<float> PitchRate;
+        };
+
+        class MoveTeleportAck final : public ClientPacket
+        {
+        public:
+            MoveTeleportAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_TELEPORT_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid MoverGUID;
+            int32 AckIndex = 0;
+            int32 MoveTime = 0;
         };
     }
 }
