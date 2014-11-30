@@ -873,18 +873,15 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
     else
         prevented = GetBase()->CallScriptEffectRemoveHandlers(this, aurApp, (AuraEffectHandleModes)mode);
     
-    TC_LOG_ERROR("spells","HandleEffect0");
     // check if script events have removed the aura or if default effect prevention was requested
     if ((apply && aurApp->GetRemoveMode()) || prevented)
         return;
-    TC_LOG_ERROR("spells","HandleEffect1");
+
     (*this.*AuraEffectHandler[GetAuraType()])(aurApp, mode, apply);
-    TC_LOG_ERROR("spells","HandleEffect2");
 
     // check if script events have removed the aura or if default effect prevention was requested
     if (apply && aurApp->GetRemoveMode())
         return;
-    TC_LOG_ERROR("spells","HandleEffect3");
 
     // call scripts triggering additional events after apply/remove
     if (apply)
