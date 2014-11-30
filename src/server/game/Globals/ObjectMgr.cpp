@@ -482,8 +482,8 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.SubName           = fields[12].GetString();
     creatureTemplate.IconName          = fields[13].GetString();
     creatureTemplate.GossipMenuId      = fields[14].GetUInt32();
-    creatureTemplate.minlevel          = fields[15].GetUInt8();
-    creatureTemplate.maxlevel          = fields[16].GetUInt8();
+    creatureTemplate.minlevel          = fields[15].GetInt16();
+    creatureTemplate.maxlevel          = fields[16].GetInt16();
     creatureTemplate.expansion         = uint32(fields[17].GetInt16());
     creatureTemplate.expansionUnknown  = uint32(fields[18].GetUInt16());
     creatureTemplate.faction           = uint32(fields[19].GetUInt16());
@@ -672,18 +672,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, exp %u) has different `exp` in difficulty %u mode (Entry: %u, exp %u).",
                 cInfo->Entry, cInfo->expansion, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->expansion);
-        }
-
-        if (cInfo->minlevel > difficultyInfo->minlevel)
-        {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, minlevel %u) has lower `minlevel` in difficulty %u mode (Entry: %u, minlevel %u).",
-                cInfo->Entry, cInfo->minlevel, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->minlevel);
-        }
-
-        if (cInfo->maxlevel > difficultyInfo->maxlevel)
-        {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, maxlevel %u) has lower `maxlevel` in difficulty %u mode (Entry: %u, maxlevel %u).",
-                cInfo->Entry, cInfo->maxlevel, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->maxlevel);
         }
 
         if (cInfo->faction != difficultyInfo->faction)
@@ -981,6 +969,27 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     {
         TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with disallowed `flags_extra` %u, removing incorrect flag.", cInfo->Entry, badFlags);
         const_cast<CreatureTemplate*>(cInfo)->flags_extra &= CREATURE_FLAG_EXTRA_DB_ALLOWED;
+    }
+
+    // -1 is used in the client for auto-updating the levels
+    // having their expansion set to it to the latest one
+    if (cInfo->expansion == -1)
+    {
+        const_cast<CreatureTemplate*>(cInfo)->minlevel = (MAX_LEVEL + cInfo->minlevel);
+        const_cast<CreatureTemplate*>(cInfo)->maxlevel = (MAX_LEVEL + cInfo->maxlevel);
+        const_cast<CreatureTemplate*>(cInfo)->expansion = EXPANSION_WARLORDS_OF_DRAENOR;
+    }
+
+    if (cInfo->minlevel < 1 || cInfo->minlevel > STRONG_MAX_LEVEL)
+    {
+        TC_LOG_ERROR("sql.sql", "Creature (ID: %u): MinLevel %i is not within [1, 255], value has been set to 1.", cInfo->Entry, cInfo->minlevel);
+        const_cast<CreatureTemplate*>(cInfo)->minlevel = 1;
+    }
+
+    if (cInfo->maxlevel < 1 || cInfo->maxlevel > STRONG_MAX_LEVEL)
+    {
+        TC_LOG_ERROR("sql.sql", "Creature (ID: %u): MaxLevel %i is not within [1, 255], value has been set to 1.", cInfo->Entry, cInfo->maxlevel);
+        const_cast<CreatureTemplate*>(cInfo)->maxlevel = 1;
     }
 
     const_cast<CreatureTemplate*>(cInfo)->ModDamage *= Creature::_GetDamageMod(cInfo->rank);

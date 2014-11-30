@@ -954,7 +954,7 @@ public:
 
         sObjectMgr->LoadGraveyardZones();
 
-        handler->SendGlobalGMSysMessage("DB table `game_graveyard_zone` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `graveyard_zone` reloaded.");
 
         return true;
     }
