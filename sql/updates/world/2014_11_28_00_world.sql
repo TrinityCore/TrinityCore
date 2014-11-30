@@ -12,10 +12,10 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 
 DELETE FROM `creature`  WHERE `guid` IN(@GUID+0,@GUID+1,@GUID+2,@GUID+3) AND `id`=18152;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES 
-(@GUID+0, 18152, 530, 0, 0, 1, 1, 15397, 0, 1177.666, 8130.762, 19.62192, 1.151917, -60, 0, 0, 247, 0, 0, 0, 0, 0, 0), -- 7853077
-(@GUID+1, 18152, 530, 0, 0, 1, 1, 15394, 0, 1178.132, 8130.465, 19.65684, 1.117011, -60, 0, 0, 247, 0, 0, 0, 0, 0, 0), -- 16241685
-(@GUID+2, 18152, 530, 0, 0, 1, 1, 15393, 0, 1178.688, 8130.183, 19.68922, 1.082104, -60, 0, 0, 247, 0, 0, 0, 0, 0, 0), -- 24630293
-(@GUID+3, 18152, 530, 0, 0, 1, 1, 15396, 0, 1179.359, 8129.974, 19.69083, 1.012291, -60, 0, 0, 247, 0, 0, 0, 0, 0, 0); -- 33018901
+(@GUID+0, 18152, 530, 0, 0, 1, 1, 15397, 0, 1177.666, 8130.762, 19.62192, 1.151917, 120, 0, 0, 247, 0, 0, 0, 0, 0, 0), -- 7853077
+(@GUID+1, 18152, 530, 0, 0, 1, 1, 15394, 0, 1178.132, 8130.465, 19.65684, 1.117011, 120, 0, 0, 247, 0, 0, 0, 0, 0, 0), -- 16241685
+(@GUID+2, 18152, 530, 0, 0, 1, 1, 15393, 0, 1178.688, 8130.183, 19.68922, 1.082104, 120, 0, 0, 247, 0, 0, 0, 0, 0, 0), -- 24630293
+(@GUID+3, 18152, 530, 0, 0, 1, 1, 15396, 0, 1179.359, 8129.974, 19.69083, 1.012291, 120, 0, 0, 247, 0, 0, 0, 0, 0, 0); -- 33018901
 
 DELETE FROM `event_scripts` WHERE  `id`=11424 AND `command`=10;
 INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES 
