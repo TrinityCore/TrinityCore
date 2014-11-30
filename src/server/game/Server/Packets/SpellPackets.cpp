@@ -404,3 +404,15 @@ WorldPacket const* WorldPackets::Spells::SendSpellStart::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::LearnedSpells::Write()
+{
+    _worldPacket << uint32(SpellID.size());
+    for (int32 spell : SpellID)
+        _worldPacket << spell;
+
+    _worldPacket.WriteBit(SuppressMessaging);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
