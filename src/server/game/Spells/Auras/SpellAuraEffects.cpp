@@ -429,6 +429,113 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //368 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //369 SPELL_AURA_ENABLE_POWER_BAR_TIMER
     &AuraEffect::HandleNULL,                                      //370 SPELL_AURA_SET_FAIR_FAR_CLIP
+    &AuraEffect::HandleNULL,                                      //371
+    &AuraEffect::HandleNULL,                                      //372
+    &AuraEffect::HandleNULL,                                      //373
+    &AuraEffect::HandleNULL,                                      //374
+    &AuraEffect::HandleNULL,                                      //375
+    &AuraEffect::HandleNULL,                                      //376
+    &AuraEffect::HandleNULL,                                      //377
+    &AuraEffect::HandleNULL,                                      //378
+    &AuraEffect::HandleNULL,                                      //379
+    &AuraEffect::HandleNULL,                                      //380
+    &AuraEffect::HandleNULL,                                      //381
+    &AuraEffect::HandleNULL,                                      //382
+    &AuraEffect::HandleNULL,                                      //383
+    &AuraEffect::HandleNULL,                                      //384
+    &AuraEffect::HandleNULL,                                      //385
+    &AuraEffect::HandleNULL,                                      //386
+    &AuraEffect::HandleNULL,                                      //387
+    &AuraEffect::HandleNULL,                                      //388
+    &AuraEffect::HandleNULL,                                      //389
+    &AuraEffect::HandleNULL,                                      //390
+    &AuraEffect::HandleNULL,                                      //391
+    &AuraEffect::HandleNULL,                                      //392
+    &AuraEffect::HandleNULL,                                      //393
+    &AuraEffect::HandleNULL,                                      //394
+    &AuraEffect::HandleNULL,                                      //395
+    &AuraEffect::HandleNULL,                                      //396
+    &AuraEffect::HandleNULL,                                      //397
+    &AuraEffect::HandleNULL,                                      //398
+    &AuraEffect::HandleNULL,                                      //399
+    &AuraEffect::HandleNULL,                                      //400
+    &AuraEffect::HandleNULL,                                      //401
+    &AuraEffect::HandleNULL,                                      //402
+    &AuraEffect::HandleNULL,                                      //403
+    &AuraEffect::HandleNULL,                                      //404
+    &AuraEffect::HandleNULL,                                      //405
+    &AuraEffect::HandleNULL,                                      //406
+    &AuraEffect::HandleNULL,                                      //407
+    &AuraEffect::HandleNULL,                                      //408
+    &AuraEffect::HandleNULL,                                      //409
+    &AuraEffect::HandleNULL,                                      //410
+    &AuraEffect::HandleNULL,                                      //411
+    &AuraEffect::HandleNULL,                                      //412
+    &AuraEffect::HandleNULL,                                      //413
+    &AuraEffect::HandleNULL,                                      //414
+    &AuraEffect::HandleNULL,                                      //415
+    &AuraEffect::HandleNULL,                                      //416
+    &AuraEffect::HandleNULL,                                      //417
+    &AuraEffect::HandleNULL,                                      //418
+    &AuraEffect::HandleNULL,                                      //419
+    &AuraEffect::HandleNULL,                                      //420
+    &AuraEffect::HandleNULL,                                      //421
+    &AuraEffect::HandleNULL,                                      //422
+    &AuraEffect::HandleNULL,                                      //423
+    &AuraEffect::HandleNULL,                                      //424
+    &AuraEffect::HandleNULL,                                      //425
+    &AuraEffect::HandleNULL,                                      //426
+    &AuraEffect::HandleNULL,                                      //427
+    &AuraEffect::HandleNULL,                                      //428
+    &AuraEffect::HandleNULL,                                      //429
+    &AuraEffect::HandleNULL,                                      //430
+    &AuraEffect::HandleNULL,                                      //431
+    &AuraEffect::HandleNULL,                                      //432
+    &AuraEffect::HandleNULL,                                      //433
+    &AuraEffect::HandleNULL,                                      //434
+    &AuraEffect::HandleNULL,                                      //435
+    &AuraEffect::HandleNULL,                                      //436
+    &AuraEffect::HandleNULL,                                      //437
+    &AuraEffect::HandleNULL,                                      //438
+    &AuraEffect::HandleNULL,                                      //439
+    &AuraEffect::HandleNULL,                                      //440
+    &AuraEffect::HandleNULL,                                      //441
+    &AuraEffect::HandleNULL,                                      //442
+    &AuraEffect::HandleNULL,                                      //443
+    &AuraEffect::HandleNULL,                                      //444
+    &AuraEffect::HandleNULL,                                      //445
+    &AuraEffect::HandleNULL,                                      //446
+    &AuraEffect::HandleNULL,                                      //447
+    &AuraEffect::HandleNULL,                                      //448
+    &AuraEffect::HandleNULL,                                      //449
+    &AuraEffect::HandleNULL,                                      //450
+    &AuraEffect::HandleNULL,                                      //451
+    &AuraEffect::HandleNULL,                                      //452
+    &AuraEffect::HandleNULL,                                      //453
+    &AuraEffect::HandleNULL,                                      //454
+    &AuraEffect::HandleNULL,                                      //455
+    &AuraEffect::HandleNULL,                                      //456
+    &AuraEffect::HandleNULL,                                      //457
+    &AuraEffect::HandleNULL,                                      //458
+    &AuraEffect::HandleNULL,                                      //459
+    &AuraEffect::HandleNULL,                                      //460
+    &AuraEffect::HandleNULL,                                      //461
+    &AuraEffect::HandleNULL,                                      //462
+    &AuraEffect::HandleNULL,                                      //463
+    &AuraEffect::HandleNULL,                                      //464
+    &AuraEffect::HandleNULL,                                      //465
+    &AuraEffect::HandleNULL,                                      //466
+    &AuraEffect::HandleNULL,                                      //467
+    &AuraEffect::HandleNULL,                                      //468
+    &AuraEffect::HandleNULL,                                      //469
+    &AuraEffect::HandleNULL,                                      //471
+    &AuraEffect::HandleNULL,                                      //472
+    &AuraEffect::HandleNULL,                                      //473
+    &AuraEffect::HandleNULL,                                      //474
+    &AuraEffect::HandleNULL,                                      //475
+    &AuraEffect::HandleNULL,                                      //476
+    &AuraEffect::HandleNULL,                                      //477
+    &AuraEffect::HandleNULL,                                      //478
 };
 
 AuraEffect::AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster) :
@@ -765,16 +872,19 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
         prevented = GetBase()->CallScriptEffectApplyHandlers(this, aurApp, (AuraEffectHandleModes)mode);
     else
         prevented = GetBase()->CallScriptEffectRemoveHandlers(this, aurApp, (AuraEffectHandleModes)mode);
-
+    
+    TC_LOG_ERROR("spells","HandleEffect0");
     // check if script events have removed the aura or if default effect prevention was requested
     if ((apply && aurApp->GetRemoveMode()) || prevented)
         return;
-
+    TC_LOG_ERROR("spells","HandleEffect1");
     (*this.*AuraEffectHandler[GetAuraType()])(aurApp, mode, apply);
+    TC_LOG_ERROR("spells","HandleEffect2");
 
     // check if script events have removed the aura or if default effect prevention was requested
     if (apply && aurApp->GetRemoveMode())
         return;
+    TC_LOG_ERROR("spells","HandleEffect3");
 
     // call scripts triggering additional events after apply/remove
     if (apply)
