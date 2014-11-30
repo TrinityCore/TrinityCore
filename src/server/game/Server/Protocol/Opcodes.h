@@ -1041,7 +1041,7 @@ enum OpcodeServer : uint32
     SMSG_JOINED_BATTLEGROUND_QUEUE                    = 0xBADD,
     SMSG_KICK_REASON                                  = 0xBADD,
     SMSG_LEARNED_DANCE_MOVES                          = 0xBADD,
-    SMSG_LEARNED_SPELL                                = 0xBADD,
+    SMSG_LEARNED_SPELLS                               = 0x08AB,
     SMSG_LEVELUP_INFO                                 = 0xBADD,
     SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0xBADD,
     SMSG_LFG_DISABLED                                 = 0xBADD,

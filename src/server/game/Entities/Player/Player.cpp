@@ -3682,10 +3682,9 @@ void Player::LearnSpell(uint32 spell_id, bool dependent, bool fromSkill /*= fals
     // prevent duplicated entires in spell book, also not send if not in world (loading)
     if (learning && IsInWorld())
     {
-        WorldPacket data(SMSG_LEARNED_SPELL, 8);
-        data << uint32(spell_id);
-        data << uint32(0);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Spells::LearnedSpells packet;
+        packet.SpellID.push_back(spell_id);
+        GetSession()->SendPacket(packet.Write());
     }
 
     // learn all disabled higher ranks and required spells (recursive)

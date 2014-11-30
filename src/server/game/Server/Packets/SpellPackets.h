@@ -152,7 +152,18 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             Spell* spell;
-        }; 
+        };
+
+        class LearnedSpells final : public ServerPacket
+        {
+        public:
+            LearnedSpells() : ServerPacket(SMSG_LEARNED_SPELLS, 9) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<int32> SpellID;
+            bool SuppressMessaging = false;
+        };
     }
 }
 
