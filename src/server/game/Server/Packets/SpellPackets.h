@@ -131,6 +131,17 @@ namespace WorldPackets
             */
         };
 
+        class SetActionButton final : public ClientPacket
+        {
+        public:
+            explicit SetActionButton(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTION_BUTTON, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Action = 0;
+            uint8 Index = 0;
+        };
+
         class SendUnlearnSpells final : public ServerPacket
         {
         public:

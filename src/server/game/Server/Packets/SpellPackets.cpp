@@ -50,6 +50,12 @@ WorldPacket const* UpdateActionButtons::Write()
     return &_worldPacket;
 }
 
+void SetActionButton::Read()
+{
+    _worldPacket >> Index;
+    _worldPacket >> Action;
+}
+
 WorldPacket const* SendUnlearnSpells::Write()
 {
     _worldPacket << uint32(Spells.size());
