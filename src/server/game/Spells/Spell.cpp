@@ -4812,7 +4812,7 @@ void Spell::TakeCastItem()
     bool expendable = false;
     bool withoutCharges = false;
 
-    for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (uint32 i = 0; i < proto->Effects.size(); ++i)
     {
         ItemEffect const& itemEffect = proto->Effects[i];
         if (itemEffect.SpellID > 0)
@@ -5119,7 +5119,7 @@ void Spell::TakeReagents()
         // if CastItem is also spell reagent
         if (castItemTemplate && castItemTemplate->ItemId == itemid)
         {
-            for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+            for (uint32 s = 0; s < castItemTemplate->Effects.size(); ++s)
             {
                 // CastItem will be used up and does not count as reagent
                 int32 charges = ASSERT_NOTNULL(m_CastItem)->GetSpellCharges(s);
@@ -7244,15 +7244,15 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
             case SPELL_EFFECT_CREATE_MANA_GEM:
             {
                  uint32 item_id = spellEffectInfo.ItemType;
-                 ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item_id);
+                 ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item_id);
 
-                 if (!pProto)
+                 if (!proto)
                      return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
 
-                 if (Item* pitem = player->GetItemByEntry(item_id))
+                 if (Item* item = player->GetItemByEntry(item_id))
                  {
-                     for (int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-                         if (pProto->Effects[x].Charges != 0 && pitem->GetSpellCharges(x) == pProto->Effects[x].Charges)
+                     for (uint32 x = 0; x < proto->Effects.size(); ++x)
+                         if (proto->Effects[x].Charges != 0 && item->GetSpellCharges(x) == proto->Effects[x].Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
                  break;
