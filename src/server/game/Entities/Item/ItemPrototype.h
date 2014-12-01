@@ -598,7 +598,7 @@ struct ItemEffect
 {
     uint32  SpellID;
     uint32  Trigger;
-    uint32  Charges;
+    int32   Charges;
     int32   Cooldown;
     uint32  Category;
     int32   CategoryCooldown;

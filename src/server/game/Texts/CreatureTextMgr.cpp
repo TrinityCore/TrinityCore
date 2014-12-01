@@ -60,7 +60,7 @@ class PlayerTextBuilder
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
             WorldPackets::Chat::Chat packet;
-            return ChatHandler::BuildChatPacket(&packet, _msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            ChatHandler::BuildChatPacket(&packet, _msgType, Language(_language), _talker, _target, text, 0, "", locale);
             data = *packet.Write();
         }
 

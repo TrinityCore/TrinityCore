@@ -359,7 +359,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     mover->UpdatePosition(movementInfo.pos);
 
     WorldPackets::Movement::ServerPlayerMovement playerMovement;
-    playerMovement.mover = mover;
+    playerMovement.movementInfo = &mover->m_movementInfo;
     mover->SendMessageToSet(const_cast<WorldPacket*>(playerMovement.Write()), _player);
 
     if (plrMover)                                            // nothing is charmed, or player charmed

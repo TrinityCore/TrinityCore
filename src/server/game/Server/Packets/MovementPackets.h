@@ -43,23 +43,23 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Unit* mover;
+            MovementInfo* movementInfo = nullptr;
         };
 
         struct MonsterSplineFilterKey
         {
-            int16 Idx;
-            int16 Speed;
+            int16 Idx   = 0;
+            int16 Speed = 0;
         };
 
         struct MonsterSplineFilter
         {
             std::vector<MonsterSplineFilterKey> FilterKeys;
-            uint8 FilterFlags;
-            float BaseSpeed;
-            int16 StartOffset;
-            float DistToPrevFilterKey;
-            int16 AddedToStart;
+            uint8 FilterFlags           = 0;
+            float BaseSpeed             = 0.0f;
+            int16 StartOffset           = 0;
+            float DistToPrevFilterKey   = 0.0f;
+            int16 AddedToStart          = 0;
         };
 
         struct MovementSpline
@@ -86,7 +86,7 @@ namespace WorldPackets
 
         struct MovementMonsterSpline
         {
-            uint32 ID;
+            uint32 ID = 0;
             G3D::Vector3 Destination;
             bool CrzTeleport = false;
             MovementSpline Move;
@@ -134,7 +134,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo;
+            MovementInfo* movementInfo = nullptr;
             float Speed = 1.0f;
         };
 
@@ -196,8 +196,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 MapID         = 0;
-            uint32 Reason       = 0;
+            int32 MapID = 0;
+            uint32 Reason = 0;
             Position Pos;
         };
 
@@ -247,7 +247,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo;
+            MovementInfo* movementInfo = nullptr;
             std::vector<MovementForce> MovementForces;
             Optional<float> SwimBackSpeed;
             Optional<float> FlightSpeed;
