@@ -6230,7 +6230,7 @@ void Player::SendActionButtons(uint32 state) const
     {
         ActionButtonList::const_iterator itr = m_actionButtons.find(button);
         if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
-            packet.ActionButtons[button] = uint32(itr->second.packedData);
+            packet.ActionButtons[button] = uint64(itr->second.packedData);
         else
             packet.ActionButtons[button] = 0;
     }
