@@ -1253,6 +1253,9 @@ bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell, uin
         SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
         for (SpellEffectInfo const* effect : effects)
         {
+            if (!effect)
+                continue;
+
             if (effect->TargetA.GetTarget() != TARGET_UNIT_CASTER && effect->TargetA.GetTarget() != TARGET_DEST_CASTER
                 && effect->TargetB.GetTarget() != TARGET_UNIT_CASTER && effect->TargetB.GetTarget() != TARGET_DEST_CASTER)
             {
@@ -1297,6 +1300,9 @@ bool SpellInfo::IsStackableWithRanks() const
     SpellEffectInfoVector effects = GetEffectsForDifficulty(DIFFICULTY_NONE);
     for (SpellEffectInfo const* effect : effects)
     {
+        if (!effect)
+            continue;
+
         switch (SpellFamilyName)
         {
             case SPELLFAMILY_PALADIN:

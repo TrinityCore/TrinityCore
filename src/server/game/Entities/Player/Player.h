@@ -329,7 +329,7 @@ enum ReputationSource
 };
 
 #define ACTION_BUTTON_ACTION(X) (uint64(X) & 0x00000000FFFFFFFF)
-#define ACTION_BUTTON_TYPE(X)   ((uint64(X) & 0xFFFFFFFF00000000) >> 32)
+#define ACTION_BUTTON_TYPE(X)   ((uint64(X) & 0xFFFFFFFF00000000) >> 56)
 #define MAX_ACTION_BUTTON_ACTION_VALUE (0xFFFFFFFF)
 
 struct ActionButton
@@ -344,7 +344,7 @@ struct ActionButton
     uint32 GetAction() const { return ACTION_BUTTON_ACTION(packedData); }
     void SetActionAndType(uint32 action, ActionButtonType type)
     {
-        uint64 newData = uint64(action) | (uint64(type) << 32);
+        uint64 newData = uint64(action) | (uint64(type) << 56);
         if (newData != packedData || uState == ACTIONBUTTON_DELETED)
         {
             packedData = newData;
@@ -412,9 +412,9 @@ struct PlayerInfo
     uint16 displayId_f;
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
+    PlayerCreateInfoSpells spells;
     PlayerCreateInfoSpells castSpells;
     PlayerCreateInfoActions action;
-    PlayerCreateInfoSkills skills;
 
     PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
 };
@@ -1270,6 +1270,9 @@ struct PlayerTalentInfo
     uint8 ActiveGroup;
     uint8 GroupsCount;
 
+    
+    uint32 UsedTalentCount;
+
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
@@ -1821,8 +1824,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void ResetSpells(bool myClassOnly = false);
         void LearnCustomSpells();
-        void LearnDefaultSkills();
-        void LearnDefaultSkill(uint32 skillId, uint16 rank);
+        void LearnDefaultSpells();
         void LearnQuestRewardedSpells();
         void LearnQuestRewardedSpells(Quest const* quest);
         void LearnSpellHighestRank(uint32 spellid);
@@ -1833,6 +1835,9 @@ class Player : public Unit, public GridObject<Player>
         std::string GetGuildName();
 
         // Talents
+        uint32 GetUsedTalentCount() const { return _talentMgr->UsedTalentCount; }
+        void SetUsedTalentCount(uint32 talents) { _talentMgr->UsedTalentCount = talents; }
+
         uint32 GetTalentResetCost() const { return _talentMgr->ResetTalentsCost; }
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
         uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }

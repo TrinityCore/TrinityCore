@@ -26,11 +26,14 @@
 
 #include <list>
 
+typedef std::map<uint32, uint32> SpecializationOverrideSpellsList;
+typedef std::map<uint32, SpecializationOverrideSpellsList> SpecializationOverrideSpellsMap;
+
 typedef std::list<uint32> SimpleFactionsList;
 SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 
 char const* GetPetName(uint32 petfamily, uint32 dbclang);
-
+uint32 GetTalentSpellCost(uint32 spellId);
 TalentEntry const* GetTalentBySpellID(uint32 spellID);
 
 int32 GetAreaFlagByAreaID(uint32 area_id);                  // -1 if not found
@@ -66,6 +69,9 @@ bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredT
 
 void Zone2MapCoordinates(float &x, float &y, uint32 zone);
 void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
+uint32 GetClassBySkillId(uint32 skillId);
+uint32 GetSkillIdByClass(uint32 classId);
+std::list<uint32> GetSpellsForLevels(uint32 classId, uint32 raceMask, uint32 specializationId, uint32 minLevel, uint32 maxLevel);
 
 typedef std::map<uint32/*pair32(map, diff)*/, MapDifficulty> MapDifficultyMap;
 MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
@@ -94,6 +100,9 @@ typedef std::unordered_map<uint32, SpecializationSpellsBySpecEntry> Specializati
 typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES][MAX_SPECIALIZATIONS];
 typedef std::unordered_map<uint32, TalentEntry const*> TalentBySpellIDMap;
 
+typedef std::map<uint32, std::vector<uint32> > SpecializationSpellsMap;
+extern SpecializationSpellsMap sSpecializationSpellsMap;
+extern SpecializationOverrideSpellsMap sSpecializationOverrideSpellMap;
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions

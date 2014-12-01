@@ -3739,3 +3739,42 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
+
+void SpellMgr::LoadPetFamilySpellsStore()
+{
+    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+    {
+        SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
+        if (!skillLine)
+            continue;
+
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->SpellID);
+        if (!spellInfo)
+            continue;
+
+        SpellLevelsEntry const* levels = sSpellLevelsStore.LookupEntry(spellInfo->LevelsID);
+        if (spellInfo->LevelsID && (!levels || levels->SpellLevel))
+            continue;
+
+        if (SpellMiscEntry const* spellMisc = sSpellMiscStore.LookupEntry(spellInfo->MiscID))
+        {
+            if (spellMisc->Attributes & SPELL_ATTR0_PASSIVE)
+            {
+                for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
+                {
+                    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(i);
+                    if (!cFamily)
+                        continue;
+
+                    if (skillLine->SkillLine != cFamily->SkillLine[0] && skillLine->SkillLine != cFamily->SkillLine[1])
+                        continue;
+
+                    if (skillLine->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                        continue;
+
+                    sPetFamilySpellsStore[i].insert(spellInfo->ID);
+                }
+            }
+        }
+    }
+}

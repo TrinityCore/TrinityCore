@@ -1413,6 +1413,8 @@ void World::SetInitialWorldSettings()
     LoadDBCStores(m_dataPath);
     LoadDB2Stores(m_dataPath);
 
+    sSpellMgr->LoadPetFamilySpellsStore();
+
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 
