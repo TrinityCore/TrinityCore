@@ -135,6 +135,7 @@ const std::string CustomSpellEffectEntryIndex = "Id";
 char const SpellEntryfmt[] = "nsxxxiiiiiiiiiiiiiiiiiii";
 const std::string CustomSpellEntryfmt = "ppppppppppppppapaaaaaaaaapaaaaaapapppaapppaaapa";
 const std::string CustomSpellEntryIndex = "Id";
+char const SpellEffectScalingfmt[] = "nfffi";
 char const SpellFocusObjectfmt[] = "nx";
 char const SpellItemEnchantmentfmt[] = "niiiiiiiiiixiiiiiiiiiiifff";
 char const SpellItemEnchantmentConditionfmt[] = "nbbbbbiiiiibbbbbbbbbbiiiiibbbbb";

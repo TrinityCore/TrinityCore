@@ -306,7 +306,7 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target))
             return false;
 
-        target->LearnDefaultSkills();
+        target->LearnDefaultSpells();
         target->LearnCustomSpells();
         target->LearnQuestRewardedSpells();
 

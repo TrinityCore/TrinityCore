@@ -1803,6 +1803,16 @@ struct SpellEffectEntry
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF
 
+// SpellEffectScaling.dbc
+struct SpellEffectScalingEntry
+{
+    uint32 ID;                      // 0
+    float Coefficient;              // 1
+    float Variance;                 // 2
+    float ResourceCoefficient;      // 3
+    uint32 SpellEffectID;           // 4
+};
+
 // SpellAuraOptions.dbc
 struct SpellAuraOptionsEntry
 {
@@ -1865,6 +1875,9 @@ typedef std::set<uint32> SpellCategorySet;
 typedef std::map<uint32, SpellCategorySet > SpellCategoryStore;
 typedef std::set<uint32> PetFamilySpellsSet;
 typedef std::map<uint32, PetFamilySpellsSet > PetFamilySpellsStore;
+typedef std::unordered_map<uint32, std::list<SkillLineAbilityEntry const*> > SpellsPerClassStore;
+typedef std::unordered_map<uint32, uint32> ClassBySkillIdStore;
+typedef std::unordered_map<uint32, uint32> SpellEffectScallingByEffectId;
 
 struct SpellCastTimesEntry
 {

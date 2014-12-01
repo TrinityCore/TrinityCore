@@ -1121,7 +1121,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     }
 
     // original spells
-    LearnDefaultSkills();
+    LearnDefaultSpells();
     LearnCustomSpells();
 
     // original action bar
@@ -3528,9 +3528,11 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
             return false;
     }
 
+    uint32 talentCost = GetTalentSpellCost(spellId);
+
     // cast talents with SPELL_EFFECT_LEARN_SPELL (other dependent spells will learned later as not auto-learned)
     // note: all spells with SPELL_EFFECT_LEARN_SPELL isn't passive
-    if (!loading && spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL))
+    if (!loading && talentCost > 0 && spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
     {
         // ignore stance requirement for talent learn spell (stance set for spell only for client spell description show)
         CastSpell(this, spellId, true);
@@ -3541,11 +3543,14 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         if (IsNeedCastPassiveSpellAtLearn(spellInfo))
             CastSpell(this, spellId, true);
     }
-    else if (spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_SKILL_STEP))
+    else if (spellInfo->HasEffect(SPELL_EFFECT_SKILL_STEP))
     {
         CastSpell(this, spellId, true);
         return false;
     }
+
+    // update used talent points count
+    SetUsedTalentCount(GetUsedTalentCount() + talentCost);
 
     // update free primary prof.points (if any, can be none in case GM .learn prof. learning)
     if (uint32 freeProfs = GetFreePrimaryProfessionPoints())
@@ -3554,38 +3559,58 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
             SetFreePrimaryProfessions(freeProfs-1);
     }
 
+    // add dependent skills
+    uint16 maxskill     = GetMaxSkillValueForLevel();
+
+    SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId);
+
     SkillLineAbilityMapBounds skill_bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
 
-    // add dependent skills if this spell is not learned from adding skill already
-    if (!fromSkill)
+    if (spellLearnSkill)
     {
-        if (SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId))
+        uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
+        uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
+
+        if (skill_value < spellLearnSkill->value)
+            skill_value = spellLearnSkill->value;
+
+        uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? maxskill : spellLearnSkill->maxvalue;
+
+        if (skill_max_value < new_skill_max_value)
+            skill_max_value = new_skill_max_value;
+
+        SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
+    }
+    else
+    {
+        // not ranked skills
+        for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
         {
-            uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
-            uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
+            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->SkillLine);
+            if (!pSkill)
+                continue;
 
-            if (skill_value < spellLearnSkill->value)
-                skill_value = spellLearnSkill->value;
+            if (HasSkill(pSkill->ID))
+                continue;
 
-            uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? GetMaxSkillValueForLevel() : spellLearnSkill->maxvalue;
-
-            if (skill_max_value < new_skill_max_value)
-                skill_max_value = new_skill_max_value;
-
-            SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
-        }
-        else
-        {
-            // not ranked skills
-            for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
+            if (_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN ||
+                // lockpicking/runeforging special case, not have SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN
+                ((pSkill->ID == SKILL_LOCKPICKING || pSkill->ID == SKILL_RUNEFORGING) && (_spell_idx->second->TrivialSkillLineRankHigh == 0 || _spell_idx->second->TrivialSkillLineRankHigh == 1)))
             {
-                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->SkillLine);
-                if (!pSkill)
-                    continue;
-
-                ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
-                if ((_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->ID)) || (pSkill->ID == SKILL_LOCKPICKING && _spell_idx->second->TrivialSkillLineRankHigh == 0))
-                    LearnDefaultSkill(pSkill->ID, 0);
+                switch (GetSkillRangeType(pSkill, _spell_idx->second->RaceMask!= 0))
+                {
+                    case SKILL_RANGE_LANGUAGE:
+                        SetSkill(pSkill->ID, GetSkillStep(pSkill->ID), 300, 300);
+                        break;
+                    case SKILL_RANGE_LEVEL:
+                        SetSkill(pSkill->ID, GetSkillStep(pSkill->ID), 1, GetMaxSkillValueForLevel());
+                        break;
+                    case SKILL_RANGE_MONO:
+                        SetSkill(pSkill->ID, GetSkillStep(pSkill->ID), 1, 1);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }
@@ -5868,14 +5893,14 @@ void Player::UpdateSkillsForLevel()
             continue;
 
         uint32 pskill = itr->first;
-        SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(pskill, getRace(), getClass());
-        if (!rcEntry)
+        SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(pskill);
+        if (!pSkill)
             continue;
 
-        if (GetSkillRangeType(rcEntry) != SKILL_RANGE_LEVEL)
+        if (GetSkillRangeType(pSkill, false) != SKILL_RANGE_LEVEL)
             continue;
 
-        if (IsWeaponSkill(rcEntry->SkillID))
+        if (IsWeaponSkill(pSkill->ID))
             continue;
 
         uint16 field = itr->second.pos / 2;
@@ -17424,7 +17449,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // after spell and quest load
     InitTalentForLevel();
-    LearnDefaultSkills();
+    LearnDefaultSpells();
     LearnCustomSpells();
 
     // must be before inventory (some items required reputation check)
@@ -23220,7 +23245,7 @@ void Player::ResetSpells(bool myClassOnly)
         for (PlayerSpellMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
             RemoveSpell(iter->first, false, false);           // only iter->first can be accessed, object by iter->second can be deleted already
 
-    LearnDefaultSkills();
+    LearnDefaultSpells();
     LearnCustomSpells();
     LearnQuestRewardedSpells();
 }
@@ -23243,69 +23268,18 @@ void Player::LearnCustomSpells()
     }
 }
 
-void Player::LearnDefaultSkills()
+void Player::LearnDefaultSpells()
 {
-    // learn default race/class skills
+    // learn default race/class spells
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
-    for (PlayerCreateInfoSkills::const_iterator itr = info->skills.begin(); itr != info->skills.end(); ++itr)
+    for (PlayerCreateInfoSpells::const_iterator itr = info->spells.begin(); itr != info->spells.end(); ++itr)
     {
-        uint32 skillId = itr->SkillId;
-        if (HasSkill(skillId))
-            continue;
-
-        LearnDefaultSkill(skillId, itr->Rank);
-    }
-}
-
-void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
-{
-    SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(skillId, getRace(), getClass());
-    if (!rcInfo)
-        return;
-
-    TC_LOG_DEBUG("entities.player.loading", "PLAYER (Class: %u Race: %u): Adding initial skill, id = %u", uint32(getClass()), uint32(getRace()), skillId);
-    switch (GetSkillRangeType(rcInfo))
-    {
-        case SKILL_RANGE_LANGUAGE:
-            SetSkill(skillId, 0, 300, 300);
-            break;
-        case SKILL_RANGE_LEVEL:
-        {
-            uint16 skillValue = 1;
-            uint16 maxValue = GetMaxSkillValueForLevel();
-            if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
-                skillValue = maxValue;
-            else if (getClass() == CLASS_DEATH_KNIGHT)
-                skillValue = std::min(std::max<uint16>({ 1, uint16((getLevel() - 1) * 5) }), maxValue);
-            else if (skillId == SKILL_FIST_WEAPONS)
-                skillValue = std::max<uint16>(1, GetSkillValue(SKILL_UNARMED));
-            else if (skillId == SKILL_LOCKPICKING)
-                skillValue = std::max<uint16>(1, GetSkillValue(SKILL_LOCKPICKING));
-
-            SetSkill(skillId, 0, skillValue, maxValue);
-            break;
-        }
-        case SKILL_RANGE_MONO:
-            SetSkill(skillId, 0, 1, 1);
-            break;
-        case SKILL_RANGE_RANK:
-        {
-            if (!rank)
-                break;
-
-            SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcInfo->SkillTierID);
-            uint16 maxValue = tier->Value[std::max<int32>(rank - 1, 0)];
-            uint16 skillValue = 1;
-            if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
-                skillValue = maxValue;
-            else if (getClass() == CLASS_DEATH_KNIGHT)
-                skillValue = std::min(std::max<uint16>({ uint16(1), uint16((getLevel() - 1) * 5) }), maxValue);
-
-            SetSkill(skillId, rank, skillValue, maxValue);
-            break;
-        }
-        default:
-            break;
+        uint32 tspell = *itr;
+        TC_LOG_DEBUG("entities.player.loading", "PLAYER (Class: %u Race: %u): Adding initial spell, id = %u", uint32(getClass()), uint32(getRace()), tspell);
+        if (!IsInWorld())                                    // will send in INITIAL_SPELLS in list anyway at map add
+            AddSpell(tspell, true, true, true, false);
+        else                                                // but send in normal spell in game learn case
+            LearnSpell(tspell, true);
     }
 }
 
@@ -23423,36 +23397,31 @@ void Player::LearnQuestRewardedSpells()
 
 void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 {
-    uint32 raceMask  = getRaceMask();
+    uint32 raceMask = getRaceMask();
     uint32 classMask = getClassMask();
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
     {
-        SkillLineAbilityEntry const* ability = sSkillLineAbilityStore.LookupEntry(j);
-        if (!ability || ability->SkillLine != skillId)
+        SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j);
+        if (!pAbility || pAbility->SkillLine != skillId || pAbility->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
             continue;
-
-        if (!sSpellMgr->GetSpellInfo(ability->SpellID))
-            continue;
-
-        if (ability->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
-            continue;
-
         // Check race if set
-        if (ability->RaceMask && !(ability->RaceMask & raceMask))
+        if (pAbility->RaceMask && !(pAbility->RaceMask & raceMask))
             continue;
-
         // Check class if set
-        if (ability->ClassMask && !(ability->ClassMask & classMask))
+        if (pAbility->ClassMask && !(pAbility->ClassMask & classMask))
             continue;
 
-        // need unlearn spell
-        if (skillValue < ability->MinSkillLineRank && ability->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
-            RemoveSpell(ability->SpellID);
-        // need learn
-        else if (!IsInWorld())
-            AddSpell(ability->SpellID, true, true, true, false, false, true);
-        else
-            LearnSpell(ability->SpellID, true, true);
+        if (sSpellMgr->GetSpellInfo(pAbility->SpellID))
+        {
+            // need unlearn spell
+            if (skillValue < pAbility->MinSkillLineRank)
+                RemoveSpell(pAbility->SpellID);
+            // need learn
+            else if (!IsInWorld())
+                AddSpell(pAbility->SpellID, true, true, true, false);
+            else
+                LearnSpell(pAbility->SpellID, true);
+        }
     }
 }
 
@@ -25167,8 +25136,8 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 value    = fields[1].GetUInt16();
             uint16 max      = fields[2].GetUInt16();
 
-            SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skill, getRace(), getClass());
-            if (!rcEntry)
+            SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skill);
+            if (!skillLine)
             {
                 TC_LOG_ERROR("entities.player", "Character: %s (%s Race: %u Class: %u) has skill %u not allowed for his race/class combination",
                     GetName().c_str(), GetGUID().ToString().c_str(), uint32(getRace()), uint32(getClass()), skill);
@@ -25178,7 +25147,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             }
 
             // set fixed skill ranges
-            switch (GetSkillRangeType(rcEntry))
+            switch (GetSkillRangeType(skillLine, false))
             {
                 case SKILL_RANGE_LANGUAGE:                      // 300..300
                     value = max = 300;
@@ -25212,19 +25181,15 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, skill);
             uint16 step = 0;
 
-            SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(rcEntry->SkillID);
-            if (skillLine)
+            if (skillLine->CategoryID == SKILL_CATEGORY_SECONDARY)
+                step = max / 75;
+
+            if (skillLine->CategoryID == SKILL_CATEGORY_PROFESSION)
             {
-                if (skillLine->CategoryID == SKILL_CATEGORY_SECONDARY)
-                    step = max / 75;
+                step = max / 75;
 
-                if (skillLine->CategoryID == SKILL_CATEGORY_PROFESSION)
-                {
-                    step = max / 75;
-
-                    if (professionCount < 2)
-                        SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + professionCount++, skill);
-                }
+                if (professionCount < 2)
+                    SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + professionCount++, skill);
             }
 
             SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, step);

@@ -274,8 +274,6 @@ Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMa
     if (!effMask)
         return NULL;
 
-    TC_LOG_ERROR("spells", "TryRefreshStackOrCreate spell %u tryEffMask %u effMask %u", spellproto->Id, tryEffMask, effMask);
-
     if (Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID))
     {
         // we've here aura, which script triggered removal after modding stack amount

@@ -699,6 +699,8 @@ class SpellMgr
         }
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
 
+        void LoadPetFamilySpellsStore();
+
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
 
