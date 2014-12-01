@@ -391,6 +391,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
 
     if (spellCastData.ProjectileVisual.HasValue)
         data << spellCastData.ProjectileVisual.Value;
+
+    return data;
 }
 
 WorldPacket const* WorldPackets::Spells::SpellStart::Write()

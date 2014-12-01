@@ -299,7 +299,7 @@ namespace WorldPackets
 
             ObjectGuid CasterUnit;
             uint32 SpellID  = 0;
-            uint8 Reason    = 0;
+            uint16 Reason   = 0;
             uint8 CastID    = 0;
         };
 
