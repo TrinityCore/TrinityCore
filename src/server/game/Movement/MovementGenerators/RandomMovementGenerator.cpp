@@ -56,13 +56,11 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
     Trinity::NormalizeMapCoord(destX);
     Trinity::NormalizeMapCoord(destY);
 
-    //travelDistZ = distanceX*distanceX + distanceY*distanceY;	// sin^2+cos^2=1, so travelDistZ=range^2
-    travelDistZ = range;					// no need for sqrt below
+    travelDistZ = range;					// sin^2+cos^2=1, so travelDistZ=range^2; no need for sqrt below
 
     if (is_air_ok)                                          // 3D system above ground and above water (flying mode)
     {
         // Limit height change
-        //const float distanceZ = float(rand_norm()) * std::sqrt(travelDistZ)/2.0f;
 	const float distanceZ = float(rand_norm()) * travelDistZ/2.0f;
         destZ = respZ + distanceZ;
         float levelZ = map->GetWaterOrGroundLevel(destX, destY, destZ-2.0f);
@@ -75,7 +73,6 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
     else                                                    // 2D only
     {
         // 10.0 is the max that vmap high can check (MAX_CAN_FALL_DISTANCE)
-        //travelDistZ = travelDistZ >= 100.0f ? 10.0f : std::sqrt(travelDistZ);
         travelDistZ = travelDistZ >= 10.0f ? 10.0f : travelDistZ;
 
 
