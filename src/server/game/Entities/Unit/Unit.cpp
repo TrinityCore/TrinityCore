@@ -7027,7 +7027,7 @@ void Unit::setPowerType(Powers new_powertype)
     if (getPowerType() == new_powertype)
         return;
 
-    SetByteValue(UNIT_FIELD_BYTES_0, 3, new_powertype);
+    SetUInt32Value(UNIT_FIELD_DISPLAY_POWER, new_powertype);
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -10578,6 +10578,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
     propagateSpeedChange();
 
+    // Spline packets are for creatures and move_update are for players
     static OpcodeServer const moveTypeToOpcode[MAX_MOVE_TYPE][3] =
     {
         {SMSG_SPLINE_MOVE_SET_WALK_SPEED,        SMSG_MOVE_SET_WALK_SPEED,        SMSG_MOVE_UPDATE_WALK_SPEED       },
@@ -10604,16 +10605,22 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER)
     {
-        /// @todo fix SMSG_MOVE_SET packets (were they removed?)
-        //_selfOpcode = playerControl;
-        WorldPackets::Movement::MoveUpdate packet(moveTypeToOpcode[mtype][2]);
-        packet.movementInfo = m_movementInfo;
+        // Send notification to self
+        WorldPackets::Movement::MoveSetSpeed selfpacket(moveTypeToOpcode[mtype][1]);
+        selfpacket.MoverGUID = GetGUID();
+        selfpacket.SequenceIndex = m_movementCounter++;
+        selfpacket.Speed = rate;
+        ToPlayer()->GetSession()->SendPacket(selfpacket.Write());
+
+        // Send notification to other players
+        WorldPackets::Movement::MoveUpdateSpeed packet(moveTypeToOpcode[mtype][2]);
+        packet.movementInfo = &m_movementInfo;
         packet.Speed = rate;
         SendMessageToSet(packet.Write(), false);
     }
     else
     {
-        WorldPackets::Movement::MoveSplineSet packet(moveTypeToOpcode[mtype][0]);
+        WorldPackets::Movement::MoveSplineSetSpeed packet(moveTypeToOpcode[mtype][0]);
         packet.MoverGUID = GetGUID();
         packet.Speed = rate;
         SendMessageToSet(packet.Write(), true);
@@ -14138,7 +14145,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
                         // to prevent client crash
-                        SetByteValue(UNIT_FIELD_BYTES_0, 1, (uint8)CLASS_MAGE);
+                        SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, (uint8)CLASS_MAGE);
 
                         // just to enable stat window
                         if (GetCharmInfo())
@@ -14240,7 +14247,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                     CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
-                        SetByteValue(UNIT_FIELD_BYTES_0, 1, uint8(cinfo->unit_class));
+                        SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, uint8(cinfo->unit_class));
                         if (GetCharmInfo())
                             GetCharmInfo()->SetPetNumber(0, true);
                         else
@@ -15665,61 +15672,26 @@ void Unit::SendTeleportPacket(Position& pos)
     ObjectGuid guid = GetGUID();
     ObjectGuid transGuid = GetTransGUID();
 
-    WorldPacket data(SMSG_MOVE_UPDATE_TELEPORT, 38);
-    WriteMovementInfo(data);
+    WorldPackets::Movement::MoveUpdateTeleport packet;
+    packet.movementInfo = &m_movementInfo;
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldPacket data2(SMSG_MOVE_TELEPORT, 38);
-        data2.WriteBit(guid[6]);
-        data2.WriteBit(guid[0]);
-        data2.WriteBit(guid[3]);
-        data2.WriteBit(guid[2]);
-        data2.WriteBit(0); // unknown
-        data2.WriteBit(!transGuid.IsEmpty());
-        data2.WriteBit(guid[1]);
-        if (!transGuid.IsEmpty())
-        {
-            data2.WriteBit(transGuid[1]);
-            data2.WriteBit(transGuid[3]);
-            data2.WriteBit(transGuid[2]);
-            data2.WriteBit(transGuid[5]);
-            data2.WriteBit(transGuid[0]);
-            data2.WriteBit(transGuid[7]);
-            data2.WriteBit(transGuid[6]);
-            data2.WriteBit(transGuid[4]);
-        }
-        data2.WriteBit(guid[4]);
-        data2.WriteBit(guid[7]);
-        data2.WriteBit(guid[5]);
-        data2.FlushBits();
+        WorldPackets::Movement::MoveTeleport selfPacket;
+
+        selfPacket.MoverGUID = guid;
 
         if (!transGuid.IsEmpty())
         {
-            data2.WriteByteSeq(transGuid[6]);
-            data2.WriteByteSeq(transGuid[5]);
-            data2.WriteByteSeq(transGuid[1]);
-            data2.WriteByteSeq(transGuid[7]);
-            data2.WriteByteSeq(transGuid[0]);
-            data2.WriteByteSeq(transGuid[2]);
-            data2.WriteByteSeq(transGuid[4]);
-            data2.WriteByteSeq(transGuid[3]);
+            selfPacket.TransportGUID.Value = transGuid;
+            selfPacket.TransportGUID.HasValue = true;
         }
 
-        data2 << uint32(0); // counter
-        data2.WriteByteSeq(guid[1]);
-        data2.WriteByteSeq(guid[2]);
-        data2.WriteByteSeq(guid[3]);
-        data2.WriteByteSeq(guid[5]);
-        data2 << float(GetPositionX());
-        data2.WriteByteSeq(guid[4]);
-        data2 << float(GetOrientation());
-        data2.WriteByteSeq(guid[7]);
-        data2 << float(GetPositionZMinusOffset());
-        data2.WriteByteSeq(guid[0]);
-        data2.WriteByteSeq(guid[6]);
-        data2 << float(GetPositionY());
-        ToPlayer()->SendDirectMessage(&data2); // Send the MSG_MOVE_TELEPORT packet to self.
+        selfPacket.Pos.Relocate(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+        selfPacket.Facing = GetOrientation();
+        selfPacket.SequenceIndex = m_movementCounter++;
+
+        ToPlayer()->SendDirectMessage(selfPacket.Write());
     }
 
     // Relocate the player/creature to its old position, so we can broadcast to nearby players correctly
@@ -15729,7 +15701,7 @@ void Unit::SendTeleportPacket(Position& pos)
         Relocate(&oldPos);
 
     // Broadcast the packet to everyone except self.
-    SendMessageToSet(&data, false);
+    SendMessageToSet(packet.Write(), false);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
@@ -16122,10 +16094,27 @@ bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
         }
     }
 
-    if (disable)
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_DISABLE, SMSG_MOVE_GRAVITY_DISABLE).Send();
+    static OpcodeServer const gravityOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_GRAVITY_ENABLE,   SMSG_MOVE_GRAVITY_ENABLE    },
+        {SMSG_SPLINE_MOVE_GRAVITY_DISABLE,  SMSG_MOVE_GRAVITY_DISABLE   }
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(gravityOpcodeTable[disable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
     else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_ENABLE, SMSG_MOVE_GRAVITY_ENABLE).Send();
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(gravityOpcodeTable[disable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
 
     return true;
 }
@@ -16156,10 +16145,11 @@ bool Unit::SetSwim(bool enable)
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
-    if (enable)
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_START_SWIM, static_cast<OpcodeServer>(NULL_OPCODE)).Send();
-    else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_STOP_SWIM, static_cast<OpcodeServer>(NULL_OPCODE)).Send();
+    static OpcodeServer const swimOpcodeTable[2] = {SMSG_SPLINE_MOVE_STOP_SWIM, SMSG_SPLINE_MOVE_START_SWIM};
+
+    WorldPackets::Movement::MoveSplineSetFlag packet(swimOpcodeTable[enable]);
+    packet.MoverGUID = GetGUID();
+    SendMessageToSet(packet.Write(), true);
 
     return true;
 }
@@ -16182,10 +16172,27 @@ bool Unit::SetCanFly(bool enable)
             SetFall(true);
     }
 
-    if (enable)
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_FLYING, SMSG_MOVE_SET_CAN_FLY).Send();
+    static OpcodeServer const flyOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_UNSET_FLYING, SMSG_MOVE_UNSET_CAN_FLY },
+        {SMSG_SPLINE_MOVE_SET_FLYING,   SMSG_MOVE_SET_CAN_FLY   }
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(flyOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
     else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNSET_FLYING, SMSG_MOVE_UNSET_CAN_FLY).Send();
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(flyOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
 
     return true;
 }
@@ -16203,10 +16210,27 @@ bool Unit::SetWaterWalking(bool enable, bool packetOnly /*= false */)
             RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
     }
 
-    if (enable)
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_WATER_WALK, SMSG_MOVE_WATER_WALK).Send();
+    static OpcodeServer const waterWalkingOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_SET_LAND_WALK,    SMSG_MOVE_LAND_WALK },
+        {SMSG_SPLINE_MOVE_SET_WATER_WALK,   SMSG_MOVE_WATER_WALK}
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(waterWalkingOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
     else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_LAND_WALK, SMSG_MOVE_LAND_WALK).Send();
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(waterWalkingOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
 
     return true;
 }
@@ -16224,10 +16248,27 @@ bool Unit::SetFeatherFall(bool enable, bool packetOnly /*= false */)
             RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
     }
 
-    if (enable)
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_FEATHER_FALL, SMSG_MOVE_FEATHER_FALL).Send();
+    static OpcodeServer const featherFallOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_SET_NORMAL_FALL,  SMSG_MOVE_NORMAL_FALL   },
+        {SMSG_SPLINE_MOVE_SET_FEATHER_FALL, SMSG_MOVE_FEATHER_FALL  }
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(featherFallOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
     else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_NORMAL_FALL, SMSG_MOVE_NORMAL_FALL).Send();
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(featherFallOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
 
     return true;
 }
@@ -16260,10 +16301,27 @@ bool Unit::SetHover(bool enable, bool packetOnly /*= false*/)
         }
     }
 
-    if (enable)
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_HOVER, SMSG_MOVE_SET_HOVER).Send();
+    static OpcodeServer const hoverOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_UNSET_HOVER,  SMSG_MOVE_UNSET_HOVER   },
+        {SMSG_SPLINE_MOVE_SET_HOVER,    SMSG_MOVE_SET_HOVER     }
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(hoverOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
     else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER).Send();
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(hoverOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
 
     return true;
 }

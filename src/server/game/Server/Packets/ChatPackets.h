@@ -143,8 +143,8 @@ namespace WorldPackets
             ObjectGuid SenderAccountGUID;
             ObjectGuid TargetGUID;
             ObjectGuid PartyGUID;
-            uint32 SenderVirtualAddress;
-            uint32 TargetVirtualAddress;
+            uint32 SenderVirtualAddress = 0;
+            uint32 TargetVirtualAddress = 0;
             std::string SenderName;
             std::string TargetName;
             std::string Prefix;
@@ -165,7 +165,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Guid;
-            int32 EmoteID;
+            int32 EmoteID = 0;
         };
 
         class CTextEmote final : public ClientPacket
@@ -176,8 +176,8 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Target;
-            int32 EmoteID;
-            int32 SoundIndex;
+            int32 EmoteID = 0;
+            int32 SoundIndex = -1;
         };
 
         class STextEmote final : public ServerPacket
@@ -190,8 +190,8 @@ namespace WorldPackets
             ObjectGuid SourceGUID;
             ObjectGuid SourceAccountGUID;
             ObjectGuid TargetGUID;
-            int32 SoundIndex;
-            int32 EmoteID;
+            int32 SoundIndex = -1;
+            int32 EmoteID = 0;
         };
     }
 }

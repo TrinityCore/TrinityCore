@@ -33,11 +33,8 @@ namespace Movement
     class MoveSpline;
     class PacketBuilder
     {
-        static void WriteCommonMonsterMovePart(const MoveSpline& mov, WorldPacket& data);
     public:
-
         static void WriteMonsterMove(const MoveSpline& mov, WorldPackets::Movement::MovementMonsterSpline& movementMonsterSpline);
-        static void WriteStopMovement(Vector3 const& loc, uint32 splineId, ByteBuffer& data);
         static void WriteCreate(MoveSpline const& moveSpline, ByteBuffer& data);
     };
 }

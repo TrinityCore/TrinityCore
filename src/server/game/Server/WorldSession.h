@@ -162,6 +162,13 @@ namespace WorldPackets
         class TutorialSetFlag;
     }
 
+    namespace Movement
+    {
+        class ClientPlayerMovement;
+        class WorldPortAck;
+        class MoveTeleportAck;
+    }
+
     namespace NPC
     {
         class Hello;
@@ -180,12 +187,6 @@ namespace WorldPackets
     {
         class QuestGiverStatusQuery;
         class QuestGiverStatusMultipleQuery;
-    }
-
-    namespace Movement
-    {
-        class ClientPlayerMovement;
-        class WorldPortAck;
     }
 }
 
@@ -631,7 +632,7 @@ class WorldSession
         // Knockback
         void HandleMoveKnockBackAck(WorldPacket& recvPacket);
 
-        void HandleMoveTeleportAck(WorldPacket& recvPacket);
+        void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
         void HandleForceSpeedChangeAck(WorldPacket& recvData);
         void HandleSetCollisionHeightAck(WorldPacket& recvPacket);
 

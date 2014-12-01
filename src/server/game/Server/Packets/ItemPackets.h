@@ -31,8 +31,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 ProficiencyMask;
-            uint8 ProficiencyClass;
+            uint32 ProficiencyMask = 0;
+            uint8 ProficiencyClass = 0;
         };
 
         struct ItemBonusInstanceData
