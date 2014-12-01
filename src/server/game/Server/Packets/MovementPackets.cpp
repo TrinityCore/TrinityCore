@@ -300,9 +300,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetFlag::Write()
 
 WorldPacket const* WorldPackets::Movement::ServerPlayerMovement::Write()
 {
-    MovementInfo movementInfo = mover->m_movementInfo;
-
-    _worldPacket << movementInfo;
+    _worldPacket << *movementInfo;
 
     return &_worldPacket;
 }
