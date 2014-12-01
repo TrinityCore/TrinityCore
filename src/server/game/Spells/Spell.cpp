@@ -196,9 +196,41 @@ void SpellCastTargets::Read(ByteBuffer& data, Unit* caster)
     Update(caster);
 }
 
-void SpellCastTargets::Write(ByteBuffer& data)
+void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
 {
-    data << uint32(m_targetMask);
+    data.Flags = m_targetMask;
+
+    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_MINIPET))
+        data.Unit = m_objectTargetGUID;
+
+    if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM) && m_itemTarget)
+        data.Item = m_itemTarget->GetGUID();
+
+    if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
+    {
+        WorldPackets::Spells::TargetLocation& target = data.SrcLocation.Value;
+        target.Transport = m_src._transportGUID; // relative position guid here - transport for example
+        if (!m_src._transportGUID.IsEmpty())
+            target.Location = m_src._transportOffset;
+        else
+            target.Location = m_src._position;
+        data.SrcLocation.HasValue = true;
+    }
+
+    if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    {
+        WorldPackets::Spells::TargetLocation& target = data.DstLocation.Value;
+        target.Transport = m_dst._transportGUID; // relative position guid here - transport for example
+        if (!m_dst._transportGUID.IsEmpty())
+            target.Location = m_dst._transportOffset;
+        else
+            target.Location = m_dst._position;
+        data.DstLocation.HasValue = true;
+    }
+
+    if (m_targetMask & TARGET_FLAG_STRING)
+        data.Name = m_strTarget;
+    /*data << uint32(m_targetMask);
 
     if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_MINIPET))
         data << m_objectTargetGUID.WriteAsPacked();
@@ -230,7 +262,7 @@ void SpellCastTargets::Write(ByteBuffer& data)
     }
 
     if (m_targetMask & TARGET_FLAG_STRING)
-        data << m_strTarget;
+        data << m_strTarget;*/
 }
 
 ObjectGuid SpellCastTargets::GetOrigUnitTargetGUID() const
@@ -3849,7 +3881,7 @@ void Spell::SendSpellStart()
     if (!IsNeedSendToClient())
         return;
 
-    //TC_LOG_DEBUG("spells", "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
+    TC_LOG_DEBUG("spells", "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
 
@@ -3864,9 +3896,80 @@ void Spell::SendSpellStart()
     if (m_spellInfo->RuneCostID && m_spellInfo->PowerType == POWER_RUNES)
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
-    WorldPackets::Spells::SendSpellStart spellStart;
-    spellStart.spell = this;
+    WorldPackets::Spells::SpellStart packet;
+    WorldPackets::Spells::SpellCastData& castData = packet.Cast;
 
+    if (m_CastItem)
+        castData.CasterGUID = m_CastItem->GetGUID();
+    else
+        castData.CasterGUID = m_caster->GetGUID();
+
+    castData.CasterUnit = m_caster->GetGUID();
+    castData.CastID = m_cast_count; // pending spell cast?
+    castData.SpellID = m_spellInfo->Id;
+    castData.CastFlags = castFlags;
+    castData.CastTime = m_casttime;
+
+    m_targets.Write(castData.Target);
+
+    if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
+    {
+        /// @todo Implement multiple power types
+        WorldPackets::Spells::SpellPowerData powerData;
+        powerData.Type = m_spellInfo->PowerType;
+        powerData.Cost = m_caster->GetPower((Powers)m_spellInfo->PowerType);
+        castData.RemainingPower.push_back(powerData);
+    }
+
+    if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
+    {
+        WorldPackets::Spells::RuneData& runeData = castData.RemainingRunes.Value;
+        //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
+        //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
+        if (Player* player = m_caster->ToPlayer())
+        {
+            runeData.Start = m_runesState; // runes state before
+            runeData.Count = player->GetRunesState(); // runes state after
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+            {
+                // float casts ensure the division is performed on floats as we need float result
+                float baseCd = float(player->GetRuneBaseCooldown(i));
+                runeData.Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+            }
+        }
+        else
+        {
+            runeData.Start = 0;
+            runeData.Count = 0;
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+                runeData.Cooldowns.push_back(0);
+        }
+
+        castData.RemainingRunes.HasValue = true;
+    }
+
+    /** @todo implement spell ammo packet data
+    if (castFlags & CAST_FLAG_PROJECTILE)
+    {
+        castData.Ammo.DisplayID = 0;
+        castData.Ammo.InventoryType = 0;
+    }**/
+
+    /** @todo implement spell immunity packet data
+    if (castFlags & CAST_FLAG_IMMUNITY)
+    {
+        castData.Immunities.School = 0;
+        castData.Immunities.Value = 0;
+    }**/
+
+    /** @todo implement heal prediction packet data
+    if (castFlags & CAST_FLAG_HEAL_PREDICTION)
+    {
+        castData.Predict.BeconGUID = ??
+        castData.Predict.Points = 0;
+        castData.Predict.Type = 0;
+    }**/
+    
     /*WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
     if (m_CastItem)
         data << m_CastItem->GetPackGUID();
@@ -3929,7 +4032,7 @@ void Spell::SendSpellStart()
             // data.append(0);
     }*/
 
-    m_caster->SendMessageToSet(spellStart.Write(), true);
+    m_caster->SendMessageToSet(packet.Write(), true);
 }
 
 void Spell::SendSpellGo()
@@ -3938,7 +4041,7 @@ void Spell::SendSpellGo()
     if (!IsNeedSendToClient())
         return;
 
-    //TC_LOG_DEBUG("spells", "Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
+    TC_LOG_DEBUG("spells", "Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN_9;
 
@@ -3970,7 +4073,68 @@ void Spell::SendSpellGo()
     if (!m_spellInfo->StartRecoveryTime)
         castFlags |= CAST_FLAG_NO_GCD;
 
-    WorldPacket data(SMSG_SPELL_GO, 50);                    // guess size
+    WorldPackets::Spells::SpellGo packet;
+    WorldPackets::Spells::SpellCastData& castData = packet.Cast;
+
+    if (m_CastItem)
+        castData.CasterGUID = m_CastItem->GetGUID();
+    else
+        castData.CasterGUID = m_caster->GetGUID();
+
+    castData.CasterUnit = m_caster->GetGUID();
+    castData.CastID = m_cast_count; // pending spell cast?
+    castData.SpellID = m_spellInfo->Id;
+    castData.CastFlags = castFlags;
+    castData.CastTime = getMSTime();
+
+    /// @todo implement multiple targets
+    if (m_targets.GetUnitTarget())
+        castData.HitTargets.push_back(m_targets.GetUnitTargetGUID());
+
+    m_targets.Write(castData.Target);
+
+    if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
+    {
+        /// @todo Implement multiple power types
+        WorldPackets::Spells::SpellPowerData powerData;
+        powerData.Type = m_spellInfo->PowerType;
+        powerData.Cost = m_caster->GetPower((Powers)m_spellInfo->PowerType);
+        castData.RemainingPower.push_back(powerData);
+    }
+
+    if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
+    {
+        WorldPackets::Spells::RuneData& runeData = castData.RemainingRunes.Value;
+        //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
+        //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
+        if (Player* player = m_caster->ToPlayer())
+        {
+            runeData.Start = m_runesState; // runes state before
+            runeData.Count = player->GetRunesState(); // runes state after
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+            {
+                // float casts ensure the division is performed on floats as we need float result
+                float baseCd = float(player->GetRuneBaseCooldown(i));
+                runeData.Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+            }
+        }
+        else
+        {
+            runeData.Start = 0;
+            runeData.Count = 0;
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+                runeData.Cooldowns.push_back(0);
+        }
+
+        castData.RemainingRunes.HasValue = true;
+    }
+
+    if (castFlags & CAST_FLAG_ADJUST_MISSILE)
+    {
+        castData.MissileTrajectory.TravelTime = m_delayMoment;
+        castData.MissileTrajectory.Pitch = m_targets.GetElevation();
+    }
+    /*WorldPacket data(SMSG_SPELL_GO, 50);                    // guess size
 
     if (m_CastItem)
         data << m_CastItem->GetPackGUID();
@@ -3986,7 +4150,7 @@ void Spell::SendSpellGo()
 
     WriteSpellGoTargets(&data);
 
-    m_targets.Write(data);
+    //m_targets.Write(data);
 
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
         data << uint32(m_caster->GetPower((Powers)m_spellInfo->PowerType));
@@ -4034,7 +4198,7 @@ void Spell::SendSpellGo()
     if (m_targets.GetTargetMask() & TARGET_FLAG_EXTRA_TARGETS)
     {
         data << uint32(0); // Extra targets count
-        /*
+        
         for (uint8 i = 0; i < count; ++i)
         {
             data << float(0);   // Target Position X
@@ -4042,10 +4206,10 @@ void Spell::SendSpellGo()
             data << float(0);   // Target Position Z
             data << uint64(0);  // Target Guid
         }
-        */
-    }
+        
+    }*/
 
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendMessageToSet(packet.Write(), true);
 }
 
 /// Writes miss and hit targets for a SMSG_SPELL_GO packet
@@ -4365,7 +4529,7 @@ void Spell::TakeCastItem()
     bool expendable = false;
     bool withoutCharges = false;
 
-    for (uint32 i = 0; i < proto->Effects.size(); ++i)
+    for (int i = 0; i < proto->Effects.size(); ++i)
     {
         // item has limited charges
         if (proto->Effects[i].Charges)
@@ -4607,7 +4771,7 @@ void Spell::TakeReagents()
         // if CastItem is also spell reagent
         if (castItemTemplate && castItemTemplate->ItemId == itemid)
         {
-            for (uint32 s = 0; s < castItemTemplate->Effects.size(); ++s)
+            for (int s = 0; s < castItemTemplate->Effects.size(); ++s)
             {
                 // CastItem will be used up and does not count as reagent
                 int32 charges = m_CastItem->GetSpellCharges(s);
@@ -6343,15 +6507,15 @@ SpellCastResult Spell::CheckItems()
             case SPELL_EFFECT_CREATE_MANA_GEM:
             {
                  uint32 item_id = effect->ItemType;
-                 ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item_id);
+                 ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item_id);
 
-                 if (!proto)
+                 if (!pProto)
                      return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
 
-                 if (Item* item = player->GetItemByEntry(item_id))
+                 if (Item* pitem = player->GetItemByEntry(item_id))
                  {
-                     for (uint32 x = 0; x < proto->Effects.size(); ++x)
-                         if (proto->Effects[x].Charges != 0 && item->GetSpellCharges(x) == proto->Effects[x].Charges)
+                     for (int x = 0; x < pProto->Effects.size(); ++x)
+                         if (pProto->Effects[x].Charges != 0 && pitem->GetSpellCharges(x) == pProto->Effects[x].Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
                  break;
