@@ -25,6 +25,27 @@ namespace WorldPackets
 {
     namespace CombatLog
     {
+        class SpellNonMeleeDamageLog final : public ServerPacket
+        {
+        public:
+            explicit SpellNonMeleeDamageLog() : ServerPacket(SMSG_SPELLNONMELEEDAMAGELOG, 16 + 4 + 4 + 4 + 1 + 4 + 4 + 1 + 1 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Me;
+            ObjectGuid CasterGUID;
+            int32 SpellID = 0;
+            int32 Damage = 0;
+            int32 Overkill = 0;
+            uint8 SchoolMask = 0;
+            int32 ShieldBlock = 0;
+            int32 Resisted = 0;
+            bool Periodic = false;
+            int32 Absorbed = 0;
+            int32 Flags = 0;
+            // Optional<SpellNonMeleeDamageLogDebugInfo> DebugInfo;
+        };
+
         class EnvironmentalDamageLog final : public ServerPacket
         {
         public:

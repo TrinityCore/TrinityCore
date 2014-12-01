@@ -5249,7 +5249,17 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
 
     // SendSpellNonMeleeDamageLog expects non-absorbed/non-resisted damage
     if (caster)
-        caster->SendSpellNonMeleeDamageLog(target, GetId(), damage, GetSpellInfo()->GetSchoolMask(), absorb, resist, true, 0, crit);
+    {
+        SpellNonMeleeDamage log(caster, target, GetId(), GetSpellInfo()->GetSchoolMask());
+        log.damage = damage;
+        log.absorb = absorb;
+        log.resist = resist;
+        log.periodicLog = true;
+        if (crit)
+            log.HitInfo |= SPELL_HIT_TYPE_CRIT;
+
+        caster->SendSpellNonMeleeDamageLog(&log);
+    }
     damage = damageInfo.GetDamage();
 
     // Set trigger flag
@@ -5381,7 +5391,13 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         Unit::DealDamageMods(caster, funnelDamage, &funnelAbsorb);
 
         if (caster)
-            caster->SendSpellNonMeleeDamageLog(caster, GetId(), funnelDamage, GetSpellInfo()->GetSchoolMask(), funnelAbsorb, 0, true, 0, false);
+        {
+            SpellNonMeleeDamage log(caster, caster, GetId(), GetSpellInfo()->GetSchoolMask());
+            log.damage = funnelDamage;
+            log.absorb = funnelAbsorb;
+            log.periodicLog = true;
+            caster->SendSpellNonMeleeDamageLog(&log);
+        }
 
         CleanDamage cleanDamage = CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
         Unit::DealDamage(caster, caster, funnelDamage, &cleanDamage, SELF_DAMAGE, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);

@@ -1948,8 +1948,12 @@ void Unit::HandleEmoteCommand(Emote emoteId)
             uint32 splitted_absorb = 0;
             Unit::DealDamageMods(caster, splitted, &splitted_absorb);
 
-            if (Unit* attacker = damageInfo.GetAttacker())
-                attacker->SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellInfo()->Id, splitted, damageInfo.GetSchoolMask(), splitted_absorb, 0, damageInfo.GetDamageType() == DOT, 0, false, true);
+            SpellNonMeleeDamage log(damageInfo.GetAttacker(), caster, (*itr)->GetId(), damageInfo.GetSchoolMask());
+            log.damage = splitted;
+            log.absorb = splitted_absorb;
+            log.periodicLog = damageInfo.GetDamageType() == DOT;
+            log.HitInfo |= SPELL_HIT_TYPE_SPLIT;
+            caster->SendSpellNonMeleeDamageLog(&log);
 
             CleanDamage cleanDamage = CleanDamage(splitted, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
             Unit::DealDamage(damageInfo.GetAttacker(), caster, splitted, &cleanDamage, DIRECT_DAMAGE, damageInfo.GetSchoolMask(), (*itr)->GetSpellInfo(), false);
@@ -1993,8 +1997,12 @@ void Unit::HandleEmoteCommand(Emote emoteId)
             uint32 split_absorb = 0;
             Unit::DealDamageMods(caster, splitDamage, &split_absorb);
 
-            if (Unit* attacker = damageInfo.GetAttacker())
-                attacker->SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellInfo()->Id, splitDamage, damageInfo.GetSchoolMask(), split_absorb, 0, damageInfo.GetDamageType() == DOT, 0, false, true);
+            SpellNonMeleeDamage log(damageInfo.GetAttacker(), caster, (*itr)->GetId(), damageInfo.GetSchoolMask());
+            log.damage = splitDamage;
+            log.absorb = split_absorb;
+            log.periodicLog = damageInfo.GetDamageType() == DOT;
+            log.HitInfo |= SPELL_HIT_TYPE_SPLIT;
+            caster->SendSpellNonMeleeDamageLog(&log);
 
             CleanDamage cleanDamage = CleanDamage(splitDamage, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
             Unit::DealDamage(damageInfo.GetAttacker(), caster, splitDamage, &cleanDamage, DIRECT_DAMAGE, damageInfo.GetSchoolMask(), (*itr)->GetSpellInfo(), false);
@@ -5192,57 +5200,21 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
 {
-    WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+4+1+4+4+1+1+4+4+1)); // we guess size
-    data << log->target->GetPackGUID();
-    data << log->attacker->GetPackGUID();
-    data << uint32(log->SpellID);
-    data << uint32(log->damage);                            // damage amount
-    int32 overkill = log->damage - log->target->GetHealth();
-    data << uint32(overkill > 0 ? overkill : 0);            // overkill
-    data << uint8 (log->schoolMask);                        // damage school
-    data << uint32(log->absorb);                            // AbsorbedDamage
-    data << uint32(log->resist);                            // resist
-    data << uint8 (log->periodicLog);                       // if 1, then client show spell name (example: %s's ranged shot hit %s for %u school or %s suffers %u school damage from %s's spell_name
-    data << uint8 (log->unused);                            // unused
-    data << uint32(log->blocked);                           // blocked
-    data << uint32(log->HitInfo);
-    data << uint8 (log->HitInfo & (SPELL_HIT_TYPE_CRIT_DEBUG | SPELL_HIT_TYPE_HIT_DEBUG | SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG));
-    //if (log->HitInfo & SPELL_HIT_TYPE_CRIT_DEBUG)
-    //{
-    //    data << float(log->CritRoll);
-    //    data << float(log->CritNeeded);
-    //}
-    //if (log->HitInfo & SPELL_HIT_TYPE_HIT_DEBUG)
-    //{
-    //    data << float(log->HitRoll);
-    //    data << float(log->HitNeeded);
-    //}
-    //if (log->HitInfo & SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG)
-    //{
-    //    data << float(log->MissChance);
-    //    data << float(log->DodgeChance);
-    //    data << float(log->ParryChance);
-    //    data << float(log->BlockChance);
-    //    data << float(log->GlanceChance);
-    //    data << float(log->CrushChance);
-    //}
-    SendMessageToSet(&data, true);
-}
+    WorldPackets::CombatLog::SpellNonMeleeDamageLog packet;
+    packet.Me = log->target->GetGUID();
+    packet.CasterGUID = log->attacker->GetGUID();
+    packet.SpellID = log->SpellID;
+    packet.Damage = log->damage;
+    if (log->damage > log->target->GetHealth())
+        packet.Overkill = log->damage - log->target->GetHealth();
 
-void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 spellID, uint32 damage, SpellSchoolMask damageSchoolMask, uint32 absorbedDamage, uint32 resist, bool isPeriodic, uint32 blocked, bool criticalHit, bool split)
-{
-    SpellNonMeleeDamage log(this, target, spellID, damageSchoolMask);
-    log.damage = damage - absorbedDamage - resist - blocked;
-    log.absorb = absorbedDamage;
-    log.resist = resist;
-    log.periodicLog = isPeriodic;
-    log.blocked = blocked;
-    log.HitInfo = 0;
-    if (criticalHit)
-        log.HitInfo |= SPELL_HIT_TYPE_CRIT;
-    if (split)
-        log.HitInfo |= SPELL_HIT_TYPE_SPLIT;
-    SendSpellNonMeleeDamageLog(&log);
+    packet.SchoolMask = log->schoolMask;
+    packet.Absorbed = log->absorb;
+    packet.Resisted = log->resist;
+    packet.ShieldBlock = log->blocked;
+    packet.Periodic = log->periodicLog;
+    packet.Flags = log->HitInfo;
+    SendMessageToSet(packet.Write(), true);
 }
 
 /*static*/ void Unit::ProcSkillsAndAuras(Unit* actor, Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
