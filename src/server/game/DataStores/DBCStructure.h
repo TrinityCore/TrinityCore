@@ -647,7 +647,7 @@ struct BarberShopStyleEntry
 struct BattlemasterListEntry
 {
     uint32      ID;                                         // 0
-    uint32      MapID[16];                                  // 1-16 mapid
+    int32       MapID[16];                                  // 1-16 mapid
     uint32      InstanceType;                               // 17 map type (3 - BG, 4 - arena)
     //uint32    GroupsAllowed;                              // 18 (0 or 1)
     char*       Name_lang;                                  // 19
