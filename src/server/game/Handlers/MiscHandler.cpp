@@ -52,6 +52,7 @@
 #include "Group.h"
 #include "AccountMgr.h"
 #include "Spell.h"
+#include "SpellPackets.h"
 #include "BattlegroundMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
@@ -1038,17 +1039,17 @@ int32 WorldSession::HandleEnableNagleAlgorithm()
     return 0;
 }
 
-void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet)
 {
-    uint8 button;
-    uint32 packetData;
-    recvData >> button >> packetData;
-    TC_LOG_DEBUG("network", "CMSG_SET_ACTION_BUTTON Button: %u Data: %u", button, packetData);
+    uint32 action = ACTION_BUTTON_ACTION(packet.Action);
+    uint32 type = ACTION_BUTTON_TYPE(packet.Action);
 
-    if (!packetData)
-        GetPlayer()->removeActionButton(button);
+    TC_LOG_DEBUG("network", "CMSG_SET_ACTION_BUTTON Button: %u Action: %u Type: %u", packet.Index, action, type);
+
+    if (!packet.Action)
+        GetPlayer()->removeActionButton(packet.Index);
     else
-        GetPlayer()->addActionButton(button, ACTION_BUTTON_ACTION(packetData), ACTION_BUTTON_TYPE(packetData));
+        GetPlayer()->addActionButton(packet.Index, action, type);
 }
 
 void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
