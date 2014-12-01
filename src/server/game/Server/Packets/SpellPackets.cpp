@@ -245,168 +245,170 @@ void WorldPackets::Spells::SpellCastRequest::Read()
     }
 }
 
-WorldPacket const* WorldPackets::Spells::SendSpellStart::Write()
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::TargetLocation const& targetLocation)
 {
-    uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
+    data << targetLocation.Transport;
+    // data << targetLocation.Location.PositionXYZStream();
+    data << targetLocation.Location.m_positionX;
+    data << targetLocation.Location.m_positionY;
+    data << targetLocation.Location.m_positionZ;
+    return data;
+}
 
-    if ((spell->IsTriggered() && !spell->m_spellInfo->IsAutoRepeatRangedSpell()) || spell->GetTriggeredByAuraSpell())
-        castFlags |= CAST_FLAG_PENDING;
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellTargetData const& spellTargetData)
+{
+    data.WriteBits(spellTargetData.Flags, 21);
+    data.WriteBit(spellTargetData.SrcLocation.HasValue);
+    data.WriteBit(spellTargetData.DstLocation.HasValue);
+    data.WriteBit(spellTargetData.Orientation.HasValue);
+    data.WriteBits(spellTargetData.Name.size(), 7);
+    data.FlushBits();
 
-    if ((spell->GetCaster()->GetTypeId() == TYPEID_PLAYER ||
-        (spell->GetCaster()->GetTypeId() == TYPEID_UNIT && spell->GetCaster()->ToCreature()->IsPet()))
-         && spell->m_spellInfo->PowerType != POWER_HEALTH)
-        castFlags |= CAST_FLAG_POWER_LEFT_SELF;
+    data << spellTargetData.Unit;
+    data << spellTargetData.Item;
 
-    if (spell->m_spellInfo->RuneCostID && spell->m_spellInfo->PowerType == POWER_RUNES)
-        castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
+    if (spellTargetData.SrcLocation.HasValue)
+        data << spellTargetData.SrcLocation.Value;
 
+    if (spellTargetData.DstLocation.HasValue)
+        data << spellTargetData.DstLocation.Value;
 
-     if (spell->m_CastItem)
-        _worldPacket << spell->m_CastItem->GetGUID();
-    else
-        _worldPacket << spell->GetCaster()->GetGUID();
-    _worldPacket << spell->GetCaster()->GetGUID();
-    _worldPacket << uint8(spell->m_cast_count);
-    _worldPacket << uint32(spell->m_spellInfo->Id);
-    _worldPacket << uint32(castFlags);
-    _worldPacket << uint32(spell->GetCastTime());
+    if (spellTargetData.Orientation.HasValue)
+        data << spellTargetData.Orientation.Value;
 
-    uint32 HitTargets = 0;
-    _worldPacket << HitTargets;
-    uint32 MissTargets = 0;
-    _worldPacket << MissTargets;
-    uint32 MissStatus = 0;
-    _worldPacket << MissStatus;
+    data.WriteString(spellTargetData.Name);
 
-    _worldPacket.ResetBitPos();
+    return data;
+}
 
-    _worldPacket.WriteBits(spell->m_targets.GetTargetMask(), 21);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellMissStatus const& spellMissStatus)
+{
+    data.WriteBits(spellMissStatus.Reason, 4);
+    data.WriteBits(spellMissStatus.ReflectStatus, 4);
+    // No need to flush bits as we written exactly 8 bits (1 byte)
+    return data;
+}
 
-    bool HasSourceLocation = (spell->m_targets.GetTargetMask() & TARGET_FLAG_SOURCE_LOCATION) && spell->m_targets.GetSrc();
-    bool HasDestLocation = (spell->m_targets.GetTargetMask() & TARGET_FLAG_DEST_LOCATION) && spell->m_targets.GetDst();
-    bool HasOrientation = false;
-    uint32 NameLen = spell->m_targets.GetTargetString().length();
-    
-    _worldPacket.WriteBit(HasSourceLocation);
-    _worldPacket.WriteBit(HasDestLocation);
-    _worldPacket.WriteBit(HasOrientation);
-    _worldPacket.WriteBits(NameLen, 7);
-    
-    ObjectGuid targetGuid = spell->m_targets.GetObjectTargetGUID();
-    ObjectGuid itemTargetGuid = spell->m_targets.GetItemTargetGUID();
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellPowerData const& spellPowerData)
+{
+    data << spellPowerData.Cost;
+    data << spellPowerData.Type;
+    return data;
+}
 
-    _worldPacket << targetGuid;
-    _worldPacket << itemTargetGuid;
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::RuneData const& runeData)
+{
+    data << runeData.Start;
+    data << runeData.Count;
 
-    if (HasSourceLocation)
-    {
-        _worldPacket << spell->m_targets.GetSrc()->_transportGUID;
-        float x, y, z;
-        spell->m_targets.GetSrc()->_transportOffset.GetPosition(x, y, z);
-        _worldPacket << x;
-        _worldPacket << y;
-        _worldPacket << z;
-    }
-    
-    if (HasDestLocation)
-    {
-        _worldPacket << spell->m_targets.GetDst()->_transportGUID;
-        float x, y, z;
-        spell->m_targets.GetDst()->_transportOffset.GetPosition(x, y, z);
-        _worldPacket << x;
-        _worldPacket << y;
-        _worldPacket << z;
-    }
+    data.WriteBits(runeData.Cooldowns.size(), 3);
+    data.FlushBits();
 
-    //if (HasOrientation)
-    //  _worldPacket << float(0);
+    for (uint8 cd : runeData.Cooldowns)
+        data << cd;
 
-    _worldPacket.WriteString(spell->m_targets.GetTargetString());
+    return data;
+}
 
-    uint32 SpellPowerData = 0;
-    _worldPacket << SpellPowerData;
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::MissileTrajectoryResult const& missileTrajectory)
+{
+    data << missileTrajectory.TravelTime;
+    data << missileTrajectory.Pitch;
+    return data;
+}
 
-        
-    _worldPacket << uint32(0); // TravelTime
-    _worldPacket << spell->m_targets.GetElevation();
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellAmmo const& spellAmmo)
+{
+    data << spellAmmo.DisplayID;
+    data << spellAmmo.InventoryType;
+    return data;
+}
 
-    _worldPacket << uint32(0); // Ammo DisplayID
-    _worldPacket << uint8(0);  // Ammo InventoryType
-    
-    _worldPacket << uint8(0);  // DestLocSpellCastIndex
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ProjectileVisualData const& projectileVisual)
+{
+    data << projectileVisual.ID[0];
+    data << projectileVisual.ID[1];
+    return data;
+}
 
-    uint32 TargetPoints = 0;
-    _worldPacket << TargetPoints;
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::CreatureImmunities const& immunities)
+{
+    data << immunities.School;
+    data << immunities.Value;
+    return data;
+}
 
-    _worldPacket << uint32(0); // CreatureImmunities School
-    _worldPacket << uint32(0); // CreatureImmunities Value
-    
-    _worldPacket << uint32(0); // SpellHealPrediction Points
-    _worldPacket << uint8(0); // SpellHealPrediction Type
-    ObjectGuid BeaconGUID;
-    _worldPacket << BeaconGUID; // SpellHealPrediction BeaconGUID
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHealPrediction const& spellPred)
+{
+    data << spellPred.Points;
+    data << spellPred.Type;
+    data << spellPred.BeaconGUID;
+    return data;
+}
 
-    /*for (uint32 i = 0; i < HitTargets; ++i)
-    {
-        ObjectGuid HitTargetGUID;
-        _worldPacket << HitTargetGUID;
-    }
-    for (uint32 i = 0; i < MissTargets; ++i)
-    {
-        ObjectGuid MissTargetGUID;
-        _worldPacket << MissTargetGUID;
-    }
-    for (uint32 i = 0; i < MissStatus; ++i)
-    {
-        _worldPacket.ResetBitPos();
-        uint32 MissReason = 0;
-        _worldPacket.WriteBits(MissReason, 4);
-        uint32 ReflectStatus = 0;
-        if (MissReason == 11)
-            _worldPacket.WriteBits(ReflectStatus, 4);
-    }
-    for (uint32 i = 0; i < SpellPowerData; ++i)
-    {
-        //uint32 Cost
-        //uint8 PowerType
-    }
-    for (uint32 i = 0; i < TargetPoints; ++i)
-    {
-        //Transport Guid
-        //XYZ
-    }*/
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData const& spellCastData)
+{
+    data << spellCastData.CasterGUID;
+    data << spellCastData.CasterUnit;
+    data << spellCastData.CastID;
+    data << spellCastData.SpellID;
+    data << spellCastData.CastFlags;
+    data << spellCastData.CastTime;
+    data << uint32(spellCastData.HitTargets.size());
+    data << uint32(spellCastData.MissTargets.size());
+    data << uint32(spellCastData.MissStatus.size());
+    data << spellCastData.Target;
+    data << uint32(spellCastData.RemainingPower.size());
+    data << spellCastData.MissileTrajectory;
+    data << spellCastData.Ammo;
+    data << spellCastData.DestLocSpellCastIndex;
+    data << uint32(spellCastData.TargetPoints.size());
+    data << spellCastData.Immunities;
+    data << spellCastData.Predict;
 
-    _worldPacket.ResetBitPos();
+    for (ObjectGuid const& target : spellCastData.HitTargets)
+        data << target;
 
-    _worldPacket.WriteBits(0, 18); // CastFlagsEx
+    for (ObjectGuid const& target : spellCastData.MissTargets)
+        data << target;
 
-    bool HasRuneData = false;
-    bool HasProjectileVisual = false;
-    
-    _worldPacket.WriteBit(HasRuneData);
-    _worldPacket.WriteBit(HasProjectileVisual);
+    for (WorldPackets::Spells::SpellMissStatus const& status : spellCastData.MissStatus)
+        data << status;
 
-    /*if (HasRuneData)
-    {
-        _worldPacket << uint8(0); // Start
-        _worldPacket << uint8(0); // Count
-        _worldPacket.ResetBitPos();
+    for (WorldPackets::Spells::SpellPowerData const& power : spellCastData.RemainingPower)
+        data << power;
 
-        uint32 CooldownCount = 0;
-        _worldPacket.WriteBits(CooldownCount, 3);
-        for (uint32 i = 0; i < CooldownCount; ++i)
-        {
-            _worldPacket << uint8(0); // Cooldowns
-        }
-    }*/
+    for (WorldPackets::Spells::TargetLocation const& targetLoc : spellCastData.TargetPoints)
+        data << targetLoc;
 
-    /*if (HasProjectileVisual)
-    {
-        for (uint32 i = 0; i < 2; ++i)
-        {
-            _worldPacket << uint32(0); // Id
-        }
-    }*/
+    data.WriteBits(spellCastData.CastFlagsEx, 18);
+    data.WriteBit(spellCastData.RemainingRunes.HasValue);
+    data.WriteBit(spellCastData.ProjectileVisual.HasValue);
+    data.FlushBits();
+
+    if (spellCastData.RemainingRunes.HasValue)
+        data << spellCastData.RemainingRunes.Value;
+
+    if (spellCastData.ProjectileVisual.HasValue)
+        data << spellCastData.ProjectileVisual.Value;
+}
+
+WorldPacket const* WorldPackets::Spells::SpellStart::Write()
+{
+    _worldPacket << Cast;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::SpellGo::Write()
+{
+    _worldPacket << Cast;
+
+    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.FlushBits();
+
+    if (LogData.HasValue)
+        _worldPacket << LogData.Value;
 
     return &_worldPacket;
 }
