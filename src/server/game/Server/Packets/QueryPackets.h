@@ -181,7 +181,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 TableHash;
+            uint32 TableHash = 0;
             std::vector<DBQueryRecord> Queries;
         };
 

@@ -153,7 +153,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     if (pUser->IsInCombat())
     {
-        for (int i = 0; i < proto->Effects.size(); ++i)
+        for (uint32 i = 0; i < proto->Effects.size(); ++i)
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Effects[i].SpellID))
             {

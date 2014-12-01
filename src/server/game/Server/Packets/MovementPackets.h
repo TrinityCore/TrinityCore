@@ -43,23 +43,23 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Unit* mover;
+            MovementInfo* movementInfo = nullptr;
         };
 
         struct MonsterSplineFilterKey
         {
-            int16 Idx;
-            int16 Speed;
+            int16 Idx   = 0;
+            int16 Speed = 0;
         };
 
         struct MonsterSplineFilter
         {
             std::vector<MonsterSplineFilterKey> FilterKeys;
-            uint8 FilterFlags;
-            float BaseSpeed;
-            int16 StartOffset;
-            float DistToPrevFilterKey;
-            int16 AddedToStart;
+            uint8 FilterFlags           = 0;
+            float BaseSpeed             = 0.0f;
+            int16 StartOffset           = 0;
+            float DistToPrevFilterKey   = 0.0f;
+            int16 AddedToStart          = 0;
         };
 
         struct MovementSpline
@@ -86,7 +86,7 @@ namespace WorldPackets
 
         struct MovementMonsterSpline
         {
-            uint32 ID;
+            uint32 ID = 0;
             G3D::Vector3 Destination;
             bool CrzTeleport = false;
             MovementSpline Move;
@@ -104,26 +104,59 @@ namespace WorldPackets
             G3D::Vector3 Pos;
         };
 
-        class MoveSplineSet : public ServerPacket
+        class MoveSplineSetSpeed : public ServerPacket
         {
         public:
-            MoveSplineSet(OpcodeServer opcode) : ServerPacket(opcode, 12) { }
+            MoveSplineSetSpeed(OpcodeServer opcode) : ServerPacket(opcode, 12) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid MoverGUID;
-            float Speed;
+            float Speed = 1.0f;
         };
 
-        class MoveUpdate : public ServerPacket
+        class MoveSetSpeed : public ServerPacket
         {
         public:
-            MoveUpdate(OpcodeServer opcode) : ServerPacket(opcode) { }
+            MoveSetSpeed(OpcodeServer opcode) : ServerPacket(opcode) { }
 
             WorldPacket const* Write() override;
 
-            MovementInfo movementInfo;
-            float Speed;
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
+            float Speed = 1.0f;
+        };
+
+        class MoveUpdateSpeed : public ServerPacket
+        {
+        public:
+            MoveUpdateSpeed(OpcodeServer opcode) : ServerPacket(opcode) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* movementInfo = nullptr;
+            float Speed = 1.0f;
+        };
+
+        class MoveSplineSetFlag final : public ServerPacket
+        {
+        public:
+            MoveSplineSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+        };
+
+        class MoveSetFlag final : public ServerPacket
+        {
+        public:
+            MoveSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
         };
 
         class TransferPending final : public ServerPacket
@@ -163,8 +196,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 MapID         = 0;
-            uint32 Reason       = 0;
+            int32 MapID = 0;
+            uint32 Reason = 0;
             Position Pos;
         };
 
@@ -174,6 +207,69 @@ namespace WorldPackets
             WorldPortAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_WORLDPORT_ACK, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        struct VehicleTeleport
+        {
+            uint8 VehicleSeatIndex      = 0;
+            bool VehicleExitVoluntary   = false;
+            bool VehicleExitTeleport    = false;
+        };
+
+        class MoveTeleport final : public ServerPacket
+        {
+        public:
+            MoveTeleport() : ServerPacket(SMSG_MOVE_TELEPORT, 12+4+16+16+4) { }
+
+            WorldPacket const* Write() override;
+
+            Position Pos;
+            Optional<VehicleTeleport> Vehicle;
+            uint32 SequenceIndex = 0;
+            ObjectGuid MoverGUID;
+            Optional<ObjectGuid> TransportGUID;
+            float Facing = 0.0f;
+        };
+
+        struct MovementForce
+        {
+            ObjectGuid ID;
+            G3D::Vector3 Direction;
+            uint32 TransportID  = 0;
+            float Magnitude     = 0;
+            uint8 Type          = 0;
+        };
+
+        class MoveUpdateTeleport final : public ServerPacket
+        {
+        public:
+            MoveUpdateTeleport() : ServerPacket(SMSG_MOVE_UPDATE_TELEPORT) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* movementInfo = nullptr;
+            std::vector<MovementForce> MovementForces;
+            Optional<float> SwimBackSpeed;
+            Optional<float> FlightSpeed;
+            Optional<float> SwimSpeed;
+            Optional<float> WalkSpeed;
+            Optional<float> TurnRate;
+            Optional<float> RunSpeed;
+            Optional<float> FlightBackSpeed;
+            Optional<float> RunBackSpeed;
+            Optional<float> PitchRate;
+        };
+
+        class MoveTeleportAck final : public ClientPacket
+        {
+        public:
+            MoveTeleportAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_TELEPORT_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid MoverGUID;
+            int32 AckIndex = 0;
+            int32 MoveTime = 0;
         };
     }
 }

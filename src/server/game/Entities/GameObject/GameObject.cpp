@@ -2150,7 +2150,7 @@ void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
     }
     else
     {
-        ASSERT(state < GO_STATE_TRANSPORT_STOPPED + MAX_GO_STATE_TRANSPORT_STOP_FRAMES);
+        ASSERT(state < GOState(GO_STATE_TRANSPORT_STOPPED + MAX_GO_STATE_TRANSPORT_STOP_FRAMES));
         ASSERT(stopFrame < m_goValue.Transport.StopFrames->size());
         m_goValue.Transport.PathProgress = getMSTime() + m_goValue.Transport.StopFrames->at(stopFrame);
         SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + stopFrame));
