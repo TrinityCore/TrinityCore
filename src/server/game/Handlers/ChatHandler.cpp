@@ -155,6 +155,8 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
                     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
                         lang = LANG_UNIVERSAL;
                     break;
+                default:
+                    break;
             }
         }
 
