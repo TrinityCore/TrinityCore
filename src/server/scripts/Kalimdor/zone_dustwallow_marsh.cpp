@@ -19,12 +19,11 @@
 /* ScriptData
 SDName: Dustwallow_Marsh
 SD%Complete: 95
-SDComment: Quest support: 11180, 558, 11126, 11142, 11174, Vendor Nat Pagle
+SDComment: Quest support: 558, 11126, 11142, 11174, Vendor Nat Pagle
 SDCategory: Dustwallow Marsh
 EndScriptData */
 
 /* ContentData
-npc_risen_husk_spirit
 npc_lady_jaina_proudmoore
 npc_nat_pagle
 npc_private_hendel
@@ -38,99 +37,6 @@ EndContentData */
 #include "SpellScript.h"
 #include "Player.h"
 #include "WorldSession.h"
-
-/*######
-## npc_risen_husk_spirit
-######*/
-
-enum HauntingWitchHill
-{
-    // Quest
-    QUEST_WHATS_HAUNTING_WITCH_HILL     = 11180,
-
-    // General spells
-    SPELL_SUMMON_RESTLESS_APPARITION    = 42511,
-    SPELL_WITCH_HILL_INFORMATION_CREDIT = 42512,
-
-    // Risen Husk specific
-    SPELL_CONSUME_FLESH                 = 37933,
-    NPC_RISEN_HUSK                      = 23555,
-
-    // Risen Spirit specific
-    SPELL_INTANGIBLE_PRESENCE           = 43127,
-    NPC_RISEN_SPIRIT                    = 23554,
-
-    // Events
-    EVENT_CONSUME_FLESH                 = 1,
-    EVENT_INTANGIBLE_PRESENCE           = 2,
-};
-
-class npc_risen_husk_spirit : public CreatureScript
-{
-    public:
-        npc_risen_husk_spirit() : CreatureScript("npc_risen_husk_spirit") { }
-
-        struct npc_risen_husk_spiritAI : public ScriptedAI
-        {
-            npc_risen_husk_spiritAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void Reset() override
-            {
-                events.Reset();
-                if (me->GetEntry() == NPC_RISEN_HUSK)
-                    events.ScheduleEvent(EVENT_CONSUME_FLESH, 5000);
-                else if (me->GetEntry() == NPC_RISEN_SPIRIT)
-                    events.ScheduleEvent(EVENT_INTANGIBLE_PRESENCE, 5000);
-            }
-
-            void JustDied(Unit* killer) override
-            {
-                if (killer->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (killer->ToPlayer()->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
-                    {
-                        DoCast(me, SPELL_SUMMON_RESTLESS_APPARITION, true);
-                        DoCast(killer, SPELL_WITCH_HILL_INFORMATION_CREDIT, true);
-                    }
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_CONSUME_FLESH:
-                            DoCastVictim(SPELL_CONSUME_FLESH);
-                            events.ScheduleEvent(EVENT_CONSUME_FLESH, 15000);
-                            break;
-                        case EVENT_INTANGIBLE_PRESENCE:
-                            DoCastVictim(SPELL_INTANGIBLE_PRESENCE);
-                            events.ScheduleEvent(EVENT_INTANGIBLE_PRESENCE, 15000);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_risen_husk_spiritAI(creature);
-        }
-};
 
 /*######
 ## npc_lady_jaina_proudmoore
@@ -666,7 +572,6 @@ public:
 
 void AddSC_dustwallow_marsh()
 {
-    new npc_risen_husk_spirit();
     new npc_lady_jaina_proudmoore();
     new npc_nat_pagle();
     new npc_private_hendel();
