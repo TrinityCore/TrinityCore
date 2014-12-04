@@ -25,6 +25,14 @@
 #include "SpellInfo.h"
 #include "PathGenerator.h"
 
+namespace WorldPackets
+{
+    namespace Spells
+    {
+        struct SpellTargetData;
+    }
+}
+
 class Unit;
 class Player;
 class GameObject;
@@ -103,7 +111,7 @@ class SpellCastTargets
         ~SpellCastTargets();
 
         void Read(ByteBuffer& data, Unit* caster);
-        void Write(ByteBuffer& data);
+        void Write(WorldPackets::Spells::SpellTargetData& data);
 
         uint32 GetTargetMask() const { return m_targetMask; }
         void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }

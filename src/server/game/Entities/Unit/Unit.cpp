@@ -65,6 +65,7 @@
 #include "ChatPackets.h"
 #include "MovementPackets.h"
 #include "CombatPackets.h"
+#include "CombatLogPackets.h"
 
 #include <cmath>
 
@@ -4728,22 +4729,20 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
 {
-    WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+4+1+4+4+1+1+4+4+1)); // we guess size
-    data << log->target->GetPackGUID();
-    data << log->attacker->GetPackGUID();
-    data << uint32(log->SpellID);
-    data << uint32(log->damage);                            // damage amount
+    WorldPackets::CombatLog::SpellNonMeleeDamageLog packet;
+    packet.Me = log->target->GetGUID();
+    packet.CasterGUID = log->attacker->GetGUID();
+    packet.SpellID = log->SpellID;
+    packet.Damage = log->damage;
     int32 overkill = log->damage - log->target->GetHealth();
-    data << uint32(overkill > 0 ? overkill : 0);            // overkill
-    data << uint8 (log->schoolMask);                        // damage school
-    data << uint32(log->absorb);                            // AbsorbedDamage
-    data << uint32(log->resist);                            // resist
-    data << uint8 (log->physicalLog);                       // if 1, then client show spell name (example: %s's ranged shot hit %s for %u school or %s suffers %u school damage from %s's spell_name
-    data << uint8 (log->unused);                            // unused
-    data << uint32(log->blocked);                           // blocked
-    data << uint32(log->HitInfo);
-    data << uint8 (0);                                      // flag to use extend data
-    SendMessageToSet(&data, true);
+    packet.Overkill = (overkill > 0 ? overkill : 0);
+    packet.SchoolMask = log->schoolMask;
+    packet.ShieldBlock = log->blocked;
+    packet.Resisted = log->resist;
+    packet.Absorbed = log->absorb;
+    packet.Periodic = false;
+    packet.Flags = log->HitInfo;
+    SendMessageToSet(packet.Write(), true);
 }
 
 void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit)
