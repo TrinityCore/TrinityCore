@@ -39,6 +39,7 @@ extern DB2Storage<SpellCastingRequirementsEntry> sSpellCastingRequirementsStore;
 extern DB2Storage<SpellClassOptionsEntry>       sSpellClassOptionsStore;
 extern DB2Storage<SpellMiscEntry>               sSpellMiscStore;
 extern DB2Storage<SpellPowerEntry>              sSpellPowerStore;
+extern SpellPowerBySpellIDMap                   sSpellPowerBySpellIDStore;
 extern DB2Storage<SpellReagentsEntry>           sSpellReagentsStore;
 extern DB2Storage<SpellRuneCostEntry>           sSpellRuneCostStore;
 extern DB2Storage<SpellTotemsEntry>             sSpellTotemsStore;

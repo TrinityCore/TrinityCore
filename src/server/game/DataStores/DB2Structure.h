@@ -354,6 +354,8 @@ struct TaxiPathNodeEntry
 
 typedef std::map<uint32, uint32> ItemDisplayIDMap;
 
+typedef std::map<uint32, SpellPowerEntry const*> SpellPowerBySpellIDMap;
+
 struct TaxiPathBySourceAndDestination
 {
     TaxiPathBySourceAndDestination() : ID(0), price(0) { }

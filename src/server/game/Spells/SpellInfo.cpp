@@ -880,7 +880,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap effects)
     SpellEquippedItemsId = spellEntry->EquippedItemsID;
     SpellInterruptsId = spellEntry->InterruptsID;
     SpellLevelsId = spellEntry->LevelsID;
-    //SpellPowerId = spellEntry->PowerID;
     SpellReagentsId = spellEntry->ReagentsID;
     SpellShapeshiftId = spellEntry->ShapeshiftID;
     SpellTargetRestrictionsId = spellEntry->TargetRestrictionsID;
@@ -2976,7 +2975,10 @@ SpellLevelsEntry const* SpellInfo::GetSpellLevels() const
 
 SpellPowerEntry const* SpellInfo::GetSpellPower() const
 {
-    return SpellPowerId ? sSpellPowerStore.LookupEntry(SpellPowerId) : NULL;
+    auto itr = sSpellPowerBySpellIDStore.find(Id);
+    if (itr != sSpellPowerBySpellIDStore.end())
+        return itr->second;
+    return NULL;
 }
 
 SpellReagentsEntry const* SpellInfo::GetSpellReagents() const
