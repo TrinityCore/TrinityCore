@@ -369,7 +369,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_KEEP_ALIVE,                              STATUS_NEVER,     PROCESS_THREADUNSAFE, &WorldSession::Handle_EarlyProccess            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LEARN_PREVIEW_TALENTS,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLearnPreviewTalents       );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LEARN_PREVIEW_TALENTS_PET,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLearnPreviewTalentsPet    );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_LEARN_TALENT,                            STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLearnTalentOpcode         );
+    DEFINE_HANDLER(CMSG_LEARN_TALENT,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Talent::LearnTalent, &WorldSession::HandleLearnTalentOpcode);
     DEFINE_HANDLER(CMSG_LEAVE_CHANNEL,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Channel::LeaveChannel, &WorldSession::HandleLeaveChannel);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LFG_GET_STATUS,                          STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleLfgGetStatus              );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LFG_JOIN,                                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgJoinOpcode             );
@@ -1247,7 +1247,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFER_A_FRIEND_FAILURE,                  STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFORGE_RESULT,                          STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFRESH_SPELL_HISTORY,                   STATUS_UNHANDLED);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_REMOVED_SPELL,                           STATUS_UNHANDLED);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_REMOVED_SPELL,                           STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REPORT_PVP_AFK_RESULT,                   STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REQUEST_CEMETERY_LIST_RESPONSE,          STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REQUEST_PVP_REWARDS_RESPONSE,            STATUS_UNHANDLED);

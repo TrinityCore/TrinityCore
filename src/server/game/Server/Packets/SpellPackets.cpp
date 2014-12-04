@@ -182,8 +182,6 @@ void WorldPackets::Spells::SpellCastRequest::Read()
     _worldPacket >> SpellID;
     _worldPacket >> Misc;
 
-    TC_LOG_ERROR("spells", "SpellID %u Misc %u", SpellID, Misc);
-
     _worldPacket.ResetBitPos();
 
     TargetFlags = _worldPacket.ReadBits(21);
@@ -466,6 +464,15 @@ WorldPacket const* WorldPackets::Spells::SetSpellModifier::Write()
     _worldPacket << uint32(Modifiers.size());
     for (WorldPackets::Spells::SpellModifier const& spellMod : Modifiers)
         _worldPacket << spellMod;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::SendRemovedSpell::Write()
+{
+    _worldPacket << uint32(Spells.size());
+    for (uint32 spellId : Spells)
+        _worldPacket << uint32(spellId);
 
     return &_worldPacket;
 }

@@ -57,6 +57,19 @@ namespace WorldPackets
 
             uint32 SpecGroupIndex = 0;
         };
+        
+        class LearnTalent final : public ClientPacket
+        {
+        public:
+            LearnTalent(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            {
+                ASSERT(packet.GetOpcode() == CMSG_LEARN_TALENT);
+            }
+
+            void Read() override;
+            std::vector<uint16> Talents;
+            
+        };
     }
 }
 

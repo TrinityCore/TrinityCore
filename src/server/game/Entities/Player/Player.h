@@ -116,6 +116,12 @@ struct PlayerSpell
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
 };
 
+struct PlayerTalent
+{
+    PlayerSpellState state : 8;
+    uint8 spec             : 8;
+};
+
 extern uint32 const MasterySpells[MAX_CLASSES];
 
 enum TalentSpecialization // talent tabs
@@ -184,6 +190,7 @@ struct PlayerCurrency
    uint32 weekCount;
 };
 
+typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
 typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
@@ -412,9 +419,9 @@ struct PlayerInfo
     uint16 displayId_f;
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
-    PlayerCreateInfoSpells spells;
     PlayerCreateInfoSpells castSpells;
     PlayerCreateInfoActions action;
+    PlayerCreateInfoSkills skills;
 
     PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
 };
@@ -1223,55 +1230,40 @@ private:
     bool _isPvP;
 };
 
-struct TalentGroupInfo
-{
-    uint32 Talents[MAX_TALENT_TIERS];
-    uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
-    uint32 SpecID;
-
-    bool HasTalent(uint32 talentId)
-    {
-        for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i)
-            if (Talents[i] == talentId)
-                return true;
-        return false;
-    }
-
-    uint32 TalentCount()
-    {
-        for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i)
-            if (!Talents[i])
-                return i;
-        return MAX_TALENT_TIERS;
-    }
-
-    void Reset()
-    {
-        for (uint32 i = 0; i < MAX_TALENT_TIERS; ++i)
-            Talents[i] = 0;
-    }
-};
-
 struct PlayerTalentInfo
 {
-    PlayerTalentInfo() : ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0), GroupsCount(1)
+    PlayerTalentInfo() : UsedTalentCount(0), ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0), GroupsCount(1)
     {
         for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
         {
-            memset(GroupInfo[i].Talents, 0, sizeof(uint32)*MAX_TALENT_TIERS);
+            GroupInfo[i].Talents = new PlayerTalentMap();
             memset(GroupInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
-            GroupInfo[i].SpecID = 0;
+            GroupInfo[i].TalentTree = 0;
         }
     }
 
-    TalentGroupInfo GroupInfo[MAX_TALENT_GROUPS];
+    ~PlayerTalentInfo()
+    {
+        for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
+        {
+            for (PlayerTalentMap::const_iterator itr = GroupInfo[i].Talents->begin(); itr != GroupInfo[i].Talents->end(); ++itr)
+                delete itr->second;
+            delete GroupInfo[i].Talents;
+        }
+    }
+
+    struct TalentGroupInfo
+    {
+        PlayerTalentMap* Talents;
+        uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
+        uint32 TalentTree;
+    } GroupInfo[MAX_TALENT_GROUPS];
+
+    uint32 UsedTalentCount;
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
     uint8 ActiveGroup;
     uint8 GroupsCount;
-
-    
-    uint32 UsedTalentCount;
 
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
@@ -1824,7 +1816,8 @@ class Player : public Unit, public GridObject<Player>
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void ResetSpells(bool myClassOnly = false);
         void LearnCustomSpells();
-        void LearnDefaultSpells();
+        void LearnDefaultSkills();
+        void LearnDefaultSkill(uint32 skillId, uint16 rank);
         void LearnQuestRewardedSpells();
         void LearnQuestRewardedSpells(Quest const* quest);
         void LearnSpellHighestRank(uint32 spellid);
@@ -1837,26 +1830,33 @@ class Player : public Unit, public GridObject<Player>
         // Talents
         uint32 GetUsedTalentCount() const { return _talentMgr->UsedTalentCount; }
         void SetUsedTalentCount(uint32 talents) { _talentMgr->UsedTalentCount = talents; }
-
         uint32 GetTalentResetCost() const { return _talentMgr->ResetTalentsCost; }
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
         uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
-        uint8 GetActiveTalentGroup() const { return _talentMgr->ActiveGroup; }
-        void SetActiveTalentGroup(uint8 group){ _talentMgr->ActiveGroup = group; }
+
         uint8 GetTalentGroupsCount() const { return _talentMgr->GroupsCount; }
         void SetTalentGroupsCount(uint8 count) { _talentMgr->GroupsCount = count; }
-        uint32 GetTalentSpec(uint8 group) const { return _talentMgr->GroupInfo[group].SpecID; }
-        void SetTalentSpec(uint8 group, uint32 talentSpec) const { _talentMgr->GroupInfo[group].SpecID = talentSpec; }
-        uint32 GetActiveTalentSpec() const { return _talentMgr->GroupInfo[_talentMgr->ActiveGroup].SpecID; }
+        uint8 GetActiveTalentGroup() const { return _talentMgr->ActiveGroup; }
+        void SetActiveTalentGroup(uint8 group){ _talentMgr->ActiveGroup = group; }
 
-        bool ResetTalents(bool no_cost = false);
+        uint32 GetTalentSpec(uint8 group) const { return _talentMgr->GroupInfo[group].TalentTree; }
+        void SetTalentSpec(uint8 group, uint32 talentSpec) const { _talentMgr->GroupInfo[group].TalentTree = talentSpec; }
+        uint32 GetActiveTalentSpec() const { return _talentMgr->GroupInfo[_talentMgr->ActiveGroup].TalentTree; }
+
+
+        bool ResetTalents(bool noCost = false, bool resetTalents = true, bool resetSpecialization = true);
+        bool RemoveTalent(uint32 talentId);
+
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
         void SendTalentsInfoData();
         bool LearnTalent(uint32 talentId);
-        bool AddTalent(uint32 talentId, uint8 spec);
+        bool AddTalent(uint32 talentId, uint8 spec, bool learning);
         bool HasTalent(uint32 talentId, uint8 spec);
+        uint32 CalculateTalentsPoints() const;
+
+
         void LearnTalentSpecialization(uint32 talentSpec);
 
         // Dual Spec
@@ -1870,7 +1870,8 @@ class Player : public Unit, public GridObject<Player>
         void SetGlyph(uint8 slot, uint32 glyph);
         uint32 GetGlyph(uint8 group, uint8 slot) const { return _talentMgr->GroupInfo[group].Glyphs[slot]; }
 
-        TalentGroupInfo* GetTalentGroupInfo(uint8 group) { return &_talentMgr->GroupInfo[group]; }
+        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->GroupInfo[spec].Talents; }
+        PlayerTalentMap* GetTalentMap(uint8 spec) { return _talentMgr->GroupInfo[spec].Talents; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
 
         uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS); }

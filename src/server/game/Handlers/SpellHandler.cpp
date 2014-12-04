@@ -371,6 +371,29 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::SpellCastRequest&
         // not have spell in spellbook
         return;
     }
+    
+    if (Player* plr = caster->ToPlayer())
+    {
+        uint32 specId = plr->GetActiveTalentSpec();
+        if (specId)
+        {
+            if (sSpecializationOverrideSpellMap.find(specId) != sSpecializationOverrideSpellMap.end())
+            {
+                if (sSpecializationOverrideSpellMap[specId].find(castRequest.SpellID) != sSpecializationOverrideSpellMap[specId].end())
+                {
+                    SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(sSpecializationOverrideSpellMap[specId][castRequest.SpellID]);
+                    if (newSpellInfo)
+                    {
+                        if (newSpellInfo->SpellLevel <= caster->getLevel())
+                        {
+                            spellInfo = newSpellInfo;
+                            castRequest.SpellID = newSpellInfo->Id;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     Unit::AuraEffectList swaps = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
     Unit::AuraEffectList const& swaps2 = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2);
