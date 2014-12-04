@@ -275,131 +275,6 @@ public:
 
 };
 
-/*######
-## npc_stinky
-######*/
-
-enum Stinky
-{
-    QUEST_STINKYS_ESCAPE_H                       = 1270,
-    QUEST_STINKYS_ESCAPE_A                       = 1222,
-    SAY_QUEST_ACCEPTED                           = 0,
-    SAY_STAY_1                                   = 1,
-    SAY_STAY_2                                   = 2,
-    SAY_STAY_3                                   = 3,
-    SAY_STAY_4                                   = 4,
-    SAY_STAY_5                                   = 5,
-    SAY_STAY_6                                   = 6,
-    SAY_QUEST_COMPLETE                           = 7,
-    SAY_ATTACKED_1                               = 8,
-    EMOTE_DISAPPEAR                              = 9
-};
-
-class npc_stinky : public CreatureScript
-{
-public:
-   npc_stinky() : CreatureScript("npc_stinky") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_stinkyAI(creature);
-    }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || quest->GetQuestId() == QUEST_STINKYS_ESCAPE_A)
-         {
-             if (npc_stinkyAI* pEscortAI = CAST_AI(npc_stinky::npc_stinkyAI, creature->AI()))
-             {
-                 creature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
-                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                 creature->AI()->Talk(SAY_QUEST_ACCEPTED);
-                 pEscortAI->Start(false, false, player->GetGUID());
-             }
-         }
-         return true;
-    }
-
-    struct npc_stinkyAI : public npc_escortAI
-    {
-       npc_stinkyAI(Creature* creature) : npc_escortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 7:
-                    Talk(SAY_STAY_1, player);
-                    break;
-                case 11:
-                    Talk(SAY_STAY_2, player);
-                    break;
-                case 25:
-                    Talk(SAY_STAY_3, player);
-                    break;
-                case 26:
-                    Talk(SAY_STAY_4, player);
-                    break;
-                case 27:
-                    Talk(SAY_STAY_5, player);
-                    break;
-                case 28:
-                    Talk(SAY_STAY_6, player);
-                    me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                    break;
-                case 29:
-                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                    break;
-                case 37:
-                    Talk(SAY_QUEST_COMPLETE, player);
-                    me->SetSpeed(MOVE_RUN, 1.2f, true);
-                    me->SetWalk(false);
-                    if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
-                        player->GroupEventHappens(QUEST_STINKYS_ESCAPE_H, me);
-                    if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
-                        player->GroupEventHappens(QUEST_STINKYS_ESCAPE_A, me);
-                    break;
-                case 39:
-                    Talk(EMOTE_DISAPPEAR);
-                    break;
-            }
-        }
-
-        void EnterCombat(Unit* who) override
-        {
-            Talk(SAY_ATTACKED_1, who);
-        }
-
-        void Reset() override { }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (player && HasEscortState(STATE_ESCORT_ESCORTING))
-            {
-                if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
-                    player->FailQuest(QUEST_STINKYS_ESCAPE_H);
-
-                if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
-                    player->FailQuest(QUEST_STINKYS_ESCAPE_A);
-            }
-        }
-
-       void UpdateAI(uint32 uiDiff) override
-        {
-            npc_escortAI::UpdateAI(uiDiff);
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-};
 
 enum SpellScripts
 {
@@ -576,7 +451,6 @@ void AddSC_dustwallow_marsh()
     new npc_nat_pagle();
     new npc_private_hendel();
     new npc_zelfrax();
-    new npc_stinky();
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();
