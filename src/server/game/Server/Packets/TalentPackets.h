@@ -20,6 +20,7 @@
 
 #include "ObjectGuid.h"
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "SharedDefines.h"
 #include <variant>
 
@@ -58,6 +59,32 @@ public:
     WorldPacket const* Write() override;
 
     std::variant<TalentInfoUpdate, PetTalentInfoUpdate> Info;
+};
+
+struct LearnTalentEntry
+{
+    uint32 TalentID = 0;
+    uint32 Rank = 0;
+};
+
+class LearnTalent final : public ClientPacket
+{
+public:
+    explicit LearnTalent(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_TALENT, std::move(packet)) { }
+
+    void Read() override;
+
+    LearnTalentEntry Talent;
+};
+
+class LearnPreviewTalents final : public ClientPacket
+{
+public:
+    explicit LearnPreviewTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_PREVIEW_TALENTS, std::move(packet)) { }
+
+    void Read() override;
+
+    Array<LearnTalentEntry, 150> Talents;
 };
 
 class RespecWipeConfirm final : public ServerPacket

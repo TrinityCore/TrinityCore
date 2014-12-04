@@ -3051,9 +3051,9 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                 }
                 else
                 {
-                    WorldPacket data(SMSG_REMOVED_SPELL, 4);
-                    data << uint32(spellId);
-                    SendDirectMessage(&data);
+                    WorldPackets::Spells::UnlearnedSpell unlearnedSpell;
+                    unlearnedSpell.SpellID = spellId;
+                    SendDirectMessage(unlearnedSpell.Write());
                 }
             }
 
@@ -3594,9 +3594,9 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // remove from spell book if not replaced by lesser rank
     if (!prev_activate)
     {
-        WorldPacket data(SMSG_REMOVED_SPELL, 4);
-        data << uint32(spell_id);
-        SendDirectMessage(&data);
+        WorldPackets::Spells::UnlearnedSpell unlearnedSpell;
+        unlearnedSpell.SpellID = spell_id;
+        SendDirectMessage(unlearnedSpell.Write());
     }
 }
 
