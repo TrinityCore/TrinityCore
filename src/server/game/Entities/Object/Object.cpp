@@ -945,6 +945,8 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             break;
         case TYPEID_OBJECT:
             break;
+        default:
+            break;
     }
 
     return visibleFlag;
