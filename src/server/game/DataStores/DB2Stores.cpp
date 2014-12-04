@@ -39,6 +39,7 @@ DB2Storage<SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore(Spell
 DB2Storage<SpellClassOptionsEntry>          sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
 DB2Storage<SpellMiscEntry>                  sSpellMiscStore(SpellMiscEntryfmt);
 DB2Storage<SpellPowerEntry>                 sSpellPowerStore(SpellPowerEntryfmt);
+SpellPowerBySpellIDMap                      sSpellPowerBySpellIDStore;
 DB2Storage<SpellReagentsEntry>              sSpellReagentsStore(SpellReagentsEntryfmt);
 DB2Storage<SpellRuneCostEntry>              sSpellRuneCostStore(SpellRuneCostEntryfmt);
 DB2Storage<SpellTotemsEntry>                sSpellTotemsStore(SpellTotemsEntryfmt);
@@ -143,6 +144,10 @@ void LoadDB2Stores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiNodesStore,            db2Path,    "TaxiNodes.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiPathStore,             db2Path,    "TaxiPath.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiPathNodeStore,         db2Path,    "TaxiPathNode.db2");
+
+    for (uint32 i = 0; i < sSpellPowerStore.GetNumRows(); ++i)
+        if (SpellPowerEntry const* power = sSpellPowerStore.LookupEntry(i))
+            sSpellPowerBySpellIDStore[power->SpellID] = power;
 
     for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
         if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
