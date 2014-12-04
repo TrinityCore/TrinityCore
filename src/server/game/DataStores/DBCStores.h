@@ -93,7 +93,7 @@ typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRac
 typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
 SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
 
-typedef std::set<SpecializationSpellsEntry const*> SpecializationSpellsBySpecEntry;
+typedef std::vector<SpecializationSpellsEntry const*> SpecializationSpellsBySpecEntry;
 typedef std::unordered_map<uint32, SpecializationSpellsBySpecEntry> SpecializationSpellsBySpecStore;
 typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES][MAX_SPECIALIZATIONS];
 typedef std::unordered_map<uint32, TalentEntry const*> TalentBySpellIDMap;

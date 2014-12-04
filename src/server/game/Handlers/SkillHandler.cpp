@@ -28,59 +28,22 @@
 #include "WorldSession.h"
 #include "TalentPackets.h"
 
-void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
+void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet)
 {
-    /* TODO: 6.x update packet struct (note: LearnTalent no longer has rank argument)
-    uint32 talentId, requestedRank;
-    recvData >> talentId >> requestedRank;
-
-    if (_player->LearnTalent(talentId, requestedRank))
-        _player->SendTalentsInfoData(false);*/
+    bool anythingLearned = false;
+    for (uint32 talentId : packet.Talents)
+    {
+        if (_player->LearnTalent(talentId))
+            anythingLearned = true;
+    }
+    
+    if (anythingLearned)
+        _player->SendTalentsInfoData();
 }
 
 void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
 {
-    /* TODO: 6.x update packet struct
     TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS");
-
-    int32 tabPage;
-    uint32 talentsCount;
-    recvPacket >> tabPage;    // talent tree
-
-    // prevent cheating (selecting new tree with points already in another)
-    if (tabPage >= 0)   // -1 if player already has specialization
-    {
-        if (TalentTabEntry const* talentTabEntry = sTalentTabStore.LookupEntry(_player->GetPrimaryTalentTree(_player->GetActiveSpec())))
-        {
-            if (talentTabEntry->tabpage != uint32(tabPage))
-            {
-                recvPacket.rfinish();
-                return;
-            }
-        }
-    }
-
-    recvPacket >> talentsCount;
-
-    uint32 talentId, talentRank;
-
-    // Client has max 21 talents for tree for 3 trees, rounded up : 70
-    uint32 const MaxTalentsCount = 70;
-
-    for (uint32 i = 0; i < talentsCount && i < MaxTalentsCount; ++i)
-    {
-        recvPacket >> talentId >> talentRank;
-
-        if (!_player->LearnTalent(talentId, talentRank))
-        {
-            recvPacket.rfinish();
-            break;
-        }
-    }
-
-    _player->SendTalentsInfoData(false);
-
-    recvPacket.rfinish();*/
 }
 
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)

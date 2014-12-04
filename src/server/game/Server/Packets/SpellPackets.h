@@ -223,6 +223,16 @@ namespace WorldPackets
 
             std::vector<SpellModifier> Modifiers;
         };
+
+        class SendRemovedSpell final : public ServerPacket
+        {
+        public:
+            SendRemovedSpell() : ServerPacket(SMSG_REMOVED_SPELL, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<uint32> Spells;
+        };
     }
 }
 

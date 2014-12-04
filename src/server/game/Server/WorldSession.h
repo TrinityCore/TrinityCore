@@ -147,6 +147,7 @@ namespace WorldPackets
     namespace Talent
     {
         class SetSpecialization;
+        class LearnTalent;
     }
 
     namespace Trade
@@ -876,7 +877,7 @@ class WorldSession
         void HandleCancelGrowthAuraOpcode(WorldPacket& recvPacket);
         void HandleCancelAutoRepeatSpellOpcode(WorldPacket& recvPacket);
 
-        void HandleLearnTalentOpcode(WorldPacket& recvPacket);
+        void HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet);
         void HandleLearnPreviewTalents(WorldPacket& recvPacket);
         void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);

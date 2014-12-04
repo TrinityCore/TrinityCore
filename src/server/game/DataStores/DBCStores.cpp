@@ -518,7 +518,10 @@ void LoadDBCStores(const std::string& dataPath)
         SpecializationSpellsEntry const* specSpells = sSpecializationSpellsStore.LookupEntry(i);
         if (!specSpells)
             continue;
-        sSpecializationSpellsBySpecStore[specSpells->SpecID].insert(specSpells);
+        sSpecializationSpellsBySpecStore[specSpells->SpecID].push_back(specSpells);
+
+        if (specSpells->OverridesSpellID)
+                sSpecializationOverrideSpellMap[specSpells->SpecID][specSpells->OverridesSpellID] = specSpells->SpellID;
     }
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellStore,                  dbcPath, "Spell.dbc"/*, &CustomSpellEntryfmt, &CustomSpellEntryIndex*/);
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoriesStore,        dbcPath, "SpellCategories.dbc");//15595
@@ -1256,16 +1259,16 @@ std::list<uint32> GetSpellsForLevels(uint32 classId, uint32 raceMask, uint32 spe
     if (!specializationId)
         return spellList;
 
-    SpecializationSpellsMap::const_iterator specIter = sSpecializationSpellsMap.find(specializationId);
-    if (specIter != sSpecializationSpellsMap.end())
+    SpecializationSpellsBySpecStore::const_iterator specIter = sSpecializationSpellsBySpecStore.find(specializationId);
+    if (specIter != sSpecializationSpellsBySpecStore.end())
     {
-        const std::vector<uint32>& learnSpellList = specIter->second;
+        SpecializationSpellsBySpecEntry learnSpellList = specIter->second;
         for (int i = 0; i < learnSpellList.size(); i++)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learnSpellList[i]);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learnSpellList[i]->SpellID);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("spells", "GetSpellsForLevels: spell %u not found in spellstore", learnSpellList[i]);
+                TC_LOG_ERROR("spells", "GetSpellsForLevels: spell %u not found in spellstore", learnSpellList[i]->SpellID);
                 continue;
             }
             if (spellInfo->SpellLevel <= minLevel || spellInfo->SpellLevel > maxLevel)

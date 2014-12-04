@@ -3033,7 +3033,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
                     bp = *(baseAmount + effect->EffectIndex);
                 else
                     bp = effect->BasePoints;
-                TC_LOG_ERROR("spells", "_TryStackingOrRefreshingExistingAura spell %u effMask %u currIdx %u", newAura->Id, effMask, effect->EffectIndex);
+                
                 int32* oldBP = const_cast<int32*>(&(foundAura->GetEffect(effect->EffectIndex)->m_baseAmount)); // todo 6.x review GetBaseAmount and GetCastItemGUID in this case
                 *oldBP = bp;
             }
