@@ -25606,6 +25606,31 @@ void Player::LearnTalentSpecialization(uint32 talentSpec)
     SetTalentSpec(GetActiveTalentGroup(), talentSpec);
 
     SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, talentSpec);
+
+    PlayerTalentMap* talents = GetTalentMap(GetActiveTalentGroup());
+    
+    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+    {
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+
+        if (!talentInfo || talentInfo->ClassID != getClass() || talentInfo->SpecID != talentSpec)
+            continue;
+
+        for (PlayerTalentMap::iterator itr = talents->begin(); itr != talents->end();)
+        {
+            TalentEntry const* talent = sTalentStore.LookupEntry(itr->first);
+            if (!talent || talent->TierID != talentInfo->TierID)
+            {
+                ++itr;
+                continue;
+            }
+            RemoveSpell(talent->SpellID, false);
+            itr = talents->erase(itr);
+        
+            TC_LOG_DEBUG("spells", "Player %s unlearning talent id: %u tier: %u because of specialization change", GetName().c_str(), talent->ID, talent->TierID);
+        }
+    }
+
     SendTalentsInfoData();
 
     std::list<uint32> learnList = GetSpellsForLevels(0, getRaceMask(), GetActiveTalentSpec(), 0, getLevel());
