@@ -445,6 +445,17 @@ WorldPacket const* WorldPackets::Spells::SpellFailedOther::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spells::CastFailed::Write()
+{
+    _worldPacket << SpellID;
+    _worldPacket << Reason;
+    _worldPacket << FailedArg1;
+    _worldPacket << FailedArg2;
+    _worldPacket << CastID;
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifierData const& spellModifierData)
 {
     data << spellModifierData.ModifierValue;

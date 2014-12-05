@@ -303,6 +303,20 @@ namespace WorldPackets
             uint8 CastID    = 0;
         };
 
+        class CastFailed final : public ServerPacket
+        {
+        public:
+            CastFailed(OpcodeServer opcode) : ServerPacket(opcode, 4+4+4+4+1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Reason        = 0;
+            int32 FailedArg1    = -1;
+            int32 FailedArg2    = -1;
+            int32 SpellID       = 0;
+            uint8 CastID        = 0;
+        };
+
         struct SpellModifierData
         {
             float ModifierValue = 0.0f;
