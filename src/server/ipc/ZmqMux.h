@@ -29,7 +29,7 @@
 class ZmqMux : public ZMQTask
 {
 public:
-    ZmqMux(std::string from, std::string to);
+    ZmqMux(std::string from, std::string to, uint32 id);
     ~ZmqMux();
     bool Send(zmqpp::message*, bool dont_block = false);
     void Run() override;
@@ -42,6 +42,7 @@ private:
     zmqpp::socket* _from;
     zmqpp::socket* _to;
     std::string const _fromAddress;
+    uint32 _id;
 };
 
 #endif

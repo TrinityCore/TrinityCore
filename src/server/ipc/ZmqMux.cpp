@@ -18,8 +18,8 @@
 #include "ZmqMux.h"
 #include "ZmqContext.h"
 
-ZmqMux::ZmqMux(std::string from_uri, std::string to_uri):
-    _fromAddress(from_uri)
+ZmqMux::ZmqMux(std::string from_uri, std::string to_uri, uint32 id) :
+    _fromAddress(from_uri), _id(id)
 {
     printf("Opening muxer thread from %s to %s\n", from_uri.c_str(), to_uri.c_str());
     _from = sIpcContext->CreateNewSocket(zmqpp::socket_type::pull);
@@ -54,11 +54,23 @@ bool ZmqMux::Send(zmqpp::message* m, bool dont_block)
 
 void ZmqMux::Run()
 {
-    for (;;)
+    for (uint8 count = 0;;++count)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         if (!_poller->poll())
             break;
+
+        if (count >= 100)
+        {
+            zmqpp::message msg;
+            msg << uint8(0);
+            msg << uint8(0);
+            msg << uint8(0);
+            msg << uint8(0);
+            msg << _id;
+            Send(&msg);
+            count = 0;
+        }
 
         if (ProcessExit())
             break;

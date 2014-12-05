@@ -79,6 +79,7 @@ struct Realm
     float PopulationLevel;
     bool Updated;
     bool Keep;
+    uint32 LastPing;
 
     ip::tcp::endpoint GetAddressForClient(ip::address const& clientAddr) const;
 };

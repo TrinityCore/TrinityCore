@@ -48,6 +48,8 @@ public:
 
     RealmMap const& GetRealms() const { return _realms; }
     Realm const* GetRealm(Battlenet::RealmId const& id) const;
+    void SetRealmOffline(Battlenet::RealmId const& id);
+    void SetRealmOnline(Battlenet::RealmId const& id);
 
 private:
     RealmList();

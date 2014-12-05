@@ -28,6 +28,7 @@ WorldListener::HandlerTable::HandlerTable()
 #define DEFINE_HANDLER(opc, func) _handlers[opc] = { func, #opc }
 
     DEFINE_HANDLER(BNET_CHANGE_TOON_ONLINE_STATE, &WorldListener::HandleToonOnlineStatusChange);
+    DEFINE_HANDLER(BNET_PING, &WorldListener::HandlePing);
 
 #undef DEFINE_HANDLER
 }
@@ -44,9 +45,17 @@ WorldListener::~WorldListener()
 
 void WorldListener::Run()
 {
+    uint32 lastCheckTime = getMSTime();
     while (!ProcessExit())
     {
-        _poller->poll();
+        _poller->poll(1 * IN_MILLISECONDS);
+        if (GetMSTimeDiffToNow(lastCheckTime) > (10 * IN_MILLISECONDS))
+        {
+            CheckOfflineRealms();
+            lastCheckTime = getMSTime();
+        }
+
+
         if (_poller->events(*_worldSocket) & zmqpp::poller::poll_in)
         {
             int32 op1;
@@ -83,7 +92,9 @@ void WorldListener::Dispatch(zmqpp::message& msg) const
         return;
 
     if (ipcHeader.Ipc.Command < IPC_BNET_MAX_COMMAND)
+    {
         (this->*_handlers[ipcHeader.Ipc.Command].Handler)(ipcHeader.Realm, msg);
+    }
 }
 
 void WorldListener::HandleToonOnlineStatusChange(Battlenet::RealmHandle const& realm, zmqpp::message& msg) const
@@ -108,4 +119,24 @@ void WorldListener::HandleToonOnlineStatusChange(Battlenet::RealmHandle const& r
         else
             session->AsyncWrite(new Battlenet::WoWRealm::ToonLoggedOut());
     }
+}
+
+void WorldListener::HandlePing(Battlenet::RealmHandle const& realm, zmqpp::message& msg) const
+{
+    TC_LOG_INFO("server.ipc", "Got Pinged!");
+    auto realmList = sRealmList->GetRealms();
+    for (auto itr : realmList)
+        if (itr.first.Index == realm.Index)
+        {
+            sRealmList->SetRealmOnline(itr.first);
+            itr.second.LastPing = getMSTime();
+        }
+}
+
+void WorldListener::CheckOfflineRealms() const
+{
+    auto realmList = sRealmList->GetRealms();
+    for (auto itr : realmList)
+        if (itr.second.LastPing != 0 && GetMSTimeDiffToNow(itr.second.LastPing) > (10 * IN_MILLISECONDS))
+            sRealmList->SetRealmOffline(itr.first);
 }
