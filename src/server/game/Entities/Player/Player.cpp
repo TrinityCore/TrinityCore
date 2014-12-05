@@ -17911,7 +17911,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
-                if (!bagGuid)
+                if (!bagGuid.GetCounter())
                 {
                     item->SetContainer(NULL);
                     item->SetSlot(slot);
