@@ -3764,17 +3764,18 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
     if (result == SPELL_CAST_OK)
         return;
 
-    WorldPacket data(opcode, (4+1+1));
-    data << uint8(cast_count);
-    data << uint32(spellInfo->Id);
-    data << uint8(result);                                  // problem
+    WorldPackets::Spells::CastFailed packet(opcode);
+    packet.CastID = cast_count;
+    packet.SpellID = spellInfo->Id;
+    packet.Reason = result;
+
     switch (result)
     {
         case SPELL_FAILED_NOT_READY:
-            data << uint32(0);                              // unknown (value 1 update cooldowns on client flag)
+            packet.FailedArg1 = 0;                              // unknown (value 1 update cooldowns on client flag)
             break;
         case SPELL_FAILED_REQUIRES_SPELL_FOCUS:
-            data << uint32(spellInfo->RequiresSpellFocus);  // SpellFocusObject.dbc id
+            packet.FailedArg1 = spellInfo->RequiresSpellFocus;  // SpellFocusObject.dbc id
             break;
         case SPELL_FAILED_REQUIRES_AREA:                    // AreaTable.dbc id
             // hardcode areas limitation case
@@ -3782,71 +3783,71 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
             {
                 case 41617:                                 // Cenarion Mana Salve
                 case 41619:                                 // Cenarion Healing Salve
-                    data << uint32(3905);
+                    packet.FailedArg1 = 3905;
                     break;
                 case 41618:                                 // Bottled Nethergon Energy
                 case 41620:                                 // Bottled Nethergon Vapor
-                    data << uint32(3842);
+                    packet.FailedArg1 = 3842;
                     break;
                 case 45373:                                 // Bloodberry Elixir
-                    data << uint32(4075);
+                    packet.FailedArg1 = 4075;
                     break;
                 default:                                    // default case (don't must be)
-                    data << uint32(0);
+                    packet.FailedArg1 = 0;
                     break;
             }
             break;
         case SPELL_FAILED_TOTEMS:
             if (spellInfo->Totem[0])
-                data << uint32(spellInfo->Totem[0]);
+                packet.FailedArg1 = spellInfo->Totem[0];
             if (spellInfo->Totem[1])
-                data << uint32(spellInfo->Totem[1]);
+                packet.FailedArg2 = spellInfo->Totem[1];
             break;
         case SPELL_FAILED_TOTEM_CATEGORY:
             if (spellInfo->TotemCategory[0])
-                data << uint32(spellInfo->TotemCategory[0]);
+                packet.FailedArg1 = spellInfo->TotemCategory[0];
             if (spellInfo->TotemCategory[1])
-                data << uint32(spellInfo->TotemCategory[1]);
+                packet.FailedArg2 = spellInfo->TotemCategory[1];
             break;
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS:
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS_MAINHAND:
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS_OFFHAND:
-            data << uint32(spellInfo->EquippedItemClass);
-            data << uint32(spellInfo->EquippedItemSubClassMask);
+            packet.FailedArg1 = spellInfo->EquippedItemClass;
+            packet.FailedArg2 = spellInfo->EquippedItemSubClassMask;
             break;
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
         {
-             uint32 item = 0;
-             for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(caster->GetMap()->GetDifficulty()))
-                 if (effect->ItemType)
-                     item = effect->ItemType;
-             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
-             if (proto && proto->ItemLimitCategory)
-                 data << uint32(proto->ItemLimitCategory);
-             break;
+            uint32 item = 0;
+            for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(caster->GetMap()->GetDifficulty()))
+                if (effect->ItemType)
+                    item = effect->ItemType;
+            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
+            if (proto && proto->ItemLimitCategory)
+                packet.FailedArg1 = proto->ItemLimitCategory;
+            break;
         }
         case SPELL_FAILED_PREVENTED_BY_MECHANIC:
-            data << uint32(spellInfo->GetAllEffectsMechanicMask());  // SpellMechanic.dbc id
+            packet.FailedArg1 = spellInfo->GetAllEffectsMechanicMask();  // SpellMechanic.dbc id
             break;
         case SPELL_FAILED_NEED_EXOTIC_AMMO:
-            data << uint32(spellInfo->EquippedItemSubClassMask); // seems correct...
+            packet.FailedArg1 = spellInfo->EquippedItemSubClassMask; // seems correct...
             break;
         case SPELL_FAILED_NEED_MORE_ITEMS:
-            data << uint32(0);                              // Item id
-            data << uint32(0);                              // Item count?
+            packet.FailedArg1 = 0;                              // Item id
+            packet.FailedArg2 = 0;                              // Item count?
             break;
         case SPELL_FAILED_MIN_SKILL:
-            data << uint32(0);                              // SkillLine.dbc id
-            data << uint32(0);                              // required skill value
+            packet.FailedArg1 = 0;                              // SkillLine.dbc id
+            packet.FailedArg2 = 0;                              // required skill value
             break;
         case SPELL_FAILED_FISHING_TOO_LOW:
-            data << uint32(0);                              // required fishing skill
+            packet.FailedArg1 = 0;                              // required fishing skill
             break;
         case SPELL_FAILED_CUSTOM_ERROR:
-            data << uint32(customError);
+            packet.FailedArg1 = customError;
             break;
         case SPELL_FAILED_SILENCED:
-            data << uint32(0);                              // Unknown
+            packet.FailedArg1 = 0;                              // Unknown
             break;
         case SPELL_FAILED_REAGENTS:
         {
@@ -3866,14 +3867,15 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
                 }
             }
 
-            data << uint32(missingItem);  // first missing item
+            packet.FailedArg1 = missingItem;  // first missing item
             break;
         }
         // TODO: SPELL_FAILED_NOT_STANDING
         default:
             break;
     }
-    caster->GetSession()->SendPacket(&data);
+
+    caster->GetSession()->SendPacket(packet.Write());
 }
 
 void Spell::SendSpellStart()
