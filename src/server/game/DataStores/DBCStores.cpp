@@ -521,7 +521,7 @@ void LoadDBCStores(const std::string& dataPath)
         sSpecializationSpellsBySpecStore[specSpells->SpecID].push_back(specSpells);
 
         if (specSpells->OverridesSpellID)
-                sSpecializationOverrideSpellMap[specSpells->SpecID][specSpells->OverridesSpellID] = specSpells->SpellID;
+            sSpecializationOverrideSpellMap[specSpells->SpecID][specSpells->OverridesSpellID] = specSpells->SpellID;
     }
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellStore,                  dbcPath, "Spell.dbc"/*, &CustomSpellEntryfmt, &CustomSpellEntryIndex*/);
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoriesStore,        dbcPath, "SpellCategories.dbc");//15595
