@@ -97,7 +97,7 @@ class ScriptRegistry
                         sScriptMgr->IncrementScriptCount();
 
                     #ifdef SCRIPTS
-                        UnusedScriptNamesContainer::const_iterator itr = std::lower_bound(UnusedScriptNames.begin(), UnusedScriptNames.end(), script->GetName());
+                        UnusedScriptNamesContainer::iterator itr = std::lower_bound(UnusedScriptNames.begin(), UnusedScriptNames.end(), script->GetName());
                         if (itr != UnusedScriptNames.end() && *itr == script->GetName())
                             UnusedScriptNames.erase(itr);
                     #endif
