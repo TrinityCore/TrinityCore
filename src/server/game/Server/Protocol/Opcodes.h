@@ -144,7 +144,7 @@ enum OpcodeClient : uint32
     CMSG_CANCEL_QUEUED_SPELL                          = 0xBADD,
     CMSG_CANCEL_TEMP_ENCHANTMENT                      = 0xBADD,
     CMSG_CANCEL_TRADE                                 = 0x1159,
-    CMSG_CAST_SPELL                                   = 0xBADD,
+    CMSG_CAST_SPELL                                   = 0x08FE,
     CMSG_CHANGEPLAYER_DIFFICULTY                      = 0xBADD,
     CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE           = 0xBADD,
     CMSG_CHANNEL_ANNOUNCEMENTS                        = 0xBADD,
