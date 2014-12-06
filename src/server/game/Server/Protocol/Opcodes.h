@@ -471,7 +471,7 @@ enum OpcodeClient : uint32
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE               = 0xBADD,
     CMSG_QUERY_GUILD_MEMBER_RECIPES                   = 0xBADD,
     CMSG_QUERY_GUILD_RECIPES                          = 0xBADD,
-    CMSG_QUERY_GUILD_REWARDS                          = 0xBADD,
+    CMSG_QUERY_GUILD_REWARDS                          = 0x028D,
     CMSG_QUERY_GUILD_XP                               = 0xBADD,
     CMSG_QUERY_INSPECT_ACHIEVEMENTS                   = 0xBADD,
     CMSG_QUERY_QUESTS_COMPLETED                       = 0xBADD,
