@@ -415,36 +415,6 @@ class spell_energize_aoe : public SpellScriptLoader
         }
 };
 
-/*######
-## go_blackhoof_cage
-######*/
-
-enum PrisonersOfTheGrimTotems
-{
-    NPC_THERAMORE_PRISONER                          = 23720,
-    SAY_FREE                                        = 0,
-};
-
-class go_blackhoof_cage : public GameObjectScript
-{
-public:
-    go_blackhoof_cage() : GameObjectScript("go_blackhoof_cage") { }
-
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        go->UseDoorOrButton();
-        if (Creature* prisoner = go->FindNearestCreature(NPC_THERAMORE_PRISONER, 1.0f))
-        {
-            if (player)
-                player->KilledMonsterCredit(NPC_THERAMORE_PRISONER);
-
-            prisoner->AI()->Talk(SAY_FREE); // We also emote cry here (handled in creature_text.emote)
-            prisoner->DespawnOrUnsummon(6000);
-        }
-        return true;
-    }
-};
-
 void AddSC_dustwallow_marsh()
 {
     new npc_lady_jaina_proudmoore();
@@ -454,5 +424,4 @@ void AddSC_dustwallow_marsh()
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();
-    new go_blackhoof_cage();
 }
