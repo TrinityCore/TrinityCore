@@ -1223,7 +1223,7 @@ class WorldSession
 
         ObjectGuid::LowType m_GUIDLow;                      // set logined or recently logout player (while m_playerRecentlyLogout set)
         Player* _player;
-        std::shared_ptr<WorldSocket> m_Socket[2];
+        std::shared_ptr<WorldSocket> m_Socket[MAX_CONNECTION_TYPES];
         std::string m_Address;                              // Current Remote Address
      // std::string m_LAddress;                             // Last Attempted Remote Adress - we can not set attempted ip for a non-existing session!
 
