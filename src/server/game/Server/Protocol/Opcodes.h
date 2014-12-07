@@ -1650,6 +1650,7 @@ class OpcodeHandler
 {
 public:
     OpcodeHandler(char const* name, SessionStatus status) : Name(name), Status(status) { }
+    virtual ~OpcodeHandler() { }
 
     char const* Name;
     SessionStatus Status;
