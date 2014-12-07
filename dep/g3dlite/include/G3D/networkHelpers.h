@@ -3,6 +3,7 @@
 #include <cstring>
 #include <stdlib.h>
 #include <time.h>
+#include "G3D/G3DString.h"
 
 #if defined(G3D_LINUX) || defined(G3D_OSX) || defined(G3D_FREEBSD)
 #   include <sys/types.h>
@@ -45,11 +46,11 @@
 
     #define SOCKET_ERROR -1
 
-    static std::string socketErrorCode(int code) {
+    static G3D::String socketErrorCode(int code) {
         return G3D::format("CODE %d: %s\n", code, strerror(code));
     }
 
-    static std::string socketErrorCode() {
+    static G3D::String socketErrorCode() {
         return socketErrorCode(errno);
     }
 
@@ -61,7 +62,7 @@
 #else 
 
     // Windows
-    static std::string socketErrorCode(int code) {
+    static G3D::String socketErrorCode(int code) {
         LPTSTR formatMsg = NULL;
 
         FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
@@ -74,10 +75,10 @@
                         0,
                         NULL);
 
-        return G3D::format("CODE %d: %s\n", code, formatMsg);
+        return G3D::format("CODE %d: %s\n", code, formatMsg).c_str();
     }
 
-    static std::string socketErrorCode() {
+    static G3D::String socketErrorCode() {
         return socketErrorCode(GetLastError());
     }
 

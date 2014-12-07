@@ -23,7 +23,7 @@ private:
 
     /** Host byte order */
     void init(uint32 host, uint16 port);
-    void init(const std::string& hostname, uint16 port);
+    void init(const String& hostname, uint16 port);
     NetAddress(const SOCKADDR_IN& a);
     NetAddress(const struct in_addr& addr, uint16 port = 0);
 
@@ -49,12 +49,12 @@ public:
     /**
      @param port Specified in host byte order (i.e., don't worry about endian issues)
     */
-    NetAddress(const std::string& hostname, uint16 port);
+    NetAddress(const String& hostname, uint16 port);
 
     /**
        @param hostnameAndPort in the form "hostname:port" or "ip:port"
      */
-    explicit NetAddress(const std::string& hostnameAndPort);
+    explicit NetAddress(const String& hostnameAndPort);
 
     /**
        @deprecated Use G3D::NetworkDevice::broadcastAddressArray()
@@ -92,16 +92,16 @@ public:
         return ntohs(addr.sin_port);
     }
 
-    std::string ipString() const;
-    std::string toString() const;
+    String ipString() const;
+    String toString() const;
 
     /** Name of this address, without the domain.  Performs reverse DNS lookup on this address.  This may make a network 
     connection to a DNS server and block until that communication completes
     if the address is one that has not been recently checked.*/
-    std::string hostname() const;
+    String hostname() const;
 
     /** Name of the local machine machine, without the domain.  The value is cached after the first call.*/
-    static std::string localHostname();
+    static String localHostname();
 };
 
 std::ostream& operator<<(std::ostream& os, const NetAddress&);

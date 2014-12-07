@@ -6,7 +6,7 @@
   @created 2003-08-09
   @edited  2010-09-03
 
-  Copyright 2000-2012, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 
@@ -14,7 +14,9 @@
 #define G3D_Vector2int32_h
 
 #include "G3D/platform.h"
+#include "G3D/G3DString.h"
 #include "G3D/g3dmath.h"
+#include "G3D/format.h"
 #include "G3D/HashTrait.h"
 
 namespace G3D {
@@ -41,6 +43,7 @@ public:
     explicit Vector2int32(const class Vector2& v);
     explicit Vector2int32(class BinaryInput& bi);
     Vector2int32(const class Vector2int16& v);
+    Vector2int32(const class Any& a);
 
     inline G3D::int32& operator[] (int i) {
         debugAssert(((unsigned int)i) <= 1);
@@ -117,6 +120,8 @@ public:
     Vector2int32 min(const Vector2int32& v) const {
         return Vector2int32(iMin(x, v.x), iMin(y, v.y));
     }
+
+    String toString() const;
 
     void serialize(class BinaryOutput& bo) const;
     void deserialize(class BinaryInput& bi);

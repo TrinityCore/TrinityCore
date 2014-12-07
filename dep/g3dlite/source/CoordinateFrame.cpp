@@ -8,7 +8,7 @@
  \created 2001-06-02
  \edited  2012-09-29
 
- Copyright 2000-2012, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
 */
 
@@ -33,7 +33,7 @@
 namespace G3D {
 
 
-std::string CoordinateFrame::toXYZYPRDegreesString() const {
+String CoordinateFrame::toXYZYPRDegreesString() const {
     float x,y,z,yaw,pitch,roll;
     getXYZYPRDegrees(x,y,z,yaw,pitch,roll);
     
@@ -45,7 +45,7 @@ std::string CoordinateFrame::toXYZYPRDegreesString() const {
 CoordinateFrame::CoordinateFrame(const Any& any) {
     *this = CFrame();
 
-    const std::string& n = toUpper(any.name());
+    const String& n = toUpper(any.name());
 
     if (beginsWith(n, "VECTOR3") || beginsWith(n, "POINT3")) {
         translation = Point3(any);
@@ -197,7 +197,7 @@ Matrix4 CoordinateFrame::toMatrix4() const {
 }
 
 
-std::string CoordinateFrame::toXML() const {
+String CoordinateFrame::toXML() const {
     return G3D::format(
         "<COORDINATEFRAME>\n  %lf,%lf,%lf,%lf,\n  %lf,%lf,%lf,%lf,\n  %lf,%lf,%lf,%lf,\n  %lf,%lf,%lf,%lf\n</COORDINATEFRAME>\n",
         rotation[0][0], rotation[0][1], rotation[0][2], translation.x,

@@ -170,7 +170,7 @@ Vector4& Vector4::operator/= (float fScalar) {
 
 //----------------------------------------------------------------------------
 
-std::string Vector4::toString() const {
+String Vector4::toString() const {
     return G3D::format("(%g, %g, %g, %g)", x, y, z, w);
 }
 // 2-char swizzles

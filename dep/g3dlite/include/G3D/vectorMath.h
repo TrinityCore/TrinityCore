@@ -11,14 +11,15 @@
   All rights reserved.
  */
 
-#ifndef G3D_VECTORMATH_H
-#define G3D_VECTORMATH_H
+#ifndef G3D_VectorMath_h
+#define G3D_VectorMath_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Vector2.h"
 #include "G3D/Vector3.h"
 #include "G3D/Vector4.h"
+#include "G3D/Vector3int32.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Matrix4.h"
 #include "G3D/Color1.h"
@@ -114,6 +115,10 @@ inline Vector3 clamp(const Vector3& v, const Vector3& a, const Vector3& b) {
 }
 
 inline Vector4 clamp(const Vector4& v, const Vector4& a, const Vector4& b) {
+    return v.clamp(a, b);
+}
+
+inline Vector3int32 clamp(const Vector3int32& v, const Vector3int32& a, const Vector3int32& b) {
     return v.clamp(a, b);
 }
 

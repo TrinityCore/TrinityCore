@@ -5,7 +5,7 @@
   \created 2008-10-01
   \edited  2011-06-09
 
-  Copyright 2000-2012, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 
@@ -151,8 +151,8 @@ template <> struct HashTrait <G3D::int64> {
 };
 
 
-template <> struct HashTrait <std::string> {
-    static size_t hashCode(const std::string& k) { 
+template <> struct HashTrait <G3D::String> {
+    static size_t hashCode(const G3D::String& k) { 
         return G3D::superFastHash(k.c_str(), k.size());
         //return static_cast<size_t>(G3D::Crypto::crc32(k.c_str(), k.size())); 
     }

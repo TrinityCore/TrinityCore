@@ -6,7 +6,7 @@
  \created 2009-01-02
  \edited  2012-07-20
 
- Copyright 2000-2012, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 #ifndef G3D_Random_h
@@ -17,6 +17,8 @@
 #include "G3D/GMutex.h"
 
 namespace G3D {
+// Forward declaration
+template<class T, size_t MIN_ELEMENTS> class Array;
 
 /** Random number generator.
 
@@ -38,6 +40,12 @@ namespace G3D {
  */
 class Random {
 protected:
+
+    // Allow Array<Random> to initialize and copy Randoms, which we 
+    // don't generally allow because Random can have a lot of state in it.
+    // This is an important convenience for intializing per-thread random
+    // number generators.
+    friend class Array<Random, 10>;
 
     /** Constants (important for the algorithm; do not modify) */
     enum {

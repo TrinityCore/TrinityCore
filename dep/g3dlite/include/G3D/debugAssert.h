@@ -26,7 +26,7 @@
 #ifndef G3D_DEBUGASSERT_H
 #define G3D_DEBUGASSERT_H
 
-#include <string>
+#include "G3D/G3DString.h"
 #include "G3D/platform.h"
 
 #include <cstdlib>
@@ -34,6 +34,12 @@
 #ifdef _MSC_VER
 // conditional expression is constant
 #   pragma warning (disable : 4127)
+#endif
+
+#ifdef G3D_OSX
+# ifdef G3D_LINUX
+# error This is not linux!
+#endif
 #endif
 
 #ifdef G3D_LINUX
@@ -80,7 +86,7 @@
 namespace G3D {
 typedef bool (*AssertionHook)(
     const char* _expression,
-    const std::string& message,
+    const String& message,
     const char* filename,
     int lineNumber,
     bool useGuiPrompt);
@@ -127,7 +133,7 @@ namespace _internal {
 
 
 #    define debugBreak() G3D::_internal::_releaseInputGrab_(); rawBreak(); G3D::_internal::_restoreInputGrab_();
-#    define debugAssert(exp) debugAssertM(exp, "Debug assertion failure")
+#    define debugAssert(exp) debugAssertM(exp, String("Debug assertion failure"))
 
     #ifdef G3D_DEBUG_NOGUI
         #define __debugPromptShowDialog__ false
@@ -207,14 +213,14 @@ namespace G3D {  namespace _internal {
  */
 bool _handleDebugAssert_(
     const char* expression,
-    const std::string& message,
+    const String& message,
     const char* filename,
     int         lineNumber,
     bool        useGuiPrompt);
 
 bool _handleErrorCheck_(
     const char* expression,
-    const std::string& message,
+    const String& message,
     const char* filename,
     int         lineNumber,
     bool        useGuiPrompt);

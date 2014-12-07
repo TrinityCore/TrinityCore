@@ -1,5 +1,5 @@
 /**
- @file Color4.h
+ \file GLG3D/Color4.h
  
  Color class
  
@@ -8,9 +8,9 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2002-06-25
- @edited  2009-11-15
+ @edited  2014-02-13
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -18,9 +18,10 @@
 #define G3D_Color4_h
 
 #include "G3D/platform.h"
+#include "G3D/DoNotInitialize.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Color3.h"
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 
@@ -44,8 +45,15 @@ public:
         - Color4(#, #, #, #)
         - Color4::fromARGB(#)
         - Color4{r = #, g = #, b = #, a = #)
+        - Color4(Color3(#), #)
+
+        The alpha channel may be specified as "glossyExponent(n)" or "mirror()" as well as using a number, 
+        following UniversalBSDF::packGlossyExponent and UniversalBSDF::packedSpecularMirror
+        conventions.
         */
     Color4(const Any& any);
+
+    Color4(DoNotInitialize dni){}
     
     /** Converts the Color4 to an Any. */
     Any toAny() const;
@@ -92,6 +100,12 @@ public:
     static Color4 fromARGB(uint32);
 
     /**
+     Initialize from an HTML-style color (e.g. 0xFF0000 == RED) by converting from sRGB to RGB.
+     The alpha channel is linear.
+     */
+    static Color4 fromASRGB(uint32);
+
+    /**
      * Channel values.
      */
     float r, g, b, a;
@@ -131,6 +145,11 @@ public:
 
     Color4 operator/ (float fScalar) const;
     Color4 operator- () const;
+
+    Color4 operator/(const Color4& c) const {
+        return Color4(r / c.r, g / c.g, b / c.b, a / c.a);
+    }
+
     friend Color4 operator* (double fScalar, const Color4& rkVector);
 
     // arithmetic updates
@@ -142,7 +161,7 @@ public:
     bool fuzzyEq(const Color4& other) const;
     bool fuzzyNe(const Color4& other) const;
 
-    std::string toString() const;
+    String toString() const;
 
     inline Color4 max(const Color4& other) const {
         return Color4(G3D::max(r, other.r), G3D::max(g, other.g), G3D::max(b, other.b), G3D::max(a, other.a));
@@ -150,6 +169,11 @@ public:
 
     inline Color4 min(const Color4& other) const {
         return Color4(G3D::min(r, other.r), G3D::min(g, other.g), G3D::min(b, other.b), G3D::min(a, other.a));
+    }
+
+    /** Applies the exponent to all channels, including the Color4::a channel */
+    inline Color4 pow(float other) const {
+        return Color4(::pow(r, other), ::pow(g, other), ::pow(b, other), ::pow(a, other));
     }
 
     /** r + g + b + a */

@@ -5,11 +5,11 @@
 
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
- Copyright 2000-2012, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
 
  \created 2003-06-09
- \edited  2013-01-03
+ \edited  2014-05-03
  */
 
 #ifndef G3D_platform_h
@@ -20,7 +20,7 @@
  The version number of G3D in the form: MmmBB -> 
  version M.mm [beta BB]
  */
-#define G3D_VER 90000
+#define G3D_VER 100100
 
 // fatal error for unsupported architectures
 #if defined(__powerpc__)
@@ -62,22 +62,17 @@ These control the version of Winsock used by G3D.
 
 #ifdef _MSC_VER 
 #   define G3D_WINDOWS
-#elif defined(__MINGW32__)
-    #define G3D_WINDOWS
-    #undef __MSVCRT_VERSION__
-    #define __MSVCRT_VERSION__ 0x0601
-    #include <windows.h>
+#elif defined(__APPLE__)
+#   define G3D_OSX
+
+    // Prevent OS X fp.h header from being included; it defines
+    // pi as a constant, which creates a conflict with G3D
+#   define __FP__
 #elif  defined(__FreeBSD__) || defined(__OpenBSD__)
     #define G3D_FREEBSD
     #define G3D_LINUX
 #elif defined(__linux__)
     #define G3D_LINUX
-#elif defined(__APPLE__)
-    #define G3D_LINUX
-
-   // Prevent OS X fp.h header from being included; it defines
-   // pi as a constant, which creates a conflict with G3D
-#define __FP__
 #else
     #error Unknown platform 
 #endif
@@ -85,6 +80,9 @@ These control the version of Winsock used by G3D.
 /** \def G3D_64BIT */
 /** \def G3D_32BIT */
 
+#if ! defined(_MSC_VER) && ! defined(__clang__)
+#    define override
+#endif
 
 
 /** Define the g++ thread-local syntax on all platforms (since the MSVC version would be hard to emulate with a macro) */
@@ -401,7 +399,11 @@ namespace G3D {
         */
         bool threadedNetworking;
 
-        G3DSpecification() : threadedNetworking(true) {}
+
+		/** Should AudioDevice be enabled? (It will still be initialized regardless of enabling.) Default: false. */
+		bool audio;
+
+        G3DSpecification() : threadedNetworking(true), audio(false) {}
 
         virtual ~G3DSpecification() {}
     };
@@ -418,5 +420,20 @@ namespace G3D {
 #define NUMBER_TO_STRING(x) NUMBER_TO_STRING2(x)
 #define NUMBER_TO_STRING2(x) #x
 #define __LINE_AS_STRING__ NUMBER_TO_STRING(__LINE__)
+
+#ifdef nil
+#   undef nil
+#endif
+
+#if ! defined(G3D_WINDOWS) && ! defined(G3D_OSX)
+   // FMOD is not supported by G3D on other platforms...yet
+#    define	G3D_NO_FMOD
+#endif
+
+/** \def G3D_MIN_OPENGL_VERSION 
+    Minimum version of OpenGL required by G3D on this platform, mulitplied by 100 to create an integer, e.g., 330 = 3.30.
+    Assumes OpenGL core if > 300
+*/
+#define G3D_MIN_OPENGL_VERSION 330
 
 #endif // Header guard

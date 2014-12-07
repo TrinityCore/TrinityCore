@@ -17,7 +17,7 @@
 // This file is only used on Windows
 #ifdef G3D_WINDOWS
 
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 
@@ -52,13 +52,13 @@ class RegistryUtil {
 
 public:
     /** returns true if the key exists and the current user has permission to read */
-    static bool keyExists(const std::string& key);
+    static bool keyExists(const String& key);
 
     /** returns true if the key exists and the current user has permission to read */
-    static bool valueExists(const std::string& key, const std::string& value);
+    static bool valueExists(const String& key, const String& value);
 
     /** returns false if the key could not be read for any reason. */
-    static bool readInt32(const std::string& key, const std::string& value, int32& data);
+    static bool readInt32(const String& key, const String& value, int32& data);
 
     /** 
       Reads an arbitrary amount of data from a binary registry key.
@@ -68,13 +68,13 @@ public:
       @param data pointer to the output buffer of sufficient size. Pass NULL as data in order to have available data size returned in dataSize.
       @param dataSize size of the output buffer.  When NULL is passed for data, contains the size of available data on successful return.
     */
-    static bool readBytes(const std::string& key, const std::string& value, uint8* data, uint32& dataSize);
+    static bool readBytes(const String& key, const String& value, uint8* data, uint32& dataSize);
 
     /** returns false if the key could not be read for any reason. */
-    static bool readString(const std::string& key, const std::string& value, std::string& data);
+    static bool readString(const String& key, const String& value, String& data);
 
     /** returns false if the key could not be written for any reason. */
-    static bool writeInt32(const std::string& key, const std::string& value, int32 data);
+    static bool writeInt32(const String& key, const String& value, int32 data);
 
     /** 
       Writes an arbitrary amount of data to a binary registry key.
@@ -83,10 +83,10 @@ public:
       @param data pointer to the input buffer
       @param dataSize size of the input buffer that should be written
     */
-    static bool writeBytes(const std::string& key, const std::string& value, const uint8* data, uint32 dataSize);
+    static bool writeBytes(const String& key, const String& value, const uint8* data, uint32 dataSize);
 
     /** returns false if the key could not be written for any reason. */
-    static bool writeString(const std::string& key, const std::string& value, const std::string& data);
+    static bool writeString(const String& key, const String& value, const String& data);
 
 };
 

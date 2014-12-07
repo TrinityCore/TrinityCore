@@ -1,12 +1,12 @@
 /**
-  @file Table.h
+  \file G3D/Table.h
 
   Templated hash table class.
 
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2001-04-22
-  @edited  2013-01-22
-  Copyright 2000-2013, Morgan McGuire.
+  @edited  2014-05-13
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 
@@ -14,7 +14,7 @@
 #define G3D_Table_h
 
 #include <cstddef>
-#include <string>
+#include "G3D/G3DString.h"
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
@@ -41,27 +41,27 @@ namespace G3D {
  <pre>
  class Foo {
  public:
-     std::string     name;
+     String     name;
      int             index;
      static size_t hashCode(const Foo& key) {
-          return HashTrait<std::string>::hashCode(key.name) + key.index;
+          return HashTrait<String>::hashCode(key.name) + key.index;
      }
   };
 
   template<> struct HashTrait<class Foo> {
-       static size_t hashCode(const Foo& key) { return HashTrait<std::string>::hashCode(key.name) + key.index; }
+       static size_t hashCode(const Foo& key) { return HashTrait<String>::hashCode(key.name) + key.index; }
   }; 
 
 
   // Use Foo::hashCode
-  Table<Foo, std::string, Foo> fooTable1;
+  Table<Foo, String, Foo> fooTable1;
 
   // Use HashTrait<Foo>
-  Table<Foo, std::string>      fooTable2;
+  Table<Foo, String>      fooTable2;
   </pre>
 
 
- Key must be a pointer, an int, a std::string or provide overloads for: 
+ Key must be a pointer, an int, a String or provide overloads for: 
 
   <PRE>
     template<> struct HashTrait<class Key> {
@@ -80,7 +80,7 @@ namespace G3D {
     bool operator==(const Key&, const Key&);
   </PRE>
 
- G3D pre-defines HashTrait specializations for common types (like <CODE>int</CODE> and <CODE>std::string</CODE>).
+ G3D pre-defines HashTrait specializations for common types (like <CODE>int</CODE> and <CODE>String</CODE>).
  If you use a Table with a different type you must write those functions yourself.  For example,
  an enum would use:
 
@@ -867,6 +867,18 @@ public:
         return getCreateEntry(key, created).value;
     }
 
+
+   /**
+    Returns true if any key maps to value using operator==.
+    */
+    bool containsValue(const Value& value) const {
+        for (Iterator it = begin(); it.isValid(); ++it) {
+            if (it.value == value) {
+                return true;
+            }
+        }
+        return false;
+    }
 
    /**
     Returns true if key is in the table.

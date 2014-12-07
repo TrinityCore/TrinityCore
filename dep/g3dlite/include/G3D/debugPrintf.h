@@ -17,11 +17,11 @@
 #include <stdio.h>
 #include <cstdarg>
 #include "G3D/format.h"
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 
-typedef void (*ConsolePrintHook)(const std::string&);
+typedef void (*ConsolePrintHook)(const String&);
 
 namespace _internal {
     extern ConsolePrintHook _consolePrintHook;
@@ -41,8 +41,8 @@ ConsolePrintHook consolePrintHook();
    @sa G3D::logPrintf, G3D::screenPrintf
    @return The string that was printed
  */
-std::string __cdecl consolePrintf(const char* fmt ...) G3D_CHECK_PRINTF_ARGS;
-std::string consolePrint(const std::string&);
+String __cdecl consolePrintf(const char* fmt ...) G3D_CHECK_PRINTF_ARGS;
+String consolePrint(const String&);
 
 /**
    Under visual studio, appears in the VS debug pane.
@@ -53,8 +53,8 @@ std::string consolePrint(const std::string&);
 
    @return The string that was printed
 */
-std::string __cdecl debugPrintf(const char* fmt ...) G3D_CHECK_PRINTF_ARGS;
-std::string debugPrint(const std::string&);
+String __cdecl debugPrintf(const char* fmt ...) G3D_CHECK_PRINTF_ARGS;
+String debugPrint(const String&);
 
 } // namespace G3D
 

@@ -9,7 +9,7 @@
   at http://www.magic-software.com
  
  @created 2001-06-02
- @edited  2010-11-16
+ @edited  2014-07-30
  */
 
 #include "G3D/platform.h"
@@ -25,6 +25,7 @@
 #include "G3D/Any.h"
 
 namespace G3D {
+Vector2 Vector2::ignore;
 
 Vector2::Vector2(const Vector2int32& other) : x((float)other.x), y((float)other.y) {
 }
@@ -172,7 +173,7 @@ Vector2& Vector2::operator/= (float k) {
 
 //----------------------------------------------------------------------------
 
-std::string Vector2::toString() const {
+String Vector2::toString() const {
     return G3D::format("(%g, %g)", x, y);
 }
 

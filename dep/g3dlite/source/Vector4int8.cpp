@@ -18,7 +18,7 @@
 #include "G3D/Vector4.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 

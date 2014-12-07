@@ -48,7 +48,7 @@ public:
     Any toAny() const;
 
     /**
-     Constructs a plane from three points.
+     Constructs a plane from three points. Counterclockwise winding direction
      */
     Plane
      (const Point3&      point0,
@@ -161,7 +161,7 @@ public:
     void getEquation(double& a, double& b, double& c, double& d) const;
     void getEquation(float& a, float& b, float& c, float& d) const;
 
-    std::string toString() const;
+    String toString() const;
 };
 
 } // namespace

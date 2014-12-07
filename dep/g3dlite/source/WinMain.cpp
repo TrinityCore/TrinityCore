@@ -133,16 +133,16 @@ int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw
     /* Grab the command line */
     bufp = GetCommandLineA();
     nLen = strlen(bufp) + 1;
-    cmdline = (char*)malloc(sizeof(char) * nLen);
+    cmdline = (char*)::malloc(sizeof(char) * nLen);
     if (cmdline == NULL) {
         return OutOfMemory();
     }
-    strncpy(cmdline, bufp, nLen);
+    ::strncpy(cmdline, bufp, nLen);
 #endif
 
     /* Parse it into argv and argc */
     argc = ParseCommandLine(cmdline, NULL);
-    argv = (char**)malloc(sizeof(char*) * (argc + 1));
+    argv = (char**)::malloc(sizeof(char*) * (argc + 1));
     if (argv == NULL) {
         return OutOfMemory();
     }
@@ -150,8 +150,8 @@ int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw
 
     /* Run the main program */
     status = main(argc, (const char**)argv);
-    free(argv);
-    free(cmdline);
+    ::free(argv);
+    ::free(cmdline);
 
     return status;
 }

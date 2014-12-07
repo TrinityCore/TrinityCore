@@ -1,0 +1,572 @@
+Index: G3D.lib/include/G3D/Color3.h
+===================================================================
+--- G3D.lib/include/G3D/Color3.h	(revision 5516)
++++ G3D.lib/include/G3D/Color3.h	(working copy)
+@@ -190,7 +190,7 @@
+     Color3 direction() const;
+     float squaredLength () const;
+     float dot (const Color3& rkVector) const;
+-    float unitize (float fTolerance = 1e-06);
++    float unitize (float fTolerance = 1e-06f);
+     Color3 cross (const Color3& rkVector) const;
+     Color3 unitCross (const Color3& rkVector) const;
+ 
+Index: G3D.lib/include/G3D/debugAssert.h
+===================================================================
+--- G3D.lib/include/G3D/debugAssert.h	(revision 5516)
++++ G3D.lib/include/G3D/debugAssert.h	(working copy)
+@@ -45,10 +45,12 @@
+ #ifdef G3D_LINUX
+     // Needed so we can define a global display
+     // pointer for debugAssert.
++#if 0 /* G3DFIX: Disabled to avoid requirement for X11 libraries */
+     #include <X11/Xlib.h>
+     #include <X11/Xutil.h>
+     #include <X11/Xatom.h>
+ #endif
++#endif
+ 
+ 
+ /**
+@@ -184,6 +186,7 @@
+ namespace G3D {  namespace _internal {
+ 
+ #ifdef G3D_LINUX
++#if 0 /* G3DFIX: Disabled to avoid requirement for X11 libraries */
+     /**
+      A pointer to the X11 display.  Initially NULL.  If set to a
+      non-null value (e.g. by SDLWindow), debugAssert attempts to use
+@@ -200,6 +203,7 @@
+      */
+     extern Window        x11Window;
+ #endif
++#endif
+ 
+ /**
+  Pops up an assertion dialog or prints an assertion
+Index: G3D.lib/include/G3D/g3dmath.h
+===================================================================
+--- G3D.lib/include/G3D/g3dmath.h	(revision 5516)
++++ G3D.lib/include/G3D/g3dmath.h	(working copy)
+@@ -31,7 +31,7 @@
+ #include <stdlib.h>
+ #include <stdint.h>
+ 
+-#ifdef _MSC_VER
++#if defined(_MSC_VER) && (_MSC_VER < 1000)
+     // Visual Studio is missing inttypes.h
+ #   ifndef PRId64
+ #       define PRId64 "I64d"
+@@ -92,7 +92,7 @@
+     return ::rand() / double(RAND_MAX);
+ }
+ 
+-#   ifdef _M_IX86
++#   ifndef _WIN64
+     // 32-bit
+         /**
+            Win32 implementation of the C99 fast rounding routines.
+@@ -133,11 +133,11 @@
+     // 64-bit
+ 
+     __inline long int lrintf(float flt) {        
+-        return (long int)(flt + 0.5f);
++        return (long int)floorf(flt + 0.5f);
+     }
+ 
+     __inline long int lrint (double flt) {
+-        return (long int)(flt + 0.5);
++        return (long int)floor(flt + 0.5);
+     }
+ 
+ #   endif
+Index: G3D.lib/include/G3D/G3DString.h
+===================================================================
+--- G3D.lib/include/G3D/G3DString.h	(revision 5516)
++++ G3D.lib/include/G3D/G3DString.h	(working copy)
+@@ -852,6 +852,7 @@
+     typedef SSESmallString<64> String;
+     #define G3D_STRING_DESTRUCTOR ~SSESmallString
+ 
++    std::ostream& operator<<(std::ostream& os, const String& str);
+ #endif
+ 
+ /** For use with default output arguments. The value is always undefined. */
+Index: G3D.lib/include/G3D/GMutex.h
+===================================================================
+--- G3D.lib/include/G3D/GMutex.h	(revision 5516)
++++ G3D.lib/include/G3D/GMutex.h	(working copy)
+@@ -14,10 +14,11 @@
+ #include "G3D/G3DString.h"
+ 
+ #ifndef G3D_WINDOWS
+-#   include <pthread.h>
+-#   include <signal.h>
+-#endif
+-
++#   include <pthread.h>
++#   include <signal.h>
++#   include <unistd.h>
++#endif
++
+ #if defined(G3D_LINUX) || defined(G3D_OSX)
+ #   include <unistd.h> // For usleep
+ #endif
+Index: G3D.lib/include/G3D/Matrix3.h
+===================================================================
+--- G3D.lib/include/G3D/Matrix3.h	(revision 5516)
++++ G3D.lib/include/G3D/Matrix3.h	(working copy)
+@@ -245,8 +245,8 @@
+     bool isOrthonormal() const;
+ 
+     Matrix3 transpose () const;
+-    bool inverse (Matrix3& rkInverse, float fTolerance = 1e-06) const;
+-    Matrix3 inverse (float fTolerance = 1e-06) const;
++    bool inverse (Matrix3& rkInverse, float fTolerance = 1e-06f) const;
++    Matrix3 inverse (float fTolerance = 1e-06f) const;
+     float determinant () const;
+ 
+     /** singular value decomposition */
+Index: G3D.lib/include/G3D/System.h
+===================================================================
+--- G3D.lib/include/G3D/System.h	(revision 5516)
++++ G3D.lib/include/G3D/System.h	(working copy)
+@@ -20,6 +20,9 @@
+ #include "G3D/BinaryFormat.h"
+ #include "G3D/FileNotFound.h"
+ #include "G3D/G3DString.h"
++#ifdef G3D_LINUX
++#   include <sys/socket.h>
++#endif
+ 
+ 
+ #ifdef G3D_OSX
+@@ -378,10 +381,10 @@
+      </PRE>
+      \endhtmlonly
+      */
+-    static void beginCycleCount(uint64& cycleCount);
++    /* static void beginCycleCount(uint64& cycleCount);
+     static void endCycleCount(uint64& cycleCount);
+ 
+-    static uint64 getCycleCount();
++    static uint64 getCycleCount(); */
+ 
+     inline static void setOutOfMemoryCallback(OutOfMemoryCallback c) {
+         instance().m_outOfMemoryCallback = c;
+@@ -477,6 +480,7 @@
+ };
+ 
+ 
++/* don't need that for MaNGOS, not portable to Win64...
+ #ifdef _MSC_VER
+ #   ifdef _M_IX86
+         // 32-bit
+@@ -549,6 +553,7 @@
+                   (double) UnsignedWideToUInt64(diffNS) * instance().m_secondsPerNS);
+ #endif
+ }
++ */
+ 
+ 
+ } // namespace
+Index: G3D.lib/source/BinaryInput.cpp
+===================================================================
+--- G3D.lib/source/BinaryInput.cpp	(revision 5516)
++++ G3D.lib/source/BinaryInput.cpp	(working copy)
+@@ -38,8 +38,10 @@
+ #include "G3D/fileutils.h"
+ #include "G3D/Log.h"
+ #include "G3D/FileSystem.h"
+-#include "../../zlib.lib/include/zlib.h"
++#include <zlib.h>
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+ #include "../../zip.lib/include/zip.h"
++#endif
+ #include <cstring>
+ 
+ namespace G3D {
+@@ -126,6 +128,7 @@
+ 
+     setEndian(fileEndian);
+     
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+     String zipfile;
+     if (FileSystem::inZipfile(m_filename, zipfile)) {
+         // Load from zipfile
+@@ -162,6 +165,7 @@
+         m_freeBuffer = true;
+         return;
+     }
++#endif
+ 
+     // Figure out how big the file is and verify that it exists.
+     m_length = FileSystem::size(m_filename);
+Index: G3D.lib/source/BinaryOutput.cpp
+===================================================================
+--- G3D.lib/source/BinaryOutput.cpp	(revision 5516)
++++ G3D.lib/source/BinaryOutput.cpp	(working copy)
+@@ -14,7 +14,7 @@
+ #include "G3D/FileSystem.h"
+ #include "G3D/stringutils.h"
+ #include "G3D/Array.h"
+-#include "../../zlib.lib/include/zlib.h"
++#include <zlib.h>
+ #include "G3D/Log.h"
+ #include <cstring>
+ 
+@@ -22,6 +22,10 @@
+ #    include <errno.h>
+ #endif
+ 
++#ifdef __CYGWIN__
++#    include <errno.h>
++#endif
++
+ // Largest memory buffer that the system will use for writing to
+ // disk.  After this (or if the system runs out of memory)
+ // chunks of the file will be dumped to disk.
+Index: G3D.lib/source/debugAssert.cpp
+===================================================================
+--- G3D.lib/source/debugAssert.cpp	(revision 5516)
++++ G3D.lib/source/debugAssert.cpp	(working copy)
+@@ -37,9 +37,11 @@
+ AssertionHook _failureHook = _handleErrorCheck_;
+ 
+ #ifdef G3D_LINUX
++#if 0 /* G3DFIX: Disabled to avoid requirement for X11 libraries */
+     Display*      x11Display = NULL;
+     Window        x11Window  = 0;
+ #endif
++#endif
+ 
+ 
+ #ifdef G3D_WINDOWS
+@@ -250,6 +252,7 @@
+         ClipCursor(NULL);
+         
+     #elif defined(G3D_LINUX)
++#if 0 /* G3DFIX: Disabled to avoid requirement for X11 libraries */
+         if (x11Display != NULL) {
+             XUngrabPointer(x11Display, CurrentTime);
+             XUngrabKeyboard(x11Display, CurrentTime);
+@@ -264,6 +267,7 @@
+             XAllowEvents(x11Display, AsyncPointer, CurrentTime);
+             XFlush(x11Display);
+         }
++#endif
+     #elif defined(G3D_OSX)
+         // TODO: OS X
+     #endif
+Index: G3D.lib/source/FileSystem.cpp
+===================================================================
+--- G3D.lib/source/FileSystem.cpp	(revision 5516)
++++ G3D.lib/source/FileSystem.cpp	(working copy)
+@@ -12,7 +12,9 @@
+ #include "G3D/fileutils.h"
+ #include <sys/stat.h>
+ #include <sys/types.h>
+-#include "zip.h"
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
++    #include "zip.h"
++#endif
+ #include "G3D/g3dfnmatch.h"
+ #include "G3D/BinaryInput.h"
+ #include "G3D/BinaryOutput.h"
+@@ -24,7 +26,11 @@
+     // Needed for _findfirst
+ #   include <io.h>
+ 
++#  ifdef __MINGW32__
++#    define stat64 stat
++#  else
+ #    define stat64 _stat64
++#  endif
+ #else
+ #   include <dirent.h>
+ #   include <fnmatch.h>
+@@ -35,6 +41,10 @@
+ #   define strnicmp strncasecmp 
+ #endif
+ 
++#ifdef __CYGWIN__
++#define stat64 stat
++#endif
++
+ namespace G3D {
+ 
+ static FileSystem* common = NULL;
+@@ -81,6 +91,7 @@
+ 
+     
+ void FileSystem::Dir::computeZipListing(const String& zipfile, const String& _pathInsideZipfile) {
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+     const String& pathInsideZipfile = FilePath::canonicalize(_pathInsideZipfile);
+     struct zip* z = zip_open( FilePath::removeTrailingSlash(zipfile).c_str(), ZIP_CHECKCONS, NULL );
+     debugAssert(z);
+@@ -131,6 +142,7 @@
+     
+     zip_close(z);
+     z = NULL;
++#endif
+ }
+ 
+ 
+@@ -587,6 +599,7 @@
+     int result = stat64(filename.c_str(), &st);
+     
+     if (result == -1) {
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+         String zip, contents;
+         if (zipfileExists(filename, zip, contents)) {
+             int64 requiredMem;
+@@ -604,8 +617,11 @@
+             zip_close(z);
+             return requiredMem;
+         } else {
++#endif
+             return -1;
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+         }
++#endif
+     }
+     
+     return st.st_size;
+Index: G3D.lib/source/fileutils.cpp
+===================================================================
+--- G3D.lib/source/fileutils.cpp	(revision 5516)
++++ G3D.lib/source/fileutils.cpp	(working copy)
+@@ -21,7 +21,9 @@
+ 
+ #include <sys/stat.h>
+ #include <sys/types.h>
+-#include "zip.h"
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
++    #include "zip.h"
++#endif
+ 
+ #ifdef G3D_WINDOWS
+    // Needed for _getcwd
+@@ -130,6 +132,7 @@
+ 
+     } else {
+ 
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+         // In zipfile
+         FileSystem::markFileUsed(zipfile);
+ 
+@@ -160,6 +163,7 @@
+             System::alignedFree(buffer);
+         }
+         zip_close( z );
++#endif
+     }
+ 
+     return s;
+@@ -171,6 +175,7 @@
+     int result = _stat(filename.c_str(), &st);
+     
+     if (result == -1) {
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+         String zip, contents;
+         if(zipfileExists(filename, zip, contents)){
+             int64 requiredMem;
+@@ -190,6 +195,9 @@
+         } else {
+         return -1;
+         }
++#else
++        return -1;
++#endif
+     }
+ 
+     return st.st_size;
+@@ -286,6 +294,7 @@
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+ /* Helper methods for zipfileExists()*/
+ // Given a string (the drive) and an array (the path), computes the directory
+ static void _zip_resolveDirectory(String& completeDir, const String& drive, const Array<String>& path, const int length){
+@@ -319,6 +328,7 @@
+     }
+     return true;
+ }
++#endif
+ 
+ 
+ /** If no zipfile exists, outZipfile and outInternalFile are unchanged */
+@@ -325,6 +335,7 @@
+ bool zipfileExists(const String& filename, String& outZipfile,
+                    String& outInternalFile){
+    
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+     Array<String> path;
+     String drive, base, ext, zipfile, infile;
+     parseFilename(filename, drive, path, base, ext);
+@@ -389,6 +400,7 @@
+     
+     // not a valid directory structure ever, 
+     // obviously no .zip was found within the path 
++#endif
+     return false;
+ }    
+ 
+@@ -695,6 +707,7 @@
+ }
+ 
+ 
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+ /**
+  @param path   The zipfile name (no trailing slash)
+  @param prefix Directory inside the zipfile. No leading slash, must have trailing slash if non-empty.
+@@ -745,6 +758,7 @@
+         }
+     }
+ }
++#endif
+ 
+ 
+ static void getFileOrDirListZip(const String& path,
+@@ -752,6 +766,7 @@
+                                 Array<String>& files,
+                                 bool wantFiles,
+                                 bool includePath){
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+     struct zip *z = zip_open( path.c_str(), ZIP_CHECKCONS, NULL );
+ 
+     Set<String> fileSet;
+@@ -767,6 +782,7 @@
+     zip_close( z );
+     
+     fileSet.getMembers(files);
++#endif
+ }
+ 
+ 
+Index: G3D.lib/source/G3DString.cpp
+===================================================================
+--- G3D.lib/source/G3DString.cpp	(revision 5516)
++++ G3D.lib/source/G3DString.cpp	(working copy)
+@@ -20,5 +20,11 @@
+ #   endif
+     (void)PROBED_CONST_SEG_ADDR;
+ }
+-
++#if 0
++#elif !defined(G3D_64BIT) || !_MSC_VER
++#else
++std::ostream& operator<<(std::ostream& os, const String& str) {
++    return os << str.c_str();
++}
++#endif
+ }
+Index: G3D.lib/source/prompt.cpp
+===================================================================
+--- G3D.lib/source/prompt.cpp	(revision 5516)
++++ G3D.lib/source/prompt.cpp	(working copy)
+@@ -21,6 +21,7 @@
+ #    define _getch getchar
+ #endif
+ 
++#if 0 /* G3DFIX: exclude GUI prompt code */
+ #ifdef G3D_OSX
+ 
+ /*#ifdef __LP64__
+@@ -38,7 +39,9 @@
+ 
+ #endif
+ 
++#endif /* G3DFIX: exclude GUI prompt code */
+ namespace G3D {
++#if 0 /* G3DFIX: exclude GUI prompt code */
+ 
+ #ifdef G3D_WINDOWS
+ 
+@@ -469,6 +472,7 @@
+ }
+ 
+ #endif
++#endif /* G3DFIX: exclude GUI prompt code */
+ 
+ 
+ /**
+@@ -531,6 +535,7 @@
+     return c;
+ }
+ 
++#if 0 /* G3DFIX: exclude GUI prompt code */
+ #ifdef G3D_OSX
+ 
+ static int guiPrompt
+@@ -543,6 +548,7 @@
+ }
+ 
+ #endif
++#endif /* G3DFIX: exclude GUI prompt code */
+ 
+ int prompt(
+     const char*      windowTitle,
+@@ -551,6 +557,7 @@
+     int              numChoices,
+     bool             useGui) {
+ 
++#if 0 /* G3DFIX: exclude GUI prompt code */
+     #ifdef G3D_WINDOWS
+         if (useGui) {
+             // Build the message box
+@@ -566,6 +573,7 @@
+ 		  return result;
+                 }
+         #endif
++#endif /* G3DFIX: exclude GUI prompt code */
+     return textPrompt(windowTitle, prompt, choice, numChoices);
+ }
+ 
+Index: G3D.lib/source/RegistryUtil.cpp
+===================================================================
+--- G3D.lib/source/RegistryUtil.cpp	(revision 5516)
++++ G3D.lib/source/RegistryUtil.cpp	(working copy)
+@@ -16,6 +16,15 @@
+ #include "G3D/RegistryUtil.h"
+ #include "G3D/System.h"
+ 
++#ifdef __MINGW32__
++#  ifndef HKEY_PERFORMANCE_TEXT
++#    define HKEY_PERFORMANCE_TEXT ((HKEY)((LONG)0x80000050))
++#  endif
++#  ifndef HKEY_PERFORMANCE_NLSTEXT
++#    define HKEY_PERFORMANCE_NLSTEXT ((HKEY)((LONG)0x80000060))
++#  endif
++#endif
++
+ namespace G3D {
+ 
+ // static helpers
+Index: G3D.lib/source/System.cpp
+===================================================================
+--- G3D.lib/source/System.cpp	(revision 5516)
++++ G3D.lib/source/System.cpp	(working copy)
+@@ -79,7 +79,9 @@
+ #endif
+ 
+ // SIMM include
++#ifdef __SSE__
+ #include <xmmintrin.h>
++#endif
+ 
+ 
+ namespace G3D {
+@@ -926,7 +928,11 @@
+         
+         if (localTimeVals) {
+             // tm_gmtoff is already corrected for daylight savings.
++            #ifdef __CYGWIN__
++            local = local + _timezone;
++            #else
+             local = local + localTimeVals->tm_gmtoff;
++            #endif
+         }
+         
+         m_realWorldGetTickTime0 = local;

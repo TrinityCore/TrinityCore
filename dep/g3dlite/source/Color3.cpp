@@ -19,6 +19,7 @@
 #include "G3D/Color3unorm8.h"
 #include "G3D/Any.h"
 #include "G3D/stringutils.h"
+#include "G3D/Random.h"
 
 namespace G3D {
 
@@ -30,13 +31,17 @@ Color3& Color3::operator=(const Any& a) {
 
 Color3::Color3(const Any& any) {
     *this = Color3::zero();
-    any.verifyNameBeginsWith("Color3", "Power3", "Radiance3", "Irradiance3", "Energy3", "Radiosity3", "Biradiance3");
 
     switch (any.type()) {
+    case Any::NUMBER:
+        r = g = b = float(any.number());
+        break;
+
     case Any::TABLE:
+        any.verifyNameBeginsWith("Color3", "Power3", "Radiance3", "Irradiance3", "Energy3", "Radiosity3", "Biradiance3");
 
         for (Any::AnyTable::Iterator it = any.table().begin(); it.isValid(); ++it) {
-            const std::string& key = toLower(it->key);
+            const String& key = toLower(it->key);
             if (key == "r") {
                 r = it->value;
             } else if (key == "g") {
@@ -51,11 +56,12 @@ Color3::Color3(const Any& any) {
 
     case Any::ARRAY: // Intentionally falls through
     case Any::EMPTY_CONTAINER:
+        any.verifyNameBeginsWith("Color3", "Power3", "Radiance3", "Irradiance3", "Energy3", "Radiosity3", "Biradiance3");
         {   
-            const std::string& name = any.name();
-            std::string factoryName;
+            const String& name = any.name();
+            String factoryName;
             size_t i = name.find("::");
-            if (i != std::string::npos && i > 1) {
+            if ((i != String::npos) && (i > 1)) {
                 factoryName = name.substr(i + 2);
             }
 
@@ -224,8 +230,7 @@ const Color3& Color3::wheelRandom() {
     {Color3::blue(),   Color3::red(),    Color3::green(),
      Color3::orange(), Color3::yellow(), 
      Color3::cyan(),   Color3::purple(), Color3::brown()};
-
-    return colorArray[iRandom(0, 7)];
+    return colorArray[Random::common().integer(0, 7)];
 }
 
 
@@ -261,9 +266,9 @@ Color3 Color3::fromASRGB(uint32 x) {
 
 
 Color3 Color3::random() {
-    return Color3(uniformRandom(), 
-                  uniformRandom(),
-                  uniformRandom()).direction();
+    return Color3(Random::common().uniform(), 
+                  Random::common().uniform(),
+                  Random::common().uniform()).direction();
 }
 
 //----------------------------------------------------------------------------
@@ -369,6 +374,18 @@ Vector3 Color3::toHSV(const Color3& _rgb) {
     return hsv;
 }
 
+
+Color3 Color3::scaleSaturation(float boost) const {
+    if (boost != 1.0f) {
+        Vector3 hsv = toHSV(*this);
+        hsv.y *= boost;
+        return fromHSV(hsv);
+    } else {
+        return *this;
+    }
+}
+
+
 Color3 Color3::jetColorMap(const float& val) {
     debugAssertM(val <= 1.0f && val >= 0.0f , "value should be in [0,1]");
 
@@ -391,7 +408,7 @@ Color3 Color3::jetColorMap(const float& val) {
 
 
 
-std::string Color3::toString() const {
+String Color3::toString() const {
     return G3D::format("(%g, %g, %g)", r, g, b);
 }
 

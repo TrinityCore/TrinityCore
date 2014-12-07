@@ -142,7 +142,7 @@ UprightSpline::UprightSpline(const Any& any) {
 }
 
 
-Any UprightSpline::toAny(const std::string& myName) const {
+Any UprightSpline::toAny(const String& myName) const {
     Any any(Any::TABLE, myName);
 
     any["extrapolationMode"] = extrapolationMode;

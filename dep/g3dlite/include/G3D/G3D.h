@@ -7,9 +7,9 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2001-08-25
- \edited  2013-03-24
+ \edited  2014-10-24
 
- Copyright 2000-2013, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
 */
 
@@ -25,6 +25,7 @@
     #undef max
 #endif
 
+#include "G3D/DoNotInitialize.h"
 #include "G3D/HaltonSequence.h"
 #include "G3D/platform.h"
 #include "G3D/Proxy.h"
@@ -54,6 +55,7 @@
 #include "G3D/Color4.h"
 #include "G3D/Matrix2.h"
 #include "G3D/Matrix3.h"
+#include "G3D/Matrix3x4.h"
 #include "G3D/Matrix4.h"
 #include "G3D/CoordinateFrame.h"
 #include "G3D/Projection.h"
@@ -102,6 +104,12 @@
 #include "G3D/Line2D.h"
 #include "G3D/ThreadsafeQueue.h"
 #include "G3D/network.h"
+#include "G3D/FrameName.h"
+#include "G3D/G3DAllocator.h"
+#include "G3D/OrderedTable.h"
+#include "G3D/Journal.h"
+#include "G3D/Grid.h"
+#include "G3D/Pathfinder.h"
 
 template<class T> struct HashTrait< shared_ptr<T> > {
     static size_t hashCode(shared_ptr<T> key) { return reinterpret_cast<size_t>( key.get() ); }

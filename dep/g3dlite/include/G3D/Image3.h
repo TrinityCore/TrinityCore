@@ -51,7 +51,7 @@ public:
     /** Creates a 0 x 0 image. */
     static Ref createEmpty(WrapMode wrap = WrapMode::ERROR);
 
-    static Ref fromFile(const std::string& filename, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromFile(const String& filename, WrapMode wrap = WrapMode::ERROR);
     
     static Ref fromArray(const class Color1unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
     static Ref fromArray(const class Color3unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
@@ -64,10 +64,10 @@ public:
 
     /** Loads from any of the file formats supported by G3D::GImage.  If there is an alpha channel on the input,
         it is stripped. Converts 8-bit formats to the range (0, 1) */
-    void load(const std::string& filename);
+    void load(const String& filename);
 
     /** Saves in any of the formats supported by G3D::GImage. Assumes the data is on the range (0, 1) if saving to an 8-bit format.*/
-    void save(const std::string& filename);
+    void save(const String& filename);
 };
 
 } // G3D

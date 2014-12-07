@@ -7,7 +7,7 @@
  \created 2006-06-11
  \edited  2013-03-29
 
- Copyright 2000-2013, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -23,6 +23,10 @@
 #include <iostream>
 
 namespace G3D {
+
+// Defined in G3DString.h
+String ignoreString;
+
 const char* Any::PAREN   = "()";
 const char* Any::BRACKET = "[]";
 const char* Any::BRACE   = "{}";
@@ -46,17 +50,17 @@ void Any::deserialize(BinaryInput& b) {
 }
 
 
-std::string Any::resolveStringAsFilename(bool errorIfNotFound) const {
+String Any::resolveStringAsFilename(bool errorIfNotFound) const {
     verifyType(STRING);
     if ((string().length() > 0) && (string()[0] == '<') && (string()[string().length() - 1] == '>')) {
         return string();
     }
 
-    const std::string& f = FileSystem::resolve(string(), sourceDirectory());
+    const String& f = FileSystem::resolve(string(), sourceDirectory());
     if (FileSystem::exists(f)) {
         return f;
     } else {
-        const std::string& s = System::findDataFile(string(), errorIfNotFound);
+        const String& s = System::findDataFile(string(), errorIfNotFound);
         if (s.empty()) {
             return string();
         } else {
@@ -79,7 +83,7 @@ void Any::become(const Type& t) {
 }
 
 
-void Any::remove(const std::string& key) {
+void Any::remove(const String& key) {
     verifyType(TABLE);
     ensureMutable();
     m_data->value.t->remove(key);
@@ -93,27 +97,27 @@ void Any::remove(int i) {
 }
 
 
-Any Any::fromFile(const std::string& filename) {
+Any Any::fromFile(const String& filename) {
     Any a;
     a.load(filename);
     return a;
 }
 
 
-void Any::loadIfExists(const std::string& filename) {
+void Any::loadIfExists(const String& filename) {
     if (FileSystem::exists(filename)) {
         load(filename);
     }
 }
 
 
-bool Any::nameBeginsWith(const std::string& s) const {
+bool Any::nameBeginsWith(const String& s) const {
     return nameBeginsWith(s.c_str());
 }
 
 
-bool Any::nameEquals(const std::string& s) const {
-    // If std::string has a fast hash compare, use it first
+bool Any::nameEquals(const String& s) const {
+    // If String has a fast hash compare, use it first
     return (name() == s) || nameEquals(s.c_str());
 }
 
@@ -142,12 +146,16 @@ bool Any::nameBeginsWith(const char* s) const {
 
 bool Any::nameEquals(const char* s) const {
     verifyType(Any::ARRAY, Any::TABLE);
-#ifdef G3D_WINDOWS
-    return stricmp(name().c_str(), s) == 0;
-#else
-    return strcasecmp(name().c_str(), s) == 0;
-#endif
 
+    return name() == s;
+    /*
+    // The case-insensitive comparison has a different name on these platforms
+#   ifdef G3D_WINDOWS
+        return stricmp(name().c_str(), s) == 0;
+#   else
+        return strcasecmp(name().c_str(), s) == 0;
+#   endif
+        */
 }
 
 
@@ -175,6 +183,7 @@ Any::Data* Any::Data::create(const Data* d) {
     p->comment   = d->comment;
     p->name      = d->name;
     p->source    = d->source;
+    p->hexInteger = d->hexInteger;
 
     switch (d->type) {
     case NIL:
@@ -203,7 +212,7 @@ Any::Data* Any::Data::create(const Data* d) {
 }
 
 
-Any::Data* Any::Data::create(Any::Type t, const char* b, char sep) {
+Any::Data* Any::Data::create(Any::Type t, const char* b, char sep, bool h) {
     size_t s = sizeof(Data);
 
     switch (t) {
@@ -214,7 +223,7 @@ Any::Data* Any::Data::create(Any::Type t, const char* b, char sep) {
         break;
 
     case STRING:
-        s += sizeof(std::string);
+        s += sizeof(String);
         break;
 
     case EMPTY_CONTAINER:
@@ -241,8 +250,9 @@ Any::Data* Any::Data::create(Any::Type t, const char* b, char sep) {
     }
 
     // Allocate the data object
-    Data* p = new (MemoryManager::create()->alloc(s)) Data(t, b, sep);
+    Data* p = new (MemoryManager::create()->alloc(s)) Data(t, b, sep, h);
 
+    p->hexInteger = h;
     // Create the (empty) value object at the end of the Data object
     switch (t) {
     case NIL:
@@ -253,7 +263,7 @@ Any::Data* Any::Data::create(Any::Type t, const char* b, char sep) {
         break;
 
     case STRING:
-        p->value.s = new (p + 1) std::string();
+        p->value.s = new (p + 1) String();
         break;
 
     case ARRAY:
@@ -286,7 +296,7 @@ Any::Data::~Data() {
     switch (type) {
     case STRING:
         debugAssert(value.s != NULL);
-        value.s->~basic_string();
+        value.s->G3D_STRING_DESTRUCTOR();
         break;
 
     case ARRAY:
@@ -310,7 +320,7 @@ Any::Data::~Data() {
 
 //////////////////////////////////////////////////////////////
 
-bool Any::containsKey(const std::string& x) const {
+bool Any::containsKey(const String& x) const {
     beforeRead();
     verifyType(TABLE);
     if (size() == 0) {
@@ -325,7 +335,7 @@ bool Any::containsKey(const std::string& x) const {
 
 
 void Any::dropReference() {
-    if (m_data && m_data->referenceCount.decrement() <= 0) {
+    if (m_data && (m_data->referenceCount.decrement() <= 0)) {
         // This was the last reference to the shared data
         Data::destroy(m_data);
     }
@@ -385,7 +395,7 @@ Any::Any(bool x) : m_type(BOOLEAN), m_simpleValue(x), m_data(NULL) {
 }
 
 
-Any::Any(const std::string& s) : m_type(STRING), m_data(Data::create(STRING)) {
+Any::Any(const String& s) : m_type(STRING), m_data(Data::create(STRING)) {
     *(m_data->value.s) = s;
 }
 
@@ -400,9 +410,7 @@ Any::Any(const char* s) : m_type(STRING), m_data(NULL) {
 }
 
 
-
-
-Any::Any(Type t, const std::string& name, const std::string& brackets, char separator) : m_type(t), m_data(NULL) {
+Any::Any(Type t, const String& name, const String& brackets, char separator) : m_type(t), m_data(NULL) {
     alwaysAssertM(isContainerType(t), "Can only create ARRAY or TABLE from Type enum.");
 
     ensureData();
@@ -423,7 +431,7 @@ Any::Any(Type t, const std::string& name, const std::string& brackets, char sepa
     } else if (brackets == BRACKET) {
         m_data->bracket = BRACKET;
     } else {
-        alwaysAssertM(false, std::string("illegal brackets: ") + brackets);
+        alwaysAssertM(false, String("illegal brackets: ") + brackets);
     }
 
     if (separator == '\0') {
@@ -435,7 +443,7 @@ Any::Any(Type t, const std::string& name, const std::string& brackets, char sepa
     } else if (separator == ',' || separator == ';') {
         m_data->separator = separator;
     } else {
-        alwaysAssertM(false, std::string("illegal separator: ") + separator);
+        alwaysAssertM(false, String("illegal separator: ") + separator);
     }
 }
 
@@ -508,10 +516,10 @@ Any::Type Any::type() const {
 }
 
 
-const std::string& Any::comment() const {
+const String& Any::comment() const {
     beforeRead();
 
-    static const std::string blank;
+    static const String blank;
     if (m_data != NULL) {
         return m_data->comment;
     } else {
@@ -520,7 +528,7 @@ const std::string& Any::comment() const {
 }
 
 
-void Any::setComment(const std::string& c) {
+void Any::setComment(const String& c) {
     beforeRead();
     ensureData();
     m_data->comment = c;
@@ -545,7 +553,7 @@ float Any::floatValue() const {
 }
 
 
-const std::string& Any::string() const {
+const String& Any::string() const {
     beforeRead();
     verifyType(STRING);
     return *(m_data->value.s);
@@ -559,9 +567,9 @@ bool Any::boolean() const {
 }
 
 
-const std::string& Any::name() const {
+const String& Any::name() const {
     beforeRead();
-    static const std::string blank;
+    static const String blank;
     if (m_data != NULL) {
         return m_data->name;
     } else {
@@ -570,7 +578,7 @@ const std::string& Any::name() const {
 }
 
 
-void Any::setName(const std::string& n) {
+void Any::setName(const String& n) {
     beforeRead();
     ensureData();
     m_data->name = n;
@@ -703,25 +711,25 @@ void Any::_append(const Any& x0, const Any& x1, const Any& x2, const Any& x3) {
 }
 
 
-const Table<std::string, Any>& Any::table() const {
+const Table<String, Any>& Any::table() const {
     beforeRead();
     verifyType(TABLE);
     debugAssert(m_data != NULL);
 
     if (type() == Any::EMPTY_CONTAINER) {
         // if empty, m_data->value.t will not be initialized as it is unknown whether this is supposed to be an array or a table
-        static const Table<std::string, Any> emptyTable;
+        static const Table<String, Any> emptyTable;
         return emptyTable;
     }
     return *(m_data->value.t);
 }
 
 
-const Any& Any::operator[](const std::string& x) const {
+const Any& Any::operator[](const String& x) const {
     beforeRead();
     verifyType(TABLE);
     debugAssert(m_data != NULL);
-    const Table<std::string, Any>& table = *(m_data->value.t);
+    const Table<String, Any>& table = *(m_data->value.t);
     Any* value = table.getPointer(x);
     if (value == NULL) {
         KeyNotFound e(m_data);
@@ -733,7 +741,7 @@ const Any& Any::operator[](const std::string& x) const {
 }
 
 
-Any& Any::operator[](const std::string& key) {
+Any& Any::operator[](const String& key) {
     beforeRead();
     ensureMutable();
     verifyType(TABLE);
@@ -755,7 +763,7 @@ Any& Any::operator[](const std::string& key) {
 }
 
 
-void Any::_set(const std::string& k, const Any& v) {
+void Any::_set(const String& k, const Any& v) {
     beforeRead();
     v.beforeRead();
     verifyType(TABLE);
@@ -763,12 +771,12 @@ void Any::_set(const std::string& k, const Any& v) {
     if ( type() == EMPTY_CONTAINER) {
         become(TABLE);
     }
-    Table<std::string, Any>& table = *(m_data->value.t);
+    Table<String, Any>& table = *(m_data->value.t);
     table.set(k, v);
 }
 
 
-Any Any::_get(const std::string& x, const Any& defaultVal) const {
+Any Any::_get(const String& x, const Any& defaultVal) const {
     beforeRead();
     defaultVal.beforeRead();
     try {
@@ -809,9 +817,9 @@ bool Any::operator==(const Any& x) const {
         if (m_data->name != x.m_data->name) {
             return false;
         }
-        const Table<std::string, Any>& table1 = table();
-        const Table<std::string, Any>& table2 = x.table();
-        for (Table<std::string, Any>::Iterator it = table1.begin(); it.isValid(); ++it) {
+        const Table<String, Any>& table1 = table();
+        const Table<String, Any>& table2 = x.table();
+        for (Table<String, Any>::Iterator it = table1.begin(); it.isValid(); ++it) {
             const Any* p2 = table2.getPointer(it->key);
             if (p2 == NULL) {
                 // Key not found
@@ -870,7 +878,7 @@ static void getDeserializeSettings(TextInput::Settings& settings) {
 }
 
 
-std::string Any::unparseJSON(const TextOutput::Settings& settings, bool allowCoercion) const {
+String Any::unparseJSON(const TextOutput::Settings& settings, bool allowCoercion) const {
     beforeRead();
     TextOutput to(settings);
     serialize(to, true, allowCoercion);
@@ -878,7 +886,7 @@ std::string Any::unparseJSON(const TextOutput::Settings& settings, bool allowCoe
 }
 
 
-std::string Any::unparse(const TextOutput::Settings& settings) const {
+String Any::unparse(const TextOutput::Settings& settings) const {
     beforeRead();
     TextOutput to(settings);
     serialize(to);
@@ -886,14 +894,14 @@ std::string Any::unparse(const TextOutput::Settings& settings) const {
 }
 
 
-Any Any::parse(const std::string& src) {
+Any Any::parse(const String& src) {
     Any a;
     a._parse(src);
     return a;    
 }
 
 
-void Any::_parse(const std::string& src) {
+void Any::_parse(const String& src) {
     beforeRead();
     TextInput::Settings settings;
     getDeserializeSettings(settings);
@@ -903,7 +911,7 @@ void Any::_parse(const std::string& src) {
 }
 
 
-void Any::load(const std::string& filename) {
+void Any::load(const String& filename) {
     beforeRead();
     TextInput::Settings settings;
     getDeserializeSettings(settings);
@@ -913,7 +921,7 @@ void Any::load(const std::string& filename) {
 }
 
 
-void Any::save(const std::string& filename) const {
+void Any::save(const String& filename) const {
     beforeRead();
     TextOutput::Settings settings;
     settings.wordWrap = TextOutput::Settings::WRAP_NONE;
@@ -924,7 +932,7 @@ void Any::save(const std::string& filename) const {
 }
 
 
-static bool needsQuotes(const std::string& s) {
+static bool needsQuotes(const String& s) {
     if (! isLetter(s[0]) && (s[0] != '_')) {
         return true;
     }
@@ -943,7 +951,7 @@ static bool needsQuotes(const std::string& s) {
             continue;
         }
 
-        if (! isDigit(c) && ! isLetter(c) & (c != '.')) {
+        if (! isDigit(c) && ! isLetter(c) && (c != '_')) {
             // This is an illegal character for an identifier, so we need quotes
             return true;
         }
@@ -995,7 +1003,9 @@ void Any::serialize(TextOutput& to, bool json, bool coerce) const {
         break;
 
     case NUMBER:
-        if (json) {
+        if (m_data && m_data->hexInteger) {
+            to.printf("0x%x", int(m_simpleValue.n));
+        } else if (json) {
             // Specials have no legal syntax in JSON, so insert values that will parse 
             // to something close to what we want (there is no good solution for NaN, unfortunately)
             if (m_simpleValue.n == inf()) {
@@ -1045,7 +1055,7 @@ void Any::serialize(TextOutput& to, bool json, bool coerce) const {
         to.writeNewline();
         to.pushIndent();
         AnyTable& table = *(m_data->value.t);
-        Array<std::string> keys;
+        Array<String> keys;
         table.getKeys(keys);
         keys.sort();
 
@@ -1175,7 +1185,7 @@ void Any::serialize(TextOutput& to, bool json, bool coerce) const {
 }
 
 
-void Any::deserializeComment(TextInput& ti, Token& token, std::string& comment) {
+void Any::deserializeComment(TextInput& ti, Token& token, String& comment) {
     // Parse comments
     while (token.type() == Token::COMMENT) {
         comment += trimWhitespace(token.string());
@@ -1203,9 +1213,9 @@ static bool isClose(const char c) {
 }
 
 
-void Any::deserializeName(TextInput& ti, Token& token, std::string& name) {
+void Any::deserializeName(TextInput& ti, Token& token, String& name) {
     debugAssert(token.type() == Token::SYMBOL);
-    std::string s = token.string();
+    String s = token.string();
     while (! isOpen(s[0])) {
         name += s;
 
@@ -1241,7 +1251,7 @@ void Any::deserialize(TextInput& ti, Token& token) {
         token = ti.read();
     } 
 
-    std::string comment;
+    String comment;
     if (token.type() == Token::COMMENT) {
         deserializeComment(ti, token, comment);
     }
@@ -1271,6 +1281,7 @@ void Any::deserialize(TextInput& ti, Token& token) {
         m_simpleValue.n = token.number();
         ensureData();
         m_data->source.set(ti, token);
+        m_data->hexInteger = (token.extendedType() == Token::HEX_INTEGER_TYPE);
         break;
 
     case Token::BOOLEAN:
@@ -1295,12 +1306,12 @@ void Any::deserialize(TextInput& ti, Token& token) {
             
             ti.readSymbol("(");
             // The string typed into the file, which may be relative
-            const std::string& includeName = ti.readString();
+            const String& includeName = ti.readString();
 
             // Find the include file
-            const std::string& myPath = FilePath::parent(ti.filename());
+            const String& myPath = FilePath::parent(ti.filename());
 
-            std::string t = FileSystem::resolve(includeName, myPath);
+            String t = FileSystem::resolve(includeName, myPath);
 
             if (! FileSystem::exists(t)) {
                 // Try and find the path, starting with the cwd
@@ -1337,7 +1348,7 @@ void Any::deserialize(TextInput& ti, Token& token) {
             // Parse the name
             // s must have at least one element or this would not have
             // been parsed as a symbol
-            std::string name;
+            String name;
             deserializeName(ti, token, name);
             if (token.type() != Token::SYMBOL) {
                 throw ParseError(ti.filename(), token.line(), token.character(), 
@@ -1494,7 +1505,7 @@ void Any::deserializeBody(TextInput& ti, Token& token) {
 
         // Read any leading comment.  This must be done here (and not in the recursive deserialize
         // call) in case the body contains only a comment.
-        std::string comment;
+        String comment;
         deserializeComment(ti, token, comment);
 
         if ((token.type() == Token::SYMBOL) && (token.string()[0] == closeSymbol)) {
@@ -1504,7 +1515,7 @@ void Any::deserializeBody(TextInput& ti, Token& token) {
 
         // Pointer the value being read
         Any a;
-        std::string key;
+        String key;
         
         if (m_type == TABLE) {
             // Read the key
@@ -1585,7 +1596,7 @@ Any::operator bool() const {
 }
 
 
-Any::operator std::string() const {
+Any::operator String() const {
     beforeRead();
     return string();
 }
@@ -1601,7 +1612,7 @@ const Any::Source& Any::source() const {
 }
 
 
-std::string Any::sourceDirectory() const {
+String Any::sourceDirectory() const {
     if (m_data) {
         return FilePath::parent(m_data->source.filename);
     } else {
@@ -1609,7 +1620,7 @@ std::string Any::sourceDirectory() const {
     }
 }
 
-void Any::verify(bool value, const std::string& message) const {
+void Any::verify(bool value, const String& message) const {
     beforeRead();
     if (! value) {
         ParseError p;
@@ -1634,32 +1645,32 @@ void Any::verify(bool value, const std::string& message) const {
 }
 
 
-void Any::verifyName(const std::string& n) const {
+void Any::verifyName(const String& n) const {
     beforeRead();
     verify(name() == n, "Name must be " + n);
 }
 
 
-void Any::verifyName(const std::string& n, const std::string& m) const {
+void Any::verifyName(const String& n, const String& m) const {
     beforeRead();
-    const std::string& x = name();
+    const String& x = name();
     verify(x == n ||
            x == m, "Name must be " + n + " or " + m);
 }
 
 
-void Any::verifyName(const std::string& n, const std::string& m, const std::string& p) const {
+void Any::verifyName(const String& n, const String& m, const String& p) const {
     beforeRead();
-    const std::string& x = name();
+    const String& x = name();
     verify(x == n ||
            x == m ||
            x == p, "Name must be " + n + ", " + m + ", or " + p);
 }
 
 
-void Any::verifyName(const std::string& n, const std::string& m, const std::string& p, const std::string& q) const {
+void Any::verifyName(const String& n, const String& m, const String& p, const String& q) const {
     beforeRead();
-    const std::string& x = name();
+    const String& x = name();
     verify(x == n ||
            x == m ||
            x == p ||
@@ -1667,32 +1678,32 @@ void Any::verifyName(const std::string& n, const std::string& m, const std::stri
 }
 
 
-void Any::verifyNameBeginsWith(const std::string& n) const {
+void Any::verifyNameBeginsWith(const String& n) const {
     beforeRead();
     verify(beginsWith(name(), n), "Name must begin with " + n);
 }
 
 
-void Any::verifyNameBeginsWith(const std::string& n, const std::string& m) const {
+void Any::verifyNameBeginsWith(const String& n, const String& m) const {
     beforeRead();
-    const std::string& x = name();
+    const String& x = name();
     verify(beginsWith(x, n) ||
            beginsWith(x, m), "Name must be " + n + " or " + m);
 }
 
 
-void Any::verifyNameBeginsWith(const std::string& n, const std::string& m, const std::string& p) const {
+void Any::verifyNameBeginsWith(const String& n, const String& m, const String& p) const {
     beforeRead();
-    const std::string& x = name();
+    const String& x = name();
     verify(beginsWith(x, n) ||
            beginsWith(x, m) ||
            beginsWith(x, p), "Name must be " + n + ", " + m + ", or " + p);
 }
 
 
-void Any::verifyNameBeginsWith(const std::string& n, const std::string& m, const std::string& p, const std::string& q) const {
+void Any::verifyNameBeginsWith(const String& n, const String& m, const String& p, const String& q) const {
     beforeRead();
-    const std::string& x = name();
+    const String& x = name();
     verify(beginsWith(x, n) ||
            beginsWith(x, m) ||
            beginsWith(x, p) ||
@@ -1700,9 +1711,9 @@ void Any::verifyNameBeginsWith(const std::string& n, const std::string& m, const
 }
 
 
-void Any::verifyNameBeginsWith(const std::string& n, const std::string& m, const std::string& p, const std::string& q, const std::string& r) const {
+void Any::verifyNameBeginsWith(const String& n, const String& m, const String& p, const String& q, const String& r) const {
     beforeRead();
-    const std::string& x = name();
+    const String& x = name();
     verify(beginsWith(x, n) ||
            beginsWith(x, m) ||
            beginsWith(x, p) ||
@@ -1711,9 +1722,9 @@ void Any::verifyNameBeginsWith(const std::string& n, const std::string& m, const
 }
 
 
-void Any::verifyNameBeginsWith(const std::string& n, const std::string& m, const std::string& p, const std::string& q, const std::string& r, const std::string& s) const {
+void Any::verifyNameBeginsWith(const String& n, const String& m, const String& p, const String& q, const String& r, const String& s) const {
     beforeRead();
-    const std::string& x = name();
+    const String& x = name();
     verify(beginsWith(x, n) ||
            beginsWith(x, m) ||
            beginsWith(x, p) ||
@@ -1723,9 +1734,9 @@ void Any::verifyNameBeginsWith(const std::string& n, const std::string& m, const
 }
 
 
-void Any::verifyNameBeginsWith(const std::string& n, const std::string& m, const std::string& p, const std::string& q, const std::string& r, const std::string& s, const std::string& t) const {
+void Any::verifyNameBeginsWith(const String& n, const String& m, const String& p, const String& q, const String& r, const String& s, const String& t) const {
     beforeRead();
-    const std::string& x = name();
+    const String& x = name();
     verify(beginsWith(x, n) ||
            beginsWith(x, m) ||
            beginsWith(x, p) ||
@@ -1771,7 +1782,7 @@ void Any::verifySize(int s) const {
 }
 
 
-std::string Any::toString(Type t) {
+String Any::toString(Type t) {
     switch(t) {
     case NIL:    return "NIL";
     case BOOLEAN: return "BOOLEAN";

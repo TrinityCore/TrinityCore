@@ -7,7 +7,7 @@
  \created 2007-01-31
  \edited  2011-08-20
 
- Copyright 2000-2012, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -15,10 +15,11 @@
 #define G3D_Color1_h
 
 #include "G3D/platform.h"
+#include "G3D/DoNotInitialize.h"
 #include "G3D/g3dmath.h"
 #include "G3D/unorm8.h"
 #include "G3D/HashTrait.h"
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 
@@ -35,6 +36,8 @@ private:
 
 public:
     float value;
+
+    Color1(DoNotInitialize dni) {}
 
     /**
     Initializes to 0

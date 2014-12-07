@@ -8,9 +8,9 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  \created 2001-06-02
- \edited  2013-03-29
+ \edited  2013-10-07
 
- Copyright 2000-2013, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -18,10 +18,11 @@
 #define G3D_Color3_h
 
 #include "G3D/platform.h"
+#include "G3D/DoNotInitialize.h"
 #include "G3D/g3dmath.h"
 #include "G3D/HashTrait.h"
 #include "G3D/Color1.h"
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 class Any;
@@ -43,6 +44,8 @@ public:
      \brief Initializes to all zero.
      */
     Color3() : r(0), g(0), b(0) {}
+
+    Color3(DoNotInitialize dni) {}
 
     bool nonZero() const {
         return (r != 0) || (g != 0) || (b != 0);
@@ -109,7 +112,7 @@ public:
 
     /**
      Initialize from an HTML-style color (e.g. 0xFF0000 == RED) by converting from sRGB to RGB.
-
+     The alpha channel is linear.
      */
     static Color3 fromASRGB(uint32);
 
@@ -226,10 +229,16 @@ public:
         return r + g + b;
     }
 
+    Color3 clamp(float low, float high) const {
+        return Color3(G3D::clamp(r, low, high), G3D::clamp(g, low, high), G3D::clamp(b, low, high));
+    }
+
     inline float average() const {
         return sum() / 3.0f;
     }
 
+    /** Scales "saturation". Technically, this should be applied to only sRGB color space values. */
+    Color3 scaleSaturation(float factor) const;
 
     /**
      *  Converts from HSV to RGB , note: toHSV(fromHSV(_hsv)) may not be _hsv, if it is at a grey point or black point.
@@ -245,10 +254,14 @@ public:
     /** Returns colors with maximum saturation and value @param hue [0, 1]*/
     static Color3 rainbowColorMap(float hue);
 
-    std::string toString() const;
+    String toString() const;
 
     /** Random unit vector */
     static Color3 random();
+
+    static inline Color3 neonGradient(float t) {
+        return Color3(t * 1.3f + 0.1f, square(::fabsf(0.43f - t) * 1.7f), (1.0f - t) * 1.7f).clamp(0.0f, 1.0f);
+    }
 
     // Special values.
     // Intentionally not inlined: see Matrix3::identity() for details.

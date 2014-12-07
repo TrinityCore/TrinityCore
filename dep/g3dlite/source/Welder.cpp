@@ -499,7 +499,7 @@ Welder::Settings::Settings(const Any& any) {
     *this = Settings();
     any.verifyName("Welder::Settings");
     for (Any::AnyTable::Iterator it = any.table().begin(); it.isValid(); ++it) {
-        const std::string& key = toLower(it->key);
+        const String& key = toLower(it->key);
         if (key == "normalsmoothingangle") {
             normalSmoothingAngle = it->value;
         } else if (key == "vertexweldradius") {

@@ -41,10 +41,10 @@
 namespace G3D {
     
 namespace _internal {
-    Set<std::string> currentFilesUsed;
+    Set<String> currentFilesUsed;
 }
 
-std::string pathConcat(const std::string& dirname, const std::string& file) {
+String pathConcat(const String& dirname, const String& file) {
     // Ensure that the directory ends in a slash
     if ((dirname.size() != 0) && 
         (dirname[dirname.size() - 1] != '/') &&
@@ -56,7 +56,7 @@ std::string pathConcat(const std::string& dirname, const std::string& file) {
     }
 }
 
-std::string resolveFilename(const std::string& filename) {
+String resolveFilename(const String& filename) {
     if (filename.size() >= 1) {
         if ((filename[0] == '/') || (filename[0] == '\\')) {
             // Already resolved
@@ -91,28 +91,28 @@ std::string resolveFilename(const std::string& filename) {
     return format("%s/%s", buffer, filename.c_str());
 }
 
-bool zipfileExists(const std::string& filename) {
-    std::string    outZipfile;
-    std::string    outInternalFile;
+bool zipfileExists(const String& filename) {
+    String    outZipfile;
+    String    outInternalFile;
     return zipfileExists(filename, outZipfile, outInternalFile);
 }
 
 
-std::string readWholeFile(const std::string& filename) {
+String readWholeFile(const String& filename) {
 
-    std::string s;
+    String s;
 
     debugAssert(filename != "");
     if (!  FileSystem::exists(filename)) {
         throw (filename + " not found");
     }
     FileSystem::markFileUsed(filename);
-    std::string zipfile;
+    String zipfile;
 
     if (! FileSystem::inZipfile(filename, zipfile)) {
         // Not in zipfile
         if (! FileSystem::exists(filename)) {
-            throw FileNotFound(filename, std::string("File not found in readWholeFile: ") + filename);
+            throw FileNotFound(filename, String("File not found in readWholeFile: ") + filename);
         }
 
         int64 length = FileSystem::size(filename);
@@ -126,18 +126,18 @@ std::string readWholeFile(const std::string& filename) {
         FileSystem::fclose(f);
 
         buffer[length] = '\0';    
-        s = std::string(buffer);
+        s = String(buffer);
 
         System::alignedFree(buffer);
 
     } else {
 
+#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
         // In zipfile
         FileSystem::markFileUsed(zipfile);
 
-#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */    
         // Zipfiles require Unix-style slashes
-        std::string internalFile = FilePath::canonicalize(filename.substr(zipfile.length() + 1));
+        String internalFile = FilePath::canonicalize(filename.substr(zipfile.length() + 1));
         struct zip* z = zip_open(zipfile.c_str(), ZIP_CHECKCONS, NULL);
         {
             struct zip_stat info;
@@ -150,7 +150,7 @@ std::string readWholeFile(const std::string& filename) {
 
             struct zip_file* zf = zip_fopen( z, internalFile.c_str(), ZIP_FL_NOCASE );
             if (zf == NULL) {
-                throw std::string("\"") + internalFile + "\" inside \"" + zipfile + "\" could not be opened.";
+                throw String("\"") + internalFile + "\" inside \"" + zipfile + "\" could not be opened.";
             } else {
                 const int64 bytesRead = zip_fread( zf, buffer, (info.size));
                 debugAssertM((int64)bytesRead == (int64)info.size,
@@ -170,13 +170,13 @@ std::string readWholeFile(const std::string& filename) {
 }
 
 
-int64 fileLength(const std::string& filename) {
+int64 fileLength(const String& filename) {
     struct _stat st;
     int result = _stat(filename.c_str(), &st);
     
     if (result == -1) {
 #if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
-        std::string zip, contents;
+        String zip, contents;
         if(zipfileExists(filename, zip, contents)){
             int64 requiredMem;
 
@@ -205,13 +205,13 @@ int64 fileLength(const std::string& filename) {
 
 ///////////////////////////////////////////////////////////////////////////////
 void writeWholeFile(
-    const std::string&          filename,
-    const std::string&          str,
+    const String&          filename,
+    const String&          str,
     bool                        flush) {
 
     // Make sure the directory exists.
-    std::string root, base, ext, path;
-    Array<std::string> pathArray;
+    String root, base, ext, path;
+    Array<String> pathArray;
     parseFilename(filename, root, pathArray, base, ext); 
 
     path = root + stringJoin(pathArray, '/');
@@ -239,13 +239,13 @@ void writeWholeFile(
  and any parents needed to reach it.
  */
 void createDirectory(
-    const std::string&  dir) {
+    const String&  dir) {
     
     if (dir == "") {
         return;
     }
 
-    std::string d;
+    String d;
 
     // Add a trailing / if there isn't one.
     switch (dir[dir.size() - 1]) {
@@ -264,17 +264,17 @@ void createDirectory(
     }
 
     // Parse the name apart
-    std::string root, base, ext;
-    Array<std::string> path;
+    String root, base, ext;
+    Array<String> path;
 
-    std::string lead;
+    String lead;
     parseFilename(d, root, path, base, ext);
     debugAssert(base == "");
     debugAssert(ext == "");
 
     // Begin with an extra period so "c:\" becomes "c:\.\" after
     // appending a path and "c:" becomes "c:.\", not root: "c:\"
-    std::string p = root + ".";
+    String p = root + ".";
 
     // Create any intermediate that doesn't exist
     for (int i = 0; i < path.size(); ++i) {
@@ -297,7 +297,7 @@ void createDirectory(
 #if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
 /* Helper methods for zipfileExists()*/
 // Given a string (the drive) and an array (the path), computes the directory
-static void _zip_resolveDirectory(std::string& completeDir, const std::string& drive, const Array<std::string>& path, const int length){
+static void _zip_resolveDirectory(String& completeDir, const String& drive, const Array<String>& path, const int length){
     completeDir = drive;
     int tempLength;
     // if the given length is longer than the array, we correct it
@@ -317,7 +317,7 @@ static void _zip_resolveDirectory(std::string& completeDir, const std::string& d
 
 
 /** assumes that zipDir references a .zip file */
-static bool _zip_zipContains(const std::string& zipDir, const std::string& desiredFile){
+static bool _zip_zipContains(const String& zipDir, const String& desiredFile){
         struct zip *z = zip_open( zipDir.c_str(), ZIP_CHECKCONS, NULL );
     //the last parameter, an int, determines case sensitivity:
     //1 is sensitive, 2 is not, 0 is default
@@ -332,11 +332,12 @@ static bool _zip_zipContains(const std::string& zipDir, const std::string& desir
 
 
 /** If no zipfile exists, outZipfile and outInternalFile are unchanged */
-bool zipfileExists(const std::string& filename, std::string& outZipfile,
-                   std::string& outInternalFile){
+bool zipfileExists(const String& filename, String& outZipfile,
+                   String& outInternalFile){
+   
 #if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
-    Array<std::string> path;
-    std::string drive, base, ext, zipfile, infile;
+    Array<String> path;
+    String drive, base, ext, zipfile, infile;
     parseFilename(filename, drive, path, base, ext);
     
     // Put the filename back together
@@ -396,35 +397,32 @@ bool zipfileExists(const std::string& filename, std::string& outZipfile,
         }
         
     }
-#else
-    (void)filename;
-    (void)outZipfile;
-    (void)outInternalFile;
-#endif
+    
     // not a valid directory structure ever, 
     // obviously no .zip was found within the path 
+#endif
     return false;
 }    
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string generateFilenameBase(const std::string& prefix, const std::string& suffix) {
-    Array<std::string> exist;
+String generateFilenameBase(const String& prefix, const String& suffix) {
+    Array<String> exist;
 
     // Note "template" is a reserved word in C++
-    std::string templat = prefix + System::currentDateString() + "_";
+    String templat = prefix + System::currentDateString() + "_";
     FileSystem::getFiles(templat + "*", exist, true);
     
     // Remove extensions
     for (int i = 0; i < exist.size(); ++i) {
-        const std::string ext = FilePath::ext(exist[i]);
+        const String ext = FilePath::ext(exist[i]);
         if (ext.length() > 0) {
             exist[i] = exist[i].substr(0, exist[i].length() - ext.length() - 1);
         }
     }
 
     int num = 0;
-    std::string result;
+    String result;
     templat += "%03d" + suffix;
     do {
         result = format(templat.c_str(), num);
@@ -434,11 +432,34 @@ std::string generateFilenameBase(const std::string& prefix, const std::string& s
     return result;
 }
 
+String generateFileNameBaseAnySuffix(const String& prefix) {
+    Array<String> exist;
+    String templat = prefix + System::currentDateString() + "_";
+    FileSystem::getFiles(templat + "*", exist, true);
+
+    int num = 0;
+    String result;
+    templat += "%03d";
+    bool done;
+    do {
+        result = format(templat.c_str(), num);
+        ++num;
+        done = true;
+        for (int f = 0; f < exist.length(); ++f) {
+            if (beginsWith(exist[f], result)) {
+                done = false;
+                break;
+            }
+        }
+    } while (!done);
+    return result;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void copyFile(
-    const std::string&          source,
-    const std::string&          dest) {
+    const String&          source,
+    const String&          dest) {
 
     #ifdef G3D_WINDOWS
         CopyFileA(source.c_str(), dest.c_str(), FALSE);
@@ -455,13 +476,13 @@ void copyFile(
 //////////////////////////////////////////////////////////////////////////////
 
 void parseFilename(
-    const std::string&  filename,
-    std::string&        root,
-    Array<std::string>& path,
-    std::string&        base,
-    std::string&        ext) {
+    const String&  filename,
+    String&        root,
+    Array<String>& path,
+    String&        base,
+    String&        ext) {
 
-    std::string f = filename;
+    String f = filename;
 
     root = "";
     path.clear();
@@ -508,10 +529,10 @@ void parseFilename(
         // Find the period
         size_t i = f.rfind('.');
 
-        if (i != std::string::npos) {
+        if (i != String::npos) {
             // Make sure it is after the last slash!
             size_t j = maxNotNPOS(f.rfind('/'), f.rfind('\\'));
-            if ((j == std::string::npos) || (i > j)) {
+            if ((j == String::npos) || (i > j)) {
                 ext = f.substr(i + 1, f.size() - i - 1);
                 f = f.substr(0, i);
             }
@@ -523,13 +544,13 @@ void parseFilename(
         // Find the last slash
         size_t i = maxNotNPOS(f.rfind('/'), f.rfind('\\'));
         
-        if (i == std::string::npos) {
+        if (i == String::npos) {
             
             // There is no slash; the basename is the whole thing
             base = f;
             f    = "";
 
-        } else if ((i != std::string::npos) && (i < f.size() - 1)) {
+        } else if ((i != String::npos) && (i < f.size() - 1)) {
             
             base = f.substr(i + 1, f.size() - i - 1);
             f    = f.substr(0, i);
@@ -546,17 +567,17 @@ void parseFilename(
         // Allow either slash
         size_t i = f.find('/', prev + 1);
         size_t j = f.find('\\', prev + 1);
-        if (i == std::string::npos) {
+        if (i == String::npos) {
             i = f.size();
         }
 
-        if (j == std::string::npos) {
+        if (j == String::npos) {
             j = f.size();
         }
 
         cur = min(i, j);
 
-        if (cur == std::string::npos) {
+        if (cur == String::npos) {
             cur = f.size();
         }
 
@@ -574,14 +595,14 @@ void parseFilename(
  @param includePath     If true, the names include paths
  */
 static void getFileOrDirListNormal
-(const std::string&    filespec,
- Array<std::string>&    files,
+(const String&    filespec,
+ Array<String>&    files,
  bool            wantFiles,
  bool                   includePath) {
     
     bool test = wantFiles ? true : false;
     
-    std::string path = "";
+    String path = "";
 
     // Find the place where the path ends and the file-spec begins
     size_t i = filespec.rfind('/');
@@ -590,22 +611,22 @@ static void getFileOrDirListNormal
     // Drive letters on Windows can separate a path
     size_t k = filespec.rfind(':');
     
-    if (((j != std::string::npos) && (j > i)) ||
-        (i == std::string::npos)) {
+    if (((j != String::npos) && (j > i)) ||
+        (i == String::npos)) {
         i = j;
     }
     
-    if (((k != std::string::npos) && (k > i)) ||
-        (i == std::string::npos)) {
+    if (((k != String::npos) && (k > i)) ||
+        (i == String::npos)) {
         i = k;
     }
     
     // If there is a path, pull it off
-    if (i != std::string::npos) {
+    if (i != String::npos) {
         path = filespec.substr(0, i + 1);
     }
    
-    std::string prefix = path;
+    String prefix = path;
 
     if (path.size() > 0) {
         // Strip the trailing character
@@ -654,7 +675,7 @@ static void getFileOrDirListNormal
                     (strcmp(entry->d_name, "..") != 0)) {
                     
                     // Form a name with a path
-                    std::string filename = prefix + entry->d_name;
+                    String filename = prefix + entry->d_name;
                     // See if this is a file or a directory
                     struct _stat st;
                     bool exists = _stat(filename.c_str(), &st) != -1;
@@ -685,16 +706,17 @@ static void getFileOrDirListNormal
 #   endif
 }
 
+
 #if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
 /**
  @param path   The zipfile name (no trailing slash)
  @param prefix Directory inside the zipfile. No leading slash, must have trailing slash if non-empty.
  @param file   Name inside the zipfile that we are testing to see if it matches prefix + "*"
  */
-static void _zip_addEntry(const std::string& path,
-                          const std::string& prefix,
-                          const std::string& file,
-                          Set<std::string>& files,
+static void _zip_addEntry(const String& path,
+                          const String& prefix,
+                          const String& file,
+                          Set<String>& files,
                           bool wantFiles,
                           bool includePath) {
 
@@ -703,7 +725,7 @@ static void _zip_addEntry(const std::string& path,
         // validityTest was prefix/file
         
         // Extract everything to the right of the prefix
-        std::string s = file.substr(prefix.length());
+        String s = file.substr(prefix.length());
         
         if (s == "") {
             // This was the name of the prefix
@@ -715,7 +737,7 @@ static void _zip_addEntry(const std::string& path,
         
         bool add = false;
         
-        if (slashPos == std::string::npos) {
+        if (slashPos == String::npos) {
             // No slashes, so s must be a file
             add = wantFiles;
         } else if (! wantFiles) {
@@ -739,15 +761,15 @@ static void _zip_addEntry(const std::string& path,
 #endif
 
 
-static void getFileOrDirListZip(const std::string& path,
-                                const std::string& prefix,
-                                Array<std::string>& files,
+static void getFileOrDirListZip(const String& path,
+                                const String& prefix,
+                                Array<String>& files,
                                 bool wantFiles,
                                 bool includePath){
 #if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
     struct zip *z = zip_open( path.c_str(), ZIP_CHECKCONS, NULL );
 
-    Set<std::string> fileSet;
+    Set<String> fileSet;
 
     int count = zip_get_num_files( z );
     for( int i = 0; i < count; ++i ) {
@@ -771,15 +793,15 @@ static void getFileOrDirListZip(const std::string& path,
 
 
 static void determineFileOrDirList(
-    const std::string&            filespec,
-    Array<std::string>&            files,
+    const String&            filespec,
+    Array<String>&            files,
     bool                        wantFiles,
     bool                        includePath) {
 
     // if it is a .zip, prefix will specify the folder within
     // whose contents we want to see
-    std::string prefix = "";
-    std::string path = filenamePath(filespec);
+    String prefix = "";
+    String path = filenamePath(filespec);
 
     if ((path.size() > 0) && isSlash(path[path.size() - 1])) {
         // Strip the trailing slash
@@ -805,8 +827,8 @@ static void determineFileOrDirList(
 }
 
 
-void getFiles(const std::string&            filespec,
-              Array<std::string>&            files,
+void getFiles(const String&            filespec,
+              Array<String>&            files,
               bool                    includePath) {
     
     determineFileOrDirList(filespec, files, true, includePath);
@@ -814,30 +836,30 @@ void getFiles(const std::string&            filespec,
 
 
 void getDirs(
-    const std::string&            filespec,
-    Array<std::string>&            files,
+    const String&            filespec,
+    Array<String>&            files,
     bool                        includePath) {
 
     determineFileOrDirList(filespec, files, false, includePath);
 }
 
 
-std::string filenameBaseExt(const std::string& filename) {
+String filenameBaseExt(const String& filename) {
     size_t i = filename.rfind("/");
     size_t j = filename.rfind("\\");
 
-    if ((j > i) && (j != std::string::npos)) {
+    if ((j > i) && (j != String::npos)) {
         i = j;
     }
 
 #   ifdef G3D_WINDOWS
         j = filename.rfind(":");
-        if ((i == std::string::npos) && (j != std::string::npos)) {
+        if ((i == String::npos) && (j != String::npos)) {
             i = j;
         }
 #   endif
 
-    if (i == std::string::npos) {
+    if (i == String::npos) {
         return filename;
     } else {
         return filename.substr(i + 1, filename.length() - i);
@@ -845,20 +867,20 @@ std::string filenameBaseExt(const std::string& filename) {
 }
 
 
-std::string filenameBase(const std::string& s) {
-    std::string drive;
-    std::string base;
-    std::string ext;
-    Array<std::string> path;
+String filenameBase(const String& s) {
+    String drive;
+    String base;
+    String ext;
+    Array<String> path;
 
     parseFilename(s, drive, path, base, ext);
     return base;
 }
 
 
-std::string filenameExt(const std::string& filename) {
+String filenameExt(const String& filename) {
     size_t i = filename.rfind(".");
-    if (i != std::string::npos) {
+    if (i != String::npos) {
         return filename.substr(i + 1, filename.length() - i);
     } else {
         return "";
@@ -866,22 +888,22 @@ std::string filenameExt(const std::string& filename) {
 }
 
 
-std::string filenamePath(const std::string& filename) {
+String filenamePath(const String& filename) {
     size_t i = filename.rfind("/");
     size_t j = filename.rfind("\\");
 
-    if ((j > i) && (j != std::string::npos)) {
+    if ((j > i) && (j != String::npos)) {
         i = j;
     }
 
 #   ifdef G3D_WINDOWS
         j = filename.rfind(":");
-        if ((i == std::string::npos) && (j != std::string::npos)) {
+        if ((i == String::npos) && (j != String::npos)) {
             i = j;
         }
 #   endif
 
-    if (i == std::string::npos) {
+    if (i == String::npos) {
         return "";
     } else {
         return filename.substr(0, i+1);
@@ -889,7 +911,7 @@ std::string filenamePath(const std::string& filename) {
 }
 
 
-bool isZipfile(const std::string& filename) {
+bool isZipfile(const String& filename) {
 
     FILE* f = fopen(filename.c_str(), "r");
     if (f == NULL) {
@@ -911,19 +933,19 @@ bool isZipfile(const std::string& filename) {
 }
 
 
-bool isDirectory(const std::string& filename) {
+bool isDirectory(const String& filename) {
     struct _stat st;
     bool exists = _stat(filename.c_str(), &st) != -1;
     return exists && ((st.st_mode & S_IFDIR) != 0);
 }
 
 
-bool filenameContainsWildcards(const std::string& filename) {
-    return (filename.find('*') != std::string::npos) || (filename.find('?') != std::string::npos);
+bool filenameContainsWildcards(const String& filename) {
+    return (filename.find('*') != String::npos) || (filename.find('?') != String::npos);
 }
 
 
-bool fileIsNewer(const std::string& src, const std::string& dst) {
+bool fileIsNewer(const String& src, const String& dst) {
     struct _stat sts;
     bool sexists = _stat(src.c_str(), &sts) != -1;
 

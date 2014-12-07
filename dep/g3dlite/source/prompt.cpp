@@ -38,11 +38,11 @@
 */
 
 #endif
+
 #endif /* G3DFIX: exclude GUI prompt code */
-
 namespace G3D {
-
 #if 0 /* G3DFIX: exclude GUI prompt code */
+
 #ifdef G3D_WINDOWS
 
 namespace _internal {
@@ -548,14 +548,15 @@ static int guiPrompt
 }
 
 #endif
-
 #endif /* G3DFIX: exclude GUI prompt code */
+
 int prompt(
     const char*      windowTitle,
     const char*      prompt, 
     const char**     choice,
     int              numChoices,
     bool             useGui) {
+
 #if 0 /* G3DFIX: exclude GUI prompt code */
     #ifdef G3D_WINDOWS
         if (useGui) {
@@ -580,8 +581,8 @@ int prompt(
 
 
 void msgBox(
-    const std::string& message,
-    const std::string& title) {
+    const String& message,
+    const String& title) {
 
     const char *choice[] = {"Ok"};
     prompt(title.c_str(), message.c_str(), choice, 1, true); 

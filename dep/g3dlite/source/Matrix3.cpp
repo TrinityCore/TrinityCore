@@ -8,7 +8,7 @@
  @created 2001-06-02
  @edited  2010-08-15
 
-  Copyright 2000-2012, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
 */
 
@@ -1929,7 +1929,7 @@ void Matrix3::_transpose(const Matrix3& A, Matrix3& out) {
 }
 
 //-----------------------------------------------------------------------------
-std::string Matrix3::toString() const {
+String Matrix3::toString() const {
     return G3D::format("[%g, %g, %g; %g, %g, %g; %g, %g, %g]", 
             elt[0][0], elt[0][1], elt[0][2],
             elt[1][0], elt[1][1], elt[1][2],

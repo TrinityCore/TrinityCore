@@ -6,7 +6,7 @@
  \created 2001-08-09
  \edited  2013-01-03
 
- Copyright 2000-2012, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -20,7 +20,7 @@
 #endif
 
 #include <assert.h>
-#include <string>
+#include "G3D/G3DString.h"
 #include <vector>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -60,7 +60,7 @@ namespace G3D {
 
  Most classes define serialize/deserialize methods that use BinaryInput,
  BinaryOutput, TextInput, and TextOutput.  There are text serializer 
- functions for primitive types (e.g. int, std::string, float, double) but not 
+ functions for primitive types (e.g. int, String, float, double) but not 
  binary serializers-- you <B>must</b> call the BinaryInput::readInt32 or
  other appropriate function.  This is because it would be very hard to 
  debug the error sequence: <CODE>serialize(1.0, bo); ... float f; deserialize(f, bi);</CODE>
@@ -84,7 +84,7 @@ private:
      is the file big or little endian
      */
     G3DEndian       m_fileEndian;
-    std::string     m_filename;
+    String     m_filename;
 
     bool            m_swapBytes;
 
@@ -155,7 +155,7 @@ public:
        nothing to do with whether the input is in a zipfile.
     */
     BinaryInput(
-        const std::string&  filename,
+        const String&  filename,
         G3DEndian           fileEndian,
         bool                compressed = false);
 
@@ -200,7 +200,7 @@ public:
         return m_fileEndian;
     }
 
-    std::string getFilename() const {
+    String getFilename() const {
         return m_filename;
     }
 
@@ -370,21 +370,21 @@ public:
     /**
      Always consumes \a maxLength characters.  Reads a string until NULL or \a maxLength characters. Does not require NULL termination.
      */
-    std::string readString(int64 maxLength);
+    String readString(int64 maxLength);
 
     /**
      Reads a string until NULL or end of file.
      */
-    std::string readString();
+    String readString();
 
     /** Read a string (which may contain NULLs) of exactly numBytes bytes, including the final terminator if there is one.  If there is a NULL in the string before
         the end, then only the part up to the first NULL is returned although all bytes are read.*/      
-    std::string readFixedLengthString(int numBytes);
+    String readFixedLengthString(int numBytes);
 
     /** 
      Reads a string until NULL, newline ("&#92;r", "&#92;n", "&#92;r&#92;n", "&#92;n&#92;r") or the end of the file is encountered. Consumes the newline.
      */
-    std::string readStringNewline();
+    String readStringNewline();
 
     /**
      Reads until NULL or the end of the file is encountered.
@@ -392,10 +392,10 @@ public:
      another byte.  This is a common format for 16-bit alignment
      in files.
      */
-    std::string readStringEven();
+    String readStringEven();
 
     /** Reads a uint32 and then calls readString(maxLength) with that value as the length. */
-    std::string readString32();
+    String readString32();
 
     Vector4 readVector4();
     Vector3 readVector3();

@@ -6,7 +6,7 @@
   \created 2003-04-07
   \edited  2011-06-24
 
-  Copyright 2000-2012, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 
@@ -123,7 +123,7 @@ public:
         return Vector3int16(std::min(x, v.x), std::min(y, v.y), std::min(z, v.z));
     }
 
-    std::string toString() const;
+    String toString() const;
 
 
     Vector3int16 operator-() const {

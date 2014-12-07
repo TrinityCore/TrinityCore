@@ -8,9 +8,9 @@
  \cite Based on a lexer written by Aaron Orenstein. 
 
  \created 2002-11-27
- \edited  2013-03-25
+ \edited  2014-01-25
 
- Copyright 2000-2013, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -21,7 +21,7 @@
 #include "G3D/Array.h"
 #include "G3D/Set.h"
 #include "G3D/ParseError.h"
-#include <string>
+#include "G3D/G3DString.h"
 #include <queue>
 #include <ctype.h>
 #include <stdio.h>
@@ -43,6 +43,7 @@ public:
       SYMBOL_TYPE,
       FLOATING_POINT_TYPE, 
       INTEGER_TYPE,
+      HEX_INTEGER_TYPE,
       BOOLEAN_TYPE,
       LINE_COMMENT_TYPE,
       BLOCK_COMMENT_TYPE,
@@ -71,7 +72,7 @@ private:
       Holds the actual value, which might be any type.  If a number, it will be 
       parsed at runtime.
     */
-    std::string             _string;
+    String                  _string;
 
     bool                    _bool;
     int                     _line;
@@ -91,10 +92,10 @@ public:
         _type(END), 
         _extendedType(END_TYPE) {}
 
-    Token(Type t, ExtendedType e, const std::string& s, int L, int c, uint64 byte)
+    Token(Type t, ExtendedType e, const String& s, int L, int c, uint64 byte)
         : _string(s), _bool(false), _line(L), _character(c), _bytePosition(byte), _type(t), _extendedType(e) {}
 
-    Token(Type t, ExtendedType e, const std::string& s, bool b, int L, int c, uint64 byte)
+    Token(Type t, ExtendedType e, const String& s, bool b, int L, int c, uint64 byte)
         : _string(s), _bool(b), _line(L), _character(c), _bytePosition(byte), _type(t), _extendedType(e) {}
 
     Type type() const {
@@ -110,7 +111,7 @@ public:
      the name of a symbol, or the exact textual representation of a number as
      parsed from the input. 
      */
-    const std::string& string() const {
+    const String& string() const {
         return _string;
     }
 
@@ -161,7 +162,8 @@ public:
   <li><CODE>Token::SINGLE_QUOTED_TYPE</CODE> string of characters surrounded by single quotes, e.g., 'x', '\\0', 'foo'.
   <li><CODE>Token::DOUBLE_QUOTED_TYPE</CODE> string of characters surrounded by double quotes, e.g., "x", "abc\txyz", "b o b".
   <li><CODE>Token::SYMBOL_TYPE</CODE> legal C++ operators, keywords, and identifiers.  e.g., >=, Foo, _X, class, {
-  <li><CODE>Token::INTEGER_TYPE</CODE> numbers without decimal places or exponential notation. e.g., 10, 0x17F, 32, 0, -155
+  <li><CODE>Token::HEX_INTEGER_TYPE</CODE> numbers in hexadecimal integer. e.g., 0x17F, -0x1
+  <li><CODE>Token::INTEGER_TYPE</CODE> numbers without decimal places or exponential notation, in decimal notation. e.g., 10, 32, 0, -155
   <li><CODE>Token::FLOATING_POINT_TYPE</CODE> numbers with decimal places or exponential notation. e.g., 1e3, -1.2, .4, 0.5
   <li><CODE>Token::BOOLEAN_TYPE</CODE> special symbols like "true" and "false"; the exact details can be configured in TextInput::Settings
   <li><CODE>Token::LINE_COMMENT_TYPE</CODE> (disabled by default); generated for line comments as specified by TextInput::Settings
@@ -206,14 +208,14 @@ public:
   debugAssert(t.type == Token::SYMBOL);
   debugAssert(t.sval == "=");
 
-  std::string name = ti.read().sval;
+  String name = ti.read().sval;
   ti.read();
   \endcode
 
   \code
   TextInput ti(TextInput::FROM_STRING, "name = \"Max\", height = 6");
   ti.readSymbols("name", "=");
-  std::string name = ti.readString();
+  String name = ti.readString();
   ti.readSymbols(",", "height", "=");
   double height = ti. readNumber();
   \endcode
@@ -223,10 +225,10 @@ public:
 class TextInput {
 public:
     /** Includes MSVC specials parsing */
-    static double parseNumber(const std::string& _string);
+    static double parseNumber(const String& _string);
 
     /** toLower(_string) == "true" */
-    static bool parseBoolean(const std::string& _string);
+    static bool parseBoolean(const String& _string);
 
 
     /** Tokenizer configuration options.  */
@@ -294,7 +296,8 @@ public:
 
         /** If true, newlines will generate  tokens.
             If false, newlines will be discarded as whitespace when parsed
-            outside of other tokens.
+            outside of other tokens. Newlines in Strings are always parsed as
+            newlines.
 
             Default is false.
          */
@@ -322,7 +325,7 @@ public:
             
             Default is empty.
         */
-        std::string         sourceFileName;
+        String         sourceFileName;
 
     
         /** Added to the line number reported by peekLineNumber and in
@@ -395,10 +398,10 @@ public:
 
             Default is {true}.
          */
-        Set<std::string>    trueSymbols;
+        Set<String>    trueSymbols;
 
         /** See trueSymbols. Default is {false}*/
-        Set<std::string>    falseSymbols;
+        Set<String>    falseSymbols;
 
         Settings();
     };
@@ -504,14 +507,14 @@ public:
         /** Name of file being parsed when exception occurred. 
             \deprecated  Use filename
          */
-        std::string     sourceFile;
+        String     sourceFile;
 
         virtual ~TokenException() {}
 
     protected:
         
         TokenException(
-            const std::string&  src,
+            const String&  src,
             int                 ln,
             int                 ch);
 
@@ -523,7 +526,7 @@ public:
     public:
 
         BadMSVCSpecial(
-            const std::string&  src,
+            const String&  src,
             int                 ln,
             int                 ch);
     };
@@ -535,7 +538,7 @@ public:
         Token::Type     actual;
 
         WrongTokenType(
-            const std::string&  src,
+            const String&  src,
             int                 ln,
             int                 ch,
             Token::Type         e,
@@ -544,39 +547,39 @@ public:
 
     class WrongSymbol : public TokenException {
     public:
-        std::string             expected;
-        std::string             actual;
+        String             expected;
+        String             actual;
 
         WrongSymbol(
-            const std::string&  src,
+            const String&  src,
             int                 ln,
             int                 ch,
-            const std::string&  e,
-            const std::string&  a);
+            const String&  e,
+            const String&  a);
     };
 
 
     /** String read from input did not match expected string.  */
     class WrongString : public TokenException {
     public:
-        std::string             expected;
-        std::string             actual;
+        String             expected;
+        String             actual;
 
         WrongString(
-            const std::string&  src,
+            const String&  src,
             int                 ln,
             int                 ch,
-            const std::string&  e,
-            const std::string&  a);
+            const String&  e,
+            const String&  a);
     };
 
-    TextInput(const std::string& filename, const Settings& settings = Settings());
+    TextInput(const String& filename, const Settings& settings = Settings());
 
     enum FS {FROM_STRING};
     /** Creates input directly from a string.  The first argument must be
         TextInput::FROM_STRING.
     */
-    TextInput(FS fs, const std::string& str, const Settings& settings = Settings());
+    TextInput(FS fs, const String& str, const Settings& settings = Settings());
 
     /** Creates input directly from a fixed-length, non-NULL terminated string.  The first argument must be
         TextInput::FROM_STRING.
@@ -659,7 +662,7 @@ public:
         value but don't really care about its location in the input.  Use of
         readStringToken is encouraged for better error reporting.
     */
-    std::string readString();
+    String readString();
 
     /** Reads a specific string token or throws either WrongTokenType or
         WrongString.  If the next token in the input is a string matching @p
@@ -677,19 +680,19 @@ public:
 
         \sa readString(), readStringToken(), readUntilNewlineAsString(), readUntilDelimiterAsString()
       */
-    void readString(const std::string& s);
+    void readString(const String& s);
 
     /** Read from the beginning of the next token until the following newline 
       and return the result as a string, ignoring all parsing in between. The newline 
       is not returned in the string, and the following token read will be a newline or
       end of file token (if they are enabled for parsing).*/
-    std::string readUntilNewlineAsString();
+    String readUntilNewlineAsString();
 
     /** Read from the beginning of the next token until the following delimiter character 
       and return the result as a string, ignoring all parsing in between. The delimiter 
       is not returned in the string, and the following token read will begin at the delimiter or
       end of file token (if they are enabled for parsing).*/
-    std::string readUntilDelimiterAsString(const char delimiter1, const char delimiter2 = '\0');
+    String readUntilDelimiterAsString(const char delimiter1, const char delimiter2 = '\0');
 
     /** Reads a comment token or throws WrongTokenType, and returns the token.
 
@@ -708,7 +711,7 @@ public:
         value but don't really care about its location in the input.  Use of
         readCommentToken is encouraged for better error reporting.
     */
-    std::string readComment();
+    String readComment();
 
     /** Reads a specific comment token or throws either WrongTokenType or
         WrongString.  If the next token in the input is a comment matching @p
@@ -724,7 +727,7 @@ public:
         input stream is a comment but does not match the @p s parameter.  When
         an exception is thrown, no tokens are consumed.
       */
-     void readComment(const std::string& s);
+     void readComment(const String& s);
 
     /** Reads a newline token or throws WrongTokenType, and returns the token.
 
@@ -743,7 +746,7 @@ public:
         value but don't really care about its location in the input.  Use of
         readNewlineToken is encouraged for better error reporting.
     */
-    std::string readNewline();
+    String readNewline();
 
     /** Reads a specific newline token or throws either WrongTokenType or
         WrongString.  If the next token in the input is a newline matching @p
@@ -759,7 +762,7 @@ public:
         input stream is a newlin but does not match the @p s parameter.  When
         an exception is thrown, no tokens are consumed.
       */
-     void readNewline(const std::string& s);
+     void readNewline(const String& s);
 
     /** Reads a symbol token or throws WrongTokenType, and returns the token.
 
@@ -781,7 +784,7 @@ public:
         value but don't really care about its location in the input.  Use of
         readSymbolToken is encouraged for better error reporting.
     */
-    std::string readSymbol();
+    String readSymbol();
 
     /** Reads a specific symbol token or throws either WrongTokenType or
         WrongSymbol.  If the next token in the input is a symbol matching @p
@@ -797,20 +800,20 @@ public:
         input stream is a symbol but does not match the @p symbol parameter.
         When an exception is thrown, no tokens are consumed.
     */
-    void readSymbol(const std::string& symbol);
+    void readSymbol(const String& symbol);
 
 
     /** Read a series of two specific symbols.  See readSymbol.  */
-    void readSymbols(const std::string& s1, const std::string& s2) {
+    void readSymbols(const String& s1, const String& s2) {
         readSymbol(s1);
         readSymbol(s2);
     }
 
     /** Read a series of three specific symbols.  See readSymbol.  */
     void readSymbols(
-        const std::string& s1, 
-        const std::string& s2, 
-        const std::string& s3) {
+        const String& s1, 
+        const String& s2, 
+        const String& s3) {
         readSymbol(s1);
         readSymbol(s2);
         readSymbol(s3);
@@ -818,10 +821,10 @@ public:
 
     /** Read a series of four specific symbols.  See readSymbol.  */
     void readSymbols(
-        const std::string& s1, 
-        const std::string& s2, 
-        const std::string& s3,     
-        const std::string& s4) {
+        const String& s1, 
+        const String& s2, 
+        const String& s3,     
+        const String& s4) {
         readSymbol(s1);
         readSymbol(s2);
         readSymbol(s3);
@@ -853,7 +856,7 @@ public:
         characters of the string if created from a string.
         If settings::filename is non-empty that will replace the
         true filename.*/
-    const std::string& filename() const;
+    const String& filename() const;
 };
 
 void deserialize(bool& b, TextInput& ti);
@@ -861,7 +864,7 @@ void deserialize(int& b, TextInput& ti);
 void deserialize(uint8& b, TextInput& ti);
 void deserialize(double& b, TextInput& ti);
 void deserialize(float& b, TextInput& ti);
-void deserialize(std::string& b, TextInput& ti);
+void deserialize(String& b, TextInput& ti);
 
 } // namespace
 

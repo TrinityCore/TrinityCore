@@ -16,7 +16,7 @@
 #include "G3D/g3dmath.h"
 #include "G3D/Vector3.h"
 #include "G3D/Matrix3.h"
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 
@@ -100,6 +100,11 @@ public:
         return w;
     }
 
+    /** True if any element is NaN */
+    bool isNaN() const {
+        return G3D::isNaN(x) || G3D::isNaN(y) || G3D::isNaN(z) || G3D::isNaN(w);
+    }
+
     Quat operator-() const {
         return Quat(-x, -y, -z, -w);
     }
@@ -161,6 +166,11 @@ public:
 
     inline Quat operator/(float s) const {
         return Quat(x / s, y / s, z / s, w / s);
+    }
+
+    inline Quat& operator/=(float s) {
+        x /= s; y /= s; z /= s; w /= s;
+        return *this;
     }
 
     float dot(const Quat& other) const {

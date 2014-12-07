@@ -43,7 +43,7 @@ Any PhysicsFrame::toAny() const {
 
 
 PhysicsFrame::PhysicsFrame(const Any& a) {
-    const std::string& n = toLower(a.name());
+    const String& n = toLower(a.name());
     *this = PhysicsFrame();
 
     if (beginsWith(n, "vector3") || beginsWith(n, "point3")) {
@@ -61,7 +61,7 @@ PhysicsFrame::PhysicsFrame(const Any& a) {
             translation = a[1];
         } else {
             for (Any::AnyTable::Iterator it = a.table().begin(); it.isValid(); ++it) {
-                const std::string& n = toLower(it->key);
+                const String& n = toLower(it->key);
                 if (n == "translation") {
                     translation = it->value;
                 } else if (n == "rotation") {

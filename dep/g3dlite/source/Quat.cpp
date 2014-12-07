@@ -14,6 +14,7 @@
 #include "G3D/stringutils.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
+#include "G3D/Random.h"
 
 namespace G3D {
 
@@ -242,11 +243,11 @@ Quat Quat::operator*(const Quat& other) const {
 
 // From "Uniform Random Rotations", Ken Shoemake, Graphics Gems III.
 Quat Quat::unitRandom() {
-    float x0 = uniformRandom();
+    float x0 = Random::common().uniform();
     float r1 = sqrtf(1 - x0), 
           r2 = sqrtf(x0);
-    float t1 = (float)G3D::twoPi() * uniformRandom();
-    float t2 = (float)G3D::twoPi() * uniformRandom();
+    float t1 = (float)G3D::twoPi() * Random::common().uniform();
+    float t2 = (float)G3D::twoPi() * Random::common().uniform();
     float c1 = cosf(t1), 
           s1 = sinf(t1);
     float c2 = cosf(t2), 

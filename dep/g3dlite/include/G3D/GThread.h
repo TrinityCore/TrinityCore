@@ -14,7 +14,7 @@
 #include "G3D/ThreadSet.h"
 #include "G3D/Vector2int32.h"
 #include "G3D/SpawnBehavior.h"
-#include <string>
+#include "G3D/G3DString.h"
 
 #ifndef G3D_WINDOWS
 #   include <pthread.h>
@@ -65,7 +65,7 @@ private:
     pthread_t           m_handle;
 #endif //G3D_WINDOWS
 
-    std::string         m_name;
+    String         m_name;
 
 protected:
 
@@ -79,14 +79,14 @@ public:
 
     typedef shared_ptr<class GThread> Ref;
 
-    GThread(const std::string& name);
+    GThread(const String& name);
 
     virtual ~GThread();
 
     /** Constructs a basic GThread without requiring a subclass.
 
         @param proc The global or static function for the threadMain() */
-    static GThreadRef create(const std::string& name, void (*proc)(void*), void* param = NULL);
+    static GThreadRef create(const String& name, void (*proc)(void*), void* param = NULL);
 
     /** Starts the thread and executes threadMain().  Returns false if
        the thread failed to start (either because it was already started
@@ -118,7 +118,7 @@ public:
     void waitForCompletion();
 
     /** Returns thread name */
-    const std::string& name() {
+    const String& name() {
         return m_name;
     }
 

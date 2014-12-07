@@ -7,7 +7,7 @@
  @created 2010-02-11
  @edited  2010-02-24
 
- Copyright 2000-2012, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -18,7 +18,7 @@
 #include "G3D/Table.h"
 #include "G3D/Array.h"
 #include "G3D/format.h"
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 
@@ -67,13 +67,13 @@ public:
 
     enum Type {VALUE, TAG};
 
-    typedef Table<std::string, XML> AttributeTable;
+    typedef Table<String, XML> AttributeTable;
 
 private:
 
     Type                      m_type;
-    std::string               m_name;
-    std::string               m_value;
+    String                    m_name;
+    String                    m_value;
     AttributeTable            m_attribute;
     Array<XML>                m_child;
 
@@ -81,7 +81,7 @@ public:
 
     XML() : m_type(VALUE) {}
 
-    XML(const std::string& v) : m_type(VALUE), m_value(v) {}
+    XML(const String& v) : m_type(VALUE), m_value(v) {}
 
     XML(const double& v) : m_type(VALUE), m_value(format("%f", v)) {}
 
@@ -90,13 +90,13 @@ public:
     XML(int v) : m_type(VALUE), m_value(format("%d", v)) {}
 
     /** \param tagType Must be XML::TAG to dismbiguate from the string constructor */
-    XML(Type tagType, const std::string& name, const AttributeTable& at, const Array<XML>& ch = Array<XML>()) : m_type(TAG), m_name(name), m_attribute(at), m_child(ch) {
+    XML(Type tagType, const String& name, const AttributeTable& at, const Array<XML>& ch = Array<XML>()) : m_type(TAG), m_name(name), m_attribute(at), m_child(ch) {
         (void)tagType;
         debugAssert(tagType == TAG);
     }
 
     /** \param tagType Must be XML::TAG to dismbiguate from the string constructor */
-    XML(Type tagType, const std::string& name, const Array<XML>& ch = Array<XML>()) : m_type(TAG), m_name(name), m_child(ch) {
+    XML(Type tagType, const String& name, const Array<XML>& ch = Array<XML>()) : m_type(TAG), m_name(name), m_child(ch) {
         (void)tagType;
         debugAssert(tagType == TAG);
     }
@@ -107,13 +107,13 @@ public:
 
     void deserialize(TextInput& t);
 
-    void load(const std::string& filename);
+    void load(const String& filename);
 
-    void save(const std::string& filename) const;
+    void save(const String& filename) const;
 
-    void parse(const std::string &s);
+    void parse(const String &s);
 
-    void unparse(std::string& s) const;
+    void unparse(String& s) const;
 
     const AttributeTable& attributeTable() const {
         return m_attribute;
@@ -140,17 +140,17 @@ public:
     }
 
     /** Return the attribute with this name. */
-    const XML& operator[](const std::string& k) const {
+    const XML& operator[](const String& k) const {
         return m_attribute[k];
     }
 
-    bool containsAttribute(const std::string& k) const {
+    bool containsAttribute(const String& k) const {
         return m_attribute.containsKey(k);
     }
 
     /** Note that the result is always copied, making this inefficient
         for return values that are not VALUEs. */
-    XML get(const std::string& k, const XML& defaultVal) const {
+    XML get(const String& k, const XML& defaultVal) const {
         const XML* x = m_attribute.getPointer(k);
         if (x) {
             return *x;
@@ -164,12 +164,12 @@ public:
     }
 
     /** The name, if this is a TAG. */
-    const std::string name() const {
+    const String name() const {
         return m_name;
     }
 
     /** Returns "" if a TAG. */
-    const std::string& string() const {
+    const String& string() const {
         return m_value;
     }
 
@@ -179,7 +179,7 @@ public:
     /** Returns false if a TAG. */
     bool boolean() const;
 
-    operator std::string() const {
+    operator String() const {
         return m_value;
     }
 

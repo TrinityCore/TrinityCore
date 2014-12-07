@@ -6,7 +6,7 @@
   \created 2007-05-16
   \edited  2012-10-06
 
-  Copyright 2000-2012, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 #ifndef G3D_Pointer_h
@@ -140,7 +140,7 @@ private:
         Accessor(T* object, 
                  GetMethod getMethod, 
                  SetMethod setMethod) : object(object), getMethod(getMethod), setMethod(setMethod) {
-            debugAssert(object != NULL);
+	  debugAssert(notNull(object));
         }
 
         virtual void set(ValueType v) {
@@ -178,7 +178,7 @@ private:
             GetMethod getMethod, 
             SetMethod setMethod) : object(object), getMethod(getMethod), setMethod(setMethod) {
 
-            debugAssert(object != NULL);
+	  debugAssert(notNull(object));
         }
 
         virtual void set(ValueType v) {
@@ -351,6 +351,37 @@ bool notNull(const Pointer<T>& p) {
     return ! p.isNull();
 }
 
-}
+
+/** Wraps a boolean Pointer with one that inverts its value. */
+class NotAdapter : public ReferenceCountedObject {
+private:
+    friend class Pointer<bool>;
+
+    Pointer<bool>      m_source;
+
+    typedef shared_ptr<NotAdapter> Ptr;
+
+    NotAdapter(const Pointer<bool>& ptr) : m_source(ptr) {
+    }
+
+    /** For use by Pointer<T> */
+    bool get() const {
+        return ! m_source.getValue();
+    }
+
+    /** For use by Pointer<T> */
+    void set(const bool& v) {
+        m_source.setValue(! v);
+    }
+
+public:
+
+    static Pointer<bool> wrap(const Pointer<bool>& ptr) {
+        Ptr p(new NotAdapter(ptr));
+        return Pointer<bool>(p, &NotAdapter::get, &NotAdapter::set);
+    }
+};
+
+} // G3D
 
 #endif

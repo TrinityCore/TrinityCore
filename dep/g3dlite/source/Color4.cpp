@@ -6,7 +6,7 @@
  \author Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2002-06-25
- \edited  2011-09-10
+ \edited  2014-02-13
  */
 
 #include <stdlib.h>
@@ -18,16 +18,45 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/Any.h"
 #include "G3D/stringutils.h"
+#include "GLG3D/UniversalBSDF.h"
 
 namespace G3D {
+
+static float parseAlphaAny(const Any& a) {
+    switch (a.type()) {
+    case Any::NUMBER:
+        return float(a.number());
+
+    case Any::ARRAY:
+    case Any::EMPTY_CONTAINER:
+        if (a.nameBeginsWith("glossyExponent")) {
+            a.verifySize(1);
+            return UniversalBSDF::packGlossyExponent(float(a[0].number()));
+        } else if (a.nameBeginsWith("mirror")) {
+            a.verifySize(0);
+            return UniversalBSDF::packedSpecularMirror();
+        }
+        break;
+
+    default: 
+        a.verify(false, "Illegal alpha channel expression");
+    }
+    return 0.0f;
+}
 
 
 Color4::Color4(const Any& any) {
     *this = Color4::zero();
 
+    if (any.type() == Any::NUMBER) {
+        r = g = b = float(any.number());
+        a = 1.0f;
+        return;
+    }
+
     any.verifyNameBeginsWith("Color", "Power", "Radiance", "Irradiance", "Energy", "Radiosity", "Biradiance");
 
-    if (any.name().find('3') != std::string::npos) {
+    if (any.name().find('3') != String::npos) {
         // This is a Color3 constructor--extend with alpha = 1
         *this = Color4(Color3(any), 1.0f);
     } else {
@@ -38,16 +67,33 @@ Color4::Color4(const Any& any) {
             atr.getIfPresent("r", r);
             atr.getIfPresent("g", g);
             atr.getIfPresent("b", b);
-            atr.getIfPresent("a", a);
+
+            Any b;
+            atr.getIfPresent("a", b);
+            a = parseAlphaAny(b);
             atr.verifyDone();
-        } else if (toLower(any.name()) == "color4") {
-            r = any[0];
-            g = any[1];
-            b = any[2];
-            a = any[3];
+        } else if (any.name() == "Color4") {
+            Any first = any[0];
+            if (first.type() == Any::ARRAY) {
+                first.verifyNameBeginsWith("Color3");
+                *this = Color4(Color3(first), 1.0f);
+                if (any.length() > 1) {
+                    a = parseAlphaAny(any[1]);
+                }
+            } else {
+                r = first;
+                g = any[1];
+                b = any[2];
+                a = parseAlphaAny(any[3]);
+            }
         } else {
-            any.verifyName("Color4::fromARGB");
-            *this = Color4::fromARGB((uint32)any[0].number());
+            any.verifyType(Any::ARRAY);
+            if (any.name() == "Color4::fromARGB") {
+                *this = Color4::fromARGB((uint32)any[0].number());
+            } else {
+                any.verifyName("Color4::fromASRGB");
+                *this = Color4::fromASRGB((uint32)any[0].number());
+            }
         }
     }
 }
@@ -118,6 +164,11 @@ Color4 Color4::fromARGB(uint32 x) {
 }
 
 
+Color4 Color4::fromASRGB(uint32 x) {
+    return Color4(Color3::fromASRGB(x), float((x >> 24) & 0xFF) / 255.0f);
+}
+
+
 Color4::Color4(BinaryInput& bi) {
     deserialize(bi);
 }
@@ -179,7 +230,7 @@ Color4& Color4::operator/= (float fScalar) {
 
 //----------------------------------------------------------------------------
 
-std::string Color4::toString() const {
+String Color4::toString() const {
     return G3D::format("(%g, %g, %g, %g)", r, g, b, a);
 }
 

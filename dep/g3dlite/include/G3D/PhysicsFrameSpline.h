@@ -38,7 +38,7 @@ public:
     virtual void correct(PhysicsFrame& frame) const;
     virtual void ensureShortestPath(PhysicsFrame* A, int N) const;
 
-    virtual Any toAny(const std::string& myName) const override {
+    virtual Any toAny(const String& myName) const override {
         return Spline<PhysicsFrame>::toAny(myName);
     }
 

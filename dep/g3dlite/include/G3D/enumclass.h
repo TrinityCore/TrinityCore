@@ -49,6 +49,8 @@ namespace G3D {
   G3D_DECLARE_ENUM_CLASS_HASHCODE(Resource);
   \endcode
 
+  Supports enumerations with initializer values.
+
   Extends the "Intelligent Enum" design pattern 
   http://www.codeguru.com/cpp/cpp/cpp_mfc/article.php/c4001/
 
@@ -59,14 +61,17 @@ namespace G3D {
  */
 #define G3D_DECLARE_ENUM_CLASS_METHODS(Classname)\
 private: \
-    void fromString(const std::string& x) {\
+    void fromString(const String& x) {\
         Value v = (Value)0;\
         const char* s;\
         int i = 0;\
 \
         do {\
             s = toString(i, v);\
-            if (s == NULL) { return; /** Needed to get correct compilation on gcc */ } \
+            if (s == NULL) {\
+                throw String(format("Attempted to create enum from illegal string %s", x.c_str()));\
+                return;\
+            }\
             if (x == s) {\
                 value = v;\
                 return;\
@@ -93,7 +98,7 @@ public:\
         }\
     }\
 \
-    explicit Classname(const std::string& x) : value((Value)0) {\
+    explicit Classname(const String& x) : value((Value)0) {\
         fromString(x);\
     }\
 \
@@ -112,6 +117,22 @@ public:\
     Classname(const Value v) : value(v) {}\
 \
     explicit Classname(int v) : value((Value)v) {}\
+\
+    static int count() {\
+        static int c = -1;\
+        if (c == -1) {\
+            Value ignore = Value(0);\
+            for (c = 0; notNull(toString(c, ignore)); ++c);\
+        }\
+        return c;\
+    }\
+\
+    static Value nthValue(int n) {\
+        Value v = Value(0);\
+        const char* c = toString(n, v);\
+        debugAssertM(notNull(c), "Value out of range"); (void)c; \
+        return v;\
+    }\
 \
     operator int() const {\
         return (int)value;\
@@ -243,6 +264,15 @@ Day d2("SATURDAY");
 Any a(d);
 d = a;
 printf("%s = %d\n", d.toString(), d.value);
+\endcode
+
+Provides these methods:
+
+\code
+const char* toString()
+arithmetic operators
+static int count()
+static Value nthValue(n)
 \endcode
 
 \sa G3D_DECLARE_ENUM_CLASS_METHODS, G3D_DECLARE_ENUM_CLASS_HASHCODE, G3D::enumToJavaScriptDeclaration, G3D_BEGIN_ENUM_CLASS_DECLARATION

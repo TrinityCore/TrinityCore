@@ -21,7 +21,7 @@
 #include "G3D/Rect2D.h"
 #include "G3D/WrapMode.h"
 
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 namespace _internal {
@@ -274,7 +274,7 @@ protected:
             for (int power = 0; power < 4; ++power) {
                 coeff += B[c][power] * S[power];
             }
-            sum += ctrl[c] * coeff;
+            sum += Compute(ctrl[c] * coeff);
         }
 
         return sum;
@@ -571,12 +571,12 @@ public:
         const float fY = y - j;
 
         // Horizontal interpolation, first row
-        const Compute& t0 = get(i, j, wrap);
-        const Compute& t1 = get(i + 1, j, wrap);
+        const Compute& t0 = (Compute)get(i, j, wrap);
+        const Compute& t1 = (Compute)get(i + 1, j, wrap);
 
         // Horizontal interpolation, second row
-        const Compute& t2 = get(i, j + 1, wrap);
-        const Compute& t3 = get(i + 1, j + 1, wrap);
+        const Compute& t2 = (Compute)get(i, j + 1, wrap);
+        const Compute& t3 = (Compute)get(i + 1, j + 1, wrap);
 
         const Compute& A = lerp(t0, t1, fX);
         const Compute& B = lerp(t2, t3, fX);
@@ -654,7 +654,7 @@ public:
 
     /** Rectangle from (0, 0) to (w, h) */
     Rect2D rect2DBounds() const {
-        return Rect2D::xywh(0, 0, w, h);
+        return Rect2D::xywh(0, 0, float(w), float(h));
     }
 
     /** Number of bytes occupied by the image data and this structure */

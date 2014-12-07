@@ -4,11 +4,11 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  \created 2003-04-05
- \edited  2011-06-20
+ \edited  2014-07-20
 
  \cite Random point method by  Greg Turk, Generating random points in triangles.  In A. S. Glassner, ed., Graphics Gems, pp. 24-28. Academic Press, 1990
 
- Copyright 2000-2012, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -21,7 +21,8 @@
 #include "G3D/Plane.h"
 #include "G3D/BoundsTrait.h"
 #include "G3D/debugAssert.h"
-#include <string>
+#include "G3D/G3DString.h"
+#include "G3D/Random.h"
 
 namespace G3D {
 
@@ -56,7 +57,7 @@ private:
 
 public:
     
-    Triangle(class BinaryInput& b);
+    explicit Triangle(class BinaryInput& b);
     void serialize(class BinaryOutput& b);
     void deserialize(class BinaryInput& b);
 
@@ -70,6 +71,11 @@ public:
     inline const Point3& vertex(int n) const {
         debugAssert((n >= 0) && (n < 3));
         return _vertex[n];
+    }
+
+    /** Invert winding */
+    Triangle otherSide() const {
+        return Triangle(vertex(2), vertex(1), vertex(0));
     }
 
     /** vertex[1] - vertex[0] */
@@ -96,12 +102,13 @@ public:
     const Plane& plane() const;
 
     /** Returns a random point in the triangle. */
-    Point3 randomPoint() const;
+    Point3 randomPoint(Random& rnd = Random::common()) const;
 
     inline void getRandomSurfacePoint
     (Point3& P, 
-     Vector3& N = Vector3::ignore()) const {
-        P = randomPoint();
+     Vector3& N = Vector3::ignore,
+     Random& rnd = Random::common()) const {
+        P = randomPoint(rnd);
         N = normal();
     }
 
@@ -126,6 +133,9 @@ public:
             (_vertex[1].hashCode() >> 2) +
             (_vertex[2].hashCode() >> 3);
     }
+
+    /** result[i] is the weight applied to vertex(i) when blending */
+    Vector3 barycentric(const Point3& P) const;
 
     void getBounds(class AABox&) const;
 

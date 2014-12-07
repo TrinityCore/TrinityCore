@@ -15,7 +15,7 @@
 
 namespace G3D {
 
-Stopwatch::Stopwatch(const std::string& myName) : 
+Stopwatch::Stopwatch(const String& myName) : 
     myName(myName), 
     inBetween(false), lastTockTime(-1), 
     lastDuration(0), lastCycleCount(0), m_fps(0), emwaFPS(0),
@@ -103,7 +103,7 @@ void Stopwatch::reset() {
 }
 
 
-void Stopwatch::after(const std::string& s) {
+void Stopwatch::after(const String& s) {
     RealTime now = System::time();
     if (m_enabled) {
         debugPrintf("%s: %10s - %8fs since %s (%fs since start)\n",

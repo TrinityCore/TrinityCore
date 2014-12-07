@@ -6,7 +6,7 @@
  \created 2009-01-02
  \edited  2012-03-29
 
- Copyright 2000-2012, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 #include "G3D/Random.h"
@@ -107,7 +107,7 @@ void Random::generate() {
     }
 
     // Rest
-    for (unsigned int i = N - M + 1; i < N - 1; ++i) {    
+    for (unsigned int i = N - M; i < N - 1; ++i) {    
         uint32 x = (state[i] & UPPER_MASK) | (state[i + 1] & LOWER_MASK);
         state[i] = state[i + (M - N)] ^ (x >> 1) ^ mag01[x & 1];
     }

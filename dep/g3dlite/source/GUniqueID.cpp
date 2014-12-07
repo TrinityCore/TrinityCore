@@ -9,6 +9,7 @@
 #include "G3D/TextOutput.h"
 #include "G3D/NetworkDevice.h"
 #include "G3D/Any.h"
+#include "G3D/Random.h"
 
 namespace G3D {
     
@@ -16,7 +17,7 @@ GUniqueID& GUniqueID::operator=(const Any& a) {
     a.verifyName("GUniqueID");
     a.verifyType(Any::ARRAY);
     a.verifySize(1);
-    std::string s = a[0];
+    String s = a[0];
     a.verify(s.length() == 16);
     id = GUniqueID::fromString16(s);
     return *this;
@@ -61,12 +62,12 @@ GUniqueID GUniqueID::NONE(uint16 tag) {
 }
 
 
-std::string GUniqueID::toString16() const {
+String GUniqueID::toString16() const {
     return format("%08x%08x", uint32(id >> 32), uint32(id & 0xFFFFFFFF));
 }
 
 
-GUniqueID GUniqueID::fromString16(const std::string& s) {
+GUniqueID GUniqueID::fromString16(const String& s) {
     if (s.length() != 16) {
         debugAssertM(false, "Corrupt 16-character string");
         return GUniqueID();
@@ -100,7 +101,7 @@ GUniqueID GUniqueID::create(uint16 tag) {
         };
         ft = System::time();
         systemID = ut << 22;
-        systemID ^= ((uint64)iRandom(0, 32768)) << 8;
+        systemID ^= ((uint64)Random::common().integer(0, 32768)) << 8;
         
         systemID &= ~((uint64)1023 << 54);
 

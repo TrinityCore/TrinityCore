@@ -2,6 +2,7 @@
 #define G3D_Matrix2_h
 
 #include "G3D/platform.h"
+#include "G3D/DoNotInitialize.h"
 #include "G3D/Vector2.h"
 
 namespace G3D {
@@ -14,10 +15,14 @@ private:
 
 public:
 
+    Matrix2(DoNotInitialize dni) {}
+
     Matrix2() {
         data[0][0] = 1.0f; data[0][1] = 0.0f;
         data[1][0] = 0.0f; data[1][1] = 1.0f;
     }
+
+    explicit Matrix2(const class Any&);
 
     Matrix2(float v00, float v01, float v10, float v11) {
         data[0][0] = v00; data[0][1] = v01;

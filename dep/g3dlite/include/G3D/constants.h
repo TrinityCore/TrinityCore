@@ -1,9 +1,9 @@
 /**
-  @file G3D/constants.h
+  \file G3D/constants.h
 
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
-  @created 2009-05-20
-  @edited  2010-05-20
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \created 2009-05-20
+  \edited  2013-09-27
 */
 #ifndef G3D_constants_h
 #define G3D_constants_h
@@ -43,74 +43,48 @@ public:
 
 
 /** Values for UniversalSurface::GPUGeom::refractionHint. */
-class RefractionQuality {
-public:
-    enum Value {
+G3D_DECLARE_ENUM_CLASS(RefractionQuality,
         /** No refraction; a translucent object will appear as if it had the same index of refraction
             as the surrounding medium and objects will be undistorted in the background. */
-        NONE = 0, 
+        NONE, 
 
         /** Use a static environment map (cube or paraboloid) for computing transmissivity.*/
-        STATIC_ENV = 25, 
+        STATIC_PROBE, 
 
         /** Use a dynamically rendered 2D environment map; distort the background.  This looks good for many scenes
             but avoids the cost of rendering a cube map for DYNAMIC_ENV. */
-        DYNAMIC_FLAT = 50,
+        DYNAMIC_FLAT,
+
+        /** Use a screen-space hack to approximate refraction */
+        SCREEN_SPACE,
 
         /** Use a dynamically rendered 2D environment map that is re-captured per transparent object.  This works well
             for transparent objects that are separated by a significant camera space z distance but overlap in screen space.*/
-        DYNAMIC_FLAT_MULTILAYER = 55,
+        DYNAMIC_FLAT_MULTILAYER,
 
         /** Render a dynamic environment map */
-        DYNAMIC_ENV = 75, 
+        DYNAMIC_PROBE, 
 
-        /** Use the best method available, ideally true ray tracing. */
-        BEST = 100
-    };
-
-private:
-
-    static const char* toString(int i, Value& v);
-
-    Value value;
-
-public:
-    G3D_DECLARE_ENUM_CLASS_METHODS(RefractionQuality);
-
-};
+        /** True ray tracing. */
+        RAY_TRACE);
 
 
 /** Values for UniversalSurface::GPUGeom::mirrorHint. */
-class MirrorQuality {
-public:
-
-    enum Value {
+G3D_DECLARE_ENUM_CLASS(MirrorQuality,
         /** Reflections are black */
-        NONE = 0, 
+        NONE, 
         
         /** Use a static environment map.  This is what most games use */
-        STATIC_ENV = 25, 
+        STATIC_PROBE,
         
-        /** Planar reflection, typically for water or glass windows.  This assumes that the mirror is flat;
-        it is distinct from RefractionQuality::DYNAMIC_FLAT, which assumes the <i>background</i> is flat.*/
-        DYNAMIC_PLANAR = 50,
+        /** Use a screen-space hack to approximate reflection */
+        SCREEN_SPACE,
 
         /** Render a dynamic environment map. */
-        DYNAMIC_ENV = 75, 
+        DYNAMIC_PROBE, 
         
-        /** Use the best method available, ideally true ray tracing. */
-        BEST = 100
-    };
-
-private:
-
-    static const char* toString(int i, Value& v);
-
-    Value value;
-
-public:
-    G3D_DECLARE_ENUM_CLASS_METHODS(MirrorQuality);
-};
+        /** True ray tracing. */
+        RAY_TRACE);
 
 } // namespace G3D
 

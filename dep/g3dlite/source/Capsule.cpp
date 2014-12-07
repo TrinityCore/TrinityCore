@@ -88,7 +88,7 @@ bool Capsule::contains(const Vector3& p) const {
 }
 
 
-void Capsule::getRandomSurfacePoint(Vector3& p, Vector3& N) const {
+void Capsule::getRandomSurfacePoint(Vector3& p, Vector3& N, Random& rnd) const {
     float h = height();
     float r = radius();
 
@@ -98,23 +98,23 @@ void Capsule::getRandomSurfacePoint(Vector3& p, Vector3& N) const {
     float capRelArea  = sqrt(r) / 2.0f;
     float sideRelArea = r * h;
 
-    float r1 = uniformRandom(0, capRelArea * 2 + sideRelArea);
+    float r1 = rnd.uniform(0, capRelArea * 2 + sideRelArea);
 
     if (r1 < capRelArea * 2) {
 
         // Select a point uniformly at random on a sphere
-        N = Sphere(Vector3::zero(), 1).randomSurfacePoint();
+        N = Sphere(Vector3::zero(), 1).randomSurfacePoint(rnd);
         p = N * r;
         p.y += sign(p.y) * h / 2.0f;
     } else {
         // Side
-        float a = uniformRandom(0, (float)twoPi());
+        float a = rnd.uniform(0, (float)twoPi());
         N.x = cos(a);
         N.y = 0;
         N.z = sin(a);
         p.x = N.x * r;
         p.z = N.y * r;
-        p.y = uniformRandom(-h / 2.0f, h / 2.0f);
+        p.y = rnd.uniform(-h / 2.0f, h / 2.0f);
     }
 
     // Transform to world space
@@ -139,7 +139,7 @@ void Capsule::getReferenceFrame(CoordinateFrame& cframe) const {
 }
 
 
-Vector3 Capsule::randomInteriorPoint() const {
+Vector3 Capsule::randomInteriorPoint(Random& rnd) const {
     float h = height();
     float r = radius();
 
@@ -150,22 +150,22 @@ Vector3 Capsule::randomInteriorPoint() const {
     float hemiVolume = (float)pi() * (r*r*r) * 4 / 6.0f;
     float cylVolume = (float)pi() * square(r) * h;
     
-    float r1 = uniformRandom(0, 2.0f * hemiVolume + cylVolume);
+    float r1 = rnd.uniform(0, 2.0f * hemiVolume + cylVolume);
 
     if (r1 < 2.0 * hemiVolume) {
 
-        p = Sphere(Vector3::zero(), r).randomInteriorPoint();
+        p = Sphere(Vector3::zero(), r).randomInteriorPoint(rnd);
 
         p.y += sign(p.y) * h / 2.0f;
 
     } else {
 
         // Select a point uniformly at random on a disk
-        float a = uniformRandom(0, (float)twoPi());
-        float r2 = sqrt(uniformRandom(0, 1)) * r;
+        float a = rnd.uniform(0, (float)twoPi());
+        float r2 = sqrt(rnd.uniform(0, 1)) * r;
 
         p = Vector3(cos(a) * r2,
-                    uniformRandom(-h / 2.0f, h / 2.0f),
+                    rnd.uniform(-h / 2.0f, h / 2.0f),
                     sin(a) * r2);
     }
 

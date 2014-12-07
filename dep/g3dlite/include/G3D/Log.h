@@ -4,14 +4,14 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @cite Backtrace by Aaron Orenstein
   @created 2001-08-04
-  @edited  2005-11-04
+  @edited  2014-10-04
  */
 
-#ifndef G3D_LOG_H
-#define G3D_LOG_H
+#ifndef G3D_Log_h
+#define G3D_Log_h
 
 #include <stdio.h>
-#include <string>
+#include "G3D/G3DString.h"
 #include "G3D/platform.h"
 
 #ifndef G3D_WINDOWS
@@ -23,7 +23,7 @@ namespace G3D {
 /** Prints to the common system log, log.txt, which is usually 
     in the working directory of the program.  If your disk is 
     not writable or is slow, it will attempt to write to "c:/tmp/log.txt" or
-     "c:/temp/log.txt" on Windows systems instead. 
+    "c:/temp/log.txt" on Windows systems instead. 
 
     Unlike printf or debugPrintf, 
     this function guarantees that all output is committed before it returns.
@@ -53,23 +53,18 @@ private:
      */
     FILE*                   logFile;
 
-    std::string             filename;
+    String                  filename;
 
     static Log*             commonLog;
 
-public:
-    int                     stripFromStackBottom;
-
 
     /**
-     @param stripFromStackBottom Number of call stacks to strip from the
-     bottom of the stack when printing a trace.  Useful for hiding
-     routines like "main" and "WinMain".  If the specified file cannot
+     If the specified file cannot
      be opened for some reason, tries to open "c:/tmp/log.txt" or
      "c:/temp/log.txt" instead.
+
      */
-    Log(const std::string& filename = "log.txt",
-        int stripFromStackBottom    = 0);
+    Log(const String& filename = "log.txt");
 
     virtual ~Log();
 
@@ -81,7 +76,7 @@ public:
     /**
      Marks the beginning of a logfile section.
      */
-    void section(const std::string& s);
+    void section(const String& s);
 
     /**
      Given arguments like printf, writes characters to the debug text overlay.
@@ -96,12 +91,14 @@ public:
 
     static Log* common();
 
-    static std::string getCommonLogFilename();
+    /** Creates the common log with the specified filename */
+    static Log* common(const String& filename);
 
-    void print(const std::string& s);
+    static String getCommonLogFilename();
 
+    void print(const String& s);
 
-    void println(const std::string& s);
+    void println(const String& s);
 };
 
 }

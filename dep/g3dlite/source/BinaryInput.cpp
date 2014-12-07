@@ -14,7 +14,7 @@
 
     float f = 3.1415926;
     int i = 1027221;
-    std::string s = "Hello World!";
+    String s = "Hello World!";
 
     b.writeFloat32(f);
     b.writeInt32(i);
@@ -112,7 +112,7 @@ BinaryInput::BinaryInput(
 
 
 BinaryInput::BinaryInput
-(const std::string&  filename,
+(const String&  filename,
  G3DEndian           fileEndian,
  bool                compressed) :
     m_filename(filename),
@@ -129,14 +129,14 @@ BinaryInput::BinaryInput
     setEndian(fileEndian);
     
 #if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
-    std::string zipfile;
+    String zipfile;
     if (FileSystem::inZipfile(m_filename, zipfile)) {
         // Load from zipfile
         FileSystem::markFileUsed(m_filename);
         FileSystem::markFileUsed(zipfile);
 
         // Zipfiles require Unix-style slashes
-        std::string internalFile = FilePath::canonicalize(m_filename.substr(zipfile.length() + 1));
+        String internalFile = FilePath::canonicalize(m_filename.substr(zipfile.length() + 1));
         struct zip* z = zip_open(zipfile.c_str(), ZIP_CHECKCONS, NULL);
         {
             struct zip_stat info;
@@ -147,7 +147,7 @@ BinaryInput::BinaryInput
             m_buffer = reinterpret_cast<uint8*>(System::alignedMalloc(m_length, 16));
             struct zip_file* zf = zip_fopen( z, internalFile.c_str(), ZIP_FL_NOCASE );
             if (zf == NULL) {
-                throw std::string("\"") + internalFile + "\" inside \"" + zipfile + "\" could not be opened.";
+                throw String("\"") + internalFile + "\" inside \"" + zipfile + "\" could not be opened.";
             } else {
                 const int64 bytesRead = zip_fread( zf, m_buffer, m_length );
                 debugAssertM(bytesRead == m_length,
@@ -166,6 +166,7 @@ BinaryInput::BinaryInput
         return;
     }
 #endif
+
     // Figure out how big the file is and verify that it exists.
     m_length = FileSystem::size(m_filename);
 
@@ -225,7 +226,7 @@ BinaryInput::~BinaryInput() {
 }
 
 
-std::string BinaryInput::readFixedLengthString(int numBytes) {
+String BinaryInput::readFixedLengthString(int numBytes) {
     Array<char> str;
     str.resize(numBytes + 1);
 
@@ -235,7 +236,7 @@ std::string BinaryInput::readFixedLengthString(int numBytes) {
     readBytes(str.getCArray(), numBytes);
 
     // Copy up to the first NULL
-    return std::string(str.getCArray());
+    return String(str.getCArray());
 }
 
 
@@ -365,7 +366,7 @@ uint64 BinaryInput::readUInt64() {
 }
 
 
-std::string BinaryInput::readString(int64 maxLength) {
+String BinaryInput::readString(int64 maxLength) {
     prepareToRead(maxLength);
 
     int64 n = 0;
@@ -373,7 +374,7 @@ std::string BinaryInput::readString(int64 maxLength) {
         ++n;
     }
 
-    std::string s((char*)(m_buffer + m_pos), n);
+    String s((char*)(m_buffer + m_pos), n);
 
     m_pos += maxLength;
 
@@ -381,7 +382,7 @@ std::string BinaryInput::readString(int64 maxLength) {
 }
 
 
-std::string BinaryInput::readString() {
+String BinaryInput::readString() {
     prepareToRead(1);
 
     int64 n = 0;
@@ -398,7 +399,7 @@ std::string BinaryInput::readString() {
         prepareToRead(n + 1);
     }
 
-    std::string s((char*)(m_buffer + m_pos), n);
+    String s((char*)(m_buffer + m_pos), n);
     m_pos += n;
 
     if (hasNull) {
@@ -412,7 +413,7 @@ static bool isNewline(char c) {
     return c == '\n' || c == '\r';
 }
 
-std::string BinaryInput::readStringNewline() {
+String BinaryInput::readStringNewline() {
     prepareToRead(1);
 
     int64 n = 0;
@@ -435,7 +436,7 @@ std::string BinaryInput::readStringNewline() {
         prepareToRead(n + 1);
     }
 
-    std::string s((char*)(m_buffer + m_pos), n);
+    String s((char*)(m_buffer + m_pos), n);
     m_pos += n;
 
     if (hasNull) {
@@ -461,8 +462,8 @@ std::string BinaryInput::readStringNewline() {
 }
 
 
-std::string BinaryInput::readStringEven() {
-    std::string x = readString();
+String BinaryInput::readStringEven() {
+    String x = readString();
     if (hasMore() && (G3D::isOdd((int)x.length() + 1))) {
         skip(1);
     }
@@ -470,7 +471,7 @@ std::string BinaryInput::readStringEven() {
 }
 
 
-std::string BinaryInput::readString32() {
+String BinaryInput::readString32() {
     int len = readUInt32();
     return readString(len);
 }

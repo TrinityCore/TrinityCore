@@ -12,12 +12,12 @@
 
 namespace G3D {
 
-void MeshBuilder::setName(const std::string& n) {
+void MeshBuilder::setName(const String& n) {
     name = n;
 }
 
 
-void MeshBuilder::commit(std::string& n, Array<int>& indexArray, Array<Vector3>& outvertexArray) {
+void MeshBuilder::commit(String& n, Array<int>& indexArray, Array<Vector3>& outvertexArray) {
     n = name;
 
     // Make the data fit in a unit cube

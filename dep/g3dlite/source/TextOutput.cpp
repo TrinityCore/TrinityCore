@@ -5,7 +5,7 @@
   \created 2004-06-21
   \edited  2013-04-09
 
-  Copyright 2000-2013, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 
@@ -28,7 +28,7 @@ TextOutput::TextOutput(const TextOutput::Settings& opt) :
 }
 
 
-TextOutput::TextOutput(const std::string& fil, const TextOutput::Settings& opt) :
+TextOutput::TextOutput(const String& fil, const TextOutput::Settings& opt) :
     startingNewLine(true),
     currentColumn(0),
     inDQuote(false),
@@ -74,10 +74,10 @@ void TextOutput::popIndent() {
 }
 
 
-static std::string escape(const std::string& string) {
-    std::string result = "";
+static String escape(const String& string) {
+    String result = "";
 
-    for (std::string::size_type i = 0; i < string.length(); ++i) {
+    for (String::size_type i = 0; i < string.length(); ++i) {
         char c = string.at(i);
         switch (c) {
         case '\0':
@@ -109,7 +109,7 @@ static std::string escape(const std::string& string) {
 }
 
 
-void TextOutput::writeString(const std::string& string) {
+void TextOutput::writeString(const String& string) {
     // Never break a line in a string
     const Settings::WordWrapMode old = option.wordWrap;
 
@@ -136,7 +136,7 @@ void TextOutput::writeNumber(int n) {
 }
 
 
-void TextOutput::writeSymbol(const std::string& string) {
+void TextOutput::writeSymbol(const String& string) {
     if (string.size() > 0) {
         this->printf("%s ", string.c_str());
     }
@@ -147,12 +147,12 @@ void TextOutput::writeSymbol(char c) {
 }
 
 void TextOutput::writeSymbols(
-    const std::string& a,
-    const std::string& b,
-    const std::string& c,
-    const std::string& d,
-    const std::string& e,
-    const std::string& f) {
+    const String& a,
+    const String& b,
+    const String& c,
+    const String& d,
+    const String& e,
+    const String& f) {
 
     writeSymbol(a);
     writeSymbol(b);
@@ -163,7 +163,7 @@ void TextOutput::writeSymbols(
 }
 
 
-void TextOutput::printf(const std::string formatString, ...) {
+void TextOutput::printf(const String formatString, ...) {
     va_list argList;
     va_start(argList, formatString);
     this->vprintf(formatString.c_str(), argList);
@@ -190,7 +190,7 @@ bool TextOutput::deleteSpace() {
 }
 
 
-void TextOutput::convertNewlines(const std::string& in, std::string& out) {
+void TextOutput::convertNewlines(const String& in, String& out) {
     // TODO: can be significantly optimized in cases where
     // single characters are copied in order by walking through
     // the array and copying substrings as needed.
@@ -229,7 +229,7 @@ void TextOutput::writeNewlines(int numLines) {
 }
 
 
-void TextOutput::wordWrapIndentAppend(const std::string& str) {
+void TextOutput::wordWrapIndentAppend(const String& str) {
     // TODO: keep track of the last space character we saw so we don't
     // have to always search.
 
@@ -408,16 +408,16 @@ void TextOutput::indentAppend(char c) {
 
 
 void TextOutput::vprintf(const char* formatString, va_list argPtr) {
-    const std::string& str = vformat(formatString, argPtr);
+    const String& str = vformat(formatString, argPtr);
 
-    std::string clean;
+    String clean;
     convertNewlines(str, clean);
     wordWrapIndentAppend(clean);
 }
 
 
 void TextOutput::commit(bool flush) {
-    std::string p = filenamePath(filename);
+    String p = filenamePath(filename);
     if (! FileSystem::exists(p, false)) {
         FileSystem::createDirectory(p);
     }
@@ -432,7 +432,7 @@ void TextOutput::commit(bool flush) {
 }
 
 
-void TextOutput::commitString(std::string& out) {
+void TextOutput::commitString(String& out) {
     // Null terminate
     data.push('\0');
     out = data.getCArray();
@@ -440,8 +440,8 @@ void TextOutput::commitString(std::string& out) {
 }
 
 
-std::string TextOutput::commitString() {
-    std::string str;
+String TextOutput::commitString() {
+    String str;
     commitString(str);
     return str;
 }

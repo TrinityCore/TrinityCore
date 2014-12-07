@@ -15,7 +15,7 @@
   \created 2001-11-19
   \edited  2010-11-10
 
-  Copyright 2000-2012, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 
@@ -784,23 +784,24 @@ public:
      Calculates time between the intersection of a moving sphere and a fixed
      triangle.
 
-     @param sphere        The moving sphere.
+     @param sphere      The moving sphere.
      @param velocity    The sphere's velocity.
      @param triangle    Single-sided fixed triangle. 
-     @param outLocation    Location of collision, if collision occurs -- not center position of sphere
+     @param outLocation Location of collision, if collision occurs -- not center position of sphere
                          at the collision time. If there is interpenetration at the start, this point may be inside
-                        the sphere.
+                         the sphere.
      @param b           Barycentric coordinates. These are not valid unless collision occurs.
 
      @return Time until collision.  If there is no collision then the return
              value will be finf().
     */
     static float collisionTimeForMovingSphereFixedTriangle(
-        const class Sphere&        sphere,
-        const Vector3&            velocity,
+        const class Sphere&     sphere,
+        const Vector3&          velocity,
         const Triangle&         triangle,
         Vector3&                outLocation,
-        float                   b[3] = (float*)&ignore);
+        float                   b[3] = (float*)&ignore,
+        bool                    twoSided = false);
 
     /**
      Calculates time between the intersection of a moving sphere and a fixed

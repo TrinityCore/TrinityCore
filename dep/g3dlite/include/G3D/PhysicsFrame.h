@@ -16,7 +16,7 @@
 #include "G3D/Quat.h"
 #include "G3D/CoordinateFrame.h"
 #include <math.h>
-#include <string>
+#include "G3D/G3DString.h"
 
 
 namespace G3D {

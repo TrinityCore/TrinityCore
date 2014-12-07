@@ -99,7 +99,7 @@ void Cylinder::getReferenceFrame(CoordinateFrame& cframe) const {
 }
 
 
-void Cylinder::getRandomSurfacePoint(Vector3& p, Vector3& N) const {
+void Cylinder::getRandomSurfacePoint(Vector3& p, Vector3& N, Random& rnd) const {
     float h = height();
     float r = radius();
 
@@ -115,8 +115,8 @@ void Cylinder::getRandomSurfacePoint(Vector3& p, Vector3& N) const {
 
         // Select a point uniformly at random on a disk
         // @cite http://mathworld.wolfram.com/DiskPointPicking.html
-        float a = uniformRandom(0, (float)twoPi());
-        float r2 = sqrt(uniformRandom(0, 1)) * r;
+        float a = rnd.uniform(0, (float)twoPi());
+        float r2 = sqrt(rnd.uniform(0, 1)) * r;
         p.x = cos(a) * r2;
         p.z = sin(a) * r2;
 
@@ -133,13 +133,13 @@ void Cylinder::getRandomSurfacePoint(Vector3& p, Vector3& N) const {
         }
     } else {
         // Side
-        float a = uniformRandom(0, (float)twoPi());
+        float a = rnd.uniform(0, (float)twoPi());
         N.x = cos(a);
         N.y = 0;
         N.z = sin(a);
         p.x = N.x * r;
         p.z = N.y * r;
-        p.y = uniformRandom(-h / 2.0f, h / 2.0f);
+        p.y = rnd.uniform(-h / 2.0f, h / 2.0f);
     }
 
     // Transform to world space
@@ -151,7 +151,7 @@ void Cylinder::getRandomSurfacePoint(Vector3& p, Vector3& N) const {
 }
 
 
-Vector3 Cylinder::randomInteriorPoint() const {
+Vector3 Cylinder::randomInteriorPoint(Random& rnd) const {
     float h = height();
     float r = radius();
 
@@ -159,11 +159,11 @@ Vector3 Cylinder::randomInteriorPoint() const {
 
     // Select a point uniformly at random on a disk
     // @cite http://mathworld.wolfram.com/DiskPointPicking.html
-    float a = uniformRandom(0, (float)twoPi());
-    float r2 = sqrt(uniformRandom(0, 1)) * r;
+    float a = rnd.uniform(0, (float)twoPi());
+    float r2 = sqrt(rnd.uniform(0, 1)) * r;
 
-    Vector3 p(  cos(a) * r2,
-                uniformRandom(-h / 2.0f, h / 2.0f),
+    const Vector3 p(  cos(a) * r2,
+                rnd.uniform(-h / 2.0f, h / 2.0f),
                 sin(a) * r2);
 
     // Transform to world space

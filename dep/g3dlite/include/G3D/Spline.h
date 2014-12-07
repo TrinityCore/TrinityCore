@@ -328,7 +328,7 @@ public:
     }
 
     /** Note that invoking classes can call setName on the returned value instead of passing a name in. */
-    virtual Any toAny(const std::string& myName) const {
+    virtual Any toAny(const String& myName) const {
         Any a(Any::TABLE, myName);
     
         a["extrapolationMode"] = extrapolationMode;

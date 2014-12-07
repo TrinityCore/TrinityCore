@@ -1,11 +1,14 @@
 /** 
-  @file Queue.h
+  \file G3D/Queue.h
  
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
-  @created 2002-07-09
-  @edited  2008-12-20
- */
+  \created 2002-07-09
+  \edited  2014-02-05
+
+ Copyright 2000-2014, Morgan McGuire.
+ All rights reserved. 
+*/
 
 #ifndef G3D_Queue_h
 #define G3D_Queue_h
@@ -165,6 +168,24 @@ public:
     */
     virtual ~Queue() {
         clear();
+    }
+
+    /** Copies the elements of the queue into the \a array, which must
+        be large enough to hold all elements. */
+    void copyInto(T* array) const {
+        // Use constructors, not memcpy
+
+        FIND_ENDS;
+       
+        // Invoke the destructors on the elements
+        int j = 0;
+        for (int i = head; i < firstEnd; ++i, ++j) {
+            array[j] = data[i];
+        }
+
+        for (int i = 0; i < secondEnd; ++i, ++j) {
+            array[j] = data[i];
+        }
     }
 
     /**

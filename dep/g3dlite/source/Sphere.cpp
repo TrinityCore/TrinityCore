@@ -70,7 +70,7 @@ const Sphere& Sphere::inf() {
 }
 
 
-std::string Sphere::toString() const {
+String Sphere::toString() const {
     return format("Sphere(<%g, %g, %g>, %g)", 
                   center.x, center.y, center.z, radius);
 }
@@ -222,17 +222,17 @@ bool Sphere::culledBy(
 }
 
 
-Vector3 Sphere::randomSurfacePoint() const {
-    return Vector3::random() * radius + center;
+Vector3 Sphere::randomSurfacePoint(Random& rnd) const {
+    return Vector3::random(rnd) * radius + center;
 }
 
 
-Vector3 Sphere::randomInteriorPoint() const {
+Vector3 Sphere::randomInteriorPoint(Random& rnd) const {
     Vector3 result;
     do {
-        result = Vector3(uniformRandom(-1, 1), 
-                         uniformRandom(-1, 1), 
-                         uniformRandom(-1, 1));
+        result = Vector3(rnd.uniform(-1, 1), 
+                         rnd.uniform(-1, 1), 
+                         rnd.uniform(-1, 1));
     } while (result.squaredMagnitude() >= 1.0f);
 
     return result * radius + center;

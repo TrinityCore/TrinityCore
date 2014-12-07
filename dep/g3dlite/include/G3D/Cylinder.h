@@ -1,21 +1,22 @@
 /**
- @file Cylinder.h
+ @file G3D/Cylinder.h
   
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   
  @created 2003-02-07
- @edited  2005-09-26
+ @edited  2014-07-26
 
- Copyright 2000-2005, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3D_Cylinder_H
-#define G3D_Cylinder_H
+#ifndef G3D_Cylinder_h
+#define G3D_Cylinder_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Vector3.h"
+#include "G3D/Random.h"
 
 namespace G3D {
 
@@ -81,10 +82,10 @@ public:
     void getBounds(AABox& out) const;
 
     /** Random world space point with outward facing normal. */
-    void getRandomSurfacePoint(Vector3& P, Vector3& N) const;
+    void getRandomSurfacePoint(Vector3& P, Vector3& N, Random& rnd = Random::common()) const;
 
     /** Point selected uniformly at random over the volume. */
-    Vector3 randomInteriorPoint() const;
+    Vector3 randomInteriorPoint(Random& rnd = Random::common()) const;
 };
 
 } // namespace

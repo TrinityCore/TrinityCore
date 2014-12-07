@@ -40,9 +40,9 @@ public:
     Any toAny() const;
 
     /** Returns a 16-character string equivalent to this GUniqueID's uint64 value. */
-    std::string toString16() const;
+    String toString16() const;
 
-    static GUniqueID fromString16(const std::string& s);
+    static GUniqueID fromString16(const String& s);
 
     /** Returns the ID that has the specified tag (so that it is not uninitialized), but
         which is a common sentinel "none" value. */

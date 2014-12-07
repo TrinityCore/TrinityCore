@@ -57,7 +57,7 @@ public:
     /** Creates a 0 x 0 image. */
     static Ref createEmpty(WrapMode wrap = WrapMode::ERROR);
 
-    static Ref fromFile(const std::string& filename, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromFile(const String& filename, WrapMode wrap = WrapMode::ERROR);
     
     static Ref fromArray(const class Color1unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
     static Ref fromArray(const class Color3unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
@@ -69,10 +69,10 @@ public:
     static Ref fromImage4unorm8(const shared_ptr<class Image4unorm8>& im);
 
     /** Loads from any of the file formats supported by G3D::GImage. */
-    void load(const std::string& filename);
+    void load(const String& filename);
 
     /** Saves in any of the formats supported by G3D::GImage. */
-    void save(const std::string& filename);
+    void save(const String& filename);
 };
 
 } // G3D

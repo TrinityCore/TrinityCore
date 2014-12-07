@@ -22,6 +22,10 @@
 #    include <errno.h>
 #endif
 
+#ifdef __CYGWIN__
+#    include <errno.h>
+#endif
+
 // Largest memory buffer that the system will use for writing to
 // disk.  After this (or if the system runs out of memory)
 // chunks of the file will be dumped to disk.
@@ -215,7 +219,7 @@ BinaryOutput::BinaryOutput() {
 
 
 BinaryOutput::BinaryOutput(
-    const std::string&  filename,
+    const String&  filename,
     G3DEndian           fileEndian) {
 
     m_pos = 0;
@@ -329,8 +333,8 @@ void BinaryOutput::commit(bool flush) {
     }
 
     // Make sure the directory exists.
-    std::string root, base, ext, path;
-    Array<std::string> pathArray;
+    String root, base, ext, path;
+    Array<String> pathArray;
     parseFilename(m_filename, root, pathArray, base, ext); 
 
     path = root + stringJoin(pathArray, '/');
@@ -349,14 +353,14 @@ void BinaryOutput::commit(bool flush) {
     m_ok = (file != NULL) && m_ok;
 
     if (m_ok) {
-        debugAssertM(file, std::string("Could not open '") + m_filename + "'");
+        debugAssertM(file, String("Could not open '") + m_filename + "'");
 
         if (m_buffer != NULL) {
             m_alreadyWritten += m_bufferLen;
 
             size_t success = fwrite(m_buffer, m_bufferLen, 1, file);
             (void)success;
-            debugAssertM(success == 1, std::string("Could not write to '") + m_filename + "'");
+            debugAssertM(success == 1, String("Could not write to '") + m_filename + "'");
         }
         if (flush) {
             fflush(file);

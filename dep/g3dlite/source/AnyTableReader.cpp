@@ -3,7 +3,7 @@
 namespace G3D {
 
 /** Verifies that \a is a TABLE with the given \a name. */
-AnyTableReader::AnyTableReader(const std::string& name, const Any& a) : m_any(a) {
+AnyTableReader::AnyTableReader(const String& name, const Any& a) : m_any(a) {
     try {
         m_any.verifyType(Any::TABLE);
         m_any.verifyName(name);
@@ -33,14 +33,14 @@ AnyTableReader::AnyTableReader(const Any& a) : m_any(a) {
 void AnyTableReader::verifyDone() const {
     if (hasMore()) {
         // Some entries were unread.  Find them.
-        const Table<std::string, Any>& table = m_any.table();
+        const Table<String, Any>& table = m_any.table();
 
-        for (Table<std::string, Any>::Iterator it = table.begin();
+        for (Table<String, Any>::Iterator it = table.begin();
             it.hasMore();
             ++it) {
             
             if (containsUnread(it->key)) {
-                it->value.verify(false, std::string("Unread Any table key \"") + it->key + "\"");
+                it->value.verify(false, String("Unread Any table key \"") + it->key + "\"");
             }
         }
     }

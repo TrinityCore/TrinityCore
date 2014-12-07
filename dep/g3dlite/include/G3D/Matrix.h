@@ -579,10 +579,10 @@ public:
     /** Serializes in Matlab source format */
     void serialize(TextOutput& t) const;
 
-    std::string toString(const std::string& name) const;
+    String toString(const String& name) const;
 
-    std::string toString() const {
-        static const std::string name = "";
+    String toString() const {
+        static const String name = "";
         return toString(name);
     }
 

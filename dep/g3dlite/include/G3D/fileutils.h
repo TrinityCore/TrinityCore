@@ -6,7 +6,7 @@
  @author  2002-06-06
  @edited  2011-03-06
 
- Copyright 2000-2012, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -14,7 +14,7 @@
 #define G3D_fileutils_h
 
 #include "G3D/platform.h"
-#include <string>
+#include "G3D/G3DString.h"
 #include <stdio.h>
 #include "G3D/Array.h"
 #include "G3D/Set.h"
@@ -28,8 +28,8 @@
 namespace G3D {
  
 /** Returns the contents of a text file as a single string */
-std::string readWholeFile
-(const std::string&          filename);
+String readWholeFile
+(const String&          filename);
 
 
 /**
@@ -38,8 +38,8 @@ std::string readWholeFile
  writes the file in the background.
  */
 void writeWholeFile(
-    const std::string& filename, 
-    const std::string& str, 
+    const String& filename, 
+    const String& str, 
     bool    flush = true);
 
 
@@ -61,11 +61,11 @@ FILE* createTempFile();
 
  */
 bool zipfileExists
-(const std::string&          filename,
- std::string&             outZipfile,
- std::string&             outInternalFile);
+(const String&          filename,
+ String&             outZipfile,
+ String&             outInternalFile);
 
-bool zipfileExists(const std::string& filename);
+bool zipfileExists(const String& filename);
 
 /**
   Parses a filename into four useful pieces.
@@ -92,46 +92,50 @@ bool zipfileExists(const std::string& filename);
 
  */
 void parseFilename(
-    const std::string&  filename,
-    std::string&        drive,    
-    Array<std::string>& path,
-    std::string&        base,
-    std::string&        ext);
+    const String&  filename,
+    String&        drive,    
+    Array<String>& path,
+    String&        base,
+    String&        ext);
 
 
 /**
  Returns the part of the filename that includes the base and ext from
  parseFilename (i.e. everything to the right of the path).
  */
-std::string filenameBaseExt(const std::string& filename);
+String filenameBaseExt(const String& filename);
 
 /**
  Returns the extension on a filename.
  */
-std::string filenameExt(const std::string& filename);
+String filenameExt(const String& filename);
 
 
 /** Returns the portion of a filename to the left of the last period
     and to the right of the last slash or colon.
  */
-std::string filenameBase(const std::string& filename);
+String filenameBase(const String& filename);
 
 /** Creates a unique filename base in the current directory using the
     specified prefix and suffix.*/
-std::string generateFilenameBase(const std::string& prefix = "", const std::string& suffix = "");
+String generateFilenameBase(const String& prefix = "", const String& suffix = "");
+
+/** Creates a unique filename base in the current directory using the specified prefix, though
+    any suffix is possible */
+String generateFileNameBaseAnySuffix(const String& prefix);
 
 /** 
  Returns the drive (if Win32) and path from a filename, including 
  a slash if there was one.
  <CODE>filenamePath(f) + filenameBaseExt(f) == f</CODE>
  */
-std::string filenamePath(const std::string& filename);
+String filenamePath(const String& filename);
 
 /** Returns true if '*' or '?' appears in the string */
-bool filenameContainsWildcards(const std::string& filename);
+bool filenameContainsWildcards(const String& filename);
 
 /** Appends file onto dirname, ensuring a / if needed. \deprecated Use FilePath::concat */
-std::string pathConcat(const std::string& dirname, const std::string& file);
+String pathConcat(const String& dirname, const String& file);
 
 } // namespace
 

@@ -33,7 +33,7 @@ private:
     /** Indices of vertices in <B>or near</B>  a grid cell. */
     typedef Array<int> List;
    
-    std::string                 name;
+    String                 name;
 
     bool                        scaleAndCenter;
     
@@ -56,7 +56,7 @@ public:
 
     /** Writes the model to the arrays, which can then be used with
         G3D::IFSModel::save and G3D::MeshAlg */
-    void commit(std::string& name, Array<int>& indexArray, Array<Vector3>& vertexArray);
+    void commit(String& name, Array<int>& indexArray, Array<Vector3>& vertexArray);
 
     /**
      Adds a new triangle to the model. (Counter clockwise)
@@ -70,7 +70,7 @@ public:
 
     void addTriangle(const Triangle& t);
 
-    void setName(const std::string& n);
+    void setName(const String& n);
 
     /** Vertices within this distance are considered identical.  
         Use AUTO_WELD (the default) to have the distance be a function of the model size.*/

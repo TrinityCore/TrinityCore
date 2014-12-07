@@ -6,7 +6,7 @@
  \cite Based on a lexer written by Aaron Orenstein. 
  
  \created 2001-11-27
- \edited  2012-07-22
+ \edited  2014-01-25
  */
 
 #include "G3D/fileutils.h"
@@ -39,38 +39,39 @@ double Token::number() const {
 }
 
 
-bool TextInput::parseBoolean(const std::string& _string) {
+bool TextInput::parseBoolean(const String& _string) {
      return toLower(_string) == "true";
 }
 
-double TextInput::parseNumber(const std::string& _string) {
-    std::string s = toLower(_string);
-    if (s == "-1.#ind00" || s == "-1.#ind" || s == "nan" || s == "NaN") {
+
+double TextInput::parseNumber(const String& s) {
+    if (s == "-1.#IND00" || s == "-1.#IND" || s == "nan" || s == "NaN") {
         return nan();
     }
     
-    if (s == "1.#inf00" || s == "1.#inf" || s == "inf" || s == "+inf" || s == "Infinity") {
+    if (s == "1.#INF00" || s == "1.#INF" || s == "inf" || s == "+inf" || s == "Infinity") {
         return inf();
     }
     
-    if (s == "-1.#inf00" || s == "-1.#inf" || s == "-inf" || s == "-Infinity") {
+    if (s == "-1.#INF00" || s == "-1.#INF" || s == "-inf" || s == "-Infinity") {
         return -inf();
     }
     
     double n;
-    if ((_string.length() > 2) &&
-        (_string[0] == '0') &&
-        (_string[1] == 'x')) {
+    if ((s.length() > 2) &&
+        (s[0] == '0') &&
+        ((s[1] == 'x') || (s[1] == 'X'))) {
         // Hex
         uint32 i;
-        sscanf(_string.c_str(), "%x", &i);
+        sscanf(s.c_str(), "%x", &i);
         n = i;
     } else {
-        sscanf(_string.c_str(), "%lg", &n);
+        sscanf(s.c_str(), "%lg", &n);
     }
 
     return n;
 }
+
 
 TextInput::Settings::Settings () :
     cppBlockComments(true),
@@ -134,7 +135,7 @@ void TextInput::read(Token& t) {
 }
 
 
-std::string TextInput::readUntilDelimiterAsString(const char delimiter1, const char delimiter2) {
+String TextInput::readUntilDelimiterAsString(const char delimiter1, const char delimiter2) {
 /*
     // Reset the read position back to the start of that token
     currentCharOffset = t.bytePosition();
@@ -147,7 +148,7 @@ std::string TextInput::readUntilDelimiterAsString(const char delimiter1, const c
         return "";
     }
     */
-    std::string s;
+    String s;
 
     if (stack.size() > 0) {
         // Need to back up.  This only works if the stack is actually
@@ -177,13 +178,13 @@ std::string TextInput::readUntilDelimiterAsString(const char delimiter1, const c
 }
 
 
-std::string TextInput::readUntilNewlineAsString() {
+String TextInput::readUntilNewlineAsString() {
     return readUntilDelimiterAsString('\r', '\n');
 }
 
 
-static void toUpper(Set<std::string>& set) {
-    Array<std::string> symbols;
+static void toUpper(Set<String>& set) {
+    Array<String> symbols;
     set.getMembers(symbols);
     set.clear();
     for (int i = 0; i < symbols.size(); ++i) {
@@ -326,7 +327,7 @@ void TextInput::nextToken(Token& t) {
         }
 
         // parse comments and generate tokens if enabled
-        std::string commentString;
+        String commentString;
 
         // check for line comments first
         bool isLineComment = false;
@@ -674,6 +675,7 @@ numLabel:
         if ((c == '0') && (peekInputChar(1) == 'x')) {
             // Hex number
             t._string += "0x";
+            t._extendedType = Token::HEX_INTEGER_TYPE;
 
             // skip the 0x
             eatInputChar();
@@ -819,7 +821,7 @@ numLabel:
 
         // See if this symbol is actually a boolean
         if ((options.trueSymbols.size() > 0) || (options.falseSymbols.size() > 0)) {
-            std::string str = t._string;
+            String str = t._string;
             if (! options.caseSensitive) {
                 str = toUpper(str);
             }
@@ -1064,12 +1066,12 @@ Token TextInput::readStringToken() {
                          Token::STRING, t._type);
 }
 
-std::string TextInput::readString() {
+String TextInput::readString() {
     return readStringToken()._string;
 }
 
 
-void TextInput::readString(const std::string& s) {
+void TextInput::readString(const String& s) {
     const Token& t = readStringToken();
 
     if (t._string == s) {                         // fast path
@@ -1096,12 +1098,12 @@ Token TextInput::readCommentToken() {
 }
 
 
-std::string TextInput::readComment() {
+String TextInput::readComment() {
     return readCommentToken()._string;
 }
 
 
-void TextInput::readComment(const std::string& s) {
+void TextInput::readComment(const String& s) {
     const Token& t = readCommentToken();
 
     if (t._string == s) {                         // fast path
@@ -1127,11 +1129,11 @@ Token TextInput::readNewlineToken() {
                          Token::NEWLINE, t._type);
 }
 
-std::string TextInput::readNewline() {
+String TextInput::readNewline() {
     return readNewlineToken()._string;
 }
 
-void TextInput::readNewline(const std::string& s) {
+void TextInput::readNewline(const String& s) {
     const Token& t = readNewlineToken();
 
     if (t._string == s) {                         // fast path
@@ -1164,12 +1166,12 @@ void TextInput::readSymbolToken(Token& t) {
 }
 
 
-std::string TextInput::readSymbol() {
+String TextInput::readSymbol() {
     return readSymbolToken()._string;
 }
 
 
-void TextInput::readSymbol(const std::string& symbol) {
+void TextInput::readSymbol(const String& symbol) {
     Token t;
     readSymbolToken(t);
 
@@ -1183,23 +1185,23 @@ void TextInput::readSymbol(const std::string& symbol) {
 }
 
 
-TextInput::TextInput(const std::string& filename, const Settings& opt) : options(opt) {
+TextInput::TextInput(const String& filename, const Settings& opt) : options(opt) {
     init();
     if (options.sourceFileName.empty()) {
         options.sourceFileName = filename;
     }
 
-    std::string zipfile;
+    String zipfile;
     if (FileSystem::inZipfile(filename, zipfile)) {
         // TODO: this could be faster if we directly read the zipfile
-        const std::string& input = readWholeFile(filename);
+        const String& input = readWholeFile(filename);
         size_t n = input.size();
         buffer.resize(n);
         System::memcpy(buffer.getCArray(), input.c_str(), n);
     } else {
         // Read directly into the array
         const uint64 n = FileSystem::size(filename);
-        alwaysAssertM(n != uint64(-1), std::string("File does not exist: ") + filename);
+        alwaysAssertM(n != uint64(-1), String("File does not exist: ") + filename);
         buffer.resize(size_t(n));
         FILE* f = FileSystem::fopen(filename.c_str(), "rb");
         fread(buffer.getCArray(), 1, size_t(n), f);
@@ -1223,7 +1225,7 @@ void TextInput::initFromString(const char* str, int len, const Settings& setting
 }
 
 
-TextInput::TextInput(FS fs, const std::string& str, const Settings& opt) {
+TextInput::TextInput(FS fs, const String& str, const Settings& opt) {
     (void)fs;
     initFromString(str.c_str(), (int)str.size(), opt);
 }
@@ -1235,14 +1237,14 @@ TextInput::TextInput(FS fs, const char* str, size_t len, const Settings& opt) : 
 }
 
 
-const std::string& TextInput::filename() const {
+const String& TextInput::filename() const {
     return options.sourceFileName;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 
 TextInput::TokenException::TokenException(
-    const std::string&  src,
+    const String&  src,
     int                 ln,
     int                 ch) : ParseError(src, ln, ch, format("%s(%d) : ", src.c_str(), ln)),
                               sourceFile(src) {
@@ -1269,7 +1271,7 @@ static const char* tokenTypeToString(Token::Type t) {
 }
 
 TextInput::WrongTokenType::WrongTokenType(
-    const std::string&  src,
+    const String&  src,
     int                 ln,
     int                 ch,
     Token::Type         e,
@@ -1282,7 +1284,7 @@ TextInput::WrongTokenType::WrongTokenType(
 
 
 TextInput::BadMSVCSpecial::BadMSVCSpecial(
-    const std::string&  src,
+    const String&  src,
     int                 ln,
     int                 ch) :
     TokenException(src, ln, ch) {
@@ -1290,11 +1292,11 @@ TextInput::BadMSVCSpecial::BadMSVCSpecial(
 
 
 TextInput::WrongSymbol::WrongSymbol(
-    const std::string&  src,
+    const String&  src,
     int                 ln,
     int                 ch,
-    const std::string&  e,
-    const std::string&  a) : 
+    const String&  e,
+    const String&  a) : 
     TokenException(src, ln, ch), expected(e), actual(a) {
 
     message += format("Expected symbol '%s', found symbol '%s'.",
@@ -1303,11 +1305,11 @@ TextInput::WrongSymbol::WrongSymbol(
 
 
 TextInput::WrongString::WrongString(
-    const std::string&  src,
+    const String&  src,
     int                 ln,
     int                 ch,
-    const std::string&  e,
-    const std::string&  a) : 
+    const String&  e,
+    const String&  a) : 
     TokenException(src, ln, ch), expected(e), actual(a) {
 
     message += format("Expected string '%s', found string '%s'.",

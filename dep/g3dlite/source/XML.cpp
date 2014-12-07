@@ -7,7 +7,7 @@
  \created 2010-02-11
  \edited  2010-02-24
 
- Copyright 2000-2012, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -33,7 +33,7 @@ bool XML::boolean() const {
 }
 
 
-void XML::load(const std::string& filename) {
+void XML::load(const String& filename) {
     TextInput::Settings s;
     s.cppBlockComments = false;
     s.cppLineComments = false;
@@ -44,14 +44,14 @@ void XML::load(const std::string& filename) {
 }
 
 
-void XML::save(const std::string& filename) const {
-    std::string s;
+void XML::save(const String& filename) const {
+    String s;
     unparse(s);
     writeWholeFile(filename, s);
 }
 
     
-void XML::unparse(std::string &s) const {
+void XML::unparse(String &s) const {
     TextOutput::Settings set;
     set.wordWrap = TextOutput::Settings::WRAP_WITHOUT_BREAKING;
     TextOutput t(set);
@@ -88,14 +88,14 @@ void XML::serialize(TextOutput& t) const {
 }
 
 
-void XML::parse(const std::string& s) {
+void XML::parse(const String& s) {
     TextInput t(TextInput::FROM_STRING, s);
     deserialize(t);
 }
 
 
 /** True if the next token begins the close tag */
-static bool atClose(TextInput& t, const std::string name) {
+static bool atClose(TextInput& t, const String name) {
     if ((t.peek().type() == Token::SYMBOL) && (t.peek().string() == "<")) {
         // Need to keep looking ahead
         Token p0 = t.read();
@@ -105,7 +105,7 @@ static bool atClose(TextInput& t, const std::string name) {
             // tag error.
             Token p1 = t.read();
             Token p2 = t.peek();
-            std::string s = p2.string();
+            String s = p2.string();
             debugAssertM(beginsWith(name, s), "Mismatched close tag");
 
             // Put the tokens back
@@ -191,9 +191,9 @@ void XML::deserialize(TextInput& t) {
                 done = true;
             } else {
                 // Attribute pair
-                std::string k = n.string();
+                String k = n.string();
                 t.readSymbol("=");
-                std::string v = t.read().string();
+                String v = t.read().string();
                 m_attribute.set(k, v);
 
                 // Advance to next

@@ -25,8 +25,11 @@ set(g3dlib_STAT_SRCS
   source/FileSystem.cpp
   source/fileutils.cpp
   source/format.cpp
+  source/Frustum.cpp
   source/g3dfnmatch.cpp
   source/g3dmath.cpp
+  source/G3DAllocator.cpp
+  source/G3DString.cpp
   source/GThread.cpp
   source/Line.cpp
   source/LineSegment.cpp

@@ -42,7 +42,7 @@
 #include "G3D/platform.h"
 #include "G3D/NetAddress.h"
 
-#include <string>
+#include "G3D/G3DString.h"
 #include <iostream>
 #include "G3D/g3dmath.h"
 
@@ -470,11 +470,11 @@ public:
 
     class PacketSizeException {
     public:
-        std::string            message;
+        String            message;
         int                    serializedPacketSize;
         int                    maxMessageSize;
 
-        inline PacketSizeException(const std::string& m, int s, int b) :
+        inline PacketSizeException(const String& m, int s, int b) :
             message(m),
             serializedPacketSize(s),
             maxMessageSize(b) {}
@@ -612,10 +612,10 @@ public:
     class EthernetAdapter {
     public:
         /** Reverse-DNS of the ip address.*/
-        std::string     hostname;
+        String     hostname;
 
         /** Name of the adapter */
-        std::string     name;
+        String     name;
 
         /** IP address in host byte order.*/
         uint32          ip;
@@ -673,10 +673,10 @@ public:
 
     /** Prints an IP address to a string.
         @param ip In host byte order.*/
-    static std::string formatIP(uint32 ip);
+    static String formatIP(uint32 ip);
 
     /** Prints a MAC address to a string. */
-    static std::string formatMAC(const uint8 mac[6]);
+    static String formatMAC(const uint8 mac[6]);
 
     ~NetworkDevice();
 
@@ -711,10 +711,10 @@ public:
         TextOutput& t);
 
     void describeSystem(
-        std::string&        s);
+        String&        s);
 
     /** Returns the name (or one of the names) of this computer */
-    std::string localHostName() const;
+    String localHostName() const;
 
     /** There is often more than one address for the local host. This
         returns all of them. 

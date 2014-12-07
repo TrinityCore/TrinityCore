@@ -1,11 +1,11 @@
 /**
   @file G3D/Vector3int32.h
   
-  @maintainer Morgan McGuire, matrix@brown.edu
+  @maintainer Morgan McGuire
 
   @created 2008-07-01
-  @edited  2011-01-01
-  Copyright 2000-2012, Morgan McGuire.
+  @edited  2014-10-24
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 
@@ -19,7 +19,7 @@
 
 namespace G3D {
 
-    class Any;
+class Any;
 
 /**
  \ Vector3int32
@@ -137,7 +137,7 @@ public:
         return Vector3int32(-x, -y, -z);
     }
 
-    std::string toString() const;
+    String toString() const;
 
     Vector3int32 operator<<(int i) const {
         return Vector3int32(x << i, y << i, z << i);
@@ -157,6 +157,14 @@ public:
 
     Vector3int32 operator&(int16 i) const {
         return Vector3int32(x & i, y & i, z & i);
+    }
+
+    Vector3int32 clamp(const Vector3int32& lo, const Vector3int32& hi) const {
+        return Vector3int32(G3D::clamp(x, lo.x, hi.x), G3D::clamp(y, lo.y, hi.y), G3D::clamp(z, lo.z, hi.z));
+    }
+
+    Vector3int32 wrap(const Vector3int32& w) const {
+        return Vector3int32(G3D::iWrap(x, w.x), G3D::iWrap(y, w.y), G3D::iWrap(z, w.z));
     }
 
     // 2-char swizzles

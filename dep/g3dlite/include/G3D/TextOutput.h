@@ -5,7 +5,7 @@
   \created 2004-06-21
   \edited  2011-05-24
 
-  Copyright 2000-2012, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 
@@ -14,7 +14,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 
@@ -99,10 +99,10 @@ public:
         bool                convertNewlines;
 
         /** Used by writeBoolean */
-        std::string         trueSymbol;
+        String         trueSymbol;
 
         /** Used by writeBoolean */
-        std::string         falseSymbol;
+        String         falseSymbol;
 
         Settings() :
             wordWrap(WRAP_WITHOUT_BREAKING),
@@ -139,7 +139,7 @@ private:
     bool                    inDQuote;
 
     /** Empty if there is none */
-    std::string             filename;
+    String             filename;
 
     Array<char>             data;
 
@@ -154,7 +154,7 @@ private:
     int                     indentSpaces;
 
     /** the newline character(s) */
-    std::string             newline;
+    String             newline;
 
     /** Starts at 1 */
     int                     m_currentLine;
@@ -162,10 +162,10 @@ private:
     void setOptions(const Settings& _opt);
 
     /** Converts to the desired newlines.  Called from vprintf */
-    void convertNewlines(const std::string& in, std::string& out);
+    void convertNewlines(const String& in, String& out);
 
     /** Called from vprintf */
-    void wordWrapIndentAppend(const std::string& str);
+    void wordWrapIndentAppend(const String& str);
 
     /** Appends the character to data, indenting whenever a newline is encountered.
         Called from wordWrapIndentAppend */
@@ -173,7 +173,7 @@ private:
 
 public:
 
-    explicit TextOutput(const std::string& filename, const Settings& options = Settings());
+    explicit TextOutput(const String& filename, const Settings& options = Settings());
 
     /** Constructs a text output that can later be commited to a string instead of a file.*/
     explicit TextOutput(const Settings& options = Settings());
@@ -191,7 +191,7 @@ public:
     void commit(bool flush = true);
 
     /** Commits to this string */
-    void commitString(std::string& string);
+    void commitString(String& string);
 
     /** Increase indent level by 1 */
     void pushIndent();
@@ -199,11 +199,11 @@ public:
     void popIndent();
 
     /** Produces a new string that contains the output */
-    std::string commitString();
+    String commitString();
 
     /** Writes a quoted string. Special characters in the string (e.g., \\, \\t, \\n) are escaped so that 
         TextInput will produce the identical string on reading.*/
-    void writeString(const std::string& string);
+    void writeString(const String& string);
 
     void writeBoolean(bool b);
 
@@ -222,7 +222,7 @@ public:
         or be a C++ symbol (e.g. "{", "(", "++", etc.)
         so that they may be properly parsed by TextInput::readSymbol. Symbols are
         printed with a trailing space.*/
-    void writeSymbol(const std::string& string);
+    void writeSymbol(const String& string);
 
     void writeSymbol(char s);
 
@@ -230,12 +230,12 @@ public:
         writeSymbols("name", "=");  The empty symbols are not written.
         */
     void writeSymbols(
-        const std::string& a,
-        const std::string& b = "",
-        const std::string& c = "",
-        const std::string& d = "",
-        const std::string& e = "",
-        const std::string& f = "");
+        const String& a,
+        const String& b = "",
+        const String& c = "",
+        const String& d = "",
+        const String& e = "",
+        const String& f = "");
 
     /** Normal printf conventions.  Note that the output will be reformatted
         for word-wrapping and newlines */
@@ -243,7 +243,7 @@ public:
         G3D_CHECK_PRINTF_METHOD_ARGS;
 
     // Can't pass by reference because that confuses va_start
-    void __cdecl printf(const std::string fmt, ...);
+    void __cdecl printf(const String fmt, ...);
     void __cdecl vprintf(const char* fmt, va_list argPtr) 
         G3D_CHECK_VPRINTF_METHOD_ARGS;
 };
@@ -254,7 +254,7 @@ void serialize(const int& b, TextOutput& to);
 void serialize(const uint8& b, TextOutput& to);
 void serialize(const double& b, TextOutput& to);
 void serialize(const float& b, TextOutput& to);
-void serialize(const std::string& b, TextOutput& to);
+void serialize(const String& b, TextOutput& to);
 void serialize(const char* b, TextOutput& to);
 
 }

@@ -6,7 +6,7 @@
   \created 2012-03-02 by Zina Cigolle
   \edited  2012-03-02
 
-  Copyright 2000-2012, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 #ifndef G3D_unorm16_h

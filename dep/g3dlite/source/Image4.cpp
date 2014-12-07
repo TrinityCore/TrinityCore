@@ -50,14 +50,14 @@ Image4::Ref Image4::createEmpty(WrapMode wrap) {
 }
 
 
-Image4::Ref Image4::fromFile(const std::string& filename, WrapMode wrap) {
+Image4::Ref Image4::fromFile(const String& filename, WrapMode wrap) {
     Ref out = createEmpty(wrap);
     out->load(filename);
     return out;
 }
 
 
-void Image4::load(const std::string& filename) {
+void Image4::load(const String& filename) {
     shared_ptr<Image> image = Image::fromFile(filename);
     if (image->format() != ImageFormat::RGBA32F()) {
         image->convertToRGBA8();
@@ -203,7 +203,7 @@ void Image4::copyArray(const Color1* src, int w, int h) {
 
 
 /** Saves in any of the formats supported by G3D::GImage. */
-void Image4::save(const std::string& filename) {
+void Image4::save(const String& filename) {
     // To avoid saving as floating point image.  FreeImage cannot convert floating point to RGBA8.
     Image4unorm8::Ref unorm8 = Image4unorm8::fromImage4(dynamic_pointer_cast<Image4>(shared_from_this()));
     unorm8->save(filename);

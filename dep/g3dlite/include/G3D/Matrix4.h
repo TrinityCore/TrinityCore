@@ -6,7 +6,7 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
   \created 2003-10-02
-  \edited  2012-12-25
+  \edited  2013-09-25
  */
 
 #ifndef G3D_Matrix4_h
@@ -19,6 +19,7 @@
 #endif
 
 #include "G3D/platform.h"
+#include "G3D/DoNotInitialize.h"
 #include "G3D/debugAssert.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Vector3.h"
@@ -66,11 +67,13 @@ public:
 
     Any toAny() const;
 
-    Matrix4(
-        float r1c1, float r1c2, float r1c3, float r1c4,
+    Matrix4
+       (float r1c1, float r1c2, float r1c3, float r1c4,
         float r2c1, float r2c2, float r2c3, float r2c4,
         float r3c1, float r3c2, float r3c3, float r3c4,
         float r4c1, float r4c2, float r4c3, float r4c4);
+
+    Matrix4(DoNotInitialize dni) {}
 
     /**
      init should be <B>row major</B>.
@@ -216,6 +219,8 @@ public:
     bool operator!=(const Matrix4& other) const;
     bool operator==(const Matrix4& other) const;
 
+    bool fuzzyEq(const Matrix4& b) const;
+
     float determinant() const;
     Matrix4 inverse() const;
 
@@ -233,7 +238,7 @@ public:
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
 
-    std::string toString() const;
+    String toString() const;
 
     /** 3D scale matrix */
     inline static Matrix4 scale(const Vector3& v) {

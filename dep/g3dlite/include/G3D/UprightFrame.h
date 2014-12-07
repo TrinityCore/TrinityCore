@@ -102,7 +102,7 @@ public:
     */
     explicit UprightSpline(const Any& any);
 
-    virtual Any toAny(const std::string& myName) const override;
+    virtual Any toAny(const String& myName) const override;
 
     Any toAny() const;
 

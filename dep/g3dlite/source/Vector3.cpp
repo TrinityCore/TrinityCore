@@ -31,6 +31,8 @@
  
 namespace G3D {
 
+Vector3 Vector3::ignore;
+
     
 Vector3 Vector3::movedTowards(const Vector3& goal, float maxTranslation) const {
     Vector3 t = *this;
@@ -96,7 +98,7 @@ Any Vector3::toAny() const {
 }
 
 
-Any Vector3::toAny(const std::string& name) const {
+Any Vector3::toAny(const String& name) const {
     Any any(Any::ARRAY, name);
     any.append(x, y, z);
     return any;
@@ -109,11 +111,6 @@ Vector3::Vector3(const class Vector3int32& v) : x((float)v.x), y((float)v.y), z(
 Vector3::Vector3(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z / 127.0f) {}
 
 Vector3::Vector3(const class Vector2& v, float _z) : x(v.x), y(v.y), z(_z) {
-}
-
-Vector3& Vector3::ignore() {
-    static Vector3 v;
-    return v;
 }
 
 const Vector3& Vector3::zero() { static const Vector3 v(0, 0, 0); return v; }
@@ -161,7 +158,7 @@ size_t Vector3::hashCode() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Vector3& v) {
-    return os << v.toString();
+    return os << v.toString().c_str();
 }
 
 
@@ -383,7 +380,7 @@ void Vector3::orthonormalize (Vector3 akVector[3]) {
 
 //----------------------------------------------------------------------------
 
-std::string Vector3::toString() const {
+String Vector3::toString() const {
     return G3D::format("(%g, %g, %g)", x, y, z);
 }
 

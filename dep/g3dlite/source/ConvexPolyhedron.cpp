@@ -367,8 +367,8 @@ void ConvexPolyhedron::cut(const Plane& plane, ConvexPolyhedron &above, ConvexPo
         int numVertices = edge.length();
 /*debugPrintf("\n");
 for (int xx=0; xx < numVertices; ++xx) {
-    std::string s1 = edge[xx].start.toString();
-    std::string s2 = edge[xx].stop.toString();
+    String s1 = edge[xx].start.toString();
+    String s2 = edge[xx].stop.toString();
     debugPrintf("%s -> %s\n", s1.c_str(), s2.c_str());
 }
 */

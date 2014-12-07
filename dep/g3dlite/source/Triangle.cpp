@@ -4,9 +4,9 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2001-04-06
- @edited  2008-12-28
+ @edited  2014-07-28
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2014, Morgan McGuire.
  All rights reserved.
  */
 
@@ -18,6 +18,7 @@
 #include "G3D/debugAssert.h"
 #include "G3D/AABox.h"
 #include "G3D/Ray.h"
+#include "G3D/Random.h"
 
 namespace G3D {
 
@@ -89,7 +90,6 @@ float Triangle::area() const {
     return _area;
 }
 
-
 const Vector3& Triangle::normal() const {
     return _plane.normal();
 }
@@ -104,11 +104,12 @@ Vector3 Triangle::center() const {
     return (_vertex[0] + _vertex[1] + _vertex[2]) / 3.0;
 }
 
-Vector3 Triangle::randomPoint() const {
+
+Vector3 Triangle::randomPoint(Random& rnd) const {
     // Choose a random point in the parallelogram
 
-    float s = uniformRandom();
-    float t = uniformRandom();
+    float s = rnd.uniform();
+    float t = rnd.uniform();
 
     if (t > 1.0f - s) {
         // Outside the triangle; reflect about the
@@ -118,6 +119,25 @@ Vector3 Triangle::randomPoint() const {
     }
 
     return _edge01 * s + _edge02 * t + _vertex[0];
+}
+
+
+Vector3 Triangle::barycentric(const Point3& P) const {
+    // Based on Christer Ericson's Real-Time Collision Detection, via
+    // http://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
+    const Vector3& v2 = P - _vertex[0];
+    float d00 = _edge01.dot(_edge01);
+    float d01 = _edge01.dot(_edge02);
+    float d11 = _edge02.dot(_edge02);
+    float d20 = v2.dot(_edge01);
+    float d21 = v2.dot(_edge02);
+    float scale = 1.0f / (d00 * d11 - d01 * d01);
+
+    Vector3 b;
+    b.y = (d11 * d20 - d01 * d21) * scale;
+    b.z = (d00 * d21 - d01 * d20) * scale;
+    b.x = 1.0f - b.y - b.z;
+    return b;
 }
 
 

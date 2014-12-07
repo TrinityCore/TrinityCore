@@ -15,6 +15,20 @@
 
 namespace G3D {
 
+float ignoreFloat;
+double ignoreDouble;
+int ignoreInt;
+
+float lerpAngle(float a, float b, float t) {
+    a = wrap(a, 0, 2.0f * pif());
+    b = wrap(b, 0, 2.0f * pif());
+    if (b - a > pif()) {
+        a += 2.0f * pif();
+    }
+    return lerp(a, b, t);
+}
+
+
 float gaussRandom(float mean, float stdev) {
 
     // Using Box-Mueller method from http://www.taygeta.com/random/gaussian.html
@@ -106,18 +120,6 @@ int highestBit(uint32 x) {
     return base + lut[x];
 }
 
-
-int iRandom(int low, int high) {
-    int r = iFloor(low + (high - low + 1) * (double)rand() / RAND_MAX);
-    
-    // There is a *very small* chance of generating
-    // a number larger than high.
-    if (r > high) {
-        return high;
-    } else {
-        return r;
-    }
-}
 
 
 }

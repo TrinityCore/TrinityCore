@@ -18,7 +18,7 @@ namespace _internal {
 
 class BasicThread: public GThread {
 public:
-    BasicThread(const std::string& name, void (*proc)(void*), void* param):
+    BasicThread(const String& name, void (*proc)(void*), void* param):
         GThread(name), m_wrapperProc(proc), m_param(param) { }
 protected:
     virtual void threadMain() {
@@ -34,7 +34,7 @@ private:
 } // namespace _internal
 
 
-GThread::GThread(const std::string& name):
+GThread::GThread(const String& name):
     m_status(STATUS_CREATED),
     m_name(name) {
 
@@ -64,7 +64,7 @@ GThread::~GThread() {
 }
 
 
-GThreadRef GThread::create(const std::string& name, void (*proc)(void*), void* param) {
+GThreadRef GThread::create(const String& name, void (*proc)(void*), void* param) {
     return shared_ptr<GThread>(new _internal::BasicThread(name, proc, param));
 }
 

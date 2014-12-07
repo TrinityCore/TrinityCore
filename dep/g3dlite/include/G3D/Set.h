@@ -16,7 +16,7 @@
 #include "G3D/Table.h"
 #include "G3D/MemoryManager.h"
 #include <assert.h>
-#include <string>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 

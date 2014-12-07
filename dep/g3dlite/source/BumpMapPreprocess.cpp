@@ -6,7 +6,7 @@
   \created 2010-01-28
   \edited  2010-01-28
 
-  Copyright 2000-2012, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 #include "G3D/BumpMapPreprocess.h"
@@ -18,7 +18,7 @@ namespace G3D {
 BumpMapPreprocess::BumpMapPreprocess(const Any& any) {
     *this = BumpMapPreprocess();
     for (Any::AnyTable::Iterator it = any.table().begin(); it.isValid(); ++it) {
-        const std::string& key = toLower(it->key);
+        const String& key = toLower(it->key);
         if (key == "lowpassfilter") {
             lowPassFilter = it->value;
         } else if (key == "zextentpixels") {

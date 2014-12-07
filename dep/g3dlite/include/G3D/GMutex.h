@@ -11,11 +11,12 @@
 #include "G3D/platform.h"
 #include "G3D/AtomicInt32.h"
 #include "G3D/debugAssert.h"
-#include <string>
+#include "G3D/G3DString.h"
 
 #ifndef G3D_WINDOWS
 #   include <pthread.h>
 #   include <signal.h>
+#   include <unistd.h>
 #endif
 
 #if defined(G3D_LINUX) || defined(G3D_OSX)

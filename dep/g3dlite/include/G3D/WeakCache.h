@@ -6,7 +6,7 @@
   \created 2007-05-16
   \edited  2012-01-02
 
-  Copyright 2000-2012, Morgan McGuire.
+  Copyright 2000-2014, Morgan McGuire.
   All rights reserved.
  */
 #ifndef G3D_WeakCache_h
@@ -31,9 +31,9 @@ namespace G3D {
 
    Example:
    <pre>
-      WeakCache<std::string, shared_ptr<Texture>> textureCache;
+      WeakCache<String, shared_ptr<Texture>> textureCache;
 
-      shared_ptr<Texture> loadTexture(std::string s) {
+      shared_ptr<Texture> loadTexture(String s) {
           shared_ptr<Texture> t = textureCache[s];
 
           if (t.isNull()) {

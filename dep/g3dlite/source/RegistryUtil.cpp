@@ -24,15 +24,16 @@
 #    define HKEY_PERFORMANCE_NLSTEXT ((HKEY)((LONG)0x80000060))
 #  endif
 #endif
+
 namespace G3D {
 
 // static helpers
 static HKEY getRootKeyFromString(const char* str, size_t length);
 
 
-bool RegistryUtil::keyExists(const std::string& key) {
+bool RegistryUtil::keyExists(const String& key) {
     size_t pos = key.find('\\', 0);
-    if (pos == std::string::npos) {
+    if (pos == String::npos) {
         return false;
     }
 
@@ -55,9 +56,9 @@ bool RegistryUtil::keyExists(const std::string& key) {
     }
 }
 
-bool RegistryUtil::valueExists(const std::string& key, const std::string& value) {
+bool RegistryUtil::valueExists(const String& key, const String& value) {
     size_t pos = key.find('\\', 0);
-    if (pos == std::string::npos) {
+    if (pos == String::npos) {
         return false;
     }
 
@@ -82,9 +83,9 @@ bool RegistryUtil::valueExists(const std::string& key, const std::string& value)
 }
 
 
-bool RegistryUtil::readInt32(const std::string& key, const std::string& value, int32& data) {
+bool RegistryUtil::readInt32(const String& key, const String& value, int32& data) {
     size_t pos = key.find('\\', 0);
-    if (pos == std::string::npos) {
+    if (pos == String::npos) {
         return false;
     }
 
@@ -109,9 +110,9 @@ bool RegistryUtil::readInt32(const std::string& key, const std::string& value, i
     return (result == ERROR_SUCCESS);
 }
 
-bool RegistryUtil::readBytes(const std::string& key, const std::string& value, uint8* data, uint32& dataSize) {
+bool RegistryUtil::readBytes(const String& key, const String& value, uint8* data, uint32& dataSize) {
     size_t pos = key.find('\\', 0);
-    if (pos == std::string::npos) {
+    if (pos == String::npos) {
         return false;
     }
 
@@ -139,9 +140,9 @@ bool RegistryUtil::readBytes(const std::string& key, const std::string& value, u
     return (result == ERROR_SUCCESS);
 }
 
-bool RegistryUtil::readString(const std::string& key, const std::string& value, std::string& data) {
+bool RegistryUtil::readString(const String& key, const String& value, String& data) {
     size_t pos = key.find('\\', 0);
-    if (pos == std::string::npos) {
+    if (pos == String::npos) {
         return false;
     }
 
@@ -182,9 +183,9 @@ bool RegistryUtil::readString(const std::string& key, const std::string& value, 
     return (result == ERROR_SUCCESS);
 }
 
-bool RegistryUtil::writeInt32(const std::string& key, const std::string& value, int32 data) {
+bool RegistryUtil::writeInt32(const String& key, const String& value, int32 data) {
     size_t pos = key.find('\\', 0);
-    if (pos == std::string::npos) {
+    if (pos == String::npos) {
         return false;
     }
 
@@ -208,11 +209,11 @@ bool RegistryUtil::writeInt32(const std::string& key, const std::string& value, 
     return (result == ERROR_SUCCESS);
 }
 
-bool RegistryUtil::writeBytes(const std::string& key, const std::string& value, const uint8* data, uint32 dataSize) {
+bool RegistryUtil::writeBytes(const String& key, const String& value, const uint8* data, uint32 dataSize) {
     debugAssert(data);
 
     size_t pos = key.find('\\', 0);
-    if (pos == std::string::npos) {
+    if (pos == String::npos) {
         return false;
     }
 
@@ -238,9 +239,9 @@ bool RegistryUtil::writeBytes(const std::string& key, const std::string& value, 
     return (result == ERROR_SUCCESS);
 }
 
-bool RegistryUtil::writeString(const std::string& key, const std::string& value, const std::string& data) {
+bool RegistryUtil::writeString(const String& key, const String& value, const String& data) {
     size_t pos = key.find('\\', 0);
-    if (pos == std::string::npos) {
+    if (pos == String::npos) {
         return false;
     }
 
