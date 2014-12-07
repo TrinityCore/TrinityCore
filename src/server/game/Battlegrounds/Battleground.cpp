@@ -511,7 +511,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
         StartingEventOpenDoors();
 
-        SendWarningToAll(StartMessageIds[BG_STARTING_EVENT_FOURTH]);
+        SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_FOURTH], CHAT_MSG_RAID_BOSS_EMOTE);
         SetStatus(STATUS_IN_PROGRESS);
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);
 
@@ -1690,33 +1690,6 @@ void Battleground::PSendMessageToAll(uint32 entry, ChatMsg type, Player const* s
     BroadcastWorker(bg_do);
 
     va_end(ap);
-}
-
-void Battleground::SendWarningToAll(uint32 entry, ...)
-{
-    if (!entry)
-        return;
-
-    std::map<uint32, WorldPackets::Chat::Chat> localizedPackets;
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayer(itr, "SendWarningToAll"))
-        {
-            auto packetItr = localizedPackets.find(player->GetSession()->GetSessionDbLocaleIndex());
-            if (packetItr == localizedPackets.end())
-            {
-                char const* format = sObjectMgr->GetTrinityString(entry, player->GetSession()->GetSessionDbLocaleIndex());
-
-                char str[1024];
-                va_list ap;
-                va_start(ap, entry);
-                vsnprintf(str, 1024, format, ap);
-                va_end(ap);
-
-                ChatHandler::BuildChatPacket(&localizedPackets[player->GetSession()->GetSessionDbLocaleIndex()], CHAT_MSG_RAID_BOSS_EMOTE, LANG_UNIVERSAL, NULL, NULL, str);
-            }
-
-            player->SendDirectMessage(packetItr->second.Write());
-        }
 }
 
 void Battleground::SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* source, uint32 arg1, uint32 arg2)
