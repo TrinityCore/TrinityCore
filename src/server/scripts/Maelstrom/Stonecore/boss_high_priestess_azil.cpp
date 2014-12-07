@@ -132,12 +132,10 @@ class boss_high_priestess_azil : public CreatureScript
 
         struct boss_high_priestess_azilAI : public BossAI
         {
-            boss_high_priestess_azilAI(Creature* creature) : BossAI(creature, DATA_HIGH_PRIESTESS_AZIL), vehicle(creature->GetVehicleKit())
+            boss_high_priestess_azilAI(Creature* creature) : BossAI(creature, DATA_HIGH_PRIESTESS_AZIL)
             {
-                ASSERT(vehicle);
+                ASSERT(creature->GetVehicleKit());
             }
-
-            Vehicle* vehicle;
 
             void Reset() override
             {
@@ -276,7 +274,7 @@ class boss_high_priestess_azil : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_ABOVE_PLATFORM, AbovePlatformPos);
                             break;
                         case EVENT_EARTH_FURY_CHECK_SEAT0:
-                            if (!vehicle->GetPassenger(0))
+                            if (!me->GetVehicleKit()->GetPassenger(0))
                                 DoCast(SPELL_SEISMIC_SHARD_PREPARE);
                             events.ScheduleEvent(EVENT_EARTH_FURY_LAUNCH_SHARD, 1800);
                             break;
@@ -318,7 +316,7 @@ class boss_high_priestess_azil : public CreatureScript
             }
 
         private:
-            uint8 countSeismicShard;
+            uint8 countSeismicShard = 3;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

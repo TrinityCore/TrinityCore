@@ -81,10 +81,7 @@ class boss_alizabal : public CreatureScript
 
         struct boss_alizabalAI : public BossAI
         {
-            boss_alizabalAI(Creature* creature) : BossAI(creature, DATA_ALIZABAL)
-            {
-                _intro = false;
-            }
+            boss_alizabalAI(Creature* creature) : BossAI(creature, DATA_ALIZABAL) { }
 
             void Reset() override
             {
@@ -251,10 +248,9 @@ class boss_alizabal : public CreatureScript
             }
 
         private:
-            bool _intro;
-            bool _hate;
-            bool _skewer;
-
+            bool _intro = false;
+            bool _hate = false;
+            bool _skewer = false;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

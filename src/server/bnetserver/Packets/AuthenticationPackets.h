@@ -60,7 +60,7 @@ namespace Battlenet
             std::string Locale;
             std::vector<Component> Components;
             std::string Login;
-            uint8 Region;
+            uint8 Region = 0;
             std::string GameAccountName;
         };
 
@@ -98,7 +98,7 @@ namespace Battlenet
             std::string Locale;
             std::vector<Component> Components;
             std::string Login;
-            uint64 Compatibility;
+            uint64 Compatibility = 0;
         };
 
         class ResponseFailure
@@ -138,8 +138,8 @@ namespace Battlenet
         {
         public:
             LogonResponse() : ServerPacket(PacketHeader(SMSG_LOGON_RESPONSE, AUTHENTICATION)),
-                PingTimeout(120000), FirstName(""), LastName(""), AccountId(0), Region(2), Flags(0),
-                GameAccountRegion(2), GameAccountName(""), FailedLogins(0)
+                PingTimeout(120000), AccountId(0), Region(2), Flags(0),
+                GameAccountRegion(2), GameAccountFlags(0), FailedLogins(0)
             {
             }
 

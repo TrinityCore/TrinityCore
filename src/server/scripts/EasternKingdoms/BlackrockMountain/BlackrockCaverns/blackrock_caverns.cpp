@@ -357,7 +357,7 @@ class npc_twilight_sadist : public CreatureScript
             void Reset() override
             {
                 _combatPhase = false;
-                if(!me->GetWaypointPath())
+                if (!me->GetWaypointPath())
                     _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, urand(6000, 18000));
             }
 
@@ -422,7 +422,7 @@ class npc_twilight_sadist : public CreatureScript
         private:
             EventMap        _events;
             InstanceScript* _instance;
-            bool            _combatPhase;
+            bool _combatPhase = false;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

@@ -221,7 +221,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
             }
 
         private:
-            uint32 _targetCount;
+            uint32 _targetCount = 0;
         };
 
         SpellScript* GetSpellScript() const override
@@ -1078,12 +1078,6 @@ class spell_mage_polymorph : public SpellScriptLoader
                return true;
             }
 
-            bool Load() override
-            {
-                _caster = NULL;
-                return true;
-            }
-
             bool DoCheck(ProcEventInfo& eventInfo)
             {
                 _caster = GetCaster();
@@ -1111,7 +1105,7 @@ class spell_mage_polymorph : public SpellScriptLoader
             }
 
         private:
-            Unit* _caster;
+            Unit* _caster = nullptr;
         };
 
         AuraScript* GetAuraScript() const override
@@ -1456,7 +1450,7 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
            }
 
        private:
-           bool _didHit;
+           bool _didHit = false;
        };
 
        SpellScript* GetSpellScript() const

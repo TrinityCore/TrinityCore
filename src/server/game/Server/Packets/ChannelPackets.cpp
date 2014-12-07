@@ -25,13 +25,13 @@ void WorldPackets::Channel::ChannelListRequest::Read()
 
 WorldPacket const* WorldPackets::Channel::ChannelListResponse::Write()
 {
-    _worldPacket.WriteBit(Display);
-    _worldPacket.WriteBits(Channel.length(), 7);
-    _worldPacket << uint8(ChannelFlags);
-    _worldPacket << uint32(Members.size());
-    _worldPacket.WriteString(Channel);
+    _worldPacket.WriteBit(_Display);
+    _worldPacket.WriteBits(_Channel.length(), 7);
+    _worldPacket << uint8(_ChannelFlags);
+    _worldPacket << uint32(_Members.size());
+    _worldPacket.WriteString(_Channel);
 
-    for (ChannelPlayer const& player : Members)
+    for (ChannelPlayer const& player : _Members)
     {
         _worldPacket << player.Guid;
         _worldPacket << uint32(player.VirtualRealmAddress);
@@ -44,7 +44,7 @@ WorldPacket const* WorldPackets::Channel::ChannelListResponse::Write()
 WorldPacket const* WorldPackets::Channel::ChannelNotify::Write()
 {
     _worldPacket.WriteBits(Type, 6);
-    _worldPacket.WriteBits(Channel.length(), 7);
+    _worldPacket.WriteBits(_Channel.length(), 7);
     _worldPacket.WriteBits(Sender.length(), 6);
 
     _worldPacket << SenderGuid;
@@ -60,7 +60,7 @@ WorldPacket const* WorldPackets::Channel::ChannelNotify::Write()
         _worldPacket << uint8(NewFlags);
     }
 
-    _worldPacket.WriteString(Channel);
+    _worldPacket.WriteString(_Channel);
     _worldPacket.WriteString(Sender);
 
     return &_worldPacket;
@@ -68,12 +68,12 @@ WorldPacket const* WorldPackets::Channel::ChannelNotify::Write()
 
 WorldPacket const* WorldPackets::Channel::ChannelNotifyJoined::Write()
 {
-    _worldPacket.WriteBits(Channel.length(), 7);
+    _worldPacket.WriteBits(_Channel.length(), 7);
     _worldPacket.WriteBits(ChannelWelcomeMsg.length(), 10);
-    _worldPacket << uint8(ChannelFlags);
+    _worldPacket << uint8(_ChannelFlags);
     _worldPacket << int32(ChatChannelID);
     _worldPacket << uint64(InstanceID);
-    _worldPacket.WriteString(Channel);
+    _worldPacket.WriteString(_Channel);
     _worldPacket.WriteString(ChannelWelcomeMsg);
 
     return &_worldPacket;

@@ -1102,6 +1102,14 @@ struct GameObjectDisplayInfoEntry
     //float         OverrideNameScale;                      // 20
 };
 
+struct GameTablesEntry
+{
+    //uint32 Index;                                         // 0 - not a real field, not counted for columns
+    char const* Name;                                       // 1
+    uint32 NumRows;                                         // 2
+    uint32 NumColumns;                                      // 3
+};
+
 struct GemPropertiesEntry
 {
     uint32      ID;                                         // 0
@@ -1127,11 +1135,6 @@ struct GlyphSlotEntry
     uint32      Type;                                       // 1
     //uint32    Tooltip;                                    // 2
 };
-
-// All Gt* DBC store data for 100 levels, some by 100 per class/race
-#define GT_MAX_LEVEL    100
-// gtOCTClassCombatRatingScalar.dbc stores data for 32 ratings, look at MAX_COMBAT_RATING for real used amount
-#define GT_MAX_RATING   32
 
 struct GtBarberShopCostBaseEntry
 {
@@ -1364,7 +1367,7 @@ struct ItemRandomPropertiesEntry
 {
     uint32      ID;                                         // 0
     //char*     Name;                                       // 1
-    uint32      Enchantment[MAX_ITEM_RANDOM_PROPERTIES];  // 2-6 
+    uint32      Enchantment[MAX_ITEM_RANDOM_PROPERTIES];  // 2-6
     char*       Name_lang;                                  // 7
 };
 
