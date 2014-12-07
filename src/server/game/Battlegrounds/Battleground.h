@@ -396,7 +396,6 @@ class TC_GAME_API Battleground
         virtual void EndBattleground(uint32 winner);
         void BlockMovement(Player* player);
 
-        void SendWarningToAll(uint32 entry, ...);
         void SendMessageToAll(uint32 entry, ChatMsg type, Player const* source = nullptr);
         void PSendMessageToAll(uint32 entry, ChatMsg type, Player const* source, ...);
 
