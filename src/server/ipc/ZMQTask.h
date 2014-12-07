@@ -45,8 +45,8 @@ protected:
 
     zmqpp::poller* _poller;
 
-    zmqpp::socket* _inproc;
-    std::thread* _thread;
+    zmqpp::socket* _inproc = nullptr;
+    std::thread* _thread = nullptr;
 };
 
 #endif // __ZMQTASK_H

@@ -114,7 +114,7 @@ class boss_corla : public CreatureScript
             }
 
         private:
-            bool combatPhase;
+            bool combatPhase = false;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

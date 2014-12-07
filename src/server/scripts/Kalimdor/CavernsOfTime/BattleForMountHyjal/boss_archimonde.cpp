@@ -283,6 +283,8 @@ public:
 
             SoulChargeCount = 0;
             WispCount = 0;                                      // When ~30 wisps are summoned, Archimonde dies               
+            _unleashSpell = 0;
+            _chargeSpell = 0;
 
             Enraged = false;
             HasProtected = false;

@@ -51,7 +51,7 @@ public:
 
         void Reset() override
         {
-            lasher_clicked = false;
+            lasherClicked = false;
         }
 
         void OnSpellClick(Unit* clicker, bool& result) override
@@ -74,7 +74,7 @@ public:
             me->CastSpell(me, SPELL_STAND);
             me->GetMotionMaster()->MoveRandom(8.0f);
             events.ScheduleEvent(EVENT_CHECK_OOC, 20000);
-            lasher_clicked = true;
+            lasherClicked = true;
 
             if (Player* player = clicker->ToPlayer())
                 player->KilledMonsterCredit(NPC_WHISPERWIND_LASHER);
@@ -82,7 +82,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!lasher_clicked)
+            if (!lasherClicked)
                 return;
 
             events.Update(diff);
@@ -104,7 +104,7 @@ public:
 
     private:
         EventMap events;
-        bool lasher_clicked;
+        bool lasherClicked = false;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
