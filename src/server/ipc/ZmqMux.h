@@ -29,7 +29,7 @@
 class ZmqMux : public ZMQTask
 {
 public:
-    ZmqMux(std::string from, std::string to);
+    ZmqMux(std::string const& from, std::string const& to);
     ~ZmqMux();
     bool Send(zmqpp::message*, bool dont_block = false);
     void Run() override;

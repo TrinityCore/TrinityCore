@@ -484,7 +484,7 @@ class npc_egg_pile : public CreatureScript
 
         private:
             EventMap _events;
-            uint32 _callHatchlingSpell;
+            uint32 _callHatchlingSpell = 0;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

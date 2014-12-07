@@ -2326,8 +2326,7 @@ void FillItemDamageFields(float* minDamage, float* maxDamage, float* dps, uint32
             return;
     }
 
-    if (!store)
-        return;
+    ASSERT(store);
 
     ItemDamageEntry const* damageInfo = store->LookupEntry(itemLevel);
     if (!damageInfo)

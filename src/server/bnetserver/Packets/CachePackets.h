@@ -54,8 +54,8 @@ namespace Battlenet
             std::string Channel;
             std::string ItemName;
             std::string Locale;
-            uint32 Index;
-            int32 ReferenceTime;
+            uint32 Index = 0;
+            int32 ReferenceTime = 0;
         };
 
         class GetStreamItemsResponse final : public ServerPacket
@@ -70,7 +70,7 @@ namespace Battlenet
             void Write() override;
             std::string ToString() const override;
 
-            uint32 Index;
+            uint32 Index = 0;
             std::vector<ModuleInfo*> Modules;
         };
     }

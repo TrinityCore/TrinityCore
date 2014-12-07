@@ -27,7 +27,7 @@
 #include "BattlefieldMgr.h"
 
 /**
- * @fn void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 acceptTime)
+ * @fn void WorldSession::SendBfInvitePlayerToWar(ObjectGuid guid, uint32 zoneId, uint32 acceptTime)
  *
  * @brief This send to player windows for invite player to join the war.
  *
@@ -62,7 +62,7 @@ void WorldSession::SendBfInvitePlayerToWar(ObjectGuid guid, uint32 zoneId, uint3
 }
 
 /**
- * @fn void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
+ * @fn void WorldSession::SendBfInvitePlayerToQueue(ObjectGuid guid)
  *
  * @brief This send invitation to player to join the queue.
  *
@@ -103,7 +103,7 @@ void WorldSession::SendBfInvitePlayerToQueue(ObjectGuid guid)
 }
 
 /**
- * @fn void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 zoneId, bool canQueue, bool full)
+ * @fn void WorldSession::SendBfQueueInviteResponse(ObjectGuid guid, uint32 zoneId, bool canQueue, bool full)
  *
  * @brief This send packet for inform player that he join queue.
  *
@@ -157,7 +157,7 @@ void WorldSession::SendBfQueueInviteResponse(ObjectGuid guid, uint32 zoneId, boo
 }
 
 /**
- * @fn void WorldSession::SendBfEntered(uint64 guid)
+ * @fn void WorldSession::SendBfEntered(ObjectGuid guid)
  *
  * @brief This is call when player accept to join war.
  *
@@ -196,7 +196,7 @@ void WorldSession::SendBfEntered(ObjectGuid guid)
 }
 
 /**
- * @fn void WorldSession::SendBfLeaveMessage(uint64 guid, BFLeaveReason reason)
+ * @fn void WorldSession::SendBfLeaveMessage(ObjectGuid guid, BFLeaveReason reason)
  *
  * @brief This is call when player leave battlefield zone.
  *

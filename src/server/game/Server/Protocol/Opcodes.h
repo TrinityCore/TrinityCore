@@ -660,7 +660,6 @@ enum OpcodeClient : uint32
     MSG_PARTY_ASSIGNMENT                              = 0xBADD,
     MSG_PETITION_DECLINE                              = 0xBADD,
     MSG_PETITION_RENAME                               = 0xBADD,
-    MSG_PVP_LOG_DATA                                  = 0xBADD,
     MSG_QUERY_NEXT_MAIL_TIME                          = 0xBADD,
     MSG_QUEST_PUSH_RESULT                             = 0xBADD,
     MSG_RAID_READY_CHECK                              = 0xBADD,

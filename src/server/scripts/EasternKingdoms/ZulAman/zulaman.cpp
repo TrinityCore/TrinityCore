@@ -141,6 +141,7 @@ class npc_voljin_zulaman : public CreatureScript
                         case EVENT_INTRO_MOVEPOINT_3:
                             Talk(SAY_INTRO_2);
                             _events.ScheduleEvent(EVENT_BANGING_THE_GONG, 3000);
+                            break;
                         case EVENT_BANGING_THE_GONG:
                             DoCast(me, SPELL_BANGING_THE_GONG);
                             if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
@@ -208,7 +209,7 @@ class npc_voljin_zulaman : public CreatureScript
         private:
             InstanceScript* _instance;
             EventMap _events;
-            uint8 _gongCount;
+            uint8 _gongCount = 0;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
