@@ -55,10 +55,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<ChannelPlayer> Members;
-            std::string Channel; ///< Channel Name
-            uint8 ChannelFlags = 0; ///< @see enum ChannelFlags
-            bool Display = false;
+            std::vector<ChannelPlayer> _Members;
+            std::string _Channel; ///< Channel Name
+            uint8 _ChannelFlags = 0; ///< @see enum ChannelFlags
+            bool _Display = false;
         };
 
         class ChannelNotify final : public ServerPacket
@@ -74,7 +74,7 @@ namespace WorldPackets
             uint8 Type                = 0; ///< @see enum ChatNotify
             uint8 OldFlags            = 0; ///< @see enum ChannelMemberFlags
             uint8 NewFlags            = 0; ///< @see enum ChannelMemberFlags
-            std::string Channel;           ///< Channel Name
+            std::string _Channel;          ///< Channel Name
             uint32 SenderVirtualRealm = 0;
             ObjectGuid TargetGuid;
             uint32 TargetVirtualRealm = 0;
@@ -91,8 +91,8 @@ namespace WorldPackets
             std::string ChannelWelcomeMsg;
             int32 ChatChannelID = 0;
             int32 InstanceID    = 0;
-            uint8 ChannelFlags  = 0; ///< @see enum ChannelFlags
-            std::string Channel;     ///< Channel Name
+            uint8 _ChannelFlags = 0; ///< @see enum ChannelFlags
+            std::string _Channel;     ///< Channel Name
         };
 
         class ChannelNotifyLeft final : public ServerPacket

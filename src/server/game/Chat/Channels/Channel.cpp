@@ -209,8 +209,8 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     //notify.ChannelWelcomeMsg = "";
     notify.ChatChannelID = _channelId;
     //notify.InstanceID = 0;
-    notify.ChannelFlags = _flags;
-    notify.Channel = _name;
+    notify._ChannelFlags = _flags;
+    notify._Channel = _name;
     player->SendDirectMessage(notify.Write());
 
     JoinNotify(player);
@@ -541,12 +541,13 @@ void Channel::List(Player const* player)
         player->GetSession()->GetPlayerInfo().c_str(), GetName().c_str());
 
     WorldPackets::Channel::ChannelListResponse list;
-    list.Display = true; /// always true?
-    list.Channel = GetName();
-    list.ChannelFlags = GetFlags();
+    list._Display = true; /// always true?
+    list._Channel = GetName();
+    list._ChannelFlags = GetFlags();
 
     uint32 gmLevelInWhoList = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
+    list._Members.reserve(_playersStore.size());
     for (PlayerContainer::value_type const& i : _playersStore)
     {
         Player* member = ObjectAccessor::FindConnectedPlayer(i.first);
@@ -558,7 +559,7 @@ void Channel::List(Player const* player)
              member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
             member->IsVisibleGloballyFor(player))
         {
-            list.Members.emplace_back(i.second.PlayerGuid, GetVirtualRealmAddress(), i.second.GetFlags());
+            list._Members.emplace_back(i.second.PlayerGuid, GetVirtualRealmAddress(), i.second.GetFlags());
         }
     }
 
@@ -760,7 +761,7 @@ void Channel::DeVoice(ObjectGuid const& /*guid1*/, ObjectGuid const& /*guid2*/)
 void Channel::MakeNotifyPacket(WorldPackets::Channel::ChannelNotify& data, uint8 notifyType)
 {
     data.Type = notifyType;
-    data.Channel = _name;
+    data._Channel = _name;
 }
 
 void Channel::MakeJoined(WorldPackets::Channel::ChannelNotify& data, ObjectGuid const& guid)

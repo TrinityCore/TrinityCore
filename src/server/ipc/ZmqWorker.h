@@ -24,19 +24,19 @@
 class ZmqWorker : public ZMQTask
 {
 public:
-    ZmqWorker(std::string task_uri, std::string res_uri);
+    ZmqWorker(std::string const& taskUri, std::string const& resUri);
     ~ZmqWorker();
     void Run() override;
 
 protected:
     void HandleOpen() override;
     void HandleClose() override;
-    zmqpp::socket* _results;
+    zmqpp::socket* _results = nullptr;
 
 private:
     void PerformWork();
     virtual void Dispatch(zmqpp::message const&) = 0;
-    zmqpp::socket* _taskQueue;
+    zmqpp::socket* _taskQueue = nullptr;
     std::string _taskUri;
     std::string _resultsUri;
 };

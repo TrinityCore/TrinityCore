@@ -213,7 +213,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                 events.Update(diff);
 
                 // Impending Doom is exception because it needs to be interrupted.
-                if (me->HasUnitState(UNIT_STATE_CASTING) && !me->GetCurrentSpell(SPELL_IMPENDING_DOOM))
+                if (me->HasUnitState(UNIT_STATE_CASTING) && me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->Id != SPELL_IMPENDING_DOOM_CHANNEL)
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
