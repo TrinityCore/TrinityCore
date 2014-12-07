@@ -5375,11 +5375,11 @@ float Player::GetMeleeCritFromAgility()
     uint8 level = getLevel();
     uint32 pclass = getClass();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    if (level >= sGtChanceToMeleeCritStore.GetTableRowCount())
+        level = sGtChanceToMeleeCritStore.GetTableRowCount() - 1;
 
-    GtChanceToMeleeCritBaseEntry const* critBase  = sGtChanceToMeleeCritBaseStore.LookupEntry(pclass-1);
-    GtChanceToMeleeCritEntry     const* critRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtChanceToMeleeCritBaseEntry const* critBase = sGtChanceToMeleeCritBaseStore.EvaluateTable(pclass - 1, 0);
+    GtChanceToMeleeCritEntry     const* critRatio = sGtChanceToMeleeCritStore.EvaluateTable(level - 1, pclass - 1);
     if (critBase == NULL || critRatio == NULL)
         return 0.0f;
 
@@ -5423,11 +5423,11 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
     uint8 level = getLevel();
     uint32 pclass = getClass();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    if (level >= sGtChanceToMeleeCritStore.GetTableRowCount())
+        level = sGtChanceToMeleeCritStore.GetTableRowCount() - 1;
 
     // Dodge per agility is proportional to crit per agility, which is available from DBC files
-    GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.EvaluateTable(level - 1, pclass - 1);
     if (dodgeRatio == NULL || pclass > MAX_CLASSES)
         return;
 
@@ -5445,11 +5445,11 @@ float Player::GetSpellCritFromIntellect()
     uint8 level = getLevel();
     uint32 pclass = getClass();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    if (level >= sGtChanceToSpellCritStore.GetTableRowCount())
+        level = sGtChanceToSpellCritStore.GetTableRowCount() - 1;
 
-    GtChanceToSpellCritBaseEntry const* critBase = sGtChanceToSpellCritBaseStore.LookupEntry(pclass - 1);
-    GtChanceToSpellCritEntry const* critRatio = sGtChanceToSpellCritStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
+    GtChanceToSpellCritBaseEntry const* critBase = sGtChanceToSpellCritBaseStore.EvaluateTable(pclass - 1, 0);
+    GtChanceToSpellCritEntry const* critRatio = sGtChanceToSpellCritStore.EvaluateTable(level - 1, pclass - 1);
     if (critBase == NULL || critRatio == NULL)
         return 0.0f;
 
@@ -5461,12 +5461,12 @@ float Player::GetRatingMultiplier(CombatRating cr) const
 {
     uint8 level = getLevel();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    if (level >= sGtCombatRatingsStore.GetTableRowCount())
+        level = sGtCombatRatingsStore.GetTableRowCount() - 1;
 
-    GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
+    GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.EvaluateTable(level - 1, cr);
     // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
-    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);
+    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.EvaluateTable(cr + 1, getClass() - 1);
     if (!Rating || !classRating)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
@@ -5500,11 +5500,10 @@ float Player::OCTRegenMPPerSpirit()
     uint8 level = getLevel();
     uint32 pclass = getClass();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    if (level >= sGtRegenMPPerSptStore.GetTableRowCount())
+        level = sGtRegenMPPerSptStore.GetTableRowCount() - 1;
 
-//    GtOCTRegenMPEntry     const* baseRatio = sGtOCTRegenMPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.EvaluateTable(level - 1, pclass - 1);
     if (moreRatio == NULL)
         return 0.0f;
 
@@ -24669,8 +24668,8 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 {
     uint8 level = getLevel();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;                               // max level in this dbc
+    if (level >= sGtBarberShopCostBaseStore.GetTableRowCount())
+        level = sGtBarberShopCostBaseStore.GetTableRowCount() - 1;
 
     uint8 hairstyle = GetByteValue(PLAYER_BYTES, 2);
     uint8 haircolor = GetByteValue(PLAYER_BYTES, 3);
@@ -24680,7 +24679,7 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
     if ((hairstyle == newhairstyle) && (haircolor == newhaircolor) && (facialhair == newfacialhair) && (!newSkin || (newSkin->Data == skincolor)))
         return 0;
 
-    GtBarberShopCostBaseEntry const* bsc = sGtBarberShopCostBaseStore.LookupEntry(level - 1);
+    GtBarberShopCostBaseEntry const* bsc = sGtBarberShopCostBaseStore.EvaluateTable(level - 1, 0);
 
     if (!bsc)                                                // shouldn't happen
         return 0xFFFFFFFF;
