@@ -1251,55 +1251,60 @@ public:
         // Search in CharTitles.dbc
         for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
         {
-            CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
-            if (titleInfo)
+            if (CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id))
             {
-                /// @todo: implement female support
-                uint8 locale = handler->GetSessionDbcLocale();
-                std::string_view name = titleInfo->Name[locale];
-                if (name.empty())
-                    continue;
-
-                if (!Utf8FitTo(name, wNamePart))
+                for (uint8 gender = GENDER_MALE; gender <= GENDER_FEMALE; ++gender)
                 {
-                    locale = 0;
-                    for (; locale < TOTAL_LOCALES; ++locale)
+                    if (target && target->GetGender() != gender)
+                        continue;
+
+                    LocaleConstant locale = handler->GetSessionDbcLocale();
+                    std::string_view name = (gender == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[locale];
+
+                    if (name.empty())
+                        continue;
+
+                    if (!Utf8FitTo(name, wNamePart))
                     {
-                        if (locale == handler->GetSessionDbcLocale())
-                            continue;
+                        locale = LOCALE_enUS;
+                        for (; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
+                        {
+                            if (locale == handler->GetSessionDbcLocale())
+                                continue;
 
-                        name = titleInfo->Name[locale];
-                        if (name.empty())
-                            continue;
+                            name = (gender == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[locale];
+                            if (name.empty())
+                                continue;
 
-                        if (Utf8FitTo(name, wNamePart))
-                            break;
-                    }
-                }
-
-                if (locale < TOTAL_LOCALES)
-                {
-                    if (maxResults && counter == maxResults)
-                    {
-                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                        return true;
+                            if (Utf8FitTo(name, wNamePart))
+                                break;
+                        }
                     }
 
-                    char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
+                    if (locale < TOTAL_LOCALES)
+                    {
+                        if (maxResults && counter == maxResults)
+                        {
+                            handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                            return true;
+                        }
 
-                    char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
-                        ? handler->GetTrinityString(LANG_ACTIVE)
-                        : "";
+                        char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
 
-                    std::string titleNameStr = ChatHandler::PGetParseString(name, targetName);
+                        char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
+                            ? handler->GetTrinityString(LANG_ACTIVE)
+                            : "";
 
-                    // send title in "id (idx:idx) - [namedlink locale]" format
-                    if (handler->GetSession())
-                        handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr, localeNames[locale], knownStr, activeStr);
-                    else
-                        handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->MaskID, titleNameStr, localeNames[locale], knownStr, activeStr);
+                        std::string titleNameStr = ChatHandler::PGetParseString(name, targetName);
 
-                    ++counter;
+                        // send title in "id (idx:idx) - [namedlink locale]" format
+                        if (handler->GetSession())
+                            handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr, localeNames[locale], knownStr, activeStr);
+                        else
+                            handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->MaskID, titleNameStr, localeNames[locale], knownStr, activeStr);
+
+                        ++counter;
+                    }
                 }
             }
         }

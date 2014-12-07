@@ -2474,7 +2474,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         uint32 dataType = fields[1].GetUInt8();
         std::string scriptName = fields[4].GetString();
         uint32 scriptId = 0;
-        if (scriptName.length()) // not empty
+        if (!scriptName.empty())
         {
             if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
                 TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` contains a ScriptName for non-scripted data type (Entry: {}, type {}), useless data.", criteria_id, dataType);

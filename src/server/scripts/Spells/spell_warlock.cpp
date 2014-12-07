@@ -394,8 +394,7 @@ class spell_warl_demonic_empowerment : public SpellScript
         {
             if (targetCreature->IsPet())
             {
-                CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(targetCreature->GetEntry());
-                ASSERT(ci);
+                CreatureTemplate const* ci = targetCreature->GetCreatureTemplate();
                 switch (ci->family)
                 {
                     case CREATURE_FAMILY_SUCCUBUS:
