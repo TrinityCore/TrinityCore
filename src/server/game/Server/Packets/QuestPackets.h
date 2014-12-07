@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "QuestDef.h"
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {

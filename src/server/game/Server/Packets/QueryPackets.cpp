@@ -153,3 +153,58 @@ WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Query::QueryNPCText::Read()
+{
+    _worldPacket >> TextID;
+    _worldPacket >> Guid;
+}
+
+WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
+{
+    _worldPacket << TextID;
+    _worldPacket.WriteBit(Allow);
+
+    if (Allow)
+    {
+        _worldPacket << int32(MAX_GOSSIP_TEXT_OPTIONS * (4 + 4));
+        for (uint32 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+            _worldPacket << Probabilities[i];
+        for (uint32 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+            _worldPacket << BroadcastTextID[i];
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::DBQueryBulk::Read()
+{
+    _worldPacket >> TableHash;
+
+    uint32 count = _worldPacket.ReadBits(13);
+    _worldPacket.ResetBitPos();
+
+    Queries.resize(count);
+    for (uint32 i = 0; i < count; ++i)
+    {
+        _worldPacket >> Queries[i].GUID;
+        _worldPacket >> Queries[i].RecordID;
+    }
+}
+
+WorldPacket const* WorldPackets::Query::DBReply::Write()
+{
+    _worldPacket << TableHash;
+    _worldPacket << RecordID;
+    _worldPacket << Timestamp;
+
+    size_t sizePos = _worldPacket.wpos();
+    _worldPacket << int32(0); // size of next block
+
+    if (Data)
+        Data->WriteRecord(RecordID, Locale, _worldPacket);
+
+    _worldPacket.put<int32>(sizePos, _worldPacket.wpos() - sizePos - 4);
+
+    return &_worldPacket;
+}

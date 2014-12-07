@@ -78,7 +78,7 @@ namespace Battlenet
             std::string ToString() const override;
             void CallHandler(Session* session) override;
 
-            uint32 SocialNetworkId;
+            uint32 SocialNetworkId = 0;
         };
 
         class RealIdFriendInvite final : public ClientPacket

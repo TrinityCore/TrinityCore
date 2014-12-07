@@ -1004,7 +1004,7 @@ public:
         if (strchr(args, 'g') || strchr(args, 's') || strchr(args, 'c'))
             moneyToAdd = MoneyStringToMoney(std::string(args));
         else
-            moneyToAdd = atol(args);
+            moneyToAdd = atoll(args);
 
         uint64 targetMoney = target->GetMoney();
 
@@ -1344,7 +1344,7 @@ public:
         }
 
         // Set gender
-        target->SetByteValue(UNIT_FIELD_BYTES_0, 2, gender);
+        target->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, gender);
         target->SetByteValue(PLAYER_BYTES_3, 0, gender);
 
         // Change display ID

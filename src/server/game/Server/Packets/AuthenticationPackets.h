@@ -34,13 +34,13 @@ namespace WorldPackets
         class AuthChallenge final : public ServerPacket
         {
         public:
-            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 4 + 32 + 1), Challenge(0) { }
+            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 4 + 32 + 1) { }
 
             WorldPacket const* Write() override;
 
-            uint32 Challenge;
+            uint32 Challenge = 0;
             uint32 DosChallenge[8]; ///< Encryption seeds
-            uint8 DosZeroBits;
+            uint8 DosZeroBits = 0;
         };
 
         class AuthSession final : public ClientPacket

@@ -49,14 +49,14 @@ zmqpp::message& operator>>(zmqpp::message& msg, Battlenet::ToonHandle& toonHandl
     return msg;
 }
 
-zmqpp::message& operator<<(zmqpp::message& msg, IPCHeader& header)
+zmqpp::message& operator<<(zmqpp::message& msg, IPCHeader const& header)
 {
     msg << header.Channel;
     msg << header.Command;
     return msg;
 }
 
-zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::RealmHandle& realm)
+zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::RealmHandle const& realm)
 {
     msg << realm.Region;
     msg << realm.Battlegroup;
@@ -64,14 +64,14 @@ zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::RealmHandle& realm)
     return msg;
 }
 
-zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::Header& header)
+zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::Header const& header)
 {
     msg << header.Ipc;
     msg << header.Realm;
     return msg;
 }
 
-zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::ToonHandle& toonHandle)
+zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::ToonHandle const& toonHandle)
 {
     msg << toonHandle.AccountId;
     msg << toonHandle.GameAccountId;

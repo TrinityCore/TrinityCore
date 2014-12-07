@@ -2882,6 +2882,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_ZONE: // 41
                 if (!unit || unit->GetZoneId() != reqValue)
                     return false;
+                break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PERCENT_BELOW: // 46
                 if (!unit || unit->GetHealthPct() >= reqValue)
                     return false;
@@ -3227,7 +3228,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         uint32 dataType = fields[1].GetUInt8();
         std::string scriptName = fields[4].GetString();
         uint32 scriptId = 0;
-        if (scriptName.length()) // not empty
+        if (!scriptName.empty())
         {
             if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
                 TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` has ScriptName set for non-scripted data type (Entry: %u, type %u), useless data.", criteria_id, dataType);

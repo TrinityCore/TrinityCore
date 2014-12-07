@@ -88,9 +88,9 @@ struct CreatureTemplate
     std::string  SubName;
     std::string  IconName;
     uint32  GossipMenuId;
-    uint8   minlevel;
-    uint8   maxlevel;
-    uint32  expansion;
+    int16   minlevel;
+    int16   maxlevel;
+    int32   expansion;
     uint32  expansionUnknown;                               // either 0 or 3, sent to the client / wdb
     uint32  faction;
     uint32  npcflag;
@@ -392,11 +392,13 @@ struct VendorItemCount
 
 typedef std::list<VendorItemCount> VendorItemCounts;
 
+#define MAX_TRAINERSPELL_ABILITY_REQS 3
+
 struct TrainerSpell
 {
     TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0)
     {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
             ReqAbility[i] = 0;
     }
 
@@ -405,7 +407,7 @@ struct TrainerSpell
     uint32 ReqSkillLine;
     uint32 ReqSkillRank;
     uint32 ReqLevel;
-    uint32 ReqAbility[3];
+    uint32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
 
     // helpers
     bool IsCastable() const { return ReqAbility[0] != SpellID; }
