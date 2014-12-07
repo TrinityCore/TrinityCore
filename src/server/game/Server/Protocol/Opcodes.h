@@ -1173,7 +1173,7 @@ enum OpcodeServer : uint32
     SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA         = 0x053F,
     SMSG_OPEN_CONTAINER                               = 0xBADD,
     SMSG_OPEN_LFG_DUNGEON_FINDER                      = 0xBADD,
-    SMSG_OVERRIDE_LIGHT                               = 0xBADD,
+    SMSG_OVERRIDE_LIGHT                               = 0x01EA, // 6.0.3 19243
     SMSG_PAGE_TEXT_QUERY_RESPONSE                     = 0x05A0,
     SMSG_PARTYKILLLOG                                 = 0xBADD,
     SMSG_PARTY_COMMAND_RESULT                         = 0xBADD,
