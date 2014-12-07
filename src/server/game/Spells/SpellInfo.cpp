@@ -368,10 +368,13 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128();
     ImplicitTargetConditions = NULL;
-    // TODO: 6.x these values are no longer in dbc
-    ScalingMultiplier = /*scaling ? scaling->Multiplier[EffectIndex] :*/ 0.0f;
-    DeltaScalingMultiplier = /*scaling ? scaling->RandomMultiplier[EffectIndex] :*/ 0.0f;
-    ComboScalingMultiplier = /*scaling ? scaling->OtherMultiplier[EffectIndex] :*/ 0.0f;
+
+    uint32 _effectScalingId = _effect ? sSpellEffectScallingByEffectId.find(_effect->ID) != sSpellEffectScallingByEffectId.end() ? sSpellEffectScallingByEffectId[_effect->ID] : 0 : 0;
+    SpellEffectScalingEntry const* _effectScalingEntry = sSpellEffectScalingStore.LookupEntry(_effectScalingId);
+
+    ScalingMultiplier = _effectScalingEntry ? _effectScalingEntry->Coefficient : 0.0f;
+    DeltaScalingMultiplier = _effectScalingEntry ? _effectScalingEntry->Variance : 0.0f;
+    ComboScalingMultiplier = _effectScalingEntry ? _effectScalingEntry->ResourceCoefficient : 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -856,14 +859,26 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap effects)
     // SpellDifficultyEntry
     for (SpellEffectEntryMap::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
     {
-        _effects[itr->first].resize(MAX_SPELL_EFFECTS);
+        SpellEffectEntryVector effects = itr->second;
+        _effects[itr->first].resize(effects.size());
+
+        for (uint32 i = effects.size(); i > 0; --i)
+        {
+            SpellEffectEntry const* effect = effects[i - 1];
+            if (!effect)
+                continue;
+
+            _effects[itr->first][effect->EffectIndex] = new SpellEffectInfo(spellEntry, this, effect->EffectIndex, effect);
+        }
+
+        /*_effects[itr->first].resize(MAX_SPELL_EFFECTS);
         for (SpellEffectEntryVector::const_iterator i = itr->second.begin(); i != itr->second.end(); ++i)
         {
             if (!(*i))
                 continue;
 
             _effects[itr->first][(*i)->EffectIndex] = new SpellEffectInfo(spellEntry, this, (*i)->EffectIndex, (*i));
-        }
+        }*/
     }
 
     SpellName = spellEntry->Name_lang;
@@ -3064,6 +3079,8 @@ void SpellInfo::_UnloadImplicitTargetConditionLists()
 
 SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) const
 {
+    // 6.x todo: add first highest difficulty effect, resize list to max element, add lower diff effects without overwriting any higher diffed ones
+
     SpellEffectInfoVector effList;
 
     // DIFFICULTY_NONE effects are the default effects, always active if current difficulty's effects don't overwrite

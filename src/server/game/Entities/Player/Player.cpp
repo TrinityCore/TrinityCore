@@ -25627,7 +25627,7 @@ void Player::LearnTalentSpecialization(uint32 talentSpec)
             RemoveSpell(talent->SpellID, false);
             itr = talents->erase(itr);
         
-            TC_LOG_DEBUG("spells", "Player %s unlearning talent id: %u tier: %u because of specialization change", GetName().c_str(), talent->ID, talent->TierID);
+            TC_LOG_DEBUG("spells", "Player %s unlearning talent id: %u tier: %u due to specialization change", GetName().c_str(), talent->ID, talent->TierID);
         }
     }
 

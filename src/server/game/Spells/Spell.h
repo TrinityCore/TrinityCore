@@ -201,7 +201,7 @@ class SpellCastTargets
 
 struct SpellValue
 {
-    explicit  SpellValue(SpellInfo const* proto);
+    explicit  SpellValue(Difficulty diff, SpellInfo const* proto);
     int32     EffectBasePoints[MAX_SPELL_EFFECTS];
     uint32    MaxAffectedTargets;
     float     RadiusMod;
