@@ -386,7 +386,7 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
 
     ASSERT(!_spelEffectInfos.empty());
 
-    _effects.resize(MAX_SPELL_EFFECTS);
+    _effects.resize(GetSpellEffectInfos().size());
 
     for (SpellEffectInfo const* effect : GetSpellEffectInfos())
     {

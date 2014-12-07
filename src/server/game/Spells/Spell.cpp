@@ -562,11 +562,15 @@ void SpellCastTargets::OutDebug() const
     TC_LOG_INFO("spells", "elevation: %f", m_elevation);
 }
 
-SpellValue::SpellValue(SpellInfo const* proto)
+SpellValue::SpellValue(Difficulty diff, SpellInfo const* proto)
 {
     // todo 6.x
-    //for (uint32 i = 0; i < proto->Effects.size(); ++i)
-    //    EffectBasePoints[i] = proto->Effects[i].BasePoints;
+    SpellEffectInfoVector effects = proto->GetEffectsForDifficulty(diff);
+    ASSERT(effects.size() <= MAX_SPELL_EFFECTS);
+    for (SpellEffectInfo const* effect : effects)
+        if (effect)
+            EffectBasePoints[effect->EffectIndex] = effect->BasePoints;
+
     MaxAffectedTargets = proto->MaxAffectedTargets;
     RadiusMod = 1.0f;
     AuraStackAmount = 1;
@@ -574,7 +578,7 @@ SpellValue::SpellValue(SpellInfo const* proto)
 
 Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID, bool skipCheck) :
 m_spellInfo(info), m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster),
-m_spellValue(new SpellValue(m_spellInfo)), m_preGeneratedPath(PathGenerator(m_caster))
+m_spellValue(new SpellValue(caster->GetMap()->GetDifficulty(), m_spellInfo)), m_preGeneratedPath(PathGenerator(m_caster))
 {
     _effects = info->GetEffectsForDifficulty(caster->GetMap()->GetDifficulty());
 
