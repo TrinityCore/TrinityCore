@@ -78,7 +78,7 @@ namespace Battlenet
             std::string ToString() const override;
             void CallHandler(Session* session) override;
 
-            uint32 ClientSeed;
+            uint32 ClientSeed = 0;
             RealmId Realm;
         };
 

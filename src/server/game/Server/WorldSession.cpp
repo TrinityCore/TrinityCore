@@ -60,7 +60,7 @@ std::string const DefaultPlayerName = "<none>";
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
-    OpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
+    ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
 
     //let's check if our opcode can be really processed in Map::Update()
     if (opHandle->ProcessingPlace == PROCESS_INPLACE)
@@ -82,7 +82,8 @@ bool MapSessionFilter::Process(WorldPacket* packet)
 //OR packet handler is not thread-safe!
 bool WorldSessionFilter::Process(WorldPacket* packet)
 {
-    OpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
+    ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
+
     //check if packet handler is supposed to be safe
     if (opHandle->ProcessingPlace == PROCESS_INPLACE)
         return true;
@@ -193,9 +194,6 @@ std::string WorldSession::GetPlayerInfo() const
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
 {
-    if (!m_Socket[packet->GetConnection()])
-        return;
-
     if (packet->GetOpcode() == NULL_OPCODE)
     {
         TC_LOG_ERROR("network.opcode", "Prevented sending of NULL_OPCODE to %s", GetPlayerInfo().c_str());
@@ -207,10 +205,38 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
         return;
     }
 
+    ServerOpcodeHandler const* handler = opcodeTable[static_cast<OpcodeServer>(packet->GetOpcode())];
+
+    if (!handler)
+    {
+        TC_LOG_ERROR("network.opcode", "Prevented sending of opcode %u with non existing handler to %s", packet->GetOpcode(), GetPlayerInfo().c_str());
+        return;
+    }
+
+    // Default connection index defined in Opcodes.cpp table
+    ConnectionType conIdx = handler->ConnectionIndex;
+
+    // Override connection index
+    if (packet->GetConnection() != CONNECTION_TYPE_DEFAULT)
+    {
+        if (packet->GetConnection() != CONNECTION_TYPE_INSTANCE && IsInstanceOnlyOpcode(packet->GetOpcode()))
+        {
+            TC_LOG_ERROR("network.opcode", "Prevented sending of instance only opcode %u with connection type %u to %s", packet->GetOpcode(), packet->GetConnection(), GetPlayerInfo().c_str());
+            return;
+        }
+
+        conIdx = packet->GetConnection();
+    }
+
+    if (!m_Socket[conIdx])
+    {
+        TC_LOG_ERROR("network.opcode", "Prevented sending of %s to non existent socket %u to %s", GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet->GetOpcode())).c_str(), conIdx, GetPlayerInfo().c_str());
+        return;
+    }
+
     if (!forced)
     {
-        OpcodeHandler const* handler = opcodeTable[static_cast<OpcodeServer>(packet->GetOpcode())];
-        if (!handler || handler->Status == STATUS_UNHANDLED)
+        if (handler->Status == STATUS_UNHANDLED)
         {
             TC_LOG_ERROR("network.opcode", "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
             return;
@@ -253,7 +279,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     sScriptMgr->OnPacketSend(this, *packet);
 
-    m_Socket[packet->GetConnection()]->SendPacket(*packet);
+    m_Socket[conIdx]->SendPacket(*packet);
 }
 
 /// Add an incoming packet to the queue
@@ -311,7 +337,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (!AntiDOS.EvaluateOpcode(*packet, currentTime))
             KickPlayer();
 
-        OpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
+        ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
         try
         {
             switch (opHandle->Status)

@@ -238,17 +238,13 @@ class UnitAI
 
         void AttackStartCaster(Unit* victim, float dist);
 
-        void DoAddAuraToAllHostilePlayers(uint32 spellid);
         void DoCast(uint32 spellId);
         void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
-        void DoCastToAllHostilePlayers(uint32 spellid, bool triggered = false);
         void DoCastVictim(uint32 spellId, bool triggered = false);
         void DoCastAOE(uint32 spellId, bool triggered = false);
 
-        float DoGetSpellMaxRange(uint32 spellId, bool positive = false);
-
         void DoMeleeAttackIfReady();
-        bool DoSpellAttackIfReady(uint32 spell);
+        bool DoSpellAttackIfReady(uint32 spellId);
 
         static AISpellInfoType* AISpellInfo;
         static void FillAISpellInfo();

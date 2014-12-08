@@ -241,7 +241,7 @@ class boss_corborus : public CreatureScript
 
         private:
             EncounterState stateIntro;
-            uint32 countTrashingCharge;
+            uint32 countTrashingCharge = 0;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

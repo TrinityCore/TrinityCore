@@ -20,8 +20,8 @@
 
 void Battlenet::Friends::GetFriendsOfFriend::Read()
 {
-    uint8 unk = _stream.Read<uint8>(2);
-    uint32 unk1 = _stream.Read<uint32>(32);
+    _stream.Read<uint8>(2);
+    _stream.Read<uint32>(32);
 }
 
 std::string Battlenet::Friends::GetFriendsOfFriend::ToString() const

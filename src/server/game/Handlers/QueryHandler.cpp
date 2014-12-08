@@ -456,7 +456,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
         else
         {
             TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: Entry %u does not exist in datastore: %u", rec.RecordID, packet.TableHash);
-            response.RecordID = -rec.RecordID;
+            response.RecordID = -int32(rec.RecordID);
             response.Timestamp = time(NULL);
         }
         
