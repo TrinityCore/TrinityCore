@@ -107,6 +107,6 @@ void ChannelMgr::SendNotOnChannelNotify(Player const* player, std::string const&
 {
     WorldPackets::Channel::ChannelNotify notify;
     notify.Type = CHAT_NOT_MEMBER_NOTICE;
-    notify.Channel = name;
+    notify._Channel = name;
     player->SendDirectMessage(notify.Write());
 }

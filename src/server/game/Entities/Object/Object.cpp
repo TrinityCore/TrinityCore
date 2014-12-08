@@ -943,9 +943,14 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
         case TYPEID_AREATRIGGER:
             flags = AreaTriggerUpdateFieldFlags;
             break;
-        case TYPEID_OBJECT:
+        case TYPEID_SCENEOBJECT:
+            flags = SceneObjectUpdateFieldFlags;
             break;
-        default:
+        case TYPEID_CONVERSATION:
+            flags = ConversationUpdateFieldFlags;
+            break;
+        case TYPEID_OBJECT:
+            ASSERT(false);
             break;
     }
 
@@ -983,6 +988,9 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
                 visibleFlag |= UF_FLAG_PARTY_MEMBER;
             break;
         }
+        case TYPEID_CONVERSATION:
+            flags = ConversationDynamicUpdateFieldFlags;
+            break;
         default:
             flags = nullptr;
             break;

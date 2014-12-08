@@ -2216,12 +2216,7 @@ void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs
             continue;
 
         uint32 unSpellId = m_spells[i];
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
-        if (!spellInfo)
-        {
-            ASSERT(spellInfo);
-            continue;
-        }
+        SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(unSpellId);
 
         // Not send cooldown for this spells
         if (spellInfo->IsCooldownStartedOnEvent())

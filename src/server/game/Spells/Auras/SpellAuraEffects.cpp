@@ -1199,6 +1199,7 @@ void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
     switch (GetAuraType())
     {
         case SPELL_AURA_PROC_TRIGGER_SPELL:
+        case SPELL_AURA_PROC_TRIGGER_SPELL_2:
             HandleProcTriggerSpellAuraProc(aurApp, eventInfo);
             break;
         case SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE:
@@ -1212,6 +1213,9 @@ void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
             break;
         case SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE:
             HandleRaidProcFromChargeWithValueAuraProc(aurApp, eventInfo);
+            break;
+        case SPELL_AURA_PROC_ON_POWER_AMOUNT:
+            HandleProcTriggerSpellOnPowerAmountAuraProc(aurApp, eventInfo);
             break;
         default:
             break;
@@ -6585,6 +6589,35 @@ void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurA
 
     TC_LOG_DEBUG("spells", "AuraEffect::HandleRaidProcFromChargeWithValueAuraProc: Triggering spell %u from aura %u proc", triggerSpellId, GetId());
     target->CastCustomSpell(target, triggerSpellId, &value, NULL, NULL, true, NULL, this, GetCasterGUID());
+}
+
+void AuraEffect::HandleProcTriggerSpellOnPowerAmountAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
+{
+    // Power amount required to proc the spell
+    int32 powerAmountRequired = GetAmount();
+    // Power type required to proc
+    Powers powerRequired = Powers(_effectInfo->MiscValue);
+
+    if (!powerRequired || !powerAmountRequired)
+    {
+        TC_LOG_ERROR("spells", "AuraEffect::HandleProcTriggerSpellOnPowerAmountAuraProc: Spell %u have 0 PowerAmountRequired in EffectAmount[%d] or 0 PowerRequired in EffectMiscValue", GetId(), GetEffIndex());
+        return /*false*/;
+    }
+
+    Unit* triggerCaster = aurApp->GetTarget();
+    Unit* triggerTarget = eventInfo.GetProcTarget();
+
+    if (triggerCaster->GetPower(powerRequired) != powerAmountRequired)
+        return /*false*/;
+
+    uint32 triggerSpellId = _effectInfo->TriggerSpell;
+    if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
+    {
+        TC_LOG_DEBUG("spells", "AuraEffect::HandleProcTriggerSpellOnPowerAmountAuraProc: Triggering spell %u from aura %u proc", triggeredSpellInfo->Id, GetId());
+        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, nullptr, this);
+    }
+    else
+        TC_LOG_DEBUG("spells", "AuraEffect::HandleProcTriggerSpellOnPowerAmountAuraProc: Could not trigger spell %u from aura %u proc, because the spell does not have an entry in Spell.dbc.", triggerSpellId, GetId());
 }
 
 void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const

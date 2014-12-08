@@ -18,15 +18,15 @@
 #include "ZmqMux.h"
 #include "ZmqContext.h"
 
-ZmqMux::ZmqMux(std::string from_uri, std::string to_uri):
-    _fromAddress(from_uri)
+ZmqMux::ZmqMux(std::string const& fromUri, std::string const& toUri):
+    _fromAddress(fromUri)
 {
-    printf("Opening muxer thread from %s to %s\n", from_uri.c_str(), to_uri.c_str());
+    printf("Opening muxer thread from %s to %s\n", fromUri.c_str(), toUri.c_str());
     _from = sIpcContext->CreateNewSocket(zmqpp::socket_type::pull);
     _to = sIpcContext->CreateNewSocket(zmqpp::socket_type::push);
 
-    _from->bind(from_uri);
-    _to->connect(to_uri);
+    _from->bind(fromUri);
+    _to->connect(toUri);
 }
 
 ZmqMux::~ZmqMux()

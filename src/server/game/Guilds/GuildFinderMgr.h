@@ -262,8 +262,8 @@ class GuildFinderMgr
         /// Counts the amount of pending membership requests, given the player's db guid.
         uint8 CountRequestsFromPlayer(ObjectGuid const& playerId);
 
-        void SendApplicantListUpdate(Guild& guild);
-        void SendMembershipRequestListUpdate(Player& player);
+        static void SendApplicantListUpdate(Guild* guild);
+        static void SendMembershipRequestListUpdate(Player* player);
 
         static GuildFinderMgr* instance()
         {

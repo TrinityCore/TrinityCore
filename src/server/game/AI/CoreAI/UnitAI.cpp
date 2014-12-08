@@ -62,16 +62,16 @@ void UnitAI::DoMeleeAttackIfReady()
     }
 }
 
-bool UnitAI::DoSpellAttackIfReady(uint32 spell)
+bool UnitAI::DoSpellAttackIfReady(uint32 spellId)
 {
     if (me->HasUnitState(UNIT_STATE_CASTING) || !me->isAttackReady())
         return true;
 
-    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell))
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
     {
         if (me->IsWithinCombatRange(me->GetVictim(), spellInfo->GetMaxRange(false)))
         {
-            me->CastSpell(me->GetVictim(), spell, false);
+            me->CastSpell(me->GetVictim(), spellInfo, TRIGGERED_NONE);
             me->resetAttackTimer();
             return true;
         }
@@ -88,40 +88,6 @@ Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float 
 void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
 {
     SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
-}
-
-float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
-{
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    return spellInfo ? spellInfo->GetMaxRange(positive) : 0;
-}
-
-void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
-{
-    if (me->IsInCombat())
-    {
-        ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-        for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-        {
-            if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                if (unit->GetTypeId() == TYPEID_PLAYER)
-                    me->AddAura(spellid, unit);
-        }
-    }
-}
-
-void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
-{
-    if (me->IsInCombat())
-    {
-        ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-        for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-        {
-            if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                if (unit->GetTypeId() == TYPEID_PLAYER)
-                    me->CastSpell(unit, spellid, triggered);
-        }
-    }
 }
 
 void UnitAI::DoCast(uint32 spellId)
