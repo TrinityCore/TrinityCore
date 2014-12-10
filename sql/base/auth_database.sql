@@ -334,7 +334,8 @@ DROP TABLE IF EXISTS `rbac_default_permissions`;
 CREATE TABLE `rbac_default_permissions` (
   `secId` int(10) unsigned NOT NULL COMMENT 'Security Level id',
   `permissionId` int(10) unsigned NOT NULL COMMENT 'permission id',
-  PRIMARY KEY (`secId`,`permissionId`),
+  `realmId` int(11) NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
+  PRIMARY KEY (`secId`,`permissionId`, `realmId`),
   KEY `fk__rbac_default_permissions__rbac_permissions` (`permissionId`),
   CONSTRAINT `fk__rbac_default_permissions__rbac_permissions` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Default permission to assign to different account security levels';
@@ -346,7 +347,7 @@ CREATE TABLE `rbac_default_permissions` (
 
 LOCK TABLES `rbac_default_permissions` WRITE;
 /*!40000 ALTER TABLE `rbac_default_permissions` DISABLE KEYS */;
-INSERT INTO `rbac_default_permissions` VALUES (3,192),(2,193),(1,194),(0,195);
+INSERT INTO `rbac_default_permissions` VALUES (3,192, -1),(2,193, -1),(1,194, -1),(0,195, -1);
 /*!40000 ALTER TABLE `rbac_default_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
