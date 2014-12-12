@@ -142,6 +142,25 @@ enum SpellIds
     SPELL_SLIME                 = 28801
 };
 
+enum InstanceEvents
+{
+    // Dialogue that happens after Gothik's death.
+    EVENT_DIALOGUE_GOTHIK_KORTHAZZ = 1,
+    EVENT_DIALOGUE_GOTHIK_ZELIEK,
+    EVENT_DIALOGUE_GOTHIK_BLAUMEUX,
+    EVENT_DIALOGUE_GOTHIK_RIVENDARE,
+    EVENT_DIALOGUE_GOTHIK_BLAUMEUX2,
+    EVENT_DIALOGUE_GOTHIK_ZELIEK2,
+    EVENT_DIALOGUE_GOTHIK_KORTHAZZ2,
+    EVENT_DIALOGUE_GOTHIK_RIVENDARE2
+};
+
+enum InstanceTexts
+{
+    SAY_DIALOGUE_GOTHIK_HORSEMAN  = 5,
+    SAY_DIALOGUE_GOTHIK_HORSEMAN2 = 6
+};
+
 /*
 template<class AI>
 CreatureAI* GetNaxxramasAI(Creature* creature)
