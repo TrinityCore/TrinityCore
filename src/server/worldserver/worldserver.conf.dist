@@ -2995,7 +2995,7 @@ AuctionHouseBot.Buyer.Neutral.Chance.Ratio = 3
 ###################################################################################################
 
 ###################################################################################################
-#  LOGGING SYSTEM SETTINGS
+# LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
 #    Appender.name
@@ -3153,7 +3153,7 @@ Allow.IP.Based.Action.Logging = 0
 ###################################################################################################
 
 ###################################################################################################
-#  GUILD LEVELING SETTINGS
+# GUILD LEVELING SETTINGS
 #
 #    Guild.LevelingEnabled
 #        Description: Controls whether guild can gain levels
