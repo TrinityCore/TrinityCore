@@ -337,16 +337,78 @@ class instance_naxxramas : public InstanceMapScript
                 if (!InstanceScript::SetBossState(id, state))
                     return false;
 
-                if (id == BOSS_HORSEMEN && state == DONE)
+                switch (id)
                 {
-                    if (GameObject* horsemenChest = instance->GetGameObject(HorsemenChestGUID))
-                    {
-                        horsemenChest->SetRespawnTime(horsemenChest->GetRespawnDelay());
-                        horsemenChest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    }
+                    case BOSS_GOTHIK:
+                        if (state == DONE)
+                            events.ScheduleEvent(EVENT_DIALOGUE_GOTHIK_KORTHAZZ, 10000);
+                        break;
+                    case BOSS_HORSEMEN:
+                        if (state == DONE)
+                            if (GameObject* horsemenChest = instance->GetGameObject(HorsemenChestGUID))
+                            {
+                                horsemenChest->SetRespawnTime(horsemenChest->GetRespawnDelay());
+                                horsemenChest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            }
+                        break;
+                    default:
+                        break;
                 }
 
                 return true;
+            }
+
+            void Update(uint32 diff) override
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_DIALOGUE_GOTHIK_KORTHAZZ:
+                            if (Creature* korthazz = instance->GetCreature(ThaneGUID))
+                                korthazz->AI()->Talk(SAY_DIALOGUE_GOTHIK_HORSEMAN);
+                            events.ScheduleEvent(EVENT_DIALOGUE_GOTHIK_ZELIEK, 5000);
+                            break;
+                        case EVENT_DIALOGUE_GOTHIK_ZELIEK:
+                            if (Creature* zeliek = instance->GetCreature(SirGUID))
+                                zeliek->AI()->Talk(SAY_DIALOGUE_GOTHIK_HORSEMAN);
+                            events.ScheduleEvent(EVENT_DIALOGUE_GOTHIK_BLAUMEUX, 6000);
+                            break;
+                        case EVENT_DIALOGUE_GOTHIK_BLAUMEUX:
+                            if (Creature* blaumeux = instance->GetCreature(LadyGUID))
+                                blaumeux->AI()->Talk(SAY_DIALOGUE_GOTHIK_HORSEMAN);
+                            events.ScheduleEvent(EVENT_DIALOGUE_GOTHIK_RIVENDARE, 6000);
+                            break;
+                        case EVENT_DIALOGUE_GOTHIK_RIVENDARE:
+                            if (Creature* rivendare = instance->GetCreature(BaronGUID))
+                                rivendare->AI()->Talk(SAY_DIALOGUE_GOTHIK_HORSEMAN);
+                            events.ScheduleEvent(EVENT_DIALOGUE_GOTHIK_BLAUMEUX2, 6000);
+                            break;
+                        case EVENT_DIALOGUE_GOTHIK_BLAUMEUX2:
+                            if (Creature* blaumeux = instance->GetCreature(LadyGUID))
+                                blaumeux->AI()->Talk(SAY_DIALOGUE_GOTHIK_HORSEMAN2);
+                            events.ScheduleEvent(EVENT_DIALOGUE_GOTHIK_ZELIEK2, 6000);
+                            break;
+                        case EVENT_DIALOGUE_GOTHIK_ZELIEK2:
+                            if (Creature* zeliek = instance->GetCreature(SirGUID))
+                                zeliek->AI()->Talk(SAY_DIALOGUE_GOTHIK_HORSEMAN2);
+                            events.ScheduleEvent(EVENT_DIALOGUE_GOTHIK_KORTHAZZ2, 6000);
+                            break;
+                        case EVENT_DIALOGUE_GOTHIK_KORTHAZZ2:
+                            if (Creature* korthazz = instance->GetCreature(ThaneGUID))
+                                korthazz->AI()->Talk(SAY_DIALOGUE_GOTHIK_HORSEMAN2);
+                            events.ScheduleEvent(EVENT_DIALOGUE_GOTHIK_RIVENDARE2, 6000);
+                            break;
+                        case EVENT_DIALOGUE_GOTHIK_RIVENDARE2:
+                            if (Creature* rivendare = instance->GetCreature(BaronGUID))
+                                rivendare->AI()->Talk(SAY_DIALOGUE_GOTHIK_HORSEMAN2);
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
 
             void HeiganErupt(uint32 section)
@@ -454,6 +516,8 @@ class instance_naxxramas : public InstanceMapScript
 
             /* The Immortal / The Undying */
             uint32 playerDied;
+
+            EventMap events;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
