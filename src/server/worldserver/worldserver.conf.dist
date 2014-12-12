@@ -3034,7 +3034,7 @@ AuctionHouseBot.Buyer.Neutral.Chance.Ratio = 3
 ###################################################################################################
 
 ###################################################################################################
-#  LOGGING SYSTEM SETTINGS
+# LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
 #    Appender.name
@@ -3187,67 +3187,6 @@ Log.Async.Enable = 0
 #                     1 - (Enabled)
 
 Allow.IP.Based.Action.Logging = 0
-
-#
-###################################################################################################
-
-###################################################################################################
-#  GUILD LEVELING SETTINGS
-#
-#    Guild.LevelingEnabled
-#        Description: Controls whether guild can gain levels
-#        Default:     1
-#
-
-Guild.LevelingEnabled = 1
-
-#
-#    Guild.SaveInterval
-#        Description: Time (in minutes) between guild experience saves
-#        Default:     15
-#
-
-Guild.SaveInterval = 15
-
-#
-#    Guild.MaxLevel
-#        Description: Defines max level a guild can reach
-#        Default:     25
-#
-
-Guild.MaxLevel = 25
-
-#
-#    Guild.UndeletableLevel
-#        Description: Guild reaching this level (and higher) cannot be disbanded anymore
-#        Default:     4
-#
-
-Guild.UndeletableLevel = 4
-
-#
-#    Guild.XPModifier
-#        Description: Multiplier for guild experience gained from quests
-#        Default:     0.25
-#
-
-Guild.XPModifier = 0.25
-
-#
-#    Guild.DailyXPCap
-#        Description: Maximum experience points a guild can earn each day
-#        Default:     7807500
-#
-
-Guild.DailyXPCap = 7807500
-
-#
-#    Guild.WeeklyReputationCap
-#        Description: Maximum guild reputation a player can earn every week
-#        Default:     4375
-#
-
-Guild.WeeklyReputationCap = 4375
 
 #
 ###################################################################################################
