@@ -89,7 +89,8 @@ enum CreaturesIds
     NPC_CRYPT_GUARD             = 16573,
     NPC_NAXXRAMAS_FOLLOWER      = 16505,
     NPC_FOLLOWER_WORSHIPPER     = 16506,
-    NPC_DK_UNDERSTUDY           = 16803
+    NPC_DK_UNDERSTUDY           = 16803,
+    NPC_BIGGLESWORTH            = 16998
 };
 
 enum GameObjectsIds
@@ -152,13 +153,21 @@ enum InstanceEvents
     EVENT_DIALOGUE_GOTHIK_BLAUMEUX2,
     EVENT_DIALOGUE_GOTHIK_ZELIEK2,
     EVENT_DIALOGUE_GOTHIK_KORTHAZZ2,
-    EVENT_DIALOGUE_GOTHIK_RIVENDARE2
+    EVENT_DIALOGUE_GOTHIK_RIVENDARE2,
+
+    // Dialogue that happens after each wing.
+    EVENT_KELTHUZAD_WING_TAUNT
 };
 
 enum InstanceTexts
 {
-    SAY_DIALOGUE_GOTHIK_HORSEMAN  = 5,
-    SAY_DIALOGUE_GOTHIK_HORSEMAN2 = 6
+    // The Four Horsemen
+    SAY_DIALOGUE_GOTHIK_HORSEMAN   = 5,
+    SAY_DIALOGUE_GOTHIK_HORSEMAN2  = 6,
+
+    // Kel'Thuzad
+    SAY_KELTHUZAD_CAT_DIED         = 5,
+    SAY_KELTHUZAD_FIRST_WING_TAUNT = 16
 };
 
 /*
