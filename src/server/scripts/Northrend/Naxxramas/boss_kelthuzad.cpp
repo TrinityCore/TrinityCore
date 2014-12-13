@@ -38,9 +38,7 @@ enum Yells
     SAY_SAPP_DIALOG3                                       = 2, //not used
     SAY_SAPP_DIALOG4_LICH                                  = 3, //not used
     SAY_SAPP_DIALOG5                                       = 4, //not used
-    SAY_CAT_DIED                                           = 5, //when cat dies, not used
-    //when each of the 4 wing bosses dies
-    SAY_TAUNT                                              = 6,
+
     SAY_AGGRO                                              = 7,
     SAY_SLAY                                               = 8,
     SAY_DEATH                                              = 9,
