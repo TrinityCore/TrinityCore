@@ -115,6 +115,7 @@ class instance_naxxramas : public InstanceMapScript
                 minHorsemenDiedTime     = 0;
                 maxHorsemenDiedTime     = 0;
                 AbominationCount        = 0;
+                CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
 
                 playerDied              = 0;
             }
@@ -242,6 +243,15 @@ class instance_naxxramas : public InstanceMapScript
                     playerDied = 1;
                     SaveToDB();
                 }
+
+                if (Creature* creature = unit->ToCreature())
+                    if (creature->GetEntry() == NPC_BIGGLESWORTH)
+                    {
+                        // Loads Kel'Thuzad's grid. We need this as he must be active in order for his texts to work.
+                        instance->LoadGrid(3749.67f, -5114.06f);
+                        if (Creature* kelthuzad = instance->GetCreature(KelthuzadGUID))
+                            kelthuzad->AI()->Talk(SAY_KELTHUZAD_CAT_DIED);
+                    }
             }
 
             void SetData(uint32 id, uint32 value) override
@@ -339,17 +349,26 @@ class instance_naxxramas : public InstanceMapScript
 
                 switch (id)
                 {
+                    case BOSS_MAEXXNA:
+                    case BOSS_LOATHEB:
+                    case BOSS_THADDIUS:
+                        if (state == DONE)
+                            events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6000);
+                        break;
                     case BOSS_GOTHIK:
                         if (state == DONE)
                             events.ScheduleEvent(EVENT_DIALOGUE_GOTHIK_KORTHAZZ, 10000);
                         break;
                     case BOSS_HORSEMEN:
                         if (state == DONE)
+                        {
                             if (GameObject* horsemenChest = instance->GetGameObject(HorsemenChestGUID))
                             {
                                 horsemenChest->SetRespawnTime(horsemenChest->GetRespawnDelay());
                                 horsemenChest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             }
+                            events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6000);
+                        }
                         break;
                     default:
                         break;
@@ -404,6 +423,13 @@ class instance_naxxramas : public InstanceMapScript
                         case EVENT_DIALOGUE_GOTHIK_RIVENDARE2:
                             if (Creature* rivendare = instance->GetCreature(BaronGUID))
                                 rivendare->AI()->Talk(SAY_DIALOGUE_GOTHIK_HORSEMAN2);
+                            break;
+                        case EVENT_KELTHUZAD_WING_TAUNT:
+                            // Loads Kel'Thuzad's grid. We need this as he must be active in order for his texts to work.
+                            instance->LoadGrid(3749.67f, -5114.06f);
+                            if (Creature* kelthuzad = instance->GetCreature(KelthuzadGUID))
+                                kelthuzad->AI()->Talk(CurrentWingTaunt);
+                            ++CurrentWingTaunt;
                             break;
                         default:
                             break;
@@ -513,6 +539,7 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid KelthuzadTriggerGUID;
             ObjectGuid PortalsGUID[4];
             uint8 AbominationCount;
+            uint8 CurrentWingTaunt;
 
             /* The Immortal / The Undying */
             uint32 playerDied;
