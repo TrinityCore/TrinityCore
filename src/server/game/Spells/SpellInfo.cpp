@@ -341,8 +341,6 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
 
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect)
 {
-    SpellScalingEntry const* scaling = spellInfo->GetSpellScaling();
-
     _spellInfo = spellInfo;
     EffectIndex = _effect ? _effect->EffectIndex : effIndex;
     Effect = _effect ? _effect->Effect : 0;
@@ -870,21 +868,12 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap effects)
 
             _effects[itr->first][effect->EffectIndex] = new SpellEffectInfo(spellEntry, this, effect->EffectIndex, effect);
         }
-
-        /*_effects[itr->first].resize(MAX_SPELL_EFFECTS);
-        for (SpellEffectEntryVector::const_iterator i = itr->second.begin(); i != itr->second.end(); ++i)
-        {
-            if (!(*i))
-                continue;
-
-            _effects[itr->first][(*i)->EffectIndex] = new SpellEffectInfo(spellEntry, this, (*i)->EffectIndex, (*i));
-        }*/
     }
 
     SpellName = spellEntry->Name_lang;
-    //Rank = spellEntry->Rank;
+    Rank = nullptr;
     RuneCostID = spellEntry->RuneCostID;
-    //SpellDifficultyId = spellEntry->DifficultyID;
+    SpellDifficultyId = 0;
     SpellScalingId = spellEntry->ScalingID;
     SpellAuraOptionsId = spellEntry->AuraOptionsID;
     SpellAuraRestrictionsId = spellEntry->AuraRestrictionsID;
@@ -3097,8 +3086,9 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
         {
             for (SpellEffectInfo const* effect : itr->second)
             {
-                // overwrite any existing effect from DIFFICULTY_NONE 
-                effList[effect->EffectIndex] = effect;
+                // overwrite any existing effect from DIFFICULTY_NONE
+                if (effect)
+                    effList[effect->EffectIndex] = effect;
             }
             // if we found any effect in our difficulty then stop searching
             break;
