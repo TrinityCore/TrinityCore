@@ -261,9 +261,12 @@ public:
     flag128   SpellClassMask;
     std::list<Condition*>* ImplicitTargetConditions;
     // SpellScalingEntry
-    float     ScalingMultiplier;
-    float     DeltaScalingMultiplier;
-    float     ComboScalingMultiplier;
+    struct ScalingInfo
+    {
+        float Coefficient;
+        float Variance;
+        float ResourceCoefficient;
+    } Scaling;
 
     SpellEffectInfo() : _spellInfo(NULL), EffectIndex(0), Effect(0), ApplyAuraName(0), ApplyAuraPeriod(0), DieSides(0),
                         RealPointsPerLevel(0), BasePoints(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
@@ -410,12 +413,18 @@ public:
     uint32 SpellTotemsId;
     uint32 SpellMiscId;
     // SpellScalingEntry
-    int32  CastTimeMin;
-    int32  CastTimeMax;
-    int32  CastTimeMaxLevel;
-    int32  ScalingClass;
-    float  CoefBase;
-    int32  CoefLevelBase;
+    struct ScalingInfo
+    {
+        int32 CastTimeMin;
+        int32 CastTimeMax;
+        uint32 CastTimeMaxLevel;
+        int32 Class;
+        float NerfFactor;
+        uint32 NerfMaxLevel;
+        uint32 MaxScalingLevel;
+        uint32 ScalesFromItemLevel;
+    } Scaling;
+
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
 
