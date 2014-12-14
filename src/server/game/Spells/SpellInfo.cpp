@@ -370,9 +370,9 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     uint32 _effectScalingId = _effect ? sSpellEffectScallingByEffectId.find(_effect->ID) != sSpellEffectScallingByEffectId.end() ? sSpellEffectScallingByEffectId[_effect->ID] : 0 : 0;
     SpellEffectScalingEntry const* _effectScalingEntry = sSpellEffectScalingStore.LookupEntry(_effectScalingId);
 
-    ScalingMultiplier = _effectScalingEntry ? _effectScalingEntry->Coefficient : 0.0f;
-    DeltaScalingMultiplier = _effectScalingEntry ? _effectScalingEntry->Variance : 0.0f;
-    ComboScalingMultiplier = _effectScalingEntry ? _effectScalingEntry->ResourceCoefficient : 0.0f;
+    Scaling.Coefficient = _effectScalingEntry ? _effectScalingEntry->Coefficient : 0.0f;
+    Scaling.Variance = _effectScalingEntry ? _effectScalingEntry->Variance : 0.0f;
+    Scaling.ResourceCoefficient = _effectScalingEntry ? _effectScalingEntry->ResourceCoefficient : 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -438,35 +438,60 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     float comboDamage = PointsPerResource;
 
     // base amount modification based on spell lvl vs caster lvl
-    if (ScalingMultiplier != 0.0f)
+    if (Scaling.Coefficient != 0.0f)
     {
-        if (caster)
+        int32 level = _spellInfo->SpellLevel;
+        if (target && _spellInfo->IsPositiveEffect(EffectIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+            level = target->getLevel();
+        else if (caster)
+            level = caster->getLevel();
+
+        if (!(_spellInfo->AttributesEx11 & SPELL_ATTR11_UNK2) && _spellInfo->AttributesEx10 & SPELL_ATTR10_UNK12)
+            level = _spellInfo->BaseLevel;
+
+        if (_spellInfo->Scaling.MaxScalingLevel && _spellInfo->Scaling.MaxScalingLevel > level)
+            level = _spellInfo->Scaling.MaxScalingLevel;
+
+        float value = 0.0f;
+        if (level > 0)
         {
-            int32 level = caster->getLevel();
-            if (target && _spellInfo->IsPositiveEffect(EffectIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
-                level = target->getLevel();
+            if (!_spellInfo->Scaling.Class)
+                return 0;
 
-            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.EvaluateTable(level - 1, (_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1)))
+            if (!_spellInfo->Scaling.ScalesFromItemLevel)
             {
-                float multiplier = gtScaling->value;
-                if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > level)
-                    multiplier *= float(_spellInfo->CastTimeMin + (level - 1) * (_spellInfo->CastTimeMax - _spellInfo->CastTimeMin) / (_spellInfo->CastTimeMaxLevel - 1)) / float(_spellInfo->CastTimeMax);
-                if (_spellInfo->CoefLevelBase > level)
-                    multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
-
-                float preciseBasePoints = ScalingMultiplier * multiplier;
-                if (DeltaScalingMultiplier)
+                if (!(_spellInfo->AttributesEx11 & SPELL_ATTR11_UNK2))
                 {
-                    float delta = fabs(DeltaScalingMultiplier * ScalingMultiplier * multiplier * 0.5f);
-                    preciseBasePoints += frand(-delta, delta);
+                    if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.EvaluateTable(level - 1, (_spellInfo->Scaling.Class > 0 ? _spellInfo->Scaling.Class - 1 : MAX_CLASSES - 1)))
+                        value = gtScaling->value;
                 }
-
-                basePoints = int32(preciseBasePoints);
-
-                if (ComboScalingMultiplier)
-                    comboDamage = ComboScalingMultiplier * multiplier;
+                else
+                    value = GetRandomPropertyPoints(level, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
             }
+            else
+                value = GetRandomPropertyPoints(_spellInfo->Scaling.ScalesFromItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+
+            if (level < _spellInfo->Scaling.CastTimeMaxLevel && _spellInfo->Scaling.CastTimeMax)
+                value *= float(_spellInfo->Scaling.CastTimeMin + (level - 1) * (_spellInfo->Scaling.CastTimeMax - _spellInfo->Scaling.CastTimeMin) / (_spellInfo->Scaling.CastTimeMaxLevel - 1)) / float(_spellInfo->Scaling.CastTimeMax);
+
+            if (level < _spellInfo->Scaling.NerfMaxLevel)
+                value *= ((((1.0 - _spellInfo->Scaling.NerfFactor) * (level - 1)) / (_spellInfo->Scaling.NerfMaxLevel - 1)) + _spellInfo->Scaling.NerfFactor);
         }
+
+        value *= Scaling.Coefficient;
+        if (value != 0.0f && value < 1.0f)
+            value = 1.0f;
+
+        if (Scaling.Variance)
+        {
+            float delta = fabs(Scaling.Variance * value * 0.5f);
+            value += frand(-delta, delta);
+        }
+
+        basePoints = int32(value);
+
+        if (Scaling.ResourceCoefficient)
+            comboDamage = Scaling.ResourceCoefficient * value;
     }
     else
     {
@@ -921,12 +946,14 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap effects)
 
     // SpellScalingEntry
     SpellScalingEntry const* _scaling = GetSpellScaling();
-    CastTimeMin = _scaling ? _scaling->CastTimeMin : 0;
-    CastTimeMax = _scaling ?_scaling->CastTimeMax : 0;
-    CastTimeMaxLevel = _scaling ? _scaling->CastTimeMaxLevel : 0;
-    ScalingClass = _scaling ? _scaling->ScalingClass : 0;
-    CoefBase = _scaling ? _scaling->NerfFactor : 0;
-    CoefLevelBase = _scaling ? _scaling->NerfMaxLevel : 0;
+    Scaling.CastTimeMin = _scaling ? _scaling->CastTimeMin : 0;
+    Scaling.CastTimeMax = _scaling ?_scaling->CastTimeMax : 0;
+    Scaling.CastTimeMaxLevel = _scaling ? _scaling->CastTimeMaxLevel : 0;
+    Scaling.Class = _scaling ? _scaling->ScalingClass : 0;
+    Scaling.NerfFactor = _scaling ? _scaling->NerfFactor : 0;
+    Scaling.NerfMaxLevel = _scaling ? _scaling->NerfMaxLevel : 0;
+    Scaling.MaxScalingLevel = _scaling ? _scaling->MaxScalingLevel : 0;
+    Scaling.ScalesFromItemLevel = _scaling ? _scaling->ScalesFromItemLevel : 0;
 
     // SpellAuraOptionsEntry
     SpellAuraOptionsEntry const* _options = GetSpellAuraOptions();
@@ -2368,11 +2395,11 @@ uint32 SpellInfo::CalcCastTime(uint8 level, Spell* spell /*= NULL*/) const
         level = spell->GetCaster()->getLevel();
 
     // not all spells have cast time index and this is all is pasiive abilities
-    if (level && CastTimeMax > 0)
+    if (level && Scaling.CastTimeMax > 0)
     {
-        castTime = CastTimeMax;
-        if (CastTimeMaxLevel > level)
-            castTime = CastTimeMin + int32(level - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
+        castTime = Scaling.CastTimeMax;
+        if (Scaling.CastTimeMaxLevel > level)
+            castTime = Scaling.CastTimeMin + int32(level - 1) * (Scaling.CastTimeMax - Scaling.CastTimeMin) / (Scaling.CastTimeMaxLevel - 1);
     }
     else if (CastTimeEntry)
         castTime = CastTimeEntry->CastTime;
@@ -2576,7 +2603,7 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
             (effect->Effect == SPELL_EFFECT_APPLY_AURA ||
             effect->Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
             effect->Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
-            !effect->ScalingMultiplier)
+            !effect->Scaling.Coefficient)
         {
             needRankSelection = true;
             break;
