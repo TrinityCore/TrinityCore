@@ -2760,15 +2760,18 @@ void SpellMgr::LoadSpellInfoStore()
         SpellEffectEntry const* effect = sSpellEffectStore.LookupEntry(i);
         if (!effect)
             continue;
-        
+
         if (effect->EffectIndex >= MAX_SPELL_EFFECTS)
         {
             TC_LOG_ERROR("server.loading", "Spell %u has invalid EffectIndex %u, max is %u, skipped", i, effect->EffectIndex, uint32(MAX_SPELL_EFFECTS));
             continue;
         }
 
-        effectsBySpell[effect->SpellID][effect->DifficultyID].resize(MAX_SPELL_EFFECTS);
-        effectsBySpell[effect->SpellID][effect->DifficultyID][effect->EffectIndex] = effect;
+        SpellEffectEntryVector& effectsForDifficulty = effectsBySpell[effect->SpellID][effect->DifficultyID];
+        if (effectsForDifficulty.size() <= effect->EffectIndex)
+            effectsForDifficulty.resize(effect->EffectIndex + 1);
+
+        effectsForDifficulty[effect->EffectIndex] = effect;
     }
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)

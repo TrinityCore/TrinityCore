@@ -3088,7 +3088,12 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
             {
                 // overwrite any existing effect from DIFFICULTY_NONE
                 if (effect)
+                {
+                    if (effect->EffectIndex >= effList.size())
+                        effList.resize(effect->EffectIndex + 1);
+
                     effList[effect->EffectIndex] = effect;
+                }
             }
             // if we found any effect in our difficulty then stop searching
             break;
