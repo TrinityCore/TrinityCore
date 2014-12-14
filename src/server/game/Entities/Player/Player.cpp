@@ -3355,7 +3355,7 @@ bool Player::AddTalent(uint32 talentId, uint8 spec, bool learning)
         //else
         //    TC_LOG_ERROR("spells", "Player::addTalent: Talent %u not found in talent store.", talentId);
     }
-    else 
+    else
         itr->second->state = PLAYERSPELL_UNCHANGED;
 
     return false;
@@ -4125,7 +4125,7 @@ bool Player::ResetTalents(bool noCost, bool resetTalents, bool resetSpecializati
         return false;
 
     sScriptMgr->OnPlayerTalentsReset(this, noCost);
-    
+
     // not need after this call
     if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
         RemoveAtLoginFlag(AT_LOGIN_RESET_TALENTS, true);
@@ -17482,7 +17482,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
                 SetAtLoginFlag(AT_LOGIN_RESET_TALENTS);
         }
     }
-    
+
     SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, GetActiveTalentSpec());
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
@@ -20889,8 +20889,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     WorldPackets::Spells::SetSpellModifier packet(opcode);
 
     int i = 0;
-    flag96 _mask;
-    uint32 modTypeCount = 0; // count of mods per one mod->op
+    flag128 _mask;
 
     /// @todo Implement sending of bulk modifiers instead of single
     packet.Modifiers.resize(1);
@@ -20898,7 +20897,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 
     spellMod.ModIndex = mod->op;
 
-    for (int eff = 0; eff < 96; ++eff)
+    for (int eff = 0; eff < 128; ++eff)
     {
         if (eff != 0 && (eff % 32) == 0)
             _mask[i++] = 0;
@@ -20913,6 +20912,9 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                     modData.ModifierValue += (*itr)->value;
 
             modData.ModifierValue += apply ? mod->value : -(mod->value);
+            if (mod->type == SPELLMOD_PCT)
+                modData.ModifierValue = 1.0f + (modData.ModifierValue * 0.01f);
+
             modData.ClassIndex = eff;
 
             spellMod.ModifierData.push_back(modData);
@@ -23313,7 +23315,7 @@ void Player::ResetSpells(bool myClassOnly)
     else
         for (PlayerSpellMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
             RemoveSpell(iter->first, false, false);           // only iter->first can be accessed, object by iter->second can be deleted already
-        
+
     LearnDefaultSkills();
     LearnCustomSpells();
     LearnQuestRewardedSpells();
@@ -25546,7 +25548,7 @@ bool Player::LearnTalent(uint32 talentId)
 
     if (!talentInfo)
         return false;
-        
+
     uint32 maxTalentTier = GetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS);
 
     // prevent learn talent for different class (cheating)
@@ -25599,7 +25601,7 @@ void Player::LearnTalentSpecialization(uint32 talentSpec)
     SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, talentSpec);
 
     PlayerTalentMap* talents = GetTalentMap(GetActiveTalentGroup());
-    
+
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
         TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
@@ -25617,7 +25619,7 @@ void Player::LearnTalentSpecialization(uint32 talentSpec)
             }
             RemoveSpell(talent->SpellID, false);
             itr = talents->erase(itr);
-        
+
             TC_LOG_DEBUG("spells", "Player %s unlearning talent id: %u tier: %u due to specialization change", GetName().c_str(), talent->ID, talent->TierID);
         }
     }
@@ -25745,7 +25747,7 @@ void Player::SendTalentsInfoData()
                 TC_LOG_ERROR("entities.player", "Player %s has unknown talent spell: %u", GetName().c_str(), talentInfo->SpellID);
                 continue;
             }
-            
+
             if (!HasTalent(itr->first, i))
                 continue;
 
@@ -26216,7 +26218,7 @@ void Player::ActivateTalentGroup(uint8 group)
 
     learnList = GetSpellsForLevels(getClass(), getRaceMask(), GetActiveTalentSpec(), 0, getLevel());
     for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
-    { 
+    {
         if (!HasSpell(*iter))
             LearnSpell(*iter, true);
     }
