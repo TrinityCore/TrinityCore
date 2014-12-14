@@ -25,10 +25,9 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "hyjal.h"
-#include "SpellAuras.h"
-#include "hyjal_trash.h"
+#include "SpellScript.h"
 #include "Player.h"
+#include "hyjal.h"
 
 enum Texts
 {
@@ -39,44 +38,44 @@ enum Texts
     SAY_ENRAGE      = 5,
     SAY_DEATH       = 6,
     SAY_SOUL_CHARGE = 7,
+    // YELL_ARCHIMONDE_INTRO = 8
 };
 
 enum Spells
 {
-    SPELL_DENOUEMENT_WISP       = 32124,
-    SPELL_ANCIENT_SPARK         = 39349,
-    SPELL_PROTECTION_OF_ELUNE   = 38528,
+    SPELL_DENOUEMENT_WISP            = 32124,
+    SPELL_ANCIENT_SPARK              = 39349,
+    SPELL_PROTECTION_OF_ELUNE        = 38528,
 
-    SPELL_DRAIN_WORLD_TREE      = 39140,
-    SPELL_DRAIN_WORLD_TREE_2    = 39141,
+    SPELL_DRAIN_WORLD_TREE           = 39140,
+    SPELL_DRAIN_WORLD_TREE_TRIGGERED = 39141,
 
-    SPELL_FINGER_OF_DEATH       = 31984,
-    SPELL_HAND_OF_DEATH         = 35354,
-    SPELL_AIR_BURST             = 32014,
-    SPELL_GRIP_OF_THE_LEGION    = 31972,
-    SPELL_DOOMFIRE_STRIKE       = 31903,    //summons two creatures
-    SPELL_DOOMFIRE_SPAWN        = 32074,
-    SPELL_DOOMFIRE              = 31945,
-    SPELL_SOUL_CHARGE_YELLOW    = 32045,
-    SPELL_SOUL_CHARGE_GREEN     = 32051,
-    SPELL_SOUL_CHARGE_RED       = 32052,
-    SPELL_UNLEASH_SOUL_YELLOW   = 32054,
-    SPELL_UNLEASH_SOUL_GREEN    = 32057,
-    SPELL_UNLEASH_SOUL_RED      = 32053,
-    SPELL_FEAR                  = 31970,
+    SPELL_FINGER_OF_DEATH            = 31984,
+    SPELL_HAND_OF_DEATH              = 35354,
+    SPELL_AIR_BURST                  = 32014,
+    SPELL_GRIP_OF_THE_LEGION         = 31972,
+    SPELL_DOOMFIRE_STRIKE            = 31903, // summons two creatures
+    SPELL_DOOMFIRE_SPAWN             = 32074,
+    SPELL_DOOMFIRE                   = 31945,
+    SPELL_SOUL_CHARGE_YELLOW         = 32045,
+    SPELL_SOUL_CHARGE_GREEN          = 32051,
+    SPELL_SOUL_CHARGE_RED            = 32052,
+    SPELL_UNLEASH_SOUL_YELLOW        = 32054,
+    SPELL_UNLEASH_SOUL_GREEN         = 32057,
+    SPELL_UNLEASH_SOUL_RED           = 32053,
+    SPELL_FEAR                       = 31970
 };
 
 enum Events
 {
-    EVENT_DRAIN_NORDRASSIL = 1,
-    EVENT_HAND_OF_DEATH,           // Raid wiper
+    EVENT_HAND_OF_DEATH = 1,        // Raid wiper
     EVENT_UNLEASH_SOUL_CHARGE,
     EVENT_FINGER_OF_DEATH,
     EVENT_GRIP_OF_THE_LEGION,
     EVENT_FEAR,
     EVENT_AIR_BURST,
     EVENT_DOOMFIRE,
-    EVENT_DISTANCE_CHECK,          // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
+    EVENT_DISTANCE_CHECK,           // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
     EVENT_SUMMON_WHISP
 };
 
@@ -84,8 +83,7 @@ enum Summons
 {
     NPC_DOOMFIRE               = 18095,
     NPC_DOOMFIRE_SPIRIT        = 18104,
-    NPC_ANCIENT_WISP           = 17946,
-    NPC_CHANNEL_TARGET         = 22418
+    NPC_ANCIENT_WISP           = 17946
 };
 
 enum Actions
@@ -93,8 +91,6 @@ enum Actions
     ACTION_ENRAGE,
     ACTION_CHANNEL_WORLD_TREE
 };
-
-Position const NordrassilLoc = {5503.713f, -3523.436f, 1608.781f, 0.0f};
 
 class npc_ancient_wisp : public CreatureScript
 {
@@ -220,7 +216,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             //will update once TargetGUID is 0. In case noone actually moves(not likely) and this is 0
             //when UpdateAI needs it, it will be forced to select randomPoint
@@ -279,10 +274,9 @@ public:
         void Initialize()
         {
             DoomfireSpiritGUID.Clear();
-            WorldTreeGUID.Clear();
 
             SoulChargeCount = 0;
-            WispCount = 0;                                      // When ~30 wisps are summoned, Archimonde dies               
+            WispCount = 0;                                      // When ~30 wisps are summoned, Archimonde dies
             _unleashSpell = 0;
             _chargeSpell = 0;
 
@@ -290,13 +284,17 @@ public:
             HasProtected = false;
         }
 
+        void InitializeAI() override
+        {
+            BossAI::InitializeAI();
+            DoAction(ACTION_CHANNEL_WORLD_TREE);
+        }
+
         void Reset() override
         {
             Initialize();
             _Reset();
             me->RemoveAllAuras();                              // Reset Soul Charge auras.
-            if (!me->isMoving())
-                DoAction(ACTION_CHANNEL_WORLD_TREE);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -317,11 +315,6 @@ public:
         {
             switch (eventId)
             {
-                case EVENT_DRAIN_NORDRASSIL:
-                    if (Unit* Nordrassil = ObjectAccessor::GetUnit(*me, WorldTreeGUID))
-                        Nordrassil->CastSpell(me, SPELL_DRAIN_WORLD_TREE_2, true);
-                    events.ScheduleEvent(EVENT_DRAIN_NORDRASSIL, 1000);
-                    break;
                 case EVENT_HAND_OF_DEATH:
                     DoCastAOE(SPELL_HAND_OF_DEATH);
                     events.ScheduleEvent(EVENT_HAND_OF_DEATH, 2000);
@@ -387,7 +380,7 @@ public:
                     events.ScheduleEvent(EVENT_DOOMFIRE, 20000);
                     break;
                 case EVENT_DISTANCE_CHECK:
-                    if (Creature* channelTrigger = ObjectAccessor::GetCreature(*me, WorldTreeGUID))
+                    if (Creature* channelTrigger = instance->GetCreature(DATA_CHANNEL_TARGET))
                         if (me->IsWithinDistInMap(channelTrigger, 75.0f))
                             DoAction(ACTION_ENRAGE);
                     events.ScheduleEvent(EVENT_DISTANCE_CHECK, 5000);
@@ -503,18 +496,7 @@ public:
                     Talk(SAY_ENRAGE);
                     break;
                 case ACTION_CHANNEL_WORLD_TREE:
-                    if (Creature* temp = me->SummonCreature(NPC_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 1200000))
-                    {
-                        WorldTreeGUID = temp->GetGUID();
-
-                        if (Unit* Nordrassil = ObjectAccessor::GetUnit(*me, WorldTreeGUID))
-                        {
-                            Nordrassil->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            Nordrassil->SetDisplayId(11686);
-                            DoCast(Nordrassil, SPELL_DRAIN_WORLD_TREE);
-                        }
-                        events.ScheduleEvent(EVENT_DRAIN_NORDRASSIL, 1000);
-                    }
+                    DoCastAOE(SPELL_DRAIN_WORLD_TREE, true);
                     break;
                 default:
                     break;
@@ -538,7 +520,6 @@ public:
 
     private:
         ObjectGuid DoomfireSpiritGUID;
-        ObjectGuid WorldTreeGUID;
         uint8 SoulChargeCount;
         uint8 WispCount;
         uint32 _chargeSpell;
@@ -553,10 +534,46 @@ public:
     }
 };
 
+// 39142 - Drain World Tree Dummy
+class spell_archimonde_drain_world_tree_dummy : public SpellScriptLoader
+{
+    public:
+        spell_archimonde_drain_world_tree_dummy() : SpellScriptLoader("spell_archimonde_drain_world_tree_dummy") { }
+
+        class spell_archimonde_drain_world_tree_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_archimonde_drain_world_tree_dummy_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRAIN_WORLD_TREE_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(GetCaster(), SPELL_DRAIN_WORLD_TREE_TRIGGERED, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_archimonde_drain_world_tree_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_archimonde_drain_world_tree_dummy_SpellScript();
+        }
+};
+
 void AddSC_boss_archimonde()
 {
     new boss_archimonde();
     new npc_doomfire();
     new npc_doomfire_targetting();
     new npc_ancient_wisp();
+    new spell_archimonde_drain_world_tree_dummy();
 }
