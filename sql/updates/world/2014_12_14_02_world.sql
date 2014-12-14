@@ -85,5 +85,5 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 50892, 0, 31, 3, @Machine, 0, 0, '', 'Only petrus flying machine is the target for the rockets'),
 (13, 1, 50878, 0, 31, 3, @Machine, 0, 0, '', 'Only petrus flying machine is the target for the rockets');
 
-UPDATE `creature_template` SET `dmg_multiplier`=5 WHERE  `entry`=28468;
+UPDATE `creature_template` SET `DamageModifier`=5 WHERE  `entry`=28468;
 
