@@ -3034,7 +3034,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
                     bp = *(baseAmount + effect->EffectIndex);
                 else
                     bp = effect->BasePoints;
-                
+
                 int32* oldBP = const_cast<int32*>(&(foundAura->GetEffect(effect->EffectIndex)->m_baseAmount)); // todo 6.x review GetBaseAmount and GetCastItemGUID in this case
                 *oldBP = bp;
             }
@@ -12199,11 +12199,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         bool triggered = !(spellProto->AttributesEx3 & SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED) ?
             (procExtra & PROC_EX_INTERNAL_TRIGGERED && !(procFlag & PROC_FLAG_DONE_TRAP_ACTIVATION)) : false;
 
-        for (SpellEffectInfo const* effect : itr->second->GetBase()->GetSpellEffectInfos())
+        for (AuraEffect const* aurEff : itr->second->GetBase()->GetAuraEffects())
         {
-            if (effect && effect->IsEffect())
+            if (aurEff)
             {
-                AuraEffect* aurEff = itr->second->GetBase()->GetEffect(effect->EffectIndex);
                 // Skip this auras
                 if (isNonTriggerAura[aurEff->GetAuraType()])
                     continue;
@@ -12212,7 +12211,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     continue;
                 // Some spells must always trigger
                 if (!triggered || isAlwaysTriggeredAura[aurEff->GetAuraType()])
-                    triggerData.effMask |= 1<<effect->EffectIndex;
+                    triggerData.effMask |= 1 << aurEff->GetEffIndex();
             }
         }
         if (triggerData.effMask)
