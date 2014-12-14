@@ -675,7 +675,7 @@ void Spell::EffectSchoolDMG()
             }
         }
 
-        if (unitCaster && damage > 0 && apply_direct_bonus)
+        if (unitCaster && apply_direct_bonus)
         {
             damage = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, *effectInfo, { });
             damage = unitTarget->SpellDamageBonusTaken(unitCaster, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE);
