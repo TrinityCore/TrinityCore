@@ -1,7 +1,7 @@
 SET @Pentarus := 28160; -- Archmage Pentarus
 SET @SPELL := 50860;  -- Summon Machine 28192
 Set @Machine:= 28192;
-Set @Sworldpell2 := 51036; -- Summon Summon Venture Co. Air Patrol 28229
+Set @Spell2 := 51036; -- Summon Summon Venture Co. Air Patrol 28229
 Set @AirPatrol:= 28229;
 UPDATE `creature_template` SET `AIName`='SmartAI',`ScriptName`='' WHERE `entry`=@Pentarus;
 UPDATE `creature_template` SET `npcflag`= 16777216, `InhabitType`=4, `AIName`='SmartAI', `VehicleId`=220 WHERE `entry`=@Machine;
