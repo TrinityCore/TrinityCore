@@ -3,8 +3,8 @@ SET @Machine:=28192;
 SET @AirPatrol:=28229;
 SET @MonteMuzzleshot:=27987;
 
-SET @SPELL_MACHINE:=50860;		-- Summon Machine 28192
-SET @SPELL_PATROL:=51036;		-- Summon Venture Co. Air Patrol 28229
+SET @SPELL_MACHINE:=50860;  	-- Summon Machine 28192
+SET @SPELL_PATROL:=51036; 		-- Summon Venture Co. Air Patrol 28229
 SET @SPELL_FLIGHT:=50859;		-- Spell: Flight to Sholazar
 SET @SPELL_TELEPORT:=50987;		-- Spell: Teleport to Sholazar
 SET @SPELL_RIDE:=46598;			-- Spell: Ride Vehicle Hardcoded
@@ -51,17 +51,17 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 -- Archmage Pentarus Flying Machine SAI
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,1,54,0,100,0,0,0,0,0,60,1,1,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Just Summoned - Set Fly On"),
-(@ENTRY,0,1,2,61,0,100,0,0,0,0,0,86,@SPELL_RIDE,2,22,0,0,0,23,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Just Summoned - Cross Cast 'Ride Vehicle Hardcoded'"),
-(@ENTRY,0,2,0,61,0,100,0,0,0,0,0,69,1,0,0,0,0,0,8,0,0,0,@PORTAL_X,@PORTAL_Y,@PORTAL_Z,0.612513,"Archmage Pentarus' Flying Machine - On Just Summoned - Move To Position"),
-(@ENTRY,0,3,4,34,0,100,0,0,1,0,0,11,@SPELL_TELEPORT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Reached Point 1 - Cast 'Teleport to Sholazar'"),
-(@ENTRY,0,4,5,61,0,100,0,0,1,0,0,97,2,0,0,0,0,0,8,0,0,0,@TELE_ENTRY_X,@TELE_ENTRY_Y,@TELE_ENTRY_Z,@TELE_ENTRY_O,"Archmage Pentarus' Flying Machine - On Reached Point 1 - Jump To Pos"),
-(@ENTRY,0,5,0,61,0,100,0,0,1,0,0,53,1,28192,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Reached Point 1 - Start Waypoint"),
-(@ENTRY,0,7,8,40,0,100,0,2,28192,0,0,11,@SPELL_PATROL,0,0,0,0,0,7,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Waypoint 2 Reached - Cast 'Summon Venture Co. Air Patrol'"),
-(@ENTRY,0,8,0,61,0,100,0,2,28192,0,0,80,@MonteMuzzleshot*100,2,0,0,0,0,10,103289,27987,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Waypoint 2 Reached - Run Script"),
-(@ENTRY,0,9,0,40,0,100,0,3,28192,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Waypoint 3 Reached - Say Line 0"),
-(@ENTRY,0,10,11,40,0,100,0,6,28192,0,0,11,@SPELL_EJECT,0,0,0,0,0,7,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Waypoint 6 Reached - Cast 'Eject All Passengers'"),
-(@ENTRY,0,11,0,61,0,100,0,6,28192,0,0,75,@SPELL_PARACHUTE,0,0,0,0,0,7,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Waypoint 6 Reached - Add Aura 'Parachute'");
+(@Machine,0,0,1,54,0,100,0,0,0,0,0,60,1,1,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Just Summoned - Set Fly On"),
+(@Machine,0,1,2,61,0,100,0,0,0,0,0,86,@SPELL_RIDE,2,22,0,0,0,23,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Just Summoned - Cross Cast 'Ride Vehicle Hardcoded'"),
+(@Machine,0,2,0,61,0,100,0,0,0,0,0,69,1,0,0,0,0,0,8,0,0,0,@PORTAL_X,@PORTAL_Y,@PORTAL_Z,0.612513,"Archmage Pentarus' Flying Machine - On Just Summoned - Move To Position"),
+(@Machine,0,3,4,34,0,100,0,0,1,0,0,11,@SPELL_TELEPORT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Reached Point 1 - Cast 'Teleport to Sholazar'"),
+(@Machine,0,4,5,61,0,100,0,0,1,0,0,97,2,0,0,0,0,0,8,0,0,0,@TELE_ENTRY_X,@TELE_ENTRY_Y,@TELE_ENTRY_Z,@TELE_ENTRY_O,"Archmage Pentarus' Flying Machine - On Reached Point 1 - Jump To Pos"),
+(@Machine,0,5,0,61,0,100,0,0,1,0,0,53,1,28192,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Reached Point 1 - Start Waypoint"),
+(@Machine,0,7,8,40,0,100,0,2,28192,0,0,11,@SPELL_PATROL,0,0,0,0,0,7,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Waypoint 2 Reached - Cast 'Summon Venture Co. Air Patrol'"),
+(@Machine,0,8,0,61,0,100,0,2,28192,0,0,80,@MonteMuzzleshot*100,2,0,0,0,0,10,103289,27987,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Waypoint 2 Reached - Run Script"),
+(@Machine,0,9,0,40,0,100,0,3,28192,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Waypoint 3 Reached - Say Line 0"),
+(@Machine,0,10,11,40,0,100,0,6,28192,0,0,11,@SPELL_EJECT,0,0,0,0,0,7,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Waypoint 6 Reached - Cast 'Eject All Passengers'"),
+(@Machine,0,11,0,61,0,100,0,6,28192,0,0,75,@SPELL_PARACHUTE,0,0,0,0,0,7,0,0,0,0,0,0,0,"Archmage Pentarus' Flying Machine - On Waypoint 6 Reached - Add Aura 'Parachute'");
 
 -- Air Patrol SAI
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
@@ -133,4 +133,3 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (13,1,50878,0,31,3,@Machine,0,0,'','Only petrus flying machine is the target for the rockets');
 
 UPDATE `creature_template` SET `DamageModifier`=5 WHERE  `entry`=28468;
-
