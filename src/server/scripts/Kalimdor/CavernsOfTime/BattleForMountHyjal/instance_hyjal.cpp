@@ -175,7 +175,7 @@ public:
                     m_auiEncounter[3] = data;
                     if (data == DONE)
                     {
-                        instance->LoadGrid(5581.49, -3445.63);
+                        instance->LoadGrid(5581.49f, -3445.63f);
                         if (Creature* archimonde = instance->GetCreature(Archimonde))
                         {
                             archimonde->SetVisible(true);
