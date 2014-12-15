@@ -483,7 +483,7 @@ enum OpcodeClient : uint32
     CMSG_QUESTGIVER_CANCEL                            = 0xBADD,
     CMSG_QUESTGIVER_CHOOSE_REWARD                     = 0xBADD,
     CMSG_QUESTGIVER_COMPLETE_QUEST                    = 0xBADD,
-    CMSG_QUESTGIVER_HELLO                             = 0xBADD,
+    CMSG_QUESTGIVER_HELLO                             = 0x058E,
     CMSG_QUESTGIVER_QUERY_QUEST                       = 0x1924,
     CMSG_QUESTGIVER_QUEST_AUTOLAUNCH                  = 0xBADD,
     CMSG_QUESTGIVER_REQUEST_REWARD                    = 0xBADD,

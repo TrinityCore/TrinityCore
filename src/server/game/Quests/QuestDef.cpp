@@ -36,10 +36,10 @@ Quest::Quest(Field* questRecord)
     RequiredRaces = questRecord[10].GetUInt32();
     RequiredSkillId = questRecord[11].GetUInt16();
     RequiredSkillPoints = questRecord[12].GetUInt16();
-    RequiredFactionId1 = questRecord[13].GetUInt16();
-    RequiredFactionId2 = questRecord[14].GetUInt16();
-    RequiredFactionValue1 = questRecord[15].GetInt32();
-    RequiredFactionValue2 = questRecord[16].GetInt32();
+    //RequiredFactionId1 = questRecord[13].GetUInt16();
+    //RequiredFactionId2 = questRecord[14].GetUInt16();
+    //RequiredFactionValue1 = questRecord[15].GetInt32();
+    //RequiredFactionValue2 = questRecord[16].GetInt32();
     RequiredMinRepFaction = questRecord[17].GetUInt16();
     RequiredMaxRepFaction = questRecord[18].GetUInt16();
     RequiredMinRepValue = questRecord[19].GetInt32();
@@ -97,15 +97,15 @@ Quest::Quest(Field* questRecord)
     PointX = questRecord[85].GetFloat();
     PointY = questRecord[86].GetFloat();
     PointOption = questRecord[87].GetUInt32();
-    Title = questRecord[88].GetString();
-    Objectives = questRecord[89].GetString();
-    Details = questRecord[90].GetString();
+    LogTitle = questRecord[88].GetString();
+    LogDescription = questRecord[89].GetString();
+    QuestDescription = questRecord[90].GetString();
     EndText = questRecord[91].GetString();
     CompletedText = questRecord[92].GetString();
     OfferRewardText = questRecord[93].GetString();
     RequestItemsText = questRecord[94].GetString();
 
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+    /*for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         RequiredNpcOrGo[i] = questRecord[95+i].GetInt32();
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
@@ -138,7 +138,7 @@ Quest::Quest(Field* questRecord)
         RequiredCurrencyId[i] = questRecord[136+i].GetUInt16();
 
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        RequiredCurrencyCount[i] = questRecord[140+i].GetUInt8();
+        RequiredCurrencyCount[i] = questRecord[140+i].GetUInt8();*/
 
     QuestGiverTextWindow = questRecord[144].GetString();
     QuestGiverTargetName = questRecord[145].GetString();
@@ -174,13 +174,13 @@ Quest::Quest(Field* questRecord)
     _rewCurrencyCount = 0;
     _reqCurrencyCount = 0;
 
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+    /*for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
         if (RequiredItemId[i])
             ++_reqItemsCount;
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         if (RequiredNpcOrGo[i])
-            ++_reqNpcOrGoCount;
+            ++_reqNpcOrGoCount;*/
 
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         if (RewardItemId[i])
@@ -194,9 +194,9 @@ Quest::Quest(Field* questRecord)
         if (RewardCurrencyId[i])
             ++_rewCurrencyCount;
 
-    for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
+    /*for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
         if (RequiredCurrencyId[i])
-            ++_reqCurrencyCount;
+            ++_reqCurrencyCount;*/
 }
 
 uint32 Quest::XPValue(Player* player) const

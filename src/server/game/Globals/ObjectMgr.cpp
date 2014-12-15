@@ -4007,7 +4007,7 @@ void ObjectMgr::LoadQuests()
         }
         // else Skill quests can have 0 skill level, this is ok
 
-        if (qinfo->RequiredFactionId2 && !sFactionStore.LookupEntry(qinfo->RequiredFactionId2))
+        /*if (qinfo->RequiredFactionId2 && !sFactionStore.LookupEntry(qinfo->RequiredFactionId2))
         {
             TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredFactionId2` = %u but faction template %u does not exist, quest can't be done.",
                 qinfo->GetQuestId(), qinfo->RequiredFactionId2, qinfo->RequiredFactionId2);
@@ -4019,7 +4019,7 @@ void ObjectMgr::LoadQuests()
             TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredFactionId1` = %u but faction template %u does not exist, quest can't be done.",
                 qinfo->GetQuestId(), qinfo->RequiredFactionId1, qinfo->RequiredFactionId1);
             // no changes, quest can't be done for this requirement
-        }
+        }*/
 
         if (qinfo->RequiredMinRepFaction && !sFactionStore.LookupEntry(qinfo->RequiredMinRepFaction))
         {
@@ -4049,7 +4049,7 @@ void ObjectMgr::LoadQuests()
             // no changes, quest can't be done for this requirement
         }
 
-        if (!qinfo->RequiredFactionId1 && qinfo->RequiredFactionValue1 != 0)
+        /*if (!qinfo->RequiredFactionId1 && qinfo->RequiredFactionValue1 != 0)
         {
             TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredFactionValue1` = %d but `RequiredFactionId1` is 0, value has no effect",
                 qinfo->GetQuestId(), qinfo->RequiredFactionValue1);
@@ -4061,7 +4061,7 @@ void ObjectMgr::LoadQuests()
             TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredFactionValue2` = %d but `RequiredFactionId2` is 0, value has no effect",
                 qinfo->GetQuestId(), qinfo->RequiredFactionValue2);
             // warning
-        }
+        }*/
 
         if (!qinfo->RequiredMinRepFaction && qinfo->RequiredMinRepValue != 0)
         {
@@ -4124,38 +4124,61 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for (uint8 j = 0; j < QUEST_ITEM_OBJECTIVES_COUNT; ++j)
+        for (uint32 j = 0; j < qinfo->Objectives.size(); ++j)
         {
-            uint32 id = qinfo->RequiredItemId[j];
-            if (id)
+            QuestObjective& obj = qinfo->Objectives[j];
+
+            if (!obj.ObjectID)
             {
-                if (qinfo->RequiredItemCount[j] == 0)
-                {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredItemId%d` = %u but `RequiredItemCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, j+1);
-                    // no changes, quest can't be done for this requirement
-                }
-
-                qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER);
-
-                if (!sObjectMgr->GetItemTemplate(id))
-                {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredItemId%d` = %u but item with entry %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, id);
-                    qinfo->RequiredItemCount[j] = 0;             // prevent incorrect work of quest
-                }
+                TC_LOG_ERROR("sql.sql", "Quest %u objective %u has `ObjectID` = 0, quest can't be done.", qinfo->GetQuestId(), j);
+                // no changes, quest can't be done for this requirement
+                continue;
             }
-            else if (qinfo->RequiredItemCount[j] > 0)
+
+            if (!obj.Amount)
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredItemId%d` = 0 but `RequiredItemCount%d` = %u, quest can't be done.",
-                    qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredItemCount[j]);
-                qinfo->RequiredItemCount[j] = 0;                 // prevent incorrect work of quest
+                TC_LOG_ERROR("sql.sql", "Quest %u objective %u has `Amount` = 0, quest can't be done.", qinfo->GetQuestId(), j);
+                // no changes, quest can't be done for this requirement
+                continue;
+            }
+
+            switch (obj.Type)
+            {
+                case QUEST_OBJECTIVE_ITEM:
+                    qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER);
+                    if (!sObjectMgr->GetItemTemplate(obj.ObjectID))
+                    {
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing item entry %u, quest can't be done.",
+                            qinfo->GetQuestId(), j, obj.ObjectID);
+                        obj.Amount = 0; // prevent incorrect work of quest
+                    }
+                    break;
+                case QUEST_OBJECTIVE_MONSTER:
+                    qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO);
+                    if (!sObjectMgr->GetCreatureTemplate(obj.ObjectID))
+                    {
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing creature entry %u, quest can't be done.",
+                            qinfo->GetQuestId(), j, uint32(obj.ObjectID));
+                        obj.Amount = 0; // quest can't be done for this requirement
+                    }
+                    break;
+                case QUEST_OBJECTIVE_GAMEOBJECT:
+                    qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO);
+                    if (!sObjectMgr->GetGameObjectTemplate(obj.ObjectID))
+                    {
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing gameobject entry %u, quest can't be done.",
+                            qinfo->GetQuestId(), j, uint32(obj.ObjectID));
+                        obj.Amount = 0; // quest can't be done for this requirement
+                    }
+                    break;
+                default:
+                    TC_LOG_ERROR("sql.sql", "Quest %u objective %u has unknown type %u", qinfo->GetQuestId(), j, obj.Type);
             }
         }
 
-        for (uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
+        for (uint8 j = 0; j < QUEST_ITEM_DROP_COUNT; ++j)
         {
-            uint32 id = qinfo->RequiredSourceItemId[j];
+            uint32 id = qinfo->ItemDrop[j];
             if (id)
             {
                 if (!sObjectMgr->GetItemTemplate(id))
@@ -4167,50 +4190,12 @@ void ObjectMgr::LoadQuests()
             }
             else
             {
-                if (qinfo->RequiredSourceItemCount[j]>0)
+                if (qinfo->ItemDropQuantity[j]>0)
                 {
                     TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSourceItemId%d` = 0 but `RequiredSourceItemCount%d` = %u.",
-                        qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredSourceItemCount[j]);
+                        qinfo->GetQuestId(), j+1, j+1, qinfo->ItemDropQuantity[j]);
                     // no changes, quest ignore this data
                 }
-            }
-        }
-
-        for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
-        {
-            int32 id = qinfo->RequiredNpcOrGo[j];
-            if (id < 0 && !sObjectMgr->GetGameObjectTemplate(-id))
-            {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredNpcOrGo%d` = %i but gameobject %u does not exist, quest can't be done.",
-                    qinfo->GetQuestId(), j+1, id, uint32(-id));
-                qinfo->RequiredNpcOrGo[j] = 0;            // quest can't be done for this requirement
-            }
-
-            if (id > 0 && !sObjectMgr->GetCreatureTemplate(id))
-            {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredNpcOrGo%d` = %i but creature with entry %u does not exist, quest can't be done.",
-                    qinfo->GetQuestId(), j+1, id, uint32(id));
-                qinfo->RequiredNpcOrGo[j] = 0;            // quest can't be done for this requirement
-            }
-
-            if (id)
-            {
-                // In fact SpeakTo and Kill are quite same: either you can speak to mob:SpeakTo or you can't:Kill/Cast
-
-                qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO);
-
-                if (!qinfo->RequiredNpcOrGoCount[j])
-                {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredNpcOrGo%d` = %u but `RequiredNpcOrGoCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, j+1);
-                    // no changes, quest can be incorrectly done, but we already report this
-                }
-            }
-            else if (qinfo->RequiredNpcOrGoCount[j]>0)
-            {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredNpcOrGo%d` = 0 but `RequiredNpcOrGoCount%d` = %u.",
-                    qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredNpcOrGoCount[j]);
-                // no changes, quest ignore this data
             }
         }
 
@@ -4389,7 +4374,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for (uint8 j = 0; j < QUEST_REQUIRED_CURRENCY_COUNT; ++j)
+        /*for (uint8 j = 0; j < QUEST_REQUIRED_CURRENCY_COUNT; ++j)
         {
             if (qinfo->RequiredCurrencyId[j])
             {
@@ -4413,7 +4398,7 @@ void ObjectMgr::LoadQuests()
                     qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredCurrencyCount[j]);
                 qinfo->RequiredCurrencyCount[j] = 0;                 // prevent incorrect work of quest
             }
-        }
+        }*/
 
         if (qinfo->SoundAccept)
         {
@@ -4586,16 +4571,17 @@ void ObjectMgr::LoadQuestLocales()
         {
             LocaleConstant locale = (LocaleConstant) i;
 
-            AddLocaleString(fields[1 + 15 * (i - 1)].GetString(), locale, data.Title);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 1].GetString(), locale, data.Details);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 2].GetString(), locale, data.Objectives);
+            AddLocaleString(fields[1 + 15 * (i - 1)].GetString(), locale, data.LogTitle);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 1].GetString(), locale, data.LogDescription);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 2].GetString(), locale, data.QuestDescription);
             AddLocaleString(fields[1 + 15 * (i - 1) + 3].GetString(), locale, data.OfferRewardText);
             AddLocaleString(fields[1 + 15 * (i - 1) + 4].GetString(), locale, data.RequestItemsText);
             AddLocaleString(fields[1 + 15 * (i - 1) + 5].GetString(), locale, data.EndText);
             AddLocaleString(fields[1 + 15 * (i - 1) + 6].GetString(), locale, data.CompletedText);
 
+            data.ObjectiveDescription.resize(4);
             for (uint8 k = 0; k < 4; ++k)
-                AddLocaleString(fields[1 + 15 * (i - 1) + 7 + k].GetString(), locale, data.ObjectiveText[k]);
+                AddLocaleString(fields[1 + 15 * (i - 1) + 7 + k].GetString(), locale, data.ObjectiveDescription[k]);
 
             AddLocaleString(fields[1 + 15 * (i - 1) + 11].GetString(), locale, data.QuestGiverTextWindow);
             AddLocaleString(fields[1 + 15 * (i - 1) + 12].GetString(), locale, data.QuestGiverTargetName);

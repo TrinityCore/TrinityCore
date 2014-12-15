@@ -41,3 +41,154 @@ WorldPacket const* WorldPackets::Quest::QuestGiverStatusMultiple::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Quest::QuestGiverHello::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+}
+
+void WorldPackets::Quest::QueryQuestInfo::Read()
+{
+    _worldPacket >> QuestID;
+    _worldPacket >> QuestGiver;
+}
+
+WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
+{
+    _worldPacket << QuestID;
+
+    _worldPacket.WriteBit(Allow);
+    _worldPacket.FlushBits();
+
+    if (Allow)
+    {
+        _worldPacket << Info.QuestID;
+        _worldPacket << Info.QuestType;
+        _worldPacket << Info.QuestLevel;
+        _worldPacket << Info.QuestPackageID;
+        _worldPacket << Info.QuestMinLevel;
+        _worldPacket << Info.QuestSortID;
+        _worldPacket << Info.QuestInfoID;
+        _worldPacket << Info.SuggestedGroupNum;
+        _worldPacket << Info.RewardNextQuest;
+        _worldPacket << Info.RewardXPDifficulty;
+        _worldPacket << float(1.0f); // Unk Float10
+        _worldPacket << Info.RewardMoney;
+        _worldPacket << Info.RewardMoneyDifficulty;
+        _worldPacket << float(1.0f); // Unk Float13
+        _worldPacket << Info.RewardBonusMoney;
+        _worldPacket << Info.RewardDisplaySpell;
+        _worldPacket << Info.RewardSpell;
+        _worldPacket << Info.RewardHonor;
+        _worldPacket << Info.RewardKillHonor;
+        _worldPacket << Info.StartItem;
+        _worldPacket << Info.Flags;
+        _worldPacket << Info.FlagsEx;
+
+        for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        {
+            _worldPacket << Info.RewardItems[i];
+            _worldPacket << Info.RewardAmount[i];
+            _worldPacket << Info.ItemDrop[i];
+            _worldPacket << Info.ItemDropQuantity[i];
+        }
+
+        for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        {
+            _worldPacket << Info.UnfilteredChoiceItems[i].ItemID;
+            _worldPacket << Info.UnfilteredChoiceItems[i].Quantity;
+            _worldPacket << Info.UnfilteredChoiceItems[i].DisplayID;
+        }
+
+        _worldPacket << Info.POIContinent;
+        _worldPacket << Info.POIx;
+        _worldPacket << Info.POIy;
+        _worldPacket << Info.POIPriority;
+
+        _worldPacket << Info.RewardTitle;
+        _worldPacket << Info.RewardTalents;
+        _worldPacket << Info.RewardArenaPoints;
+        _worldPacket << Info.RewardSkillLineID;
+        _worldPacket << Info.RewardNumSkillUps;
+
+        _worldPacket << Info.PortraitGiver;
+        _worldPacket << Info.PortraitTurnIn;
+
+        for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        {
+            _worldPacket << Info.RewardFactionID[i];
+            _worldPacket << Info.RewardFactionValue[i];
+            _worldPacket << Info.RewardFactionOverride[i];
+        }
+
+        _worldPacket << Info.RewardFactionFlags;
+
+        for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+        {
+            _worldPacket << Info.RewardCurrencyID[i];
+            _worldPacket << Info.RewardCurrencyQty[i];
+        }
+
+        _worldPacket << Info.AcceptedSoundKitID;
+        _worldPacket << Info.CompleteSoundKitID;
+
+        _worldPacket << Info.AreaGroupID;
+        _worldPacket << Info.TimeAllowed;
+
+        _worldPacket << int32(Info.Objectives.size());
+        _worldPacket << int32(-1); // Unk Int2950
+
+        for (uint32 i = 0; i < Info.Objectives.size(); ++i)
+        {
+            _worldPacket << Info.Objectives[i].ID;
+            _worldPacket << Info.Objectives[i].Type;
+            _worldPacket << Info.Objectives[i].StorageIndex;
+            _worldPacket << Info.Objectives[i].ObjectID;
+            _worldPacket << Info.Objectives[i].Amount;
+            _worldPacket << Info.Objectives[i].Flags;
+            _worldPacket << float(0); // Unk
+
+            _worldPacket << int32(Info.Objectives[i].VisualEffects.size());
+            for (uint32 j = 0; j < Info.Objectives[i].VisualEffects.size(); ++j)
+                _worldPacket << Info.Objectives[i].VisualEffects[i];
+
+            _worldPacket.WriteBits(Info.Objectives[i].Description.size(), 8);
+            _worldPacket.WriteString(Info.Objectives[i].Description);
+        }
+
+        _worldPacket.WriteBits(Info.LogTitle.size(), 9);
+        _worldPacket.WriteBits(Info.LogDescription.size(), 12);
+        _worldPacket.WriteBits(Info.QuestDescription.size(), 12);
+        _worldPacket.WriteBits(Info.AreaDescription.size(), 9);
+        _worldPacket.WriteBits(Info.PortraitGiverText.size(), 10);
+        _worldPacket.WriteBits(Info.PortraitGiverName.size(), 8);
+        _worldPacket.WriteBits(Info.PortraitTurnInText.size(), 10);
+        _worldPacket.WriteBits(Info.PortraitTurnInName.size(), 8);
+        _worldPacket.WriteBits(Info.QuestCompletionLog.size(), 11);
+        _worldPacket.FlushBits();
+
+        _worldPacket.WriteString(Info.LogTitle);
+        _worldPacket.WriteString(Info.LogDescription);
+        _worldPacket.WriteString(Info.QuestDescription);
+        _worldPacket.WriteString(Info.AreaDescription);
+        _worldPacket.WriteString(Info.PortraitGiverText);
+        _worldPacket.WriteString(Info.PortraitGiverName);
+        _worldPacket.WriteString(Info.PortraitTurnInText);
+        _worldPacket.WriteString(Info.PortraitTurnInName);
+        _worldPacket.WriteString(Info.QuestCompletionLog);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestUpdateAddCredit::Write()
+{
+    _worldPacket << VictimGUID;
+    _worldPacket << QuestID;
+    _worldPacket << ObjectID;
+    _worldPacket << Count;
+    _worldPacket << Required;
+    _worldPacket << ObjectiveType;
+
+    return &_worldPacket;
+};

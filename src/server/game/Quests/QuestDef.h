@@ -34,9 +34,9 @@ class ObjectMgr;
 
 #define MAX_QUEST_LOG_SIZE 25
 
-#define QUEST_OBJECTIVES_COUNT 4
-#define QUEST_ITEM_OBJECTIVES_COUNT 6
-#define QUEST_SOURCE_ITEM_IDS_COUNT 4
+//#define QUEST_OBJECTIVES_COUNT 4
+//#define QUEST_ITEM_OBJECTIVES_COUNT 6
+#define QUEST_ITEM_DROP_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
 #define QUEST_REWARDS_COUNT 4
 #define QUEST_DEPLINK_COUNT 10
@@ -44,7 +44,7 @@ class ObjectMgr;
 #define QUEST_EMOTE_COUNT 4
 #define QUEST_PVP_KILL_SLOT 0
 #define QUEST_REWARD_CURRENCY_COUNT 4
-#define QUEST_REQUIRED_CURRENCY_COUNT 4
+//#define QUEST_REQUIRED_CURRENCY_COUNT 4
 
 enum QuestFailedReason
 {
@@ -180,24 +180,46 @@ enum QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800    // Internal flag computed only
 };
 
+enum QuestObjectiveType
+{
+    QUEST_OBJECTIVE_MONSTER     = 0,
+    QUEST_OBJECTIVE_ITEM        = 1,
+    QUEST_OBJECTIVE_GAMEOBJECT,
+    QUEST_OBJECTIVE_REPUTATION,
+    QUEST_OBJECTIVE_LOG,
+    QUEST_OBJECTIVE_EVENT
+};
+
 struct QuestLocale
 {
-    QuestLocale() { ObjectiveText.resize(QUEST_OBJECTIVES_COUNT); }
-
-    StringVector Title;
-    StringVector Details;
-    StringVector Objectives;
+    StringVector LogTitle;
+    StringVector LogDescription;
+    StringVector QuestDescription;
     StringVector OfferRewardText;
     StringVector RequestItemsText;
     StringVector EndText;
     StringVector CompletedText;
-    std::vector< StringVector > ObjectiveText;
+    std::vector< StringVector > ObjectiveDescription;
     // new on 4.x
     StringVector QuestGiverTextWindow;
     StringVector QuestGiverTargetName;
     StringVector QuestTurnTextWindow;
     StringVector QuestTurnTargetName;
 };
+
+struct QuestObjective
+{
+    int32 ID            = 0;
+    uint8 Type          = 0;
+    uint8 StorageIndex  = 0;
+    int32 ObjectID      = 0;
+    int32 Amount        = 0;
+    int32 Flags         = 0;
+    std::string Description;
+    std::vector<int32> VisualEffects;
+};
+
+typedef std::vector<QuestObjective> QuestObjectives;
 
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
@@ -227,10 +249,6 @@ class Quest
         uint32 GetRequiredRaces() const { return RequiredRaces; }
         uint32 GetRequiredSkill() const { return RequiredSkillId; }
         uint32 GetRequiredSkillValue() const { return RequiredSkillPoints; }
-        uint32 GetRepObjectiveFaction() const { return RequiredFactionId1; }
-        int32  GetRepObjectiveValue() const { return RequiredFactionValue1; }
-        uint32 GetRepObjectiveFaction2() const { return RequiredFactionId2; }
-        int32  GetRepObjectiveValue2() const { return RequiredFactionValue2; }
         uint32 GetRequiredMinRepFaction() const { return RequiredMinRepFaction; }
         int32  GetRequiredMinRepValue() const { return RequiredMinRepValue; }
         uint32 GetRequiredMaxRepFaction() const { return RequiredMaxRepFaction; }
@@ -249,9 +267,9 @@ class Quest
         uint32 GetSrcItemId() const { return SourceItemId; }
         uint32 GetSrcItemCount() const { return SourceItemIdCount; }
         uint32 GetSrcSpell() const { return SourceSpellid; }
-        std::string const& GetTitle() const { return Title; }
-        std::string const& GetDetails() const { return Details; }
-        std::string const& GetObjectives() const { return Objectives; }
+        std::string const& GetLogTitle() const { return LogTitle; }
+        std::string const& GetLogDescription() const { return LogDescription; }
+        std::string const& GetQuestDescription() const { return QuestDescription; }
         std::string const& GetOfferRewardText() const { return OfferRewardText; }
         std::string const& GetRequestItemsText() const { return RequestItemsText; }
         std::string const& GetEndText() const { return EndText; }
@@ -260,6 +278,7 @@ class Quest
         std::string const& GetQuestGiverTargetName() const { return QuestGiverTargetName; }
         std::string const& GetQuestTurnTextWindow() const { return QuestTurnTextWindow; }
         std::string const& GetQuestTurnTargetName() const { return QuestTurnTargetName; }
+        QuestObjectives const& GetObjectives() const { return Objectives; };
         int32  GetRewOrReqMoney() const;
         uint32 GetRewHonorAddition() const { return RewardHonor; }
         float GetRewHonorMultiplier() const { return RewardHonorMultiplier; }
@@ -299,13 +318,17 @@ class Quest
         uint32 CalculateHonorGain(uint8 level) const;
 
         // multiple values
-        std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
+        QuestObjectives Objectives;
+        uint32 ItemDrop[QUEST_ITEM_DROP_COUNT];
+        uint32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT];
+        /*std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
         uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT];
         uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT];
         uint32 RequiredSourceItemId[QUEST_SOURCE_ITEM_IDS_COUNT];
         uint32 RequiredSourceItemCount[QUEST_SOURCE_ITEM_IDS_COUNT];
         int32  RequiredNpcOrGo[QUEST_OBJECTIVES_COUNT];   // >0 Creature <0 Gameobject
-        uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT];
+        uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT];*/
+
         uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardItemId[QUEST_REWARDS_COUNT];
@@ -320,8 +343,8 @@ class Quest
         // 4.x
         uint32 RewardCurrencyId[QUEST_REWARD_CURRENCY_COUNT];
         uint32 RewardCurrencyCount[QUEST_REWARD_CURRENCY_COUNT];
-        uint32 RequiredCurrencyId[QUEST_REQUIRED_CURRENCY_COUNT];
-        uint32 RequiredCurrencyCount[QUEST_REQUIRED_CURRENCY_COUNT];
+        //uint32 RequiredCurrencyId[QUEST_REQUIRED_CURRENCY_COUNT];
+        //uint32 RequiredCurrencyCount[QUEST_REQUIRED_CURRENCY_COUNT];
 
         uint32 GetReqItemsCount() const { return _reqItemsCount; }
         uint32 GetReqCreatureOrGOcount() const { return _reqNpcOrGoCount; }
@@ -359,10 +382,6 @@ class Quest
         uint32 RequiredRaces;
         uint32 RequiredSkillId;
         uint32 RequiredSkillPoints;
-        uint32 RequiredFactionId1;
-        int32  RequiredFactionValue1;
-        uint32 RequiredFactionId2;
-        int32  RequiredFactionValue2;
         uint32 RequiredMinRepFaction;
         int32  RequiredMinRepValue;
         uint32 RequiredMaxRepFaction;
@@ -382,9 +401,9 @@ class Quest
         uint32 SourceItemId;
         uint32 SourceItemIdCount;
         uint32 SourceSpellid;
-        std::string Title;
-        std::string Details;
-        std::string Objectives;
+        std::string LogTitle;
+        std::string LogDescription;
+        std::string QuestDescription;
         std::string OfferRewardText;
         std::string RequestItemsText;
         std::string EndText;
@@ -425,14 +444,11 @@ struct QuestStatusData
 {
     QuestStatusData(): Status(QUEST_STATUS_NONE), Timer(0), PlayerCount(0), Explored(false)
     {
-        memset(ItemCount, 0, QUEST_ITEM_OBJECTIVES_COUNT * sizeof(uint16));
-        memset(CreatureOrGOCount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint16));
     }
 
     QuestStatus Status;
     uint32 Timer;
-    uint16 ItemCount[QUEST_ITEM_OBJECTIVES_COUNT];
-    uint16 CreatureOrGOCount[QUEST_OBJECTIVES_COUNT];
+    std::vector<int32> ObjectiveAmount;
     uint16 PlayerCount;
     bool Explored;
 };
