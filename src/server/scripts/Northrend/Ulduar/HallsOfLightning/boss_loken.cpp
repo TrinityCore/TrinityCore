@@ -115,6 +115,7 @@ public:
         {
             Talk(SAY_DEATH);
             _JustDied();
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PULSING_SHOCKWAVE_AURA);
         }
 
         void KilledUnit(Unit* who) override
