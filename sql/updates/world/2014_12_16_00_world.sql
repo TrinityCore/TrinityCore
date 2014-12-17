@@ -1,3 +1,4 @@
+-- Line 9 error BroadcastTextID not correct place
 DELETE FROM `creature_text` WHERE `entry` IN(33662,33701,33626,33686,33696);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextID`, `comment`) VALUES
 (33662, 0, 0, 'Any luck?', 12, 0, 100, 0, 0, 0, 34184, 'Kirin Tor Battle-Mage to Player'),
