@@ -69,7 +69,7 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetOwner()->GetTypeId() == TYPEID_PLAYER;
             }
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -81,16 +81,16 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* caster = GetCaster()->ToPlayer())
-                    if (Pet* pet = caster->GetPet())
-                        pet->RemoveAurasDueToSpell(SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET);
+                Player* player = GetTarget()->ToPlayer();
+                if (Pet* pet = player->GetPet())
+                    pet->RemoveAurasDueToSpell(SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* caster = GetCaster()->ToPlayer())
-                    if (caster->GetPet())
-                        caster->CastSpell(caster, SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET, true);
+                Player* player = GetTarget()->ToPlayer();
+                if (player->GetPet())
+                    player->CastSpell(player, SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET, true);
             }
 
             void Register() override

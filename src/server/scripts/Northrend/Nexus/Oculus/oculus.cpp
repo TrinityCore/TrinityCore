@@ -31,6 +31,9 @@ enum GossipNPCs
     GOSSIP_MENU_ETERNOS                 = 9574,
     GOSSIP_MENU_BELGARISTRASZ           = 9575,
 
+    SPELL_CREATE_EMERALD_ESSENCE        = 49382, // no effects in spell_dbc
+    SPELL_CREATE_AMBER_ESSENCE          = 49447, // no effects in spell_dbc
+    SPELL_CREATE_RUBY_ESSENCE           = 49450, // no effects in spell_dbc
     ITEM_EMERALD_ESSENCE                = 37815,
     ITEM_AMBER_ESSENCE                  = 37859,
     ITEM_RUBY_ESSENCE                   = 37860
@@ -48,7 +51,7 @@ enum Drakes
     SPELL_RUBY_EVASIVE_AURA             = 50248,          // Instant - Allows the Ruby Drake to generate Evasive Charges when hit by hostile attacks and spells.
     SPELL_RUBY_EVASIVE_CHARGES          = 50241,
     SPELL_RUBY_EVASIVE_MANEUVERS        = 50240,          // Instant - 5 sec. cooldown - Allows your drake to dodge all incoming attacks and spells. Requires Evasive Charges to use. Each attack or spell dodged while this ability is active burns one Evasive Charge. Lasts 30 sec. or until all charges are exhausted.
-    // you do not have acces to until you kill Mage-Lord Urom
+    // you do not have access to until you kill the Mage-Lord Urom
     SPELL_RUBY_MARTYR                   = 50253,          // Instant - 10 sec. cooldown - Redirect all harmful spells cast at friendly drakes to yourself for 10 sec.
 
 /*
@@ -112,7 +115,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
 
             void StoreEssence(Player* player, uint32 itemId)
             {
-                /// @todo: should be handled by spell, but not found in dbc (49450 and other?)
+                /// @todo: implement with spells
                 uint32 count = 1;
                 ItemPosCountVec dest;
                 uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count);
