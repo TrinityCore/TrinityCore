@@ -156,9 +156,7 @@ class boss_gormok : public CreatureScript
 
         struct boss_gormokAI : public BossAI
         {
-            boss_gormokAI(Creature* creature) : BossAI(creature, BOSS_BEASTS)
-            {
-            }
+            boss_gormokAI(Creature* creature) : BossAI(creature, BOSS_BEASTS) { }
 
             void Reset() override
             {
@@ -542,12 +540,6 @@ struct boss_jormungarAI : public BossAI
         me->DespawnOrUnsummon();
     }
 
-    void KilledUnit(Unit* who) override
-    {
-        if (who->GetTypeId() == TYPEID_PLAYER)
-            instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
-    }
-
     void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
@@ -642,7 +634,6 @@ struct boss_jormungarAI : public BossAI
         me->SetDisplayId(ModelMobile);
         me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-        me->GetMotionMaster()->Clear();
 
         // if the worm was mobile before submerging, make him stationary now
         if (WasMobile)
@@ -723,9 +714,7 @@ class boss_dreadscale : public CreatureScript
 
         struct boss_dreadscaleAI : public boss_jormungarAI
         {
-            boss_dreadscaleAI(Creature* creature) : boss_jormungarAI(creature)
-            {
-            }
+            boss_dreadscaleAI(Creature* creature) : boss_jormungarAI(creature) { }
 
             void Reset() override
             {
@@ -946,14 +935,6 @@ class boss_icehowl : public CreatureScript
                 instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
                 me->DespawnOrUnsummon();
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                {
-                    instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
-                }
             }
 
             void EnterCombat(Unit* /*who*/) override

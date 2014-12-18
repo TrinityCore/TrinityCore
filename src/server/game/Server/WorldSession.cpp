@@ -284,11 +284,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     while (m_Socket && !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket && _recvQueue.next(packet, updater))
     {
-        if (!AntiDOS.EvaluateOpcode(*packet, currentTime))
-        {
-            KickPlayer();
-        }
-        else if (packet->GetOpcode() >= NUM_MSG_TYPES)
+        if (packet->GetOpcode() >= NUM_MSG_TYPES)
         {
             TC_LOG_ERROR("network.opcode", "Received non-existed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
@@ -320,7 +316,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                                     "Player is currently not in world yet.", GetOpcodeNameForLogging(packet->GetOpcode()).c_str());
                             }
                         }
-                        else if (_player->IsInWorld())
+                        else if (_player->IsInWorld() && AntiDOS.EvaluateOpcode(*packet, currentTime))
                         {
                             sScriptMgr->OnPacketReceive(this, *packet);
                             (this->*opHandle.handler)(*packet);
@@ -332,7 +328,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (!_player && !m_playerRecentlyLogout && !m_playerLogout) // There's a short delay between _player = null and m_playerRecentlyLogout = true during logout
                             LogUnexpectedOpcode(packet, "STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT",
                                 "the player has not logged in yet and not recently logout");
-                        else
+                        else if (AntiDOS.EvaluateOpcode(*packet, currentTime))
                         {
                             // not expected _player or must checked in packet handler
                             sScriptMgr->OnPacketReceive(this, *packet);
@@ -345,7 +341,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player has not logged in yet");
                         else if (_player->IsInWorld())
                             LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
-                        else
+                        else if(AntiDOS.EvaluateOpcode(*packet, currentTime))
                         {
                             sScriptMgr->OnPacketReceive(this, *packet);
                             (this->*opHandle.handler)(*packet);
@@ -365,9 +361,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (packet->GetOpcode() == CMSG_CHAR_ENUM)
                             m_playerRecentlyLogout = false;
 
-                        sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle.handler)(*packet);
-                        LogUnprocessedTail(packet);
+                        if (AntiDOS.EvaluateOpcode(*packet, currentTime))
+                        {
+                            sScriptMgr->OnPacketReceive(this, *packet);
+                            (this->*opHandle.handler)(*packet);
+                            LogUnprocessedTail(packet);
+                        }
                         break;
                     case STATUS_NEVER:
                         TC_LOG_ERROR("network.opcode", "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
@@ -1262,8 +1261,11 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
         case POLICY_LOG:
             return true;
         case POLICY_KICK:
+        {
             TC_LOG_INFO("network", "AntiDOS: Player kicked!");
+            Session->KickPlayer();
             return false;
+        }
         case POLICY_BAN:
         {
             BanMode bm = (BanMode)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANMODE);
@@ -1277,7 +1279,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
             }
             sWorld->BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
             TC_LOG_INFO("network", "AntiDOS: Player automatically banned for %u seconds.", duration);
-
+            Session->KickPlayer();
             return false;
         }
         default: // invalid policy
