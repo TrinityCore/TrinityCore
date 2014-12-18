@@ -21,8 +21,14 @@
 
 DoorData const doorData[] =
 {
-    { GO_IKISS_DOOR,    DATA_TALON_KING_IKISS,  DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-    { 0,                0,                      DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
+    { GO_IKISS_DOOR, DATA_TALON_KING_IKISS, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { 0,             0,                     DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_TALON_KING_COFFER, DATA_TALON_KING_COFFER },
+    { 0,                    0                      } // END
 };
 
 class instance_sethekk_halls : public InstanceMapScript
@@ -37,6 +43,7 @@ class instance_sethekk_halls : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadObjectData(nullptr, gameObjectData);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -50,16 +57,27 @@ class instance_sethekk_halls : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) override
+            bool SetBossState(uint32 type, EncounterState state) override
             {
-                 if (go->GetEntry() == GO_IKISS_DOOR)
-                     AddDoor(go, true);
-            }
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
 
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                 if (go->GetEntry() == GO_IKISS_DOOR)
-                     AddDoor(go, false);
+                switch (type)
+                {
+                    case DATA_TALON_KING_IKISS:
+                        if (state == DONE)
+                        {
+                            /// @workaround: GO_FLAG_INTERACT_COND remains on the gob, but it is not handled correctly in this case
+                            ///              gameobject should have GO_DYNFLAG_LO_ACTIVATE too, which makes gobs interactable with GO_FLAG_INTERACT_COND
+                            ///              so just removed GO_FLAG_INTERACT_COND
+                            if (GameObject* coffer = GetGameObject(DATA_TALON_KING_COFFER))
+                                coffer->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return true;
             }
         };
 

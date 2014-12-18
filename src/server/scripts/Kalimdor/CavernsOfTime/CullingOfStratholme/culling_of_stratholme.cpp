@@ -292,6 +292,7 @@ public:
                 break;
         }
         player->CLOSE_GOSSIP_MENU();
+        ai->SetDespawnAtFar(false);
         creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         return true;
     }

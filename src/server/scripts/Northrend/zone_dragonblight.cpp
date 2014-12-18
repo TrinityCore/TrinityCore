@@ -366,48 +366,6 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
         }
 };
 
-enum AlexstraszaWrGate
-{
-    // Quest
-    QUEST_RETURN_TO_AG_A    = 12499,
-    QUEST_RETURN_TO_AG_H    = 12500,
-
-    // Movie
-    MOVIE_ID_GATES          = 14
-};
-
-#define GOSSIP_ITEM_WHAT_HAPPENED   "Alexstrasza, can you show me what happened here?"
-
-class npc_alexstrasza_wr_gate : public CreatureScript
-{
-public:
-    npc_alexstrasza_wr_gate() : CreatureScript("npc_alexstrasza_wr_gate") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestRewardStatus(QUEST_RETURN_TO_AG_A) || player->GetQuestRewardStatus(QUEST_RETURN_TO_AG_H))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_WHAT_HAPPENED, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->SendMovieStart(MOVIE_ID_GATES);
-        }
-
-        return true;
-    }
-};
-
 /*######
 ## Quest Strengthen the Ancients (12096|12092)
 ######*/
@@ -746,7 +704,6 @@ class npc_torturer_lecraft : public CreatureScript
 void AddSC_dragonblight()
 {
     new npc_commander_eligor_dawnbringer();
-    new npc_alexstrasza_wr_gate();
     new spell_q12096_q12092_dummy();
     new spell_q12096_q12092_bark();
     new npc_wyrmrest_defender();
