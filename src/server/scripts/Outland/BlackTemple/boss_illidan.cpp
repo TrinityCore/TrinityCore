@@ -298,12 +298,7 @@ static const Yells Conversation[22] =
     {0,     "", EMPTY, 1000, 0, false} // 21
 };
 
-struct Locations
-{
-    float x, y, z;
-};
-
-static const Locations HoverPosition[4]=
+G3D::Vector3 const HoverPosition[4]=
 {
     {657.0f, 340.0f, 355.0f},
     {657.0f, 275.0f, 355.0f},
@@ -311,7 +306,7 @@ static const Locations HoverPosition[4]=
     {705.0f, 340.0f, 355.0f}
 };
 
-static const Locations GlaivePosition[4]=
+G3D::Vector3 const GlaivePosition[4]=
 {
     {695.105f, 305.303f, 354.256f},
     {659.338f, 305.303f, 354.256f}, // the distance between two glaives is 36
@@ -319,13 +314,13 @@ static const Locations GlaivePosition[4]=
     {664.338f, 305.303f, 354.256f}
 };
 
-static const Locations EyeBlast[2]=
+G3D::Vector3 const EyeBlast[2]=
 {
     {677.0f, 350.0f, 354.0f}, // start point, pass through glaive point
     {677.0f, 260.0f, 354.0f}
 };
 
-static const Locations AkamaWP[13]=
+G3D::Vector3 const AkamaWP[13]=
 {
     {770.01f, 304.50f, 312.29f}, // Bottom of the first stairs, at the doors
     {780.66f, 304.50f, 319.74f}, // Top of the first stairs
@@ -342,7 +337,7 @@ static const Locations AkamaWP[13]=
     {782.01f, 304.55f, 319.76f}  // Final location - back at the initial gates. This is where he will fight the minions! (12)
 };
 // 755.762f, 304.0747f, 312.1769f -- This is where Akama should be spawned
-static const Locations SpiritSpawns[2]=
+G3D::Vector3 const SpiritSpawns[2]=
 {
     {755.5426f, 309.9156f, 312.2129f},
     {755.5426f, 298.7923f, 312.0834f}
@@ -734,14 +729,14 @@ public:
                 disty = EyeBlast[i].y - HoverPosition[HoverPoint].y;
                 dist[i] = distx * distx + disty * disty;
             }
-            Locations initial = EyeBlast[dist[0] < dist[1] ? 0 : 1];
+            G3D::Vector3 initial = EyeBlast[dist[0] < dist[1] ? 0 : 1];
             for (uint8 i = 0; i < 2; ++i)
             {
                 distx = GlaivePosition[i].x - HoverPosition[HoverPoint].x;
                 disty = GlaivePosition[i].y - HoverPosition[HoverPoint].y;
                 dist[i] = distx * distx + disty * disty;
             }
-            Locations final = GlaivePosition[dist[0] < dist[1] ? 0 : 1];
+            G3D::Vector3 final = GlaivePosition[dist[0] < dist[1] ? 0 : 1];
 
             final.x = 2 * final.x - initial.x;
             final.y = 2 * final.y - initial.y;

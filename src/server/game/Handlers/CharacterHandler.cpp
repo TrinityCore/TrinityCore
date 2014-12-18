@@ -2004,7 +2004,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 }
 
                 for (uint32 index = 0; index < ktcount; ++index)
-                    knownTitles[index] = atol(tokens[index]);
+                    knownTitles[index] = atoul(tokens[index]);
 
                 for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChangeTitles.begin(); it != sObjectMgr->FactionChangeTitles.end(); ++it)
                 {
