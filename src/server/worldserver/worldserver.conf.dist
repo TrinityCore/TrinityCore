@@ -27,6 +27,9 @@
 #    CONSOLE AND REMOTE ACCESS
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
+#    AUCTION HOUSE BOT SETTINGS
+#    AUCTION HOUSE BOT ITEM FINE TUNING
+#    AUCTION HOUSE BOT BUYER CONFIG
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #
@@ -2475,7 +2478,7 @@ PlayerStart.AllReputation = 0
 #        Description: If enabled, players will start with all their class spells (not talents).
 #                     You must populate playercreateinfo_spell_custom table with the spells you
 #                     want, or this will not work! The table has data for all classes / races up
-#                     to TBC expansion.
+#                     to WoTLK expansion.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -2901,8 +2904,8 @@ AuctionHouseBot.Class.Glyph = 3
 ###################################################################################################
 
 ###################################################################################################
+# AUCTION HOUSE BOT ITEM FINE TUNING
 #
-# AHBot ITEM FINE TUNING
 #    The following are usefull for limiting what character levels can
 #    benefit from the auction house
 #
@@ -2975,7 +2978,7 @@ AuctionHouseBot.forceExcludeItems = ""
 ###################################################################################################
 
 ###################################################################################################
-#    AHBot Buyer config
+# AUCTION HOUSE BOT BUYER CONFIG
 #
 #    AuctionHouseBot.Buyer.Enabled
 #       Description: General enable or disable AuctionHouseBot Buyer functionality
@@ -3025,7 +3028,7 @@ AuctionHouseBot.Buyer.Neutral.Chance.Ratio = 3
 ###################################################################################################
 
 ###################################################################################################
-#  LOGGING SYSTEM SETTINGS
+# LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
 #    Appender.name
