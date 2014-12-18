@@ -8,8 +8,8 @@ Source: https://rochet2.github.io/?page=Player_and_Item_Gossip
 
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/playeritemgossip
-- Diff: https://github.com/Rochet2/TrinityCore/compare/playeritemgossip.diff
-- Patch: https://github.com/Rochet2/TrinityCore/compare/playeritemgossip.patch
+- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...playeritemgossip.diff
+- Patch: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...playeritemgossip.patch
 
 Using direct merge:
 - open git bash to source location
