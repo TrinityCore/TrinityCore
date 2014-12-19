@@ -653,6 +653,7 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficulty(), m_spellInfo)), m_
     gameObjTarget = NULL;
     destTarget = NULL;
     damage = 0;
+    variance = 0.0f;
     effectHandleMode = SPELL_EFFECT_HANDLE_LAUNCH;
     m_diminishLevel = DIMINISHING_LEVEL_1;
     m_diminishGroup = DIMINISHING_NONE;
@@ -3975,7 +3976,7 @@ void Spell::SendSpellStart()
         castData.Predict.Points = 0;
         castData.Predict.Type = 0;
     }**/
-    
+
     /*WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
     if (m_CastItem)
         data << m_CastItem->GetPackGUID();
@@ -4204,7 +4205,7 @@ void Spell::SendSpellGo()
     if (m_targets.GetTargetMask() & TARGET_FLAG_EXTRA_TARGETS)
     {
         data << uint32(0); // Extra targets count
-        
+
         for (uint8 i = 0; i < count; ++i)
         {
             data << float(0);   // Target Position X
@@ -4212,7 +4213,7 @@ void Spell::SendSpellGo()
             data << float(0);   // Target Position Z
             data << uint64(0);  // Target Guid
         }
-        
+
     }*/
 
     m_caster->SendMessageToSet(packet.Write(), true);
@@ -4907,7 +4908,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
 
     TC_LOG_DEBUG("spells", "Spell: %u Effect: %u", m_spellInfo->Id, eff);
 
-    damage = CalculateDamage(i, unitTarget);
+    damage = CalculateDamage(i, unitTarget, &variance);
 
     bool preventDefault = CallScriptEffectHandlers((SpellEffIndex)i, mode);
 
