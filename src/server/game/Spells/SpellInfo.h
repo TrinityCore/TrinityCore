@@ -259,6 +259,7 @@ public:
     uint32    ItemType;
     uint32    TriggerSpell;
     flag128   SpellClassMask;
+    float     BonusCoefficientFromAP;
     std::list<Condition*>* ImplicitTargetConditions;
     // SpellScalingEntry
     struct ScalingInfo
@@ -271,7 +272,7 @@ public:
     SpellEffectInfo() : _spellInfo(NULL), EffectIndex(0), Effect(0), ApplyAuraName(0), ApplyAuraPeriod(0), DieSides(0),
                         RealPointsPerLevel(0), BasePoints(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
                         BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
-                        RadiusEntry(NULL), ChainTargets(0), ItemType(0), TriggerSpell(0), ImplicitTargetConditions(NULL) { }
+                        RadiusEntry(NULL), ChainTargets(0), ItemType(0), TriggerSpell(0), BonusCoefficientFromAP(0.0f), ImplicitTargetConditions(NULL) { }
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);
 
     bool IsEffect() const;

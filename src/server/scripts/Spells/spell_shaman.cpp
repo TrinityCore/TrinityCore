@@ -284,12 +284,12 @@ class spell_sha_earth_shield : public SpellScriptLoader
                 return true;
             }
 
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool & /*canBeRecalculated*/)
             {
                 if (Unit* caster = GetCaster())
                 {
-                    amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL);
-                    amount = GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, HEAL);
+                    amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL, aurEff->GetSpellEffectInfo());
+                    amount = GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, HEAL, aurEff->GetSpellEffectInfo());
 
                     //! WORKAROUND
                     // If target is affected by healing reduction, modifier is guaranteed to be negative
@@ -621,7 +621,7 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
                 return sSpellMgr->GetSpellInfo(SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL) != nullptr;
             }
 
-            void HandleDummy(SpellEffIndex /* effIndex */)
+            void HandleDummy(SpellEffIndex effIndex)
             {
                 int32 damage = GetEffectValue();
                 SpellInfo const* triggeringSpell = GetTriggeringSpell();
@@ -630,14 +630,14 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
                     if (Unit* owner = GetCaster()->GetOwner())
                     {
                         if (triggeringSpell)
-                            damage = int32(owner->SpellHealingBonusDone(target, triggeringSpell, damage, HEAL));
+                            damage = int32(owner->SpellHealingBonusDone(target, triggeringSpell, damage, HEAL, triggeringSpell->GetEffect(target, effIndex)));
 
                         // Soothing Rains
                         if (AuraEffect* dummy = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_SOOTHING_RAIN, EFFECT_0))
                             AddPct(damage, dummy->GetAmount());
 
                         if (triggeringSpell)
-                            damage = int32(target->SpellHealingBonusTaken(owner, triggeringSpell, damage, HEAL));
+                            damage = int32(target->SpellHealingBonusTaken(owner, triggeringSpell, damage, HEAL, triggeringSpell->GetEffect(target, effIndex)));
                     }
                     GetCaster()->CastCustomSpell(target, SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, &damage, 0, 0, true, 0, 0, GetOriginalCaster()->GetGUID());
                 }

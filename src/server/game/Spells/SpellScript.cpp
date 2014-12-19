@@ -645,6 +645,11 @@ SpellValue const* SpellScript::GetSpellValue()
     return m_spell->m_spellValue;
 }
 
+SpellEffectInfo const* SpellScript::GetEffectInfo(SpellEffIndex effIndex) const
+{
+    return m_spell->GetEffect(effIndex);
+}
+
 bool AuraScript::_Validate(SpellInfo const* entry)
 {
     for (std::list<CheckAreaTargetHandler>::iterator itr = DoCheckAreaTarget.begin(); itr != DoCheckAreaTarget.end();  ++itr)

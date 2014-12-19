@@ -585,6 +585,7 @@ class Spell
         int32 damage;
         float variance;
         SpellEffectHandleMode effectHandleMode;
+        SpellEffectInfo const* effectInfo;
         // used in effects handlers
         Aura* m_spellAura;
 
