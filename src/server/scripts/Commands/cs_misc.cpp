@@ -96,6 +96,7 @@ public:
             { "unstuck",          rbac::RBAC_PERM_COMMAND_UNSTUCK,           true, &HandleUnstuckCommand,          "", NULL },
             { "wchange",          rbac::RBAC_PERM_COMMAND_WCHANGE,          false, &HandleChangeWeather,           "", NULL },
             { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "", NULL },
+            { "auras  ",          rbac::RBAC_PERM_COMMAND_LIST_AURAS,       false, &HandleAurasCommand,            "", NULL },
             { NULL,               0,                                  false, NULL,                           "", NULL }
         };
         return commandTable;
@@ -2595,6 +2596,44 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         handler->GetSession()->SendShowMailBox(player->GetGUID());
+        return true;
+    }
+    
+    static bool HandleAurasCommand(ChatHandler* handler, char const* args)
+    {
+        Unit* target = handler->GetSession()->GetPlayer()->GetSelectedUnit();
+
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Unit::AuraApplicationMap const& uAuras = target->GetAppliedAuras();
+        handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, uAuras.size());
+        for (Unit::AuraApplicationMap::const_iterator itr = uAuras.begin(); itr != uAuras.end(); ++itr)
+        {
+            AuraApplication const* aurApp = itr->second;
+            Aura const* aura = aurApp->GetBase();
+            char const* name = aura->GetSpellInfo()->SpellName;
+
+            bool self = target->GetGUID() == aura->GetCasterGUID();
+            if (self)
+                handler->PSendSysMessage("%u: %s (self)", aura->GetId(), name);
+            else
+            {
+                if (Unit* u = aura->GetCaster())
+                {
+                    if (u->GetTypeId() == TYPEID_PLAYER)
+                        handler->PSendSysMessage("%u: %s (player: %s)", aura->GetId(), name, u->GetName().c_str());
+                    else if (u->GetTypeId() == TYPEID_UNIT)
+                        handler->PSendSysMessage("%u: %s (creature: %s)", aura->GetId(), name, u->GetName().c_str());
+                }
+                else
+                    handler->PSendSysMessage("%u: %s)", aura->GetId(), name);
+            }
+        }
         return true;
     }
 };
