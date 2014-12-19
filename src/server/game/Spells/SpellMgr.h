@@ -313,16 +313,6 @@ struct SpellEnchantProcEntry
 
 typedef std::unordered_map<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
 
-struct SpellBonusEntry
-{
-    float  direct_damage;
-    float  dot_damage;
-    float  ap_bonus;
-    float  ap_dot_bonus;
-};
-
-typedef std::unordered_map<uint32, SpellBonusEntry>     SpellBonusMap;
-
 enum SpellGroup
 {
     SPELL_GROUP_NONE             = 0,
@@ -662,9 +652,6 @@ class SpellMgr
         SpellProcEntry const* GetSpellProcEntry(uint32 spellId) const;
         bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
 
-        // Spell bonus data table
-        SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const;
-
         // Spell threat table
         SpellThreatEntry const* GetSpellThreatEntry(uint32 spellID) const;
 
@@ -719,7 +706,6 @@ class SpellMgr
         void LoadSpellGroupStackRules();
         void LoadSpellProcEvents();
         void LoadSpellProcs();
-        void LoadSpellBonusess();
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
@@ -748,7 +734,6 @@ class SpellMgr
         SpellGroupStackMap         mSpellGroupStack;
         SpellProcEventMap          mSpellProcEventMap;
         SpellProcMap               mSpellProcMap;
-        SpellBonusMap              mSpellBonusMap;
         SpellThreatMap             mSpellThreatMap;
         SpellPetAuraMap            mSpellPetAuraMap;
         SpellLinkedMap             mSpellLinkedMap;

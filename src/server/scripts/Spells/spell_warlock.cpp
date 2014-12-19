@@ -536,7 +536,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_everlasting_affliction_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
@@ -545,7 +545,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
                     {
                         uint32 damage = std::max(aurEff->GetAmount(), 0);
                         sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
-                        aurEff->SetDamage(caster->SpellDamageBonusDone(target, aurEff->GetSpellInfo(), damage, DOT) * aurEff->GetDonePct());
+                        aurEff->SetDamage(caster->SpellDamageBonusDone(target, aurEff->GetSpellInfo(), damage, DOT, GetEffectInfo(effIndex)) * aurEff->GetDonePct());
                         aurEff->CalculatePeriodic(caster, false, false);
                         aurEff->GetBase()->RefreshDuration(true);
                     }

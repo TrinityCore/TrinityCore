@@ -655,6 +655,7 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficulty(), m_spellInfo)), m_
     damage = 0;
     variance = 0.0f;
     effectHandleMode = SPELL_EFFECT_HANDLE_LAUNCH;
+    effectInfo = nullptr;
     m_diminishLevel = DIMINISHING_LEVEL_1;
     m_diminishGroup = DIMINISHING_NONE;
     m_damage = 0;
@@ -4901,13 +4902,13 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
     gameObjTarget = pGOTarget;
     destTarget = &m_destTargets[i]._position;
 
-    SpellEffectInfo const* effect = GetEffect(i);
-    if (!effect)
+    effectInfo = GetEffect(i);
+    if (!effectInfo)
     {
         TC_LOG_ERROR("spells", "Spell: %u HandleEffects at EffectIndex: %u missing effect", m_spellInfo->Id, i);
         return;
     }
-    uint8 eff = effect->Effect;
+    uint32 eff = effectInfo->Effect;
 
     TC_LOG_DEBUG("spells", "Spell: %u Effect: %u", m_spellInfo->Id, eff);
 

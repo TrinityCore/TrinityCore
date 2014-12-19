@@ -365,6 +365,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     ItemType = _effect ? _effect->EffectItemType : 0;
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128();
+    BonusCoefficientFromAP = _effect ? _effect->BonusCoefficientFromAP : 0.0f;
     ImplicitTargetConditions = NULL;
 
     uint32 _effectScalingId = _effect ? sSpellEffectScallingByEffectId.find(_effect->ID) != sSpellEffectScallingByEffectId.end() ? sSpellEffectScallingByEffectId[_effect->ID] : 0 : 0;

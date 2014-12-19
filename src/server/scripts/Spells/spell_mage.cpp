@@ -780,7 +780,7 @@ class spell_mage_ice_barrier : public SpellScriptLoader
            {
                canBeRecalculated = false;
                if (Unit* caster = GetCaster())
-                   amount += int32(0.87f * caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()));
+                   amount += int32(4.95f * caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()));
            }
 
            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

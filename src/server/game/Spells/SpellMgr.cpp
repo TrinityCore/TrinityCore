@@ -949,22 +949,6 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
     return true;
 }
 
-SpellBonusEntry const* SpellMgr::GetSpellBonusData(uint32 spellId) const
-{
-    // Lookup data
-    SpellBonusMap::const_iterator itr = mSpellBonusMap.find(spellId);
-    if (itr != mSpellBonusMap.end())
-        return &itr->second;
-    // Not found, try lookup for 1 spell rank if exist
-    if (uint32 rank_1 = GetFirstSpellInChain(spellId))
-    {
-        SpellBonusMap::const_iterator itr2 = mSpellBonusMap.find(rank_1);
-        if (itr2 != mSpellBonusMap.end())
-            return &itr2->second;
-    }
-    return NULL;
-}
-
 SpellThreatEntry const* SpellMgr::GetSpellThreatEntry(uint32 spellID) const
 {
     SpellThreatMap::const_iterator itr = mSpellThreatMap.find(spellID);
@@ -2065,45 +2049,6 @@ void SpellMgr::LoadSpellProcs()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u spell proc conditions and data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void SpellMgr::LoadSpellBonusess()
-{
-    uint32 oldMSTime = getMSTime();
-
-    mSpellBonusMap.clear();                             // need for reload case
-
-    //                                                0      1             2          3         4
-    QueryResult result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell bonus data. DB table `spell_bonus_data` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
-
-        SpellInfo const* spell = GetSpellInfo(entry);
-        if (!spell)
-        {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_bonus_data` does not exist", entry);
-            continue;
-        }
-
-        SpellBonusEntry& sbe = mSpellBonusMap[entry];
-        sbe.direct_damage = fields[1].GetFloat();
-        sbe.dot_damage    = fields[2].GetFloat();
-        sbe.ap_bonus      = fields[3].GetFloat();
-        sbe.ap_dot_bonus   = fields[4].GetFloat();
-
-        ++count;
-    } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u extra spell bonus data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellThreats()

@@ -2280,7 +2280,10 @@ public:
         if (!spellid || !sSpellMgr->GetSpellInfo(spellid))
             return false;
 
-        handler->GetSession()->GetPlayer()->SpellNonMeleeDamageLog(target, spellid, damage);
+        SpellNonMeleeDamage damageInfo(handler->GetSession()->GetPlayer(), target, spellid, sSpellMgr->GetSpellInfo(spellid)->SchoolMask);
+        handler->GetSession()->GetPlayer()->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
+        target->SendSpellNonMeleeDamageLog(&damageInfo);
+        target->DealSpellDamage(&damageInfo, true);
         return true;
     }
 
