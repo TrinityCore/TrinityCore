@@ -69,7 +69,7 @@ namespace Battlenet
 
         // Connection
         void HandlePing(Connection::Ping const& ping);
-        void HandleEnableEncryption(Connection::EnableEncryption const& enableEncryption);
+        void HandleEnableEncryption(Connection::EnableEncryption& enableEncryption);
         void HandleLogoutRequest(Connection::LogoutRequest const& logoutRequest);
         void HandleConnectionClosing(Connection::ConnectionClosing const& connectionClosing);
 

@@ -217,6 +217,7 @@ namespace Battlenet
         uint8* GetBuffer() { return _buffer.data(); }
         uint8 const* GetBuffer() const { return _buffer.data(); }
 
+        uint32 GetReadPos() const { return _readPos; }
         size_t GetSize() const { return ((_writePos + 7) & ~7) / 8; }
 
         // These methods are meant to only be used when their corresponding actions in the client ignore the value completely
