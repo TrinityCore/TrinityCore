@@ -30,26 +30,23 @@ EndScriptData */
 #include "naxxramas.h"
 #include "Player.h"
 
-enum Yells
+enum Texts
 {
-    //when shappiron dies. dialog between kel and lich king (in this order)
-    SAY_SAPP_DIALOG1                                       = 0, //not used
-    SAY_SAPP_DIALOG2_LICH                                  = 1, //not used
-    SAY_SAPP_DIALOG3                                       = 2, //not used
-    SAY_SAPP_DIALOG4_LICH                                  = 3, //not used
-    SAY_SAPP_DIALOG5                                       = 4, //not used
-    SAY_CAT_DIED                                           = 5, //when cat dies, not used
-    //when each of the 4 wing bosses dies
-    SAY_TAUNT                                              = 6,
     SAY_AGGRO                                              = 7,
     SAY_SLAY                                               = 8,
     SAY_DEATH                                              = 9,
     SAY_CHAIN                                              = 10,
     SAY_FROST_BLAST                                        = 11,
     SAY_REQUEST_AID                                        = 12, //start of phase 3
-    SAY_ANSWER_REQUEST                                     = 13, //lich king answer
+    EMOTE_PHASE_TWO                                        = 13,
     SAY_SUMMON_MINIONS                                     = 14, //start of phase 1
-    SAY_SPECIAL                                            = 15
+    SAY_SPECIAL                                            = 15,
+
+    // The Lich King
+    SAY_ANSWER_REQUEST                                     = 3,
+
+    // Old World Trigger
+    SAY_GUARDIAN_SPAWNED                                   = 0
 };
 
 enum Events
@@ -70,7 +67,10 @@ enum Events
     EVENT_TRIGGER,
 
     EVENT_PHASE,
-    EVENT_MORTAL_WOUND
+    EVENT_MORTAL_WOUND,
+
+    EVENT_ANSWER_REQUEST,
+    EVENT_SUMMON_GUARDIANS
 };
 
 enum Spells
@@ -121,6 +121,13 @@ enum Spells
     // Abomination spells
     SPELL_FRENZY                                           = 28468,
     SPELL_MORTAL_WOUND                                     = 28467
+};
+
+enum Phases
+{
+    PHASE_ONE   = 1,   // Players move in the circle and Kel'Thuzad spawns his minions.
+    PHASE_TWO   = 2,   // Starts on a timer.
+    PHASE_THREE = 3    // At 45% health.
 };
 
 enum Creatures
@@ -270,15 +277,11 @@ public:
         void Initialize()
         {
             nGuardiansOfIcecrownCount = 0;
-            uiGuardiansOfIcecrownTimer = 5000; // 5 seconds for summoning each Guardian of Icecrown in phase 3
 
-            Phase = 0;
             nAbomination = 0;
             nWeaver = 0;
         }
 
-        uint32 Phase;
-        uint32 uiGuardiansOfIcecrownTimer;
         uint32 uiFaction;
 
         uint8  nGuardiansOfIcecrownCount;
@@ -345,7 +348,6 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             me->setFaction(uiFaction);
-
             _EnterCombat();
             for (uint8 i = 0; i <= 3; ++i)
             {
@@ -354,15 +356,32 @@ public:
             }
             DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
             Talk(SAY_SUMMON_MINIONS);
-            Phase = 1;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 4);
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 4);
+            events.SetPhase(PHASE_ONE);
             events.ScheduleEvent(EVENT_TRIGGER, 5000);
             events.ScheduleEvent(EVENT_WASTE, 15000);
             events.ScheduleEvent(EVENT_ABOMIN, 30000);
             events.ScheduleEvent(EVENT_WEAVER, 50000);
             events.ScheduleEvent(EVENT_PHASE, 228000);
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (events.IsInPhase(PHASE_TWO) && me->HealthBelowPctDamaged(45, damage))
+            {
+                Talk(SAY_REQUEST_AID);
+                events.SetPhase(PHASE_THREE);
+                events.ScheduleEvent(EVENT_ANSWER_REQUEST, 4000);
+
+                for (uint8 i = 0; i <= 3; ++i)
+                {
+                    if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_PORTAL01 + i)))
+                        if (portal->getLootState() == GO_READY)
+                            portal->UseDoorOrButton();
+                }
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -372,7 +391,7 @@ public:
 
             events.Update(diff);
 
-            if (Phase == 1)
+            if (events.IsInPhase(PHASE_ONE))
             {
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -405,6 +424,7 @@ public:
                         case EVENT_PHASE:
                             events.Reset();
                             Talk(SAY_AGGRO);
+                            Talk(EMOTE_PHASE_TWO);
                             spawns.DespawnAll();
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
                             me->CastStop();
@@ -417,7 +437,7 @@ public:
                             events.ScheduleEvent(EVENT_BLAST, urand(60000, 120000));
                             if (GetDifficulty() == DIFFICULTY_25_N)
                                 events.ScheduleEvent(EVENT_CHAIN, urand(30000, 60000));
-                            Phase = 2;
+                            events.SetPhase(PHASE_TWO);
                             break;
                         default:
                             break;
@@ -426,38 +446,6 @@ public:
             }
             else
             {
-                //start phase 3 when we are 45% health
-                if (Phase != 3)
-                {
-                    if (HealthBelowPct(45))
-                    {
-                        Phase = 3;
-                        Talk(SAY_REQUEST_AID);
-                        //here Lich King should respond to KelThuzad but I don't know which Creature to make talk
-                        //so for now just make Kelthuzad says it.
-                        Talk(SAY_ANSWER_REQUEST);
-
-                        for (uint8 i = 0; i <= 3; ++i)
-                        {
-                            if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_PORTAL01 + i)))
-                                if (portal->getLootState() == GO_READY)
-                                    portal->UseDoorOrButton();
-                        }
-                    }
-                }
-                else if (nGuardiansOfIcecrownCount < RAID_MODE(2, 4))
-                {
-                    if (uiGuardiansOfIcecrownTimer <= diff)
-                    {
-                        /// @todo Add missing text
-                        if (Creature* guardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
-                            guardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
-                        ++nGuardiansOfIcecrownCount;
-                        uiGuardiansOfIcecrownTimer = 5000;
-                    }
-                    else uiGuardiansOfIcecrownTimer -= diff;
-                }
-
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
@@ -608,6 +596,18 @@ public:
                             if (rand32() % 2)
                                 Talk(SAY_FROST_BLAST);
                             events.Repeat(30000, 90000);
+                            break;
+                        case EVENT_ANSWER_REQUEST:
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICH_KING)))
+                                lichKing->AI()->Talk(SAY_ANSWER_REQUEST);
+                            events.ScheduleEvent(EVENT_SUMMON_GUARDIANS, 5000);
+                            break;
+                        case EVENT_SUMMON_GUARDIANS:
+                            if (Creature* guardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
+                                guardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
+                            ++nGuardiansOfIcecrownCount;
+                            if (nGuardiansOfIcecrownCount < RAID_MODE(2, 4))
+                                events.ScheduleEvent(EVENT_SUMMON_GUARDIANS, 5000);
                             break;
                         default:
                             break;

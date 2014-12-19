@@ -194,6 +194,11 @@ int main(int argc, char** argv)
                 do_patches<Patches::Mac::x64, Patterns::Mac::x64>
                     (&patcher, renamed_binary_path);
 
+                {
+                    namespace fs = boost::filesystem;
+                    fs::permissions(renamed_binary_path, fs::add_perms | fs::others_exe | fs::group_exe | fs::owner_exe);
+                }
+
                 do_module<Patches::Mac::x64, Patterns::Mac::x64>
                     ( "97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth"
                     , "/Users/Shared/Blizzard/Battle.net/Cache/"
