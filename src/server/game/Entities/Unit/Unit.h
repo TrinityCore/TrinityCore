@@ -2077,7 +2077,7 @@ class Unit : public WorldObject
         void SetSpeed(UnitMoveType mtype, float rate, bool forced = false);
 
         float ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const;
-        int32 CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints = NULL) const;
+        int32 CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints = nullptr, float* variance = nullptr) const;
         int32 CalcSpellDuration(SpellInfo const* spellProto);
         int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = NULL);

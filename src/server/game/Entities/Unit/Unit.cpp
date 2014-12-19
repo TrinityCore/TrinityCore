@@ -10831,10 +10831,13 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
 }
 
 // function uses real base points (typically value - 1)
-int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints) const
+int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints /*= nullptr*/, float* variance /*= nullptr*/) const
 {
     SpellEffectInfo const* effect = spellProto->GetEffect(GetMap()->GetDifficulty(), effect_index);
-    return effect ? effect->CalcValue(this, basePoints, target) : 0;
+    if (variance)
+        *variance = 0.0f;
+
+    return effect ? effect->CalcValue(this, basePoints, target, variance) : 0;
 }
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
