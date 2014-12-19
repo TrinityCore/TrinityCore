@@ -929,20 +929,23 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
             // targets for effect already selected
             if (effectMask & processedEffectMask)
                 return;
-            // choose which targets we can select at once
-            for (SpellEffectInfo const* effect : GetEffects())
+            if (SpellEffectInfo const* _effect = GetEffect(effIndex))
             {
-                //for (uint32 j = effIndex + 1; j < MAX_SPELL_EFFECTS; ++j)
-                if (!effect || effect->EffectIndex <= uint32(effIndex))
-                    continue;
-                if (effect->IsEffect() &&
-                    effect->TargetA.GetTarget() == effect->TargetA.GetTarget() &&
-                    effect->TargetB.GetTarget() == effect->TargetB.GetTarget() &&
-                    effect->ImplicitTargetConditions == effect->ImplicitTargetConditions &&
-                    effect->CalcRadius(m_caster) == effect->CalcRadius(m_caster) &&
-                    CheckScriptEffectImplicitTargets(effIndex, effect->EffectIndex))
+                // choose which targets we can select at once
+                for (SpellEffectInfo const* effect : GetEffects())
                 {
-                    effectMask |= 1 << effect->EffectIndex;
+                    //for (uint32 j = effIndex + 1; j < MAX_SPELL_EFFECTS; ++j)
+                    if (!effect || effect->EffectIndex <= uint32(effIndex))
+                        continue;
+                    if (effect->IsEffect() &&
+                        _effect->TargetA.GetTarget() == effect->TargetA.GetTarget() &&
+                        _effect->TargetB.GetTarget() == effect->TargetB.GetTarget() &&
+                        _effect->ImplicitTargetConditions == effect->ImplicitTargetConditions &&
+                        _effect->CalcRadius(m_caster) == effect->CalcRadius(m_caster) &&
+                        CheckScriptEffectImplicitTargets(effIndex, effect->EffectIndex))
+                    {
+                        effectMask |= 1 << effect->EffectIndex;
+                    }
                 }
             }
             processedEffectMask |= effectMask;
