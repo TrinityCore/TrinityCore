@@ -25,6 +25,8 @@
 #include "Patterns/Mac.hpp"
 #include "Patterns/Windows.hpp"
 
+#include "Utilities/IsStartedFromConsole.h"
+
 #include <CompilerDefs.h>
 
 #include <boost/algorithm/string/replace.hpp>
@@ -216,6 +218,10 @@ int main(int argc, char** argv)
     catch (std::exception const& ex)
     {
         std::cerr << "EX: " << ex.what() << std::endl;
+        if (!IsStartedFromConsole())
+        {
+            std::cin.get();
+        }
         return 1;
     }
 }
