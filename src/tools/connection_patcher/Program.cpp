@@ -31,10 +31,15 @@
 #include <boost/filesystem.hpp>
 
 #include <iostream>
+#include <fstream>
+#include <boost/asio.hpp>
 
 #if PLATFORM == PLATFORM_WINDOWS
 #include <Shlobj.h>
 #endif
+
+using namespace boost::asio;
+using boost::asio::ip::tcp;
 
 namespace Connection_Patcher
 {
@@ -69,14 +74,24 @@ namespace Connection_Patcher
         }
 
         template<typename PATCH, typename PATTERN>
-        void do_module(std::string moduleName, boost::filesystem::path path)
+        void do_module(const std::string& moduleName, const boost::filesystem::path& path)
         {
             boost::filesystem::path const modulePath
                 (path / std::string(&moduleName[0], 2) / std::string(&moduleName[2], 2));
             boost::filesystem::path const module(modulePath / moduleName);
 
-            if (!boost::filesystem::exists (module))
-                throw std::runtime_error("base module does not exist. run client once.");
+            if (!boost::filesystem::exists(module))
+            {
+                std::cout << "Base module doesn't exist, downloading it...\n";
+
+                if (!boost::filesystem::exists(modulePath))
+                    boost::filesystem::create_directories(modulePath);
+
+                std::ofstream outFile(module.string(), std::ofstream::out | std::ofstream::binary);
+                GetFile("xx.depot.battle.net", 1119, "/" + moduleName, outFile);
+                outFile.close();
+                std::cout << "Done.\n";
+            }
 
             PatchModule<PATCH, PATTERN>(module, path);
         }
@@ -131,6 +146,73 @@ namespace Connection_Patcher
                 fs::copy_file(current, destination / current.filename());
         }
     }
+
+    // adapted from http://stackoverflow.com/questions/21422094/boostasio-download-image-file-from-server
+    void GetFile(const std::string& serverName, int port, const std::string& getCommand, std::ostream& out)
+    {
+        boost::asio::io_service io_service;
+
+        // Get a list of endpoints corresponding to the server name.
+        tcp::resolver resolver(io_service);
+        tcp::resolver::query query(serverName, std::to_string(port));
+        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+        tcp::resolver::iterator end;
+
+        // Try each endpoint until we successfully establish a connection.
+        tcp::socket socket(io_service);
+        boost::system::error_code error = boost::asio::error::host_not_found;
+        while (error && endpoint_iterator != end)
+        {
+            socket.close();
+            socket.connect(*endpoint_iterator++, error);
+        }
+
+        boost::asio::streambuf request;
+        std::ostream request_stream(&request);
+
+        request_stream << "GET " << getCommand << " HTTP/1.0\r\n";
+        request_stream << "Host: " << serverName << ':' << port << "\r\n";
+        request_stream << "Accept: */*\r\n";
+        request_stream << "Connection: close\r\n\r\n";
+
+        // Send the request.
+        boost::asio::write(socket, request);
+
+        // Read the response status line.
+        boost::asio::streambuf response;
+        boost::asio::read_until(socket, response, "\r\n");
+
+        // Check that response is OK.
+        std::istream response_stream(&response);
+        std::string http_version;
+        response_stream >> http_version;
+        unsigned int status_code;
+        response_stream >> status_code;
+        std::string status_message;
+        std::getline(response_stream, status_message);
+
+
+        // Read the response headers, which are terminated by a blank line.
+        boost::asio::read_until(socket, response, "\r\n\r\n");
+
+        // Process the response headers.
+        std::string header;
+        while (std::getline(response_stream, header) && header != "\r")
+        {
+        }
+
+        // Write whatever content we already have to output.
+        if (response.size() > 0)
+        {
+            out << &response;
+        }
+
+        // Read until EOF, writing data to output as we go.
+        while (boost::asio::read(socket, response, boost::asio::transfer_at_least(1), error))
+        {
+            out << &response;
+        }
+    }
 }
 
 int main(int argc, char** argv)
@@ -146,7 +228,7 @@ int main(int argc, char** argv)
 
         std::string renamed_binary_path(binary_path);
 
-        wchar_t* commonAppData (nullptr);
+        wchar_t* commonAppData(nullptr);
 #if PLATFORM == PLATFORM_WINDOWS
         SHGetKnownFolderPath(FOLDERID_ProgramData, 0, NULL, &commonAppData);
 #endif
