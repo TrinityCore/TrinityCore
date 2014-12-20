@@ -189,7 +189,6 @@ extern DBCStorage <ImportPriceQualityEntry>      sImportPriceQualityStore;
 extern DBCStorage <ImportPriceShieldEntry>       sImportPriceShieldStore;
 extern DBCStorage <ImportPriceWeaponEntry>       sImportPriceWeaponStore;
 extern DBCStorage <ItemPriceBaseEntry>           sItemPriceBaseStore;
-extern DBCStorage <ItemReforgeEntry>             sItemReforgeStore;
 extern DBCStorage <ItemArmorQualityEntry>        sItemArmorQualityStore;
 extern DBCStorage <ItemArmorShieldEntry>         sItemArmorShieldStore;
 extern DBCStorage <ItemArmorTotalEntry>          sItemArmorTotalStore;
