@@ -1078,12 +1078,14 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
 
 bool Object::AddGuidValue(uint16 index, ObjectGuid const& value)
 {
-    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+    ASSERT(index + 3 < m_valuesCount || PrintIndexError(index, true));
     if (!value.IsEmpty() && ((ObjectGuid*)&(m_uint32Values[index]))->IsEmpty())
     {
         *((ObjectGuid*)&(m_uint32Values[index])) = value;
         _changesMask.SetBit(index);
         _changesMask.SetBit(index + 1);
+        _changesMask.SetBit(index + 2);
+        _changesMask.SetBit(index + 3);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1099,13 +1101,15 @@ bool Object::AddGuidValue(uint16 index, ObjectGuid const& value)
 
 bool Object::RemoveGuidValue(uint16 index, ObjectGuid const& value)
 {
-    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+    ASSERT(index + 3 < m_valuesCount || PrintIndexError(index, true));
     if (!value.IsEmpty() && *((ObjectGuid*)&(m_uint32Values[index])) == value)
     {
         m_uint32Values[index] = 0;
         m_uint32Values[index + 1] = 0;
         _changesMask.SetBit(index);
         _changesMask.SetBit(index + 1);
+        _changesMask.SetBit(index + 2);
+        _changesMask.SetBit(index + 3);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1186,12 +1190,14 @@ void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
 
 void Object::SetGuidValue(uint16 index, ObjectGuid const& value)
 {
-    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+    ASSERT(index + 3 < m_valuesCount || PrintIndexError(index, true));
     if (*((ObjectGuid*)&(m_uint32Values[index])) != value)
     {
         *((ObjectGuid*)&(m_uint32Values[index])) = value;
         _changesMask.SetBit(index);
         _changesMask.SetBit(index + 1);
+        _changesMask.SetBit(index + 2);
+        _changesMask.SetBit(index + 3);
 
         if (m_inWorld && !m_objectUpdated)
         {

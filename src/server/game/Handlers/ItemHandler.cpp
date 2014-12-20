@@ -128,11 +128,18 @@ void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSwapItem(WorldPacket& recvData)
 {
-    //TC_LOG_DEBUG("network", "WORLD: CMSG_SWAP_ITEM");
-    uint8 dstbag, dstslot, srcbag, srcslot;
+    uint32 itemCount = recvData.ReadBits(2);
 
-    recvData >> dstbag >> dstslot >> srcbag >> srcslot;
-    //TC_LOG_DEBUG("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u", srcbag, srcslot, dstbag, dstslot);
+    if (itemCount != 2)
+    {
+        TC_LOG_ERROR("network", "WORLD: HandleSwapItem - Invalid itemCount (%u)", itemCount);
+        return;
+    }
+    //TC_LOG_DEBUG("network", "WORLD: CMSG_SWAP_ITEM");
+    uint8 dstbag, dstslot, srcbag, srcslot, slotA, slotB;
+
+    recvData >> dstbag >> dstslot >> srcbag >> srcslot >> slotA >> slotB;
+    TC_LOG_DEBUG("network", "STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u", srcbag, srcslot, dstbag, dstslot);
 
     uint16 src = ((srcbag << 8) | srcslot);
     uint16 dst = ((dstbag << 8) | dstslot);
@@ -170,11 +177,19 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
 
 void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
 {
-    //TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOEQUIP_ITEM");
-    uint8 srcbag, srcslot;
+    uint32 itemCount = recvData.ReadBits(2);
 
-    recvData >> srcbag >> srcslot;
-    //TC_LOG_DEBUG("STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
+    if (itemCount != 1)
+    {
+        TC_LOG_ERROR("network", "WORLD: HandleAutoEquipItemOpcode - Invalid itemCount (%u)", itemCount);
+        return;
+    }
+
+    //TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOEQUIP_ITEM");
+    uint8 srcbag, srcslot, slotA, slotB;
+
+    recvData >> srcbag >> srcslot >> slotA >> slotB;
+    TC_LOG_DEBUG("network", "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
     Item* pSrcItem  = _player->GetItemByPos(srcbag, srcslot);
     if (!pSrcItem)
@@ -265,10 +280,11 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
 void WorldSession::HandleDestroyItemOpcode(WorldPacket& recvData)
 {
     //TC_LOG_DEBUG("network", "WORLD: CMSG_DESTROY_ITEM");
-    uint8 bag, slot, count, data1, data2, data3;
+    uint8 bag, slot;
+    uint32 count;
 
-    recvData >> bag >> slot >> count >> data1 >> data2 >> data3;
-    //TC_LOG_DEBUG("STORAGE: receive bag = %u, slot = %u, count = %u", bag, slot, count);
+    recvData >> count >> slot >> bag;
+    TC_LOG_DEBUG("network", "STORAGE: receive bag = %u, slot = %u, count = %u", bag, slot, count);
 
     uint16 pos = (bag << 8) | slot;
 

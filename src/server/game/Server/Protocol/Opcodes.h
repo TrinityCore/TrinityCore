@@ -591,7 +591,7 @@ enum OpcodeClient : uint32
     CMSG_SUSPEND_COMMS_ACK                            = 0x0C56,
     CMSG_SUSPEND_TOKEN_RESPONSE                       = 0xBADD,
     CMSG_SWAP_INV_ITEM                                = 0xBADD,
-    CMSG_SWAP_ITEM                                    = 0xBADD,
+    CMSG_SWAP_ITEM                                    = 0x0F17,
     CMSG_SYNC_DANCE                                   = 0xBADD,
     CMSG_TAXICLEARALLNODES                            = 0xBADD,
     CMSG_TAXIENABLEALLNODES                           = 0xBADD,
