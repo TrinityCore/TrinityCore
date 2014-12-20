@@ -99,7 +99,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
-        uint32 visualBase = slot * 2;
+        uint32 visualBase = slot * 3;
         uint32 itemId = Player::GetUInt32ValueFromArray(equipment, visualBase);
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId))
         {
