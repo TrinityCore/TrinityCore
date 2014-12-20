@@ -376,8 +376,6 @@ class Item : public Object
 
         static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
 
-        int32 GetReforgableStat(ItemModType statType) const;
-
     private:
         std::string m_text;
         uint8 m_slot;
