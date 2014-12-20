@@ -13091,7 +13091,7 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
     WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I ? 22 : 18));
     data << uint8(msg);
 
-    if (msg != EQUIP_ERR_OK)
+    //if (msg != EQUIP_ERR_OK)
     {
         data << (pItem ? pItem->GetGUID() : ObjectGuid::Empty);
         data << (pItem2 ? pItem2->GetGUID() : ObjectGuid::Empty);
@@ -13104,21 +13104,6 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
             {
                 ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
                 data << uint32(proto ? proto->RequiredLevel : 0);
-                break;
-            }
-            case EQUIP_ERR_NO_OUTPUT:    // no idea about this one...
-            {
-                data << uint64(0); // item guid
-                data << uint32(0); // slot
-                data << uint64(0); // container
-                break;
-            }
-            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS:
-            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS:
-            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS:
-            {
-                ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
-                data << uint32(proto ? proto->ItemLimitCategory : 0);
                 break;
             }
             default:
