@@ -1476,49 +1476,6 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
     return cost;
 }
 
-int32 Item::GetReforgableStat(ItemModType statType) const
-{
-    ItemTemplate const* proto = GetTemplate();
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (ItemModType(proto->ItemStat[i].ItemStatType) == statType)
-            return proto->ItemStat[i].ItemStatValue;
-
-    int32 randomPropId = GetItemRandomPropertyId();
-    if (!randomPropId)
-        return 0;
-
-    if (randomPropId < 0)
-    {
-        ItemRandomSuffixEntry const* randomSuffix = sItemRandomSuffixStore.LookupEntry(-randomPropId);
-        if (!randomSuffix)
-            return 0;
-
-        for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
-            if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
-                for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
-                    if (enchant->Effect[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->EffectSpellID[f]) == statType)
-                        for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
-                            if (randomSuffix->Enchantment[k] == enchant->ID)
-                                return int32((randomSuffix->AllocationPct[k] * GetItemSuffixFactor()) / 10000);
-    }
-    else
-    {
-        ItemRandomPropertiesEntry const* randomProp = sItemRandomPropertiesStore.LookupEntry(randomPropId);
-        if (!randomProp)
-            return 0;
-
-        for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
-            if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
-                for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
-                    if (enchant->Effect[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->EffectSpellID[f]) == statType)
-                        for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
-                            if (randomProp->Enchantment[k] == enchant->ID)
-                                return int32(enchant->EffectPointsMin[k]);
-    }
-
-    return 0;
-}
-
 void Item::ItemContainerSaveLootToDB()
 {
     // Saves the money and item loot associated with an openable item to the DB
