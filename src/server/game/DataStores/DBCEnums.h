@@ -406,7 +406,8 @@ enum MapTypes                                               // Lua_IsInInstance
     MAP_INSTANCE        = 1,                                // party
     MAP_RAID            = 2,                                // raid
     MAP_BATTLEGROUND    = 3,                                // pvp
-    MAP_ARENA           = 4                                 // arena
+    MAP_ARENA           = 4,                                // arena
+    MAP_SCENARIO        = 5                                 // scenario
 };
 
 enum MapFlags
