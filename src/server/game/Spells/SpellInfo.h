@@ -31,6 +31,7 @@ class Item;
 class Spell;
 class SpellInfo;
 class WorldObject;
+class AuraEffect;
 struct SpellChainNode;
 struct SpellTargetPosition;
 struct SpellDurationEntry;
