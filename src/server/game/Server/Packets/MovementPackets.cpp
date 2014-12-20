@@ -345,7 +345,7 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
 {
     _worldPacket << MoverGUID;
     _worldPacket << SequenceIndex;
-    _worldPacket << Pos.PositionXYZOStream();
+    _worldPacket << Pos.PositionXYZStream();
     _worldPacket << Facing;
 
     _worldPacket.WriteBit(TransportGUID.HasValue);
