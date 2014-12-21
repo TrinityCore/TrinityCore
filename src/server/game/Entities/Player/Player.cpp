@@ -1039,6 +1039,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     SetUInt32Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
     SetCurrency(CURRENCY_TYPE_HONOR_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_HONOR_POINTS));
+    SetCurrency(CURRENCY_TYPE_APEXIS_CRYSTALS, sWorld->getIntConfig(CONFIG_CURRENCY_START_APEXIS_CRYSTALS));
     SetCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
     SetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_CONQUEST_POINTS));
 
@@ -7312,6 +7313,13 @@ uint32 Player::GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const
             if (honorcap > 0)
                 cap = honorcap;
             break;
+        }
+        case CURRENCY_TYPE_APEXIS_CRYSTALS:
+        {
+            uint32 apexiscap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS);
+             if (apexiscap > 0)
+                 cap = apexiscap;
+             break;
         }
         case CURRENCY_TYPE_JUSTICE_POINTS:
         {
