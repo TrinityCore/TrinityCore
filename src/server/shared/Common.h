@@ -160,4 +160,6 @@ struct LocalizedString
 
 #define MAX_QUERY_LEN 32*1024
 
+#define READ_BLOCK_SIZE 4096
+
 #endif
