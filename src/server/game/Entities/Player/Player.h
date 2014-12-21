@@ -1165,7 +1165,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Item* GetItemFromBuyBackSlot(uint32 slot);
         void RemoveItemFromBuyBackSlot(uint32 slot, bool del);
         uint32 GetMaxKeyringSize() const { return KEYRING_SLOT_END-KEYRING_SLOT_START; }
-        void SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2 = nullptr, uint32 itemid = 0) const;
+        void SendEquipError(InventoryResult msg, Item const* item1 = nullptr, Item const* item2 = nullptr, uint32 itemId = 0) const;
         void SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 param) const;
         void SendSellError(SellResult msg, Creature* creature, ObjectGuid guid, uint32 param) const;
         void AddWeaponProficiency(uint32 newflag) { m_WeaponProficiency |= newflag; }

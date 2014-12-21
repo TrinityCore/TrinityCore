@@ -13061,47 +13061,53 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
     }
 }
 
-void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint32 itemid) const
+void Player::SendEquipError(InventoryResult msg, Item const* item1 /*= nullptr*/, Item const* item2 /*= nullptr*/, uint32 itemId /*= 0*/) const
 {
-
-    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (22));
-    data << uint8(msg);
+    WorldPackets::Item::InventoryChangeFailure failure;
+    failure.BagResult = msg;
 
     if (msg != EQUIP_ERR_OK)
     {
-        data << (pItem ? pItem->GetGUID() : ObjectGuid::Empty);
-        data << (pItem2 ? pItem2->GetGUID() : ObjectGuid::Empty);
-        data << uint8(0);                                   // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
+        if (item1)
+            failure.Item[0] = item1->GetGUID();
+
+        if (item2)
+            failure.Item[1] = item2->GetGUID();
+
+        failure.ContainerBSlot = 0; // bag equip slot, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
 
         switch (msg)
         {
             case EQUIP_ERR_CANT_EQUIP_LEVEL_I:
             case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
             {
-                ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
-                data << uint32(proto ? proto->GetRequiredLevel() : 0);
+                ItemTemplate const* proto = item1 ? item1->GetTemplate() : sObjectMgr->GetItemTemplate(itemId);
+                failure.Level = uint32(proto ? proto->GetRequiredLevel() : 0);
                 break;
             }
             case EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM:    // no idea about this one...
             {
-                data << uint64(0); // item guid
-                data << uint32(0); // slot
-                data << uint64(0); // container
+                //failure.SrcContainer
+                //failure.SrcSlot
+                //failure.DstContainer
                 break;
             }
             case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS:
             case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS:
             case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS:
             {
-                ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
-                data << uint32(proto ? proto->GetItemLimitCategory() : 0);
+                if (item1)
+                    failure.LimitCategory = item1->GetTemplate()->GetItemLimitCategory();
+                else if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId))
+                    failure.LimitCategory = proto->GetItemLimitCategory();
                 break;
             }
             default:
                 break;
         }
     }
-    SendDirectMessage(&data);
+
+    SendDirectMessage(failure.Write());
 }
 
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 param) const

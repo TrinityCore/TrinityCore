@@ -31,6 +31,7 @@
 #include "EquipmentSetPackets.h"
 #include "GuildPackets.h"
 #include "InspectPackets.h"
+#include "ItemPackets.h"
 #include "LFGPackets.h"
 #include "MailPackets.h"
 #include "MiscPackets.h"
