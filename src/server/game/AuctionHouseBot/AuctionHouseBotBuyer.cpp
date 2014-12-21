@@ -17,7 +17,7 @@
 
 #include "Log.h"
 #include "Item.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "AuctionHouseBotBuyer.h"
 
 AuctionBotBuyer::AuctionBotBuyer(): _checkInterval(20)
@@ -345,7 +345,7 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
 
         ItemTemplate const* prototype = item->GetTemplate();
 
-        uint32 basePrice = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_BUYER) ? prototype->BuyPrice : prototype->SellPrice;
+        uint32 basePrice = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_BUYER) ? prototype->GetBuyPrice() : prototype->GetSellPrice();
         basePrice *= item->GetCount();
 
         uint32 maxBuyablePrice = (basePrice * config.BuyerPriceRatio) / 100;

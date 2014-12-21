@@ -64,7 +64,7 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
 
 uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count)
 {
-    uint32 MSV = pItem->GetTemplate()->SellPrice;
+    uint32 MSV = pItem->GetTemplate()->GetSellPrice();
 
     if (MSV <= 0)
         return AH_MINIMUM_DEPOSIT;
@@ -123,7 +123,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         uint32 ownerAccId = ObjectMgr::GetPlayerAccountIdByGUID(ownerGuid);
 
         sLog->outCommand(bidderAccId, "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: %u. Original owner %s (Account: %u)",
-            bidderName.c_str(), bidderAccId, pItem->GetTemplate()->Name1.c_str(), pItem->GetEntry(), pItem->GetCount(), auction->bid, ownerName.c_str(), ownerAccId);
+            bidderName.c_str(), bidderAccId, pItem->GetTemplate()->GetDefaultLocaleName(), pItem->GetEntry(), pItem->GetCount(), auction->bid, ownerName.c_str(), ownerAccId);
     }
 
     // receiver exist
@@ -551,35 +551,35 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
         ItemTemplate const* proto = item->GetTemplate();
 
-        if (itemClass != 0xffffffff && proto->Class != itemClass)
+        if (itemClass != 0xffffffff && proto->GetClass() != itemClass)
             continue;
 
-        if (itemSubClass != 0xffffffff && proto->SubClass != itemSubClass)
+        if (itemSubClass != 0xffffffff && proto->GetSubClass() != itemSubClass)
             continue;
 
-        if (inventoryType != 0xffffffff && proto->InventoryType != inventoryType)
+        if (inventoryType != 0xffffffff && proto->GetInventoryType() != inventoryType)
             continue;
 
-        if (quality != 0xffffffff && proto->Quality != quality)
+        if (quality != 0xffffffff && proto->GetQuality() != quality)
             continue;
 
-        if (levelmin != 0x00 && (proto->RequiredLevel < levelmin || (levelmax != 0x00 && proto->RequiredLevel > levelmax)))
+        if (levelmin != 0 && (proto->GetRequiredLevel() < levelmin || (levelmax != 0 && proto->GetRequiredLevel() > levelmax)))
             continue;
 
-        if (usable != 0x00 && player->CanUseItem(item) != EQUIP_ERR_OK)
+        if (usable != 0 && player->CanUseItem(item) != EQUIP_ERR_OK)
             continue;
 
         // Allow search by suffix (ie: of the Monkey) or partial name (ie: Monkey)
         // No need to do any of this if no search term was entered
         if (!wsearchedname.empty())
         {
-            std::string name = proto->Name1;
+            std::string name = proto->GetDefaultLocaleName();
             if (name.empty())
                 continue;
 
             // local name
             if (loc_idx >= 0)
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->ItemId))
+                if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->GetId()))
                     ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
 
             // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result

@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "Object.h"
 #include "LootMgr.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "DatabaseEnv.h"
 
 class SpellInfo;
@@ -229,8 +229,8 @@ class Item : public Object
 
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND, val); }
         bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND); }
-        bool IsBoundAccountWide() const { return (GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT) != 0; }
-        bool IsBattlenetAccountBound() const { return (GetTemplate()->Flags[1] & ITEM_FLAGS_EXTRA_BNET_ACCOUNT_BOUND) != 0; }
+        bool IsBoundAccountWide() const { return (GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT) != 0; }
+        bool IsBattlenetAccountBound() const { return (GetTemplate()->GetFlags2() & ITEM_FLAGS_EXTRA_BNET_ACCOUNT_BOUND) != 0; }
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
@@ -255,7 +255,7 @@ class Item : public Object
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
 
         bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_UNLOCKED); }
-        bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
+        bool IsBag() const { return GetTemplate()->GetInventoryType() == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
@@ -330,13 +330,15 @@ class Item : public Object
             uState = state;
         }
 
-        bool hasQuest(uint32 quest_id) const override { return GetTemplate()->StartQuest == quest_id; }
+        bool hasQuest(uint32 quest_id) const override { return GetTemplate()->GetStartQuest() == quest_id; }
         bool hasInvolvedQuest(uint32 /*quest_id*/) const override { return false; }
         bool HasStats() const;
         bool IsPotion() const { return GetTemplate()->IsPotion(); }
         bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
+        uint32 GetItemLevel() const { return GetTemplate()->GetItemLevel(GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS)); }
+        uint32 GetDisplayId() const { return GetTemplate()->GetDisplayId(GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS)); }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);

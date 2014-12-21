@@ -118,8 +118,8 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
                 }
             }
 
-            VisualItems[slot].DisplayId = proto->DisplayInfoID;
-            VisualItems[slot].InventoryType = uint8(proto->InventoryType);
+            VisualItems[slot].DisplayId = 0/*proto->DisplayInfoID*/;
+            VisualItems[slot].InventoryType = uint8(proto->GetInventoryType());
         }
     }
 }
