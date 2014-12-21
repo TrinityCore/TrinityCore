@@ -166,7 +166,7 @@ namespace WorldPackets
         class QueryQuestInfoResponse final : public ServerPacket
         {
         public:
-            QueryQuestInfoResponse() : ServerPacket(SMSG_QUEST_QUERY_RESPONSE, 24) { }
+            QueryQuestInfoResponse() : ServerPacket(SMSG_QUEST_QUERY_RESPONSE, 1200) { }
 
             WorldPacket const* Write() override;
 
@@ -178,7 +178,7 @@ namespace WorldPackets
         class QuestUpdateAddCredit final : public ServerPacket
         {
         public:
-            QuestUpdateAddCredit() : ServerPacket(SMSG_QUESTUPDATE_ADD_KILL, 24) { }
+            QuestUpdateAddCredit() : ServerPacket(SMSG_QUESTUPDATE_ADD_KILL, 16+4+4+2+2+1) { }
 
             WorldPacket const* Write() override;
 
