@@ -528,6 +528,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //467
     &AuraEffect::HandleNULL,                                      //468
     &AuraEffect::HandleNULL,                                      //469
+    &AuraEffect::HandleNULL,                                      //470
     &AuraEffect::HandleNULL,                                      //471
     &AuraEffect::HandleNULL,                                      //472
     &AuraEffect::HandleNULL,                                      //473
