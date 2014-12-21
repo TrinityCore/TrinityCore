@@ -13088,29 +13088,16 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
 void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint32 itemid)
 {
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_INVENTORY_CHANGE_FAILURE (%u)", msg);
-    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I ? 22 : 18));
-    data << uint8(msg);
 
-    //if (msg != EQUIP_ERR_OK)
-    {
-        data << (pItem ? pItem->GetGUID() : ObjectGuid::Empty);
-        data << (pItem2 ? pItem2->GetGUID() : ObjectGuid::Empty);
-        data << uint8(0);                                   // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
+    WorldPackets::Item::EquipError error;
+    error.msg = msg;
+    error.itemGUID1 = pItem ? pItem->GetGUID() : ObjectGuid::Empty;
+    error.itemGUID2 = pItem2 ? pItem2->GetGUID() : ObjectGuid::Empty;
 
-        switch (msg)
-        {
-            case EQUIP_ERR_CANT_EQUIP_LEVEL_I:
-            case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
-            {
-                ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
-                data << uint32(proto ? proto->GetRequiredLevel() : 0);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-    GetSession()->SendPacket(&data);
+    ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
+    error.level = uint32(proto ? proto->GetRequiredLevel() : 0);
+    
+    GetSession()->SendPacket(error.Write());
 }
 
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 /*param*/)

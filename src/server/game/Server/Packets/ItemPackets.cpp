@@ -57,3 +57,67 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
 
     return data;
 }
+
+WorldPacket const* WorldPackets::Item::EquipError::Write()
+{
+    _worldPacket << uint8(msg);
+    _worldPacket << itemGUID1;
+    _worldPacket << itemGUID2;
+    _worldPacket << uint8(0); // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
+
+    switch (msg)
+    {
+        case EQUIP_ERR_CANT_EQUIP_LEVEL_I:
+        case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
+        {
+            _worldPacket << level;
+            break;
+        }
+        default:
+            break;
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Item::SplitItem::Read()
+{
+    itemCount = _worldPacket.ReadBits(2);
+    _worldPacket >> srcbag >> srcslot >> dstbag >> dstslot >> count;
+}
+
+void WorldPackets::Item::SwapInvItem::Read()
+{
+    itemCount = _worldPacket.ReadBits(2);
+    for (uint32 i = 0; i < itemCount; ++i)
+    {
+        _worldPacket.read_skip<uint8>(); // bag
+        _worldPacket.read_skip<uint8>(); // slot
+    }
+    _worldPacket >> dstslot >> srcslot;
+}
+
+void WorldPackets::Item::SwapItem::Read()
+{
+    itemCount = _worldPacket.ReadBits(2);
+    for (uint32 i = 0; i < itemCount; ++i)
+    {
+        _worldPacket.read_skip<uint8>(); // bag
+        _worldPacket.read_skip<uint8>(); // slot
+    }
+    _worldPacket >> dstbag >> srcbag >> dstslot >> srcslot;
+}
+
+void WorldPackets::Item::AutoEquipItem::Read()
+{
+    itemCount = _worldPacket.ReadBits(2);
+
+    _worldPacket >> srcbag >> srcslot;
+    _worldPacket.read_skip<uint8>();
+    _worldPacket.read_skip<uint8>();
+}
+
+void WorldPackets::Item::DestroyItem::Read()
+{
+    _worldPacket >> count >> bag >> slot;
+}
