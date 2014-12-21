@@ -18,19 +18,18 @@
 #include "DB2Stores.h"
 #include "DBCStores.h"
 #include "DB2fmt.h"
-#include "DB2Utility.h"
 #include "Common.h"
 #include "Log.h"
 #include "World.h"
 
 DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
-DB2Storage<ItemEntry>                       sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
+DB2Storage<ItemEntry>                       sItemStore(Itemfmt);
 DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceEntryfmt);
 ItemDisplayIDMap                            sItemDisplayIDMap;
 DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectEntryfmt);
-DB2Storage<ItemSparseEntry>                 sItemSparseStore(ItemSparsefmt, &DB2Utilities::HasItemSparseEntry, &DB2Utilities::WriteItemSparseDbReply);
+DB2Storage<ItemSparseEntry>                 sItemSparseStore(ItemSparsefmt);
 DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainfmt);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore(OverrideSpellDataEntryfmt);
 DB2Storage<PhaseGroupEntry>                 sPhaseGroupStore(PhaseGroupEntryfmt);
@@ -153,11 +152,7 @@ void LoadDB2Stores(std::string const& dataPath)
         if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
             if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
                 sPhasesByGroup[group->PhaseGroupID].insert(phase->ID);
-    
-    for (uint32 i = 0; i < sItemAppearanceStore.GetNumRows(); ++i)
-        if (ItemAppearanceEntry const* entry = sItemAppearanceStore.LookupEntry(i))
-            sItemDisplayIDMap[entry->FileDataID] = entry->DisplayID;
-    
+
     for (uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
         if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
             sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
@@ -174,12 +169,12 @@ void LoadDB2Stores(std::string const& dataPath)
                 pathLength[entry->PathID] = entry->NodeIndex + 1;
         }
     }
-    
+
     // Set path length
     sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
     for (uint32 i = 1; i < sTaxiPathNodesByPath.size(); ++i)
         sTaxiPathNodesByPath[i].resize(pathLength[i]);
-    
+
     // fill data
     for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
         if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
@@ -279,14 +274,6 @@ DB2StorageBase const* GetDB2Storage(uint32 type)
         return itr->second;
 
     return NULL;
-}
-
-uint32 GetItemDisplayID(uint32 appearanceID)
-{
-    auto itr = sItemDisplayIDMap.find(appearanceID);
-    if (itr != sItemDisplayIDMap.end())
-        return itr->second;
-    return 0;
 }
 
 std::set<uint32> const& GetPhasesForGroup(uint32 group)

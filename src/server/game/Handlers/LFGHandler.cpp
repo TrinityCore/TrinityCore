@@ -74,7 +74,7 @@ void BuildQuestReward(WorldPacket& data, Quest const* quest, Player* player)
             {
                 ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
                 data << uint32(itemId);
-                data << uint32(item ? item->DisplayInfoID : 0);
+                data << uint32(/*item ? item->DisplayInfoID :*/ 0);
                 data << uint32(quest->RewardItemIdCount[i]);
                 data << uint8(0);                                           // Is currency
             }

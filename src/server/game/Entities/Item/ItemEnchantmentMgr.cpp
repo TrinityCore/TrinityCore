@@ -124,10 +124,10 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
 
     if (!itemProto)
         return 0;
-    if (!itemProto->RandomSuffix)
+    if (!itemProto->GetRandomSuffix())
         return 0;
 
-    return GetRandomPropertyPoints(itemProto->ItemLevel, itemProto->Quality, itemProto->InventoryType, itemProto->SubClass);
+    return GetRandomPropertyPoints(itemProto->GetBaseItemLevel(), itemProto->GetQuality(), itemProto->GetInventoryType(), itemProto->GetSubClass());
 }
 
 uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType, uint32 subClass)

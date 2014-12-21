@@ -371,8 +371,8 @@ void AuctionHouseBot::PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo)
                 ItemTemplate const* prototype = item->GetTemplate();
                 if (!auctionEntry->owner)                         // Add only ahbot items
                 {
-                    if (prototype->Quality < MAX_AUCTION_QUALITY)
-                        ++statusInfo[i].QualityInfo[prototype->Quality];
+                    if (prototype->GetQuality() < MAX_AUCTION_QUALITY)
+                        ++statusInfo[i].QualityInfo[prototype->GetQuality()];
 
                     ++statusInfo[i].ItemsCount;
                 }

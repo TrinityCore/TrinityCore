@@ -364,7 +364,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
             if (!pProto)
                 return false;
-            return pProto->ItemLevel >= equipped_item.item_level && pProto->Quality >= equipped_item.item_quality;
+            return pProto->GetBaseItemLevel() >= equipped_item.item_level && pProto->GetQuality() >= equipped_item.item_quality;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == map_id.mapId;
@@ -2720,7 +2720,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
             if (!miscValue1)
                 return false;
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-            if (!proto || proto->Quality < ITEM_QUALITY_EPIC)
+            if (!proto || proto->GetQuality() < ITEM_QUALITY_EPIC)
                 return false;
             break;
         }
@@ -2800,7 +2800,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
             {
                 // miscValue1 is itemid
                 ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-                if (!item || item->Quality < reqValue)
+                if (!item || item->GetQuality() < reqValue)
                     return false;
                 break;
             }
@@ -2808,7 +2808,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
             {
                 // miscValue1 is itemid
                 ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-                if (!item || item->Quality != reqValue)
+                if (!item || item->GetQuality() != reqValue)
                     return false;
                 break;
             }

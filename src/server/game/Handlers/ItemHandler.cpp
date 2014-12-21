@@ -334,7 +334,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (pItem->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
+    if (pItem->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
     {
         _player->SendEquipError(EQUIP_ERR_DROP_BOUND_ITEM, NULL, NULL);
         return;
@@ -356,7 +356,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
 
     Item* pItem = _player->GetItemByPos(bag, slot);
 
-    if (pItem && pItem->GetTemplate()->PageText)
+    if (pItem && pItem->GetTemplate()->GetPageText())
     {
         WorldPacket data;
 
@@ -448,7 +448,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
         ItemTemplate const* pProto = pItem->GetTemplate();
         if (pProto)
         {
-            if (pProto->SellPrice > 0)
+            if (pProto->GetSellPrice() > 0)
             {
                 if (count < pItem->GetCount())               // need split items
                 {
@@ -478,7 +478,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
                     _player->AddItemToBuyBackSlot(pItem);
                 }
 
-                uint32 money = pProto->SellPrice * count;
+                uint32 money = pProto->GetSellPrice() * count;
                 _player->ModifyMoney(money);
                 _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
             }
@@ -664,12 +664,12 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             if (!_player->IsGameMaster()) // ignore conditions if GM on
             {
                 // Respect allowed class
-                if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
+                if (!(itemTemplate->GetAllowableClass() & _player->getClassMask()) && itemTemplate->GetBonding() == BIND_WHEN_PICKED_UP)
                     continue;
 
                 // Only display items in vendor lists for the team the player is on
-                if ((itemTemplate->Flags[1] & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
-                    (itemTemplate->Flags[1] & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
+                if ((itemTemplate->GetFlags2() & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
+                    (itemTemplate->GetFlags2() & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
                     continue;
 
                 // Items sold out are not displayed in list
@@ -684,7 +684,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 continue;
             }
 
-            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
+            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->GetBuyPrice() * discountMod)) : 0;
 
             if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                 price -= CalculatePct(price, priceMod);
@@ -694,7 +694,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             item.ExtendedCostID = vendorItem->ExtendedCost;
             item.Type = vendorItem->Type;
             item.Quantity = leftInStock;
-            item.StackCount = itemTemplate->BuyCount;
+            item.StackCount = itemTemplate->GetBuyCount();
             item.Price = price;
 
             item.Item.ItemID = vendorItem->item;
@@ -965,7 +965,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (!(gift->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_WRAPPER)) // cheating: non-wrapper wrapper
+    if (!(gift->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_WRAPPER)) // cheating: non-wrapper wrapper
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, NULL);
         return;
@@ -1016,7 +1016,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
     }
 
     // maybe not correct check  (it is better than nothing)
-    if (item->GetTemplate()->MaxCount > 0)
+    if (item->GetTemplate()->GetMaxCount() > 0)
     {
         _player->SendEquipError(EQUIP_ERR_CANT_WRAP_UNIQUE, item, NULL);
         return;
@@ -1094,11 +1094,11 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
     GemPropertiesEntry const* GemProps[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
-        GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetTemplate()->GemProperties) : NULL;
+        GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetTemplate()->GetGemProperties()) : NULL;
 
     // Find first prismatic socket
     int32 firstPrismatic = 0;
-    while (firstPrismatic < MAX_GEM_SOCKETS && itemProto->Socket[firstPrismatic].Color)
+    while (firstPrismatic < MAX_GEM_SOCKETS && itemProto->ExtendedData->SocketColor[firstPrismatic])
         ++firstPrismatic;
 
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //check for hack maybe
@@ -1107,7 +1107,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
             continue;
 
         // tried to put gem in socket where no socket exists (take care about prismatic sockets)
-        if (!itemProto->Socket[i].Color)
+        if (!itemProto->ExtendedData->SocketColor[i])
         {
             // no prismatic socket
             if (!itemTarget->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
@@ -1118,19 +1118,19 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
         }
 
         // tried to put normal gem in meta socket
-        if (itemProto->Socket[i].Color == SOCKET_COLOR_META && GemProps[i]->Type != SOCKET_COLOR_META)
+        if (itemProto->GetSocketColor(i) == SOCKET_COLOR_META && GemProps[i]->Type != SOCKET_COLOR_META)
             return;
 
         // tried to put meta gem in normal socket
-        if (itemProto->Socket[i].Color != SOCKET_COLOR_META && GemProps[i]->Type == SOCKET_COLOR_META)
+        if (itemProto->GetSocketColor(i) != SOCKET_COLOR_META && GemProps[i]->Type == SOCKET_COLOR_META)
             return;
 
         // tried to put normal gem in cogwheel socket
-        if (itemProto->Socket[i].Color == SOCKET_COLOR_COGWHEEL && GemProps[i]->Type != SOCKET_COLOR_COGWHEEL)
+        if (itemProto->GetSocketColor(i) == SOCKET_COLOR_COGWHEEL && GemProps[i]->Type != SOCKET_COLOR_COGWHEEL)
             return;
 
         // tried to put cogwheel gem in normal socket
-        if (itemProto->Socket[i].Color != SOCKET_COLOR_COGWHEEL && GemProps[i]->Type == SOCKET_COLOR_COGWHEEL)
+        if (itemProto->GetSocketColor(i) != SOCKET_COLOR_COGWHEEL && GemProps[i]->Type == SOCKET_COLOR_COGWHEEL)
             return;
     }
 
@@ -1152,7 +1152,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
         ItemTemplate const* iGemProto = Gems[i]->GetTemplate();
 
         // unique item (for new and already placed bit removed enchantments
-        if (iGemProto->Flags[0] & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
+        if (iGemProto->GetFlags() & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
         {
             for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
             {
@@ -1161,7 +1161,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
                 if (Gems[j])
                 {
-                    if (iGemProto->ItemId == Gems[j]->GetEntry())
+                    if (iGemProto->GetId() == Gems[j]->GetEntry())
                     {
                         _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
                         return;
@@ -1171,7 +1171,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
                 {
                     if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
                     {
-                        if (iGemProto->ItemId == enchantEntry->SRCItemID)
+                        if (iGemProto->GetId() == enchantEntry->SRCItemID)
                         {
                             _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
                             return;
@@ -1183,9 +1183,9 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
         // unique limit type item
         int32 limit_newcount = 0;
-        if (iGemProto->ItemLimitCategory)
+        if (iGemProto->GetItemLimitCategory())
         {
-            if (ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(iGemProto->ItemLimitCategory))
+            if (ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(iGemProto->GetItemLimitCategory()))
             {
                 // NOTE: limitEntry->mode is not checked because if item has limit then it is applied in equip case
                 for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
@@ -1193,7 +1193,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
                     if (Gems[j])
                     {
                         // new gem
-                        if (iGemProto->ItemLimitCategory == Gems[j]->GetTemplate()->ItemLimitCategory)
+                        if (iGemProto->GetItemLimitCategory() == Gems[j]->GetTemplate()->GetItemLimitCategory())
                             ++limit_newcount;
                     }
                     else if (OldEnchants[j])
@@ -1201,7 +1201,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
                         // existing gem
                         if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
                             if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(enchantEntry->SRCItemID))
-                                if (iGemProto->ItemLimitCategory == jProto->ItemLimitCategory)
+                                if (iGemProto->GetItemLimitCategory() == jProto->GetItemLimitCategory())
                                     ++limit_newcount;
                     }
                 }
@@ -1254,7 +1254,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     if (SocketBonusActivated ^ SocketBonusToBeActivated)     //if there was a change...
     {
         _player->ApplyEnchantment(itemTarget, BONUS_ENCHANTMENT_SLOT, false);
-        itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (SocketBonusToBeActivated ? itemTarget->GetTemplate()->socketBonus : 0), 0, 0, _player->GetGUID());
+        itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (SocketBonusToBeActivated ? itemTarget->GetTemplate()->GetSocketBonus() : 0), 0, 0, _player->GetGUID());
         _player->ApplyEnchantment(itemTarget, BONUS_ENCHANTMENT_SLOT, true);
         //it is not displayed, client has an inbuilt system to determine if the bonus is activated
     }
@@ -1518,7 +1518,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             transmogrified[i]->SetNotRefundable(player);
             transmogrified[i]->ClearSoulboundTradeable(player);
 
-            if (transmogrifier[i]->GetTemplate()->Bonding == BIND_WHEN_EQUIPED || transmogrifier[i]->GetTemplate()->Bonding == BIND_WHEN_USE)
+            if (transmogrifier[i]->GetTemplate()->GetBonding() == BIND_WHEN_EQUIPED || transmogrifier[i]->GetTemplate()->GetBonding() == BIND_WHEN_USE)
                 transmogrifier[i]->SetBinding(true);
 
             transmogrifier[i]->SetOwnerGUID(player->GetGUID());

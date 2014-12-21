@@ -33,13 +33,13 @@
 void AddItemsSetItem(Player* player, Item* item)
 {
     ItemTemplate const* proto = item->GetTemplate();
-    uint32 setid = proto->ItemSet;
+    uint32 setid = proto->GetItemSet();
 
     ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
+        TC_LOG_ERROR("sql.sql", "Item set %u for item (id %u) not found, mods not applied.", setid, proto->GetId());
         return;
     }
 
@@ -114,13 +114,13 @@ void AddItemsSetItem(Player* player, Item* item)
 
 void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 {
-    uint32 setid = proto->ItemSet;
+    uint32 setid = proto->GetItemSet();
 
     ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);
+        TC_LOG_ERROR("sql.sql", "Item set #%u for item #%u not found, mods not removed.", setid, proto->GetId());
         return;
     }
 
@@ -174,65 +174,65 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
     if (!pProto || !pBagProto)
         return false;
 
-    switch (pBagProto->Class)
+    switch (pBagProto->GetClass())
     {
         case ITEM_CLASS_CONTAINER:
-            switch (pBagProto->SubClass)
+            switch (pBagProto->GetSubClass())
             {
                 case ITEM_SUBCLASS_CONTAINER:
                     return true;
                 case ITEM_SUBCLASS_SOUL_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_SOUL_SHARDS))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_SOUL_SHARDS))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_HERB_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_HERBS))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_HERBS))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_ENCHANTING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_ENCHANTING_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_ENCHANTING_SUPP))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_MINING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_MINING_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_MINING_SUPP))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_ENGINEERING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_ENGINEERING_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_ENGINEERING_SUPP))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_GEM_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_GEMS))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_GEMS))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_LEATHERWORKING_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_LEATHERWORKING_SUPP))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_INSCRIPTION_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_INSCRIPTION_SUPP))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_TACKLE_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_FISHING_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_FISHING_SUPP))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_COOKING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_COOKING_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_COOKING_SUPP))
                         return false;
                     return true;
                 default:
                     return false;
             }
         case ITEM_CLASS_QUIVER:
-            switch (pBagProto->SubClass)
+            switch (pBagProto->GetSubClass())
             {
                 case ITEM_SUBCLASS_QUIVER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_ARROWS))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_ARROWS))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_AMMO_POUCH:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_BULLETS))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_BULLETS))
                         return false;
                     return true;
                 default:
@@ -287,7 +287,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owne
     for (uint8 i = 0; i < itemProto->Effects.size(); ++i)
         SetSpellCharges(i, itemProto->Effects[i].Charges);
 
-    SetUInt32Value(ITEM_FIELD_DURATION, itemProto->Duration);
+    SetUInt32Value(ITEM_FIELD_DURATION, itemProto->GetDuration());
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
     return true;
 }
@@ -435,9 +435,9 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
     uint32 duration = fields[3].GetUInt32();
     SetUInt32Value(ITEM_FIELD_DURATION, duration);
     // update duration if need, and remove if not need
-    if ((proto->Duration == 0) != (duration == 0))
+    if ((proto->GetDuration() == 0) != (duration == 0))
     {
-        SetUInt32Value(ITEM_FIELD_DURATION, proto->Duration);
+        SetUInt32Value(ITEM_FIELD_DURATION, proto->GetDuration());
         need_save = true;
     }
 
@@ -448,7 +448,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
 
     SetUInt32Value(ITEM_FIELD_FLAGS, fields[5].GetUInt32());
     // Remove bind flag for items vs NO_BIND set
-    if (IsSoulBound() && proto->Bonding == NO_BIND)
+    if (IsSoulBound() && proto->GetBonding() == NO_BIND)
     {
         ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND, false);
         need_save = true;
@@ -545,19 +545,19 @@ uint32 Item::GetSkill()
 
     ItemTemplate const* proto = GetTemplate();
 
-    switch (proto->Class)
+    switch (proto->GetClass())
     {
         case ITEM_CLASS_WEAPON:
-            if (proto->SubClass >= MAX_ITEM_SUBCLASS_WEAPON)
+            if (proto->GetSubClass() >= MAX_ITEM_SUBCLASS_WEAPON)
                 return 0;
             else
-                return item_weapon_skills[proto->SubClass];
+                return item_weapon_skills[proto->GetSubClass()];
 
         case ITEM_CLASS_ARMOR:
-            if (proto->SubClass >= MAX_ITEM_SUBCLASS_ARMOR)
+            if (proto->GetSubClass() >= MAX_ITEM_SUBCLASS_ARMOR)
                 return 0;
             else
-                return item_armor_skills[proto->SubClass];
+                return item_armor_skills[proto->GetSubClass()];
 
         default:
             return 0;
@@ -572,20 +572,20 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         return 0;
 
     // item must have one from this field values not null if it can have random enchantments
-    if ((!itemProto->RandomProperty) && (!itemProto->RandomSuffix))
+    if ((!itemProto->GetRandomProperty()) && (!itemProto->GetRandomSuffix()))
         return 0;
 
     // item can have not null only one from field values
-    if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
+    if ((itemProto->GetRandomProperty()) && (itemProto->GetRandomSuffix()))
     {
-        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->GetId(), itemProto->GetRandomProperty(), itemProto->GetRandomSuffix());
         return 0;
     }
 
     // RandomProperty case
-    if (itemProto->RandomProperty)
+    if (itemProto->GetRandomProperty())
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomProperty);
+        uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomProperty());
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
@@ -598,7 +598,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     // RandomSuffix case
     else
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomSuffix);
+        uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomSuffix());
         ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
         if (!random_id)
         {
@@ -824,7 +824,7 @@ InventoryResult Item::CanBeMergedPartlyWith(ItemTemplate const* proto) const
         return EQUIP_ERR_LOOT_GONE;
 
     // check item type
-    if (GetEntry() != proto->ItemId)
+    if (GetEntry() != proto->GetId())
         return EQUIP_ERR_CANT_STACK;
 
     // check free space (full stacks can't be target of merge
@@ -846,12 +846,12 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
             if (spellInfo->IsAbilityOfSkillType(SKILL_ENCHANTING)) // only for enchanting spells
                 return true;
 
-        if (spellInfo->EquippedItemClass != int32(proto->Class))
+        if (spellInfo->EquippedItemClass != int32(proto->GetClass()))
             return false;                                   //  wrong item class
 
         if (spellInfo->EquippedItemSubClassMask != 0)        // 0 == any subclass
         {
-            if ((spellInfo->EquippedItemSubClassMask & (1 << proto->SubClass)) == 0)
+            if ((spellInfo->EquippedItemSubClassMask & (1 << proto->GetSubClass())) == 0)
                 return false;                               // subclass not present in mask
         }
     }
@@ -859,11 +859,11 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
     if (spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
     {
         // Special case - accept weapon type for main and offhand requirements
-        if (proto->InventoryType == INVTYPE_WEAPON &&
+        if (proto->GetInventoryType() == INVTYPE_WEAPON &&
             (spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONMAINHAND) ||
              spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONOFFHAND)))
             return true;
-        else if ((spellInfo->EquippedItemInventoryTypeMask & (1 << proto->InventoryType)) == 0)
+        else if ((spellInfo->EquippedItemInventoryTypeMask & (1 << proto->GetInventoryType())) == 0)
             return false;                                   // inventory type not present in mask
     }
 
@@ -925,7 +925,7 @@ bool Item::GemsFitSockets() const
 {
     for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
     {
-        uint8 SocketColor = GetTemplate()->Socket[enchant_slot-SOCK_ENCHANTMENT_SLOT].Color;
+        uint8 SocketColor = GetTemplate()->GetSocketColor(enchant_slot - SOCK_ENCHANTMENT_SLOT);
 
         if (!SocketColor) // no socket slot
             continue;
@@ -946,7 +946,7 @@ bool Item::GemsFitSockets() const
             ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemid);
             if (gemProto)
             {
-                GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GemProperties);
+                GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GetGemProperties());
                 if (gemProperty)
                     GemColor = gemProperty->Type;
             }
@@ -994,7 +994,7 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
         if (!gemProto)
             continue;
 
-        if (gemProto->ItemLimitCategory == limitCategory)
+        if (gemProto->GetItemLimitCategory() == limitCategory)
             ++count;
     }
     return count;
@@ -1003,7 +1003,7 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
 bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const
 {
     ItemTemplate const* proto = GetTemplate();
-    return proto && ((proto->Map && proto->Map != cur_mapId) || (proto->Area && proto->Area != cur_zoneId));
+    return proto && ((proto->GetMap() && proto->GetMap() != cur_mapId) || (proto->GetArea() && proto->GetArea() != cur_zoneId));
 }
 
 void Item::SendUpdateSockets()
@@ -1227,17 +1227,17 @@ bool Item::CanBeTransmogrified() const
     if (!proto)
         return false;
 
-    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
+    if (proto->GetQuality() == ITEM_QUALITY_LEGENDARY)
         return false;
 
-    if (proto->Class != ITEM_CLASS_ARMOR &&
-        proto->Class != ITEM_CLASS_WEAPON)
+    if (proto->GetClass() != ITEM_CLASS_ARMOR &&
+        proto->GetClass() != ITEM_CLASS_WEAPON)
         return false;
 
-    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+    if (proto->GetClass() == ITEM_CLASS_WEAPON && proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (proto->Flags[1] & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
+    if (proto->GetFlags2() & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
         return false;
 
     if (!HasStats())
@@ -1253,20 +1253,20 @@ bool Item::CanTransmogrify() const
     if (!proto)
         return false;
 
-    if (proto->Flags[1] & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
+    if (proto->GetFlags2() & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
         return false;
 
-    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
+    if (proto->GetQuality() == ITEM_QUALITY_LEGENDARY)
         return false;
 
-    if (proto->Class != ITEM_CLASS_ARMOR &&
-        proto->Class != ITEM_CLASS_WEAPON)
+    if (proto->GetClass() != ITEM_CLASS_ARMOR &&
+        proto->GetClass() != ITEM_CLASS_WEAPON)
         return false;
 
-    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+    if (proto->GetClass() == ITEM_CLASS_WEAPON && proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (proto->Flags[1] & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+    if (proto->GetFlags2() & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
         return true;
 
     if (!HasStats())
@@ -1283,27 +1283,27 @@ bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* t
     ItemTemplate const* proto1 = transmogrifier->GetTemplate(); // source
     ItemTemplate const* proto2 = transmogrified->GetTemplate(); // dest
 
-    if (proto1->ItemId == proto2->ItemId)
+    if (proto1->GetId() == proto2->GetId())
         return false;
 
     if (!transmogrified->CanTransmogrify() || !transmogrifier->CanBeTransmogrified())
         return false;
 
-    if (proto1->InventoryType == INVTYPE_BAG ||
-        proto1->InventoryType == INVTYPE_RELIC ||
-        proto1->InventoryType == INVTYPE_BODY ||
-        proto1->InventoryType == INVTYPE_FINGER ||
-        proto1->InventoryType == INVTYPE_TRINKET ||
-        proto1->InventoryType == INVTYPE_AMMO ||
-        proto1->InventoryType == INVTYPE_QUIVER)
+    if (proto1->GetInventoryType() == INVTYPE_BAG ||
+        proto1->GetInventoryType() == INVTYPE_RELIC ||
+        proto1->GetInventoryType() == INVTYPE_BODY ||
+        proto1->GetInventoryType() == INVTYPE_FINGER ||
+        proto1->GetInventoryType() == INVTYPE_TRINKET ||
+        proto1->GetInventoryType() == INVTYPE_AMMO ||
+        proto1->GetInventoryType() == INVTYPE_QUIVER)
         return false;
 
-    if (proto1->SubClass != proto2->SubClass && (proto1->Class != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
+    if (proto1->GetSubClass() != proto2->GetSubClass() && (proto1->GetClass() != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
         return false;
 
-    if (proto1->InventoryType != proto2->InventoryType &&
-        (proto1->Class != ITEM_CLASS_WEAPON || (proto2->InventoryType != INVTYPE_WEAPONMAINHAND && proto2->InventoryType != INVTYPE_WEAPONOFFHAND)) &&
-        (proto1->Class != ITEM_CLASS_ARMOR || (proto1->InventoryType != INVTYPE_CHEST && proto2->InventoryType != INVTYPE_ROBE && proto1->InventoryType != INVTYPE_ROBE && proto2->InventoryType != INVTYPE_CHEST)))
+    if (proto1->GetInventoryType() != proto2->GetInventoryType() &&
+        (proto1->GetClass() != ITEM_CLASS_WEAPON || (proto2->GetInventoryType() != INVTYPE_WEAPONMAINHAND && proto2->GetInventoryType() != INVTYPE_WEAPONOFFHAND)) &&
+        (proto1->GetClass() != ITEM_CLASS_ARMOR || (proto1->GetInventoryType() != INVTYPE_CHEST && proto2->GetInventoryType() != INVTYPE_ROBE && proto1->GetInventoryType() != INVTYPE_ROBE && proto2->GetInventoryType() != INVTYPE_CHEST)))
         return false;
 
     return true;
@@ -1316,7 +1316,7 @@ bool Item::HasStats() const
 
     ItemTemplate const* proto = GetTemplate();
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (proto->ItemStat[i].ItemStatValue != 0)
+        if (proto->GetItemStatValue(i) != 0)
             return true;
 
     return false;
@@ -1327,14 +1327,14 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
 {
     normalSellPrice = true;
 
-    if (proto->Flags[1] & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
+    if (proto->GetFlags2() & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
     {
-        return proto->BuyPrice;
+        return proto->GetBuyPrice();
     }
     else
     {
-        ImportPriceQualityEntry const* qualityPrice = sImportPriceQualityStore.LookupEntry(proto->Quality + 1);
-        ItemPriceBaseEntry const* basePrice = sItemPriceBaseStore.LookupEntry(proto->ItemLevel);
+        ImportPriceQualityEntry const* qualityPrice = sImportPriceQualityStore.LookupEntry(proto->GetQuality() + 1);
+        ItemPriceBaseEntry const* basePrice = sItemPriceBaseStore.LookupEntry(proto->GetBaseItemLevel());
 
         if (!qualityPrice || !basePrice)
             return 0;
@@ -1342,7 +1342,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
         float qualityFactor = qualityPrice->Factor;
         float baseFactor = 0.0f;
 
-        uint32 inventoryType = proto->InventoryType;
+        uint32 inventoryType = proto->GetInventoryType();
 
         if (inventoryType == INVTYPE_WEAPON ||
             inventoryType == INVTYPE_2HWEAPON ||
@@ -1377,7 +1377,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
                 if (!armorPrice)
                     return 0;
 
-                switch (proto->SubClass)
+                switch (proto->GetSubClass())
                 {
                     case ITEM_SUBCLASS_ARMOR_MISCELLANEOUS:
                     case ITEM_SUBCLASS_ARMOR_CLOTH:
@@ -1425,7 +1425,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
                 weapType = 4;
                 break;
             default:
-                return proto->BuyPrice;
+                return proto->GetBuyPrice();
         }
 
         if (weapType != -1)
@@ -1438,7 +1438,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
         }
 
         normalSellPrice = false;
-        return uint32(qualityFactor * proto->Unk1 * proto->Unk2 * typeFactor * baseFactor);
+        return uint32(qualityFactor * proto->GetUnk1() * proto->GetUnk2() * typeFactor * baseFactor);
     }
 }
 
@@ -1446,8 +1446,8 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
 {
     uint32 cost = 0;
 
-    if (proto->Flags[1] & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
-        cost = proto->SellPrice;
+    if (proto->GetFlags2() & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
+        cost = proto->GetSellPrice();
     else
     {
         bool normalPrice;
@@ -1455,19 +1455,19 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
 
         if (!normalPrice)
         {
-            if (proto->BuyCount <= 1)
+            if (proto->GetBuyCount() <= 1)
             {
-                ItemClassEntry const* classEntry = sItemClassStore.LookupEntry(proto->Class);
+                ItemClassEntry const* classEntry = sItemClassStore.LookupEntry(proto->GetClass());
                 if (classEntry)
                     cost *= classEntry->PriceMod;
                 else
                     cost = 0;
             }
             else
-                cost /= 4 * proto->BuyCount;
+                cost /= 4 * proto->GetBuyCount();
         }
         else
-            cost = proto->SellPrice;
+            cost = proto->GetSellPrice();
     }
 
     if (cost < minimumPrice)
