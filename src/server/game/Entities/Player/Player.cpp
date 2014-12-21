@@ -7317,9 +7317,9 @@ uint32 Player::GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const
         case CURRENCY_TYPE_APEXIS_CRYSTALS:
         {
             uint32 apexiscap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS);
-             if (apexiscap > 0)
-                 cap = apexiscap;
-             break;
+            if (apexiscap > 0)
+                cap = apexiscap;
+            break;
         }
         case CURRENCY_TYPE_JUSTICE_POINTS:
         {
