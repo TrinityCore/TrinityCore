@@ -23309,12 +23309,12 @@ void Player::SendAurasForTarget(Unit* target)
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
 
     WorldPackets::Spells::SendAuraUpdate update;
-    update.Init(true, GetGUID(), visibleAuras->size());
+    update.Init(true, target->GetGUID(), visibleAuras->size());
 
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
     {
         AuraApplication * auraApp = itr->second;
-        update.BuildUpdatePacket(auraApp, false, getLevel()); // TODO 6.x should be caster's level
+        update.BuildUpdatePacket(auraApp, false, target->getLevel()); // TODO 6.x should be caster's level
     }
 
     GetSession()->SendPacket(const_cast<WorldPacket*>(update.Write()));
