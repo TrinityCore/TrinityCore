@@ -15483,12 +15483,13 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
 void Player::FailQuest(uint32 questId)
 {
-    // Already complete quests shouldn't turn failed.
-    if (GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
-        return;
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
     {
+        // Already complete quests shouldn't turn failed.
+        if (GetQuestStatus(questId) == QUEST_STATUS_COMPLETE && !quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
+            return;
+
         SetQuestStatus(questId, QUEST_STATUS_FAILED);
 
         uint16 log_slot = FindQuestSlot(questId);
