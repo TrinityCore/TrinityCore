@@ -445,7 +445,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
             if (!itemTemplate)
                 return false;
-            return itemTemplate->ItemLevel >= equipped_item.item_level && itemTemplate->Quality >= equipped_item.item_quality;
+            return itemTemplate->GetBaseItemLevel() >= equipped_item.item_level && itemTemplate->GetQuality() >= equipped_item.item_quality;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == map_id.mapId;
@@ -473,7 +473,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
             if (!pProto)
                 return false;
-            return pProto->Quality == item.item_quality;
+            return pProto->GetQuality() == item.item_quality;
         }
         default:
             break;
@@ -1005,7 +1005,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 
                 // check item level via achievement_criteria_data
                 AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data || !data->Meets(GetPlayer(), nullptr, proto->ItemLevel))
+                if (!data || !data->Meets(GetPlayer(), nullptr, proto->GetBaseItemLevel()))
                     continue;
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
@@ -1992,7 +1992,7 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
             if (!miscValue1)
                 return false;
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(miscValue1);
-            if (!proto || proto->Quality < ITEM_QUALITY_EPIC)
+            if (!proto || proto->GetQuality() < ITEM_QUALITY_EPIC)
                 return false;
             break;
         }

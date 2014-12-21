@@ -18,7 +18,7 @@
 #ifndef _ITEMPROTOTYPE_H
 #define _ITEMPROTOTYPE_H
 
-#include "Common.h"
+#include "Errors.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include <vector>
@@ -676,17 +676,76 @@ struct TC_GAME_API ItemTemplate
     uint32 FlagsCu;
     std::array<WorldPacket, TOTAL_LOCALES> QueryData;
 
+    uint32 GetId() const { return ItemId; }
+    uint32 GetClass() const { return Class; }
+    uint32 GetSubClass() const { return SubClass; }
+    uint32 GetSheatheType() const { return Sheath; }
+    uint32 GetDisplayId() const { return DisplayInfoID; }
+    uint32 GetQuality() const { return Quality; }
+    uint32 GetBuyCount() const { return BuyCount; }
+    uint32 GetBuyPrice() const { return BuyPrice; }
+    uint32 GetSellPrice() const { return SellPrice; }
+    ::InventoryType GetInventoryType() const { return ::InventoryType(InventoryType); }
+    int32 GetAllowableClass() const { return AllowableClass; }
+    uint32 GetAllowableRace() const { return AllowableRace; }
+    uint32 GetBaseItemLevel() const { return ItemLevel; }
+    int32 GetRequiredLevel() const { return RequiredLevel; }
+    uint32 GetRequiredSkill() const { return RequiredSkill; }
+    uint32 GetRequiredSkillRank() const { return RequiredSkillRank; }
+    uint32 GetRequiredSpell() const { return RequiredSpell; }
+    uint32 GetRequiredReputationFaction() const { return RequiredReputationFaction; }
+    uint32 GetRequiredReputationRank() const { return RequiredReputationRank; }
+    int32 GetMaxCount() const { return MaxCount; }
+    uint32 GetContainerSlots() const { return ContainerSlots; }
+    uint32 GetStatsCount() const { return StatsCount; }
+    int32 GetStatModifierBonusStat(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ItemStat[index].ItemStatType; }
+    int32 GetStatValue(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ItemStat[index].ItemStatValue; }
+    uint32 GetScalingStatDistribution() const { return ScalingStatDistribution; }
+    uint32 GetScalingStatValue() const { return ScalingStatValue; }
+    void GetDamage(uint32 index, float& minDamage, float& maxDamage) const { ASSERT(index < MAX_ITEM_PROTO_DAMAGES); minDamage = Damage[index].DamageMin; maxDamage = Damage[index].DamageMax; }
+    uint32 GetDamageType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_DAMAGES); return Damage[index].DamageType; }
+    uint32 GetArmor() const { return Armor; }
+    uint32 GetHolyRes() const { return HolyRes; }
+    uint32 GetFireRes() const { return FireRes; }
+    uint32 GetNatureRes() const { return NatureRes; }
+    uint32 GetFrostRes() const { return FrostRes; }
+    uint32 GetShadowRes() const { return ShadowRes; }
+    uint32 GetArcaneRes() const { return ArcaneRes; }
+    uint32 GetDelay() const { return Delay; }
+    float GetRangedModRange() const { return RangedModRange; }
+    ItemBondingType GetBonding() const { return ItemBondingType(Bonding); }
+    std::string const& GetName(LocaleConstant locale) const;
+    uint32 GetPageText() const { return PageText; }
+    uint32 GetStartQuest() const { return StartQuest; }
+    uint32 GetLockID() const { return LockID; }
+    uint32 GetRandomProperty() const { return RandomProperty; }
+    uint32 GetRandomSuffix() const { return RandomSuffix; }
+    uint32 GetBlock() const { return Block; }
+    uint32 GetItemSet() const { return ItemSet; }
+    uint32 GetArea() const { return Area; }
+    uint32 GetMap() const { return Map; }
+    uint32 GetBagFamily() const { return BagFamily; }
+    uint32 GetTotemCategory() const { return TotemCategory; }
+    SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(Socket[index].Color); }
+    uint32 GetSocketBonus() const { return socketBonus; }
+    uint32 GetGemProperties() const { return GemProperties; }
+    uint32 GetRequiredDisenchantSkill() const { return RequiredDisenchantSkill; }
+    float GetArmorDamageModifier() const { return ArmorDamageModifier; }
+    uint32 GetDuration() const { return Duration; }
+    uint32 GetItemLimitCategory() const { return ItemLimitCategory; }
+    HolidayIds GetHolidayID() const { return HolidayIds(HolidayId); }
+
     // helpers
     bool CanChangeEquipStateInCombat() const;
 
-    bool IsCurrencyToken() const { return (BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS) != 0; }
+    bool IsCurrencyToken() const { return (GetBagFamily() & BAG_FAMILY_MASK_CURRENCY_TOKENS) != 0; }
 
     uint32 GetMaxStackSize() const
     {
-        return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
+        return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF - 1) : uint32(Stackable);
     }
 
-    float getDPS() const;
+    float GetDPS() const;
 
     int32 getFeralBonus(int32 extraDPS = 0) const;
     int32 GetTotalAPBonus() const { return _totalAP; }
@@ -704,6 +763,8 @@ struct TC_GAME_API ItemTemplate
     inline bool HasFlag(ItemFlags flag) const { return (Flags[0] & flag) != 0; }
     inline bool HasFlag(ItemFlags2 flag) const { return (Flags[1] & flag) != 0; }
     inline bool HasFlag(ItemFlagsCustom customFlag) const { return (FlagsCu & customFlag) != 0; }
+
+    std::string const& GetDefaultLocaleName() const;
 
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc) const;

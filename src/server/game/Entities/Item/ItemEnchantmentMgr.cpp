@@ -127,20 +127,20 @@ int32 GenerateItemRandomPropertyId(uint32 item_id)
         return 0;
 
     // item must have one from this field values not null if it can have random enchantments
-    if ((!itemProto->RandomProperty) && (!itemProto->RandomSuffix))
+    if ((!itemProto->GetRandomProperty()) && (!itemProto->GetRandomSuffix()))
         return 0;
 
     // item can have not null only one from field values
-    if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
+    if ((itemProto->GetRandomProperty()) && (itemProto->GetRandomSuffix()))
     {
-        TC_LOG_ERROR("sql.sql", "Item template {} have RandomProperty == {} and RandomSuffix == {}, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        TC_LOG_ERROR("sql.sql", "Item template {} have RandomProperty == {} and RandomSuffix == {}, but must have one from field =0", itemProto->GetId(), itemProto->GetRandomProperty(), itemProto->GetRandomSuffix());
         return 0;
     }
 
     // RandomProperty case
-    if (itemProto->RandomProperty)
+    if (itemProto->GetRandomProperty())
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomProperty);
+        uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomProperty());
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
@@ -153,7 +153,7 @@ int32 GenerateItemRandomPropertyId(uint32 item_id)
     // RandomSuffix case
     else
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomSuffix);
+        uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomSuffix());
         ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
         if (!random_id)
         {
@@ -171,10 +171,10 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
 
     if (!itemProto)
         return 0;
-    if (!itemProto->RandomSuffix)
+    if (!itemProto->GetRandomSuffix())
         return 0;
 
-    return GetRandomPropertyPoints(itemProto->ItemLevel, itemProto->Quality, itemProto->InventoryType);
+    return GetRandomPropertyPoints(itemProto->GetBaseItemLevel(), itemProto->GetQuality(), itemProto->GetInventoryType());
 }
 
 uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType)

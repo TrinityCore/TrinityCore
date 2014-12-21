@@ -20,6 +20,17 @@
 #include "QueryPackets.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "World.h"
+
+std::string const& ItemTemplate::GetName(LocaleConstant locale) const
+{
+    if (locale != DEFAULT_LOCALE)
+        if (ItemLocale const* itemLocale = sObjectMgr->GetItemLocale(GetId()))
+            if (locale < itemLocale->Name.size() && !itemLocale->Name[locale].empty())
+                return itemLocale->Name[locale];
+
+    return Name1;
+}
 
 bool ItemTemplate::HasSignature() const
 {
@@ -50,7 +61,7 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
     return false;
 }
 
-float ItemTemplate::getDPS() const
+float ItemTemplate::GetDPS() const
 {
     if (!Delay)
         return 0.f;
@@ -69,7 +80,7 @@ int32 ItemTemplate::getFeralBonus(int32 extraDPS /*= 0*/) const
     // 0x02A5F3 - is mask for Melee weapon from ItemSubClassMask.dbc
     if (Class == ITEM_CLASS_WEAPON && (1 << InventoryType) & feralApEnabledInventoryTypeMaks)
     {
-        int32 bonus = int32((extraDPS + getDPS()) * 14.0f) - 767;
+        int32 bonus = int32((extraDPS + GetDPS()) * 14.0f) - 767;
         if (bonus < 0)
             return 0;
         return bonus;
@@ -135,6 +146,11 @@ uint32 ItemTemplate::GetSkill() const
         default:
             return 0;
     }
+}
+
+std::string const& ItemTemplate::GetDefaultLocaleName() const
+{
+    return GetName(sWorld->GetDefaultDbcLocale());
 }
 
 void ItemTemplate::_LoadTotalAP()

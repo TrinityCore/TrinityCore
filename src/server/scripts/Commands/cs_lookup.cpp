@@ -418,35 +418,7 @@ public:
         ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
         for (auto const& itemTemplatePair : its)
         {
-            uint8 localeIndex = handler->GetSessionDbLocaleIndex();
-            if (ItemLocale const* il = sObjectMgr->GetItemLocale(itemTemplatePair.first))
-            {
-                if (il->Name.size() > localeIndex && !il->Name[localeIndex].empty())
-                {
-                    std::string const& name = il->Name[localeIndex];
-
-                    if (Utf8FitTo(name, wNamePart))
-                    {
-                        if (maxResults && count++ == maxResults)
-                        {
-                            handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                            return true;
-                        }
-
-                        if (handler->GetSession())
-                            handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itemTemplatePair.first, itemTemplatePair.first, name.c_str());
-                        else
-                            handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itemTemplatePair.first, name.c_str());
-
-                        if (!found)
-                            found = true;
-
-                        continue;
-                    }
-                }
-            }
-
-            std::string const& name = itemTemplatePair.second.Name1;
+            std::string name = itemTemplatePair.second.GetName(handler->GetSessionDbLocaleIndex());
             if (name.empty())
                 continue;
 
@@ -483,7 +455,7 @@ public:
 
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(id))
         {
-            std::string name = itemTemplate->Name1;
+            std::string name = itemTemplate->GetName(handler->GetSessionDbLocaleIndex());
 
             if (name.empty())
             {
