@@ -15,26 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DB2PACKETWRITER_H
-#define DB2PACKETWRITER_H
+#include "CombatLogPackets.h"
+#include "SpellPackets.h"
 
-#include "Define.h"
-
-template<class T>
-class DB2Storage;
-class ByteBuffer;
-struct ItemEntry;
-struct ItemSparseEntry;
-
-namespace DB2Utilities
+WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
 {
-    //
-    bool HasItemEntry(DB2Storage<ItemEntry> const& store, uint32 id);
-    bool HasItemSparseEntry(DB2Storage<ItemSparseEntry> const& store, uint32 id);
+    _worldPacket << Me;
+    _worldPacket << CasterGUID;
+    _worldPacket << SpellID;
+    _worldPacket << Damage;
+    _worldPacket << Overkill;
+    _worldPacket << SchoolMask;
+    _worldPacket << ShieldBlock;
+    _worldPacket << Resisted;
+    _worldPacket << Absorbed;
 
-    //
-    void WriteItemDbReply(DB2Storage<ItemEntry> const& store, uint32 id, uint32 locale, ByteBuffer& buffer);
-    void WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& store, uint32 id, uint32 locale, ByteBuffer& buffer);
+    _worldPacket.WriteBit(Periodic);
+    _worldPacket.WriteBits(Flags, 9);
+    _worldPacket.WriteBit(false); // Debug info
+    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.FlushBits();
+
+    if (LogData.HasValue)
+        _worldPacket << LogData.Value;
+
+    return &_worldPacket;
 }
-
-#endif // DB2PACKETWRITER_H

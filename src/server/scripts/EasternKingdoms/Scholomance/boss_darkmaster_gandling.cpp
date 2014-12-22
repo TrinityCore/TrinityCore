@@ -314,7 +314,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 int8 phase_to_set = 0;
                 int32 gate_to_close = 0;
 
-                switch (GetSpellInfo()->Effects[effIndex].MiscValue)
+                switch (GetSpellInfo()->GetEffect(effIndex)->MiscValue)
                 {
                     case SPELL_EVENT_HALLOFSECRETS:
                         pos_to_summon = 0; // Not yet spawned

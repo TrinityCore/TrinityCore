@@ -744,7 +744,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         data << uint32(quest->RequiredItemCount[i]);
 
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
-            data << uint32(itemTemplate->DisplayInfoID);
+            data << uint32(/*itemTemplate->DisplayInfoID*/);
         else
             data << uint32(0);
     }

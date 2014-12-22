@@ -426,7 +426,7 @@ class spell_dru_idol_lifebloom : public SpellScriptLoader
                     spellMod->op = SPELLMOD_DOT;
                     spellMod->type = SPELLMOD_FLAT;
                     spellMod->spellId = GetId();
-                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
+                    spellMod->mask = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->SpellClassMask;
                 }
                 spellMod->value = aurEff->GetAmount() / 7;
             }
@@ -532,8 +532,8 @@ class spell_dru_lifebloom : public SpellScriptLoader
                 int32 healAmount = aurEff->GetAmount();
                 if (Unit* caster = GetCaster())
                 {
-                    healAmount = caster->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, HEAL, stack);
-                    healAmount = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, stack);
+                    healAmount = caster->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, HEAL, aurEff->GetSpellEffectInfo(), stack);
+                    healAmount = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, aurEff->GetSpellEffectInfo(), stack);
 
                     GetTarget()->CastCustomSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
 
@@ -556,8 +556,8 @@ class spell_dru_lifebloom : public SpellScriptLoader
                         int32 healAmount = aurEff->GetAmount();
                         if (Unit* caster = GetCaster())
                         {
-                            healAmount = caster->SpellHealingBonusDone(target, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
-                            healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
+                            healAmount = caster->SpellHealingBonusDone(target, GetSpellInfo(), healAmount, HEAL, aurEff->GetSpellEffectInfo(), dispelInfo->GetRemovedCharges());
+                            healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, aurEff->GetSpellEffectInfo(), dispelInfo->GetRemovedCharges());
                             target->CastCustomSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, NULL, GetCasterGUID());
 
                             // restore mana
@@ -753,7 +753,7 @@ class spell_dru_savage_defense : public SpellScriptLoader
 
             bool Load() override
             {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                absorbPct = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(GetCaster());
                 return true;
             }
 
@@ -1187,7 +1187,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (spellInfo->Effects[EFFECT_2].IsEffect() || spellInfo->Effects[EFFECT_2].CalcValue() <= 0)
+                if (spellInfo->GetEffect(EFFECT_2)->IsEffect() || spellInfo->GetEffect(EFFECT_2)->CalcValue() <= 0)
                     return false;
                 return true;
             }
@@ -1196,7 +1196,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
             {
                 targets.remove_if(RaidCheck(GetCaster()));
 
-                uint32 const maxTargets = uint32(GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster()));
+                uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue(GetCaster()));
 
                 if (targets.size() > maxTargets)
                 {

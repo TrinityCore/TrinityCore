@@ -409,10 +409,9 @@ class boss_sindragosa : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
-                if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
-                    if (spellId == spell->Id)
-                        if (Aura const* mysticBuffet = target->GetAura(spell->Id))
-                            _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
+                if (spell->Id == 70127)
+                    if (Aura const* mysticBuffet = target->GetAura(spell->Id))
+                        _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
 
             }
 
@@ -1546,7 +1545,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                 {
-                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
+                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->GetEffect(caster, EFFECT_1)->CalcValue()));
                     caster->GetAI()->SetData(DATA_WHELP_MARKER, 0);
                 }
             }

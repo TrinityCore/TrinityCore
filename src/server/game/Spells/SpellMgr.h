@@ -313,16 +313,6 @@ struct SpellEnchantProcEntry
 
 typedef std::unordered_map<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
 
-struct SpellBonusEntry
-{
-    float  direct_damage;
-    float  dot_damage;
-    float  ap_bonus;
-    float  ap_dot_bonus;
-};
-
-typedef std::unordered_map<uint32, SpellBonusEntry>     SpellBonusMap;
-
 enum SpellGroup
 {
     SPELL_GROUP_NONE             = 0,
@@ -617,12 +607,6 @@ class SpellMgr
         // Spell correctness for client using
         static bool IsSpellValid(SpellInfo const* spellInfo, Player* player = NULL, bool msg = true);
 
-        // Spell difficulty
-        uint32 GetSpellDifficultyId(uint32 spellId) const;
-        void SetSpellDifficultyId(uint32 spellId, uint32 id);
-        uint32 GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const;
-        SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const;
-
         // Spell Ranks table
         SpellChainNode const* GetSpellChainNode(uint32 spell_id) const;
         uint32 GetFirstSpellInChain(uint32 spell_id) const;
@@ -668,9 +652,6 @@ class SpellMgr
         SpellProcEntry const* GetSpellProcEntry(uint32 spellId) const;
         bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
 
-        // Spell bonus data table
-        SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const;
-
         // Spell threat table
         SpellThreatEntry const* GetSpellThreatEntry(uint32 spellID) const;
 
@@ -705,6 +686,8 @@ class SpellMgr
         }
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
 
+        void LoadPetFamilySpellsStore();
+
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
 
@@ -723,7 +706,6 @@ class SpellMgr
         void LoadSpellGroupStackRules();
         void LoadSpellProcEvents();
         void LoadSpellProcs();
-        void LoadSpellBonusess();
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
@@ -752,7 +734,6 @@ class SpellMgr
         SpellGroupStackMap         mSpellGroupStack;
         SpellProcEventMap          mSpellProcEventMap;
         SpellProcMap               mSpellProcMap;
-        SpellBonusMap              mSpellBonusMap;
         SpellThreatMap             mSpellThreatMap;
         SpellPetAuraMap            mSpellPetAuraMap;
         SpellLinkedMap             mSpellLinkedMap;

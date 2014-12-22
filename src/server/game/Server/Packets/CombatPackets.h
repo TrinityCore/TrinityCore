@@ -150,7 +150,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Optional<WorldPackets::Spell::SpellCastLogData> LogData;
+            Optional<WorldPackets::Spells::SpellCastLogData> LogData;
             uint32 HitInfo          = 0; // Flags
             ObjectGuid AttackerGUID;
             ObjectGuid VictimGUID;

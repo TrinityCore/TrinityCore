@@ -252,7 +252,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         if (Item* item = player->GetItemByGuid(itemGUIDs[i]))
         {
             ItemTemplate const* itemProto = item->GetTemplate();
-            if (!itemProto || !(itemProto->Flags[0] & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT))
+            if (!itemProto || !(itemProto->GetFlags() & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT))
             {
                 accountBound = false;
                 break;
@@ -306,7 +306,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
             }
         }
 
-        if (item->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_DURATION))
+        if (item->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_DURATION))
         {
             player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
             return;
@@ -350,7 +350,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
                 {
                     sLog->outCommand(GetAccountId(), "GM %s (%s) (Account: %u) mail item: %s (Entry: %u Count: %u) "
                         "to: %s (%s) (Account: %u)", GetPlayerName().c_str(), _player->GetGUID().ToString().c_str(), GetAccountId(),
-                        item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount(),
+                        item->GetTemplate()->GetDefaultLocaleName(), item->GetEntry(), item->GetCount(),
                         receiverName.c_str(), receiverGuid.ToString().c_str(), receiverAccountId);
                 }
 
@@ -575,7 +575,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: " UI64FMTD " to player: %s (Account: %u)",
-                    GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
+                    GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->GetDefaultLocaleName(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receiver)
                 sender_accId = ObjectMgr::GetPlayerAccountIdByGUID(sender_guid);

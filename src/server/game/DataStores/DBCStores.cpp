@@ -20,10 +20,11 @@
 #include "Containers.h"
 #include "Log.h"
 #include "SharedDefines.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "TransportMgr.h"
 #include "DBCfmt.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "Timer.h"
 #include "ObjectDefines.h"
 
@@ -127,7 +128,6 @@ DBCStorage <ImportPriceQualityEntry>      sImportPriceQualityStore(ImportPriceQu
 DBCStorage <ImportPriceShieldEntry>       sImportPriceShieldStore(ImportPriceShieldfmt);
 DBCStorage <ImportPriceWeaponEntry>       sImportPriceWeaponStore(ImportPriceWeaponfmt);
 DBCStorage <ItemPriceBaseEntry>           sItemPriceBaseStore(ItemPriceBasefmt);
-DBCStorage <ItemReforgeEntry>             sItemReforgeStore(ItemReforgefmt);
 DBCStorage <ItemArmorQualityEntry>        sItemArmorQualityStore(ItemArmorQualityfmt);
 DBCStorage <ItemArmorShieldEntry>         sItemArmorShieldStore(ItemArmorShieldfmt);
 DBCStorage <ItemArmorTotalEntry>          sItemArmorTotalStore(ItemArmorTotalfmt);
@@ -191,8 +191,13 @@ DBCStorage <SpecializationSpellsEntry> sSpecializationSpellsStore(Specialization
 DBCStorage <SpellItemEnchantmentEntry> sSpellItemEnchantmentStore(SpellItemEnchantmentfmt);
 DBCStorage <SpellItemEnchantmentConditionEntry> sSpellItemEnchantmentConditionStore(SpellItemEnchantmentConditionfmt);
 DBCStorage <SpellEntry> sSpellStore(SpellEntryfmt);
+DBCStorage <SpellEffectScalingEntry> sSpellEffectScalingStore(SpellEffectScalingfmt);
+
 SpellCategoryStore sSpellsByCategoryStore;
 PetFamilySpellsStore sPetFamilySpellsStore;
+SpellsPerClassStore sSpellsPerClassStore;
+ClassBySkillIdStore sClassBySkillIdStore;
+SpellEffectScallingByEffectId sSpellEffectScallingByEffectId;
 
 
 DBCStorage <SpellScalingEntry> sSpellScalingStore(SpellScalingEntryfmt);
@@ -216,6 +221,8 @@ DBCStorage <StableSlotPricesEntry> sStableSlotPricesStore(StableSlotPricesfmt);
 DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
 DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
 TalentBySpellIDMap sTalentBySpellIDMap;
+SpecializationSpellsMap sSpecializationSpellsMap;
+SpecializationOverrideSpellsMap sSpecializationOverrideSpellMap;
 
 DBCStorage <TotemCategoryEntry> sTotemCategoryStore(TotemCategoryEntryfmt);
 DBCStorage <TransportAnimationEntry> sTransportAnimationStore(TransportAnimationfmt);
@@ -452,8 +459,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceShieldStore,      dbcPath, "ImportPriceShield.dbc"); // 19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceWeaponStore,      dbcPath, "ImportPriceWeapon.dbc"); // 19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemPriceBaseStore,          dbcPath, "ItemPriceBase.dbc"); // 15595
-    // TODO: 6.x remove all reforging stuff
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sItemReforgeStore,            dbcPath, "ItemReforge.dbc"); // 19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemBagFamilyStore,          dbcPath, "ItemBagFamily.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemClassStore,              dbcPath, "ItemClass.dbc"); // 19116
     //LoadDBC(dbcCount, availableDbcLocales, bad_dbc_files, sItemDisplayInfoStore,        dbcPath, "ItemDisplayInfo.dbc");     -- not used currently
@@ -541,7 +546,10 @@ void LoadDBCStores(const std::string& dataPath)
         SpecializationSpellsEntry const* specSpells = sSpecializationSpellsStore.LookupEntry(i);
         if (!specSpells)
             continue;
-        sSpecializationSpellsBySpecStore[specSpells->SpecID].insert(specSpells);
+        sSpecializationSpellsBySpecStore[specSpells->SpecID].push_back(specSpells);
+
+        if (specSpells->OverridesSpellID)
+            sSpecializationOverrideSpellMap[specSpells->SpecID][specSpells->OverridesSpellID] = specSpells->SpellID;
     }
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellStore,                  dbcPath, "Spell.dbc"/*, &CustomSpellEntryfmt, &CustomSpellEntryIndex*/);
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoriesStore,        dbcPath, "SpellCategories.dbc");//15595
@@ -567,6 +575,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCastTimesStore,         dbcPath, "SpellCastTimes.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellDurationStore,          dbcPath, "SpellDuration.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellFocusObjectStore,       dbcPath, "SpellFocusObject.dbc");//19116
+    LoadDBC(availableDbcLocales, bad_dbc_files, sSpellEffectScalingStore,     dbcPath, "SpellEffectScaling.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellItemEnchantmentStore,   dbcPath, "SpellItemEnchantment.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellItemEnchantmentConditionStore, dbcPath, "SpellItemEnchantmentCondition.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellRadiusStore,            dbcPath, "SpellRadius.dbc");//19116
@@ -576,41 +585,67 @@ void LoadDBCStores(const std::string& dataPath)
     //LoadDBC(availableDbcLocales, bad_dbc_files, sStableSlotPricesStore,       dbcPath, "StableSlotPrices.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSummonPropertiesStore,       dbcPath, "SummonProperties.dbc");//15595
 
-    // Must be done when sSkillLineAbilityStore, sSpellStore, sSpellLevelsStore and sCreatureFamilyStore are all loaded
-    /* TODO: Requires spells attributes from SpellMisc.db2 is loaded after dbc
-    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+    for (uint32 j = 0; j < sSpellEffectScalingStore.GetNumRows(); j++)
     {
-        SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
-        if (!skillLine)
+        SpellEffectScalingEntry const* spellEffectScaling = sSpellEffectScalingStore.LookupEntry(j);
+        if (!spellEffectScaling)
             continue;
 
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->SpellID);
+        sSpellEffectScallingByEffectId.insert(std::make_pair(spellEffectScaling->SpellEffectID, j));
+    }
+    std::map<std::string, uint32> classIdByName;
+    for (uint32 j = 0; j < sChrClassesStore.GetNumRows(); j++)
+    {
+        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(j);
+        if (!classEntry)
+            continue;
+
+        classIdByName.insert(std::make_pair(std::string(classEntry->Name_lang), j));
+    }
+
+    for (uint32 j = 0; j < sSkillLineStore.GetNumRows(); j++)
+    {
+        SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(j);
+        if (!skillEntry)
+            continue;
+
+        if (skillEntry->CategoryID!= SKILL_CATEGORY_CLASS)
+            continue;
+
+        std::map<std::string, uint32> ::const_iterator iter = classIdByName.find(std::string(skillEntry->DisplayName_lang));
+        if (iter == classIdByName.end())
+            continue;
+
+        sClassBySkillIdStore.insert(std::make_pair(j, iter->second));
+    }
+
+    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+    {
+        SkillLineAbilityEntry const* skillAbility = sSkillLineAbilityStore.LookupEntry(j);
+        if (!skillAbility)
+            continue;
+
+        if (skillAbility->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+            continue;
+
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillAbility->SpellID);
         if (!spellInfo)
             continue;
 
-        SpellLevelsEntry const* levels = sSpellLevelsStore.LookupEntry(spellInfo->SpellLevelsID);
-        if (spellInfo->SpellLevelsID && (!levels || levels->spellLevel))
+        SpellLevelsEntry const* spellLevels = sSpellLevelsStore.LookupEntry(spellInfo->LevelsID);
+        if (!spellLevels || !spellLevels->SpellLevel)
             continue;
 
-        if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
-        {
-            for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
-            {
-                CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(i);
-                if (!cFamily)
-                    continue;
+        uint32 classId = GetClassBySkillId(skillAbility->SkillLine);
 
-                if (skillLine->SkillLine != cFamily->SkillLine[0] && skillLine->SkillLine != cFamily->SkillLine[1])
-                    continue;
+        if (!classId)
+            continue;
 
-                if (skillLine->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
-                    continue;
+        if (sSpellsPerClassStore.find(classId) == sSpellsPerClassStore.end())
+            sSpellsPerClassStore.insert(make_pair(classId, std::list<SkillLineAbilityEntry const*>()));
 
-                sPetFamilySpellsStore[i].insert(spellInfo->ID);
-            }
-        }
+        sSpellsPerClassStore[classId].push_back(skillAbility);
     }
-    */
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");//15595
 
@@ -719,11 +754,11 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Check loaded DBC files proper version
-    if (!sAreaStore.LookupEntry(4713)          ||     // last area (areaflag) added in 4.3.4 (15595)
-        !sCharTitlesStore.LookupEntry(287)     ||     // last char title added in 4.3.4 (15595)
-        !sGemPropertiesStore.LookupEntry(2250) ||     // last gem property added in 4.3.4 (15595)
-        !sMapStore.LookupEntry(980)            ||     // last map added in 4.3.4 (15595)
-        !sSpellStore.LookupEntry(121820)       )      // last spell added in 4.3.4 (15595)
+    if (!sAreaStore.LookupEntry(6133)          ||     // last area (areaflag) added in 6.0.3 (19342)
+        !sCharTitlesStore.LookupEntry(444)     ||     // last char title added in 6.0.3 (19342)
+        !sGemPropertiesStore.LookupEntry(2534) ||     // last gem property added in 6.0.3 (19342)
+        !sMapStore.LookupEntry(1447)            ||     // last map added in 6.0.3 (19342)
+        !sSpellStore.LookupEntry(178987)       )      // last spell added in 6.0.3 (19342)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);
@@ -934,7 +969,7 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &di
     MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
     if (!mapDiff)
     {
-        if (tmpDiff > RAID_DIFFICULTY_25MAN_NORMAL) // heroic, downscale to normal
+        if (tmpDiff > DIFFICULTY_25_N) // heroic, downscale to normal
             tmpDiff -= 2;
         else
             tmpDiff -= 1;   // any non-normal mode for raids like tbc (only one mode)
@@ -1214,4 +1249,83 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     }
 
     return NULL;
+}
+
+uint32 GetClassBySkillId(uint32 skillId)
+{
+    ClassBySkillIdStore::const_iterator iter = sClassBySkillIdStore.find(skillId);
+    if (iter != sClassBySkillIdStore.end())
+        return iter->second;
+    return 0;
+}
+
+uint32 GetSkillIdByClass(uint32 classId)
+{
+    for (ClassBySkillIdStore::const_iterator iter = sClassBySkillIdStore.begin(); iter != sClassBySkillIdStore.end(); iter++)
+        if (iter->second == classId)
+            return iter->first;
+    return 0;
+}
+
+std::list<uint32> GetSpellsForLevels(uint32 classId, uint32 raceMask, uint32 specializationId, uint32 minLevel, uint32 maxLevel)
+{
+    std::list<uint32> spellList;
+
+    if (classId != 0)
+    {
+        SpellsPerClassStore::const_iterator classIter = sSpellsPerClassStore.find(classId);
+        if (classIter != sSpellsPerClassStore.end())
+        {
+            const std::list<SkillLineAbilityEntry const*>& learnSpellList = classIter->second;
+            for (std::list<SkillLineAbilityEntry const*>::const_iterator iter = learnSpellList.begin(); iter != learnSpellList.end(); iter++)
+            {
+                SkillLineAbilityEntry const* skillLine = *iter;
+                if (!skillLine)
+                    continue;
+
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->SpellID);
+                if (!spellInfo)
+                    continue;
+
+                if (skillLine->RaceMask && !(skillLine->RaceMask & raceMask))
+                    continue;
+
+                if (spellInfo->SpellLevel <= minLevel || spellInfo->SpellLevel > maxLevel)
+                    continue;
+
+                spellList.push_back(spellInfo->Id);
+            }
+        }
+    }
+
+    if (!specializationId)
+        return spellList;
+
+    SpecializationSpellsBySpecStore::const_iterator specIter = sSpecializationSpellsBySpecStore.find(specializationId);
+    if (specIter != sSpecializationSpellsBySpecStore.end())
+    {
+        SpecializationSpellsBySpecEntry learnSpellList = specIter->second;
+        for (int i = 0; i < learnSpellList.size(); i++)
+        {
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learnSpellList[i]->SpellID);
+            if (!spellInfo)
+            {
+                TC_LOG_ERROR("spells", "GetSpellsForLevels: spell %u not found in spellstore", learnSpellList[i]->SpellID);
+                continue;
+            }
+            if (spellInfo->SpellLevel <= minLevel || spellInfo->SpellLevel > maxLevel)
+                continue;
+
+            spellList.push_back(spellInfo->Id);
+        }
+    }
+    return spellList;
+}
+
+uint32 GetTalentSpellCost(uint32 spellId)
+{
+    TalentBySpellIDMap::const_iterator itr = sTalentBySpellIDMap.find(spellId);
+    if (itr == sTalentBySpellIDMap.end())
+        return 0;
+    return 1;
 }

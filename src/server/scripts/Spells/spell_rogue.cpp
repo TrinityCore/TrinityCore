@@ -145,7 +145,8 @@ class spell_rog_cheat_death : public SpellScriptLoader
 
             bool Load() override
             {
-                absorbChance = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                // 6.x has basepoint = 0 !
+                absorbChance = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
                 return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
             }
 
@@ -491,57 +492,6 @@ class spell_rog_master_of_subtlety : public SpellScriptLoader
         }
 };
 
-// 31130 - Nerves of Steel
-class spell_rog_nerves_of_steel : public SpellScriptLoader
-{
-    public:
-        spell_rog_nerves_of_steel() : SpellScriptLoader("spell_rog_nerves_of_steel") { }
-
-        class spell_rog_nerves_of_steel_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_nerves_of_steel_AuraScript);
-
-        public:
-            spell_rog_nerves_of_steel_AuraScript()
-            {
-                absorbPct = 0;
-            }
-
-        private:
-            uint32 absorbPct;
-
-            bool Load() override
-            {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-                return true;
-            }
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
-
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                // reduces all damage taken while stun or fear
-                if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING) || (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
-                    absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
-            }
-
-            void Register() override
-            {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_nerves_of_steel_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_rog_nerves_of_steel_AuraScript::Absorb, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_nerves_of_steel_AuraScript();
-        }
-};
-
 // 58428 - Overkill
 class spell_rog_overkill : public SpellScriptLoader
 {
@@ -642,51 +592,6 @@ class spell_rog_preparation : public SpellScriptLoader
         }
 };
 
-// 51685 - Prey on the Weak
-class spell_rog_prey_on_the_weak : public SpellScriptLoader
-{
-    public:
-        spell_rog_prey_on_the_weak() : SpellScriptLoader("spell_rog_prey_on_the_weak") { }
-
-        class spell_rog_prey_on_the_weak_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_prey_on_the_weak_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_PREY_ON_THE_WEAK))
-                    return false;
-                return true;
-            }
-
-            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                Unit* target = GetTarget();
-                Unit* victim = target->GetVictim();
-                if (victim && (target->GetHealthPct() > victim->GetHealthPct()))
-                {
-                    if (!target->HasAura(SPELL_ROGUE_PREY_ON_THE_WEAK))
-                    {
-                        int32 bp = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                        target->CastCustomSpell(target, SPELL_ROGUE_PREY_ON_THE_WEAK, &bp, nullptr, nullptr, true);
-                    }
-                }
-                else
-                    target->RemoveAurasDueToSpell(SPELL_ROGUE_PREY_ON_THE_WEAK);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_prey_on_the_weak_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_prey_on_the_weak_AuraScript();
-        }
-};
-
 // 73651 - Recuperate
 class spell_rog_recuperate : public SpellScriptLoader
 {
@@ -714,7 +619,7 @@ class spell_rog_recuperate : public SpellScriptLoader
                 canBeRecalculated = false;
                 if (Unit* caster = GetCaster())
                 {
-                    int32 baseAmount = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster) * 1000;
+                    int32 baseAmount = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(caster) * 1000;
                     // Improved Recuperate
                     if (AuraEffect const* auraEffect = caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ICON_ROGUE_IMPROVED_RECUPERATE, EFFECT_0))
                         baseAmount += auraEffect->GetAmount();
@@ -1028,10 +933,8 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_deadly_poison();
     new spell_rog_killing_spree();
     new spell_rog_master_of_subtlety();
-    new spell_rog_nerves_of_steel();
     new spell_rog_overkill();
     new spell_rog_preparation();
-    new spell_rog_prey_on_the_weak();
     new spell_rog_recuperate();
     new spell_rog_rupture();
     new spell_rog_shiv();

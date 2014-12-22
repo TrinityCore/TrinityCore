@@ -428,7 +428,7 @@ public:
         void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell) override
         {
             // This is the dummy effect of the spells
-            if (pSpell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
+            if (pSpell->Id == SPELL_SHATTER)
                 if (me->GetEntry() == NPC_BRITTLE_GOLEM)
                     me->DespawnOrUnsummon();
         }

@@ -26,7 +26,6 @@
 extern DB2Storage<HolidaysEntry>                sHolidaysStore;
 extern DB2Storage<ItemEntry>                    sItemStore;
 extern DB2Storage<ItemAppearanceEntry>          sItemAppearanceStore;
-extern ItemDisplayIDMap                         sItemDisplayIDMap;
 extern DB2Storage<ItemCurrencyCostEntry>        sItemCurrencyCostStore;
 extern DB2Storage<ItemExtendedCostEntry>        sItemExtendedCostStore;
 extern DB2Storage<ItemEffectEntry>              sItemEffectStore;
@@ -39,6 +38,7 @@ extern DB2Storage<SpellCastingRequirementsEntry> sSpellCastingRequirementsStore;
 extern DB2Storage<SpellClassOptionsEntry>       sSpellClassOptionsStore;
 extern DB2Storage<SpellMiscEntry>               sSpellMiscStore;
 extern DB2Storage<SpellPowerEntry>              sSpellPowerStore;
+extern SpellPowerBySpellIDMap                   sSpellPowerBySpellIDStore;
 extern DB2Storage<SpellReagentsEntry>           sSpellReagentsStore;
 extern DB2Storage<SpellRuneCostEntry>           sSpellRuneCostStore;
 extern DB2Storage<SpellTotemsEntry>             sSpellTotemsStore;
@@ -56,8 +56,6 @@ extern TaxiPathNodesByPath                      sTaxiPathNodesByPath;
 void LoadDB2Stores(std::string const& dataPath);
 
 DB2StorageBase const* GetDB2Storage(uint32 type);
-
-uint32 GetItemDisplayID(uint32 appearanceID);
 
 std::set<uint32> const& GetPhasesForGroup(uint32 group);
 

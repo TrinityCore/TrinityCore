@@ -381,7 +381,7 @@ public:
             if (localeIndex >= 0)
             {
                 uint8 ulocaleIndex = uint8(localeIndex);
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(itr->second.ItemId))
+                if (ItemLocale const* il = sObjectMgr->GetItemLocale(itr->second.GetId()))
                 {
                     if (il->Name.size() > ulocaleIndex && !il->Name[ulocaleIndex].empty())
                     {
@@ -396,9 +396,9 @@ public:
                             }
 
                             if (handler->GetSession())
-                                handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.ItemId, itr->second.ItemId, name.c_str());
+                                handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.GetId(), itr->second.GetId(), name.c_str());
                             else
-                                handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.ItemId, name.c_str());
+                                handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.GetId(), name.c_str());
 
                             if (!found)
                                 found = true;
@@ -409,7 +409,7 @@ public:
                 }
             }
 
-            std::string name = itr->second.Name1;
+            std::string name = itr->second.GetDefaultLocaleName();
             if (name.empty())
                 continue;
 
@@ -422,9 +422,9 @@ public:
                 }
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.ItemId, itr->second.ItemId, name.c_str());
+                    handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.GetId(), itr->second.GetId(), name.c_str());
                 else
-                    handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.ItemId, name.c_str());
+                    handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.GetId(), name.c_str());
 
                 if (!found)
                     found = true;
@@ -808,9 +808,11 @@ public:
                 }
 
                 bool known = target && target->HasSpell(id);
-                bool learn = (spellInfo->Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL);
 
-                SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
+                SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_0);
+                bool learn = effect ? (effect->Effect == SPELL_EFFECT_LEARN_SPELL) : false;
+
+                SpellInfo const* learnSpellInfo = effect ? sSpellMgr->GetSpellInfo(effect->TriggerSpell) : NULL;
 
                 bool talent = (GetTalentBySpellID(id) != nullptr);
                 bool passive = spellInfo->IsPassive();
@@ -878,9 +880,11 @@ public:
             }
 
                 bool known = target && target->HasSpell(id);
-                bool learn = (spellInfo->Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL);
 
-                SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
+                SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_0);
+                bool learn = effect? (effect->Effect == SPELL_EFFECT_LEARN_SPELL) : false;
+
+                SpellInfo const* learnSpellInfo = effect ? sSpellMgr->GetSpellInfo(effect->TriggerSpell) : NULL;
 
                 bool talent = (GetTalentBySpellID(id) != nullptr);
                 bool passive = spellInfo->IsPassive();

@@ -401,62 +401,6 @@ class spell_pal_blessing_of_faith : public SpellScriptLoader
         }
 };
 
-// 64205 - Divine Sacrifice
-class spell_pal_divine_sacrifice : public SpellScriptLoader
-{
-    public:
-        spell_pal_divine_sacrifice() : SpellScriptLoader("spell_pal_divine_sacrifice") { }
-
-        class spell_pal_divine_sacrifice_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_divine_sacrifice_AuraScript);
-
-            uint32 groupSize, minHpPct;
-            int32 remainingAmount;
-
-            bool Load() override
-            {
-
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (caster->ToPlayer()->GetGroup())
-                            groupSize = caster->ToPlayer()->GetGroup()->GetMembersCount();
-                        else
-                            groupSize = 1;
-                    }
-                    else
-                        return false;
-
-                    remainingAmount = (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster)) * groupSize);
-                    minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
-                    return true;
-                }
-                return false;
-            }
-
-            void Split(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & splitAmount)
-            {
-                remainingAmount -= splitAmount;
-                // break when absorbed everything it could, or if the casters hp drops below 20%
-                if (Unit* caster = GetCaster())
-                    if (remainingAmount <= 0 || (caster->GetHealthPct() < minHpPct))
-                        caster->RemoveAura(SPELL_PALADIN_DIVINE_SACRIFICE);
-            }
-
-            void Register() override
-            {
-                OnEffectSplit += AuraEffectSplitFn(spell_pal_divine_sacrifice_AuraScript::Split, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_divine_sacrifice_AuraScript();
-        }
-};
-
 // 53385 - Divine Storm
 class spell_pal_divine_storm : public SpellScriptLoader
 {
@@ -485,7 +429,7 @@ class spell_pal_divine_storm : public SpellScriptLoader
 
             bool Load() override
             {
-                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+                healPct = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue(GetCaster());
                 return true;
             }
 
@@ -1279,7 +1223,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_avenging_wrath();
     new spell_pal_beacon_of_light();
     new spell_pal_blessing_of_faith();
-    new spell_pal_divine_sacrifice();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();

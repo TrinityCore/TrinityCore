@@ -18,19 +18,18 @@
 #include "DB2Stores.h"
 #include "DBCStores.h"
 #include "DB2fmt.h"
-#include "DB2Utility.h"
 #include "Common.h"
 #include "Log.h"
 #include "World.h"
 
 DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
-DB2Storage<ItemEntry>                       sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
+DB2Storage<ItemEntry>                       sItemStore(Itemfmt);
 DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceEntryfmt);
 ItemDisplayIDMap                            sItemDisplayIDMap;
 DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectEntryfmt);
-DB2Storage<ItemSparseEntry>                 sItemSparseStore(ItemSparsefmt, &DB2Utilities::HasItemSparseEntry, &DB2Utilities::WriteItemSparseDbReply);
+DB2Storage<ItemSparseEntry>                 sItemSparseStore(ItemSparsefmt);
 DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainfmt);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore(OverrideSpellDataEntryfmt);
 DB2Storage<PhaseGroupEntry>                 sPhaseGroupStore(PhaseGroupEntryfmt);
@@ -39,6 +38,7 @@ DB2Storage<SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore(Spell
 DB2Storage<SpellClassOptionsEntry>          sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
 DB2Storage<SpellMiscEntry>                  sSpellMiscStore(SpellMiscEntryfmt);
 DB2Storage<SpellPowerEntry>                 sSpellPowerStore(SpellPowerEntryfmt);
+SpellPowerBySpellIDMap                      sSpellPowerBySpellIDStore;
 DB2Storage<SpellReagentsEntry>              sSpellReagentsStore(SpellReagentsEntryfmt);
 DB2Storage<SpellRuneCostEntry>              sSpellRuneCostStore(SpellRuneCostEntryfmt);
 DB2Storage<SpellTotemsEntry>                sSpellTotemsStore(SpellTotemsEntryfmt);
@@ -144,15 +144,15 @@ void LoadDB2Stores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiPathStore,             db2Path,    "TaxiPath.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiPathNodeStore,         db2Path,    "TaxiPathNode.db2");
 
+    for (uint32 i = 0; i < sSpellPowerStore.GetNumRows(); ++i)
+        if (SpellPowerEntry const* power = sSpellPowerStore.LookupEntry(i))
+            sSpellPowerBySpellIDStore[power->SpellID] = power;
+
     for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
         if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
             if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
                 sPhasesByGroup[group->PhaseGroupID].insert(phase->ID);
-    
-    for (uint32 i = 0; i < sItemAppearanceStore.GetNumRows(); ++i)
-        if (ItemAppearanceEntry const* entry = sItemAppearanceStore.LookupEntry(i))
-            sItemDisplayIDMap[entry->FileDataID] = entry->DisplayID;
-    
+
     for (uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
         if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
             sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
@@ -169,12 +169,12 @@ void LoadDB2Stores(std::string const& dataPath)
                 pathLength[entry->PathID] = entry->NodeIndex + 1;
         }
     }
-    
+
     // Set path length
     sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
     for (uint32 i = 1; i < sTaxiPathNodesByPath.size(); ++i)
         sTaxiPathNodesByPath[i].resize(pathLength[i]);
-    
+
     // fill data
     for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
         if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
@@ -257,10 +257,10 @@ void LoadDB2Stores(std::string const& dataPath)
     }
 
     // Check loaded DB2 files proper version
-    if (!sItemStore.LookupEntry(83086)             ||       // last item added in 4.3.4 (15595)
-        !sItemExtendedCostStore.LookupEntry(3872)  )        // last item extended cost added in 4.3.4 (15595)
+    if (!sItemStore.LookupEntry(120406)             ||       // last item added in 6.0.3 (19342)
+        !sItemExtendedCostStore.LookupEntry(5491)  )        // last item extended cost added in 6.0.3 (19342)
     {
-        TC_LOG_ERROR("misc", "Please extract correct db2 files from client 4.3.4 15595.");
+        TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);
     }
 
@@ -274,14 +274,6 @@ DB2StorageBase const* GetDB2Storage(uint32 type)
         return itr->second;
 
     return NULL;
-}
-
-uint32 GetItemDisplayID(uint32 appearanceID)
-{
-    auto itr = sItemDisplayIDMap.find(appearanceID);
-    if (itr != sItemDisplayIDMap.end())
-        return itr->second;
-    return 0;
 }
 
 std::set<uint32> const& GetPhasesForGroup(uint32 group)

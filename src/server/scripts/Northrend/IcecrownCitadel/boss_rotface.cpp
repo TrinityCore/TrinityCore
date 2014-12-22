@@ -745,7 +745,7 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
                 if (!GetExplTargetDest())
                     return;
 
-                uint32 triggered_spell_id = GetSpellInfo()->Effects[effIndex].TriggerSpell;
+                uint32 triggered_spell_id = GetSpellInfo()->GetEffect(effIndex)->TriggerSpell;
 
                 float x, y, z;
                 GetExplTargetDest()->GetPosition(x, y, z);

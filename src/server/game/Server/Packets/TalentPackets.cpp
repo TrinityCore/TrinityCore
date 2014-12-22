@@ -41,3 +41,17 @@ void WorldPackets::Talent::SetSpecialization::Read()
 {
     _worldPacket >> SpecGroupIndex;
 }
+
+
+void WorldPackets::Talent::LearnTalent::Read()
+{
+    uint32 count;
+    _worldPacket >> count;
+    
+    for (uint32 i = 0; i < count; ++i)
+    {
+        uint16 talent;
+        _worldPacket >> talent;
+        Talents.push_back(talent);
+    }
+}

@@ -2159,8 +2159,8 @@ public:
 
             const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
 
-            if (spellInfo && spellInfo->Effects[0].Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
-                return spellInfo->Effects[0].MiscValue;
+            if (spellInfo && spellInfo->GetEffect(EFFECT_0)->Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
+                return spellInfo->GetEffect(EFFECT_0)->MiscValue;
 
             return 0;
         }

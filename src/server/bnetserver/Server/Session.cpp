@@ -393,9 +393,10 @@ void Battlenet::Session::HandlePing(Connection::Ping const& /*ping*/)
     AsyncWrite(new Connection::Pong());
 }
 
-void Battlenet::Session::HandleEnableEncryption(Connection::EnableEncryption const& /*enableEncryption*/)
+void Battlenet::Session::HandleEnableEncryption(Connection::EnableEncryption& enableEncryption)
 {
     _crypt.Init(&K);
+    _crypt.DecryptRecv(enableEncryption.GetRemainingData(), enableEncryption.GetRemainingSize());
 }
 
 void Battlenet::Session::HandleLogoutRequest(Connection::LogoutRequest const& /*logoutRequest*/)

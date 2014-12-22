@@ -157,6 +157,9 @@ class instance_naxxramas : public InstanceMapScript
                     case NPC_KEL_THUZAD:
                         KelthuzadGUID = creature->GetGUID();
                         break;
+                    case NPC_LICH_KING:
+                        LichKingGUID = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -201,6 +204,9 @@ class instance_naxxramas : public InstanceMapScript
                         break;
                     case GO_KELTHUZAD_TRIGGER:
                         KelthuzadTriggerGUID = go->GetGUID();
+                        break;
+                    case GO_ROOM_KELTHUZAD:
+                        KelthuzadDoorGUID = go->GetGUID();
                         break;
                     default:
                         break;
@@ -337,6 +343,8 @@ class instance_naxxramas : public InstanceMapScript
                         return PortalsGUID[3];
                     case DATA_KELTHUZAD_TRIGGER:
                         return KelthuzadTriggerGUID;
+                    case DATA_LICH_KING:
+                        return LichKingGUID;
                 }
 
                 return ObjectGuid::Empty;
@@ -369,6 +377,10 @@ class instance_naxxramas : public InstanceMapScript
                             }
                             events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6000);
                         }
+                        break;
+                    case BOSS_SAPPHIRON:
+                        if (state == DONE)
+                            events.ScheduleEvent(EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD, 6000);
                         break;
                     default:
                         break;
@@ -431,6 +443,37 @@ class instance_naxxramas : public InstanceMapScript
                                 kelthuzad->AI()->Talk(CurrentWingTaunt);
                             ++CurrentWingTaunt;
                             break;
+                        case EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD:
+                            if (Creature* kelthuzad = instance->GetCreature(KelthuzadGUID))
+                                kelthuzad->AI()->Talk(SAY_DIALOGUE_SAPPHIRON_KELTHUZAD);
+                            HandleGameObject(KelthuzadDoorGUID, false);
+                            events.ScheduleEvent(EVENT_DIALOGUE_SAPPHIRON_LICHKING, 6000);
+                            break;
+                        case EVENT_DIALOGUE_SAPPHIRON_LICHKING:
+                            if (Creature* lichKing = instance->GetCreature(LichKingGUID))
+                                lichKing->AI()->Talk(SAY_DIALOGUE_SAPPHIRON_LICH_KING);
+                            events.ScheduleEvent(EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD2, 16000);
+                            break;
+                        case EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD2:
+                            if (Creature* kelthuzad = instance->GetCreature(KelthuzadGUID))
+                                kelthuzad->AI()->Talk(SAY_DIALOGUE_SAPPHIRON_KELTHUZAD2);
+                            events.ScheduleEvent(EVENT_DIALOGUE_SAPPHIRON_LICHKING2, 9000);
+                            break;
+                        case EVENT_DIALOGUE_SAPPHIRON_LICHKING2:
+                            if (Creature* lichKing = instance->GetCreature(LichKingGUID))
+                                lichKing->AI()->Talk(SAY_DIALOGUE_SAPPHIRON_LICH_KING2);
+                            events.ScheduleEvent(EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD3, 12000);
+                            break;
+                        case EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD3:
+                            if (Creature* kelthuzad = instance->GetCreature(KelthuzadGUID))
+                                kelthuzad->AI()->Talk(SAY_DIALOGUE_SAPPHIRON_KELTHUZAD3);
+                            events.ScheduleEvent(EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD4, 6000);
+                            break;
+                        case EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD4:
+                            if (Creature* kelthuzad = instance->GetCreature(KelthuzadGUID))
+                                kelthuzad->AI()->Talk(SAY_DIALOGUE_SAPPHIRON_KELTHUZAD4);
+                            HandleGameObject(KelthuzadDoorGUID, true);
+                            break;
                         default:
                             break;
                     }
@@ -475,11 +518,11 @@ class instance_naxxramas : public InstanceMapScript
                 switch (criteria_id)
                 {
                     case 7600:  // Criteria for achievement 2176: And They Would All Go Down Together 15sec of each other 10-man
-                        if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
+                        if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_10_N && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                             return true;
                         return false;
                     case 7601:  // Criteria for achievement 2177: And They Would All Go Down Together 15sec of each other 25-man
-                        if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
+                        if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_25_N && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                             return true;
                         return false;
                     // Difficulty checks are done on DB.
@@ -538,6 +581,8 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid KelthuzadGUID;
             ObjectGuid KelthuzadTriggerGUID;
             ObjectGuid PortalsGUID[4];
+            ObjectGuid KelthuzadDoorGUID;
+            ObjectGuid LichKingGUID;
             uint8 AbominationCount;
             uint8 CurrentWingTaunt;
 

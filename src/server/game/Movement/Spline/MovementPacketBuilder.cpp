@@ -126,19 +126,20 @@ namespace Movement
             data.FlushBits();
 
             data.WriteBits(moveSpline.splineflags.raw(), 25);                       // SplineFlags
-            data.WriteBits(uint8(moveSpline.spline.mode()), 2);                     // Mode
+
+            if (splineFlags.final_angle)
+                data.WriteBits(3, 2); // Face
+            else if (splineFlags.final_target)
+                data.WriteBits(2, 2); // Face
+            else if (splineFlags.final_point)
+                data.WriteBits(1, 2); // Face
+            else
+                data.WriteBits(0, 2); // Face
 
             bool HasJumpGravity = data.WriteBit(moveSpline.splineflags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation));    // HasJumpGravity
             bool HasSpecialTime = data.WriteBit((moveSpline.splineflags & MoveSplineFlag::Parabolic) && moveSpline.effect_start_time < moveSpline.Duration());    // HasSpecialTime
 
-            if (splineFlags.final_angle)
-                data.WriteBit(3);
-            else if (splineFlags.final_target)
-                data.WriteBit(2);
-            else if (splineFlags.final_point)
-                data.WriteBit(1);
-            else
-                data.WriteBit(0);
+            data.WriteBits(uint8(moveSpline.spline.mode()), 2);                     // Mode
 
             data.WriteBit(0);                                                       // HasSplineFilterKey
 

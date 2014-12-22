@@ -80,7 +80,7 @@ public:
 
             Initialize();
 
-            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+            if (GetDifficulty() == DIFFICULTY_25_N)
             {
                 Position pos;
 
@@ -121,7 +121,7 @@ public:
             events.ScheduleEvent(EVENT_LOCUST, 90000);
             events.ScheduleEvent(EVENT_BERSERK, 600000);
 
-            if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+            if (GetDifficulty() == DIFFICULTY_10_N)
                 events.ScheduleEvent(EVENT_SPAWN_GUARDIAN_NORMAL, urand(15000, 20000));
         }
 
@@ -160,7 +160,7 @@ public:
                     case EVENT_IMPALE:
                         //Cast Impale on a random target
                         //Do NOT cast it when we are afflicted by locust swarm
-                        if (!me->HasAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_LOCUST_SWARM, me)))
+                        if (!me->HasAura(SPELL_LOCUST_SWARM))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_IMPALE);
                         events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));

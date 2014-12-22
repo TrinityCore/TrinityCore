@@ -145,9 +145,10 @@ bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) con
     /// @todo possibly all negative auras immune?
     if (GetEntry() == 5925)
         return false;
-
-    switch (spellInfo->Effects[index].ApplyAuraName)
+    if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficulty(), index))
     {
+        switch (effect->ApplyAuraName)
+        {
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_LEECH:
         case SPELL_AURA_MOD_FEAR:
@@ -155,7 +156,10 @@ bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) con
             return true;
         default:
             break;
+        }
     }
+    else
+        return true;
 
     return Creature::IsImmunedToSpellEffect(spellInfo, index);
 }

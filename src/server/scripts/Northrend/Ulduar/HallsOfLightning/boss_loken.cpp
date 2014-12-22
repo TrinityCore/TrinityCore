@@ -115,6 +115,7 @@ public:
         {
             Talk(SAY_DEATH);
             _JustDied();
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PULSING_SHOCKWAVE_AURA);
         }
 
         void KilledUnit(Unit* who) override
@@ -154,7 +155,7 @@ public:
                         Talk(SAY_NOVA);
                         Talk(EMOTE_NOVA);
                         DoCastAOE(SPELL_LIGHTNING_NOVA);
-                        me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_PULSING_SHOCKWAVE, me));
+                        me->RemoveAurasDueToSpell(SPELL_PULSING_SHOCKWAVE);
                         events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, DUNGEON_MODE(5000, 4000)); // Pause Pulsing Shockwave aura
                         events.ScheduleEvent(EVENT_LIGHTNING_NOVA, urand(20000, 21000));
                         break;

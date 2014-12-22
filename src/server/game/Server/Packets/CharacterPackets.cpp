@@ -99,7 +99,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
-        uint32 visualBase = slot * 2;
+        uint32 visualBase = slot * 3;
         uint32 itemId = Player::GetUInt32ValueFromArray(equipment, visualBase);
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId))
         {
@@ -118,8 +118,8 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
                 }
             }
 
-            VisualItems[slot].DisplayId = proto->DisplayInfoID;
-            VisualItems[slot].InventoryType = uint8(proto->InventoryType);
+            VisualItems[slot].DisplayId = 0/*proto->DisplayInfoID*/;
+            VisualItems[slot].InventoryType = uint8(proto->GetInventoryType());
         }
     }
 }
