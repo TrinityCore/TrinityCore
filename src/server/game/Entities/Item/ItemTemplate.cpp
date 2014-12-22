@@ -34,17 +34,6 @@ char const* ItemTemplate::GetDefaultLocaleName() const
     return ExtendedData->Name->Str[sWorld->GetDefaultDbcLocale()];
 }
 
-uint32 ItemTemplate::GetItemLevel(std::vector<uint32> const& bonuses) const
-{
-    uint32 baseItemLevel = ExtendedData->ItemLevel;
-    return baseItemLevel;
-}
-
-uint32 ItemTemplate::GetDisplayId(std::vector<uint32> const& bonusListIDs) const
-{
-    return 0;
-}
-
 uint32 ItemTemplate::GetArmor(uint32 itemLevel) const
 {
     uint32 quality = GetQuality() != ITEM_QUALITY_HEIRLOOM ? GetQuality() : ITEM_QUALITY_RARE;
