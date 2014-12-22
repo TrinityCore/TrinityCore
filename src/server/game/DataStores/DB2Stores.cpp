@@ -21,14 +21,20 @@
 #include "Common.h"
 #include "Log.h"
 #include "World.h"
+#include <functional>
 
+std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
+DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointEntryfmt);
 DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
 DB2Storage<ItemEntry>                       sItemStore(Itemfmt);
 DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceEntryfmt);
-ItemDisplayIDMap                            sItemDisplayIDMap;
+std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, uint32> ItemDisplayMap;
+DB2Storage<ItemBonusEntry>                  sItemBonusStore(ItemBonusEntryfmt);
+std::unordered_map<uint32 /*bonusListId*/, std::vector<ItemBonusEntry const*>> ItemBonusLists;
 DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectEntryfmt);
+DB2Storage<ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore(ItemModifiedAppearanceEntryfmt);
 DB2Storage<ItemSparseEntry>                 sItemSparseStore(ItemSparsefmt);
 DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainfmt);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore(OverrideSpellDataEntryfmt);
@@ -122,13 +128,16 @@ void LoadDB2Stores(std::string const& dataPath)
     DB2StoreProblemList bad_db2_files;
     uint32 availableDb2Locales = 0xFF;
 
+    LoadDB2(availableDb2Locales, bad_db2_files, sCurvePointStore,           db2Path,    "CurvePoint.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sHolidaysStore,             db2Path,    "Holidays.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemStore,                 db2Path,    "Item.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemAppearanceStore,       db2Path,    "ItemAppearance.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemBonusStore,            db2Path,    "ItemBonus.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemCurrencyCostStore,     db2Path,    "ItemCurrencyCost.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemExtendedCostStore,     db2Path,    "ItemExtendedCost.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemEffectStore,           db2Path,    "ItemEffect.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemModifiedAppearanceStore, db2Path,  "ItemModifiedAppearance.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sKeyChainStore,             db2Path,    "KeyChain.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sOverrideSpellDataStore,    db2Path,    "OverrideSpellData.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sPhaseGroupStore,           db2Path,    "PhaseXPhaseGroup.db2");
@@ -143,6 +152,27 @@ void LoadDB2Stores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiNodesStore,            db2Path,    "TaxiNodes.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiPathStore,             db2Path,    "TaxiPath.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sTaxiPathNodeStore,         db2Path,    "TaxiPathNode.db2");
+
+    for (uint32 i = 0; i < sItemBonusStore.GetNumRows(); ++i)
+        if (ItemBonusEntry const* bonus = sItemBonusStore.LookupEntry(i))
+            ItemBonusLists[bonus->BonusListID].push_back(bonus);
+
+    for (uint32 i = 0; i < sItemModifiedAppearanceStore.GetNumRows(); ++i)
+        if (ItemModifiedAppearanceEntry const* appearanceMod = sItemModifiedAppearanceStore.LookupEntry(i))
+            if (ItemAppearanceEntry const* appearance = sItemAppearanceStore.LookupEntry(appearanceMod->AppearanceID))
+                ItemDisplayMap[appearanceMod->ItemID | (appearanceMod->AppearanceModID << 24)] = appearance->DisplayID;
+
+    {
+        std::set<uint32> scalingCurves;
+        for (uint32 i = 0; i < sScalingStatDistributionStore.GetNumRows(); ++i)
+            if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(i))
+                scalingCurves.insert(ssd->ItemLevelCurveID);
+
+        for (uint32 i = 0; i < sCurvePointStore.GetNumRows(); ++i)
+            if (CurvePointEntry const* curvePoint = sCurvePointStore.LookupEntry(i))
+                if (scalingCurves.count(curvePoint->CurveID))
+                    HeirloomCurvePoints[curvePoint->CurveID][curvePoint->Index] = curvePoint;
+    }
 
     for (uint32 i = 0; i < sSpellPowerStore.GetNumRows(); ++i)
         if (SpellPowerEntry const* power = sSpellPowerStore.LookupEntry(i))
@@ -274,6 +304,51 @@ DB2StorageBase const* GetDB2Storage(uint32 type)
         return itr->second;
 
     return NULL;
+}
+
+uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level)
+{
+    // Assuming linear item level scaling for heirlooms
+    auto itr = HeirloomCurvePoints.find(curveId);
+    if (itr == HeirloomCurvePoints.end())
+        return 0;
+
+    auto it2 = itr->second.begin(); // Highest scaling point
+    if (level >= it2->second->X)
+        return it2->second->Y;
+
+    auto previousItr = it2++;
+    for (; it2 != itr->second.end(); ++it2, ++previousItr)
+        if (level >= it2->second->X)
+            return uint32((previousItr->second->Y - it2->second->Y) / (previousItr->second->X - it2->second->X) * (float(level) - it2->second->X) + it2->second->Y);
+
+    return uint32(previousItr->second->Y);  // Lowest scaling point
+}
+
+uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId)
+{
+    auto itr = ItemDisplayMap.find(itemId | (appearanceModId << 24));
+    if (itr != ItemDisplayMap.end())
+        return itr->second;
+
+    // Fall back to unmodified appearance
+    if (appearanceModId)
+    {
+        itr = ItemDisplayMap.find(itemId);
+        if (itr != ItemDisplayMap.end())
+            return itr->second;
+    }
+
+    return 0;
+}
+
+std::vector<ItemBonusEntry const*> GetItemBonuses(uint32 bonusListId)
+{
+    auto itr = ItemBonusLists.find(bonusListId);
+    if (itr != ItemBonusLists.end())
+        return itr->second;
+
+    return std::vector<ItemBonusEntry const*>();
 }
 
 std::set<uint32> const& GetPhasesForGroup(uint32 group)

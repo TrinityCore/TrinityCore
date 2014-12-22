@@ -18,14 +18,17 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
-char const HolidaysEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
-char const Itemfmt[]="niiiiiiii";
-char const ItemAppearanceEntryfmt[]="nii";
-char const ItemCurrencyCostfmt[]="xn";
-char const ItemSparsefmt[]="niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
-char const ItemExtendedCostEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
-char const ItemEffectEntryfmt[]="niiiiiiii";
-char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+char const CurvePointEntryfmt[] = "niiff";
+char const HolidaysEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
+char const Itemfmt[] = "niiiiiiii";
+char const ItemAppearanceEntryfmt[] = "nii";
+char const ItemBonusEntryfmt[] = "niiiii";
+char const ItemCurrencyCostfmt[] = "xn";
+char const ItemExtendedCostEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
+char const ItemEffectEntryfmt[] = "niiiiiiii";
+char const ItemModifiedAppearanceEntryfmt[] = "niiiii";
+char const ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
+char const KeyChainfmt[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 char const OverrideSpellDataEntryfmt[] = "niiiiiiiiiixx";
 char const PhaseGroupEntryfmt[] = "nii";
 char const SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";

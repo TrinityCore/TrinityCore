@@ -31,6 +31,15 @@
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
 
+struct CurvePointEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 CurveID;                                                 // 1
+    uint32 Index;                                                   // 2
+    float X;                                                        // 3
+    float Y;                                                        // 4
+};
+
 struct HolidaysEntry
 {
     uint32      ID;                                                 // 0
@@ -65,6 +74,15 @@ struct ItemAppearanceEntry
     uint32      ID;                                                 // 0 (reference to ItemModifiedAppearance.db2?)
     uint32      DisplayID;                                          // 1
     uint32      IconFileDataID;                                     // 2
+};
+
+struct ItemBonusEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      BonusListID;                                        // 1
+    uint32      Type;                                               // 2
+    int32       Value[2];                                           // 3-4
+    uint32      Index;                                              // 5
 };
 
 struct ItemCurrencyCostEntry
@@ -105,6 +123,16 @@ struct ItemExtendedCostEntry
     uint32      RequiredFactionStanding;
     uint32      RequirementFlags;
     uint32      RequiredAchievement;
+};
+
+struct ItemModifiedAppearanceEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      ItemID;                                             // 1
+    uint32      AppearanceModID;                                    // 2
+    uint32      AppearanceID;                                       // 3
+    uint32      IconFileDataID;                                     // 4
+    uint32      Index;                                              // 5
 };
 
 struct ItemSparseEntry
@@ -341,8 +369,6 @@ struct TaxiPathNodeEntry
 };
 
 #pragma pack(pop)
-
-typedef std::map<uint32, uint32> ItemDisplayIDMap;
 
 typedef std::map<uint32, SpellPowerEntry const*> SpellPowerBySpellIDMap;
 

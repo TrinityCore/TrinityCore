@@ -113,6 +113,7 @@ GameTable <GtChanceToMeleeCritBaseEntry> sGtChanceToMeleeCritBaseStore(GtChanceT
 GameTable <GtChanceToMeleeCritEntry>     sGtChanceToMeleeCritStore(GtChanceToMeleeCritfmt);
 GameTable <GtChanceToSpellCritBaseEntry> sGtChanceToSpellCritBaseStore(GtChanceToSpellCritBasefmt);
 GameTable <GtChanceToSpellCritEntry>     sGtChanceToSpellCritStore(GtChanceToSpellCritfmt);
+GameTable <GtItemSocketCostPerLevelEntry> sGtItemSocketCostPerLevelStore(GtItemSocketCostPerLevelfmt);
 GameTable <GtNPCManaCostScalerEntry>     sGtNPCManaCostScalerStore(GtNPCManaCostScalerfmt);
 GameTable <GtOCTClassCombatRatingScalarEntry> sGtOCTClassCombatRatingScalarStore(GtOCTClassCombatRatingScalarfmt);
 GameTable <GtOCTRegenHPEntry>            sGtOCTRegenHPStore(GtOCTRegenHPfmt);
@@ -177,7 +178,6 @@ DBCStorage <QuestXPEntry>   sQuestXPStore(QuestXPfmt);
 DBCStorage <QuestFactionRewEntry>  sQuestFactionRewardStore(QuestFactionRewardfmt);
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
 DBCStorage <ScalingStatDistributionEntry> sScalingStatDistributionStore(ScalingStatDistributionfmt);
-DBCStorage <ScalingStatValuesEntry> sScalingStatValuesStore(ScalingStatValuesfmt);
 
 DBCStorage <SkillLineEntry> sSkillLineStore(SkillLinefmt);
 DBCStorage <SkillLineAbilityEntry> sSkillLineAbilityStore(SkillLineAbilityfmt);
@@ -527,9 +527,7 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sRandomPropertiesPointsStore, dbcPath, "RandPropPoints.dbc");//19116
 
-    // TODO: 6.x item stat scaling requires major changes
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatDistributionStore, dbcPath, "ScalingStatDistribution.dbc");
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatValuesStore,      dbcPath, "ScalingStatValues.dbc");//19116
+    LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatDistributionStore, dbcPath, "ScalingStatDistribution.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillLineStore,              dbcPath, "SkillLine.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillLineAbilityStore,       dbcPath, "SkillLineAbility.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillRaceClassInfoStore,     dbcPath, "SkillRaceClassInfo.dbc");//19116
@@ -723,19 +721,20 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapOverlayStore,        dbcPath, "WorldMapOverlay.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,          dbcPath, "WorldSafeLocs.dbc"); // 19116
 
-    LoadGameTable(bad_dbc_files, "BarberShopCostBase", sGtBarberShopCostBaseStore, dbcPath, "gtBarberShopCostBase.dbc");//15595
-    LoadGameTable(bad_dbc_files, "CombatRatings", sGtCombatRatingsStore, dbcPath, "gtCombatRatings.dbc");//15595
-    LoadGameTable(bad_dbc_files, "ChanceToMeleeCritBase", sGtChanceToMeleeCritBaseStore, dbcPath, "gtChanceToMeleeCritBase.dbc");//15595
-    LoadGameTable(bad_dbc_files, "ChanceToMeleeCrit", sGtChanceToMeleeCritStore, dbcPath, "gtChanceToMeleeCrit.dbc");//15595
-    LoadGameTable(bad_dbc_files, "ChanceToSpellCritBase", sGtChanceToSpellCritBaseStore, dbcPath, "gtChanceToSpellCritBase.dbc");//15595
-    LoadGameTable(bad_dbc_files, "ChanceToSpellCrit", sGtChanceToSpellCritStore, dbcPath, "gtChanceToSpellCrit.dbc");//15595
-    LoadGameTable(bad_dbc_files, "NPCManaCostScaler", sGtNPCManaCostScalerStore, dbcPath, "gtNPCManaCostScaler.dbc");
-    LoadGameTable(bad_dbc_files, "OCTClassCombatRatingScalar", sGtOCTClassCombatRatingScalarStore, dbcPath, "gtOCTClassCombatRatingScalar.dbc");//15595
-    LoadGameTable(bad_dbc_files, "OCTHPPerStamina", sGtOCTHpPerStaminaStore, dbcPath, "gtOCTHpPerStamina.dbc");//15595
-    LoadGameTable(bad_dbc_files, "RegenMPPerSpt", sGtRegenMPPerSptStore, dbcPath, "gtRegenMPPerSpt.dbc");//15595
-    LoadGameTable(bad_dbc_files, "SpellScaling", sGtSpellScalingStore, dbcPath, "gtSpellScaling.dbc");//15595
-    LoadGameTable(bad_dbc_files, "OCTBaseHPByClass", sGtOCTBaseHPByClassStore, dbcPath, "gtOCTBaseHPByClass.dbc");//15595
-    LoadGameTable(bad_dbc_files, "OCTBaseMPByClass", sGtOCTBaseMPByClassStore, dbcPath, "gtOCTBaseMPByClass.dbc");//15595
+    LoadGameTable(bad_dbc_files, "BarberShopCostBase", sGtBarberShopCostBaseStore, dbcPath, "gtBarberShopCostBase.dbc");//19342
+    LoadGameTable(bad_dbc_files, "CombatRatings", sGtCombatRatingsStore, dbcPath, "gtCombatRatings.dbc");//19342
+    LoadGameTable(bad_dbc_files, "ChanceToMeleeCritBase", sGtChanceToMeleeCritBaseStore, dbcPath, "gtChanceToMeleeCritBase.dbc");//19342
+    LoadGameTable(bad_dbc_files, "ChanceToMeleeCrit", sGtChanceToMeleeCritStore, dbcPath, "gtChanceToMeleeCrit.dbc");//19342
+    LoadGameTable(bad_dbc_files, "ChanceToSpellCritBase", sGtChanceToSpellCritBaseStore, dbcPath, "gtChanceToSpellCritBase.dbc");//19342
+    LoadGameTable(bad_dbc_files, "ChanceToSpellCrit", sGtChanceToSpellCritStore, dbcPath, "gtChanceToSpellCrit.dbc");//19342
+    LoadGameTable(bad_dbc_files, "ItemSocketCostPerLevel", sGtItemSocketCostPerLevelStore, dbcPath, "gtItemSocketCostPerLevel.dbc");//19342
+    LoadGameTable(bad_dbc_files, "NPCManaCostScaler", sGtNPCManaCostScalerStore, dbcPath, "gtNPCManaCostScaler.dbc");//19342
+    LoadGameTable(bad_dbc_files, "OCTClassCombatRatingScalar", sGtOCTClassCombatRatingScalarStore, dbcPath, "gtOCTClassCombatRatingScalar.dbc");//19342
+    LoadGameTable(bad_dbc_files, "OCTHPPerStamina", sGtOCTHpPerStaminaStore, dbcPath, "gtOCTHpPerStamina.dbc");//19342
+    LoadGameTable(bad_dbc_files, "RegenMPPerSpt", sGtRegenMPPerSptStore, dbcPath, "gtRegenMPPerSpt.dbc");//19342
+    LoadGameTable(bad_dbc_files, "SpellScaling", sGtSpellScalingStore, dbcPath, "gtSpellScaling.dbc");//19342
+    LoadGameTable(bad_dbc_files, "OCTBaseHPByClass", sGtOCTBaseHPByClassStore, dbcPath, "gtOCTBaseHPByClass.dbc");//19342
+    LoadGameTable(bad_dbc_files, "OCTBaseMPByClass", sGtOCTBaseMPByClassStore, dbcPath, "gtOCTBaseMPByClass.dbc");//19342
 
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)
@@ -1049,159 +1048,6 @@ CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, ui
 uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId)
 {
     return PowersByClass[classId][powerType];
-}
-
-uint32 ScalingStatValuesEntry::GetStatMultiplier(uint32 inventoryType) const
-{
-    if (inventoryType < MAX_INVTYPE)
-    {
-        switch (inventoryType)
-        {
-            case INVTYPE_NON_EQUIP:
-            case INVTYPE_BODY:
-            case INVTYPE_BAG:
-            case INVTYPE_TABARD:
-            case INVTYPE_AMMO:
-            case INVTYPE_QUIVER:
-                return 0;
-            case INVTYPE_HEAD:
-            case INVTYPE_CHEST:
-            case INVTYPE_LEGS:
-            case INVTYPE_2HWEAPON:
-            case INVTYPE_ROBE:
-                return StatMultiplier[0];
-            case INVTYPE_SHOULDERS:
-            case INVTYPE_WAIST:
-            case INVTYPE_FEET:
-            case INVTYPE_HANDS:
-            case INVTYPE_TRINKET:
-                return StatMultiplier[1];
-            case INVTYPE_NECK:
-            case INVTYPE_WRISTS:
-            case INVTYPE_FINGER:
-            case INVTYPE_SHIELD:
-            case INVTYPE_CLOAK:
-            case INVTYPE_HOLDABLE:
-                return StatMultiplier[2];
-            case INVTYPE_RANGED:
-            case INVTYPE_THROWN:
-            case INVTYPE_RANGEDRIGHT:
-            case INVTYPE_RELIC:
-                return StatMultiplier[3];
-            case INVTYPE_WEAPON:
-            case INVTYPE_WEAPONMAINHAND:
-            case INVTYPE_WEAPONOFFHAND:
-                return StatMultiplier[4];
-            default:
-                break;
-        }
-    }
-    return 0;
-}
-
-uint32 ScalingStatValuesEntry::GetArmor(uint32 inventoryType, uint32 armorType) const
-{
-    if (inventoryType <= INVTYPE_ROBE && armorType < 4)
-    {
-        switch (inventoryType)
-        {
-            case INVTYPE_NON_EQUIP:
-            case INVTYPE_NECK:
-            case INVTYPE_BODY:
-            case INVTYPE_FINGER:
-            case INVTYPE_TRINKET:
-            case INVTYPE_WEAPON:
-            case INVTYPE_RANGED:
-            case INVTYPE_2HWEAPON:
-            case INVTYPE_BAG:
-            case INVTYPE_TABARD:
-                break;
-            case INVTYPE_SHOULDERS:
-                return Armor[0][armorType];
-            case INVTYPE_CHEST:
-            case INVTYPE_ROBE:
-                return Armor[1][armorType];
-            case INVTYPE_HEAD:
-                return Armor[2][armorType];
-            case INVTYPE_LEGS:
-                return Armor[3][armorType];
-            case INVTYPE_FEET:
-                return Armor[4][armorType];
-            case INVTYPE_WAIST:
-                return Armor[5][armorType];
-            case INVTYPE_HANDS:
-                return Armor[6][armorType];
-            case INVTYPE_WRISTS:
-                return Armor[7][armorType];
-            case INVTYPE_CLOAK:
-                return ArmorBack;
-            case INVTYPE_SHIELD:
-                return ArmorShield;
-            default:
-                break;
-        }
-    }
-    return 0;
-}
-
-uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const
-{
-    if (!isCasterWeapon)
-    {
-        switch (subClass)
-        {
-            case ITEM_SUBCLASS_WEAPON_AXE:
-            case ITEM_SUBCLASS_WEAPON_MACE:
-            case ITEM_SUBCLASS_WEAPON_SWORD:
-            case ITEM_SUBCLASS_WEAPON_DAGGER:
-            case ITEM_SUBCLASS_WEAPON_THROWN:
-                *damageMultiplier = 0.3f;
-                return DPSMod[0];
-            case ITEM_SUBCLASS_WEAPON_AXE2:
-            case ITEM_SUBCLASS_WEAPON_MACE2:
-            case ITEM_SUBCLASS_WEAPON_POLEARM:
-            case ITEM_SUBCLASS_WEAPON_SWORD2:
-            case ITEM_SUBCLASS_WEAPON_STAFF:
-            case ITEM_SUBCLASS_WEAPON_FISHING_POLE:
-                *damageMultiplier = 0.2f;
-                return DPSMod[1];
-            case ITEM_SUBCLASS_WEAPON_BOW:
-            case ITEM_SUBCLASS_WEAPON_GUN:
-            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                *damageMultiplier = 0.3f;
-                return DPSMod[4];
-            case ITEM_SUBCLASS_WEAPON_Obsolete:
-            case ITEM_SUBCLASS_WEAPON_EXOTIC:
-            case ITEM_SUBCLASS_WEAPON_EXOTIC2:
-            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
-            case ITEM_SUBCLASS_WEAPON_MISCELLANEOUS:
-            case ITEM_SUBCLASS_WEAPON_SPEAR:
-            case ITEM_SUBCLASS_WEAPON_WAND:
-                break;
-        }
-    }
-    else
-    {
-        if (subClass <= ITEM_SUBCLASS_WEAPON_WAND)
-        {
-            uint32 mask = 1 << subClass;
-            // two-handed weapons
-            if (mask & 0x562)
-            {
-                *damageMultiplier = 0.2f;
-                return DPSMod[3];
-            }
-
-            if (mask & (1 << ITEM_SUBCLASS_WEAPON_WAND))
-            {
-                *damageMultiplier = 0.3f;
-                return DPSMod[5];
-            }
-        }
-        *damageMultiplier = 0.3f;
-        return DPSMod[2];
-    }
-    return 0;
 }
 
 /// Returns LFGDungeonEntry for a specific map and difficulty. Will return first found entry if multiple dungeons use the same map (such as Scarlet Monastery)
