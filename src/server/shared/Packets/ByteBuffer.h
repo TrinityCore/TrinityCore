@@ -86,12 +86,21 @@ class ByteBuffer
         }
 
         ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(std::move(buf._storage)) { }
+            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf.Move()) { }
 
         ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
             _bitpos(right._bitpos), _curbitval(right._curbitval), _storage(right._storage) { }
 
         ByteBuffer(MessageBuffer&& buffer);
+
+        std::vector<uint8>&& Move()
+        {
+            _rpos = 0;
+            _wpos = 0;
+            _bitpos = InitialBitPos;
+            _curbitval = 0;
+            return std::move(_storage);
+        }
 
         ByteBuffer& operator=(ByteBuffer const& right)
         {
@@ -107,12 +116,29 @@ class ByteBuffer
             return *this;
         }
 
+        ByteBuffer& operator=(ByteBuffer&& right)
+        {
+            if (this != &right)
+            {
+                _rpos = right._rpos;
+                _wpos = right._wpos;
+                _bitpos = right._bitpos;
+                _curbitval = right._curbitval;
+                _storage = right.Move();
+            }
+
+            return *this;
+        }
+
         virtual ~ByteBuffer() { }
 
         void clear()
         {
+            _rpos = 0;
+            _wpos = 0;
+            _bitpos = InitialBitPos;
+            _curbitval = 0;
             _storage.clear();
-            _rpos = _wpos = 0;
         }
 
         template <typename T> void append(T value)

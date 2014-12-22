@@ -40,18 +40,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
     data << itemInstance.ItemID;
     data << itemInstance.RandomPropertiesSeed;
     data << itemInstance.RandomPropertiesID;
-    
+
     data.WriteBit(itemInstance.ItemBonus.HasValue);
     data.WriteBit(!itemInstance.Modifications.empty());
     data.FlushBits();
-    
+
     if (itemInstance.ItemBonus.HasValue)
         data << itemInstance.ItemBonus.Value;
-    
+
     if (!itemInstance.Modifications.empty())
     {
         data << uint32(itemInstance.Modifications.size() * sizeof(uint32));
-        for (uint32 itemMod : itemInstance.Modifications)
+        for (int32 itemMod : itemInstance.Modifications)
             data << itemMod;
     }
 

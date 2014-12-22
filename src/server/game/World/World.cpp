@@ -2260,38 +2260,38 @@ namespace Trinity
     {
         public:
             typedef std::vector<WorldPacket*> WorldPacketList;
-            explicit WorldWorldTextBuilder(uint32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) { }
-            void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
-            {
-                char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
+            static size_t const BufferSize = 2048;
 
+            explicit WorldWorldTextBuilder(uint32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) { }
+
+            void operator()(WorldPacketList& dataList, LocaleConstant locale)
+            {
+                char const* text = sObjectMgr->GetTrinityString(i_textId, locale);
+
+                char strBuffer[BufferSize];
                 if (i_args)
                 {
                     // we need copy va_list before use or original va_list will corrupted
                     va_list ap;
                     va_copy(ap, *i_args);
-
-                    char str[2048];
-                    vsnprintf(str, 2048, text, ap);
+                    vsnprintf(strBuffer, BufferSize, text, ap);
                     va_end(ap);
-
-                    do_helper(data_list, &str[0]);
                 }
                 else
-                    do_helper(data_list, (char*)text);
+                    std::strcpy(strBuffer, text);
+
+                do_helper(dataList, strBuffer);
             }
+
         private:
-            char* lineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = NULL; return start; }
-            void do_helper(WorldPacketList& data_list, char* text)
+            void do_helper(WorldPacketList& dataList, char* text)
             {
-                char* pos = text;
-                while (char* line = lineFromMessage(pos))
+                while (char* line = ChatHandler::LineFromMessage(text))
                 {
-                    WorldPacket* data = new WorldPacket();
                     WorldPackets::Chat::Chat packet;
-                    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
-                    *data = *packet.Write();
-                    data_list.push_back(data);
+                    packet.Initalize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+                    packet.Write();
+                    dataList.emplace_back(new WorldPacket(packet.Move()));
                 }
             }
 
@@ -2355,7 +2355,7 @@ void World::SendGlobalText(const char* text, WorldSession* self)
     while (char* line = ChatHandler::LineFromMessage(pos))
     {
         WorldPackets::Chat::Chat packet;
-        ChatHandler::BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+        packet.Initalize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         SendGlobalMessage(packet.Write(), self);
     }
 
@@ -2389,7 +2389,7 @@ bool World::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession
 void World::SendZoneText(uint32 zone, const char* text, WorldSession* self, uint32 team)
 {
     WorldPackets::Chat::Chat packet;
-    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, text);
+    packet.Initalize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, text);
     SendZoneMessage(zone, packet.Write(), self, team);
 }
 

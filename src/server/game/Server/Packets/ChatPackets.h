@@ -134,10 +134,11 @@ namespace WorldPackets
         public:
             Chat() : ServerPacket(SMSG_MESSAGECHAT, 100) { }
 
+            void Initalize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0, std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
             WorldPacket const* Write() override;
 
-            uint8 SlashCmd = 0;
-            uint8 Language = LANG_UNIVERSAL;
+            uint8 SlashCmd = 0;     ///< @see enum ChatMsg
+            uint8 _Language = LANG_UNIVERSAL;
             ObjectGuid SenderGUID;
             ObjectGuid SenderGuildGUID;
             ObjectGuid SenderAccountGUID;
@@ -147,11 +148,11 @@ namespace WorldPackets
             uint32 TargetVirtualAddress = 0;
             std::string SenderName;
             std::string TargetName;
-            std::string Prefix;
-            std::string Channel;
+            std::string Prefix;     ///< Addon Prefix
+            std::string _Channel;   ///< Channel Name
             std::string ChatText;
             uint32 AchievementID = 0;
-            uint8 ChatFlags = 0;
+            uint8 _ChatFlags = 0;   ///< @see enum ChatFlags
             float DisplayTime = 0.0f;
             bool HideChatLog = false;
             bool FakeSenderName = false;

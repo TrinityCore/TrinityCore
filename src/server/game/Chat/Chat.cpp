@@ -212,7 +212,7 @@ void ChatHandler::SendSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+        packet.Initalize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         m_session->SendPacket(packet.Write());
     }
 
@@ -230,7 +230,7 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+        packet.Initalize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         sWorld->SendGlobalMessage(packet.Write());
     }
 
@@ -248,7 +248,7 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+        packet.Initalize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         sWorld->SendGlobalGMMessage(packet.Write());
     }
 
@@ -628,58 +628,6 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
     }
 
     return ShowHelpForSubCommands(table, "", cmd);
-}
-
-void ChatHandler::BuildChatPacket(WorldPackets::Chat::Chat* packet, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message,
-                                  uint32 achievementId /*= 0*/, std::string const& channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string const& addonPrefix /*= ""*/)
-{
-    // Clear everything because same packet can be used multiple times
-    packet->Reset();
-    packet->SenderGUID.Clear();
-    packet->SenderAccountGUID.Clear();
-    packet->SenderGuildGUID.Clear();
-    packet->PartyGUID.Clear();
-    packet->TargetGUID.Clear();
-    packet->SenderName.clear();
-    packet->TargetName.clear();
-    packet->ChatFlags = CHAT_FLAG_NONE;
-    
-    packet->SlashCmd = chatType;
-    packet->Language = language;
-
-    if (sender)
-    {
-        packet->SenderGUID = sender->GetGUID();
-
-        if (Creature const* creatureSender = sender->ToCreature())
-            packet->SenderName = creatureSender->GetNameForLocaleIdx(locale);
-
-        if (Player const* playerSender = sender->ToPlayer())
-        {
-            packet->SenderAccountGUID = playerSender->GetSession()->GetAccountGUID();
-            packet->ChatFlags = playerSender->GetChatFlags();
-
-            if (Guild const* guild = playerSender->GetGuild())
-                packet->SenderGuildGUID = guild->GetGUID();
-
-            if (Group const* group = playerSender->GetGroup())
-                packet->PartyGUID = group->GetGUID();
-        }
-    }
-
-    if (receiver)
-    {
-        packet->TargetGUID = receiver->GetGUID();
-        if (Creature const* creatureReceiver = receiver->ToCreature())
-            packet->TargetName = creatureReceiver->GetNameForLocaleIdx(locale);
-    }
-
-    packet->SenderVirtualAddress = GetVirtualRealmAddress();
-    packet->TargetVirtualAddress = GetVirtualRealmAddress();
-    packet->AchievementID = achievementId;
-    packet->Channel = channelName;
-    packet->Prefix = addonPrefix;
-    packet->ChatText = message;
 }
 
 Player* ChatHandler::getSelectedPlayer()
