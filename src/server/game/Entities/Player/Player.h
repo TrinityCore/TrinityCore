@@ -2107,7 +2107,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
         void SendMessageToSet(WorldPacket const* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet
-        void SendMessageToSetInRange(WorldPacket const* data, float fist, bool self) override;// overwrite Object::SendMessageToSetInRange
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) override; // overwrite Object::SendMessageToSetInRange
         void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only);
         void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) override;
 

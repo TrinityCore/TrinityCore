@@ -54,6 +54,18 @@ class WorldPacket : public ByteBuffer
             return *this;
         }
 
+        WorldPacket& operator=(WorldPacket&& right)
+        {
+            if (this != &right)
+            {
+                m_opcode = right.m_opcode;
+                _connection = right._connection;
+                ByteBuffer::operator=(std::move(right));
+            }
+
+            return *this;
+        }
+
         WorldPacket(uint32 opcode, MessageBuffer&& buffer, ConnectionType connection) : ByteBuffer(std::move(buffer)), m_opcode(opcode), _connection(connection) { }
 
         void Initialize(uint32 opcode, size_t newres = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT)

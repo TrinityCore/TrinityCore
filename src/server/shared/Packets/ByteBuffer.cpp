@@ -26,8 +26,7 @@ ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(Ini
 {
 }
 
-ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos,
-                                                         size_t size, size_t valueSize)
+ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize)
 {
     std::ostringstream ss;
 
@@ -38,8 +37,7 @@ ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos,
     message().assign(ss.str());
 }
 
-ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
-                                                     size_t valueSize)
+ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size, size_t valueSize)
 {
     std::ostringstream ss;
 

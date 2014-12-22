@@ -16,6 +16,9 @@
  */
 
 #include "ChatPackets.h"
+#include "Group.h"
+#include "Player.h"
+#include "World.h"
 
 void WorldPackets::Chat::ChatMessage::Read()
 {
@@ -38,7 +41,6 @@ void WorldPackets::Chat::ChatMessageChannel::Read()
     _worldPacket >> Language;
     uint32 targetLen = _worldPacket.ReadBits(9);
     uint32 textLen = _worldPacket.ReadBits(8);
-    _worldPacket.ResetBitPos();
     Target = _worldPacket.ReadString(targetLen);
     Text = _worldPacket.ReadString(textLen);
 }
@@ -79,10 +81,62 @@ void WorldPackets::Chat::ChatMessageEmote::Read()
     Text = _worldPacket.ReadString(len);
 }
 
+void WorldPackets::Chat::Chat::Initalize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message,
+    uint32 achievementId /*= 0*/, std::string channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string addonPrefix /*= ""*/)
+{
+    // Clear everything because same packet can be used multiple times
+    Clear();
+
+    SenderGUID.Clear();
+    SenderAccountGUID.Clear();
+    SenderGuildGUID.Clear();
+    PartyGUID.Clear();
+    TargetGUID.Clear();
+    SenderName.clear();
+    TargetName.clear();
+    _ChatFlags = CHAT_FLAG_NONE;
+
+    SlashCmd = chatType;
+    _Language = language;
+
+    if (sender)
+    {
+        SenderGUID = sender->GetGUID();
+
+        if (Creature const* creatureSender = sender->ToCreature())
+            SenderName = creatureSender->GetNameForLocaleIdx(locale);
+
+        if (Player const* playerSender = sender->ToPlayer())
+        {
+            SenderAccountGUID = playerSender->GetSession()->GetAccountGUID();
+            _ChatFlags = playerSender->GetChatFlags();
+
+            SenderGuildGUID = ObjectGuid::Create<HighGuid::Guild>(playerSender->GetGuildId());
+
+            if (Group const* group = playerSender->GetGroup())
+                PartyGUID = group->GetGUID();
+        }
+    }
+
+    if (receiver)
+    {
+        TargetGUID = receiver->GetGUID();
+        if (Creature const* creatureReceiver = receiver->ToCreature())
+            TargetName = creatureReceiver->GetNameForLocaleIdx(locale);
+    }
+
+    SenderVirtualAddress = GetVirtualRealmAddress();
+    TargetVirtualAddress = GetVirtualRealmAddress();
+    AchievementID = achievementId;
+    _Channel = std::move(channelName);
+    Prefix = std::move(addonPrefix);
+    ChatText = std::move(message);
+}
+
 WorldPacket const* WorldPackets::Chat::Chat::Write()
 {
     _worldPacket << SlashCmd;
-    _worldPacket << Language;
+    _worldPacket << _Language;
     _worldPacket << SenderGUID;
     _worldPacket << SenderGuildGUID;
     _worldPacket << SenderAccountGUID;
@@ -95,15 +149,15 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteBits(SenderName.length(), 11);
     _worldPacket.WriteBits(TargetName.length(), 11);
     _worldPacket.WriteBits(Prefix.length(), 5);
-    _worldPacket.WriteBits(Channel.length(), 7);
+    _worldPacket.WriteBits(_Channel.length(), 7);
     _worldPacket.WriteBits(ChatText.length(), 12);
-    _worldPacket.WriteBits(ChatFlags, 10);
+    _worldPacket.WriteBits(_ChatFlags, 10);
     _worldPacket.WriteBit(HideChatLog);
     _worldPacket.WriteBit(FakeSenderName);
     _worldPacket.WriteString(SenderName);
     _worldPacket.WriteString(TargetName);
     _worldPacket.WriteString(Prefix);
-    _worldPacket.WriteString(Channel);
+    _worldPacket.WriteString(_Channel);
     _worldPacket.WriteString(ChatText);
 
     return &_worldPacket;
@@ -113,7 +167,7 @@ WorldPacket const* WorldPackets::Chat::Emote::Write()
 {
     _worldPacket << Guid;
     _worldPacket << EmoteID;
-    
+
     return &_worldPacket;
 }
 
@@ -131,6 +185,6 @@ WorldPacket const* WorldPackets::Chat::STextEmote::Write()
     _worldPacket << EmoteID;
     _worldPacket << SoundIndex;
     _worldPacket << TargetGUID;
-    
+
     return &_worldPacket;
 }
