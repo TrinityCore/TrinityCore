@@ -289,7 +289,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     return iter->duration;
 }
 
-float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
+float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType)
 {
     float dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY);
     switch (msgType)
@@ -308,7 +308,7 @@ float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
     return dist;
 }
 
-void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly)
+void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget /*= nullptr*/, CreatureTextRange range /*= TEXT_RANGE_NORMAL*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/)
 {
     if (!sound || !source)
         return;
@@ -316,7 +316,7 @@ void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType,
     SendNonChatPacket(source, WorldPackets::Misc::PlaySound(sound).Write(), msgType, whisperTarget, range, team, gmOnly);
 }
 
-void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly) const
+void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly)
 {
     switch (msgType)
     {
@@ -403,7 +403,7 @@ void CreatureTextMgr::SendEmote(Unit* source, Emote emote)
     source->HandleEmoteCommand(emote);
 }
 
-bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup)
+bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup) const
 {
     if (!sourceEntry)
         return false;
