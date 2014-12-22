@@ -1828,7 +1828,7 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
                 if (ItemStatType[statIndex] == values[0])
                     break;
 
-            if (statIndex < MAX_ITEM_PROTO_SOCKETS)
+            if (statIndex < MAX_ITEM_PROTO_STATS)
                 ItemStatAllocation[statIndex] += values[1];
             break;
         }
