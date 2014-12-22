@@ -22,6 +22,8 @@
 #include "SharedDefines.h"
 #include "ObjectGuid.h"
 
+class WorldObject;
+
 namespace WorldPackets
 {
     namespace Chat

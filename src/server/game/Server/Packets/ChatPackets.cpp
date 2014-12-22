@@ -19,6 +19,7 @@
 #include "Group.h"
 #include "Player.h"
 #include "World.h"
+#include "Creature.h"
 
 void WorldPackets::Chat::ChatMessage::Read()
 {
