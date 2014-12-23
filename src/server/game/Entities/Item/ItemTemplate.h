@@ -608,7 +608,7 @@ struct ItemTemplate
     int32 GetAllowableClass() const { return ExtendedData->AllowableClass; }
     int32 GetAllowableRace() const { return ExtendedData->AllowableRace; }
     uint32 GetBaseItemLevel() const { return ExtendedData->ItemLevel; }
-    int32 GetRequiredLevel() const { return ExtendedData->RequiredLevel; }
+    int32 GetBaseRequiredLevel() const { return ExtendedData->RequiredLevel; }
     uint32 GetRequiredSkill() const { return ExtendedData->RequiredSkill; }
     uint32 GetRequiredSkillRank() const { return ExtendedData->RequiredSkillRank; }
     uint32 GetRequiredSpell() const { return ExtendedData->RequiredSpell; }
@@ -699,8 +699,6 @@ struct ItemTemplate
     }
 
     char const* GetDefaultLocaleName() const;
-    uint32 GetItemLevel(std::vector<uint32> const& bonusListIDs) const;
-    uint32 GetDisplayId(std::vector<uint32> const& bonusListIDs) const;
     uint32 GetArmor(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
 };

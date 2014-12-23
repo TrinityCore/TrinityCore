@@ -19,6 +19,7 @@
 #define ItemPackets_h__
 
 #include "Packet.h"
+#include "Item.h"
 
 namespace WorldPackets
 {

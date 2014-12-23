@@ -6958,7 +6958,6 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
                 return *repRank;
     }
 
-
     if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
     {
         if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
@@ -6989,8 +6988,6 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
             {
                 if (FactionTemplateEntry const* targetFactionTemplateEntry = target->GetFactionTemplateEntry())
                 {
-                    if (ReputationRank const* repRank = selfPlayerOwner->GetReputationMgr().GetForcedRankIfAny(targetFactionTemplateEntry))
-                        return *repRank;
                     if (!selfPlayerOwner->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_IGNORE_REPUTATION))
                     {
                         if (FactionEntry const* targetFactionEntry = sFactionStore.LookupEntry(targetFactionTemplateEntry->Faction))
@@ -16459,7 +16456,7 @@ void Unit::Whisper(std::string const& text, Language language, Player* target, b
 
     LocaleConstant locale = target->GetSession()->GetSessionDbLocaleIndex();
     WorldPackets::Chat::Chat packet;
-    ChatHandler::BuildChatPacket(&packet, isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, language, this, target, text, 0, "", locale);
+    packet.Initalize(isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, language, this, target, text, 0, "", locale);
     target->SendDirectMessage(packet.Write());
 }
 
@@ -16506,6 +16503,6 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
 
     LocaleConstant locale = target->GetSession()->GetSessionDbLocaleIndex();
     WorldPackets::Chat::Chat packet;
-    ChatHandler::BuildChatPacket(&packet, isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, bct->GetText(locale, getGender()), 0, "", locale);
+    packet.Initalize(isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, bct->GetText(locale, getGender()), 0, "", locale);
     target->SendDirectMessage(packet.Write());
 }

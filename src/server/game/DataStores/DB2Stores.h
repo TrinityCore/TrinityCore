@@ -25,7 +25,6 @@
 
 extern DB2Storage<HolidaysEntry>                sHolidaysStore;
 extern DB2Storage<ItemEntry>                    sItemStore;
-extern DB2Storage<ItemAppearanceEntry>          sItemAppearanceStore;
 extern DB2Storage<ItemCurrencyCostEntry>        sItemCurrencyCostStore;
 extern DB2Storage<ItemExtendedCostEntry>        sItemExtendedCostStore;
 extern DB2Storage<ItemEffectEntry>              sItemEffectStore;
@@ -57,6 +56,9 @@ void LoadDB2Stores(std::string const& dataPath);
 
 DB2StorageBase const* GetDB2Storage(uint32 type);
 
+uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
+uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId);
+std::vector<ItemBonusEntry const*> GetItemBonuses(uint32 bonusListId);
 std::set<uint32> const& GetPhasesForGroup(uint32 group);
 
 #endif

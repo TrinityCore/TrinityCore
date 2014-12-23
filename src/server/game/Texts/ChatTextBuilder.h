@@ -34,8 +34,9 @@ namespace Trinity
             {
                 BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
                 WorldPackets::Chat::Chat packet;
-                ChatHandler::BuildChatPacket(&packet, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _source->getGender()) : "", _achievementId, "", locale);
-                data = *packet.Write();
+                packet.Initalize(_msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _source->getGender()) : "", _achievementId, "", locale);
+                packet.Write();
+                data = packet.Move();
             }
 
         private:
@@ -55,8 +56,9 @@ namespace Trinity
             void operator()(WorldPacket& data, LocaleConstant locale)
             {
                 WorldPackets::Chat::Chat packet;
-                ChatHandler::BuildChatPacket(&packet, _msgType, _language, _source, _target, _text, 0, "", locale);
-                data = *packet.Write();
+                packet.Initalize(_msgType, _language, _source, _target, _text, 0, "", locale);
+                packet.Write();
+                data = packet.Move();
             }
 
         private:

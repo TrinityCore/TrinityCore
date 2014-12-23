@@ -54,8 +54,6 @@ class ChatHandler
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
-        static void BuildChatPacket(WorldPackets::Chat::Chat* packet, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message, uint32 achievementId = 0, std::string const& channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string const& addonPrefix = "");
-
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = NULL; return start; }
 
         // function with different implementation for chat/console

@@ -70,7 +70,7 @@ enum SkillFieldOffset
     SKILL_PERM_BONUS_OFFSET = SKILL_TEMP_BONUS_OFFSET + 64
 };
 
-#define PLAYER_EXPLORED_ZONES_SIZE  156
+#define PLAYER_EXPLORED_ZONES_SIZE  189
 
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType
@@ -2107,7 +2107,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
         void SendMessageToSet(WorldPacket const* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet
-        void SendMessageToSetInRange(WorldPacket const* data, float fist, bool self) override;// overwrite Object::SendMessageToSetInRange
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) override; // overwrite Object::SendMessageToSetInRange
         void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only);
         void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) override;
 
@@ -2242,8 +2242,8 @@ class Player : public Unit, public GridObject<Player>
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
-        void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, bool only_level_scale = false);
-        void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingStatValuesEntry const* ssv, bool apply);
+        void _ApplyItemBonuses(Item* item, uint8 slot, bool apply);
+        void _ApplyWeaponDamage(uint8 slot, Item* item, bool apply);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
         void CorrectMetaGemEnchants(uint8 slot, bool apply);

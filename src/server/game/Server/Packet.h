@@ -25,10 +25,7 @@ namespace WorldPackets
     class Packet
     {
     public:
-        Packet(WorldPacket&& worldPacket) : _worldPacket(std::move(worldPacket))
-        {
-            _connectionIndex = _worldPacket.GetConnection();
-        }
+        Packet(WorldPacket&& worldPacket) : _worldPacket(std::move(worldPacket)) { }
 
         virtual ~Packet() = default;
 
@@ -39,11 +36,10 @@ namespace WorldPackets
         virtual void Read() = 0;
 
         size_t GetSize() const { return _worldPacket.size(); }
-        ConnectionType GetConnection() const { return _connectionIndex; }
+        ConnectionType GetConnection() const { return _worldPacket.GetConnection(); }
 
     protected:
         WorldPacket _worldPacket;
-        ConnectionType _connectionIndex;
     };
 
     class ServerPacket : public Packet
@@ -53,7 +49,8 @@ namespace WorldPackets
 
         void Read() override final { ASSERT(!"Read not implemented for server packets."); }
 
-        void Reset() { _worldPacket.clear(); }
+        void Clear() { _worldPacket.clear(); }
+        WorldPacket&& Move() { return std::move(_worldPacket); }
 
         OpcodeServer GetOpcode() const { return OpcodeServer(_worldPacket.GetOpcode()); }
     };

@@ -291,8 +291,8 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType item_guid = fields[11].GetUInt64();
-        uint32 itemEntry    = fields[12].GetUInt32();
+        ObjectGuid::LowType item_guid = fields[15].GetUInt64();
+        uint32 itemEntry    = fields[16].GetUInt32();
 
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
         if (!proto)
@@ -563,7 +563,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         if (quality != 0xffffffff && proto->GetQuality() != quality)
             continue;
 
-        if (levelmin != 0 && (proto->GetRequiredLevel() < levelmin || (levelmax != 0 && proto->GetRequiredLevel() > levelmax)))
+        if (levelmin != 0 && (proto->GetBaseRequiredLevel() < levelmin || (levelmax != 0 && proto->GetBaseRequiredLevel() > levelmax)))
             continue;
 
         if (usable != 0 && player->CanUseItem(item) != EQUIP_ERR_OK)
