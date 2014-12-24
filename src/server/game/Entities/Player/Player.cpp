@@ -17547,7 +17547,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid bagGuid = fields[14].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[15].GetUInt64()) : ObjectGuid::Empty;
+                ObjectGuid bagGuid = fields[15].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[15].GetUInt64()) : ObjectGuid::Empty;
                 uint8  slot     = fields[16].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
