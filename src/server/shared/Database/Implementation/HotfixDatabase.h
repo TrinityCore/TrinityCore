@@ -42,6 +42,7 @@ enum HotfixDatabaseStatements
         name for a suiting suffix.
     */
 
+    HOTFIX_SEL_TAXI_PATH_NODE,
     MAX_HOTFIXDATABASE_STATEMENTS
 };
 

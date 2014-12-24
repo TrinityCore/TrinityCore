@@ -18,7 +18,7 @@
 #ifndef DB2STORE_H
 #define DB2STORE_H
 
-#include "DB2FileLoader.h"
+#include "DB2StorageLoader.h"
 #include "Common.h"
 #include "ByteBuffer.h"
 #include <vector>
@@ -101,12 +101,11 @@ template<class T>
 class DB2Storage : public DB2StorageBase
 {
     typedef std::list<char*> StringPoolList;
-    typedef std::vector<T*> DataTableEx;
     typedef bool(*EntryChecker)(DB2Storage<T> const&, uint32);
     typedef void(*PacketWriter)(DB2Storage<T> const&, uint32, uint32, ByteBuffer&);
 public:
-    DB2Storage(char const* f, EntryChecker checkEntry = NULL, PacketWriter writePacket = NULL) :
-        nCount(0), fieldCount(0), fmt(f), m_dataTable(NULL)
+    DB2Storage(char const* f, int32 preparedStmtIndex = -1, EntryChecker checkEntry = nullptr, PacketWriter writePacket = nullptr)
+        : nCount(0), fieldCount(0), fmt(f), m_dataTable(nullptr), m_dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex)
     {
         indexTable.asT = NULL;
         CheckEntry = checkEntry ? checkEntry : (EntryChecker)&DB2StorageHasEntry<T>;
@@ -125,30 +124,6 @@ public:
         WritePacket(*this, id, locale, buffer);
     }
 
-    T* CreateEntry(uint32 id, bool evenIfExists = false)
-    {
-        if (evenIfExists && LookupEntry(id))
-            return NULL;
-
-        if (id >= nCount)
-        {
-            // reallocate index table
-            char** tmpIdxTable = new char*[id + 1];
-            memset(tmpIdxTable, 0, (id + 1) * sizeof(char*));
-            memcpy(tmpIdxTable, indexTable.asChar, nCount * sizeof(char*));
-            delete[] reinterpret_cast<char*>(indexTable.asT);
-            nCount = id + 1;
-            indexTable.asChar = tmpIdxTable;
-        }
-
-        T* entryDst = new T;
-        m_dataTableEx.push_back(entryDst);
-        indexTable.asT[id] = entryDst;
-        return entryDst;
-    }
-
-    void EraseEntry(uint32 id) { indexTable.asT[id] = NULL; }
-
     bool Load(char const* fn, uint32 locale)
     {
         DB2FileLoader db2;
@@ -163,10 +138,13 @@ public:
         m_dataTable = reinterpret_cast<T*>(db2.AutoProduceData(fmt, nCount, indexTable.asChar));
 
         // create string holders for loaded string fields
-        m_stringPoolList.push_back(db2.AutoProduceStringsArrayHolders(fmt, (char*)m_dataTable));
+        if (char* stringHolders = db2.AutoProduceStringsArrayHolders(fmt, (char*)m_dataTable))
+        {
+            m_stringPoolList.push_back(stringHolders);
 
-        // load strings from dbc data
-        m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
+            // load strings from dbc data
+            m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
+        }
 
         // error in dbc file at loading if NULL
         return indexTable.asT != NULL;
@@ -184,9 +162,24 @@ public:
             return false;
 
         // load strings from another locale dbc data
-        m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
+        if (DB2FileLoader::GetFormatStringsFields(fmt))
+            m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
 
         return true;
+    }
+
+    void LoadSQLData()
+    {
+        if (_hotfixStatement == -1)
+            return;
+
+        DB2DatabaseLoader db2;
+        char* extraStringHolders = nullptr;
+        if (char* dataTable = db2.Load(fmt, _hotfixStatement, nCount, indexTable.asChar, extraStringHolders, m_stringPoolList))
+        {
+            m_dataTableEx = reinterpret_cast<T*>(dataTable);
+            m_stringPoolList.push_back(extraStringHolders);
+        }
     }
 
     void Clear()
@@ -195,14 +188,13 @@ public:
             return;
 
         delete[] reinterpret_cast<char*>(indexTable.asT);
-        indexTable.asT = NULL;
+        indexTable.asT = nullptr;
 
         delete[] reinterpret_cast<char*>(m_dataTable);
-        m_dataTable = NULL;
+        m_dataTable = nullptr;
 
-        for (typename DataTableEx::iterator itr = m_dataTableEx.begin(); itr != m_dataTableEx.end(); ++itr)
-            delete *itr;
-        m_dataTableEx.clear();
+        delete[] reinterpret_cast<char*>(m_dataTableEx);
+        m_dataTableEx = nullptr;
 
         while (!m_stringPoolList.empty())
         {
@@ -226,8 +218,9 @@ private:
         char** asChar;
     } indexTable;
     T* m_dataTable;
-    DataTableEx m_dataTableEx;
+    T* m_dataTableEx;
     StringPoolList m_stringPoolList;
+    int32 _hotfixStatement;
 };
 
 #endif

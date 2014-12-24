@@ -1354,9 +1354,6 @@ class ObjectMgr
             return ret ? ret : time(NULL);
         }
 
-        void LoadMissingKeyChains();
-
-
         void LoadRaceAndClassExpansionRequirements();
         void LoadRealmNames();
 
