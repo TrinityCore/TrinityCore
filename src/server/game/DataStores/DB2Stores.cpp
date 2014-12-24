@@ -50,7 +50,7 @@ DB2Storage<SpellRuneCostEntry>              sSpellRuneCostStore(SpellRuneCostEnt
 DB2Storage<SpellTotemsEntry>                sSpellTotemsStore(SpellTotemsEntryfmt);
 DB2Storage<TaxiNodesEntry>                  sTaxiNodesStore(TaxiNodesEntryfmt);
 DB2Storage<TaxiPathEntry>                   sTaxiPathStore(TaxiPathEntryfmt);
-DB2Storage<TaxiPathNodeEntry>               sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
+DB2Storage<TaxiPathNodeEntry>               sTaxiPathNodeStore(TaxiPathNodeEntryfmt, HOTFIX_SEL_TAXI_PATH_NODE);
 TaxiMask                                    sTaxiNodesMask;
 TaxiMask                                    sOldContinentsNodesMask;
 TaxiMask                                    sHordeTaxiNodesMask;
@@ -86,6 +86,8 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     std::string db2_filename = db2_path + filename;
     if (storage.Load(db2_filename.c_str(), uint32(sWorld->GetDefaultDbcLocale())))
     {
+        storage.LoadSQLData();
+
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
             if (!(availableDb2Locales & (1 << i)))

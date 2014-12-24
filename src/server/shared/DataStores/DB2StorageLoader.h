@@ -104,4 +104,11 @@ private:
     int unk5;            // WDB2
 };
 
+class DB2DatabaseLoader
+{
+public:
+
+    char* Load(const char* format, int32 preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool);
+};
+
 #endif

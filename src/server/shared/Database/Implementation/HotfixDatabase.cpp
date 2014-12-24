@@ -21,4 +21,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 {
     if (!m_reconnecting)
         m_stmts.resize(MAX_HOTFIXDATABASE_STATEMENTS);
+
+    PrepareStatement(HOTFIX_SEL_TAXI_PATH_NODE, "SELECT * FROM taxi_path_node", CONNECTION_SYNCH);
 }
