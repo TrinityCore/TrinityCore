@@ -1738,12 +1738,17 @@ void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
 
 uint32 Item::GetItemLevel() const
 {
-    if (Player const* owner = GetOwner())
-        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetTemplate()->GetScalingStatDistribution()))
-            if (uint32 heirloomIlvl = GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
-                return heirloomIlvl + _bonusData.ItemLevel;
+    ItemTemplate const* stats = GetTemplate();
+    if (!stats)
+        return MIN_ITEM_LEVEL;
 
-    return GetTemplate()->GetBaseItemLevel() + _bonusData.ItemLevel;
+    uint32 itemLevel = stats->GetBaseItemLevel();
+    if (Player const* owner = GetOwner())
+        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(stats->GetScalingStatDistribution()))
+            if (uint32 heirloomIlvl = GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
+                itemLevel = heirloomIlvl;
+
+    return std::min(std::max(itemLevel + _bonusData.ItemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }
 
 int32 Item::GetItemStatValue(uint32 index) const

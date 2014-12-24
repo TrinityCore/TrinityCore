@@ -587,6 +587,9 @@ struct ItemEffect
 
 #pragma pack(pop)
 
+#define MIN_ITEM_LEVEL 1
+#define MAX_ITEM_LEVEL 1000
+
 struct ItemTemplate
 {
     ItemEntry const* BasicData;
