@@ -5558,7 +5558,7 @@ float Player::GetRatingMultiplier(CombatRating cr) const
     GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.EvaluateTable(level - 1, cr);
     // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
     GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.EvaluateTable(cr + 1, getClass() - 1);
-    if (!Rating || !classRating)
+    if (!Rating || !classRating || !Rating->ratio)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
     return classRating->ratio / Rating->ratio;
@@ -8039,7 +8039,7 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
     }
 
     float minDamage, maxDamage;
-    proto->GetBaseDamage(minDamage, maxDamage);
+    item->GetDamage(minDamage, maxDamage);
 
     if (minDamage > 0)
     {
