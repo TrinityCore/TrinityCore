@@ -1100,14 +1100,9 @@ class spell_q9452_cast_net: public SpellScriptLoader
             
             SpellCastResult CheckCast()
             {
-                std::list<GameObject*> goList;
-                GetCaster()->GetGameObjectListWithEntryInGrid(goList, GO_SCHOOL_OF_RED_SNAPPER, 3.0f);
-                if (goList.empty())
+                GameObject* go = GetCaster()->FindNearestGameObject(GO_SCHOOL_OF_RED_SNAPPER, 3.0f);
+                if (!go || go->GetRespawnTime())
                     return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
-                    
-                for (std::list<GameObject*>::const_iterator itr = goList.begin(); itr != goList.end(); ++itr)
-                    if (!(*itr) || (*itr)->GetRespawnTime())
-                        return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
                         
                 return SPELL_CAST_OK;
             }
