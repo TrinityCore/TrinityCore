@@ -31,7 +31,9 @@ enum Spells
 
     SPELL_FIRE_MAGUS_VISUAL                       = 47705,
     SPELL_FROST_MAGUS_VISUAL                      = 47706,
-    SPELL_ARCANE_MAGUS_VISUAL                     = 47704
+    SPELL_ARCANE_MAGUS_VISUAL                     = 47704,
+
+    SPELL_WEAR_CHRISTMAS_HAT                      = 61400
 };
 
 enum Creatures
@@ -53,7 +55,9 @@ enum Yells
 enum Misc
 {
     ACTION_MAGUS_DEAD                             = 1,
-    DATA_SPLIT_PERSONALITY                        = 2
+    DATA_SPLIT_PERSONALITY                        = 2,
+
+    GAME_EVENT_WINTER_VEIL                        = 2,
 };
 
 const Position  CenterOfRoom = {504.80f, 89.07f, -16.12f, 6.27f};
@@ -129,6 +133,9 @@ public:
             me->SetVisible(true);
 
             instance->SetBossState(DATA_MAGUS_TELESTRA, NOT_STARTED);
+
+            if (IsHeroic() && sGameEventMgr->IsActiveEvent(GAME_EVENT_WINTER_VEIL) && !me->HasAura(SPELL_WEAR_CHRISTMAS_HAT))
+                me->AddAura(SPELL_WEAR_CHRISTMAS_HAT, me);
         }
 
         void EnterCombat(Unit* /*who*/) override
