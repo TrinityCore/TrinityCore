@@ -162,7 +162,7 @@ public:
             return false;
 
         // load strings from another locale dbc data
-        if (DB2FileLoader::GetFormatStringsFields(fmt))
+        if (DB2FileLoader::GetFormatStringFieldCount(fmt))
             m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
 
         return true;
@@ -178,7 +178,8 @@ public:
         if (char* dataTable = db2.Load(fmt, _hotfixStatement, nCount, indexTable.asChar, extraStringHolders, m_stringPoolList))
         {
             m_dataTableEx = reinterpret_cast<T*>(dataTable);
-            m_stringPoolList.push_back(extraStringHolders);
+            if (extraStringHolders)
+                m_stringPoolList.push_back(extraStringHolders);
         }
     }
 

@@ -82,7 +82,7 @@ class DB2FileLoader
     char* AutoProduceStringsArrayHolders(const char* fmt, char* dataTable);
     char* AutoProduceStrings(const char* fmt, char* dataTable, uint32 locale);
     static uint32 GetFormatRecordSize(const char * format, int32 * index_pos = NULL);
-    static uint32 GetFormatStringsFields(const char * format);
+    static uint32 GetFormatStringFieldCount(const char * format);
 private:
 
     uint32 recordSize;
@@ -109,6 +109,7 @@ class DB2DatabaseLoader
 public:
 
     char* Load(const char* format, int32 preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool);
+    static char* AddLocaleString(LocalizedString* holder, uint32 locale, std::string const& value);
 };
 
 #endif
