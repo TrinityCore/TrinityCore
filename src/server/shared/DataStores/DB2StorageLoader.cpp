@@ -222,10 +222,10 @@ uint32 DB2FileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
     return recordsize;
 }
 
-uint32 DB2FileLoader::GetFormatStringsFields(const char * format)
+uint32 DB2FileLoader::GetFormatStringFieldCount(char const* format)
 {
     uint32 stringfields = 0;
-    for (uint32 x=0; format[x]; ++x)
+    for (uint32 x = 0; format[x]; ++x)
         if (format[x] == FT_STRING)
             ++stringfields;
 
@@ -311,7 +311,7 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
         return nullptr;
 
     // we store flat holders pool as single memory block
-    size_t stringFields = GetFormatStringsFields(format);
+    size_t stringFields = GetFormatStringFieldCount(format);
     if (!stringFields)
         return nullptr;
 
@@ -414,19 +414,24 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uin
 
 char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool)
 {
+    // Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
     PreparedQueryResult result = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(preparedStatement));
     if (!result)
         return nullptr;
 
-    if (strlen(format) + 1 /*VerifiedBuild*/ != result->GetFieldCount())
+    // we store flat holders pool as single memory block
+    size_t stringFields = DB2FileLoader::GetFormatStringFieldCount(format);
+
+    size_t expectedFields = strlen(format) + 1 /*VerifiedBuild*/;
+    if (stringFields)
+        expectedFields += 1 /*ID*/ + stringFields * (TOTAL_LOCALES - 1) + 1 /*VerifiedBuild in locale table*/;
+
+    if (expectedFields != result->GetFieldCount())
         return nullptr;
 
     //get struct size and index pos
     int32 indexField;
     uint32 recordSize = DB2FileLoader::GetFormatRecordSize(format, &indexField);
-
-    // we store flat holders pool as single memory block
-    size_t stringFields = DB2FileLoader::GetFormatStringsFields(format);
 
     // each string field at load have array of string for each locale
     size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
@@ -443,12 +448,14 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
     char* dataTable = new char[result->GetRowCount() * recordSize];
     uint32 offset = 0;
 
+    uint32 const fieldCount = strlen(format);
+    uint32 const localeFieldsOffset = fieldCount + 2 /*VerifiedBuild in main table, ID in locale table*/;
     uint32 oldIndexSize = records;
     uint32 rec = 0;
     do
     {
         Field* fields = result->Fetch();
-        uint32 stringFieldNum = 0;
+        uint32 stringFieldNumInRecord = 0;
 
         if (indexField >= 0)
         {
@@ -460,7 +467,7 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
         else
             tempIndexTable[records++] = &dataTable[offset];
 
-        for (uint32 x = 0; x < result->GetFieldCount(); x++)
+        for (uint32 x = 0; x < fieldCount; x++)
         {
             switch (format[x])
             {
@@ -479,15 +486,18 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
                     break;
                 case FT_STRING:
                 {
-                    std::string value = fields[x].GetString();
                     LocalizedString** slot = (LocalizedString**)(&dataTable[offset]);
-                    *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec++ + stringHolderSize * stringFieldNum]);
-                    // Value in database field must be for enUS locale
-                    char* str = new char[value.length() + 1];
-                    strcpy(str, value.c_str());
-                    stringPool.push_back(str);
-                    (*slot)->Str[LOCALE_enUS] = str;
-                    ++stringFieldNum;
+                    *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec++ + stringHolderSize * stringFieldNumInRecord]);
+
+                    // Value in database in main table field must be for enUS locale
+                    if (char* str = AddLocaleString(*slot, LOCALE_enUS, fields[x].GetString()))
+                        stringPool.push_back(str);
+
+                    for (uint32 i = LOCALE_koKR; i < TOTAL_LOCALES; ++i)
+                        if (char* str = AddLocaleString(*slot, i, fields[localeFieldsOffset + (i - 1) * stringFieldNumInRecord].GetString()))
+                            stringPool.push_back(str);
+
+                    ++stringFieldNumInRecord;
                     offset += sizeof(char*);
                     break;
                 }
@@ -510,4 +520,17 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
         indexTable[itr->first] = itr->second;
 
     return dataTable;
+}
+
+char* DB2DatabaseLoader::AddLocaleString(LocalizedString* holder, uint32 locale, std::string const& value)
+{
+    if (!value.empty())
+    {
+        char* str = new char[value.length() + 1];
+        strcpy(str, value.c_str());
+        holder->Str[locale] = str;
+        return str;
+    }
+
+    return nullptr;
 }
