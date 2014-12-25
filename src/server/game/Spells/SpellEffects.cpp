@@ -2259,7 +2259,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
     TC_LOG_DEBUG("spells", "Spell: %s has learned spell %u from %s", player->GetGUID().ToString().c_str(), spellToLearn, m_caster->GetGUID().ToString().c_str());
 }
 
-void Spell::EffectDispel(SpellEffIndex /*effIndex*/)
+void Spell::EffectDispel(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -2351,20 +2351,7 @@ void Spell::EffectDispel(SpellEffIndex /*effIndex*/)
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
 
-    // On success dispel
-    // Devour Magic
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->GetCategory() == SPELLCATEGORY_DEVOUR_MAGIC)
-    {
-        if (SpellEffectInfo const* effect = GetEffect(EFFECT_1))
-        {
-            int32 heal_amount = effect->CalcValue(m_caster);
-            m_caster->CastCustomSpell(m_caster, 19658, &heal_amount, NULL, NULL, true);
-            // Glyph of Felhunter
-            if (Unit* owner = m_caster->GetOwner())
-            if (owner->GetAura(56249))
-                owner->CastCustomSpell(owner, 19658, &heal_amount, NULL, NULL, true);
-        }
-    }
+    CallScriptSuccessfulDispel(effIndex);
 }
 
 void Spell::EffectDualWield(SpellEffIndex /*effIndex*/)

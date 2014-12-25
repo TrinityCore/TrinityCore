@@ -46,7 +46,9 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMON_SOUL_FELGUARD               = 79452,
     SPELL_WARLOCK_DEMON_SOUL_SUCCUBUS               = 79453,
     SPELL_WARLOCK_DEMON_SOUL_VOIDWALKER             = 79454,
+    SPELL_WARLOCK_DEVOUR_MAGIC_HEAL                 = 19658,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
+    SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING           = 56249,
     SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME              = 63311,
     SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 63106,
     SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP                = 56226,
@@ -522,6 +524,53 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_warl_demonic_empowerment_SpellScript();
+        }
+};
+
+// 67518, 19505 - Devour Magic
+class spell_warl_devour_magic : public SpellScriptLoader
+{
+    public:
+        spell_warl_devour_magic() : SpellScriptLoader("spell_warl_devour_magic") { }
+
+        class spell_warl_devour_magic_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_devour_magic_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEVOUR_MAGIC_HEAL))
+                    return false;
+                return true;
+            }
+
+            void OnSuccessfulDispel(SpellEffIndex /*effIndex*/)
+            {
+                if (SpellEffectInfo const* effect = GetSpellInfo()->GetEffect(EFFECT_1))
+                {
+                    Unit* caster = GetCaster();
+                    int32 heal_amount = effect->CalcValue(caster);
+
+                    caster->CastCustomSpell(caster, SPELL_WARLOCK_DEVOUR_MAGIC_HEAL, &heal_amount, nullptr, nullptr, true);
+
+                    // Glyph of Felhunter
+                    if (Unit* owner = caster->GetOwner())
+                        if (owner->GetAura(SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING))
+                            owner->CastCustomSpell(owner, SPELL_WARLOCK_DEVOUR_MAGIC_HEAL, &heal_amount, nullptr, nullptr, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectSuccessfulDispel += SpellEffectFn(spell_warl_devour_magic_SpellScript::OnSuccessfulDispel, EFFECT_0, SPELL_EFFECT_DISPEL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_warl_devour_magic_SpellScript();
         }
 };
 
@@ -1413,6 +1462,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_teleport();
     new spell_warl_demonic_empowerment();
     new spell_warl_demon_soul();
+    new spell_warl_devour_magic();
     new spell_warl_everlasting_affliction();
     //new spell_warl_fel_flame();
     new spell_warl_fel_synergy();
