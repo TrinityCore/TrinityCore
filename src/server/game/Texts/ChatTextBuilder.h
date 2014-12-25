@@ -32,9 +32,9 @@ namespace Trinity
 
             void operator()(WorldPacket& data, LocaleConstant locale)
             {
-                BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
+                BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(_textId);
                 WorldPackets::Chat::Chat packet;
-                packet.Initalize(_msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _source->getGender()) : "", _achievementId, "", locale);
+                packet.Initalize(_msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? GetBroadcastTextValue(bct, locale, _source->getGender()) : "", _achievementId, "", locale);
                 packet.Write();
                 data = packet.Move();
             }

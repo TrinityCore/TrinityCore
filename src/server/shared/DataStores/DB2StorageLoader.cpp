@@ -436,10 +436,17 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
     // each string field at load have array of string for each locale
     size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
     size_t stringHoldersRecordPoolSize = stringFields * stringHolderSize;
-    size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * result->GetRowCount();
 
     if (stringFields)
+    {
+        size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * result->GetRowCount();
         stringHolders = new char[stringHoldersPoolSize];
+
+        // DB2 strings expected to have at least empty string
+        for (size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
+            ((char const**)stringHolders)[i] = nullStr;
+
+    }
     else
         stringHolders = nullptr;
 
@@ -467,21 +474,21 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
         else
             tempIndexTable[records++] = &dataTable[offset];
 
-        for (uint32 x = 0; x < fieldCount; x++)
+        for (uint32 f = 0; f < fieldCount; f++)
         {
-            switch (format[x])
+            switch (format[f])
             {
                 case FT_FLOAT:
-                    *((float*)(&dataTable[offset])) = fields[x].GetFloat();
+                    *((float*)(&dataTable[offset])) = fields[f].GetFloat();
                     offset += 4;
                     break;
                 case FT_IND:
                 case FT_INT:
-                    *((int32*)(&dataTable[offset])) = fields[x].GetInt32();
+                    *((int32*)(&dataTable[offset])) = fields[f].GetInt32();
                     offset += 4;
                     break;
                 case FT_BYTE:
-                    *((int8*)(&dataTable[offset])) = fields[x].GetInt8();
+                    *((int8*)(&dataTable[offset])) = fields[f].GetInt8();
                     offset += 1;
                     break;
                 case FT_STRING:
@@ -490,11 +497,11 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
                     *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec++ + stringHolderSize * stringFieldNumInRecord]);
 
                     // Value in database in main table field must be for enUS locale
-                    if (char* str = AddLocaleString(*slot, LOCALE_enUS, fields[x].GetString()))
+                    if (char* str = AddLocaleString(*slot, LOCALE_enUS, fields[f].GetString()))
                         stringPool.push_back(str);
 
-                    for (uint32 i = LOCALE_koKR; i < TOTAL_LOCALES; ++i)
-                        if (char* str = AddLocaleString(*slot, i, fields[localeFieldsOffset + (i - 1) * stringFieldNumInRecord].GetString()))
+                    for (uint32 locale = LOCALE_koKR; locale < TOTAL_LOCALES; ++locale)
+                        if (char* str = AddLocaleString(*slot, locale, fields[localeFieldsOffset + (locale - 1) + stringFields * stringFieldNumInRecord].GetString()))
                             stringPool.push_back(str);
 
                     ++stringFieldNumInRecord;
@@ -527,7 +534,8 @@ char* DB2DatabaseLoader::AddLocaleString(LocalizedString* holder, uint32 locale,
     if (!value.empty())
     {
         char* str = new char[value.length() + 1];
-        strcpy(str, value.c_str());
+        memcpy(str, value.c_str(), value.length());
+        str[value.length()] = '\0';
         holder->Str[locale] = str;
         return str;
     }

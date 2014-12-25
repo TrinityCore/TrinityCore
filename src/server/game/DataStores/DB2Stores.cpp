@@ -23,6 +23,7 @@
 #include "World.h"
 #include <functional>
 
+DB2Storage<BroadcastTextEntry>              sBroadcastTextStore(BroadcastTextEntryfmt, HOTFIX_SEL_BROADCAST_TEXT);
 std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
 DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointEntryfmt);
 DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
@@ -130,6 +131,7 @@ void LoadDB2Stores(std::string const& dataPath)
     DB2StoreProblemList bad_db2_files;
     uint32 availableDb2Locales = 0xFF;
 
+    LoadDB2(availableDb2Locales, bad_db2_files, sBroadcastTextStore,        db2Path,    "BroadcastText.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sCurvePointStore,           db2Path,    "CurvePoint.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sHolidaysStore,             db2Path,    "Holidays.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemStore,                 db2Path,    "Item.db2");
@@ -306,6 +308,22 @@ DB2StorageBase const* GetDB2Storage(uint32 type)
         return itr->second;
 
     return NULL;
+}
+
+char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale /*= DEFAULT_LOCALE*/, uint8 gender /*= GENDER_MALE*/, bool forceGender /*= false*/)
+{
+    if (gender == GENDER_FEMALE && (forceGender || broadcastText->FemaleText->Str[DEFAULT_LOCALE][0] != '\0'))
+    {
+        if (broadcastText->FemaleText->Str[locale][0] != '\0')
+            return broadcastText->FemaleText->Str[locale];
+
+        return broadcastText->FemaleText->Str[DEFAULT_LOCALE];
+    }
+
+    if (broadcastText->MaleText->Str[locale][0] != '\0')
+        return broadcastText->MaleText->Str[locale];
+
+    return broadcastText->MaleText->Str[DEFAULT_LOCALE];
 }
 
 uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level)

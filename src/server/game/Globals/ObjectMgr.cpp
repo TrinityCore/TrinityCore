@@ -4323,7 +4323,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                         tableName.c_str(), tmp.Talk.ChatType, tmp.id);
                     continue;
                 }
-                if (!sObjectMgr->GetBroadcastText(uint32(tmp.Talk.TextID)))
+                if (!sBroadcastTextStore.LookupEntry(uint32(tmp.Talk.TextID)))
                 {
                     TC_LOG_ERROR("sql.sql", "Table `%s` has invalid talk text id (dataint = %i) in SCRIPT_COMMAND_TALK for script id %u",
                         tableName.c_str(), tmp.Talk.TextID, tmp.id);
@@ -5087,7 +5087,7 @@ void ObjectMgr::LoadGossipText()
         {
             if (gText.Options[i].BroadcastTextID)
             {
-                if (!sObjectMgr->GetBroadcastText(gText.Options[i].BroadcastTextID))
+                if (!sBroadcastTextStore.LookupEntry(gText.Options[i].BroadcastTextID))
                 {
                     TC_LOG_ERROR("sql.sql", "GossipText (Id: %u) in table `npc_text` has non-existing or incompatible BroadcastTextID%u %u.", id, i, gText.Options[i].BroadcastTextID);
                     gText.Options[i].BroadcastTextID = 0;
@@ -8042,7 +8042,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
         if (gMenuItem.OptionBroadcastTextId)
         {
-            if (!GetBroadcastText(gMenuItem.OptionBroadcastTextId))
+            if (!sBroadcastTextStore.LookupEntry(gMenuItem.OptionBroadcastTextId))
             {
                 TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has non-existing or incompatible OptionBroadcastTextId %u, ignoring.", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.OptionBroadcastTextId);
                 gMenuItem.OptionBroadcastTextId = 0;
@@ -8060,7 +8060,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
         if (gMenuItem.BoxBroadcastTextId)
         {
-            if (!GetBroadcastText(gMenuItem.BoxBroadcastTextId))
+            if (!sBroadcastTextStore.LookupEntry(gMenuItem.BoxBroadcastTextId))
             {
                 TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has non-existing or incompatible BoxBroadcastTextId %u, ignoring.", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.BoxBroadcastTextId);
                 gMenuItem.BoxBroadcastTextId = 0;
@@ -8271,141 +8271,6 @@ uint32 ObjectMgr::GetScriptId(char const* name)
         return 0;
 
     return uint32(itr - _scriptNamesStore.begin());
-}
-
-void ObjectMgr::LoadBroadcastTexts()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _broadcastTextStore.clear(); // for reload case
-
-    //                                               0   1         2         3           4         5         6         7            8            9            10       11    12
-    QueryResult result = WorldDatabase.Query("SELECT ID, Language, MaleText, FemaleText, EmoteID0, EmoteID1, EmoteID2, EmoteDelay0, EmoteDelay1, EmoteDelay2, SoundId, Unk1, Unk2 FROM broadcast_text");
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 broadcast texts. DB table `broadcast_text` is empty.");
-        return;
-    }
-
-    _broadcastTextStore.rehash(result->GetRowCount());
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        BroadcastText bct;
-
-        bct.Id = fields[0].GetUInt32();
-        bct.Language = fields[1].GetUInt32();
-        bct.MaleText[DEFAULT_LOCALE] = fields[2].GetString();
-        bct.FemaleText[DEFAULT_LOCALE] = fields[3].GetString();
-        bct.EmoteId0 = fields[4].GetUInt32();
-        bct.EmoteId1 = fields[5].GetUInt32();
-        bct.EmoteId2 = fields[6].GetUInt32();
-        bct.EmoteDelay0 = fields[7].GetUInt32();
-        bct.EmoteDelay1 = fields[8].GetUInt32();
-        bct.EmoteDelay2 = fields[9].GetUInt32();
-        bct.SoundId = fields[10].GetUInt32();
-        bct.Unk1 = fields[11].GetUInt32();
-        bct.Unk2 = fields[12].GetUInt32();
-
-        if (bct.SoundId)
-        {
-            if (!sSoundEntriesStore.LookupEntry(bct.SoundId))
-            {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has SoundId %u but sound does not exist. Skipped.", bct.Id, bct.SoundId);
-                // don't load bct of higher expansions
-                continue;
-            }
-        }
-
-        if (!GetLanguageDescByID(bct.Language))
-        {
-            TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` using Language %u but Language does not exist. Skipped.", bct.Id, bct.Language);
-            // don't load bct of higher expansions
-            continue;
-        }
-
-        if (bct.EmoteId0)
-        {
-            if (!sEmotesStore.LookupEntry(bct.EmoteId0))
-            {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId0 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId0);
-                // don't load bct of higher expansions
-                continue;
-            }
-        }
-
-        if (bct.EmoteId1)
-        {
-            if (!sEmotesStore.LookupEntry(bct.EmoteId1))
-            {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId1 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId1);
-                // don't load bct of higher expansions
-                continue;
-            }
-        }
-
-        if (bct.EmoteId2)
-        {
-            if (!sEmotesStore.LookupEntry(bct.EmoteId2))
-            {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId2 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId2);
-                // don't load bct of higher expansions
-                continue;
-            }
-        }
-
-        _broadcastTextStore[bct.Id] = bct;
-
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u broadcast texts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadBroadcastTextLocales()
-{
-    uint32 oldMSTime = getMSTime();
-
-    //                                               0   1              2              3              4              5              6              7              8              9                10               11               12               13               14               15               16
-    QueryResult result = WorldDatabase.Query("SELECT Id, MaleText_loc1, MaleText_loc2, MaleText_loc3, MaleText_loc4, MaleText_loc5, MaleText_loc6, MaleText_loc7, MaleText_loc8, FemaleText_loc1, FemaleText_loc2, FemaleText_loc3, FemaleText_loc4, FemaleText_loc5, FemaleText_loc6, FemaleText_loc7, FemaleText_loc8 FROM locales_broadcast_text");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 broadcast text locales. DB table `locales_broadcast_text` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 id = fields[0].GetUInt32();
-        BroadcastTextContainer::iterator bct = _broadcastTextStore.find(id);
-        if (bct == _broadcastTextStore.end())
-        {
-            TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `locales_broadcast_text` does not exist or is incompatible. Skipped!", id);
-            // don't load bct of higher expansions
-            continue;
-        }
-
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
-        {
-            LocaleConstant locale = LocaleConstant(i);
-            AddLocaleString(fields[1 + (i - 1)].GetString(), locale, bct->second.MaleText);
-            AddLocaleString(fields[9 + (i - 1)].GetString(), locale, bct->second.FemaleText);
-        }
-
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u broadcast text locales in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)
