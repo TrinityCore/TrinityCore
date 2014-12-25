@@ -1838,8 +1838,8 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             break;
         }
         case ITEM_BONUS_QUALITY:
-            if (Quality < values[0])
-                Quality = values[0];
+            if (Quality < static_cast<uint32>(values[0]))
+                Quality = static_cast<uint32>(values[0]);
             break;
         case ITEM_BONUS_SOCKET:
         {
@@ -1855,8 +1855,8 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             break;
         }
         case ITEM_BONUS_APPEARANCE:
-            if (AppearanceModID < values[0])
-                AppearanceModID = values[0];
+            if (AppearanceModID < static_cast<uint32>(values[0]))
+                AppearanceModID = static_cast<uint32>(values[0]);
             break;
         case ITEM_BONUS_REQUIRED_LEVEL:
             RequiredLevel += values[0];
