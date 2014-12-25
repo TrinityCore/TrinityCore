@@ -76,7 +76,6 @@ public:
             { "areatrigger_teleport",          rbac::RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TELEPORT,             true,  &HandleReloadAreaTriggerTeleportCommand,        "", NULL },
             { "autobroadcast",                 rbac::RBAC_PERM_COMMAND_RELOAD_AUTOBROADCAST,                    true,  &HandleReloadAutobroadcastCommand,              "", NULL },
             { "battleground_template",         rbac::RBAC_PERM_COMMAND_RELOAD_BATTLEGROUND_TEMPLATE,            true,  &HandleReloadBattlegroundTemplate,              "", NULL },
-            { "broadcast_text",                rbac::RBAC_PERM_COMMAND_RELOAD_BROADCAST_TEXT,                   true,  &HandleReloadBroadcastTextCommand,              "", NULL },
             { "command",                       rbac::RBAC_PERM_COMMAND_RELOAD_COMMAND,                          true,  &HandleReloadCommandCommand,                    "", NULL },
             { "conditions",                    rbac::RBAC_PERM_COMMAND_RELOAD_CONDITIONS,                       true,  &HandleReloadConditions,                        "", NULL },
             { "config",                        rbac::RBAC_PERM_COMMAND_RELOAD_CONFIG,                           true,  &HandleReloadConfigCommand,                     "", NULL },
@@ -378,15 +377,6 @@ public:
         TC_LOG_INFO("misc", "Re-Loading Battleground Templates...");
         sBattlegroundMgr->LoadBattlegroundTemplates();
         handler->SendGlobalGMSysMessage("DB table `battleground_template` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadBroadcastTextCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Re-Loading Broadcast texts...");
-        sObjectMgr->LoadBroadcastTexts();
-        sObjectMgr->LoadBroadcastTextLocales();
-        handler->SendGlobalGMSysMessage("DB table `broadcast_text` reloaded.");
         return true;
     }
 

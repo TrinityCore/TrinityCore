@@ -23,6 +23,7 @@
 #include <string>
 #include <map>
 
+extern DB2Storage<BroadcastTextEntry>           sBroadcastTextStore;
 extern DB2Storage<HolidaysEntry>                sHolidaysStore;
 extern DB2Storage<ItemEntry>                    sItemStore;
 extern DB2Storage<ItemCurrencyCostEntry>        sItemCurrencyCostStore;
@@ -56,6 +57,7 @@ void LoadDB2Stores(std::string const& dataPath);
 
 DB2StorageBase const* GetDB2Storage(uint32 type);
 
+char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
 uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
 uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId);
 std::vector<ItemBonusEntry const*> GetItemBonuses(uint32 bonusListId);

@@ -22,5 +22,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     if (!m_reconnecting)
         m_stmts.resize(MAX_HOTFIXDATABASE_STATEMENTS);
 
+    PrepareStatement(HOTFIX_SEL_BROADCAST_TEXT, "SELECT * FROM broadcast_text b LEFT JOIN locales_broadcast_text lb ON b.ID = lb.ID", CONNECTION_SYNCH);
     PrepareStatement(HOTFIX_SEL_TAXI_PATH_NODE, "SELECT * FROM taxi_path_node", CONNECTION_SYNCH);
 }

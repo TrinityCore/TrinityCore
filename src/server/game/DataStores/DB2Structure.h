@@ -24,12 +24,26 @@
 
 #pragma pack(push, 1)
 
+#define MAX_BROADCAST_TEXT_EMOTES 3
 #define MAX_HOLIDAY_DURATIONS 10
 #define MAX_HOLIDAY_DATES 16
 #define MAX_HOLIDAY_FLAGS 10
 #define MAX_ITEM_PROTO_FLAGS 3
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
+
+struct BroadcastTextEntry
+{
+    uint32 ID;
+    int32 Language;
+    LocalizedString* MaleText;
+    LocalizedString* FemaleText;
+    uint32 EmoteID[MAX_BROADCAST_TEXT_EMOTES];
+    uint32 EmoteDelay[MAX_BROADCAST_TEXT_EMOTES];
+    uint32 SoundID;
+    uint32 UnkEmoteID;
+    uint32 Type;
+};
 
 struct CurvePointEntry
 {

@@ -13852,17 +13852,17 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
         if (canTalk)
         {
             std::string strOptionText, strBoxText;
-            BroadcastText const* optionBroadcastText = sObjectMgr->GetBroadcastText(itr->second.OptionBroadcastTextId);
-            BroadcastText const* boxBroadcastText = sObjectMgr->GetBroadcastText(itr->second.BoxBroadcastTextId);
+            BroadcastTextEntry const* optionBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.OptionBroadcastTextId);
+            BroadcastTextEntry const* boxBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.BoxBroadcastTextId);
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
             if (optionBroadcastText)
-                strOptionText = optionBroadcastText->GetText(locale, getGender());
+                strOptionText = GetBroadcastTextValue(optionBroadcastText, locale, getGender());
             else
                 strOptionText = itr->second.OptionText;
 
             if (boxBroadcastText)
-                strBoxText = boxBroadcastText->GetText(locale, getGender());
+                strBoxText = GetBroadcastTextValue(boxBroadcastText, locale, getGender());
             else
                 strBoxText = itr->second.BoxText;
 
