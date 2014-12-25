@@ -128,21 +128,21 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetVisible(true);
 
-            instance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_MAGUS_TELESTRA, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
-            instance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_MAGUS_TELESTRA, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
-            instance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
+            instance->SetBossState(DATA_MAGUS_TELESTRA, DONE);
         }
 
         void KilledUnit(Unit* who) override
