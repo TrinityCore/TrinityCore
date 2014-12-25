@@ -208,21 +208,29 @@ public:
                         player->KillCreditGO(obj.ObjectID);
                     break;
                 }
-                case QUEST_OBJECTIVE_REPUTATION:
+                case QUEST_OBJECTIVE_MIN_REPUTATION:
                 {
                     uint32 curRep = player->GetReputationMgr().GetReputation(obj.ObjectID);
-                    if (curRep < obj.Amount)
+                    if (curRep < uint32(obj.Amount))
                         if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
                             player->GetReputationMgr().SetReputation(factionEntry, obj.Amount);
                     break;
                 }
+                case QUEST_OBJECTIVE_MAX_REPUTATION:
+                {
+                    uint32 curRep = player->GetReputationMgr().GetReputation(obj.ObjectID);
+                    if (curRep > uint32(obj.Amount))
+                        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
+                            player->GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                    break;
+                }
+                case QUEST_OBJECTIVE_MONEY:
+                {
+                    player->ModifyMoney(obj.Amount);
+                    break;
+                }
             }
         }
-
-        // If the quest requires money
-        int32 ReqOrRewMoney = quest->GetRewOrReqMoney();
-        if (ReqOrRewMoney < 0)
-            player->ModifyMoney(-ReqOrRewMoney);
 
         if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
         {

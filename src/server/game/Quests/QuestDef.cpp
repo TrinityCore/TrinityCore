@@ -49,7 +49,7 @@ Quest::Quest(Field* questRecord)
     ExclusiveGroup = questRecord[23].GetInt32();
     NextQuestIdChain = questRecord[24].GetUInt32();
     RewardXPId = questRecord[25].GetUInt8();
-    RewardOrRequiredMoney = questRecord[26].GetInt32();
+    RewardMoney = questRecord[26].GetInt32();
     RewardMoneyMaxLevel = questRecord[27].GetUInt32();
     RewardSpell = questRecord[28].GetUInt32();
     RewardSpellCast = questRecord[29].GetInt32();
@@ -230,14 +230,9 @@ uint32 Quest::XPValue(Player* player) const
     return 0;
 }
 
-int32 Quest::GetRewOrReqMoney() const
+int32 Quest::GetRewMoney() const
 {
-    // RequiredMoney: the amount is the negative copper sum.
-    if (RewardOrRequiredMoney <= 0)
-        return RewardOrRequiredMoney;
-
-    // RewardMoney: the positive amount
-    return int32(RewardOrRequiredMoney * sWorld->getRate(RATE_MONEY_QUEST));
+    return int32(RewardMoney * sWorld->getRate(RATE_MONEY_QUEST));
 }
 
 void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
@@ -268,7 +263,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
             data << uint32(0);
     }
 
-    data << uint32(GetRewOrReqMoney());
+    data << uint32(GetRewMoney());
     data << uint32(XPValue(player) * sWorld->getRate(RATE_XP_QUEST));
 
     data << uint32(GetCharTitleId());

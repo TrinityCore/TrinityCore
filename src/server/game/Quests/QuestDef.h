@@ -34,8 +34,6 @@ class ObjectMgr;
 
 #define MAX_QUEST_LOG_SIZE 25
 
-//#define QUEST_OBJECTIVES_COUNT 4
-//#define QUEST_ITEM_OBJECTIVES_COUNT 6
 #define QUEST_ITEM_DROP_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
 #define QUEST_REWARDS_COUNT 4
@@ -44,7 +42,6 @@ class ObjectMgr;
 #define QUEST_EMOTE_COUNT 4
 #define QUEST_PVP_KILL_SLOT 0
 #define QUEST_REWARD_CURRENCY_COUNT 4
-//#define QUEST_REQUIRED_CURRENCY_COUNT 4
 
 enum QuestFailedReason
 {
@@ -182,12 +179,20 @@ enum QuestSpecialFlags
 
 enum QuestObjectiveType
 {
-    QUEST_OBJECTIVE_MONSTER     = 0,
-    QUEST_OBJECTIVE_ITEM        = 1,
-    QUEST_OBJECTIVE_GAMEOBJECT,
-    QUEST_OBJECTIVE_REPUTATION,
-    QUEST_OBJECTIVE_LOG,
-    QUEST_OBJECTIVE_EVENT
+    QUEST_OBJECTIVE_MONSTER                 = 0,
+    QUEST_OBJECTIVE_ITEM                    = 1,
+    QUEST_OBJECTIVE_GAMEOBJECT              = 2,
+    QUEST_OBJECTIVE_TALKTO                  = 2,
+    QUEST_OBJECTIVE_CURRENCY                = 4,
+    QUEST_OBJECTIVE_LEARNSPELL              = 5,
+    QUEST_OBJECTIVE_MIN_REPUTATION          = 6,
+    QUEST_OBJECTIVE_MAX_REPUTATION          = 7,
+    QUEST_OBJECTIVE_MONEY                   = 8,
+    QUEST_OBJECTIVE_PLAYERKILLS             = 9,
+    QUEST_OBJECTIVE_AREATRIGGER             = 10,
+    QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC  = 11,
+    QUEST_OBJECTIVE_DEFEATBATTLEPET         = 12,
+    QUEST_OBJECTIVE_WINPVPPETBATTLES        = 13
 };
 
 struct QuestLocale
@@ -279,7 +284,7 @@ class Quest
         std::string const& GetQuestTurnTextWindow() const { return QuestTurnTextWindow; }
         std::string const& GetQuestTurnTargetName() const { return QuestTurnTargetName; }
         QuestObjectives const& GetObjectives() const { return Objectives; };
-        int32  GetRewOrReqMoney() const;
+        int32  GetRewMoney() const;
         uint32 GetRewHonorAddition() const { return RewardHonor; }
         float GetRewHonorMultiplier() const { return RewardHonorMultiplier; }
         uint32 GetRewMoneyMaxLevel() const; // use in XP calculation at client
@@ -321,13 +326,6 @@ class Quest
         QuestObjectives Objectives;
         uint32 ItemDrop[QUEST_ITEM_DROP_COUNT];
         uint32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT];
-        /*std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
-        uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT];
-        uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT];
-        uint32 RequiredSourceItemId[QUEST_SOURCE_ITEM_IDS_COUNT];
-        uint32 RequiredSourceItemCount[QUEST_SOURCE_ITEM_IDS_COUNT];
-        int32  RequiredNpcOrGo[QUEST_OBJECTIVES_COUNT];   // >0 Creature <0 Gameobject
-        uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT];*/
 
         uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
@@ -410,7 +408,7 @@ class Quest
         std::string CompletedText;
         uint32 RewardHonor;
         float RewardHonorMultiplier;
-        int32  RewardOrRequiredMoney;
+        int32  RewardMoney;
         uint32 RewardMoneyMaxLevel;
         uint32 RewardSpell;
         int32  RewardSpellCast;

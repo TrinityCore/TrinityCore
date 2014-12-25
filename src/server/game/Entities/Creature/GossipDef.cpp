@@ -510,7 +510,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.RewardXPDifficulty = quest->GetXPId();
 
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
-        packet.Info.RewardMoney = quest->GetRewOrReqMoney();
+        packet.Info.RewardMoney = quest->GetRewMoney();
 
     packet.Info.RewardMoneyDifficulty = quest->GetRewMoneyMaxLevel();
     packet.Info.RewardDisplaySpell = quest->GetRewSpell();           
@@ -817,7 +817,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
 
     WorldPacket data(SMSG_QUESTGIVER_REQUEST_ITEMS, 50);    // guess size
-    data << npcGUID;
+    /*data << npcGUID;
     data << uint32(quest->GetQuestId());
     data << questTitle;
     data << requestItemsText;
@@ -853,7 +853,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
             data << uint32(0);
     }
 
-    /*data << uint32(quest->GetReqCurrencyCount());
+    data << uint32(quest->GetReqCurrencyCount());
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
     {
         if (!quest->RequiredCurrencyId[i])
@@ -861,7 +861,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
 
         data << uint32(quest->RequiredCurrencyId[i]);
         data << uint32(quest->RequiredCurrencyCount[i]);
-    }*/
+    }
 
     if (!canComplete)            // Experimental; there are 6 similar flags, if any of them
         data << uint32(0x00);    // of them is 0 player can't complete quest (still unknown meaning)
@@ -871,7 +871,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     data << uint32(0x04);
     data << uint32(0x08);
     data << uint32(0x10);
-    data << uint32(0x40);
+    data << uint32(0x40);*/
 
     _session->SendPacket(&data);
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());

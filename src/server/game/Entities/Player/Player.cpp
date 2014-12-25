@@ -14473,8 +14473,16 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                         if (qInfo->Objectives[i].Amount && q_status.ObjectiveAmount[i] < obj.Amount)
                             return false;
                         break;
-                    case QUEST_OBJECTIVE_REPUTATION:
+                    case QUEST_OBJECTIVE_MIN_REPUTATION:
                         if (GetReputationMgr().GetReputation(obj.ObjectID) < obj.Amount)
+                            return false;
+                        break;
+                    case QUEST_OBJECTIVE_MAX_REPUTATION:
+                        if (GetReputationMgr().GetReputation(obj.ObjectID) > obj.Amount)
+                            return false;
+                        break;
+                    case QUEST_OBJECTIVE_MONEY:
+                        if (!HasEnoughMoney(uint64(obj.Amount)))
                             return false;
                         break;
                     default:
@@ -14492,12 +14500,6 @@ bool Player::CanCompleteQuest(uint32 quest_id)
 
             if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) && q_status.Timer == 0)
                 return false;
-
-            if (qInfo->GetRewOrReqMoney() < 0)
-            {
-                if (!HasEnoughMoney(-int64(qInfo->GetRewOrReqMoney())))
-                    return false;
-            }
 
             return true;
         }
@@ -14555,14 +14557,20 @@ bool Player::CanRewardQuest(Quest const* quest, bool msg)
         }
     }
 
-    /** @todo 6.x Investigate if this is still needed (no currency objective in enum)
-    for (uint8 i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; i++)
-        if (quest->RequiredCurrencyId[i] && !HasCurrency(quest->RequiredCurrencyId[i], quest->RequiredCurrencyCount[i]))
-            return false;**/
-
-    // prevent receive reward with low money and GetRewOrReqMoney() < 0
-    if (quest->GetRewOrReqMoney() < 0 && !HasEnoughMoney(-int64(quest->GetRewOrReqMoney())))
-        return false;
+    for (QuestObjective const& obj : quest->Objectives)
+    {
+        switch (obj.Type)
+        {
+            case QUEST_OBJECTIVE_CURRENCY:
+                if (obj.Type == QUEST_OBJECTIVE_CURRENCY && !HasCurrency(obj.ObjectID, obj.Amount))
+                    return false;
+                break;
+            case QUEST_OBJECTIVE_MONEY:
+                if (!HasEnoughMoney(uint64(obj.Amount)))
+                    return false;
+                break;
+        }
+    }
 
     return true;
 }
@@ -14678,7 +14686,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     AdjustQuestReqItemCount(quest, questStatusData);
 
     for (QuestObjective const& obj : quest->Objectives)
-        if (obj.Type == QUEST_OBJECTIVE_REPUTATION)
+        if (obj.Type == QUEST_OBJECTIVE_MIN_REPUTATION || obj.Type == QUEST_OBJECTIVE_MAX_REPUTATION)
             if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
                 GetReputationMgr().SetVisible(factionEntry);
 
@@ -14784,10 +14792,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             case QUEST_OBJECTIVE_ITEM:
                 DestroyItemCount(obj.ObjectID, obj.Amount, true);
                 break;
-            /** @todo 6.x currency objective doesn't exist in enum?
             case QUEST_OBJECTIVE_CURRENCY:
                 ModifyCurrency(obj.ObjectID, -int32(obj.Amount));
-                break; **/
+                break;
         }
     }
 
@@ -14865,9 +14872,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
         guild->GiveXP(uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER)), this);
 
-    // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
-    if (quest->GetRewOrReqMoney())
-        moneyRew += quest->GetRewOrReqMoney();
+    moneyRew += quest->GetRewMoney();
 
     if (moneyRew)
     {
@@ -16176,13 +16181,19 @@ void Player::MoneyChanged(uint32 count)
             continue;
 
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
-        if (qInfo && qInfo->GetRewOrReqMoney() < 0)
+        if (!qInfo)
+            continue;
+
+        for (QuestObjective const& obj : qInfo->GetObjectives())
         {
+            if (obj.Type != QUEST_OBJECTIVE_MONEY)
+                continue;
+
             QuestStatusData& q_status = m_QuestStatus[questid];
 
             if (q_status.Status == QUEST_STATUS_INCOMPLETE)
             {
-                if (int32(count) >= -qInfo->GetRewOrReqMoney())
+                if (int32(count) >= obj.Amount)
                 {
                     if (CanCompleteQuest(questid))
                         CompleteQuest(questid);
@@ -16190,7 +16201,7 @@ void Player::MoneyChanged(uint32 count)
             }
             else if (q_status.Status == QUEST_STATUS_COMPLETE)
             {
-                if (int32(count) < -qInfo->GetRewOrReqMoney())
+                if (int32(count) < obj.Amount)
                     IncompleteQuest(questid);
             }
         }
@@ -16209,22 +16220,36 @@ void Player::ReputationChanged(FactionEntry const* factionEntry)
 
                 for (QuestObjective const& obj : qInfo->Objectives)
                 {
-                    if (obj.Type != QUEST_OBJECTIVE_REPUTATION)
-                        continue;
-
                     if (uint32(obj.ObjectID) != factionEntry->ID)
                         continue;
 
-                    if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+                    if (obj.Type == QUEST_OBJECTIVE_MIN_REPUTATION)
                     {
-                        if (GetReputationMgr().GetReputation(factionEntry) >= obj.Amount)
-                            if (CanCompleteQuest(questid))
-                                CompleteQuest(questid);
+                        if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+                        {
+                            if (GetReputationMgr().GetReputation(factionEntry) >= obj.Amount)
+                                if (CanCompleteQuest(questid))
+                                    CompleteQuest(questid);
+                        }
+                        else if (q_status.Status == QUEST_STATUS_COMPLETE)
+                        {
+                            if (GetReputationMgr().GetReputation(factionEntry) < obj.Amount)
+                                IncompleteQuest(questid);
+                        }
                     }
-                    else if (q_status.Status == QUEST_STATUS_COMPLETE)
+                    else if (obj.Type == QUEST_OBJECTIVE_MAX_REPUTATION)
                     {
-                        if (GetReputationMgr().GetReputation(factionEntry) < obj.Amount)
-                            IncompleteQuest(questid);
+                        if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+                        {
+                            if (GetReputationMgr().GetReputation(factionEntry) <= obj.Amount)
+                                if (CanCompleteQuest(questid))
+                                    CompleteQuest(questid);
+                        }
+                        else if (q_status.Status == QUEST_STATUS_COMPLETE)
+                        {
+                            if (GetReputationMgr().GetReputation(factionEntry) > obj.Amount)
+                                IncompleteQuest(questid);
+                        }
                     }
                 }
             }
@@ -16313,12 +16338,12 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP)
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         xp = XP;
-        moneyReward = quest->GetRewOrReqMoney();
+        moneyReward = quest->GetRewMoney();
     }
     else // At max level, increase gold reward
     {
         xp = 0;
-        moneyReward = uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
+        moneyReward = uint32(quest->GetRewMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
 
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));

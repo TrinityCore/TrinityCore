@@ -497,12 +497,12 @@ public:
             if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
                 return;
 
-            for (uint8 i = 0; i < 3; ++i)
+            for (uint32 i = 0; i < quest->Objectives.size(); ++i)
             {
-                if (uint32(quest->RequiredNpcOrGo[i]) != me->GetEntry())
+                if (uint32(quest->Objectives[i].ObjectID) != me->GetEntry())
                     continue;
 
-                if (itr->second.CreatureOrGOCount[i] != 0)
+                if (itr->second.ObjectiveAmount[i] != 0)
                     continue;
 
                 player->KilledMonsterCredit(me->GetEntry());
