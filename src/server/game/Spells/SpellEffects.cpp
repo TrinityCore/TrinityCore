@@ -2355,18 +2355,7 @@ void Spell::EffectDispel()
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
 
-    // On success dispel
-    // Devour Magic
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->GetCategory() == SPELLCATEGORY_DEVOUR_MAGIC)
-    {
-        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, m_spellInfo->GetEffect(EFFECT_1).CalcValue());
-        m_caster->CastSpell(m_caster, 19658, args);
-        // Glyph of Felhunter
-        if (Unit* owner = m_caster->GetOwner())
-            if (owner->GetAura(56249))
-                owner->CastSpell(owner, 19658, args);
-    }
+    CallScriptSuccessfulDispel(SpellEffIndex(effectInfo->EffectIndex));
 }
 
 void Spell::EffectDualWield()
