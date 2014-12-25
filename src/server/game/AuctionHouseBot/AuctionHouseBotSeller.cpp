@@ -272,10 +272,10 @@ bool AuctionBotSeller::Initialize()
                     if (prototype->GetBaseItemLevel() > value)
                         continue;
                 if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEM_MIN_REQ_LEVEL))
-                    if (prototype->GetBaseRequiredLevel() < value)
+                    if (prototype->GetBaseRequiredLevel() < static_cast<int32>(value))
                         continue;
                 if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEM_MAX_REQ_LEVEL))
-                    if (prototype->GetBaseRequiredLevel() > value)
+                    if (prototype->GetBaseRequiredLevel() > static_cast<int32>(value))
                         continue;
                 if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEM_MIN_SKILL_RANK))
                     if (prototype->GetRequiredSkillRank() < value)
@@ -290,10 +290,10 @@ bool AuctionBotSeller::Initialize()
             case ITEM_CLASS_PROJECTILE:
             {
                 if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEM_MIN_REQ_LEVEL))
-                    if (prototype->GetBaseRequiredLevel() < value)
+                    if (prototype->GetBaseRequiredLevel() < static_cast<int32>(value))
                         continue;
                 if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEM_MAX_REQ_LEVEL))
-                    if (prototype->GetBaseRequiredLevel() > value)
+                    if (prototype->GetBaseRequiredLevel() > static_cast<int32>(value))
                         continue;
                 if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEM_MIN_SKILL_RANK))
                     if (prototype->GetRequiredSkillRank() < value)
@@ -307,10 +307,10 @@ bool AuctionBotSeller::Initialize()
                 if (prototype->GetSubClass() == ITEM_SUBCLASS_JUNK_MOUNT)
                 {
                     if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_CLASS_MISC_MOUNT_MIN_REQ_LEVEL))
-                        if (prototype->GetBaseRequiredLevel() < value)
+                        if (prototype->GetBaseRequiredLevel() < static_cast<int32>(value))
                             continue;
                     if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_CLASS_MISC_MOUNT_MAX_REQ_LEVEL))
-                        if (prototype->GetBaseRequiredLevel() > value)
+                        if (prototype->GetBaseRequiredLevel() > static_cast<int32>(value))
                             continue;
                     if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_CLASS_MISC_MOUNT_MIN_SKILL_RANK))
                         if (prototype->GetRequiredSkillRank() < value)
@@ -334,16 +334,16 @@ bool AuctionBotSeller::Initialize()
             case ITEM_CLASS_GLYPH:
             {
                 if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_CLASS_GLYPH_MIN_REQ_LEVEL))
-                    if (prototype->GetBaseRequiredLevel() < value)
+                    if (prototype->GetBaseRequiredLevel() < static_cast<int32>(value))
                         continue;
                 if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_CLASS_GLYPH_MAX_REQ_LEVEL))
-                    if (prototype->GetBaseRequiredLevel() > value)
+                    if (prototype->GetBaseRequiredLevel() > static_cast<int32>(value))
                         continue;
                 if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_CLASS_GLYPH_MIN_ITEM_LEVEL))
-                    if (prototype->GetBaseRequiredLevel() < value)
+                    if (prototype->GetBaseRequiredLevel() < static_cast<int32>(value))
                         continue;
                 if (uint32 value = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_CLASS_GLYPH_MAX_ITEM_LEVEL))
-                    if (prototype->GetBaseRequiredLevel() > value)
+                    if (prototype->GetBaseRequiredLevel() > static_cast<int32>(value))
                         continue;
                 break;
             }
