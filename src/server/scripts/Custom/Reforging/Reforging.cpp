@@ -307,20 +307,17 @@ void RemoveReforge(Player* player, uint32 itemguid, bool update)
         player->reforgeMap.find(itemguid) == player->reforgeMap.end())
         return;
 
-    player->reforgeMap.erase(itemguid);
     Item* invItem = update ? player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, itemguid)) : NULL;
-    if (invItem)
-        player->_ApplyItemMods(invItem, invItem->GetSlot(), false);
-    player->reforgeMap.erase(itemguid);
-    if (invItem)
-        player->_ApplyItemMods(invItem, invItem->GetSlot(), true);
+    if (!invItem)
+    {
+        player->reforgeMap.erase(itemguid);
+        return;
+    }
 
-    //if (!database)
-    //    return;
-    //CharacterDatabase.PExecute("DELETE FROM `custom_reforging` WHERE `GUID` = %u", itemguid);
-    if (invItem)
-        SendReforgePacket(player, invItem->GetEntry());
-    //player->SaveToDB();
+    player->_ApplyItemMods(invItem, invItem->GetSlot(), false);
+    player->reforgeMap.erase(itemguid);
+    player->_ApplyItemMods(invItem, invItem->GetSlot(), true);
+    SendReforgePacket(player, invItem->GetEntry());
 }
 
 static bool IsReforgable(Item* invItem, Player* player)
@@ -453,7 +450,8 @@ public:
                 if (it2 == player->reforgeMap.end())
                     continue;
 
-                trans->PAppend("REPLACE INTO `custom_reforging` (`GUID`, `increase`, `decrease`, `stat_value`, `Owner`) VALUES (%u, %u, %u, %i, %u)", it2->first, it2->second.increase, it2->second.decrease, it2->second.stat_value, lowguid);
+                const ReforgeData& data = it2->second;
+                trans->PAppend("REPLACE INTO `custom_reforging` (`GUID`, `increase`, `decrease`, `stat_value`, `Owner`) VALUES (%u, %u, %u, %i, %u)", it2->first, data.increase, data.decrease, data.stat_value, lowguid);
             }
         }
 
