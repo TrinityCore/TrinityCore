@@ -13857,12 +13857,12 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
             if (optionBroadcastText)
-                strOptionText = GetBroadcastTextValue(optionBroadcastText, locale, getGender());
+                strOptionText = DB2Manager::GetBroadcastTextValue(optionBroadcastText, locale, getGender());
             else
                 strOptionText = itr->second.OptionText;
 
             if (boxBroadcastText)
-                strBoxText = GetBroadcastTextValue(boxBroadcastText, locale, getGender());
+                strBoxText = DB2Manager::GetBroadcastTextValue(boxBroadcastText, locale, getGender());
             else
                 strBoxText = itr->second.BoxText;
 

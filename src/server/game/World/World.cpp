@@ -1416,7 +1416,7 @@ void World::SetInitialWorldSettings()
     ///- Load the DBC files
     TC_LOG_INFO("server.loading", "Initialize data stores...");
     LoadDBCStores(m_dataPath);
-    LoadDB2Stores(m_dataPath);
+    sDB2Manager.LoadStores(m_dataPath);
 
     sSpellMgr->LoadPetFamilySpellsStore();
 
@@ -1922,7 +1922,7 @@ void World::SetInitialWorldSettings()
     LoadCharacterInfoStore();
 
     TC_LOG_INFO("misc", "Loading hotfix info...");
-    sObjectMgr->LoadHotfixData();
+    sDB2Manager.LoadHotfixData();
 
     TC_LOG_INFO("server.loading", "Loading race and class expansion requirements...");
     sObjectMgr->LoadRaceAndClassExpansionRequirements();

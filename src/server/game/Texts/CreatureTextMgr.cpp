@@ -502,7 +502,7 @@ std::string CreatureTextMgr::GetLocalizedChatString(uint32 entry, uint8 gender, 
     BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(groupItr->BroadcastTextId);
 
     if (bct)
-        baseText = GetBroadcastTextValue(bct, locale, gender);
+        baseText = DB2Manager::GetBroadcastTextValue(bct, locale, gender);
     else
         baseText = groupItr->text;
 

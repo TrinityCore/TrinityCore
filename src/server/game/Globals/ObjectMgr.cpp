@@ -8507,39 +8507,6 @@ void ObjectMgr::LoadFactionChangeReputations()
     TC_LOG_INFO("server.loading", ">> Loaded %u faction change reputation pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadHotfixData()
-{
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, UNIX_TIMESTAMP(hotfixDate) FROM hotfix_data");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 hotfix info entries. DB table `hotfix_data` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    _hotfixData.reserve(result->GetRowCount());
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        HotfixInfo info;
-        info.Entry = fields[0].GetUInt32();
-        info.Type = fields[1].GetUInt32();
-        info.Timestamp = fields[2].GetUInt64();
-        _hotfixData.push_back(info);
-
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
 void ObjectMgr::LoadFactionChangeSpells()
 {
     uint32 oldMSTime = getMSTime();
