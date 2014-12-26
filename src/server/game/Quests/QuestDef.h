@@ -40,7 +40,6 @@ class ObjectMgr;
 #define QUEST_DEPLINK_COUNT 10
 #define QUEST_REPUTATIONS_COUNT 5
 #define QUEST_EMOTE_COUNT 4
-#define QUEST_PVP_KILL_SLOT 0
 #define QUEST_REWARD_CURRENCY_COUNT 4
 
 enum QuestFailedReason
@@ -182,7 +181,7 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_MONSTER                 = 0,
     QUEST_OBJECTIVE_ITEM                    = 1,
     QUEST_OBJECTIVE_GAMEOBJECT              = 2,
-    QUEST_OBJECTIVE_TALKTO                  = 2,
+    QUEST_OBJECTIVE_TALKTO                  = 3,
     QUEST_OBJECTIVE_CURRENCY                = 4,
     QUEST_OBJECTIVE_LEARNSPELL              = 5,
     QUEST_OBJECTIVE_MIN_REPUTATION          = 6,
@@ -203,13 +202,13 @@ struct QuestLocale
     StringVector OfferRewardText;
     StringVector RequestItemsText;
     StringVector EndText;
-    StringVector CompletedText;
+    StringVector QuestCompletionLog;
     std::vector< StringVector > ObjectiveDescription;
     // new on 4.x
-    StringVector QuestGiverTextWindow;
-    StringVector QuestGiverTargetName;
-    StringVector QuestTurnTextWindow;
-    StringVector QuestTurnTargetName;
+    StringVector PortraitGiverText;
+    StringVector PortraitGiverName;
+    StringVector PortraitTurnInText;
+    StringVector PortraitTurnInName;
 };
 
 struct QuestObjective
@@ -265,7 +264,6 @@ class Quest
         int32  GetExclusiveGroup() const { return ExclusiveGroup; }
         uint32 GetNextQuestInChain() const { return NextQuestIdChain; }
         uint32 GetCharTitleId() const { return RewardTitleId; }
-        uint32 GetPlayersSlain() const { return RequiredPlayerKills; }
         uint32 GetBonusTalents() const { return RewardTalents; }
         int32  GetRewArenaPoints() const {return RewardArenaPoints; }
         uint32 GetXPId() const { return RewardXPId; }
@@ -278,11 +276,11 @@ class Quest
         std::string const& GetOfferRewardText() const { return OfferRewardText; }
         std::string const& GetRequestItemsText() const { return RequestItemsText; }
         std::string const& GetEndText() const { return EndText; }
-        std::string const& GetCompletedText() const { return CompletedText; }
-        std::string const& GetQuestGiverTextWindow() const { return QuestGiverTextWindow; }
-        std::string const& GetQuestGiverTargetName() const { return QuestGiverTargetName; }
-        std::string const& GetQuestTurnTextWindow() const { return QuestTurnTextWindow; }
-        std::string const& GetQuestTurnTargetName() const { return QuestTurnTargetName; }
+        std::string const& GetQuestCompletionLog() const { return QuestCompletionLog; }
+        std::string const& GetPortraitGiverText() const { return PortraitGiverText; }
+        std::string const& GetPortraitGiverName() const { return PortraitGiverName; }
+        std::string const& GetPortraitTurnInText() const { return PortraitTurnInText; }
+        std::string const& GetPortraitTurnInName() const { return PortraitTurnInName; }
         QuestObjectives const& GetObjectives() const { return Objectives; };
         int32  GetRewMoney() const;
         uint32 GetRewHonorAddition() const { return RewardHonor; }
@@ -388,7 +386,6 @@ class Quest
         uint32 LimitTime;
         uint32 Flags;
         uint32 RewardTitleId;
-        uint32 RequiredPlayerKills;
         uint32 RewardTalents;
         int32  RewardArenaPoints;
         int32  PrevQuestId;
@@ -405,7 +402,7 @@ class Quest
         std::string OfferRewardText;
         std::string RequestItemsText;
         std::string EndText;
-        std::string CompletedText;
+        std::string QuestCompletionLog;
         uint32 RewardHonor;
         float RewardHonorMultiplier;
         int32  RewardMoney;
@@ -428,10 +425,10 @@ class Quest
         uint32 QuestGiverPortrait;
         uint32 QuestTurnInPortrait;
         uint32 RequiredSpell;
-        std::string QuestGiverTextWindow;
-        std::string QuestGiverTargetName;
-        std::string QuestTurnTextWindow;
-        std::string QuestTurnTargetName;
+        std::string PortraitGiverText;
+        std::string PortraitGiverName;
+        std::string PortraitTurnInText;
+        std::string PortraitTurnInName;
         uint32 SoundAccept;
         uint32 SoundTurnIn;
 
@@ -440,14 +437,12 @@ class Quest
 
 struct QuestStatusData
 {
-    QuestStatusData(): Status(QUEST_STATUS_NONE), Timer(0), PlayerCount(0), Explored(false)
+    QuestStatusData(): Status(QUEST_STATUS_NONE), Timer(0)
     {
     }
 
     QuestStatus Status;
     uint32 Timer;
-    std::vector<int32> ObjectiveAmount;
-    uint16 PlayerCount;
-    bool Explored;
+    std::vector<int32> ObjectiveData;
 };
 #endif

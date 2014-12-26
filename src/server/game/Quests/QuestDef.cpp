@@ -64,7 +64,7 @@ Quest::Quest(Field* questRecord)
     SpecialFlags = questRecord[38].GetUInt8();
     MinimapTargetMark = questRecord[39].GetUInt8();
     RewardTitleId = questRecord[40].GetUInt8();
-    RequiredPlayerKills = questRecord[41].GetUInt8();
+    //RequiredPlayerKills = questRecord[41].GetUInt8();
     RewardTalents = questRecord[42].GetUInt8();
     RewardArenaPoints = questRecord[43].GetUInt16();
     RewardSkillId = questRecord[44].GetUInt16();
@@ -101,7 +101,7 @@ Quest::Quest(Field* questRecord)
     LogDescription = questRecord[89].GetString();
     QuestDescription = questRecord[90].GetString();
     EndText = questRecord[91].GetString();
-    CompletedText = questRecord[92].GetString();
+    QuestCompletionLog = questRecord[92].GetString();
     OfferRewardText = questRecord[93].GetString();
     RequestItemsText = questRecord[94].GetString();
 
@@ -140,10 +140,10 @@ Quest::Quest(Field* questRecord)
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
         RequiredCurrencyCount[i] = questRecord[140+i].GetUInt8();*/
 
-    QuestGiverTextWindow = questRecord[144].GetString();
-    QuestGiverTargetName = questRecord[145].GetString();
-    QuestTurnTextWindow = questRecord[146].GetString();
-    QuestTurnTargetName = questRecord[147].GetString();
+    PortraitGiverText = questRecord[144].GetString();
+    PortraitGiverName = questRecord[145].GetString();
+    PortraitTurnInText = questRecord[146].GetString();
+    PortraitTurnInName = questRecord[147].GetString();
     SoundAccept = questRecord[148].GetUInt16();
     SoundTurnIn = questRecord[149].GetUInt16();
 

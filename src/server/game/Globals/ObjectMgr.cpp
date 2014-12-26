@@ -4171,6 +4171,14 @@ void ObjectMgr::LoadQuests()
                         obj.Amount = 0; // quest can't be done for this requirement
                     }
                     break;
+                case QUEST_OBJECTIVE_MIN_REPUTATION:
+                case QUEST_OBJECTIVE_MAX_REPUTATION:
+                    if (!sFactionStore.LookupEntry(obj.ObjectID))
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing faction id %u", qinfo->GetQuestId(), j, obj.ObjectID);
+                    break;
+                case QUEST_OBJECTIVE_PLAYERKILLS:
+                    qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL);
+                    break;
                 default:
                     TC_LOG_ERROR("sql.sql", "Quest %u objective %u has unknown type %u", qinfo->GetQuestId(), j, obj.Type);
             }
@@ -4502,8 +4510,6 @@ void ObjectMgr::LoadQuests()
             mExclusiveQuestGroups.insert(std::pair<int32, uint32>(qinfo->ExclusiveGroup, qinfo->GetQuestId()));
         if (qinfo->LimitTime)
             qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED);
-        if (qinfo->RequiredPlayerKills)
-            qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL);
     }
 
     // check QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT for spell with SPELL_EFFECT_QUEST_COMPLETE
@@ -4577,16 +4583,16 @@ void ObjectMgr::LoadQuestLocales()
             AddLocaleString(fields[1 + 15 * (i - 1) + 3].GetString(), locale, data.OfferRewardText);
             AddLocaleString(fields[1 + 15 * (i - 1) + 4].GetString(), locale, data.RequestItemsText);
             AddLocaleString(fields[1 + 15 * (i - 1) + 5].GetString(), locale, data.EndText);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 6].GetString(), locale, data.CompletedText);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 6].GetString(), locale, data.QuestCompletionLog);
 
             data.ObjectiveDescription.resize(4);
             for (uint8 k = 0; k < 4; ++k)
                 AddLocaleString(fields[1 + 15 * (i - 1) + 7 + k].GetString(), locale, data.ObjectiveDescription[k]);
 
-            AddLocaleString(fields[1 + 15 * (i - 1) + 11].GetString(), locale, data.QuestGiverTextWindow);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 12].GetString(), locale, data.QuestGiverTargetName);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 13].GetString(), locale, data.QuestTurnTextWindow);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 14].GetString(), locale, data.QuestTurnTargetName);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 11].GetString(), locale, data.PortraitGiverText);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 12].GetString(), locale, data.PortraitGiverName);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 13].GetString(), locale, data.PortraitTurnInText);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 14].GetString(), locale, data.PortraitTurnInName);
         }
     } while (result->NextRow());
 
