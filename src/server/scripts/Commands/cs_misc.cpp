@@ -1978,7 +1978,7 @@ public:
     static bool HandleMuteInfoHelper(uint32 accountId, char const* accountName, ChatHandler *handler)
     {
         PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE_INFO);
-        stmt->setUInt16(0, accountId);
+        stmt->setUInt32(0, accountId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         if (!result)
