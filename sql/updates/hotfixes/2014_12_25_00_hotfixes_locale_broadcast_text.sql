@@ -1,4 +1,4 @@
-SET @world_db_name := 'world_db_name_goes_here_or_error_in_yo_face'; -- fill in your world database name
+SET @world_db_name := 'world'; -- fill in your world database name
 
 DROP TABLE IF EXISTS `locales_broadcast_text`;
 CREATE TABLE `locales_broadcast_text` (
