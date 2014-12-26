@@ -99,7 +99,7 @@ namespace WorldPackets
                 Optional<int32> WeeklyQuantity;       // Currency count obtained this Week.  
                 Optional<int32> MaxWeeklyQuantity;    // Weekly Currency cap.
                 Optional<int32> TrackedQuantity;
-                byte Flags = 0;                       // 0 = none, 
+                uint8 Flags = 0;                       // 0 = none, 
             };
 
             SetupCurrency() : ServerPacket(SMSG_SETUP_CURRENCY, 22) { }
