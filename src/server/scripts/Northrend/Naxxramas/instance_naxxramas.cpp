@@ -69,6 +69,15 @@ MinionData const minionData[] =
     { 0,                        0,              }
 };
 
+ObjectData const objectData[] =
+{
+    { GO_NAXX_PORTAL_ARACHNID,  DATA_NAXX_PORTAL_ARACHNID  },
+    { GO_NAXX_PORTAL_CONSTRUCT, DATA_NAXX_PORTAL_CONSTRUCT },
+    { GO_NAXX_PORTAL_PLAGUE,    DATA_NAXX_PORTAL_PLAGUE    },
+    { GO_NAXX_PORTAL_MILITARY,  DATA_NAXX_PORTAL_MILITARY  },
+    { 0,                        0,                         }
+};
+
 float const HeiganPos[2] = { 2796.0f, -3707.0f };
 float const HeiganEruptionSlope[3] =
 {
@@ -111,6 +120,7 @@ class instance_naxxramas : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
+                LoadObjectData(nullptr, objectData);
 
                 minHorsemenDiedTime     = 0;
                 maxHorsemenDiedTime     = 0;
@@ -208,11 +218,27 @@ class instance_naxxramas : public InstanceMapScript
                     case GO_ROOM_KELTHUZAD:
                         KelthuzadDoorGUID = go->GetGUID();
                         break;
+                    case GO_NAXX_PORTAL_ARACHNID:
+                        if (GetBossState(BOSS_MAEXXNA) == DONE)
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        break;
+                    case GO_NAXX_PORTAL_CONSTRUCT:
+                        if (GetBossState(BOSS_THADDIUS) == DONE)
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        break;
+                    case GO_NAXX_PORTAL_PLAGUE:
+                        if (GetBossState(BOSS_LOATHEB) == DONE)
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        break;
+                    case GO_NAXX_PORTAL_MILITARY:
+                        if (GetBossState(BOSS_HORSEMEN) == DONE)
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        break;
                     default:
                         break;
                 }
 
-                AddDoor(go, true);
+                InstanceScript::OnGameObjectCreate(go);
             }
 
             void OnGameObjectRemove(GameObject* go) override
@@ -239,7 +265,7 @@ class instance_naxxramas : public InstanceMapScript
                         break;
                 }
 
-                AddDoor(go, false);
+                InstanceScript::OnGameObjectRemove(go);
             }
 
             void OnUnitDeath(Unit* unit) override
@@ -358,10 +384,31 @@ class instance_naxxramas : public InstanceMapScript
                 switch (id)
                 {
                     case BOSS_MAEXXNA:
+                        if (state == DONE)
+                        {
+                            if (GameObject* teleporter = GetGameObject(DATA_NAXX_PORTAL_ARACHNID))
+                                teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                            events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6000);
+                        }
+                        break;
                     case BOSS_LOATHEB:
+                        if (state == DONE)
+                        {
+                            if (GameObject* teleporter = GetGameObject(DATA_NAXX_PORTAL_PLAGUE))
+                                teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                            events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6000);
+                        }
+                        break;
                     case BOSS_THADDIUS:
                         if (state == DONE)
+                        {
+                            if (GameObject* teleporter = GetGameObject(DATA_NAXX_PORTAL_CONSTRUCT))
+                                teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
                             events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6000);
+                        }
                         break;
                     case BOSS_GOTHIK:
                         if (state == DONE)
@@ -375,6 +422,10 @@ class instance_naxxramas : public InstanceMapScript
                                 horsemenChest->SetRespawnTime(horsemenChest->GetRespawnDelay());
                                 horsemenChest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             }
+
+                            if (GameObject* teleporter = GetGameObject(DATA_NAXX_PORTAL_MILITARY))
+                                teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
                             events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6000);
                         }
                         break;
