@@ -271,9 +271,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
                         {
-                            int32 outfitId = ObjectMgr::ChooseDisplayId(ci);
-                            uint32 displayId = sObjectMgr->GetCreatureDisplay(outfitId);
-                            if (outfitId < 0 && displayId)
+                            Creature* crea = (*itr)->ToCreature();
+                            ASSERT(crea);
+                            crea->SetOutfit(ObjectMgr::ChooseDisplayId(ci));
+                            uint32 displayId = sObjectMgr->GetCreatureDisplay(crea->GetOutfit());
+                            if (crea->GetOutfit() < 0 && displayId)
                                 (*itr)->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
                             else
                                 (*itr)->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);

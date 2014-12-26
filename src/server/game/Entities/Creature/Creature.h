@@ -434,6 +434,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void SetObjectScale(float scale) override;
         void SetDisplayId(uint32 modelId) override;
 
+        void SetOutfit(int32 outfit) { outfitId = outfit; };
+        int32 GetOutfit() const { return outfitId; };
+
         void DisappearAndDie();
 
         bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data = nullptr, uint32 vehId = 0);
@@ -741,6 +744,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool TriggerJustRespawned;
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
+
+        int32 outfitId;
 };
 
 class AssistDelayEvent : public BasicEvent
