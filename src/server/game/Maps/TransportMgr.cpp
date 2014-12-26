@@ -395,7 +395,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
         trans->SetInPhase(phaseid, false, true);
 
     if (phasegroup)
-        for (auto ph : GetPhasesForGroup(phasegroup))
+        for (auto ph : sDB2Manager.GetPhasesForGroup(phasegroup))
             trans->SetInPhase(ph, false, true);
 
     if (MapEntry const* mapEntry = sMapStore.LookupEntry(mapId))

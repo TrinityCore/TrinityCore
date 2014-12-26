@@ -502,7 +502,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
     for (char const* token : bonusListIDs)
     {
         uint32 bonusListID = atoul(token);
-        std::vector<ItemBonusEntry const*> bonuses = GetItemBonuses(bonusListID);
+        DB2Manager::ItemBonusList bonuses = sDB2Manager.GetItemBonusList(bonusListID);
         AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
         for (ItemBonusEntry const* bonus : bonuses)
             _bonusData.AddBonus(bonus->Type, bonus->Value);
@@ -1745,7 +1745,7 @@ uint32 Item::GetItemLevel() const
     uint32 itemLevel = stats->GetBaseItemLevel();
     if (Player const* owner = GetOwner())
         if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(stats->GetScalingStatDistribution()))
-            if (uint32 heirloomIlvl = GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
+            if (uint32 heirloomIlvl = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
                 itemLevel = heirloomIlvl;
 
     return std::min(std::max(itemLevel + _bonusData.ItemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
@@ -1769,9 +1769,9 @@ int32 Item::GetItemStatValue(uint32 index) const
 uint32 Item::GetDisplayId() const
 {
     if (uint32 transmogrification = GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID))
-        return GetItemDisplayId(transmogrification, GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD));
+        return sDB2Manager.GetItemDisplayId(transmogrification, GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD));
 
-    return GetItemDisplayId(GetEntry(), GetAppearanceModId());
+    return sDB2Manager.GetItemDisplayId(GetEntry(), GetAppearanceModId());
 }
 
 void Item::SetModifier(ItemModifier modifier, uint32 value)

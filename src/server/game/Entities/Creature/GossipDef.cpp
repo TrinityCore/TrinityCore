@@ -99,13 +99,13 @@ void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, ui
 
         /// OptionText
         if (optionBroadcastText)
-            strOptionText = GetBroadcastTextValue(optionBroadcastText, GetLocale());
+            strOptionText = DB2Manager::GetBroadcastTextValue(optionBroadcastText, GetLocale());
         else
             strOptionText = itr->second.OptionText;
 
         /// BoxText
         if (boxBroadcastText)
-            strBoxText = GetBroadcastTextValue(boxBroadcastText, GetLocale());
+            strBoxText = DB2Manager::GetBroadcastTextValue(boxBroadcastText, GetLocale());
         else
             strBoxText = itr->second.BoxText;
 

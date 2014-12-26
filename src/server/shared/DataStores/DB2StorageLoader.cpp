@@ -494,7 +494,7 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
                 case FT_STRING:
                 {
                     LocalizedString** slot = (LocalizedString**)(&dataTable[offset]);
-                    *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec++ + stringHolderSize * stringFieldNumInRecord]);
+                    *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringHolderSize * stringFieldNumInRecord]);
 
                     // Value in database in main table field must be for enUS locale
                     if (char* str = AddLocaleString(*slot, LOCALE_enUS, fields[f].GetString()))
@@ -510,6 +510,8 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
                 }
             }
         }
+
+        ++rec;
     } while (result->NextRow());
 
     // Reallocate index if needed

@@ -53,14 +53,54 @@ extern TaxiMask                                 sDeathKnightTaxiNodesMask;
 extern TaxiPathSetBySource                      sTaxiPathSetBySource;
 extern TaxiPathNodesByPath                      sTaxiPathNodesByPath;
 
-void LoadDB2Stores(std::string const& dataPath);
+struct HotfixNotify
+{
+    uint32 TableHash;
+    uint32 Timestamp;
+    uint32 Entry;
+};
 
-DB2StorageBase const* GetDB2Storage(uint32 type);
+typedef std::vector<HotfixNotify> HotfixData;
 
-char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
-uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
-uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId);
-std::vector<ItemBonusEntry const*> GetItemBonuses(uint32 bonusListId);
-std::set<uint32> const& GetPhasesForGroup(uint32 group);
+class DB2Manager
+{
+public:
+    typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
+    typedef std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvesContainer;
+    typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, uint32> ItemDisplayIdContainer;
+    typedef std::vector<ItemBonusEntry const*> ItemBonusList;
+    typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
+    typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
+
+    static DB2Manager& Instance()
+    {
+        static DB2Manager instance;
+        return instance;
+    }
+
+    void LoadStores(std::string const& dataPath);
+    DB2StorageBase const* GetStorage(uint32 type) const;
+
+    void LoadHotfixData();
+    HotfixData const* GetHotfixData() const { return &_hotfixData; }
+    time_t GetHotfixDate(uint32 entry, uint32 type) const;
+
+    static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
+    uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level) const;
+    uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
+    ItemBonusList GetItemBonusList(uint32 bonusListId) const;
+    std::set<uint32> GetPhasesForGroup(uint32 group) const;
+
+private:
+    StorageMap _stores;
+    HotfixData _hotfixData;
+
+    HeirloomCurvesContainer _heirloomCurvePoints;
+    ItemDisplayIdContainer _itemDisplayIDs;
+    ItemBonusListContainer _itemBonusLists;
+    PhaseGroupContainer _phasesByGroup;
+};
+
+#define sDB2Manager DB2Manager::Instance()
 
 #endif

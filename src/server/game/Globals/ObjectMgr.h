@@ -673,15 +673,6 @@ struct DungeonEncounter
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
-struct HotfixInfo
-{
-    uint32 Type;
-    uint32 Timestamp;
-    uint32 Entry;
-};
-
-typedef std::vector<HotfixInfo> HotfixData;
-
 class PlayerDumpReader;
 
 class ObjectMgr
@@ -1287,19 +1278,6 @@ class ObjectMgr
         void LoadFactionChangeTitles();
 
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
-
-        void LoadHotfixData();
-        HotfixData const& GetHotfixData() const { return _hotfixData; }
-        time_t GetHotfixDate(uint32 entry, uint32 type) const
-        {
-            time_t ret = 0;
-            for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)
-                if (itr->Entry == entry && itr->Type == type)
-                    if (time_t(itr->Timestamp) > ret)
-                        ret = time_t(itr->Timestamp);
-
-            return ret ? ret : time(NULL);
-        }
 
         void LoadRaceAndClassExpansionRequirements();
         void LoadRealmNames();
