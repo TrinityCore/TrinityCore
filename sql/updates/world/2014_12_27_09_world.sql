@@ -1,5 +1,5 @@
 --
-SET @CGUID := 75092; -- Guid range must be changed (used for test purpose)
+SET @CGUID := 75092;
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+7;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
@@ -19,11 +19,14 @@ DELETE FROM `vehicle_template_accessory` WHERE `entry`= 30013;
 INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`,`summontype`,`summontimer`) VALUES
 (30013,29730,0,1,'Stormcrest Eagle',5,0);
 
-UPDATE `creature` SET movementType=2 WHERE guid IN (101713, 101714, 101715, 101801);
+UPDATE `creature` SET movementType=2 WHERE `guid` IN (101713, 101714, 101715, 101801);
 
 DELETE FROM `creature_addon` WHERE `guid` IN (101713, 101714, 101715, 101801);
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote,auras`) VALUES
-(101713, 1017130, 0, 0, 1, 0, ''), (101714, 1017140, 0, 0, 1, 0, ''), (101715, 1017150, 0, 0, 1, 0, ''), (101801, 1018010, 0, 0, 1, 0, '');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`,`auras`) VALUES
+(101713, 1017130, 0, 0, 1, 0, ''),
+(101714, 1017140, 0, 0, 1, 0, ''),
+(101715, 1017150, 0, 0, 1, 0, ''),
+(101801, 1018010, 0, 0, 1, 0, '');
 
 DELETE FROM `waypoint_data` WHERE `id` IN (1017130, 1017140, 1017150, 1018010);
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
