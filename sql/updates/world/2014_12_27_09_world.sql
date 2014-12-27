@@ -13,7 +13,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry` IN (29854, 30013);
 
-DELETE FROM creature WHERE guid IN (99014, 99015, 99017, 99172, 121713, 121358); -- vehicle accessory and wrong spawn
+DELETE FROM `creature` WHERE `guid` IN (99014, 99015, 99017, 99172, 121713, 121358); -- vehicle accessory and wrong spawn
 
 DELETE FROM `vehicle_template_accessory` WHERE `entry`= 30013;
 INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`,`summontype`,`summontimer`) VALUES
@@ -21,12 +21,12 @@ INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`m
 
 UPDATE `creature` SET movementType=2 WHERE guid IN (101713, 101714, 101715, 101801);
 
-DELETE FROM creature_addon WHERE guid IN (101713, 101714, 101715, 101801);
-INSERT INTO creature_addon (guid, path_id, mount, bytes1, bytes2, emote,auras) VALUES
+DELETE FROM `creature_addon` WHERE `guid` IN (101713, 101714, 101715, 101801);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote,auras`) VALUES
 (101713, 1017130, 0, 0, 1, 0, ''), (101714, 1017140, 0, 0, 1, 0, ''), (101715, 1017150, 0, 0, 1, 0, ''), (101801, 1018010, 0, 0, 1, 0, '');
 
-DELETE FROM waypoint_data WHERE id IN (1017130, 1017140, 1017150, 1018010);
-INSERT INTO waypoint_data (id, POINT, position_x, position_y, position_z, orientation, delay, move_type, ACTION, action_chance, wpguid) VALUES
+DELETE FROM `waypoint_data` WHERE `id` IN (1017130, 1017140, 1017150, 1018010);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
 (1017130, 1, 6580.963, -341.5958, 1025.59, 0, 0, 1, 0, 100, 0),
 (1017130, 2, 6595.587, -274.2542, 1025.59, 0, 0, 1, 0, 100, 0),
 (1017130, 3, 6603.651, -214.6846, 1025.59, 0, 0, 1, 0, 100, 0),
