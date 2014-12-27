@@ -1731,7 +1731,7 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
     Unit* target = aurApp->GetTarget();
 
     std::set<uint32> const& oldPhases = target->GetPhases();
-    std::set<uint32> const& phases = GetPhasesForGroup(GetMiscValueB());
+    std::set<uint32> phases = sDB2Manager.GetPhasesForGroup(GetMiscValueB());
     for (auto phase : phases)
         target->SetInPhase(phase, false, apply);
 

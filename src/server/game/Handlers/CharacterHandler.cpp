@@ -44,6 +44,7 @@
 #include "Pet.h"
 #include "PlayerDump.h"
 #include "Player.h"
+#include "QueryPackets.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
@@ -927,17 +928,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     data << uint64(0);
     SendPacket(&data);
 
-    data.Initialize(SMSG_HOTFIX_INFO);
-    HotfixData const& hotfix = sObjectMgr->GetHotfixData();
-    data.WriteBits(hotfix.size(), 22);
-    data.FlushBits();
-    for (uint32 i = 0; i < hotfix.size(); ++i)
-    {
-        data << uint32(hotfix[i].Type);
-        data << uint32(hotfix[i].Timestamp);
-        data << uint32(hotfix[i].Entry);
-    }
-    SendPacket(&data);
+    WorldPackets::Query::HotfixNotifyBlob hotfixInfo;
+    hotfixInfo.Hotfixes = sDB2Manager.GetHotfixData();
+    SendPacket(hotfixInfo.Write());
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
 

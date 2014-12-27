@@ -200,6 +200,16 @@ namespace WorldPackets
             uint32 Locale = 0;
             DB2StorageBase const* Data = nullptr;
         };
+
+        class HotfixNotifyBlob final : public ServerPacket
+        {
+        public:
+            HotfixNotifyBlob() : ServerPacket(SMSG_HOTFIX_NOTIFY_BLOB, 4) { }
+
+            WorldPacket const* Write() override;
+
+            HotfixData const* Hotfixes = nullptr;
+        };
     }
 }
 

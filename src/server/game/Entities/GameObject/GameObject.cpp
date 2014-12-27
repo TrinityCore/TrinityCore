@@ -875,7 +875,7 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool a
     if (data->phaseGroup)
     {
         // Set the gameobject in all the phases of the phasegroup
-        for (auto ph : GetPhasesForGroup(data->phaseGroup))
+        for (auto ph : sDB2Manager.GetPhasesForGroup(data->phaseGroup))
             SetInPhase(ph, false, true);
     }
 
