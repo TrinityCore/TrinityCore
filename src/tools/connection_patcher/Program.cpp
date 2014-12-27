@@ -43,6 +43,9 @@ using boost::asio::ip::tcp;
 
 namespace Connection_Patcher
 {
+    void copyDir(boost::filesystem::path const & source, boost::filesystem::path const & destination);
+    void GetFile(const std::string& serverName, int port, const std::string& getCommand, std::ostream& out);
+
     namespace
     {
         template<typename PATCH, typename PATTERN>

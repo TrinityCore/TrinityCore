@@ -1165,6 +1165,11 @@ struct GtChanceToSpellCritBaseEntry
     float    base;
 };
 
+struct GtItemSocketCostPerLevelEntry
+{
+    float    ratio;
+};
+
 struct GtNPCManaCostScalerEntry
 {
     float    ratio;
@@ -1650,26 +1655,9 @@ struct RandomPropertiesPointsEntry
 struct ScalingStatDistributionEntry
 {
     uint32      ID;                                         // 0
-    int32       StatID[10];                                 // 1-10
-    uint32      Modifier[10];                               // 11-20
-    //uint32    MinLevel;                                   // 21
-    uint32      MaxLevel;                                   // 22       m_maxlevel
-};
-
-struct ScalingStatValuesEntry
-{
-    uint32      ID;                                         // 0
-    uint32      CharLevel;                                  // 1
-    uint32      DPSMod[6];                                  // 2-7 DPS mod for level
-    uint32      SpellPower;                                 // 8 spell power for level
-    uint32      StatMultiplier[5];                          // 9-13 Multiplier for ScalingStatDistribution
-    uint32      Armor[8][4];                                // 14-46 Armor for level
-    uint32      ArmorBack;                                  // 47
-    uint32      ArmorShield;                                // 48
-
-    uint32 GetStatMultiplier(uint32 inventoryType) const;
-    uint32 GetArmor(uint32 inventoryType, uint32 armorType) const;
-    uint32 GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const;
+    uint32      MinLevel;                                   // 1
+    uint32      MaxLevel;                                   // 2       m_maxlevel
+    uint32      ItemLevelCurveID;                           // 3
 };
 
 //struct SkillLineCategoryEntry{

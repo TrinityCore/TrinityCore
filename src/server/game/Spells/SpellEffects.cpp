@@ -1499,15 +1499,15 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
         }
 
         // set the "Crafted by ..." property of the item
-        if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
+        if (pItem->GetTemplate()->GetClass() != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->GetClass() != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
             pItem->SetGuidValue(ITEM_FIELD_CREATOR, player->GetGUID());
 
         // send info to the client
         player->SendNewItem(pItem, num_to_add, true, bgType == 0);
 
-        if (pProto->Quality > ITEM_QUALITY_EPIC || (pProto->Quality == ITEM_QUALITY_EPIC && pProto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
+        if (pItem->GetQuality() > ITEM_QUALITY_EPIC || (pItem->GetQuality() == ITEM_QUALITY_EPIC && pItem->GetItemLevel() >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
             if (Guild* guild = player->GetGuild())
-                guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->ItemId);
+                guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
 
 
         // we succeeded in creating at least one item, so a levelup is possible
@@ -1878,7 +1878,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     }
     else if (itemTarget)
     {
-        lockId = itemTarget->GetTemplate()->LockID;
+        lockId = itemTarget->GetTemplate()->GetLockID();
         guid = itemTarget->GetGUID();
     }
     else
@@ -2259,7 +2259,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
     TC_LOG_DEBUG("spells", "Spell: %s has learned spell %u from %s", player->GetGUID().ToString().c_str(), spellToLearn, m_caster->GetGUID().ToString().c_str());
 }
 
-void Spell::EffectDispel(SpellEffIndex /*effIndex*/)
+void Spell::EffectDispel(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -2351,20 +2351,7 @@ void Spell::EffectDispel(SpellEffIndex /*effIndex*/)
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
 
-    // On success dispel
-    // Devour Magic
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->GetCategory() == SPELLCATEGORY_DEVOUR_MAGIC)
-    {
-        if (SpellEffectInfo const* effect = GetEffect(EFFECT_1))
-        {
-            int32 heal_amount = effect->CalcValue(m_caster);
-            m_caster->CastCustomSpell(m_caster, 19658, &heal_amount, NULL, NULL, true);
-            // Glyph of Felhunter
-            if (Unit* owner = m_caster->GetOwner())
-            if (owner->GetAura(56249))
-                owner->CastCustomSpell(owner, 19658, &heal_amount, NULL, NULL, true);
-        }
-    }
+    CallScriptSuccessfulDispel(effIndex);
 }
 
 void Spell::EffectDualWield(SpellEffIndex /*effIndex*/)
@@ -2551,7 +2538,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
     else
     {
         // do not increase skill if vellum used
-        if (!(m_CastItem && m_CastItem->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_TRIGGERED_CAST))
+        if (!(m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_TRIGGERED_CAST))
             player->UpdateCraftSkill(m_spellInfo->Id);
 
         uint32 enchant_id = effectInfo->MiscValue;
@@ -2571,7 +2558,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         {
             sLog->outCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
                 player->GetName().c_str(), player->GetSession()->GetAccountId(),
-                itemTarget->GetTemplate()->Name1.c_str(), itemTarget->GetEntry(),
+                itemTarget->GetTemplate()->GetDefaultLocaleName(), itemTarget->GetEntry(),
                 item_owner->GetName().c_str(), item_owner->GetSession()->GetAccountId());
         }
 
@@ -2636,7 +2623,7 @@ void Spell::EffectEnchantItemPrismatic(SpellEffIndex /*effIndex*/)
     {
         sLog->outCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
             player->GetName().c_str(), player->GetSession()->GetAccountId(),
-            itemTarget->GetTemplate()->Name1.c_str(), itemTarget->GetEntry(),
+            itemTarget->GetTemplate()->GetDefaultLocaleName(), itemTarget->GetEntry(),
             item_owner->GetName().c_str(), item_owner->GetSession()->GetAccountId());
     }
 
@@ -2717,7 +2704,7 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
     {
         sLog->outCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(temp): %s (Entry: %d) for player: %s (Account: %u)",
             player->GetName().c_str(), player->GetSession()->GetAccountId(),
-            itemTarget->GetTemplate()->Name1.c_str(), itemTarget->GetEntry(),
+            itemTarget->GetTemplate()->GetDefaultLocaleName(), itemTarget->GetEntry(),
             item_owner->GetName().c_str(), item_owner->GetSession()->GetAccountId());
     }
 
@@ -2991,7 +2978,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex /*effIndex*/)
                 // 50% more damage with daggers
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
-                        if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                        if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_WEAPON_DAGGER)
                             totalDamagePercentMod *= 1.5f;
             }
             break;
@@ -4179,7 +4166,7 @@ void Spell::EffectFeedPet(SpellEffIndex effIndex)
     if (!pet->IsAlive())
         return;
 
-    int32 benefit = pet->GetCurrentFoodBenefitLevel(foodItem->GetTemplate()->ItemLevel);
+    int32 benefit = pet->GetCurrentFoodBenefitLevel(foodItem->GetTemplate()->GetBaseItemLevel());
     if (benefit <= 0)
         return;
 
@@ -4972,7 +4959,7 @@ void Spell::EffectProspecting(SpellEffIndex /*effIndex*/)
     if (!player)
         return;
 
-    if (!itemTarget || !(itemTarget->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_PROSPECTABLE))
+    if (!itemTarget || !(itemTarget->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_PROSPECTABLE))
         return;
 
     if (itemTarget->GetCount() < 5)
@@ -4981,7 +4968,7 @@ void Spell::EffectProspecting(SpellEffIndex /*effIndex*/)
     if (sWorld->getBoolConfig(CONFIG_SKILL_PROSPECTING))
     {
         uint32 SkillValue = player->GetPureSkillValue(SKILL_JEWELCRAFTING);
-        uint32 reqSkillValue = itemTarget->GetTemplate()->RequiredSkillRank;
+        uint32 reqSkillValue = itemTarget->GetTemplate()->GetRequiredSkillRank();
         player->UpdateGatherSkill(SKILL_JEWELCRAFTING, SkillValue, reqSkillValue);
     }
 
@@ -4997,7 +4984,7 @@ void Spell::EffectMilling(SpellEffIndex /*effIndex*/)
     if (!player)
         return;
 
-    if (!itemTarget || !(itemTarget->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_MILLABLE))
+    if (!itemTarget || !(itemTarget->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_MILLABLE))
         return;
 
     if (itemTarget->GetCount() < 5)
@@ -5006,7 +4993,7 @@ void Spell::EffectMilling(SpellEffIndex /*effIndex*/)
     if (sWorld->getBoolConfig(CONFIG_SKILL_MILLING))
     {
         uint32 SkillValue = player->GetPureSkillValue(SKILL_INSCRIPTION);
-        uint32 reqSkillValue = itemTarget->GetTemplate()->RequiredSkillRank;
+        uint32 reqSkillValue = itemTarget->GetTemplate()->GetRequiredSkillRank();
         player->UpdateGatherSkill(SKILL_INSCRIPTION, SkillValue, reqSkillValue);
     }
 
@@ -5415,7 +5402,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
     // level of pet summoned using engineering item based at engineering skill level
     if (m_CastItem && caster->GetTypeId() == TYPEID_PLAYER)
         if (ItemTemplate const* proto = m_CastItem->GetTemplate())
-            if (proto->RequiredSkill == SKILL_ENGINEERING)
+            if (proto->GetRequiredSkill() == SKILL_ENGINEERING)
                 if (uint16 skill202 = caster->ToPlayer()->GetSkillValue(SKILL_ENGINEERING))
                     level = skill202 / 5;
 

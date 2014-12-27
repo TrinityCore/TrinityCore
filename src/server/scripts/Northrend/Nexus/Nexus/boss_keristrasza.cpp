@@ -101,7 +101,7 @@ public:
 
             RemovePrison(CheckContainmentSpheres());
 
-            instance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_KERISTRASZA, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -109,14 +109,14 @@ public:
             Talk(SAY_AGGRO);
             DoCastAOE(SPELL_INTENSE_COLD);
 
-            instance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_KERISTRASZA, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
-            instance->SetData(DATA_KERISTRASZA_EVENT, DONE);
+            instance->SetBossState(DATA_KERISTRASZA, DONE);
         }
 
         void KilledUnit(Unit* who) override

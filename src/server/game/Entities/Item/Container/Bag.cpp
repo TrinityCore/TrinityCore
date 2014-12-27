@@ -74,10 +74,12 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner
 {
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemid);
 
-    if (!itemProto || itemProto->ContainerSlots > MAX_BAG_SIZE)
+    if (!itemProto || itemProto->GetContainerSlots() > MAX_BAG_SIZE)
         return false;
 
     Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
+
+    _bonusData.Initialize(itemProto);
 
     SetEntry(itemid);
     SetObjectScale(1.0f);
@@ -93,7 +95,7 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
 
     // Setting the number of Slots the Container has
-    SetUInt32Value(CONTAINER_FIELD_NUM_SLOTS, itemProto->ContainerSlots);
+    SetUInt32Value(CONTAINER_FIELD_NUM_SLOTS, itemProto->GetContainerSlots());
 
     // Cleaning 20 slots
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
@@ -116,7 +118,7 @@ bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fie
         return false;
 
     ItemTemplate const* itemProto = GetTemplate(); // checked in Item::LoadFromDB
-    SetUInt32Value(CONTAINER_FIELD_NUM_SLOTS, itemProto->ContainerSlots);
+    SetUInt32Value(CONTAINER_FIELD_NUM_SLOTS, itemProto->GetContainerSlots());
     // cleanup bag content related item value fields (its will be filled correctly from `character_inventory`)
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
     {
@@ -203,12 +205,12 @@ uint32 Bag::GetItemCount(uint32 item, Item* eItem) const
             count += pItem->GetCount();
     }
 
-    if (eItem && eItem->GetTemplate()->GemProperties)
+    if (eItem && eItem->GetTemplate()->GetGemProperties())
     {
         for (uint32 i=0; i < GetBagSize(); ++i)
         {
             pItem = m_bagslot[i];
-            if (pItem && pItem != eItem && pItem->GetTemplate()->Socket[0].Color)
+            if (pItem && pItem != eItem && pItem->GetTemplate()->ExtendedData->SocketColor[0])
                 count += pItem->GetGemCountWithID(item);
         }
     }
@@ -223,7 +225,7 @@ uint32 Bag::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem) 
         if (Item* pItem = m_bagslot[i])
             if (pItem != skipItem)
                 if (ItemTemplate const* pProto = pItem->GetTemplate())
-                    if (pProto->ItemLimitCategory == limitCategory)
+                    if (pProto->GetItemLimitCategory() == limitCategory)
                         count += m_bagslot[i]->GetCount();
 
     return count;

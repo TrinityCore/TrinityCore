@@ -247,7 +247,7 @@ bool EquippedOk(Player* player, uint32 spellId)
         for (uint8 j = EQUIPMENT_SLOT_START; j < EQUIPMENT_SLOT_END; ++j)
         {
             item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, j);
-            if (item && item->GetTemplate()->RequiredSpell == reqSpell)
+            if (item && item->GetTemplate()->GetRequiredSpell() == reqSpell)
             {
                 //player has item equipped that require specialty. Not allow to unlearn, player has to unequip first
                 TC_LOG_DEBUG("scripts", "player attempt to unlearn spell %u, but item %u is equipped.", reqSpell, item->GetEntry());

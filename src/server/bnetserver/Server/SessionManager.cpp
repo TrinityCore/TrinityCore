@@ -46,7 +46,11 @@ void Battlenet::SessionManager::AddSession(Session* session)
 void Battlenet::SessionManager::RemoveSession(Session* session)
 {
     std::unique_lock<boost::shared_mutex> lock(_sessionMutex);
-    _sessions.erase({ session->GetAccountId(), session->GetGameAccountId() });
+    auto itr = _sessions.find({ session->GetAccountId(), session->GetGameAccountId() });
+    // Remove old session only if it was not overwritten by reconnecting
+    if (itr != _sessions.end() && itr->second == session)
+        _sessions.erase(itr);
+
     _sessionsByAccountId[session->GetAccountId()].remove(session);
 }
 

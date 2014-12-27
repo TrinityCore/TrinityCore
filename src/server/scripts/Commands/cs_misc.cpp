@@ -1239,14 +1239,14 @@ public:
         ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
         for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
         {
-            if (itr->second.ItemSet == itemSetId)
+            if (itr->second.GetItemSet() == itemSetId)
             {
                 found = true;
                 ItemPosCountVec dest;
-                InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.ItemId, 1);
+                InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.GetId(), 1);
                 if (msg == EQUIP_ERR_OK)
                 {
-                    Item* item = playerTarget->StoreNewItem(dest, itr->second.ItemId, true);
+                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true);
 
                     // remove binding (let GM give it to another player later)
                     if (player == playerTarget)
@@ -1258,8 +1258,8 @@ public:
                 }
                 else
                 {
-                    player->SendEquipError(msg, NULL, NULL, itr->second.ItemId);
-                    handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itr->second.ItemId, 1);
+                    player->SendEquipError(msg, NULL, NULL, itr->second.GetId());
+                    handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itr->second.GetId(), 1);
                 }
             }
         }
@@ -1978,7 +1978,7 @@ public:
     static bool HandleMuteInfoHelper(uint32 accountId, char const* accountName, ChatHandler *handler)
     {
         PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE_INFO);
-        stmt->setUInt16(0, accountId);
+        stmt->setUInt32(0, accountId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         if (!result)
@@ -2601,7 +2601,7 @@ public:
         handler->GetSession()->SendShowMailBox(player->GetGUID());
         return true;
     }
-    
+
     static bool HandleAurasCommand(ChatHandler* handler, char const* args)
     {
         Unit* target = handler->GetSession()->GetPlayer()->GetSelectedUnit();

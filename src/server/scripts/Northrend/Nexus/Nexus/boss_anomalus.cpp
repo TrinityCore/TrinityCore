@@ -100,21 +100,21 @@ class boss_anomalus : public CreatureScript
             {
                 Initialize();
 
-                instance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_ANOMALUS, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
-                instance->SetData(DATA_ANOMALUS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_ANOMALUS, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
 
-                instance->SetData(DATA_ANOMALUS_EVENT, DONE);
+                instance->SetBossState(DATA_ANOMALUS, DONE);
             }
 
             uint32 GetData(uint32 type) const override

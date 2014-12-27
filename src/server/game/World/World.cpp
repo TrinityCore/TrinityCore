@@ -722,6 +722,11 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_MIN_PET_NAME] = 2;
     }
 
+    m_int_configs[CONFIG_CHARTER_COST_GUILD] = sConfigMgr->GetIntDefault("Guild.CharterCost", 1000);
+    m_int_configs[CONFIG_CHARTER_COST_ARENA_2v2] = sConfigMgr->GetIntDefault("ArenaTeam.CharterCost.2v2", 800000);
+    m_int_configs[CONFIG_CHARTER_COST_ARENA_3v3] = sConfigMgr->GetIntDefault("ArenaTeam.CharterCost.3v3", 1200000);
+    m_int_configs[CONFIG_CHARTER_COST_ARENA_5v5] = sConfigMgr->GetIntDefault("ArenaTeam.CharterCost.5v5", 2000000);
+
     m_int_configs[CONFIG_CHARACTER_CREATING_DISABLED] = sConfigMgr->GetIntDefault("CharacterCreating.Disabled", 0);
     m_int_configs[CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK] = sConfigMgr->GetIntDefault("CharacterCreating.Disabled.RaceMask", 0);
     m_int_configs[CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK] = sConfigMgr->GetIntDefault("CharacterCreating.Disabled.ClassMask", 0);
@@ -845,6 +850,20 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_CURRENCY_MAX_HONOR_POINTS] = 4000;
     }
     m_int_configs[CONFIG_CURRENCY_MAX_HONOR_POINTS] *= 100;     //precision mod
+
+    m_int_configs[CONFIG_CURRENCY_START_APEXIS_CRYSTALS] = sConfigMgr->GetIntDefault("Currency.StartApexisCrystals", 0);
+    if (int32(m_int_configs[CONFIG_CURRENCY_START_APEXIS_CRYSTALS]) < 0)
+    {
+        TC_LOG_ERROR("server.loading", "Currency.StartApexisCrystals (%i) must be >= 0, set to default 0.", m_int_configs[CONFIG_CURRENCY_START_APEXIS_CRYSTALS]);
+        m_int_configs[CONFIG_CURRENCY_START_APEXIS_CRYSTALS] = 0;
+    }
+    m_int_configs[CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS] = sConfigMgr->GetIntDefault("Currency.MaxApexisCrystals", 20000);
+    if (int32(m_int_configs[CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS]) < 0)
+    {
+        TC_LOG_ERROR("server.loading", "Currency.MaxApexisCrystals (%i) can't be negative. Set to default 20000.", m_int_configs[CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS]);
+        m_int_configs[CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS] = 20000;
+    }
+    m_int_configs[CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS] *= 100;     //precision mod
 
     m_int_configs[CONFIG_CURRENCY_START_JUSTICE_POINTS] = sConfigMgr->GetIntDefault("Currency.StartJusticePoints", 0);
     if (int32(m_int_configs[CONFIG_CURRENCY_START_JUSTICE_POINTS]) < 0)
@@ -1411,7 +1430,7 @@ void World::SetInitialWorldSettings()
     ///- Load the DBC files
     TC_LOG_INFO("server.loading", "Initialize data stores...");
     LoadDBCStores(m_dataPath);
-    LoadDB2Stores(m_dataPath);
+    sDB2Manager.LoadStores(m_dataPath);
 
     sSpellMgr->LoadPetFamilySpellsStore();
 
@@ -1439,10 +1458,6 @@ void World::SetInitialWorldSettings()
     // Must be called before `creature_respawn`/`gameobject_respawn` tables
     TC_LOG_INFO("server.loading", "Loading instances...");
     sInstanceSaveMgr->LoadInstances();
-
-    TC_LOG_INFO("server.loading", "Loading Broadcast texts...");
-    sObjectMgr->LoadBroadcastTexts();
-    sObjectMgr->LoadBroadcastTextLocales();
 
     TC_LOG_INFO("server.loading", "Loading Localization strings...");
     uint32 oldMSTime = getMSTime();
@@ -1921,10 +1936,7 @@ void World::SetInitialWorldSettings()
     LoadCharacterInfoStore();
 
     TC_LOG_INFO("misc", "Loading hotfix info...");
-    sObjectMgr->LoadHotfixData();
-
-    TC_LOG_INFO("server.loading", "Loading missing KeyChains...");
-    sObjectMgr->LoadMissingKeyChains();
+    sDB2Manager.LoadHotfixData();
 
     TC_LOG_INFO("server.loading", "Loading race and class expansion requirements...");
     sObjectMgr->LoadRaceAndClassExpansionRequirements();
@@ -2260,38 +2272,38 @@ namespace Trinity
     {
         public:
             typedef std::vector<WorldPacket*> WorldPacketList;
-            explicit WorldWorldTextBuilder(uint32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) { }
-            void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
-            {
-                char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
+            static size_t const BufferSize = 2048;
 
+            explicit WorldWorldTextBuilder(uint32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) { }
+
+            void operator()(WorldPacketList& dataList, LocaleConstant locale)
+            {
+                char const* text = sObjectMgr->GetTrinityString(i_textId, locale);
+
+                char strBuffer[BufferSize];
                 if (i_args)
                 {
                     // we need copy va_list before use or original va_list will corrupted
                     va_list ap;
                     va_copy(ap, *i_args);
-
-                    char str[2048];
-                    vsnprintf(str, 2048, text, ap);
+                    vsnprintf(strBuffer, BufferSize, text, ap);
                     va_end(ap);
-
-                    do_helper(data_list, &str[0]);
                 }
                 else
-                    do_helper(data_list, (char*)text);
+                    std::strcpy(strBuffer, text);
+
+                do_helper(dataList, strBuffer);
             }
+
         private:
-            char* lineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = NULL; return start; }
-            void do_helper(WorldPacketList& data_list, char* text)
+            void do_helper(WorldPacketList& dataList, char* text)
             {
-                char* pos = text;
-                while (char* line = lineFromMessage(pos))
+                while (char* line = ChatHandler::LineFromMessage(text))
                 {
-                    WorldPacket* data = new WorldPacket();
                     WorldPackets::Chat::Chat packet;
-                    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
-                    *data = *packet.Write();
-                    data_list.push_back(data);
+                    packet.Initalize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+                    packet.Write();
+                    dataList.emplace_back(new WorldPacket(packet.Move()));
                 }
             }
 
@@ -2355,7 +2367,7 @@ void World::SendGlobalText(const char* text, WorldSession* self)
     while (char* line = ChatHandler::LineFromMessage(pos))
     {
         WorldPackets::Chat::Chat packet;
-        ChatHandler::BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
+        packet.Initalize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         SendGlobalMessage(packet.Write(), self);
     }
 
@@ -2389,7 +2401,7 @@ bool World::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession
 void World::SendZoneText(uint32 zone, const char* text, WorldSession* self, uint32 team)
 {
     WorldPackets::Chat::Chat packet;
-    ChatHandler::BuildChatPacket(&packet, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, text);
+    packet.Initalize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, text);
     SendZoneMessage(zone, packet.Write(), self, team);
 }
 

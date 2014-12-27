@@ -1731,7 +1731,7 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
     Unit* target = aurApp->GetTarget();
 
     std::set<uint32> const& oldPhases = target->GetPhases();
-    std::set<uint32> const& phases = GetPhasesForGroup(GetMiscValueB());
+    std::set<uint32> phases = sDB2Manager.GetPhasesForGroup(GetMiscValueB());
     for (auto phase : phases)
         target->SetInPhase(phase, false, apply);
 
@@ -1970,7 +1970,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         if (!target->CanUseAttackType(BASE_ATTACK))
         {
             if (Item* pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem->GetTemplate(), NULL, apply);
+                target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem, apply);
         }
     }
 
@@ -2401,7 +2401,7 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
 
             if (attacktype < MAX_ATTACK)
             {
-                player->_ApplyWeaponDamage(slot, item->GetTemplate(), NULL, !apply);
+                player->_ApplyWeaponDamage(slot, item, !apply);
                 player->_ApplyWeaponDependentAuraMods(item, WeaponAttackType(attacktype), !apply);
             }
         }

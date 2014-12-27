@@ -247,7 +247,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
 
     WorldPackets::Query::QueryNPCTextResponse response;
     response.TextID = packet.TextID;
-    
+
     if (gossip)
     {
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
@@ -268,7 +268,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
 void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_PAGE_TEXT_QUERY");
-    
+
     uint32 pageID = packet.PageTextID;
 
     while (pageID)
@@ -287,7 +287,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText&
         {
             response.Allow = true;
             response.Info.ID = pageID;
-            
+
             int loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
                 if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
@@ -296,7 +296,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText&
             response.Info.NextPageID = pageText->NextPageID;
             pageID = pageText->NextPageID;
         }
-        
+
         SendPacket(response.Write());
 
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE");
@@ -434,7 +434,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
 {
-    DB2StorageBase const* store = GetDB2Storage(packet.TableHash);
+    DB2StorageBase const* store = sDB2Manager.GetStorage(packet.TableHash);
     if (!store)
     {
         TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: Received unknown hotfix type: %u", packet.TableHash);
@@ -450,7 +450,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
         {
             response.RecordID = rec.RecordID;
             response.Locale = GetSessionDbcLocale();
-            response.Timestamp = sObjectMgr->GetHotfixDate(rec.RecordID, packet.TableHash);
+            response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
             response.Data = store;
         }
         else
@@ -459,7 +459,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
             response.RecordID = -int32(rec.RecordID);
             response.Timestamp = time(NULL);
         }
-        
+
         SendPacket(response.Write());
     }
 }

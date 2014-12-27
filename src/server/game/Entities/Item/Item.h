@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "Object.h"
 #include "LootMgr.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "DatabaseEnv.h"
 
 class SpellInfo;
@@ -166,16 +166,16 @@ enum EnchantmentSlot
     SOCK_ENCHANTMENT_SLOT_3         = 4,
     BONUS_ENCHANTMENT_SLOT          = 5,
     PRISMATIC_ENCHANTMENT_SLOT      = 6,                    // added at apply special permanent enchantment
-    //TODO: 7,
-    TRANSMOGRIFY_ENCHANTMENT_SLOT   = 9,
-    MAX_INSPECTED_ENCHANTMENT_SLOT  = 10,
+    USE_ENCHANTMENT_SLOT            = 7,
 
-    PROP_ENCHANTMENT_SLOT_0         = 10,                   // used with RandomSuffix
-    PROP_ENCHANTMENT_SLOT_1         = 11,                   // used with RandomSuffix
-    PROP_ENCHANTMENT_SLOT_2         = 12,                   // used with RandomSuffix and RandomProperty
-    PROP_ENCHANTMENT_SLOT_3         = 13,                   // used with RandomProperty
-    PROP_ENCHANTMENT_SLOT_4         = 14,                   // used with RandomProperty
-    MAX_ENCHANTMENT_SLOT            = 15
+    MAX_INSPECTED_ENCHANTMENT_SLOT  = 8,
+
+    PROP_ENCHANTMENT_SLOT_0         = 8,                   // used with RandomSuffix
+    PROP_ENCHANTMENT_SLOT_1         = 9,                   // used with RandomSuffix
+    PROP_ENCHANTMENT_SLOT_2         = 10,                   // used with RandomSuffix and RandomProperty
+    PROP_ENCHANTMENT_SLOT_3         = 11,                   // used with RandomProperty
+    PROP_ENCHANTMENT_SLOT_4         = 12,                   // used with RandomProperty
+    MAX_ENCHANTMENT_SLOT            = 13
 };
 
 #define MAX_VISIBLE_ITEM_OFFSET       2                     // 2 fields per visible item (entry+enchantment)
@@ -207,9 +207,35 @@ enum ItemUpdateState
     ITEM_REMOVED                                 = 3
 };
 
+enum ItemModifier
+{
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD   = 1,
+    ITEM_MODIFIER_TRANSMOG_ITEM_ID          = 2,
+    ITEM_MODIFIER_UPGRADE_ID                = 3,
+    ITEM_MODIFIER_ENCHANT_ILLUSION          = 8,
+
+    MAX_ITEM_MODIFIERS
+};
+
 #define MAX_ITEM_SPELLS 5
 
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
+
+struct BonusData
+{
+    uint32 Quality;
+    int32 ItemLevel;
+    int32 RequiredLevel;
+    int32 ItemStatType[MAX_ITEM_PROTO_STATS];
+    int32 ItemStatValue[MAX_ITEM_PROTO_STATS];
+    int32 ItemStatAllocation[MAX_ITEM_PROTO_STATS];
+    float ItemStatSocketCostMultiplier[MAX_ITEM_PROTO_STATS];
+    uint32 SocketColor[MAX_ITEM_PROTO_SOCKETS];
+    uint32 AppearanceModID;
+
+    void Initialize(ItemTemplate const* proto);
+    void AddBonus(uint32 type, int32 const (&values)[2]);
+};
 
 class Item : public Object
 {
@@ -229,8 +255,8 @@ class Item : public Object
 
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND, val); }
         bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND); }
-        bool IsBoundAccountWide() const { return (GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT) != 0; }
-        bool IsBattlenetAccountBound() const { return (GetTemplate()->Flags[1] & ITEM_FLAGS_EXTRA_BNET_ACCOUNT_BOUND) != 0; }
+        bool IsBoundAccountWide() const { return (GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT) != 0; }
+        bool IsBattlenetAccountBound() const { return (GetTemplate()->GetFlags2() & ITEM_FLAGS_EXTRA_BNET_ACCOUNT_BOUND) != 0; }
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
@@ -255,7 +281,7 @@ class Item : public Object
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
 
         bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_UNLOCKED); }
-        bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
+        bool IsBag() const { return GetTemplate()->GetInventoryType() == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
@@ -330,13 +356,23 @@ class Item : public Object
             uState = state;
         }
 
-        bool hasQuest(uint32 quest_id) const override { return GetTemplate()->StartQuest == quest_id; }
+        bool hasQuest(uint32 quest_id) const override { return GetTemplate()->GetStartQuest() == quest_id; }
         bool hasInvolvedQuest(uint32 /*quest_id*/) const override { return false; }
         bool HasStats() const;
         bool IsPotion() const { return GetTemplate()->IsPotion(); }
         bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
+        uint32 GetQuality() const { return _bonusData.Quality; }
+        uint32 GetItemLevel() const;
+        int32 GetRequiredLevel() const { return _bonusData.RequiredLevel; }
+        int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return _bonusData.ItemStatType[index]; }
+        int32 GetItemStatValue(uint32 index) const;
+        SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(_bonusData.SocketColor[index]); }
+        uint32 GetAppearanceModId() const { return _bonusData.AppearanceModID; }
+        uint32 GetArmor() const { return GetTemplate()->GetArmor(GetItemLevel()); }
+        void GetDamage(float& minDamage, float& maxDamage) const { GetTemplate()->GetDamage(GetItemLevel(), minDamage, maxDamage); }
+        uint32 GetDisplayId() const;
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);
@@ -358,6 +394,7 @@ class Item : public Object
         bool CheckSoulboundTradeExpire();
 
         void BuildUpdate(UpdateDataMapType&) override;
+        void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
@@ -367,14 +404,16 @@ class Item : public Object
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 
-        uint32 GetVisibleEntry() const
-        {
-            if (uint32 transmogrification = GetEnchantmentId(TRANSMOGRIFY_ENCHANTMENT_SLOT))
-                return transmogrification;
-            return GetEntry();
-        }
+        uint32 GetVisibleEntry() const;
+        uint32 GetVisibleAppearanceModId() const;
 
         static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
+
+        uint32 GetModifier(ItemModifier modifier) const { return _modifiers[modifier]; }
+        void SetModifier(ItemModifier modifier, uint32 value);
+
+    protected:
+        BonusData _bonusData;
 
     private:
         std::string m_text;
@@ -388,5 +427,6 @@ class Item : public Object
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
+        uint32 _modifiers[MAX_ITEM_MODIFIERS];
 };
 #endif

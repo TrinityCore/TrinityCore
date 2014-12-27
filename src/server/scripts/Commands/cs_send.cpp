@@ -152,7 +152,7 @@ public:
             }
 
             uint32 itemCount = itemCountStr ? atoi(itemCountStr) : 1;
-            if (itemCount < 1 || (item_proto->MaxCount > 0 && itemCount > uint32(item_proto->MaxCount)))
+            if (itemCount < 1 || (item_proto->GetMaxCount() > 0 && itemCount > uint32(item_proto->GetMaxCount())))
             {
                 handler->PSendSysMessage(LANG_COMMAND_INVALID_ITEM_COUNT, itemCount, itemId);
                 handler->SetSentErrorMessage(true);

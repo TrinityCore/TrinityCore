@@ -191,6 +191,15 @@ namespace WorldPackets
         class QuestGiverHello;
         class QueryQuestInfo;
     }
+
+    namespace Item
+    {
+        class SplitItem;
+        class SwapInvItem;
+        class SwapItem;
+        class AutoEquipItem;
+        class DestroyItem;
+    }
 }
 
 enum AccountDataType
@@ -850,10 +859,10 @@ class WorldSession
         void HandleCancelChanneling(WorldPacket& recvData);
 
         void SendItemPageInfo(ItemTemplate* itemProto);
-        void HandleSplitItemOpcode(WorldPacket& recvPacket);
-        void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
-        void HandleDestroyItemOpcode(WorldPacket& recvPacket);
-        void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
+        void HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem);
+        void HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swapInvItem);
+        void HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& destroyItem);
+        void HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem);
         void HandleSellItemOpcode(WorldPacket& recvPacket);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPacket& recvPacket);
@@ -861,7 +870,7 @@ class WorldSession
         void HandleAutoStoreBagItemOpcode(WorldPacket& recvPacket);
         void HandleReadItem(WorldPacket& recvPacket);
         void HandleAutoEquipItemSlotOpcode(WorldPacket& recvPacket);
-        void HandleSwapItem(WorldPacket& recvPacket);
+        void HandleSwapItem(WorldPackets::Item::SwapItem& swapItem);
         void HandleBuybackItem(WorldPacket& recvPacket);
         void HandleAutoBankItemOpcode(WorldPacket& recvPacket);
         void HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket);

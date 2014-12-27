@@ -210,11 +210,11 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         }
 
         if (itemEntry == 0)
-            itemEntry = item->GetTemplate()->ItemId;
+            itemEntry = item->GetTemplate()->GetId();
 
         if (sAuctionMgr->GetAItem(item->GetGUID().GetCounter()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
-            item->GetTemplate()->Flags[0] & ITEM_PROTO_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_DURATION) ||
-            item->GetCount() < count[i] || itemEntry != item->GetTemplate()->ItemId)
+            item->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_DURATION) ||
+            item->GetCount() < count[i] || itemEntry != item->GetTemplate()->GetId())
         {
             SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
             return;
@@ -279,7 +279,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
         {
             sLog->outCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
-                GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount());
+                GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->GetDefaultLocaleName(), item->GetEntry(), item->GetCount());
         }
 
         AH->Id = sObjectMgr->GenerateAuctionID();
@@ -296,7 +296,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->auctionHouseEntry = auctionHouseEntry;
 
         TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: %s %s is selling item %s %s to auctioneer " UI64FMTD " with count %u with initial bid " UI64FMTD " with buyout " UI64FMTD " and with time %u (in sec) in auctionhouse %u",
-            _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), item->GetGUID().ToString().c_str(), item->GetTemplate()->Name1.c_str(), AH->auctioneer, item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
+            _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), item->GetGUID().ToString().c_str(), item->GetTemplate()->GetDefaultLocaleName(), AH->auctioneer, item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
         sAuctionMgr->AddAItem(item);
         auctionHouse->AddAuction(AH);
 
@@ -327,7 +327,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
         {
             sLog->outCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
-                GetPlayerName().c_str(), GetAccountId(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetCount());
+                GetPlayerName().c_str(), GetAccountId(), newItem->GetTemplate()->GetDefaultLocaleName(), newItem->GetEntry(), newItem->GetCount());
         }
 
         AH->Id = sObjectMgr->GenerateAuctionID();
@@ -344,7 +344,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->auctionHouseEntry = auctionHouseEntry;
 
         TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: %s %s is selling %s %s to auctioneer " UI64FMTD " with count %u with initial bid " UI64FMTD " with buyout " UI64FMTD " and with time %u (in sec) in auctionhouse %u",
-            _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), newItem->GetGUID().ToString().c_str(), newItem->GetTemplate()->Name1.c_str(), AH->auctioneer, newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
+            _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), newItem->GetGUID().ToString().c_str(), newItem->GetTemplate()->GetDefaultLocaleName(), AH->auctioneer, newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
         sAuctionMgr->AddAItem(newItem);
         auctionHouse->AddAuction(AH);
 

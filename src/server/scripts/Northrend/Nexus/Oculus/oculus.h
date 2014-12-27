@@ -79,6 +79,18 @@ enum OculusSpells
     SPELL_DEATH_SPELL           = 50415
 };
 
+enum InstanceTexts
+{
+    SAY_EREGOS_INTRO_TEXT = 0,
+    SAY_VAROS_INTRO_TEXT  = 4
+};
+
+enum InstanceEvents
+{
+    EVENT_VAROS_INTRO = 1,
+    EVENT_EREGOS_INTRO
+};
+
 enum Misc
 {
     POINT_MOVE_OUT              = 1
