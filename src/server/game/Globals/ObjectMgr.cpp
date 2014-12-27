@@ -3625,6 +3625,44 @@ void ObjectMgr::LoadQuests()
         } while (result->NextRow());
     }
 
+    // Load `quest_visual_effect` join table with quest_objectives because visual effects are based on objective ID (core stores objective by they index in quest)
+    //                                   0     1     2          3               4        5
+    result = WorldDatabase.Query("SELECT v.ID, o.ID, o.QuestID, o.StorageIndex, v.Index, v.VisualEffect FROM quest_visual_effect AS v LEFT JOIN quest_objectives AS o ON v.ID = o.ID ORDER BY v.Index DESC");
+    
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 quest visual effects. DB table `quest_visual_effect` is empty.");
+    }
+    else
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 vID = fields[0].GetUInt32();
+            uint32 oID = fields[1].GetUInt32();
+
+            if (!vID)
+            {
+                TC_LOG_ERROR("server.loading", "Table `quest_visual_effect` has visual effect for null objective id");
+                continue;
+            }
+
+            // objID will be null if match for table join is not found
+            if (vID != oID)
+            {
+                TC_LOG_ERROR("server.loading", "Table `quest_visual_effect` has visual effect for objective %u but such objective does not exist.", vID);
+                continue;
+            }
+
+            uint32 questId = fields[2].GetUInt32();
+
+            // Do not throw error here because error for non existing quest is thrown while loading quest objectives. we do not need duplication
+            auto itr = _questTemplates.find(questId);
+            if (itr != _questTemplates.end())
+                itr->second->LoadQuestObjectiveVisualEffect(fields);
+        } while (result->NextRow());
+    }
+
     std::map<uint32, uint32> usedMailTemplates;
 
     // Post processing
@@ -4347,7 +4385,7 @@ void ObjectMgr::LoadQuestLocales()
             AddLocaleString(fields[1 + 15 * (i - 1) + 2].GetString(), locale, data.QuestDescription);
             AddLocaleString(fields[1 + 15 * (i - 1) + 3].GetString(), locale, data.OfferRewardText);
             AddLocaleString(fields[1 + 15 * (i - 1) + 4].GetString(), locale, data.RequestItemsText);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 5].GetString(), locale, data.EndText);
+            //AddLocaleString(fields[1 + 15 * (i - 1) + 5].GetString(), locale, data.EndText); Probably deprecated
             AddLocaleString(fields[1 + 15 * (i - 1) + 6].GetString(), locale, data.QuestCompletionLog);
 
             data.ObjectiveDescription.resize(4);

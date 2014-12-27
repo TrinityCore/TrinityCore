@@ -392,7 +392,6 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     std::string questLogTitle        = quest->GetLogTitle();
     std::string questLogDescription  = quest->GetLogDescription();
     std::string questDescription     = quest->GetQuestDescription();
-    std::string questEndText         = quest->GetEndText();
     std::string portraitGiverText   = quest->GetPortraitGiverText();
     std::string portraitGiverName   = quest->GetPortraitGiverName();
     std::string portraitTurnInText  = quest->GetPortraitTurnInText();
@@ -406,7 +405,6 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
             ObjectMgr::GetLocaleString(localeData->LogTitle, locale, questLogTitle);
             ObjectMgr::GetLocaleString(localeData->LogDescription, locale, questLogDescription);
             ObjectMgr::GetLocaleString(localeData->QuestDescription, locale, questDescription);
-            ObjectMgr::GetLocaleString(localeData->EndText, locale, questEndText);
             ObjectMgr::GetLocaleString(localeData->PortraitGiverText, locale, portraitGiverText);
             ObjectMgr::GetLocaleString(localeData->PortraitGiverName, locale, portraitGiverName);
             ObjectMgr::GetLocaleString(localeData->PortraitTurnInText, locale, portraitTurnInText);

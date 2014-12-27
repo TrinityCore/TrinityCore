@@ -201,7 +201,6 @@ struct QuestLocale
     StringVector QuestDescription;
     StringVector OfferRewardText;
     StringVector RequestItemsText;
-    StringVector EndText;
     StringVector QuestCompletionLog;
     std::vector< StringVector > ObjectiveDescription;
     // new on 4.x
@@ -235,13 +234,14 @@ class Quest
     friend class Player;
     friend class PlayerMenu;
     public:
-        // Loading data
+        // Loading data. All queries are in ObjectMgr::LoadQuests()
         Quest(Field* questRecord);
         void LoadQuestDetails(Field* fields);
         void LoadQuestRequestItems(Field* fields);
         void LoadQuestOfferReward(Field* fields);
         void LoadQuestTemplateAddon(Field* fields);
         void LoadQuestObjective(Field* fields);
+        void LoadQuestObjectiveVisualEffect(Field* fields);
 
         uint32 XPValue(Player* player) const;
 
@@ -285,7 +285,6 @@ class Quest
         std::string const& GetQuestDescription() const { return QuestDescription; }
         std::string const& GetOfferRewardText() const { return OfferRewardText; }
         std::string const& GetRequestItemsText() const { return RequestItemsText; }
-        std::string const& GetEndText() const { return EndText; }
         std::string const& GetQuestCompletionLog() const { return QuestCompletionLog; }
         std::string const& GetPortraitGiverText() const { return PortraitGiverText; }
         std::string const& GetPortraitGiverName() const { return PortraitGiverName; }
@@ -444,7 +443,6 @@ class Quest
         uint32 SpecialFlags; // custom flags, not sniffed/WDB
 
         // not loaded yet
-        std::string EndText;
         uint32 RequiredSpell;
         uint32 RequiredSkillId;
         uint32 RequiredSkillPoints;

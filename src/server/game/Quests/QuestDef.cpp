@@ -186,6 +186,19 @@ void Quest::LoadQuestObjective(Field* fields)
     obj.Description = fields[8].GetString();
 }
 
+void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
+{
+    // No need to check index because checks is objective exists are done in ObjectMgr while loading quest_visual_effect
+    uint8 storageIndex = fields[3].GetUInt8();
+    QuestObjective& obj = Objectives[storageIndex];
+
+    uint8 effectIndex = fields[4].GetUInt8();
+    if (effectIndex >= obj.VisualEffects.size())
+        obj.VisualEffects.resize(effectIndex+1, 0);
+
+    obj.VisualEffects[effectIndex] = fields[5].GetInt32();
+}
+
 /* @todo Not loaded variables
 {
     RequiredSkillId = questRecord[11].GetUInt16();
