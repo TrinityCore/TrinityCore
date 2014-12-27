@@ -5,7 +5,7 @@ CREATE TABLE `character_queststatus` (
   `status` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
   `timer` INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`, `quest`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
 DROP TABLE IF EXISTS `character_queststatus_objectives`;
 CREATE TABLE `character_queststatus_objectives` (
@@ -14,4 +14,4 @@ CREATE TABLE `character_queststatus_objectives` (
   `objective` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
   `data` INT(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`, `quest`, `objective`)
-) ENGINE=MYISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';

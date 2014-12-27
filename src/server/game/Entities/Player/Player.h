@@ -1659,6 +1659,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 questId) const;
 
+        int32 GetQuestObjectiveData(Quest const* quest, uint32 objective) const;
+        void SetQuestObjectiveData(Quest const* quest, uint32 objective, int32 data);
         void SendQuestComplete(Quest const* quest);
         void SendQuestReward(Quest const* quest, uint32 XP);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
@@ -1666,7 +1668,7 @@ class Player : public Unit, public GridObject<Player>
         void SendCanTakeQuestResponse(QuestFailedReason msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
         void SendPushToPartyResponse(Player* player, uint8 msg);
-        void SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid, uint32 creatureOrGOIdx, uint16 oldCount, uint16 addCount);
+        void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, uint32 objective, uint16 count);
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount, uint32 required);
 
         ObjectGuid GetDivider() const { return m_divider; }
@@ -2899,7 +2901,7 @@ class Player : public Unit, public GridObject<Player>
         // know currencies are not removed at any point (0 displayed)
         void AddKnownCurrency(uint32 itemId);
 
-        void AdjustQuestReqItemCount(Quest const* quest, QuestStatusData& questStatusData);
+        void AdjustQuestReqItemCount(Quest const* quest);
 
         bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }
