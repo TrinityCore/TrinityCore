@@ -254,6 +254,7 @@ class Quest
         // table data accessors:
         uint32 GetQuestId() const { return Id; }
         uint32 GetQuestMethod() const { return Method; }
+        uint32 GetQuestPackageID() const { return PackageID; }
         int32  GetZoneOrSort() const { return ZoneOrSort; }
         uint32 GetMinLevel() const { return MinLevel; }
         uint32 GetMaxLevel() const { return MaxLevel; }
@@ -292,6 +293,7 @@ class Quest
         std::string const& GetPortraitTurnInName() const { return PortraitTurnInName; }
         QuestObjectives const& GetObjectives() const { return Objectives; };
         int32  GetRewMoney() const;
+        uint32 GetRewMoneyDifficulty() const { return RewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return RewardHonor; }
         uint32 GetRewKillHonor() const { return RewardKillHonor; }
         uint32 GetRewMoneyMaxLevel() const; // use in XP calculation at client
