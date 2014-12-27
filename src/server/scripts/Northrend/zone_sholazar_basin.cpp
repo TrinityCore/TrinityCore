@@ -493,8 +493,7 @@ public:
             if (!quest)
                 return;
 
-            QuestStatusMap::const_iterator itr = player->getQuestStatusMap().find(QUEST_TASTE_TEST);
-            if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
+            if (player->GetQuestStatus(QUEST_TASTE_TEST) != QUEST_STATUS_INCOMPLETE)
                 return;
 
             for (uint32 i = 0; i < quest->Objectives.size(); ++i)

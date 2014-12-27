@@ -499,22 +499,22 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.QuestInfoID = quest->GetType(); // quest type
     packet.Info.SuggestedGroupNum = quest->GetSuggestedPlayers();
     packet.Info.RewardNextQuest = quest->GetNextQuestInChain();
-    packet.Info.RewardXPDifficulty = quest->GetXPId();
+    packet.Info.RewardXPDifficulty = quest->GetXPDifficulty();
 
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
         packet.Info.RewardMoney = quest->GetRewMoney();
 
     packet.Info.RewardMoneyDifficulty = quest->GetRewMoneyMaxLevel();
-    packet.Info.RewardDisplaySpell = quest->GetRewSpell();           
-    packet.Info.RewardSpell = quest->GetRewSpellCast();
+    packet.Info.RewardDisplaySpell = quest->GetRewDisplaySpell();           
+    packet.Info.RewardSpell = quest->GetRewSpell();
 
     // rewarded honor points
-    packet.Info.RewardHonor = quest->GetRewHonorAddition();
-    packet.Info.RewardKillHonor = quest->GetRewHonorMultiplier();
+    packet.Info.RewardHonor = quest->GetRewHonor();
+    packet.Info.RewardKillHonor = quest->GetRewKillHonor();
     
     packet.Info.StartItem = quest->GetSrcItemId();
     packet.Info.Flags = quest->GetFlags();
-    //data << uint32(quest->GetMinimapTargetMark());          // minimap target mark (skull, etc. missing enum)
+    packet.Info.FlagsEx = quest->GetFlagsEx();
     packet.Info.RewardTitle = quest->GetCharTitleId();
     packet.Info.RewardTalents = quest->GetBonusTalents();
     packet.Info.RewardArenaPoints = quest->GetRewArenaPoints();
@@ -526,10 +526,10 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
     if (!quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
     {
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
         {
             packet.Info.RewardItems[i] = quest->RewardItemId[i];
-            packet.Info.RewardAmount[i] = quest->RewardItemIdCount[i];
+            packet.Info.RewardAmount[i] = quest->RewardItemCount[i];
         }
         for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         {
@@ -538,17 +538,17 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
         }
     }
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
     {
         packet.Info.RewardFactionID[i] = quest->RewardFactionId[i];
-        packet.Info.RewardFactionValue[i] = quest->RewardFactionValueId[i];
-        packet.Info.RewardFactionOverride[i] = quest->RewardFactionValueIdOverride[i];
+        packet.Info.RewardFactionValue[i] = quest->RewardFactionValue[i];
+        packet.Info.RewardFactionOverride[i] = quest->RewardFactionOverride[i];
     }
 
-    packet.Info.POIContinent = quest->GetPointMapId();
-    packet.Info.POIx = quest->GetPointX();
-    packet.Info.POIy = quest->GetPointY();
-    packet.Info.POIPriority = quest->GetPointOpt();
+    packet.Info.POIContinent = quest->GetPOIContinent();
+    packet.Info.POIx = quest->GetPOIx();
+    packet.Info.POIy = quest->GetPOIy();
+    packet.Info.POIPriority = quest->GetPOIPriority();
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
         AddQuestLevelToTitle(questLogTitle, quest->GetQuestLevel());
@@ -577,6 +577,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
     packet.Info.AcceptedSoundKitID = quest->GetSoundAccept();
     packet.Info.CompleteSoundKitID = quest->GetSoundTurnIn();
+    packet.Info.AreaGroupID = quest->GetAreaGroupID();
 
     _session->SendPacket(packet.Write());
     
@@ -606,8 +607,8 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
         data << uint32(quest->GetRewOrReqMoney());          // reward money (below max lvl)
 
     data << uint32(quest->GetRewMoneyMaxLevel());           // used in XP calculation at client
-    data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
-    data << int32(quest->GetRewSpellCast());                // cast spell
+    data << uint32(quest->GetRewDisplaySpell());            // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
+    data << int32(quest->GetRewSpell());                    // cast spell
 
     // rewarded honor points
     data << uint32(quest->GetRewHonorAddition());
@@ -627,17 +628,17 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
     {
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
             data << uint32(0) << uint32(0);
         for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
             data << uint32(0) << uint32(0);
     }
     else
     {
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
         {
             data << uint32(quest->RewardItemId[i]);
-            data << uint32(quest->RewardItemIdCount[i]);
+            data << uint32(quest->RewardItemCount[i]);
         }
         for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         {
@@ -797,7 +798,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         }
     }
 
-    if (!quest->GetReqItemsCount() && canComplete)
+    if (!quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER) && canComplete)
     {
         SendQuestGiverOfferReward(quest, npcGUID, true);
         return;

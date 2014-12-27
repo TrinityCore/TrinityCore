@@ -526,7 +526,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
     }
     else
     {
-        if (quest->GetReqItemsCount())                  // some items required
+        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER))                  // some items required
             _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, _player->CanRewardQuest(quest, false), false);
         else                                            // no items required
             _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid, true);

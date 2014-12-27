@@ -85,7 +85,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.Flags;
         _worldPacket << Info.FlagsEx;
 
-        for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
         {
             _worldPacket << Info.RewardItems[i];
             _worldPacket << Info.RewardAmount[i];
@@ -114,7 +114,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.PortraitGiver;
         _worldPacket << Info.PortraitTurnIn;
 
-        for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
         {
             _worldPacket << Info.RewardFactionID[i];
             _worldPacket << Info.RewardFactionValue[i];
@@ -146,7 +146,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
             _worldPacket << Info.Objectives[i].ObjectID;
             _worldPacket << Info.Objectives[i].Amount;
             _worldPacket << Info.Objectives[i].Flags;
-            _worldPacket << float(0); // Unk
+            _worldPacket << Info.Objectives[i].UnkFloat;
 
             _worldPacket << int32(Info.Objectives[i].VisualEffects.size());
             for (uint32 j = 0; j < Info.Objectives[i].VisualEffects.size(); ++j)
