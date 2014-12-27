@@ -14527,11 +14527,7 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
             bool destroyItem = true;
             for (QuestObjective const& obj : quest->Objectives)
             {
-<<<<<<< HEAD
-                if (obj.Type == QUEST_OBJECTIVE_ITEM && uint32(obj.ObjectID) == item->GetEntry() && item->GetTemplate()->MaxCount > 0)
-=======
-                if (quest->RequiredItemId[i] == item->GetEntry() && item->GetTemplate()->GetMaxCount() > 0)
->>>>>>> 6.x
+                if (obj.Type == QUEST_OBJECTIVE_ITEM && uint32(obj.ObjectID) == item->GetEntry() && item->GetTemplate()->GetMaxCount() > 0)
                 {
                     destroyItem = false;
                     break;
@@ -15425,16 +15421,10 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
 
             ASSERT(item);
             bool destroyItem = true;
-<<<<<<< HEAD
-            if (item->StartQuest == questId)
+            if (item->GetStartQuest() == questId)
                 for (QuestObjective const& obj : quest->Objectives)
                     if (obj.Type == QUEST_OBJECTIVE_ITEM && srcItemId == uint32(obj.ObjectID))
                         destroyItem = false;
-=======
-            for (uint8 n = 0; n < QUEST_ITEM_OBJECTIVES_COUNT; ++n)
-                if (item->GetStartQuest() == questId && srcItemId == quest->RequiredItemId[n])
-                    destroyItem = false;
->>>>>>> 6.x
 
             if (destroyItem)
                 DestroyItemCount(srcItemId, count, true, true);
