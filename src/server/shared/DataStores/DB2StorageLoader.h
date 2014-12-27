@@ -21,6 +21,8 @@
 #include "Define.h"
 #include "Utilities/ByteConverter.h"
 #include <cassert>
+#include <list>
+#include "Common.h"
 
 class DB2FileLoader
 {
