@@ -670,6 +670,8 @@ struct ItemTemplate
             case INVTYPE_SHIELD:
             case INVTYPE_HOLDABLE:
                 return true;
+            default:
+                break;
         }
 
         switch (GetClass())
