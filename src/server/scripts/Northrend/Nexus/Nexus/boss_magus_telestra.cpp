@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "nexus.h"
+#include "GameEventMgr.h"
 
 enum Spells
 {
