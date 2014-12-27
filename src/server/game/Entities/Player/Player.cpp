@@ -7031,8 +7031,8 @@ void Player::SendNewCurrency(uint32 id) const
     record.Type = entry->ID;
     record.Quantity = itr->second.Quantity;
     record.WeeklyQuantity.Set(itr->second.WeeklyQuantity / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
-	record.MaxWeeklyQuantity.Set(GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
-	record.TrackedQuantity.Set(itr->second.TrackedQuantity / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
+    record.MaxWeeklyQuantity.Set(GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
+    record.TrackedQuantity.Set(itr->second.TrackedQuantity / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
     record.Flags = itr->second.Flags;
 
     packet.Data.push_back(record);
@@ -7057,8 +7057,8 @@ void Player::SendCurrencies() const
         record.Type = entry->ID;
         record.Quantity = itr->second.Quantity;
         record.WeeklyQuantity.Set(itr->second.WeeklyQuantity / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
-		record.MaxWeeklyQuantity.Set(GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
-		record.TrackedQuantity.Set(itr->second.TrackedQuantity / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
+        record.MaxWeeklyQuantity.Set(GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
+        record.TrackedQuantity.Set(itr->second.TrackedQuantity / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
         record.Flags = itr->second.Flags;
 
         packet.Data.push_back(record);
@@ -7205,7 +7205,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         packet.Quantity = newTotalCount;
         packet.SuppressChatLog = false;
         packet.WeeklyQuantity.Set(newWeekCount / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
-		packet.TrackedQuantity.Set(newTrackedCount / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
+        packet.TrackedQuantity.Set(newTrackedCount / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) != 0 ? CURRENCY_PRECISION : 1));
         packet.Flags = itr->second.Flags;
 
         GetSession()->SendPacket(packet.Write());
