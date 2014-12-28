@@ -415,35 +415,47 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
         AddQuestLevelToTitle(questLogTitle, quest->GetQuestLevel());
 
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_DETAILS, 100);   // guess size
-    data << npcGUID;
-    data << _session->GetPlayer()->GetDivider();
-    data << uint32(quest->GetQuestId());
-    data << questLogTitle;
-    data << questLogDescription;
-    data << questDescription;
-    data << portraitGiverText;                              // 4.x
-    data << portraitGiverName;                              // 4.x
-    data << portraitTurnInText;                             // 4.x
-    data << portraitTurnInName;                             // 4.x
-    data << uint32(quest->GetQuestGiverPortrait());         // 4.x
-    data << uint32(quest->GetQuestTurnInPortrait());        // 4.x
-    data << uint8(activateAccept ? 1 : 0);                  // auto finish
-    data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
-    data << uint32(quest->GetSuggestedPlayers());
-    data << uint8(0);                                       // IsFinished? value is sent back to server in quest accept packet
-    data << uint8(0);                                       // 4.x FIXME: Starts at AreaTrigger
-    data << uint32(quest->GetSrcSpell());                   // 4.x
+    WorldPackets::Quest::QuestGiverQuestDetails packet;
+    packet.QuestGiverGUID = npcGUID;
+    packet.InformUnit = _session->GetPlayer()->GetDivider();
+    packet.QuestID = quest->GetQuestId();
+    packet.QuestTitle = questLogTitle;
+    packet.LogDescription = questLogDescription;
+    packet.DescriptionText = questDescription;
+    packet.PortraitGiverText = portraitGiverText;
+    packet.PortraitGiverName = portraitGiverName;
+    packet.PortraitTurnInText = portraitTurnInText;
+    packet.PortraitTurnInName = portraitTurnInName;
+    packet.PortraitGiver = quest->GetQuestGiverPortrait();
+    packet.PortraitTurnIn = quest->GetQuestTurnInPortrait();
+    packet.DisplayPopup = activateAccept;
+    packet.QuestFlags[0] = quest->GetFlags();
+    packet.QuestFlags[1] = quest->GetFlagsEx();
+    packet.SuggestedPartyMembers = quest->GetSuggestedPlayers();
 
-    quest->BuildExtraQuestInfo(data, _session->GetPlayer());
+    if (quest->GetSrcSpell())
+        packet.LearnSpells.push_back(quest->GetSrcSpell());
 
-    data << uint32(QUEST_EMOTE_COUNT);
-    for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
+    quest->BuildQuestRewards(packet.Rewards, _session->GetPlayer());
+
+    packet.DescEmotes.resize(QUEST_EMOTE_COUNT);
+    for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {
-        data << uint32(quest->DetailsEmote[i]);
-        data << uint32(quest->DetailsEmoteDelay[i]);       // DetailsEmoteDelay (in ms)
+        packet.DescEmotes[i].Type = quest->DetailsEmote[i];
+        packet.DescEmotes[i].Delay = quest->DetailsEmoteDelay[i];
     }
-    _session->SendPacket(&data);
+
+    QuestObjectives const& objs = quest->GetObjectives();
+    packet.Objectives.resize(objs.size());
+    for (uint32 i = 0; i < objs.size(); ++i)
+    {
+        packet.Objectives[i].ID = objs[i].ID;
+        packet.Objectives[i].ObjectID = objs[i].ObjectID;
+        packet.Objectives[i].Amount = objs[i].Amount;
+        packet.Objectives[i].Type = objs[i].Type;
+    }
+
+    _session->SendPacket(packet.Write());
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
 }

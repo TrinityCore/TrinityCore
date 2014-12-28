@@ -319,3 +319,58 @@ void WorldPackets::Quest::QuestGiverCompleteQuest::Read()
     _worldPacket >> QuestID;
     FromScript = _worldPacket.ReadBit();
 }
+
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
+{
+    _worldPacket << QuestGiverGUID;
+    _worldPacket << InformUnit;
+    _worldPacket << QuestID;
+    _worldPacket << QuestPackageID;
+    _worldPacket << PortraitGiver;
+    _worldPacket << SuggestedPartyMembers;
+    _worldPacket << QuestFlags[0]; // Flags
+    _worldPacket << QuestFlags[1]; // FlagsEx
+    _worldPacket << PortraitTurnIn;
+    _worldPacket << int32(LearnSpells.size());
+    _worldPacket << Rewards; // WorldPackets::Quest::QuestRewards
+    _worldPacket << int32(DescEmotes.size());
+    _worldPacket << int32(Objectives.size());
+
+    for (int32 spell : LearnSpells)
+        _worldPacket << spell;
+
+    for (WorldPackets::Quest::QuestDescEmote const& emote : DescEmotes)
+    {
+        _worldPacket << emote.Type;
+        _worldPacket << emote.Delay;
+    }
+
+    for (WorldPackets::Quest::QuestObjectiveSimple const& obj : Objectives)
+    {
+        _worldPacket << obj.ID;
+        _worldPacket << obj.ObjectID;
+        _worldPacket << obj.Amount;
+        _worldPacket << obj.Type;
+    }
+
+    _worldPacket.WriteBits(QuestTitle.size(), 9);
+    _worldPacket.WriteBits(DescriptionText.size(), 12);
+    _worldPacket.WriteBits(LogDescription.size(), 12);
+    _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
+    _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
+    _worldPacket.WriteBits(PortraitGiverText.size(), 10);
+    _worldPacket.WriteBits(PortraitGiverName.size(), 8);
+    _worldPacket.WriteBit(DisplayPopup);
+    _worldPacket.WriteBit(StartCheat);
+    _worldPacket.WriteBit(AutoLaunched);
+
+    _worldPacket.WriteString(QuestTitle);
+    _worldPacket.WriteString(DescriptionText);
+    _worldPacket.WriteString(LogDescription);
+    _worldPacket.WriteString(PortraitTurnInText);
+    _worldPacket.WriteString(PortraitTurnInName);
+    _worldPacket.WriteString(PortraitGiverText);
+    _worldPacket.WriteString(PortraitGiverName);
+
+    return &_worldPacket;
+}
