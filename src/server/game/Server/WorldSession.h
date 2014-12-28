@@ -182,6 +182,7 @@ namespace WorldPackets
         class QueryPageText;
         class QueryNPCText;
         class DBQueryBulk;
+        class QueryGameObject;
     }
 
     namespace Quest
@@ -197,6 +198,12 @@ namespace WorldPackets
         class SwapItem;
         class AutoEquipItem;
         class DestroyItem;
+    }
+
+    namespace GameObject
+    {
+        class GameObjectReportUse;
+        class GameObjectUse;
     }
 }
 
@@ -694,16 +701,16 @@ class WorldSession
         void HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request);
         void HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet);
 
-        void HandleGameObjectUseOpcode(WorldPacket& recPacket);
+        void HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjectUse& packet);
         void HandleMeetingStoneInfo(WorldPacket& recPacket);
-        void HandleGameobjectReportUse(WorldPacket& recvPacket);
+        void HandleGameobjectReportUse(WorldPackets::GameObject::GameObjectReportUse& packet);
 
         void HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet);
         void HandleQueryTimeOpcode(WorldPacket& recvPacket);
         void HandleCreatureQuery(WorldPackets::Query::QueryCreature& packet);
         void HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet);
 
-        void HandleGameObjectQueryOpcode(WorldPacket& recvPacket);
+        void HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& packet);
 
         void HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortAck& packet);
         void HandleMoveWorldportAckOpcode();                // for server-side calls
