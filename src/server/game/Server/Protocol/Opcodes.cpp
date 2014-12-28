@@ -33,6 +33,7 @@
 #include "Packets/TalentPackets.h"
 #include "Packets/TradePackets.h"
 #include "Packets/ItemPackets.h"
+#include "Packets/GameObjectPackets.h"
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
 class PacketHandler : public ClientOpcodeHandler
@@ -299,10 +300,10 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_FAR_SIGHT,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleFarSightOpcode            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_FORCE_MOVE_ROOT_ACK,                     STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveRootAck               );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_FORCE_MOVE_UNROOT_ACK,                   STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveUnRootAck             );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GAMEOBJECT_QUERY,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleGameObjectQueryOpcode     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GAMEOBJ_REPORT_USE,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGameobjectReportUse       );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GAMEOBJ_USE,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGameObjectUseOpcode       );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_MAIL_LIST,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGetMailList               );
+    DEFINE_HANDLER(CMSG_GAMEOBJECT_QUERY,                                   STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Query::QueryGameObject, &WorldSession::HandleGameObjectQueryOpcode);
+    DEFINE_HANDLER(CMSG_GAMEOBJ_REPORT_USE,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::GameObject::GameObjectReportUse, &WorldSession::HandleGameobjectReportUse);
+    DEFINE_HANDLER(CMSG_GAMEOBJ_USE,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::GameObject::GameObjectUse, &WorldSession::HandleGameObjectUseOpcode);
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_MAIL_LIST,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGetMailList);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_MIRRORIMAGE_DATA,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleMirrorImageDataRequest    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GMRESPONSE_RESOLVE,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMResponseResolve         );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GMSURVEY_SUBMIT,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMSurveySubmit            );
@@ -927,7 +928,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMEOBJECT_DESPAWN_ANIM,                 STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMEOBJECT_DESPAWN,                      STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMEOBJECT_PAGETEXT,                     STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMEOBJECT_QUERY_RESPONSE,               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMEOBJECT_QUERY_RESPONSE,               STATUS_LOGGEDIN,     CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMEOBJECT_RESET_STATE,                  STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMESPEED_SET,                           STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMETIME_SET,                            STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
