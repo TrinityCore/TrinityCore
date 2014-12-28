@@ -392,7 +392,7 @@ class spell_mage_cone_of_cold : public SpellScriptLoader
 };
 
 // 42955 Conjure Refreshment
-/// Updated 4.3.4
+/// Updated 6.0.3
 struct ConjureRefreshmentData
 {
     uint32 minLevel;
@@ -400,7 +400,7 @@ struct ConjureRefreshmentData
     uint32 spellId;
 };
 
-uint8 const MAX_CONJURE_REFRESHMENT_SPELLS = 7;
+uint8 const MAX_CONJURE_REFRESHMENT_SPELLS = 9;
 ConjureRefreshmentData const _conjureData[MAX_CONJURE_REFRESHMENT_SPELLS] =
 {
     { 33, 43, 92739 },
@@ -409,7 +409,9 @@ ConjureRefreshmentData const _conjureData[MAX_CONJURE_REFRESHMENT_SPELLS] =
     { 64, 73, 92805 },
     { 74, 79, 74625 },
     { 80, 84, 92822 },
-    { 85, 85, 92727 }
+    { 85, 89, 92727 },
+    { 90, 99, 116130 },
+    { 100, 100, 167143 }
 };
 
 // 42955 - Conjure Refreshment
@@ -460,6 +462,66 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
         {
             return new spell_mage_conjure_refreshment_SpellScript();
         }
+};
+
+uint8 const MAX_CONJURE_REFRESHMENT_TABLE_SPELLS = 5;
+ConjureRefreshmentData const _conjureTableData[MAX_CONJURE_REFRESHMENT_TABLE_SPELLS] =
+{
+    { 73, 79, 120056 },
+    { 80, 84, 120055 },
+    { 85, 89, 120054 },
+    { 90, 99, 120053 },
+    { 100, 100, 167145 }
+};
+
+// 43987 - Conjure Refreshment Table
+class spell_mage_conjure_refreshment_table : public SpellScriptLoader
+{
+public:
+    spell_mage_conjure_refreshment_table() : SpellScriptLoader("spell_mage_conjure_refreshment_table") { }
+
+    class spell_mage_conjure_refreshment_table_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_conjure_refreshment_table_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            for (uint8 i = 0; i < MAX_CONJURE_REFRESHMENT_TABLE_SPELLS; ++i)
+                if (!sSpellMgr->GetSpellInfo(_conjureTableData[i].spellId))
+                    return false;
+            return true;
+        }
+
+        bool Load() override
+        {
+            if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            uint8 level = GetHitUnit()->getLevel();
+            for (uint8 i = 0; i < MAX_CONJURE_REFRESHMENT_TABLE_SPELLS; ++i)
+            {
+                ConjureRefreshmentData const& spellData = _conjureTableData[i];
+                if (level < spellData.minLevel || level > spellData.maxLevel)
+                    continue;
+                GetHitUnit()->CastSpell(GetHitUnit(), spellData.spellId);
+                break;
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_mage_conjure_refreshment_table_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mage_conjure_refreshment_table_SpellScript();
+    }
 };
 
 // 543  - Fire War
@@ -1468,6 +1530,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cold_snap();
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
+    new spell_mage_conjure_refreshment_table();
     new spell_mage_fire_frost_ward();
     new spell_mage_focus_magic();
     new spell_mage_frostbolt();

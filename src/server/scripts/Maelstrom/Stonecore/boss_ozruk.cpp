@@ -89,8 +89,6 @@ class boss_ozruk : public CreatureScript
                 events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, 5000);
                 events.ScheduleEvent(EVENT_GROUND_SLAM, 10000);
                 events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 13000);
-
-                RemoveBouncerSpikes();
             }
 
             void EnterCombat(Unit* /*victim*/) override
@@ -102,12 +100,13 @@ class boss_ozruk : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                if (summon->GetEntry() != NPC_RUPTURE_CONTROLLER)
-                    return;
+                if (summon->GetEntry() == NPC_RUPTURE_CONTROLLER)
+                {
+                    summon->CastSpell(summon, SPELL_RUPTURE, true);
+                    summon->DespawnOrUnsummon(10000);
+                }
 
-                summon->SetReactState(REACT_PASSIVE);
-                summon->CastSpell(summon, SPELL_RUPTURE, true);
-                summon->DespawnOrUnsummon(10000);
+                BossAI::JustSummoned(summon);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
@@ -116,14 +115,14 @@ class boss_ozruk : public CreatureScript
                     return;
 
                 DoCast(me, SPELL_ENRAGE);
-                me->Say(SAY_ENRAGE);
+                Talk(SAY_ENRAGE);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                me->Say(SAY_DEATH, killer); // receiver is the killer, sniff source!
+                _JustDied();
 
-                RemoveBouncerSpikes();
+                Talk(SAY_DEATH);
             }
 
             void UpdateAI(uint32 diff) override
@@ -133,7 +132,7 @@ class boss_ozruk : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_ELEMENTIUM_SPIKE_SHIELD))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -156,7 +155,7 @@ class boss_ozruk : public CreatureScript
                             events.ScheduleEvent(EVENT_SHATTER, 10000);
                             break;
                         case EVENT_SHATTER:
-                            RemoveBouncerSpikes();
+                            summons.DespawnEntry(NPC_BOUNCER_SPIKE);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             DoCast(me, SPELL_SHATTER);
@@ -168,6 +167,7 @@ class boss_ozruk : public CreatureScript
                             break;
                         case EVENT_START_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
+                            DoStartMovement(me->GetVictim());
                             break;
                         default:
                             break;
@@ -175,18 +175,6 @@ class boss_ozruk : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
-            }
-
-            void RemoveBouncerSpikes()
-            {
-                Vehicle* vehicle = me->GetVehicleKit();
-                if (!vehicle)
-                    return;
-
-                for (uint8 i = 0; i < vehicle->GetAvailableSeatCount(); i++)
-                    if (Unit* passenger = vehicle->GetPassenger(i))
-                        if (Creature* creature = passenger->ToCreature())
-                            creature->RemoveFromWorld();
             }
         };
 
@@ -229,7 +217,6 @@ public:
             if (!rupture)
                 return;
 
-            rupture->SetReactState(REACT_PASSIVE);
             rupture->CastSpell(rupture, SPELL_RUPTURE_DAMAGE, true);
         }
 

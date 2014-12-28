@@ -3618,6 +3618,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->ManaCost = 0;
                 spellInfo->ManaPerSecond = 0;
                 break;
+            // Stonecore spells
+            case 95284: // Teleport (from entrance to Slabhide)
+            case 95285: // Teleport (from Slabhide to entrance)
+                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
+                break;
             // Halls Of Origination spells
             // Temple Guardian Anhuur
             case 76606: // Disable Beacon Beams L
