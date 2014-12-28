@@ -34,6 +34,17 @@
 // TO-DO:
 // - Find out spell IDs for both Stonecore Teleporters (spellclick).
 
+ObjectData const creatureData[] =
+{
+    { NPC_MILLHOUSE_MANASTORM,    DATA_MILLHOUSE_MANASTORM },
+    { NPC_CORBORUS,               DATA_CORBORUS },
+    { NPC_SLABHIDE,               DATA_SLABHIDE },
+    { NPC_HIGH_PRIESTESS_AZIL,    DATA_HIGH_PRIESTESS_AZIL },
+    { NPC_STONECORE_TELEPORTER,   DATA_STONECORE_TELEPORTER },
+    { NPC_STONECORE_TELEPORTER_2, DATA_STONECORE_TELEPORTER_2 },
+    { 0, 0 } // END
+};
+
 class instance_stonecore : public InstanceMapScript
 {
     public:
@@ -45,6 +56,7 @@ class instance_stonecore : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
+                LoadObjectData(creatureData, nullptr);
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -67,27 +79,10 @@ class instance_stonecore : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_MILLHOUSE_MANASTORM:
-                        millhouseGUID = creature->GetGUID();
-                        break;
-                    case NPC_CORBORUS:
-                        corobrusGUID = creature->GetGUID();
-                        break;
-                    case NPC_SLABHIDE:
-                        slabhideGUID = creature->GetGUID();
-                        break;
-                    case NPC_HIGH_PRIESTESS_AZIL:
-                        highPriestessAzilGUID = creature->GetGUID();
-                        break;
                     case NPC_STONECORE_TELEPORTER:
                     case NPC_STONECORE_TELEPORTER_2:
-                        if (GetBossState(DATA_SLABHIDE) != DONE)
-                            stonecoreTeleporterGUID[creature->GetEntry() - NPC_STONECORE_TELEPORTER] = creature->GetGUID();
-                        else // If Slabhide is already dead, no need to store teleporter guids
-                        {
-                            creature->CastSpell(creature, SPELL_TELEPORTER_ACTIVE_VISUAL, true);
-                            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                        }
+                        if (GetBossState(DATA_SLABHIDE) == DONE)
+                            ActivateTeleporter(creature);
                         break;
                     default:
                         break;
@@ -95,7 +90,7 @@ class instance_stonecore : public InstanceMapScript
 
                 // Check if creature is part of Millhouse event
                 creature->SearchFormation();
-                if (CreatureGroup* group = creature->GetFormation()) // TO-DO: Fix formations
+                if (CreatureGroup* group = creature->GetFormation())
                 {
                     switch (group->GetId())
                     {
@@ -109,6 +104,8 @@ class instance_stonecore : public InstanceMapScript
                             break;
                     }
                 }
+
+                InstanceScript::OnCreatureCreate(creature);
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -123,16 +120,9 @@ class instance_stonecore : public InstanceMapScript
                         // Activate teleporters
                         if (state == DONE)
                         {
-                            for (int8 i = 0; i < MAX_STONECORE_TELEPORTERS; i++)
-                            {
-                                if (Creature* teleporter = instance->GetCreature(stonecoreTeleporterGUID[i]))
-                                {
-                                    teleporter->CastSpell(teleporter, SPELL_TELEPORTER_ACTIVE_VISUAL, true);
-                                    teleporter->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                                }
-                            }
+                            ActivateTeleporter(GetCreature(DATA_STONECORE_TELEPORTER));
+                            ActivateTeleporter(GetCreature(DATA_STONECORE_TELEPORTER_2));
                         }
-
                         break;
                     default:
                         break;
@@ -158,6 +148,9 @@ class instance_stonecore : public InstanceMapScript
             {
                 switch (type)
                 {
+                    case DATA_HANDLE_CORBORUS_ROCKDOOR:
+                        HandleGameObject(corborusRockDoorGUID, true);
+                        break;
                     case DATA_MILLHOUSE_EVENT_FACE:
                         MillhouseEvent_Face();
                         break;
@@ -179,35 +172,11 @@ class instance_stonecore : public InstanceMapScript
                 }
             }
 
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_MILLHOUSE_MANASTORM:
-                        return millhouseGUID;
-                    case GAMEOBJECT_CORBORUS_ROCKDOOR:
-                        return corborusRockDoorGUID;
-                    case DATA_CORBORUS:
-                        return corobrusGUID;
-                    case DATA_SLABHIDE:
-                        return slabhideGUID;
-                    case DATA_HIGH_PRIESTESS_AZIL:
-                        return highPriestessAzilGUID;
-                    case NPC_STONECORE_TELEPORTER:
-                    case NPC_STONECORE_TELEPORTER_2:
-                        return stonecoreTeleporterGUID[type - NPC_STONECORE_TELEPORTER];
-                    default:
-                        break;
-                }
-
-                return ObjectGuid::Empty;
-            }
-
         private:
             // Face Millhouse and other nearby mobs to Corborus
             void MillhouseEvent_Face()
             {
-                if (Creature* Millhouse = instance->GetCreature(millhouseGUID))
+                if (Creature* Millhouse = GetCreature(DATA_MILLHOUSE_MANASTORM))
                     Millhouse->SetFacingTo(1.570796f);
                 for (GuidVector::const_iterator i = millhouseLastGroupGUIDs.begin(); i != millhouseLastGroupGUIDs.end(); ++i)
                     if (Creature* creature = instance->GetCreature(*i))
@@ -217,7 +186,7 @@ class instance_stonecore : public InstanceMapScript
             // Knock back Millhouse and other mobs
             void MillhouseEvent_Knockback()
             {
-                if (Creature* Millhouse = instance->GetCreature(millhouseGUID))
+                if (Creature* Millhouse = GetCreature(DATA_MILLHOUSE_MANASTORM))
                     Millhouse->CastSpell(Millhouse, SPELL_RING_WYRM_KNOCKBACK, true);
                 for (GuidVector::const_iterator itr = millhouseLastGroupGUIDs.begin(); itr != millhouseLastGroupGUIDs.end(); ++itr)
                     if (Creature* creature = instance->GetCreature(*itr))
@@ -227,7 +196,7 @@ class instance_stonecore : public InstanceMapScript
             // Despawn all mobs
             void MillhouseEvent_Despawn()
             {
-                if (Creature* Millhouse = instance->GetCreature(millhouseGUID))
+                if (Creature* Millhouse = GetCreature(DATA_MILLHOUSE_MANASTORM))
                     Millhouse->DespawnOrUnsummon(3000);
                 for (GuidVector::const_iterator itr = millhouseTrashGUIDs.begin(); itr != millhouseTrashGUIDs.end(); ++itr)
                     if (Creature* creature = instance->GetCreature(*itr))
@@ -237,14 +206,18 @@ class instance_stonecore : public InstanceMapScript
                         creature->DespawnOrUnsummon(3000);
             }
 
-            ObjectGuid millhouseGUID;
+            void ActivateTeleporter(Creature* teleporter)
+            {
+                if (!teleporter)
+                    return;
+
+                teleporter->CastSpell(teleporter, SPELL_TELEPORTER_ACTIVE_VISUAL, true);
+                teleporter->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            }
+
             GuidVector millhouseTrashGUIDs;
             GuidVector millhouseLastGroupGUIDs;
             ObjectGuid corborusRockDoorGUID;
-            ObjectGuid corobrusGUID;
-            ObjectGuid slabhideGUID;
-            ObjectGuid highPriestessAzilGUID;
-            ObjectGuid stonecoreTeleporterGUID[2];
             GuidVector slabhideRockWallGUIDs;
 
             EncounterState slabhideIntro;
