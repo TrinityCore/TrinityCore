@@ -1653,6 +1653,11 @@ public:
     class spell_dk_death_grip_initial_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_dk_death_grip_initial_SpellScript);
+        
+        void Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
 
         SpellCastResult CheckCast()
         {
@@ -1670,13 +1675,13 @@ public:
             return SPELL_CAST_OK;
         }
 
-        void Register()
+        void Register() override
         {
             OnCheckCast += SpellCheckCastFn(spell_dk_death_grip_initial_SpellScript::CheckCast);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dk_death_grip_initial_SpellScript();
     }
