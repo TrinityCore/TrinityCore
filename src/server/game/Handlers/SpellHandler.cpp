@@ -24,6 +24,7 @@
 #include "GameClient.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "GameObjectPackets.h"
 #include "Item.h"
 #include "MovementPackets.h"
 #include "ObjectAccessor.h"
@@ -289,14 +290,9 @@ void WorldSession::HandleOpenWrappedItemCallback(uint16 pos, ObjectGuid itemGuid
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
+void WorldSession::HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjUse& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_GAMEOBJ_USE Message [{}]", guid.ToString());
-
-    if (GameObject* obj = GetPlayer()->GetGameObjectIfCanInteractWith(guid))
+    if (GameObject* obj = GetPlayer()->GetGameObjectIfCanInteractWith(packet.Guid))
     {
         // ignore for remote control state
         if (GetPlayer()->IsCharmed())
@@ -307,18 +303,13 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
+void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjReportUse& packet)
 {
-    ObjectGuid guid;
-    recvPacket >> guid;
-
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [{}]", guid.ToString());
-
     // ignore for remote control state
     if (_player->IsCharmed())
         return;
 
-    if (GameObject* go = GetPlayer()->GetGameObjectIfCanInteractWith(guid))
+    if (GameObject* go = GetPlayer()->GetGameObjectIfCanInteractWith(packet.Guid))
     {
         if (go->AI()->OnReportUse(_player))
             return;

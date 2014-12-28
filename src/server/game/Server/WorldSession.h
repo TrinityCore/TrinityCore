@@ -176,6 +176,12 @@ namespace WorldPackets
         class SaveEquipmentSet;
     }
 
+    namespace GameObject
+    {
+        class GameObjReportUse;
+        class GameObjUse;
+    }
+
     namespace Guild
     {
         class QueryGuildInfo;
@@ -807,8 +813,8 @@ class TC_GAME_API WorldSession
         void HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request);
         void HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet);
 
-        void HandleGameObjectUseOpcode(WorldPacket& recPacket);
-        void HandleGameobjectReportUse(WorldPacket& recvPacket);
+        void HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjUse& packet);
+        void HandleGameobjectReportUse(WorldPackets::GameObject::GameObjReportUse& packet);
 
         void HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& queryPlayerName);
         void HandleQueryTimeOpcode(WorldPacket& recvPacket);
