@@ -846,7 +846,7 @@ public:
     void BroadcastToGuild(WorldSession* session, bool officerOnly, std::string const& msg, uint32 language = LANG_UNIVERSAL) const;
     void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::string const& msg, std::string const& prefix) const;
     void BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const;
-    void BroadcastPacket(WorldPacket* packet) const;
+    void BroadcastPacket(WorldPacket const* packet) const;
     void BroadcastPacketIfTrackingAchievement(WorldPacket* packet, uint32 criteriaId) const;
 
     void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank);
