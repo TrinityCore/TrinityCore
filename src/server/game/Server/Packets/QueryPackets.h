@@ -227,13 +227,17 @@ namespace WorldPackets
             std::string IconName;
             std::string CastBarCaption;
             std::string UnkString;
-            int32 UnkInt32 = 0;
             uint32 Type = 0;
             uint32 DisplayID = 0;
             uint32 Data[MAX_GAMEOBJECT_DATA];
             float Size = 0.0f;
             std::vector<int32> QuestItems;
             uint32 Expansion = 0;
+
+            size_t GetDataSize() const
+            {
+                return sizeof(Type) + sizeof(DisplayID) + (Name->length() + (4 * 1)) + (IconName.size() + 1) + (CastBarCaption.size() + 1) + (UnkString.size() + 1) + sizeof(Data) + sizeof(Size) + sizeof(uint8) + (QuestItems.size() * sizeof(uint32)) + sizeof(Expansion);
+            }
         };
 
         class QueryGameObjectResponse final : public ServerPacket
