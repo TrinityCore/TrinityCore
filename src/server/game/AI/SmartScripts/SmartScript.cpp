@@ -2392,7 +2392,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
 {
     Unit* scriptTrigger = NULL;
     if (invoker)
-begin(); itr != targets-        scriptTrigger = invoker;
+        scriptTrigger = invoker;
     else if (Unit* tempLastInvoker = GetLastInvoker())
         scriptTrigger = tempLastInvoker;
 
@@ -3262,7 +3262,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
         // delay spell cast event if another spell is being cast
         if (e.GetActionType() == SMART_ACTION_CAST)
         {
-            if (!(e. go-action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS))
+            if (!(e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS))
             {
                 if (me && me->HasUnitState(UNIT_STATE_CASTING))
                 {
@@ -3626,4 +3626,3 @@ Unit* SmartScript::GetLastInvoker()
 {
     return ObjectAccessor::FindUnit(mLastInvoker);
 }
-SmartScript: EventMap for AreaTrigger %u is empty but is using SmartScript.
