@@ -289,6 +289,18 @@ namespace WorldPackets
             // Not in JAM struct
             WorldPackets::Item::ItemInstance ItemReward;
         };
+
+        class QuestGiverCompleteQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverCompleteQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_COMPLETE_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID; // NPC / GameObject guid for normal quest completion. Player guid for self-completed quests
+            int32 QuestID = 0;
+            bool FromScript = false; // 0 - standart complete quest mode with npc, 1 - auto-complete mode
+        };
     }
 }
 

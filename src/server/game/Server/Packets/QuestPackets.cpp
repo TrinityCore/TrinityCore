@@ -312,3 +312,10 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestComplete::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Quest::QuestGiverCompleteQuest::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    FromScript = _worldPacket.ReadBit();
+}

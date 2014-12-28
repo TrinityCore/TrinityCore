@@ -191,6 +191,7 @@ namespace WorldPackets
         class QuestGiverHello;
         class QueryQuestInfo;
         class QuestGiverChooseReward;
+        class QuestGiverCompleteQuest;
     }
 
     namespace Item
@@ -907,7 +908,7 @@ class WorldSession
         void HandleQuestLogSwapQuest(WorldPacket& recvData);
         void HandleQuestLogRemoveQuest(WorldPacket& recvData);
         void HandleQuestConfirmAccept(WorldPacket& recvData);
-        void HandleQuestgiverCompleteQuest(WorldPacket& recvData);
+        void HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet);
         void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
         void HandlePushQuestToParty(WorldPacket& recvPacket);
         void HandleQuestPushResult(WorldPacket& recvPacket);

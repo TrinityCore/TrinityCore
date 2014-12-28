@@ -537,7 +537,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_TIME,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleQueryTimeOpcode           );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUESTGIVER_ACCEPT_QUEST,                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverAcceptQuestOpcode);
     DEFINE_HANDLER(CMSG_QUESTGIVER_CHOOSE_REWARD,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Quest::QuestGiverChooseReward, &WorldSession::HandleQuestgiverChooseRewardOpcode);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUESTGIVER_COMPLETE_QUEST,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverCompleteQuest   );
+    DEFINE_HANDLER(CMSG_QUESTGIVER_COMPLETE_QUEST,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Quest::QuestGiverCompleteQuest, &WorldSession::HandleQuestgiverCompleteQuest);
     DEFINE_HANDLER(CMSG_QUESTGIVER_HELLO,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Quest::QuestGiverHello, &WorldSession::HandleQuestgiverHelloOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUESTGIVER_QUERY_QUEST,                  STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverQueryQuestOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUESTGIVER_REQUEST_REWARD,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverRequestRewardOpcode);

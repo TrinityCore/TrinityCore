@@ -451,12 +451,12 @@ class Quest
         uint32 SpecialFlags         = 0; // custom flags, not sniffed/WDB
 
         // not loaded yet
-        uint32 RequiredSkillId;
-        uint32 RequiredSkillPoints;
-        uint32 RequiredMinRepFaction;
-        int32  RequiredMinRepValue;
-        uint32 RequiredMaxRepFaction;
-        int32  RequiredMaxRepValue;
+        uint32 RequiredSkillId          = 0;
+        uint32 RequiredSkillPoints      = 0;
+        uint32 RequiredMinRepFaction    = 0;
+        int32  RequiredMinRepValue      = 0;
+        uint32 RequiredMaxRepFaction    = 0;
+        int32  RequiredMaxRepValue      = 0;
 };
 
 struct QuestStatusData

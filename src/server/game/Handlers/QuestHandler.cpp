@@ -462,16 +462,13 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
+void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet)
 {
-    uint32 questId;
-    ObjectGuid guid; // NPC / GameObject guid for normal quest completion. Player guid for self-completed quests
-    bool autoCompleteMode;      // 0 - standart complete quest mode with npc, 1 - auto-complete mode
-    recvData >> guid >> questId >> autoCompleteMode;
+    bool autoCompleteMode = packet.FromScript; // 0 - standart complete quest mode with npc, 1 - auto-complete mode
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %s, questId = %u self-complete: %u", guid.ToString().c_str(), questId, autoCompleteMode ? 1 : 0);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %s, questId = %u self-complete: %u", packet.QuestGiverGUID.ToString().c_str(), packet.QuestID, autoCompleteMode ? 1 : 0);
 
-    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
     if (!quest)
         return;
 
@@ -482,14 +479,14 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
     if (autoCompleteMode)
         object = _player;
     else
-        object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
+        object = ObjectAccessor::GetObjectByTypeMask(*_player, packet.QuestGiverGUID, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
 
     if (!object)
         return;
 
     if (autoCompleteMode == 0)
     {
-        if (!object->hasInvolvedQuest(questId))
+        if (!object->hasInvolvedQuest(packet.QuestID))
             return;
 
         // some kind of WPE protection
@@ -499,33 +496,33 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
     else
     {
         // Do not allow completing quests on other players.
-        if (guid != _player->GetGUID())
+        if (packet.QuestGiverGUID != _player->GetGUID())
             return;
     }
 
-    if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
+    if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(packet.QuestID) == QUEST_STATUS_NONE)
     {
         TC_LOG_ERROR("network", "Possible hacking attempt: Player %s [%s] tried to complete quest [entry: %u] without being in possession of the quest!",
-            _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), questId);
+            _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), packet.QuestID);
         return;
     }
 
     if (Battleground* bg = _player->GetBattleground())
-        bg->HandleQuestComplete(questId, _player);
+        bg->HandleQuestComplete(packet.QuestID, _player);
 
-    if (_player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE)
+    if (_player->GetQuestStatus(packet.QuestID) != QUEST_STATUS_COMPLETE)
     {
         if (quest->IsRepeatable())
-            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, _player->CanCompleteRepeatableQuest(quest), false);
+            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, packet.QuestGiverGUID, _player->CanCompleteRepeatableQuest(quest), false);
         else
-            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, _player->CanRewardQuest(quest, false), false);
+            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, packet.QuestGiverGUID, _player->CanRewardQuest(quest, false), false);
     }
     else
     {
         if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER))                  // some items required
-            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, _player->CanRewardQuest(quest, false), false);
+            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, packet.QuestGiverGUID, _player->CanRewardQuest(quest, false), false);
         else                                            // no items required
-            _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid, true);
+            _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
     }
 }
 
