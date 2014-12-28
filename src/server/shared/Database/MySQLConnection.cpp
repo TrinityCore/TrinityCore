@@ -526,7 +526,7 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             std::abort();
             return false;
         default:
-            TC_LOG_ERROR("sql.sql", "Unhandled MySQL errno %u. Unexpected behaviour possible.", errNo);
+            TC_LOG_ERROR("sql.sql", "Unhandled MySQL error %u. Unexpected behaviour possible.", errNo);
             return false;
     }
 }
