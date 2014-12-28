@@ -20,12 +20,11 @@
 #define TRINITY_DBCSFRM_H
 
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
-// n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
+// n - index (included), l - uint64, p - field present in sql dbc, a - field absent in sql dbc
 
-char const Achievementfmt[] = "niixsxiixixxiix";
+char const Achievementfmt[] = "niixsxiixixxiii";
 const std::string CustomAchievementfmt = "pppaaaapapaapp";
 const std::string CustomAchievementIndex = "ID";
-char const AchievementCriteriafmt[] = "niiiliiiisiiiiixxiiiiii";
 char const AreaTableEntryfmt[] = "iiiniixxxxsxixiiiiixxxxxxxxxx";
 char const AreaGroupEntryfmt[] = "niiiiiii";
 char const AreaTriggerEntryfmt[] = "nifffxxxfffffxxxx";
@@ -49,6 +48,8 @@ char const CreatureFamilyfmt[] = "nfifiiiiixsx";
 char const CreatureModelDatafmt[] = "nixxxxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
 char const CreatureSpellDatafmt[] = "niiiixxxx";
 char const CreatureTypefmt[] = "nxx";
+char const Criteriafmt[] = "niiiiiiiixii";
+char const CriteriaTreefmt[] = "niliixxx";
 char const CurrencyTypesfmt[] = "nixxxxxiiixx";
 char const DestructibleModelDatafmt[] = "nixxxixxxxixxxxixxxxxxxx";
 char const DungeonEncounterfmt[] = "niiixsxxx";
@@ -108,6 +109,7 @@ char const MapEntryfmt[] = "nxiixxsixxixiffxiiiixx";
 char const MapDifficultyEntryfmt[] = "diisiixx";
 char const MinorTalentEntryfmt[] = "niii";
 char const MovieEntryfmt[] = "nxxxx";
+char const ModifierTreefmt[] = "niiiiii";
 char const MountCapabilityfmt[] = "niiiiiii";
 char const MountTypefmt[] = "niiiiiiiiiiiiiiiiiiiiiiii";
 char const NameGenfmt[] = "dsii";

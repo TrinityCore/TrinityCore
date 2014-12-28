@@ -22,6 +22,7 @@
 #include "DB2Structure.h"
 #include <string>
 #include <map>
+#include "SharedDefines.h"
 
 extern DB2Storage<BroadcastTextEntry>           sBroadcastTextStore;
 extern DB2Storage<HolidaysEntry>                sHolidaysStore;

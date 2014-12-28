@@ -3250,6 +3250,22 @@ Currency.StartHonorPoints = 0
 Currency.MaxHonorPoints = 4000
 
 #
+#    Currency.StartApexisCrystals
+#        Amount of Apexis Crystals that new players will start with
+#        Default: 0 (with precision)
+#
+
+Currency.StartApexisCrystals = 0
+
+#
+#    Currency.MaxApexisCrystals
+#        Amount Apexis Crystals a player can have
+#        Default: 20000
+#
+
+Currency.MaxApexisCrystals = 20000
+
+#
 #    Currency.StartJusticePoints
 #        Amount of justice points that new players will start with
 #        Default: 0 (with precision)
