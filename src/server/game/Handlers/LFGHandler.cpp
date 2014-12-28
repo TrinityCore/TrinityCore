@@ -52,8 +52,8 @@ void BuildQuestReward(WorldPacket& data, Quest const* quest, Player* player)
 {
     uint8 rewCount = quest->GetRewItemsCount() + quest->GetRewCurrencyCount();
 
-    data << uint32(quest->GetRewOrReqMoney());
-    data << uint32(quest->XPValue(player));
+    data << uint32(quest->GetRewMoney());
+    data << uint32(player->GetQuestXPReward(quest));
     data << uint8(rewCount);
     if (rewCount)
     {
@@ -68,14 +68,14 @@ void BuildQuestReward(WorldPacket& data, Quest const* quest, Player* player)
             }
         }
 
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
         {
             if (uint32 itemId = quest->RewardItemId[i])
             {
                 ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
                 data << uint32(itemId);
                 data << uint32(/*item ? item->DisplayInfoID :*/ 0);
-                data << uint32(quest->RewardItemIdCount[i]);
+                data << uint32(quest->RewardItemCount[i]);
                 data << uint8(0);                                           // Is currency
             }
         }
