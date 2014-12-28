@@ -2640,16 +2640,9 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask)
     if (!creature->GetCharmerGUID().IsEmpty())
         return NULL;
 
-    // not enemy
-    if (creature->IsHostileTo(this))
+    // not unfriendly/hostile
+    if (creature->GetReactionTo(this) <= REP_UNFRIENDLY)
         return NULL;
-
-    // not unfriendly
-    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(creature->getFaction()))
-        if (factionTemplate->Faction)
-            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->Faction))
-                if (faction->ReputationIndex >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
-                    return NULL;
 
     // not too far
     if (!creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
