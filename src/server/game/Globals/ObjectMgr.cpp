@@ -4313,7 +4313,7 @@ void ObjectMgr::LoadQuestLocales()
             AddLocaleString(fields[1 + 15 * (i - 1) + 2].GetString(), locale, data.QuestDescription);
             AddLocaleString(fields[1 + 15 * (i - 1) + 3].GetString(), locale, data.OfferRewardText);
             AddLocaleString(fields[1 + 15 * (i - 1) + 4].GetString(), locale, data.RequestItemsText);
-            //AddLocaleString(fields[1 + 15 * (i - 1) + 5].GetString(), locale, data.EndText); Probably deprecated
+            AddLocaleString(fields[1 + 15 * (i - 1) + 5].GetString(), locale, data.AreaDescription);
             AddLocaleString(fields[1 + 15 * (i - 1) + 6].GetString(), locale, data.QuestCompletionLog);
 
             data.ObjectiveDescription.resize(4);

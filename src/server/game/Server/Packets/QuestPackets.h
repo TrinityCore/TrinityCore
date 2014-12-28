@@ -162,6 +162,11 @@ namespace WorldPackets
             int32 RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
             int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
             int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
+
+            // Non JAM data
+            float Float10 = 1.0f;
+            float Float13 = 1.0f;
+            int32 AllowableRaces = -1;
         };
 
         class QueryQuestInfoResponse final : public ServerPacket

@@ -207,6 +207,7 @@ struct QuestLocale
     StringVector LogTitle;
     StringVector LogDescription;
     StringVector QuestDescription;
+    StringVector AreaDescription;
     StringVector OfferRewardText;
     StringVector RequestItemsText;
     StringVector QuestCompletionLog;
@@ -291,6 +292,7 @@ class Quest
         std::string const& GetLogTitle() const { return LogTitle; }
         std::string const& GetLogDescription() const { return LogDescription; }
         std::string const& GetQuestDescription() const { return QuestDescription; }
+        std::string const& GetAreaDescription() const { return AreaDescription; }
         std::string const& GetOfferRewardText() const { return OfferRewardText; }
         std::string const& GetRequestItemsText() const { return RequestItemsText; }
         std::string const& GetQuestCompletionLog() const { return QuestCompletionLog; }
