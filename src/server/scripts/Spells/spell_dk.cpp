@@ -1644,6 +1644,44 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
         }
 };
 
+// 49576 - Death Grip Initial
+class spell_dk_death_grip_initial : public SpellScriptLoader
+{
+public:
+    spell_dk_death_grip_initial() : SpellScriptLoader("spell_dk_death_grip_initial") { }
+
+    class spell_dk_death_grip_initial_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_death_grip_initial_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            Unit* caster = GetCaster();
+            // Death Grip should not be castable while jumping/falling
+            if (caster->HasUnitState(UNIT_STATE_JUMPING) || caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+                return SPELL_FAILED_MOVING;
+
+            // Patch 3.3.3 (2010-03-23): Minimum range has been changed to 8 yards in PvP.
+            Unit* target = GetExplTargetUnit();
+            if (target && target->GetTypeId() == TYPEID_PLAYER)
+                if (caster->GetDistance(target) < 8.f)
+                    return SPELL_FAILED_TOO_CLOSE;
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_dk_death_grip_initial_SpellScript::CheckCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dk_death_grip_initial_SpellScript();
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1673,4 +1711,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_spell_deflection();
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
+    new spell_dk_death_grip_initial();
 }
