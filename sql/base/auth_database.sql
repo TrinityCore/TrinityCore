@@ -1,6 +1,6 @@
 -- MySQL dump 10.15  Distrib 10.0.15-MariaDB, for Win64 (x86)
 --
--- Host: localhost    Database: authdum
+-- Host: localhost    Database: auth
 -- ------------------------------------------------------
 -- Server version   10.0.15-MariaDB
 
@@ -252,7 +252,7 @@ CREATE TABLE `battlenet_components` (
 
 LOCK TABLES `battlenet_components` WRITE;
 /*!40000 ALTER TABLE `battlenet_components` DISABLE KEYS */;
-INSERT INTO `battlenet_components` VALUES ('Bnet','Mc64',37165),('Bnet','Win',37165),('Bnet','Wn64',37165),('WoW','base',19057),('WoW','deDE',0),('WoW','enGB',0),('WoW','enUS',0),('WoW','esES',0),('WoW','esMX',0),('WoW','frFR',0),('WoW','koKR',0),('WoW','Mc64',19342),('WoW','ruRU',0),('WoW','Win',19342),('WoW','Wn64',19342),('WoW','zhCN',0),('WoW','zhTW',0);
+INSERT INTO `battlenet_components` VALUES ('Bnet','Mc64',37165),('Bnet','Win',37165),('Bnet','Wn64',37165),('WoW','base',19057),('WoW','deDE',0),('WoW','enCN',0),('WoW','enGB',0),('WoW','enTW',0),('WoW','enUS',0),('WoW','esES',0),('WoW','esMX',0),('WoW','frFR',0),('WoW','itIT',0),('WoW','koKR',0),('WoW','Mc64',19342),('WoW','ptBR',0),('WoW','ptPT',0),('WoW','ruRU',0),('WoW','Win',19342),('WoW','Wn64',19342),('WoW','zhCN',0),('WoW','zhTW',0);
 /*!40000 ALTER TABLE `battlenet_components` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -621,4 +621,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-12-27 18:09:09
+-- Dump completed on 2014-12-28 23:10:07
