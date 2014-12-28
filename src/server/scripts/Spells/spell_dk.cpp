@@ -1670,13 +1670,13 @@ public:
             return SPELL_CAST_OK;
         }
 
-        void Register()
+        void Register() override
         {
             OnCheckCast += SpellCheckCastFn(spell_dk_death_grip_initial_SpellScript::CheckCast);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dk_death_grip_initial_SpellScript();
     }
