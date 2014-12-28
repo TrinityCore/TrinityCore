@@ -93,12 +93,6 @@ enum AchievementFlags
     ACHIEVEMENT_FLAG_SHOW_CRITERIA_MEMBERS = 0x00010000     //
 };
 
-enum AchievementCriteriaLimits
-{
-    MAX_CRITERIA_REQUIREMENTS          = 2,
-    MAX_ADDITIONAL_CRITERIA_CONDITIONS = 3
-};
-
 enum AchievementCriteriaCondition
 {
     ACHIEVEMENT_CRITERIA_CONDITION_NONE            = 0,
@@ -132,7 +126,7 @@ enum AchievementCriteriaAdditionalCondition
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_AREA_OR_ZONE         = 18,
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY              = 20,
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_YIELDS_XP   = 21, // NYI
-    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE                  = 24, // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE                  = 24,
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_RACE                 = 25,
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_CLASS                = 26,
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_RACE                 = 27,
@@ -179,6 +173,8 @@ enum AchievementCriteriaTimedTypes
     ACHIEVEMENT_TIMED_TYPE_CREATURE         = 7,    // Timer is started by killing creature with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_ITEM             = 9,    // Timer is started by using item with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_UNK              = 10,   // Unknown
+    ACHIEVEMENT_TIMED_TYPE_UNK_2            = 13,   // Unknown
+    ACHIEVEMENT_TIMED_TYPE_SCENARIO_STAGE   = 14,   // Timer is started by changing stages in a scenario
 
     ACHIEVEMENT_TIMED_TYPE_MAX
 };
@@ -299,7 +295,13 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE      = 139  //struct { uint32 count; } Guild Challenge
 };
 
-#define ACHIEVEMENT_CRITERIA_TYPE_TOTAL 140
+#define ACHIEVEMENT_CRITERIA_TYPE_TOTAL 188
+
+enum AchievementCriteriaTreeOperator
+{
+    ACHIEVEMENT_CRITERIA_TREE_OPERATOR_ALL  = 4,
+    ACHIEVEMENT_CRITERIA_TREE_OPERATOR_ANY  = 8
+};
 
 enum AreaFlags
 {
