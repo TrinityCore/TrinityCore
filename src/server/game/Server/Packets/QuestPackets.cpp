@@ -72,10 +72,10 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.SuggestedGroupNum;
         _worldPacket << Info.RewardNextQuest;
         _worldPacket << Info.RewardXPDifficulty;
-        _worldPacket << float(1.0f); // Unk Float10
+        _worldPacket << Info.Float10; // Unk
         _worldPacket << Info.RewardMoney;
         _worldPacket << Info.RewardMoneyDifficulty;
-        _worldPacket << float(1.0f); // Unk Float13
+        _worldPacket << Info.Float13; // Unk
         _worldPacket << Info.RewardBonusMoney;
         _worldPacket << Info.RewardDisplaySpell;
         _worldPacket << Info.RewardSpell;
@@ -136,7 +136,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.TimeAllowed;
 
         _worldPacket << int32(Info.Objectives.size());
-        _worldPacket << int32(-1); // Unk Int2950
+        _worldPacket << int32(Info.AllowableRaces);
 
         for (uint32 i = 0; i < Info.Objectives.size(); ++i)
         {

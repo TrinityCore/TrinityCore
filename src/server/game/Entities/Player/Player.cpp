@@ -15816,7 +15816,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
 
         for (uint8 j = 0; j < qInfo->Objectives.size(); ++j)
         {
-            if (qInfo->Objectives[i].Type != QUEST_OBJECTIVE_ITEM)
+            if (qInfo->Objectives[j].Type != QUEST_OBJECTIVE_ITEM)
                 continue;
 
             uint32 reqItem = qInfo->Objectives[j].ObjectID;
@@ -15860,7 +15860,7 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
 
         for (uint8 j = 0; j < qInfo->Objectives.size(); ++j)
         {
-            if (qInfo->Objectives[i].Type != QUEST_OBJECTIVE_ITEM)
+            if (qInfo->Objectives[j].Type != QUEST_OBJECTIVE_ITEM)
                 continue;
 
             uint32 reqItem = qInfo->Objectives[j].ObjectID;
@@ -16212,7 +16212,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
             // This part for ReqItem drop
             for (uint8 j = 0; j < qInfo->Objectives.size(); ++j)
             {
-                if (qInfo->Objectives[i].Type == QUEST_OBJECTIVE_ITEM && itemid == uint32(qInfo->Objectives[i].ObjectID) && q_status.ObjectiveData[j] < qInfo->Objectives[j].Amount)
+                if (qInfo->Objectives[j].Type == QUEST_OBJECTIVE_ITEM && itemid == uint32(qInfo->Objectives[j].ObjectID) && q_status.ObjectiveData[j] < qInfo->Objectives[j].Amount)
                     return true;
             }
             // This part - for ReqSource

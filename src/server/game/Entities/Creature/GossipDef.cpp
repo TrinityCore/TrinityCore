@@ -453,6 +453,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     std::string questLogTitle       = quest->GetLogTitle();
     std::string questLogDescription = quest->GetLogDescription();
     std::string questDescription    = quest->GetQuestDescription();
+    std::string areaDescription     = quest->GetAreaDescription();
     std::string questCompletionLog  = quest->GetQuestCompletionLog();
     std::string portraitGiverText   = quest->GetPortraitGiverText();
     std::string portraitGiverName   = quest->GetPortraitGiverName();
@@ -473,6 +474,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
             ObjectMgr::GetLocaleString(localeData->LogTitle, locale, questLogTitle);
             ObjectMgr::GetLocaleString(localeData->LogDescription, locale, questLogDescription);
             ObjectMgr::GetLocaleString(localeData->QuestDescription, locale, questDescription);
+            ObjectMgr::GetLocaleString(localeData->AreaDescription, locale, areaDescription);
             ObjectMgr::GetLocaleString(localeData->QuestCompletionLog, locale, questCompletionLog);
             ObjectMgr::GetLocaleString(localeData->PortraitGiverText, locale, portraitGiverText);
             ObjectMgr::GetLocaleString(localeData->PortraitGiverName, locale, portraitGiverName);
@@ -499,6 +501,8 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.SuggestedGroupNum = quest->GetSuggestedPlayers();
     packet.Info.RewardNextQuest = quest->GetNextQuestInChain();
     packet.Info.RewardXPDifficulty = quest->GetXPDifficulty();
+    packet.Info.Float10 = quest->Float10; // Unk
+    packet.Info.Float13 = quest->Float13; // Unk
 
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
         packet.Info.RewardMoney = quest->GetRewMoney();
@@ -555,7 +559,9 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.LogTitle = questLogTitle;
     packet.Info.LogDescription = questLogDescription;
     packet.Info.QuestDescription = questDescription;
+    packet.Info.AreaDescription = areaDescription;
     packet.Info.QuestCompletionLog = questCompletionLog;
+    packet.Info.AllowableRaces = quest->GetAllowableRaces();
     
     for (uint32 i = 0; i < quest->Objectives.size(); ++i)
     {
