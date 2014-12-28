@@ -1429,4 +1429,4 @@ SELECT `ID`, `RequiredSkillId`, `RequiredSkillPoints`, `RequiredMinRepFaction`, 
 WHERE `ID` NOT IN (SELECT `ID` FROM `quest_template_addon`) AND (`RequiredSkillId`!=0 OR `RequiredSkillPoints`!=0 OR `RequiredMinRepFaction`!=0 OR `RequiredMaxRepFaction`!=0 OR `RequiredMinRepValue`!=0 OR `RequiredMaxRepValue`!=0);
 
 UPDATE `quest_template_addon` A INNER JOIN `quest_template` B ON A.`ID`=B.`ID`
-SET A.`RequiredSkillID`=B.`RequiredSkillId`, A.`RequiredSkillPoints`=B.`RequiredSkillPoints`, A.`RequiredMinRepFaction`=B.`RequiredMinRepFaction`, A.`RequiredMaxRepFaction`=B.`RequiredMaxRepFaction`, A.`RequiredMinRepValue`=B.`RequiredMinRepValue`, A.`RequiredMaxRepValue`=B.`RequiredMaxRepValue`
+SET A.`RequiredSkillID`=B.`RequiredSkillId`, A.`RequiredSkillPoints`=B.`RequiredSkillPoints`, A.`RequiredMinRepFaction`=B.`RequiredMinRepFaction`, A.`RequiredMaxRepFaction`=B.`RequiredMaxRepFaction`, A.`RequiredMinRepValue`=B.`RequiredMinRepValue`, A.`RequiredMaxRepValue`=B.`RequiredMaxRepValue`;
