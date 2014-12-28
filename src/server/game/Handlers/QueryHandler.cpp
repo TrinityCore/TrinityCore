@@ -158,7 +158,6 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         stats.Size = gameObjectInfo->size;
         stats.Type = gameObjectInfo->type;
         stats.UnkString = gameObjectInfo->unk1;
-        stats.UnkInt32 = gameObjectInfo->unkInt32;
         stats.Expansion = 0;
     }
     else
