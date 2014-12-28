@@ -140,8 +140,8 @@ enum AncestralWolf
 {
     EMOTE_WOLF_LIFT_HEAD        = 0,
     EMOTE_WOLF_HOWL             = 1,
-    SAY_WOLF_WELCOME            = 2,
-    SPELL_ANCESTRAL_WOLF_BUFF   = 29981,
+    SAY_WOLF_WELCOME            = 0,
+    SPELL_ANCESTRAL_WOLF_BUFF   = 29938,
     NPC_RYGA                    = 17123
 };
 
@@ -166,11 +166,16 @@ public:
         void Reset() override
         {
             ryga = NULL;
+        }
+
+        // Override Evade Mode event, recast buff that was removed by standard handler
+        void EnterEvadeMode() override
+        {
+            npc_escortAI::EnterEvadeMode();
             DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!ryga && who->GetEntry() == NPC_RYGA && me->IsWithinDistInMap(who, 15.0f))
                 if (Creature* temp = who->ToCreature())
@@ -188,10 +193,48 @@ public:
                     break;
                 case 2:
                     Talk(EMOTE_WOLF_HOWL);
+                    DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
                     break;
+                // Move Ryga into position
+                case 48:
+                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA,70))
+                    {
+                        if (ryga->IsAlive() && !ryga->IsInCombat())
+                        {
+                            ryga->SetWalk(true);
+                            ryga->SetSpeed(MOVE_WALK, 1.5f);
+                            ryga->GetMotionMaster()->MovePoint(0, 517.340698f, 3885.03975f, 190.455978f, true);
+                            Reset();
+                        }
+                    }
+                    break;
+                // Ryga Kneels and welcomes spirit wolf
                 case 50:
-                    if (ryga && ryga->IsAlive() && !ryga->IsInCombat())
-                        ryga->AI()->Talk(SAY_WOLF_WELCOME);
+                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA,70))
+                    {
+                        if (ryga->IsAlive() && !ryga->IsInCombat())
+                        {
+                            ryga->SetFacingTo(0.776773f);
+                            ryga->SetStandState(UNIT_STAND_STATE_KNEEL);
+                            ryga->AI()->Talk(SAY_WOLF_WELCOME);
+                            Reset();
+                        }
+                    }
+                    break;
+                // Ryga returns to spawn point
+                case 51:
+                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA,70))
+                    {
+                        if (ryga->IsAlive() && !ryga->IsInCombat())
+                        {
+                            float fRetX, fRetY, fRetZ, fRetO;
+                            ryga->GetRespawnPosition(fRetX, fRetY, fRetZ, &fRetO);
+                            ryga->SetHomePosition(fRetX, fRetY, fRetZ, fRetO);
+                            ryga->SetStandState(UNIT_STAND_STATE_STAND);
+                            ryga->GetMotionMaster()->MoveTargetedHome();
+                            Reset();
+                        }
+                    }
                     break;
             }
         }
