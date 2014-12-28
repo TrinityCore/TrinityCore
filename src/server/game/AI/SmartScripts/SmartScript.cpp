@@ -3248,7 +3248,7 @@ void SmartScript::InitTimer(SmartScriptHolder& e)
             break;
     }
 }
-vbegin(); itr != units-oid SmartScript::RecalcTimer(SmartScriptHolder& e, uint32 min, uint32 max)
+void SmartScript::RecalcTimer(SmartScriptHolder& e, uint32 min, uint32 max)
 {
     // min/max was checked at loading!
     e.timer = urand(min, max);
