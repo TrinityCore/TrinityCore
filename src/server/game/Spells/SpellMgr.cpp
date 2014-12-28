@@ -3621,7 +3621,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             // Stonecore spells
             case 95284: // Teleport (from entrance to Slabhide)
             case 95285: // Teleport (from Slabhide to entrance)
-                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
+                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
             // Halls Of Origination spells
             // Temple Guardian Anhuur
