@@ -16335,20 +16335,21 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP)
         moneyReward = uint32(quest->GetRewMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
 
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
+    WorldPackets::Quest::QuestGiverQuestComplete packet;
+    
+    packet.QuestID = questId;
+    packet.MoneyReward = moneyReward;
+    packet.XPReward = xp;
+    packet.SkillLineIDReward = quest->GetRewardSkillId();
+    packet.NumSkillUpsReward = quest->GetRewardSkillPoints();
+    packet.TalentReward = quest->GetBonusTalents();
+    
+    // @todo fix these 3
+    packet.UseQuestReward = true;
+    packet.LaunchGossip = true;
+    //packet.ItemReward
 
-    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
-    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
-    data << uint32(moneyReward);
-    data << uint32(xp);
-    data << uint32(questId);
-    data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
-
-    data.WriteBit(0);                                      // FIXME: unknown bits, common values sent
-    data.WriteBit(1);
-    data.FlushBits();
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::SendQuestFailed(uint32 questId, InventoryResult reason)

@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "QuestDef.h"
 #include "ObjectGuid.h"
+#include "ItemPackets.h"
 
 namespace WorldPackets
 {
@@ -267,6 +268,26 @@ namespace WorldPackets
             ObjectGuid QuestGiverGUID;
             int32 QuestID = 0;
             int32 ItemChoiceID = 0;
+        };
+
+        class QuestGiverQuestComplete final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestComplete() : ServerPacket(SMSG_QUESTGIVER_QUEST_COMPLETE, 40) { }
+
+            WorldPacket const* Write() override;
+
+            bool UseQuestReward     = false;
+            int32 SkillLineIDReward = 0;
+            int32 MoneyReward       = 0;
+            int32 NumSkillUpsReward = 0;
+            int32 XPReward          = 0;
+            int32 QuestID           = 0;
+            int32 TalentReward      = 0;
+            bool LaunchGossip       = 0;
+
+            // Not in JAM struct
+            WorldPackets::Item::ItemInstance ItemReward;
         };
     }
 }

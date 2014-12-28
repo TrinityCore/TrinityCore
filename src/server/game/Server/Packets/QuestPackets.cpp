@@ -295,3 +295,20 @@ void WorldPackets::Quest::QuestGiverChooseReward::Read()
     _worldPacket >> QuestID;
     _worldPacket >> ItemChoiceID;
 }
+
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestComplete::Write()
+{
+    _worldPacket << QuestID;
+    _worldPacket << SkillLineIDReward;
+    _worldPacket << MoneyReward;
+    _worldPacket << NumSkillUpsReward;
+    _worldPacket << XPReward;
+    _worldPacket << TalentReward;
+    _worldPacket << ItemReward; // WorldPackets::Item::ItemInstance
+
+    _worldPacket.WriteBit(UseQuestReward);
+    _worldPacket.WriteBit(LaunchGossip);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
