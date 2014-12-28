@@ -482,7 +482,7 @@ enum OpcodeClient : uint32
     CMSG_QUERY_TIME                                   = 0xBADD,
     CMSG_QUESTGIVER_ACCEPT_QUEST                      = 0xBADD,
     CMSG_QUESTGIVER_CANCEL                            = 0xBADD,
-    CMSG_QUESTGIVER_CHOOSE_REWARD                     = 0xBADD,
+    CMSG_QUESTGIVER_CHOOSE_REWARD                     = 0x0DAD,
     CMSG_QUESTGIVER_COMPLETE_QUEST                    = 0xBADD,
     CMSG_QUESTGIVER_HELLO                             = 0x058E,
     CMSG_QUESTGIVER_QUERY_QUEST                       = 0x1924,

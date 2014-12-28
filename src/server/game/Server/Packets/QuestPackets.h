@@ -256,6 +256,18 @@ namespace WorldPackets
             QuestGiverOfferReward QuestData;
             int32 QuestPackageID = 0;
         };
+
+        class QuestGiverChooseReward final : public ClientPacket
+        {
+        public:
+            QuestGiverChooseReward(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_CHOOSE_REWARD, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID = 0;
+            int32 ItemChoiceID = 0;
+        };
     }
 }
 

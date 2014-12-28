@@ -288,3 +288,10 @@ WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 
     return &_worldPacket;
 };
+
+void WorldPackets::Quest::QuestGiverChooseReward::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    _worldPacket >> ItemChoiceID;
+}
