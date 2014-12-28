@@ -60,7 +60,6 @@ static AreaFlagByMapID sAreaFlagByMapID;                    // for instances wit
 static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 
 DBCStorage <AchievementEntry> sAchievementStore(Achievementfmt);
-DBCStorage <AchievementCriteriaEntry> sAchievementCriteriaStore(AchievementCriteriafmt);
 DBCStorage <AreaTriggerEntry> sAreaTriggerStore(AreaTriggerEntryfmt);
 DBCStorage <ArmorLocationEntry> sArmorLocationStore(ArmorLocationfmt);
 DBCStorage <AuctionHouseEntry> sAuctionHouseStore(AuctionHouseEntryfmt);
@@ -85,6 +84,8 @@ DBCStorage <CreatureFamilyEntry> sCreatureFamilyStore(CreatureFamilyfmt);
 DBCStorage <CreatureModelDataEntry> sCreatureModelDataStore(CreatureModelDatafmt);
 DBCStorage <CreatureSpellDataEntry> sCreatureSpellDataStore(CreatureSpellDatafmt);
 DBCStorage <CreatureTypeEntry> sCreatureTypeStore(CreatureTypefmt);
+DBCStorage <CriteriaEntry> sCriteriaStore(Criteriafmt);
+DBCStorage <CriteriaTreeEntry> sCriteriaTreeStore(CriteriaTreefmt);
 DBCStorage <CurrencyTypesEntry> sCurrencyTypesStore(CurrencyTypesfmt);
 uint32 PowersByClass[MAX_CLASSES][MAX_POWERS];
 
@@ -163,6 +164,7 @@ DBCStorage <MapEntry> sMapStore(MapEntryfmt);
 DBCStorage <MapDifficultyEntry> sMapDifficultyStore(MapDifficultyEntryfmt); // only for loading
 MapDifficultyMap sMapDifficultyMap;
 
+DBCStorage <ModifierTreeEntry> sModifierTreeStore(ModifierTreefmt);
 DBCStorage <MovieEntry> sMovieStore(MovieEntryfmt);
 DBCStorage <MountCapabilityEntry> sMountCapabilityStore(MountCapabilityfmt);
 DBCStorage <MountTypeEntry> sMountTypeStore(MountTypefmt);
@@ -240,19 +242,13 @@ typedef std::list<std::string> StoreProblemList;
 
 uint32 DBCFileCount = 0;
 
-static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, const std::string& filename)
-{
-    TC_LOG_ERROR("misc", "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).", filename.c_str(), fsize, rsize);
-
-    // ASSERT must fail after function call
-    return false;
-}
-
 template<class T>
 inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename, std::string const* customFormat = NULL, std::string const* customIndexName = NULL)
 {
     // compatibility format and C++ structure sizes
-    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDBC_assert_print(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
+    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
+        "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
+        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T));
 
     ++DBCFileCount;
     std::string dbcFilename = dbcPath + filename;
@@ -298,7 +294,9 @@ template<class T>
 inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName, GameTable<T>& storage, std::string const& dbcPath, std::string const& filename)
 {
     // compatibility format and C++ structure sizes
-    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDBC_assert_print(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
+    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
+        "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
+        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T));
 
     ++DBCFileCount;
     std::string dbcFilename = dbcPath + filename;
@@ -365,8 +363,6 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore,            dbcPath, "Achievement.dbc"/*, &CustomAchievementfmt, &CustomAchievementIndex*/);//19116
-    // TODO: 6.x remove this and update achievement system with new dbcs
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementCriteriaStore,    dbcPath, "Achievement_Criteria.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaGroupStore,              dbcPath, "AreaGroup.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sAuctionHouseStore,           dbcPath, "AuctionHouse.dbc");//19116
@@ -415,6 +411,8 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureModelDataStore,      dbcPath, "CreatureModelData.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureSpellDataStore,      dbcPath, "CreatureSpellData.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureTypeStore,           dbcPath, "CreatureType.dbc");//19116
+    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore,               dbcPath, "Criteria.dbc");//19342
+    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaTreeStore,           dbcPath, "CriteriaTree.dbc");//19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sCurrencyTypesStore,          dbcPath, "CurrencyTypes.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sDestructibleModelDataStore,  dbcPath, "DestructibleModelData.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sDungeonEncounterStore,       dbcPath, "DungeonEncounter.dbc");//19116
@@ -499,6 +497,7 @@ void LoadDBCStores(const std::string& dataPath)
             sMapDifficultyMap[MAKE_PAIR32(entry->MapID, entry->DifficultyID)] = MapDifficulty(entry->RaidDuration, entry->MaxPlayers, entry->Message_lang[0] > 0);
     sMapDifficultyStore.Clear();
 
+    LoadDBC(availableDbcLocales, bad_dbc_files, sModifierTreeStore,           dbcPath, "ModifierTree.dbc");//19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sMountCapabilityStore,        dbcPath, "MountCapability.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sMountTypeStore,              dbcPath, "MountType.dbc");//19116
 

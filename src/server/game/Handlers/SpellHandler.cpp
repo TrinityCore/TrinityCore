@@ -36,6 +36,7 @@
 #include "Player.h"
 #include "Config.h"
 #include "SpellPackets.h"
+#include "GameObjectPackets.h"
 
 void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
 {
@@ -284,14 +285,9 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         pUser->SendLoot(item->GetGUID(), LOOT_CORPSE);
 }
 
-void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
+void WorldSession::HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjectUse& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_GAMEOBJ_USE Message [%s]", guid.ToString().c_str());
-
-    if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(guid))
+    if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(packet.Guid))
     {
         if (!obj->IsWithinDistInMap(GetPlayer(), obj->GetInteractionDistance()))
             return;
@@ -305,18 +301,13 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
+void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjectReportUse& packet)
 {
-    ObjectGuid guid;
-    recvPacket >> guid;
-
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [%s]", guid.ToString().c_str());
-
     // ignore for remote control state
     if (_player->m_mover != _player)
         return;
 
-    GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid);
+    GameObject* go = GetPlayer()->GetMap()->GetGameObject(packet.Guid);
     if (!go)
         return;
 
@@ -331,9 +322,6 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 
 void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::SpellCastRequest& castRequest)
 {
-
-    TC_LOG_DEBUG("network", "WORLD: got cast spell packet, castCount: %u, spellId: %u, castFlags: %u", castRequest.CastID, castRequest.SpellID, castRequest.SendCastFlags);
-
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)

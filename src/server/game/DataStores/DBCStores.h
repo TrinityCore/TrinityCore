@@ -131,7 +131,6 @@ private:
 };
 
 extern DBCStorage <AchievementEntry>             sAchievementStore;
-extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
 extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
@@ -156,6 +155,8 @@ extern DBCStorage <CreatureFamilyEntry>          sCreatureFamilyStore;
 extern DBCStorage <CreatureModelDataEntry>       sCreatureModelDataStore;
 extern DBCStorage <CreatureSpellDataEntry>       sCreatureSpellDataStore;
 extern DBCStorage <CreatureTypeEntry>            sCreatureTypeStore;
+extern DBCStorage <CriteriaEntry>                sCriteriaStore;
+extern DBCStorage <CriteriaTreeEntry>            sCriteriaTreeStore;
 extern DBCStorage <CurrencyTypesEntry>           sCurrencyTypesStore;
 extern DBCStorage <DestructibleModelDataEntry>   sDestructibleModelDataStore;
 extern DBCStorage <DungeonEncounterEntry>        sDungeonEncounterStore;
@@ -217,6 +218,7 @@ extern DBCStorage <LockEntry>                    sLockStore;
 extern DBCStorage <MailTemplateEntry>            sMailTemplateStore;
 extern DBCStorage <MapEntry>                     sMapStore;
 extern DBCStorage <MinorTalentEntry>             sMinorTalentStore;
+extern DBCStorage <ModifierTreeEntry>            sModifierTreeStore;
 extern DBCStorage <MountCapabilityEntry>         sMountCapabilityStore;
 extern DBCStorage <MountTypeEntry>               sMountTypeStore;
 extern DBCStorage <NameGenEntry>                 sNameGenStore;
