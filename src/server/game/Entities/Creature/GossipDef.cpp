@@ -640,41 +640,6 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     packet.QuestPackageID = quest->GetQuestPackageID();
 
     _session->SendPacket(packet.Write());
-   /*WorldPacket data(SMSG_QUESTGIVER_OFFER_REWARD, 50);     // guess size
-    data << npcGUID;
-    data << uint32(quest->GetQuestId());
-    data << questTitle;
-    data << questOfferRewardText;
-
-    data << portraitGiverText;
-    data << portraitGiverName;
-    data << portraitTurnInText;
-    data << portraitTurnInName;
-    data << uint32(quest->GetQuestGiverPortrait());
-    data << uint32(quest->GetQuestTurnInPortrait());
-
-    data << uint8(enableNext ? 1 : 0);                      // Auto Finish
-    data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
-    data << uint32(quest->GetSuggestedPlayers());           // SuggestedGroupNum
-
-    uint32 emoteCount = 0;
-    for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
-    {
-        if (quest->OfferRewardEmote[i] <= 0)
-            break;
-        ++emoteCount;
-    }
-
-    data << emoteCount;                                     // Emote Count
-    for (uint8 i = 0; i < emoteCount; ++i)
-    {
-        data << uint32(quest->OfferRewardEmoteDelay[i]);    // Delay Emote
-        data << uint32(quest->OfferRewardEmote[i]);
-    }
-
-    quest->BuildExtraQuestInfo(data, _session->GetPlayer());
-
-    _session->SendPacket(&data);*/
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
 }
 

@@ -13910,7 +13910,6 @@ void Player::SendPreparedGossip(WorldObject* source)
 
     if (source->GetTypeId() == TYPEID_UNIT)
     {
-        TC_LOG_ERROR("entities.player", "SEND GOSSIP (%u) (%u)", !source->ToCreature()->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP), !PlayerTalkClass->GetQuestMenu().Empty());
         // in case no gossip flag and quest menu not empty, open quest menu (client expect gossip menu with this flag)
         if (!source->ToCreature()->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP) && !PlayerTalkClass->GetQuestMenu().Empty())
         {

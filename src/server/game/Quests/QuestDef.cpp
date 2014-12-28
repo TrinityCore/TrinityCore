@@ -166,6 +166,9 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     RewardMailDelay = fields[8].GetUInt32();
     SourceItemIdCount = fields[9].GetUInt8();
     SpecialFlags = fields[10].GetUInt8();
+
+    if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
+        Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 }
 
 void Quest::LoadQuestObjective(Field* fields)
@@ -199,29 +202,6 @@ void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
 
     obj.VisualEffects[effectIndex] = fields[5].GetInt32();
 }
-
-/* @todo Not loaded variables
-{
-    RequiredSkillId = questRecord[11].GetUInt16();
-    RequiredSkillPoints = questRecord[12].GetUInt16();
-    RequiredMinRepFaction = questRecord[17].GetUInt16();
-    RequiredMaxRepFaction = questRecord[18].GetUInt16();
-    RequiredMinRepValue = questRecord[19].GetInt32();
-    RequiredMaxRepValue = questRecord[20].GetInt32();
-    
-    
-    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        RequiredSourceItemId[i] = questRecord[103+i].GetUInt32();
-
-    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        RequiredSourceItemCount[i] = questRecord[107+i].GetUInt16();
-    
-    RequiredSpell = questRecord[123].GetUInt32();
-
-    
-    if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
-        Flags |= QUEST_FLAGS_AUTO_ACCEPT;
-}*/
 
 uint32 Quest::XPValue(uint32 playerLevel) const
 {

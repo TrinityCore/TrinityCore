@@ -3810,20 +3810,6 @@ void ObjectMgr::LoadQuests()
         }
         // else Skill quests can have 0 skill level, this is ok
 
-        /*if (qinfo->RequiredFactionId2 && !sFactionStore.LookupEntry(qinfo->RequiredFactionId2))
-        {
-            TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredFactionId2` = %u but faction template %u does not exist, quest can't be done.",
-                qinfo->GetQuestId(), qinfo->RequiredFactionId2, qinfo->RequiredFactionId2);
-            // no changes, quest can't be done for this requirement
-        }
-
-        if (qinfo->RequiredFactionId1 && !sFactionStore.LookupEntry(qinfo->RequiredFactionId1))
-        {
-            TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredFactionId1` = %u but faction template %u does not exist, quest can't be done.",
-                qinfo->GetQuestId(), qinfo->RequiredFactionId1, qinfo->RequiredFactionId1);
-            // no changes, quest can't be done for this requirement
-        }*/
-
         if (qinfo->RequiredMinRepFaction && !sFactionStore.LookupEntry(qinfo->RequiredMinRepFaction))
         {
             TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredMinRepFaction` = %u but faction template %u does not exist, quest can't be done.",
@@ -3851,20 +3837,6 @@ void ObjectMgr::LoadQuests()
                 qinfo->GetQuestId(), qinfo->RequiredMaxRepValue, qinfo->RequiredMinRepValue);
             // no changes, quest can't be done for this requirement
         }
-
-        /*if (!qinfo->RequiredFactionId1 && qinfo->RequiredFactionValue1 != 0)
-        {
-            TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredFactionValue1` = %d but `RequiredFactionId1` is 0, value has no effect",
-                qinfo->GetQuestId(), qinfo->RequiredFactionValue1);
-            // warning
-        }
-
-        if (!qinfo->RequiredFactionId2 && qinfo->RequiredFactionValue2 != 0)
-        {
-            TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredFactionValue2` = %d but `RequiredFactionId2` is 0, value has no effect",
-                qinfo->GetQuestId(), qinfo->RequiredFactionValue2);
-            // warning
-        }*/
 
         if (!qinfo->RequiredMinRepFaction && qinfo->RequiredMinRepValue != 0)
         {
@@ -3981,6 +3953,14 @@ void ObjectMgr::LoadQuests()
                     break;
                 case QUEST_OBJECTIVE_PLAYERKILLS:
                     qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL);
+                    if (obj.Amount <= 0)
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has invalid player kills count %d", qinfo->GetQuestId(), j, obj.Amount);
+                    break;
+                case QUEST_OBJECTIVE_CURRENCY:
+                    if (!sCurrencyTypesStore.LookupEntry(obj.ObjectID))
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing currency %u", qinfo->GetQuestId(), j, obj.ObjectID);
+                    if (obj.Amount <= 0)
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has invalid currency amount %d", qinfo->GetQuestId(), j, obj.Amount);
                     break;
                 default:
                     TC_LOG_ERROR("sql.sql", "Quest %u objective %u has unknown type %u", qinfo->GetQuestId(), j, obj.Type);
@@ -4184,32 +4164,6 @@ void ObjectMgr::LoadQuests()
                 qinfo->RewardCurrencyCount[j] = 0;                 // prevent incorrect work of quest
             }
         }
-
-        /*for (uint8 j = 0; j < QUEST_REQUIRED_CURRENCY_COUNT; ++j)
-        {
-            if (qinfo->RequiredCurrencyId[j])
-            {
-                if (qinfo->RequiredCurrencyCount[j] == 0)
-                {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredCurrencyId%d` = %u but `RequiredCurrencyCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, qinfo->RequiredCurrencyId[j], j+1);
-                    // no changes, quest can't be done for this requirement
-                }
-
-                if (!sCurrencyTypesStore.LookupEntry(qinfo->RequiredCurrencyId[j]))
-                {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredCurrencyId%d` = %u but currency with entry %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, qinfo->RequiredCurrencyId[j], qinfo->RequiredCurrencyId[j]);
-                    qinfo->RequiredCurrencyCount[j] = 0;             // prevent incorrect work of quest
-                }
-            }
-            else if (qinfo->RequiredCurrencyCount[j] > 0)
-            {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredCurrencyId%d` = 0 but `RequiredCurrencyCount%d` = %u, quest can't be done.",
-                    qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredCurrencyCount[j]);
-                qinfo->RequiredCurrencyCount[j] = 0;                 // prevent incorrect work of quest
-            }
-        }*/
 
         if (qinfo->SoundAccept)
         {
