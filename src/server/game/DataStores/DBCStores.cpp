@@ -248,7 +248,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
     // compatibility format and C++ structure sizes
     ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
         "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
-        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T));
+        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
 
     ++DBCFileCount;
     std::string dbcFilename = dbcPath + filename;
@@ -296,7 +296,7 @@ inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName
     // compatibility format and C++ structure sizes
     ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
         "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
-        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T));
+        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
 
     ++DBCFileCount;
     std::string dbcFilename = dbcPath + filename;
