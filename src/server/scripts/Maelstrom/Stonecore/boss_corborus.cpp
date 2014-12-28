@@ -93,7 +93,9 @@ class boss_corborus : public CreatureScript
             void Reset() override
             {
                 _Reset();
+
                 countTrashingCharge = 0;
+
                 events.ScheduleEvent(EVENT_DAMPENING_WAVE, 10000);
                 events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE, 15000);
                 events.ScheduleEvent(EVENT_SUBMERGE, 36000);
@@ -110,7 +112,7 @@ class boss_corborus : public CreatureScript
 
                         stateIntro = IN_PROGRESS;
 
-                        if (Creature* Millhouse = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MILLHOUSE_MANASTORM)))
+                        if (Creature* Millhouse = instance->GetCreature(DATA_MILLHOUSE_MANASTORM))
                         {
                             Millhouse->InterruptNonMeleeSpells(true);
                             Millhouse->RemoveAllAuras();
@@ -144,18 +146,18 @@ class boss_corborus : public CreatureScript
                             instance->SetData(DATA_MILLHOUSE_EVENT_FACE, 0);
 
                             // Open rock gate and cast visual from nearby worldtrigger
-                            instance->HandleGameObject(instance->GetGuidData(GAMEOBJECT_CORBORUS_ROCKDOOR), true);
+                            instance->SetData(DATA_HANDLE_CORBORUS_ROCKDOOR, 0);
                             if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 60.0f))
                                 worldtrigger->CastSpell(worldtrigger, SPELL_DOOR_BREAK, true);
 
                             // Make Corborus charge
-                            me->CastSpell(me, SPELL_RING_WYRM_CHARGE, true);
+                            DoCast(me, SPELL_RING_WYRM_CHARGE, true);
 
                             events.ScheduleEvent(EVENT_CORBORUS_KNOCKBACK, 1000);
                             break;
                         case EVENT_CORBORUS_KNOCKBACK:
                             // Spawn Twilight Documents (quest gameobject)
-                            if (Creature* Millhouse = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MILLHOUSE_MANASTORM)))
+                            if (Creature* Millhouse = instance->GetCreature(DATA_MILLHOUSE_MANASTORM))
                                 Millhouse->CastSpell(Millhouse, SPELL_TWILIGHT_DOCUMENTS, true);
 
                             // Knockback Millhouse and other mobs
@@ -231,12 +233,14 @@ class boss_corborus : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                if (summon->GetEntry() != NPC_TRASHING_CHARGE)
-                    return;
+                if (summon->GetEntry() == NPC_TRASHING_CHARGE)
+                {
+                    summon->SetReactState(REACT_PASSIVE);
+                    summon->CastSpell(summon, SPELL_TRASHING_CHARGE_EFFECT);
+                    summon->DespawnOrUnsummon(6000);
+                }
 
-                summon->SetReactState(REACT_PASSIVE);
-                summon->CastSpell(summon, SPELL_TRASHING_CHARGE_EFFECT);
-                summon->DespawnOrUnsummon(6000);
+                BossAI::JustSummoned(summon);
             }
 
         private:
@@ -269,7 +273,7 @@ class npc_rock_borer : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 me->SetInCombatState(false, summoner);
-                DoCast(SPELL_ROCK_BORER_EMERGE);
+                DoCast(me, SPELL_ROCK_BORER_EMERGE);
             }
 
             void UpdateAI(uint32 diff) override
@@ -291,7 +295,7 @@ class npc_rock_borer : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             break;
                         case EVENT_ROCK_BORE:
-                            DoCast(SPELL_ROCK_BORE);
+                            DoCast(me, SPELL_ROCK_BORE);
                             events.ScheduleEvent(EVENT_ROCK_BORE, urand(15000, 20000)); // Need sniffs for this timer
                             break;
                         default:
