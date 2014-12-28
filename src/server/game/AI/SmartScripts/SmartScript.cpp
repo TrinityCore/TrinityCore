@@ -2266,7 +2266,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         if (linked)
             ProcessEvent(linked, unit, var0, var1, bvar, spell, gob);
         else
-            TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
+            TC_LOG_DEBUG("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
     }
 }
 
@@ -2383,7 +2383,20 @@ SmartScriptHolder SmartScript::CreateEvent(SMART_EVENT e, uint32 event_flags, ui
     script.target.type = t;
     script.target.raw.param1 = target_param1;
     script.target.raw.param2 = target_param2;
-    script.target.raw.param3 = target_param3;
+    script.target.raw.param3 = target_param3ActivateTaxiPathTo(e.action.taxi.id);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_RANDOM_MOVE:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            bool foundTarget = false;
+
+            for (ObjectList::const_iterator itr = targets-;
 
     script.source_type = SMART_SCRIPT_TYPE_CREATURE;
     InitTimer(script);
