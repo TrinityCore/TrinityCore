@@ -18,6 +18,7 @@
 #ifndef TRINITYCORE_ALL_PACKETS_H
 #define TRINITYCORE_ALL_PACKETS_H
 
+#include "AchievementPackets.h"
 #include "AuthenticationPackets.h"
 #include "BankPackets.h"
 #include "BattlegroundPackets.h"
@@ -37,6 +38,7 @@
 #include "MiscPackets.h"
 #include "MovementPackets.h"
 #include "NPCPackets.h"
+#include "PacketUtilities.h"
 #include "PartyPackets.h"
 #include "PetPackets.h"
 #include "QueryPackets.h"
