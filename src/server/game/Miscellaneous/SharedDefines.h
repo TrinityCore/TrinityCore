@@ -3725,8 +3725,8 @@ enum HolidayIds
 // QuestInfo.dbc (6.0.2.18988)
 enum QuestTypes
 {
-    QUEST_TYPE_ELITE               = 1,  // Group
-    QUEST_TYPE_LIFE                = 21, // Class
+    QUEST_TYPE_GROUP               = 1,
+    QUEST_TYPE_CLASS               = 21,
     QUEST_TYPE_PVP                 = 41,
     QUEST_TYPE_RAID                = 62,
     QUEST_TYPE_DUNGEON             = 81,
