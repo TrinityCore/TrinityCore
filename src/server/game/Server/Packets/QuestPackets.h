@@ -306,6 +306,45 @@ namespace WorldPackets
             int32 QuestID = 0;
             bool FromScript = false; // 0 - standart complete quest mode with npc, 1 - auto-complete mode
         };
+
+        struct QuestObjectiveSimple
+        {
+            int32 ID        = 0;
+            int32 ObjectID  = 0;
+            int32 Amount    = 0;
+            uint8 Type      = 0;
+        };
+
+        class QuestGiverQuestDetails final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestDetails() : ServerPacket(SMSG_QUESTGIVER_QUEST_DETAILS, 1000) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid QuestGiverGUID;
+            ObjectGuid InformUnit;
+            int32 QuestID           = 0;
+            int32 QuestPackageID    = 0;
+            uint32 QuestFlags[2]    = {};
+            int32 SuggestedPartyMembers = 0;
+            QuestRewards Rewards;
+            std::vector<QuestObjectiveSimple> Objectives;
+            std::vector<QuestDescEmote> DescEmotes;
+            std::vector<int32> LearnSpells;
+            int32 PortraitTurnIn = 0;
+            int32 PortraitGiver = 0;
+            std::string PortraitTurnInText;
+            std::string PortraitTurnInName;
+            std::string PortraitGiverText;
+            std::string PortraitGiverName;
+            std::string QuestTitle;
+            std::string LogDescription;
+            std::string DescriptionText;
+            bool DisplayPopup = false;
+            bool StartCheat = false;
+            bool AutoLaunched = false;
+        };
     }
 }
 
