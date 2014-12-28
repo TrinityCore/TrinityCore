@@ -110,6 +110,9 @@ void WorldListener::HandleToonOnlineStatusChange(Battlenet::RealmHandle const& r
             }
         }
         else if (session->IsToonOnline())
+        {
             session->AsyncWrite(new Battlenet::WoWRealm::ToonLoggedOut());
+            session->SetToonOnline(false);
+        }
     }
 }
