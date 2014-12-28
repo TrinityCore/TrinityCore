@@ -13910,6 +13910,7 @@ void Player::SendPreparedGossip(WorldObject* source)
 
     if (source->GetTypeId() == TYPEID_UNIT)
     {
+        TC_LOG_ERROR("entities.player", "SEND GOSSIP (%u) (%u)", !source->ToCreature()->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP), !PlayerTalkClass->GetQuestMenu().Empty());
         // in case no gossip flag and quest menu not empty, open quest menu (client expect gossip menu with this flag)
         if (!source->ToCreature()->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP) && !PlayerTalkClass->GetQuestMenu().Empty())
         {
@@ -14699,6 +14700,24 @@ void Player::IncompleteQuest(uint32 quest_id)
     }
 }
 
+uint32 Player::GetQuestXPReward(Quest const* quest)
+{
+    bool rewarded = (m_RewardedQuests.find(quest->GetQuestId()) != m_RewardedQuests.end());
+
+    // Not give XP in case already completed once repeatable quest
+    if (rewarded && !quest->IsDFQuest())
+        return 0;
+
+    uint32 XP = quest->XPValue(getLevel()) * sWorld->getRate(RATE_XP_QUEST);
+
+    // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
+    Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
+    for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
+        AddPct(XP, (*i)->GetAmount());
+
+    return XP;
+}
+
 void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce)
 {
     //this THING should be here to protect code from quest, which cast on player far teleport as a reward
@@ -14775,15 +14794,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (log_slot < MAX_QUEST_LOG_SIZE)
         SetQuestSlot(log_slot, 0);
 
-    bool rewarded = (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end());
-
-    // Not give XP in case already completed once repeatable quest
-    uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST));
-
-    // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
-    Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
-    for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
-        AddPct(XP, (*i)->GetAmount());
+    uint32 XP = GetQuestXPReward(quest);
 
     int32 moneyRew = 0;
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
@@ -14792,7 +14803,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
 
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-        guild->GiveXP(uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER)), this);
+        guild->GiveXP(uint32(quest->XPValue(getLevel()) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER)), this);
 
     moneyRew += quest->GetRewMoney();
 
@@ -14809,9 +14820,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         RewardHonor(NULL, 0, honor);
 
     // title reward
-    if (quest->GetCharTitleId())
+    if (quest->GetRewTitle())
     {
-        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetCharTitleId()))
+        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetRewTitle()))
             SetTitle(titleEntry);
     }
 
@@ -18126,9 +18137,9 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                 LearnQuestRewardedSpells(quest);
 
                 // set rewarded title if any
-                if (quest->GetCharTitleId())
+                if (quest->GetRewTitle())
                 {
-                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetCharTitleId()))
+                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetRewTitle()))
                         SetTitle(titleEntry);
                 }
             }

@@ -192,3 +192,99 @@ WorldPacket const* WorldPackets::Quest::QuestUpdateAddCredit::Write()
 
     return &_worldPacket;
 };
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards)
+{
+    data << questRewards.ChoiceItemCount;
+
+    for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+    {
+        data << questRewards.ChoiceItems[i].ItemID;
+        data << questRewards.ChoiceItems[i].Quantity;
+    }
+
+    data << questRewards.ItemCount;
+
+    for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
+    {
+        data << questRewards.ItemID[i];
+        data << questRewards.ItemQty[i];
+    }
+
+    data << questRewards.Money;
+    data << questRewards.XP;
+    data << questRewards.Title;
+    data << questRewards.Talents;
+    data << questRewards.FactionFlags;
+
+    for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
+    {
+        data << questRewards.FactionID[i];
+        data << questRewards.FactionValue[i];
+        data << questRewards.FactionOverride[i];
+    }
+
+    data << questRewards.SpellCompletionDisplayID;
+    data << questRewards.SpellCompletionID;
+
+    for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+    {
+        data << questRewards.CurrencyID[i];
+        data << questRewards.CurrencyQty[i];
+    }
+
+    data << questRewards.SkillLineID;
+    data << questRewards.NumSkillUps;
+
+    data.WriteBit(false); // Unk
+    data.FlushBits();
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestGiverOfferReward const& offer)
+{
+    data << offer.QuestGiverGUID;
+    data << offer.QuestGiverCreatureID;
+    data << offer.QuestID;
+    data << offer.QuestFlags[0]; // Flags
+    data << offer.QuestFlags[1]; // FlagsEx
+    data << offer.SuggestedPartyMembers;
+    data << offer.Rewards; // WorldPackets::Quest::QuestRewards
+
+    data << int32(offer.Emotes.size());
+    for (WorldPackets::Quest::QuestDescEmote const& emote : offer.Emotes)
+    {
+        data << emote.Type;
+        data << emote.Delay;
+    }
+
+    data.WriteBit(offer.AutoLaunched);
+    data.FlushBits();
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
+{
+    _worldPacket << QuestData; // WorldPackets::Quest::QuestGiverOfferReward
+    _worldPacket << PortraitTurnIn;
+    _worldPacket << PortraitGiver;
+    _worldPacket << QuestPackageID;
+
+    _worldPacket.WriteBits(QuestTitle.size(), 9);
+    _worldPacket.WriteBits(RewardText.size(), 12);
+    _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
+    _worldPacket.WriteBits(PortraitGiverName.size(), 8);
+    _worldPacket.WriteBits(PortraitGiverText.size(), 10);
+    _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
+
+    _worldPacket.WriteString(QuestTitle);
+    _worldPacket.WriteString(RewardText);
+    _worldPacket.WriteString(PortraitTurnInText);
+    _worldPacket.WriteString(PortraitGiverName);
+    _worldPacket.WriteString(PortraitGiverText);
+    _worldPacket.WriteString(PortraitTurnInName);
+
+    return &_worldPacket;
+};

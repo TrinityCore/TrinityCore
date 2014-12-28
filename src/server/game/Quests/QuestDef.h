@@ -32,6 +32,14 @@ class Player;
 
 class ObjectMgr;
 
+namespace WorldPackets
+{
+    namespace Quest
+    {
+        struct QuestRewards;
+    }
+}
+
 #define MAX_QUEST_LOG_SIZE 25
 
 #define QUEST_ITEM_DROP_COUNT 4
@@ -243,7 +251,7 @@ class Quest
         void LoadQuestObjective(Field* fields);
         void LoadQuestObjectiveVisualEffect(Field* fields);
 
-        uint32 XPValue(Player* player) const;
+        uint32 XPValue(uint32 playerLevel) const;
 
         bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
         void SetFlag(uint32 flag) { Flags |= flag; }
@@ -260,7 +268,7 @@ class Quest
         uint32 GetMaxLevel() const { return MaxLevel; }
         int32  GetQuestLevel() const { return Level; }
         uint32 GetType() const { return Type; }
-        uint32  GetAllowableClasses() const { return AllowableClasses; }
+        uint32 GetAllowableClasses() const { return AllowableClasses; }
         int32  GetAllowableRaces() const { return AllowableRaces; }
         uint32 GetRequiredSkill() const { return RequiredSkillId; }
         uint32 GetRequiredSkillValue() const { return RequiredSkillPoints; }
@@ -274,7 +282,6 @@ class Quest
         int32  GetNextQuestId() const { return NextQuestID; }
         int32  GetExclusiveGroup() const { return ExclusiveGroup; }
         uint32 GetNextQuestInChain() const { return NextQuestInChain; }
-        uint32 GetCharTitleId() const { return RewardTitleId; }
         uint32 GetBonusTalents() const { return RewardTalents; }
         int32  GetRewArenaPoints() const {return RewardArenaPoints; }
         uint32 GetXPDifficulty() const { return RewardXPDifficulty; }
@@ -301,11 +308,11 @@ class Quest
         int32  GetRewDisplaySpell() const { return RewardDisplaySpell; }
         uint32 GetRewMailTemplateId() const { return RewardMailTemplateId; }
         uint32 GetRewMailDelaySecs() const { return RewardMailDelay; }
+        uint32 GetRewTitle() const { return RewardTitleId; }
         uint32 GetPOIContinent() const { return POIContinent; }
         float  GetPOIx() const { return POIx; }
         float  GetPOIy() const { return POIy; }
         uint32 GetPOIPriority() const { return POIPriority; }
-        uint32 GetRequiredSpell() const { return RequiredSpell; }
         uint32 GetSoundAccept() const { return SoundAccept; }
         uint32 GetSoundTurnIn() const { return SoundTurnIn; }
         uint32 GetIncompleteEmote() const { return EmoteOnIncomplete; }
@@ -332,14 +339,12 @@ class Quest
         bool   IsDFQuest() const { return (SpecialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
         uint32 CalculateHonorGain(uint8 level) const;
 
-        // multiple values
-        QuestObjectives Objectives;
-
         uint32 GetRewChoiceItemsCount() const { return _rewChoiceItemsCount; }
         uint32 GetRewItemsCount() const { return _rewItemsCount; }
         uint32 GetRewCurrencyCount() const { return _rewCurrencyCount; }
 
         void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;
+        void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
         typedef std::vector<int32> PrevQuests;
         PrevQuests prevQuests;
@@ -352,7 +357,7 @@ class Quest
         uint32 _rewCurrencyCount;
 
     public:
-        // wdb data
+        // wdb data (quest query response)
         uint32 Id;
         uint32 Method;
         uint32 PackageID;
@@ -404,6 +409,7 @@ class Quest
         uint32 AreaGroupID;
         uint32 LimitTime;
         int32  AllowableRaces;
+        QuestObjectives Objectives;
         std::string LogTitle;
         std::string LogDescription;
         std::string QuestDescription;
@@ -417,35 +423,34 @@ class Quest
     protected:
 
         // quest_detais table
-        uint32 DetailsEmote[QUEST_EMOTE_COUNT];
-        uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT];
+        uint32 DetailsEmote[QUEST_EMOTE_COUNT] = {};
+        uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT] = {};
 
         // quest_request_items table
-        uint32 EmoteOnComplete;
-        uint32 EmoteOnIncomplete;
-        uint32 EmoteOnCompleteDelay;
-        uint32 EmoteOnIncompleteDelay;
+        uint32 EmoteOnComplete          = 0;
+        uint32 EmoteOnIncomplete        = 0;
+        uint32 EmoteOnCompleteDelay     = 0;
+        uint32 EmoteOnIncompleteDelay   = 0;
         std::string RequestItemsText;
         
         // quest_offer_reward table
-        uint32 OfferRewardEmote[QUEST_EMOTE_COUNT];
-        uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT];
+        uint32 OfferRewardEmote[QUEST_EMOTE_COUNT] = {};
+        uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT] = {};
         std::string OfferRewardText;
 
         // quest_template_addon table (custom data)
-        uint32 MaxLevel;
-        uint32 AllowableClasses;
-        uint32 SourceSpellID;
-        int32  PrevQuestID;
-        int32  NextQuestID;
-        int32  ExclusiveGroup;
-        uint32 RewardMailTemplateId;
-        uint32 RewardMailDelay;
-        uint32 SourceItemIdCount;
-        uint32 SpecialFlags; // custom flags, not sniffed/WDB
+        uint32 MaxLevel             = 0;
+        uint32 AllowableClasses     = 0;
+        uint32 SourceSpellID        = 0;
+        int32  PrevQuestID          = 0;
+        int32  NextQuestID          = 0;
+        int32  ExclusiveGroup       = 0;
+        uint32 RewardMailTemplateId = 0;
+        uint32 RewardMailDelay      = 0;
+        uint32 SourceItemIdCount    = 0;
+        uint32 SpecialFlags         = 0; // custom flags, not sniffed/WDB
 
         // not loaded yet
-        uint32 RequiredSpell;
         uint32 RequiredSkillId;
         uint32 RequiredSkillPoints;
         uint32 RequiredMinRepFaction;

@@ -20,6 +20,7 @@
 #include "Player.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "QuestPackets.h"
 
 Quest::Quest(Field* questRecord)
 {
@@ -222,16 +223,16 @@ void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 }*/
 
-uint32 Quest::XPValue(Player* player) const
+uint32 Quest::XPValue(uint32 playerLevel) const
 {
-    if (player)
+    if (playerLevel)
     {
-        int32 quest_level = (Level == -1 ? player->getLevel() : Level);
+        int32 quest_level = (Level == -1 ? playerLevel : Level);
         const QuestXPEntry* xpentry = sQuestXPStore.LookupEntry(quest_level);
         if (!xpentry)
             return 0;
 
-        int32 diffFactor = 2 * (quest_level - player->getLevel()) + 20;
+        int32 diffFactor = 2 * (quest_level - playerLevel) + 20;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
@@ -287,9 +288,9 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     }
 
     data << uint32(GetRewMoney());
-    data << uint32(XPValue(player) * sWorld->getRate(RATE_XP_QUEST));
+    data << uint32(player->GetQuestXPReward(this));
 
-    data << uint32(GetCharTitleId());
+    data << uint32(GetRewTitle());
     data << uint32(0);                                      // unk
     data << float(0.0f);                                    // unk
     data << uint32(GetBonusTalents());
@@ -329,6 +330,46 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
 
     data << uint32(GetRewardSkillId());
     data << uint32(GetRewardSkillPoints());
+}
+
+void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
+{
+    rewards.ChoiceItemCount         = GetRewChoiceItemsCount();
+    rewards.ItemCount               = GetRewItemsCount();
+    rewards.Money                   = GetRewMoney();
+    rewards.XP                      = player->GetQuestXPReward(this);
+    rewards.Title                   = GetRewTitle();
+    rewards.Talents                 = GetBonusTalents();
+    rewards.FactionFlags            = GetRewardReputationMask();
+    rewards.SpellCompletionDisplayID = GetRewDisplaySpell();
+    rewards.SpellCompletionID       = GetRewSpell();
+    rewards.SkillLineID             = GetRewardSkillId();
+    rewards.NumSkillUps             = GetRewardSkillPoints();
+
+    for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+    {
+        rewards.ChoiceItems[i].ItemID = RewardChoiceItemId[i];
+        rewards.ChoiceItems[i].Quantity = RewardChoiceItemCount[i];
+    }
+
+    for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
+    {
+        rewards.ItemID[i] = RewardItemId[i];
+        rewards.ItemQty[i] = RewardItemCount[i];
+    }
+
+    for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
+    {
+        rewards.FactionID[i] = RewardFactionId[i];
+        rewards.FactionValue[i] = RewardFactionValue[i];
+        rewards.FactionOverride[i] = RewardFactionOverride[i];
+    }
+
+    for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+    {
+        rewards.CurrencyID[i] = RewardCurrencyId[i];
+        rewards.CurrencyQty[i] = RewardCurrencyCount[i];
+    }
 }
 
 uint32 Quest::GetRewMoneyMaxLevel() const

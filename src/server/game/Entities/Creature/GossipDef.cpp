@@ -433,7 +433,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << uint32(quest->GetSuggestedPlayers());
     data << uint8(0);                                       // IsFinished? value is sent back to server in quest accept packet
     data << uint8(0);                                       // 4.x FIXME: Starts at AreaTrigger
-    data << uint32(quest->GetRequiredSpell());              // 4.x
+    data << uint32(quest->GetSrcSpell());                   // 4.x
 
     quest->BuildExtraQuestInfo(data, _session->GetPlayer());
 
@@ -514,7 +514,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.StartItem = quest->GetSrcItemId();
     packet.Info.Flags = quest->GetFlags();
     packet.Info.FlagsEx = quest->GetFlagsEx();
-    packet.Info.RewardTitle = quest->GetCharTitleId();
+    packet.Info.RewardTitle = quest->GetRewTitle();
     packet.Info.RewardTalents = quest->GetBonusTalents();
     packet.Info.RewardArenaPoints = quest->GetRewArenaPoints();
     packet.Info.RewardSkillLineID = quest->GetRewardSkillId();
@@ -610,7 +610,37 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
         AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
 
-    WorldPacket data(SMSG_QUESTGIVER_OFFER_REWARD, 50);     // guess size
+    WorldPackets::Quest::QuestGiverOfferRewardMessage packet;
+    WorldPackets::Quest::QuestGiverOfferReward& offer = packet.QuestData;
+
+    quest->BuildQuestRewards(offer.Rewards, _session->GetPlayer());
+    offer.QuestGiverGUID = npcGUID;
+
+    // Is there a better way? what about game objects?
+    if (Creature const* creature = sObjectAccessor->GetCreature(*_session->GetPlayer(), npcGUID))
+        offer.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
+
+    offer.QuestID = quest->GetQuestId();
+    offer.AutoLaunched = enableNext;
+    offer.SuggestedPartyMembers = quest->GetSuggestedPlayers();
+
+    for (uint32 i = 0; i < QUEST_EMOTE_COUNT && quest->OfferRewardEmote[i]; ++i)
+        offer.Emotes.push_back(WorldPackets::Quest::QuestDescEmote(quest->OfferRewardEmote[i], quest->OfferRewardEmoteDelay[i]));
+
+    offer.QuestFlags[0] = quest->GetFlags();
+    offer.QuestFlags[1] = quest->GetFlagsEx();
+
+    packet.QuestTitle = questTitle;
+    packet.PortraitTurnIn = quest->GetQuestTurnInPortrait();
+    packet.PortraitGiver = quest->GetQuestGiverPortrait();
+    packet.PortraitGiverText = portraitGiverText;
+    packet.PortraitGiverName = portraitGiverName;
+    packet.PortraitTurnInText = portraitTurnInText;
+    packet.PortraitTurnInName = portraitTurnInName;
+    packet.QuestPackageID = quest->GetQuestPackageID();
+
+    _session->SendPacket(packet.Write());
+   /*WorldPacket data(SMSG_QUESTGIVER_OFFER_REWARD, 50);     // guess size
     data << npcGUID;
     data << uint32(quest->GetQuestId());
     data << questTitle;
@@ -644,7 +674,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
 
     quest->BuildExtraQuestInfo(data, _session->GetPlayer());
 
-    _session->SendPacket(&data);
+    _session->SendPacket(&data);*/
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
 }
 
