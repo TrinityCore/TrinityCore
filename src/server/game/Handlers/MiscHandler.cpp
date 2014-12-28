@@ -1498,6 +1498,13 @@ void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& pack
 {
     TC_LOG_DEBUG("network", "CMSG_TIME_SYNC_RESP");
 
+    // Prevent crashing server if queue is empty
+    if (_player->m_timeSyncQueue.empty())
+    {
+        TC_LOG_ERROR("network", "Received CMSG_TIME_SYNC_RESP from player %s without requesting it (hacker?)", _player->GetName().c_str());
+        return;
+    }
+
     if (packet.SequenceIndex != _player->m_timeSyncQueue.front())
         TC_LOG_ERROR("network", "Wrong time sync counter from player %s (cheater?)", _player->GetName().c_str());
 
