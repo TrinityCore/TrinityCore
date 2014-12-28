@@ -221,3 +221,44 @@ WorldPacket const* WorldPackets::Query::HotfixNotifyBlob::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Query::QueryGameObject::Read()
+{
+    _worldPacket >> Entry;
+    _worldPacket >> Guid;
+}
+
+WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
+{
+    _worldPacket << Entry;
+    _worldPacket.WriteBit(Allow);
+
+    if (Allow)
+    {
+        _worldPacket << Stats.UnkInt32;
+        if (Stats.UnkInt32 == 0)
+            return &_worldPacket;
+
+        _worldPacket << Stats.Type;
+        _worldPacket << Stats.DisplayID;
+        for (int8 i = 0; i < 4; i++)
+            _worldPacket << Stats.Name[i];
+
+        _worldPacket << Stats.IconName;
+        _worldPacket << Stats.CastBarCaption;
+        _worldPacket << Stats.UnkString;
+
+        for (uint32 i = 0; i < MAX_GAMEOBJECT_DATA; i++)
+            _worldPacket << Stats.Data[i];
+
+        _worldPacket << Stats.Size;
+
+        _worldPacket << uint8(Stats.QuestItems.size());
+        for (int32 questItem : Stats.QuestItems)
+            _worldPacket << questItem;
+
+        _worldPacket << Stats.Expansion;
+    }
+
+    return &_worldPacket;
+}
