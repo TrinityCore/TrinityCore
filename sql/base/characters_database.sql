@@ -636,11 +636,13 @@ DROP TABLE IF EXISTS `character_currency`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_currency` (
-  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `currency` smallint(5) unsigned NOT NULL,
-  `total_count` int(10) unsigned NOT NULL,
-  `week_count` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`guid`,`currency`)
+  `CharacterGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+  `Currency` SMALLINT(5) UNSIGNED NOT NULL,
+  `Quantity` INT(10) UNSIGNED NOT NULL,
+  `WeeklyQuantity` INT(10) UNSIGNED NOT NULL,
+  `TrackedQuantity` INT(10) UNSIGNED NOT NULL,
+  `Flags` TINYINT(3) UNSIGNED NOT NULL,
+  PRIMARY KEY (`CharacterGuid`, `Currency`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
