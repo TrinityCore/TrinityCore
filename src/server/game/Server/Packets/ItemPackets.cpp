@@ -58,21 +58,20 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
     return data;
 }
 
-WorldPacket const* WorldPackets::Item::EquipError::Write()
+WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
 {
-    _worldPacket << uint8(msg);
-    _worldPacket << itemGUID1;
-    _worldPacket << itemGUID2;
-    _worldPacket << uint8(0); // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
+    _worldPacket << int8(BagResult);
+    _worldPacket << Item[0];
+    _worldPacket << Item[1];
+    _worldPacket << uint8(ContainerBSlot); // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
 
-    switch (msg)
+    switch (BagResult)
     {
         case EQUIP_ERR_CANT_EQUIP_LEVEL_I:
         case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
-        {
-            _worldPacket << level;
+            _worldPacket << int32(Level);
             break;
-        }
+        /// @todo: add more cases
         default:
             break;
     }
@@ -82,42 +81,64 @@ WorldPacket const* WorldPackets::Item::EquipError::Write()
 
 void WorldPackets::Item::SplitItem::Read()
 {
-    itemCount = _worldPacket.ReadBits(2);
-    _worldPacket >> srcbag >> srcslot >> dstbag >> dstslot >> count;
+    Inv.Items.resize(_worldPacket.ReadBits(2));
+    for (size_t i = 0; i < Inv.Items.size(); ++i)
+    {
+        _worldPacket >> Inv.Items[i].ContainerSlot;
+        _worldPacket >> Inv.Items[i].Slot;
+    }
+
+    _worldPacket >> FromPackSlot
+                 >> FromSlot
+                 >> ToPackSlot
+                 >> ToSlot
+                 >> Quantity;
 }
 
 void WorldPackets::Item::SwapInvItem::Read()
 {
-    itemCount = _worldPacket.ReadBits(2);
-    for (uint32 i = 0; i < itemCount; ++i)
+    Inv.Items.resize(_worldPacket.ReadBits(2));
+    for (size_t i = 0; i < Inv.Items.size(); ++i)
     {
-        _worldPacket.read_skip<uint8>(); // bag
-        _worldPacket.read_skip<uint8>(); // slot
+        _worldPacket >> Inv.Items[i].ContainerSlot;
+        _worldPacket >> Inv.Items[i].Slot;
     }
-    _worldPacket >> dstslot >> srcslot;
+
+    _worldPacket >> Slot2
+                 >> Slot1;
 }
 
 void WorldPackets::Item::SwapItem::Read()
 {
-    itemCount = _worldPacket.ReadBits(2);
-    for (uint32 i = 0; i < itemCount; ++i)
+    Inv.Items.resize(_worldPacket.ReadBits(2));
+    for (size_t i = 0; i < Inv.Items.size(); ++i)
     {
-        _worldPacket.read_skip<uint8>(); // bag
-        _worldPacket.read_skip<uint8>(); // slot
+        _worldPacket >> Inv.Items[i].ContainerSlot;
+        _worldPacket >> Inv.Items[i].Slot;
     }
-    _worldPacket >> dstbag >> srcbag >> dstslot >> srcslot;
+
+    _worldPacket >> ContainerSlotB
+                 >> ContainerSlotA
+                 >> SlotB
+                 >> SlotA;
 }
 
 void WorldPackets::Item::AutoEquipItem::Read()
 {
-    itemCount = _worldPacket.ReadBits(2);
+    Inv.Items.resize(_worldPacket.ReadBits(2));
+    for (size_t i = 0; i < Inv.Items.size(); ++i)
+    {
+        _worldPacket >> Inv.Items[i].ContainerSlot;
+        _worldPacket >> Inv.Items[i].Slot;
+    }
 
-    _worldPacket >> srcbag >> srcslot;
-    _worldPacket.read_skip<uint8>();
-    _worldPacket.read_skip<uint8>();
+    _worldPacket >> PackSlot
+                 >> Slot;
 }
 
 void WorldPackets::Item::DestroyItem::Read()
 {
-    _worldPacket >> count >> bag >> slot;
+    _worldPacket >> Count
+                 >> ContainerId
+                 >> SlotNum;
 }
