@@ -689,65 +689,55 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
         AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
 
-    WorldPacket data(SMSG_QUESTGIVER_REQUEST_ITEMS, 50);    // guess size
-    /*data << npcGUID;
-    data << uint32(quest->GetQuestId());
-    data << questTitle;
-    data << requestItemsText;
+    WorldPackets::Quest::QuestGiverRequestItems packet;
+    packet.QuestGiverGUID = npcGUID;
 
-    data << uint32(0);                                   // unknown
+    // Is there a better way? what about game objects?
+    if (Creature const* creature = sObjectAccessor->GetCreature(*_session->GetPlayer(), npcGUID))
+        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
+
+    packet.QuestID = quest->GetQuestId();
 
     if (canComplete)
-        data << quest->GetCompleteEmote();
-    else
-        data << quest->GetIncompleteEmote();
-
-    // Close Window after cancel
-    data << uint32(closeOnCancel);
-
-    data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
-    data << uint32(quest->GetSuggestedPlayers());           // SuggestedGroupNum
-
-    // Required Money
-    data << uint32(quest->GetRewOrReqMoney() < 0 ? -quest->GetRewOrReqMoney() : 0);
-
-    data << uint32(quest->GetReqItemsCount());
-    for (QuestObjective const& obj : quest->Objectives)
     {
-        if (obj.Type != QUEST_OBJECTIVE_ITEM)
-            continue;
-
-        data << uint32(obj.ObjectID);
-        data << uint32(obj.Amount);
-
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(obj.ObjectID))
-            data << uint32(itemTemplate->DisplayInfoID);
-
-        else
-            data << uint32(0);
+        packet.CompEmoteDelay = quest->EmoteOnCompleteDelay;
+        packet.CompEmoteType = quest->EmoteOnComplete;
+    }
+    else
+    {
+        packet.CompEmoteDelay = quest->EmoteOnIncompleteDelay;
+        packet.CompEmoteType = quest->EmoteOnIncomplete;
     }
 
-    data << uint32(quest->GetReqCurrencyCount());
-    for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-    {
-        if (!quest->RequiredCurrencyId[i])
-            continue;
+    packet.QuestFlags[0] = quest->GetFlags();
+    packet.QuestFlags[1] = quest->GetFlagsEx();
+    packet.SuggestPartyMembers = quest->GetSuggestedPlayers();
+    packet.StatusFlags = 0xDF; // Unk, send common value
 
-        data << uint32(quest->RequiredCurrencyId[i]);
-        data << uint32(quest->RequiredCurrencyCount[i]);
+    packet.MoneyToGet = 0;
+    for (QuestObjective const& obj : quest->GetObjectives())
+    {
+        switch (obj.Type)
+        {
+            case QUEST_OBJECTIVE_ITEM:
+                packet.Collect.push_back(WorldPackets::Quest::QuestObjectiveCollect(obj.ObjectID, obj.Amount));
+                break;
+            case QUEST_OBJECTIVE_CURRENCY:
+                packet.Currency.push_back(WorldPackets::Quest::QuestCurrency(obj.ObjectID, obj.Amount));
+                break;
+            case QUEST_OBJECTIVE_MONEY:
+                packet.MoneyToGet += obj.Amount;
+                break;
+            default:
+                break;
+        }
     }
 
-    if (!canComplete)            // Experimental; there are 6 similar flags, if any of them
-        data << uint32(0x00);    // of them is 0 player can't complete quest (still unknown meaning)
-    else
-        data << uint32(0x02);
+    packet.AutoLaunched = closeOnCancel;
+    packet.QuestTitle = questTitle;
+    packet.CompletionText = requestItemsText;
 
-    data << uint32(0x04);
-    data << uint32(0x08);
-    data << uint32(0x10);
-    data << uint32(0x40);*/
-
-    _session->SendPacket(&data);
+    _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
 }
 

@@ -374,3 +374,42 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Quest::QuestGiverRequestItems::Write()
+{
+    _worldPacket << QuestGiverGUID;
+    _worldPacket << QuestGiverCreatureID;
+    _worldPacket << QuestID;
+    _worldPacket << CompEmoteDelay;
+    _worldPacket << CompEmoteType;
+    _worldPacket << QuestFlags[0];
+    _worldPacket << QuestFlags[1];
+    _worldPacket << SuggestPartyMembers;
+    _worldPacket << MoneyToGet;
+    _worldPacket << int32(Collect.size());
+    _worldPacket << int32(Currency.size());
+    _worldPacket << StatusFlags;
+
+    for (QuestObjectiveCollect const& obj : Collect)
+    {
+        _worldPacket << obj.ObjectID;
+        _worldPacket << obj.Amount;
+    }
+
+    for (QuestCurrency const& cur : Currency)
+    {
+        _worldPacket << cur.CurrencyID;
+        _worldPacket << cur.Amount;
+    }
+
+    _worldPacket.WriteBit(AutoLaunched);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteBits(QuestTitle.size(), 9);
+    _worldPacket.WriteBits(CompletionText.size(), 12);
+
+    _worldPacket.WriteString(QuestTitle);
+    _worldPacket.WriteString(CompletionText);
+
+    return &_worldPacket;
+}
