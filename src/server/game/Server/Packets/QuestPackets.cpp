@@ -232,6 +232,13 @@ void WorldPackets::Quest::QuestGiverRequestReward::Read()
     _worldPacket >> QuestID;
 }
 
+void WorldPackets::Quest::QuestGiverQueryQuest::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    _worldPacket >> RespondToGiver;
+}
+
 WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 {
     _worldPacket << QuestGiverGUID;
