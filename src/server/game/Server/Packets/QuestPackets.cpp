@@ -419,3 +419,10 @@ void WorldPackets::Quest::QuestGiverRequestReward::Read()
     _worldPacket >> QuestGiverGUID;
     _worldPacket >> QuestID;
 }
+
+void WorldPackets::Quest::QuestGiverQueryQuest::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    RespondToGiver = _worldPacket.ReadBit();
+}
