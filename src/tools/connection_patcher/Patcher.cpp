@@ -35,9 +35,15 @@ namespace
         if (!ifs)
             throw std::runtime_error("could not open " + path.string());
 
+        std::vector<unsigned char> binary;
         ifs >> std::noskipws;
+        ifs.seekg(0, std::ios_base::end);
+        binary.reserve(ifs.tellg());
+        ifs.seekg(0, std::ios_base::beg);
 
-        return {std::istream_iterator<unsigned char>(ifs), std::istream_iterator<unsigned char>()};
+        std::copy(std::istream_iterator<unsigned char>(ifs), std::istream_iterator<unsigned char>(), std::back_inserter(binary));
+
+        return binary;
     }
 
     void write_file(boost::filesystem::path const& path, std::vector<unsigned char> const& data)
@@ -51,7 +57,7 @@ namespace
         std::copy(data.begin(), data.end(), std::ostream_iterator<unsigned char>(ofs));
     }
 
-    std::set<size_t> SearchOffset (std::vector<unsigned char> const& binary, std::vector<unsigned char> const& pattern)
+    std::set<size_t> SearchOffset(std::vector<unsigned char> const& binary, std::vector<unsigned char> const& pattern)
     {
         std::set<size_t> offsets;
         for (size_t i = 0; (i + pattern.size()) < binary.size(); i++)
