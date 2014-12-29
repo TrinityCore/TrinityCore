@@ -2112,7 +2112,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 {
     uint32 validEffectMask = 0;
     for (SpellEffectInfo const* effect : GetEffects())
-        if (effect && (effectMask & effect->EffectIndex) != 0 && CheckEffectTarget(target, effect, losPosition))
+        if (effect && (effectMask & (1 << effect->EffectIndex)) != 0 && CheckEffectTarget(target, effect, losPosition))
             validEffectMask |= 1 << effect->EffectIndex;
 
     effectMask &= validEffectMask;
@@ -2223,7 +2223,7 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
 {
     uint32 validEffectMask = 0;
     for (SpellEffectInfo const* effect : GetEffects())
-        if (effect && (effectMask & effect->EffectIndex) != 0 && CheckEffectTarget(go, effect))
+        if (effect && (effectMask & (1 << effect->EffectIndex)) != 0 && CheckEffectTarget(go, effect))
             validEffectMask |= 1 << effect->EffectIndex;
 
     effectMask &= validEffectMask;
@@ -2278,7 +2278,7 @@ void Spell::AddItemTarget(Item* item, uint32 effectMask)
 {
     uint32 validEffectMask = 0;
     for (SpellEffectInfo const* effect : GetEffects())
-        if (effect && (effectMask & effect->EffectIndex) != 0 && CheckEffectTarget(item, effect))
+        if (effect && (effectMask & (1 << effect->EffectIndex)) != 0 && CheckEffectTarget(item, effect))
             validEffectMask |= 1 << effect->EffectIndex;
 
     effectMask &= validEffectMask;
@@ -4531,7 +4531,7 @@ void Spell::TakeCastItem()
     bool expendable = false;
     bool withoutCharges = false;
 
-    for (int i = 0; i < proto->Effects.size(); ++i)
+    for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
         // item has limited charges
         if (proto->Effects[i].Charges)

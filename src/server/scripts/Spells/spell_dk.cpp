@@ -1231,8 +1231,8 @@ class spell_dk_raise_dead : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_1)->CalcValue())
-                    || !sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_2)->CalcValue())
+                if (!spellInfo->GetEffect(EFFECT_0) || !sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->CalcValue())
+                    || spellInfo->GetEffect(EFFECT_1) || !sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_1)->CalcValue())
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_DEAD_USE_REAGENT)
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_MASTER_OF_GHOULS))
                     return false;
@@ -1312,12 +1312,12 @@ class spell_dk_raise_dead : public SpellScriptLoader
             uint32 GetGhoulSpellId()
             {
                 // Do we have talent Master of Ghouls?
-                if (GetCaster()->HasAura(SPELL_DK_MASTER_OF_GHOULS))
-                    // summon as pet
-                    return GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue();
+                //if (GetCaster()->HasAura(SPELL_DK_MASTER_OF_GHOULS))
+                    // summon as geist
+                //    return GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
 
-                // or guardian
-                return GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
+                // or pet
+                return GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             }
 
             void HandleRaiseDead(SpellEffIndex /*effIndex*/)
