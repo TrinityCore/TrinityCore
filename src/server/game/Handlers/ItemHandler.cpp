@@ -402,7 +402,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
         else
         {
             // prevent sell more items that exist in stack (possible only not from client)
-			if (packet.Amount > pItem->GetCount())
+            if (packet.Amount > pItem->GetCount())
             {
                 _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
                 return;
