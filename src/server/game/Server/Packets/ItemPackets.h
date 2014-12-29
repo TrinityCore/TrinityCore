@@ -25,10 +25,10 @@ namespace WorldPackets
 {
     namespace Item
 	{
-		class BuyItem final : public ClientPacket
+        class BuyItem final : public ClientPacket
 		{
 		public:
-			BuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
+            BuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
 
 			void Read() override;
 
@@ -37,7 +37,7 @@ namespace WorldPackets
 			int32 Quantity = 0;
 			uint32 Muid = 0;
 			uint32 Slot = 0;
-			uint8 ItemType = 0;
+			uint8 ItemType[2];
 		};
 
 		class BuyItemResult final : public ServerPacket
@@ -52,28 +52,39 @@ namespace WorldPackets
 			uint32 Muid = 0;
 			uint32 NewQuantity = 0;
 		};
-
-		class BuyBackItem final : public ClientPacket
-		{
-		public:
-			BuyBackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUYBACK_ITEM, std::move(packet)) { }
-
-			void Read() override;
-
-			ObjectGuid VendorGUID;
-			uint32 Slot = 0;
-		};
-
-		class ItemRefundInfo final : public ClientPacket
-		{
-		public:
-			ItemRefundInfo(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_REFUND_INFO, std::move(packet)) { }
-
-			void Read() override;
-
-			ObjectGuid ItemGUID;
-		};
-
+        
+        class BuyBackItem final : public ClientPacket
+        {
+        public:
+            BuyBackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUYBACK_ITEM, std::move(packet)) { }
+            
+            void Read() override;
+            
+            ObjectGuid VendorGUID;
+            uint32 Slot = 0;
+        };
+        
+        class ItemRefundInfo final : public ClientPacket
+        {
+        public:
+            ItemRefundInfo(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_REFUND_INFO, std::move(packet)) { }
+            
+            void Read() override;
+            
+            ObjectGuid ItemGUID;
+        };
+        
+        class OpenItem final : public ClientPacket
+        {
+        public:
+            OpenItem(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_ITEM, std::move(packet)) { }
+            
+            void Read() override;
+            
+            uint8 ContainerIndex;
+            uint8 Slot;
+        };
+        
 		class RepairItem final : public ClientPacket
 		{
 		public:

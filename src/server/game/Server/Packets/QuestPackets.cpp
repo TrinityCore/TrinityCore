@@ -17,6 +17,13 @@
 
 #include "QuestPackets.h"
 
+void WorldPackets::Quest::QuestGiverAcceptQuest::Read()
+{
+	_worldPacket >> QuestGiverGUID;
+	_worldPacket >> QuestID;
+	_worldPacket >> StartCheat;
+}
+
 void WorldPackets::Quest::QuestGiverStatusQuery::Read()
 {
     _worldPacket >> QuestGiverGUID;
@@ -44,13 +51,26 @@ WorldPacket const* WorldPackets::Quest::QuestGiverStatusMultiple::Write()
 
 void WorldPackets::Quest::QuestGiverHello::Read()
 {
-    _worldPacket >> QuestGiverGUID;
+	_worldPacket >> QuestGiverGUID;
+}
+
+void WorldPackets::Quest::QuestGiverQueryQuest::Read()
+{
+	_worldPacket >> QuestGiverGUID;
+	_worldPacket >> QuestID;
+	_worldPacket >> RespondToGiver;
 }
 
 void WorldPackets::Quest::QueryQuestInfo::Read()
 {
     _worldPacket >> QuestID;
     _worldPacket >> QuestGiver;
+}
+
+void WorldPackets::Quest::QuestGiverRequestReward::Read()
+{
+	_worldPacket >> QuestGiverGUID;
+	_worldPacket >> QuestID;
 }
 
 WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()

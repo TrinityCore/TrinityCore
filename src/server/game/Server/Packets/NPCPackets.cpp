@@ -20,7 +20,15 @@
 
 void WorldPackets::NPC::Hello::Read()
 {
-    _worldPacket >> Unit;
+	_worldPacket >> Unit;
+}
+
+void WorldPackets::NPC::GossipSelectOption::Read()
+{
+	_worldPacket >> GUID;
+	_worldPacket >> GossipID;
+	_worldPacket >> MenuID;
+	_worldPacket >> BoxText;
 }
 
 WorldPacket const* WorldPackets::NPC::GossipMessage::Write()

@@ -23,7 +23,8 @@ void WorldPackets::Item::BuyItem::Read()
 	_worldPacket >> ContainerGUID;
 	_worldPacket >> Quantity;
 	_worldPacket >> Muid;
-	_worldPacket >> ItemType;
+	_worldPacket >> ItemType[0];
+	_worldPacket >> ItemType[1];
 }
 
 WorldPacket const* WorldPackets::Item::BuyItemResult::Write()
@@ -45,6 +46,12 @@ void WorldPackets::Item::BuyBackItem::Read()
 void WorldPackets::Item::ItemRefundInfo::Read()
 {
 	_worldPacket >> ItemGUID;
+}
+
+void WorldPackets::Item::OpenItem::Read()
+{
+	_worldPacket >> ContainerIndex;
+	_worldPacket >> Slot;
 }
 
 void WorldPackets::Item::RepairItem::Read()

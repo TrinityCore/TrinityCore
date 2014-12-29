@@ -377,3 +377,10 @@ void WorldPackets::Character::LoadingScreenNotify::Read()
     _worldPacket >> MapID;
     Showing = _worldPacket.ReadBit();
 }
+
+WorldPacket const* WorldPackets::Character::StandStateUpdate::Write()
+{
+	_worldPacket << StandState;
+	return &_worldPacket;
+}
+

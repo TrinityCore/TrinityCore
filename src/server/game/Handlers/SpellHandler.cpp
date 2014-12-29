@@ -35,6 +35,7 @@
 #include "SpellAuraEffects.h"
 #include "Player.h"
 #include "Config.h"
+#include "ItemPackets.h"
 #include "SpellPackets.h"
 #include "GameObjectPackets.h"
 
@@ -189,9 +190,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleOpenItemOpcode(WorldPackets::Item::OpenItem& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_OPEN_ITEM packet, data length = %i", (uint32)recvPacket.size());
+    TC_LOG_DEBUG("network", "WORLD: CMSG_OPEN_ITEM packet");
 
     Player* pUser = _player;
 
@@ -199,13 +200,9 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     if (pUser->m_mover != pUser)
         return;
 
-    uint8 bagIndex, slot;
+    TC_LOG_INFO("network", "bagIndex: %u, slot: %u", packet.ContainerIndex, packet.Slot);
 
-    recvPacket >> bagIndex >> slot;
-
-    TC_LOG_INFO("network", "bagIndex: %u, slot: %u", bagIndex, slot);
-
-    Item* item = pUser->GetItemByPos(bagIndex, slot);
+	Item* item = pUser->GetItemByPos(packet.ContainerIndex, packet.Slot);
     if (!item)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);

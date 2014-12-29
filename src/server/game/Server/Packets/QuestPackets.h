@@ -26,7 +26,19 @@
 namespace WorldPackets
 {
     namespace Quest
-    {
+	{
+		class QuestGiverAcceptQuest final : public ClientPacket
+		{
+		public:
+			QuestGiverAcceptQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_ACCEPT_QUEST, std::move(packet)) { }
+
+			void Read() override;
+
+			ObjectGuid QuestGiverGUID;
+			uint32 QuestID;
+			uint8 StartCheat;
+		};
+
         class QuestGiverStatusQuery final : public ClientPacket
         {
         public:
@@ -85,6 +97,29 @@ namespace WorldPackets
 
             ObjectGuid QuestGiverGUID;
         };
+
+		class QuestGiverQueryQuest final : public ClientPacket
+		{
+		public:
+			QuestGiverQueryQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_QUERY_QUEST, std::move(packet)) { }
+
+			void Read() override;
+
+			ObjectGuid QuestGiverGUID;
+			uint32 QuestID;
+			uint8 RespondToGiver;
+		};
+		
+		class QuestGiverRequestReward final : public ClientPacket
+		{
+		public:
+			QuestGiverRequestReward(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_REQUEST_REWARD, std::move(packet)) { }
+
+			void Read() override;
+
+			ObjectGuid QuestGiverGUID;
+			uint32 QuestID;
+		};
 
         class QueryQuestInfo final : public ClientPacket
         {
@@ -152,16 +187,16 @@ namespace WorldPackets
             int32 AreaGroupID               = 0;
             int32 TimeAllowed               = 0;
             std::vector<QuestObjective> Objectives;
-            int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 ItemDrop[QUEST_ITEM_DROP_COUNT] = {};
-            int32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT] = {};
+			int32 RewardItems[QUEST_REWARD_ITEM_COUNT];// = {};
+			int32 RewardAmount[QUEST_REWARD_ITEM_COUNT];// = {};
+			int32 ItemDrop[QUEST_ITEM_DROP_COUNT];// = {};
+			int32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT];// = {};
             QuestInfoChoiceItem UnfilteredChoiceItems[QUEST_REWARD_CHOICES_COUNT];
-            int32 RewardFactionID[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
-            int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
+			int32 RewardFactionID[QUEST_REWARD_REPUTATIONS_COUNT];// = {};
+			int32 RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT];// = {};
+			int32 RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT];// = {};
+			int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT];// = {};
+			int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT];// = {};
 
             // Non JAM data
             float Float10 = 1.0f;
@@ -216,13 +251,13 @@ namespace WorldPackets
             int32 SkillLineID               = 0;
             int32 NumSkillUps               = 0;
             QuestChoiceItem ChoiceItems[QUEST_REWARD_CHOICES_COUNT];
-            int32 ItemID[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 ItemQty[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 FactionID[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 FactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 FactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 CurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
-            int32 CurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
+			int32 ItemID[QUEST_REWARD_ITEM_COUNT];// = {};
+			int32 ItemQty[QUEST_REWARD_ITEM_COUNT];// = {};
+			int32 FactionID[QUEST_REWARD_REPUTATIONS_COUNT];// = {};
+			int32 FactionValue[QUEST_REWARD_REPUTATIONS_COUNT];// = {};
+			int32 FactionOverride[QUEST_REWARD_REPUTATIONS_COUNT];// = {};
+			int32 CurrencyID[QUEST_REWARD_CURRENCY_COUNT];// = {};
+			int32 CurrencyQty[QUEST_REWARD_CURRENCY_COUNT];// = {};
         };
 
         struct QuestDescEmote
@@ -241,7 +276,7 @@ namespace WorldPackets
             int32 SuggestedPartyMembers     = 0;
             QuestRewards Rewards;
             std::vector<QuestDescEmote> Emotes;
-            int32 QuestFlags[2]             = {}; // Flags and FlagsEx
+			int32 QuestFlags[2];//             = {}; // Flags and FlagsEx
         };
 
         class QuestGiverOfferRewardMessage final : public ServerPacket
@@ -326,7 +361,7 @@ namespace WorldPackets
             ObjectGuid InformUnit;
             int32 QuestID           = 0;
             int32 QuestPackageID    = 0;
-            uint32 QuestFlags[2]    = {};
+			uint32 QuestFlags[2];//    = {};
             int32 SuggestedPartyMembers = 0;
             QuestRewards Rewards;
             std::vector<QuestObjectiveSimple> Objectives;

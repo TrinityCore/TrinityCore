@@ -879,16 +879,16 @@ void WorldSession::HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet
 
     if (!packet.ItemGUID.IsEmpty())
     {
-		TC_LOG_DEBUG("network", "ITEM: Repair %s, at %s", packet.ItemGUID.ToString().c_str(), packet.NpcGUID.ToString().c_str());
+        TC_LOG_DEBUG("network", "ITEM: Repair %s, at %s", packet.ItemGUID.ToString().c_str(), packet.NpcGUID.ToString().c_str());
 
-		Item* item = _player->GetItemByGuid(packet.ItemGUID);
+        Item* item = _player->GetItemByGuid(packet.ItemGUID);
         if (item)
-			_player->DurabilityRepair(item->GetPos(), true, discountMod, packet.UseGuildBank != 0);
+            _player->DurabilityRepair(item->GetPos(), true, discountMod, packet.UseGuildBank != 0);
     }
     else
     {
         TC_LOG_DEBUG("network", "ITEM: Repair all items at %s", packet.NpcGUID.ToString().c_str());
-		_player->DurabilityRepairAll(true, discountMod, packet.UseGuildBank != 0);
+        _player->DurabilityRepairAll(true, discountMod, packet.UseGuildBank != 0);
     }
 }
 
