@@ -345,6 +345,43 @@ namespace WorldPackets
             bool StartCheat = false;
             bool AutoLaunched = false;
         };
+
+        struct QuestObjectiveCollect
+        {
+            QuestObjectiveCollect(int32 objectID = 0, int32 amount = 0) : ObjectID(objectID), Amount(amount) { }
+            int32 ObjectID;
+            int32 Amount;
+        };
+
+        struct QuestCurrency
+        {
+            QuestCurrency(int32 currencyID = 0, int32 amount = 0) : CurrencyID(currencyID), Amount(amount) { }
+            int32 CurrencyID;
+            int32 Amount;
+        };
+
+        class QuestGiverRequestItems final : public ServerPacket
+        {
+        public:
+            QuestGiverRequestItems() : ServerPacket(SMSG_QUESTGIVER_REQUEST_ITEMS, 300) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestGiverCreatureID  = 0;
+            int32 QuestID               = 0;
+            int32 CompEmoteDelay        = 0;
+            int32 CompEmoteType         = 0;
+            bool AutoLaunched           = false;
+            int32 SuggestPartyMembers   = 0;
+            int32 MoneyToGet            = 0;
+            std::vector<QuestObjectiveCollect> Collect;
+            std::vector<QuestCurrency> Currency;
+            int32 StatusFlags           = 0;
+            uint32 QuestFlags[2]        = {};
+            std::string QuestTitle;
+            std::string CompletionText;
+        };
     }
 }
 
