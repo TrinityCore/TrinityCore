@@ -81,8 +81,8 @@ namespace WorldPackets
             
             void Read() override;
             
-            uint8 ContainerIndex;
-            uint8 Slot;
+            uint8 ContainerIndex = 0;
+            uint8 Slot = 0;
         };
         
 		class RepairItem final : public ClientPacket
