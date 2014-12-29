@@ -379,6 +379,16 @@ namespace WorldPackets
             bool DisplayPopup = false;
             bool StartCheat = false;
             bool AutoLaunched = false;
+		};
+
+        class QuestLogRemoveQuest final : public ClientPacket
+        {
+        public:
+            QuestLogRemoveQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTLOG_REMOVE_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Slot;
         };
     }
 }
