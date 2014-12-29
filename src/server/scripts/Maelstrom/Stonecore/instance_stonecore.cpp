@@ -220,7 +220,7 @@ class instance_stonecore : public InstanceMapScript
             ObjectGuid corborusRockDoorGUID;
             GuidVector slabhideRockWallGUIDs;
 
-            EncounterState slabhideIntro;
+            EncounterState slabhideIntro = NOT_STARTED;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

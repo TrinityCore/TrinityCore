@@ -1515,7 +1515,7 @@ class Player : public Unit, public GridObject<Player>
         void AddItemToBuyBackSlot(Item* pItem);
         Item* GetItemFromBuyBackSlot(uint32 slot);
         void RemoveItemFromBuyBackSlot(uint32 slot, bool del);
-        void SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2 = NULL, uint32 itemid = 0);
+        void SendEquipError(InventoryResult msg, Item* item1 = nullptr, Item* item2 = nullptr, uint32 itemId = 0);
         void SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 param);
         void SendSellError(SellResult msg, Creature* creature, ObjectGuid guid);
         void AddWeaponProficiency(uint32 newflag) { m_WeaponProficiency |= newflag; }

@@ -51,17 +51,32 @@ namespace WorldPackets
             std::vector<int32> Modifications;
         };
 
-        class EquipError final : public ServerPacket
+        struct InvUpdate
+        {
+            struct InvItem
+            {
+                uint8 ContainerSlot = 0;
+                uint8 Slot = 0;
+            };
+
+            std::vector<InvItem> Items;
+        };
+
+        class InventoryChangeFailure final : public ServerPacket
         {
         public:
-            EquipError() : ServerPacket(SMSG_INVENTORY_CHANGE_FAILURE, 22) { }
+            InventoryChangeFailure() : ServerPacket(SMSG_INVENTORY_CHANGE_FAILURE, 22) { }
 
             WorldPacket const* Write() override;
 
-            InventoryResult msg;
-            ObjectGuid itemGUID1;
-            ObjectGuid itemGUID2;
-            uint32 level;
+            int8 BagResult = EQUIP_ERR_OK; /// @see enum InventoryResult
+            uint8 ContainerBSlot = 0;
+            ObjectGuid SrcContainer;
+            ObjectGuid DstContainer;
+            int32 SrcSlot = 0;
+            int32 LimitCategory = 0;
+            int32 Level = 0;
+            ObjectGuid Item[2];
         };
 
         class SplitItem final : public ClientPacket
@@ -71,8 +86,12 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 srcbag, srcslot, dstbag, dstslot;
-            uint32 itemCount, count;
+            uint8 ToSlot       = 0;
+            uint8 ToPackSlot   = 0;
+            uint8 FromPackSlot = 0;
+            int32 Quantity     = 0;
+            InvUpdate Inv;
+            uint8 FromSlot     = 0;
         };
 
         class SwapInvItem final : public ClientPacket
@@ -82,8 +101,9 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 itemCount;
-            uint8 srcslot, dstslot;
+            InvUpdate Inv;
+            uint8 Slot1 = 0; /// Source Slot
+            uint8 Slot2 = 0; /// Destination Slot
         };
 
         class SwapItem final : public ClientPacket
@@ -93,8 +113,11 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 itemCount;
-            uint8 dstbag, dstslot, srcbag, srcslot;
+            InvUpdate Inv;
+            uint8 SlotA          = 0;
+            uint8 ContainerSlotB = 0;
+            uint8 SlotB          = 0;
+            uint8 ContainerSlotA = 0;
         };
 
         class AutoEquipItem final : public ClientPacket
@@ -104,8 +127,9 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 itemCount;
-            uint8 srcbag, srcslot;
+            uint8 Slot = 0;
+            InvUpdate Inv;
+            uint8 PackSlot = 0;
         };
 
         class DestroyItem final : public ClientPacket
@@ -115,8 +139,9 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 count;
-            uint8 bag, slot;
+            uint32 Count = 0;
+            uint8 SlotNum = 0;
+            uint8 ContainerId = 0;
         };
     }
 }
