@@ -146,6 +146,10 @@ namespace WorldPackets
 
     namespace Item
     {
+		class BuyBackItem;
+		class ItemRefundInfo;
+		class RepairItem;
+		class SellItem;
         class SplitItem;
         class SwapInvItem;
         class SwapItem;
@@ -653,7 +657,7 @@ class WorldSession
         void HandleShowingCloakOpcode(WorldPacket& recvData);
 
         // repair
-        void HandleRepairItemOpcode(WorldPacket& recvPacket);
+        void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);
 
         // Knockback
         void HandleMoveKnockBackAck(WorldPacket& recvPacket);
@@ -877,7 +881,7 @@ class WorldSession
         void HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swapInvItem);
         void HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& destroyItem);
         void HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem);
-        void HandleSellItemOpcode(WorldPacket& recvPacket);
+        void HandleSellItemOpcode(WorldPackets::Item::SellItem& packet);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPacket& recvPacket);
         void HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet);
@@ -885,7 +889,7 @@ class WorldSession
         void HandleReadItem(WorldPacket& recvPacket);
         void HandleAutoEquipItemSlotOpcode(WorldPacket& recvPacket);
         void HandleSwapItem(WorldPackets::Item::SwapItem& swapItem);
-        void HandleBuybackItem(WorldPacket& recvPacket);
+		void HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet);
         void HandleAutoBankItemOpcode(WorldPacket& recvPacket);
         void HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket);
         void HandleWrapItemOpcode(WorldPacket& recvPacket);
@@ -1091,7 +1095,7 @@ class WorldSession
 
         void HandleCancelTempEnchantmentOpcode(WorldPacket& recvData);
 
-        void HandleItemRefundInfoRequest(WorldPacket& recvData);
+		void HandleItemRefundInfoRequest(WorldPackets::Item::ItemRefundInfo& packet);
         void HandleItemRefund(WorldPacket& recvData);
 
         void HandleChannelVoiceOnOpcode(WorldPacket& recvData);
