@@ -21345,12 +21345,12 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
         WorldPackets::Item::BuyItemResult buyItemResult;
-		buyItemResult.VendorGUID = pVendor->GetGUID();
-		buyItemResult.QuantityBought = uint32(count);
-		buyItemResult.Muid = uint32(vendorslot + 1);
-		buyItemResult.NewQuantity = int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
-
-		GetSession()->SendPacket(buyItemResult.Write());
+        buyItemResult.VendorGUID = pVendor->GetGUID();
+        buyItemResult.QuantityBought = uint32(count);
+        buyItemResult.Muid = uint32(vendorslot + 1);
+        buyItemResult.NewQuantity = int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+        
+        GetSession()->SendPacket(buyItemResult.Write());
         SendNewItem(it, count, true, false, false);
 
         if (!bStore)

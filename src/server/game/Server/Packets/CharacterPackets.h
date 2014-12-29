@@ -463,26 +463,26 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
-		class LoadingScreenNotify final : public ClientPacket
-		{
-		public:
-			LoadingScreenNotify(WorldPacket&& packet) : ClientPacket(CMSG_LOAD_SCREEN, std::move(packet)) { }
+        class LoadingScreenNotify final : public ClientPacket
+        {
+        public:
+            LoadingScreenNotify(WorldPacket&& packet) : ClientPacket(CMSG_LOAD_SCREEN, std::move(packet)) { }
 
-			void Read() override;
+            void Read() override;
 
-			int32 MapID = -1;
-			bool Showing = false;
-		};
+            int32 MapID = -1;
+            bool Showing = false;
+        };
 
-		class StandStateUpdate final : public ServerPacket
-		{
-		public:
-			StandStateUpdate() : ServerPacket(SMSG_STANDSTATE_UPDATE, 1) { }
+        class StandStateUpdate final : public ServerPacket
+        {
+        public:
+            StandStateUpdate() : ServerPacket(SMSG_STANDSTATE_UPDATE, 1) { }
 
-			WorldPacket const* Write() override;
+            WorldPacket const* Write() override;
 
-			uint8 StandState;
-		};
+            uint8 StandState;
+        };
     }
 }
 

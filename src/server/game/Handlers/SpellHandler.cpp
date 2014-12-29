@@ -202,7 +202,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Item::OpenItem& packet)
 
     TC_LOG_INFO("network", "bagIndex: %u, slot: %u", packet.ContainerIndex, packet.Slot);
 
-	Item* item = pUser->GetItemByPos(packet.ContainerIndex, packet.Slot);
+    Item* item = pUser->GetItemByPos(packet.ContainerIndex, packet.Slot);
     if (!item)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);

@@ -181,7 +181,7 @@ namespace WorldPackets
 
     namespace NPC
     {
-		class GossipSelectOption;
+        class GossipSelectOption;
         class Hello;
     }
 
@@ -197,12 +197,12 @@ namespace WorldPackets
 
     namespace Quest
     {
-		class QuestGiverAcceptQuest;
+        class QuestGiverAcceptQuest;
         class QuestGiverStatusQuery;
         class QuestGiverStatusMultipleQuery;
         class QuestGiverHello;
-		class QuestGiverQueryQuest;
-		class QuestGiverRequestReward;
+        class QuestGiverQueryQuest;
+        class QuestGiverRequestReward;
         class QueryQuestInfo;
         class QuestGiverChooseReward;
         class QuestGiverCompleteQuest;

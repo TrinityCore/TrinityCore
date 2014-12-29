@@ -12571,9 +12571,9 @@ void Unit::SetStandState(uint8 state)
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-		WorldPackets::Character::StandStateUpdate standStateUpdate;
-		standStateUpdate.StandState = (uint8)state;
-		ToPlayer()->GetSession()->SendPacket(standStateUpdate.Write());
+        WorldPackets::Character::StandStateUpdate standStateUpdate;
+        standStateUpdate.StandState = (uint8)state;
+        ToPlayer()->GetSession()->SendPacket(standStateUpdate.Write());
     }
 }
 

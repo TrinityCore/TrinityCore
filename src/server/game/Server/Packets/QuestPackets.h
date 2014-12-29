@@ -27,17 +27,17 @@ namespace WorldPackets
 {
     namespace Quest
 	{
-		class QuestGiverAcceptQuest final : public ClientPacket
-		{
-		public:
-			QuestGiverAcceptQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_ACCEPT_QUEST, std::move(packet)) { }
+        class QuestGiverAcceptQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverAcceptQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_ACCEPT_QUEST, std::move(packet)) { }
 
-			void Read() override;
+            void Read() override;
 
-			ObjectGuid QuestGiverGUID;
-			uint32 QuestID;
-			uint8 StartCheat;
-		};
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID;
+            uint8 StartCheat;
+        };
 
         class QuestGiverStatusQuery final : public ClientPacket
         {
@@ -98,28 +98,28 @@ namespace WorldPackets
             ObjectGuid QuestGiverGUID;
         };
 
-		class QuestGiverQueryQuest final : public ClientPacket
-		{
-		public:
-			QuestGiverQueryQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_QUERY_QUEST, std::move(packet)) { }
+        class QuestGiverQueryQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverQueryQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_QUERY_QUEST, std::move(packet)) { }
 
-			void Read() override;
+            void Read() override;
 
-			ObjectGuid QuestGiverGUID;
-			uint32 QuestID;
-			uint8 RespondToGiver;
-		};
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID;
+            uint8 RespondToGiver;
+        };
 		
-		class QuestGiverRequestReward final : public ClientPacket
-		{
-		public:
-			QuestGiverRequestReward(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_REQUEST_REWARD, std::move(packet)) { }
+        class QuestGiverRequestReward final : public ClientPacket
+        {
+        public:
+            QuestGiverRequestReward(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_REQUEST_REWARD, std::move(packet)) { }
 
-			void Read() override;
+            void Read() override;
 
-			ObjectGuid QuestGiverGUID;
-			uint32 QuestID;
-		};
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID;
+        };
 
         class QueryQuestInfo final : public ClientPacket
         {
