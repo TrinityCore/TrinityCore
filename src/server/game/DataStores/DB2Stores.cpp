@@ -66,7 +66,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
 {
     // compatibility format and C++ structure sizes
     ASSERT(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
-        "Size of '%s' set by format string (" SZFMTD ") not equal size of C++ structure (%u).",
+        "Size of '%s' set by format string (%u) not equal size of C++ structure (" SZFMTD ").",
         filename.c_str(), DB2FileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T));
 
     ++DB2FilesCount;

@@ -912,7 +912,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex /*effIndex*/)
     m_caster->CastSpell((Unit*)NULL, spellInfo, false);
 }
 
-void Spell::EffectJump(SpellEffIndex effIndex)
+void Spell::EffectJump(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
@@ -931,7 +931,7 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void Spell::EffectJumpDest(SpellEffIndex effIndex)
+void Spell::EffectJumpDest(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
@@ -5641,7 +5641,7 @@ void Spell::EffectRechargeManaGem(SpellEffIndex /*effIndex*/)
 
         if (Item* pItem = player->GetItemByEntry(item_id))
         {
-            for (int x = 0; x < pProto->Effects.size(); ++x)
+            for (size_t x = 0; x < pProto->Effects.size(); ++x)
                 pItem->SetSpellCharges(x, pProto->Effects[x].Charges);
             pItem->SetState(ITEM_CHANGED, player);
         }
