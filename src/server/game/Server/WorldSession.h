@@ -133,26 +133,29 @@ namespace WorldPackets
         class SaveEquipmentSet;
     }
 
+    namespace GameObject
+    {
+        class GameObjectReportUse;
+        class GameObjectUse;
+    }
+
     namespace Guild
     {
         class QueryGuildInfo;
     }
 
-    namespace Spells
+    namespace Item
     {
-        class SpellCastRequest;
-        class SetActionButton;
+        class SplitItem;
+        class SwapInvItem;
+        class SwapItem;
+        class AutoEquipItem;
+        class DestroyItem;
     }
 
-    namespace Talent
+    namespace Loot
     {
-        class SetSpecialization;
-        class LearnTalent;
-    }
-
-    namespace Trade
-    {
-        class CancelTrade;
+        class LootUnit;
     }
 
     namespace Misc
@@ -195,19 +198,21 @@ namespace WorldPackets
         class QuestGiverCompleteQuest;
     }
 
-    namespace Item
+    namespace Spells
     {
-        class SplitItem;
-        class SwapInvItem;
-        class SwapItem;
-        class AutoEquipItem;
-        class DestroyItem;
+        class SpellCastRequest;
+        class SetActionButton;
     }
 
-    namespace GameObject
+    namespace Talent
     {
-        class GameObjectReportUse;
-        class GameObjectUse;
+        class SetSpecialization;
+        class LearnTalent;
+    }
+
+    namespace Trade
+    {
+        class CancelTrade;
     }
 }
 
@@ -661,7 +666,7 @@ class WorldSession
         void HandleRepopRequestOpcode(WorldPacket& recvPacket);
         void HandleAutostoreLootItemOpcode(WorldPacket& recvPacket);
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
-        void HandleLootOpcode(WorldPacket& recvPacket);
+        void HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
         void HandleLootReleaseOpcode(WorldPacket& recvPacket);
         void HandleLootMasterGiveOpcode(WorldPacket& recvPacket);
         void HandleWhoOpcode(WorldPacket& recvPacket);
