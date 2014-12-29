@@ -57,7 +57,7 @@ namespace WorldPackets
 
             uint32 SpecGroupIndex = 0;
         };
-        
+
         class LearnTalent final : public ClientPacket
         {
         public:
@@ -68,7 +68,7 @@ namespace WorldPackets
 
             void Read() override;
             std::vector<uint16> Talents;
-            
+
         };
     }
 }

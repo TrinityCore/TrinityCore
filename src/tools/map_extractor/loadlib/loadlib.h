@@ -101,7 +101,7 @@ public:
     std::multimap<std::string, FileChunk*> chunks;
     FileChunk* GetChunk(std::string const& name);
 };
- 
+
 #pragma pack(pop)
 
 #endif

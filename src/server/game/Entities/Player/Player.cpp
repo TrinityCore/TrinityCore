@@ -14594,7 +14594,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     // check for repeatable quests status reset
     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
-    
+
     questStatusData.ObjectiveData.resize(quest->Objectives.size(), 0);
 
     GiveQuestSourceItem(quest);
@@ -15765,7 +15765,7 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
             /** @todo
             This function was previously used for area triggers but now those are a part of quest objective system
             Currently this function is used to complete quests with no objectives (needs verifying) so probably rename it?
-            
+
             QuestStatusData& q_status = m_QuestStatus[questId];
 
             if (!q_status.Explored)
@@ -16328,14 +16328,14 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP)
     }
 
     WorldPackets::Quest::QuestGiverQuestComplete packet;
-    
+
     packet.QuestID = questId;
     packet.MoneyReward = moneyReward;
     packet.XPReward = xp;
     packet.SkillLineIDReward = quest->GetRewardSkillId();
     packet.NumSkillUpsReward = quest->GetRewardSkillPoints();
     packet.TalentReward = quest->GetBonusTalents();
-    
+
     // @todo fix these 3
     packet.UseQuestReward = true;
     packet.LaunchGossip = true;
