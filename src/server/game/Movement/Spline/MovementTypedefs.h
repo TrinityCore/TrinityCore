@@ -21,14 +21,6 @@
 
 #include "Common.h"
 
-enum MonsterMoveType
-{
-    MONSTER_MOVE_NORMAL         = 0,
-    MONSTER_MOVE_FACING_SPOT    = 1,
-    MONSTER_MOVE_FACING_TARGET  = 2,
-    MONSTER_MOVE_FACING_ANGLE   = 3
-};
-
 namespace G3D
 {
     class Vector3;
@@ -39,6 +31,14 @@ namespace Movement
 {
     using G3D::Vector3;
     using G3D::Vector4;
+
+    enum MonsterMoveType
+    {
+        MONSTER_MOVE_NORMAL         = 0,
+        MONSTER_MOVE_FACING_SPOT    = 1,
+        MONSTER_MOVE_FACING_TARGET  = 2,
+        MONSTER_MOVE_FACING_ANGLE   = 3
+    };
 
     inline uint32 SecToMS(float sec)
     {

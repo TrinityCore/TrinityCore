@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
-#include "Define.h"
 #include "Path.h"
 #include "Util.h"
 
@@ -57,7 +56,6 @@ struct AchievementEntry
     uint32      CriteriaTree;                               // 14
 };
 
-//19116
 struct AchievementCategoryEntry
 {
     uint32      ID;                                         // 0
@@ -1708,14 +1706,11 @@ struct SpellItemEnchantmentConditionEntry
 {
     uint32      ID;                                             // 0
     uint8       LTOperandType[5];                               // 1-2
-    //uint8     Padding[3];                                     // 1-2
     uint32      LTOperand[5];                                   // 2-6
     uint8       Operator[5];                                    // 7-8
     uint8       RTOperandType[5];                               // 8-9
-    //uint8     Padding[2];                                     // 9
     uint32      RTOperand[5];                                   // 10-14
     uint8       Logic[5];                                       // 15-16
-    //uint8     Padding[3];                                     // 16
 };
 
 struct StableSlotPricesEntry

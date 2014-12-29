@@ -2110,9 +2110,12 @@ void Spell::CleanupTargetList()
 
 void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*= true*/, bool implicit /*= true*/, Position const* losPosition /*= nullptr*/)
 {
+    uint32 validEffectMask = 0;
     for (SpellEffectInfo const* effect : GetEffects())
-        if (effect && (!effect->IsEffect() || !CheckEffectTarget(target, effect->EffectIndex, losPosition)))
-            effectMask &= ~(1 << effect->EffectIndex);
+        if (effect && (effectMask & (1 << effect->EffectIndex)) != 0 && CheckEffectTarget(target, effect, losPosition))
+            validEffectMask |= 1 << effect->EffectIndex;
+
+    effectMask &= validEffectMask;
 
     // no effects left
     if (!effectMask)
@@ -2218,29 +2221,14 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
 void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
 {
+    uint32 validEffectMask = 0;
     for (SpellEffectInfo const* effect : GetEffects())
-    {
-        if (!effect)
-            continue;
+        if (effect && (effectMask & (1 << effect->EffectIndex)) != 0 && CheckEffectTarget(go, effect))
+            validEffectMask |= 1 << effect->EffectIndex;
 
-        if (!effect->IsEffect())
-            effectMask &= ~(1 << effect->EffectIndex);
-        else
-        {
-            switch (effect->Effect)
-            {
-            case SPELL_EFFECT_GAMEOBJECT_DAMAGE:
-            case SPELL_EFFECT_GAMEOBJECT_REPAIR:
-            case SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE:
-                if (go->GetGoType() != GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
-                    effectMask &= ~(1 << effect->EffectIndex);
-                break;
-            default:
-                break;
-            }
-        }
-    }
+    effectMask &= validEffectMask;
 
+    // no effects left
     if (!effectMask)
         return;
 
@@ -2288,9 +2276,12 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
 
 void Spell::AddItemTarget(Item* item, uint32 effectMask)
 {
+    uint32 validEffectMask = 0;
     for (SpellEffectInfo const* effect : GetEffects())
-        if (!effect || !effect->IsEffect())
-            effectMask &= ~(1 << effect->EffectIndex);
+        if (effect && (effectMask & (1 << effect->EffectIndex)) != 0 && CheckEffectTarget(item, effect))
+            validEffectMask |= 1 << effect->EffectIndex;
+
+    effectMask &= validEffectMask;
 
     // no effects left
     if (!effectMask)
@@ -4540,7 +4531,7 @@ void Spell::TakeCastItem()
     bool expendable = false;
     bool withoutCharges = false;
 
-    for (int i = 0; i < proto->Effects.size(); ++i)
+    for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
         // item has limited charges
         if (proto->Effects[i].Charges)
@@ -4782,7 +4773,7 @@ void Spell::TakeReagents()
         // if CastItem is also spell reagent
         if (castItemTemplate && castItemTemplate->GetId() == itemid)
         {
-            for (int s = 0; s < castItemTemplate->Effects.size(); ++s)
+            for (uint8 s = 0; s < castItemTemplate->Effects.size(); ++s)
             {
                 // CastItem will be used up and does not count as reagent
                 int32 charges = m_CastItem->GetSpellCharges(s);
@@ -6525,7 +6516,7 @@ SpellCastResult Spell::CheckItems()
 
                  if (Item* pitem = player->GetItemByEntry(item_id))
                  {
-                     for (int x = 0; x < pProto->Effects.size(); ++x)
+                     for (uint8 x = 0; x < pProto->Effects.size(); ++x)
                          if (pProto->Effects[x].Charges != 0 && pitem->GetSpellCharges(x) == pProto->Effects[x].Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
@@ -6723,10 +6714,9 @@ CurrentSpellTypes Spell::GetCurrentContainer() const
         return(CURRENT_GENERIC_SPELL);
 }
 
-bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* losPosition) const
+bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect, Position const* losPosition) const
 {
-    SpellEffectInfo const* effect = GetEffect(eff);
-    if (!effect)
+    if (!effect->IsEffect())
         return false;
 
     switch (effect->ApplyAuraName)
@@ -6741,7 +6731,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
                 return false;
             if (!target->GetCharmerGUID().IsEmpty())
                 return false;
-            if (int32 damage = CalculateDamage(eff, target))
+            if (int32 damage = CalculateDamage(effect->EffectIndex, target))
                 if ((int32)target->getLevel() > damage)
                     return false;
             break;
@@ -6799,6 +6789,34 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
             break;
         }
     }
+
+    return true;
+}
+
+bool Spell::CheckEffectTarget(GameObject const* target, SpellEffectInfo const* effect) const
+{
+    if (!effect->IsEffect())
+        return false;
+
+    switch (effect->Effect)
+    {
+        case SPELL_EFFECT_GAMEOBJECT_DAMAGE:
+        case SPELL_EFFECT_GAMEOBJECT_REPAIR:
+        case SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE:
+            if (target->GetGoType() != GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+                return false;
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+bool Spell::CheckEffectTarget(Item const* /*target*/, SpellEffectInfo const* effect) const
+{
+    if (!effect->IsEffect())
+        return false;
 
     return true;
 }
@@ -7131,6 +7149,8 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
             break;
         case SPELLVALUE_AURA_STACK:
             m_spellValue->AuraStackAmount = uint8(value);
+            break;
+        default:
             break;
     }
 }

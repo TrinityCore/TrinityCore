@@ -866,6 +866,7 @@ class spell_warr_vigilance : public SpellScriptLoader
                 return true;
             }
 
+            /*
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 _procTarget = GetCaster();
@@ -874,12 +875,13 @@ class spell_warr_vigilance : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                /*PreventDefaultAction();
+                PreventDefaultAction();
                 int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
 
                 GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_VIGILANCE_PROC, true, NULL, aurEff);
-                _procTarget->CastCustomSpell(_procTarget, SPELL_WARRIOR_VENGEANCE, &damage, &damage, &damage, true, NULL, aurEff);*/
+                _procTarget->CastCustomSpell(_procTarget, SPELL_WARRIOR_VENGEANCE, &damage, &damage, &damage, true, NULL, aurEff);
             }
+            */
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -892,8 +894,8 @@ class spell_warr_vigilance : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_warr_vigilance_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_warr_vigilance_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                //DoCheckProc += AuraCheckProcFn(spell_warr_vigilance_AuraScript::CheckProc);
+                //OnEffectProc += AuraEffectProcFn(spell_warr_vigilance_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_warr_vigilance_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
 

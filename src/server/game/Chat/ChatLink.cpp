@@ -241,11 +241,11 @@ bool QuestChatLink::ValidateName(char* buffer, const char* context)
 {
     ChatLink::ValidateName(buffer, context);
 
-    bool res = (_quest->GetTitle() == buffer);
+    bool res = (_quest->GetLogTitle() == buffer);
     if (!res)
         if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(_quest->GetQuestId()))
-            for (uint8 i = 0; i < ql->Title.size(); i++)
-                if (ql->Title[i] == buffer)
+            for (uint8 i = 0; i < ql->LogTitle.size(); i++)
+                if (ql->LogTitle[i] == buffer)
                 {
                     res = true;
                     break;

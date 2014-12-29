@@ -133,26 +133,29 @@ namespace WorldPackets
         class SaveEquipmentSet;
     }
 
+    namespace GameObject
+    {
+        class GameObjectReportUse;
+        class GameObjectUse;
+    }
+
     namespace Guild
     {
         class QueryGuildInfo;
     }
 
-    namespace Spells
+    namespace Item
     {
-        class SpellCastRequest;
-        class SetActionButton;
+        class SplitItem;
+        class SwapInvItem;
+        class SwapItem;
+        class AutoEquipItem;
+        class DestroyItem;
     }
 
-    namespace Talent
+    namespace Loot
     {
-        class SetSpecialization;
-        class LearnTalent;
-    }
-
-    namespace Trade
-    {
-        class CancelTrade;
+        class LootUnit;
     }
 
     namespace Misc
@@ -189,21 +192,27 @@ namespace WorldPackets
     {
         class QuestGiverStatusQuery;
         class QuestGiverStatusMultipleQuery;
+        class QuestGiverHello;
+        class QueryQuestInfo;
+        class QuestGiverChooseReward;
+        class QuestGiverCompleteQuest;
     }
 
-    namespace Item
+    namespace Spells
     {
-        class SplitItem;
-        class SwapInvItem;
-        class SwapItem;
-        class AutoEquipItem;
-        class DestroyItem;
+        class SpellCastRequest;
+        class SetActionButton;
     }
 
-    namespace GameObject
+    namespace Talent
     {
-        class GameObjectReportUse;
-        class GameObjectUse;
+        class SetSpecialization;
+        class LearnTalent;
+    }
+
+    namespace Trade
+    {
+        class CancelTrade;
     }
 }
 
@@ -412,7 +421,7 @@ class WorldSession
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() { return m_Address; }
         void SetPlayer(Player* player);
-        uint8 Expansion() const { return m_expansion; }
+        uint8 GetExpansion() const { return m_expansion; }
 
         void InitWarden(BigNumber* k, std::string const& os);
 
@@ -657,7 +666,7 @@ class WorldSession
         void HandleRepopRequestOpcode(WorldPacket& recvPacket);
         void HandleAutostoreLootItemOpcode(WorldPacket& recvPacket);
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
-        void HandleLootOpcode(WorldPacket& recvPacket);
+        void HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
         void HandleLootReleaseOpcode(WorldPacket& recvPacket);
         void HandleLootMasterGiveOpcode(WorldPacket& recvPacket);
         void HandleWhoOpcode(WorldPacket& recvPacket);
@@ -901,17 +910,17 @@ class WorldSession
 
         void HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet);
         void HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& packet);
-        void HandleQuestgiverHelloOpcode(WorldPacket& recvPacket);
+        void HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHello& packet);
         void HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverQueryQuestOpcode(WorldPacket& recvPacket);
-        void HandleQuestgiverChooseRewardOpcode(WorldPacket& recvPacket);
+        void HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::QuestGiverChooseReward& packet);
         void HandleQuestgiverRequestRewardOpcode(WorldPacket& recvPacket);
-        void HandleQuestQueryOpcode(WorldPacket& recvPacket);
+        void HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& packet);
         void HandleQuestgiverCancel(WorldPacket& recvData);
         void HandleQuestLogSwapQuest(WorldPacket& recvData);
         void HandleQuestLogRemoveQuest(WorldPacket& recvData);
         void HandleQuestConfirmAccept(WorldPacket& recvData);
-        void HandleQuestgiverCompleteQuest(WorldPacket& recvData);
+        void HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet);
         void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
         void HandlePushQuestToParty(WorldPacket& recvPacket);
         void HandleQuestPushResult(WorldPacket& recvPacket);

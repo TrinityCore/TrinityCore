@@ -912,7 +912,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex /*effIndex*/)
     m_caster->CastSpell((Unit*)NULL, spellInfo, false);
 }
 
-void Spell::EffectJump(SpellEffIndex effIndex)
+void Spell::EffectJump(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
@@ -927,11 +927,11 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     unitTarget->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
 
     float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
+    CalculateJumpSpeeds(effectInfo, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void Spell::EffectJumpDest(SpellEffIndex effIndex)
+void Spell::EffectJumpDest(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
@@ -947,21 +947,19 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
     destTarget->GetPosition(x, y, z);
 
     float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
+    CalculateJumpSpeeds(effectInfo, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & speedZ)
+void Spell::CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedXY, float& speedZ)
 {
-    if (SpellEffectInfo const* effect = GetEffect(i))
-    {
-        if (effect->MiscValue)
-            speedZ = float(effect->MiscValue) / 10;
-        else if (effect->MiscValueB)
-            speedZ = float(effect->MiscValueB) / 10;
-        else
-            speedZ = 10.0f;
-    }
+    if (effInfo->MiscValue)
+        speedZ = float(effInfo->MiscValue) / 10;
+    else if (effInfo->MiscValueB)
+        speedZ = float(effInfo->MiscValueB) / 10;
+    else
+        speedZ = 10.0f;
+
     speedXY = dist * 10.0f / speedZ;
 }
 
@@ -5643,7 +5641,7 @@ void Spell::EffectRechargeManaGem(SpellEffIndex /*effIndex*/)
 
         if (Item* pItem = player->GetItemByEntry(item_id))
         {
-            for (int x = 0; x < pProto->Effects.size(); ++x)
+            for (size_t x = 0; x < pProto->Effects.size(); ++x)
                 pItem->SetSpellCharges(x, pProto->Effects[x].Charges);
             pItem->SetState(ITEM_CHANGED, player);
         }

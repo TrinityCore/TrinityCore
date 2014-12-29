@@ -20,8 +20,6 @@
 
 #include "DB2Store.h"
 #include "DB2Structure.h"
-#include <string>
-#include <map>
 #include "SharedDefines.h"
 
 extern DB2Storage<BroadcastTextEntry>           sBroadcastTextStore;

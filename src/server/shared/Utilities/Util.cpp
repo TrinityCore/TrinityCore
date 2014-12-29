@@ -197,7 +197,7 @@ int64 MoneyStringToMoney(const std::string& moneyString)
         if (gCount + sCount + cCount != 1)
             return 0;
 
-        uint64 amount = atol(*itr);
+        uint64 amount = atoull(*itr);
         if (gCount == 1)
             money += amount * 100 * 100;
         else if (sCount == 1)

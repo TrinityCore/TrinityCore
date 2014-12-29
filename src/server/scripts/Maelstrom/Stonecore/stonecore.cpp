@@ -30,11 +30,6 @@ enum Texts
     SAY_MILLHOUSE_EVENT_2           = 1,
 };
 
-enum NPCs
-{
-    NPC_GENERIC_TRIGGER_LAB               = 40350,
-};
-
 enum Spells
 {
     // Millhouse Manastorm
@@ -95,6 +90,9 @@ enum MovementPoints
 Position const MillhousePointGroup2 = { 977.3045f, 895.2347f, 306.3298f };
 Position const MillhousePointGroup3 = { 1049.823f, 871.4349f, 295.006f };
 Position const MillhousePointGroup4 = { 1149.04f, 884.431f, 284.9406f };
+
+// TO-DO:
+// - Millhouse Manastorm should face and cast SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND, but he won't. :(
 
 // 43391 - Millhouse Manastorm
 class npc_sc_millhouse_manastorm : public CreatureScript
@@ -175,27 +173,28 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                 me->CombatStop(true);
                 me->DeleteThreatList();
 
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                me->SetReactState(REACT_AGGRESSIVE);
-
                 switch (pointId)
                 {
                     case POINT_MILLHOUSE_GROUP_2:
-                        if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
-                            me->SetFacingToObject(worldtrigger); // o: 5.497359f (sniff data)
-                        me->CastSpell(me, SPELL_ANCHOR_HERE, true);
-                        me->AddAura(SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND, me);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 200.0f))
+                            me->SetFacingToObject(worldtrigger);
+                        DoCast(me, SPELL_ANCHOR_HERE);
+                        DoCast(me, SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND);
                         events.ScheduleEvent(EVENT_READY_FOR_COMBAT, 10000);
                         break;
                     case POINT_MILLHOUSE_GROUP_3:
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         me->SetFacingTo(5.931499f);
-                        me->CastSpell(me, SPELL_ANCHOR_HERE, true);
-                        me->AddAura(SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND, me);
+                        DoCast(me, SPELL_ANCHOR_HERE);
+                        DoCast(me, SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND);
                         events.ScheduleEvent(EVENT_READY_FOR_COMBAT, 10000);
                         break;
                     case POINT_MILLHOUSE_GROUP_4:
                         me->SetFacingTo(3.455752f);
-                        me->CastSpell(me, SPELL_ANCHOR_HERE, true);
+                        DoCast(me, SPELL_ANCHOR_HERE);
                         Talk(SAY_MILLHOUSE_EVENT_2);
                         events.ScheduleEvent(EVENT_CAST_IMPENDING_DOOM, 1000);
                         break;
@@ -206,14 +205,14 @@ class npc_sc_millhouse_manastorm : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                // Only update events if Millhouse is aggressive
-                if (me->GetReactState() != REACT_AGGRESSIVE)
+                // Do not update events if Millhouse is aggressive and has no combat.
+                if (!UpdateVictim() && me->GetReactState() == REACT_AGGRESSIVE)
                     return;
 
                 events.Update(diff);
 
                 // Impending Doom is exception because it needs to be interrupted.
-                if (me->HasUnitState(UNIT_STATE_CASTING) && me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->Id != SPELL_IMPENDING_DOOM_CHANNEL)
+                if (me->HasUnitState(UNIT_STATE_CASTING) && !me->FindCurrentSpellBySpellId(SPELL_IMPENDING_DOOM))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -221,7 +220,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FROSTBOLT_VOLLEY:
-                            DoCast(SPELL_FROSTBOLT_VOLLEY);
+                            DoCastAOE(SPELL_FROSTBOLT_VOLLEY);
                             events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 7000);
                             break;
                         case EVENT_SHADOWFURY:
@@ -240,8 +239,8 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                             ScheduleEvents();
                             break;
                         case EVENT_CAST_IMPENDING_DOOM:
-                            DoCast(SPELL_IMPENDING_DOOM);
-                            DoCast(SPELL_IMPENDING_DOOM_CHANNEL);
+                            DoCast(me, SPELL_IMPENDING_DOOM);
+                            DoCast(me, SPELL_IMPENDING_DOOM_CHANNEL);
                             events.ScheduleEvent(EVENT_INTERRUPT_IMPENDING_DOOM, urand(15000,20000));
                             break;
                         case EVENT_INTERRUPT_IMPENDING_DOOM:
@@ -341,11 +340,6 @@ class spell_sc_twilight_documents : public SpellScriptLoader
                 return true;
             }
 
-            void SetTarget(WorldObject*& target)
-            {
-                target = GetCaster()->FindNearestCreature(NPC_GENERIC_TRIGGER_LAB, 100.0f);
-            }
-
             void SpawnGameObject(SpellEffIndex /*effIndex*/)
             {
                 if (WorldLocation* loc = GetHitDest())
@@ -354,7 +348,6 @@ class spell_sc_twilight_documents : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_sc_twilight_documents_SpellScript::SetTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
                 OnEffectHit += SpellEffectFn(spell_sc_twilight_documents_SpellScript::SpawnGameObject, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -372,7 +365,7 @@ class JumpCheck
         bool operator()(WorldObject* object) const
         {
             Player* player = object->ToPlayer();
-            return (player && player->HasUnitState(UNIT_STATE_JUMPING));
+            return (player && (player->IsFalling() || player->HasUnitState(UNIT_STATE_JUMPING)));
         }
 };
 
@@ -410,7 +403,7 @@ public:
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
-            if (Creature* corborus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_CORBORUS)))
+            if (Creature* corborus = instance->GetCreature(DATA_CORBORUS))
                 corborus->AI()->DoAction(ACTION_CORBORUS_INTRO);
         return true;
     }
@@ -424,7 +417,7 @@ public:
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
-            if (Creature* slabhide = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SLABHIDE)))
+            if (Creature* slabhide = instance->GetCreature(DATA_SLABHIDE))
                 slabhide->AI()->DoAction(ACTION_SLABHIDE_INTRO);
         return true;
     }

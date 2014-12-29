@@ -248,7 +248,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
     // compatibility format and C++ structure sizes
     ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
         "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
-        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T));
+        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
 
     ++DBCFileCount;
     std::string dbcFilename = dbcPath + filename;
@@ -296,7 +296,7 @@ inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName
     // compatibility format and C++ structure sizes
     ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
         "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
-        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T));
+        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
 
     ++DBCFileCount;
     std::string dbcFilename = dbcPath + filename;
@@ -504,7 +504,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sNameGenStore,                dbcPath, "NameGen.dbc"); // 19116
     for (uint32 i = 0; i < sNameGenStore.GetNumRows(); ++i)
         if (NameGenEntry const* entry = sNameGenStore.LookupEntry(i))
-            sGenerateNamesMap[entry->Race].Contents[entry->Sex].push_back(std::string(entry->Name));
+            sGenerateNamesMap[entry->Race].Contents[entry->Sex].emplace_back(entry->Name);
     sNameGenStore.Clear();
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");//19116
@@ -1150,7 +1150,7 @@ std::list<uint32> GetSpellsForLevels(uint32 classId, uint32 raceMask, uint32 spe
     if (specIter != sSpecializationSpellsBySpecStore.end())
     {
         SpecializationSpellsBySpecEntry learnSpellList = specIter->second;
-        for (int i = 0; i < learnSpellList.size(); i++)
+        for (size_t i = 0; i < learnSpellList.size(); ++i)
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learnSpellList[i]->SpellID);
             if (!spellInfo)

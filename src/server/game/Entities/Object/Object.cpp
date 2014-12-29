@@ -44,8 +44,8 @@
 #include "UpdateFieldFlags.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
+#include "MovementPackets.h"
 #include "OutdoorPvPMgr.h"
-#include "MovementPacketBuilder.h"
 #include "DynamicTree.h"
 #include "Unit.h"
 #include "Group.h"
@@ -432,24 +432,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         data->WriteBit(0);                                              // RemoteTimeValid
 
         if (!unit->m_movementInfo.transport.guid.IsEmpty())
-        {
-            *data << unit->m_movementInfo.transport.guid;                     // Transport Guid
-            *data << float(unit->GetTransOffsetX());
-            *data << float(unit->GetTransOffsetY());
-            *data << float(unit->GetTransOffsetZ());
-            *data << float(unit->GetTransOffsetO());
-            *data << int8(unit->m_movementInfo.transport.seat);               // VehicleSeatIndex
-            *data << uint32(unit->m_movementInfo.transport.time);             // MoveTime
-
-            data->WriteBit(unit->m_movementInfo.transport.prevTime != 0);
-            data->WriteBit(unit->m_movementInfo.transport.vehicleId != 0);
-
-            if (unit->m_movementInfo.transport.prevTime)
-                *data << uint32(unit->m_movementInfo.transport.prevTime);     // PrevMoveTime
-
-            if (unit->m_movementInfo.transport.vehicleId)
-                *data << uint32(unit->m_movementInfo.transport.vehicleId);    // VehicleRecID
-        }
+            *data << unit->m_movementInfo.transport;
 
         if (HasFall)
         {
@@ -488,28 +471,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         // HasMovementSpline - marks that spline data is present in packet
         if (data->WriteBit(HasSpline))
-            Movement::PacketBuilder::WriteCreate(*unit->movespline, *data);
+            WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(*unit->movespline, *data);
     }
 
     if (HasMovementTransport)
     {
         WorldObject const* self = static_cast<WorldObject const*>(this);
-        *data << self->m_movementInfo.transport.guid;                   // Transport Guid
-        *data << float(self->GetTransOffsetX());
-        *data << float(self->GetTransOffsetY());
-        *data << float(self->GetTransOffsetZ());
-        *data << float(self->GetTransOffsetO());
-        *data << int8(self->m_movementInfo.transport.seat);             // VehicleSeatIndex
-        *data << uint32(self->m_movementInfo.transport.time);           // MoveTime
-
-        data->WriteBit(self->m_movementInfo.transport.prevTime != 0);
-        data->WriteBit(self->m_movementInfo.transport.vehicleId != 0);
-
-        if (self->m_movementInfo.transport.prevTime)
-            *data << uint32(self->m_movementInfo.transport.prevTime);   // PrevMoveTime
-
-        if (self->m_movementInfo.transport.vehicleId)
-            *data << uint32(self->m_movementInfo.transport.vehicleId);  // VehicleRecID
+        *data << self->m_movementInfo.transport;
     }
 
     if (Stationary)
@@ -1506,7 +1474,7 @@ bool Position::operator==(Position const &a)
     return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&
             G3D::fuzzyEq(a.m_positionY, m_positionY) &&
             G3D::fuzzyEq(a.m_positionZ, m_positionZ) &&
-            G3D::fuzzyEq(a.m_orientation, m_orientation));
+            G3D::fuzzyEq(a._orientation, _orientation));
 }
 
 bool Position::HasInLine(WorldObject const* target, float width) const
@@ -1521,7 +1489,7 @@ bool Position::HasInLine(WorldObject const* target, float width) const
 std::string Position::ToString() const
 {
     std::stringstream sstr;
-    sstr << "X: " << m_positionX << " Y: " << m_positionY << " Z: " << m_positionZ << " O: " << m_orientation;
+    sstr << "X: " << m_positionX << " Y: " << m_positionY << " Z: " << m_positionZ << " O: " << _orientation;
     return sstr.str();
 }
 
@@ -1529,14 +1497,14 @@ ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& st
 {
     float x, y, z, o;
     buf >> x >> y >> z >> o;
-    streamer.m_pos->Relocate(x, y, z, o);
+    streamer.Pos->Relocate(x, y, z, o);
     return buf;
 }
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer)
 {
-    float x, y, z;
-    streamer.m_pos->GetPosition(x, y, z);
-    buf << x << y << z;
+    buf << streamer.Pos->GetPositionX();
+    buf << streamer.Pos->GetPositionY();
+    buf << streamer.Pos->GetPositionZ();
     return buf;
 }
 
@@ -1544,15 +1512,16 @@ ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& str
 {
     float x, y, z;
     buf >> x >> y >> z;
-    streamer.m_pos->Relocate(x, y, z);
+    streamer.Pos->Relocate(x, y, z);
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer)
 {
-    float x, y, z, o;
-    streamer.m_pos->GetPosition(x, y, z, o);
-    buf << x << y << z << o;
+    buf << streamer.Pos->GetPositionX();
+    buf << streamer.Pos->GetPositionY();
+    buf << streamer.Pos->GetPositionZ();
+    buf << streamer.Pos->GetOrientation();
     return buf;
 }
 
@@ -1989,7 +1958,7 @@ bool Position::HasInArc(float arc, const Position* obj, float border) const
     arc = NormalizeOrientation(arc);
 
     float angle = GetAngle(obj);
-    angle -= m_orientation;
+    angle -= _orientation;
 
     // move angle to range -pi ... +pi
     angle = NormalizeOrientation(angle);
@@ -2136,7 +2105,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
 
 bool Position::IsPositionValid() const
 {
-    return Trinity::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
+    return Trinity::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, _orientation);
 }
 
 float WorldObject::GetGridActivationRange() const

@@ -898,7 +898,7 @@ public:
         if (qInfo)
         {
             /// @todo prisoner should help player for a short period of time
-            player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0]);
+            player->KilledMonsterCredit(qInfo->Objectives[0].ObjectID);
             pPrisoner->DisappearAndDie();
         }
         return true;

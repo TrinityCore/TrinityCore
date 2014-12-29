@@ -101,6 +101,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_DAILY);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS, stmt);
@@ -366,18 +370,18 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateChar& c
 
     // prevent character creating Expansion race without Expansion account
     uint8 raceExpansionRequirement = sObjectMgr->GetRaceExpansionRequirement(charCreate.CreateInfo->Race);
-    if (raceExpansionRequirement > Expansion())
+    if (raceExpansionRequirement > GetExpansion())
     {
-        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", Expansion(), GetAccountId(), raceExpansionRequirement, charCreate.CreateInfo->Race);
+        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", GetExpansion(), GetAccountId(), raceExpansionRequirement, charCreate.CreateInfo->Race);
         SendCharCreate(CHAR_CREATE_EXPANSION);
         return;
     }
 
     // prevent character creating Expansion class without Expansion account
     uint8 classExpansionRequirement = sObjectMgr->GetClassExpansionRequirement(charCreate.CreateInfo->Class);
-    if (classExpansionRequirement > Expansion())
+    if (classExpansionRequirement > GetExpansion())
     {
-        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", Expansion(), GetAccountId(), classExpansionRequirement, charCreate.CreateInfo->Class);
+        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", GetExpansion(), GetAccountId(), classExpansionRequirement, charCreate.CreateInfo->Class);
         SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
         return;
     }
@@ -2083,7 +2087,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
                 {
                     Quest const* quest = iter->second;
                     uint32 newRaceMask = (newTeamId == TEAM_ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE;
-                    if (quest->GetRequiredRaces() && !(quest->GetRequiredRaces() & newRaceMask))
+                    if (quest->GetAllowableRaces() != -1 && !(quest->GetAllowableRaces() & newRaceMask))
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST);
                         stmt->setUInt64(0, lowGuid);

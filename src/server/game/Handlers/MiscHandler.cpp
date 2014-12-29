@@ -922,9 +922,26 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         return;
 
     if (player->IsAlive())
+    {
         if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(triggerId))
-            if (player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
-                player->AreaExploredOrEventHappens(questId);
+        {
+            Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+            if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+            {
+                for (uint8 j = 0; j < qInfo->Objectives.size(); ++j)
+                {
+                    if (qInfo->Objectives[j].Type == QUEST_OBJECTIVE_AREATRIGGER)
+                    {
+                        player->SetQuestObjectiveData(qInfo, j, int32(true));
+                        break;
+                    }
+                }
+
+                if (player->CanCompleteQuest(questId))
+                    player->CompleteQuest(questId);
+            }
+        }
+    }
 
     if (sObjectMgr->IsTavernAreaTrigger(triggerId))
     {
@@ -1497,6 +1514,13 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
 void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_TIME_SYNC_RESP");
+
+    // Prevent crashing server if queue is empty
+    if (_player->m_timeSyncQueue.empty())
+    {
+        TC_LOG_ERROR("network", "Received CMSG_TIME_SYNC_RESP from player %s without requesting it (hacker?)", _player->GetName().c_str());
+        return;
+    }
 
     if (packet.SequenceIndex != _player->m_timeSyncQueue.front())
         TC_LOG_ERROR("network", "Wrong time sync counter from player %s (cheater?)", _player->GetName().c_str());

@@ -590,6 +590,13 @@ void SpellScript::PreventHitDefaultEffect(SpellEffIndex effIndex)
     m_hitPreventDefaultEffectMask |= 1 << effIndex;
 }
 
+SpellEffectInfo const* SpellScript::GetEffectInfo() const
+{
+    ASSERT(IsInEffectHook(), "Script: `%s` Spell: `%u`: function SpellScript::GetEffectInfo was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+
+    return m_spell->effectInfo;
+}
+
 int32 SpellScript::GetEffectValue() const
 {
     if (!IsInEffectHook())

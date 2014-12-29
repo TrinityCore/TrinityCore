@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "LootPackets.h"
 #include "WorldSession.h"
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
@@ -225,18 +226,15 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     }
 }
 
-void WorldSession::HandleLootOpcode(WorldPacket& recvData)
+void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT");
 
-    ObjectGuid guid;
-    recvData >> guid;
-
     // Check possible cheat
-    if (!GetPlayer()->IsAlive() || !guid.IsCreatureOrVehicle())
+    if (!GetPlayer()->IsAlive() || !packet.Unit.IsCreatureOrVehicle())
         return;
 
-    GetPlayer()->SendLoot(guid, LOOT_CORPSE);
+    GetPlayer()->SendLoot(packet.Unit, LOOT_CORPSE);
 
     // interrupt cast
     if (GetPlayer()->IsNonMeleeSpellCast(false))
