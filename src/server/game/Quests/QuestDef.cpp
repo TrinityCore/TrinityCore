@@ -24,13 +24,13 @@
 
 Quest::Quest(Field* questRecord)
 {
-    Id = questRecord[0].GetUInt32();
-    Method = questRecord[1].GetUInt8();
+    ID = questRecord[0].GetUInt32();
+    Type = questRecord[1].GetUInt8();
     Level = questRecord[2].GetInt32();
     PackageID = questRecord[3].GetUInt32();
-    MinLevel = questRecord[4].GetUInt32();
-    ZoneOrSort = questRecord[5].GetInt16();
-    Type = questRecord[6].GetUInt16();
+    MinLevel = questRecord[4].GetInt32();
+    QuestSortID = questRecord[5].GetInt16();
+    QuestInfoID = questRecord[6].GetUInt16();
     SuggestedPlayers = questRecord[7].GetUInt8();
     NextQuestInChain = questRecord[8].GetUInt32();
     RewardXPDifficulty = questRecord[9].GetUInt32();
@@ -179,34 +179,35 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
 
 void Quest::LoadQuestObjective(Field* fields)
 {
-    uint8 storageIndex = fields[3].GetUInt8();
-
-    // Allocate space
-    if (storageIndex >= Objectives.size())
-        Objectives.resize(storageIndex+1);
-
-    QuestObjective& obj = Objectives[storageIndex];
+    QuestObjective obj;
     obj.ID = fields[0].GetUInt32();
     obj.Type = fields[2].GetUInt8();
-    obj.StorageIndex = storageIndex;
+    obj.StorageIndex = fields[3].GetInt8();
     obj.ObjectID = fields[4].GetInt32();
     obj.Amount = fields[5].GetInt32();
     obj.Flags = fields[6].GetUInt32();
     obj.UnkFloat = fields[7].GetFloat();
     obj.Description = fields[8].GetString();
+
+    Objectives.push_back(obj);
 }
 
 void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
 {
-    // No need to check index because checks is objective exists are done in ObjectMgr while loading quest_visual_effect
-    uint8 storageIndex = fields[3].GetUInt8();
-    QuestObjective& obj = Objectives[storageIndex];
+    uint8 objID = fields[1].GetUInt32();
 
-    uint8 effectIndex = fields[4].GetUInt8();
-    if (effectIndex >= obj.VisualEffects.size())
-        obj.VisualEffects.resize(effectIndex+1, 0);
+    for (QuestObjective& obj : Objectives)
+    {
+        if (obj.ID == objID)
+        {
+            uint8 effectIndex = fields[3].GetUInt8();
+            if (effectIndex >= obj.VisualEffects.size())
+                obj.VisualEffects.resize(effectIndex+1, 0);
 
-    obj.VisualEffects[effectIndex] = fields[5].GetInt32();
+            obj.VisualEffects[effectIndex] = fields[4].GetInt32();
+            break;
+        }
+    }
 }
 
 uint32 Quest::XPValue(uint32 playerLevel) const
@@ -240,9 +241,12 @@ uint32 Quest::XPValue(uint32 playerLevel) const
     return 0;
 }
 
-int32 Quest::GetRewMoney() const
+uint32 Quest::GetRewMoney() const
 {
-    return int32(RewardMoney * sWorld->getRate(RATE_MONEY_QUEST));
+    if (RewardMoney > 0)
+        return RewardMoney * sWorld->getRate(RATE_MONEY_QUEST);
+    else
+        return 0;
 }
 
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
@@ -302,18 +306,18 @@ bool Quest::IsAutoAccept() const
 
 bool Quest::IsAutoComplete() const
 {
-    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && Method == 0;
+    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && Type == QUEST_TYPE_AUTOCOMPLETE;
 }
 
 bool Quest::IsRaidQuest(Difficulty difficulty) const
 {
     switch (Type)
     {
-        case QUEST_TYPE_RAID:
+        case QUEST_INFO_RAID:
             return true;
-        case QUEST_TYPE_RAID_10:
+        case QUEST_INFO_RAID_10:
             return !(difficulty & RAID_DIFFICULTY_MASK_25MAN);
-        case QUEST_TYPE_RAID_25:
+        case QUEST_INFO_RAID_25:
             return difficulty & RAID_DIFFICULTY_MASK_25MAN;
         default:
             break;

@@ -1660,8 +1660,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 questId) const;
 
-        int32 GetQuestObjectiveData(Quest const* quest, uint32 objective) const;
-        void SetQuestObjectiveData(Quest const* quest, uint32 objective, int32 data);
+        int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;
+        void SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data);
         void SendQuestComplete(Quest const* quest);
         void SendQuestReward(Quest const* quest, uint32 XP);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
@@ -1669,7 +1669,7 @@ class Player : public Unit, public GridObject<Player>
         void SendCanTakeQuestResponse(QuestFailedReason msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
         void SendPushToPartyResponse(Player* player, uint8 msg);
-        void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, uint32 objective, uint16 count);
+        void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count);
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount, uint32 required);
 
         ObjectGuid GetDivider() const { return m_divider; }

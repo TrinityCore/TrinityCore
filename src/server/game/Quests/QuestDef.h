@@ -199,8 +199,7 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_AREATRIGGER             = 10,
     QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC  = 11,
     QUEST_OBJECTIVE_DEFEATBATTLEPET         = 12,
-    QUEST_OBJECTIVE_WINPVPPETBATTLES        = 13,
-    QUEST_OBJECTIVE_NONE                    = 255 // Used on empty objectives to not confuse with QUEST_OBJECTIVE_MONSTER
+    QUEST_OBJECTIVE_WINPVPPETBATTLES        = 13
 };
 
 struct QuestLocale
@@ -224,7 +223,7 @@ struct QuestObjective
 {
     uint32 ID           = 0;
     uint8  Type         = 0;
-    uint8  StorageIndex = 0;
+    int8   StorageIndex = 0;
     int32  ObjectID     = 0;
     int32  Amount       = 0;
     uint32 Flags        = 0;
@@ -262,14 +261,14 @@ class Quest
         void SetSpecialFlag(uint32 flag) { SpecialFlags |= flag; }
 
         // table data accessors:
-        uint32 GetQuestId() const { return Id; }
-        uint32 GetQuestMethod() const { return Method; }
+        uint32 GetQuestId() const { return ID; }
+        uint32 GetQuestType() const { return Type; }
         uint32 GetQuestPackageID() const { return PackageID; }
-        int32  GetZoneOrSort() const { return ZoneOrSort; }
-        uint32 GetMinLevel() const { return MinLevel; }
+        int32  GetZoneOrSort() const { return QuestSortID; }
+        int32  GetMinLevel() const { return MinLevel; }
         uint32 GetMaxLevel() const { return MaxLevel; }
         int32  GetQuestLevel() const { return Level; }
-        uint32 GetType() const { return Type; }
+        uint32 GetQuestInfoID() const { return QuestInfoID; }
         uint32 GetAllowableClasses() const { return AllowableClasses; }
         int32  GetAllowableRaces() const { return AllowableRaces; }
         uint32 GetRequiredSkill() const { return RequiredSkillId; }
@@ -302,7 +301,7 @@ class Quest
         std::string const& GetPortraitTurnInText() const { return PortraitTurnInText; }
         std::string const& GetPortraitTurnInName() const { return PortraitTurnInName; }
         QuestObjectives const& GetObjectives() const { return Objectives; };
-        int32  GetRewMoney() const;
+        uint32 GetRewMoney() const;
         uint32 GetRewMoneyDifficulty() const { return RewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return RewardHonor; }
         uint32 GetRewKillHonor() const { return RewardKillHonor; }
@@ -335,7 +334,7 @@ class Quest
         bool   IsDaily() const { return (Flags & QUEST_FLAGS_DAILY) != 0; }
         bool   IsWeekly() const { return (Flags & QUEST_FLAGS_WEEKLY) != 0; }
         bool   IsMonthly() const { return (SpecialFlags & QUEST_SPECIAL_FLAGS_MONTHLY) != 0; }
-        bool   IsSeasonal() const { return (ZoneOrSort == -QUEST_SORT_SEASONAL || ZoneOrSort == -QUEST_SORT_SPECIAL || ZoneOrSort == -QUEST_SORT_LUNAR_FESTIVAL || ZoneOrSort == -QUEST_SORT_MIDSUMMER || ZoneOrSort == -QUEST_SORT_BREWFEST || ZoneOrSort == -QUEST_SORT_LOVE_IS_IN_THE_AIR || ZoneOrSort == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
+        bool   IsSeasonal() const { return (QuestSortID == -QUEST_SORT_SEASONAL || QuestSortID == -QUEST_SORT_SPECIAL || QuestSortID == -QUEST_SORT_LUNAR_FESTIVAL || QuestSortID == -QUEST_SORT_MIDSUMMER || QuestSortID == -QUEST_SORT_BREWFEST || QuestSortID == -QUEST_SORT_LOVE_IS_IN_THE_AIR || QuestSortID == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
         bool   IsDailyOrWeekly() const { return (Flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY)) != 0; }
         bool   IsRaidQuest(Difficulty difficulty) const;
         bool   IsAllowedInRaid(Difficulty difficulty) const;
@@ -360,18 +359,18 @@ class Quest
 
     public:
         // wdb data (quest query response)
-        uint32 Id;
-        uint32 Method;
-        uint32 PackageID;
-        int32  ZoneOrSort;
-        uint32 MinLevel;
-        int32  Level;
+        uint32 ID;
         uint32 Type;
+        int32  Level;
+        uint32 PackageID;
+        int32  MinLevel;
+        int32  QuestSortID;
+        uint32 QuestInfoID;
         uint32 SuggestedPlayers;
         uint32 NextQuestInChain;
         uint32 RewardXPDifficulty;
         float  Float10;
-        uint32 RewardMoney;
+        int32  RewardMoney;
         uint32 RewardMoneyDifficulty;
         float  Float13;
         uint32 RewardBonusMoney;

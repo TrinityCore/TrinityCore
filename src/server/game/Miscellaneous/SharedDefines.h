@@ -3722,23 +3722,32 @@ enum HolidayIds
     //HOLIDAY_CALL_TO_ARMS_DG        = 516
 };
 
-// QuestInfo.dbc (6.0.2.18988)
-enum QuestTypes
+enum QuestType
 {
-    QUEST_TYPE_GROUP               = 1,
-    QUEST_TYPE_CLASS               = 21,
-    QUEST_TYPE_PVP                 = 41,
-    QUEST_TYPE_RAID                = 62,
-    QUEST_TYPE_DUNGEON             = 81,
-    QUEST_TYPE_WORLD_EVENT         = 82,
-    QUEST_TYPE_LEGENDARY           = 83,
-    QUEST_TYPE_ESCORT              = 84,
-    QUEST_TYPE_HEROIC              = 85,
-    QUEST_TYPE_RAID_10             = 88,
-    QUEST_TYPE_RAID_25             = 89,
-    QUEST_TYPE_SCENARIO            = 98,
-    QUEST_TYPE_ACCOUNT             = 102,
-    QUEST_TYPE_SIDE_QUEST          = 104
+    QUEST_TYPE_AUTOCOMPLETE         = 0,
+    QUEST_TYPE_DISABLED             = 1,
+    QUEST_TYPE_NORMAL               = 2,
+    QUEST_TYPE_UNK                  = 3,
+    MAX_QUEST_TYPES                 = 4
+};
+
+// QuestInfo.dbc (6.0.2.18988)
+enum QuestInfo
+{
+    QUEST_INFO_GROUP               = 1,
+    QUEST_INFO_CLASS               = 21,
+    QUEST_INFO_PVP                 = 41,
+    QUEST_INFO_RAID                = 62,
+    QUEST_INFO_DUNGEON             = 81,
+    QUEST_INFO_WORLD_EVENT         = 82,
+    QUEST_INFO_LEGENDARY           = 83,
+    QUEST_INFO_ESCORT              = 84,
+    QUEST_INFO_HEROIC              = 85,
+    QUEST_INFO_RAID_10             = 88,
+    QUEST_INFO_RAID_25             = 89,
+    QUEST_INFO_SCENARIO            = 98,
+    QUEST_INFO_ACCOUNT             = 102,
+    QUEST_INFO_SIDE_QUEST          = 104
 };
 
 // QuestSort.dbc (6.0)
