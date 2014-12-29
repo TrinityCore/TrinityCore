@@ -455,6 +455,12 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
         if (!_player->IsInSameRaidWith(originalPlayer))
             return;
 
+        if (!!originalPlayer->CanShareQuest(questId))
+            return;
+
+        if (!_player->CanTakeQuest(quest, true))
+            return;
+
         if (_player->CanAddQuest(quest, true))
             _player->AddQuestAndCheckCompletion(quest, NULL); // NULL, this prevent DB script from duplicate running
 
