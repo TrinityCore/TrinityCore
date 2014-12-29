@@ -231,15 +231,13 @@ void WorldPackets::Spells::SpellCastRequest::Read()
         _worldPacket >> movementInfo;
     }
 
-    // SpellWeight
     for (uint32 i = 0; i < SpellWeightCount; ++i)
     {
         _worldPacket.ResetBitPos();
-        uint32 Type = _worldPacket.ReadBits(2);
-        uint32 ID;
-        _worldPacket >> ID;
-        uint32 Quantity;
-        _worldPacket >> Quantity;
+        SpellWeight unused;
+        unused.Type = _worldPacket.ReadBits(2);
+        _worldPacket >> unused.ID;
+        _worldPacket >> unused.Quantity;
     }
 }
 

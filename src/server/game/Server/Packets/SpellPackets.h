@@ -125,6 +125,13 @@ namespace WorldPackets
         class SpellCastRequest final : public ClientPacket
         {
         public:
+            struct SpellWeight
+            {
+                uint32 Type = 0;
+                int32 ID = 0;
+                uint32 Quantity = 0;
+            };
+
             SpellCastRequest(WorldPacket&& packet) : ClientPacket(std::move(packet))
             {
                 ASSERT(packet.GetOpcode() == CMSG_CAST_SPELL || packet.GetOpcode() == CMSG_PET_CAST_SPELL);

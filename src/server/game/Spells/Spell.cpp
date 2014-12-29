@@ -4773,7 +4773,7 @@ void Spell::TakeReagents()
         // if CastItem is also spell reagent
         if (castItemTemplate && castItemTemplate->GetId() == itemid)
         {
-            for (int s = 0; s < castItemTemplate->Effects.size(); ++s)
+            for (uint8 s = 0; s < castItemTemplate->Effects.size(); ++s)
             {
                 // CastItem will be used up and does not count as reagent
                 int32 charges = m_CastItem->GetSpellCharges(s);
@@ -6516,7 +6516,7 @@ SpellCastResult Spell::CheckItems()
 
                  if (Item* pitem = player->GetItemByEntry(item_id))
                  {
-                     for (int x = 0; x < pProto->Effects.size(); ++x)
+                     for (uint8 x = 0; x < pProto->Effects.size(); ++x)
                          if (pProto->Effects[x].Charges != 0 && pitem->GetSpellCharges(x) == pProto->Effects[x].Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
@@ -6813,7 +6813,7 @@ bool Spell::CheckEffectTarget(GameObject const* target, SpellEffectInfo const* e
     return true;
 }
 
-bool Spell::CheckEffectTarget(Item const* target, SpellEffectInfo const* effect) const
+bool Spell::CheckEffectTarget(Item const* /*target*/, SpellEffectInfo const* effect) const
 {
     if (!effect->IsEffect())
         return false;
@@ -7149,6 +7149,8 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
             break;
         case SPELLVALUE_AURA_STACK:
             m_spellValue->AuraStackAmount = uint8(value);
+            break;
+        default:
             break;
     }
 }
