@@ -124,8 +124,8 @@ namespace WorldPackets
             int32 RewardHonor               = 0;
             float RewardKillHonor           = 0.0f;
             int32 StartItem                 = 0;
-            int32 Flags                     = 0;
-            int32 FlagsEx                   = 0;
+            uint32 Flags                    = 0;
+            uint32 FlagsEx                  = 0;
             int32 POIContinent              = 0;
             float POIx                      = 0.0f;
             float POIy                      = 0.0f;
