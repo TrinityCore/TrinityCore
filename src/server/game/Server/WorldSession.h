@@ -536,7 +536,7 @@ class TC_GAME_API WorldSession
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() const { return m_Address; }
         void SetPlayer(Player* player);
-        uint8 Expansion() const { return m_expansion; }
+        uint8 GetExpansion() const { return m_expansion; }
 
         void InitWarden(SessionKey const& k, std::string const& os);
         Warden* GetWarden() { return _warden.get(); }

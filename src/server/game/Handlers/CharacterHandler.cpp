@@ -313,17 +313,17 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     }
 
     // prevent character creating Expansion race without Expansion account
-    if (raceEntry->RequiredExpansion > Expansion())
+    if (raceEntry->RequiredExpansion > GetExpansion())
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion {} account:[{}] tried to Create character with expansion {} race ({})", Expansion(), GetAccountId(), raceEntry->RequiredExpansion, charCreate.CreateInfo->Race);
+        TC_LOG_ERROR("entities.player.cheat", "Expansion {} account:[{}] tried to Create character with expansion {} race ({})", GetExpansion(), GetAccountId(), raceEntry->RequiredExpansion, charCreate.CreateInfo->Race);
         SendCharCreate(CHAR_CREATE_EXPANSION);
         return;
     }
 
     // prevent character creating Expansion class without Expansion account
-    if (classEntry->RequiredExpansion > Expansion())
+    if (classEntry->RequiredExpansion > GetExpansion())
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion {} account:[{}] tried to Create character with expansion {} class ({})", Expansion(), GetAccountId(), classEntry->RequiredExpansion, charCreate.CreateInfo->Class);
+        TC_LOG_ERROR("entities.player.cheat", "Expansion {} account:[{}] tried to Create character with expansion {} class ({})", GetExpansion(), GetAccountId(), classEntry->RequiredExpansion, charCreate.CreateInfo->Class);
         SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
         return;
     }

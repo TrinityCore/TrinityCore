@@ -427,4 +427,5 @@ struct QuestStatusData
     uint16 PlayerCount = 0;
     bool Explored = false;
 };
+
 #endif

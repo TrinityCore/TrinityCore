@@ -750,7 +750,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong spell '{}' defined in `auras` field in `creature_template_addon`.", entry, std::string(aura));
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong spell '{}' defined in `auras` field in `creature_template_addon`.", entry, aura);
                 continue;
             }
 
@@ -1327,7 +1327,7 @@ void ObjectMgr::LoadCreatureAddons()
 
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: {}) has wrong spell '{}' defined in `auras` field in `creature_addon`.", guid, std::string(aura));
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: {}) has wrong spell '{}' defined in `auras` field in `creature_addon`.", guid, aura);
                 continue;
             }
 
@@ -8175,7 +8175,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
                     break;
                 }
 
-                if (factionSpillover->ReputationIndex < 0)
+                if (!factionSpillover->CanHaveReputation())
                 {
                     TC_LOG_ERROR("sql.sql", "Spillover faction (faction.dbc) {} for faction {} in `reputation_spillover_template` can not be listed for client, and then useless, skipping", repTemplate.faction[i], factionId);
                     invalidSpilloverFaction = true;

@@ -1265,7 +1265,7 @@ class TC_GAME_API Unit : public WorldObject
         Unit* GetCharmerOrOwner() const { return IsCharmed() ? GetCharmer() : GetOwner(); }
 
         void SetMinion(Minion *minion, bool apply);
-        void GetAllMinionsByEntry(std::list<Creature*>& Minions, uint32 entry);
+        void GetAllMinionsByEntry(std::list<TempSummon*>& Minions, uint32 entry);
         void RemoveAllMinionsByEntry(uint32 entry);
         void SetCharm(Unit* target, bool apply);
         Unit* GetNextRandomRaidMemberOrPet(float radius);
