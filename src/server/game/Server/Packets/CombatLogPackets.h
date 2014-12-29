@@ -32,19 +32,19 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 Absorbed;
-            int32 ShieldBlock;
+            int32 Absorbed = 0;
+            int32 ShieldBlock = 0;
             ObjectGuid Me;
-            int32 SpellID;
-            int32 Resisted;
-            bool Periodic;
-            uint8 SchoolMask;
+            int32 SpellID = 0;
+            int32 Resisted = 0;
+            bool Periodic = 0.0f;
+            uint8 SchoolMask = 0;
             ObjectGuid CasterGUID;
             Optional<Spells::SpellCastLogData> LogData;
-            int32 Damage;
+            int32 Damage = 0;
             // Optional<SpellNonMeleeDamageLogDebugInfo> Debug Info;
-            int32 Flags;
-            int32 Overkill;
+            int32 Flags = 0;
+            int32 Overkill = 0;
         };
     }
 }

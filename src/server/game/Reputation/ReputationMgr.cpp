@@ -243,7 +243,7 @@ void ReputationMgr::Initialize()
     {
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(i);
 
-        if (factionEntry && (factionEntry->ReputationIndex >= 0))
+        if (factionEntry && factionEntry->CanHaveReputation())
         {
             FactionState newFaction;
             newFaction.ID = factionEntry->ID;
@@ -395,7 +395,7 @@ void ReputationMgr::SetVisible(FactionTemplateEntry const* factionTemplateEntry)
 
 void ReputationMgr::SetVisible(FactionEntry const* factionEntry)
 {
-    if (factionEntry->ReputationIndex < 0)
+    if (!factionEntry->CanHaveReputation())
         return;
 
     FactionStateList::iterator itr = _factions.find(factionEntry->ReputationIndex);
@@ -499,7 +499,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
             Field* fields = result->Fetch();
 
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(fields[0].GetUInt16());
-            if (factionEntry && (factionEntry->ReputationIndex >= 0))
+            if (factionEntry && factionEntry->CanHaveReputation())
             {
                 FactionState* faction = &_factions[factionEntry->ReputationIndex];
 

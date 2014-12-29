@@ -1294,51 +1294,53 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                 return true;
             }
 
-            bool Load() override
-            {
-                ringOfFrost = NULL;
-                return true;
-            }
-
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
-                if (ringOfFrost)
-                    if (GetMaxDuration() - (int32)ringOfFrost->GetTimer() >= sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_DUMMY)->GetDuration())
+                if (TempSummon* ringOfFrost = GetRingOfFrostMinion())
+                    if (GetMaxDuration() - int32(ringOfFrost->GetTimer()) >= sSpellMgr->EnsureSpellInfo(SPELL_MAGE_RING_OF_FROST_DUMMY)->GetDuration())
                         GetTarget()->CastSpell(ringOfFrost->GetPositionX(), ringOfFrost->GetPositionY(), ringOfFrost->GetPositionZ(), SPELL_MAGE_RING_OF_FROST_FREEZE, true);
             }
 
             void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                std::list<Creature*> MinionList;
+                std::list<TempSummon*> MinionList;
                 GetTarget()->GetAllMinionsByEntry(MinionList, GetSpellInfo()->GetEffect(EFFECT_0)->MiscValue);
 
                 // Get the last summoned RoF, save it and despawn older ones
-                for (std::list<Creature*>::iterator itr = MinionList.begin(); itr != MinionList.end(); itr++)
+                for (std::list<TempSummon*>::iterator itr = MinionList.begin(); itr != MinionList.end(); itr++)
                 {
-                    TempSummon* summon = (*itr)->ToTempSummon();
+                    TempSummon* summon = (*itr);
 
-                    if (ringOfFrost && summon)
+                    if (TempSummon* ringOfFrost = GetRingOfFrostMinion())
                     {
                         if (summon->GetTimer() > ringOfFrost->GetTimer())
                         {
                             ringOfFrost->DespawnOrUnsummon();
-                            ringOfFrost = summon;
+                            _ringOfFrostGUID = summon->GetGUID();
                         }
                         else
                             summon->DespawnOrUnsummon();
                     }
-                    else if (summon)
-                        ringOfFrost = summon;
+                    else
+                        _ringOfFrostGUID = summon->GetGUID();
                 }
             }
 
-            TempSummon* ringOfFrost;
-
             void Register() override
             {
-                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_ring_of_frost_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                 OnEffectApply += AuraEffectApplyFn(spell_mage_ring_of_frost_AuraScript::Apply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_ring_of_frost_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectApply += AuraEffectApplyFn(spell_mage_ring_of_frost_AuraScript::Apply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
+
+        private:
+            TempSummon* GetRingOfFrostMinion() const
+            {
+                if (Creature* creature = ObjectAccessor::GetCreature(*GetOwner(), _ringOfFrostGUID))
+                    return creature->ToTempSummon();
+                return nullptr;
+            }
+
+            ObjectGuid _ringOfFrostGUID;
         };
 
         AuraScript* GetAuraScript() const override
@@ -1369,13 +1371,17 @@ class spell_mage_ring_of_frost_freeze : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                float outRadius = sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON)->GetEffect(EFFECT_0)->CalcRadius();
+                WorldLocation const* dest = GetExplTargetDest();
+                float outRadius = sSpellMgr->EnsureSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON)->GetEffect(EFFECT_0)->CalcRadius();
                 float inRadius  = 4.7f;
 
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                    if (Unit* unit = (*itr)->ToUnit())
-                        if (unit->HasAura(SPELL_MAGE_RING_OF_FROST_DUMMY) || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE) || unit->GetExactDist(GetExplTargetDest()) > outRadius || unit->GetExactDist(GetExplTargetDest()) < inRadius)
-                            targets.erase(itr--);
+                targets.remove_if([dest, outRadius, inRadius](WorldObject* target)
+                {
+                    Unit* unit = target->ToUnit();
+                    if (!unit)
+                        return true;
+                    return unit->HasAura(SPELL_MAGE_RING_OF_FROST_DUMMY) || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE) || unit->GetExactDist(dest) > outRadius || unit->GetExactDist(dest) < inRadius;
+                });
             }
 
             void Register() override

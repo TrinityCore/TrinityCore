@@ -174,34 +174,29 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 {
                     if (id == 1)
                     {
-                        me->SetFacingTo(PosTalkLocations[talkWing].m_orientation);
+                        me->SetFacingTo(PosTalkLocations[talkWing].GetOrientation());
                         TurnAudience();
 
                         switch (talkWing)
                         {
-                        case 0: // Pinnacle of Naxxramas
-                            {
-                                switch (urand (0, 1))
+                            case 0: // Pinnacle of Naxxramas
+                                switch (urand(0, 1))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_KELTHUZAD, MODEL_IMAGE_OF_KELTHUZAD, SAY_KELTHUZAD_1);
-                                            _events.ScheduleEvent(EVENT_KELTHUZAD_2, 8000); break;
+                                        _events.ScheduleEvent(EVENT_KELTHUZAD_2, 8000); break;
                                     case 1: ChangeImage(NPC_IMAGE_OF_SAPPHIRON, MODEL_IMAGE_OF_SAPPHIRON, SAY_SAPPHIRON); break;
                                 }
-                            }
-                            break;
-                        case 1: // Death knight wing of Naxxramas
-                            {
-                                switch (urand (0, 2))
+                                break;
+                            case 1: // Death knight wing of Naxxramas
+                                switch (urand(0, 2))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_RAZUVIOUS, MODEL_IMAGE_OF_RAZUVIOUS, SAY_RAZUVIOUS); break;
                                     case 1: ChangeImage(NPC_IMAGE_OF_GOTHIK, MODEL_IMAGE_OF_GOTHIK, SAY_GOTHIK); break;
                                     case 2: ChangeImage(NPC_IMAGE_OF_THANE, MODEL_IMAGE_OF_THANE, SAY_DEATH_KNIGHTS_1);
-                                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_2, 10000); break;
+                                        _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_2, 10000); break;
                                 }
-                            }
-                            break;
-                        case 2: // Blighted abomination wing of Naxxramas
-                            {
+                                break;
+                            case 2: // Blighted abomination wing of Naxxramas
                                 switch (urand (0, 3))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_PATCHWERK, MODEL_IMAGE_OF_PATCHWERK, SAY_PATCHWERK); break;
@@ -209,20 +204,16 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                     case 2: ChangeImage(NPC_IMAGE_OF_THADDIUS, MODEL_IMAGE_OF_THADDIUS, SAY_THADDIUS); break;
                                     case 3: ChangeImage(NPC_IMAGE_OF_GLUTH, MODEL_IMAGE_OF_GLUTH, SAY_GLUTH); break;
                                 }
-                            }
-                            break;
-                        case 3: // Accursed spider wing of Naxxramas
-                            {
+                                break;
+                            case 3: // Accursed spider wing of Naxxramas
                                 switch (urand (0, 2))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_ANUBREKHAN, MODEL_IMAGE_OF_ANUBREKHAN, SAY_ANUBREKHAN); break;
                                     case 1: ChangeImage(NPC_IMAGE_OF_FAERLINA, MODEL_IMAGE_OF_FAERLINA, SAY_FAERLINA); break;
                                     case 2: ChangeImage(NPC_IMAGE_OF_MAEXXNA, MODEL_IMAGE_OF_MAEXXNA, SAY_MAEXXNA); break;
                                 }
-                            }
-                            break;
-                        case 4: // Dread plague wing of Naxxramas
-                            {
+                                break;
+                            case 4: // Dread plague wing of Naxxramas
                                 switch (urand (0, 2))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_NOTH, MODEL_IMAGE_OF_NOTH, SAY_NOTH); break;
@@ -230,11 +221,10 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                             _events.ScheduleEvent(EVENT_HEIGAN_2, 8000); break;
                                     case 2: ChangeImage(NPC_IMAGE_OF_LOATHEB, MODEL_IMAGE_OF_LOATHEB, SAY_LOATHEB); break;
                                 }
-                            }
-                            break;
-                        case 5: // Home
-                            _events.ScheduleEvent(EVENT_START_RANDOM, 30000);
-                            break;
+                                break;
+                            case 5: // Home
+                                _events.ScheduleEvent(EVENT_START_RANDOM, 30000);
+                                break;
                         }
                     }
                 }

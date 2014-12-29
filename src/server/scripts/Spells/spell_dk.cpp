@@ -1231,12 +1231,11 @@ class spell_dk_raise_dead : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* spellInfo) override
             {
-                // 6.x effects changed
-                /*if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_1)->CalcValue())
+                if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_1)->CalcValue())
                     || !sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_2)->CalcValue())
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_DEAD_USE_REAGENT)
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_MASTER_OF_GHOULS))
-                    return false;*/
+                    return false;
                 return false;
             }
 

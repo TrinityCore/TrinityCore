@@ -417,7 +417,8 @@ class SpellScript : public _SpellScript
         // will not work if effects were already handled
         void PreventHitDefaultEffect(SpellEffIndex effIndex);
 
-        // method avalible only in EffectHandler method
+        // method available only in EffectHandler method
+        SpellEffectInfo const* GetEffectInfo() const;
         int32 GetEffectValue() const;
         void SetEffectValue(int32 value);
 

@@ -584,17 +584,18 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.auras.resize(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(atoul(*itr));
+            uint32 spellId = uint32(atoul(*itr));
+            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(spellId);
             if (!AdditionalSpellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong spell %lu defined in `auras` field in `creature_template_addon`.", entry, atoul(*itr));
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong spell %u defined in `auras` field in `creature_template_addon`.", entry, spellId);
                 continue;
             }
 
             if (AdditionalSpellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_CONTROL_VEHICLE))
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_template_addon`.", entry, spellId);
 
-            creatureAddon.auras[i++] = atoul(*itr);
+            creatureAddon.auras[i++] = spellId;
         }
 
         if (creatureAddon.mount)
@@ -1041,18 +1042,18 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.auras.resize(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(atoul(*itr));
+            uint32 spellId = uint32(atoul(*itr));
+            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(spellId);
             if (!AdditionalSpellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has wrong spell %lu defined in `auras` field in `creature_addon`.", guid, atoul(*itr));
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has wrong spell %u defined in `auras` field in `creature_addon`.", guid, spellId);
                 continue;
             }
 
             if (AdditionalSpellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_CONTROL_VEHICLE))
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_addon`.", guid, uint32(atol(*itr)));
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_addon`.", guid, spellId);
 
-
-            creatureAddon.auras[i++] = atoul(*itr);
+            creatureAddon.auras[i++] = spellId;
         }
 
         if (creatureAddon.mount)
@@ -6811,7 +6812,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
                     continue;
                 }
 
-                if (factionSpillover->ReputationIndex < 0)
+                if (!factionSpillover->CanHaveReputation())
                 {
                     TC_LOG_ERROR("sql.sql", "Spillover faction (faction.dbc) %u for faction %u in `reputation_spillover_template` can not be listed for client, and then useless, skipping", repTemplate.faction[i], factionId);
                     continue;

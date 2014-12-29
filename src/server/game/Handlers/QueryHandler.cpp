@@ -135,11 +135,10 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
 void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& packet)
 {
     WorldPackets::Query::QueryGameObjectResponse response;
-    GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(packet.Entry);
 
-    response.Entry = packet.Entry;
+    response.GameObjectID = packet.GameObjectID;
 
-    if (gameObjectInfo)
+    if (GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(packet.GameObjectID))
     {
         response.Allow = true;
         WorldPackets::Query::GameObjectStats& stats = response.Stats;
@@ -419,7 +418,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
         return;
     }
 
-    for (WorldPackets::Query::DBQueryRecord const& rec : packet.Queries)
+    for (WorldPackets::Query::DBQueryBulk::DBQueryRecord const& rec : packet.Queries)
     {
         WorldPackets::Query::DBReply response;
         response.TableHash = packet.TableHash;

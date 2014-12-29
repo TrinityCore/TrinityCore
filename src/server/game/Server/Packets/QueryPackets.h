@@ -1,27 +1,27 @@
 /*
-* Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef QueryPackets_h__
 #define QueryPackets_h__
 
 #include "Packet.h"
 #include "Creature.h"
-#include "NPCHandler.h"
 #include "DB2Stores.h"
+#include "NPCHandler.h"
 
 namespace WorldPackets
 {
@@ -168,15 +168,15 @@ namespace WorldPackets
             uint32 BroadcastTextID[MAX_GOSSIP_TEXT_OPTIONS];
         };
 
-        struct DBQueryRecord
-        {
-            ObjectGuid GUID;
-            uint32 RecordID;
-        };
-
         class DBQueryBulk final : public ClientPacket
         {
         public:
+            struct DBQueryRecord
+            {
+                ObjectGuid GUID;
+                int32 RecordID = 0;
+            };
+
             DBQueryBulk(WorldPacket&& packet) : ClientPacket(CMSG_DB_QUERY_BULK, std::move(packet)) { }
 
             void Read() override;
@@ -217,8 +217,9 @@ namespace WorldPackets
             QueryGameObject(WorldPacket&& packet) : ClientPacket(CMSG_GAMEOBJECT_QUERY, std::move(packet)) { }
 
             void Read() override;
-            uint32 Entry = 0;
+
             ObjectGuid Guid;
+            uint32 GameObjectID = 0;
         };
 
         struct GameObjectStats
@@ -236,17 +237,19 @@ namespace WorldPackets
 
             size_t GetDataSize() const
             {
-                return sizeof(Type) + sizeof(DisplayID) + (Name->length() + (4 * 1)) + (IconName.size() + 1) + (CastBarCaption.size() + 1) + (UnkString.size() + 1) + sizeof(Data) + sizeof(Size) + sizeof(uint8) + (QuestItems.size() * sizeof(uint32)) + sizeof(Expansion);
+                //                                         [1..3] always empty '\0'                     '\0'                          '\0'                     '\0'                                 QuestItems counter
+                return sizeof(Type) + sizeof(DisplayID) + (Name->length() + (4 * 1)) + (IconName.size() + 1) + (CastBarCaption.size() + 1) + (UnkString.size() + 1) + sizeof(Data) + sizeof(Size) + sizeof(uint8) + (QuestItems.size() * sizeof(int32)) + sizeof(Expansion);
             }
         };
 
         class QueryGameObjectResponse final : public ServerPacket
         {
         public:
-            QueryGameObjectResponse() : ServerPacket(SMSG_GAMEOBJECT_QUERY_RESPONSE, 165) { } // Guess size
+            QueryGameObjectResponse() : ServerPacket(SMSG_GAMEOBJECT_QUERY_RESPONSE, 165) { }
 
             WorldPacket const* Write() override;
-            uint32 Entry = 0;
+
+            uint32 GameObjectID = 0;
             bool Allow = false;
             GameObjectStats Stats;
         };

@@ -261,30 +261,30 @@ class Object
 struct Position
 {
     Position(float x = 0, float y = 0, float z = 0, float o = 0)
-        : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
+        : m_positionX(x), m_positionY(y), m_positionZ(z), _orientation(NormalizeOrientation(o)) { }
 
-    Position(const Position &loc) { Relocate(loc); }
+    Position(Position const& loc) { Relocate(loc); }
 
     struct PositionXYZStreamer
     {
-        explicit PositionXYZStreamer(Position& pos) : m_pos(&pos) { }
-        Position* m_pos;
+        explicit PositionXYZStreamer(Position& pos) : Pos(&pos) { }
+        Position* Pos;
     };
 
     struct PositionXYZOStreamer
     {
-        explicit PositionXYZOStreamer(Position& pos) : m_pos(&pos) { }
-        Position* m_pos;
+        explicit PositionXYZOStreamer(Position& pos) : Pos(&pos) { }
+        Position* Pos;
     };
 
     float m_positionX;
     float m_positionY;
     float m_positionZ;
-// Better to limit access to m_orientation field, but this will be hard to achieve with many scripts using array initialization for this structure
-//private:
-    float m_orientation;
-//public:
+// Better to limit access to _orientation field, to guarantee the value is normalized
+private:
+    float _orientation;
 
+public:
     bool operator==(Position const &a);
 
     inline bool operator!=(Position const &a)
@@ -299,24 +299,24 @@ struct Position
     void Relocate(float x, float y, float z, float orientation)
         { m_positionX = x; m_positionY = y; m_positionZ = z; SetOrientation(orientation); }
     void Relocate(Position const &pos)
-        { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; SetOrientation(pos.m_orientation); }
+        { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; SetOrientation(pos._orientation); }
     void Relocate(Position const* pos)
-        { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; SetOrientation(pos->m_orientation); }
+        { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; SetOrientation(pos->_orientation); }
     void RelocateOffset(Position const &offset);
     void SetOrientation(float orientation)
-    { m_orientation = NormalizeOrientation(orientation); }
+        { _orientation = NormalizeOrientation(orientation); }
 
     float GetPositionX() const { return m_positionX; }
     float GetPositionY() const { return m_positionY; }
     float GetPositionZ() const { return m_positionZ; }
-    float GetOrientation() const { return m_orientation; }
+    float GetOrientation() const { return _orientation; }
 
     void GetPosition(float &x, float &y) const
         { x = m_positionX; y = m_positionY; }
     void GetPosition(float &x, float &y, float &z) const
         { x = m_positionX; y = m_positionY; z = m_positionZ; }
     void GetPosition(float &x, float &y, float &z, float &o) const
-        { x = m_positionX; y = m_positionY; z = m_positionZ; o = m_orientation; }
+        { x = m_positionX; y = m_positionY; z = m_positionZ; o = _orientation; }
 
     Position GetPosition() const
     {
@@ -357,8 +357,8 @@ struct Position
     float GetAngle(Position const* pos) const;
     float GetAngle(float x, float y) const;
     float GetRelativeAngle(Position const* pos) const
-        { return GetAngle(pos) - m_orientation; }
-    float GetRelativeAngle(float x, float y) const { return GetAngle(x, y) - m_orientation; }
+        { return GetAngle(pos) - _orientation; }
+    float GetRelativeAngle(float x, float y) const { return GetAngle(x, y) - _orientation; }
     void GetSinCos(float x, float y, float &vsin, float &vcos) const;
 
     bool IsInDist2d(float x, float y, float dist) const

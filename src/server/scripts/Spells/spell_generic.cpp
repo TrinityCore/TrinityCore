@@ -1180,13 +1180,12 @@ class spell_gen_defend : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                // 6.x effects changed
-                //if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_1))
-                //    return false;
-                //if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_2))
-                //    return false;
-                //if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_3))
-                //    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_1))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_2))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_3))
+                    return false;
                 return false;
             }
 
@@ -1221,26 +1220,29 @@ class spell_gen_defend : public SpellScriptLoader
 
             void Register() override
             {
+                /*
                 SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(m_scriptSpellId);
 
                 // 6.x effects removed
 
                 // Defend spells cast by NPCs (add visuals)
-                /*if (spell->GetEffect(EFFECT_0)->ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
+                if (spell->GetEffect(EFFECT_0)->ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
                 {
                     AfterEffectApply += AuraEffectApplyFn(spell_gen_defend_AuraScript::RefreshVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                     OnEffectRemove += AuraEffectRemoveFn(spell_gen_defend_AuraScript::RemoveVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
-                }*/
+                }
+
                 // Remove Defend spell from player when he dismounts
-                //if (spell->GetEffect(EFFECT_2)->ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
-                //    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defend_AuraScript::RemoveDummyFromDriver, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                if (spell->GetEffect(EFFECT_2)->ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
+                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defend_AuraScript::RemoveDummyFromDriver, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
 
                 // Defend spells cast by players (add/remove visuals)
-                /*if (spell->GetEffect(EFFECT_1)->ApplyAuraName == SPELL_AURA_DUMMY)
+                if (spell->GetEffect(EFFECT_1)->ApplyAuraName == SPELL_AURA_DUMMY)
                 {
                     AfterEffectApply += AuraEffectApplyFn(spell_gen_defend_AuraScript::RefreshVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                     OnEffectRemove += AuraEffectRemoveFn(spell_gen_defend_AuraScript::RemoveVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
-                }*/
+                }
+                */
             }
         };
 
@@ -1913,6 +1915,8 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                         }
                         break;
                     }
+                    default:
+                        break;
                 }
             }
 

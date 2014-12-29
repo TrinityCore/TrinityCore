@@ -159,7 +159,7 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
                 return true;
             }
 
-            void HandleEnergize(SpellEffIndex effIndex)
+            void HandleEnergize(SpellEffIndex /*effIndex*/)
             {
                 Player* caster = GetCaster()->ToPlayer();
 

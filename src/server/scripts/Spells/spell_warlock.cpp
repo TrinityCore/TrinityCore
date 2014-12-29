@@ -1251,16 +1251,12 @@ class spell_warl_soul_swap_dot_marker : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_soul_swap_dot_marker_SpellScript);
 
-            void HandleHit(SpellEffIndex effIndex)
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 Unit* swapVictim = GetCaster();
                 Unit* warlock    = GetHitUnit();
                 if (!warlock || !swapVictim)
                     return;
-
-                // effect existance checked in dbc, should not be removed by core at any time, so no need to check for null
-                SpellEffectInfo const* effect = GetSpellInfo()->GetEffect(DIFFICULTY_NONE, EFFECT_0);
-                flag128 classMask = effect->SpellClassMask;
 
                 Unit::AuraApplicationMap const& appliedAuras = swapVictim->GetAppliedAuras();
                 SoulSwapOverrideAuraScript* swapSpellScript = nullptr;
@@ -1269,6 +1265,8 @@ class spell_warl_soul_swap_dot_marker : public SpellScriptLoader
 
                 if (!swapSpellScript)
                     return;
+
+                flag128 classMask = GetEffectInfo()->SpellClassMask;
 
                 for (Unit::AuraApplicationMap::const_iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
                 {

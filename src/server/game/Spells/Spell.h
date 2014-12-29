@@ -437,7 +437,9 @@ class Spell
         void DoCreateItem(uint32 i, uint32 itemtype);
         void WriteSpellGoTargets(WorldPacket* data);
 
-        bool CheckEffectTarget(Unit const* target, uint32 eff, Position const* losPosition) const;
+        bool CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect, Position const* losPosition) const;
+        bool CheckEffectTarget(GameObject const* target, SpellEffectInfo const* effect) const;
+        bool CheckEffectTarget(Item const* target, SpellEffectInfo const* effect) const;
         bool CanAutoCast(Unit* target);
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
@@ -701,7 +703,7 @@ class Spell
 
         // effect helpers
         void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons);
-        void CalculateJumpSpeeds(uint8 i, float dist, float & speedxy, float & speedz);
+        void CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedxy, float& speedz);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------

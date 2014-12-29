@@ -72,7 +72,7 @@ char const* TypeNames[] =
 
 char const* ObjectGuid::GetTypeName(HighGuid high)
 {
-    if (high > HighGuid::Count)
+    if (high >= HighGuid::Count)
         return "<unknown>";
 
     return TypeNames[uint32(high)];

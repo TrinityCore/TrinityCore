@@ -18,13 +18,16 @@
 
 #include "Opcodes.h"
 #include "WorldSession.h"
+#include "Packets/AchievementPackets.h"
 #include "Packets/CharacterPackets.h"
 #include "Packets/ChannelPackets.h"
 #include "Packets/ChatPackets.h"
 #include "Packets/ClientConfigPackets.h"
 #include "Packets/CombatPackets.h"
 #include "Packets/EquipmentSetPackets.h"
+#include "Packets/GameObjectPackets.h"
 #include "Packets/GuildPackets.h"
+#include "Packets/ItemPackets.h"
 #include "Packets/MiscPackets.h"
 #include "Packets/MovementPackets.h"
 #include "Packets/NPCPackets.h"
@@ -32,8 +35,6 @@
 #include "Packets/QuestPackets.h"
 #include "Packets/TalentPackets.h"
 #include "Packets/TradePackets.h"
-#include "Packets/ItemPackets.h"
-#include "Packets/GameObjectPackets.h"
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
 class PacketHandler : public ClientOpcodeHandler
