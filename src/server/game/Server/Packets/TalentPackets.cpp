@@ -47,7 +47,7 @@ void WorldPackets::Talent::LearnTalent::Read()
 {
     uint32 count;
     _worldPacket >> count;
-    
+
     for (uint32 i = 0; i < count; ++i)
     {
         uint16 talent;

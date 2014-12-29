@@ -63,58 +63,58 @@ namespace WorldPackets
             ObjectGuid itemGUID2;
             uint32 level;
         };
-        
+
         class SplitItem final : public ClientPacket
         {
         public:
             SplitItem(WorldPacket&& packet) : ClientPacket(CMSG_SPLIT_ITEM, std::move(packet)) { }
 
             void Read() override;
-            
+
             uint8 srcbag, srcslot, dstbag, dstslot;
             uint32 itemCount, count;
         };
-        
+
         class SwapInvItem final : public ClientPacket
         {
         public:
             SwapInvItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_INV_ITEM, std::move(packet)) { }
 
             void Read() override;
-            
+
             uint32 itemCount;
             uint8 srcslot, dstslot;
         };
-        
+
         class SwapItem final : public ClientPacket
         {
         public:
             SwapItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_ITEM, std::move(packet)) { }
 
             void Read() override;
-            
+
             uint32 itemCount;
             uint8 dstbag, dstslot, srcbag, srcslot;
         };
-        
+
         class AutoEquipItem final : public ClientPacket
         {
         public:
             AutoEquipItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOEQUIP_ITEM, std::move(packet)) { }
 
             void Read() override;
-            
+
             uint32 itemCount;
             uint8 srcbag, srcslot;
         };
-        
+
         class DestroyItem final : public ClientPacket
         {
         public:
             DestroyItem(WorldPacket&& packet) : ClientPacket(CMSG_DESTROY_ITEM, std::move(packet)) { }
 
             void Read() override;
-            
+
             uint32 count;
             uint8 bag, slot;
         };

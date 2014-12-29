@@ -148,7 +148,7 @@ bool ExtractWmo()
         std::getline(wmoList, str);
         if (str.empty())
             break;
-        
+
         wmos.insert(std::move(str));
     }
 

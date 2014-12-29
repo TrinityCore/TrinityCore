@@ -229,7 +229,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             text.QuestType = item.QuestIcon;
             text.QuestLevel = quest->GetQuestLevel();
             text.QuestFlags[0] = quest->GetFlags();
-            text.QuestFlags[1] = 0;
+            text.QuestFlags[1] = quest->GetFlagsEx();
             text.Repeatable = quest->IsRepeatable();
 
             std::string title = quest->GetLogTitle();
@@ -504,12 +504,12 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.QuestID = quest->GetQuestId();
 
     packet.Info.QuestID = quest->GetQuestId();
-    packet.Info.QuestType = quest->GetQuestMethod();
+    packet.Info.QuestType = quest->GetQuestType();
     packet.Info.QuestLevel = quest->GetQuestLevel();
     packet.Info.QuestPackageID = quest->GetQuestPackageID();
     packet.Info.QuestMinLevel = quest->GetMinLevel();
     packet.Info.QuestSortID = quest->GetZoneOrSort();
-    packet.Info.QuestInfoID = quest->GetType(); // quest type
+    packet.Info.QuestInfoID = quest->GetQuestInfoID();
     packet.Info.SuggestedGroupNum = quest->GetSuggestedPlayers();
     packet.Info.RewardNextQuest = quest->GetNextQuestInChain();
     packet.Info.RewardXPDifficulty = quest->GetXPDifficulty();
@@ -517,16 +517,16 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.Float13 = quest->Float13; // Unk
 
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
-        packet.Info.RewardMoney = quest->GetRewMoney();
+        packet.Info.RewardMoney = quest->RewardMoney;
 
     packet.Info.RewardMoneyDifficulty = quest->GetRewMoneyDifficulty();
     packet.Info.RewardBonusMoney = quest->GetRewMoneyMaxLevel();
-    packet.Info.RewardDisplaySpell = quest->GetRewDisplaySpell();           
+    packet.Info.RewardDisplaySpell = quest->GetRewDisplaySpell();
     packet.Info.RewardSpell = quest->GetRewSpell();
 
     packet.Info.RewardHonor = quest->GetRewHonor();
     packet.Info.RewardKillHonor = quest->GetRewKillHonor();
-    
+
     packet.Info.StartItem = quest->GetSrcItemId();
     packet.Info.Flags = quest->GetFlags();
     packet.Info.FlagsEx = quest->GetFlagsEx();
@@ -574,11 +574,12 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.AreaDescription = areaDescription;
     packet.Info.QuestCompletionLog = questCompletionLog;
     packet.Info.AllowableRaces = quest->GetAllowableRaces();
-    
-    for (uint32 i = 0; i < quest->Objectives.size(); ++i)
+
+    for (QuestObjective const& obj : quest->Objectives)
     {
-        packet.Info.Objectives.push_back(quest->Objectives[i]);
-        packet.Info.Objectives.back().Description = questObjectiveDescription[i];
+        packet.Info.Objectives.push_back(obj);
+        // @todo update quets objective locales
+        //packet.Info.Objectives.back().Description = questObjectiveDescription[i];
     }
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
