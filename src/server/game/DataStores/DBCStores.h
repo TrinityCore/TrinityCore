@@ -19,12 +19,9 @@
 #ifndef TRINITY_DBCSTORES_H
 #define TRINITY_DBCSTORES_H
 
-#include "Common.h"
 #include "DBCStore.h"
 #include "DBCStructure.h"
 #include "SharedDefines.h"
-
-#include <list>
 
 typedef std::map<uint32, uint32> SpecializationOverrideSpellsList;
 typedef std::map<uint32, SpecializationOverrideSpellsList> SpecializationOverrideSpellsMap;

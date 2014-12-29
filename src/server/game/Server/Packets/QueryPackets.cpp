@@ -174,6 +174,8 @@ WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
             _worldPacket << BroadcastTextID[i];
     }
 
+    _worldPacket.FlushBits();
+
     return &_worldPacket;
 }
 
@@ -182,7 +184,6 @@ void WorldPackets::Query::DBQueryBulk::Read()
     _worldPacket >> TableHash;
 
     uint32 count = _worldPacket.ReadBits(13);
-    _worldPacket.ResetBitPos();
 
     Queries.resize(count);
     for (uint32 i = 0; i < count; ++i)
@@ -204,7 +205,7 @@ WorldPacket const* WorldPackets::Query::DBReply::Write()
     if (Data)
         Data->WriteRecord(RecordID, Locale, _worldPacket);
 
-    _worldPacket.put<int32>(sizePos, _worldPacket.wpos() - sizePos - 4);
+    _worldPacket.put<int32>(sizePos, _worldPacket.wpos() - sizePos - sizeof(int32));
 
     return &_worldPacket;
 }
@@ -224,13 +225,13 @@ WorldPacket const* WorldPackets::Query::HotfixNotifyBlob::Write()
 
 void WorldPackets::Query::QueryGameObject::Read()
 {
-    _worldPacket >> Entry;
+    _worldPacket >> GameObjectID;
     _worldPacket >> Guid;
 }
 
 WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
 {
-    _worldPacket << Entry;
+    _worldPacket << GameObjectID;
     _worldPacket.WriteBit(Allow);
 
     if (Allow)

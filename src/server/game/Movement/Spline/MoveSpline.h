@@ -22,6 +22,15 @@
 #include "Spline.h"
 #include "MoveSplineInitArgs.h"
 
+namespace WorldPackets
+{
+    namespace Movement
+    {
+        class CommonMovement;
+        class MonsterMove;
+    }
+}
+
 namespace Movement
 {
     struct Location : public Vector3
@@ -36,11 +45,15 @@ namespace Movement
 
     // MoveSpline represents smooth catmullrom or linear curve and point that moves belong it
     // curve can be cyclic - in this case movement will be cyclic
-    // point can have vertical acceleration motion componemt(used in fall, parabolic movement)
+    // point can have vertical acceleration motion component (used in fall, parabolic movement)
     class MoveSpline
     {
+        friend class WorldPackets::Movement::CommonMovement;
+        friend class WorldPackets::Movement::MonsterMove;
+
     public:
         typedef Spline<int32> MySpline;
+
         enum UpdateResult
         {
             Result_None         = 0x01,
@@ -48,7 +61,6 @@ namespace Movement
             Result_NextCycle    = 0x04,
             Result_NextSegment  = 0x08
         };
-        friend class PacketBuilder;
 
     protected:
         MySpline        spline;

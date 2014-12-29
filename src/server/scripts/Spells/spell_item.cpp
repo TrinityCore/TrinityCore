@@ -1485,7 +1485,7 @@ class spell_item_gift_of_the_harvester : public SpellScriptLoader
 
             SpellCastResult CheckRequirement()
             {
-                std::list<Creature*> ghouls;
+                std::list<TempSummon*> ghouls;
                 GetCaster()->GetAllMinionsByEntry(ghouls, NPC_GHOUL);
                 if (ghouls.size() >= MAX_GHOULS)
                 {

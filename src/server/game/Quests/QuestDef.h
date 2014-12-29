@@ -434,7 +434,7 @@ class Quest
         uint32 EmoteOnCompleteDelay     = 0;
         uint32 EmoteOnIncompleteDelay   = 0;
         std::string RequestItemsText;
-        
+
         // quest_offer_reward table
         uint32 OfferRewardEmote[QUEST_EMOTE_COUNT] = {};
         uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT] = {};
@@ -469,4 +469,5 @@ struct QuestStatusData
     uint32 Timer;
     std::vector<int32> ObjectiveData;
 };
+
 #endif

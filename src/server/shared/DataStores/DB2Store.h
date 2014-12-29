@@ -18,10 +18,9 @@
 #ifndef DB2STORE_H
 #define DB2STORE_H
 
-#include "DB2StorageLoader.h"
 #include "Common.h"
+#include "DB2StorageLoader.h"
 #include "ByteBuffer.h"
-#include <vector>
 
 /// Interface class for common access
 class DB2StorageBase
@@ -127,7 +126,7 @@ public:
     bool Load(char const* fn, uint32 locale)
     {
         DB2FileLoader db2;
-        // Check if load was sucessful, only then continue
+        // Check if load was successful, only then continue
         if (!db2.Load(fn, fmt))
             return false;
 
@@ -142,17 +141,17 @@ public:
         {
             m_stringPoolList.push_back(stringHolders);
 
-            // load strings from dbc data
+            // load strings from db2 data
             m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
         }
 
-        // error in dbc file at loading if NULL
+        // error in db2 file at loading if NULL
         return indexTable.asT != NULL;
     }
 
     bool LoadStringsFrom(char const* fn, uint32 locale)
     {
-        // DBC must be already loaded using Load
+        // DB2 must be already loaded using Load
         if (!indexTable.asT)
             return false;
 
@@ -161,7 +160,7 @@ public:
         if (!db2.Load(fn, fmt))
             return false;
 
-        // load strings from another locale dbc data
+        // load strings from another locale db2 data
         if (DB2FileLoader::GetFormatStringFieldCount(fmt))
             m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
 

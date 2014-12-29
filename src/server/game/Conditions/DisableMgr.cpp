@@ -27,6 +27,16 @@
 namespace DisableMgr
 {
 
+char const* MapTypeNames[] =
+{
+    "World",
+    "Dungeon",
+    "Raid",
+    "Battleground",
+    "Arena",
+    "Scenario"
+};
+
 namespace
 {
     struct DisableData
@@ -194,30 +204,19 @@ void LoadDisables()
                 {
                     case MAP_COMMON:
                         if (flags & VMAP::VMAP_DISABLE_AREAFLAG)
-                            TC_LOG_INFO("misc", "Areaflag disabled for world map %u.", entry);
+                            TC_LOG_INFO("misc", "Areaflag disabled for %s map %u.", MapTypeNames[mapEntry->InstanceType], entry);
                         if (flags & VMAP::VMAP_DISABLE_LIQUIDSTATUS)
-                            TC_LOG_INFO("misc", "Liquid status disabled for world map %u.", entry);
+                            TC_LOG_INFO("misc", "Liquid status disabled for %s map %u.", MapTypeNames[mapEntry->InstanceType], entry);
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
-                            TC_LOG_INFO("misc", "Height disabled for instance map %u.", entry);
-                        if (flags & VMAP::VMAP_DISABLE_LOS)
-                            TC_LOG_INFO("misc", "LoS disabled for instance map %u.", entry);
-                        break;
                     case MAP_BATTLEGROUND:
-                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
-                            TC_LOG_INFO("misc", "Height disabled for battleground map %u.", entry);
-                        if (flags & VMAP::VMAP_DISABLE_LOS)
-                            TC_LOG_INFO("misc", "LoS disabled for battleground map %u.", entry);
-                        break;
                     case MAP_ARENA:
+                    case MAP_SCENARIO:
                         if (flags & VMAP::VMAP_DISABLE_HEIGHT)
-                            TC_LOG_INFO("misc", "Height disabled for arena map %u.", entry);
+                            TC_LOG_INFO("misc", "Height disabled for %s map %u.", MapTypeNames[mapEntry->InstanceType], entry);
                         if (flags & VMAP::VMAP_DISABLE_LOS)
-                            TC_LOG_INFO("misc", "LoS disabled for arena map %u.", entry);
-                        break;
-                    default:
+                            TC_LOG_INFO("misc", "LoS disabled for %s map %u.", MapTypeNames[mapEntry->InstanceType], entry);
                         break;
                 }
                 break;
@@ -230,24 +229,8 @@ void LoadDisables()
                     TC_LOG_ERROR("sql.sql", "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                switch (mapEntry->InstanceType)
-                {
-                    case MAP_COMMON:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for world map %u.", entry);
-                        break;
-                    case MAP_INSTANCE:
-                    case MAP_RAID:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for instance map %u.", entry);
-                        break;
-                    case MAP_BATTLEGROUND:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for battleground map %u.", entry);
-                        break;
-                    case MAP_ARENA:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for arena map %u.", entry);
-                        break;
-                    default:
-                        break;
-                }
+                if (mapEntry->InstanceType <= MAP_SCENARIO)
+                    TC_LOG_INFO("misc", "Pathfinding disabled for %s map %u.", MapTypeNames[mapEntry->InstanceType], entry);
                 break;
             }
             default:

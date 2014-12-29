@@ -30,8 +30,8 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
     response.WaitInfo.Value.WaitCount = queuePos;
     if (code == AUTH_OK)
     {
-        response.SuccessInfo.Value.AccountExpansionLevel = Expansion();
-        response.SuccessInfo.Value.ActiveExpansionLevel = Expansion();
+        response.SuccessInfo.Value.AccountExpansionLevel = GetExpansion();
+        response.SuccessInfo.Value.ActiveExpansionLevel = GetExpansion();
         response.SuccessInfo.Value.VirtualRealmAddress = GetVirtualRealmAddress();
 
         std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);

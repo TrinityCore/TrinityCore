@@ -20,7 +20,13 @@
 
 #include "Packet.h"
 #include "Object.h"
+
 #include <G3D/Vector3.h>
+
+namespace Movement
+{
+    class MoveSpline;
+}
 
 namespace WorldPackets
 {
@@ -92,10 +98,18 @@ namespace WorldPackets
             MovementSpline Move;
         };
 
+        class CommonMovement
+        {
+        public:
+            static void WriteCreateObjectSplineDataBlock(::Movement::MoveSpline const& moveSpline, ByteBuffer& data);
+        };
+
         class MonsterMove final : public ServerPacket
         {
         public:
             MonsterMove() : ServerPacket(SMSG_MONSTER_MOVE) { }
+
+            void InitializeSplineData(::Movement::MoveSpline const& moveSpline);
 
             WorldPacket const* Write() override;
 
@@ -279,6 +293,9 @@ ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v);
 
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo);
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo);
+
+ByteBuffer& operator>>(ByteBuffer& data, MovementInfo::TransportInfo& transportInfo);
+ByteBuffer& operator<<(ByteBuffer& data, MovementInfo::TransportInfo const& transportInfo);
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilter const& monsterSplineFilter);

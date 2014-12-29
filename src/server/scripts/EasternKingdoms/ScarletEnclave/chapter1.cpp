@@ -934,20 +934,16 @@ public:
 
         void FindMinions(Unit* owner)
         {
-            std::list<Creature*> MinionList;
+            std::list<TempSummon*> MinionList;
             owner->GetAllMinionsByEntry(MinionList, NPC_GHOULS);
 
             if (!MinionList.empty())
             {
-                for (std::list<Creature*>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
+                for (TempSummon* summon : MinionList)
                 {
-                    if ((*itr)->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
-                    {
-                        if ((*itr)->IsInCombat() && (*itr)->getAttackerForHelper())
-                        {
-                            AttackStart((*itr)->getAttackerForHelper());
-                        }
-                    }
+                    if (summon->GetOwnerGUID() == me->GetOwnerGUID())
+                        if (summon->IsInCombat() && summon->getAttackerForHelper())
+                            AttackStart(summon->getAttackerForHelper());
                 }
             }
         }

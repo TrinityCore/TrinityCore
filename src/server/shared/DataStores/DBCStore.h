@@ -94,7 +94,7 @@ class DBCStorage
         bool Load(char const* fn, SqlDbc* sql)
         {
             DBCFileLoader dbc;
-            // Check if load was sucessful, only then continue
+            // Check if load was successful, only then continue
             if (!dbc.Load(fn, fmt))
                 return false;
 

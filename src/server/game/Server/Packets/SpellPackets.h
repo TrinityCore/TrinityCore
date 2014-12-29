@@ -120,7 +120,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
             void Init(bool IsFullUpdate, ObjectGuid Target, uint32 Count);
             void BuildUpdatePacket(AuraApplication* aurApp, bool remove, uint16 level);
-        };    
+        };
 
         class SpellCastRequest final : public ClientPacket
         {
@@ -133,34 +133,34 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid PetGuid;
-            uint8 CastID;
-            uint32 SpellID;
-            uint32 Misc;
-            uint32 TargetFlags;
+            uint8 CastID = 0;
+            uint32 SpellID = 0;
+            uint32 Misc = 0;
+            uint32 TargetFlags = 0;
             ObjectGuid UnitGuid;
             ObjectGuid ItemGuid;
-            
+
             ObjectGuid SrcTransportGuid;
             ObjectGuid DstTransportGuid;
             Position SrcPos;
             Position DstPos;
-            float Orientation;
+            float Orientation = 0.0f;
 
             std::string Name;
-            float Pitch;
-            float Speed;
+            float Pitch = 0.0f;
+            float Speed = 0.0f;
             ObjectGuid Guid;
-            uint32 SendCastFlags;
+            uint32 SendCastFlags = 0;
 
             MovementInfo movementInfo;
         };
-        
+
         struct TargetLocation
         {
             ObjectGuid Transport;
             Position Location;
         };
-        
+
         struct SpellTargetData
         {
             uint32 Flags = 0;
@@ -171,49 +171,49 @@ namespace WorldPackets
             Optional<float> Orientation; // Not found in JAM structures
             std::string Name;
         };
-        
+
         struct SpellMissStatus
         {
             uint8 Reason = 0;
             uint8 ReflectStatus = 0;
         };
-        
+
         struct SpellPowerData
         {
             int32 Cost = 0;
             int8 Type = 0;
         };
-        
+
         struct RuneData
         {
             uint8 Start = 0;
             uint8 Count = 0;
             std::vector<uint8> Cooldowns;
         };
-        
+
         struct MissileTrajectoryResult
         {
             uint32 TravelTime = 0;
             float Pitch = 0.0f;
         };
-        
+
         struct SpellAmmo
         {
             int32 DisplayID = 0;
             int8 InventoryType = 0;
         };
-        
+
         struct ProjectileVisualData
         {
             int32 ID[2];
         };
-        
+
         struct CreatureImmunities
         {
             uint32 School = 0;
             uint32 Value = 0;
         };
-        
+
         struct SpellHealPrediction
         {
             ObjectGuid BeaconGUID;
