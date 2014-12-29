@@ -199,7 +199,8 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_AREATRIGGER             = 10,
     QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC  = 11,
     QUEST_OBJECTIVE_DEFEATBATTLEPET         = 12,
-    QUEST_OBJECTIVE_WINPVPPETBATTLES        = 13
+    QUEST_OBJECTIVE_WINPVPPETBATTLES        = 13,
+    QUEST_OBJECTIVE_NONE                    = 255 // Used on empty objectives to not confuse with QUEST_OBJECTIVE_MONSTER
 };
 
 struct QuestLocale

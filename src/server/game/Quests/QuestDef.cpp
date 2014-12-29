@@ -49,17 +49,17 @@ Quest::Quest(Field* questRecord)
 
     for (uint32 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
     {
-        RewardItemId[i] = questRecord[22+i].GetUInt32();
-        RewardItemCount[i] = questRecord[23+i].GetUInt32();
-        ItemDrop[i] = questRecord[24+i].GetUInt32();
-        ItemDropQuantity[i] = questRecord[25+i].GetUInt32();
+        RewardItemId[i] = questRecord[22+i*4].GetUInt32();
+        RewardItemCount[i] = questRecord[23+i*4].GetUInt32();
+        ItemDrop[i] = questRecord[24+i*4].GetUInt32();
+        ItemDropQuantity[i] = questRecord[25+i*4].GetUInt32();
     }
 
     for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
     {
-        RewardChoiceItemId[i] = questRecord[38+i].GetUInt32();
-        RewardChoiceItemCount[i] = questRecord[39+i].GetUInt32();
-        RewardChoiceItemDisplayId[i] = questRecord[40+i].GetUInt32();
+        RewardChoiceItemId[i] = questRecord[38+i*3].GetUInt32();
+        RewardChoiceItemCount[i] = questRecord[39+i*3].GetUInt32();
+        RewardChoiceItemDisplayId[i] = questRecord[40+i*3].GetUInt32();
     }
 
     POIContinent = questRecord[56].GetUInt32();
@@ -78,17 +78,17 @@ Quest::Quest(Field* questRecord)
 
     for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
     {
-        RewardFactionId[i] = questRecord[67+i].GetUInt32();
-        RewardFactionValue[i] = questRecord[68+i].GetInt32();
-        RewardFactionOverride[i] = questRecord[69+i].GetInt32();
+        RewardFactionId[i] = questRecord[67+i*3].GetUInt32();
+        RewardFactionValue[i] = questRecord[68+i*3].GetInt32();
+        RewardFactionOverride[i] = questRecord[69+i*3].GetInt32();
     }
 
     RewardReputationMask = questRecord[82].GetUInt32();
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
-        RewardCurrencyId[i] = questRecord[83+i].GetUInt32();
-        RewardCurrencyCount[i] = questRecord[84+i].GetUInt32();
+        RewardCurrencyId[i] = questRecord[83+i*2].GetUInt32();
+        RewardCurrencyCount[i] = questRecord[84+i*2].GetUInt32();
     }
 
     SoundAccept = questRecord[91].GetUInt32();

@@ -3699,7 +3699,7 @@ void ObjectMgr::LoadQuests()
         {
             if (!(qinfo->SpecialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE))
             {
-                TC_LOG_ERROR("sql.sql", "Daily Quest %u not marked as repeatable in `SpecialFlags`, added.", qinfo->GetQuestId());
+                TC_LOG_DEBUG("sql.sql", "Daily Quest %u not marked as repeatable in `SpecialFlags`, added.", qinfo->GetQuestId());
                 qinfo->SpecialFlags |= QUEST_SPECIAL_FLAGS_REPEATABLE;
             }
         }
@@ -3708,7 +3708,7 @@ void ObjectMgr::LoadQuests()
         {
             if (!(qinfo->SpecialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE))
             {
-                TC_LOG_ERROR("sql.sql", "Weekly Quest %u not marked as repeatable in `SpecialFlags`, added.", qinfo->GetQuestId());
+                TC_LOG_DEBUG("sql.sql", "Weekly Quest %u not marked as repeatable in `SpecialFlags`, added.", qinfo->GetQuestId());
                 qinfo->SpecialFlags |= QUEST_SPECIAL_FLAGS_REPEATABLE;
             }
         }
@@ -3717,7 +3717,7 @@ void ObjectMgr::LoadQuests()
         {
             if (!(qinfo->SpecialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE))
             {
-                TC_LOG_ERROR("sql.sql", "Monthly quest %u not marked as repeatable in `SpecialFlags`, added.", qinfo->GetQuestId());
+                TC_LOG_DEBUG("sql.sql", "Monthly quest %u not marked as repeatable in `SpecialFlags`, added.", qinfo->GetQuestId());
                 qinfo->SpecialFlags |= QUEST_SPECIAL_FLAGS_REPEATABLE;
             }
         }
@@ -3906,6 +3906,15 @@ void ObjectMgr::LoadQuests()
         {
             QuestObjective& obj = qinfo->Objectives[j];
 
+            // Might be intended in blizz so it is debug output
+            if (!obj.ID)
+            {
+                TC_LOG_DEBUG("sql.sql", "Quest %u is missing objective %u", qinfo->GetQuestId(), j);
+                // Prevent objective to be parsed as QUEST_OBJECTIVE_MONSTER
+                obj.Type = QUEST_OBJECTIVE_NONE;
+                continue;
+            }
+
             if (!obj.ObjectID)
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u objective %u has `ObjectID` = 0, quest can't be done.", qinfo->GetQuestId(), j);
@@ -3977,7 +3986,7 @@ void ObjectMgr::LoadQuests()
             {
                 if (!sObjectMgr->GetItemTemplate(id))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSourceItemId%d` = %u but item with entry %u does not exist, quest can't be done.",
+                    TC_LOG_ERROR("sql.sql", "Quest %u has `ItemDrop%d` = %u but item with entry %u does not exist, quest can't be done.",
                         qinfo->GetQuestId(), j+1, id, id);
                     // no changes, quest can't be done for this requirement
                 }
@@ -3986,7 +3995,7 @@ void ObjectMgr::LoadQuests()
             {
                 if (qinfo->ItemDropQuantity[j]>0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSourceItemId%d` = 0 but `RequiredSourceItemCount%d` = %u.",
+                    TC_LOG_ERROR("sql.sql", "Quest %u has `ItemDrop%d` = 0 but `ItemDropQuantity%d` = %u.",
                         qinfo->GetQuestId(), j+1, j+1, qinfo->ItemDropQuantity[j]);
                     // no changes, quest ignore this data
                 }
