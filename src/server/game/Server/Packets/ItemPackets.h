@@ -94,7 +94,7 @@ namespace WorldPackets
 
 			ObjectGuid NpcGUID;
 			ObjectGuid ItemGUID;
-			bool UseGuildBank = 0;
+            bool UseGuildBank = false;
 		};
 
 		class SellItem final : public ClientPacket
