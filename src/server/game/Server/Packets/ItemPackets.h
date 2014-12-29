@@ -24,7 +24,91 @@
 namespace WorldPackets
 {
     namespace Item
-    {
+	{
+        class BuyItem final : public ClientPacket
+		{
+		public:
+            BuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
+
+			void Read() override;
+
+			ObjectGuid VendorGUID;
+			ObjectGuid ContainerGUID;
+			int32 Quantity = 0;
+			uint32 Muid = 0;
+			uint32 Slot = 0;
+			uint8 ItemType[2];
+		};
+
+		class BuyItemResult final : public ServerPacket
+		{
+		public:
+			BuyItemResult() : ServerPacket(SMSG_BUY_ITEM, 20) { }
+
+			WorldPacket const* Write() override;
+
+			ObjectGuid VendorGUID;
+			uint32 QuantityBought = 0;
+			uint32 Muid = 0;
+			uint32 NewQuantity = 0;
+		};
+        
+        class BuyBackItem final : public ClientPacket
+        {
+        public:
+            BuyBackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUYBACK_ITEM, std::move(packet)) { }
+            
+            void Read() override;
+            
+            ObjectGuid VendorGUID;
+            uint32 Slot = 0;
+        };
+        
+        class ItemRefundInfo final : public ClientPacket
+        {
+        public:
+            ItemRefundInfo(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_REFUND_INFO, std::move(packet)) { }
+            
+            void Read() override;
+            
+            ObjectGuid ItemGUID;
+        };
+        
+        class OpenItem final : public ClientPacket
+        {
+        public:
+            OpenItem(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_ITEM, std::move(packet)) { }
+            
+            void Read() override;
+            
+            uint8 ContainerIndex = 0;
+            uint8 Slot = 0;
+        };
+        
+		class RepairItem final : public ClientPacket
+		{
+		public:
+			RepairItem(WorldPacket&& packet) : ClientPacket(CMSG_REPAIR_ITEM, std::move(packet)) { }
+
+			void Read() override;
+
+			ObjectGuid NpcGUID;
+			ObjectGuid ItemGUID;
+            bool UseGuildBank = false;
+		};
+
+		class SellItem final : public ClientPacket
+		{
+		public:
+			SellItem(WorldPacket&& packet) : ClientPacket(CMSG_SELL_ITEM, std::move(packet)) { }
+
+			void Read() override;
+
+			ObjectGuid VendorGUID;
+			ObjectGuid ItemGUID;
+			uint32 Amount = 0;
+		};
+
         class SetProficiency final : public ServerPacket
         {
         public:

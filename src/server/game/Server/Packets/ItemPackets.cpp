@@ -17,6 +17,57 @@
 
 #include "ItemPackets.h"
 
+void WorldPackets::Item::BuyItem::Read()
+{
+	_worldPacket >> VendorGUID;
+	_worldPacket >> ContainerGUID;
+	_worldPacket >> Quantity;
+	_worldPacket >> Muid;
+	_worldPacket >> ItemType[0];
+	_worldPacket >> ItemType[1];
+}
+
+WorldPacket const* WorldPackets::Item::BuyItemResult::Write()
+{
+	_worldPacket << VendorGUID;
+	_worldPacket << QuantityBought;
+	_worldPacket << Muid;
+	_worldPacket << NewQuantity;
+
+	return &_worldPacket;
+}
+
+void WorldPackets::Item::BuyBackItem::Read()
+{
+	_worldPacket >> VendorGUID;
+	_worldPacket >> Slot;
+}
+
+void WorldPackets::Item::ItemRefundInfo::Read()
+{
+	_worldPacket >> ItemGUID;
+}
+
+void WorldPackets::Item::OpenItem::Read()
+{
+	_worldPacket >> ContainerIndex;
+	_worldPacket >> Slot;
+}
+
+void WorldPackets::Item::RepairItem::Read()
+{
+	_worldPacket >> NpcGUID;
+	_worldPacket >> ItemGUID;
+	_worldPacket >> UseGuildBank;
+}
+
+void WorldPackets::Item::SellItem::Read()
+{
+	_worldPacket >> VendorGUID;
+	_worldPacket >> ItemGUID;
+	_worldPacket >> Amount;
+}
+
 WorldPacket const* WorldPackets::Item::SetProficiency::Write()
 {
     _worldPacket << ProficiencyMask;

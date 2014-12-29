@@ -26,7 +26,19 @@
 namespace WorldPackets
 {
     namespace Quest
-    {
+	{
+        class QuestGiverAcceptQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverAcceptQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_ACCEPT_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID = 0;
+            uint8 StartCheat = 0;
+        };
+
         class QuestGiverStatusQuery final : public ClientPacket
         {
         public:
@@ -84,6 +96,29 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid QuestGiverGUID;
+        };
+
+        class QuestGiverQueryQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverQueryQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_QUERY_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID = 0;
+            uint8 RespondToGiver = 0;
+        };
+		
+        class QuestGiverRequestReward final : public ClientPacket
+        {
+        public:
+            QuestGiverRequestReward(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_REQUEST_REWARD, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID = 0;
         };
 
         class QueryQuestInfo final : public ClientPacket
@@ -344,6 +379,16 @@ namespace WorldPackets
             bool DisplayPopup = false;
             bool StartCheat = false;
             bool AutoLaunched = false;
+		};
+
+        class QuestLogRemoveQuest final : public ClientPacket
+        {
+        public:
+            QuestLogRemoveQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTLOG_REMOVE_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Slot = 0;
         };
     }
 }

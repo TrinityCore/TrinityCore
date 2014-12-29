@@ -21360,12 +21360,13 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     {
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
-        WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
-        data << pVendor->GetGUID();
-        data << uint32(vendorslot + 1);                   // numbered from 1 at client
-        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
-        data << uint32(count);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Item::BuyItemResult buyItemResult;
+        buyItemResult.VendorGUID = pVendor->GetGUID();
+        buyItemResult.QuantityBought = uint32(count);
+        buyItemResult.Muid = uint32(vendorslot + 1);
+        buyItemResult.NewQuantity = int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+        
+        GetSession()->SendPacket(buyItemResult.Write());
         SendNewItem(it, count, true, false, false);
 
         if (!bStore)

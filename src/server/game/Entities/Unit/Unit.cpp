@@ -62,6 +62,7 @@
 #include "WorldPacket.h"
 #include "MovementStructures.h"
 #include "WorldSession.h"
+#include "CharacterPackets.h"
 #include "ChatPackets.h"
 #include "MovementPackets.h"
 #include "CombatPackets.h"
@@ -12570,9 +12571,9 @@ void Unit::SetStandState(uint8 state)
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldPacket data(SMSG_STANDSTATE_UPDATE, 1);
-        data << (uint8)state;
-        ToPlayer()->GetSession()->SendPacket(&data);
+        WorldPackets::Character::StandStateUpdate standStateUpdate;
+        standStateUpdate.StandState = (uint8)state;
+        ToPlayer()->GetSession()->SendPacket(standStateUpdate.Write());
     }
 }
 
