@@ -226,6 +226,12 @@ WorldPacket const* WorldPackets::Quest::QuestGiverRequestItems::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Quest::QuestGiverRequestReward::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+}
+
 WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 {
     _worldPacket << QuestGiverGUID;
