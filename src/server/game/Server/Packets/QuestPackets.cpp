@@ -413,3 +413,9 @@ WorldPacket const* WorldPackets::Quest::QuestGiverRequestItems::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Quest::QuestGiverRequestReward::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+}

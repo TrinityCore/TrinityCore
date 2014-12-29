@@ -382,6 +382,17 @@ namespace WorldPackets
             std::string QuestTitle;
             std::string CompletionText;
         };
+
+        class QuestGiverRequestReward final : public ClientPacket
+        {
+        public:
+            QuestGiverRequestReward(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_REQUEST_REWARD, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID = 0;
+        };
     }
 }
 
