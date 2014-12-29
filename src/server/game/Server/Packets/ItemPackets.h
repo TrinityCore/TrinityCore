@@ -25,6 +25,34 @@ namespace WorldPackets
 {
     namespace Item
 	{
+		class BuyItem final : public ClientPacket
+		{
+		public:
+			BuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
+
+			void Read() override;
+
+			ObjectGuid VendorGUID;
+			ObjectGuid ContainerGUID;
+			int32 Quantity = 0;
+			uint32 Muid = 0;
+			uint32 Slot = 0;
+			uint8 ItemType = 0;
+		};
+
+		class BuyItemResult final : public ServerPacket
+		{
+		public:
+			BuyItemResult() : ServerPacket(SMSG_BUY_ITEM, 20) { }
+
+			WorldPacket const* Write() override;
+
+			ObjectGuid VendorGUID;
+			uint32 QuantityBought = 0;
+			uint32 Muid = 0;
+			uint32 NewQuantity = 0;
+		};
+
 		class BuyBackItem final : public ClientPacket
 		{
 		public:

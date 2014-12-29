@@ -532,38 +532,31 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
     GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
 }
 
-void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUY_ITEM");
-    ObjectGuid vendorguid, bagGuid;
-    uint32 item, slot, count;
-    uint8 itemType; // 1 = item, 2 = currency
-    uint8 bagSlot;
-
-    recvData >> vendorguid >> itemType >> item >> slot >> count >> bagGuid >> bagSlot;
-
     // client expects count starting at 1, and we send vendorslot+1 to client already
-    if (slot > 0)
-        --slot;
+    if (packet.Slot > 0)
+        --packet.Slot;
     else
         return; // cheating
 
-    if (itemType == ITEM_VENDOR_TYPE_ITEM)
+    if (packet.ItemType == ITEM_VENDOR_TYPE_ITEM)
     {
-        Item* bagItem = _player->GetItemByGuid(bagGuid);
+		Item* bagItem = _player->GetItemByGuid(packet.ContainerGUID);
 
         uint8 bag = NULL_BAG;
         if (bagItem && bagItem->IsBag())
             bag = bagItem->GetSlot();
-        else if (bagGuid == GetPlayer()->GetGUID()) // The client sends the player guid when trying to store an item in the default backpack
+		else if (packet.ContainerGUID == GetPlayer()->GetGUID()) // The client sends the player guid when trying to store an item in the default backpack
             bag = INVENTORY_SLOT_BAG_0;
 
-        GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagSlot);
+		GetPlayer()->BuyItemFromVendorSlot(packet.VendorGUID, packet.Slot, packet.ItemType, packet.Quantity, bag, 0);
     }
-    else if (itemType == ITEM_VENDOR_TYPE_CURRENCY)
-        GetPlayer()->BuyCurrencyFromVendorSlot(vendorguid, slot, item, count);
+	else if (packet.ItemType == ITEM_VENDOR_TYPE_CURRENCY)
+		GetPlayer()->BuyCurrencyFromVendorSlot(packet.VendorGUID, packet.Slot, packet.ItemType, packet.Quantity);
     else
-        TC_LOG_DEBUG("network", "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", itemType);
+		TC_LOG_DEBUG("network", "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", packet.ItemType);
 }
 
 void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
@@ -752,19 +745,16 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
     _player->StoreItem(dest, pItem, true);
 }
 
-void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::NPC::Hello& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_BUY_BANK_SLOT");
 
-    ObjectGuid guid;
-    recvPacket >> guid;
-
     WorldPacket data(SMSG_BUY_BANK_SLOT_RESULT, 4);
-    if (!CanUseBank(guid))
+    if (!CanUseBank(packet.Unit))
     {
         data << uint32(ERR_BANKSLOT_NOTBANKER);
         SendPacket(&data);
-        TC_LOG_DEBUG("network", "WORLD: HandleBuyBankSlotOpcode - %s not found or you can't interact with him.", guid.ToString().c_str());
+		TC_LOG_DEBUG("network", "WORLD: HandleBuyBankSlotOpcode - %s not found or you can't interact with him.", packet.Unit.ToString().c_str());
         return;
     }
 

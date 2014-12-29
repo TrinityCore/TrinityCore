@@ -17,6 +17,25 @@
 
 #include "ItemPackets.h"
 
+void WorldPackets::Item::BuyItem::Read()
+{
+	_worldPacket >> VendorGUID;
+	_worldPacket >> ContainerGUID;
+	_worldPacket >> Quantity;
+	_worldPacket >> Muid;
+	_worldPacket >> ItemType;
+}
+
+WorldPacket const* WorldPackets::Item::BuyItemResult::Write()
+{
+	_worldPacket << VendorGUID;
+	_worldPacket << QuantityBought;
+	_worldPacket << Muid;
+	_worldPacket << NewQuantity;
+
+	return &_worldPacket;
+}
+
 void WorldPackets::Item::BuyBackItem::Read()
 {
 	_worldPacket >> VendorGUID;
