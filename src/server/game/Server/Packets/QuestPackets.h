@@ -96,7 +96,7 @@ namespace WorldPackets
             ObjectGuid QuestGiver;
             int32 QuestID;
         };
-        
+
         struct QuestInfoChoiceItem
         {
             int32 ItemID;

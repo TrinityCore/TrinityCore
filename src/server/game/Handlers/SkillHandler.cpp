@@ -36,7 +36,7 @@ void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& pa
         if (_player->LearnTalent(talentId))
             anythingLearned = true;
     }
-    
+
     if (anythingLearned)
         _player->SendTalentsInfoData();
 }
@@ -94,7 +94,7 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
 void WorldSession::HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet)
 {
     Player* player = GetPlayer();
-    
+
     if (packet.SpecGroupIndex >= MAX_SPECIALIZATIONS)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleSetSpecializationOpcode - specialization index %u out of range", packet.SpecGroupIndex);

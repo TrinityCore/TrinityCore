@@ -521,12 +521,12 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
     packet.Info.RewardMoneyDifficulty = quest->GetRewMoneyDifficulty();
     packet.Info.RewardBonusMoney = quest->GetRewMoneyMaxLevel();
-    packet.Info.RewardDisplaySpell = quest->GetRewDisplaySpell();           
+    packet.Info.RewardDisplaySpell = quest->GetRewDisplaySpell();
     packet.Info.RewardSpell = quest->GetRewSpell();
 
     packet.Info.RewardHonor = quest->GetRewHonor();
     packet.Info.RewardKillHonor = quest->GetRewKillHonor();
-    
+
     packet.Info.StartItem = quest->GetSrcItemId();
     packet.Info.Flags = quest->GetFlags();
     packet.Info.FlagsEx = quest->GetFlagsEx();
@@ -574,7 +574,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.AreaDescription = areaDescription;
     packet.Info.QuestCompletionLog = questCompletionLog;
     packet.Info.AllowableRaces = quest->GetAllowableRaces();
-    
+
     for (uint32 i = 0; i < quest->Objectives.size(); ++i)
     {
         packet.Info.Objectives.push_back(quest->Objectives[i]);
