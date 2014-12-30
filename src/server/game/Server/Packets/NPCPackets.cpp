@@ -28,7 +28,9 @@ void WorldPackets::NPC::GossipSelectOption::Read()
 	_worldPacket >> GUID;
 	_worldPacket >> GossipID;
 	_worldPacket >> MenuID;
-	_worldPacket >> BoxText;
+
+    uint8 len = _worldPacket.ReadBits(8);
+    BoxText = _worldPacket.ReadString(len);
 }
 
 WorldPacket const* WorldPackets::NPC::GossipMessage::Write()

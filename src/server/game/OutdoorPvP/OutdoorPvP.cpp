@@ -35,12 +35,9 @@ class DefenseMessageBuilder
 
         void operator()(WorldPacket& data, LocaleConstant locale) const
         {
-            std::string text = sOutdoorPvPMgr->GetDefenseMessage(_zoneId, _id, locale);
-
-            data.Initialize(SMSG_DEFENSE_MESSAGE, 4 + 4 + text.length());
-            data.append<uint32>(_zoneId);
-            data.append<uint32>(text.length());
-            data << text;
+            WorldPackets::Chat::DefenseMessage defenseMessage;
+            defenseMessage.ZoneID = uint32(_zoneId);
+            defenseMessage.MessageText = sOutdoorPvPMgr->GetDefenseMessage(_zoneId, _id, locale);
         }
 
     private:
