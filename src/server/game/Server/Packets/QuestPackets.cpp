@@ -395,7 +395,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Quest::QuestLogRemoveQuest::Read()
+void WorldPackets::Quest::PlayerCliQuestLogRemoveQuest::Read()
 {
-	_worldPacket >> Slot;
+    _worldPacket >> Entry;
 }

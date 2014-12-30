@@ -488,14 +488,14 @@ namespace WorldPackets
             int32 Cp;
         };
 
-        class StandStateUpdate final : public ServerPacket
+        class ClientStandStateUpdate final : public ServerPacket
         {
         public:
-            StandStateUpdate() : ServerPacket(SMSG_STANDSTATE_UPDATE, 1) { }
+            ClientStandStateUpdate() : ServerPacket(SMSG_STANDSTATE_UPDATE, 1) { }
 
             WorldPacket const* Write() override;
 
-            uint8 StandState;
+            uint8 State;
         };
     }
 }

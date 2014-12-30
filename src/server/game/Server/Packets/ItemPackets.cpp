@@ -17,7 +17,7 @@
 
 #include "ItemPackets.h"
 
-void WorldPackets::Item::BuyItem::Read()
+void WorldPackets::Item::PlayerCliBuyItem::Read()
 {
 	_worldPacket >> VendorGUID;
 	_worldPacket >> ContainerGUID;
@@ -27,7 +27,7 @@ void WorldPackets::Item::BuyItem::Read()
 	_worldPacket >> ItemType[1];
 }
 
-WorldPacket const* WorldPackets::Item::BuyItemResult::Write()
+WorldPacket const* WorldPackets::Item::BuySucceeded::Write()
 {
 	_worldPacket << VendorGUID;
 	_worldPacket << QuantityBought;
@@ -48,9 +48,9 @@ void WorldPackets::Item::ItemRefundInfo::Read()
 	_worldPacket >> ItemGUID;
 }
 
-void WorldPackets::Item::OpenItem::Read()
+void WorldPackets::Item::PlayerCliOpenItem::Read()
 {
-	_worldPacket >> ContainerIndex;
+	_worldPacket >> PackSlot;
 	_worldPacket >> Slot;
 }
 

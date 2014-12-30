@@ -190,9 +190,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleOpenItemOpcode(WorldPackets::Item::OpenItem& packet)
+void WorldSession::HandleOpenItemOpcode(WorldPackets::Item::PlayerCliOpenItem& packet)
 {
-    TC_LOG_DEBUG("network", "HandleOpenItemOpcode: ContainerIndex: %u, Slot: %u", packet.ContainerIndex, packet.Slot);
+    TC_LOG_DEBUG("network", "HandleOpenItemOpcode: ContainerIndex: %u, Slot: %u", packet.PackSlot, packet.Slot);
 
     Player* pUser = _player;
 
@@ -200,7 +200,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Item::OpenItem& packet)
     if (pUser->m_mover != pUser)
         return;
 
-    Item* item = pUser->GetItemByPos(packet.ContainerIndex, packet.Slot);
+    Item* item = pUser->GetItemByPos(packet.PackSlot, packet.Slot);
     if (!item)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);

@@ -389,9 +389,9 @@ WorldPacket const* WorldPackets::Character::LevelUpInfo::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Character::StandStateUpdate::Write()
+WorldPacket const* WorldPackets::Character::ClientStandStateUpdate::Write()
 {
-    _worldPacket << StandState;
+    _worldPacket << State;
     return &_worldPacket;
 }
 

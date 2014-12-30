@@ -532,7 +532,7 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
     GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
 }
 
-void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
+void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::PlayerCliBuyItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUY_ITEM");
     // client expects count starting at 1, and we send vendorslot+1 to client already

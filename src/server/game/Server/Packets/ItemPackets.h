@@ -25,25 +25,25 @@ namespace WorldPackets
 {
     namespace Item
 	{
-        class BuyItem final : public ClientPacket
+        class PlayerCliBuyItem final : public ClientPacket
 		{
 		public:
-            BuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
+            PlayerCliBuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
 
 			void Read() override;
 
 			ObjectGuid VendorGUID;
-			ObjectGuid ContainerGUID;
-			int32 Quantity = 0;
 			uint32 Muid = 0;
 			uint32 Slot = 0;
-			uint8 ItemType[2];
+            uint8 ItemType[2];
+            int32 Quantity = 0;
+            ObjectGuid ContainerGUID;
 		};
 
-		class BuyItemResult final : public ServerPacket
+        class BuySucceeded final : public ServerPacket
 		{
 		public:
-			BuyItemResult() : ServerPacket(SMSG_BUY_ITEM, 20) { }
+            BuySucceeded() : ServerPacket(SMSG_BUY_ITEM, 20) { }
 
 			WorldPacket const* Write() override;
 
@@ -74,14 +74,14 @@ namespace WorldPackets
             ObjectGuid ItemGUID;
         };
         
-        class OpenItem final : public ClientPacket
+        class PlayerCliOpenItem final : public ClientPacket
         {
         public:
-            OpenItem(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_ITEM, std::move(packet)) { }
+            PlayerCliOpenItem(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_ITEM, std::move(packet)) { }
             
             void Read() override;
-            
-            uint8 ContainerIndex = 0;
+
+            uint8 PackSlot = 0;
             uint8 Slot = 0;
         };
         

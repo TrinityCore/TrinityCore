@@ -26,6 +26,28 @@ namespace WorldPackets
 {
     namespace AuctionHouse
     {
+        class AuctionHello final : public ClientPacket
+        {
+        public:
+            AuctionHello(WorldPacket&& packet) : ClientPacket(CMSG_AUCTION_HELLO, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid;
+        };
+
+        class AuctionHelloResponse final : public ServerPacket
+        {
+        public:
+            AuctionHelloResponse() : ServerPacket(SMSG_AUCTION_HELLO, 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            uint8 OpenForBusiness = true;
+            int32 AuctionID = 0;
+        };
+
         class AuctionCommandResult final : public ServerPacket
         {
             public:

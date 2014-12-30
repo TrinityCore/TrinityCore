@@ -167,7 +167,8 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
 WorldPacket const* WorldPackets::Chat::DefenseMessage::Write()
 {
     _worldPacket << ZoneID;
-    _worldPacket.WriteBits(MessageText.length(), 12);
+    _worldPacket.WriteBits(MessageText.size(), 12);
+    _worldPacket.WriteString(MessageText);
 
     return &_worldPacket;
 }
@@ -190,7 +191,8 @@ void WorldPackets::Chat::CTextEmote::Read()
 WorldPacket const* WorldPackets::Chat::ServerMessage::Write()
 {
     _worldPacket << MessageID;
-    _worldPacket.WriteBits(StringParam.length(), 11);
+    _worldPacket.WriteBits(StringParam.size(), 11);
+    _worldPacket.WriteString(StringParam);
 
     return &_worldPacket;
 }

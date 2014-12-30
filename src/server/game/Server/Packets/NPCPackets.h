@@ -26,17 +26,17 @@ namespace WorldPackets
 {
     namespace NPC
     {
-        class GossipSelectOption final : public ClientPacket
+        class PlayerCliGossipSelectOption final : public ClientPacket
         {
         public:
-            GossipSelectOption(WorldPacket&& packet) : ClientPacket(CMSG_GOSSIP_SELECT_OPTION, std::move(packet)) { }
+            PlayerCliGossipSelectOption(WorldPacket&& packet) : ClientPacket(CMSG_GOSSIP_SELECT_OPTION, std::move(packet)) { }
 
             void Read() override;
 
-            ObjectGuid GUID;
+            ObjectGuid GossipUnit;
             uint32 GossipID = 0;
-            uint32 MenuID = 0;
-            std::string BoxText;
+            uint32 GossipIndex = 0;
+            std::string PromotionCode;
         };
 
         // CMSG_BANKER_ACTIVATE

@@ -73,6 +73,11 @@ class RBACData;
 
 namespace WorldPackets
 {
+    namespace AuctionHouse
+    {
+        class AuctionHello;
+    }
+
     namespace Character
     {
         struct CharacterCreateInfo;
@@ -146,10 +151,10 @@ namespace WorldPackets
 
     namespace Item
 	{
-        class BuyItem;
         class BuyBackItem;
         class ItemRefundInfo;
-        class OpenItem;
+        class PlayerCliOpenItem;
+        class PlayerCliBuyItem;
         class RepairItem;
         class SellItem;
         class SplitItem;
@@ -181,8 +186,8 @@ namespace WorldPackets
 
     namespace NPC
     {
-        class GossipSelectOption;
         class Hello;
+        class PlayerCliGossipSelectOption;
     }
 
     namespace Query
@@ -197,6 +202,7 @@ namespace WorldPackets
 
     namespace Quest
     {
+        class PlayerCliQuestLogRemoveQuest;
         class QuestGiverAcceptQuest;
         class QuestGiverStatusQuery;
         class QuestGiverStatusMultipleQuery;
@@ -206,7 +212,6 @@ namespace WorldPackets
         class QueryQuestInfo;
         class QuestGiverChooseReward;
         class QuestGiverCompleteQuest;
-        class QuestLogRemoveQuest;
     }
 
     namespace Spells
@@ -833,7 +838,7 @@ class WorldSession
         void HandleTrainerBuySpellOpcode(WorldPacket& recvPacket);
         void HandlePetitionShowListOpcode(WorldPacket& recvPacket);
         void HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet);
-        void HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet);
+        void HandleGossipSelectOptionOpcode(WorldPackets::NPC::PlayerCliGossipSelectOption& packet);
         void HandleSpiritHealerActivateOpcode(WorldPacket& recvPacket);
         void HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet);
         void HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet);
@@ -862,7 +867,7 @@ class WorldSession
         void HandleSetTradeItemOpcode(WorldPacket& recvPacket);
         void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
 
-        void HandleAuctionHelloOpcode(WorldPacket& recvPacket);
+        void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHello& packet);
         void HandleAuctionListItems(WorldPacket& recvData);
         void HandleAuctionListBidderItems(WorldPacket& recvData);
         void HandleAuctionSellItem(WorldPacket& recvData);
@@ -890,7 +895,7 @@ class WorldSession
         void HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem);
         void HandleSellItemOpcode(WorldPackets::Item::SellItem& packet);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
-        void HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet);
+        void HandleBuyItemOpcode(WorldPackets::Item::PlayerCliBuyItem& packet);
         void HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet);
         void HandleAutoStoreBagItemOpcode(WorldPacket& recvPacket);
         void HandleReadItem(WorldPacket& recvPacket);
@@ -906,7 +911,7 @@ class WorldSession
         void HandleSetSheathedOpcode(WorldPacket& recvPacket);
 
         void HandleUseItemOpcode(WorldPacket& recvPacket);
-        void HandleOpenItemOpcode(WorldPackets::Item::OpenItem& packet);
+        void HandleOpenItemOpcode(WorldPackets::Item::PlayerCliOpenItem& packet);
         void HandleCastSpellOpcode(WorldPackets::Spells::SpellCastRequest& castRequest);
         void HandleCancelCastOpcode(WorldPacket& recvPacket);
         void HandleCancelAuraOpcode(WorldPacket& recvPacket);
@@ -929,7 +934,7 @@ class WorldSession
         void HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& packet);
         void HandleQuestgiverCancel(WorldPacket& recvData);
         void HandleQuestLogSwapQuest(WorldPacket& recvData);
-        void HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemoveQuest& packet);
+        void HandleQuestLogRemoveQuest(WorldPackets::Quest::PlayerCliQuestLogRemoveQuest& packet);
         void HandleQuestConfirmAccept(WorldPacket& recvData);
         void HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet);
         void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
