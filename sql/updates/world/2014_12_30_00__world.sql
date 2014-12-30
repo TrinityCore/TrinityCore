@@ -1,9 +1,3 @@
-# TrinityCore - WowPacketParser
-# File name: WDB_enUS_19342_2014-12-30_CREATURE_DUMP.pkt
-# Detected build: V6_0_3_19342
-# Parsing date: 12/30/2014 10:55:09
-
--- `creature_difficulty` has empty data.
 UPDATE `creature_difficulty` SET `Flags4`=1116224, `VerifiedBuild`=19342 WHERE `Id` IN (78256, 78257, 78258, 74104, 78259);
 UPDATE `creature_difficulty` SET `Flags3`=25167872, `VerifiedBuild`=19342 WHERE `Id`=79529;
 UPDATE `creature_difficulty` SET `Flags4`=2147483650, `VerifiedBuild`=19342 WHERE `Id` IN (73710, 74397, 69200);
@@ -11,10 +5,6 @@ UPDATE `creature_difficulty` SET `Flags3`=25165824, `VerifiedBuild`=19342 WHERE 
 UPDATE `creature_difficulty` SET `VerifiedBuild`=19342 WHERE `Id` IN (74122, 78248, 78249, 79188, 78250, 78251);
 UPDATE `creature_difficulty` SET `Flags2`=334, `Flags5`=16842752, `VerifiedBuild`=19342 WHERE `Id` IN (79159, 79160, 79161, 79162);
 UPDATE `creature_difficulty` SET `Flags5`=16842752, `VerifiedBuild`=19342 WHERE `Id`=76149;
-
-
--- `creature_difficulty_misc` has empty data.
-
 
 DELETE FROM `creature_template` WHERE `entry`=89649;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `IconName`, `type_flags`, `type_flags2`, `type`, `family`, `rank`, `KillCredit1`, `KillCredit2`, `PetSpellDataId`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `HealthModifier`, `ManaModifier`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `exp_unk`, `VerifiedBuild`) VALUES
@@ -72,7 +62,6 @@ UPDATE `creature_template` SET `HealthModifier`=0.6, `VerifiedBuild`=19342 WHERE
 UPDATE `creature_template` SET `modelid1`=47721, `modelid2`=47722, `modelid3`=47723, `modelid4`=47724, `VerifiedBuild`=19342 WHERE `entry`=87323; -- -Unknown-
 UPDATE `creature_template` SET `IconName`='''wildpetcapturable''', `VerifiedBuild`=19342 WHERE `entry`=89194; -- -Unknown-
 
-
 UPDATE `creature_template` SET `femaleName`='''Scarlet Priestess''' WHERE `entry`=10608;
 UPDATE `creature_template` SET `femaleName`='''Vanessa VanCleef''' WHERE `entry`=42372;
 UPDATE `creature_template` SET `femaleName`='''Hope Saldean''' WHERE `entry`=42749;
@@ -85,5 +74,3 @@ UPDATE `creature_template` SET `femaleName`='''[TEMP MODEL]''' WHERE `entry` IN 
 UPDATE `creature_template` SET `femaleName`='''[Temp Model]''' WHERE `entry`=75203;
 UPDATE `creature_template` SET `femaleName`='''Bigger Warsong Wolf''' WHERE `entry`=81397;
 UPDATE `creature_template` SET `femaleName`='''Senior Airman''' WHERE `entry` IN (83920, 83921);
-
-
