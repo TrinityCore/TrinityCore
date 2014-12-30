@@ -160,6 +160,7 @@ namespace WorldPackets
 
     namespace Misc
     {
+        class AreaTrigger;
         class SetSelection;
         class ViolenceLevel;
         class TimeSyncResponse;
@@ -701,7 +702,7 @@ class WorldSession
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
         void HandleBugOpcode(WorldPacket& recvPacket);
 
-        void HandleAreaTriggerOpcode(WorldPacket& recvPacket);
+        void HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet);
 
         void HandleSetFactionAtWar(WorldPacket& recvData);
         void HandleSetFactionCheat(WorldPacket& recvData);

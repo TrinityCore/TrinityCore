@@ -154,6 +154,18 @@ namespace WorldPackets
             Optional<uint32> RestrictedAccountMaxMoney;
             uint32 DifficultyID     = 0;
         };
+
+        class AreaTrigger final : public ClientPacket
+        {
+        public:
+            AreaTrigger(WorldPacket&& packet) : ClientPacket(CMSG_AREATRIGGER, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 AreaTriggerID = 0;
+            bool Entered = false;
+            bool FromClient = false;
+        };
     }
 }
 
