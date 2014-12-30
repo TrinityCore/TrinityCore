@@ -2903,20 +2903,18 @@ void Player::GiveLevel(uint8 level)
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basehp, basemana);
 
     // send levelup info to client
-    WorldPacket data(SMSG_LEVELUP_INFO, (4+4+MAX_POWERS_PER_CLASS*4+MAX_STATS*4));
-    data << uint32(level);
-    data << uint32(int32(basehp) - int32(GetCreateHealth()));
-    // for (int i = 0; i < MAX_STORED_POWERS; ++i)          // Powers loop (0-10)
-    data << uint32(int32(basemana)   - int32(GetCreateMana()));
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    // end for
-    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
-        data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
+    WorldPackets::Character::LevelUpInfo levelUpInfo;
+    levelUpInfo.Level = uint32(level);
+    levelUpInfo.HealthDelta = uint32(int32(basehp) - int32(GetCreateHealth()));
 
-    GetSession()->SendPacket(&data);
+    // for (int i = 0; i < MAX_STORED_POWERS; ++i)          // Powers loop (0-10)
+        levelUpInfo.PowerDelta = uint32(int32(basemana) - int32(GetCreateMana()));
+    
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
+        levelUpInfo.StatDelta = uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
+
+    levelUpInfo.Cp;
+    GetSession()->SendPacket(levelUpInfo.Write());
 
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(level));
 

@@ -160,6 +160,17 @@ namespace WorldPackets
             bool FakeSenderName = false;
         };
 
+        class DefenseMessage final : public ServerPacket
+        {
+        public:
+            DefenseMessage() : ServerPacket(SMSG_DEFENSE_MESSAGE, 12 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 ZoneID = 0;
+            std::string MessageText;
+        };
+
         class Emote final : public ServerPacket
         {
         public:
@@ -181,6 +192,17 @@ namespace WorldPackets
             ObjectGuid Target;
             int32 EmoteID = 0;
             int32 SoundIndex = -1;
+        };
+
+        class ServerMessage final : public ServerPacket
+        {
+        public:
+            ServerMessage() : ServerPacket(SMSG_SERVER_MESSAGE, 50) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MessageID = 0;
+            std::string StringParam;
         };
 
         class STextEmote final : public ServerPacket

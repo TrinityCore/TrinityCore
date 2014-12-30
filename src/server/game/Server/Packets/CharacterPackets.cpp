@@ -378,9 +378,20 @@ void WorldPackets::Character::LoadingScreenNotify::Read()
     Showing = _worldPacket.ReadBit();
 }
 
+WorldPacket const* WorldPackets::Character::LevelUpInfo::Write()
+{
+    _worldPacket << Level;
+    _worldPacket << HealthDelta;
+    _worldPacket << PowerDelta;
+    _worldPacket << StatDelta;
+    _worldPacket << Cp;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Character::StandStateUpdate::Write()
 {
-	_worldPacket << StandState;
-	return &_worldPacket;
+    _worldPacket << StandState;
+    return &_worldPacket;
 }
 

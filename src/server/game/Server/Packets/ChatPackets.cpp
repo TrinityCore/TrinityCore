@@ -164,6 +164,14 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Chat::DefenseMessage::Write()
+{
+    _worldPacket << ZoneID;
+    _worldPacket.WriteBits(MessageText.length(), 12);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Chat::Emote::Write()
 {
     _worldPacket << Guid;
@@ -177,6 +185,14 @@ void WorldPackets::Chat::CTextEmote::Read()
     _worldPacket >> Target;
     _worldPacket >> EmoteID;
     _worldPacket >> SoundIndex;
+}
+
+WorldPacket const* WorldPackets::Chat::ServerMessage::Write()
+{
+    _worldPacket << MessageID;
+    _worldPacket.WriteBits(StringParam.length(), 11);
+
+    return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Chat::STextEmote::Write()

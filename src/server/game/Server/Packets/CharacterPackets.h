@@ -474,6 +474,20 @@ namespace WorldPackets
             bool Showing = false;
         };
 
+        class LevelUpInfo final : public ServerPacket
+        {
+        public:
+            LevelUpInfo() : ServerPacket(SMSG_LEVELUP_INFO, 4 + 4 + 5 * 4 + 5 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Level;
+            int32 HealthDelta;
+            int32 PowerDelta;
+            int32 StatDelta;
+            int32 Cp;
+        };
+
         class StandStateUpdate final : public ServerPacket
         {
         public:
