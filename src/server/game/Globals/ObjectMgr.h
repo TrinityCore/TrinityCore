@@ -1320,6 +1320,7 @@ class ObjectMgr
         ObjectGuidGenerator<HighGuid::GameObject> _gameObjectGuidGenerator;
         ObjectGuidGenerator<HighGuid::DynamicObject> _dynamicObjectGuidGenerator;
         ObjectGuidGenerator<HighGuid::Corpse> _corpseGuidGenerator;
+        ObjectGuidGenerator<HighGuid::LootObject> _lootObjectGuidGenerator;
         ObjectGuidGenerator<HighGuid::AreaTrigger> _areaTriggerGuidGenerator;
         ObjectGuidGenerator<HighGuid::Transport> _moTransportGuidGenerator;
 

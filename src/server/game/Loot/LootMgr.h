@@ -29,6 +29,19 @@
 #include <vector>
 #include <list>
 
+namespace WorldPackets
+{
+    namespace Loot
+    {
+        class LootResponse;
+    }
+
+    namespace Item
+    {
+        struct ItemInstance;
+    }
+}
+
 enum RollType
 {
     ROLL_PASS         = 0,
@@ -116,7 +129,7 @@ enum LootSlotType
     LOOT_SLOT_TYPE_ROLL_ONGOING = 1,                        // roll is ongoing. player cannot loot.
     LOOT_SLOT_TYPE_MASTER       = 2,                        // item can only be distributed by group loot master.
     LOOT_SLOT_TYPE_LOCKED       = 3,                        // item is shown in red. player cannot loot.
-    LOOT_SLOT_TYPE_OWNER        = 4                         // ignore binding confirmation and etc, for single player looting
+    LOOT_SLOT_TYPE_OWNER        = 4                         // ignore binding confirmation and etc, for single player looting (6.x no longer used)
 };
 
 class Player;
@@ -176,6 +189,8 @@ struct LootItem
     bool AllowedForPlayer(Player const* player) const;
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
+
+    void BuildItemInstance(WorldPackets::Item::ItemInstance& instance) const;
 };
 
 struct QuestItem
@@ -301,15 +316,9 @@ class LootValidatorRefManager : public RefManager<Loot, LootValidatorRef>
 };
 
 //=====================================================
-struct LootView;
-
-ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li);
-ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
 
 struct Loot
 {
-    friend ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
-
     QuestItemMap const& GetPlayerQuestItems() const { return PlayerQuestItems; }
     QuestItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
     QuestItemMap const& GetPlayerNonQuestNonFFAConditionalItems() const { return PlayerNonQuestNonFFAConditionalItems; }
@@ -328,6 +337,9 @@ struct Loot
 
     Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(), loot_type(LOOT_CORPSE), maxDuplicates(1) { }
     ~Loot() { clear(); }
+
+    ObjectGuid const& GetGUID() const { return _GUID; }
+    void SetGUID(ObjectGuid const& guid) { _GUID = guid; }
 
     // For deleting items at loot removal since there is no backward interface to the Item()
     void DeleteLootItemFromContainerItemDB(uint32 itemID);
@@ -384,28 +396,26 @@ struct Loot
     bool hasItemFor(Player* player) const;
     bool hasOverThresholdItem() const;
 
-    private:
-        void FillNotNormalLootFor(Player* player, bool presentAtLooting);
-        QuestItemList* FillFFALoot(Player* player);
-        QuestItemList* FillQuestLoot(Player* player);
-        QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
+    // Builds data for SMSG_LOOT_RESPONSE
+    void BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* viewer, PermissionTypes permission = ALL_PERMISSION) const;
 
-        GuidSet PlayersLooting;
-        QuestItemMap PlayerQuestItems;
-        QuestItemMap PlayerFFAItems;
-        QuestItemMap PlayerNonQuestNonFFAConditionalItems;
+private:
 
-        // All rolls are registered here. They need to know, when the loot is not valid anymore
-        LootValidatorRefManager i_LootValidatorRefManager;
-};
+    void FillNotNormalLootFor(Player* player, bool presentAtLooting);
+    QuestItemList* FillFFALoot(Player* player);
+    QuestItemList* FillQuestLoot(Player* player);
+    QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
-struct LootView
-{
-    Loot &loot;
-    Player* viewer;
-    PermissionTypes permission;
-    LootView(Loot &_loot, Player* _viewer, PermissionTypes _permission = ALL_PERMISSION)
-        : loot(_loot), viewer(_viewer), permission(_permission) { }
+    GuidSet PlayersLooting;
+    QuestItemMap PlayerQuestItems;
+    QuestItemMap PlayerFFAItems;
+    QuestItemMap PlayerNonQuestNonFFAConditionalItems;
+
+    // All rolls are registered here. They need to know, when the loot is not valid anymore
+    LootValidatorRefManager i_LootValidatorRefManager;
+
+    // Loot GUID
+    ObjectGuid _GUID;
 };
 
 extern LootStore LootTemplates_Creature;

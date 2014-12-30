@@ -2285,7 +2285,7 @@ class Player : public Unit, public GridObject<Player>
         void SendLoot(ObjectGuid guid, LootType loot_type);
         void SendLootError(ObjectGuid guid, LootError error);
         void SendLootRelease(ObjectGuid guid);
-        void SendNotifyLootItemRemoved(uint8 lootSlot);
+        void SendNotifyLootItemRemoved(ObjectGuid owner, ObjectGuid lootObj, uint8 lootSlot);
         void SendNotifyLootMoneyRemoved();
 
         /*********************************************************/

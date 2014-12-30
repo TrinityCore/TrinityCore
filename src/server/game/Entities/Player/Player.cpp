@@ -91,6 +91,7 @@
 #include "MovementPackets.h"
 #include "ItemPackets.h"
 #include "QuestPackets.h"
+#include "LootPackets.h"
 #include <boost/dynamic_bitset.hpp>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -8913,11 +8914,16 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
     {
         SetLootGUID(guid);
 
-        WorldPacket data(SMSG_LOOT_RESPONSE, (9 + 50));           // we guess size
-        data << guid;
-        data << uint8(loot_type);
-        data << LootView(*loot, this, permission);
-        SendDirectMessage(&data);
+        WorldPackets::Loot::LootResponse packet;
+        packet.LootObj = guid;
+        packet.Owner = loot->GetGUID();
+        packet.LootMethod = loot_type;
+        if (!GetGroup())
+            packet.PersonalLooting = true;
+        else
+            packet.PersonalLooting = false;
+        loot->BuildLootResponse(packet, this, permission);
+        SendDirectMessage(packet.Write());
 
         // add 'this' player as one of the players that are looting 'loot'
         loot->AddLooter(GetGUID());
@@ -8944,11 +8950,14 @@ void Player::SendNotifyLootMoneyRemoved()
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendNotifyLootItemRemoved(uint8 lootSlot)
+void Player::SendNotifyLootItemRemoved(ObjectGuid owner, ObjectGuid lootObj, uint8 lootSlot)
 {
-    WorldPacket data(SMSG_LOOT_REMOVED, 1);
-    data << uint8(lootSlot);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Loot::LootRemoved packet;
+    packet.Owner = owner;
+    packet.LootObj = lootObj;
+    // Since 6.x client expects loot to be starting from 1 hence the +1
+    packet.LootListID = lootSlot+1;
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::SendUpdateWorldState(uint32 variable, uint32 value, bool hidden /*= false*/)
@@ -25033,7 +25042,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
             qitem->is_looted = true;
             //freeforall is 1 if everyone's supposed to get the quest item.
             if (item->freeforall || loot->GetPlayerQuestItems().size() == 1)
-                SendNotifyLootItemRemoved(lootSlot);
+                SendNotifyLootItemRemoved(GetLootGUID(), loot->GetGUID(), lootSlot);
             else
                 loot->NotifyQuestItemRemoved(qitem->index);
         }
@@ -25043,7 +25052,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
             {
                 //freeforall case, notify only one player of the removal
                 ffaitem->is_looted = true;
-                SendNotifyLootItemRemoved(lootSlot);
+                SendNotifyLootItemRemoved(GetLootGUID(), loot->GetGUID(), lootSlot);
             }
             else
             {
