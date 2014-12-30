@@ -33,71 +33,74 @@
 #include "LootPackets.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLootItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
     ObjectGuid lguid = player->GetLootGUID();
-    Loot* loot = NULL;
-    uint8 lootSlot = 0;
 
-    recvData >> lootSlot;
-
-    if (lguid.IsGameObject())
+    /// @todo Implement looting by LootObject guid
+    for (WorldPackets::Loot::LootRequest const& req : packet.Loot)
     {
-        GameObject* go = player->GetMap()->GetGameObject(lguid);
+        Loot* loot = NULL;
 
-        // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-        if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player, INTERACTION_DISTANCE)))
+        if (lguid.IsGameObject())
         {
-            player->SendLootRelease(lguid);
-            return;
+            GameObject* go = player->GetMap()->GetGameObject(lguid);
+
+            // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
+            if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player, INTERACTION_DISTANCE)))
+            {
+                player->SendLootRelease(lguid);
+                continue;
+            }
+
+            loot = &go->loot;
+        }
+        else if (lguid.IsItem())
+        {
+            Item* pItem = player->GetItemByGuid(lguid);
+
+            if (!pItem)
+            {
+                player->SendLootRelease(lguid);
+                continue;
+            }
+
+            loot = &pItem->loot;
+        }
+        else if (lguid.IsCorpse())
+        {
+            Corpse* bones = ObjectAccessor::GetCorpse(*player, lguid);
+            if (!bones)
+            {
+                player->SendLootRelease(lguid);
+                continue;
+            }
+
+            loot = &bones->loot;
+        }
+        else
+        {
+            Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
+
+            bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
+            if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+            {
+                player->SendLootError(lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
+                continue;
+            }
+
+            loot = &creature->loot;
         }
 
-        loot = &go->loot;
+        // Since 6.x client sends loot starting from 1 hence the -1
+        player->StoreLootItem(req.LootListID-1, loot);
+
+        // If player is removing the last LootItem, delete the empty container.
+        if (loot->isLooted() && lguid.IsItem())
+            player->GetSession()->DoLootRelease(lguid);
     }
-    else if (lguid.IsItem())
-    {
-        Item* pItem = player->GetItemByGuid(lguid);
-
-        if (!pItem)
-        {
-            player->SendLootRelease(lguid);
-            return;
-        }
-
-        loot = &pItem->loot;
-    }
-    else if (lguid.IsCorpse())
-    {
-        Corpse* bones = ObjectAccessor::GetCorpse(*player, lguid);
-        if (!bones)
-        {
-            player->SendLootRelease(lguid);
-            return;
-        }
-
-        loot = &bones->loot;
-    }
-    else
-    {
-        Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
-
-        bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
-        if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
-        {
-            player->SendLootError(lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
-            return;
-        }
-
-        loot = &creature->loot;
-    }
-
-    player->StoreLootItem(lootSlot, loot);
-
-    // If player is removing the last LootItem, delete the empty container.
-    if (loot->isLooted() && lguid.IsItem())
-        player->GetSession()->DoLootRelease(lguid);
 }
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
