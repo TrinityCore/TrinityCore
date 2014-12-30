@@ -839,33 +839,30 @@ void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
     SendPacket(&data);
 }
 
-void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
+void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet)
 {
-    uint32 triggerId;
-    recvData >> triggerId;
-
-    TC_LOG_DEBUG("network", "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
+    TC_LOG_DEBUG("network", "CMSG_AREATRIGGER. Trigger ID: %u", packet.AreaTriggerID);
 
     Player* player = GetPlayer();
     if (player->IsInFlight())
     {
         TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) in flight, ignore Area Trigger ID:%u",
-            player->GetName().c_str(), player->GetGUID().ToString().c_str(), triggerId);
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), packet.AreaTriggerID);
         return;
     }
 
-    AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
+    AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(packet.AreaTriggerID);
     if (!atEntry)
     {
         TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) send unknown (by DBC) Area Trigger ID:%u",
-            player->GetName().c_str(), player->GetGUID().ToString().c_str(), triggerId);
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), packet.AreaTriggerID);
         return;
     }
 
     if (player->GetMapId() != atEntry->MapID)
     {
         TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
-            player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->MapID, player->GetMapId(), triggerId);
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->MapID, player->GetMapId(), packet.AreaTriggerID);
         return;
     }
 
@@ -879,7 +876,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         if (dist > atEntry->Radius + delta)
         {
             TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
-                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->Radius, dist, triggerId);
+                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->Radius, dist, packet.AreaTriggerID);
             return;
         }
     }
@@ -910,20 +907,20 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
             (std::fabs(dz) > atEntry->BoxHeight / 2 + delta))
         {
             TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
-                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->BoxLength / 2, atEntry->BoxWidth / 2, atEntry->BoxHeight / 2, rotPlayerX, rotPlayerY, dz, triggerId);
+                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->BoxLength / 2, atEntry->BoxWidth / 2, atEntry->BoxHeight / 2, rotPlayerX, rotPlayerY, dz, packet.AreaTriggerID);
             return;
         }
     }
 
     if (player->isDebugAreaTriggers)
-        ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, triggerId);
+        ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, packet.AreaTriggerID);
 
     if (sScriptMgr->OnAreaTrigger(player, atEntry))
         return;
 
     if (player->IsAlive())
     {
-        if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(triggerId))
+        if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(packet.AreaTriggerID))
         {
             Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
             if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
@@ -943,7 +940,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         }
     }
 
-    if (sObjectMgr->IsTavernAreaTrigger(triggerId))
+    if (sObjectMgr->IsTavernAreaTrigger(packet.AreaTriggerID))
     {
         // set resting flag we are in the inn
         player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
@@ -958,13 +955,13 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 
     if (Battleground* bg = player->GetBattleground())
         if (bg->GetStatus() == STATUS_IN_PROGRESS)
-            bg->HandleAreaTrigger(player, triggerId);
+            bg->HandleAreaTrigger(player, packet.AreaTriggerID);
 
     if (OutdoorPvP* pvp = player->GetOutdoorPvP())
-        if (pvp->HandleAreaTrigger(_player, triggerId))
+        if (pvp->HandleAreaTrigger(_player, packet.AreaTriggerID))
             return;
 
-    AreaTriggerStruct const* at = sObjectMgr->GetAreaTrigger(triggerId);
+    AreaTriggerStruct const* at = sObjectMgr->GetAreaTrigger(packet.AreaTriggerID);
     if (!at)
         return;
 
