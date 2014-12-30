@@ -365,7 +365,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     {
         // We can not log here, as we do not know the account. Thus, no accountId.
         SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (unknown account %s).", account.c_str());
         DelayedCloseSocket();
         return;
     }

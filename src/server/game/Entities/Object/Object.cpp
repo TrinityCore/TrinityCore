@@ -339,7 +339,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     uint16 movementFlagsExtra = 0;
 
     bool hasTransportTime2 = false;
-    bool hasTransportTime3 = false;
+    bool hasVehicleId = false;
     bool hasFallDirection = false;
     bool hasFallData = false;
     bool hasPitch = false;
@@ -376,7 +376,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         hasSpline = self->IsSplineEnabled();
 
         hasTransportTime2 = self->m_movementInfo.transport.guid != 0 && self->m_movementInfo.transport.time2 != 0;
-        hasTransportTime3 = false;
+        hasVehicleId = false;
         hasPitch = self->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || self->HasExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
         hasFallDirection = self->HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
         hasFallData = hasFallDirection || self->m_movementInfo.jump.fallTime != 0;
@@ -411,7 +411,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             data->WriteBit(transGuid[4]);
             data->WriteBit(transGuid[0]);
             data->WriteBit(transGuid[6]);
-            data->WriteBit(hasTransportTime3);                                  // Has transport time 3
+            data->WriteBit(hasVehicleId);                                  // Has transport time 3
             data->WriteBit(transGuid[7]);
             data->WriteBit(transGuid[5]);
             data->WriteBit(transGuid[3]);
@@ -523,8 +523,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             data->WriteByteSeq(transGuid[3]);
             *data << float(self->GetTransOffsetZ());
             data->WriteByteSeq(transGuid[0]);
-            if (hasTransportTime3)
-                *data << uint32(self->m_movementInfo.transport.time3);
+            if (hasVehicleId)
+                *data << uint32(self->m_movementInfo.transport.vehicleId);
 
             *data << int8(self->GetTransSeat());
             data->WriteByteSeq(transGuid[1]);
@@ -573,8 +573,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         data->WriteBit(transGuid[0]);
         data->WriteBit(transGuid[5]);
-        if (hasTransportTime3)
-            *data << uint32(self->m_movementInfo.transport.time3);
+        if (hasVehicleId)
+            *data << uint32(self->m_movementInfo.transport.vehicleId);
 
         data->WriteBit(transGuid[3]);
         *data << float(self->GetTransOffsetX());
@@ -1265,8 +1265,8 @@ void MovementInfo::OutDebug()
         TC_LOG_INFO("misc", "time: %u", transport.time);
         if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
             TC_LOG_INFO("misc", "time2: %u", transport.time2);
-        if (transport.time3)
-            TC_LOG_INFO("misc", "time3: %u", transport.time3);
+        if (transport.vehicleId)
+            TC_LOG_INFO("misc", "vehicleId: %u", transport.vehicleId);
     }
 
     if ((flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
