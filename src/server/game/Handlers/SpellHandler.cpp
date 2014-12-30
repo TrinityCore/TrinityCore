@@ -192,7 +192,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleOpenItemOpcode(WorldPackets::Item::OpenItem& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_OPEN_ITEM packet");
+    TC_LOG_DEBUG("network", "HandleOpenItemOpcode: ContainerIndex: %u, Slot: %u", packet.ContainerIndex, packet.Slot);
 
     Player* pUser = _player;
 
