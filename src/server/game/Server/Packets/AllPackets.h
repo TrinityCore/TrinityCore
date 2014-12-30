@@ -19,6 +19,7 @@
 #define TRINITYCORE_ALL_PACKETS_H
 
 #include "AchievementPackets.h"
+#include "AreaTriggerPackets.h"
 #include "AuthenticationPackets.h"
 #include "BankPackets.h"
 #include "BattlegroundPackets.h"
