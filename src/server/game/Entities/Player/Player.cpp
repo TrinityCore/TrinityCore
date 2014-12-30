@@ -13030,18 +13030,30 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
     }
 }
 
-void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint32 itemid)
+void Player::SendEquipError(InventoryResult msg, Item* item1 /*= nullptr*/, Item* item2 /*= nullptr*/, uint32 itemId /*= 0*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_INVENTORY_CHANGE_FAILURE (%u)", msg);
 
-    WorldPackets::Item::EquipError error;
-    error.msg = msg;
-    error.itemGUID1 = pItem ? pItem->GetGUID() : ObjectGuid::Empty;
-    error.itemGUID2 = pItem2 ? pItem2->GetGUID() : ObjectGuid::Empty;
+    WorldPackets::Item::InventoryChangeFailure failure;
+    failure.BagResult = msg;
 
-    error.level = uint32(pItem ? pItem->GetRequiredLevel() : 0);
+    if (item1)
+    {
+        failure.Item[0] = item1->GetGUID();
+        failure.Level = uint32(item1->GetRequiredLevel());
+    }
 
-    GetSession()->SendPacket(error.Write());
+    if (item2)
+        failure.Item[1] = item2->GetGUID();
+
+    /// @todo: fill remaining values:
+    /// ContainerBSlot
+    /// SrcContainer
+    /// DstContainer
+    /// SrcSlot
+    /// LimitCategory
+
+    SendDirectMessage(failure.Write());
 }
 
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 /*param*/)

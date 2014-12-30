@@ -94,14 +94,14 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid QuestGiver;
-            int32 QuestID;
+            int32 QuestID = 0;
         };
 
         struct QuestInfoChoiceItem
         {
-            int32 ItemID;
-            int32 Quantity;
-            int32 DisplayID;
+            int32 ItemID = 0;
+            int32 Quantity = 0;
+            int32 DisplayID = 0;
         };
 
         struct QuestInfo
@@ -392,6 +392,18 @@ namespace WorldPackets
 
             ObjectGuid QuestGiverGUID;
             int32 QuestID = 0;
+        };
+
+        class QuestGiverQueryQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverQueryQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_QUERY_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID = 0;
+            bool RespondToGiver = false;
         };
     }
 }
