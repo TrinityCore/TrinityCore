@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "ItemPackets.h"
 
 namespace WorldPackets
 {
@@ -33,6 +34,75 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Unit;
+        };
+
+        struct LootItem
+        {
+            uint8 Type              = 0;
+            uint8 UIType            = 0;
+            uint32 Quantity         = 0;
+            uint8 LootItemType      = 0;
+            uint8 LootListID        = 0;
+            bool CanTradeToTapList  = false;
+            WorldPackets::Item::ItemInstance Loot;
+        };
+
+        struct LootCurrency
+        {
+            uint32 CurrencyID   = 0;
+            uint32 Quantity     = 0;
+            uint8 LootListID    = 0;
+            uint8 UIType        = 0;
+        };
+
+        class LootResponse final : public ServerPacket
+        {
+        public:
+            LootResponse() : ServerPacket(SMSG_LOOT_RESPONSE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            ObjectGuid Owner;
+            uint8 Threshold     = 17; // Most common value
+            uint8 LootMethod    = 0;
+            uint8 AcquireReason = 0;
+            uint8 FailureReason = 2; // Most common value
+            uint32 Coins        = 0;
+            std::vector<LootItem> Items;
+            std::vector<LootCurrency> Currencies;
+            bool PersonalLooting = false;
+            bool Acquired        = false;
+            bool AELooting      = false;
+        };
+
+        struct LootRequest
+        {
+            ObjectGuid Object;
+            uint8 LootListID = 0;
+        };
+
+        // PlayerCliLootItem
+        class AutoStoreLootItem final : public ClientPacket
+        {
+        public:
+            AutoStoreLootItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_LOOT_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            std::vector<LootRequest> Loot;
+        };
+
+        class LootRemoved final : public ServerPacket
+        {
+        public:
+            LootRemoved() : ServerPacket(SMSG_LOOT_REMOVED, 30) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            ObjectGuid Owner;
+            uint8 LootListID = 0;
         };
     }
 }
