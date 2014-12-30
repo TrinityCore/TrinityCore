@@ -1950,9 +1950,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<ItemSetEffect*> ItemSetEff;
 
         void SendLoot(ObjectGuid guid, LootType loot_type);
-        void SendLootError(ObjectGuid guid, LootError error) const;
+        void SendLootError(ObjectGuid const& owner, LootError error) const;
         void SendLootRelease(ObjectGuid guid) const;
-        void SendNotifyLootItemRemoved(uint8 lootSlot) const;
+        void SendNotifyLootItemRemoved(uint8 lootListId) const;
         void SendNotifyLootMoneyRemoved() const;
 
         /*********************************************************/

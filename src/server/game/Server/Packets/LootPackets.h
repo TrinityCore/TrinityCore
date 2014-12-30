@@ -34,6 +34,51 @@ namespace WorldPackets
 
             ObjectGuid Unit;
         };
+
+        struct LootItemData
+        {
+            uint8 LootListID = 0;
+            uint8 UIType = 0;
+            uint32 ItemID = 0;
+            uint32 Quantity = 0;
+            uint32 ItemDisplayInfoID = 0;
+            int32 RandomPropertiesSeed = 0;
+            int32 RandomPropertiesID = 0;
+        };
+
+        class LootResponse final : public ServerPacket
+        {
+        public:
+            explicit LootResponse() : ServerPacket(SMSG_LOOT_RESPONSE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Owner;
+            uint8 AcquireReason  = 0;
+            uint8 FailureReason  = 17;
+            uint32 Coins = 0;
+            std::vector<LootItemData> Items;
+        };
+
+        class LootItem final : public ClientPacket
+        {
+        public:
+            explicit LootItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_LOOT_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 LootListID = 0;
+        };
+
+        class LootRemoved final : public ServerPacket
+        {
+        public:
+            explicit LootRemoved() : ServerPacket(SMSG_LOOT_REMOVED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 LootListID = 0;
+        };
     }
 }
 
