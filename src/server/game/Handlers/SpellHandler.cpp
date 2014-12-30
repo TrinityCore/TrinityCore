@@ -200,8 +200,6 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Item::OpenItem& packet)
     if (pUser->m_mover != pUser)
         return;
 
-    TC_LOG_INFO("network", "bagIndex: %u, slot: %u", packet.ContainerIndex, packet.Slot);
-
     Item* item = pUser->GetItemByPos(packet.ContainerIndex, packet.Slot);
     if (!item)
     {
