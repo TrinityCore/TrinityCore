@@ -131,6 +131,22 @@ namespace WorldPackets
             int32 ZoneChannelID = 0;
             std::string ChannelName;
         };
+
+        class ChannelMisc1 final : public ClientPacket
+        {
+        public:
+            ChannelMisc1(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            {
+                ASSERT(packet.GetOpcode() == CMSG_CHANNEL_KICK || packet.GetOpcode() == CMSG_CHANNEL_BAN || packet.GetOpcode() == CMSG_CHANNEL_UNBAN
+                    || packet.GetOpcode() == CMSG_CHANNEL_MUTE || packet.GetOpcode() == CMSG_CHANNEL_UNMUTE || packet.GetOpcode() == CMSG_CHANNEL_INVITE
+                    || packet.GetOpcode() == CMSG_CHANNEL_MODERATOR || packet.GetOpcode() == CMSG_CHANNEL_UNMODERATOR || packet.GetOpcode() == CMSG_CHANNEL_SET_OWNER);
+            }
+
+            void Read() override;
+
+            std::string Name;
+            std::string ChannelName;
+        };
     }
 }
 

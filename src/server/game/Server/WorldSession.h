@@ -107,6 +107,7 @@ namespace WorldPackets
         class ChannelListRequest;
         class JoinChannel;
         class LeaveChannel;
+        class ChannelMisc1;
     }
 
     namespace Chat
@@ -958,16 +959,16 @@ class WorldSession
         void HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet);
         void HandleChannelList(WorldPackets::Channel::ChannelListRequest& packet);
         void HandleChannelPassword(WorldPacket& recvPacket);
-        void HandleChannelSetOwner(WorldPacket& recvPacket);
+        void HandleChannelSetOwner(WorldPackets::Channel::ChannelMisc1& packet);
         void HandleChannelOwner(WorldPacket& recvPacket);
-        void HandleChannelModerator(WorldPacket& recvPacket);
-        void HandleChannelUnmoderator(WorldPacket& recvPacket);
-        void HandleChannelMute(WorldPacket& recvPacket);
-        void HandleChannelUnmute(WorldPacket& recvPacket);
-        void HandleChannelInvite(WorldPacket& recvPacket);
-        void HandleChannelKick(WorldPacket& recvPacket);
-        void HandleChannelBan(WorldPacket& recvPacket);
-        void HandleChannelUnban(WorldPacket& recvPacket);
+        void HandleChannelModerator(WorldPackets::Channel::ChannelMisc1& packet);
+        void HandleChannelUnmoderator(WorldPackets::Channel::ChannelMisc1& packet);
+        void HandleChannelMute(WorldPackets::Channel::ChannelMisc1& packet);
+        void HandleChannelUnmute(WorldPackets::Channel::ChannelMisc1& packet);
+        void HandleChannelInvite(WorldPackets::Channel::ChannelMisc1& packet);
+        void HandleChannelKick(WorldPackets::Channel::ChannelMisc1& packet);
+        void HandleChannelBan(WorldPackets::Channel::ChannelMisc1& packet);
+        void HandleChannelUnban(WorldPackets::Channel::ChannelMisc1& packet);
         void HandleChannelAnnouncements(WorldPacket& recvPacket);
         void HandleChannelModerate(WorldPacket& recvPacket);
         void HandleChannelDeclineInvite(WorldPacket& recvPacket);
