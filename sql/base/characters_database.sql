@@ -408,7 +408,7 @@ DROP TABLE IF EXISTS `character_achievement_progress`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_achievement_progress` (
   `guid` bigint(20) unsigned NOT NULL,
-  `criteria` smallint(5) unsigned NOT NULL,
+  `criteria` int(10) unsigned NOT NULL,
   `counter` bigint(20) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`criteria`)
@@ -1816,7 +1816,7 @@ DROP TABLE IF EXISTS `guild_achievement_progress`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_achievement_progress` (
   `guildId` bigint(20) unsigned NOT NULL,
-  `criteria` smallint(5) unsigned NOT NULL,
+  `criteria` int(10) unsigned NOT NULL,
   `counter` bigint(20) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   `completedGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
