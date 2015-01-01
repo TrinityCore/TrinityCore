@@ -168,6 +168,7 @@ extern DBCStorage <GemPropertiesEntry>           sGemPropertiesStore;
 extern DBCStorage <GlyphPropertiesEntry>         sGlyphPropertiesStore;
 extern DBCStorage <GlyphSlotEntry>               sGlyphSlotStore;
 
+extern GameTable <GtArmorMitigationByLvlEntry>  sGtArmorMitigationByLvlStore;
 extern GameTable <GtBarberShopCostBaseEntry>    sGtBarberShopCostBaseStore;
 extern GameTable <GtCombatRatingsEntry>         sGtCombatRatingsStore;
 extern GameTable <GtChanceToMeleeCritBaseEntry> sGtChanceToMeleeCritBaseStore;

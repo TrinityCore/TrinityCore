@@ -720,6 +720,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapOverlayStore,        dbcPath, "WorldMapOverlay.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,          dbcPath, "WorldSafeLocs.dbc"); // 19116
 
+    LoadGameTable(bad_dbc_files, "ArmorMitigationByLvl", sGtArmorMitigationByLvlStore, dbcPath, "gtArmorMitigationByLvl.dbc");//19342
     LoadGameTable(bad_dbc_files, "BarberShopCostBase", sGtBarberShopCostBaseStore, dbcPath, "gtBarberShopCostBase.dbc");//19342
     LoadGameTable(bad_dbc_files, "CombatRatings", sGtCombatRatingsStore, dbcPath, "gtCombatRatings.dbc");//19342
     LoadGameTable(bad_dbc_files, "ChanceToMeleeCritBase", sGtChanceToMeleeCritBaseStore, dbcPath, "gtChanceToMeleeCritBase.dbc");//19342

@@ -945,6 +945,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         return;
 
     Unit* victim = damageInfo->target;
+    Unit* attacker = damageInfo->attacker;
     if (!victim || !victim->IsAlive())
         return;
 
@@ -954,7 +955,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     if (!(spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
     {
         if (IsDamageReducedByArmor(damageSchoolMask, spellInfo))
-            damage = CalcArmorReducedDamage(victim, damage, spellInfo, attackType);
+            damage = CalcArmorReducedDamage(attacker, victim, damage, spellInfo, attackType);
 
         bool blocked = false;
         // Per-school calc
@@ -1074,6 +1075,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss)
 /// @todo for melee need create structure as in
 void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* damageInfo, WeaponAttackType attackType)
 {
+    Unit* attacker = damageInfo->attacker;
     damageInfo->attacker         = this;
     damageInfo->target           = victim;
     damageInfo->damageSchoolMask = GetMeleeDamageSchoolMask();
@@ -1136,7 +1138,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
     {
-        damageInfo->damage = CalcArmorReducedDamage(damageInfo->target, damage, NULL, damageInfo->attackType);
+        damageInfo->damage = CalcArmorReducedDamage(attacker, damageInfo->target, damage, NULL, damageInfo->attackType);
         damageInfo->cleanDamage += damage - damageInfo->damage;
     }
     else
@@ -1425,7 +1427,7 @@ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* s
     return true;
 }
 
-uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType /*attackType*/)
+uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType /*attackType*/)
 {
     float armor = float(victim->GetArmor());
 
@@ -1446,44 +1448,28 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
 
     AuraEffectList const& resIgnoreAuras = GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
     for (AuraEffectList::const_iterator j = resIgnoreAuras.begin(); j != resIgnoreAuras.end(); ++j)
-    {
+        {
         if ((*j)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
             armor = std::floor(AddPct(armor, -(*j)->GetAmount()));
-    }
-
-    // Apply Player CR_ARMOR_PENETRATION rating
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        float maxArmorPen = 0;
-        if (victim->getLevel() < 60)
-            maxArmorPen = float(400 + 85 * victim->getLevel());
-        else
-            maxArmorPen = 400 + 85 * victim->getLevel() + 4.5f * 85 * (victim->getLevel() - 59);
-
-        // Cap armor penetration to this number
-        maxArmorPen = std::min((armor + maxArmorPen) / 3, armor);
-        // Figure out how much armor do we ignore
-        float armorPen = CalculatePct(maxArmorPen, ToPlayer()->GetRatingBonusValue(CR_ARMOR_PENETRATION));
-        // Got the value, apply it
-        armor -= std::min(armorPen, maxArmorPen);
-    }
+        }
 
     if (armor < 0.0f)
         armor = 0.0f;
 
-    float levelModifier = getLevel();
-    if (levelModifier > 59)
-        levelModifier = levelModifier + 4.5f * (levelModifier - 59);
+    uint32 K{};
+    uint8 attackerLevel = attacker->getLevel();
+    if (attackerLevel > sGtArmorMitigationByLvlStore.GetTableRowCount())
+        attackerLevel = sGtArmorMitigationByLvlStore.GetTableRowCount();
 
-    float tmpvalue = 0.1f * armor / (8.5f * levelModifier + 40);
-    tmpvalue = tmpvalue / (1.0f + tmpvalue);
+    GtArmorMitigationByLvlEntry const* ambl = sGtArmorMitigationByLvlStore.EvaluateTable(attackerLevel - 1, 0);
 
-    if (tmpvalue < 0.0f)
-        tmpvalue = 0.0f;
-    if (tmpvalue > 0.75f)
-        tmpvalue = 0.75f;
+    if (!ambl)                                                // not possible
+        return damage;
 
-    return std::max<uint32>(damage * (1.0f - tmpvalue), 1);
+    K += ambl->KFactor;
+    float mitigation = armor / (armor + K);
+
+    return std::max<uint32>(damage * (1.0f - mitigation), 1);
 }
 
 uint32 Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo) const

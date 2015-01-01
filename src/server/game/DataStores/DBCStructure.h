@@ -794,6 +794,12 @@ struct GlyphSlotEntry
     //uint32    Tooltip;                                    // 2
 };
 
+struct GtArmorMitigationByLvlEntry
+{
+    //uint32 level;                                         // 0
+    uint32 KFactor;                                         // 1 KFactor
+};
+
 struct GtBarberShopCostBaseEntry
 {
     //uint32 level;
