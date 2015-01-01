@@ -866,7 +866,6 @@ enum OpcodeServer : uint32
     SMSG_DEBUG_RUNE_REGEN                             = 0xBADD,
     SMSG_DEBUG_SERVER_GEO                             = 0xBADD,
     SMSG_DEFENSE_MESSAGE                              = 0xBADD,
-    SMSG_DESTROY_OBJECT                               = 0xBADD,
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                 = 0xBADD,
     SMSG_DIFFERENT_INSTANCE_FROM_PARTY                = 0xBADD,
     SMSG_DISENCHANT_CREDIT                            = 0xBADD,
