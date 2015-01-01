@@ -284,22 +284,9 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
     data->AddOutOfRangeGUID(GetGUID());
 }
 
-void Object::DestroyForPlayer(Player* target, bool onDeath) const
+void Object::DestroyForPlayer(Player* target) const
 {
     ASSERT(target);
-
-    if (isType(TYPEMASK_UNIT) || isType(TYPEMASK_PLAYER))
-    {
-        if (Battleground* bg = target->GetBattleground())
-        {
-            if (bg->isArena())
-            {
-                WorldPacket data(SMSG_ARENA_UNIT_DESTROYED, 8);
-                data << GetGUID();
-                target->GetSession()->SendPacket(&data);
-            }
-        }
-    }
 
     UpdateData updateData(target->GetMapId());
     BuildOutOfRangeUpdateBlock(&updateData);

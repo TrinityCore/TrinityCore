@@ -28,7 +28,7 @@ class SQLQueryHolder
         std::vector<SQLResultPair> m_queries;
     public:
         SQLQueryHolder() { }
-        ~SQLQueryHolder();
+        virtual ~SQLQueryHolder();
         bool SetQuery(size_t index, const char *sql);
         bool SetPQuery(size_t index, const char *format, ...) ATTR_PRINTF(3, 4);
         bool SetPreparedQuery(size_t index, PreparedStatement* stmt);

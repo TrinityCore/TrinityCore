@@ -4270,9 +4270,9 @@ void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     Unit::BuildCreateUpdateBlockForPlayer(data, target);
 }
 
-void Player::DestroyForPlayer(Player* target, bool onDeath) const
+void Player::DestroyForPlayer(Player* target) const
 {
-    Unit::DestroyForPlayer(target, onDeath);
+    Unit::DestroyForPlayer(target);
 
     for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
     {

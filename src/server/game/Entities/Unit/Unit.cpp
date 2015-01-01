@@ -16155,7 +16155,6 @@ bool Unit::IsSplineEnabled() const
     return movespline->Initialized() && !movespline->Finalized();
 }
 
-
 void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
 {
     if (!target)
@@ -16332,6 +16331,21 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     *data << uint8(updateMask.GetBlockCount());
     updateMask.AppendToPacket(data);
     data->append(fieldBuffer);
+}
+
+void Unit::DestroyForPlayer(Player* target) const
+{
+    if (Battleground* bg = target->GetBattleground())
+    {
+        if (bg->isArena())
+        {
+            WorldPacket data(SMSG_ARENA_UNIT_DESTROYED, 8);
+            data << GetGUID();
+            target->GetSession()->SendPacket(&data);
+        }
+    }
+
+    WorldObject::DestroyForPlayer(target);
 }
 
 void Unit::BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 spellId, uint32 cooldown)
