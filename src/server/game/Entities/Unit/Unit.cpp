@@ -1448,10 +1448,10 @@ uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 d
 
     AuraEffectList const& resIgnoreAuras = GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
     for (AuraEffectList::const_iterator j = resIgnoreAuras.begin(); j != resIgnoreAuras.end(); ++j)
-        {
+    {
         if ((*j)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
             armor = std::floor(AddPct(armor, -(*j)->GetAmount()));
-        }
+    }
 
     if (armor < 0.0f)
         armor = 0.0f;
