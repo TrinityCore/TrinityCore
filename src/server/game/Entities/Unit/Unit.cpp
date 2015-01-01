@@ -1456,7 +1456,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 d
     if (armor < 0.0f)
         armor = 0.0f;
 
-    uint32 K{};
+    uint32 K = 0;
     uint8 attackerLevel = attacker->getLevel();
     if (attackerLevel > sGtArmorMitigationByLvlStore.GetTableRowCount())
         attackerLevel = sGtArmorMitigationByLvlStore.GetTableRowCount();
