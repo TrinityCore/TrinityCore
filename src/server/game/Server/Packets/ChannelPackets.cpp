@@ -105,3 +105,11 @@ void WorldPackets::Channel::LeaveChannel::Read()
     _worldPacket >> ZoneChannelID;
     ChannelName = _worldPacket.ReadString(_worldPacket.ReadBits(7));
 }
+
+void WorldPackets::Channel::ChannelMisc1::Read()
+{
+    uint32 channelLength = _worldPacket.ReadBits(7);
+    uint32 targetNameLength = _worldPacket.ReadBits(9);
+    ChannelName = _worldPacket.ReadString(channelLength);
+    Name = _worldPacket.ReadString(targetNameLength);
+}
