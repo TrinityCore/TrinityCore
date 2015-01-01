@@ -64,6 +64,7 @@ char const GameTablesFmt[] = "dsii";
 char const GemPropertiesEntryfmt[] = "nixxii";
 char const GlyphPropertiesfmt[] = "niiix";
 char const GlyphSlotfmt[] = "nix";
+char const GtArmorMitigationByLvlfmt[] = "xi";
 char const GtBarberShopCostBasefmt[] = "xf";
 char const GtCombatRatingsfmt[] = "xf";
 char const GtOCTHpPerStaminafmt[] = "df";
