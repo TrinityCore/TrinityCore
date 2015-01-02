@@ -45,7 +45,7 @@ namespace WorldPackets
     class ServerPacket : public Packet
     {
     public:
-        ServerPacket(OpcodeServer opcode, size_t initialSize = 200);
+        ServerPacket(OpcodeServer opcode, size_t initialSize = 200) : Packet(WorldPacket(opcode, initialSize)) { }
 
         void Read() override final { ASSERT(!"Read not implemented for server packets."); }
 
@@ -59,7 +59,7 @@ namespace WorldPackets
     {
     public:
         ClientPacket(WorldPacket&& packet) : Packet(std::move(packet)) { }
-        ClientPacket(OpcodeClient expectedOpcode, WorldPacket&& packet) : Packet(std::move(packet)) { ASSERT(packet.GetOpcode() == expectedOpcode); }
+        ClientPacket(OpcodeClient expectedOpcode, WorldPacket&& packet) : Packet(std::move(packet)) { ASSERT(GetOpcode() == expectedOpcode); }
 
         WorldPacket const* Write() override final
         {

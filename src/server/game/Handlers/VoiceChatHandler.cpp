@@ -30,14 +30,6 @@ void WorldSession::HandleVoiceSessionEnableOpcode(WorldPacket& recvData)
     recvData.read_skip<uint8>();
 }
 
-void WorldSession::HandleChannelVoiceOnOpcode(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "WORLD: CMSG_CHANNEL_VOICE_ON");
-    // Enable Voice button in channel context menu
-    recvData.ReadString(recvData.ReadBits(8));
-    //channel->EnableVoice(recvData.GetOpcode() == CMSG_CHANNEL_VOICE_ON);
-}
-
 void WorldSession::HandleSetActiveVoiceChannel(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_SET_ACTIVE_VOICE_CHANNEL");

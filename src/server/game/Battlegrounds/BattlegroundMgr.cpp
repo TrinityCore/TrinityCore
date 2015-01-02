@@ -162,7 +162,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
     {
         case STATUS_NONE:
         {
-            data->Initialize(SMSG_BATTLEFIELD_STATUS);
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_NONE);
 
             data->WriteBit(playerGuid[0]);
             data->WriteBit(playerGuid[4]);

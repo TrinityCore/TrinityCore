@@ -17,13 +17,14 @@
  */
 
 #include "Channel.h"
+#include "AccountMgr.h"
+#include "ChannelPackets.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "SocialMgr.h"
 #include "World.h"
-#include "DatabaseEnv.h"
-#include "AccountMgr.h"
-#include "Player.h"
 
 Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
     _announce(true),
@@ -726,6 +727,34 @@ void Channel::SetOwner(ObjectGuid const& guid, bool exclaim)
     }
 }
 
+void Channel::SilenceAll(Player const* /*player*/, std::string const& /*name*/)
+{
+}
+
+void Channel::SilenceVoice(Player const* /*player*/, std::string const& /*name*/)
+{
+}
+
+void Channel::UnsilenceAll(Player const* /*player*/, std::string const& /*name*/)
+{
+}
+
+void Channel::UnsilenceVoice(Player const* /*player*/, std::string const& /*name*/)
+{
+}
+
+void Channel::DeclineInvite(Player const* /*player*/)
+{
+}
+
+void Channel::Voice(Player const* /*player*/)
+{
+}
+
+void Channel::DeVoice(Player const* /*player*/)
+{
+}
+
 void Channel::SendToAll(WorldPacket const* data, ObjectGuid const& guid)
 {
     for (PlayerContainer::value_type const& i : _playersStore)
@@ -746,16 +775,6 @@ void Channel::SendToOne(WorldPacket const* data, ObjectGuid const& who)
 {
     if (Player* player = ObjectAccessor::FindConnectedPlayer(who))
         player->SendDirectMessage(data);
-}
-
-void Channel::Voice(ObjectGuid const& /*guid1*/, ObjectGuid const& /*guid2*/)
-{
-
-}
-
-void Channel::DeVoice(ObjectGuid const& /*guid1*/, ObjectGuid const& /*guid2*/)
-{
-
 }
 
 void Channel::MakeNotifyPacket(WorldPackets::Channel::ChannelNotify& data, uint8 notifyType)
@@ -997,4 +1016,30 @@ void Channel::LeaveNotify(Player const* player)
         SendToAllButOne(&data, guid);
     else
         SendToAll(&data);
+}
+
+void Channel::SetModerator(ObjectGuid const& guid, bool set)
+{
+    if (_playersStore[guid].IsModerator() != set)
+    {
+        uint8 oldFlag = _playersStore[guid].GetFlags();
+        _playersStore[guid].SetModerator(set);
+
+        WorldPackets::Channel::ChannelNotify data;
+        MakeModeChange(data, guid, oldFlag, _playersStore[guid].GetFlags());
+        SendToAll(data.Write());
+    }
+}
+
+void Channel::SetMute(ObjectGuid const& guid, bool set)
+{
+    if (_playersStore[guid].IsMuted() != set)
+    {
+        uint8 oldFlag = _playersStore[guid].GetFlags();
+        _playersStore[guid].SetMuted(set);
+
+        WorldPackets::Channel::ChannelNotify data;
+        MakeModeChange(data, guid, oldFlag, _playersStore[guid].GetFlags());
+        SendToAll(data.Write());
+    }
 }

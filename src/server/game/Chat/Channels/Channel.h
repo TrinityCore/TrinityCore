@@ -21,11 +21,15 @@
 
 #include "Common.h"
 
-#include "WorldSession.h"
-
-#include "Packets/ChannelPackets.h"
-
 class Player;
+
+namespace WorldPackets
+{
+    namespace Channel
+    {
+        class ChannelNotify;
+    }
+}
 
 enum ChatNotify
 {
@@ -187,12 +191,17 @@ class Channel
         void UnsetModerator(Player const* player, std::string const& newname) { SetMode(player, newname, true, false); }
         void SetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, true); }
         void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
+        void SilenceAll(Player const* player, std::string const& name);
+        void SilenceVoice(Player const* player, std::string const& name);
+        void UnsilenceAll(Player const* player, std::string const& name);
+        void UnsilenceVoice(Player const* player, std::string const& name);
         void List(Player const* player);
         void Announce(Player const* player);
         void Say(ObjectGuid const& guid, std::string const& what, uint32 lang);
+        void DeclineInvite(Player const* player);
         void Invite(Player const* player, std::string const& newp);
-        void Voice(ObjectGuid const& guid1, ObjectGuid const& guid2);
-        void DeVoice(ObjectGuid const& guid1, ObjectGuid const& guid2);
+        void Voice(Player const* player);
+        void DeVoice(Player const* player);
         void JoinNotify(Player const* player);
         void LeaveNotify(Player const* player);
         void SetOwnership(bool ownership) { _ownership = ownership; };
@@ -253,31 +262,8 @@ class Channel
             return itr != _playersStore.end() ? itr->second.GetFlags() : 0;
         }
 
-        void SetModerator(ObjectGuid const& guid, bool set)
-        {
-            if (_playersStore[guid].IsModerator() != set)
-            {
-                uint8 oldFlag = _playersStore[guid].GetFlags();
-                _playersStore[guid].SetModerator(set);
-
-                WorldPackets::Channel::ChannelNotify data;
-                MakeModeChange(data, guid, oldFlag, _playersStore[guid].GetFlags());
-                SendToAll(data.Write());
-            }
-        }
-
-        void SetMute(ObjectGuid const& guid, bool set)
-        {
-            if (_playersStore[guid].IsMuted() != set)
-            {
-                uint8 oldFlag = _playersStore[guid].GetFlags();
-                _playersStore[guid].SetMuted(set);
-
-                WorldPackets::Channel::ChannelNotify data;
-                MakeModeChange(data, guid, oldFlag, _playersStore[guid].GetFlags());
-                SendToAll(data.Write());
-            }
-        }
+        void SetModerator(ObjectGuid const& guid, bool set);
+        void SetMute(ObjectGuid const& guid, bool set);
 
         typedef std::map<ObjectGuid, PlayerInfo> PlayerContainer;
         typedef GuidSet BannedContainer;

@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "Channel.h"
 
+#define MAX_CHANNEL_NAME_STR 0x31
 #define MAX_CHANNEL_PASS_STR 31
 
 class ChannelMgr

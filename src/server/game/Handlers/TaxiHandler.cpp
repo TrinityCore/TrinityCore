@@ -309,7 +309,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
 
 void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
 {
-    WorldPacket data(SMSG_ACTIVATETAXIREPLY, 4);
+    WorldPacket data(SMSG_ACTIVATE_TAXI_REPLY, 4);
     data << uint32(reply);
     SendPacket(&data);
 
