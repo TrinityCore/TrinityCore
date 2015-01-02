@@ -145,7 +145,7 @@ void WorldPackets::Spells::SendAuraUpdate::BuildUpdatePacket(AuraApplication* au
         {
             if (effect && aurApp->HasEffect(effect->GetEffIndex()))       // Not all of aura's effects have to be applied on every target
             {
-                _worldPacket << int32(effect->GetAmount());
+                _worldPacket << float(effect->GetAmount());
                 count++;
             }
         }
