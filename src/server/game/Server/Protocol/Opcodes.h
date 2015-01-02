@@ -184,6 +184,7 @@ enum OpcodeClient : uint32
     CMSG_CLEAR_CHANNEL_WATCH                          = 0xBADD,
     CMSG_CLEAR_RAID_MARKER                            = 0xBADD,
     CMSG_CLEAR_TRADE_ITEM                             = 0xBADD,
+    CMSG_CLOSE_INTERACTION                            = 0x1B19,
     CMSG_COMMENTATOR_ENABLE                           = 0xBADD,
     CMSG_COMMENTATOR_ENTER_INSTANCE                   = 0xBADD,
     CMSG_COMMENTATOR_EXIT_INSTANCE                    = 0xBADD,

@@ -345,6 +345,18 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
     unit->AI()->sGossipHello(_player);
 }
 
+void WorldSession::HandleCloseInteractionOpcode(WorldPackets::NPC::CloseInteraction& packet)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_CLOSE_INTERACTION");
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.UnitGuid, UNIT_NPC_FLAG_NONE);
+    if (!unit)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleCloseInteractionOpcode - %s not found, nothing to handle.", packet.UnitGuid.ToString().c_str());
+        return;
+    }
+    
+}
+
 /*void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_GOSSIP_SELECT_OPTION");
