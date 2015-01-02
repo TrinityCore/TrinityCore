@@ -127,6 +127,8 @@ void WorldPackets::Channel::ChannelPlayerCommand::Read()
             Name = _worldPacket.ReadString(nameLength);
             break;
         }
+        default:
+            break;
     }
 }
 

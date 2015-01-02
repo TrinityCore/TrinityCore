@@ -1942,8 +1942,8 @@ class Player : public Unit, public GridObject<Player>
         uint8 getCinematic() { return m_cinematic; }
         void setCinematic(uint8 cine) { m_cinematic = cine; }
 
-        ActionButton* addActionButton(uint8 button, uint32 action, uint8 type);
-        void removeActionButton(uint8 button);
+        ActionButton* AddActionButton(uint8 button, uint32 action, uint8 type);
+        void RemoveActionButton(uint8 button);
         ActionButton const* GetActionButton(uint8 button);
         void SendInitialActionButtons() const { SendActionButtons(0); }
         void SendActionButtons(uint32 state) const;
