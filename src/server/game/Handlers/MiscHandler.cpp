@@ -102,9 +102,6 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::PlayerCliGo
         return;
     }
 
-    if (_player->PlayerTalkClass->IsGossipOptionCoded(packet.GossipID))
-        packet.PromotionCode;
-
     // Prevent cheating on C++ scripted menus
     if (_player->PlayerTalkClass->GetGossipMenu().GetSenderGUID() != packet.GossipUnit)
         return;
