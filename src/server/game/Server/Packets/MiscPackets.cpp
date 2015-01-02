@@ -46,9 +46,57 @@ WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
+{
+    _worldPacket << uint32(Type);
+    _worldPacket << uint32(Quantity);
+    _worldPacket << uint32(Flags);
+    _worldPacket.WriteBit(WeeklyQuantity.HasValue);
+    _worldPacket.WriteBit(TrackedQuantity.HasValue);
+    _worldPacket.WriteBit(SuppressChatLog);
+
+    if (WeeklyQuantity.HasValue)
+        _worldPacket << uint32(WeeklyQuantity.Value);
+
+    if (TrackedQuantity.HasValue)
+        _worldPacket << uint32(TrackedQuantity.Value);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Misc::SetSelection::Read()
 {
     _worldPacket >> Selection;
+}
+
+WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
+{
+    _worldPacket << uint32(Data.size());
+
+    for (Record const& data : Data)
+    {
+        _worldPacket << uint32(data.Type);
+        _worldPacket << uint32(data.Quantity);
+
+        _worldPacket.WriteBit(data.WeeklyQuantity.HasValue);
+        _worldPacket.WriteBit(data.MaxWeeklyQuantity.HasValue);
+        _worldPacket.WriteBit(data.TrackedQuantity.HasValue);
+
+        _worldPacket.WriteBits(data.Flags, 5);
+
+        if (data.WeeklyQuantity.HasValue)
+            _worldPacket << uint32(data.WeeklyQuantity.Value);
+        if (data.MaxWeeklyQuantity.HasValue)
+            _worldPacket << uint32(data.MaxWeeklyQuantity.Value);
+        if (data.TrackedQuantity.HasValue)
+            _worldPacket << uint32(data.TrackedQuantity.Value);
+    }
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
 }
 
 void WorldPackets::Misc::ViolenceLevel::Read()
