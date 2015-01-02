@@ -650,6 +650,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     offer.QuestFlags[1] = quest->GetFlagsEx();
 
     packet.QuestTitle = questTitle;
+    packet.RewardText = questOfferRewardText;
     packet.PortraitTurnIn = quest->GetQuestTurnInPortrait();
     packet.PortraitGiver = quest->GetQuestGiverPortrait();
     packet.PortraitGiverText = portraitGiverText;
