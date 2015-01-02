@@ -42,7 +42,7 @@ public:
     }
 };
 
-WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _socketSendBufferSize(-1), m_SockOutUBuff(65536), _tcpNoDelay(true)
+WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _instanceAcceptor(nullptr), _socketSendBufferSize(-1), m_SockOutUBuff(65536), _tcpNoDelay(true)
 {
 }
 

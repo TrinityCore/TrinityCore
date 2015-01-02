@@ -35,6 +35,7 @@
 #include "AccountMgr.h"
 #include <unordered_set>
 
+class Channel;
 class Creature;
 class GameObject;
 class InstanceSave;
@@ -47,6 +48,7 @@ class SpellCastTargets;
 class Unit;
 class Warden;
 class WorldPacket;
+class WorldSession;
 class WorldSocket;
 struct AreaTableEntry;
 struct AuctionEntry;
@@ -104,7 +106,7 @@ namespace WorldPackets
 
     namespace Channel
     {
-        class ChannelListRequest;
+        class ChannelPlayerCommand;
         class JoinChannel;
         class LeaveChannel;
     }
@@ -956,23 +958,15 @@ class WorldSession
 
         void HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet);
         void HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet);
-        void HandleChannelList(WorldPackets::Channel::ChannelListRequest& packet);
-        void HandleChannelPassword(WorldPacket& recvPacket);
-        void HandleChannelSetOwner(WorldPacket& recvPacket);
-        void HandleChannelOwner(WorldPacket& recvPacket);
-        void HandleChannelModerator(WorldPacket& recvPacket);
-        void HandleChannelUnmoderator(WorldPacket& recvPacket);
-        void HandleChannelMute(WorldPacket& recvPacket);
-        void HandleChannelUnmute(WorldPacket& recvPacket);
-        void HandleChannelInvite(WorldPacket& recvPacket);
-        void HandleChannelKick(WorldPacket& recvPacket);
-        void HandleChannelBan(WorldPacket& recvPacket);
-        void HandleChannelUnban(WorldPacket& recvPacket);
-        void HandleChannelAnnouncements(WorldPacket& recvPacket);
-        void HandleChannelModerate(WorldPacket& recvPacket);
-        void HandleChannelDeclineInvite(WorldPacket& recvPacket);
-        void HandleGetChannelMemberCount(WorldPacket& recvPacket);
-        void HandleSetChannelWatch(WorldPacket& recvPacket);
+
+        template<void(Channel::*CommandFunction)(Player const*)>
+        void HandleChannelCommand(WorldPackets::Channel::ChannelPlayerCommand& packet);
+
+        template<void(Channel::*CommandFunction)(Player const*, std::string const&)>
+        void HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlayerCommand& packet);
+
+        void HandleVoiceSessionEnableOpcode(WorldPacket& recvData);
+        void HandleSetActiveVoiceChannel(WorldPacket& recvData);
 
         void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
@@ -1097,9 +1091,6 @@ class WorldSession
         void HandleItemRefundInfoRequest(WorldPacket& recvData);
         void HandleItemRefund(WorldPacket& recvData);
 
-        void HandleChannelVoiceOnOpcode(WorldPacket& recvData);
-        void HandleVoiceSessionEnableOpcode(WorldPacket& recvData);
-        void HandleSetActiveVoiceChannel(WorldPacket& recvData);
         void HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData);
 
         // Guild Bank
@@ -1295,5 +1286,6 @@ class WorldSession
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;
 };
+
 #endif
 /// @}

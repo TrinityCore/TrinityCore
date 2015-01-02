@@ -58,6 +58,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
     return data;
 }
 
+ByteBuffer& WorldPackets::Item::operator>>(ByteBuffer& data, InvUpdate& invUpdate)
+{
+    invUpdate.Items.resize(data.ReadBits(2));
+    for (size_t i = 0; i < invUpdate.Items.size(); ++i)
+    {
+        data >> invUpdate.Items[i].ContainerSlot;
+        data >> invUpdate.Items[i].Slot;
+    }
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
 {
     _worldPacket << int8(BagResult);
@@ -81,14 +93,8 @@ WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
 
 void WorldPackets::Item::SplitItem::Read()
 {
-    Inv.Items.resize(_worldPacket.ReadBits(2));
-    for (size_t i = 0; i < Inv.Items.size(); ++i)
-    {
-        _worldPacket >> Inv.Items[i].ContainerSlot;
-        _worldPacket >> Inv.Items[i].Slot;
-    }
-
-    _worldPacket >> FromPackSlot
+    _worldPacket >> Inv
+                 >> FromPackSlot
                  >> FromSlot
                  >> ToPackSlot
                  >> ToSlot
@@ -97,27 +103,15 @@ void WorldPackets::Item::SplitItem::Read()
 
 void WorldPackets::Item::SwapInvItem::Read()
 {
-    Inv.Items.resize(_worldPacket.ReadBits(2));
-    for (size_t i = 0; i < Inv.Items.size(); ++i)
-    {
-        _worldPacket >> Inv.Items[i].ContainerSlot;
-        _worldPacket >> Inv.Items[i].Slot;
-    }
-
-    _worldPacket >> Slot2
+    _worldPacket >> Inv
+                 >> Slot2
                  >> Slot1;
 }
 
 void WorldPackets::Item::SwapItem::Read()
 {
-    Inv.Items.resize(_worldPacket.ReadBits(2));
-    for (size_t i = 0; i < Inv.Items.size(); ++i)
-    {
-        _worldPacket >> Inv.Items[i].ContainerSlot;
-        _worldPacket >> Inv.Items[i].Slot;
-    }
-
-    _worldPacket >> ContainerSlotB
+    _worldPacket >> Inv
+                 >> ContainerSlotB
                  >> ContainerSlotA
                  >> SlotB
                  >> SlotA;
@@ -125,14 +119,8 @@ void WorldPackets::Item::SwapItem::Read()
 
 void WorldPackets::Item::AutoEquipItem::Read()
 {
-    Inv.Items.resize(_worldPacket.ReadBits(2));
-    for (size_t i = 0; i < Inv.Items.size(); ++i)
-    {
-        _worldPacket >> Inv.Items[i].ContainerSlot;
-        _worldPacket >> Inv.Items[i].Slot;
-    }
-
-    _worldPacket >> PackSlot
+    _worldPacket >> Inv
+                 >> PackSlot
                  >> Slot;
 }
 

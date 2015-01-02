@@ -143,6 +143,8 @@ namespace WorldPackets
             uint8 SlotNum = 0;
             uint8 ContainerId = 0;
         };
+
+        ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
     }
 }
 

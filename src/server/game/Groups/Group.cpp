@@ -1669,7 +1669,7 @@ void Group::OfflineReadyCheck()
         Player* player = ObjectAccessor::FindConnectedPlayer(citr->guid);
         if (!player || !player->GetSession())
         {
-            WorldPacket data(MSG_RAID_READY_CHECK_CONFIRM, 9);
+            WorldPacket data(SMSG_RAID_READY_CHECK_CONFIRM, 9);
             data << citr->guid;
             data << uint8(0);
             BroadcastReadyCheck(&data);

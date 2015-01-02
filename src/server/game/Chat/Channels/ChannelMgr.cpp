@@ -17,6 +17,7 @@
  */
 
 #include "ChannelMgr.h"
+#include "ChannelPackets.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"

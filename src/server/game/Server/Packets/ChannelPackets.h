@@ -19,25 +19,13 @@
 #define ChannelPackets_h__
 
 #include "Packet.h"
+#include "Channel.h"
 #include "ObjectGuid.h"
 
 namespace WorldPackets
 {
     namespace Channel
     {
-        class ChannelListRequest final : public ClientPacket
-        {
-        public:
-            ChannelListRequest(WorldPacket&& packet) : ClientPacket(std::move(packet))
-            {
-                ASSERT(packet.GetOpcode() == CMSG_CHANNEL_LIST || packet.GetOpcode() == CMSG_CHANNEL_DISPLAY_LIST);
-            }
-
-            void Read() override;
-
-            std::string ChannelName;
-        };
-
         class ChannelListResponse final : public ServerPacket
         {
         public:
@@ -48,7 +36,7 @@ namespace WorldPackets
 
                 ObjectGuid Guid; ///< Player Guid
                 uint32 VirtualRealmAddress;
-                uint8 Flags = 0; ///< @see enum ChannelMemberFlags
+                uint8 Flags;     ///< @see enum ChannelMemberFlags
             };
 
             ChannelListResponse() : ServerPacket(SMSG_CHANNEL_LIST) { }
@@ -105,6 +93,47 @@ namespace WorldPackets
             std::string Channel;    ///< Channel Name
             int32 ChatChannelID = 0;
             bool Suspended = false; ///< User Leave - false, On Zone Change - true
+        };
+
+        class ChannelPlayerCommand final : public ClientPacket
+        {
+        public:
+            ChannelPlayerCommand(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            {
+                switch (GetOpcode())
+                {
+                    default:
+                        ASSERT(false);
+                    case CMSG_CHANNEL_ANNOUNCEMENTS:
+                    case CMSG_CHANNEL_BAN:
+                    case CMSG_CHANNEL_DECLINE_INVITE:
+                    case CMSG_CHANNEL_DISPLAY_LIST:
+                    case CMSG_CHANNEL_INVITE:
+                    case CMSG_CHANNEL_KICK:
+                    case CMSG_CHANNEL_LIST:
+                    //case CMSG_CHANNEL_MODERATE:
+                    case CMSG_CHANNEL_MODERATOR:
+                    case CMSG_CHANNEL_MUTE:
+                    case CMSG_CHANNEL_OWNER:
+                    case CMSG_CHANNEL_PASSWORD:
+                    case CMSG_CHANNEL_SET_OWNER:
+                    case CMSG_CHANNEL_SILENCE_ALL:
+                    case CMSG_CHANNEL_SILENCE_VOICE:
+                    case CMSG_CHANNEL_UNBAN:
+                    case CMSG_CHANNEL_UNMODERATOR:
+                    case CMSG_CHANNEL_UNMUTE:
+                    case CMSG_CHANNEL_UNSILENCE_ALL:
+                    case CMSG_CHANNEL_UNSILENCE_VOICE:
+                    case CMSG_CHANNEL_VOICE_OFF:
+                    case CMSG_CHANNEL_VOICE_ON:
+                        break;
+                }
+            }
+
+            void Read() override;
+
+            std::string ChannelName;
+            std::string Name;
         };
 
         class JoinChannel final : public ClientPacket
