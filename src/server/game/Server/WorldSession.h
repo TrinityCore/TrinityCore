@@ -177,7 +177,7 @@ namespace WorldPackets
     namespace NPC
     {
         class Hello;
-        class PlayerCliGossipSelectOption;
+        class GossipSelectOption;
         class CloseInteraction;
     }
 
@@ -827,7 +827,7 @@ class WorldSession
         void HandleTrainerBuySpellOpcode(WorldPacket& recvPacket);
         void HandlePetitionShowListOpcode(WorldPacket& recvPacket);
         void HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet);
-        void HandleGossipSelectOptionOpcode(WorldPackets::NPC::PlayerCliGossipSelectOption& packet);
+        void HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet);
         void HandleCloseInteractionOpcode(WorldPackets::NPC::CloseInteraction& packet);
         void HandleSpiritHealerActivateOpcode(WorldPacket& recvPacket);
         void HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet);

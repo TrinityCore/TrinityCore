@@ -37,10 +37,10 @@ namespace WorldPackets
         
         };
 
-        class PlayerCliGossipSelectOption final : public ClientPacket
+        class GossipSelectOption final : public ClientPacket
         {
         public:
-            PlayerCliGossipSelectOption(WorldPacket&& packet) : ClientPacket(CMSG_GOSSIP_SELECT_OPTION, std::move(packet)) { }
+            GossipSelectOption(WorldPacket&& packet) : ClientPacket(CMSG_GOSSIP_SELECT_OPTION, std::move(packet)) { }
                 
             void Read() override;
                 

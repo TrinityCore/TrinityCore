@@ -23,7 +23,7 @@ void WorldPackets::NPC::Hello::Read()
     _worldPacket >> Unit;
 }
 
-void WorldPackets::NPC::PlayerCliGossipSelectOption::Read()
+void WorldPackets::NPC::GossipSelectOption::Read()
 {
     _worldPacket >> GossipUnit;
     _worldPacket >> GossipID;
