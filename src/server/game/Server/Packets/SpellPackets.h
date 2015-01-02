@@ -112,14 +112,36 @@ namespace WorldPackets
             std::vector<SpellLogPowerData> PowerData;
         };
 
-        class SendAuraUpdate final : public ServerPacket
+        struct AuraDataInfo
+        {
+            int32 SpellID = 0;
+            uint8 Flags = 0;
+            uint32 ActiveFlags = 0;
+            uint16 CastLevel = 1;
+            uint8 Applications = 1;
+            Optional<ObjectGuid> CastUnit;
+            Optional<int32> Duration;
+            Optional<int32> Remaining;
+            std::vector<float> Points;
+            std::vector<float> EstimatedPoints;
+        };
+
+        struct AuraInfo
+        {
+            uint8 Slot = 0;
+            Optional<AuraDataInfo> AuraData;
+        };
+
+        class AuraUpdate final : public ServerPacket
         {
         public:
-            SendAuraUpdate() : ServerPacket(SMSG_AURA_UPDATE) { }
+            AuraUpdate() : ServerPacket(SMSG_AURA_UPDATE) { }
 
             WorldPacket const* Write() override;
-            void Init(bool IsFullUpdate, ObjectGuid Target, uint32 Count);
-            void BuildUpdatePacket(AuraApplication* aurApp, bool remove, uint16 level);
+
+            bool UpdateAll = false;
+            ObjectGuid UnitGUID;
+            std::vector<AuraInfo> Auras;
         };
 
         class SpellCastRequest final : public ClientPacket
