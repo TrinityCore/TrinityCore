@@ -144,8 +144,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ADD_VOICE_IGNORE,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ALTER_APPEARANCE,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAlterAppearance           );
     DEFINE_HANDLER(CMSG_AREATRIGGER,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::AreaTrigger, &WorldSession::HandleAreaTriggerOpcode);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_AREA_SPIRIT_HEALER_QUERY,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAreaSpiritHealerQueryOpcode);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_AREA_SPIRIT_HEALER_QUEUE,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAreaSpiritHealerQueueOpcode);
+    DEFINE_HANDLER(CMSG_AREA_SPIRIT_HEALER_QUERY,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAreaSpiritHealerQueryOpcode);
+    DEFINE_HANDLER(CMSG_AREA_SPIRIT_HEALER_QUEUE,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAreaSpiritHealerQueueOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ARENA_TEAM_ACCEPT,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamAcceptOpcode     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ARENA_TEAM_CREATE,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamCreateOpcode     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ARENA_TEAM_DECLINE,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamDeclineOpcode    );
