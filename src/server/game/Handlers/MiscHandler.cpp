@@ -1061,9 +1061,9 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionBu
     TC_LOG_DEBUG("network", "CMSG_SET_ACTION_BUTTON Button: %u Action: %u Type: %u", packet.Index, action, type);
 
     if (!packet.Action)
-        GetPlayer()->removeActionButton(packet.Index);
+        GetPlayer()->RemoveActionButton(packet.Index);
     else
-        GetPlayer()->addActionButton(packet.Index, action, type);
+        GetPlayer()->AddActionButton(packet.Index, action, type);
 }
 
 void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
