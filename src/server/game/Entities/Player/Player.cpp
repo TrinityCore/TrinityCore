@@ -23314,16 +23314,20 @@ void Player::SendAurasForTarget(Unit* target)
 
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
 
-    WorldPackets::Spells::SendAuraUpdate update;
-    update.Init(true, target->GetGUID(), visibleAuras->size());
+    WorldPackets::Spells::AuraUpdate update;
+    update.UpdateAll = true;
+    update.UnitGUID = target->GetGUID();
+    update.Auras.reserve(visibleAuras->size());
 
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
     {
-        AuraApplication * auraApp = itr->second;
-        update.BuildUpdatePacket(auraApp, false, target->getLevel()); // TODO 6.x should be caster's level
+        AuraApplication* auraApp = itr->second;
+        WorldPackets::Spells::AuraInfo auraInfo;
+        auraApp->BuildUpdatePacket(auraInfo, false);
+        update.Auras.push_back(auraInfo);
     }
 
-    GetSession()->SendPacket(const_cast<WorldPacket*>(update.Write()));
+    GetSession()->SendPacket(update.Write());
 }
 
 void Player::SetDailyQuestStatus(uint32 quest_id)

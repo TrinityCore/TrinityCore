@@ -90,87 +90,49 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData 
     return data;
 }
 
-WorldPacket const* WorldPackets::Spells::SendAuraUpdate::Write()
+WorldPacket const* WorldPackets::Spells::AuraUpdate::Write()
 {
-    return &_worldPacket;
-}
-
-void WorldPackets::Spells::SendAuraUpdate::Init(bool IsFullUpdate, ObjectGuid Target, uint32 Count)
-{
-    _worldPacket.WriteBit(IsFullUpdate);
-    _worldPacket << Target;
-    _worldPacket << uint32(Count);
-}
-
-void WorldPackets::Spells::SendAuraUpdate::BuildUpdatePacket(AuraApplication* aurApp, bool remove, uint16 level)
-{
-    _worldPacket << uint8(aurApp->GetSlot());
-    _worldPacket.ResetBitPos();
-    _worldPacket.WriteBit(!remove);
-
-    if (remove)
+    _worldPacket.WriteBit(UpdateAll);
+    _worldPacket << UnitGUID;
+    _worldPacket << uint32(Auras.size());
+    for (auto& aura : Auras)
     {
-        _worldPacket.FlushBits();
-        return;
-    }
-    Aura const* aura = aurApp->GetBase();
-    _worldPacket << uint32(aura->GetId());
-
-    uint8 flags = aurApp->GetFlags();
-    if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
-        flags |= AFLAG_DURATION;
-    _worldPacket << uint8(flags);
-
-    _worldPacket << uint32(aurApp->GetEffectMask());
-
-    _worldPacket << uint16(level);
-
-    // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
-    // stack amount has priority over charges (checked on retail with spell 50262)
-    _worldPacket << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
-
-    uint32 int72 = 0;
-    _worldPacket << int72;
-
-    size_t pos = _worldPacket.wpos();
-    uint32 count = 0;
-    _worldPacket << count;
-
-    //for (int72)
-    //    float
-
-    if (flags & AFLAG_SCALABLE)
-    {
-        for (AuraEffect const* effect : aura->GetAuraEffects())
+        _worldPacket << aura.Slot;
+        if (_worldPacket.WriteBit(aura.AuraData.HasValue))
         {
-            if (effect && aurApp->HasEffect(effect->GetEffIndex()))       // Not all of aura's effects have to be applied on every target
-            {
-                _worldPacket << float(effect->GetAmount());
-                count++;
-            }
+            AuraDataInfo const& data = aura.AuraData.Value;
+            _worldPacket << uint32(data.SpellID);
+            _worldPacket << uint8(data.Flags);
+            _worldPacket << uint32(data.ActiveFlags);
+            _worldPacket << uint16(data.CastLevel);
+            _worldPacket << uint8(data.Applications);
+            _worldPacket << uint32(data.EstimatedPoints.size());
+            _worldPacket << uint32(data.Points.size());
+
+            if (!data.EstimatedPoints.empty())
+                _worldPacket.append(data.EstimatedPoints.data(), data.EstimatedPoints.size());
+
+            if (!data.Points.empty())
+                _worldPacket.append(data.Points.data(), data.Points.size());
+
+            _worldPacket.WriteBit(data.CastUnit.HasValue);
+            _worldPacket.WriteBit(data.Duration.HasValue);
+            _worldPacket.WriteBit(data.Remaining.HasValue);
+
+            if (data.CastUnit.HasValue)
+                _worldPacket << data.CastUnit.Value;
+
+            if (data.Duration.HasValue)
+                _worldPacket << uint32(data.Duration.Value);
+
+            if (data.Remaining.HasValue)
+                _worldPacket << uint32(data.Remaining.Value);
         }
+
+        _worldPacket.FlushBits();
     }
 
-    _worldPacket.put<uint32>(pos, count);
-
-    _worldPacket.ResetBitPos();
-
-    _worldPacket.WriteBit(!(flags & AFLAG_NOCASTER));
-    _worldPacket.WriteBit(aura->GetDuration());
-    _worldPacket.WriteBit(aura->GetMaxDuration());
-
-    if (!(flags & AFLAG_NOCASTER))
-        _worldPacket << aura->GetCasterGUID().WriteAsPacked();
-
-    if (aura->GetDuration())
-    {
-        _worldPacket << uint32(aura->GetDuration());
-    }
-
-    if (aura->GetMaxDuration())
-    {
-        _worldPacket << uint32(aura->GetMaxDuration());
-    }
+    return &_worldPacket;
 }
 
 void WorldPackets::Spells::SpellCastRequest::Read()
