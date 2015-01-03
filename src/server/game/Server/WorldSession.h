@@ -149,9 +149,9 @@ namespace WorldPackets
     namespace Item
     {
         class BuyBackItem;
-		class ItemRefundInfo;
-		class RepairItem;
-		class SellItem;
+        class ItemRefundInfo;
+        class RepairItem;
+        class SellItem;
         class SplitItem;
         class SwapInvItem;
         class SwapItem;
