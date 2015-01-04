@@ -140,6 +140,26 @@ namespace WorldPackets
             uint32 SequenceIndex = 0; // Same index as in request
         };
 
+        class TriggerCinematic final : public ServerPacket
+        {
+        public:
+            TriggerCinematic() : ServerPacket(SMSG_TRIGGER_CINEMATIC, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 CinematicID = 0;
+        };
+
+        class TriggerMovie final : public ServerPacket
+        {
+        public:
+            TriggerMovie() : ServerPacket(SMSG_TRIGGER_MOVIE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 MovieID = 0;
+        };
+
         class UITime final : public ServerPacket
         {
         public:
