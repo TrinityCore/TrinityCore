@@ -124,6 +124,19 @@ WorldPacket const* WorldPackets::Misc::UITime::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::TriggerMovie::Write()
+{
+    _worldPacket << uint32(MovieID);
+
+    return &_worldPacket;
+}
+WorldPacket const* WorldPackets::Misc::TriggerCinematic::Write()
+{
+    _worldPacket << uint32(CinematicID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::TutorialFlags::Write()
 {
     _worldPacket.append(TutorialData, MAX_ACCOUNT_TUTORIAL_VALUES);
