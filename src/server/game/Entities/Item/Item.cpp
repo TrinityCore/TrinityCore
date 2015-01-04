@@ -17,17 +17,18 @@
  */
 
 #include "Common.h"
-#include "Item.h"
-#include "ObjectMgr.h"
-#include "WorldPacket.h"
+#include "ConditionMgr.h"
 #include "DatabaseEnv.h"
+#include "Item.h"
 #include "ItemEnchantmentMgr.h"
+#include "ItemPackets.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 #include "ScriptMgr.h"
-#include "ConditionMgr.h"
-#include "Player.h"
-#include "Opcodes.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
@@ -1048,10 +1049,10 @@ void Item::SendTimeUpdate(Player* owner)
     if (!duration)
         return;
 
-    WorldPacket data(SMSG_ITEM_TIME_UPDATE, (8+4));
-    data << GetGUID();
-    data << uint32(duration);
-    owner->GetSession()->SendPacket(&data);
+    WorldPackets::Item::ItemTimeUpdate itemTimeUpdate;
+    itemTimeUpdate.GUID = GetGUID();
+    itemTimeUpdate.Duration = uint32(duration);
+    owner->GetSession()->SendPacket(itemTimeUpdate.Write());
 }
 
 Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
