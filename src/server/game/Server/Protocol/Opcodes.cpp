@@ -1331,7 +1331,7 @@ void OpcodeTable::Initialize()
     /*0x4B0*/ DEFINE_HANDLER(CMSG_SET_ARENA_MEMBER_WEEKLY_GAMES,           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x4B1*/ DEFINE_HANDLER(CMSG_SET_ARENA_MEMBER_SEASON_GAMES,           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x4B2*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_REFUND_INFO_RESPONSE, STATUS_NEVER);
-    /*0x4B3*/ DEFINE_HANDLER(CMSG_ITEM_REFUND_INFO,                        STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleItemRefundInfoRequest     );
+    /*0x4B3*/ DEFINE_HANDLER(CMSG_ITEM_REFUND_INFO,                        STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleGetItemPurchaseData       );
     /*0x4B4*/ DEFINE_HANDLER(CMSG_ITEM_REFUND,                             STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleItemRefund                );
     /*0x4B5*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_REFUND_RESULT,        STATUS_NEVER);
     /*0x4B6*/ DEFINE_HANDLER(CMSG_CORPSE_MAP_POSITION_QUERY,               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQueryCorpseTransport      );

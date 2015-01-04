@@ -234,7 +234,11 @@ namespace WorldPackets
     namespace Item
     {
         class AutoEquipItem;
+        class BuyBackItem;
         class DestroyItem;
+        class GetItemPurchaseData;
+        class RepairItem;
+        class SellItem;
         class SplitItem;
         class SwapInvItem;
         class SwapItem;
@@ -773,7 +777,7 @@ class TC_GAME_API WorldSession
         void HandleShowingCloakOpcode(WorldPackets::Character::ShowingCloak& packet);
 
         // repair
-        void HandleRepairItemOpcode(WorldPacket& recvPacket);
+        void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);
 
         void HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet);
         void HandleAutostoreLootItemOpcode(WorldPacket& recvPacket);
@@ -971,7 +975,7 @@ class TC_GAME_API WorldSession
         void HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& destroyItem);
         void HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem);
         void HandleItemQuerySingleOpcode(WorldPackets::Query::QueryItemSingle& query);
-        void HandleSellItemOpcode(WorldPacket& recvPacket);
+        void HandleSellItemOpcode(WorldPackets::Item::SellItem& packet);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPacket& recvPacket);
         void HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet);
@@ -979,7 +983,7 @@ class TC_GAME_API WorldSession
         void HandleReadItem(WorldPacket& recvPacket);
         void HandleAutoEquipItemSlotOpcode(WorldPacket& recvPacket);
         void HandleSwapItem(WorldPackets::Item::SwapItem& swapItem);
-        void HandleBuybackItem(WorldPacket& recvPacket);
+        void HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet);
         void HandleWrapItemOpcode(WorldPacket& recvPacket);
 
         void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
@@ -1159,7 +1163,7 @@ class TC_GAME_API WorldSession
 
         void HandleCancelTempEnchantmentOpcode(WorldPacket& recvData);
 
-        void HandleItemRefundInfoRequest(WorldPacket& recvData);
+        void HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchaseData& packet);
         void HandleItemRefund(WorldPacket& recvData);
 
         void HandleVoiceSessionEnableOpcode(WorldPacket& recvData);
