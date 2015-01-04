@@ -17,6 +17,31 @@
 
 #include "ItemPackets.h"
 
+void WorldPackets::Item::BuyBackItem::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> Slot;
+}
+
+void WorldPackets::Item::ItemRefundInfo::Read()
+{
+    _worldPacket >> ItemGUID;
+}
+
+void WorldPackets::Item::RepairItem::Read()
+{
+    _worldPacket >> NpcGUID;
+    _worldPacket >> ItemGUID;
+    UseGuildBank = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Item::SellItem::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> ItemGUID;
+    _worldPacket >> Amount;
+}
+
 WorldPacket const* WorldPackets::Item::SetProficiency::Write()
 {
     _worldPacket << ProficiencyMask;
