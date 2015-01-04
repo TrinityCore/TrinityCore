@@ -19,8 +19,8 @@
 
 void WorldPackets::Item::BuyBackItem::Read()
 {
-	_worldPacket >> VendorGUID;
-	_worldPacket >> Slot;
+    _worldPacket >> VendorGUID;
+    _worldPacket >> Slot;
 }
 
 void WorldPackets::Item::ItemRefundInfo::Read()
@@ -32,7 +32,7 @@ void WorldPackets::Item::RepairItem::Read()
 {
 	_worldPacket >> NpcGUID;
 	_worldPacket >> ItemGUID;
-	_worldPacket >> UseGuildBank;
+    UseGuildBank = _worldPacket.ReadBit();
 }
 
 void WorldPackets::Item::SellItem::Read()
