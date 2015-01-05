@@ -1650,6 +1650,30 @@ struct RandomPropertiesPointsEntry
     uint32    UncommonPropertiesPoints[5];                  // 12-16
 };
 
+// ResearchProject.dbc
+struct ResearchProjectEntry
+{
+    uint32      Id;                                           // 0
+    char*       Name;                                         // 1
+    //char*       History;                                    // 2
+    uint32      IsRare;                                       // 3
+    uint32      Race;                                         // 4
+    uint32      CraftSpell;                                   // 5
+    uint32      Sockets;                                      // 6
+    //char*       Icon;                                       // 7
+    uint32      FragmentCost;                                 // 8
+};
+
+// ResearchSite.dbc
+struct ResearchSiteEntry
+{
+    uint32      Id;                                           // 0
+    uint32      Map;                                          // 1
+    uint32      PoiEntry;                                     // 2
+    char*       Name;                                         // 3
+    //uint32      Flags;                                      // 4
+};
+
 struct ScalingStatDistributionEntry
 {
     uint32  Id;                                             // 0
