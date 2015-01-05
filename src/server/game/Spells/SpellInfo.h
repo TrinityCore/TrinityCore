@@ -472,7 +472,7 @@ public:
     inline bool HasAttribute(SpellAttr11 attribute) const { return !!(AttributesEx11 & attribute); }
     inline bool HasAttribute(SpellAttr12 attribute) const { return !!(AttributesEx12 & attribute); }
     inline bool HasAttribute(SpellAttr13 attribute) const { return !!(AttributesEx13 & attribute); }
-    inline bool HasAttribute(SpellCustomAttributes customAttribute) const { !!(return AttributesCu & customAttribute); }
+    inline bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(return AttributesCu & customAttribute); }
 
     bool IsExplicitDiscovery() const;
     bool IsLootCrafting() const;
