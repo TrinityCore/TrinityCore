@@ -328,7 +328,7 @@ enum AuraType
     SPELL_AURA_268                                          = 268,  // old SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT. unused 4.3.4
     SPELL_AURA_MOD_IGNORE_TARGET_RESIST                     = 269,
     SPELL_AURA_270                                          = 270,  // old SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST, unused 4.3.4
-    SPELL_AURA_MOD_DAMAGE_FROM_CASTER                       = 271,
+    SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER                 = 271,
     SPELL_AURA_IGNORE_MELEE_RESET                           = 272,
     SPELL_AURA_X_RAY                                        = 273,
     SPELL_AURA_274                                          = 274,  // old SPELL_AURA_ABILITY_CONSUME_NO_AMMO, unused 4.3.4
@@ -400,7 +400,7 @@ enum AuraType
     SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER       = 340,  // Increases health gained when resurrected by a guild member by X
     SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN                  = 341,  // Modifies cooldown of all spells using affected category
     SPELL_AURA_MOD_MELEE_RANGED_HASTE_2                     = 342,
-    SPELL_AURA_343                                          = 343,
+    SPELL_AURA_MOD_MELEE_DAMAGE_FROM_CASTER                 = 343,  // NYI
     SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,  // NYI
     SPELL_AURA_BYPASS_ARMOR_FOR_CASTER                      = 345,
     SPELL_AURA_ENABLE_ALT_POWER                             = 346,  // NYI
@@ -431,7 +431,7 @@ enum AuraType
     SPELL_AURA_371                                          = 371,
     SPELL_AURA_372                                          = 372,
     SPELL_AURA_373                                          = 373,
-    SPELL_AURA_374                                          = 374,
+    SPELL_AURA_MODIFY_FALL_DAMAGE_PCT                       = 374,  // NYI
     SPELL_AURA_375                                          = 375,
     SPELL_AURA_376                                          = 376,
     SPELL_AURA_377                                          = 377,
@@ -440,12 +440,12 @@ enum AuraType
     SPELL_AURA_380                                          = 380,
     SPELL_AURA_381                                          = 381,
     SPELL_AURA_382                                          = 382,
-    SPELL_AURA_383                                          = 383,
+    SPELL_AURA_IGNORE_SPELL_COOLDOWN                        = 383,  // NYI
     SPELL_AURA_384                                          = 384,
-    SPELL_AURA_385                                          = 385,
+    SPELL_AURA_CHANCE_OVERRIDE_AUTOATTACK_WITH_SPELL_ON_SELF= 385,  // NYI (with triggered spell cast by the initial caster?)
     SPELL_AURA_386                                          = 386,
     SPELL_AURA_387                                          = 387,
-    SPELL_AURA_388                                          = 388,
+    SPELL_AURA_MOD_TAXI_FLIGHT_SPEED                        = 388,  // NYI
     SPELL_AURA_389                                          = 389,
     SPELL_AURA_390                                          = 390,
     SPELL_AURA_391                                          = 391,
@@ -464,11 +464,11 @@ enum AuraType
     SPELL_AURA_404                                          = 404,
     SPELL_AURA_405                                          = 405,
     SPELL_AURA_406                                          = 406,
-    SPELL_AURA_407                                          = 407,
+    SPELL_AURA_MOD_FEAR_2                                   = 407,  // NYI
     SPELL_AURA_408                                          = 408,
     SPELL_AURA_409                                          = 409,
     SPELL_AURA_410                                          = 410,
-    SPELL_AURA_411                                          = 411,
+    SPELL_AURA_MOD_CHARGES                                  = 411,  // NYI
     SPELL_AURA_412                                          = 412,
     SPELL_AURA_413                                          = 413,
     SPELL_AURA_414                                          = 414,
@@ -477,7 +477,7 @@ enum AuraType
     SPELL_AURA_417                                          = 417,
     SPELL_AURA_418                                          = 418,
     SPELL_AURA_419                                          = 419,
-    SPELL_AURA_420                                          = 420,
+    SPELL_AURA_MOD_BATTLE_PET_XP_PCT                        = 420,  // NYI
     SPELL_AURA_421                                          = 421,
     SPELL_AURA_422                                          = 422,
     SPELL_AURA_423                                          = 423,
