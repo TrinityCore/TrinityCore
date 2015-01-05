@@ -237,30 +237,30 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectDamageFromMaxHealthPCT,                   //165 SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT
     &Spell::EffectGiveCurrency,                             //166 SPELL_EFFECT_GIVE_CURRENCY
     &Spell::EffectNULL,                                     //167 SPELL_EFFECT_167
-    &Spell::EffectNULL,                                     //168 SPELL_EFFECT_168
+    &Spell::EffectNULL,                                     //168 SPELL_EFFECT_ALLOW_CONTROL_PET
     &Spell::EffectNULL,                                     //169 SPELL_EFFECT_DESTROY_ITEM
-    &Spell::EffectNULL,                                     //170 SPELL_EFFECT_170
+    &Spell::EffectNULL,                                     //170 SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES
     &Spell::EffectNULL,                                     //171 SPELL_EFFECT_171
     &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
-    &Spell::EffectNULL,                                     //174 SPELL_EFFECT_174
+    &Spell::EffectNULL,                                     //174 SPELL_EFFECT_APPLY_AURA_ON_PET
     &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175  unused
-    &Spell::EffectNULL,                                     //176 SPELL_EFFECT_176
+    &Spell::EffectNULL,                                     //176 SPELL_EFFECT_SANCTUARY_2
     &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
     &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
     &Spell::EffectCreateAreaTrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
-    &Spell::EffectUnused,                                   //180 SPELL_EFFECT_180 unused
-    &Spell::EffectUnused,                                   //181 SPELL_EFFECT_181 unused
+    &Spell::EffectNULL,                                     //180 SPELL_EFFECT_UPDATE_AREATRIGGER
+    &Spell::EffectNULL,                                     //181 SPELL_EFFECT_REMOVE_TALENT
     &Spell::EffectNULL,                                     //182 SPELL_EFFECT_182
     &Spell::EffectNULL,                                     //183 SPELL_EFFECT_183
-    &Spell::EffectNULL,                                     //184 SPELL_EFFECT_184
+    &Spell::EffectNULL,                                     //184 SPELL_EFFECT_REPUTATION
     &Spell::EffectNULL,                                     //185 SPELL_EFFECT_185
     &Spell::EffectNULL,                                     //186 SPELL_EFFECT_186
-    &Spell::EffectNULL,                                     //187 SPELL_EFFECT_187
+    &Spell::EffectNULL,                                     //187 SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES
     &Spell::EffectNULL,                                     //188 SPELL_EFFECT_188
-    &Spell::EffectNULL,                                     //189 SPELL_EFFECT_189
+    &Spell::EffectNULL,                                     //189 SPELL_EFFECT_LOOT
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190
-    &Spell::EffectNULL,                                     //191 SPELL_EFFECT_191
+    &Spell::EffectNULL,                                     //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE
     &Spell::EffectNULL,                                     //192 SPELL_EFFECT_192
     &Spell::EffectNULL,                                     //193 SPELL_EFFECT_193
     &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194
@@ -269,8 +269,8 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197
     &Spell::EffectNULL,                                     //198 SPELL_EFFECT_198
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
-    &Spell::EffectNULL,                                     //200 SPELL_EFFECT_200
-    &Spell::EffectNULL,                                     //201 SPELL_EFFECT_201
+    &Spell::EffectNULL,                                     //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
+    &Spell::EffectNULL,                                     //201 SPELL_EFFECT_ENABLE_BATTLE_PETS
     &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202
     &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203
     &Spell::EffectNULL,                                     //204 SPELL_EFFECT_204
