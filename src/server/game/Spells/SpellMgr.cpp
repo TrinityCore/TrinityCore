@@ -3711,7 +3711,7 @@ void SpellMgr::LoadPetFamilySpellsStore()
 
         if (SpellMiscEntry const* spellMisc = sSpellMiscStore.LookupEntry(spellInfo->MiscID))
         {
-            if (spellMisc->HasAttribute(SPELL_ATTR0_PASSIVE))
+            if (spellMisc->Attributes & SPELL_ATTR0_PASSIVE)
             {
                 for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
                 {
