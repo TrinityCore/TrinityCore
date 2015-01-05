@@ -795,7 +795,7 @@ void Aura::RefreshDuration(bool withMods)
     {
         int32 duration = m_spellInfo->GetMaxDuration();
         // Calculate duration of periodics affected by haste.
-        if (GetCaster()->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellInfo) || m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
+        if (GetCaster()->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellInfo) || m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
             duration = int32(duration * GetCaster()->GetFloatValue(UNIT_MOD_CAST_SPEED));
 
         SetMaxDuration(duration);
@@ -812,7 +812,7 @@ void Aura::RefreshTimers()
 {
     m_maxDuration = CalcMaxDuration();
     bool resetPeriodic = true;
-    if (m_spellInfo->AttributesEx8 & SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER)
+    if (m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER))
     {
         int32 minPeriod = m_maxDuration;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -1694,7 +1694,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         if (existingAura->GetSpellInfo()->IsChanneled())
             return true;
 
-        if (m_spellInfo->AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS)
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_STACK_FOR_DIFF_CASTERS))
             return true;
 
         // check same periodic auras
@@ -1752,7 +1752,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         if (m_spellInfo->IsMultiSlotAura() && !IsArea())
             return true;
         if (!GetCastItemGUID().IsEmpty() && !existingAura->GetCastItemGUID().IsEmpty())
-            if (GetCastItemGUID() != existingAura->GetCastItemGUID() && (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_ENCHANT_PROC))
+            if (GetCastItemGUID() != existingAura->GetCastItemGUID() && (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_ENCHANT_PROC)))
                 return true;
         // same spell with same caster should not stack
         return false;
