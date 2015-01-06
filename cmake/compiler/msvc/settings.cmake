@@ -47,13 +47,16 @@ message(STATUS "MSVC: Overloaded standard names")
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 message(STATUS "MSVC: Disabled NON-SECURE warnings")
 
-#Ignore warnings about POSIX deprecation
+# Ignore warnings about POSIX deprecation
 add_definitions(-D_CRT_NONSTDC_NO_WARNINGS)
 message(STATUS "MSVC: Disabled POSIX warnings")
 
+# Ignore C4351: new behavior: elements of array 'x' will be default initialized
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4351")
+
 if(NOT WITH_WARNINGS)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619 /wd4512 /wd4351")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619 /wd4512 /wd4351")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619 /wd4512")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619 /wd4512")
   message(STATUS "MSVC: Disabled generic compiletime warnings")
 endif()
 
