@@ -68,7 +68,7 @@ namespace Connection_Patcher
             if (!fs::exists(modulePath))
                 fs::create_directories(modulePath);
 
-            if (fs::exists(modulePath / modulePath))
+            if (fs::exists(modulePath / moduleName))
                 fs::permissions(modulePath / moduleName, fs::add_perms | fs::others_write | fs::group_write | fs::owner_write);
             patcher.Finish(modulePath / moduleName);
             fs::permissions(modulePath / moduleName, fs::remove_perms | fs::others_write | fs::group_write | fs::owner_write);
@@ -251,7 +251,7 @@ int main(int argc, char** argv)
 
                 do_module<Patches::Windows::x86, Patterns::Windows::x86>
                     ( "8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth"
-                    , std::wstring(commonAppData) + std::wstring(L"/Blizzard Entertainment/Battle.net/Cache/")
+                    , std::wstring(commonAppData) + std::wstring(L"\\Blizzard Entertainment\\Battle.net\\Cache\\")
                     );
 
                 break;
@@ -264,7 +264,7 @@ int main(int argc, char** argv)
 
                 do_module<Patches::Windows::x64, Patterns::Windows::x64>
                     ( "0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth"
-                    , std::wstring(commonAppData) + std::wstring(L"/Blizzard Entertainment/Battle.net/Cache/")
+                    , std::wstring(commonAppData) + std::wstring(L"\\Blizzard Entertainment\\Battle.net\\Cache\\")
                     );
 
                 break;
