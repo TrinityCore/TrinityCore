@@ -29,13 +29,6 @@ extern unsigned char AsciiToUpperTable[256];
 extern unsigned char IntToHexChar[];
 
 //-----------------------------------------------------------------------------
-// Memory management helper
-
-#if defined(_MSC_VER) && defined(_DEBUG)
-void * DbgRealloc(void * ptr, size_t nSize);
-#endif
-
-//-----------------------------------------------------------------------------
 // GetLastError/SetLastError support for non-Windows platform
 
 #ifndef PLATFORM_WINDOWS
@@ -57,7 +50,7 @@ TCHAR * NewStrFromAnsi(LPBYTE pbStringBegin, LPBYTE pbStringEnd);
 
 TCHAR * CombinePath(const TCHAR * szPath, const TCHAR * szSubDir);
 
-void NormalizeFileName_UpperBkSlash(char * szFileName);
+void NormalizeFileName_UpperBkSlash(const char * szSrcFileName, char * szTrgFileName);
 void NormalizeFileName_LowerSlash(char * szFileName);
 
 int ConvertDigitToInt32(const TCHAR * szString, PDWORD PtrValue);

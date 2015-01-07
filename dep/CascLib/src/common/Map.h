@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 // Structures
 
-#define KEY_LENGTH_STRING    0xFFFFFFFF        // Pass this to Map_Create as dwKeyLength when you want map of string->object
+#define KEY_LENGTH_STRING    0xFFFFFFFF         // Pass this to Map_Create as dwKeyLength when you want map of string->object
 
 typedef struct _CASC_MAP
 {
