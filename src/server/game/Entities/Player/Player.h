@@ -28,6 +28,7 @@
 #include "QuestDef.h"
 #include "SpellMgr.h"
 #include "Unit.h"
+#include "../../scripts/Custom/Transmog/Transmogrification.h"
 
 #include <limits>
 #include <string>
