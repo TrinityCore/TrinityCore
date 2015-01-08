@@ -1,13 +1,15 @@
 #Transmogrification Display Vendor [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=transmogvendor)](https://travis-ci.org/Rochet2/TrinityCore)
 
 ####About
+Original idea by LilleCarl
+Coding work and execution by Rochet2
 Transmogrification Display Vendor allows you to change the display of an item to something else.
 You can use any item display in the game, as long as it fits the requirements.
-Requirements can be tweaked in the TransmogDisplayVendor.cpp file.
+Requirements can be tweaked in the `TransmogDisplayVendor.cpp` file.
 Basically any item should work with transmogrification. Custom items as well. No item is hardcoded to the system.
-Has a feature to work with the regular [Transmogrification](https://rochet2.github.io/?page=Transmogrification). This can be enabled before compiling in TransmogDisplayVendor.h.
+Has a feature to work with the regular [Transmogrification](https://rochet2.github.io/?page=Transmogrification). This can be enabled before compiling in `TransmogDisplayVendor.h`.
 Made for 3.3.5a.<br />
-Source: http://www.trinitycore.org/f/topic/7993-transmogrification-display-vendor/ ()
+Source: http://www.trinitycore.org/f/topic/7993-transmogrification-display-vendor/
 
 Video: https://youtu.be/PIheEziN_dY
 
