@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "PassiveAI.h"
 #include "BattlegroundIC.h"
+#include "Player.h"
+#include "Vehicle.h"
+#include "SpellScript.h"
+#include "SpellInfo.h"
 
 // TO-DO: This should be done with SmartAI, but yet it does not correctly support vehicles's AIs.
 //        Even adding ReactState Passive we still have issues using SmartAI.
@@ -24,19 +30,19 @@
 class npc_four_car_garage : public CreatureScript
 {
     public:
-        npc_four_car_garage() : CreatureScript("npc_four_car_garage") {}
+        npc_four_car_garage() : CreatureScript("npc_four_car_garage") { }
 
         struct npc_four_car_garageAI : public NullCreatureAI
         {
             npc_four_car_garageAI(Creature* creature) : NullCreatureAI(creature) { }
 
-            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
+            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
             {
                 if (apply)
                 {
                     uint32 spellId = 0;
 
-                    switch(me->GetEntry())
+                    switch (me->GetEntry())
                     {
                         case NPC_DEMOLISHER:
                             spellId = SPELL_DRIVING_CREDIT_DEMOLISHER;
@@ -61,13 +67,220 @@ class npc_four_car_garage : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_four_car_garageAI(creature);
+        }
+};
+
+enum Events
+{
+    EVENT_TALK  = 1,
+    EVENT_DESPAWN
+};
+
+enum Texts
+{
+    SAY_ONBOARD = 0
+};
+
+class npc_ioc_gunship_captain : public CreatureScript
+{
+    public:
+        npc_ioc_gunship_captain() : CreatureScript("npc_ioc_gunship_captain") { }
+
+        struct npc_ioc_gunship_captainAI : public ScriptedAI
+        {
+            npc_ioc_gunship_captainAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void DoAction(int32 action) override
+            {
+                if (action == ACTION_GUNSHIP_READY)
+                {
+                    DoCast(me, SPELL_SIMPLE_TELEPORT);
+                    _events.ScheduleEvent(EVENT_TALK, 3000);
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_TALK:
+                            _events.ScheduleEvent(EVENT_DESPAWN, 1000);
+                            Talk(SAY_ONBOARD);
+                            DoCast(me, SPELL_TELEPORT_VISUAL_ONLY);
+                            break;
+                        case EVENT_DESPAWN:
+                            if (me->GetMap()->ToBattlegroundMap())
+                                if (Battleground* bgIoC = me->GetMap()->ToBattlegroundMap()->GetBG())
+                                    bgIoC->DelCreature(BG_IC_NPC_GUNSHIP_CAPTAIN_1);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        private:
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_ioc_gunship_captainAI(creature);
+        }
+};
+
+class spell_ioc_gunship_portal : public SpellScriptLoader
+{
+    public:
+        spell_ioc_gunship_portal() : SpellScriptLoader("spell_ioc_gunship_portal") { }
+
+        class spell_ioc_gunship_portal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ioc_gunship_portal_SpellScript);
+
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                /*
+                 * HACK: GetWorldLocation() returns real position and not transportposition.
+                 * ServertoClient: SMSG_MOVE_TELEPORT (0x0B39)
+                 * counter: 45
+                 * Tranpsort Guid: Full: xxxx Type: MOTransport Low: xxx
+                 * Transport Position X: 0 Y: 0 Z: 0 O: 0
+                 * Position: X: 7.305609 Y: -0.095246 Z: 34.51022 O: 0
+                 */
+                caster->TeleportTo(GetHitCreature()->GetWorldLocation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+                /*
+                 * HACK: This aura should be added by 20212 and 20213 but can't find any SMSG_SPELL_GO. Could't find their position.
+                 * ServerToClient: SMSG_AURA_UPDATE (0x0072)
+                 * [0] CasterGUID: Full: xxxxx Type: Unit Entry: 20212 Low: xxx
+                 * [0] Flags: None (0)
+                 * [0] Caster Level: 60
+                 * [0] Spell ID: 66656
+                 * [0] Charges: 0
+                 * [0] Effect Mask: 1
+                 * [0] Slot: 37
+                 * Guid: Full: xxxxx Type: Player2 Low: xxxxx
+                 */
+                caster->AddAura(SPELL_PARACHUTE, caster);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_ioc_gunship_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_ioc_gunship_portal_SpellScript();
+        }
+};
+
+class spell_ioc_parachute_ic : public SpellScriptLoader
+{
+    public:
+        spell_ioc_parachute_ic() : SpellScriptLoader("spell_ioc_parachute_ic") { }
+
+        class spell_ioc_parachute_ic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ioc_parachute_ic_AuraScript);
+
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+            {
+                if (Player* target = GetTarget()->ToPlayer())
+                    if (target->m_movementInfo.GetFallTime() > 2000 && !target->GetTransport())
+                        target->CastSpell(target, SPELL_PARACHUTE_IC, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_ioc_parachute_ic_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ioc_parachute_ic_AuraScript();
+        }
+};
+
+class StartLaunchEvent : public BasicEvent
+{
+    public:
+        StartLaunchEvent(float x, float y, float z, ObjectGuid const& guid) : _x(x), _y(y), _z(z), _guid(guid)
+        {
+        }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        {
+            Player* player = ObjectAccessor::FindPlayer(_guid);
+            if (!player || !player->GetVehicle())
+                return true;
+
+            player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE, player); // prevents falling damage
+            float speedZ = 10.0f;
+            float dist = player->GetExactDist2d(_x, _y);
+
+            player->ExitVehicle();
+            player->GetMotionMaster()->MoveJump(_x, _y, _z, dist, speedZ);
+            return true;
+        }
+
+    private:
+        float _x, _y, _z;
+        ObjectGuid _guid;
+};
+
+class spell_ioc_launch : public SpellScriptLoader
+{
+    public:
+        spell_ioc_launch() : SpellScriptLoader("spell_ioc_launch") { }
+
+        class spell_ioc_launch_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ioc_launch_SpellScript);
+
+            void Launch()
+            {
+                if (!GetCaster()->ToCreature() || !GetExplTargetDest())
+                    return;
+
+                float x, y, z;
+                x = GetExplTargetDest()->GetPositionX();
+                y = GetExplTargetDest()->GetPositionY();
+                z = GetExplTargetDest()->GetPositionZ();
+                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(x, y, z, GetHitPlayer()->GetGUID()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500));
+            }
+
+            void Register() override
+            {
+                AfterHit += SpellHitFn(spell_ioc_launch_SpellScript::Launch);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_ioc_launch_SpellScript();
         }
 };
 
 void AddSC_isle_of_conquest()
 {
     new npc_four_car_garage();
+    new npc_ioc_gunship_captain();
+    new spell_ioc_gunship_portal();
+    new spell_ioc_parachute_ic();
+    new spell_ioc_launch();
 }

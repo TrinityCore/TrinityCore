@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,6 @@
 #include "GameEventMgr.h"
 #include "World.h"
 #include "ObjectMgr.h"
-#include "WorldPacket.h"
 #include "PoolMgr.h"
 #include "Language.h"
 #include "Log.h"
@@ -27,10 +26,13 @@
 #include "GossipDef.h"
 #include "Player.h"
 #include "BattlegroundMgr.h"
+#include "UnitAI.h"
+#include "GameObjectAI.h"
+#include "WorldStatePackets.h"
 
 bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
 {
-    switch(mGameEvent[entry].state)
+    switch (mGameEvent[entry].state)
     {
         default:
         case GAMEEVENT_NORMAL:
@@ -78,7 +80,7 @@ uint32 GameEventMgr::NextCheck(uint16 entry) const
     if (mGameEvent[entry].state == GAMEEVENT_WORLD_CONDITIONS)
     {
         if (mGameEvent[entry].length)
-            return mGameEvent[entry].length * 60 ;
+            return mGameEvent[entry].length * 60;
         else
             return max_ge_check_delay;
     }
@@ -121,24 +123,24 @@ void GameEventMgr::StartInternalEvent(uint16 event_id)
 
 bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 {
-    if (mGameEvent[event_id].state == GAMEEVENT_NORMAL
-        || mGameEvent[event_id].state == GAMEEVENT_INTERNAL)
+    GameEventData &data = mGameEvent[event_id];
+    if (data.state == GAMEEVENT_NORMAL || data.state == GAMEEVENT_INTERNAL)
     {
         AddActiveEvent(event_id);
         ApplyNewEvent(event_id);
         if (overwrite)
         {
             mGameEvent[event_id].start = time(NULL);
-            if (mGameEvent[event_id].end <= mGameEvent[event_id].start)
-                mGameEvent[event_id].end = mGameEvent[event_id].start+mGameEvent[event_id].length;
+            if (data.end <= data.start)
+                data.end = data.start + data.length;
         }
         return false;
     }
     else
     {
-        if (mGameEvent[event_id].state == GAMEEVENT_WORLD_INACTIVE)
+        if (data.state == GAMEEVENT_WORLD_INACTIVE)
             // set to conditions phase
-            mGameEvent[event_id].state = GAMEEVENT_WORLD_CONDITIONS;
+            data.state = GAMEEVENT_WORLD_CONDITIONS;
 
         // add to active events
         AddActiveEvent(event_id);
@@ -161,27 +163,28 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 
 void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 {
-    bool serverwide_evt = mGameEvent[event_id].state != GAMEEVENT_NORMAL && mGameEvent[event_id].state != GAMEEVENT_INTERNAL;
+    GameEventData &data = mGameEvent[event_id];
+    bool serverwide_evt = data.state != GAMEEVENT_NORMAL && data.state != GAMEEVENT_INTERNAL;
 
     RemoveActiveEvent(event_id);
     UnApplyEvent(event_id);
 
     if (overwrite && !serverwide_evt)
     {
-        mGameEvent[event_id].start = time(NULL) - mGameEvent[event_id].length * MINUTE;
-        if (mGameEvent[event_id].end <= mGameEvent[event_id].start)
-            mGameEvent[event_id].end = mGameEvent[event_id].start+mGameEvent[event_id].length;
+        data.start = time(NULL) - data.length * MINUTE;
+        if (data.end <= data.start)
+            data.end = data.start + data.length;
     }
     else if (serverwide_evt)
     {
         // if finished world event, then only gm command can stop it
-        if (overwrite || mGameEvent[event_id].state != GAMEEVENT_WORLD_FINISHED)
+        if (overwrite || data.state != GAMEEVENT_WORLD_FINISHED)
         {
             // reset conditions
-            mGameEvent[event_id].nextstart = 0;
-            mGameEvent[event_id].state = GAMEEVENT_WORLD_INACTIVE;
-            std::map<uint32 /*condition id*/, GameEventFinishCondition>::iterator itr;
-            for (itr = mGameEvent[event_id].conditions.begin(); itr != mGameEvent[event_id].conditions.end(); ++itr)
+            data.nextstart = 0;
+            data.state = GAMEEVENT_WORLD_INACTIVE;
+            GameEventConditionMap::iterator itr;
+            for (itr = data.conditions.begin(); itr != data.conditions.end(); ++itr)
                 itr->second.done = 0;
 
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -202,25 +205,24 @@ void GameEventMgr::LoadFromDB()
 {
     {
         uint32 oldMSTime = getMSTime();
-
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, description, world_event FROM game_event");
+        //                                               0           1                           2                         3          4       5        6            7            8
+        QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, description, world_event, announce FROM game_event");
         if (!result)
         {
             mGameEvent.clear();
-            sLog->outErrorDb(">> Loaded 0 game events. DB table `game_event` is empty.");
-            sLog->outString();
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 game events. DB table `game_event` is empty.");
             return;
         }
 
         uint32 count = 0;
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
 
-            uint16 event_id = fields[0].GetUInt16();
+            uint8 event_id = fields[0].GetUInt8();
             if (event_id == 0)
             {
-                sLog->outErrorDb("`game_event` game event entry 0 is reserved and can't be used.");
+                TC_LOG_ERROR("sql.sql", "`game_event` game event entry 0 is reserved and can't be used.");
                 continue;
             }
 
@@ -229,16 +231,17 @@ void GameEventMgr::LoadFromDB()
             pGameEvent.start        = time_t(starttime);
             uint64 endtime          = fields[2].GetUInt64();
             pGameEvent.end          = time_t(endtime);
-            pGameEvent.occurence    = fields[3].GetUInt32();
-            pGameEvent.length       = fields[4].GetUInt32();
+            pGameEvent.occurence    = fields[3].GetUInt64();
+            pGameEvent.length       = fields[4].GetUInt64();
             pGameEvent.holiday_id   = HolidayIds(fields[5].GetUInt32());
 
             pGameEvent.state        = (GameEventState)(fields[7].GetUInt8());
             pGameEvent.nextstart    = 0;
+            pGameEvent.announce     = fields[8].GetUInt8();
 
             if (pGameEvent.length == 0 && pGameEvent.state == GAMEEVENT_NORMAL)                            // length>0 is validity check
             {
-                sLog->outErrorDb("`game_event` game event id (%i) isn't a world event and has length = 0, thus it can't be used.", event_id);
+                TC_LOG_ERROR("sql.sql", "`game_event` game event id (%i) isn't a world event and has length = 0, thus it can't be used.", event_id);
                 continue;
             }
 
@@ -246,7 +249,7 @@ void GameEventMgr::LoadFromDB()
             {
                 if (!sHolidaysStore.LookupEntry(pGameEvent.holiday_id))
                 {
-                    sLog->outErrorDb("`game_event` game event id (%i) have not existed holiday id %u.", event_id, pGameEvent.holiday_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event` game event id (%i) have not existed holiday id %u.", event_id, pGameEvent.holiday_id);
                     pGameEvent.holiday_id = HOLIDAY_NONE;
                 }
             }
@@ -257,11 +260,11 @@ void GameEventMgr::LoadFromDB()
         }
         while (result->NextRow());
 
-        sLog->outString(">> Loaded %u game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        sLog->outString();
+        TC_LOG_INFO("server.loading", ">> Loaded %u game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
     }
 
-    sLog->outString("Loading Game Event Saves Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Saves Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -269,22 +272,19 @@ void GameEventMgr::LoadFromDB()
         QueryResult result = CharacterDatabase.Query("SELECT eventEntry, state, next_start FROM game_event_save");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 game event saves in game events. DB table `game_event_save` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 game event saves in game events. DB table `game_event_save` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
-                uint16 event_id = fields[0].GetUInt16();
+                uint8 event_id = fields[0].GetUInt8();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    sLog->outErrorDb("`game_event_save` game event entry (%i) is out of range compared to max event entry in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_save` game event entry (%i) is out of range compared to max event entry in `game_event`", event_id);
                     continue;
                 }
 
@@ -295,7 +295,7 @@ void GameEventMgr::LoadFromDB()
                 }
                 else
                 {
-                    sLog->outErrorDb("game_event_save includes event save for non-worldevent id %u", event_id);
+                    TC_LOG_ERROR("sql.sql", "game_event_save includes event save for non-worldevent id %u", event_id);
                     continue;
                 }
 
@@ -303,49 +303,47 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u game event saves in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u game event saves in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
         }
     }
 
-    sLog->outString("Loading Game Event Prerequisite Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Prerequisite Data...");
     {
         uint32 oldMSTime = getMSTime();
 
+        //                                                   0             1
         QueryResult result = WorldDatabase.Query("SELECT eventEntry, prerequisite_event FROM game_event_prerequisite");
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 game event prerequisites in game events. DB table `game_event_prerequisite` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 game event prerequisites in game events. DB table `game_event_prerequisite` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
-                uint16 event_id = fields[0].GetUInt16();
+                uint16 event_id = fields[0].GetUInt8();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    sLog->outErrorDb("`game_event_prerequisite` game event id (%i) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_prerequisite` game event id (%i) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
                 if (mGameEvent[event_id].state != GAMEEVENT_NORMAL && mGameEvent[event_id].state != GAMEEVENT_INTERNAL)
                 {
-                    uint16 prerequisite_event = fields[1].GetUInt16();
+                    uint16 prerequisite_event = fields[1].GetUInt32();
                     if (prerequisite_event >= mGameEvent.size())
                     {
-                        sLog->outErrorDb("`game_event_prerequisite` game event prerequisite id (%i) is out of range compared to max event id in `game_event`", prerequisite_event);
+                        TC_LOG_ERROR("sql.sql", "`game_event_prerequisite` game event prerequisite id (%i) is out of range compared to max event id in `game_event`", prerequisite_event);
                         continue;
                     }
                     mGameEvent[event_id].prerequisite_events.insert(prerequisite_event);
                 }
                 else
                 {
-                    sLog->outErrorDb("game_event_prerequisiste includes event entry for non-worldevent id %u", event_id);
+                    TC_LOG_ERROR("sql.sql", "game_event_prerequisiste includes event entry for non-worldevent id %u", event_id);
                     continue;
                 }
 
@@ -353,39 +351,42 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u game event prerequisites in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u game event prerequisites in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
         }
     }
 
-    sLog->outString("Loading Game Event Creature Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Creature Data...");
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                       1                2
-        QueryResult result = WorldDatabase.Query("SELECT creature.guid, game_event_creature.eventEntry FROM creature"
-                                                 " JOIN game_event_creature ON creature.guid = game_event_creature.guid");
+        //                                                 0        1
+        QueryResult result = WorldDatabase.Query("SELECT guid, eventEntry FROM game_event_creature");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 creatures in game events. DB table `game_event_creature` is empty");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 creatures in game events. DB table `game_event_creature` is empty");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
-                uint32 guid    = fields[0].GetUInt32();
-                int16 event_id = fields[1].GetInt16();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
+                int16 event_id = fields[1].GetInt8();
 
                 int32 internal_event_id = mGameEvent.size() + event_id - 1;
 
+                CreatureData const* data = sObjectMgr->GetCreatureData(guid);
+                if (!data)
+                {
+                    TC_LOG_ERROR("sql.sql", "`game_event_creature` contains creature (GUID: " UI64FMTD ") not found in `creature` table.", guid);
+                    continue;
+                }
+
                 if (internal_event_id < 0 || internal_event_id >= int32(mGameEventCreatureGuids.size()))
                 {
-                    sLog->outErrorDb("`game_event_creature` game event id (%i) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_creature` game event id (%i) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -396,39 +397,42 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u creatures in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u creatures in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
         }
     }
 
-    sLog->outString("Loading Game Event GO Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event GO Data...");
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                      1                2
-        QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, game_event_gameobject.eventEntry FROM gameobject"
-                                                 " JOIN game_event_gameobject ON gameobject.guid=game_event_gameobject.guid");
+        //                                                0         1
+        QueryResult result = WorldDatabase.Query("SELECT guid, eventEntry FROM game_event_gameobject");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 gameobjects in game events. DB table `game_event_gameobject` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 gameobjects in game events. DB table `game_event_gameobject` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
-                uint32 guid    = fields[0].GetUInt32();
-                int16 event_id = fields[1].GetInt16();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
+                int16 event_id = fields[1].GetInt8();
 
                 int32 internal_event_id = mGameEvent.size() + event_id - 1;
 
+                GameObjectData const* data = sObjectMgr->GetGOData(guid);
+                if (!data)
+                {
+                    TC_LOG_ERROR("sql.sql", "`game_event_gameobject` contains gameobject (GUID: " UI64FMTD ") not found in `gameobject` table.", guid);
+                    continue;
+                }
+
                 if (internal_event_id < 0 || internal_event_id >= int32(mGameEventGameobjectGuids.size()))
                 {
-                    sLog->outErrorDb("`game_event_gameobject` game event id (%i) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_gameobject` game event id (%i) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -439,69 +443,66 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u gameobjects in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u gameobjects in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outString("Loading Game Event Model/Equipment Change Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Model/Equipment Change Data...");
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                       0                     1                              2                               3
-        QueryResult result = WorldDatabase.Query("SELECT creature.guid, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id "
+        //                                                       0           1                       2                                 3                                     4
+        QueryResult result = WorldDatabase.Query("SELECT creature.guid, creature.id, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id "
                                                  "FROM creature JOIN game_event_model_equip ON creature.guid=game_event_model_equip.guid");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 model/equipment changes in game events. DB table `game_event_model_equip` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 model/equipment changes in game events. DB table `game_event_model_equip` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
-                uint32 guid     = fields[0].GetUInt32();
-                uint16 event_id = fields[1].GetUInt16();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
+                uint32 entry    = fields[1].GetUInt32();
+                uint16 event_id = fields[2].GetUInt8();
 
                 if (event_id >= mGameEventModelEquip.size())
                 {
-                    sLog->outErrorDb("`game_event_model_equip` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_model_equip` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
                 ModelEquipList& equiplist = mGameEventModelEquip[event_id];
                 ModelEquip newModelEquipSet;
-                newModelEquipSet.modelid = fields[2].GetUInt32();
-                newModelEquipSet.equipment_id = fields[3].GetUInt32();
+                newModelEquipSet.modelid = fields[3].GetUInt32();
+                newModelEquipSet.equipment_id = fields[4].GetUInt8();
                 newModelEquipSet.equipement_id_prev = 0;
                 newModelEquipSet.modelid_prev = 0;
 
                 if (newModelEquipSet.equipment_id > 0)
                 {
-                    if (!sObjectMgr->GetEquipmentInfo(newModelEquipSet.equipment_id))
+                    int8 equipId = static_cast<int8>(newModelEquipSet.equipment_id);
+                    if (!sObjectMgr->GetEquipmentInfo(entry, equipId))
                     {
-                        sLog->outErrorDb("Table `game_event_model_equip` have creature (Guid: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.",
-                                         guid, newModelEquipSet.equipment_id);
+                        TC_LOG_ERROR("sql.sql", "Table `game_event_model_equip` have creature (Guid: " UI64FMTD ", entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.",
+                                         guid, entry, newModelEquipSet.equipment_id);
                         continue;
                     }
                 }
 
-                equiplist.push_back(std::pair<uint32, ModelEquip>(guid, newModelEquipSet));
+                equiplist.push_back(std::pair<ObjectGuid::LowType, ModelEquip>(guid, newModelEquipSet));
 
                 ++count;
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u model/equipment changes in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u model/equipment changes in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outString("Loading Game Event Quest Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Quest Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -509,24 +510,21 @@ void GameEventMgr::LoadFromDB()
         QueryResult result = WorldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_creature_quest");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 quests additions in game events. DB table `game_event_creature_quest` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 quests additions in game events. DB table `game_event_creature_quest` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 id       = fields[0].GetUInt32();
                 uint32 quest    = fields[1].GetUInt32();
-                uint16 event_id = fields[2].GetUInt16();
+                uint16 event_id = fields[2].GetUInt8();
 
                 if (event_id >= mGameEventCreatureQuests.size())
                 {
-                    sLog->outErrorDb("`game_event_creature_quest` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_creature_quest` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -537,12 +535,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outString("Loading Game Event GO Quest Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event GO Quest Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -550,24 +547,21 @@ void GameEventMgr::LoadFromDB()
         QueryResult result = WorldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_gameobject_quest");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 go quests additions in game events. DB table `game_event_gameobject_quest` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 go quests additions in game events. DB table `game_event_gameobject_quest` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 id       = fields[0].GetUInt32();
                 uint32 quest    = fields[1].GetUInt32();
-                uint16 event_id = fields[2].GetUInt16();
+                uint16 event_id = fields[2].GetUInt8();
 
                 if (event_id >= mGameEventGameObjectQuests.size())
                 {
-                    sLog->outErrorDb("`game_event_gameobject_quest` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_gameobject_quest` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -578,38 +572,34 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outString("Loading Game Event Quest Condition Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Quest Condition Data...");
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 0       1         2           3
+        //                                                 0       1         2             3
         QueryResult result = WorldDatabase.Query("SELECT quest, eventEntry, condition_id, num FROM game_event_quest_condition");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 quest event conditions in game events. DB table `game_event_quest_condition` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 quest event conditions in game events. DB table `game_event_quest_condition` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 quest     = fields[0].GetUInt32();
-                uint16 event_id  = fields[1].GetUInt16();
+                uint16 event_id  = fields[1].GetUInt8();
                 uint32 condition = fields[2].GetUInt32();
                 float num       = fields[3].GetFloat();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    sLog->outErrorDb("`game_event_quest_condition` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_quest_condition` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -621,12 +611,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u quest event conditions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u quest event conditions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outString("Loading Game Event Condition Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Condition Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -634,41 +623,37 @@ void GameEventMgr::LoadFromDB()
         QueryResult result = WorldDatabase.Query("SELECT eventEntry, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 conditions in game events. DB table `game_event_condition` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 conditions in game events. DB table `game_event_condition` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
-                uint16 event_id  = fields[0].GetUInt16();
+                uint16 event_id  = fields[0].GetUInt8();
                 uint32 condition = fields[1].GetUInt32();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    sLog->outErrorDb("`game_event_condition` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_condition` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
                 mGameEvent[event_id].conditions[condition].reqNum = fields[2].GetFloat();
                 mGameEvent[event_id].conditions[condition].done = 0;
-                mGameEvent[event_id].conditions[condition].max_world_state = fields[3].GetUInt32();
-                mGameEvent[event_id].conditions[condition].done_world_state = fields[4].GetUInt32();
+                mGameEvent[event_id].conditions[condition].max_world_state = fields[3].GetUInt16();
+                mGameEvent[event_id].conditions[condition].done_world_state = fields[4].GetUInt16();
 
                 ++count;
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u conditions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u conditions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outString("Loading Game Event Condition Save Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Condition Save Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -676,34 +661,31 @@ void GameEventMgr::LoadFromDB()
         QueryResult result = CharacterDatabase.Query("SELECT eventEntry, condition_id, done FROM game_event_condition_save");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 condition saves in game events. DB table `game_event_condition_save` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 condition saves in game events. DB table `game_event_condition_save` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
-                uint16 event_id  = fields[0].GetUInt16();
+                uint16 event_id  = fields[0].GetUInt8();
                 uint32 condition = fields[1].GetUInt32();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    sLog->outErrorDb("`game_event_condition_save` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_condition_save` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
-                std::map<uint32, GameEventFinishCondition>::iterator itr = mGameEvent[event_id].conditions.find(condition);
+                GameEventConditionMap::iterator itr = mGameEvent[event_id].conditions.find(condition);
                 if (itr != mGameEvent[event_id].conditions.end())
                 {
                     itr->second.done = fields[2].GetFloat();
                 }
                 else
                 {
-                    sLog->outErrorDb("game_event_condition_save contains not present condition evt id %u cond id %u", event_id, condition);
+                    TC_LOG_ERROR("sql.sql", "game_event_condition_save contains not present condition evt id %u cond id %u", event_id, condition);
                     continue;
                 }
 
@@ -711,12 +693,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u condition saves in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u condition saves in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outString("Loading Game Event NPCflag Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event NPCflag Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -724,24 +705,21 @@ void GameEventMgr::LoadFromDB()
         QueryResult result = WorldDatabase.Query("SELECT guid, eventEntry, npcflag FROM game_event_npcflag");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 npcflags in game events. DB table `game_event_npcflag` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 npcflags in game events. DB table `game_event_npcflag` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
-                uint32 guid     = fields[0].GetUInt32();
-                uint16 event_id = fields[1].GetUInt16();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
+                uint16 event_id = fields[1].GetUInt8();
                 uint32 npcflag  = fields[2].GetUInt32();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    sLog->outErrorDb("`game_event_npcflag` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_npcflag` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -751,45 +729,82 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u npcflags in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u npcflags in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outString("Loading Game Event Vendor Additions Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Seasonal Quest Relations...");
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                    0        1    2       3         4          5
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost FROM game_event_npc_vendor ORDER BY guid, slot ASC");
+        //                                                  0          1
+        QueryResult result = WorldDatabase.Query("SELECT questId, eventEntry FROM game_event_seasonal_questrelation");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 vendor additions in game events. DB table `game_event_npc_vendor` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 seasonal quests additions in game events. DB table `game_event_seasonal_questrelation` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
-                uint16 event_id  = fields[0].GetUInt16();
+                uint32 questId  = fields[0].GetUInt32();
+                uint32 eventEntry = fields[1].GetUInt32(); /// @todo Change to uint8
+
+                if (!sObjectMgr->GetQuestTemplate(questId))
+                {
+                    TC_LOG_ERROR("sql.sql", "`game_event_seasonal_questrelation` quest id (%u) does not exist in `quest_template`", questId);
+                    continue;
+                }
+
+                if (eventEntry >= mGameEvent.size())
+                {
+                    TC_LOG_ERROR("sql.sql", "`game_event_seasonal_questrelation` event id (%u) is out of range compared to max event in `game_event`", eventEntry);
+                    continue;
+                }
+
+                _questToEventLinks[questId] = eventEntry;
+                ++count;
+            }
+            while (result->NextRow());
+
+            TC_LOG_INFO("server.loading", ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+    TC_LOG_INFO("server.loading", "Loading Game Event Vendor Additions Data...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        //                                               0           1     2     3         4         5             6
+        QueryResult result = WorldDatabase.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost, type FROM game_event_npc_vendor ORDER BY guid, slot ASC");
+
+        if (!result)
+            TC_LOG_INFO("server.loading", ">> Loaded 0 vendor additions in game events. DB table `game_event_npc_vendor` is empty.");
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+
+                uint8 event_id  = fields[0].GetUInt8();
 
                 if (event_id >= mGameEventVendors.size())
                 {
-                    sLog->outErrorDb("`game_event_npc_vendor` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_npc_vendor` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
                 NPCVendorList& vendors = mGameEventVendors[event_id];
                 NPCVendorEntry newEntry;
-                uint32 guid = fields[1].GetUInt32();
+                ObjectGuid::LowType guid = fields[1].GetUInt64();
                 newEntry.item = fields[2].GetUInt32();
-                newEntry.maxcount = fields[3].GetInt32();
+                newEntry.maxcount = fields[3].GetUInt32();
                 newEntry.incrtime = fields[4].GetUInt32();
                 newEntry.ExtendedCost = fields[5].GetUInt32();
+                newEntry.Type = fields[6].GetUInt8();
                 // get the event npc flag for checking if the npc will be vendor during the event or not
                 uint32 event_npc_flag = 0;
                 NPCFlagList& flist = mGameEventNPCFlags[event_id];
@@ -808,7 +823,7 @@ void GameEventMgr::LoadFromDB()
                     newEntry.entry = data->id;
 
                 // check validity with event's npcflag
-                if (!sObjectMgr->IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, NULL, NULL, event_npc_flag))
+                if (!sObjectMgr->IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, newEntry.Type, NULL, NULL, event_npc_flag))
                     continue;
 
                 vendors.push_back(newEntry);
@@ -817,12 +832,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u vendor additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u vendor additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outString("Loading Game Event Battleground Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Battleground Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -830,22 +844,19 @@ void GameEventMgr::LoadFromDB()
         QueryResult result = WorldDatabase.Query("SELECT eventEntry, bgflag FROM game_event_battleground_holiday");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 battleground holidays in game events. DB table `game_event_condition` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 battleground holidays in game events. DB table `game_event_battleground_holiday` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
-                uint16 event_id = fields[0].GetUInt16();
+                uint16 event_id = fields[0].GetUInt8();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    sLog->outErrorDb("`game_event_battleground_holiday` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_battleground_holiday` game event id (%u) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -855,45 +866,41 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u battleground holidays in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u battleground holidays in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outString("Loading Game Event Pool Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Pool Data...");
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                       1                       2
+        //                                                               0                         1
         QueryResult result = WorldDatabase.Query("SELECT pool_template.entry, game_event_pool.eventEntry FROM pool_template"
                                                  " JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry");
 
         if (!result)
-        {
-            sLog->outString(">> Loaded 0 pools for game events. DB table `game_event_pool` is empty.");
-            sLog->outString();
-        }
+            TC_LOG_INFO("server.loading", ">> Loaded 0 pools for game events. DB table `game_event_pool` is empty.");
         else
         {
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 entry   = fields[0].GetUInt32();
-                int16 event_id = fields[1].GetInt16();
+                int16 event_id = fields[1].GetInt8();
 
                 int32 internal_event_id = mGameEvent.size() + event_id - 1;
 
                 if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
                 {
-                    sLog->outErrorDb("`game_event_pool` game event id (%i) is out of range compared to max event id in `game_event`", event_id);
+                    TC_LOG_ERROR("sql.sql", "`game_event_pool` game event id (%i) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
                 if (!sPoolMgr->CheckPool(entry))
                 {
-                    sLog->outErrorDb("Pool Id (%u) has all creatures or gameobjects with explicit chance sum <>100 and no equal chance defined. The pool system cannot pick one to spawn.", entry);
+                    TC_LOG_ERROR("sql.sql", "Pool Id (%u) has all creatures or gameobjects with explicit chance sum <>100 and no equal chance defined. The pool system cannot pick one to spawn.", entry);
                     continue;
                 }
 
@@ -904,8 +911,7 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outString(">> Loaded %u pools for game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-            sLog->outString();
+            TC_LOG_INFO("server.loading", ">> Loaded %u pools for game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 }
@@ -913,7 +919,7 @@ void GameEventMgr::LoadFromDB()
 uint32 GameEventMgr::GetNPCFlag(Creature* cr)
 {
     uint32 mask = 0;
-    uint32 guid = cr->GetDBTableGUIDLow();
+    ObjectGuid::LowType guid = cr->GetDBTableGUIDLow();
 
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
@@ -932,9 +938,9 @@ void GameEventMgr::Initialize()
     QueryResult result = WorldDatabase.Query("SELECT MAX(eventEntry) FROM game_event");
     if (result)
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
-        uint32 maxEventId = fields[0].GetUInt16();
+        uint32 maxEventId = fields[0].GetUInt8();
 
         // Id starts with 1 and vector with 0, thus increment
         maxEventId++;
@@ -962,21 +968,27 @@ uint32 GameEventMgr::StartSystem()                           // return the next 
 
 void GameEventMgr::StartArenaSeason()
 {
-    QueryResult result = WorldDatabase.PQuery("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '%i'", sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+    uint8 season = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID);
+    QueryResult result = WorldDatabase.PQuery("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '%i'", season);
 
     if (!result)
     {
-        sLog->outError("ArenaSeason (%i) must be an existant Arena Season", sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+        TC_LOG_ERROR("gameevent", "ArenaSeason (%u) must be an existant Arena Season", season);
         return;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
+    uint16 eventId = fields[0].GetUInt8();
 
-    uint16 eventId = fields[0].GetUInt16();
+    if (eventId >= mGameEvent.size())
+    {
+        TC_LOG_ERROR("gameevent", "EventEntry %u for ArenaSeason (%u) does not exists", eventId, season);
+        return;
+    }
 
     StartEvent(eventId, true);
-    sLog->outString("Arena Season %i started...", sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
-    sLog->outString();
+    TC_LOG_INFO("gameevent", "Arena Season %u started...", season);
+
 }
 
 uint32 GameEventMgr::Update()                               // return the next event delay in ms
@@ -989,7 +1001,7 @@ uint32 GameEventMgr::Update()                               // return the next e
     {
         // must do the activating first, and after that the deactivating
         // so first queue it
-        //sLog->outErrorDb("Checking event %u", itr);
+        //TC_LOG_ERROR("sql.sql", "Checking event %u", itr);
         if (CheckOneGameEvent(itr))
         {
             // if the world event is in NEXTPHASE state, and the time has passed to finish this event, then do so
@@ -1010,14 +1022,14 @@ uint32 GameEventMgr::Update()                               // return the next e
                 // changed, save to DB the gameevent state, will be updated in next update cycle
                 SaveWorldEventStateToDB(itr);
 
-            //sLog->outDebug("GameEvent %u is active", itr->first);
+            //TC_LOG_DEBUG("misc", "GameEvent %u is active", itr->first);
             // queue for activation
             if (!IsActiveEvent(itr))
                 activate.insert(itr);
         }
         else
         {
-            //sLog->outDebug("GameEvent %u is not active", itr->first);
+            //TC_LOG_DEBUG("misc", "GameEvent %u is not active", itr->first);
             if (IsActiveEvent(itr))
                 deactivate.insert(itr);
             else
@@ -1045,13 +1057,15 @@ uint32 GameEventMgr::Update()                               // return the next e
             nextEventDelay = 0;
     for (std::set<uint16>::iterator itr = deactivate.begin(); itr != deactivate.end(); ++itr)
         StopEvent(*itr);
-    sLog->outDetail("Next game event check in %u seconds.", nextEventDelay + 1);
+    TC_LOG_INFO("gameevent", "Next game event check in %u seconds.", nextEventDelay + 1);
     return (nextEventDelay + 1) * IN_MILLISECONDS;           // Add 1 second to be sure event has started/stopped at next call
 }
 
 void GameEventMgr::UnApplyEvent(uint16 event_id)
 {
-    sLog->outDetail("GameEvent %u \"%s\" removed.", event_id, mGameEvent[event_id].description.c_str());
+    TC_LOG_INFO("gameevent", "GameEvent %u \"%s\" removed.", event_id, mGameEvent[event_id].description.c_str());
+    //! Run SAI scripts with SMART_EVENT_GAME_EVENT_END
+    RunSmartAIScripts(event_id, false);
     // un-spawn positive event tagged objects
     GameEventUnspawn(event_id);
     // spawn negative event tagget objects
@@ -1072,16 +1086,14 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
 {
-    switch(sWorld->getIntConfig(CONFIG_EVENT_ANNOUNCE))
-    {
-        case 0:                                             // disable
-            break;
-        case 1:                                             // announce events
-            sWorld->SendWorldText(LANG_EVENTMESSAGE, mGameEvent[event_id].description.c_str());
-            break;
-    }
+    uint8 announce = mGameEvent[event_id].announce;
+    if (announce == 1 || (announce == 2 && sWorld->getBoolConfig(CONFIG_EVENT_ANNOUNCE)))
+        sWorld->SendWorldText(LANG_EVENTMESSAGE, mGameEvent[event_id].description.c_str());
 
-    sLog->outDetail("GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
+    TC_LOG_INFO("gameevent", "GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
+
+    //! Run SAI scripts with SMART_EVENT_GAME_EVENT_END
+    RunSmartAIScripts(event_id, true);
 
     // spawn positive event tagget objects
     GameEventSpawn(event_id);
@@ -1099,6 +1111,8 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     UpdateEventNPCVendor(event_id, true);
     // update bg holiday
     UpdateBattlegroundSettings();
+    // check for seasonal quest reset.
+    sWorld->ResetEventSeasonalQuests(event_id);
 }
 
 void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
@@ -1109,12 +1123,12 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
         // get the creature data from the low guid to get the entry, to be able to find out the whole guid
         if (CreatureData const* data = sObjectMgr->GetCreatureData(itr->first))
         {
-            Creature* cr = HashMapHolder<Creature>::Find(MAKE_NEW_GUID(itr->first, data->id, HIGHGUID_UNIT));
+            Creature* cr = HashMapHolder<Creature>::Find(ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, itr->first));
             // if we found the creature, modify its npcflag
             if (cr)
             {
                 uint32 npcflag = GetNPCFlag(cr);
-                if (const CreatureTemplate * ci = cr->GetCreatureInfo())
+                if (const CreatureTemplate* ci = cr->GetCreatureTemplate())
                     npcflag |= ci->npcflag;
                 cr->SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
                 // reset gossip options, since the flag change might have added / removed some
@@ -1138,9 +1152,9 @@ void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
     for (NPCVendorList::iterator itr = mGameEventVendors[event_id].begin(); itr != mGameEventVendors[event_id].end(); ++itr)
     {
         if (activate)
-            sObjectMgr->AddVendorItem(itr->entry, itr->item, itr->maxcount, itr->incrtime, itr->ExtendedCost, false);
+            sObjectMgr->AddVendorItem(itr->entry, itr->item, itr->maxcount, itr->incrtime, itr->ExtendedCost, itr->Type, false);
         else
-            sObjectMgr->RemoveVendorItem(itr->entry, itr->item, false);
+            sObjectMgr->RemoveVendorItem(itr->entry, itr->item, itr->Type, false);
     }
 }
 
@@ -1150,7 +1164,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
 
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventCreatureGuids.size()))
     {
-        sLog->outError("GameEventMgr::GameEventSpawn attempt access to out of range mGameEventCreatureGuids element %i (size: " SIZEFMTD ")",
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventCreatureGuids element %i (size: %zu)",
             internal_event_id, mGameEventCreatureGuids.size());
         return;
     }
@@ -1163,23 +1177,21 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             sObjectMgr->AddCreatureToGrid(*itr, data);
 
             // Spawn if necessary (loaded grids only)
-            Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(data->mapid));
+            Map* map = sMapMgr->CreateBaseMap(data->mapid);
             // We use spawn coords to spawn
-            if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
+            if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
             {
-                Creature* pCreature = new Creature;
-                //sLog->outDebug("Spawning creature %u", *itr);
-                if (!pCreature->LoadFromDB(*itr, map))
-                    delete pCreature;
-                else
-                    map->Add(pCreature);
+                Creature* creature = new Creature();
+                //TC_LOG_DEBUG("misc", "Spawning creature %u", *itr);
+                if (!creature->LoadCreatureFromDB(*itr, map))
+                    delete creature;
             }
         }
     }
 
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventGameobjectGuids.size()))
     {
-        sLog->outError("GameEventMgr::GameEventSpawn attempt access to out of range mGameEventGameobjectGuids element %i (size: " SIZEFMTD ")",
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventGameobjectGuids element %i (size: %zu)",
             internal_event_id, mGameEventGameobjectGuids.size());
         return;
     }
@@ -1192,18 +1204,19 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             sObjectMgr->AddGameobjectToGrid(*itr, data);
             // Spawn if necessary (loaded grids only)
             // this base map checked as non-instanced and then only existed
-            Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(data->mapid));
+            Map* map = sMapMgr->CreateBaseMap(data->mapid);
             // We use current coords to unspawn, not spawn coords since creature can have changed grid
-            if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
+            if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
             {
                 GameObject* pGameobject = new GameObject;
-                //sLog->outDebug("Spawning gameobject %u", *itr);
-                if (!pGameobject->LoadFromDB(*itr, map))
+                //TC_LOG_DEBUG("misc", "Spawning gameobject %u", *itr);
+                /// @todo find out when it is add to map
+                if (!pGameobject->LoadGameObjectFromDB(*itr, map, false))
                     delete pGameobject;
                 else
                 {
                     if (pGameobject->isSpawnedByDefault())
-                        map->Add(pGameobject);
+                        map->AddToMap(pGameobject);
                 }
             }
         }
@@ -1211,7 +1224,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
 
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
     {
-        sLog->outError("GameEventMgr::GameEventSpawn attempt access to out of range mGameEventPoolIds element %u (size: " SIZEFMTD ")",
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventPoolIds element %u (size: %zu)",
             internal_event_id, mGameEventPoolIds.size());
         return;
     }
@@ -1226,7 +1239,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
 
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventCreatureGuids.size()))
     {
-        sLog->outError("GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventCreatureGuids element %i (size: " SIZEFMTD ")",
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventCreatureGuids element %i (size: %zu)",
             internal_event_id, mGameEventCreatureGuids.size());
         return;
     }
@@ -1241,14 +1254,14 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         {
             sObjectMgr->RemoveCreatureFromGrid(*itr, data);
 
-            if (Creature* pCreature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(*itr, data->id, HIGHGUID_UNIT), (Creature*)NULL))
-                pCreature->AddObjectToRemoveList();
+            if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, *itr), (Creature*)NULL))
+                creature->AddObjectToRemoveList();
         }
     }
 
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventGameobjectGuids.size()))
     {
-        sLog->outError("GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventGameobjectGuids element %i (size: " SIZEFMTD ")",
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventGameobjectGuids element %i (size: %zu)",
             internal_event_id, mGameEventGameobjectGuids.size());
         return;
     }
@@ -1263,13 +1276,13 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         {
             sObjectMgr->RemoveGameobjectFromGrid(*itr, data);
 
-            if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(*itr, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
+            if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::GameObject>(data->mapid, data->id, *itr), (GameObject*)NULL))
                 pGameobject->AddObjectToRemoveList();
         }
     }
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
     {
-        sLog->outError("GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventPoolIds element %u (size: " SIZEFMTD ")", internal_event_id, mGameEventPoolIds.size());
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventPoolIds element %u (size: %zu)", internal_event_id, mGameEventPoolIds.size());
         return;
     }
 
@@ -1289,39 +1302,29 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             continue;
 
         // Update if spawned
-        Creature* pCreature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(itr->first, data->id, HIGHGUID_UNIT), (Creature*)NULL);
-        if (pCreature)
+        Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, itr->first), (Creature*)NULL);
+        if (creature)
         {
             if (activate)
             {
-                itr->second.equipement_id_prev = pCreature->GetCurrentEquipmentId();
-                itr->second.modelid_prev = pCreature->GetDisplayId();
-                pCreature->LoadEquipment(itr->second.equipment_id, true);
-                if (itr->second.modelid >0 && itr->second.modelid_prev != itr->second.modelid)
+                itr->second.equipement_id_prev = creature->GetCurrentEquipmentId();
+                itr->second.modelid_prev = creature->GetDisplayId();
+                creature->LoadEquipment(itr->second.equipment_id, true);
+                if (itr->second.modelid > 0 && itr->second.modelid_prev != itr->second.modelid &&
+                    sObjectMgr->GetCreatureModelInfo(itr->second.modelid))
                 {
-                    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(itr->second.modelid);
-                    if (minfo)
-                    {
-                        pCreature->SetDisplayId(itr->second.modelid);
-                        pCreature->SetNativeDisplayId(itr->second.modelid);
-                        pCreature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius);
-                        pCreature->SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach);
-                    }
+                    creature->SetDisplayId(itr->second.modelid);
+                    creature->SetNativeDisplayId(itr->second.modelid);
                 }
             }
             else
             {
-                pCreature->LoadEquipment(itr->second.equipement_id_prev, true);
-                if (itr->second.modelid_prev >0 && itr->second.modelid_prev != itr->second.modelid)
+                creature->LoadEquipment(itr->second.equipement_id_prev, true);
+                if (itr->second.modelid_prev > 0 && itr->second.modelid_prev != itr->second.modelid &&
+                    sObjectMgr->GetCreatureModelInfo(itr->second.modelid_prev))
                 {
-                    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(itr->second.modelid_prev);
-                    if (minfo)
-                    {
-                        pCreature->SetDisplayId(itr->second.modelid_prev);
-                        pCreature->SetNativeDisplayId(itr->second.modelid_prev);
-                        pCreature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius);
-                        pCreature->SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach);
-                    }
+                    creature->SetDisplayId(itr->second.modelid_prev);
+                    creature->SetNativeDisplayId(itr->second.modelid_prev);
                 }
             }
         }
@@ -1330,12 +1333,12 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             CreatureData const* data2 = sObjectMgr->GetCreatureData(itr->first);
             if (data2 && activate)
             {
-                CreatureTemplate const *cinfo = sObjectMgr->GetCreatureTemplate(data2->id);
-                uint32 displayID = sObjectMgr->ChooseDisplayId(0, cinfo, data2);
+                CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(data2->id);
+                uint32 displayID = ObjectMgr::ChooseDisplayId(cinfo, data2);
                 sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
                 if (data2->equipmentId == 0)
-                    itr->second.equipement_id_prev = cinfo->equipmentId;
+                    itr->second.equipement_id_prev = 0; ///@todo: verify this line
                 else if (data2->equipmentId != -1)
                     itr->second.equipement_id_prev = data->equipmentId;
                 itr->second.modelid_prev = displayID;
@@ -1384,7 +1387,7 @@ bool GameEventMgr::hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 e
     }
     return false;
 }
-bool GameEventMgr::hasCreatureActiveEventExcept(uint32 creature_id, uint16 event_id)
+bool GameEventMgr::hasCreatureActiveEventExcept(ObjectGuid::LowType creature_id, uint16 event_id)
 {
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
@@ -1400,7 +1403,7 @@ bool GameEventMgr::hasCreatureActiveEventExcept(uint32 creature_id, uint16 event
     }
     return false;
 }
-bool GameEventMgr::hasGameObjectActiveEventExcept(uint32 go_id, uint16 event_id)
+bool GameEventMgr::hasGameObjectActiveEventExcept(ObjectGuid::LowType go_id, uint16 event_id)
 {
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
@@ -1481,19 +1484,19 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
         if (bgTypeId != BATTLEGROUND_TYPE_NONE)
         {
             BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
-            if (bl && bl->HolidayWorldStateId)
+            if (bl && bl->HolidayWorldState)
             {
-                WorldPacket data;
-                sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, bl->HolidayWorldStateId, Activate ? 1 : 0);
-                sWorld->SendGlobalMessage(&data);
+                WorldPackets::WorldState::UpdateWorldState worldstate;
+                worldstate.VariableID = bl->HolidayWorldState;
+                worldstate.Value = Activate;
+                //worldstate.Hidden = false;
+                sWorld->SendGlobalMessage(worldstate.Write());
             }
         }
     }
 }
 
-GameEventMgr::GameEventMgr() : isSystemInit(false)
-{
-}
+GameEventMgr::GameEventMgr() : isSystemInit(false) { }
 
 void GameEventMgr::HandleQuestComplete(uint32 quest_id)
 {
@@ -1512,7 +1515,7 @@ void GameEventMgr::HandleQuestComplete(uint32 quest_id)
         // not in correct phase, return
         if (mGameEvent[event_id].state != GAMEEVENT_WORLD_CONDITIONS)
             return;
-        std::map<uint32, GameEventFinishCondition>::iterator citr = mGameEvent[event_id].conditions.find(condition);
+        GameEventConditionMap::iterator citr = mGameEvent[event_id].conditions.find(condition);
         // condition is registered
         if (citr != mGameEvent[event_id].conditions.end())
         {
@@ -1531,7 +1534,7 @@ void GameEventMgr::HandleQuestComplete(uint32 quest_id)
                 stmt->setUInt32(1, condition);
                 trans->Append(stmt);
 
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GAME_EVENT_CONDITION_SAVE);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GAME_EVENT_CONDITION_SAVE);
                 stmt->setUInt8(0, uint8(event_id));
                 stmt->setUInt32(1, condition);
                 stmt->setFloat(2, citr->second.done);
@@ -1552,7 +1555,7 @@ void GameEventMgr::HandleQuestComplete(uint32 quest_id)
 
 bool GameEventMgr::CheckOneGameEventConditions(uint16 event_id)
 {
-    for (std::map<uint32, GameEventFinishCondition>::iterator itr = mGameEvent[event_id].conditions.begin(); itr != mGameEvent[event_id].conditions.end(); ++itr)
+    for (GameEventConditionMap::const_iterator itr = mGameEvent[event_id].conditions.begin(); itr != mGameEvent[event_id].conditions.end(); ++itr)
         if (itr->second.done < itr->second.reqNum)
             // return false if a condition doesn't match
             return false;
@@ -1575,7 +1578,7 @@ void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
     stmt->setUInt8(0, uint8(event_id));
     trans->Append(stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GAME_EVENT_SAVE);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GAME_EVENT_SAVE);
     stmt->setUInt8(0, uint8(event_id));
     stmt->setUInt8(1, mGameEvent[event_id].state);
     stmt->setUInt32(2, mGameEvent[event_id].nextstart ? uint32(mGameEvent[event_id].nextstart) : 0);
@@ -1583,16 +1586,48 @@ void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void GameEventMgr::SendWorldStateUpdate(Player* plr, uint16 event_id)
+void GameEventMgr::SendWorldStateUpdate(Player* player, uint16 event_id)
 {
-    std::map<uint32, GameEventFinishCondition>::iterator itr;
+    GameEventConditionMap::const_iterator itr;
     for (itr = mGameEvent[event_id].conditions.begin(); itr !=mGameEvent[event_id].conditions.end(); ++itr)
     {
         if (itr->second.done_world_state)
-            plr->SendUpdateWorldState(itr->second.done_world_state, (uint32)(itr->second.done));
+            player->SendUpdateWorldState(itr->second.done_world_state, (uint32)(itr->second.done));
         if (itr->second.max_world_state)
-            plr->SendUpdateWorldState(itr->second.max_world_state, (uint32)(itr->second.reqNum));
+            player->SendUpdateWorldState(itr->second.max_world_state, (uint32)(itr->second.reqNum));
     }
+}
+
+void GameEventMgr::RunSmartAIScripts(uint16 event_id, bool activate)
+{
+    //! Iterate over every supported source type (creature and gameobject)
+    //! Not entirely sure how this will affect units in non-loaded grids.
+    {
+        boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Creature>::GetLock());
+        HashMapHolder<Creature>::MapType const& m = ObjectAccessor::GetCreatures();
+        for (HashMapHolder<Creature>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
+            if (iter->second->IsInWorld())
+                iter->second->AI()->sOnGameEvent(activate, event_id);
+    }
+    {
+        boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<GameObject>::GetLock());
+        HashMapHolder<GameObject>::MapType const& m = ObjectAccessor::GetGameObjects();
+        for (HashMapHolder<GameObject>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
+            if (iter->second->IsInWorld())
+                iter->second->AI()->OnGameEvent(activate, event_id);
+    }
+}
+
+uint16 GameEventMgr::GetEventIdForQuest(Quest const* quest) const
+{
+    if (!quest)
+        return 0;
+
+    std::unordered_map<uint32, uint16>::const_iterator itr = _questToEventLinks.find(quest->GetQuestId());
+    if (itr == _questToEventLinks.end())
+        return 0;
+
+    return itr->second;
 }
 
 bool IsHolidayActive(HolidayIds id)
@@ -1610,7 +1645,7 @@ bool IsHolidayActive(HolidayIds id)
     return false;
 }
 
- bool IsEventActive(uint16 event_id)
+bool IsEventActive(uint16 event_id)
 {
     GameEventMgr::ActiveEvents const& ae = sGameEventMgr->GetActiveEventList();
     return ae.find(event_id) != ae.end();

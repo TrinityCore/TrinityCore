@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,21 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum Yells
 {
-    YELL_AGGRO                                    = -1810008,
-    YELL_EVADE                                    = -1810009,
-    YELL_RESPAWN1                                 = -1810010,
-    YELL_RESPAWN2                                 = -1810011,
-    YELL_RANDOM1                                  = -1810012,
-    YELL_RANDOM2                                  = -1810013,
-    YELL_RANDOM3                                  = -1810014,
-    YELL_RANDOM4                                  = -1810015,
-    YELL_RANDOM5                                  = -1810016,
-    YELL_RANDOM6                                  = -1810017,
-    YELL_RANDOM7                                  = -1810018
+    YELL_AGGRO                                    = 0,
+    YELL_EVADE                                    = 1,
+  //YELL_RESPAWN1                                 = -1810010, // Missing in database
+  //YELL_RESPAWN2                                 = -1810011, // Missing in database
+    YELL_RANDOM                                   = 2,
+    YELL_SPELL                                    = 3,
 };
 
 enum Spells
@@ -46,79 +42,81 @@ public:
 
     struct boss_vanndarAI : public ScriptedAI
     {
-        boss_vanndarAI(Creature* c) : ScriptedAI(c) {}
-
-        uint32 uiAvatarTimer;
-        uint32 uiThunderclapTimer;
-        uint32 uiStormboltTimer;
-        uint32 uiResetTimer;
-        uint32 uiYellTimer;
-
-        void Reset()
+        boss_vanndarAI(Creature* creature) : ScriptedAI(creature)
         {
-            uiAvatarTimer = 3*IN_MILLISECONDS;
-            uiThunderclapTimer = 4*IN_MILLISECONDS;
-            uiStormboltTimer = 6*IN_MILLISECONDS;
-            uiResetTimer = 5*IN_MILLISECONDS;
-            uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+            Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void Initialize()
         {
-            DoScriptText(YELL_AGGRO, me);
+            AvatarTimer = 3 * IN_MILLISECONDS;
+            ThunderclapTimer = 4 * IN_MILLISECONDS;
+            StormboltTimer = 6 * IN_MILLISECONDS;
+            ResetTimer = 5 * IN_MILLISECONDS;
+            YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
         }
 
-        void JustRespawned()
+        uint32 AvatarTimer;
+        uint32 ThunderclapTimer;
+        uint32 StormboltTimer;
+        uint32 ResetTimer;
+        uint32 YellTimer;
+
+        void Reset() override
         {
-            Reset();
-            DoScriptText(RAND(YELL_RESPAWN1, YELL_RESPAWN2), me);
+            Initialize();
         }
 
-        void UpdateAI(const uint32 diff)
+        void EnterCombat(Unit* /*who*/) override
+        {
+            Talk(YELL_AGGRO);
+        }
+
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
-            if (uiAvatarTimer <= diff)
+            if (AvatarTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_AVATAR);
-                uiAvatarTimer =  urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-            } else uiAvatarTimer -= diff;
+                DoCastVictim(SPELL_AVATAR);
+                AvatarTimer =  urand(15 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            } else AvatarTimer -= diff;
 
-            if (uiThunderclapTimer <= diff)
+            if (ThunderclapTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_THUNDERCLAP);
-                uiThunderclapTimer = urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-            } else uiThunderclapTimer -= diff;
+                DoCastVictim(SPELL_THUNDERCLAP);
+                ThunderclapTimer = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+            } else ThunderclapTimer -= diff;
 
-            if (uiStormboltTimer <= diff)
+            if (StormboltTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STORMBOLT);
-                uiStormboltTimer = urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS);
-            } else uiStormboltTimer -= diff;
+                DoCastVictim(SPELL_STORMBOLT);
+                StormboltTimer = urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS);
+            } else StormboltTimer -= diff;
 
-            if (uiYellTimer <= diff)
+            if (YellTimer <= diff)
             {
-                DoScriptText(RAND(YELL_RANDOM1, YELL_RANDOM2, YELL_RANDOM3, YELL_RANDOM4, YELL_RANDOM5, YELL_RANDOM6, YELL_RANDOM7), me);
-                uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS); //20 to 30 seconds
-            } else uiYellTimer -= diff;
+                Talk(YELL_RANDOM);
+                YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
+            } else YellTimer -= diff;
 
             // check if creature is not outside of building
-            if (uiResetTimer <= diff)
+            if (ResetTimer <= diff)
             {
                 if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 {
                     EnterEvadeMode();
-                    DoScriptText(YELL_EVADE, me);
+                    Talk(YELL_EVADE);
                 }
-                uiResetTimer = 5*IN_MILLISECONDS;
-            } else uiResetTimer -= diff;
+                ResetTimer = 5 * IN_MILLISECONDS;
+            } else ResetTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_vanndarAI(creature);
     }

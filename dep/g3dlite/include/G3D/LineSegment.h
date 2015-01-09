@@ -21,35 +21,39 @@ namespace G3D {
 class LineSegment {
 protected:
 
-    Vector3             _point;
+    Point3             _point;
 
     /** Not normalized */
     Vector3             direction;
 
-    LineSegment(const Vector3& __point, const Vector3& _direction) : _point(__point), direction(_direction) {
+    LineSegment(const Point3& __point, const Vector3& _direction) : _point(__point), direction(_direction) {
     }
 
 public:
 
-    inline LineSegment() : _point(Vector3::zero()), direction(Vector3::zero()) {}
+    LineSegment() : _point(Point3::zero()), direction(Vector3::zero()) {}
 
-	LineSegment(class BinaryInput& b);
-
-	void serialize(class BinaryOutput& b) const;
-
-	void deserialize(class BinaryInput& b);
+    LineSegment(class BinaryInput& b);
+    
+    void serialize(class BinaryOutput& b) const;
+    
+    void deserialize(class BinaryInput& b);
 
     virtual ~LineSegment() {}
-
+    
     /**
      * Constructs a line from two (not equal) points.
      */
-    static LineSegment fromTwoPoints(const Vector3 &point1, const Vector3 &point2) {
+    static LineSegment fromTwoPoints(const Point3 &point1, const Point3 &point2) {
         return LineSegment(point1, point2 - point1);
     }
 
-	/** Call with 0 or 1 */
-    Vector3 point(int i) const;
+    /** Call with 0 or 1 */
+    Point3 point(int i) const;
+
+    Point3 midpoint() const {
+        return _point + direction * 0.5f;
+    }
 
     inline float length() const {
         return direction.magnitude();
@@ -58,23 +62,23 @@ public:
     /**
      * Returns the closest point on the line segment to point.
      */
-    Vector3 closestPoint(const Vector3 &point) const;
+    Point3 closestPoint(const Point3 &point) const;
 
     /**
      Returns the distance between point and the line
      */
-    double distance(const Vector3& p) const {
+    double distance(const Point3& p) const {
         return (closestPoint(p) - p).magnitude();
     }
 
-    double distanceSquared(const Vector3& p) const {
+    double distanceSquared(const Point3& p) const {
         return (closestPoint(p) - p).squaredMagnitude();
     }
 
     /** Returns true if some part of this segment is inside the sphere */
     bool intersectsSolidSphere(const class Sphere& s) const;
 
-    Vector3 randomPoint() const;
+    Point3 randomPoint() const;
 
 };
 
@@ -82,7 +86,7 @@ public:
 class LineSegment2D {
 private:
 
-    Vector2         m_origin;
+    Point2         m_origin;
 
     /** Not normalized */
     Vector2         m_direction;
@@ -94,17 +98,17 @@ public:
     
     LineSegment2D() {}
 
-    static LineSegment2D fromTwoPoints(const Vector2& p0, const Vector2& p1);
+    static LineSegment2D fromTwoPoints(const Point2& p0, const Vector2& p1);
 
     /** Returns the intersection of these segements (including 
-       testing endpoints), or Vector2::inf() if they do not intersect. */
-    Vector2 intersection(const LineSegment2D& other) const;
+       testing endpoints), or Point2::inf() if they do not intersect. */
+    Point2 intersection(const LineSegment2D& other) const;
 
-    Vector2 point(int i) const;
+    Point2 point(int i) const;
 
-    Vector2 closestPoint(const Vector2& Q) const;
+    Point2 closestPoint(const Point2& Q) const;
 
-    float distance(const Vector2& p) const;
+    float distance(const Point2& p) const;
 
     float length() const;
 };

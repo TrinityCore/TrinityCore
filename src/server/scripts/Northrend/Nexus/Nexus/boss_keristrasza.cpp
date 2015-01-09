@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "Player.h"
 #include "nexus.h"
 
 enum Spells
@@ -27,180 +30,184 @@ enum Spells
     SPELL_CRYSTAL_CHAINS                          = 50997,
     SPELL_ENRAGE                                  = 8599,
     SPELL_CRYSTALFIRE_BREATH                      = 48096,
-    H_SPELL_CRYSTALFIRE_BREATH                    = 57091,
     SPELL_CRYSTALIZE                              = 48179,
     SPELL_INTENSE_COLD                            = 48094,
     SPELL_INTENSE_COLD_TRIGGERED                  = 48095
 };
 
+enum Events
+{
+    EVENT_CRYSTAL_FIRE_BREATH                     = 1,
+    EVENT_CRYSTAL_CHAINS_CRYSTALIZE,
+    EVENT_TAIL_SWEEP
+};
+
 enum Yells
 {
-    //Yell
-    SAY_AGGRO                                     = -1576040,
-    SAY_SLAY                                      = -1576041,
-    SAY_ENRAGE                                    = -1576042,
-    SAY_DEATH                                     = -1576043,
-    SAY_CRYSTAL_NOVA                              = -1576044
+    // Yell
+    SAY_AGGRO                                     = 0,
+    SAY_SLAY                                      = 1,
+    SAY_ENRAGE                                    = 2,
+    SAY_DEATH                                     = 3,
+    SAY_CRYSTAL_NOVA                              = 4,
+    SAY_FRENZY                                    = 5
 };
 
 enum Misc
 {
     DATA_INTENSE_COLD                             = 1,
-    DATA_CONTAINMENT_SPHERES                      = 3,
+    DATA_CONTAINMENT_SPHERES                      = 3
 };
 
 class boss_keristrasza : public CreatureScript
 {
-public:
-    boss_keristrasza() : CreatureScript("boss_keristrasza") { }
+    public:
+        boss_keristrasza() : CreatureScript("boss_keristrasza") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_keristraszaAI (creature);
-    }
-
-    struct boss_keristraszaAI : public ScriptedAI
-    {
-        boss_keristraszaAI(Creature* c) : ScriptedAI(c)
+        struct boss_keristraszaAI : public BossAI
         {
-            pInstance = c->GetInstanceScript();
-        }
-
-        InstanceScript* pInstance;
-
-        std::list<uint64> intenseColdList;
-        uint64 auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
-        uint32 uiCrystalfireBreathTimer;
-        uint32 uiCrystalChainsCrystalizeTimer;
-        uint32 uiTailSweepTimer;
-        bool intenseCold;
-        bool bEnrage;
-
-        void Reset()
-        {
-            uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
-            uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS, 11*IN_MILLISECONDS);
-            uiTailSweepTimer = 5*IN_MILLISECONDS;
-            bEnrage = false;
-
-            intenseCold = true;
-            intenseColdList.clear();
-
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-
-            RemovePrison(CheckContainmentSpheres());
-
-            if (pInstance)
-                pInstance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoScriptText(SAY_AGGRO, me);
-            DoCastAOE(SPELL_INTENSE_COLD);
-
-            if (pInstance)
-                pInstance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            DoScriptText(SAY_DEATH, me);
-
-            if (pInstance)
-                pInstance->SetData(DATA_KERISTRASZA_EVENT, DONE);
-        }
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            DoScriptText(SAY_SLAY, me);
-        }
-
-        bool CheckContainmentSpheres(bool remove_prison = false)
-        {
-            if (!pInstance)
-                return false;
-
-            auiContainmentSphereGUIDs[0] = pInstance->GetData64(ANOMALUS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[1] = pInstance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[2] = pInstance->GetData64(TELESTRAS_CONTAINMET_SPHERE);
-
-            GameObject* ContainmentSpheres[DATA_CONTAINMENT_SPHERES];
-
-            for (uint8 i = 0; i < DATA_CONTAINMENT_SPHERES; ++i)
+            boss_keristraszaAI(Creature* creature) : BossAI(creature, DATA_KERISTRASZA)
             {
-                ContainmentSpheres[i] = pInstance->instance->GetGameObject(auiContainmentSphereGUIDs[i]);
-                if (!ContainmentSpheres[i])
-                    return false;
-                if (ContainmentSpheres[i]->GetGoState() != GO_STATE_ACTIVE)
-                    return false;
-            }
-            if (remove_prison)
-                RemovePrison(true);
-            return true;
-        }
-
-        void RemovePrison(bool remove)
-        {
-            if (remove)
-            {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if (me->HasAura(SPELL_FROZEN_PRISON))
-                    me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
-            }
-            else
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                DoCast(me, SPELL_FROZEN_PRISON, false);
-            }
-        }
-
-        void SetGUID(uint64 const& guid, int32 id/* = 0 */)
-        {
-            if (id == DATA_INTENSE_COLD)
-                intenseColdList.push_back(guid);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (!bEnrage && HealthBelowPct(25))
-            {
-                DoScriptText(SAY_ENRAGE, me);
-                DoCast(me, SPELL_ENRAGE);
-                bEnrage = true;
+                Initialize();
             }
 
-            if (uiCrystalfireBreathTimer <= diff)
+            void Initialize()
             {
-                DoCast(me->getVictim(), SPELL_CRYSTALFIRE_BREATH);
-                uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
-            } else uiCrystalfireBreathTimer -= diff;
+                _enrage = false;
+                _intenseCold = true;
+            }
 
-            if (uiTailSweepTimer <= diff)
+            void Reset() override
             {
-                DoCast(me, SPELL_TAIL_SWEEP);
-                uiTailSweepTimer = 5*IN_MILLISECONDS;
-            } else uiTailSweepTimer -= diff;
+                Initialize();
+                _intenseColdList.clear();
 
-            if (uiCrystalChainsCrystalizeTimer <= diff)
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+
+                RemovePrison(CheckContainmentSpheres());
+                _Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/) override
             {
-                DoScriptText(SAY_CRYSTAL_NOVA, me);
-                if (IsHeroic())
-                    DoCast(me, SPELL_CRYSTALIZE);
-                else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_CRYSTAL_CHAINS);
-                uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS, 11*IN_MILLISECONDS);
-            } else uiCrystalChainsCrystalizeTimer -= diff;
+                Talk(SAY_AGGRO);
+                DoCastAOE(SPELL_INTENSE_COLD);
+                _EnterCombat();
 
-            DoMeleeAttackIfReady();
+                events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14000);
+                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, DUNGEON_MODE(30000, 11000));
+                events.ScheduleEvent(EVENT_TAIL_SWEEP, 5000);
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                Talk(SAY_DEATH);
+                _JustDied();
+            }
+
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+
+            bool CheckContainmentSpheres(bool removePrison = false)
+            {
+                for (uint32 i = ANOMALUS_CONTAINMET_SPHERE; i < (ANOMALUS_CONTAINMET_SPHERE + DATA_CONTAINMENT_SPHERES); ++i)
+                {
+                    GameObject* containmentSpheres = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(i));
+                    if (!containmentSpheres || containmentSpheres->GetGoState() != GO_STATE_ACTIVE)
+                        return false;
+                }
+                if (removePrison)
+                    RemovePrison(true);
+                return true;
+            }
+
+            void RemovePrison(bool remove)
+            {
+                if (remove)
+                {
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    if (me->HasAura(SPELL_FROZEN_PRISON))
+                        me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
+                }
+                else
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    DoCast(me, SPELL_FROZEN_PRISON, false);
+                }
+            }
+
+            void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
+            {
+                if (id == DATA_INTENSE_COLD)
+                    _intenseColdList.push_back(guid);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (!_enrage && me->HealthBelowPctDamaged(25, damage))
+                {
+                    Talk(SAY_ENRAGE);
+                    Talk(SAY_FRENZY);
+                    DoCast(me, SPELL_ENRAGE);
+                    _enrage = true;
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CRYSTAL_FIRE_BREATH:
+                            DoCastVictim(SPELL_CRYSTALFIRE_BREATH);
+                            events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14000);
+                            break;
+                        case EVENT_CRYSTAL_CHAINS_CRYSTALIZE:
+                            DoCast(me, SPELL_TAIL_SWEEP);
+                            events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, 5000);
+                            break;
+                        case EVENT_TAIL_SWEEP:
+                            Talk(SAY_CRYSTAL_NOVA);
+                            if (IsHeroic())
+                                DoCast(me, SPELL_CRYSTALIZE);
+                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(target, SPELL_CRYSTAL_CHAINS);
+                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30000, 11000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            bool _intenseCold;
+            bool _enrage;
+
+        public:
+            GuidList _intenseColdList;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetInstanceAI<boss_keristraszaAI>(creature);
         }
-    };
-
 };
 
 class containment_sphere : public GameObjectScript
@@ -208,18 +215,18 @@ class containment_sphere : public GameObjectScript
 public:
     containment_sphere() : GameObjectScript("containment_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
-        InstanceScript *pInstance = pGO->GetInstanceScript();
+        InstanceScript* instance = go->GetInstanceScript();
 
-        Creature* pKeristrasza = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_KERISTRASZA) : 0);
-        if (pKeristrasza && pKeristrasza->isAlive())
+        Creature* pKeristrasza = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_KERISTRASZA));
+        if (pKeristrasza && pKeristrasza->IsAlive())
         {
             // maybe these are hacks :(
-            pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
-            pGO->SetGoState(GO_STATE_ACTIVE);
+            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go->SetGoState(GO_STATE_ACTIVE);
 
-            CAST_AI(boss_keristrasza::boss_keristraszaAI, pKeristrasza->AI())->CheckContainmentSpheres(true);
+            ENSURE_AI(boss_keristrasza::boss_keristraszaAI, pKeristrasza->AI())->CheckContainmentSpheres(true);
         }
         return true;
     }
@@ -237,21 +244,22 @@ class spell_intense_cold : public SpellScriptLoader
 
             void HandlePeriodicTick(AuraEffect const* aurEff)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
+                if (aurEff->GetBase()->GetStackAmount() < 2)
                     return;
-
-                if (aurEff->GetBase()->GetStackAmount() >= 2)
-                    caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
+                Unit* caster = GetCaster();
+                /// @todo the caster should be boss but not the player
+                if (!caster || !caster->GetAI())
+                    return;
+                caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_intense_cold_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_intense_cold_AuraScript();
         }
@@ -264,14 +272,14 @@ class achievement_intense_cold : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* player, Unit* target)
+        bool OnCheck(Player* player, Unit* target) override
         {
             if (!target)
                 return false;
 
-            std::list<uint64> intenseColdList = CAST_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->intenseColdList;
-            if (!intenseColdList.empty())
-                for (std::list<uint64>::iterator itr = intenseColdList.begin(); itr != intenseColdList.end(); ++itr)
+            GuidList const& _intenseColdList = ENSURE_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->_intenseColdList;
+            if (!_intenseColdList.empty())
+                for (GuidList::const_iterator itr = _intenseColdList.begin(); itr != _intenseColdList.end(); ++itr)
                     if (player->GetGUID() == *itr)
                         return false;
 

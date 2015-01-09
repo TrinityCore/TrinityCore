@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,37 +19,45 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "Common.h"
-#include <ace/Singleton.h>
-#include "Define.h"
+#include <string>
+#include <list>
+#include <mutex>
+#include <boost/property_tree/ptree.hpp>
 
-class ACE_Configuration_Heap;
-
-class Config
+class ConfigMgr
 {
-    friend class ACE_Singleton<Config, ACE_Null_Mutex>;
-    Config();
-    public:
-        ~Config();
+    ConfigMgr() { }
+    ~ConfigMgr() { }
 
-        bool SetSource(const char *file);
-        bool Reload();
+public:
+    /// Method used only for loading main configuration files
+    bool LoadInitial(std::string const& file, std::string& error);
 
-        std::string GetStringDefault(const char * name, std::string def);
-        bool GetBoolDefault(const char * name, const bool def);
-        int32 GetIntDefault(const char * name, const int32 def);
-        float GetFloatDefault(const char * name, const float def);
+    static ConfigMgr* instance()
+    {
+        static ConfigMgr instance;
+        return &instance;
+    }
 
-        std::string GetFilename() const { return mFilename; }
+    bool Reload(std::string& error);
 
-        ACE_Thread_Mutex mMtx;
+    std::string GetStringDefault(std::string const& name, const std::string& def);
+    bool GetBoolDefault(std::string const& name, bool def);
+    int GetIntDefault(std::string const& name, int def);
+    float GetFloatDefault(std::string const& name, float def);
 
-    private:
-        std::string mFilename;
-        ACE_Configuration_Heap *mConf;
+    std::string const& GetFilename();
+    std::list<std::string> GetKeysByString(std::string const& name);
+
+private:
+    std::string _filename;
+    boost::property_tree::ptree _config;
+    std::mutex _configLock;
+
+    ConfigMgr(ConfigMgr const&);
+    ConfigMgr& operator=(ConfigMgr const&);
 };
 
-#define sConfig ACE_Singleton<Config, ACE_Null_Mutex>::instance()
+#define sConfigMgr ConfigMgr::instance()
 
 #endif
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,10 +37,10 @@ struct SkillExtraItemEntry
     uint8 additionalMaxNum;
 
     SkillExtraItemEntry()
-        : requiredSpecialization(0), additionalCreateChance(0.0f), additionalMaxNum(0) {}
+        : requiredSpecialization(0), additionalCreateChance(0.0f), additionalMaxNum(0) { }
 
     SkillExtraItemEntry(uint32 rS, float aCC, uint8 aMN)
-        : requiredSpecialization(rS), additionalCreateChance(aCC), additionalMaxNum(aMN) {}
+        : requiredSpecialization(rS), additionalCreateChance(aCC), additionalMaxNum(aMN) { }
 };
 
 // map to store the extra item creation info, the key is the spellId of the creation spell, the mapped value is the assigned SkillExtraItemEntry
@@ -55,13 +55,12 @@ void LoadSkillExtraItemTable()
 
     SkillExtraItemStore.clear();                            // need for reload
 
-    //                                                 0        1                       2                       3
+    //                                                  0               1                       2                    3
     QueryResult result = WorldDatabase.Query("SELECT spellId, requiredSpecialization, additionalCreateChance, additionalMaxNum FROM skill_extra_item_template");
 
     if (!result)
     {
-        sLog->outErrorDb(">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
-        sLog->outString();
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
         return;
     }
 
@@ -69,34 +68,34 @@ void LoadSkillExtraItemTable()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 spellId = fields[0].GetUInt32();
 
-        if (!sSpellStore.LookupEntry(spellId))
+        if (!sSpellMgr->GetSpellInfo(spellId))
         {
-            sLog->outError("Skill specialization %u has non-existent spell id in `skill_extra_item_template`!", spellId);
+            TC_LOG_ERROR("sql.sql", "Skill specialization %u has non-existent spell id in `skill_extra_item_template`!", spellId);
             continue;
         }
 
         uint32 requiredSpecialization = fields[1].GetUInt32();
-        if (!sSpellStore.LookupEntry(requiredSpecialization))
+        if (!sSpellMgr->GetSpellInfo(requiredSpecialization))
         {
-            sLog->outError("Skill specialization %u have not existed required specialization spell id %u in `skill_extra_item_template`!", spellId, requiredSpecialization);
+            TC_LOG_ERROR("sql.sql", "Skill specialization %u have not existed required specialization spell id %u in `skill_extra_item_template`!", spellId, requiredSpecialization);
             continue;
         }
 
         float additionalCreateChance = fields[2].GetFloat();
         if (additionalCreateChance <= 0.0f)
         {
-            sLog->outError("Skill specialization %u has too low additional create chance in `skill_extra_item_template`!", spellId);
+            TC_LOG_ERROR("sql.sql", "Skill specialization %u has too low additional create chance in `skill_extra_item_template`!", spellId);
             continue;
         }
 
         uint8 additionalMaxNum = fields[3].GetUInt8();
         if (!additionalMaxNum)
         {
-            sLog->outError("Skill specialization %u has 0 max number of extra items in `skill_extra_item_template`!", spellId);
+            TC_LOG_ERROR("sql.sql", "Skill specialization %u has 0 max number of extra items in `skill_extra_item_template`!", spellId);
             continue;
         }
 
@@ -110,11 +109,10 @@ void LoadSkillExtraItemTable()
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u spell specialization definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    TC_LOG_INFO("server.loading", ">> Loaded %u spell specialization definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-bool canCreateExtraItems(Player* player, uint32 spellId, float &additionalChance, uint8 &additionalMax)
+bool CanCreateExtraItems(Player* player, uint32 spellId, float &additionalChance, uint8 &additionalMax)
 {
     // get the info for the specified spell
     SkillExtraItemMap::const_iterator ret = SkillExtraItemStore.find(spellId);
@@ -138,4 +136,3 @@ bool canCreateExtraItems(Player* player, uint32 spellId, float &additionalChance
     // enable extra item creation
     return true;
 }
-

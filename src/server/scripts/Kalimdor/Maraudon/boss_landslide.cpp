@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,75 +23,89 @@ SDComment:
 SDCategory: Maraudon
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
-#define SPELL_KNOCKAWAY         18670
-#define SPELL_TRAMPLE           5568
-#define SPELL_LANDSLIDE         21808
+enum Spells
+{
+    SPELL_KNOCKAWAY         = 18670,
+    SPELL_TRAMPLE           = 5568,
+    SPELL_LANDSLIDE         = 21808
+};
 
 class boss_landslide : public CreatureScript
 {
 public:
     boss_landslide() : CreatureScript("boss_landslide") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_landslideAI (creature);
+        return new boss_landslideAI(creature);
     }
 
     struct boss_landslideAI : public ScriptedAI
     {
-        boss_landslideAI(Creature* c) : ScriptedAI(c) {}
-
-        uint32 KnockAway_Timer;
-        uint32 Trample_Timer;
-        uint32 Landslide_Timer;
-
-        void Reset()
+        boss_landslideAI(Creature* creature) : ScriptedAI(creature)
         {
-            KnockAway_Timer = 8000;
-            Trample_Timer = 2000;
-            Landslide_Timer = 0;
+            Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void Initialize()
+        {
+            KnockAwayTimer = 8000;
+            TrampleTimer = 2000;
+            LandslideTimer = 0;
+        }
+
+        uint32 KnockAwayTimer;
+        uint32 TrampleTimer;
+        uint32 LandslideTimer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
-            //KnockAway_Timer
-            if (KnockAway_Timer <= diff)
+            //KnockAwayTimer
+            if (KnockAwayTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KNOCKAWAY);
-                KnockAway_Timer = 15000;
-            } else KnockAway_Timer -= diff;
+                DoCastVictim(SPELL_KNOCKAWAY);
+                KnockAwayTimer = 15000;
+            }
+            else KnockAwayTimer -= diff;
 
-            //Trample_Timer
-            if (Trample_Timer <= diff)
+            //TrampleTimer
+            if (TrampleTimer <= diff)
             {
                 DoCast(me, SPELL_TRAMPLE);
-                Trample_Timer = 8000;
-            } else Trample_Timer -= diff;
+                TrampleTimer = 8000;
+            }
+            else TrampleTimer -= diff;
 
             //Landslide
             if (HealthBelowPct(50))
             {
-                if (Landslide_Timer <= diff)
+                if (LandslideTimer <= diff)
                 {
                     me->InterruptNonMeleeSpells(false);
                     DoCast(me, SPELL_LANDSLIDE);
-                    Landslide_Timer = 60000;
-                } else Landslide_Timer -= diff;
+                    LandslideTimer = 60000;
+                }
+                else LandslideTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_landslide()

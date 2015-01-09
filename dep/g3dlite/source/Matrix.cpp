@@ -43,21 +43,21 @@ void Matrix::serialize(TextOutput& t) const {
 
 
 std::string Matrix::toString(const std::string& name) const {
-	std::string s;
+    std::string s;
 
     if (name != "") {
         s += format("%s = \n", name.c_str());
     }
 
-	s += "[";
+    s += "[";
     for (int r = 0; r < rows(); ++r) {
         for (int c = 0; c < cols(); ++c) {
             double v = impl->get(r, c);
 
-			if (::fabs(v) < 0.00001) {
-				// Don't print "negative zero"
+            if (::fabs(v) < 0.00001) {
+                // Don't print "negative zero"
                 s += format("% 10.04g", 0.0);
-			} else if (v == iRound(v)) {
+            } else if (v == iRound(v)) {
                 // Print integers nicely
                 s += format("% 10.04g", v);
             } else {
@@ -68,20 +68,20 @@ std::string Matrix::toString(const std::string& name) const {
                 s += ",";
             } else if (r < rows() - 1) {
                 s += ";\n ";
-			} else {
-				s += "]\n";
-			}
+            } else {
+                s += "]\n";
+            }
         }
     }
-	return s;
+    return s;
 }
 
 
 #define INPLACE(OP)\
     ImplRef A = impl;\
 \
-    if (! A.isLastReference()) {\
-        impl = new Impl(A->R, A->C);\
+    if (! A.unique()) {\
+        impl.reset(new Impl(A->R, A->C));\
     }\
 \
     A->OP(B, *impl);
@@ -157,9 +157,9 @@ Matrix Matrix::fromDiagonal(const Matrix& d) {
 }
 
 void Matrix::set(int r, int c, T v) {
-    if (! impl.isLastReference()) {
+    if (! impl.unique()) {
         // Copy the data before mutating; this object is shared
-        impl = new Impl(*impl);
+        impl.reset(new Impl(*impl));
     }
     impl->set(r, c, v);
 }
@@ -174,9 +174,9 @@ void Matrix::setRow(int r, const Matrix& vec) {
     debugAssert(r >= 0);
     debugAssert(r < rows());
 
-    if (! impl.isLastReference()) {
+    if (! impl.unique()) {
         // Copy the data before mutating; this object is shared
-        impl = new Impl(*impl);
+        impl.reset(new Impl(*impl));
     }
     impl->setRow(r, vec.impl->data);
 }
@@ -192,9 +192,9 @@ void Matrix::setCol(int c, const Matrix& vec) {
 
     debugAssert(c < cols());
 
-    if (! impl.isLastReference()) {
+    if (! impl.unique()) {
         // Copy the data before mutating; this object is shared
-        impl = new Impl(*impl);
+        impl.reset(new Impl(*impl));
     }
     impl->setCol(c, vec.impl->data);
 }
@@ -272,7 +272,7 @@ Matrix Matrix::identity(int N) {
 // Implement an explicit-output unary method by trampolining to the impl
 #define TRAMPOLINE_EXPLICIT_1(method)\
 void Matrix::method(Matrix& out) const {\
-    if ((out.impl == impl) && impl.isLastReference()) {\
+    if ((out.impl == impl) && impl.unique()) {\
         impl->method(*out.impl);\
     } else {\
         out = this->method();\
@@ -289,8 +289,8 @@ TRAMPOLINE_EXPLICIT_1(arraySin)
 void Matrix::mulRow(int r, const T& v) {
     debugAssert(r >= 0 && r < rows());
 
-    if (! impl.isLastReference()) {
-        impl = new Impl(*impl);
+    if (! impl.unique()) {
+        impl.reset(new Impl(*impl));
     }
 
     impl->mulRow(r, v);
@@ -298,7 +298,7 @@ void Matrix::mulRow(int r, const T& v) {
 
 
 void Matrix::transpose(Matrix& out) const {
-    if ((out.impl == impl) && impl.isLastReference() && (impl->R == impl->C)) {
+    if ((out.impl == impl) && impl.unique() && (impl->R == impl->C)) {
         // In place
         impl->transpose(*out.impl);
     } else {
@@ -369,8 +369,8 @@ void Matrix::swapRows(int r0, int r1) {
         return;
     }
 
-    if (! impl.isLastReference()) {
-        impl = new Impl(*impl);
+    if (! impl.unique()) {
+        impl.reset(new Impl(*impl));
     }
 
     impl->swapRows(r0, r1);
@@ -385,8 +385,8 @@ void Matrix::swapAndNegateCols(int c0, int c1) {
         return;
     }
 
-    if (! impl.isLastReference()) {
-        impl = new Impl(*impl);
+    if (! impl.unique()) {
+        impl.reset(new Impl(*impl));
     }
 
     impl->swapAndNegateCols(c0, c1);
@@ -432,15 +432,15 @@ void Matrix::svd(Matrix& U, Array<T>& d, Matrix& V, bool sort) const {
     int C = cols();
 
     // Make sure we don't overwrite a shared matrix
-    if (! V.impl.isLastReference()) {
+    if (! V.impl.unique()) {
         V = Matrix::zero(C, C);
     } else {
         V.impl->setSize(C, C);
     }
 
-    if (&U != this || ! impl.isLastReference()) {
+    if (&U != this || ! impl.unique()) {
         // Make a copy of this for in-place SVD
-        U.impl = new Impl(*impl);
+        U.impl.reset(new Impl(*impl));
     }
 
     d.resize(C);
@@ -746,7 +746,7 @@ void Matrix::Impl::inverseViaAdjoint(Impl& out) const {
         det += elt[0][r] * out.elt[r][0];
     }
 
-	out.div(Matrix::T(det), out);
+    out.div(Matrix::T(det), out);
 }
 
 
@@ -848,7 +848,7 @@ Matrix::T Matrix::Impl::determinant() const {
           float cofactor10 = elt[1][2] * elt[2][0] - elt[1][0] * elt[2][2];
           float cofactor20 = elt[1][0] * elt[2][1] - elt[1][1] * elt[2][0];
       
-		  return Matrix::T(
+          return Matrix::T(
             elt[0][0] * cofactor00 +
             elt[0][1] * cofactor10 +
             elt[0][2] * cofactor20);
@@ -896,10 +896,11 @@ Matrix Matrix::pseudoInverse(float tolerance) const {
     Public function for testing purposes only. Use pseudoInverse(), as it contains optimizations for 
     nonsingular matrices with at least one small (<5) dimension.
 */
+// See http://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_pseudoinverse
 Matrix Matrix::svdPseudoInverse(float tolerance) const {
-   	if (cols() > rows()) {
-		return transpose().svdPseudoInverse(tolerance).transpose();
-	}
+    if (cols() > rows()) {
+        return transpose().svdPseudoInverse(tolerance).transpose();
+    }
 
     // Matrices from SVD
     Matrix U, V;
@@ -907,32 +908,32 @@ Matrix Matrix::svdPseudoInverse(float tolerance) const {
     // Diagonal elements
     Array<T> d;
 
-	svd(U, d, V);
+    svd(U, d, V);
 
     if (rows() == 1) {
         d.resize(1, false);
     }
 
-	if (tolerance < 0) {
-		// TODO: Should be eps(d[0]), which is the largest diagonal
-		tolerance = G3D::max(rows(), cols()) * 0.0001f;
-	}
+    if (tolerance < 0) {
+        // TODO: Should be eps(d[0]), which is the largest diagonal
+        tolerance = G3D::max(rows(), cols()) * 0.0001f;
+    }
 
-	Matrix X;
-
-	int r = 0;
-	for (int i = 0; i < d.size(); ++i) {
-		if (d[i] > tolerance) {
-			d[i] = Matrix::T(1) / d[i];
-			++r;
-		}
-	}
-
-	if (r == 0) {
-		// There were no non-zero elements
-		X = zero(cols(), rows());
-	} else {
-		// Use the first r columns
+    Matrix X;
+    
+    int r = 0;
+    for (int i = 0; i < d.size(); ++i) {
+        if (d[i] > tolerance) {
+            d[i] = Matrix::T(1) / d[i];
+            ++r;
+        }
+    }
+    
+    if (r == 0) {
+        // There were no non-zero elements
+        X = zero(cols(), rows());
+    } else {
+        // Use the first r columns
         
         // Test code (the rest is below)
         /*
@@ -1003,7 +1004,8 @@ Matrix Matrix::svdPseudoInverse(float tolerance) const {
         debugAssert(n < 0.0001);
         */
     }
-	return X;
+
+    return X;
 }
 
 // Computes pseudoinverse for a vector
@@ -1426,7 +1428,7 @@ void Matrix::Impl::inverseInPlaceGaussJordan() {
         elt[col][col] = 1.0;
 
         for (int k = 0; k < R; ++k) {
-			elt[col][k] *= Matrix::T(pivotInverse);
+            elt[col][k] *= Matrix::T(pivotInverse);
         }
 
         // Reduce all rows
@@ -1438,7 +1440,7 @@ void Matrix::Impl::inverseInPlaceGaussJordan() {
                 elt[r][col] = 0.0;
 
                 for (int k = 0; k < R; ++k) {
-					elt[r][k] -= Matrix::T(elt[col][k] * oldValue);
+                    elt[r][k] -= Matrix::T(elt[col][k] * oldValue);
                 }
             }
         }
@@ -1537,13 +1539,12 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
 
                 f = (double)U[i][i];
 
-                // TODO: what is this 2-arg sign function?
-                g = -SIGN(sqrt(s), f);
+                g = -sign(f)*(sqrt(s));
                 h = f * g - s;
                 U[i][i] = (float)(f - g);
                 
                 if (i != cols - 1) {
-                    for (j = l; j < cols; j++) {
+                    for (j = l; j < cols; ++j) {
 
                         for (s = 0.0, k = i; k < rows; ++k) {
                             s += ((double)U[k][i] * (double)U[k][j]);
@@ -1610,13 +1611,13 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
     for (i = cols - 1; i >= 0; --i) {
         if (i < cols - 1) {
             if (g) {
-                for (j = l; j < cols; j++) {
+                for (j = l; j < cols; ++j) {
                     V[j][i] = (float)(((double)U[i][j] / (double)U[i][l]) / g);
                 }
 
                 // double division to avoid underflow 
                 for (j = l; j < cols; ++j) {
-                    for (s = 0.0, k = l; k < cols; k++) {
+                    for (s = 0.0, k = l; k < cols; ++k) {
                         s += ((double)U[i][k] * (double)V[k][j]);
                     }
 
@@ -1778,7 +1779,7 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
                 }
                 f = (c * g) + (s * y);
                 x = (c * y) - (s * g);
-                for (jj = 0; jj < rows; jj++) {
+                for (jj = 0; jj < rows; ++jj) {
                     y = (double)U[jj][j];
                     z = (double)U[jj][i];
                     U[jj][j] = (float)(y * c + z * s);

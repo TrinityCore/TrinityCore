@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,63 +19,99 @@
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
 
-#include "ArenaMap.h"
+#include "Arena.h"
 
 enum BattlegroundDSObjectTypes
 {
     BG_DS_OBJECT_DOOR_1         = 0,
     BG_DS_OBJECT_DOOR_2         = 1,
-    BG_DS_OBJECT_WATER_1        = 2,
+    BG_DS_OBJECT_WATER_1        = 2, // Collision
     BG_DS_OBJECT_WATER_2        = 3,
     BG_DS_OBJECT_BUFF_1         = 4,
     BG_DS_OBJECT_BUFF_2         = 5,
     BG_DS_OBJECT_MAX            = 6
 };
 
-enum BattlegroundDSObjects
+enum BattlegroundDSGameObjects
 {
     BG_DS_OBJECT_TYPE_DOOR_1    = 192642,
     BG_DS_OBJECT_TYPE_DOOR_2    = 192643,
-    BG_DS_OBJECT_TYPE_WATER_1   = 194395,
+    BG_DS_OBJECT_TYPE_WATER_1   = 194395, // Collision
     BG_DS_OBJECT_TYPE_WATER_2   = 191877,
     BG_DS_OBJECT_TYPE_BUFF_1    = 184663,
     BG_DS_OBJECT_TYPE_BUFF_2    = 184664
 };
 
+enum BattlegroundDSCreatureTypes
+{
+    BG_DS_NPC_WATERFALL_KNOCKBACK = 0,
+    BG_DS_NPC_PIPE_KNOCKBACK_1    = 1,
+    BG_DS_NPC_PIPE_KNOCKBACK_2    = 2,
+    BG_DS_NPC_MAX                 = 3
+};
+
+enum BattlegroundDSCreatures
+{
+    BG_DS_NPC_TYPE_WATER_SPOUT    = 28567
+};
+
+enum BattlegroundDSSpells
+{
+    BG_DS_SPELL_FLUSH             = 57405, // Visual and target selector for the starting knockback from the pipe
+    BG_DS_SPELL_FLUSH_KNOCKBACK   = 61698, // Knockback effect for previous spell (triggered, not needed to be cast)
+    BG_DS_SPELL_WATER_SPOUT       = 58873, // Knockback effect of the central waterfall
+
+    SPELL_WARL_DEMONIC_CIRCLE     = 48018  // Demonic Circle Summon
+};
+
 enum BattlegroundDSData
-{ // These values are NOT blizzlike... need the correct data!
-    BG_DS_WATERFALL_TIMER_MIN                    = 30000,
-    BG_DS_WATERFALL_TIMER_MAX                    = 60000,
-    BG_DS_WATERFALL_DURATION                     = 10000,
+{
+    // These values are NOT blizzlike... need the correct data!
+    BG_DS_WATERFALL_TIMER_MIN           = 30000,
+    BG_DS_WATERFALL_TIMER_MAX           = 60000,
+    BG_DS_WATERFALL_WARNING_DURATION    = 5000,
+    BG_DS_WATERFALL_DURATION            = 30000,
+    BG_DS_WATERFALL_KNOCKBACK_TIMER     = 1500,
+
+    BG_DS_PIPE_KNOCKBACK_FIRST_DELAY    = 5000,
+    BG_DS_PIPE_KNOCKBACK_DELAY          = 3000,
+    BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT    = 2,
 };
 
 class BattlegroundDS : public ArenaMap
 {
-    friend class BattlegroundMgr;
+    public:
+        BattlegroundDSScore() {};
+        virtual ~BattlegroundDSScore() {};
+        //TODO fix me
 
+    BG_DS_EVENT_PIPE_KNOCKBACK          = 5
     protected:
         BattlegroundDS();
-        ~BattlegroundDS();
 
         void ProcessInProgress(uint32 const& diff);
-
-        void InitializeObjects();
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
         void StartBattleground();
+        bool SetupBattleground() override;
+        void FillInitialWorldStates(WorldPacket &d) override;
 
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
-
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPacket &d);
-        void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* plr);
+        bool SetupBattleground();
     private:
-        uint32 m_waterTimer;
-        bool m_waterfallActive;
-    protected:
+        void PostUpdateImpl(uint32 diff) override;
+
+        EventMap _events;
+
+        uint32 _pipeKnockBackTimer;
+        uint8 _pipeKnockBackCount;
         bool IsWaterFallActive() { return m_waterfallActive; };
         void SetWaterFallActive(bool active) { m_waterfallActive = active; };
         void SetWaterFallTimer(uint32 timer) { m_waterTimer = timer; };
         uint32 GetWaterFallTimer() { return m_waterTimer; };
+        bool isWaterFallActive() { return m_waterfallActive; };
+        void setWaterFallActive(bool active) { m_waterfallActive = active; };
+        void setWaterFallTimer(uint32 timer) { m_waterTimer = timer; };
+        uint32 getWaterFallTimer() { return m_waterTimer; };
 };
 #endif

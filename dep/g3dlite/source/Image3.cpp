@@ -4,18 +4,20 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2007-01-31
-  @edited  2007-01-31
+  @edited  2012-12-25
 */
 
 
 #include "G3D/Image3.h"
-#include "G3D/Image3uint8.h"
-#include "G3D/GImage.h"
+#include "G3D/Image3unorm8.h"
+#include "G3D/Image.h"
 #include "G3D/Color4.h"
-#include "G3D/Color4uint8.h"
+#include "G3D/Color4unorm8.h"
 #include "G3D/Color1.h"
-#include "G3D/Color1uint8.h"
+#include "G3D/Color1unorm8.h"
 #include "G3D/ImageFormat.h"
+#include "G3D/PixelTransferBuffer.h"
+#include "G3D/CPUPixelTransferBuffer.h"
 
 namespace G3D {
 
@@ -24,30 +26,12 @@ Image3::Image3(int w, int h, WrapMode wrap) : Map2D<Color3, Color3>(w, h, wrap) 
 }
 
 
-Image3::Ref Image3::fromGImage(const GImage& im, WrapMode wrap) {
-    switch (im.channels()) {
-    case 1:
-        return fromArray(im.pixel1(), im.width(), im.height(), wrap);
-
-    case 3:
-        return fromArray(im.pixel3(), im.width(), im.height(), wrap);
-
-    case 4:
-        return fromArray(im.pixel4(), im.width(), im.height(), wrap);
-
-    default:
-        debugAssertM(false, "Input GImage must have 1, 3, or 4 channels.");
-        return NULL;
-    }
-}
-
-
-Image3::Ref Image3::fromImage3uint8(const ReferenceCountedPointer<Image3uint8>& im) {
+Image3::Ref Image3::fromImage3unorm8(const shared_ptr<Image3unorm8>& im) {
     Ref out = createEmpty(im->wrapMode());
     out->resize(im->width(), im->height());
 
     int N = im->width() * im->height();
-    const Color3uint8* src = reinterpret_cast<Color3uint8*>(im->getCArray());
+    const Color3unorm8* src = reinterpret_cast<Color3unorm8*>(im->getCArray());
     for (int i = 0; i < N; ++i) {
         out->data[i] = Color3(src[i]);
     }
@@ -57,7 +41,7 @@ Image3::Ref Image3::fromImage3uint8(const ReferenceCountedPointer<Image3uint8>& 
 
 
 Image3::Ref Image3::createEmpty(int width, int height, WrapMode wrap) {
-    return new Image3(width, height, wrap);
+    return shared_ptr<Image3>(new Image3(width, height, wrap));
 }
 
 
@@ -66,20 +50,49 @@ Image3::Ref Image3::createEmpty(WrapMode wrap) {
 }
 
 
-Image3::Ref Image3::fromFile(const std::string& filename, WrapMode wrap, GImage::Format fmt) {
+Image3::Ref Image3::fromFile(const std::string& filename, WrapMode wrap) {
     Ref out = createEmpty(wrap);
-    out->load(filename, fmt);
+    out->load(filename);
     return out;
 }
 
 
-void Image3::load(const std::string& filename, GImage::Format fmt) {
-    copyGImage(GImage(filename, fmt));
+void Image3::load(const std::string& filename) {
+    shared_ptr<Image> image = Image::fromFile(filename);
+    if (image->format() != ImageFormat::RGB32F()) {
+        image->convertToRGB8();
+    }
+
+    switch (image->format()->code)
+    {
+        case ImageFormat::CODE_L8:
+            copyArray(static_cast<const Color1unorm8*>(image->toPixelTransferBuffer()->buffer()), image->width(), image->height());
+            break;
+        case ImageFormat::CODE_L32F:
+            copyArray(static_cast<const Color1*>(image->toPixelTransferBuffer()->buffer()), image->width(), image->height());
+            break;
+        case ImageFormat::CODE_RGB8:
+            copyArray(static_cast<const Color3unorm8*>(image->toPixelTransferBuffer()->buffer()), image->width(), image->height());
+            break;
+        case ImageFormat::CODE_RGB32F:
+            copyArray(static_cast<const Color3*>(image->toPixelTransferBuffer()->buffer()), image->width(), image->height());
+            break;
+        case ImageFormat::CODE_RGBA8:
+            copyArray(static_cast<const Color4unorm8*>(image->toPixelTransferBuffer()->buffer()), image->width(), image->height());
+            break;
+        case ImageFormat::CODE_RGBA32F:
+            copyArray(static_cast<const Color4*>(image->toPixelTransferBuffer()->buffer()), image->width(), image->height());
+            break;
+        default:
+            debugAssertM(false, "Trying to load unsupported image format");
+            break;
+    }
+
     setChanged(true);
 }
 
 
-Image3::Ref Image3::fromArray(const class Color3uint8* ptr, int w, int h, WrapMode wrap) {
+Image3::Ref Image3::fromArray(const class Color3unorm8* ptr, int w, int h, WrapMode wrap) {
     Ref out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
@@ -93,7 +106,7 @@ Image3::Ref Image3::fromArray(const class Color1* ptr, int w, int h, WrapMode wr
 }
 
 
-Image3::Ref Image3::fromArray(const class Color1uint8* ptr, int w, int h, WrapMode wrap) {
+Image3::Ref Image3::fromArray(const class Color1unorm8* ptr, int w, int h, WrapMode wrap) {
     Ref out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
@@ -107,7 +120,7 @@ Image3::Ref Image3::fromArray(const class Color3* ptr, int w, int h, WrapMode wr
 }
 
 
-Image3::Ref Image3::fromArray(const class Color4uint8* ptr, int w, int h, WrapMode wrap) {
+Image3::Ref Image3::fromArray(const class Color4unorm8* ptr, int w, int h, WrapMode wrap) {
     Ref out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
@@ -121,24 +134,7 @@ Image3::Ref Image3::fromArray(const class Color4* ptr, int w, int h, WrapMode wr
 }
 
 
-void Image3::copyGImage(const GImage& im) {
-    switch (im.channels()) {
-    case 1:
-        copyArray(im.pixel1(), im.width(), im.height());
-        break;
-
-    case 3:
-        copyArray(im.pixel3(), im.width(), im.height());
-        break;
-
-    case 4:
-        copyArray(im.pixel4(), im.width(), im.height());
-        break;
-    } 
-}
-
-
-void Image3::copyArray(const Color3uint8* src, int w, int h) {
+void Image3::copyArray(const Color3unorm8* src, int w, int h) {
     resize(w, h);
 
     int N = w * h;
@@ -150,7 +146,7 @@ void Image3::copyArray(const Color3uint8* src, int w, int h) {
 }
 
 
-void Image3::copyArray(const Color4uint8* src, int w, int h) {
+void Image3::copyArray(const Color4unorm8* src, int w, int h) {
     resize(w, h);
 
     int N = w * h;
@@ -182,7 +178,7 @@ void Image3::copyArray(const Color4* src, int w, int h) {
 }
 
 
-void Image3::copyArray(const Color1uint8* src, int w, int h) {
+void Image3::copyArray(const Color1unorm8* src, int w, int h) {
     resize(w, h);
     int N = w * h;
 
@@ -205,16 +201,10 @@ void Image3::copyArray(const Color1* src, int w, int h) {
 
 
 /** Saves in any of the formats supported by G3D::GImage. */
-void Image3::save(const std::string& filename, GImage::Format fmt) {
-    GImage im(width(), height(), 3);
-
-    int N = im.width() * im.height();
-    Color3uint8* dst = im.pixel3();
-    for (int i = 0; i < N; ++i) {
-        dst[i] = Color3uint8(data[i]);
-    }
-    
-    im.save(filename, fmt);
+void Image3::save(const std::string& filename) {
+    // To avoid saving as floating point image.  FreeImage cannot convert floating point to RGB8.
+    Image3unorm8::Ref unorm8 = Image3unorm8::fromImage3(dynamic_pointer_cast<Image3>(shared_from_this()));
+    unorm8->save(filename);
 }
 
 

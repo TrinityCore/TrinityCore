@@ -1,6 +1,20 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
+/*
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef SC_FOLLOWERAI_H
 #define SC_FOLLOWERAI_H
@@ -21,32 +35,32 @@ enum eFollowState
 class FollowerAI : public ScriptedAI
 {
     public:
-        explicit FollowerAI(Creature* pCreature);
-        ~FollowerAI() {}
+        explicit FollowerAI(Creature* creature);
+        ~FollowerAI() { }
 
         //virtual void WaypointReached(uint32 uiPointId) = 0;
 
-        void MovementInform(uint32 uiMotionType, uint32 uiPointId);
+        void MovementInform(uint32 motionType, uint32 pointId) override;
 
-        void AttackStart(Unit*);
+        void AttackStart(Unit*) override;
 
-        void MoveInLineOfSight(Unit*);
+        void MoveInLineOfSight(Unit*) override;
 
-        void EnterEvadeMode();
+        void EnterEvadeMode() override;
 
-        void JustDied(Unit*);
+        void JustDied(Unit*) override;
 
-        void JustRespawned();
+        void JustRespawned() override;
 
-        void UpdateAI(const uint32);                        //the "internal" update, calls UpdateFollowerAI()
-        virtual void UpdateFollowerAI(const uint32);        //used when it's needed to add code in update (abilities, scripted events, etc)
+        void UpdateAI(uint32) override;                        //the "internal" update, calls UpdateFollowerAI()
+        virtual void UpdateFollowerAI(uint32);        //used when it's needed to add code in update (abilities, scripted events, etc)
 
-        void StartFollow(Player* pPlayer, uint32 uiFactionForFollower = 0, const Quest* pQuest = NULL);
+        void StartFollow(Player* player, uint32 factionForFollower = 0, const Quest* quest = NULL);
 
         void SetFollowPaused(bool bPaused);                 //if special event require follow mode to hold/resume during the follow
         void SetFollowComplete(bool bWithEndEvent = false);
 
-        bool HasFollowState(uint32 uiFollowState) { return (m_uiFollowState & uiFollowState); }
+        bool HasFollowState(uint32 uiFollowState) { return (m_uiFollowState & uiFollowState) != 0; }
 
     protected:
         Player* GetLeaderForFollower();
@@ -55,9 +69,9 @@ class FollowerAI : public ScriptedAI
         void AddFollowState(uint32 uiFollowState) { m_uiFollowState |= uiFollowState; }
         void RemoveFollowState(uint32 uiFollowState) { m_uiFollowState &= ~uiFollowState; }
 
-        bool AssistPlayerInCombat(Unit* pWho);
+        bool AssistPlayerInCombat(Unit* who);
 
-        uint64 m_uiLeaderGUID;
+        ObjectGuid m_uiLeaderGUID;
         uint32 m_uiUpdateFollowTimer;
         uint32 m_uiFollowState;
 

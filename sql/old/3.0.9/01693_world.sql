@@ -1,12 +1,12 @@
 -- Update Proc Rate
-INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES 
+INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
 ('60442', '0', '0', '0', '0', '0', '0', '0', '0', '0', '45'),
 ('57345', '0', '0', '0', '0', '0', '0', '0', '0', '0', '45'),
 ('61356', '0', '0', '0', '0', '0', '0', '0', '0', '0', '45'),
 ('54707', '0', '0', '0', '0', '0', '0', '0', '0', '0', '60'),
 ('54808', '0', '0', '0', '0', '0', '0', '0', '0', '0', '60');
 
--- Update Spell Coefficients 
+-- Update Spell Coefficients
 DELETE FROM `spell_bonus_data` WHERE `entry` IN ('689', '18790', '172', '42223', '42224', '42225', '42226', '42218', '47817', '47818', '1949', '5857', '11681', '11682', '27214', '47822', '27243', '30108', '17962', '6789', '48181', '29722', '5676', '686', '17877', '30283', '1120', '30294', '44425', '42208', '42209', '42210', '42211', '42212', '42213', '42198', '42937', '42938', '11113', '31661', '120', '19750', '635', '25914', '25913', '25903', '27175', '33074', '48820', '48821', '58597', '31803', '53742', '31893', '32221', '53719', '53718', '20167', '20424', '31804', '53733', '31898', '32220', '53726', '53725', '20267', '20187', '20467', '53600', '596', '2944', '8092', '27813', '27817', '27818', '33619');
 INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `comments`) VALUES
 ('689', '0', '0.143', '0', 'Warlock - Drain Life'),

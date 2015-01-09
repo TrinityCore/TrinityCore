@@ -3,7 +3,7 @@
 
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2002-10-05
- @edited  2006-11-10
+ @edited  2012-02-19
  */
 
 #ifndef G3D_GAMEUNITS_H
@@ -12,14 +12,17 @@
 #include "G3D/platform.h"
 
 namespace G3D {
+
+/** \deprecated use SimTime */
+typedef double GameTime;
+
 /**
  Time, in seconds.
  */
-typedef double GameTime;
 typedef double SimTime;
 
 /**
- Actual wall clock time in seconds.
+ Actual wall clock time in seconds (Unix time).
  */
 typedef double RealTime;
 

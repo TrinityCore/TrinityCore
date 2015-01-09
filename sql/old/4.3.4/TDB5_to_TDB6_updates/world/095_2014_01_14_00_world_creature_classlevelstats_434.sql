@@ -1,0 +1,5 @@
+ALTER TABLE `creature_classlevelstats`
+  CHANGE `basehp0` `basehp0` MEDIUMINT(8) UNSIGNED DEFAULT 1  NOT NULL,
+  CHANGE `basehp1` `basehp1` MEDIUMINT(8) UNSIGNED DEFAULT 1  NOT NULL,
+  CHANGE `basehp2` `basehp2` MEDIUMINT(8) UNSIGNED DEFAULT 1  NOT NULL,
+  ADD COLUMN `damage_exp3` FLOAT DEFAULT 0  NOT NULL AFTER `damage_exp2`;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,43 +23,53 @@ SDComment:
 SDCategory: Maraudon
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
-#define SPELL_TOXICVOLLEY           21687
-#define SPELL_UPPERCUT              22916
+enum Spells
+{
+    SPELL_TOXICVOLLEY           = 21687,
+    SPELL_UPPERCUT              = 22916
+};
 
 class boss_noxxion : public CreatureScript
 {
 public:
     boss_noxxion() : CreatureScript("boss_noxxion") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_noxxionAI (creature);
+        return new boss_noxxionAI(creature);
     }
 
     struct boss_noxxionAI : public ScriptedAI
     {
-        boss_noxxionAI(Creature* c) : ScriptedAI(c) {}
-
-        uint32 ToxicVolley_Timer;
-        uint32 Uppercut_Timer;
-        uint32 Adds_Timer;
-        uint32 Invisible_Timer;
-        bool Invisible;
-
-        void Reset()
+        boss_noxxionAI(Creature* creature) : ScriptedAI(creature)
         {
-            ToxicVolley_Timer = 7000;
-            Uppercut_Timer = 16000;
-            Adds_Timer = 19000;
-            Invisible_Timer = 15000;                            //Too much too low?
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ToxicVolleyTimer = 7000;
+            UppercutTimer = 16000;
+            AddsTimer = 19000;
+            InvisibleTimer = 15000;                            //Too much too low?
             Invisible = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        uint32 ToxicVolleyTimer;
+        uint32 UppercutTimer;
+        uint32 AddsTimer;
+        uint32 InvisibleTimer;
+        bool Invisible;
+
+        void Reset() override
         {
+            Initialize();
         }
+
+        void EnterCombat(Unit* /*who*/) override { }
 
         void SummonAdds(Unit* victim)
         {
@@ -67,9 +77,9 @@ public:
                 Add->AI()->AttackStart(victim);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
-            if (Invisible && Invisible_Timer <= diff)
+            if (Invisible && InvisibleTimer <= diff)
             {
                 //Become visible again
                 me->setFaction(14);
@@ -78,9 +88,10 @@ public:
                 me->SetDisplayId(11172);
                 Invisible = false;
                 //me->m_canMove = true;
-            } else if (Invisible)
+            }
+            else if (Invisible)
             {
-                Invisible_Timer -= diff;
+                InvisibleTimer -= diff;
                 //Do nothing while invisible
                 return;
             }
@@ -89,22 +100,24 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //ToxicVolley_Timer
-            if (ToxicVolley_Timer <= diff)
+            //ToxicVolleyTimer
+            if (ToxicVolleyTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TOXICVOLLEY);
-                ToxicVolley_Timer = 9000;
-            } else ToxicVolley_Timer -= diff;
+                DoCastVictim(SPELL_TOXICVOLLEY);
+                ToxicVolleyTimer = 9000;
+            }
+            else ToxicVolleyTimer -= diff;
 
-            //Uppercut_Timer
-            if (Uppercut_Timer <= diff)
+            //UppercutTimer
+            if (UppercutTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_UPPERCUT);
-                Uppercut_Timer = 12000;
-            } else Uppercut_Timer -= diff;
+                DoCastVictim(SPELL_UPPERCUT);
+                UppercutTimer = 12000;
+            }
+            else UppercutTimer -= diff;
 
-            //Adds_Timer
-            if (!Invisible && Adds_Timer <= diff)
+            //AddsTimer
+            if (!Invisible && AddsTimer <= diff)
             {
                 //Interrupt any spell casting
                 //me->m_canMove = true;
@@ -113,21 +126,21 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 // Invisible Model
                 me->SetDisplayId(11686);
-                SummonAdds(me->getVictim());
-                SummonAdds(me->getVictim());
-                SummonAdds(me->getVictim());
-                SummonAdds(me->getVictim());
-                SummonAdds(me->getVictim());
+                SummonAdds(me->GetVictim());
+                SummonAdds(me->GetVictim());
+                SummonAdds(me->GetVictim());
+                SummonAdds(me->GetVictim());
+                SummonAdds(me->GetVictim());
                 Invisible = true;
-                Invisible_Timer = 15000;
+                InvisibleTimer = 15000;
 
-                Adds_Timer = 40000;
-            } else Adds_Timer -= diff;
+                AddsTimer = 40000;
+            }
+            else AddsTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_noxxion()

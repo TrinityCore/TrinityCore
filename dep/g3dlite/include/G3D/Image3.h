@@ -1,10 +1,10 @@
 /**
-  @file Image3.h
+  \file G3D/Image3.h
 
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
-  @created 2007-01-31
-  @edited  2007-01-31
+  \created 2007-01-31
+  \edited  2011-08-31
 */
 
 
@@ -14,36 +14,32 @@
 #include "G3D/platform.h"
 #include "G3D/Map2D.h"
 #include "G3D/Color3.h"
-#include "G3D/GImage.h"
 
 namespace G3D {
 
-typedef ReferenceCountedPointer<class Image3> Image3Ref;
+typedef shared_ptr<class Image3> Image3Ref;
 
 /**
  RGB image with 32-bit floating point storage for each channel.
 
- See also G3D::Image3uint8, G3D::GImage.
+ See also G3D::Image3unorm8, G3D::GImage.
  */
 class Image3 : public Map2D<Color3, Color3> {
 public:
 
     typedef Image3      Type;
-    typedef ReferenceCountedPointer<class Image3>   Ref;
-    typedef Color3      Storage;
-    typedef Color3      Compute;
+    typedef shared_ptr<class Image3>   Ref;
 
 protected:
 
     Image3(int w, int h, WrapMode wrap);
 
-    void copyGImage(const class GImage& im);
     void copyArray(const Color1* src, int w, int h);
     void copyArray(const Color3* src, int w, int h);
     void copyArray(const Color4* src, int w, int h);
-    void copyArray(const Color1uint8* src, int w, int h);
-    void copyArray(const Color3uint8* src, int w, int h);
-    void copyArray(const Color4uint8* src, int w, int h);
+    void copyArray(const Color1unorm8* src, int w, int h);
+    void copyArray(const Color3unorm8* src, int w, int h);
+    void copyArray(const Color4unorm8* src, int w, int h);
 
 public:
 
@@ -55,25 +51,23 @@ public:
     /** Creates a 0 x 0 image. */
     static Ref createEmpty(WrapMode wrap = WrapMode::ERROR);
 
-    static Ref fromFile(const std::string& filename, WrapMode wrap = WrapMode::ERROR, GImage::Format fmt = GImage::AUTODETECT);
+    static Ref fromFile(const std::string& filename, WrapMode wrap = WrapMode::ERROR);
     
-	static Ref fromArray(const class Color1uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color3uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color4uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromArray(const class Color1unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromArray(const class Color3unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromArray(const class Color4unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
     static Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
     static Ref fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
     static Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
 
-    static Ref fromImage3uint8(const ReferenceCountedPointer<class Image3uint8>& im);
-
-    static Ref fromGImage(const class GImage& im, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromImage3unorm8(const shared_ptr<class Image3unorm8>& im);
 
     /** Loads from any of the file formats supported by G3D::GImage.  If there is an alpha channel on the input,
-        it is stripped. */
-    void load(const std::string& filename, GImage::Format fmt = GImage::AUTODETECT);
+        it is stripped. Converts 8-bit formats to the range (0, 1) */
+    void load(const std::string& filename);
 
-    /** Saves in any of the formats supported by G3D::GImage. */
-    void save(const std::string& filename, GImage::Format fmt = GImage::AUTODETECT);
+    /** Saves in any of the formats supported by G3D::GImage. Assumes the data is on the range (0, 1) if saving to an 8-bit format.*/
+    void save(const std::string& filename);
 };
 
 } // G3D

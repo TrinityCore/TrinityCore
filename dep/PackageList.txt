@@ -1,32 +1,20 @@
 TrinityCore uses (parts of or in whole) the following opensource software :
 
-ACE (ADAPTIVE Communication Environment)
-  http://www.cs.wustl.edu/~schmidt/ACE.html
-  Version: 5.8.3
+Boost
+  http://www.boost.org
+  Version: 1.55
 
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
-  Version: 1.0.5
+  Version: 1.0.6
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
-  Version: 8.0-Release
+  Version: 9.0-Release r4036
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
-  Version: 2.1.0
-  
-libMPQ (a library for reading MPQ files)
-  https://libmpq.org/
-  Version: 1.0.4
-
-MersenneTwister (a very fast random number generator)
-  http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
-  Version: 0.4.2
-
-MySQL (the world's most popular open source database software)
-  http://www.mysql.com/
-  Version: 5.5.9 (GA)
+  Version: 3.6.0
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/
@@ -34,12 +22,25 @@ SFMT (SIMD-oriented Fast Mersenne Twister)
 
 utf8-cpp (UTF-8 with C++ in a Portable Way)
   http://utfcpp.sourceforge.net/
-  Version: 2.3
+  Version: 2.3.4
 
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
-  Version: 1.2.5
+  Version: 1.2.8
 
 gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
   http://gsoap2.sourceforge.net/
-  Version: 2.8.0
+  Version: 2.8.17r
+
+recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
+  https://github.com/memononen/recastnavigation
+  Version: 42b96b7306d39bb7680ddb0f89d480a8296c83ff
+
+CascLib (An open-source implementation of library for reading CASC storage from Blizzard games since 2014)
+  https://github.com/ladislav-zezula/CascLib
+  Version: 3e3f4f443cb7b2893cbbe60b0a6efafebf48bc40
+
+zmqpp (C++ binding for 0mq/zmq is a 'high-level' library that hides most of the c-style interface core 0mq provides.)
+  https://github.com/zeromq/zmqpp
+  Version: 3.2.0 17e9f6afa98f56ecac1e3f3eecbfc112357a6732
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "World.h"
 #include "SharedDefines.h"
 #include "ScriptMgr.h"
+#include "Player.h"
 
 namespace Trinity
 {
@@ -38,7 +39,8 @@ namespace Trinity
         {
             return uint32(ceil(hk_honor_at_level_f(level, multiplier)));
         }
-    }
+    } // namespace Trinity::Honor
+
     namespace XP
     {
         inline uint8 GetGrayLevel(uint8 pl_level)
@@ -126,8 +128,11 @@ namespace Trinity
                 case CONTENT_71_80:
                     nBaseExp = 580;
                     break;
+                case CONTENT_81_85:
+                    nBaseExp = 1878;
+                    break;
                 default:
-                    sLog->outError("BaseGain: Unsupported content level %u", content);
+                    TC_LOG_ERROR("misc", "BaseGain: Unsupported content level %u", content);
                     nBaseExp = 45;
                     break;
             }
@@ -156,32 +161,37 @@ namespace Trinity
             return baseGain;
         }
 
-        inline uint32 Gain(Player *pl, Unit *u)
+        inline uint32 Gain(Player* player, Unit* u)
         {
-            uint32 gain;
+            Creature* creature = u->ToCreature();
+            uint32 gain = 0;
 
-            if (u->GetTypeId() == TYPEID_UNIT &&
-                (((Creature*)u)->isTotem() || ((Creature*)u)->isPet() ||
-                (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ||
-                ((Creature*)u)->GetCreatureInfo()->type == CREATURE_TYPE_CRITTER))
-                gain = 0;
-            else
+            if (!creature || (!creature->IsTotem() && !creature->IsPet() && !creature->IsCritter() &&
+                !(creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)))
             {
-                gain = BaseGain(pl->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
+                float xpMod = 1.0f;
 
-                if (gain != 0 && u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isElite())
+                gain = BaseGain(player->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
+
+                if (gain && creature)
                 {
-                    // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
-                    if (u->GetMap() && u->GetMap()->IsDungeon())
-                       gain = uint32(gain * 2.75);
-                    else
-                        gain *= 2;
+                    if (creature->isElite())
+                    {
+                        // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
+                        if (u->GetMap() && u->GetMap()->IsDungeon())
+                            xpMod *= 2.75f;
+                        else
+                            xpMod *= 2.0f;
+                    }
+
+                    xpMod *= creature->GetCreatureTemplate()->ModExperience;
                 }
 
-                gain = uint32(gain * sWorld->getRate(RATE_XP_KILL));
+                xpMod *= sWorld->getRate(RATE_XP_KILL);
+                gain = uint32(gain * xpMod);
             }
 
-            sScriptMgr->OnGainCalculation(gain, pl, u);
+            sScriptMgr->OnGainCalculation(gain, player, u);
             return gain;
         }
 
@@ -218,7 +228,27 @@ namespace Trinity
             sScriptMgr->OnGroupRateCalculation(rate, count, isRaid);
             return rate;
         }
-    }
-}
+    } // namespace Trinity::XP
+
+    namespace Currency
+    {
+        inline uint32 ConquestRatingCalculator(uint32 rate)
+        {
+            if (rate <= 1500)
+                return 1350; // Default conquest points
+            else if (rate > 3000)
+                rate = 3000;
+
+            // http://www.arenajunkies.com/topic/179536-conquest-point-cap-vs-personal-rating-chart/page__st__60#entry3085246
+            return uint32(1.4326 * ((1511.26 / (1 + 1639.28 / exp(0.00412 * rate))) + 850.15));
+        }
+
+        inline uint32 BgConquestRatingCalculator(uint32 rate)
+        {
+            // WowWiki: Battleground ratings receive a bonus of 22.2% to the cap they generate
+            return uint32((ConquestRatingCalculator(rate) * 1.222f) + 0.5f);
+        }
+    } // namespace Trinity::Currency
+} // namespace Trinity
 
 #endif

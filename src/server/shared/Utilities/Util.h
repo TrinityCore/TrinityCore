@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,10 +19,37 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
-#include "Common.h"
+#include "Define.h"
+#include "Errors.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
+#include <list>
+#include <map>
+#include <stdarg.h>
+#include <cstring>
+
+template<typename T>
+struct Optional
+{
+    Optional() : Value(), HasValue(false) { }
+
+    T Value;
+    bool HasValue;
+
+    inline void Set(T const& v)
+    {
+        HasValue = true;
+        Value = v;
+    }
+
+    inline void Clear()
+    {
+        HasValue = false;
+        Value = T();
+    }
+};
 
 // Searcher for map of structs
 template<typename T, class S> struct Finder
@@ -34,45 +61,61 @@ template<typename T, class S> struct Finder
     bool operator()(const std::pair<int, S> &obj) { return obj.second.*idMember_ == val_; }
 };
 
-struct Tokens: public std::vector<char*>
+class Tokenizer
 {
-    Tokens(const std::string &src, const char sep, uint32 vectorReserve = 0);
-    ~Tokens() { delete[] m_str; }
+public:
+    typedef std::vector<char const*> StorageType;
 
+    typedef StorageType::size_type size_type;
+
+    typedef StorageType::const_iterator const_iterator;
+    typedef StorageType::reference reference;
+    typedef StorageType::const_reference const_reference;
+
+public:
+    Tokenizer(const std::string &src, char const sep, uint32 vectorReserve = 0);
+    ~Tokenizer() { delete[] m_str; }
+
+    const_iterator begin() const { return m_storage.begin(); }
+    const_iterator end() const { return m_storage.end(); }
+
+    size_type size() const { return m_storage.size(); }
+
+    reference operator [] (size_type i) { return m_storage[i]; }
+    const_reference operator [] (size_type i) const { return m_storage[i]; }
+
+private:
     char* m_str;
+    StorageType m_storage;
 };
 
 void stripLineInvisibleChars(std::string &src);
+
+int64 MoneyStringToMoney(const std::string& moneyString);
+
+struct tm* localtime_r(const time_t* time, struct tm *result);
 
 std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 uint32 TimeStringToSecs(const std::string& timestring);
 std::string TimeToTimestampStr(time_t t);
 
-inline uint32 secsToTimeBitFields(time_t secs)
-{
-    tm* lt = localtime(&secs);
-    return (lt->tm_year - 100) << 24 | lt->tm_mon  << 20 | (lt->tm_mday - 1) << 14 | lt->tm_wday << 11 | lt->tm_hour << 6 | lt->tm_min;
-}
+/* Return a random number in the range min..max. */
+int32 irand(int32 min, int32 max);
 
-/* Return a random number in the range min..max; (max-min) must be smaller than 32768. */
- int32 irand(int32 min, int32 max);
+/* Return a random number in the range min..max (inclusive). */
+uint32 urand(uint32 min, uint32 max);
 
-/* Return a random number in the range min..max (inclusive). For reliable results, the difference
-* between max and min should be less than RAND32_MAX. */
- uint32 urand(uint32 min, uint32 max);
+/* Return a random number in the range 0 .. UINT32_MAX. */
+uint32 rand32();
 
-/* Return a random number in the range 0 .. RAND32_MAX. */
- int32 rand32();
+/* Return a random number in the range min..max */
+float frand(float min, float max);
 
-/* Return a random double from 0.0 to 1.0 (exclusive). Floats support only 7 valid decimal digits.
- * A double supports up to 15 valid decimal digits and is used internally (RAND32_MAX has 10 digits).
- * With an FPU, there is usually no difference in performance between float and double. */
- double rand_norm(void);
+/* Return a random double from 0.0 to 1.0 (exclusive). */
+double rand_norm();
 
-/* Return a random double from 0.0 to 99.9999999999999. Floats support only 7 valid decimal digits.
- * A double supports up to 15 valid decimal digits and is used internaly (RAND32_MAX has 10 digits).
- * With an FPU, there is usually no difference in performance between float and double. */
- double rand_chance(void);
+/* Return a random double from 0.0 to 100.0 (exclusive). */
+double rand_chance();
 
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_f(float chance)
@@ -86,22 +129,6 @@ inline bool roll_chance_i(int chance)
     return chance > irand(0, 99);
 }
 
-inline void ApplyModUInt32Var(uint32& var, int32 val, bool apply)
-{
-    int32 cur = var;
-    cur += (apply ? val : -val);
-    if (cur < 0)
-        cur = 0;
-    var = cur;
-}
-
-inline void ApplyModFloatVar(float& var, float  val, bool apply)
-{
-    var += (apply ? val : -val);
-    if (var < 0)
-        var = 0;
-}
-
 inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
 {
     if (val == -100.0f)     // prevent set var to zero
@@ -110,58 +137,22 @@ inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
 }
 
 // Percentage calculation
-template <class T>
-inline T CalculatePctF(T base, float pct)
+template <class T, class U>
+inline T CalculatePct(T base, U pct)
 {
-    return T(base * pct / 100.0f);
+    return T(base * static_cast<float>(pct) / 100.0f);
 }
 
-template <class T>
-inline T CalculatePctN(T base, int32 pct)
+template <class T, class U>
+inline T AddPct(T &base, U pct)
 {
-    return T(base * float(pct) / 100.0f);
+    return base += CalculatePct(base, pct);
 }
 
-template <class T>
-inline T CalculatePctU(T base, uint32 pct)
+template <class T, class U>
+inline T ApplyPct(T &base, U pct)
 {
-    return T(base * float(pct) / 100.0f);
-}
-
-template <class T>
-inline T AddPctF(T& base, float pct)
-{
-    return base += CalculatePctF(base, pct);
-}
-
-template <class T>
-inline T AddPctN(T& base, int32 pct)
-{
-    return base += CalculatePctN(base, pct);
-}
-
-template <class T>
-inline T AddPctU(T& base, uint32 pct)
-{
-    return base += CalculatePctU(base, pct);
-}
-
-template <class T>
-inline T ApplyPctF(T& base, float pct)
-{
-    return base = CalculatePctF(base, pct);
-}
-
-template <class T>
-inline T ApplyPctN(T& base, int32 pct)
-{
-    return base = CalculatePctN(base, pct);
-}
-
-template <class T>
-inline T ApplyPctU(T& base, uint32 pct)
-{
-    return base = CalculatePctU(base, pct);
+    return base = CalculatePct(base, pct);
 }
 
 template <class T>
@@ -179,7 +170,7 @@ inline bool Utf8toWStr(const std::string& utf8str, wchar_t* wstr, size_t& wsize)
     return Utf8toWStr(utf8str.c_str(), utf8str.size(), wstr, wsize);
 }
 
-bool WStrToUtf8(std::wstring wstr, std::string& utf8str);
+bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str);
 // size==real string size
 bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str);
 
@@ -188,60 +179,60 @@ void utf8truncate(std::string& utf8str, size_t len);
 
 inline bool isBasicLatinCharacter(wchar_t wchar)
 {
-    if(wchar >= L'a' && wchar <= L'z')                      // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
+    if (wchar >= L'a' && wchar <= L'z')                      // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
         return true;
-    if(wchar >= L'A' && wchar <= L'Z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
+    if (wchar >= L'A' && wchar <= L'Z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
         return true;
     return false;
 }
 
 inline bool isExtendedLatinCharacter(wchar_t wchar)
 {
-    if(isBasicLatinCharacter(wchar))
+    if (isBasicLatinCharacter(wchar))
         return true;
-    if(wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
+    if (wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
         return true;
-    if(wchar >= 0x00D8 && wchar <= 0x00DF)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER THORN
+    if (wchar >= 0x00D8 && wchar <= 0x00DE)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER THORN
         return true;
-    if(wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
+    if (wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
         return true;
-    if(wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
+    if (wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
         return true;
-    if(wchar >= 0x00F8 && wchar <= 0x00FE)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER THORN
+    if (wchar >= 0x00F8 && wchar <= 0x00FE)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER THORN
         return true;
-    if(wchar >= 0x0100 && wchar <= 0x012F)                  // LATIN CAPITAL LETTER A WITH MACRON - LATIN SMALL LETTER I WITH OGONEK
+    if (wchar >= 0x0100 && wchar <= 0x012F)                  // LATIN CAPITAL LETTER A WITH MACRON - LATIN SMALL LETTER I WITH OGONEK
         return true;
-    if(wchar == 0x1E9E)                                     // LATIN CAPITAL LETTER SHARP S
+    if (wchar == 0x1E9E)                                     // LATIN CAPITAL LETTER SHARP S
         return true;
     return false;
 }
 
 inline bool isCyrillicCharacter(wchar_t wchar)
 {
-    if(wchar >= 0x0410 && wchar <= 0x044F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC SMALL LETTER YA
+    if (wchar >= 0x0410 && wchar <= 0x044F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC SMALL LETTER YA
         return true;
-    if(wchar == 0x0401 || wchar == 0x0451)                  // CYRILLIC CAPITAL LETTER IO, CYRILLIC SMALL LETTER IO
+    if (wchar == 0x0401 || wchar == 0x0451)                  // CYRILLIC CAPITAL LETTER IO, CYRILLIC SMALL LETTER IO
         return true;
     return false;
 }
 
 inline bool isEastAsianCharacter(wchar_t wchar)
 {
-    if(wchar >= 0x1100 && wchar <= 0x11F9)                  // Hangul Jamo
+    if (wchar >= 0x1100 && wchar <= 0x11F9)                  // Hangul Jamo
         return true;
-    if(wchar >= 0x3041 && wchar <= 0x30FF)                  // Hiragana + Katakana
+    if (wchar >= 0x3041 && wchar <= 0x30FF)                  // Hiragana + Katakana
         return true;
-    if(wchar >= 0x3131 && wchar <= 0x318E)                  // Hangul Compatibility Jamo
+    if (wchar >= 0x3131 && wchar <= 0x318E)                  // Hangul Compatibility Jamo
         return true;
-    if(wchar >= 0x31F0 && wchar <= 0x31FF)                  // Katakana Phonetic Ext.
+    if (wchar >= 0x31F0 && wchar <= 0x31FF)                  // Katakana Phonetic Ext.
         return true;
-    if(wchar >= 0x3400 && wchar <= 0x4DB5)                  // CJK Ideographs Ext. A
+    if (wchar >= 0x3400 && wchar <= 0x4DB5)                  // CJK Ideographs Ext. A
         return true;
-    if(wchar >= 0x4E00 && wchar <= 0x9FC3)                  // Unified CJK Ideographs
+    if (wchar >= 0x4E00 && wchar <= 0x9FC3)                  // Unified CJK Ideographs
         return true;
-    if(wchar >= 0xAC00 && wchar <= 0xD7A3)                  // Hangul Syllables
+    if (wchar >= 0xAC00 && wchar <= 0xD7A3)                  // Hangul Syllables
         return true;
-    if(wchar >= 0xFF01 && wchar <= 0xFFEE)                  // Halfwidth forms
+    if (wchar >= 0xFF01 && wchar <= 0xFFEE)                  // Halfwidth forms
         return true;
     return false;
 }
@@ -270,56 +261,56 @@ inline bool isNumericOrSpace(wchar_t wchar)
     return isNumeric(wchar) || wchar == L' ';
 }
 
-inline bool isBasicLatinString(std::wstring wstr, bool numericOrSpace)
+inline bool isBasicLatinString(const std::wstring &wstr, bool numericOrSpace)
 {
     for (size_t i = 0; i < wstr.size(); ++i)
-        if(!isBasicLatinCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+        if (!isBasicLatinCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
             return false;
     return true;
 }
 
-inline bool isExtendedLatinString(std::wstring wstr, bool numericOrSpace)
+inline bool isExtendedLatinString(const std::wstring &wstr, bool numericOrSpace)
 {
     for (size_t i = 0; i < wstr.size(); ++i)
-        if(!isExtendedLatinCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+        if (!isExtendedLatinCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
             return false;
     return true;
 }
 
-inline bool isCyrillicString(std::wstring wstr, bool numericOrSpace)
+inline bool isCyrillicString(const std::wstring &wstr, bool numericOrSpace)
 {
     for (size_t i = 0; i < wstr.size(); ++i)
-        if(!isCyrillicCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+        if (!isCyrillicCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
             return false;
     return true;
 }
 
-inline bool isEastAsianString(std::wstring wstr, bool numericOrSpace)
+inline bool isEastAsianString(const std::wstring &wstr, bool numericOrSpace)
 {
     for (size_t i = 0; i < wstr.size(); ++i)
-        if(!isEastAsianCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
+        if (!isEastAsianCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
             return false;
     return true;
 }
 
 inline wchar_t wcharToUpper(wchar_t wchar)
 {
-    if(wchar >= L'a' && wchar <= L'z')                      // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
+    if (wchar >= L'a' && wchar <= L'z')                      // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
         return wchar_t(uint16(wchar)-0x0020);
-    if(wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
+    if (wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
         return wchar_t(0x1E9E);
-    if(wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
+    if (wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
         return wchar_t(uint16(wchar)-0x0020);
-    if(wchar >= 0x00F8 && wchar <= 0x00FE)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER THORN
+    if (wchar >= 0x00F8 && wchar <= 0x00FE)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER THORN
         return wchar_t(uint16(wchar)-0x0020);
-    if(wchar >= 0x0101 && wchar <= 0x012F)                  // LATIN SMALL LETTER A WITH MACRON - LATIN SMALL LETTER I WITH OGONEK (only %2=1)
+    if (wchar >= 0x0101 && wchar <= 0x012F)                  // LATIN SMALL LETTER A WITH MACRON - LATIN SMALL LETTER I WITH OGONEK (only %2=1)
     {
-        if(wchar % 2 == 1)
+        if (wchar % 2 == 1)
             return wchar_t(uint16(wchar)-0x0001);
     }
-    if(wchar >= 0x0430 && wchar <= 0x044F)                  // CYRILLIC SMALL LETTER A - CYRILLIC SMALL LETTER YA
+    if (wchar >= 0x0430 && wchar <= 0x044F)                  // CYRILLIC SMALL LETTER A - CYRILLIC SMALL LETTER YA
         return wchar_t(uint16(wchar)-0x0020);
-    if(wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
+    if (wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
         return wchar_t(0x0401);
 
     return wchar;
@@ -332,22 +323,22 @@ inline wchar_t wcharToUpperOnlyLatin(wchar_t wchar)
 
 inline wchar_t wcharToLower(wchar_t wchar)
 {
-    if(wchar >= L'A' && wchar <= L'Z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
+    if (wchar >= L'A' && wchar <= L'Z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
         return wchar_t(uint16(wchar)+0x0020);
-    if(wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
+    if (wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
         return wchar_t(uint16(wchar)+0x0020);
-    if(wchar >= 0x00D8 && wchar <= 0x00DE)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER THORN
+    if (wchar >= 0x00D8 && wchar <= 0x00DE)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER THORN
         return wchar_t(uint16(wchar)+0x0020);
-    if(wchar >= 0x0100 && wchar <= 0x012E)                  // LATIN CAPITAL LETTER A WITH MACRON - LATIN CAPITAL LETTER I WITH OGONEK (only %2=0)
+    if (wchar >= 0x0100 && wchar <= 0x012E)                  // LATIN CAPITAL LETTER A WITH MACRON - LATIN CAPITAL LETTER I WITH OGONEK (only %2=0)
     {
-        if(wchar % 2 == 0)
+        if (wchar % 2 == 0)
             return wchar_t(uint16(wchar)+0x0001);
     }
-    if(wchar == 0x1E9E)                                     // LATIN CAPITAL LETTER SHARP S
+    if (wchar == 0x1E9E)                                     // LATIN CAPITAL LETTER SHARP S
         return wchar_t(0x00DF);
-    if(wchar == 0x0401)                                     // CYRILLIC CAPITAL LETTER IO
+    if (wchar == 0x0401)                                     // CYRILLIC CAPITAL LETTER IO
         return wchar_t(0x0451);
-    if(wchar >= 0x0410 && wchar <= 0x042F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC CAPITAL LETTER YA
+    if (wchar >= 0x0410 && wchar <= 0x042F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC CAPITAL LETTER YA
         return wchar_t(uint16(wchar)+0x0020);
 
     return wchar;
@@ -363,28 +354,21 @@ inline void wstrToLower(std::wstring& str)
     std::transform( str.begin(), str.end(), str.begin(), wcharToLower );
 }
 
-std::wstring GetMainPartOfName(std::wstring wname, uint32 declension);
+std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);
 
 bool utf8ToConsole(const std::string& utf8str, std::string& conStr);
 bool consoleToUtf8(const std::string& conStr, std::string& utf8str);
-bool Utf8FitTo(const std::string& str, std::wstring search);
-void utf8printf(FILE *out, const char *str, ...);
-void vutf8printf(FILE *out, const char *str, va_list* ap);
+bool Utf8FitTo(const std::string& str, std::wstring const& search);
+void utf8printf(FILE* out, const char *str, ...);
+void vutf8printf(FILE* out, const char *str, va_list* ap);
+bool Utf8ToUpperOnlyLatin(std::string& utf8String);
 
 bool IsIPAddress(char const* ipaddress);
+
 uint32 CreatePIDFile(const std::string& filename);
 
-void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result);
-#endif
-
-//handler for operations on large flags
-#ifndef _FLAG96
-#define _FLAG96
-
-#ifndef PAIR64_HIPART
-#define PAIR64_HIPART(x)   (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000FFFFFFFF))
-#define PAIR64_LOPART(x)   (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
-#endif
+std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
+void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
 
 // simple class for not-modifyable list
 template <typename T>
@@ -418,234 +402,512 @@ class HookList
         }
 };
 
-class flag96
+template<uint8 T_size>
+class flag
 {
-private:
-    uint32 part[3];
+protected:
+    uint32 part[T_size];
+
 public:
-    flag96(uint32 p1=0, uint32 p2=0, uint32 p3=0)
+    flag()
     {
-        part[0]=p1;
-        part[1]=p2;
-        part[2]=p3;
+        memset(part, 0, sizeof(uint32)*T_size);
     }
 
-    flag96(uint64 p1, uint32 p2)
+    flag(uint32 first, ...)
     {
-        part[0]=PAIR64_LOPART(p1);
-        part[1]=PAIR64_HIPART(p1);
-        part[2]=p2;
+        va_list ap;
+        part[0] = first;
+
+        va_start(ap, first);
+        for (int i = 1; i < T_size; ++i)
+            part[i] = va_arg(ap, uint32);
+        va_end(ap);
     }
 
-    inline bool IsEqual(uint32 p1=0, uint32 p2=0, uint32 p3=0) const
+    inline bool operator <(const flag<T_size>& right) const
     {
-        return (
-            part[0]==p1 &&
-            part[1]==p2 &&
-            part[2]==p3);
-    };
-
-    inline bool HasFlag(uint32 p1=0, uint32 p2=0, uint32 p3=0) const
-    {
-        return (
-            part[0]&p1 ||
-            part[1]&p2 ||
-            part[2]&p3);
-    };
-
-    inline void Set(uint32 p1=0, uint32 p2=0, uint32 p3=0)
-    {
-        part[0]=p1;
-        part[1]=p2;
-        part[2]=p3;
-    };
-
-    template<class type>
-    inline bool operator < (type & right)
-    {
-        for (uint8 i=3; i > 0; --i)
+        for (uint8 i = T_size; i > 0; --i)
         {
-            if (part[i-1]<right.part[i-1])
-                return 1;
-            else if (part[i-1]>right.part[i-1])
-                return 0;
-        }
-        return 0;
-    };
-
-    template<class type>
-    inline bool operator < (type & right) const
-    {
-        for (uint8 i = 3; i > 0; --i)
-        {
-            if (part[i-1]<right.part[i-1])
-                return 1;
-            else if (part[i-1]>right.part[i-1])
-                return 0;
-        }
-        return 0;
-    };
-
-    template<class type>
-    inline bool operator != (type & right)
-    {
-        if (part[0]!=right.part[0]
-            || part[1]!=right.part[1]
-            || part[2]!=right.part[2])
+            if (part[i - 1] < right.part[i - 1])
                 return true;
+            else if (part[i - 1] > right.part[i - 1])
+                return false;
+        }
         return false;
     }
 
-    template<class type>
-    inline bool operator != (type & right) const
+    inline bool operator ==(const flag<T_size>& right) const
     {
-        if (part[0]!=right.part[0]
-            || part[1]!=right.part[1]
-            || part[2]!=right.part[2])
-                return true;
-        return false;
-    };
-
-    template<class type>
-    inline bool operator == (type & right)
-    {
-        if (part[0]!=right.part[0]
-            || part[1]!=right.part[1]
-            || part[2]!=right.part[2])
+        for (uint8 i = 0; i < T_size; ++i)
+            if (part[i] != right.part[i])
                 return false;
         return true;
-    };
+    }
 
-    template<class type>
-    inline bool operator == (type & right) const
+    inline bool operator !=(const flag<T_size>& right) const
     {
-        if (part[0]!=right.part[0]
-            || part[1]!=right.part[1]
-            || part[2]!=right.part[2])
-                return false;
-        return true;
-    };
+        return !this->operator ==(right);
+    }
 
-    template<class type>
-    inline void operator = (type & right)
+    inline flag<T_size>& operator =(const flag<T_size>& right)
     {
-        part[0]=right.part[0];
-        part[1]=right.part[1];
-        part[2]=right.part[2];
-    };
+        for (uint8 i = 0; i < T_size; ++i)
+            part[i] = right.part[i];
+        return *this;
+    }
 
-    template<class type>
-    inline flag96 operator & (type & right)
+    inline flag<T_size> operator &(const flag<T_size> &right) const
     {
-        flag96 ret(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2]);
-        return
-            ret;
-    };
-    template<class type>
-    inline flag96 operator & (type & right) const
-    {
-        flag96 ret(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2]);
-        return
-            ret;
-    };
+        flag<T_size> fl;
+        for (uint8 i = 0; i < T_size; ++i)
+            fl.part[i] = part[i] & right.part[i];
+        return fl;
+    }
 
-    template<class type>
-    inline void operator &= (type & right)
+    inline flag<T_size>& operator &=(const flag<T_size> &right)
     {
-        *this=*this & right;
-    };
+        for (uint8 i = 0; i < T_size; ++i)
+            part[i] &= right.part[i];
+        return *this;
+    }
 
-    template<class type>
-    inline flag96 operator | (type & right)
+    inline flag<T_size> operator |(const flag<T_size> &right) const
     {
-        flag96 ret(part[0] | right.part[0], part[1] | right.part[1], part[2] | right.part[2]);
-        return
-            ret;
-    };
+        flag<T_size> fl;
+        for (uint8 i = 0; i < T_size; ++i)
+            fl.part[i] = part[i] | right.part[i];
+        return fl;
+    }
 
-    template<class type>
-    inline flag96 operator | (type & right) const
+    inline flag<T_size>& operator |=(const flag<T_size> &right)
     {
-        flag96 ret(part[0] | right.part[0], part[1] | right.part[1], part[2] | right.part[2]);
-        return
-            ret;
-    };
+        for (uint8 i = 0; i < T_size; ++i)
+            part[i] |= right.part[i];
+        return *this;
+    }
 
-    template<class type>
-    inline void operator |= (type & right)
+    inline flag<T_size> operator ~() const
     {
-        *this=*this | right;
-    };
+        flag<T_size> fl;
+        for (uint8 i = 0; i < T_size; ++i)
+            fl.part[i] = ~part[i];
+        return fl;
+    }
 
-    inline void operator ~ ()
+    inline flag<T_size> operator ^(const flag<T_size>& right) const
     {
-        part[2]=~part[2];
-        part[1]=~part[1];
-        part[0]=~part[0];
-    };
+        flag<T_size> fl;
+        for (uint8 i = 0; i < T_size; ++i)
+            fl.part[i] = part[i] ^ right.part[i];
+        return fl;
+    }
 
-    template<class type>
-    inline flag96 operator ^ (type & right)
+    inline flag<T_size>& operator ^=(const flag<T_size>& right)
     {
-        flag96 ret(part[0] ^ right.part[0], part[1] ^ right.part[1], part[2] ^ right.part[2]);
-        return
-            ret;
-    };
-
-    template<class type>
-    inline flag96 operator ^ (type & right) const
-    {
-        flag96 ret(part[0] ^ right.part[0], part[1] ^ right.part[1], part[2] ^ right.part[2]);
-        return
-            ret;
-    };
-
-    template<class type>
-    inline void operator ^= (type & right)
-    {
-        *this=*this^right;
-    };
+        for (uint8 i = 0; i < T_size; ++i)
+            part[i] ^= right.part[i];
+        return *this;
+    }
 
     inline operator bool() const
     {
-        return(
-            part[0] != 0 ||
-            part[1] != 0 ||
-            part[2] != 0);
-    };
+        for (uint8 i = 0; i < T_size; ++i)
+            if (part[i] != 0)
+                return true;
+        return false;
+    }
 
-    inline operator bool()
+    inline bool operator !() const
     {
-        return(
-            part[0] != 0 ||
-            part[1] != 0 ||
-            part[2] != 0);
-    };
+        return !this->operator bool();
+    }
 
-    inline bool operator ! () const
+    inline uint32& operator [](uint8 el)
     {
-        return(
-            part[0] == 0 &&
-            part[1] == 0 &&
-            part[2] == 0);
-    };
+        return part[el];
+    }
 
-    inline bool operator ! ()
+    inline const uint32& operator [](uint8 el) const
     {
-        return(
-            part[0] == 0 &&
-            part[1] == 0 &&
-            part[2] == 0);
-    };
-
-    inline uint32 & operator[](uint8 el)
-    {
-        return (part[el]);
-    };
-
-    inline const uint32 & operator[](uint8 el) const
-    {
-        return (part[el]);
-    };
+        return part[el];
+    }
 };
+
+typedef flag<3> flag96;
+typedef flag<4> flag128;
+
+enum ComparisionType
+{
+    COMP_TYPE_EQ = 0,
+    COMP_TYPE_HIGH,
+    COMP_TYPE_LOW,
+    COMP_TYPE_HIGH_EQ,
+    COMP_TYPE_LOW_EQ,
+    COMP_TYPE_MAX
+};
+
+template <class T>
+bool CompareValues(ComparisionType type, T val1, T val2)
+{
+    switch (type)
+    {
+        case COMP_TYPE_EQ:
+            return val1 == val2;
+        case COMP_TYPE_HIGH:
+            return val1 > val2;
+        case COMP_TYPE_LOW:
+            return val1 < val2;
+        case COMP_TYPE_HIGH_EQ:
+            return val1 >= val2;
+        case COMP_TYPE_LOW_EQ:
+            return val1 <= val2;
+        default:
+            // incorrect parameter
+            ASSERT(false);
+            return false;
+    }
+}
+
+class EventMap
+{
+    /**
+    * Internal storage type.
+    * Key: Time as uint32 when the event should occur.
+    * Value: The event data as uint32.
+    *
+    * Structure of event data:
+    * - Bit  0 - 15: Event Id.
+    * - Bit 16 - 23: Group
+    * - Bit 24 - 31: Phase
+    * - Pattern: 0xPPGGEEEE
+    */
+    typedef std::multimap<uint32, uint32> EventStore;
+
+    public:
+        EventMap() : _time(0), _phase(0), _lastEvent(0) { }
+
+        /**
+        * @name Reset
+        * @brief Removes all scheduled events and resets time and phase.
+        */
+        void Reset()
+        {
+            _eventMap.clear();
+            _time = 0;
+            _phase = 0;
+        }
+
+        /**
+         * @name Update
+         * @brief Updates the timer of the event map.
+         * @param time Value to be added to time.
+         */
+        void Update(uint32 time)
+        {
+            _time += time;
+        }
+
+        /**
+        * @name GetTimer
+        * @return Current timer value.
+        */
+        uint32 GetTimer() const
+        {
+            return _time;
+        }
+
+        /**
+        * @name GetPhaseMask
+        * @return Active phases as mask.
+        */
+        uint8 GetPhaseMask() const
+        {
+            return _phase;
+        }
+
+        /**
+        * @name Empty
+        * @return True, if there are no events scheduled.
+        */
+        bool Empty() const
+        {
+            return _eventMap.empty();
+        }
+
+        /**
+        * @name SetPhase
+        * @brief Sets the phase of the map (absolute).
+        * @param phase Phase which should be set. Values: 1 - 8. 0 resets phase.
+        */
+        void SetPhase(uint8 phase)
+        {
+            if (!phase)
+                _phase = 0;
+            else if (phase <= 8)
+                _phase = uint8(1 << (phase - 1));
+        }
+
+        /**
+        * @name AddPhase
+        * @brief Activates the given phase (bitwise).
+        * @param phase Phase which should be activated. Values: 1 - 8
+        */
+        void AddPhase(uint8 phase)
+        {
+            if (phase && phase <= 8)
+                _phase |= uint8(1 << (phase - 1));
+        }
+
+        /**
+        * @name RemovePhase
+        * @brief Deactivates the given phase (bitwise).
+        * @param phase Phase which should be deactivated. Values: 1 - 8.
+        */
+        void RemovePhase(uint8 phase)
+        {
+            if (phase && phase <= 8)
+                _phase &= uint8(~(1 << (phase - 1)));
+        }
+
+        /**
+        * @name ScheduleEvent
+        * @brief Creates new event entry in map.
+        * @param eventId The id of the new event.
+        * @param time The time in milliseconds until the event occurs.
+        * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
+        * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
+        */
+        void ScheduleEvent(uint32 eventId, uint32 time, uint32 group = 0, uint8 phase = 0)
+        {
+            if (group && group <= 8)
+                eventId |= (1 << (group + 15));
+
+            if (phase && phase <= 8)
+                eventId |= (1 << (phase + 23));
+
+            _eventMap.insert(EventStore::value_type(_time + time, eventId));
+        }
+
+        /**
+        * @name RescheduleEvent
+        * @brief Cancels the given event and reschedules it.
+        * @param eventId The id of the event.
+        * @param time The time in milliseconds until the event occurs.
+        * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
+        * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
+        */
+        void RescheduleEvent(uint32 eventId, uint32 time, uint32 group = 0, uint8 phase = 0)
+        {
+            CancelEvent(eventId);
+            ScheduleEvent(eventId, time, group, phase);
+        }
+
+        /**
+        * @name RepeatEvent
+        * @brief Repeats the mostly recently executed event.
+        * @param time Time until the event occurs.
+        */
+        void Repeat(uint32 time)
+        {
+            _eventMap.insert(EventStore::value_type(_time + time, _lastEvent));
+        }
+
+        /**
+        * @name RepeatEvent
+        * @brief Repeats the mostly recently executed event.
+        * @param time Time until the event occurs. Equivalent to Repeat(urand(minTime, maxTime).
+        */
+        void Repeat(uint32 minTime, uint32 maxTime)
+        {
+            Repeat(urand(minTime, maxTime));
+        }
+
+        /**
+        * @name ExecuteEvent
+        * @brief Returns the next event to execute and removes it from map.
+        * @return Id of the event to execute.
+        */
+        uint32 ExecuteEvent()
+        {
+            while (!Empty())
+            {
+                EventStore::iterator itr = _eventMap.begin();
+
+                if (itr->first > _time)
+                    return 0;
+                else if (_phase && (itr->second & 0xFF000000) && !((itr->second >> 24) & _phase))
+                    _eventMap.erase(itr);
+                else
+                {
+                    uint32 eventId = (itr->second & 0x0000FFFF);
+                    _lastEvent = itr->second; // include phase/group
+                    _eventMap.erase(itr);
+                    return eventId;
+                }
+            }
+
+            return 0;
+        }
+
+        /**
+        * @name DelayEvents
+        * @brief Delays all events in the map. If delay is greater than or equal internal timer, delay will be 0.
+        * @param delay Amount of delay.
+        */
+        void DelayEvents(uint32 delay)
+        {
+            _time = delay < _time ? _time - delay : 0;
+        }
+
+        /**
+        * @name DelayEvents
+        * @brief Delay all events of the same group.
+        * @param delay Amount of delay.
+        * @param group Group of the events.
+        */
+        void DelayEvents(uint32 delay, uint32 group)
+        {
+            if (!group || group > 8 || Empty())
+                return;
+
+            EventStore delayed;
+
+            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+            {
+                if (itr->second & (1 << (group + 15)))
+                {
+                    delayed.insert(EventStore::value_type(itr->first + delay, itr->second));
+                    _eventMap.erase(itr++);
+                }
+                else
+                    ++itr;
+            }
+
+            _eventMap.insert(delayed.begin(), delayed.end());
+        }
+
+        /**
+        * @name CancelEvent
+        * @brief Cancels all events of the specified id.
+        * @param eventId Event id to cancel.
+        */
+        void CancelEvent(uint32 eventId)
+        {
+            if (Empty())
+                return;
+
+            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+            {
+                if (eventId == (itr->second & 0x0000FFFF))
+                    _eventMap.erase(itr++);
+                else
+                    ++itr;
+            }
+        }
+
+        /**
+        * @name CancelEventGroup
+        * @brief Cancel events belonging to specified group.
+        * @param group Group to cancel.
+        */
+        void CancelEventGroup(uint32 group)
+        {
+            if (!group || group > 8 || Empty())
+                return;
+
+            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+            {
+                if (itr->second & (1 << (group + 15)))
+                    _eventMap.erase(itr++);
+                else
+                    ++itr;
+            }
+        }
+
+        /**
+        * @name GetNextEventTime
+        * @brief Returns closest occurence of specified event.
+        * @param eventId Wanted event id.
+        * @return Time of found event.
+        */
+        uint32 GetNextEventTime(uint32 eventId) const
+        {
+            if (Empty())
+                return 0;
+
+            for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
+                if (eventId == (itr->second & 0x0000FFFF))
+                    return itr->first;
+
+            return 0;
+        }
+
+        /**
+         * @name GetNextEventTime
+         * @return Time of next event.
+         */
+        uint32 GetNextEventTime() const
+        {
+            return Empty() ? 0 : _eventMap.begin()->first;
+        }
+
+        /**
+        * @name IsInPhase
+        * @brief Returns wether event map is in specified phase or not.
+        * @param phase Wanted phase.
+        * @return True, if phase of event map contains specified phase.
+        */
+        bool IsInPhase(uint8 phase)
+        {
+            return phase <= 8 && (!phase || _phase & (1 << (phase - 1)));
+        }
+
+        /**
+        * @name GetTimeUntilEvent
+        * @brief Returns time in milliseconds until next event.
+        * @param Id of the event.
+        * @return Time of next event.
+        */
+        uint32 GetTimeUntilEvent(uint32 eventId) const;
+
+    private:
+        /**
+        * @name _time
+        * @brief Internal timer.
+        *
+        * This does not represent the real date/time value.
+        * It's more like a stopwatch: It can run, it can be stopped,
+        * it can be resetted and so on. Events occur when this timer
+        * has reached their time value. Its value is changed in the
+        * Update method.
+        */
+        uint32 _time;
+
+        /**
+        * @name _phase
+        * @brief Phase mask of the event map.
+        *
+        * Contains the phases the event map is in. Multiple
+        * phases from 1 to 8 can be set with SetPhase or
+        * AddPhase. RemovePhase deactives a phase.
+        */
+        uint8 _phase;
+
+        /**
+        * @name _eventMap
+        * @brief Internal event storage map. Contains the scheduled events.
+        *
+        * See typedef at the beginning of the class for more
+        * details.
+        */
+        EventStore _eventMap;
+
+        /**
+        * @name _lastEvent
+        * @brief Stores information on the most recently executed event
+        */
+        uint32 _lastEvent;
+};
+
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,8 +29,11 @@ class Transaction
     friend class TransactionTask;
     friend class MySQLConnection;
 
+    template <typename T>
+    friend class DatabaseWorkerPool;
+
     public:
-        Transaction() : _cleanedUp(false) {}
+        Transaction() : _cleanedUp(false) { }
         ~Transaction() { Cleanup(); }
 
         void Append(PreparedStatement* statement);
@@ -47,7 +50,7 @@ class Transaction
         bool _cleanedUp;
 
 };
-typedef ACE_Refcounted_Auto_Ptr<Transaction, ACE_Null_Mutex> SQLTransaction;
+typedef std::shared_ptr<Transaction> SQLTransaction;
 
 /*! Low level class*/
 class TransactionTask : public SQLOperation
@@ -56,11 +59,11 @@ class TransactionTask : public SQLOperation
     friend class DatabaseWorker;
 
     public:
-        TransactionTask(SQLTransaction trans) : m_trans(trans) {} ;
-        ~TransactionTask(){};
+        TransactionTask(SQLTransaction trans) : m_trans(trans) { } ;
+        ~TransactionTask(){ };
 
     protected:
-        bool Execute();
+        bool Execute() override;
 
         SQLTransaction m_trans;
 };

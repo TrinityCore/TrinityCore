@@ -1,12 +1,12 @@
 /**
- @file Color3.cpp
+ \file Color3.cpp
 
  Color class.
 
- @author Morgan McGuire, http://graphics.cs.williams.edu
+ \author Morgan McGuire, http://graphics.cs.williams.edu
 
- @created 2001-06-02
- @edited  2010-01-28
+ \created 2001-06-02
+ \edited  2013-03-29
  */
 
 #include "G3D/platform.h"
@@ -16,21 +16,26 @@
 #include "G3D/format.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
-#include "G3D/Color3uint8.h"
+#include "G3D/Color3unorm8.h"
 #include "G3D/Any.h"
 #include "G3D/stringutils.h"
 
 namespace G3D {
 
+Color3& Color3::operator=(const Any& a) {
+    *this = Color3(a);
+    return *this;
+}
+
+
 Color3::Color3(const Any& any) {
     *this = Color3::zero();
-    any.verifyName("Color3");
-    std::string name = toLower(any.name());
+    any.verifyNameBeginsWith("Color3", "Power3", "Radiance3", "Irradiance3", "Energy3", "Radiosity3", "Biradiance3");
 
     switch (any.type()) {
     case Any::TABLE:
 
-        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        for (Any::AnyTable::Iterator it = any.table().begin(); it.isValid(); ++it) {
             const std::string& key = toLower(it->key);
             if (key == "r") {
                 r = it->value;
@@ -44,22 +49,38 @@ Color3::Color3(const Any& any) {
         }
         break;
 
-    case Any::ARRAY:
-        if (name == "color3") {
-            any.verifySize(3);
-            r = any[0];
-            g = any[1];
-            b = any[2];
-        } else if (name == "color3::one") {
-            any.verifySize(0);
-            *this = one();
-        } else if (name == "color3::zero") {
-            any.verifySize(0);
-            *this = zero();
-        } else if (name == "color3::fromargb") {
-            *this = Color3::fromARGB((int)any[0].number());
-        } else {
-            any.verify(false, "Expected Color3 constructor");
+    case Any::ARRAY: // Intentionally falls through
+    case Any::EMPTY_CONTAINER:
+        {   
+            const std::string& name = any.name();
+            std::string factoryName;
+            size_t i = name.find("::");
+            if (i != std::string::npos && i > 1) {
+                factoryName = name.substr(i + 2);
+            }
+
+            if (factoryName == "") {
+                if (any.size() == 1) {
+                    r = g = b = any[0];
+                } else {
+                    any.verifySize(3);
+                    r = any[0];
+                    g = any[1];
+                    b = any[2];
+                }
+            } else if (factoryName == "one") {
+                any.verifySize(0);
+                *this = one();
+            } else if (factoryName == "zero") {
+                any.verifySize(0);
+                *this = zero();
+            } else if (factoryName == "fromARGB") {
+                *this = Color3::fromARGB((int)any[0].number());
+            } else if (factoryName == "fromASRGB") {
+                *this = Color3::fromASRGB((int)any[0].number());
+            } else {
+                any.verify(false, "Expected Color3 constructor");
+            }
         }
         break;
 
@@ -69,7 +90,7 @@ Color3::Color3(const Any& any) {
 }
    
 
-Color3::operator Any() const {
+Any Color3::toAny() const {
     Any a(Any::ARRAY, "Color3");
     a.append(r, g, b);
     return a;
@@ -169,7 +190,7 @@ const Color3& Color3::gray() {
 
 
 const Color3& Color3::white() {
-    static Color3 c(1, 1, 1);
+    static Color3 c(1.0f, 1.0f, 1.0f);
     return c;
 }
 
@@ -224,15 +245,16 @@ Color3::Color3(const Vector3& v) {
 }
 
 
-Color3::Color3(const class Color3uint8& other) {
-    r = other.r / 255.0f;
-    g = other.g / 255.0f;
-    b = other.b / 255.0f;
+Color3::Color3(const class Color3unorm8& other) : r(other.r), g(other.g), b(other.b) {
 }
 
 
 Color3 Color3::fromARGB(uint32 x) {
-    return Color3((float)((x >> 16) & 0xFF), (float)((x >> 8) & 0xFF), (float)(x & 0xFF)) / 255.0f;
+    return Color3(Color3unorm8::fromARGB(x));
+}
+
+Color3 Color3::fromASRGB(uint32 x) {
+    return Color3(Color3unorm8::fromARGB(x)).pow(2.2f);
 }
 
 //----------------------------------------------------------------------------
@@ -247,7 +269,7 @@ Color3 Color3::random() {
 //----------------------------------------------------------------------------
 Color3& Color3::operator/= (float fScalar) {
     if (fScalar != 0.0f) {
-		float fInvScalar = 1.0f / fScalar;
+        float fInvScalar = 1.0f / fScalar;
         r *= fInvScalar;
         g *= fInvScalar;
         b *= fInvScalar;
@@ -262,10 +284,10 @@ Color3& Color3::operator/= (float fScalar) {
 
 //----------------------------------------------------------------------------
 float Color3::unitize (float fTolerance) {
-	float fLength = length();
+    float fLength = length();
 
     if ( fLength > fTolerance ) {
-		float fInvLength = 1.0f / fLength;
+        float fInvLength = 1.0f / fLength;
         r *= fInvLength;
         g *= fInvLength;
         b *= fInvLength;
@@ -313,56 +335,56 @@ Color3 Color3::fromHSV(const Vector3& _hsv) {
 
 
 Vector3 Color3::toHSV(const Color3& _rgb) {
-	debugAssertM((_rgb.r <= 1.0f && _rgb.r >= 0.0f) 
-			&& (_rgb.g <= 1.0f && _rgb.g >= 0.0f)
-			&& (_rgb.b <= 1.0f && _rgb.b >= 0.0f), "R,G,B must be between [0,1]");
-	Vector3 hsv = Vector3::zero();
-	hsv.z = G3D::max(G3D::max(_rgb.r, _rgb.g), _rgb.b);
-	if (G3D::fuzzyEq(hsv.z, 0.0f)) {
-		return hsv;
-	}
-	
+    debugAssertM((_rgb.r <= 1.0f && _rgb.r >= 0.0f) 
+            && (_rgb.g <= 1.0f && _rgb.g >= 0.0f)
+            && (_rgb.b <= 1.0f && _rgb.b >= 0.0f), "R,G,B must be between [0,1]");
+    Vector3 hsv = Vector3::zero();
+    hsv.z = G3D::max(G3D::max(_rgb.r, _rgb.g), _rgb.b);
+    if (G3D::fuzzyEq(hsv.z, 0.0f)) {
+        return hsv;
+    }
+    
     const float x =  G3D::min(G3D::min(_rgb.r, _rgb.g), _rgb.b);
-	hsv.y = (hsv.z - x) / hsv.z; 
+    hsv.y = (hsv.z - x) / hsv.z; 
 
     if (G3D::fuzzyEq(hsv.y, 0.0f)) {
-		return hsv;
-	}
+        return hsv;
+    }
 
-	Vector3 rgbN;
-	rgbN.x = (hsv.z - _rgb.r) / (hsv.z - x);
-	rgbN.y = (hsv.z - _rgb.g) / (hsv.z - x);
-	rgbN.z = (hsv.z - _rgb.b) / (hsv.z - x);
+    Vector3 rgbN;
+    rgbN.x = (hsv.z - _rgb.r) / (hsv.z - x);
+    rgbN.y = (hsv.z - _rgb.g) / (hsv.z - x);
+    rgbN.z = (hsv.z - _rgb.b) / (hsv.z - x);
 
-	if (_rgb.r == hsv.z) {  // note from the max we know that it exactly equals one of the three.
-		hsv.x = (_rgb.g == x)? 5.0f + rgbN.z : 1.0f - rgbN.y;
-	} else if (_rgb.g == hsv.z) {
-		hsv.x = (_rgb.b == x)? 1.0f + rgbN.x : 3.0f - rgbN.z;
-	} else {
-		hsv.x = (_rgb.r == x)? 3.0f + rgbN.y : 5.0f - rgbN.x;
-	}
-	
+    if (_rgb.r == hsv.z) {  // note from the max we know that it exactly equals one of the three.
+        hsv.x = (_rgb.g == x)? 5.0f + rgbN.z : 1.0f - rgbN.y;
+    } else if (_rgb.g == hsv.z) {
+        hsv.x = (_rgb.b == x)? 1.0f + rgbN.x : 3.0f - rgbN.z;
+    } else {
+        hsv.x = (_rgb.r == x)? 3.0f + rgbN.y : 5.0f - rgbN.x;
+    }
+    
     hsv.x /= 6.0f;
 
-	return hsv;
+    return hsv;
 }
 
 Color3 Color3::jetColorMap(const float& val) {
-	debugAssertM(val <= 1.0f && val >= 0.0f , "value should be in [0,1]");
+    debugAssertM(val <= 1.0f && val >= 0.0f , "value should be in [0,1]");
 
-	//truncated triangles where sides have slope 4
-	Color3 jet;
+    //truncated triangles where sides have slope 4
+    Color3 jet;
 
-	jet.r = G3D::min(4.0f * val - 1.5f,-4.0f * val + 4.5f) ;
-	jet.g = G3D::min(4.0f * val - 0.5f,-4.0f * val + 3.5f) ;
-	jet.b = G3D::min(4.0f * val + 0.5f,-4.0f * val + 2.5f) ;
+    jet.r = G3D::min(4.0f * val - 1.5f,-4.0f * val + 4.5f) ;
+    jet.g = G3D::min(4.0f * val - 0.5f,-4.0f * val + 3.5f) ;
+    jet.b = G3D::min(4.0f * val + 0.5f,-4.0f * val + 2.5f) ;
 
 
-	jet.r = G3D::clamp(jet.r, 0.0f, 1.0f);
-	jet.g = G3D::clamp(jet.g, 0.0f, 1.0f);
-	jet.b = G3D::clamp(jet.b, 0.0f, 1.0f);
+    jet.r = G3D::clamp(jet.r, 0.0f, 1.0f);
+    jet.g = G3D::clamp(jet.g, 0.0f, 1.0f);
+    jet.b = G3D::clamp(jet.b, 0.0f, 1.0f);
 
-	return jet;
+    return jet;
 }
 
 

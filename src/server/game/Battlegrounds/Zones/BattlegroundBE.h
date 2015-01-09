@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef __BATTLEGROUNDBE_H
 #define __BATTLEGROUNDBE_H
 
-#include "ArenaMap.h"
+class Battleground;
 
 enum BattlegroundBEObjectTypes
 {
@@ -31,7 +32,7 @@ enum BattlegroundBEObjectTypes
     BG_BE_OBJECT_MAX            = 6
 };
 
-enum BattlegroundBEObjects
+enum BattlegroundBEGameObjects
 {
     BG_BE_OBJECT_TYPE_DOOR_1    = 183971,
     BG_BE_OBJECT_TYPE_DOOR_2    = 183973,
@@ -43,24 +44,17 @@ enum BattlegroundBEObjects
 
 class BattlegroundBE : public ArenaMap
 {
-    friend class BattlegroundMgr;
-
     public:
         BattlegroundBE();
-        ~BattlegroundBE();
 
         void InitializeObjects();
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
-        void StartBattleground();
+        bool SetupBattleground();
 
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
-
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPacket &d);
-        void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* plr);
-
-        /* Scorekeeping */
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        bool SetupBattleground() override;
+        void FillInitialWorldStates(WorldPacket &d) override;
 };
 #endif

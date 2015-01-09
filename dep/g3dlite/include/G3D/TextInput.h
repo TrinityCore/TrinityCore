@@ -1,16 +1,16 @@
 /**
- @file TextInput.h
+ \file G3D/TextInput.h
 
  Simple text lexer/tokenizer.
 
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
- @cite Based on a lexer written by Aaron Orenstein. 
+ \cite Based on a lexer written by Aaron Orenstein. 
 
- @created 2002-11-27
- @edited  2010-07-03
+ \created 2002-11-27
+ \edited  2013-03-25
 
- Copyright 2000-2010, Morgan McGuire.
+ Copyright 2000-2013, Morgan McGuire.
  All rights reserved.
  */
 
@@ -148,7 +148,9 @@ public:
 
 
 /**
- A simple style tokenizer for reading text files.  TextInput handles a
+ \brief A simple tokenizer for parsing text files.  
+ 
+ TextInput handles a
  superset of C++,Java, Matlab, and Bash code text including single
  line comments, block comments, quoted strings with escape sequences,
  and operators.  TextInput recognizes several categories of tokens,
@@ -191,7 +193,7 @@ public:
 
   <B>Examples</B>
 
-  <PRE>
+  \code
   TextInput ti(TextInput::FROM_STRING, "name = \"Max\", height = 6");
 
   Token t;
@@ -206,15 +208,15 @@ public:
 
   std::string name = ti.read().sval;
   ti.read();
-  </PRE>
+  \endcode
 
-  <PRE>
+  \code
   TextInput ti(TextInput::FROM_STRING, "name = \"Max\", height = 6");
   ti.readSymbols("name", "=");
   std::string name = ti.readString();
   ti.readSymbols(",", "height", "=");
   double height = ti. readNumber();
-  </PRE>
+  \endcode
 
  Assumes that the file is not modified once opened.
  */
@@ -329,14 +331,15 @@ public:
         int                 startingLineNumberOffset;
 
         /** 
-          Parse -1.#IND00 as the floating point number returned by
-          nan(), -1.#INF00 as -G3D::inf(), and 1.#INF00 as G3D::inf().  
-          
+          Parse "-1.#IND00" as the floating point number returned by
+          G3D::nan(), "-1.#INF00" as - G3D::inf(), and "1.#INF00" as G3D::inf().  
+
           Note that the C99 standard specifies that a variety of formats
           like "nan" are to be used; these are supported by 
           G3D::TextInput::Settings::simpleFloatSpecials.
 
           An alternative to specifying msvcFloatSpecials is to read numbers as:
+          \htmlonly
           <pre>
             Token x = t.read();
             Token y = t.peek();
@@ -349,6 +352,7 @@ public:
             }
             // ... similar cases for inf
           </pre>
+          \endhtmlonly
 
           If the single-comment character was #, the floating point
           special format overrides the comment and will be parsed
@@ -398,8 +402,11 @@ public:
 
         Settings();
     };
-	
+    
 private:
+
+    /** \sa pushSettings / popSettings */
+    Array<Settings>         settingsStack;
 
     std::deque<Token>       stack;
 
@@ -477,7 +484,7 @@ private:
      Read the next token, returning an END token if no more input is
      available.
      */
-    Token nextToken();
+    void nextToken(Token& t);
 
     /**
        Helper for nextToken.  Appends characters to t._string until the end
@@ -487,6 +494,8 @@ private:
        first character after the opening delimiter character.
     */
     void parseQuotedString(unsigned char delimiter, Token& t);
+
+    void initFromString(const char* str, int len, const Settings& settings);
 
 public:
 
@@ -569,8 +578,24 @@ public:
     */
     TextInput(FS fs, const std::string& str, const Settings& settings = Settings());
 
+    /** Creates input directly from a fixed-length, non-NULL terminated string.  The first argument must be
+        TextInput::FROM_STRING.
+    */
+    TextInput(FS fs, const char* str, size_t strLen, const Settings& settings = Settings());
+
     /** Returns true while there are tokens remaining. */
     bool hasMore();
+
+    /** Temporarily switch parsing to use \a settings.  Note that this will override the currently recorded sourceFilename unless you explicitly set it back.
+    \sa popSettings */
+    void pushSettings(const Settings& settings) {
+        settingsStack.push(options);
+        options = settings;
+    }
+
+    void popSettings() {
+        options = settingsStack.pop();
+    }
 
     /** Read the next token (which will be the END token if ! hasMore()).
     
@@ -589,10 +614,13 @@ public:
     */
     Token read();
 
+    /** Avoids the copy of read() */
+    void read(Token& t);
+
     /** Calls read() until the result is not a newline or comment */
     Token readSignificant();
 
-    /** Read one token (or possibly two) as a number or throws
+    /** Read one token (or possibly two, for minus sign) as a number or throws
         WrongTokenType, and returns the number.
 
         If the first token in the input is a number, it is returned directly.
@@ -607,6 +635,10 @@ public:
         tokens are consumed.
     */
     double readNumber();
+
+    /** Reads a number that must be in C integer format: 
+      <code> [ '+' | '-' ] #+  |  '0x'#+</code>  */
+    int readInteger();
 
     bool readBoolean();
 
@@ -643,7 +675,7 @@ public:
         input stream is a string but does not match the @p s parameter.  When
         an exception is thrown, no tokens are consumed.
 
-        \sa readString(), readStringToken(), readUntilNewlineAsString()
+        \sa readString(), readStringToken(), readUntilNewlineAsString(), readUntilDelimiterAsString()
       */
     void readString(const std::string& s);
 
@@ -652,6 +684,12 @@ public:
       is not returned in the string, and the following token read will be a newline or
       end of file token (if they are enabled for parsing).*/
     std::string readUntilNewlineAsString();
+
+    /** Read from the beginning of the next token until the following delimiter character 
+      and return the result as a string, ignoring all parsing in between. The delimiter 
+      is not returned in the string, and the following token read will begin at the delimiter or
+      end of file token (if they are enabled for parsing).*/
+    std::string readUntilDelimiterAsString(const char delimiter1, const char delimiter2 = '\0');
 
     /** Reads a comment token or throws WrongTokenType, and returns the token.
 
@@ -733,6 +771,9 @@ public:
         consumed.
     */
     Token readSymbolToken();
+
+    /** Avoids the copy of readSymbolToken() */
+    void readSymbolToken(Token& t);
 
     /** Like readSymbolToken, but returns the token's string.
 

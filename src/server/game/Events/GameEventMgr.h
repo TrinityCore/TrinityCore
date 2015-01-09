@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,18 +22,18 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Define.h"
-#include <ace/Singleton.h>
+#include "ObjectGuid.h"
 
 #define max_ge_check_delay DAY  // 1 day in seconds
 
 enum GameEventState
 {
-    GAMEEVENT_NORMAL = 0,   // standard game events
-    GAMEEVENT_WORLD_INACTIVE = 1,   // not yet started
-    GAMEEVENT_WORLD_CONDITIONS = 2,  // condition matching phase
-    GAMEEVENT_WORLD_NEXTPHASE = 3,   // conditions are met, now 'length' timer to start next event
-    GAMEEVENT_WORLD_FINISHED = 4,    // next events are started, unapply this one
-    GAMEEVENT_INTERNAL = 5, // never handled in update
+    GAMEEVENT_NORMAL           = 0, // standard game events
+    GAMEEVENT_WORLD_INACTIVE   = 1, // not yet started
+    GAMEEVENT_WORLD_CONDITIONS = 2, // condition matching phase
+    GAMEEVENT_WORLD_NEXTPHASE  = 3, // conditions are met, now 'length' timer to start next event
+    GAMEEVENT_WORLD_FINISHED   = 4, // next events are started, unapply this one
+    GAMEEVENT_INTERNAL         = 5  // never handled in update
 };
 
 struct GameEventFinishCondition
@@ -51,9 +51,12 @@ struct GameEventQuestToEventConditionNum
     float num;
 };
 
+typedef std::map<uint32 /*condition id*/, GameEventFinishCondition> GameEventConditionMap;
+
 struct GameEventData
 {
-    GameEventData() : start(1), end(0), nextstart(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), state(GAMEEVENT_NORMAL) {}
+    GameEventData() : start(1), end(0), nextstart(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), state(GAMEEVENT_NORMAL),
+                      announce(0) { }
     time_t start;           // occurs after this time
     time_t end;             // occurs before this time
     time_t nextstart;       // after this time the follow-up events count this phase completed
@@ -61,9 +64,10 @@ struct GameEventData
     uint32 length;          // length of the event (minutes) after finishing all conditions
     HolidayIds holiday_id;
     GameEventState state;   // state of the game event, these are saved into the game_event table on change!
-    std::map<uint32 /*condition id*/, GameEventFinishCondition> conditions;  // conditions to finish
+    GameEventConditionMap conditions;  // conditions to finish
     std::set<uint16 /*gameevent id*/> prerequisite_events;  // events that must be completed before starting this event
     std::string description;
+    uint8 announce;         // if 0 dont announce, if 1 announce, if 2 take config value
 
     bool isValid() const { return length > 0 || state > GAMEEVENT_NORMAL; }
 };
@@ -71,9 +75,9 @@ struct GameEventData
 struct ModelEquip
 {
     uint32 modelid;
-    uint32 equipment_id;
     uint32 modelid_prev;
-    uint32 equipement_id_prev;
+    uint8 equipment_id;
+    uint8 equipement_id_prev;
 };
 
 struct NPCVendorEntry
@@ -83,17 +87,25 @@ struct NPCVendorEntry
     int32  maxcount;                                        // 0 for infinite
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
+    uint8 Type;                                             // 1 item, 2 currency
 };
 
 class Player;
 class Creature;
+class Quest;
 
 class GameEventMgr
 {
-    friend class ACE_Singleton<GameEventMgr, ACE_Null_Mutex>;
-    GameEventMgr();
+    private:
+        GameEventMgr();
+        ~GameEventMgr() { };
+
     public:
-        ~GameEventMgr() {};
+        static GameEventMgr* instance()
+        {
+            static GameEventMgr instance;
+            return &instance;
+        }
 
         typedef std::set<uint16> ActiveEvents;
         typedef std::vector<GameEventData> GameEventDataMap;
@@ -111,11 +123,12 @@ class GameEventMgr
         bool StartEvent(uint16 event_id, bool overwrite = false);
         void StopEvent(uint16 event_id, bool overwrite = false);
         void HandleQuestComplete(uint32 quest_id);  // called on world event type quest completions
-        void HandleWorldEventGossip(Player* plr, Creature* c);
+        void HandleWorldEventGossip(Player* player, Creature* c);
         uint32 GetNPCFlag(Creature* cr);
         uint32 GetNpcTextId(uint32 guid);
+        uint16 GetEventIdForQuest(Quest const* quest) const;
     private:
-        void SendWorldStateUpdate(Player* plr, uint16 event_id);
+        void SendWorldStateUpdate(Player* player, uint16 event_id);
         void AddActiveEvent(uint16 event_id) { m_ActiveEvents.insert(event_id); }
         void RemoveActiveEvent(uint16 event_id) { m_ActiveEvents.erase(event_id); }
         void ApplyNewEvent(uint16 event_id);
@@ -128,18 +141,19 @@ class GameEventMgr
         void UpdateEventNPCFlags(uint16 event_id);
         void UpdateEventNPCVendor(uint16 event_id, bool activate);
         void UpdateBattlegroundSettings();
+        void RunSmartAIScripts(uint16 event_id, bool activate);    //! Runs SMART_EVENT_GAME_EVENT_START/_END SAI
         bool CheckOneGameEventConditions(uint16 event_id);
         void SaveWorldEventStateToDB(uint16 event_id);
         bool hasCreatureQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
         bool hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
-        bool hasCreatureActiveEventExcept(uint32 creature_guid, uint16 event_id);
-        bool hasGameObjectActiveEventExcept(uint32 go_guid, uint16 event_id);
-protected:
-        typedef std::list<uint32> GuidList;
+        bool hasCreatureActiveEventExcept(ObjectGuid::LowType creature_guid, uint16 event_id);
+        bool hasGameObjectActiveEventExcept(ObjectGuid::LowType go_guid, uint16 event_id);
+
+        typedef std::list<ObjectGuid::LowType> GuidList;
         typedef std::list<uint32> IdList;
         typedef std::vector<GuidList> GameEventGuidMap;
         typedef std::vector<IdList> GameEventIdMap;
-        typedef std::pair<uint32, ModelEquip> ModelEquipPair;
+        typedef std::pair<ObjectGuid::LowType, ModelEquip> ModelEquipPair;
         typedef std::list<ModelEquipPair> ModelEquipList;
         typedef std::vector<ModelEquipList> GameEventModelEquipMap;
         typedef std::pair<uint32, uint32> QuestRelation;
@@ -148,7 +162,7 @@ protected:
         typedef std::list<NPCVendorEntry> NPCVendorList;
         typedef std::vector<NPCVendorList> GameEventNPCVendorMap;
         typedef std::map<uint32 /*quest id*/, GameEventQuestToEventConditionNum> QuestIdToEventConditionMap;
-        typedef std::pair<uint32 /*guid*/, uint32 /*npcflag*/> GuidNPCFlagPair;
+        typedef std::pair<ObjectGuid::LowType /*guid*/, uint32 /*npcflag*/> GuidNPCFlagPair;
         typedef std::list<GuidNPCFlagPair> NPCFlagList;
         typedef std::vector<NPCFlagList> GameEventNPCFlagMap;
         typedef std::vector<uint32> GameEventBitmask;
@@ -164,13 +178,14 @@ protected:
         QuestIdToEventConditionMap mQuestToEventConditions;
         GameEventNPCFlagMap mGameEventNPCFlags;
         ActiveEvents m_ActiveEvents;
+        std::unordered_map<uint32, uint16> _questToEventLinks;
         bool isSystemInit;
     public:
         GameEventGuidMap  mGameEventCreatureGuids;
         GameEventGuidMap  mGameEventGameobjectGuids;
 };
 
-#define sGameEventMgr ACE_Singleton<GameEventMgr, ACE_Null_Mutex>::instance()
+#define sGameEventMgr GameEventMgr::instance()
 
 bool IsHolidayActive(HolidayIds id);
 bool IsEventActive(uint16 event_id);

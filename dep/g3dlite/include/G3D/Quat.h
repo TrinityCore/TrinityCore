@@ -1,12 +1,12 @@
 /**
-  @file Quat.h
+  \file G3D/Quat.h
  
   Quaternion
   
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
   
-  @created 2002-01-23
-  @edited  2009-05-10
+  \created 2002-01-23
+  \edited  2011-05-10
  */
 
 #ifndef G3D_Quat_h
@@ -21,9 +21,9 @@
 namespace G3D {
 
 /**
-  Arbitrary quaternion (not necessarily unit)
+  Arbitrary quaternion (not necessarily unit).
 
-  Unit quaternions are used in computer graphics to represent
+  Unit quaternions (aka versors) are used in computer graphics to represent
   rotation about an axis.  Any 3x3 rotation matrix can
   be stored as a quaternion.
 
@@ -72,6 +72,8 @@ public:
     /** Expects "Quat(x,y,z,w)" or a Matrix3 constructor. */
     Quat(const class Any& a);
 
+    Any toAny() const;
+
     Quat(const Matrix3& rot);
 
     Quat(float _x, float _y, float _z, float _w) :
@@ -81,6 +83,12 @@ public:
     Quat(const Vector3& v, float _w = 0) : x(v.x), y(v.y), z(v.z), w(_w) {
     }
 
+    /** True if the components are exactly equal.  Note that two quaternations may
+        be unequal but map to the same rotation. */
+    bool operator==(const Quat& q) const {
+        return x == q.x && y == q.y && z == q.z && w == q.w;
+    }
+    
     /**
      The real part of the quaternion.
      */
@@ -92,9 +100,9 @@ public:
         return w;
     }
 
-	Quat operator-() const {
-		return Quat(-x, -y, -z, -w);
-	}
+    Quat operator-() const {
+        return Quat(-x, -y, -z, -w);
+    }
 
     Quat operator-(const Quat& other) const {
         return Quat(x - other.x, y - other.y, z - other.z, w - other.w);
@@ -148,7 +156,7 @@ public:
     }
 
 
-	/** @cite Based on Watt & Watt, page 360 */
+    /** @cite Based on Watt & Watt, page 360 */
     friend Quat operator* (float s, const Quat& q);
 
     inline Quat operator/(float s) const {
@@ -196,36 +204,69 @@ public:
     void toAxisAngleRotation(
         Vector3&            axis,
         float&              angle) const {
-		double d;
-		toAxisAngleRotation(axis, d);
-		angle = (float)d;
-	}
+        double d;
+        toAxisAngleRotation(axis, d);
+        angle = (float)d;
+    }
 
     Matrix3 toRotationMatrix() const;
 
     void toRotationMatrix(
         Matrix3&            rot) const;
     
+private:
+    /**  \param maxAngle Maximum angle of rotation allowed.  If a larger rotation is required, the angle of rotation applied is clamped to maxAngle */
+    Quat slerp
+       (const Quat&         other,
+        float               alpha,
+        float               threshold,
+        float               maxAngle) const;
+public:
+
     /**
      Spherical linear interpolation: linear interpolation along the 
      shortest (3D) great-circle route between two quaternions.
 
+     Assumes that both arguments are unit quaternions.
+
      Note: Correct rotations are expected between 0 and PI in the right order.
 
-     @cite Based on Game Physics -- David Eberly pg 538-540
-     @param threshold Critical angle between between rotations at which
-	        the algorithm switches to normalized lerp, which is more
-			numerically stable in those situations. 0.0 will always slerp. 
+     \cite Based on Game Physics -- David Eberly pg 538-540
+     
+     \param threshold Critical angle between between rotations (in radians) at which
+            the algorithm switches to normalized lerp, which is more
+            numerically stable in those situations. 0.0 will always slerp.
+
      */
-    Quat slerp(
-        const Quat&         other,
+    Quat slerp
+       (const Quat&         other,
         float               alpha,
-        float               threshold = 0.05f) const;
+        float               threshold = 0.05f) const {
+        return slerp(other, alpha, threshold, finf());
+    }
 
-	/** Normalized linear interpolation of quaternion components. */
-	Quat nlerp(const Quat& other, float alpha) const;
+    /** Rotates towards \a other by at most \a maxAngle. */
+    Quat movedTowards
+       (const Quat&         other,
+        float               maxAngle) const {
+        return slerp(other, 1.0f, 0.05f, maxAngle);
+    }
+    
+    /** Rotates towards \a other by at most \a maxAngle. */
+    void moveTowards
+       (const Quat&         other,
+        float               maxAngle) {
+        *this = movedTowards(other, maxAngle);
+    }
 
+    /** Returns the angle in radians between this and other, assuming both are unit quaternions. 
+    
+      \returns On the range [0, pif()]*/
+    float angleBetween(const Quat& other) const;
 
+    /** Normalized linear interpolation of quaternion components. */
+    Quat nlerp(const Quat& other, float alpha) const;
+    
 
     /** Note that q<SUP>-1</SUP> = q.conj() for a unit quaternion. 
         @cite Dam99 page 13 */
@@ -274,22 +315,6 @@ public:
             return Quat(t * x, t * y, t * z, ::logf(len));
         }
     }
-    /** log q = [Av, 0] where q = [sin(A) * v, cos(A)].
-        Only for unit quaternions 
-        debugAssertM(isUnit(), "Log only defined for unit quaternions");
-        // Solve for A in q = [sin(A)*v, cos(A)]
-        Vector3 u(x, y, z);
-        double len = u.magnitude();
-
-        if (len == 0.0) {
-            return 
-        }
-        double A = atan2((double)w, len);
-        Vector3 v = u / len;
-        
-        return Quat(v * A, 0);
-    }
-    */
 
     /** exp q = [sin(A) * v, cos(A)] where q = [Av, 0].
         Only defined for pure-vector quaternions */
@@ -348,7 +373,7 @@ public:
     float& operator[] (int i);
 
     /** Generate uniform random unit quaternion (i.e. random "direction") 
-	@cite From "Uniform Random Rotations", Ken Shoemake, Graphics Gems III.
+    @cite From "Uniform Random Rotations", Ken Shoemake, Graphics Gems III.
    */
     static Quat unitRandom();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,27 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ArenaMap.h"
+#include "Battleground.h"
 #include "ArenaScore.h"
 #include "BattlegroundBE.h"
-#include "Language.h"
-#include "Object.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
 
 void BattlegroundBE::InitializeObjects()
 {
     ObjectGUIDsByType.resize(BG_BE_OBJECT_MAX);
-
-    // gates
-    AddGameObject(BG_BE_OBJECT_DOOR_1, BG_BE_OBJECT_TYPE_DOOR_1, 6287.277f, 282.1877f, 3.810925f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f, RESPAWN_IMMEDIATELY);
-    AddGameObject(BG_BE_OBJECT_DOOR_2, BG_BE_OBJECT_TYPE_DOOR_2, 6189.546f, 241.7099f, 3.101481f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f, RESPAWN_IMMEDIATELY);
-    AddGameObject(BG_BE_OBJECT_DOOR_3, BG_BE_OBJECT_TYPE_DOOR_3, 6299.116f, 296.5494f, 3.308032f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f, RESPAWN_IMMEDIATELY);
-    AddGameObject(BG_BE_OBJECT_DOOR_4, BG_BE_OBJECT_TYPE_DOOR_4, 6177.708f, 227.3481f, 3.604374f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f, RESPAWN_IMMEDIATELY);
-    // buffs
-    AddGameObject(BG_BE_OBJECT_BUFF_1, BG_BE_OBJECT_TYPE_BUFF_1, 6249.042f, 275.3239f, 11.22033f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, BUFF_RESPAWN_TIME);
-    AddGameObject(BG_BE_OBJECT_BUFF_2, BG_BE_OBJECT_TYPE_BUFF_2, 6228.26f, 249.566f, 11.21812f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, BUFF_RESPAWN_TIME);
 
     for (uint32 i = BG_BE_OBJECT_DOOR_1; i <= BG_BE_OBJECT_DOOR_4; ++i)
         SpawnGameObject(i, RESPAWN_IMMEDIATELY);
@@ -56,55 +44,26 @@ void BattlegroundBE::StartBattleground()
         SpawnGameObject(i, 60);
 }
 
-bool BattlegroundBE::HandlePlayerUnderMap(Player* player)
-{
+void BattlegroundBE::AddPlayer(Player *plr)
     player->TeleportTo(GetId(), 6238.930176f, 262.963470f, 0.889519f, player->GetOrientation(), false);
-    return true;
-}
-
-void BattlegroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
-    // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    //uint32 SpellId = 0;
-    //uint64 buff_guid = 0;
-    switch(Trigger)
+    switch (trigger)
     {
         case 4538:                                          // buff trigger?
-            //buff_guid = m_BgObjects[BG_BE_OBJECT_BUFF_1];
-            break;
         case 4539:                                          // buff trigger?
-            //buff_guid = m_BgObjects[BG_BE_OBJECT_BUFF_2];
             break;
         default:
-            sLog->outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
-
-    //if (buff_guid)
-    //    HandleTriggerBuff(buff_guid, Source);
 }
 
-void BattlegroundBE::FillInitialWorldStates(WorldPacket &data)
+void BattlegroundBE::FillInitialWorldStates(WorldPacket& data)
 {
-    data << uint32(0x9f3) << uint32(1);           // 9
-    UpdateArenaWorldState();
-}
-
-/*
-21:45:46 id:231310 [S2C] SMSG_INIT_WORLD_STATES (706 = 0x02C2) len: 86
-0000: 32 02 00 00 76 0e 00 00 00 00 00 00 09 00 f3 09  |  2...v...........
-0010: 00 00 01 00 00 00 f1 09 00 00 01 00 00 00 f0 09  |  ................
-0020: 00 00 02 00 00 00 d4 08 00 00 00 00 00 00 d8 08  |  ................
-0030: 00 00 00 00 00 00 d7 08 00 00 00 00 00 00 d6 08  |  ................
-0040: 00 00 00 00 00 00 d5 08 00 00 00 00 00 00 d3 08  |  ................
-0050: 00 00 00 00 00 00                                |  ......
-
-spell 32724 - Gold Team
-spell 32725 - Green Team
-35774 Gold Team
-35775 Green Team
-*/
+    data << uint32(0x9f3) << uint32(1);     // 9 show
+    Arena::FillInitialWorldStates(data);
+        TC_LOG_ERROR("sql.sql", "BatteGroundBE: Failed to spawn some object!");
+        sLog->outErrorDb("BatteGroundBE: Failed to spawn some object!");

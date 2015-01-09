@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
+#include "Define.h"
 #include "ArenaTeamMgr.h"
+#include "World.h"
+#include "Log.h"
+#include "DatabaseEnv.h"
+#include "Language.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 
 ArenaTeamMgr::ArenaTeamMgr()
 {
@@ -53,7 +59,7 @@ ArenaTeam* ArenaTeamMgr::GetArenaTeamByName(const std::string& arenaTeamName) co
     return NULL;
 }
 
-ArenaTeam* ArenaTeamMgr::GetArenaTeamByCaptain(uint64 const& guid) const
+ArenaTeam* ArenaTeamMgr::GetArenaTeamByCaptain(ObjectGuid guid) const
 {
     for (ArenaTeamContainer::const_iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
         if (itr->second->GetCaptain() == guid)
@@ -76,7 +82,7 @@ uint32 ArenaTeamMgr::GenerateArenaTeamId()
 {
     if (NextArenaTeamId >= 0xFFFFFFFE)
     {
-        sLog->outError("Arena team ids overflow!! Can't continue, shutting down server. ");
+        TC_LOG_ERROR("bg.battleground", "Arena team ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
     return NextArenaTeamId++;
@@ -87,17 +93,16 @@ void ArenaTeamMgr::LoadArenaTeams()
     uint32 oldMSTime = getMSTime();
 
     // Clean out the trash before loading anything
-    CharacterDatabase.Execute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)");
+    CharacterDatabase.Execute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)");       // One-time query
 
-    //                                                                   0        1         2         3          4              5            6            7           8
-    QueryResult result = CharacterDatabase.Query("SELECT arena_team.arenaTeamId, name, captainGuid, type, backgroundColor, emblemStyle, emblemColor, borderStyle, borderColor, "
-        //                                               9        10        11         12           13       14
-        "rating, weekGames, weekWins, seasonGames, seasonWins, rank FROM arena_team ORDER BY arena_team.arenaTeamId ASC");
+    //                                                        0        1         2         3          4              5            6            7           8
+    QueryResult result = CharacterDatabase.Query("SELECT arenaTeamId, name, captainGuid, type, backgroundColor, emblemStyle, emblemColor, borderStyle, borderColor, "
+    //      9        10        11         12           13       14
+        "rating, weekGames, weekWins, seasonGames, seasonWins, rank FROM arena_team ORDER BY arenaTeamId ASC");
 
     if (!result)
     {
-        sLog->outString(">> Loaded 0 arena teams. DB table `arena_team` is empty!");
-        sLog->outString();
+        TC_LOG_INFO("server.loading", ">> Loaded 0 arena teams. DB table `arena_team` is empty!");
         return;
     }
 
@@ -127,53 +132,5 @@ void ArenaTeamMgr::LoadArenaTeams()
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u arena teams in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
-}
-
-void ArenaTeamMgr::DistributeArenaPoints()
-{
-    // Used to distribute arena points based on last week's stats
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_START);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_START);
-
-    // Temporary structure for storing maximum points to add values for all players
-    std::map<uint32, uint32> PlayerPoints;
-
-    // At first update all points for all team members
-    for (ArenaTeamContainer::iterator teamItr = GetArenaTeamMapBegin(); teamItr != GetArenaTeamMapEnd(); ++teamItr)
-        if (ArenaTeam * at = teamItr->second)
-            at->UpdateArenaPointsHelper(PlayerPoints);
-
-    // Cycle that gives points to all players
-    for (std::map<uint32, uint32>::iterator playerItr = PlayerPoints.begin(); playerItr != PlayerPoints.end(); ++playerItr)
-    {
-        // Update database
-        CharacterDatabase.PExecute("UPDATE characters SET arenaPoints = arenaPoints + '%u' WHERE guid = '%u'", playerItr->second, playerItr->first);
-
-        // Add points to player if online
-        Player* pl = sObjectMgr->GetPlayer(playerItr->first);
-        if (pl)
-            pl->ModifyArenaPoints(playerItr->second);
-    }
-
-    PlayerPoints.clear();
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_END);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_START);
-    for (ArenaTeamContainer::iterator titr = GetArenaTeamMapBegin(); titr != GetArenaTeamMapEnd(); ++titr)
-    {
-        if (ArenaTeam * at = titr->second)
-        {
-            at->FinishWeek();
-            at->SaveToDB();
-            at->NotifyStatsChanged();
-        }
-    }
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_END);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_END);
+    TC_LOG_INFO("server.loading", ">> Loaded %u arena teams in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }

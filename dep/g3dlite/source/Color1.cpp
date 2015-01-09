@@ -1,17 +1,17 @@
 /**
- @file Color1.cpp
+ \file Color1.cpp
 
  Color class.
 
- @author Morgan McGuire, http://graphics.cs.williams.edu
+ \author Morgan McGuire, http://graphics.cs.williams.edu
 
- @created 2007-01-30
- @edited  2009-03-27
+ \created 2007-01-30
+ \edited  2011-08-27
  */
 
 #include "G3D/platform.h"
 #include "G3D/Color1.h"
-#include "G3D/Color1uint8.h"
+#include "G3D/Color1unorm8.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/Color3.h"
@@ -50,8 +50,8 @@ void Color1::serialize(BinaryOutput& bo) const {
 }
 
 
-Color1::Color1(const class Color1uint8& other) {
-    value = other.value / 255.0f;
+Color1::Color1(const class Color1unorm8& other) {
+    value = other.value;
 }
 
 } // namespace G3D

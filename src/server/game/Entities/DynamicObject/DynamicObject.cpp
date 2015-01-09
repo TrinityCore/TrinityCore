@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,16 +26,18 @@
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
+#include "Transport.h"
 
-DynamicObject::DynamicObject() : WorldObject(),
+DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _isViewpoint(false)
 {
     m_objectType |= TYPEMASK_DYNAMICOBJECT;
     m_objectTypeId = TYPEID_DYNAMICOBJECT;
 
-    m_updateFlag = (UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_POSITION);
+    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
 
     m_valuesCount = DYNAMICOBJECT_END;
+    _dynamicValuesCount = DYNAMICOBJECT_DYNAMIC_END;
 }
 
 DynamicObject::~DynamicObject()
@@ -79,39 +81,56 @@ void DynamicObject::RemoveFromWorld()
     }
 }
 
-bool DynamicObject::Create(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, bool active, DynamicObjectType type)
+bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type)
 {
     SetMap(caster->GetMap());
     Relocate(pos);
     if (!IsPositionValid())
     {
-        sLog->outError("DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spellId, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("misc", "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
         return false;
     }
 
-    WorldObject::_Create(guidlow, HIGHGUID_DYNAMICOBJECT, caster->GetPhaseMask());
+    WorldObject::_Create(ObjectGuid::Create<HighGuid::DynamicObject>(GetMapId(), spell->Id, guidlow));
+    SetPhaseMask(caster->GetPhaseMask(), false);
 
-    SetEntry(spellId);
-    SetFloatValue(OBJECT_FIELD_SCALE_X, 1);
-    SetUInt64Value(DYNAMICOBJECT_CASTER, caster->GetGUID());
-
-    // The lower word of DYNAMICOBJECT_BYTES must be 0x0001. This value means that the visual radius will be overriden
-    // by client for most of the "ground patch" visual effect spells and a few "skyfall" ones like Hurricane.
-    // If any other value is used, the client will _always_ use the radius provided in DYNAMICOBJECT_RADIUS, but
-    // precompensation is necessary (eg radius *= 2) for many spells. Anyway, blizz sends 0x0001 for all the spells
-    // I saw sniffed...
-    SetByteValue(DYNAMICOBJECT_BYTES, 0, type);
-    SetUInt32Value(DYNAMICOBJECT_SPELLID, spellId);
+    SetEntry(spell->Id);
+    SetObjectScale(1.0f);
+    SetGuidValue(DYNAMICOBJECT_CASTER, caster->GetGUID());
+    SetUInt32Value(DYNAMICOBJECT_BYTES, spell->SpellVisual[0] | (type << 28));
+    SetUInt32Value(DYNAMICOBJECT_SPELLID, spell->Id);
     SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
     SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());
 
-    m_isWorldObject = active;
+    if (IsWorldObject())
+        setActive(true);    //must before add to map to be put in world container
+
+    Transport* transport = caster->GetTransport();
+    if (transport)
+    {
+        float x, y, z, o;
+        pos.GetPosition(x, y, z, o);
+        transport->CalculatePassengerOffset(x, y, z, &o);
+        m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+        // This object must be added to transport before adding to map for the client to properly display it
+        transport->AddPassenger(this);
+    }
+
+    if (!GetMap()->AddToMap(this))
+    {
+        // Returning false will cause the object to be deleted - remove from transport
+        if (transport)
+            transport->RemovePassenger(this);
+        return false;
+    }
+
     return true;
 }
 
 void DynamicObject::Update(uint32 p_time)
 {
-    // caster has to be always avalible and in the same map
+    // caster has to be always available and in the same map
     ASSERT(_caster);
     ASSERT(_caster->GetMap() == GetMap());
 
@@ -122,7 +141,7 @@ void DynamicObject::Update(uint32 p_time)
         if (!_aura->IsRemoved())
             _aura->UpdateOwner(p_time, this);
 
-        // m_aura may be set to null in Aura::UpdateOwner call
+        // _aura may be set to null in Aura::UpdateOwner call
         if (_aura && (_aura->IsRemoved() || _aura->IsExpired()))
             expired = true;
     }

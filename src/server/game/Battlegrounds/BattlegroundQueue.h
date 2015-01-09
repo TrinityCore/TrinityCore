@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,6 +26,8 @@
 
 //namespace Battleground
 //{
+#include <deque>
+
 
 #define MAX_PVPDIFFICULTY_ENTRY 108
 
@@ -42,6 +44,7 @@
 struct BattlegroundQueueElement
 {
     BattlegroundQueueElement() : InviteScheduled(false){};
+    GroupQueueInfo* GroupInfo;                             // pointer to the associated groupqueueinfo
 
     ///< The (collection of) player(s) per LowGUID
     std::vector<uint32> Players;
@@ -49,7 +52,7 @@ struct BattlegroundQueueElement
     ///< Union of data specific to arena's or battlegrounds
     union
     {
-        ///< The faction (A/H)
+    std::map<uint64, PlayerQueueInfo*> Players;             // player queue info map
         Team Faction;
 
         ///< The arena matchmaker rating (if applicable)
@@ -90,14 +93,17 @@ class BattlegroundQueueMgr
         void Initialize();
         void Update(uint32 const& diff);
         void Insert(BattlegroundQueueElement* element, uint8 rated, ArenaType arenaType, uint8 difficultyEntryId);
+        void RemovePlayer(const uint64& guid, bool decreaseInvitedCount);
+        bool IsPlayerInvited(const uint64& pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
+        bool GetPlayerGroupInfoData(const uint64& guid, GroupQueueInfo* ginfo);
 
-        ///< uint32 index = ( (bool(rated) << 16) | ( uint8(arenaType) << 8 ) | ( uint8(bracketId) ));
+        typedef std::map<ObjectGuid, PlayerQueueInfo> QueuedPlayersMap;
         ///< bracketId: Id in PVPDifficultiy.dbc, has access to mapId and level restrictions
         ///< arenaType: See enum
         ///< rated: rated match or not
         typedef std::map<uint32 /*queueId*/, BattlegroundQueue*> QueueMap;
 
-    protected:
+        //we need constant add to begin and constant remove / add from the end, therefore deque suits our problem well
         // Queue will never be altered
         QueueMap Queues;
 };
@@ -111,9 +117,9 @@ class BattlegroundQueue : public std::set<BattlegroundQueueElement*>
     class ArenaInviteEvent : public BasicEvent
     {
         public:
-            ArenaInviteEvent(BattlegroundQueueElement* team1, BattlegroundQueueElement* team2) : _team1(team1), _team2(team2) {}
+            SelectionPool(): PlayerCount(0) { };
 
-            bool Execute(uint64 /*e_time*/, uint32 /*p_time*/);
+            bool AddGroup(GroupQueueInfo *ginfo, uint32 desiredCount);
 
         private:
             BattlegroundQueueElement* _team1;
@@ -128,16 +134,12 @@ class BattlegroundQueue : public std::set<BattlegroundQueueElement*>
         void Insert(BattlegroundQueueElement* element);
         void Erase(BattlegroundQueueElement* element);
         void Update(uint32 const& diff);
-
     private:
 
-        char const* OutDebug();
+        bool InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, uint32 side);
 
         ///< Counter variables dependant on type (BG/Arena)
         union
-        {
-            struct
-            {
                 uint8 AllianceCount;
                 uint8 HordeCount;
             } _ahCount;
@@ -167,16 +169,15 @@ class BattlegroundQueue : public std::set<BattlegroundQueueElement*>
 class BGQueueInviteEvent : public BasicEvent
 {
     public:
-        BGQueueInviteEvent(const uint64& pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
+        BGQueueInviteEvent(ObjectGuid pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
           _playerGUID(pl_guid), _bgInstanceGUID(BgInstanceGUID), _bgTypeId(BgTypeId), _arenaType(arenaType), _removeTime(removeTime)
-          {
-          };
-        virtual ~BGQueueInviteEvent() {};
+          { }
+        virtual ~BGQueueInviteEvent() { }
 
-        virtual bool Execute(uint64 e_time, uint32 p_time);
-        virtual void Abort(uint64 e_time);
+        virtual bool Execute(uint64 e_time, uint32 p_time) override;
+        virtual void Abort(uint64 e_time) override;
     private:
-        uint64 _playerGUID;
+        uint64 m_PlayerGuid;
         uint32 _bgInstanceGUID;
         BattlegroundTypeId _bgTypeId;
         uint8  _arenaType;
@@ -191,16 +192,16 @@ class BGQueueInviteEvent : public BasicEvent
 class BGQueueRemoveEvent : public BasicEvent
 {
     public:
-        BGQueueRemoveEvent(const uint64& pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
+        BGQueueRemoveEvent(ObjectGuid pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
             : _playerGUID(pl_guid), _bgInstanceGUID(bgInstanceGUID), _removeTime(removeTime), _bgTypeId(BgTypeId), _bgQueueTypeId(bgQueueTypeId)
-        {}
+        { }
 
-        virtual ~BGQueueRemoveEvent() {}
+        virtual ~BGQueueRemoveEvent() { }
 
-        virtual bool Execute(uint64 e_time, uint32 p_time);
-        virtual void Abort(uint64 e_time);
+        virtual bool Execute(uint64 e_time, uint32 p_time) override;
+        virtual void Abort(uint64 e_time) override;
     private:
-        uint64 _playerGUID;
+        uint64 m_PlayerGuid;
         uint32 _bgInstanceGUID;
         uint32 _removeTime;
         BattlegroundTypeId _bgTypeId;

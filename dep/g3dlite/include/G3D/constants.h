@@ -26,20 +26,13 @@ public:
         TRIANGLE_STRIP = 0x0005,
         TRIANGLE_FAN   = 0x0006,
         QUADS          = 0x0007, 
-        QUAD_STRIP     = 0x0008
+        QUAD_STRIP     = 0x0008,
+        PATCHES        = 0x000E
     };
 
 private:
     
-    static const char* toString(int i, Value& v) {
-        static const char* str[] = {"POINTS", "LINES", "LINE_STRIP", "TRIANGLES", "TRIANGLE_FAN", "QUADS", "QUAD_STRIP", NULL}; 
-        static const Value val[] = {POINTS, LINES, LINE_STRIP, TRIANGLES, TRIANGLE_FAN, QUADS, QUAD_STRIP};
-        const char* s = str[i];
-        if (s) {
-            v = val[i];
-        }
-        return s;
-    }
+    static const char* toString(int i, Value& v);
 
     Value value;
 
@@ -49,7 +42,7 @@ public:
 };
 
 
-/** Values for SuperSurface::GPUGeom::refractionHint. */
+/** Values for UniversalSurface::GPUGeom::refractionHint. */
 class RefractionQuality {
 public:
     enum Value {
@@ -77,15 +70,7 @@ public:
 
 private:
 
-    static const char* toString(int i, Value& v) {
-        static const char* str[] = {"NONE", "STATIC_ENV", "DYNAMIC_FLAT", "DYNAMIC_FLAT_MULTILAYER", "DYNAMIC_ENV", "BEST", NULL}; 
-        static const Value val[] = {NONE, STATIC_ENV, DYNAMIC_FLAT, DYNAMIC_FLAT_MULTILAYER, DYNAMIC_ENV, BEST};
-        const char* s = str[i];
-        if (s) {
-            v = val[i];
-        }
-        return s;
-    }
+    static const char* toString(int i, Value& v);
 
     Value value;
 
@@ -95,7 +80,7 @@ public:
 };
 
 
-/** Values for SuperSurface::GPUGeom::mirrorHint. */
+/** Values for UniversalSurface::GPUGeom::mirrorHint. */
 class MirrorQuality {
 public:
 
@@ -119,15 +104,7 @@ public:
 
 private:
 
-    static const char* toString(int i, Value& v) {
-        static const char* str[] = {"NONE", "STATIC_ENV", "DYNAMIC_PLANAR", "DYNAMIC_ENV", "BEST", NULL}; 
-        static const Value val[] = {NONE, STATIC_ENV, DYNAMIC_PLANAR, DYNAMIC_ENV, BEST};
-        const char* s = str[i];
-        if (s) {
-            v = val[i];
-        }
-        return s;
-    }
+    static const char* toString(int i, Value& v);
 
     Value value;
 

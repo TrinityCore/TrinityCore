@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,14 +22,12 @@
 #include "ZoneScript.h"
 #include "World.h"
 #include "ObjectMgr.h"
-//#include "GameObject.h"
-//#include "Map.h"
 
-#define OUT_SAVE_INST_DATA             sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_SAVE_INST_DATA_COMPLETE    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA(a)          sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
-#define OUT_LOAD_INST_DATA_COMPLETE    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA_FAIL        sLog->outError("TSCR: Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA(a)          TC_LOG_DEBUG("scripts", "Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
+#define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
 class Map;
 class Unit;
@@ -37,13 +35,19 @@ class Player;
 class GameObject;
 class Creature;
 
-typedef std::set<GameObject*> DoorSet;
-typedef std::set<Creature*> MinionSet;
-
 enum EncounterFrameType
 {
-    ENCOUNTER_FRAME_ADD     = 0,
-    ENCOUNTER_FRAME_REMOVE  = 1,
+    ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT    = 0,
+    ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT  = 1,
+    ENCOUNTER_FRAME_ENGAGE                  = 2,
+    ENCOUNTER_FRAME_DISENGAGE               = 3,
+    ENCOUNTER_FRAME_UPDATE_PRIORITY         = 4,
+    ENCOUNTER_FRAME_ADD_TIMER               = 5,
+    ENCOUNTER_FRAME_ENABLE_OBJECTIVE        = 6,
+    ENCOUNTER_FRAME_UPDATE_OBJECTIVE        = 7,
+    ENCOUNTER_FRAME_DISABLE_OBJECTIVE       = 8,
+    ENCOUNTER_FRAME_UNK7                    = 9,    // Seems to have something to do with sorting the encounter units
+    ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT    = 10
 };
 
 enum EncounterState
@@ -53,7 +57,7 @@ enum EncounterState
     FAIL          = 2,
     DONE          = 3,
     SPECIAL       = 4,
-    TO_BE_DECIDED = 5,
+    TO_BE_DECIDED = 5
 };
 
 enum DoorType
@@ -61,7 +65,7 @@ enum DoorType
     DOOR_TYPE_ROOM          = 0,    // Door can open if encounter is not in progress
     DOOR_TYPE_PASSAGE       = 1,    // Door can open if encounter is done
     DOOR_TYPE_SPAWN_HOLE    = 2,    // Door can open if encounter is in progress, typically used for spawning places
-    MAX_DOOR_TYPES,
+    MAX_DOOR_TYPES
 };
 
 enum BoundaryType
@@ -78,7 +82,7 @@ enum BoundaryType
     BOUNDARY_MAX_X = BOUNDARY_N,
     BOUNDARY_MIN_X = BOUNDARY_S,
     BOUNDARY_MAX_Y = BOUNDARY_W,
-    BOUNDARY_MIN_Y = BOUNDARY_E,
+    BOUNDARY_MIN_Y = BOUNDARY_E
 };
 
 typedef std::map<BoundaryType, float> BossBoundaryMap;
@@ -95,75 +99,106 @@ struct MinionData
     uint32 entry, bossId;
 };
 
+struct ObjectData
+{
+    uint32 entry;
+    uint32 type;
+};
+
 struct BossInfo
 {
-    BossInfo() : state(TO_BE_DECIDED) {}
+    BossInfo() : state(TO_BE_DECIDED) { }
     EncounterState state;
-    DoorSet door[MAX_DOOR_TYPES];
-    MinionSet minion;
+    GuidSet door[MAX_DOOR_TYPES];
+    GuidSet minion;
     BossBoundaryMap boundary;
 };
 
 struct DoorInfo
 {
-    explicit DoorInfo(BossInfo *_bossInfo, DoorType _type, BoundaryType _boundary)
-        : bossInfo(_bossInfo), type(_type), boundary(_boundary) {}
-    BossInfo *bossInfo;
+    explicit DoorInfo(BossInfo* _bossInfo, DoorType _type, BoundaryType _boundary)
+        : bossInfo(_bossInfo), type(_type), boundary(_boundary) { }
+    BossInfo* bossInfo;
     DoorType type;
     BoundaryType boundary;
 };
 
 struct MinionInfo
 {
-    explicit MinionInfo(BossInfo *_bossInfo) : bossInfo(_bossInfo) {}
-    BossInfo *bossInfo;
+    explicit MinionInfo(BossInfo* _bossInfo) : bossInfo(_bossInfo) { }
+    BossInfo* bossInfo;
 };
 
 typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
+typedef std::pair<DoorInfoMap::const_iterator, DoorInfoMap::const_iterator> DoorInfoMapBounds;
+
 typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
+typedef std::map<uint32 /*type*/, ObjectGuid /*guid*/> ObjectGuidMap;
+typedef std::map<uint32 /*entry*/, uint32 /*type*/> ObjectInfoMap;
 
 class InstanceScript : public ZoneScript
 {
     public:
+        explicit InstanceScript(Map* map) : instance(map), completedEncounters(0) { }
 
-        explicit InstanceScript(Map* map) : instance(map), completedEncounters(0) {}
+        virtual ~InstanceScript() { }
 
-        virtual ~InstanceScript() {}
+        Map* instance;
 
-        Map *instance;
+        // On creation, NOT load.
+        // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!
+        // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
+        virtual void Initialize() { }
 
-        //On creation, NOT load.
-        virtual void Initialize() {}
+        // On load
+        virtual void Load(char const* data);
 
-        //On load
-        virtual void Load(char const* data) { LoadBossState(data); }
-
-        //When save is needed, this function generates the data
-        virtual std::string GetSaveData() { return GetBossSaveData(); }
+        // When save is needed, this function generates the data
+        virtual std::string GetSaveData();
 
         void SaveToDB();
 
-        virtual void Update(uint32 /*diff*/) {}
+        virtual void Update(uint32 /*diff*/) { }
 
-        //Used by the map's CanEnter function.
-        //This is to prevent players from entering during boss encounters.
+        // Used by the map's CanEnter function.
+        // This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
 
-        //Called when a player successfully enters the instance.
-        virtual void OnPlayerEnter(Player* /*player*/) {}
+        // Called when a creature/gameobject is added to map or removed from map.
+        // Insert/Remove objectguid to dynamic guid store
+        virtual void OnCreatureCreate(Creature* creature) override;
+        virtual void OnCreatureRemove(Creature* creature) override;
 
-        //Handle open / close objects
-        //use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
-        //use HandleGameObject(GUID, boolen, NULL); in any other script
-        void HandleGameObject(uint64 guid, bool open, GameObject* go = NULL);
+        virtual void OnGameObjectCreate(GameObject* go) override;
+        virtual void OnGameObjectRemove(GameObject* go) override;
 
-        //change active state of doors or buttons
-        void DoUseDoorOrButton(uint64 guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
+        ObjectGuid GetObjectGuid(uint32 type) const;
+        virtual ObjectGuid GetGuidData(uint32 type) const override;
 
-        //Respawns a GO having negative spawntimesecs in gameobject-table
-        void DoRespawnGameObject(uint64 guid, uint32 timeToDespawn = MINUTE);
+        inline Creature* GetCreature(uint32 type)
+        {
+            return ObjectAccessor::GetObjectInMap<Creature>(GetObjectGuid(type), instance, nullptr);
+        }
+        inline GameObject* GetGameObject(uint32 type)
+        {
+            return ObjectAccessor::GetObjectInMap<GameObject>(GetObjectGuid(type), instance, nullptr);
+        }
 
-        //sends world state update to all players in instance
+        // Called when a player successfully enters the instance.
+        virtual void OnPlayerEnter(Player* /*player*/) { }
+
+        // Handle open / close objects
+        // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
+        // * use HandleGameObject(GUID, boolen, NULL); in any other script
+        void HandleGameObject(ObjectGuid guid, bool open, GameObject* go = nullptr);
+
+        // Change active state of doors or buttons
+        void DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
+
+        // Respawns a GO having negative spawntimesecs in gameobject-table
+        void DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn = MINUTE);
+
+        // Sends world state update to all players in instance
         void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
 
         // Send Notify to all players in instance
@@ -194,7 +229,7 @@ class InstanceScript : public ZoneScript
         virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
 
         // Checks boss requirements (one boss required to kill other)
-        virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = NULL) const { return true; }
+        virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = nullptr) const { return true; }
 
         // Checks encounter state at kill/spellcast
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
@@ -207,25 +242,70 @@ class InstanceScript : public ZoneScript
 
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
 
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
+
+        // ReCheck PhaseTemplate related conditions
+        void UpdatePhasing();
+
+        uint32 GetEncounterCount() const { return bosses.size(); }
 
     protected:
+        void SetHeaders(std::string const& dataHeaders);
         void SetBossNumber(uint32 number) { bosses.resize(number); }
         void LoadDoorData(DoorData const* data);
         void LoadMinionData(MinionData const* data);
+        void LoadObjectData(ObjectData const* creatureData, ObjectData const* gameObjectData);
+
+        void AddObject(Creature* obj, bool add);
+        void AddObject(GameObject* obj, bool add);
+        void AddObject(WorldObject* obj, uint32 type, bool add);
 
         void AddDoor(GameObject* door, bool add);
         void AddMinion(Creature* minion, bool add);
 
-        void UpdateDoorState(GameObject *door);
-        void UpdateMinionState(Creature *minion, EncounterState state);
+        void UpdateDoorState(GameObject* door);
+        void UpdateMinionState(Creature* minion, EncounterState state);
 
-        std::string LoadBossState(char const* data);
-        std::string GetBossSaveData();
+        // Instance Load and Save
+        bool ReadSaveDataHeaders(std::istringstream& data);
+        void ReadSaveDataBossStates(std::istringstream& data);
+        virtual void ReadSaveDataMore(std::istringstream& /*data*/) { }
+        void WriteSaveDataHeaders(std::ostringstream& data);
+        void WriteSaveDataBossStates(std::ostringstream& data);
+        virtual void WriteSaveDataMore(std::ostringstream& /*data*/) { }
+
     private:
+        static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);
+
+        std::vector<char> headers;
         std::vector<BossInfo> bosses;
         DoorInfoMap doors;
         MinionInfoMap minions;
+        ObjectInfoMap _creatureInfo;
+        ObjectInfoMap _gameObjectInfo;
+        ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
 };
-#endif
+
+template<class AI, class T>
+AI* GetInstanceAI(T* obj, char const* scriptName)
+{
+    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(scriptName))
+                return new AI(obj);
+
+    return NULL;
+}
+
+template<class AI, class T>
+AI* GetInstanceAI(T* obj)
+{
+    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            return new AI(obj);
+
+    return NULL;
+}
+
+#endif // TRINITY_INSTANCE_DATA_H

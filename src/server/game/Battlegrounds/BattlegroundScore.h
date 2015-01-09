@@ -20,28 +20,131 @@
 
 #include "WorldPacket.h"
 
-class BattlegroundScore
+enum ScoreType
 {
     friend class BattlegroundMap;
     friend class ArenaMap;
     protected:
-        BattlegroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0),
-            BonusHonor(0), DamageDone(0), HealingDone(0) {};
-        virtual ~BattlegroundScore() {};
+        BattlegroundScore(ObjectGuid playerGuid, uint32 team) : PlayerGuid(playerGuid), TeamId(team == ALLIANCE ? 1 : 0),
+            KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0) { }
 
-        virtual void AppendToPacket(WorldPacket* data) 
+        virtual ~BattlegroundScore() { }
+
+        virtual void UpdateScore(uint32 type, uint32 value)
         {
-            *data << KillingBlows;
-            *data << HonorableKills;
-            *data << Deaths;
-            *data << BonusHonor;
-            *data << DamageDone;
-            *data << HealingDone;
+            switch (type)
+            {
+                case SCORE_KILLING_BLOWS:   // Killing blows
+                    KillingBlows += value;
+                    break;
+                case SCORE_DEATHS:          // Deaths
+                    Deaths += value;
+                    break;
+                case SCORE_HONORABLE_KILLS: // Honorable kills
+                    HonorableKills += value;
+                    break;
+                case SCORE_BONUS_HONOR:     // Honor bonus
+                    BonusHonor += value;
+                    break;
+                case SCORE_DAMAGE_DONE:     // Damage Done
+                    DamageDone += value;
+                    break;
+                case SCORE_HEALING_DONE:    // Healing Done
+                    HealingDone += value;
+                    break;
+                default:
+                    ASSERT(false && "Not implemented Battleground score type!");
+                    break;
+            }
         }
 
-        template <class T> uint32 GetMemberCount() { return sizeof(T) / sizeof(uint32); }
+        virtual void AppendToPacket(WorldPacket& data, ByteBuffer& content)
+        {
+            uint32 primaryTree = 0;
+            /* TODO: 6.x update to new talent system (and probably rewrite this packet)
+            if (Player* player = ObjectAccessor::FindPlayer(PlayerGuid))
+                primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());*/
 
-        // Default score, present in every type 
+            data.WriteBit(0);                   // Unk 1
+            data.WriteBit(0);                   // Unk 2
+            data.WriteBit(PlayerGuid[2]);
+            data.WriteBit(/*!IsArena*/ 1);      // IsArena
+            data.WriteBit(0);                   // Unk 4
+            data.WriteBit(0);                   // Unk 5
+            data.WriteBit(0);                   // Unk 6
+            data.WriteBit(PlayerGuid[3]);
+            data.WriteBit(PlayerGuid[0]);
+            data.WriteBit(PlayerGuid[5]);
+            data.WriteBit(PlayerGuid[1]);
+            data.WriteBit(PlayerGuid[6]);
+            data.WriteBit(TeamId);
+            data.WriteBit(PlayerGuid[7]);
+
+            content << uint32(HealingDone);     // healing done
+            content << uint32(DamageDone);      // damage done
+
+            //if (!IsArena)
+            //{
+                content << uint32(BonusHonor / 100);
+                content << uint32(Deaths);
+                content << uint32(HonorableKills);
+            //}
+
+            content.WriteByteSeq(PlayerGuid[4]);
+            content << uint32(KillingBlows);
+
+            //if (unk 5)
+            //    data << uint32() unk
+
+            content.WriteByteSeq(PlayerGuid[5]);
+
+            //if (unk 6)
+            //    data << uint32() unk
+
+            //if (unk 2)
+            //    data << uint32() unk
+
+            content.WriteByteSeq(PlayerGuid[1]);
+            content.WriteByteSeq(PlayerGuid[6]);
+
+            content << int32(primaryTree);
+
+            BuildObjectivesBlock(data, content);
+
+            data.WriteBit(PlayerGuid[4]);
+
+            content.WriteByteSeq(PlayerGuid[0]);
+            content.WriteByteSeq(PlayerGuid[3]);
+
+            //if (unk 4)
+            //    data << uint32() unk
+
+            content.WriteByteSeq(PlayerGuid[7]);
+            content.WriteByteSeq(PlayerGuid[2]);
+        }
+
+        virtual void BuildObjectivesBlock(WorldPacket& /*data*/, ByteBuffer& /*content*/) = 0;
+
+        // For Logging purpose
+        virtual std::string ToString() const { return ""; }
+
+        uint32 GetKillingBlows() const    { return KillingBlows; }
+        uint32 GetDeaths() const          { return Deaths; }
+        uint32 GetHonorableKills() const  { return HonorableKills; }
+        uint32 GetBonusHonor() const      { return BonusHonor; }
+        uint32 GetDamageDone() const      { return DamageDone; }
+        uint32 GetHealingDone() const     { return HealingDone; }
+
+        virtual uint32 GetAttr1() const { return 0; }
+        virtual uint32 GetAttr2() const { return 0; }
+        virtual uint32 GetAttr3() const { return 0; }
+        virtual uint32 GetAttr4() const { return 0; }
+        virtual uint32 GetAttr5() const { return 0; }
+
+        ObjectGuid PlayerGuid;
+        uint8 TeamId;
+
+        // Default score, present in every type
         uint32 KillingBlows;
         uint32 Deaths;
         uint32 HonorableKills;
@@ -51,3 +154,4 @@ class BattlegroundScore
 };
 
 #endif
+#endif // TRINITY_BATTLEGROUND_SCORE_H

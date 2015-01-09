@@ -1,10 +1,10 @@
 /**
- @file units.h
+ \file G3D/units.h
 
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
- @created 2009-08-21
- @edited  2009-08-21
+ \created 2009-08-21
+ \edited  2011-07-08
  */
 #ifndef G3D_units_h
 #define G3D_units_h
@@ -46,7 +46,7 @@ inline float meters() {
 
 /** 1000 m */
 inline float kilometers() {
-    return 100.0f;
+    return 1000.0f;
 }
 
 /** 0.0254 m */
@@ -120,7 +120,37 @@ inline float years() {
 
 ///////////////////////////////////////////
 
+/** SI unit of mass */
+inline float kilograms() {
+    return 1.0f;
 }
+
+///////////////////////////////////////////
+
+/** 1 kg m / s^2 */
+inline float newtons() {
+    return 1.0f;
 }
+
+///////////////////////////////////////////
+
+/** SI unit of power: W = J/s*/
+inline float watts() {
+    return 1.0;
+}
+
+/** SI unit of energy: J = N*m */
+inline float joules() {
+    return 1.0;
+}
+
+/** Unit of solid angle measure.  A sphere subtends 4 * pi sr. */
+inline float steradians() {
+    return 1.0;
+}
+
+
+} // units
+} // G3D
 
 #endif

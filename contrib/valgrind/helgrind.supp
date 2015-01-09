@@ -1,0 +1,47 @@
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNSt13__atomic_baseIlE5storeElSt12memory_order
+   fun:_ZNSt13__atomic_baseIlEaSEl
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNKSt13__atomic_baseIlE4loadESt12memory_order
+   fun:_ZNKSt13__atomic_baseIlEcvlEv
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNSt13__atomic_baseIbE5storeEbSt12memory_order
+   fun:_ZNSt13__atomic_baseIbEaSEb
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNKSt13__atomic_baseIbE4loadESt12memory_order
+   fun:_ZNKSt11atomic_boolcvbEv
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNSt13__atomic_baseIiE5storeEiSt12memory_order
+   fun:_ZNSt13__atomic_baseIiEaSEi
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNSt13__atomic_baseIiEmIEi
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNSt13__atomic_baseIjE5storeEjSt12memory_order
+   fun:_ZNSt13__atomic_baseIjEaSEj
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNKSt13__atomic_baseIjE4loadESt12memory_order
+   fun:_ZNKSt13__atomic_baseIjEcvjEv
+}

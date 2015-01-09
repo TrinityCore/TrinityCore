@@ -7,7 +7,7 @@
  @created 2010-02-11
  @edited  2010-02-24
 
- Copyright 2000-2010, Morgan McGuire.
+ Copyright 2000-2012, Morgan McGuire.
  All rights reserved.
  */
 
@@ -52,6 +52,7 @@ end with "-->" e.g.,
 
 \sa G3D::Any, http://www.grinninglizard.com/tinyxml/
 
+\htmlonly
 <pre>
 <foo key0="value0" key1="value1">
   child0 ...
@@ -59,6 +60,7 @@ end with "-->" e.g.,
   child2 ...
 </foo>
 </pre>
+\endhtmlonly
 */
 class XML {
 public:
@@ -117,7 +119,7 @@ public:
         return m_attribute;
     }
 
-    const Array<XML> childArray() const {
+    const Array<XML>& childArray() const {
         return m_child;
     }
     
@@ -127,7 +129,7 @@ public:
     }
 
     /** Attribute table size; zero for a TAG */
-    int numAttributes() const {
+    size_t numAttributes() const {
         return m_attribute.size();
     }
 
@@ -142,7 +144,7 @@ public:
         return m_attribute[k];
     }
 
-    const bool containsAttribute(const std::string& k) const {
+    bool containsAttribute(const std::string& k) const {
         return m_attribute.containsKey(k);
     }
 

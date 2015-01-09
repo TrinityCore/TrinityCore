@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,8 +29,11 @@ npc_thrall
 npc_tyrande_whisperwind
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "hyjalAI.h"
+#include "Player.h"
 
 #define GOSSIP_ITEM_BEGIN_ALLY      "My companions and I are with you, Lady Proudmoore."
 #define GOSSIP_ITEM_ANETHERON       "We are ready for whatever Archimonde might send our way, Lady Proudmoore."
@@ -50,11 +53,11 @@ class npc_jaina_proudmoore : public CreatureScript
 public:
     npc_jaina_proudmoore() : CreatureScript("npc_jaina_proudmoore") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
-        switch(uiAction)
+        hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 ai->StartEvent(player);
@@ -69,15 +72,15 @@ public:
                 break;
              case GOSSIP_ACTION_INFO_DEF:
                 ai->Debug = !ai->Debug;
-                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: HyjalAI - Debug mode has been toggled");
+                TC_LOG_DEBUG("scripts", "HyjalAI - Debug mode has been toggled");
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+        hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
         if (ai->EventBegun)
             return false;
 
@@ -90,30 +93,33 @@ public:
         else if (RageEncounter == DONE && AnetheronEncounter == DONE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_RETREAT, GOSSIP_SENDER_MAIN,    GOSSIP_ACTION_INFO_DEF + 3);
 
-        if (player->isGameMaster())
+        if (player->IsGameMaster())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         player->SEND_GOSSIP_MENU(907, creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
+        if (!creature->GetInstanceScript())
+            return NULL;
+
         hyjalAI* ai = new hyjalAI(creature);
 
         ai->Reset();
         ai->EnterEvadeMode();
 
         ai->Spells[0].SpellId = SPELL_BLIZZARD;
-        ai->Spells[0].Cooldown = 15000 + rand()%20000;
+        ai->Spells[0].Cooldown = urand(15000, 35000);
         ai->Spells[0].TargetType = TARGETTYPE_RANDOM;
 
         ai->Spells[1].SpellId = SPELL_PYROBLAST;
-        ai->Spells[1].Cooldown = 5500 + rand()%4000;
+        ai->Spells[1].Cooldown = urand(5500, 9500);
         ai->Spells[1].TargetType = TARGETTYPE_RANDOM;
 
         ai->Spells[2].SpellId = SPELL_SUMMON_ELEMENTALS;
-        ai->Spells[2].Cooldown = 15000 + rand()%30000;
+        ai->Spells[2].Cooldown = urand(15000, 45000);
         ai->Spells[2].TargetType = TARGETTYPE_SELF;
 
         return ai;
@@ -126,12 +132,12 @@ class npc_thrall : public CreatureScript
 public:
     npc_thrall() : CreatureScript("npc_thrall") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+        hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
         ai->DeSpawnVeins();//despawn the alliance veins
-        switch(uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 ai->StartEvent(player);
@@ -146,15 +152,15 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF:
                 ai->Debug = !ai->Debug;
-                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: HyjalAI - Debug mode has been toggled");
+                TC_LOG_DEBUG("scripts", "HyjalAI - Debug mode has been toggled");
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+        hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
         if (ai->EventBegun)
             return false;
 
@@ -172,26 +178,29 @@ public:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_RETREAT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
         }
 
-        if (player->isGameMaster())
+        if (player->IsGameMaster())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         player->SEND_GOSSIP_MENU(907, creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
+        if (!creature->GetInstanceScript())
+            return NULL;
+
         hyjalAI* ai = new hyjalAI(creature);
 
         ai->Reset();
         ai->EnterEvadeMode();
 
         ai->Spells[0].SpellId = SPELL_CHAIN_LIGHTNING;
-        ai->Spells[0].Cooldown = 3000 + rand()%5000;
+        ai->Spells[0].Cooldown = urand(3000, 8000);
         ai->Spells[0].TargetType = TARGETTYPE_VICTIM;
 
         ai->Spells[1].SpellId = SPELL_SUMMON_DIRE_WOLF;
-        ai->Spells[1].Cooldown = 6000 + rand()%35000;
+        ai->Spells[1].Cooldown = urand(6000, 41000);
         ai->Spells[1].TargetType = TARGETTYPE_RANDOM;
 
         return ai;
@@ -204,40 +213,40 @@ class npc_tyrande_whisperwind : public CreatureScript
 public:
     npc_tyrande_whisperwind() : CreatureScript("npc_tyrande_whisperwind") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
+        if (!creature->GetInstanceScript())
+            return NULL;
+
         hyjalAI* ai = new hyjalAI(creature);
         ai->Reset();
         ai->EnterEvadeMode();
         return ai;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF)
+        if (action == GOSSIP_ACTION_INFO_DEF)
         {
                 ItemPosCountVec dest;
                 uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_TEAR_OF_GODDESS, 1);
                 if (msg == EQUIP_ERR_OK)
-                {
-                     Item* item = player->StoreNewItem(dest, ITEM_TEAR_OF_GODDESS, true);
-                     if (item && player)
+                     if (Item* item = player->StoreNewItem(dest, ITEM_TEAR_OF_GODDESS, true))
                          player->SendNewItem(item, 1, true, false, true);
-                }
+
                 player->SEND_GOSSIP_MENU(907, creature->GetGUID());
-                CAST_AI(hyjalAI, creature->AI());
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+        hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
         uint32 AzgalorEvent = ai->GetInstanceData(DATA_AZGALOREVENT);
 
         // Only let them get item if Azgalor is dead.
-        if (AzgalorEvent == DONE && !player->HasItemCount(ITEM_TEAR_OF_GODDESS, 1))
+        if (AzgalorEvent == DONE && !player->HasItemCount(ITEM_TEAR_OF_GODDESS))
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TYRANDE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
         player->SEND_GOSSIP_MENU(907, creature->GetGUID());
         return true;

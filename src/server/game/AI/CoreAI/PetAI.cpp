@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,59 +28,53 @@
 #include "World.h"
 #include "Util.h"
 #include "Group.h"
+#include "SpellInfo.h"
 
-int PetAI::Permissible(const Creature *creature)
+int PetAI::Permissible(const Creature* creature)
 {
-    if (creature->isPet())
+    if (creature->IsPet())
         return PERMIT_BASE_SPECIAL;
 
     return PERMIT_BASE_NO;
 }
 
-PetAI::PetAI(Creature *c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
+PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
 {
-    m_AllySet.clear();
     UpdateAllies();
-    targetHasCC = false;
-}
-
-void PetAI::EnterEvadeMode()
-{
 }
 
 bool PetAI::_needToStop()
 {
     // This is needed for charmed creatures, as once their target was reset other effects can trigger threat
-    if (me->isCharmed() && me->getVictim() == me->GetCharmer())
+    if (me->IsCharmed() && me->GetVictim() == me->GetCharmer())
         return true;
 
-    if (_CheckTargetCC(me->getVictim()) && !targetHasCC)
-        return true;
-
-    return !me->canAttack(me->getVictim());
+    return !me->IsValidAttackTarget(me->GetVictim());
 }
 
 void PetAI::_stopAttack()
 {
-    if (!me->isAlive())
+    if (!me->IsAlive())
     {
-        sLog->outStaticDebug("Creature stoped attacking cuz his dead [guid=%u]", me->GetGUIDLow());
+        TC_LOG_DEBUG("misc", "Creature stoped attacking cuz his dead [%s]", me->GetGUID().ToString().c_str());
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop();
         me->getHostileRefManager().deleteReferences();
-
         return;
     }
 
     me->AttackStop();
+    me->InterruptNonMeleeSpells(false);
+    me->SendMeleeAttackStop(); // Should stop pet's attack button from flashing
     me->GetCharmInfo()->SetIsCommandAttack(false);
+    ClearCharmInfoFlags();
     HandleReturnMovement();
 }
 
-void PetAI::UpdateAI(const uint32 diff)
+void PetAI::UpdateAI(uint32 diff)
 {
-    if (!me->isAlive())
+    if (!me->IsAlive() || !me->GetCharmInfo())
         return;
 
     Unit* owner = me->GetCharmerOrOwner();
@@ -91,38 +85,54 @@ void PetAI::UpdateAI(const uint32 diff)
     else
         m_updateAlliesTimer -= diff;
 
-    // me->getVictim() can't be used for check in case stop fighting, me->getVictim() clear at Unit death etc.
-    if (me->getVictim())
+    if (me->GetVictim() && me->EnsureVictim()->IsAlive())
     {
+        // is only necessary to stop casting, the pet must not exit combat
+        if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && // ignore channeled spells (Pin, Seduction)
+            me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
+        {
+            me->InterruptNonMeleeSpells(false);
+            return;
+        }
+
         if (_needToStop())
         {
-            sLog->outStaticDebug("Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
+            TC_LOG_DEBUG("misc", "Pet AI stopped attacking [%s]", me->GetGUID().ToString().c_str());
             _stopAttack();
             return;
         }
-        targetHasCC = _CheckTargetCC(me->getVictim());
 
-        DoMeleeAttackIfReady();
+        // Check before attacking to prevent pets from leaving stay position
+        if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
+        {
+            if (me->GetCharmInfo()->IsCommandAttack() || (me->GetCharmInfo()->IsAtStay() && me->IsWithinMeleeRange(me->GetVictim())))
+                DoMeleeAttackIfReady();
+        }
+        else
+            DoMeleeAttackIfReady();
     }
-    else if (owner && me->GetCharmInfo()) //no victim
+    else
     {
-        Unit *nextTarget = SelectNextTarget();
+        if (me->HasReactState(REACT_AGGRESSIVE) || me->GetCharmInfo()->IsAtStay())
+        {
+            // Every update we need to check targets only in certain cases
+            // Aggressive - Allow auto select if owner or pet don't have a target
+            // Stay - Only pick from pet or owner targets / attackers so targets won't run by
+            //   while chasing our owner. Don't do auto select.
+            // All other cases (ie: defensive) - Targets are assigned by AttackedBy(), OwnerAttackedBy(), OwnerAttacked(), etc.
+            Unit* nextTarget = SelectNextTarget(me->HasReactState(REACT_AGGRESSIVE));
 
-        if (me->HasReactState(REACT_PASSIVE))
-            _stopAttack();
-        else if (nextTarget)
-            AttackStart(nextTarget);
+            if (nextTarget)
+                AttackStart(nextTarget);
+            else
+                HandleReturnMovement();
+        }
         else
             HandleReturnMovement();
     }
-    else if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW)) // no charm info and no victim
-        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
 
-    if (!me->GetCharmInfo())
-        return;
-
-    // Autocast (casted only in combat or persistent spells in any state)
-    if (!me->HasUnitState(UNIT_STAT_CASTING))
+    // Autocast (cast only in combat or persistent spells in any state)
+    if (!me->HasUnitState(UNIT_STATE_CASTING))
     {
         typedef std::vector<std::pair<Unit*, Spell*> > TargetSpellList;
         TargetSpellList targetSpellStore;
@@ -133,70 +143,81 @@ void PetAI::UpdateAI(const uint32 diff)
             if (!spellID)
                 continue;
 
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID);
             if (!spellInfo)
                 continue;
 
             if (me->GetCharmInfo() && me->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
                 continue;
 
-            // ignore some combinations of combat state and combat/noncombat spells
-            if (!me->getVictim())
+            if (spellInfo->IsPositive())
             {
-                // ignore attacking spells, and allow only self/around spells
-                if (!IsPositiveSpell(spellInfo->Id))
-                    continue;
-
-                // non combat spells allowed
-                // only pet spells have IsNonCombatSpell and not fit this reqs:
-                // Consume Shadows, Lesser Invisibility, so ignore checks for its
-                if (!IsNonCombatSpell(spellInfo))
+                if (spellInfo->CanBeUsedInCombat())
                 {
-                    // allow only spell without spell cost or with spell cost but not duration limit
-                    int32 duration = GetSpellDuration(spellInfo);
-                    if ((spellInfo->manaCost || spellInfo->ManaCostPercentage || spellInfo->manaPerSecond) && duration > 0)
+                    // check spell cooldown
+                    if (me->HasSpellCooldown(spellInfo->Id))
                         continue;
 
-                    // allow only spell without cooldown > duration
-                    int32 cooldown = GetSpellRecoveryTime(spellInfo);
-                    if (cooldown >= 0 && duration >= 0 && cooldown > duration)
+                    // Check if we're in combat or commanded to attack
+                    if (!me->IsInCombat() && !me->GetCharmInfo()->IsCommandAttack())
                         continue;
                 }
-            }
-            else
-            {
-                // just ignore non-combat spells
-                if (IsNonCombatSpell(spellInfo))
-                    continue;
-            }
 
-            Spell* spell = new Spell(me, spellInfo, false, 0);
-
-            // Fix to allow pets on STAY to autocast
-            if (me->getVictim() && _CanAttack(me->getVictim()) && spell->CanAutoCast(me->getVictim()))
-            {
-                targetSpellStore.push_back(std::make_pair<Unit*, Spell*>(me->getVictim(), spell));
-                continue;
-            }
-            else
-            {
+                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE);
                 bool spellUsed = false;
-                for (std::set<uint64>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
+
+                // Some spells can target enemy or friendly (DK Ghoul's Leap)
+                // Check for enemy first (pet then owner)
+                Unit* target = me->getAttackerForHelper();
+                if (!target && owner)
+                    target = owner->getAttackerForHelper();
+
+                if (target)
                 {
-                    Unit* Target = ObjectAccessor::GetUnit(*me, *tar);
-
-                    //only buff targets that are in combat, unless the spell can only be cast while out of combat
-                    if (!Target)
-                        continue;
-
-                    if (spell->CanAutoCast(Target))
+                    if (CanAttack(target) && spell->CanAutoCast(target))
                     {
-                        targetSpellStore.push_back(std::make_pair<Unit*, Spell*>(Target, spell));
+                        targetSpellStore.push_back(std::make_pair(target, spell));
                         spellUsed = true;
-                        break;
                     }
                 }
+
+                if (spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_JUMP_DEST))
+                {
+                    if (!spellUsed)
+                        delete spell;
+                    continue; // Pets must only jump to target
+                }
+
+                // No enemy, check friendly
                 if (!spellUsed)
+                {
+                    for (GuidSet::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
+                    {
+                        Unit* ally = ObjectAccessor::GetUnit(*me, *tar);
+
+                        //only buff targets that are in combat, unless the spell can only be cast while out of combat
+                        if (!ally)
+                            continue;
+
+                        if (spell->CanAutoCast(ally))
+                        {
+                            targetSpellStore.push_back(std::make_pair(ally, spell));
+                            spellUsed = true;
+                            break;
+                        }
+                    }
+                }
+
+                // No valid targets at all
+                if (!spellUsed)
+                    delete spell;
+            }
+            else if (me->GetVictim() && CanAttack(me->GetVictim()) && spellInfo->CanBeUsedInCombat())
+            {
+                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE);
+                if (spell->CanAutoCast(me->GetVictim()))
+                    targetSpellStore.push_back(std::make_pair(me->GetVictim(), spell));
+                else
                     delete spell;
             }
         }
@@ -214,7 +235,7 @@ void PetAI::UpdateAI(const uint32 diff)
             SpellCastTargets targets;
             targets.SetUnitTarget(target);
 
-            if (!me->HasInArc(M_PI, target))
+            if (!me->HasInArc(float(M_PI), target))
             {
                 me->SetInFront(target);
                 if (target && target->GetTypeId() == TYPEID_PLAYER)
@@ -224,8 +245,6 @@ void PetAI::UpdateAI(const uint32 diff)
                     me->SendUpdateToPlayer(owner->ToPlayer());
             }
 
-            me->AddCreatureSpellCooldown(spell->m_spellInfo->Id);
-
             spell->prepare(&targets);
         }
 
@@ -233,35 +252,42 @@ void PetAI::UpdateAI(const uint32 diff)
         for (TargetSpellList::const_iterator itr = targetSpellStore.begin(); itr != targetSpellStore.end(); ++itr)
             delete itr->second;
     }
+
+    // Update speed as needed to prevent dropping too far behind and despawning
+    me->UpdateSpeed(MOVE_RUN, true);
+    me->UpdateSpeed(MOVE_WALK, true);
+    me->UpdateSpeed(MOVE_FLIGHT, true);
+
 }
 
 void PetAI::UpdateAllies()
 {
+    m_updateAlliesTimer = 10 * IN_MILLISECONDS;                 // update friendly targets every 10 seconds, lesser checks increase performance
+
     Unit* owner = me->GetCharmerOrOwner();
-    Group *pGroup = NULL;
-
-    m_updateAlliesTimer = 10*IN_MILLISECONDS;                //update friendly targets every 10 seconds, lesser checks increase performance
-
     if (!owner)
         return;
-    else if (owner->GetTypeId() == TYPEID_PLAYER)
-        pGroup = owner->ToPlayer()->GetGroup();
+
+    Group* group = NULL;
+    if (Player* player = owner->ToPlayer())
+        group = player->GetGroup();
 
     //only pet and owner/not in group->ok
-    if (m_AllySet.size() == 2 && !pGroup)
+    if (m_AllySet.size() == 2 && !group)
         return;
+
     //owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
-    if (pGroup && !pGroup->isRaidGroup() && m_AllySet.size() == (pGroup->GetMembersCount() + 2))
+    if (group && !group->isRaidGroup() && m_AllySet.size() == (group->GetMembersCount() + 2))
         return;
 
     m_AllySet.clear();
     m_AllySet.insert(me->GetGUID());
-    if (pGroup)                                              //add group
+    if (group)                                              //add group
     {
-        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* Target = itr->getSource();
-            if (!Target || !pGroup->SameSubGroup((Player*)owner, Target))
+            Player* Target = itr->GetSource();
+            if (!Target || !group->SameSubGroup(owner->ToPlayer(), Target))
                 continue;
 
             if (Target->GetGUID() == owner->GetGUID())
@@ -278,7 +304,7 @@ void PetAI::KilledUnit(Unit* victim)
 {
     // Called from Unit::Kill() in case where pet or owner kills something
     // if owner killed this victim, pet may still be attacking something else
-    if (me->getVictim() && me->getVictim() != victim)
+    if (me->GetVictim() && me->GetVictim() != victim)
         return;
 
     // Clear target just in case. May help problem where health / focus / mana
@@ -286,11 +312,11 @@ void PetAI::KilledUnit(Unit* victim)
     // Can't use _stopAttack() because that activates movement handlers and ignores
     // next target selection
     me->AttackStop();
-    me->GetCharmInfo()->SetIsCommandAttack(false);
+    me->InterruptNonMeleeSpells(false);
+    me->SendMeleeAttackStop();  // Stops the pet's 'Attack' button from flashing
 
-    Unit *nextTarget = SelectNextTarget();
-
-    if (nextTarget)
+    // Before returning to owner, see if there are more things to attack
+    if (Unit* nextTarget = SelectNextTarget(false))
         AttackStart(nextTarget);
     else
         HandleReturnMovement(); // Return
@@ -301,43 +327,95 @@ void PetAI::AttackStart(Unit* target)
     // Overrides Unit::AttackStart to correctly evaluate Pet states
 
     // Check all pet states to decide if we can attack this target
-    if (!_CanAttack(target))
+    if (!CanAttack(target))
         return;
 
-    targetHasCC = _CheckTargetCC(target);
-
-    DoAttack(target, true);
+    // Only chase if not commanded to stay or if stay but commanded to attack
+    DoAttack(target, (!me->GetCharmInfo()->HasCommandState(COMMAND_STAY) || me->GetCharmInfo()->IsCommandAttack()));
 }
 
-Unit *PetAI::SelectNextTarget()
+void PetAI::OwnerAttackedBy(Unit* attacker)
 {
-    // Provides next target selection after current target death
+    // Called when owner takes damage. This function helps keep pets from running off
+    //  simply due to owner gaining aggro.
+
+    if (!attacker)
+        return;
+
+    // Passive pets don't do anything
+    if (me->HasReactState(REACT_PASSIVE))
+        return;
+
+    // Prevent pet from disengaging from current target
+    if (me->GetVictim() && me->EnsureVictim()->IsAlive())
+        return;
+
+    // Continue to evaluate and attack if necessary
+    AttackStart(attacker);
+}
+
+void PetAI::OwnerAttacked(Unit* target)
+{
+    // Called when owner attacks something. Allows defensive pets to know
+    //  that they need to assist
+
+    // Target might be NULL if called from spell with invalid cast targets
+    if (!target)
+        return;
+
+    // Passive pets don't do anything
+    if (me->HasReactState(REACT_PASSIVE))
+        return;
+
+    // Prevent pet from disengaging from current target
+    if (me->GetVictim() && me->EnsureVictim()->IsAlive())
+        return;
+
+    // Continue to evaluate and attack if necessary
+    AttackStart(target);
+}
+
+Unit* PetAI::SelectNextTarget(bool allowAutoSelect) const
+{
+    // Provides next target selection after current target death.
+    // This function should only be called internally by the AI
+    // Targets are not evaluated here for being valid targets, that is done in _CanAttack()
+    // The parameter: allowAutoSelect lets us disable aggressive pet auto targeting for certain situations
 
     // Passive pets don't do next target selection
     if (me->HasReactState(REACT_PASSIVE))
         return NULL;
 
-    Unit* target = me->getAttackerForHelper();
-    targetHasCC = false;
+    // Check pet attackers first so we don't drag a bunch of targets to the owner
+    if (Unit* myAttacker = me->getAttackerForHelper())
+        if (!myAttacker->HasBreakableByDamageCrowdControlAura())
+            return myAttacker;
 
-    // Check pet's attackers first to prevent dragging mobs back to owner
-    if (target && !_CheckTargetCC(target))
-        return target;
+    // Not sure why we wouldn't have an owner but just in case...
+    if (!me->GetCharmerOrOwner())
+        return NULL;
 
-    if (me->GetCharmerOrOwner())
+    // Check owner attackers
+    if (Unit* ownerAttacker = me->GetCharmerOrOwner()->getAttackerForHelper())
+        if (!ownerAttacker->HasBreakableByDamageCrowdControlAura())
+            return ownerAttacker;
+
+    // Check owner victim
+    // 3.0.2 - Pets now start attacking their owners victim in defensive mode as soon as the hunter does
+    if (Unit* ownerVictim = me->GetCharmerOrOwner()->GetVictim())
+            return ownerVictim;
+
+    // Neither pet or owner had a target and aggressive pets can pick any target
+    // To prevent aggressive pets from chain selecting targets and running off, we
+    //  only select a random target if certain conditions are met.
+    if (me->HasReactState(REACT_AGGRESSIVE) && allowAutoSelect)
     {
-        // Check owner's attackers if pet didn't have any
-        target = me->GetCharmerOrOwner()->getAttackerForHelper();
-        if (target && !_CheckTargetCC(target))
-            return target;
-
-        // 3.0.2 - Pets now start attacking their owners target in defensive mode as soon as the hunter does
-        target = me->GetCharmerOrOwner()->getVictim();
-        if (target && !_CheckTargetCC(target))
-            return target;
+        if (!me->GetCharmInfo()->IsReturning() || me->GetCharmInfo()->IsFollowing() || me->GetCharmInfo()->IsAtStay())
+            if (Unit* nearTarget = me->SelectNearestHostileUnitInAggroRange(true))
+                return nearTarget;
     }
 
-    // Default
+    // Default - no valid targets
     return NULL;
 }
 
@@ -345,65 +423,63 @@ void PetAI::HandleReturnMovement()
 {
     // Handles moving the pet back to stay or owner
 
+    // Prevent activating movement when under control of spells
+    // such as "Eyes of the Beast"
+    if (me->IsCharmed())
+        return;
+
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
     {
         if (!me->GetCharmInfo()->IsAtStay() && !me->GetCharmInfo()->IsReturning())
         {
             // Return to previous position where stay was clicked
-            if (!me->GetCharmInfo()->IsCommandAttack())
-            {
-                float x, y, z;
+            float x, y, z;
 
-                me->GetCharmInfo()->GetStayPosition(x, y, z);
-                me->GetCharmInfo()->SetIsReturning(true);
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, z);
-            }
+            me->GetCharmInfo()->GetStayPosition(x, y, z);
+            ClearCharmInfoFlags();
+            me->GetCharmInfo()->SetIsReturning(true);
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MovePoint(me->GetGUID().GetCounter(), x, y, z);
         }
     }
     else // COMMAND_FOLLOW
     {
         if (!me->GetCharmInfo()->IsFollowing() && !me->GetCharmInfo()->IsReturning())
         {
-            if (!me->GetCharmInfo()->IsCommandAttack())
-            {
-                me->GetCharmInfo()->SetIsReturning(true);
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
-            }
+            ClearCharmInfoFlags();
+            me->GetCharmInfo()->SetIsReturning(true);
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
         }
     }
-
 }
 
 void PetAI::DoAttack(Unit* target, bool chase)
 {
-    // Handles attack with or without chase and also resets all
-    // PetAI flags for next update / creature kill
+    // Handles attack with or without chase and also resets flags
+    // for next update / creature kill
 
-    // me->GetCharmInfo()->SetIsCommandAttack(false);
-
-    // The following conditions are true if chase == true
-    // (Follow && (Aggressive || Defensive))
-    // ((Stay || Follow) && (Passive && player clicked attack))
-
-    if (chase)
+    if (me->Attack(target, true))
     {
-        if (me->Attack(target, true))
+        // Play sound to let the player know the pet is attacking something it picked on its own
+        if (me->HasReactState(REACT_AGGRESSIVE) && !me->GetCharmInfo()->IsCommandAttack())
+            me->SendPetAIReaction(me->GetGUID());
+
+        if (chase)
         {
-            me->GetCharmInfo()->SetIsAtStay(false);
-            me->GetCharmInfo()->SetIsFollowing(false);
-            me->GetCharmInfo()->SetIsReturning(false);
+            bool oldCmdAttack = me->GetCharmInfo()->IsCommandAttack(); // This needs to be reset after other flags are cleared
+            ClearCharmInfoFlags();
+            me->GetCharmInfo()->SetIsCommandAttack(oldCmdAttack); // For passive pets commanded to attack so they will use spells
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MoveChase(target);
         }
-    }
-    else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
-    {
-        me->GetCharmInfo()->SetIsAtStay(true);
-        me->GetCharmInfo()->SetIsFollowing(false);
-        me->GetCharmInfo()->SetIsReturning(false);
-        me->Attack(target, true);
+        else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
+        {
+            ClearCharmInfoFlags();
+            me->GetCharmInfo()->SetIsAtStay(true);
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveIdle();
+        }
     }
 }
 
@@ -416,73 +492,145 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
         {
             // Pet is returning to where stay was clicked. data should be
             // pet's GUIDLow since we set that as the waypoint ID
-            if (data == me->GetGUIDLow() && me->GetCharmInfo()->IsReturning())
+            if (data == me->GetGUID().GetCounter() && me->GetCharmInfo()->IsReturning())
             {
+                ClearCharmInfoFlags();
                 me->GetCharmInfo()->SetIsAtStay(true);
-                me->GetCharmInfo()->SetIsReturning(false);
-                me->GetCharmInfo()->SetIsFollowing(false);
-                me->GetCharmInfo()->SetIsCommandAttack(false);
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
             }
+            break;
         }
-        break;
-
-        case TARGETED_MOTION_TYPE:
+        case FOLLOW_MOTION_TYPE:
         {
             // If data is owner's GUIDLow then we've reached follow point,
             // otherwise we're probably chasing a creature
-            if (me->GetCharmerOrOwner() && me->GetCharmInfo() && data == me->GetCharmerOrOwner()->GetGUIDLow() && me->GetCharmInfo()->IsReturning())
+            if (me->GetCharmerOrOwner() && me->GetCharmInfo() && data == me->GetCharmerOrOwner()->GetGUID().GetCounter() && me->GetCharmInfo()->IsReturning())
             {
-                me->GetCharmInfo()->SetIsAtStay(false);
-                me->GetCharmInfo()->SetIsReturning(false);
+                ClearCharmInfoFlags();
                 me->GetCharmInfo()->SetIsFollowing(true);
-                me->GetCharmInfo()->SetIsCommandAttack(false);
-                me->AddUnitState(UNIT_STAT_FOLLOW);
             }
+            break;
         }
-        break;
-
         default:
             break;
     }
 }
 
-bool PetAI::_CanAttack(Unit* target)
+bool PetAI::CanAttack(Unit* target)
 {
-    // Evaluates wether a pet can attack a specific
-    // target based on CommandState, ReactState and other flags
+    // Evaluates wether a pet can attack a specific target based on CommandState, ReactState and other flags
+    // IMPORTANT: The order in which things are checked is important, be careful if you add or remove checks
 
-    // Returning - check first since pets returning ignore attacks
-    if (me->GetCharmInfo()->IsReturning())
+    // Hmmm...
+    if (!target)
         return false;
 
-    // Passive - check now so we don't have to worry about passive in later checks
+    if (!target->IsAlive())
+    {
+        // Clear target to prevent getting stuck on dead targets
+        me->AttackStop();
+        me->InterruptNonMeleeSpells(false);
+        me->SendMeleeAttackStop();
+        return false;
+    }
+
+    // Passive - passive pets can attack if told to
     if (me->HasReactState(REACT_PASSIVE))
         return me->GetCharmInfo()->IsCommandAttack();
 
-    //  Pets commanded to attack should not stop their approach if attacked by another creature
-    if (me->getVictim() && (me->getVictim() != target))
-        return !me->GetCharmInfo()->IsCommandAttack();
+    // CC - mobs under crowd control can be attacked if owner commanded
+    if (target->HasBreakableByDamageCrowdControlAura())
+        return me->GetCharmInfo()->IsCommandAttack();
 
-    // From this point on, pet will always be either aggressive or defensive
+    // Returning - pets ignore attacks only if owner clicked follow
+    if (me->GetCharmInfo()->IsReturning())
+        return !me->GetCharmInfo()->IsCommandFollow();
 
     // Stay - can attack if target is within range or commanded to
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
-        return (me->IsWithinMeleeRange(target, MIN_MELEE_REACH) || me->GetCharmInfo()->IsCommandAttack());
+        return (me->IsWithinMeleeRange(target) || me->GetCharmInfo()->IsCommandAttack());
+
+    //  Pets attacking something (or chasing) should only switch targets if owner tells them to
+    if (me->GetVictim() && me->GetVictim() != target)
+    {
+        // Check if our owner selected this target and clicked "attack"
+        Unit* ownerTarget = NULL;
+        if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+            ownerTarget = owner->GetSelectedUnit();
+        else
+            ownerTarget = me->GetCharmerOrOwner()->GetVictim();
+
+        if (ownerTarget && me->GetCharmInfo()->IsCommandAttack())
+            return (target->GetGUID() == ownerTarget->GetGUID());
+    }
 
     // Follow
     if (me->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
-        return true;
+        return !me->GetCharmInfo()->IsReturning();
 
     // default, though we shouldn't ever get here
     return false;
 }
 
-bool PetAI::_CheckTargetCC(Unit* target)
+void PetAI::ReceiveEmote(Player* player, uint32 emote)
 {
-    if (me->GetCharmerOrOwnerGUID() && target->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE, me->GetCharmerOrOwnerGUID()))
-        return true;
+    if (!me->GetOwnerGUID().IsEmpty() && me->GetOwnerGUID() == player->GetGUID())
+    {
+        switch (emote)
+        {
+            case TEXT_EMOTE_COWER:
+                if (me->IsPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(/*EMOTE_ONESHOT_ROAR*/EMOTE_ONESHOT_OMNICAST_GHOUL);
+                break;
+            case TEXT_EMOTE_ANGRY:
+                if (me->IsPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(/*EMOTE_ONESHOT_COWER*/EMOTE_STATE_STUN);
+                break;
+            case TEXT_EMOTE_GLARE:
+                if (me->IsPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(EMOTE_STATE_STUN);
+                break;
+            case TEXT_EMOTE_SOOTHE:
+                if (me->IsPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_OMNICAST_GHOUL);
+                break;
+        }
+    }
+}
 
-    return false;
+void PetAI::ClearCharmInfoFlags()
+{
+    // Quick access to set all flags to FALSE
+
+    CharmInfo* ci = me->GetCharmInfo();
+
+    if (ci)
+    {
+        ci->SetIsAtStay(false);
+        ci->SetIsCommandAttack(false);
+        ci->SetIsCommandFollow(false);
+        ci->SetIsFollowing(false);
+        ci->SetIsReturning(false);
+    }
+}
+
+void PetAI::AttackedBy(Unit* attacker)
+{
+    // Called when pet takes damage. This function helps keep pets from running off
+    //  simply due to gaining aggro.
+
+    if (!attacker)
+        return;
+
+    // Passive pets don't do anything
+    if (me->HasReactState(REACT_PASSIVE))
+        return;
+
+    // Prevent pet from disengaging from current target
+    if (me->GetVictim() && me->EnsureVictim()->IsAlive())
+        return;
+
+    // Continue to evaluate and attack if necessary
+    AttackStart(attacker);
 }

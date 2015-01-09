@@ -3,7 +3,7 @@
 
 #include "G3D/platform.h"
 
-#ifdef G3D_WIN32
+#ifdef G3D_WINDOWS
 #   if (G3D_WINSOCK_MAJOR_VERSION == 2)
 #       include <winsock2.h>
 #   elif (G3D_WINSOCK_MAJOR_VERSION == 1)

@@ -1,0 +1,13 @@
+UPDATE `smart_scripts` SET `comment`='Blight Geist - On Spellhit - Go to PoS GO' WHERE  `entryorguid`=28750 AND `source_type`=0 AND `id`=0 AND `link`=1;
+UPDATE `smart_scripts` SET `comment`='Blight Geist - On Link - Start Action Script' WHERE  `entryorguid`=28750 AND `source_type`=0 AND `id`=1 AND `link`=0;
+UPDATE `smart_scripts` SET `comment`='Blight Geist - On Spellhit - Go to PoS GO' WHERE  `entryorguid`=28750 AND `source_type`=0 AND `id`=2 AND `link`=3;
+UPDATE `smart_scripts` SET `comment`='Blight Geist - On Link - Start Action Script' WHERE  `entryorguid`=28750 AND `source_type`=0 AND `id`=3 AND `link`=0;
+UPDATE `smart_scripts` SET `comment`='Blight Geist - On Spellhit - Go to PoS GO' WHERE  `entryorguid`=28750 AND `source_type`=0 AND `id`=4 AND `link`=5;
+UPDATE `smart_scripts` SET `comment`='Blight Geist - On Link - Start Action Script' WHERE  `entryorguid`=28750 AND `source_type`=0 AND `id`=5 AND `link`=0;
+UPDATE `smart_scripts` SET `comment`='Blight Geist  - On Spellhit - Say Random' WHERE  `entryorguid`=28750 AND `source_type`=0 AND `id`=6 AND `link`=0;
+UPDATE `smart_scripts` SET `comment`='Blight Geist  - On Spellhit - Add Aura Self' WHERE  `entryorguid`=28750 AND `source_type`=0 AND `id`=7 AND `link`=0;
+UPDATE `smart_scripts` SET `comment`='Blight Geist  - On Script - Cast Spell Target' WHERE  `entryorguid`=2875000 AND `source_type`=9 AND `id`=0 AND `link`=0;
+UPDATE `smart_scripts` SET `comment`='Blight Geist  - On Script - Cast Spell Evil Teleport' WHERE  `entryorguid`=2875000 AND `source_type`=9 AND `id`=1 AND `link`=0;
+UPDATE `smart_scripts` SET `comment`='Blight Geist  - On Script - Cast Credit' WHERE  `entryorguid`=2875000 AND `source_type`=9 AND `id`=2 AND `link`=0;
+UPDATE `smart_scripts` SET `comment`='Blight Geist  - On Script - Go to Teleport Pad' WHERE  `entryorguid`=2875000 AND `source_type`=9 AND `id`=3 AND `link`=0;
+UPDATE `smart_scripts` SET `comment`='Blight Geist  - On Script - Despawn' WHERE  `entryorguid`=2875000 AND `source_type`=9 AND `id`=4 AND `link`=0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,10 +20,9 @@
 #include "GridDefines.h"
 #include "WaypointManager.h"
 #include "MapManager.h"
+#include "Log.h"
 
-WaypointMgr::WaypointMgr()
-{
-}
+WaypointMgr::WaypointMgr() { }
 
 WaypointMgr::~WaypointMgr()
 {
@@ -42,12 +41,12 @@ void WaypointMgr::Load()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, move_flag, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
+    //                                                0    1         2           3          4            5           6        7      8           9
+    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
 
     if (!result)
     {
-        sLog->outErrorDb(">> Loaded 0 waypoints. DB table `waypoint_data` is empty!");
-        sLog->outString();
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 waypoints. DB table `waypoint_data` is empty!");
         return;
     }
 
@@ -64,6 +63,7 @@ void WaypointMgr::Load()
         float x = fields[2].GetFloat();
         float y = fields[3].GetFloat();
         float z = fields[4].GetFloat();
+        float o = fields[5].GetFloat();
 
         Trinity::NormalizeMapCoord(x);
         Trinity::NormalizeMapCoord(y);
@@ -72,18 +72,26 @@ void WaypointMgr::Load()
         wp->x = x;
         wp->y = y;
         wp->z = z;
-        wp->run = fields[5].GetBool();
-        wp->delay = fields[6].GetUInt32();
-        wp->event_id = fields[7].GetUInt32();
-        wp->event_chance = fields[8].GetUInt8();
+        wp->orientation = o;
+        wp->move_type = fields[6].GetUInt32();
+
+        if (wp->move_type >= WAYPOINT_MOVE_TYPE_MAX)
+        {
+            TC_LOG_ERROR("sql.sql", "Waypoint %u in waypoint_data has invalid move_type, ignoring", wp->id);
+            delete wp;
+            continue;
+        }
+
+        wp->delay = fields[7].GetUInt32();
+        wp->event_id = fields[8].GetUInt32();
+        wp->event_chance = fields[9].GetInt16();
 
         path.push_back(wp);
         ++count;
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u waypoints in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    TC_LOG_INFO("server.loading", ">> Loaded %u waypoints in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void WaypointMgr::ReloadPath(uint32 id)
@@ -97,7 +105,12 @@ void WaypointMgr::ReloadPath(uint32 id)
         _waypointStore.erase(itr);
     }
 
-    QueryResult result = WorldDatabase.PQuery("SELECT point, position_x, position_y, position_z, move_flag, delay, action, action_chance FROM waypoint_data WHERE id = %u ORDER BY point", id);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_ID);
+
+    stmt->setUInt32(0, id);
+
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
+
     if (!result)
         return;
 
@@ -106,11 +119,12 @@ void WaypointMgr::ReloadPath(uint32 id)
     do
     {
         Field* fields = result->Fetch();
-        WaypointData *wp = new WaypointData();
+        WaypointData* wp = new WaypointData();
 
         float x = fields[1].GetFloat();
         float y = fields[2].GetFloat();
         float z = fields[3].GetFloat();
+        float o = fields[4].GetFloat();
 
         Trinity::NormalizeMapCoord(x);
         Trinity::NormalizeMapCoord(y);
@@ -119,10 +133,19 @@ void WaypointMgr::ReloadPath(uint32 id)
         wp->x = x;
         wp->y = y;
         wp->z = z;
-        wp->run = fields[4].GetBool();
-        wp->delay = fields[5].GetUInt32();
-        wp->event_id = fields[6].GetUInt32();
-        wp->event_chance = fields[7].GetUInt8();
+        wp->orientation = o;
+        wp->move_type = fields[5].GetUInt32();
+
+        if (wp->move_type >= WAYPOINT_MOVE_TYPE_MAX)
+        {
+            TC_LOG_ERROR("sql.sql", "Waypoint %u in waypoint_data has invalid move_type, ignoring", wp->id);
+            delete wp;
+            continue;
+        }
+
+        wp->delay = fields[6].GetUInt32();
+        wp->event_id = fields[7].GetUInt32();
+        wp->event_chance = fields[8].GetUInt8();
 
         path.push_back(wp);
 

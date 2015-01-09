@@ -1,12 +1,12 @@
 /**
- @file Random.h
+ \file G3D/Random.h
  
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
- @created 2009-01-02
- @edited  2009-03-20
+ \created 2009-01-02
+ \edited  2012-07-20
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2012, Morgan McGuire.
  All rights reserved.
  */
 #ifndef G3D_Random_h
@@ -33,6 +33,8 @@ namespace G3D {
     
     On OS X, Random is about 10x faster than drand48() (which is
     threadsafe) and 4x faster than rand() (which is not threadsafe).
+
+    \sa Noise
  */
 class Random {
 protected:
@@ -71,6 +73,23 @@ protected:
         public constructor.*/
     Random(void*);
 
+
+private:
+
+    Random& operator=(const Random&) {
+        alwaysAssertM(false,
+            "There is no copy constructor or assignment operator for Random because you "
+            "probably didn't actually want to copy the state--it would "
+            "be slow and duplicate the state of a pseudo-random sequence.  Maybe you could "
+            "provide arguments to a member variable in the constructor, "
+            "or pass the Random by reference?");
+        return *this;
+    }
+
+    Random(const Random& r) {
+        *this = r;
+    }
+
 public:
 
     /** \param threadsafe Set to false if you know that this random
@@ -80,6 +99,8 @@ public:
     Random(uint32 seed = 0xF018A4D2, bool threadsafe = true);
 
     virtual ~Random();
+
+    virtual void reset(uint32 seed = 0xF018A4D2, bool threadsafe = true);
 
     /** Each bit is random.  Subclasses can choose to override just 
        this method and the other methods will all work automatically. */
@@ -109,8 +130,12 @@ public:
     virtual float gaussian(float mean, float stdev);
 
     /** Returns 3D unit vectors distributed according to 
-        a cosine distribution about the z-axis. */
+        a cosine distribution about the positive z-axis. */
     virtual void cosHemi(float& x, float& y, float& z);
+
+    /** Returns 3D unit vectors distributed according to 
+        a cosine distribution about the z-axis. */
+    virtual void cosSphere(float& x, float& y, float& z);
 
     /** Returns 3D unit vectors distributed according to a cosine
         power distribution (\f$ \cos^k \theta \f$) about

@@ -1,4 +1,5 @@
-build/
+
+build*/
 .directory
 .mailmap
 *.orig
@@ -6,5 +7,12 @@ build/
 *~
 .hg/
 *.kdev*
+.DS_Store
+CMakeLists.txt.user
 *.bak
 *.patch
+*.diff
+*.REMOTE.*
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*

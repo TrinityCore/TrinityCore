@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ruby_sanctum.h"
+#include "Player.h"
 
 enum Texts
 {
@@ -57,13 +60,13 @@ class npc_xerestrasza : public CreatureScript
                 _introDone = false;
             }
 
-            void Reset()
+            void Reset() override
             {
                 _events.Reset();
                 me->RemoveFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action) override
             {
                 if (action == ACTION_BALTHARUS_DEATH)
                 {
@@ -71,7 +74,7 @@ class npc_xerestrasza : public CreatureScript
                     _isIntro = false;
 
                     Talk(SAY_XERESTRASZA_EVENT);
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(0, xerestraszaMovePos);
 
                     _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 16000);
@@ -89,7 +92,7 @@ class npc_xerestrasza : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (_isIntro)
                     return;
@@ -135,7 +138,7 @@ class npc_xerestrasza : public CreatureScript
             bool _introDone;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetRubySanctumAI<npc_xerestraszaAI>(creature);
         }
@@ -146,15 +149,15 @@ class at_baltharus_plateau : public AreaTriggerScript
     public:
         at_baltharus_plateau() : AreaTriggerScript("at_baltharus_plateau") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             // Only trigger once
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_XERESTRASZA)))
+                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_XERESTRASZA)))
                     xerestrasza->AI()->DoAction(ACTION_INTRO_BALTHARUS);
 
-                if (Creature* baltharus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
+                if (Creature* baltharus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_BALTHARUS_THE_WARBORN)))
                     baltharus->AI()->DoAction(ACTION_INTRO_BALTHARUS);
             }
 

@@ -1,16 +1,17 @@
 /**
-  @file Vector3int16.h
+  \file G3D/Vector3int16.h
   
-  @maintainer Morgan McGuire, matrix@brown.edu
+  \maintainer Morgan McGuire, matrix@brown.edu
 
-  @created 2003-04-07
-  @edited  2003-06-24
-  Copyright 2000-2004, Morgan McGuire.
+  \created 2003-04-07
+  \edited  2011-06-24
+
+  Copyright 2000-2012, Morgan McGuire.
   All rights reserved.
  */
 
-#ifndef VECTOR3INT16_H
-#define VECTOR3INT16_H
+#ifndef G3D_Vector3int16_h
+#define G3D_Vector3int16_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
@@ -19,6 +20,7 @@
 #ifdef _MSC_VER
 // Turn off "conditional expression is constant" warning; MSVC generates this
 // for debug assertions in inlined methods.
+#pragma warning (push)
 #pragma warning (disable : 4127)
 #endif
 
@@ -30,7 +32,7 @@ namespace G3D {
  A Vector3 that packs its fields into uint16s.
  */
 G3D_BEGIN_PACKED_CLASS(2)
-class Vector3int16 {
+Vector3int16 {
 private:
     // Hidden operators
     bool operator<(const Vector3int16&) const;
@@ -45,8 +47,8 @@ public:
 
     Vector3int16() : x(0), y(0), z(0) {}
     Vector3int16(G3D::int16 _x, G3D::int16 _y, G3D::int16 _z) : x(_x), y(_y), z(_z) {}
-    Vector3int16(const class Vector3& v);
-    Vector3int16(class BinaryInput& bi);
+    explicit Vector3int16(const class Vector3& v);
+    explicit Vector3int16(class BinaryInput& bi);
 
     void serialize(class BinaryOutput& bo) const;
     void deserialize(class BinaryInput& bi);
@@ -98,12 +100,19 @@ public:
         return *this;
     }
 
+    static Vector3int16 floor(const Vector3& v);
+    static Vector3int16 ceil(const Vector3& v);
+
     inline bool operator== (const Vector3int16& rkVector) const {
         return ( x == rkVector.x && y == rkVector.y && z == rkVector.z );
     }
 
     inline bool operator!= (const Vector3int16& rkVector) const {
         return ( x != rkVector.x || y != rkVector.y || z != rkVector.z );
+    }
+
+    int dot(const Vector3int16& v) const {
+        return x * v.x + y * v.y + z * v.z;
     }
 
     Vector3int16 max(const Vector3int16& v) const {
@@ -115,13 +124,49 @@ public:
     }
 
     std::string toString() const;
+
+
+    Vector3int16 operator-() const {
+        return Vector3int16(-x, -y, -z);
+    }
+
+    Vector3int16 operator<<(int i) const {
+        return Vector3int16(x << i, y << i, z << i);
+    }
+
+    Vector3int16 operator>>(int i) const {
+        return Vector3int16(x >> i, y >> i, z >> i);
+    }
+
+    Vector3int16 operator>>(const Vector3int16& v) const {
+        return Vector3int16(x >> v.x, y >> v.y, z >> v.z);
+    }
+
+    Vector3int16 operator<<(const Vector3int16& v) const {
+        return Vector3int16(x << v.x, y << v.y, z << v.z);
+    }
+
+    Vector3int16 operator&(int16 i) const {
+        return Vector3int16(x & i, y & i, z & i);
+    }
+
+    Vector3int16 operator&(const Vector3int16& v) const {
+        return Vector3int16(x & v.x, y & v.y, z & v.z);
+    }
 }
 G3D_END_PACKED_CLASS(2)
 
-}
+typedef Vector3int16 Point3int16;
+
+} // namespace G3D
 
 template <> struct HashTrait<G3D::Vector3int16> {
     static size_t hashCode(const G3D::Vector3int16& key) { return static_cast<size_t>(key.x + ((int)key.y << 5) + ((int)key.z << 10)); }
 };
+
+
+#ifdef G3D_WINDOWS
+#pragma warning( pop )
+#endif
 
 #endif

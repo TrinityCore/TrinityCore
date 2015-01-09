@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "azjol_nerub.h"
 
 enum Spells
@@ -24,10 +25,8 @@ enum Spells
     SPELL_SUMMON_CARRION_BEETLES                  = 53521,
     SPELL_LEECHING_SWARM                          = 53467,
     SPELL_POUND                                   = 53472,
-    SPELL_POUND_H                                 = 59433,
     SPELL_SUBMERGE                                = 53421,
     SPELL_IMPALE_DMG                              = 53454,
-    SPELL_IMPALE_DMG_H                            = 59446,
     SPELL_IMPALE_SHAKEGROUND                      = 53455,
     SPELL_IMPALE_SPIKE                            = 53539,   //this is not the correct visual effect
     //SPELL_IMPALE_TARGET                           = 53458,
@@ -45,20 +44,15 @@ enum Creatures
 // not in db
 enum Yells
 {
-    SAY_INTRO                                     = -1601010,
-    SAY_AGGRO                                     = -1601000,
-    SAY_SLAY_1                                    = -1601001,
-    SAY_SLAY_2                                    = -1601002,
-    SAY_SLAY_3                                    = -1601003,
-    SAY_LOCUST_1                                  = -1601005,
-    SAY_LOCUST_2                                  = -1601006,
-    SAY_LOCUST_3                                  = -1601007,
-    SAY_SUBMERGE_1                                = -1601008,
-    SAY_SUBMERGE_2                                = -1601009,
-    SAY_DEATH                                     = -1601004
+    SAY_AGGRO                                     = 0,
+    SAY_SLAY                                      = 1,
+    SAY_DEATH                                     = 2,
+    SAY_LOCUST                                    = 3,
+    SAY_SUBMERGE                                  = 4,
+    SAY_INTRO                                     = 5
 };
 
-enum
+enum Misc
 {
     ACHIEV_TIMED_START_EVENT                      = 20381,
 };
@@ -91,268 +85,287 @@ public:
 
     struct boss_anub_arakAI : public ScriptedAI
     {
-        boss_anub_arakAI(Creature* c) : ScriptedAI(c), lSummons(me)
+        boss_anub_arakAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            pInstance = c->GetInstanceScript();
+            Initialize();
+            instance = creature->GetInstanceScript();
+            GuardianSummoned = false;
+            VenomancerSummoned = false;
+            DatterSummoned = false;
+            UndergroundTimer = 0;
+            VenomancerTimer = 0;
+            DatterTimer = 0;
+            DelayTimer = 0;
         }
 
-        InstanceScript *pInstance;
-
-        bool bChanneling;
-        bool bGuardianSummoned;
-        bool bVenomancerSummoned;
-        bool bDatterSummoned;
-        uint8 uiPhase;
-        uint32 uiUndergroundPhase;
-        uint32 uiCarrionBeetlesTimer;
-        uint32 uiLeechingSwarmTimer;
-        uint32 uiPoundTimer;
-        uint32 uiSubmergeTimer;
-        uint32 uiUndergroundTimer;
-        uint32 uiVenomancerTimer;
-        uint32 uiDatterTimer;
-
-        uint32 uiImpaleTimer;
-        uint32 uiImpalePhase;
-        uint64 uiImpaleTarget;
-
-        SummonList lSummons;
-
-        void Reset()
+        void Initialize()
         {
-            uiCarrionBeetlesTimer = 8*IN_MILLISECONDS;
-            uiLeechingSwarmTimer = 20*IN_MILLISECONDS;
-            uiImpaleTimer = 9*IN_MILLISECONDS;
-            uiPoundTimer = 15*IN_MILLISECONDS;
+            CarrionBeetlesTimer = 8 * IN_MILLISECONDS;
+            LeechingSwarmTimer = 20 * IN_MILLISECONDS;
+            ImpaleTimer = 9 * IN_MILLISECONDS;
+            PoundTimer = 15 * IN_MILLISECONDS;
 
-            uiPhase = PHASE_MELEE;
-            uiUndergroundPhase = 0;
-            bChanneling = false;
-            uiImpalePhase = IMPALE_PHASE_TARGET;
+            Phase = PHASE_MELEE;
+            UndergroundPhase = 0;
+            Channeling = false;
+            ImpalePhase = IMPALE_PHASE_TARGET;
+            ImpaleTarget.Clear();
+        }
+
+        InstanceScript* instance;
+
+        bool Channeling;
+        bool GuardianSummoned;
+        bool VenomancerSummoned;
+        bool DatterSummoned;
+        uint8 Phase;
+        uint32 UndergroundPhase;
+        uint32 CarrionBeetlesTimer;
+        uint32 LeechingSwarmTimer;
+        uint32 PoundTimer;
+        uint32 UndergroundTimer;
+        uint32 VenomancerTimer;
+        uint32 DatterTimer;
+        uint32 DelayTimer;
+
+        uint32 ImpaleTimer;
+        uint32 ImpalePhase;
+        ObjectGuid ImpaleTarget;
+
+        SummonList Summons;
+
+        void Reset() override
+        {
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
             me->RemoveAura(SPELL_SUBMERGE);
 
-            lSummons.DespawnAll();
+            Summons.DespawnAll();
 
-            if (pInstance)
-            {
-                pInstance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
-                pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
-            }
+            instance->SetBossState(DATA_ANUBARAK, NOT_STARTED);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         Creature* DoSummonImpaleTarget(Unit* target)
         {
-            Position targetPos;
-            target->GetPosition(&targetPos);
+            Position targetPos = target->GetPosition();
 
-            if (TempSummon* pImpaleTarget = me->SummonCreature(CREATURE_IMPALE_TARGET, targetPos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 6*IN_MILLISECONDS))
+            if (TempSummon* impaleTarget = me->SummonCreature(CREATURE_IMPALE_TARGET, targetPos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 6*IN_MILLISECONDS))
             {
-                uiImpaleTarget = pImpaleTarget->GetGUID();
-                pImpaleTarget->SetReactState(REACT_PASSIVE);
-                pImpaleTarget->SetDisplayId(DISPLAY_INVISIBLE);
-                pImpaleTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                return pImpaleTarget;
+                ImpaleTarget = impaleTarget->GetGUID();
+                impaleTarget->SetReactState(REACT_PASSIVE);
+                impaleTarget->SetDisplayId(DISPLAY_INVISIBLE);
+                impaleTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                return impaleTarget;
             }
 
             return NULL;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            DoScriptText(SAY_AGGRO, me);
-            if (pInstance)
-            {
-                pInstance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
-                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
-            }
+            Talk(SAY_AGGRO);
+            DelayTimer = 0;
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        void UpdateAI(const uint32 diff)
+        void DelayEventStart()
+        {
+            instance->SetBossState(DATA_ANUBARAK, IN_PROGRESS);
+        }
+
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
-            switch (uiPhase)
+            if (DelayTimer && DelayTimer > 5000)
+                DelayEventStart();
+            else DelayTimer+=diff;
+
+            switch (Phase)
             {
             case PHASE_UNDERGROUND:
-                if (uiImpaleTimer <= diff)
+                if (ImpaleTimer <= diff)
                 {
-                    switch(uiImpalePhase)
+                    switch (ImpalePhase)
                     {
                     case IMPALE_PHASE_TARGET:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
-                            if (Creature* pImpaleTarget = DoSummonImpaleTarget(target))
-                                pImpaleTarget->CastSpell(pImpaleTarget, SPELL_IMPALE_SHAKEGROUND, true);
-                            uiImpaleTimer = 3*IN_MILLISECONDS;
-                            uiImpalePhase = IMPALE_PHASE_ATTACK;
+                            if (Creature* impaleTarget = DoSummonImpaleTarget(target))
+                                impaleTarget->CastSpell(impaleTarget, SPELL_IMPALE_SHAKEGROUND, true);
+                            ImpaleTimer = 3*IN_MILLISECONDS;
+                            ImpalePhase = IMPALE_PHASE_ATTACK;
                         }
                         break;
                     case IMPALE_PHASE_ATTACK:
-                        if (Creature* pImpaleTarget = Unit::GetCreature(*me, uiImpaleTarget))
+                        if (Creature* impaleTarget = ObjectAccessor::GetCreature(*me, ImpaleTarget))
                         {
-                            pImpaleTarget->CastSpell(pImpaleTarget, SPELL_IMPALE_SPIKE, false);
-                            pImpaleTarget->RemoveAurasDueToSpell(SPELL_IMPALE_SHAKEGROUND);
+                            impaleTarget->CastSpell(impaleTarget, SPELL_IMPALE_SPIKE, false);
+                            impaleTarget->RemoveAurasDueToSpell(SPELL_IMPALE_SHAKEGROUND);
                         }
-                        uiImpalePhase = IMPALE_PHASE_DMG;
-                        uiImpaleTimer = 1*IN_MILLISECONDS;
+                        ImpalePhase = IMPALE_PHASE_DMG;
+                        ImpaleTimer = 1*IN_MILLISECONDS;
                         break;
                     case IMPALE_PHASE_DMG:
-                        if (Creature* pImpaleTarget = Unit::GetCreature(*me, uiImpaleTarget))
-                            me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_IMPALE_DMG, SPELL_IMPALE_DMG_H), true);
-                        uiImpalePhase = IMPALE_PHASE_TARGET;
-                        uiImpaleTimer = 9*IN_MILLISECONDS;
+                        if (Creature* impaleTarget = ObjectAccessor::GetCreature(*me, ImpaleTarget))
+                            me->CastSpell(impaleTarget, SPELL_IMPALE_DMG, true);
+                        ImpalePhase = IMPALE_PHASE_TARGET;
+                        ImpaleTimer = 9*IN_MILLISECONDS;
                         break;
                     }
-                } else uiImpaleTimer -= diff;
+                } else ImpaleTimer -= diff;
 
-                if (!bGuardianSummoned)
+                if (!GuardianSummoned)
                 {
                     for (uint8 i = 0; i < 2; ++i)
                     {
                         if (Creature* Guardian = me->SummonCreature(CREATURE_GUARDIAN, SpawnPointGuardian[i], TEMPSUMMON_CORPSE_DESPAWN, 0))
                         {
-                            Guardian->AddThreat(me->getVictim(), 0.0f);
+                            Guardian->AddThreat(me->GetVictim(), 0.0f);
                             DoZoneInCombat(Guardian);
                         }
                     }
-                    bGuardianSummoned = true;
+                    GuardianSummoned = true;
                 }
 
-                if (!bVenomancerSummoned)
+                if (!VenomancerSummoned)
                 {
-                    if (uiVenomancerTimer <= diff)
+                    if (VenomancerTimer <= diff)
                     {
-                        if (uiUndergroundPhase > 1)
+                        if (UndergroundPhase > 1)
                         {
                             for (uint8 i = 0; i < 2; ++i)
                             {
                                 if (Creature* Venomancer = me->SummonCreature(CREATURE_VENOMANCER, SpawnPoint[i], TEMPSUMMON_CORPSE_DESPAWN, 0))
                                 {
-                                    Venomancer->AddThreat(me->getVictim(), 0.0f);
+                                    Venomancer->AddThreat(me->GetVictim(), 0.0f);
                                     DoZoneInCombat(Venomancer);
                                 }
                             }
-                            bVenomancerSummoned = true;
+                            VenomancerSummoned = true;
                         }
-                    } else uiVenomancerTimer -= diff;
+                    } else VenomancerTimer -= diff;
                 }
 
-                if (!bDatterSummoned)
+                if (!DatterSummoned)
                 {
-                    if (uiDatterTimer <= diff)
+                    if (DatterTimer <= diff)
                     {
-                        if (uiUndergroundPhase > 2)
+                        if (UndergroundPhase > 2)
                         {
                             for (uint8 i = 0; i < 2; ++i)
                             {
                                 if (Creature* Datter = me->SummonCreature(CREATURE_DATTER, SpawnPoint[i], TEMPSUMMON_CORPSE_DESPAWN, 0))
                                 {
-                                    Datter->AddThreat(me->getVictim(), 0.0f);
+                                    Datter->AddThreat(me->GetVictim(), 0.0f);
                                     DoZoneInCombat(Datter);
                                 }
                             }
-                            bDatterSummoned = true;
+                            DatterSummoned = true;
                         }
-                    } else uiDatterTimer -= diff;
+                    } else DatterTimer -= diff;
+
+                    if (me->HasAura(SPELL_LEECHING_SWARM))
+                        me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
                 }
 
-                if (uiUndergroundTimer <= diff)
+                if (UndergroundTimer <= diff)
                 {
                     me->RemoveAura(SPELL_SUBMERGE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                    uiPhase = PHASE_MELEE;
-                } else uiUndergroundTimer -= diff;
+                    Phase = PHASE_MELEE;
+                } else UndergroundTimer -= diff;
                 break;
 
             case PHASE_MELEE:
-                if (((uiUndergroundPhase == 0 && HealthBelowPct(75))
-                    || (uiUndergroundPhase == 1 && HealthBelowPct(50))
-                    || (uiUndergroundPhase == 2 && HealthBelowPct(25)))
-                    && !me->HasUnitState(UNIT_STAT_CASTING))
+                if (((UndergroundPhase == 0 && HealthBelowPct(75))
+                    || (UndergroundPhase == 1 && HealthBelowPct(50))
+                    || (UndergroundPhase == 2 && HealthBelowPct(25)))
+                    && !me->HasUnitState(UNIT_STATE_CASTING))
                 {
-                    bGuardianSummoned = false;
-                    bVenomancerSummoned = false;
-                    bDatterSummoned = false;
+                    GuardianSummoned = false;
+                    VenomancerSummoned = false;
+                    DatterSummoned = false;
 
-                    uiUndergroundTimer = 40*IN_MILLISECONDS;
-                    uiVenomancerTimer = 25*IN_MILLISECONDS;
-                    uiDatterTimer = 32*IN_MILLISECONDS;
+                    UndergroundTimer = 40*IN_MILLISECONDS;
+                    VenomancerTimer = 25*IN_MILLISECONDS;
+                    DatterTimer = 32*IN_MILLISECONDS;
 
-                    uiImpalePhase = 0;
-                    uiImpaleTimer = 9*IN_MILLISECONDS;
+                    ImpalePhase = 0;
+                    ImpaleTimer = 9*IN_MILLISECONDS;
 
                     DoCast(me, SPELL_SUBMERGE, false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
 
-                    uiPhase = PHASE_UNDERGROUND;
-                    ++uiUndergroundPhase;
+                    Phase = PHASE_UNDERGROUND;
+                    ++UndergroundPhase;
                 }
 
-                if (bChanneling == true)
+                if (Channeling == true)
                 {
                     for (uint8 i = 0; i < 8; ++i)
-                    DoCast(me->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
-                    bChanneling = false;
+                    DoCastVictim(SPELL_SUMMON_CARRION_BEETLES, true);
+                    Channeling = false;
                 }
-                else if (uiCarrionBeetlesTimer <= diff)
+                else if (CarrionBeetlesTimer <= diff)
                 {
-                    bChanneling = true;
+                    Channeling = true;
                     DoCastVictim(SPELL_CARRION_BEETLES);
-                    uiCarrionBeetlesTimer = 25*IN_MILLISECONDS;
-                } else uiCarrionBeetlesTimer -= diff;
+                    CarrionBeetlesTimer = 25*IN_MILLISECONDS;
+                } else CarrionBeetlesTimer -= diff;
 
-                if (uiLeechingSwarmTimer <= diff)
+                if (LeechingSwarmTimer <= diff)
                 {
                     DoCast(me, SPELL_LEECHING_SWARM, true);
-                    uiLeechingSwarmTimer = 19*IN_MILLISECONDS;
-                } else uiLeechingSwarmTimer -= diff;
+                    LeechingSwarmTimer = 19*IN_MILLISECONDS;
+                } else LeechingSwarmTimer -= diff;
 
-                if (uiPoundTimer <= diff)
+                if (PoundTimer <= diff)
                 {
-                    if (Unit* target = me->getVictim())
+                    if (Unit* target = me->GetVictim())
                     {
                         if (Creature* pImpaleTarget = DoSummonImpaleTarget(target))
-                            me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_POUND, SPELL_POUND_H), false);
+                            me->CastSpell(pImpaleTarget, SPELL_POUND, false);
                     }
-                    uiPoundTimer = 16500;
-                } else uiPoundTimer -= diff;
+                    PoundTimer = 16500;
+                } else PoundTimer -= diff;
 
                 DoMeleeAttackIfReady();
                 break;
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            DoScriptText(SAY_DEATH, me);
-            lSummons.DespawnAll();
-            if (pInstance)
-                pInstance->SetData(DATA_ANUBARAK_EVENT, DONE);
+            Talk(SAY_DEATH);
+            Summons.DespawnAll();
+            instance->SetBossState(DATA_ANUBARAK, DONE);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+
+            Talk(SAY_SLAY);
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) override
         {
-            lSummons.Summon(summon);
+            Summons.Summon(summon);
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_anub_arakAI(creature);
+        return GetInstanceAI<boss_anub_arakAI>(creature);
     }
 };
 
 void AddSC_boss_anub_arak()
 {
-    new boss_anub_arak;
+    new boss_anub_arak();
 }

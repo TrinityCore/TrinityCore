@@ -18,7 +18,7 @@ CREATE TABLE `spell_proc_event` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- ----------------------------
--- Records 
+-- Records
 -- ----------------------------
 INSERT INTO `spell_proc_event` VALUES ('9452', '0', '0', '0', '0', '0', '3', '0', '0');
 INSERT INTO `spell_proc_event` VALUES ('34917', '32', '6', '0', '0', '0', '0', '0', '0');

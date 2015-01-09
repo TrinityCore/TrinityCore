@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,30 +22,33 @@ Comment: All achievement related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
+#include "AchievementMgr.h"
 #include "Chat.h"
+#include "Language.h"
+#include "Player.h"
+#include "ScriptMgr.h"
 
 class achievement_commandscript : public CommandScript
 {
 public:
     achievement_commandscript() : CommandScript("achievement_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand achievementCommandTable[] =
         {
-            { "add",            SEC_ADMINISTRATOR,  false,  &HandleAchievementAddCommand,      "", NULL },
-            { NULL,             0,                  false,  NULL,                              "", NULL }
+            { "add", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, false, &HandleAchievementAddCommand, "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "achievement",    SEC_ADMINISTRATOR,  false, NULL,            "", achievementCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "achievement", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT,  false, NULL, "", achievementCommandTable },
+            { NULL, 0, false, NULL, "", NULL }
         };
         return commandTable;
     }
 
-    static bool HandleAchievementAddCommand(ChatHandler* handler, const char *args)
+    static bool HandleAchievementAddCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -53,8 +56,8 @@ public:
         uint32 achievementId = atoi((char*)args);
         if (!achievementId)
         {
-            if (char* cId = handler->extractKeyFromLink((char*)args, "Hachievement"))
-                achievementId = atoi(cId);
+            if (char* id = handler->extractKeyFromLink((char*)args, "Hachievement"))
+                achievementId = atoi(id);
             if (!achievementId)
                 return false;
         }
@@ -67,8 +70,8 @@ public:
             return false;
         }
 
-        if (AchievementEntry const* pAE = GetAchievementStore()->LookupEntry(achievementId))
-            target->CompletedAchievement(pAE);
+        if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(achievementId))
+            target->CompletedAchievement(achievementEntry);
 
         return true;
     }

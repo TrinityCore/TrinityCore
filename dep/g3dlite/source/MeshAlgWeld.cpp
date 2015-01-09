@@ -40,18 +40,18 @@ public:
     Array<int>&           toOld;
 
     /** Must be less than one grid cell, not checked */
-    const double          radius;
+    const float           radius;
 
     /** (oldVertexArray[i] - offset) * scale is on the range [0, 1] */
     Vector3               offset;
     Vector3               scale;
 
-    Welder(    
-        const Array<Vector3>& _oldVertexArray,
-        Array<Vector3>&       _newVertexArray,
-        Array<int>&           _toNew,
-        Array<int>&           _toOld,
-        double                _radius);
+    Welder
+    (const Array<Vector3>& _oldVertexArray,
+     Array<Vector3>&       _newVertexArray,
+     Array<int>&           _toNew,
+     Array<int>&           _toOld,
+     float                 _radius);
         
     /**
      Computes the grid index from an ordinate.
@@ -73,6 +73,7 @@ template<> struct HashTrait<G3D::_internal::Welder::List*> {
     static size_t hashCode(const G3D::_internal::Welder::List* key) { return reinterpret_cast<size_t>(key); }
 };
 
+
 namespace G3D {
 namespace _internal {
 
@@ -81,7 +82,7 @@ Welder::Welder(
     Array<Vector3>&       _newVertexArray,
     Array<int>&           _toNew,
     Array<int>&           _toOld,
-    double                _radius) :
+    float                 _radius) :
     oldVertexArray(_oldVertexArray),
     newVertexArray(_newVertexArray),
     toNew(_toNew),
@@ -102,10 +103,10 @@ Welder::Welder(
     scale  = maxBound - minBound;
     for (int i = 0; i < 3; ++i) {
         // The model might have zero extent along some axis
-        if (fuzzyEq(scale[i], 0.0)) {
+        if (fuzzyEq(scale[i], 0.0f)) {
             scale[i] = 1.0;
         } else {
-            scale[i] = 1.0 / scale[i];
+            scale[i] = 1.0f / scale[i];
         }
     }
 }
@@ -204,10 +205,10 @@ void MeshAlg::computeWeld(
     Array<Vector3>&       newVertexArray,
     Array<int>&           toNew,
     Array<int>&           toOld,
-    double                radius) {
+    float                 radius) {
 
-    _internal::Welder welder(oldVertexArray, newVertexArray, toNew, toOld, radius);
-    welder.weld();
+    shared_ptr<_internal::Welder> welder = shared_ptr<_internal::Welder> (new _internal::Welder(oldVertexArray, newVertexArray, toNew, toOld, radius));
+    welder->weld();
 }
 
 } // G3D namespace

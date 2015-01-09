@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,85 +20,132 @@
 #include "Errors.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "DestinationHolderImp.h"
 #include "World.h"
+#include "MoveSplineInit.h"
+#include "MoveSpline.h"
+#include "Player.h"
+#include "CreatureGroups.h"
 
 //----- Point Movement Generator
 template<class T>
-void PointMovementGenerator<T>::Initialize(T &unit)
+void PointMovementGenerator<T>::DoInitialize(T* unit)
 {
-    unit.StopMoving();
-    Traveller<T> traveller(unit);
-    // knockback effect has UNIT_STAT_JUMPING set, so if here we disable sentmonstermove there will be creature position sync problem between client and server
-    i_destinationHolder.SetDestination(traveller, i_x, i_y, i_z, true /* !unit.HasUnitState(UNIT_STAT_JUMPING)*/);
+    if (!unit->IsStopped())
+        unit->StopMoving();
+
+    unit->AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+
+    if (id == EVENT_CHARGE_PREPATH)
+        return;
+
+    Movement::MoveSplineInit init(unit);
+    init.MoveTo(i_x, i_y, i_z, m_generatePath);
+    if (speed > 0.0f)
+        init.SetVelocity(speed);
+    init.Launch();
+
+    // Call for creature group update
+    if (Creature* creature = unit->ToCreature())
+        if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
+            creature->GetFormation()->LeaderMoveTo(i_x, i_y, i_z);
 }
 
 template<class T>
-bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
+bool PointMovementGenerator<T>::DoUpdate(T* unit, uint32 /*diff*/)
 {
-    if (!&unit)
+    if (!unit)
         return false;
 
-    if (unit.HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED))
+    if (unit->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
     {
-        if (unit.HasUnitState(UNIT_STAT_CHARGING))
-            return false;
-        else
-            return true;
+        unit->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+        return true;
     }
 
-    Traveller<T> traveller(unit);
+    unit->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
-    i_destinationHolder.UpdateTraveller(traveller, diff);
-
-    if (i_destinationHolder.HasArrived())
+    if (id != EVENT_CHARGE_PREPATH && i_recalculateSpeed && !unit->movespline->Finalized())
     {
-        unit.ClearUnitState(UNIT_STAT_MOVE);
-        arrived = true;
-        return false;
+        i_recalculateSpeed = false;
+        Movement::MoveSplineInit init(unit);
+        init.MoveTo(i_x, i_y, i_z, m_generatePath);
+        if (speed > 0.0f) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
+            init.SetVelocity(speed);
+        init.Launch();
+
+        // Call for creature group update
+        if (Creature* creature = unit->ToCreature())
+            if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
+                creature->GetFormation()->LeaderMoveTo(i_x, i_y, i_z);
     }
 
-    return true;
+    return !unit->movespline->Finalized();
 }
 
 template<class T>
-void PointMovementGenerator<T>:: Finalize(T &unit)
+void PointMovementGenerator<T>::DoFinalize(T* unit)
 {
-    if (unit.HasUnitState(UNIT_STAT_CHARGING))
-        unit.ClearUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
-    if (arrived) // without this crash!
+    if (unit->HasUnitState(UNIT_STATE_CHARGING))
+        unit->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
+
+    if (unit->movespline->Finalized())
         MovementInform(unit);
 }
 
 template<class T>
-void PointMovementGenerator<T>::MovementInform(T & /*unit*/)
+void PointMovementGenerator<T>::DoReset(T* unit)
 {
+    if (!unit->IsStopped())
+        unit->StopMoving();
+
+    unit->AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
 }
 
-template <> void PointMovementGenerator<Creature>::MovementInform(Creature &unit)
+template<class T>
+void PointMovementGenerator<T>::MovementInform(T* /*unit*/) { }
+
+template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit)
 {
-    if (id == EVENT_FALL_GROUND)
+    if (unit->AI())
+        unit->AI()->MovementInform(POINT_MOTION_TYPE, id);
+}
+
+template void PointMovementGenerator<Player>::DoInitialize(Player*);
+template void PointMovementGenerator<Creature>::DoInitialize(Creature*);
+template void PointMovementGenerator<Player>::DoFinalize(Player*);
+template void PointMovementGenerator<Creature>::DoFinalize(Creature*);
+template void PointMovementGenerator<Player>::DoReset(Player*);
+template void PointMovementGenerator<Creature>::DoReset(Creature*);
+template bool PointMovementGenerator<Player>::DoUpdate(Player*, uint32);
+template bool PointMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
+
+void AssistanceMovementGenerator::Finalize(Unit* unit)
+{
+    unit->ToCreature()->SetNoCallAssistance(false);
+    unit->ToCreature()->CallAssistance();
+    if (unit->IsAlive())
+        unit->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
+}
+
+bool EffectMovementGenerator::Update(Unit* unit, uint32)
+{
+    return !unit->movespline->Finalized();
+}
+
+void EffectMovementGenerator::Finalize(Unit* unit)
+{
+    if (unit->GetTypeId() != TYPEID_UNIT)
+        return;
+
+    // Need restore previous movement since we have no proper states system
+    if (unit->IsAlive() && !unit->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING))
     {
-        unit.setDeathState(JUST_DIED);
-        unit.SetFlying(true);
+        if (Unit* victim = unit->GetVictim())
+            unit->GetMotionMaster()->MoveChase(victim);
+        else
+            unit->GetMotionMaster()->Initialize();
     }
-    unit.AI()->MovementInform(POINT_MOTION_TYPE, id);
+
+    if (unit->ToCreature()->AI())
+        unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, m_Id);
 }
-
-template void PointMovementGenerator<Player>::Initialize(Player&);
-template bool PointMovementGenerator<Player>::Update(Player &, const uint32 &diff);
-template void PointMovementGenerator<Player>::MovementInform(Player&);
-template void PointMovementGenerator<Player>::Finalize(Player&);
-
-template void PointMovementGenerator<Creature>::Initialize(Creature&);
-template bool PointMovementGenerator<Creature>::Update(Creature&, const uint32 &diff);
-template void PointMovementGenerator<Creature>::Finalize(Creature&);
-
-void AssistanceMovementGenerator::Finalize(Unit &unit)
-{
-    unit.ToCreature()->SetNoCallAssistance(false);
-    unit.ToCreature()->CallAssistance();
-    if (unit.isAlive())
-        unit.GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
-}
-

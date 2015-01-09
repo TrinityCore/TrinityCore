@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,11 +19,8 @@
 #ifndef QUERYRESULT_H
 #define QUERYRESULT_H
 
-#include <ace/Refcounted_Auto_Ptr.h>
-#include <ace/Thread_Mutex.h>
-
+#include <memory>
 #include "Field.h"
-#include "Log.h"
 
 #ifdef _WIN32
   #include <winsock2.h>
@@ -33,37 +30,40 @@
 class ResultSet
 {
     public:
-        ResultSet(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount);
+        ResultSet(MYSQL_RES* result, MYSQL_FIELD* fields, uint64 rowCount, uint32 fieldCount);
         ~ResultSet();
 
         bool NextRow();
-        uint64 GetRowCount() const { return m_rowCount; }
-        uint32 GetFieldCount() const { return m_fieldCount; }
+        uint64 GetRowCount() const { return _rowCount; }
+        uint32 GetFieldCount() const { return _fieldCount; }
 
-        Field *Fetch() const { return m_currentRow; }
+        Field* Fetch() const { return _currentRow; }
         const Field & operator [] (uint32 index) const
         {
-            ASSERT(index < m_fieldCount);
-            return m_currentRow[index];
+            ASSERT(index < _fieldCount);
+            return _currentRow[index];
         }
 
     protected:
-        Field *m_currentRow;
-        uint64 m_rowCount;
-        uint32 m_fieldCount;
+        uint64 _rowCount;
+        Field* _currentRow;
+        uint32 _fieldCount;
 
     private:
         void CleanUp();
-        MYSQL_RES *m_result;
-        MYSQL_FIELD *m_fields;
+        MYSQL_RES* _result;
+        MYSQL_FIELD* _fields;
+
+        ResultSet(ResultSet const& right) = delete;
+        ResultSet& operator=(ResultSet const& right) = delete;
 };
 
-typedef ACE_Refcounted_Auto_Ptr<ResultSet, ACE_Thread_Mutex> QueryResult;
+typedef std::shared_ptr<ResultSet> QueryResult;
 
 class PreparedResultSet
 {
     public:
-        PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES *result, uint64 rowCount, uint32 fieldCount);
+        PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES* result, uint64 rowCount, uint32 fieldCount);
         ~PreparedResultSet();
 
         bool NextRow();
@@ -84,9 +84,9 @@ class PreparedResultSet
         }
 
     protected:
+        std::vector<Field*> m_rows;
         uint64 m_rowCount;
         uint64 m_rowPosition;
-        std::vector<Field*> m_rows;
         uint32 m_fieldCount;
 
     private:
@@ -101,9 +101,11 @@ class PreparedResultSet
         void CleanUp();
         bool _NextRow();
 
+        PreparedResultSet(PreparedResultSet const& right) = delete;
+        PreparedResultSet& operator=(PreparedResultSet const& right) = delete;
 };
 
-typedef ACE_Refcounted_Auto_Ptr<PreparedResultSet, ACE_Thread_Mutex> PreparedQueryResult;
+typedef std::shared_ptr<PreparedResultSet> PreparedQueryResult;
 
 #endif
 

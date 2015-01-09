@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,21 +24,22 @@ SDCategory: Items
 EndScriptData */
 
 /* ContentData
-item_draenei_fishing_net(i23654)    Hacklike implements chance to spawn item or creature
 item_nether_wraith_beacon(i31742)   Summons creatures for quest Becoming a Spellfire Tailor (q10832)
 item_flying_machine(i34060, i34061)  Engineering crafted flying machines
 item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
 item_only_for_flight                Items which should only useable while flying
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
+#include "Player.h"
 
 /*#####
 # item_only_for_flight
 #####*/
 
-enum eOnlyForFlight
+enum OnlyForFlight
 {
     SPELL_ARCANE_CHARGES    = 45072
 };
@@ -48,13 +49,13 @@ class item_only_for_flight : public ItemScript
 public:
     item_only_for_flight() : ItemScript("item_only_for_flight") { }
 
-    bool OnUse(Player* player, Item* pItem, SpellCastTargets const& /*targets*/)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
     {
-        uint32 itemId = pItem->GetEntry();
+        uint32 itemId = item->GetEntry();
         bool disabled = false;
 
         //for special scripts
-        switch(itemId)
+        switch (itemId)
         {
            case 24538:
                 if (player->GetAreaId() != 3628)
@@ -65,57 +66,18 @@ public:
                     disabled = true;
                     break;
            case 34475:
-                if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry(SPELL_ARCANE_CHARGES))
-                    Spell::SendCastResult(player, pSpellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
+                if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
+                    Spell::SendCastResult(player, spellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
                     break;
         }
 
         // allow use in flight only
-        if (player->isInFlight() && !disabled)
+        if (player->IsInFlight() && !disabled)
             return false;
 
         // error
-        player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
+        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
         return true;
-    }
-};
-
-/*#####
-# item_draenei_fishing_net
-#####*/
-
-class item_draenei_fishing_net : public ItemScript
-{
-public:
-    item_draenei_fishing_net() : ItemScript("item_draenei_fishing_net") { }
-
-    //This is just a hack and should be removed from here.
-    //Creature/Item are in fact created before spell are sucessfully casted, without any checks at all to ensure proper/expected behavior.
-    bool OnUse(Player* player, Item* /*pItem*/, SpellCastTargets const& /*targets*/)
-    {
-        if (player->GetQuestStatus(9452) == QUEST_STATUS_INCOMPLETE)
-        {
-            if (urand(0, 99) < 35)
-            {
-                Creature* Murloc = player->SummonCreature(17102, player->GetPositionX(), player->GetPositionY()+20, player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                if (Murloc)
-                    Murloc->AI()->AttackStart(player);
-            }
-            else
-            {
-                ItemPosCountVec dest;
-                uint32 itemId = 23614;
-                InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1);
-                if (msg == EQUIP_ERR_OK)
-                {
-                    if (Item* item = player->StoreNewItem(dest, itemId, true))
-                        player->SendNewItem(item, 1, false, true);
-                }
-                else
-                    player->SendEquipError(msg, NULL, NULL, itemId);
-            }
-        }
-        return false;
     }
 };
 
@@ -128,12 +90,13 @@ class item_nether_wraith_beacon : public ItemScript
 public:
     item_nether_wraith_beacon() : ItemScript("item_nether_wraith_beacon") { }
 
-    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/)
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/) override
     {
         if (player->GetQuestStatus(10832) == QUEST_STATUS_INCOMPLETE)
         {
             if (Creature* nether = player->SummonCreature(22408, player->GetPositionX(), player->GetPositionY()+20, player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000))
                 nether->AI()->AttackStart(player);
+
             if (Creature* nether = player->SummonCreature(22408, player->GetPositionX(), player->GetPositionY()-20, player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000))
                 nether->AI()->AttackStart(player);
         }
@@ -150,13 +113,13 @@ class item_gor_dreks_ointment : public ItemScript
 public:
     item_gor_dreks_ointment() : ItemScript("item_gor_dreks_ointment") { }
 
-    bool OnUse(Player* player, Item* pItem, SpellCastTargets const& targets)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets) override
     {
         if (targets.GetUnitTarget() && targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT &&
             targets.GetUnitTarget()->GetEntry() == 20748 && !targets.GetUnitTarget()->HasAura(32578))
             return false;
 
-        player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
+        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
         return true;
     }
 };
@@ -170,13 +133,13 @@ class item_incendiary_explosives : public ItemScript
 public:
     item_incendiary_explosives() : ItemScript("item_incendiary_explosives") { }
 
-    bool OnUse(Player* player, Item* pItem, SpellCastTargets const & /*targets*/)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const & /*targets*/) override
     {
         if (player->FindNearestCreature(26248, 15) || player->FindNearestCreature(26249, 15))
             return false;
         else
         {
-            player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);
+            player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, NULL);
             return true;
         }
     }
@@ -190,7 +153,8 @@ class item_mysterious_egg : public ItemScript
 {
 public:
     item_mysterious_egg() : ItemScript("item_mysterious_egg") { }
-    bool OnExpire(Player* player, ItemTemplate const* /*pItemProto*/)
+
+    bool OnExpire(Player* player, ItemTemplate const* /*pItemProto*/) override
     {
         ItemPosCountVec dest;
         uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
@@ -208,9 +172,9 @@ public:
 class item_disgusting_jar : public ItemScript
 {
 public:
-    item_disgusting_jar() : ItemScript("item_disgusting_jar") {}
+    item_disgusting_jar() : ItemScript("item_disgusting_jar") { }
 
-    bool OnExpire(Player* player, ItemTemplate const* /*pItemProto*/)
+    bool OnExpire(Player* player, ItemTemplate const* /*pItemProto*/) override
     {
         ItemPosCountVec dest;
         uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
@@ -225,7 +189,7 @@ public:
 # item_pile_fake_furs
 #####*/
 
-enum ePileFakeFur
+enum PileFakeFur
 {
     GO_CARIBOU_TRAP_1                                      = 187982,
     GO_CARIBOU_TRAP_2                                      = 187995,
@@ -259,30 +223,30 @@ class item_pile_fake_furs : public ItemScript
 public:
     item_pile_fake_furs() : ItemScript("item_pile_fake_furs") { }
 
-    bool OnUse(Player* player, Item* /*pItem*/, SpellCastTargets const & /*targets*/)
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const & /*targets*/) override
     {
-        GameObject* pGo = NULL;
+        GameObject* go = NULL;
         for (uint8 i = 0; i < CaribouTrapsNum; ++i)
         {
-            pGo = player->FindNearestGameObject(CaribouTraps[i], 5.0f);
-            if (pGo)
+            go = player->FindNearestGameObject(CaribouTraps[i], 5.0f);
+            if (go)
                 break;
         }
 
-        if (!pGo)
+        if (!go)
             return false;
 
-        if (pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, true) || pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, false) || pGo->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 2.0f))
+        if (go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, true) || go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, false) || go->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 2.0f))
             return true;
 
         float x, y, z;
-        pGo->GetClosePoint(x, y, z, pGo->GetObjectSize() / 3, 7.0f);
-        pGo->SummonGameObject(GO_HIGH_QUALITY_FUR, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0, 0, 0, 0, 0, 1000);
-        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, pGo->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
+        go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 0, 0, 0, 0, 1);
+        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             summon->SetVisible(false);
             summon->SetReactState(REACT_PASSIVE);
-            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
         return false;
     }
@@ -292,7 +256,7 @@ public:
 # item_petrov_cluster_bombs
 #####*/
 
-enum ePetrovClusterBombs
+enum PetrovClusterBombs
 {
     SPELL_PETROV_BOMB           = 42406,
     AREA_ID_SHATTERED_STRAITS   = 4064,
@@ -304,17 +268,15 @@ class item_petrov_cluster_bombs : public ItemScript
 public:
     item_petrov_cluster_bombs() : ItemScript("item_petrov_cluster_bombs") { }
 
-    bool OnUse(Player* player, Item* pItem, const SpellCastTargets & /*pTargets*/)
+    bool OnUse(Player* player, Item* /*item*/, const SpellCastTargets & /*targets*/) override
     {
         if (player->GetZoneId() != ZONE_ID_HOWLING)
             return false;
 
         if (!player->GetTransport() || player->GetAreaId() != AREA_ID_SHATTERED_STRAITS)
         {
-            player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
-
-            if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry(SPELL_PETROV_BOMB))
-                Spell::SendCastResult(player, pSpellInfo, 1, SPELL_FAILED_NOT_HERE);
+            if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
+                Spell::SendCastResult(player, spellInfo, 1, SPELL_FAILED_NOT_HERE);
 
             return true;
         }
@@ -327,7 +289,7 @@ public:
 # item_dehta_trap_smasher
 # For quest 11876, Help Those That Cannot Help Themselves
 ######*/
-enum eHelpThemselves
+enum HelpThemselves
 {
     QUEST_CANNOT_HELP_THEMSELVES                  =  11876,
     NPC_TRAPPED_MAMMOTH_CALF                      =  25850,
@@ -370,17 +332,16 @@ class item_dehta_trap_smasher : public ItemScript
 public:
     item_dehta_trap_smasher() : ItemScript("item_dehta_trap_smasher") { }
 
-    bool OnUse(Player* player, Item* /*pItem*/, const SpellCastTargets & /*pTargets*/)
+    bool OnUse(Player* player, Item* /*item*/, const SpellCastTargets & /*targets*/) override
     {
         if (player->GetQuestStatus(QUEST_CANNOT_HELP_THEMSELVES) != QUEST_STATUS_INCOMPLETE)
             return false;
 
-        Creature* pMammoth;
-        pMammoth = player->FindNearestCreature(NPC_TRAPPED_MAMMOTH_CALF, 5.0f);
+        Creature* pMammoth = player->FindNearestCreature(NPC_TRAPPED_MAMMOTH_CALF, 5.0f);
         if (!pMammoth)
             return false;
 
-        GameObject* pTrap;
+        GameObject* pTrap = NULL;
         for (uint8 i = 0; i < MammothTrapsNum; ++i)
         {
             pTrap = player->FindNearestGameObject(MammothTraps[i], 11.0f);
@@ -388,7 +349,7 @@ public:
             {
                 pMammoth->AI()->DoAction(1);
                 pTrap->SetGoState(GO_STATE_READY);
-                player->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH_CALF, 0);
+                player->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH_CALF);
                 return true;
             }
         }
@@ -407,7 +368,7 @@ class item_trident_of_nazjan : public ItemScript
 public:
     item_trident_of_nazjan() : ItemScript("item_Trident_of_Nazjan") { }
 
-    bool OnUse(Player* player, Item* pItem, const SpellCastTargets & /*pTargets*/)
+    bool OnUse(Player* player, Item* item, const SpellCastTargets & /*targets*/) override
     {
         if (player->GetQuestStatus(QUEST_THE_EMISSARY) == QUEST_STATUS_INCOMPLETE)
         {
@@ -416,14 +377,14 @@ public:
                 pLeviroth->AI()->AttackStart(player);
                 return false;
             } else
-                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);
+                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, NULL);
         } else
-            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW , pItem, NULL);
+            player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
         return true;
     }
 };
 
-enum eCapturedFrog
+enum CapturedFrog
 {
     QUEST_THE_PERFECT_SPIES      = 25444,
     NPC_VANIRAS_SENTRY_TOTEM     = 40187
@@ -434,17 +395,17 @@ class item_captured_frog : public ItemScript
 public:
     item_captured_frog() : ItemScript("item_captured_frog") { }
 
-    bool OnUse(Player* player, Item* pItem, SpellCastTargets const& /*targets*/)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
     {
         if (player->GetQuestStatus(QUEST_THE_PERFECT_SPIES) == QUEST_STATUS_INCOMPLETE)
         {
             if (player->FindNearestCreature(NPC_VANIRAS_SENTRY_TOTEM, 10.0f))
                 return false;
             else
-                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);
+                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, NULL);
         }
         else
-            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
+            player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
         return true;
     }
 };
@@ -452,7 +413,6 @@ public:
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
-    new item_draenei_fishing_net();
     new item_nether_wraith_beacon();
     new item_gor_dreks_ointment();
     new item_incendiary_explosives();

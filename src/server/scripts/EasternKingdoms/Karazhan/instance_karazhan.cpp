@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,11 +19,12 @@
 /* ScriptData
 SDName: Instance_Karazhan
 SD%Complete: 70
-SDComment: Instance Script for Karazhan to help in various encounters. TODO: GameObject visibility for Opera event.
+SDComment: Instance Script for Karazhan to help in various encounters. @todo GameObject visibility for Opera event.
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
 
 #define MAX_ENCOUNTER      12
@@ -48,14 +49,22 @@ class instance_karazhan : public InstanceMapScript
 public:
     instance_karazhan() : InstanceMapScript("instance_karazhan", 532) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
-        return new instance_karazhan_InstanceMapScript(pMap);
+        return new instance_karazhan_InstanceMapScript(map);
     }
 
     struct instance_karazhan_InstanceMapScript : public InstanceScript
     {
-        instance_karazhan_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_karazhan_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+            // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
+            m_uiOperaEvent = urand(1, 3);
+            m_uiOzDeathCount = 0;
+        }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string strSaveData;
@@ -63,51 +72,23 @@ public:
         uint32 m_uiOperaEvent;
         uint32 m_uiOzDeathCount;
 
-        uint64 m_uiCurtainGUID;
-        uint64 m_uiStageDoorLeftGUID;
-        uint64 m_uiStageDoorRightGUID;
-        uint64 m_uiKilrekGUID;
-        uint64 m_uiTerestianGUID;
-        uint64 m_uiMoroesGUID;
-        uint64 m_uiLibraryDoor;                                     // Door at Shade of Aran
-        uint64 m_uiMassiveDoor;                                     // Door at Netherspite
-        uint64 m_uiSideEntranceDoor;                                // Side Entrance
-        uint64 m_uiGamesmansDoor;                                   // Door before Chess
-        uint64 m_uiGamesmansExitDoor;                               // Door after Chess
-        uint64 m_uiNetherspaceDoor;                                // Door at Malchezaar
-        uint64 MastersTerraceDoor[2];
-        uint64 ImageGUID;
-        uint64 DustCoveredChest;
+        ObjectGuid m_uiCurtainGUID;
+        ObjectGuid m_uiStageDoorLeftGUID;
+        ObjectGuid m_uiStageDoorRightGUID;
+        ObjectGuid m_uiKilrekGUID;
+        ObjectGuid m_uiTerestianGUID;
+        ObjectGuid m_uiMoroesGUID;
+        ObjectGuid m_uiLibraryDoor;                                     // Door at Shade of Aran
+        ObjectGuid m_uiMassiveDoor;                                     // Door at Netherspite
+        ObjectGuid m_uiSideEntranceDoor;                                // Side Entrance
+        ObjectGuid m_uiGamesmansDoor;                                   // Door before Chess
+        ObjectGuid m_uiGamesmansExitDoor;                               // Door after Chess
+        ObjectGuid m_uiNetherspaceDoor;                                // Door at Malchezaar
+        ObjectGuid MastersTerraceDoor[2];
+        ObjectGuid ImageGUID;
+        ObjectGuid DustCoveredChest;
 
-        void Initialize()
-        {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
-            m_uiOperaEvent      = urand(1, 3);
-            m_uiOzDeathCount    = 0;
-
-            m_uiCurtainGUID         = 0;
-            m_uiStageDoorLeftGUID   = 0;
-            m_uiStageDoorRightGUID  = 0;
-
-            m_uiKilrekGUID      = 0;
-            m_uiTerestianGUID   = 0;
-            m_uiMoroesGUID      = 0;
-
-            m_uiLibraryDoor         = 0;
-            m_uiMassiveDoor         = 0;
-            m_uiSideEntranceDoor    = 0;
-            m_uiGamesmansDoor       = 0;
-            m_uiGamesmansExitDoor   = 0;
-            m_uiNetherspaceDoor     = 0;
-            MastersTerraceDoor[0]= 0;
-            MastersTerraceDoor[1]= 0;
-            ImageGUID = 0;
-            DustCoveredChest    = 0;
-        }
-
-        bool IsEncounterInProgress() const
+        bool IsEncounterInProgress() const override
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
@@ -116,7 +97,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -126,7 +107,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 uiData)
+        void SetData(uint32 type, uint32 uiData) override
         {
             switch (type)
             {
@@ -170,9 +151,9 @@ public:
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
-                    << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5] << " " << m_auiEncounter[6] << " "
-                    << m_auiEncounter[7] << " " << m_auiEncounter[8] << " " << m_auiEncounter[9] << " " << m_auiEncounter[10] << " " << m_auiEncounter[11];
+                saveStream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' '
+                    << m_auiEncounter[3] << ' ' << m_auiEncounter[4] << ' ' << m_auiEncounter[5] << ' ' << m_auiEncounter[6] << ' '
+                    << m_auiEncounter[7] << ' ' << m_auiEncounter[8] << ' ' << m_auiEncounter[9] << ' ' << m_auiEncounter[10] << ' ' << m_auiEncounter[11];
 
                 strSaveData = saveStream.str();
 
@@ -181,17 +162,17 @@ public:
             }
         }
 
-         void SetData64(uint32 identifier, uint64 data)
+         void SetGuidData(uint32 identifier, ObjectGuid data) override
          {
-             switch(identifier)
+             switch (identifier)
              {
              case DATA_IMAGE_OF_MEDIVH: ImageGUID = data;
              }
          }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case 183932:   m_uiCurtainGUID          = go->GetGUID();         break;
                 case 184278:
@@ -221,9 +202,9 @@ public:
                 case 185119: DustCoveredChest = go->GetGUID(); break;
             }
 
-            switch(m_uiOperaEvent)
+            switch (m_uiOperaEvent)
             {
-                //TODO: Set Object visibilities for Opera based on performance
+                /// @todo Set Object visibilities for Opera based on performance
                 case EVENT_OZ:
                     break;
 
@@ -235,12 +216,12 @@ public:
             }
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() override
         {
             return strSaveData;
         }
 
-        uint32 GetData(uint32 uiData)
+        uint32 GetData(uint32 uiData) const override
         {
             switch (uiData)
             {
@@ -263,7 +244,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiData)
+        ObjectGuid GetGuidData(uint32 uiData) const override
         {
             switch (uiData)
             {
@@ -284,10 +265,10 @@ public:
                 case DATA_IMAGE_OF_MEDIVH:          return ImageGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
-        void Load(const char* chrIn)
+        void Load(char const* chrIn)
         {
             if (!chrIn)
             {
@@ -307,7 +288,6 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
-
 };
 
 void AddSC_instance_karazhan()

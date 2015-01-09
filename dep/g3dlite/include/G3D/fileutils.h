@@ -4,9 +4,9 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @author  2002-06-06
- @edited  2010-03-06
+ @edited  2011-03-06
 
- Copyright 2000-2010, Morgan McGuire.
+ Copyright 2000-2012, Morgan McGuire.
  All rights reserved.
  */
 
@@ -20,42 +20,16 @@
 #include "G3D/Set.h"
 #include "G3D/g3dmath.h"
 
-#ifdef G3D_WIN32
+#ifdef G3D_WINDOWS
 // For chdir, mkdir, etc.
 #   include <direct.h>
 #endif
 
 namespace G3D {
-
-    namespace _internal {
-        extern Set<std::string> currentFilesUsed;
-    }
-
-/** Returns all the files used by G3D and GLG3D during the current execution. */
-Array<std::string> filesUsed();
-    
-std::string readWholeFile(
-    const std::string&          filename);
-
-
-/** Reads from a zip file and decompresses the desired contents
-	into memory.  Does not support recursive zip calls (i.e. a .zip
-	stored within another .zip)
-
-	@param file the path, of the format C:\\...\\something.zip\\...\\desiredfile.ext
-	@param data a pointer to the memory where the file will be stored
-	@param length the size of the file decompressed to memory */
-void zipRead(const std::string& file,
-			 void*& data,
-			 size_t& length);
-
-
-/** Closes the contents of a zip file that had been decompressed to
-	memory.  Must be called in tandem with zipRead() to avoid memory
-	leaks.
-
-	@param data the pointer to the decompressed file in memory */
-void zipClose(void* data);
+ 
+/** Returns the contents of a text file as a single string */
+std::string readWholeFile
+(const std::string&          filename);
 
 
 /**
@@ -88,8 +62,8 @@ FILE* createTempFile();
  */
 bool zipfileExists
 (const std::string&          filename,
- std::string&		     outZipfile,
- std::string&		     outInternalFile);
+ std::string&             outZipfile,
+ std::string&             outInternalFile);
 
 bool zipfileExists(const std::string& filename);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,8 @@
 #ifndef TRINITY_DISABLEMGR_H
 #define TRINITY_DISABLEMGR_H
 
-#include <ace/Singleton.h>
+#include "VMapManager2.h"
+#include "Define.h"
 
 class Unit;
 
@@ -31,6 +32,8 @@ enum DisableType
     DISABLE_TYPE_BATTLEGROUND           = 3,
     DISABLE_TYPE_ACHIEVEMENT_CRITERIA   = 4,
     DISABLE_TYPE_OUTDOORPVP             = 5,
+    DISABLE_TYPE_VMAP                   = 6,
+    DISABLE_TYPE_MMAP                   = 7
 };
 
 enum SpellDisableTypes
@@ -41,38 +44,24 @@ enum SpellDisableTypes
     SPELL_DISABLE_DEPRECATED_SPELL  = 0x8,
     SPELL_DISABLE_MAP               = 0x10,
     SPELL_DISABLE_AREA              = 0x20,
+    SPELL_DISABLE_LOS               = 0x40,
     MAX_SPELL_DISABLE_TYPE = (  SPELL_DISABLE_PLAYER | SPELL_DISABLE_CREATURE | SPELL_DISABLE_PET |
-                                SPELL_DISABLE_DEPRECATED_SPELL | SPELL_DISABLE_MAP | SPELL_DISABLE_AREA),
+                                SPELL_DISABLE_DEPRECATED_SPELL | SPELL_DISABLE_MAP | SPELL_DISABLE_AREA |
+                                SPELL_DISABLE_LOS)
 };
 
-#define MAX_DISABLE_TYPES 6
-
-struct DisableData
+enum MMapDisableTypes
 {
-    uint8 flags;
-    std::set<uint32> params[2];                             // params0, params1
+    MMAP_DISABLE_PATHFINDING    = 0x0
 };
 
-typedef std::map<uint32, DisableData> DisableTypeMap;       // single disables here with optional data
-typedef std::map<DisableType, DisableTypeMap> DisableMap;   // global disable map by source
-
-class DisableMgr
+namespace DisableMgr
 {
-    friend class ACE_Singleton<DisableMgr, ACE_Null_Mutex>;
-    DisableMgr();
-    ~DisableMgr();
-
-    public:
-
-        void LoadDisables();
-        bool IsDisabledFor(DisableType type, uint32 entry, Unit const* pUnit);
-        void CheckQuestDisables();
-
-    protected:
-
-        DisableMap m_DisableMap;
-};
-
-#define sDisableMgr ACE_Singleton<DisableMgr, ACE_Null_Mutex>::instance()
+    void LoadDisables();
+    bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
+    void CheckQuestDisables();
+    bool IsVMAPDisabledFor(uint32 entry, uint8 flags);
+    bool IsPathfindingEnabled(uint32 mapId);
+}
 
 #endif //TRINITY_DISABLEMGR_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,10 +19,7 @@
 #ifndef TRINITY_MAPMANAGER_H
 #define TRINITY_MAPMANAGER_H
 
-#include "Define.h"
-#include <ace/Singleton.h>
-#include <ace/Thread_Mutex.h>
-#include "Common.h"
+#include "Object.h"
 #include "Map.h"
 #include "GridStates.h"
 #include "MapUpdater.h"
@@ -32,19 +29,21 @@ struct TransportCreatureProto;
 
 class MapManager
 {
-    friend class ACE_Singleton<MapManager, ACE_Thread_Mutex>;
-    typedef UNORDERED_MAP<uint32, Map*> MapMapType;
-    typedef std::vector<bool> InstanceIds;
-
     public:
+        static MapManager* instance()
+        {
+            static MapManager instance;
+            return &instance;
+        }
 
-        Map* CreateMap(uint32, const WorldObject* obj, uint32 instanceId);
-        Map const* CreateBaseMap(uint32 id) const { return const_cast<MapManager*>(this)->_createBaseMap(id); }
+        Map* CreateBaseMap(uint32 mapId);
+        Map* FindBaseNonInstanceMap(uint32 mapId) const;
         Map* FindMap(uint32 mapId, uint32 instanceId = 0) const;
+        Map* FindMap(uint32 mapId, uint32 instanceId) const;
 
         uint16 GetAreaFlag(uint32 mapId, float x, float y, float z) const
         {
-            Map const* m = CreateBaseMap(mapId);
+            Map const* m = CreateBaseMap(mapid);
             return m->GetAreaFlag(x, y, z);
         }
         uint32 GetAreaId(uint32 mapId, float x, float y, float z) const
@@ -73,7 +72,7 @@ class MapManager
 
         void SetMapUpdateInterval(uint32 t)
         {
-            if (t > MIN_MAP_UPDATE_DELAY)
+            if (t < MIN_MAP_UPDATE_DELAY)
                 t = MIN_MAP_UPDATE_DELAY;
 
             i_timer.SetInterval(t);
@@ -106,31 +105,7 @@ class MapManager
             return IsValidMapCoord(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation());
         }
 
-        // modulos a radian orientation to the range of 0..2PI
-        static float NormalizeOrientation(float o)
-        {
-            // fmod only supports positive numbers. Thus we have
-            // to emulate negative numbers
-            if (o < 0)
-            {
-                float mod = o *-1;
-                mod = fmod(mod, 2.0f * static_cast<float>(M_PI));
-                mod = -mod + 2.0f * static_cast<float>(M_PI);
-                return mod;
-            }
-            return fmod(o, 2.0f * static_cast<float>(M_PI));
-        }
-
         void DoDelayedMovesAndRemoves();
-
-        void LoadTransports();
-        void LoadTransportNPCs();
-
-        typedef std::set<Transport *> TransportSet;
-        TransportSet m_Transports;
-
-        typedef std::map<uint32, TransportSet> TransportMap;
-        TransportMap m_TransportsByMap;
 
         bool CanPlayerEnter(uint32 mapId, Player* player, bool loginCheck = false);
         void InitializeVisibilityDistanceInfo();
@@ -145,26 +120,28 @@ class MapManager
         void RegisterInstanceId(uint32 instanceId);
         void FreeInstanceId(uint32 instanceId);
 
-        uint32 GetNextInstanceId() { return _nextInstanceId; };
+        uint32 GetNextInstanceId() const { return _nextInstanceId; };
         void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
 
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
     private:
+        typedef std::unordered_map<uint32, Map*> MapMapType;
+        typedef std::vector<bool> InstanceIds;
+
         MapManager();
         ~MapManager();
+
+        Map* FindBaseMap(uint32 mapId) const
+        {
+            MapMapType::const_iterator iter = i_maps.find(mapId);
+            return (iter == i_maps.end() ? NULL : iter->second);
+        }
 
         MapManager(const MapManager &);
         MapManager& operator=(const MapManager &);
 
-        Map* _createBaseMap(uint32 id);
-        Map* _findMap(uint32 id) const
-        {
-            MapMapType::const_iterator iter = i_maps.find(id);
-            return (iter == i_maps.end() ? NULL : iter->second);
-        }
-
-        ACE_Thread_Mutex Lock;
+        std::mutex _mapsLock;
         uint32 i_gridCleanUpDelay;
         MapMapType i_maps;
         IntervalTimer i_timer;
@@ -173,5 +150,5 @@ class MapManager
         uint32 _nextInstanceId;
         MapUpdater m_updater;
 };
-#define sMapMgr ACE_Singleton<MapManager, ACE_Thread_Mutex>::instance()
+#define sMapMgr MapManager::instance()
 #endif

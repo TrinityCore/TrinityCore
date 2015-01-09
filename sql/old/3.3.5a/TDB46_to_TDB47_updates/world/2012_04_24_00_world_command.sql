@@ -1,0 +1,10 @@
+DELETE FROM `command` WHERE `name` IN ('modify tp','modify bwalk','modify swim','modify fly','modify arena','modify aspeed','modify morph');
+INSERT INTO `command` (`name`, `security`, `help`) VALUES ('modify speed all', 1, 'Syntax: .modify aspeed #rate\r\n\r\nModify all speeds -run,swim,run back,swim back- of the selected player to "normalbase speed for this move type"*rate. If no player is selected, modify your speed.\r\n\r\n #rate may range from 0.1 to 50.'),
+('modify speed backwalk', 1, 'Syntax: .modify speed backwalk #rate\r\n\r\nModify the speed of the selected player while running backwards to "normal walk back speed"*rate. If no player is selected, modify your speed.\r\n\r\n #rate may range from 0.1 to 50.'),
+('modify speed fly', 1, '.modify speed fly #rate\nModify the flying speed of the selected player to "normal flying speed"*rate. If no player is selected, modify your speed.\n #rate may range from 0.1 to 50.'),
+('modify speed swim', 1, 'Syntax: .modify speed swim #rate\r\n\r\nModify the swim speed of the selected player to "normal swim speed"*rate. If no player is selected, modify your speed.\r\n\r\n #rate may range from 0.1 to 50.'),
+('modify speed walk', 1, 'Syntax: .modify speed bwalk #rate\r\n\r\nModify the speed of the selected player while running to "normal walk speed"*rate. If no player is selected, modify your speed.\r\n\r\n #rate may range from 0.1 to 50.'),
+('modify talentpoints', 1, 'Syntax: .modify talentpoints #amount\r\n\r\nSet free talent points for selected character or character\'s pet. It will be reset to default expected at next levelup/login/quest reward.'),
+('morph', 2, 'Syntax: .morph #displayid\r\n\r\nChange your current model id to #displayid.'),
+('modify arenapoints', 1, 'Syntax: .modify arenapoints #value\r\nAdd $amount arena points to the selected player.');
+UPDATE `command` SET `help`='Syntax: .modify speed $speedtype #rate\r\n\r\nModify the running speed of the selected player to "normal base run speed"= 1. If no player is selected, modify your speed.\r\n\r\n$speedtypes may be fly, all, walk, backwalk, or swim.\r\n\r\n #rate may range from 0.1 to 50.' WHERE `name`='modify speed' LIMIT 1;

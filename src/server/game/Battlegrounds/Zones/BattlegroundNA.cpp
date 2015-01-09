@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,27 +16,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ArenaMap.h"
 #include "ArenaScore.h"
 #include "BattlegroundNA.h"
-#include "Language.h"
-#include "Object.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
 
 void BattlegroundNA::InitializeObjects()
 {
     ObjectGUIDsByType.resize(BG_NA_OBJECT_MAX);
-
-    // gates
-    AddGameObject(BG_NA_OBJECT_DOOR_1, BG_NA_OBJECT_TYPE_DOOR_1, 4031.854f, 2966.833f, 12.6462f, -2.648788f, 0, 0, 0.9697962f, -0.2439165f, RESPAWN_IMMEDIATELY);
-    AddGameObject(BG_NA_OBJECT_DOOR_2, BG_NA_OBJECT_TYPE_DOOR_2, 4081.179f, 2874.97f, 12.39171f, 0.4928045f, 0, 0, 0.2439165f, 0.9697962f, RESPAWN_IMMEDIATELY);
-    AddGameObject(BG_NA_OBJECT_DOOR_3, BG_NA_OBJECT_TYPE_DOOR_3, 4023.709f, 2981.777f, 10.70117f, -2.648788f, 0, 0, 0.9697962f, -0.2439165f, RESPAWN_IMMEDIATELY);
-    AddGameObject(BG_NA_OBJECT_DOOR_4, BG_NA_OBJECT_TYPE_DOOR_4, 4090.064f, 2858.438f, 10.23631f, 0.4928045f, 0, 0, 0.2439165f, 0.9697962f, RESPAWN_IMMEDIATELY);
-    // buffs
-    AddGameObject(BG_NA_OBJECT_BUFF_1, BG_NA_OBJECT_TYPE_BUFF_1, 4009.189941f, 2895.250000f, 13.052700f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, BUFF_RESPAWN_TIME);
-    AddGameObject(BG_NA_OBJECT_BUFF_2, BG_NA_OBJECT_TYPE_BUFF_2, 4103.330078f, 2946.350098f, 13.051300f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, BUFF_RESPAWN_TIME);
+    if (GetStatus() == STATUS_IN_PROGRESS)
+    {
+        if (GetStartTime() >= 47*MINUTE*IN_MILLISECONDS)    // after 47 minutes without one team losing, the arena closes with no winner and no rating change
+        {
+            UpdateArenaWorldState();
+            CheckArenaAfterTimerConditions();
+        }
+    }
 
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_4; ++i)
         SpawnGameObject(i, RESPAWN_IMMEDIATELY);
@@ -51,45 +46,24 @@ void BattlegroundNA::StartBattleground()
         SpawnGameObject(i, 60);
 }
 
-bool BattlegroundNA::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetId(), 4055.504395f, 2919.660645f, 13.611241f, player->GetOrientation(), false);
-    return true;
-}
-
-void BattlegroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    //uint32 SpellId = 0;
-    //uint64 buff_guid = 0;
-    switch(Trigger)
+    switch (trigger)
     {
         case 4536:                                          // buff trigger?
         case 4537:                                          // buff trigger?
             break;
         default:
-            sLog->outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
-
-    //if (buff_guid)
-    //    HandleTriggerBuff(buff_guid, Source);
 }
 
-void BattlegroundNA::FillInitialWorldStates(WorldPacket &data)
+void BattlegroundNA::FillInitialWorldStates(WorldPacket& data)
 {
-    data << uint32(0xa11) << uint32(1);           // 9
-    UpdateArenaWorldState();
+    data << uint32(0xa11) << uint32(1);     // 9 show
+    Arena::FillInitialWorldStates(data);
 }
-/*
-20:12:14 id:036668 [S2C] SMSG_INIT_WORLD_STATES (706 = 0x02C2) len: 86
-0000: 2f 02 00 00 72 0e 00 00 00 00 00 00 09 00 11 0a  |  /...r...........
-0010: 00 00 01 00 00 00 0f 0a 00 00 00 00 00 00 10 0a  |  ................
-0020: 00 00 00 00 00 00 d4 08 00 00 00 00 00 00 d8 08  |  ................
-0030: 00 00 00 00 00 00 d7 08 00 00 00 00 00 00 d6 08  |  ................
-0040: 00 00 00 00 00 00 d5 08 00 00 00 00 00 00 d3 08  |  ................
-0050: 00 00 00 00 00 00                                |  ......
-*/
+        TC_LOG_ERROR("sql.sql", "BatteGroundNA: Failed to spawn some object!");

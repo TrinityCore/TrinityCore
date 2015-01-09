@@ -1,5 +1,5 @@
 DELETE FROM `spell_enchant_proc_data` WHERE `entry` IN (703, 704, 705, 706, 2644, 3772, 3773, 323, 324, 325, 623, 624, 625, 2641, 3768, 3769);
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES 
+INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES
  -- Wound Poison
 (703, 0, 21.43,0),
 (704, 0, 21.43,0),

@@ -1,12 +1,12 @@
 /**
-  @file Quat.cpp
+   \file G3D/Quat.cpp
  
   Quaternion implementation based on Watt & Watt page 363
   
-  @author Morgan McGuire, graphics3d.com
+  \uthor Morgan McGuire, graphics3d.com
   
-  @created 2002-01-23
-  @edited  2010-03-31
+  \created 2002-01-23
+  \edited  2010-05-31
  */
 
 #include "G3D/Quat.h"
@@ -45,50 +45,57 @@ Quat::Quat(const class Any& a) {
 }
 
 
+Any Quat::toAny() const {
+    Any a(Any::ARRAY, "Quat");
+    a.append(x, y, z, w);
+    return a;
+}
+
+
 Quat::Quat(const Matrix3& rot) {
 
     static const int plus1mod3[] = {1, 2, 0};
 
     // Find the index of the largest diagonal component
-	// These ? operations hopefully compile to conditional
-	// move instructions instead of branches.
+    // These ? operations hopefully compile to conditional
+    // move instructions instead of branches.
     int i = (rot[1][1] > rot[0][0]) ? 1 : 0;
     i = (rot[2][2] > rot[i][i]) ? 2 : i;
 
-	// Find the indices of the other elements
+    // Find the indices of the other elements
     int j = plus1mod3[i];
     int k = plus1mod3[j];
 
-	// Index the elements of the vector part of the quaternion as a float*
+    // Index the elements of the vector part of the quaternion as a float*
     float* v = (float*)(this);
 
-	// If we attempted to pre-normalize and trusted the matrix to be
-	// perfectly orthonormal, the result would be:
-	//
+    // If we attempted to pre-normalize and trusted the matrix to be
+    // perfectly orthonormal, the result would be:
+    //
     //   double c = sqrt((rot[i][i] - (rot[j][j] + rot[k][k])) + 1.0)
     //   v[i] = -c * 0.5
     //   v[j] = -(rot[i][j] + rot[j][i]) * 0.5 / c
     //   v[k] = -(rot[i][k] + rot[k][i]) * 0.5 / c
     //   w    =  (rot[j][k] - rot[k][j]) * 0.5 / c
-	//
-	// Since we're going to pay the sqrt anyway, we perform a post normalization, which also
-	// fixes any poorly normalized input.  Multiply all elements by 2*c in the above, giving:
+    //
+    // Since we're going to pay the sqrt anyway, we perform a post normalization, which also
+    // fixes any poorly normalized input.  Multiply all elements by 2*c in the above, giving:
 
-	// nc2 = -c^2
+    // nc2 = -c^2
     double nc2 = ((rot[j][j] + rot[k][k]) - rot[i][i]) - 1.0;
-    v[i] =  nc2;
+    v[i] =  (float)nc2;
     w    =  (rot[j][k] - rot[k][j]);
     v[j] = -(rot[i][j] + rot[j][i]);
     v[k] = -(rot[i][k] + rot[k][i]);
 
-	// We now have the correct result with the wrong magnitude, so normalize it:
+    // We now have the correct result with the wrong magnitude, so normalize it:
     float s = sqrt(x*x + y*y + z*z + w*w);
     if (s > 0.00001f) {
-	    s = 1.0f / s;
-	    x *= s;
-	    y *= s;
-	    z *= s;
-	    w *= s;
+        s = 1.0f / s;
+        x *= s;
+        y *= s;
+        z *= s;
+        w *= s;
     } else {
         // The quaternion is nearly zero.  Make it 0 0 0 1
         x = 0.0f;
@@ -116,25 +123,25 @@ void Quat::toAxisAngleRotation(
 
     // Reduce the range of the angle.
 
-    if (angle < 0) {		
-		angle = -angle;
-		axis = -axis;
+    if (angle < 0) {        
+        angle = -angle;
+        axis = -axis;
     }
 
-	while (angle > twoPi()) {
+    while (angle > twoPi()) {
         angle -= twoPi();
     }
 
-	if (abs(angle) > pi()) {
-		angle -= twoPi();
+    if (abs(angle) > pi()) {
+        angle -= twoPi();
     }
 
     // Make the angle positive.
 
-	if (angle < 0.0f) {		
-		angle = -angle;
+    if (angle < 0.0f) {        
+        angle = -angle;
         axis = -axis;
-	}
+    }
 }
 
 
@@ -153,58 +160,71 @@ void Quat::toRotationMatrix(
     rot = Matrix3(*this);
 }
 
-    
-Quat Quat::slerp(
-    const Quat&         _quat1,
+
+Quat Quat::slerp
+   (const Quat&         _quat1,
     float               alpha,
-    float               threshold) const {
+    float               threshold,
+    float               maxAngle) const {
 
     // From: Game Physics -- David Eberly pg 538-540
     // Modified to include lerp for small angles, which
-	// is a common practice.
+    // is a common practice.
 
-	// See also:
-	// http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/index.html
+    // See also:
+    // http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/index.html
 
     const Quat& quat0 = *this;
     Quat quat1 = _quat1;
 
     // angle between quaternion rotations
-    float phi;
-    float cosphi = quat0.dot(quat1);
+    float halfPhi;
+    float cosHalfPhi = quat0.dot(quat1);
 
 
-    if (cosphi < 0) {
+    if (cosHalfPhi < 0) {
         // Change the sign and fix the dot product; we need to
         // loop the other way to get the shortest path
         quat1 = -quat1;
-        cosphi = -cosphi;
+        cosHalfPhi = -cosHalfPhi;
     }
 
     // Using G3D::aCos will clamp the angle to 0 and pi
-    phi = static_cast<float>(G3D::aCos(cosphi));
+    halfPhi = static_cast<float>(G3D::aCos(cosHalfPhi));
     
-    if (phi >= threshold) {
+    debugAssertM(halfPhi >= 0.0f, "Assumed acos returned a value >= 0");
+    if (halfPhi * 2.0f * alpha > maxAngle) {
+        // Back off alpha        
+        alpha = maxAngle * 0.5f / halfPhi;
+    }
+
+    if (halfPhi >= threshold) {
         // For large angles, slerp
         float scale0, scale1;
 
-        scale0 = sin((1.0f - alpha) * phi);
-        scale1 = sin(alpha * phi);
+        scale0 = sin((1.0f - alpha) * halfPhi);
+        scale1 = sin(alpha * halfPhi);
         
-        return ( (quat0 * scale0) + (quat1 * scale1) ) / sin(phi);
+        return ( (quat0 * scale0) + (quat1 * scale1) ) / sin(halfPhi);
     } else {
         // For small angles, linear interpolate
-		return quat0.nlerp(quat1, alpha);
+        return quat0.nlerp(quat1, alpha);
     }
 }
 
 
-Quat Quat::nlerp(
-    const Quat&         quat1,
+float Quat::angleBetween(const Quat& other) const {
+    const float d = this->dot(other);
+    return 2.0f * acos(fabsf(d));
+}
+
+
+Quat Quat::nlerp
+   (const Quat&         quat1,
     float               alpha) const {
 
     Quat result = (*this) * (1.0f - alpha) + quat1 * alpha;
-	return result / result.magnitude();
+    return result / result.magnitude();
 }
 
 

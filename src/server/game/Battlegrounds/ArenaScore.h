@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,32 +19,105 @@
 #define TRINITY_ARENA_SCORE_H
 
 #include "BattlegroundScore.h"
+#include "SharedDefines.h"
+#include "Player.h"
+#include "ObjectAccessor.h"
 
-class ArenaMap;
-
-class ArenaScore : public BattlegroundScore
+struct ArenaScore : public BattlegroundScore
 {
-    friend class ArenaMap;
+    friend class Arena;
+
     protected:
-        ArenaScore(uint32 team) : BattlegroundScore(), TeamId(team) {};
-        virtual ~ArenaScore() {};
-        void AppendToPacket(WorldPacket* data) 
+        ArenaScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), TeamId(team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE) { }
+
+        void AppendToPacket(WorldPacket& data, ByteBuffer& content) final override
         {
-            *data << KillingBlows;
-            *data << TeamId;
-            *data << DamageDone;
-            *data << HealingDone;
-            *data << uint32(0); // Padding
+            uint32 primaryTree = 0;
+            /* TODO: 6.x update to new talent system (and probably rewrite this packet)
+            if (Player* player = ObjectAccessor::FindPlayer(PlayerGuid))
+                primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());*/
+
+            data.WriteBit(0);                   // Unk 1
+            data.WriteBit(0);                   // Unk 2
+            data.WriteBit(PlayerGuid[2]);
+            data.WriteBit(/*!IsArena*/ 0);      // IsArena
+            data.WriteBit(0);                   // Unk 4
+            data.WriteBit(0);                   // Unk 5
+            data.WriteBit(0);                   // Unk 6
+            data.WriteBit(PlayerGuid[3]);
+            data.WriteBit(PlayerGuid[0]);
+            data.WriteBit(PlayerGuid[5]);
+            data.WriteBit(PlayerGuid[1]);
+            data.WriteBit(PlayerGuid[6]);
+            data.WriteBit(TeamId);
+            data.WriteBit(PlayerGuid[7]);
+
+            content << uint32(HealingDone);     // healing done
+            content << uint32(DamageDone);      // damage done
+
+            content.WriteByteSeq(PlayerGuid[4]);
+            content << uint32(KillingBlows);
+
+            //if (unk5)
+            //  content << int32(RatingChange); // RatingChange
+
+            content.WriteByteSeq(PlayerGuid[5]);
+
+            //if (unk 6)
+            //    content << uint32();
+
+            //if (unk 2)
+            //    content << uint32();
+
+            content.WriteByteSeq(PlayerGuid[1]);
+            content.WriteByteSeq(PlayerGuid[6]);
+
+            content << int32(primaryTree);
+
+            BuildObjectivesBlock(data, content);
+
+            data.WriteBit(PlayerGuid[4]);
+
+            content.WriteByteSeq(PlayerGuid[0]);
+            content.WriteByteSeq(PlayerGuid[3]);
+
+            //if (unk 4)
+            //    content << uint32() unk
+
+            content.WriteByteSeq(PlayerGuid[7]);
+            content.WriteByteSeq(PlayerGuid[2]);
         }
 
-        uint8 TeamId;   // TEAM_ALLIANCE or ''_HORDE 
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& /*content*/) final override
+        {
+            data.WriteBits(0, 24); // Objectives Count
+        }
+
+        // For Logging purpose
+        std::string ToString() const override
+        {
+            std::ostringstream stream;
+            stream << "Damage done: " << DamageDone << ", Healing done: " << HealingDone << ", Killing blows: " << KillingBlows;
+            return stream.str();
+        }
+
+        uint8 TeamId; // BattlegroundTeamId
 };
 
-class ArenaTeamScore
+struct ArenaTeamScore
 {
     friend class ArenaMap;
     protected:
-        ArenaTeamScore() : RatingChange(0), MatchmakerRating(0) {};
+        ArenaTeamScore() : RatingChange(0), MatchmakerRating(0) { }
+
+        virtual ~ArenaTeamScore() { }
+
+        void Reset()
+        {
+            RatingChange = 0;
+            MatchmakerRating = 0;
+            TeamName.clear();
+        }
 
         void Assign(int32 ratingChange, uint32 matchMakerRating, std::string const& teamName)
         {
@@ -58,4 +131,4 @@ class ArenaTeamScore
         std::string TeamName;
 };
 
-#endif
+#endif // TRINITY_ARENA_SCORE_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,156 +15,124 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
 
-#define SPELL_CARRION_SWARM 31306
-#define SPELL_SLEEP 31298
-#define SPELL_VAMPIRIC_AURA 38196
-#define SPELL_INFERNO 31299
+enum Spells
+{
+    SPELL_CARRION_SWARM     = 31306,
+    SPELL_SLEEP             = 31298,
+    SPELL_VAMPIRIC_AURA     = 38196,
+    SPELL_INFERNO           = 31299,
+    SPELL_IMMOLATION        = 31303,
+    SPELL_INFERNO_EFFECT    = 31302,
+};
 
-#define SAY_ONDEATH "The clock... is still... ticking."
-#define SOUND_ONDEATH 10982
-
-#define SAY_ONSLAY1 "Your hopes are lost!"
-#define SAY_ONSLAY2 "Scream for me!"
-#define SAY_ONSLAY3 "Pity, no time for a slow death!"
-#define SOUND_ONSLAY1 10981
-#define SOUND_ONSLAY2 11038
-#define SOUND_ONSLAY3 11039
-
-#define SAY_SWARM1 "The swarm is eager to feed!"
-#define SAY_SWARM2 "Pestilence upon you!"
-#define SOUND_SWARM1 10979
-#define SOUND_SWARM2 11037
-
-#define SAY_SLEEP1 "You look tired..."
-#define SAY_SLEEP2 "Sweet dreams..."
-#define SOUND_SLEEP1 10978
-#define SOUND_SLEEP2 11545
-
-#define SAY_INFERNO1 "Let fire rain from above!"
-#define SAY_INFERNO2 "Earth and sky shall burn!"
-#define SOUND_INFERNO1 10980
-#define SOUND_INFERNO2 11036
-
-#define SAY_ONAGGRO "You are defenders of a doomed world! Flee here, and perhaps you will prolong your pathetic lives!"
-#define SOUND_ONAGGRO 10977
+enum Texts
+{
+    SAY_ONDEATH         = 0,
+    SAY_ONSLAY          = 1,
+    SAY_SWARM           = 2,
+    SAY_SLEEP           = 3,
+    SAY_INFERNO         = 4,
+    SAY_ONAGGRO         = 5,
+};
 
 class boss_anetheron : public CreatureScript
 {
 public:
     boss_anetheron() : CreatureScript("boss_anetheron") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_anetheronAI (creature);
+        return GetInstanceAI<boss_anetheronAI>(creature);
     }
 
     struct boss_anetheronAI : public hyjal_trashAI
     {
-        boss_anetheronAI(Creature* c) : hyjal_trashAI(c)
+        boss_anetheronAI(Creature* creature) : hyjal_trashAI(creature)
         {
-            pInstance = c->GetInstanceScript();
-            pGo = false;
-            pos = 0;
-            SpellEntry *TempSpell = GET_SPELL(SPELL_SLEEP);
-            if (TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
-            {
-                TempSpell->EffectImplicitTargetA[0] = 1;
-                TempSpell->EffectImplicitTargetB[0] = 0;
-            }
+            Initialize();
+            instance = creature->GetInstanceScript();
+            go = false;
+        }
+
+        void Initialize()
+        {
+            SwarmTimer = 45000;
+            SleepTimer = 60000;
+            AuraTimer = 5000;
+            InfernoTimer = 45000;
+            damageTaken = 0;
         }
 
         uint32 SwarmTimer;
         uint32 SleepTimer;
         uint32 AuraTimer;
         uint32 InfernoTimer;
-        bool pGo;
-        uint32 pos;
+        bool go;
 
-        void Reset()
+        void Reset() override
         {
-            damageTaken = 0;
-            SwarmTimer = 45000;
-            SleepTimer = 60000;
-            AuraTimer = 5000;
-            InfernoTimer = 45000;
+            Initialize();
 
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
+            if (IsEvent)
+                instance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
-            DoPlaySoundToSet(me, SOUND_ONAGGRO);
-            me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
+            if (IsEvent)
+                instance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
+
+            Talk(SAY_ONAGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* who) override
         {
-            switch (urand(0, 2))
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_ONSLAY);
+        }
+
+        void WaypointReached(uint32 waypointId) override
+        {
+            if (waypointId == 7)
             {
-                case 0:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY1);
-                    me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
-                    break;
-                case 1:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY2);
-                    me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
-                    break;
-                case 2:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY3);
-                    me->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, 0);
-                    break;
-            }
-        }
-
-        void WaypointReached(uint32 i)
-        {
-            pos = i;
-            if (i == 7 && pInstance)
-            {
-                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
-                if (target && target->isAlive())
+                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                if (target && target->IsAlive())
                     me->AddThreat(target, 0.0f);
             }
         }
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* killer) override
         {
-            hyjal_trashAI::JustDied(victim);
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_ANETHERONEVENT, DONE);
-            DoPlaySoundToSet(me, SOUND_ONDEATH);
-            me->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, 0);
+            hyjal_trashAI::JustDied(killer);
+            if (IsEvent)
+                instance->SetData(DATA_ANETHERONEVENT, DONE);
+            Talk(SAY_ONDEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (IsEvent)
             {
                 //Must update npc_escortAI
                 npc_escortAI::UpdateAI(diff);
-                if (!pGo)
+                if (!go)
                 {
-                    pGo = true;
-                    if (pInstance)
-                    {
-                        AddWaypoint(0, 4896.08f,    -1576.35f,    1333.65f);
-                        AddWaypoint(1, 4898.68f,    -1615.02f,    1329.48f);
-                        AddWaypoint(2, 4907.12f,    -1667.08f,    1321.00f);
-                        AddWaypoint(3, 4963.18f,    -1699.35f,    1340.51f);
-                        AddWaypoint(4, 4989.16f,    -1716.67f,    1335.74f);
-                        AddWaypoint(5, 5026.27f,    -1736.89f,    1323.02f);
-                        AddWaypoint(6, 5037.77f,    -1770.56f,    1324.36f);
-                        AddWaypoint(7, 5067.23f,    -1789.95f,    1321.17f);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
-                    }
+                    go = true;
+                    AddWaypoint(0, 4896.08f,    -1576.35f,    1333.65f);
+                    AddWaypoint(1, 4898.68f,    -1615.02f,    1329.48f);
+                    AddWaypoint(2, 4907.12f,    -1667.08f,    1321.00f);
+                    AddWaypoint(3, 4963.18f,    -1699.35f,    1340.51f);
+                    AddWaypoint(4, 4989.16f,    -1716.67f,    1335.74f);
+                    AddWaypoint(5, 5026.27f,    -1736.89f,    1323.02f);
+                    AddWaypoint(6, 5037.77f,    -1770.56f,    1324.36f);
+                    AddWaypoint(7, 5067.23f,    -1789.95f,    1321.17f);
+                    Start(false, true);
+                    SetDespawnAtEnd(false);
                 }
             }
 
@@ -178,17 +146,7 @@ public:
                     DoCast(target, SPELL_CARRION_SWARM);
 
                 SwarmTimer = urand(45000, 60000);
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        DoPlaySoundToSet(me, SOUND_SWARM1);
-                        me->MonsterYell(SAY_SWARM1, LANG_UNIVERSAL, 0);
-                        break;
-                    case 1:
-                        DoPlaySoundToSet(me, SOUND_SWARM2);
-                        me->MonsterYell(SAY_SWARM2, LANG_UNIVERSAL, 0);
-                        break;
-                }
+                Talk(SAY_SWARM);
             } else SwarmTimer -= diff;
 
             if (SleepTimer <= diff)
@@ -199,17 +157,7 @@ public:
                         target->CastSpell(target, SPELL_SLEEP, true);
                 }
                 SleepTimer = 60000;
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        DoPlaySoundToSet(me, SOUND_SLEEP1);
-                        me->MonsterYell(SAY_SLEEP1, LANG_UNIVERSAL, 0);
-                        break;
-                    case 1:
-                        DoPlaySoundToSet(me, SOUND_SLEEP2);
-                        me->MonsterYell(SAY_SLEEP2, LANG_UNIVERSAL, 0);
-                        break;
-                }
+                Talk(SAY_SLEEP);
             } else SleepTimer -= diff;
             if (AuraTimer <= diff)
             {
@@ -220,17 +168,7 @@ public:
             {
                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_INFERNO);
                 InfernoTimer = 45000;
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        DoPlaySoundToSet(me, SOUND_INFERNO1);
-                        me->MonsterYell(SAY_INFERNO1, LANG_UNIVERSAL, 0);
-                        break;
-                    case 1:
-                        DoPlaySoundToSet(me, SOUND_INFERNO2);
-                        me->MonsterYell(SAY_INFERNO2, LANG_UNIVERSAL, 0);
-                        break;
-                }
+                Talk(SAY_INFERNO);
             } else InfernoTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -239,65 +177,64 @@ public:
 
 };
 
-#define SPELL_IMMOLATION     31303
-#define SPELL_INFERNO_EFFECT 31302
-
-class mob_towering_infernal : public CreatureScript
+class npc_towering_infernal : public CreatureScript
 {
 public:
-    mob_towering_infernal() : CreatureScript("mob_towering_infernal") { }
+    npc_towering_infernal() : CreatureScript("npc_towering_infernal") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_towering_infernalAI (creature);
+        return GetInstanceAI<npc_towering_infernalAI>(creature);
     }
 
-    struct mob_towering_infernalAI : public ScriptedAI
+    struct npc_towering_infernalAI : public ScriptedAI
     {
-        mob_towering_infernalAI(Creature* c) : ScriptedAI(c)
+        npc_towering_infernalAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = c->GetInstanceScript();
-            if (pInstance)
-                AnetheronGUID = pInstance->GetData64(DATA_ANETHERON);
+            ImmolationTimer = 5000;
+            CheckTimer = 5000;
+            instance = creature->GetInstanceScript();
+            AnetheronGUID = instance->GetGuidData(DATA_ANETHERON);
         }
 
         uint32 ImmolationTimer;
         uint32 CheckTimer;
-        uint64 AnetheronGUID;
-        InstanceScript* pInstance;
+        ObjectGuid AnetheronGUID;
+        InstanceScript* instance;
 
-        void Reset()
+        void Reset() override
         {
             DoCast(me, SPELL_INFERNO_EFFECT);
             ImmolationTimer = 5000;
             CheckTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/) override
         {
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
+
         {
-            if (me->IsWithinDist(who, 50) && !me->isInCombat() && me->IsHostileTo(who))
+            if (me->IsWithinDist(who, 50) && !me->IsInCombat() && me->IsValidAttackTarget(who))
                 AttackStart(who);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (CheckTimer <= diff)
             {
-                if (AnetheronGUID)
+                if (!AnetheronGUID.IsEmpty())
                 {
-                    Creature* boss = Unit::GetCreature((*me), AnetheronGUID);
+                    Creature* boss = ObjectAccessor::GetCreature(*me, AnetheronGUID);
                     if (!boss || (boss && boss->isDead()))
                     {
                         me->setDeathState(JUST_DIED);
@@ -327,5 +264,5 @@ public:
 void AddSC_boss_anetheron()
 {
     new boss_anetheron();
-    new mob_towering_infernal();
+    new npc_towering_infernal();
 }

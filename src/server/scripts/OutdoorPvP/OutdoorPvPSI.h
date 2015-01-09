@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,7 +54,6 @@ enum SI_WorldStates
 class OutdoorPvPSI : public OutdoorPvP
 {
     public:
-
         OutdoorPvPSI();
 
         bool SetupOutdoorPvP();
@@ -77,7 +76,6 @@ class OutdoorPvPSI : public OutdoorPvP
         void UpdateWorldState();
 
     private:
-
         uint32 m_Gathered_A;
         uint32 m_Gathered_H;
 

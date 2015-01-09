@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "the_eye.h"
 
 #define MAX_ENCOUNTER 5
@@ -45,47 +46,39 @@ class instance_the_eye : public InstanceMapScript
 
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
-            instance_the_eye_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
-
-            uint64 ThaladredTheDarkener;
-            uint64 LordSanguinar;
-            uint64 GrandAstromancerCapernian;
-            uint64 MasterEngineerTelonicus;
-            uint64 Kaelthas;
-            uint64 Astromancer;
-            uint64 Alar;
-            uint8 KaelthasEventPhase;
-            uint8 AlarEventPhase;
-
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-            void Initialize()
+            instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                ThaladredTheDarkener = 0;
-                LordSanguinar = 0;
-                GrandAstromancerCapernian = 0;
-                MasterEngineerTelonicus = 0;
-                Kaelthas = 0;
-                Astromancer = 0;
-                Alar = 0;
 
                 KaelthasEventPhase = 0;
                 AlarEventPhase = 0;
             }
 
-            bool IsEncounterInProgress() const
+            ObjectGuid ThaladredTheDarkener;
+            ObjectGuid LordSanguinar;
+            ObjectGuid GrandAstromancerCapernian;
+            ObjectGuid MasterEngineerTelonicus;
+            ObjectGuid Kaelthas;
+            ObjectGuid Astromancer;
+            ObjectGuid Alar;
+            uint8 KaelthasEventPhase;
+            uint8 AlarEventPhase;
+
+            uint32 m_auiEncounter[MAX_ENCOUNTER];
+
+            bool IsEncounterInProgress() const override
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS) return true;
+                    if (m_auiEncounter[i] == IN_PROGRESS)
+                        return true;
 
                 return false;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) override
             {
-                switch(creature->GetEntry())
+                switch (creature->GetEntry())
                 {
                 case 20064:
                     ThaladredTheDarkener = creature->GetGUID();
@@ -111,9 +104,9 @@ class instance_the_eye : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier) const override
             {
-                switch(identifier)
+                switch (identifier)
                 {
                 case DATA_THALADREDTHEDARKENER:         return ThaladredTheDarkener;
                 case DATA_LORDSANGUINAR:                return LordSanguinar;
@@ -123,12 +116,12 @@ class instance_the_eye : public InstanceMapScript
                 case DATA_ASTROMANCER:                  return Astromancer;
                 case DATA_ALAR:                         return Alar;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
-                switch(type)
+                switch (type)
                 {
                 case DATA_ALAREVENT:
                     AlarEventPhase = data;
@@ -149,9 +142,9 @@ class instance_the_eye : public InstanceMapScript
                     SaveToDB();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const override
             {
-                switch(type)
+                switch (type)
                 {
                 case DATA_ALAREVENT:                        return AlarEventPhase;
                 case DATA_HIGHASTROMANCERSOLARIANEVENT:     return m_auiEncounter[1];
@@ -161,22 +154,18 @@ class instance_the_eye : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
+
                 std::ostringstream stream;
-                stream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
-                char* out = new char[stream.str().length() + 1];
-                strcpy(out, stream.str().c_str());
-                if (out)
-                {
-                    OUT_SAVE_INST_DATA_COMPLETE;
-                    return out;
-                }
-                return NULL;
+                stream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return stream.str();
             }
 
-            void Load(const char* in)
+            void Load(const char* in) override
             {
                 if (!in)
                 {
@@ -194,9 +183,9 @@ class instance_the_eye : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
-            return new instance_the_eye_InstanceMapScript(pMap);
+            return new instance_the_eye_InstanceMapScript(map);
         }
 };
 void AddSC_instance_the_eye()

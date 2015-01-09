@@ -7,7 +7,7 @@
  \created 2010-02-11
  \edited  2010-02-24
 
- Copyright 2000-2010, Morgan McGuire.
+ Copyright 2000-2012, Morgan McGuire.
  All rights reserved.
  */
 
@@ -68,7 +68,7 @@ void XML::serialize(TextOutput& t) const {
         t.writeSymbol(m_value);
     } else {
         t.printf("<%s", m_name.c_str());
-        for (AttributeTable::Iterator it = m_attribute.begin(); it.hasMore(); ++it) {
+        for (AttributeTable::Iterator it = m_attribute.begin(); it.isValid(); ++it) {
             t.printf(" %s=\"%s\"", it->key.c_str(), it->value.m_value.c_str());
         }
         t.printf(">");

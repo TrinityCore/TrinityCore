@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "violet_hold.h"
 
 //Spells
@@ -30,57 +31,57 @@ class boss_moragg : public CreatureScript
 public:
     boss_moragg() : CreatureScript("boss_moragg") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_moraggAI (creature);
+        return GetInstanceAI<boss_moraggAI>(creature);
     }
 
     struct boss_moraggAI : public ScriptedAI
     {
-        boss_moraggAI(Creature* c) : ScriptedAI(c)
+        boss_moraggAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = c->GetInstanceScript();
+            Initialize();
+            instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiOpticLinkTimer = 10000;
+            uiCorrosiveSalivaTimer = 5000;
         }
 
         uint32 uiOpticLinkTimer;
         uint32 uiCorrosiveSalivaTimer;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
-        void Reset()
+        void Reset() override
         {
-            uiOpticLinkTimer = 10000;
-            uiCorrosiveSalivaTimer = 5000;
+            Initialize();
 
-            if (pInstance)
-            {
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-            }
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            if (pInstance)
-            {
-                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MORAGG_CELL)))
-                    if (pDoor->GetGoState() == GO_STATE_READY)
-                   {
-                        EnterEvadeMode();
-                        return;
-                    }
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
-            }
+            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_MORAGG_CELL)))
+                if (pDoor->GetGoState() == GO_STATE_READY)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) override
         {
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
 
             if (me->Attack(who, true))
@@ -92,9 +93,10 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void UpdateAI(const uint32 diff)
+
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -109,26 +111,23 @@ public:
 
             if (uiCorrosiveSalivaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CORROSIVE_SALIVA);
+                DoCastVictim(SPELL_CORROSIVE_SALIVA);
                 uiCorrosiveSalivaTimer = 10000;
             } else uiCorrosiveSalivaTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            if (pInstance)
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
-                {
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                    pInstance->SetData(DATA_WAVE_COUNT, 7);
-                }
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
-                {
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                    pInstance->SetData(DATA_WAVE_COUNT, 13);
-                }
+                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetData(DATA_WAVE_COUNT, 7);
+            }
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+            {
+                instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
     };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -29,16 +30,21 @@ enum Spells
     SPELL_STORMPIKE                               = 51876  // not sure
 };
 
-enum Yells
+enum Texts
 {
-    YELL_AGGRO                                    = -1810000,
-    YELL_EVADE                                    = -1810001,
-    YELL_RESPAWN                                  = -1810002,
-    YELL_RANDOM1                                  = -1810003,
-    YELL_RANDOM2                                  = -1810004,
-    YELL_RANDOM3                                  = -1810005,
-    YELL_RANDOM4                                  = -1810006,
-    YELL_RANDOM5                                  = -1810007
+    SAY_AGGRO                                    = 0,
+    SAY_EVADE                                    = 1,
+    SAY_RESPAWN                                  = 2,
+    SAY_RANDOM                                   = 3
+};
+
+enum Events
+{
+    EVENT_WHIRLWIND = 1,
+    EVENT_WHIRLWIND2,
+    EVENT_KNOCKDOWN,
+    EVENT_FRENZY,
+    EVENT_RANDOM_YELL
 };
 
 class boss_drekthar : public CreatureScript
@@ -48,87 +54,88 @@ public:
 
     struct boss_drektharAI : public ScriptedAI
     {
-        boss_drektharAI(Creature* c) : ScriptedAI(c) {}
+        boss_drektharAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 uiWhirlwindTimer;
-        uint32 uiWhirlwind2Timer;
-        uint32 uiKnockdownTimer;
-        uint32 uiFrenzyTimer;
-        uint32 uiYellTimer;
-        uint32 uiResetTimer;
-
-        void Reset()
+        void Reset() override
         {
-            uiWhirlwindTimer = urand(1*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-            uiWhirlwind2Timer = urand(1*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-            uiKnockdownTimer = 12*IN_MILLISECONDS;
-            uiFrenzyTimer = 6*IN_MILLISECONDS;
-            uiResetTimer = 5*IN_MILLISECONDS;
-            uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS); //20 to 30 seconds
+            events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            DoScriptText(YELL_AGGRO, me);
+            Talk(SAY_AGGRO);
+            events.ScheduleEvent(EVENT_WHIRLWIND, urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_WHIRLWIND2, urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_KNOCKDOWN, 12 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_FRENZY, 6 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_RANDOM_YELL, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS)); //20 to 30 seconds
         }
 
-        void JustRespawned()
+        void JustRespawned() override
         {
             Reset();
-            DoScriptText(YELL_RESPAWN, me);
+            Talk(SAY_RESPAWN);
         }
 
-        void UpdateAI(const uint32 diff)
+        bool CheckInRoom()
         {
-            if (!UpdateVictim())
+            if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
+            {
+                EnterEvadeMode();
+                Talk(SAY_EVADE);
+                return false;
+            }
+
+            return true;
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim() || !CheckInRoom())
                 return;
 
-            if (uiWhirlwindTimer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_WHIRLWIND);
-                uiWhirlwindTimer =  urand(8*IN_MILLISECONDS, 18*IN_MILLISECONDS);
-            } else uiWhirlwindTimer -= diff;
+            events.Update(diff);
 
-            if (uiWhirlwind2Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_WHIRLWIND2);
-                uiWhirlwind2Timer = urand(7*IN_MILLISECONDS, 25*IN_MILLISECONDS);
-            } else uiWhirlwind2Timer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-            if (uiKnockdownTimer <= diff)
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                DoCast(me->getVictim(), SPELL_KNOCKDOWN);
-                uiKnockdownTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-            } else uiKnockdownTimer -= diff;
-
-            if (uiFrenzyTimer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_FRENZY);
-                uiFrenzyTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            } else uiFrenzyTimer -= diff;
-
-            if (uiYellTimer <= diff)
-            {
-                DoScriptText(RAND(YELL_RANDOM1, YELL_RANDOM2, YELL_RANDOM3, YELL_RANDOM4, YELL_RANDOM5), me);
-                uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS); //20 to 30 seconds
-            } else uiYellTimer -= diff;
-
-            // check if creature is not outside of building
-            if (uiResetTimer <= diff)
-            {
-                if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
+                switch (eventId)
                 {
-                    EnterEvadeMode();
-                    DoScriptText(YELL_EVADE, me);
+                    case EVENT_WHIRLWIND:
+                        DoCastVictim(SPELL_WHIRLWIND);
+                        events.ScheduleEvent(EVENT_WHIRLWIND, urand(8 * IN_MILLISECONDS, 18 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_WHIRLWIND2:
+                        DoCastVictim(SPELL_WHIRLWIND2);
+                        events.ScheduleEvent(EVENT_WHIRLWIND2, urand(7 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_KNOCKDOWN:
+                        DoCastVictim(SPELL_KNOCKDOWN);
+                        events.ScheduleEvent(EVENT_KNOCKDOWN, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_FRENZY:
+                        DoCastVictim(SPELL_FRENZY);
+                        events.ScheduleEvent(EVENT_FRENZY, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_RANDOM_YELL:
+                        Talk(SAY_RANDOM);
+                        events.ScheduleEvent(EVENT_RANDOM_YELL, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                        break;
+                    default:
+                        break;
                 }
-                uiResetTimer = 5*IN_MILLISECONDS;
-            } else uiResetTimer -= diff;
+            }
 
             DoMeleeAttackIfReady();
         }
+
+        private:
+            EventMap events;
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_drektharAI(creature);
     }

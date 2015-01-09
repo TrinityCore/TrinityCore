@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,335 +16,284 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "Log.h"
-#include "Configuration/Config.h"
+#include "Common.h"
+#include "Config.h"
 #include "Util.h"
+#include "AppenderConsole.h"
+#include "AppenderFile.h"
+#include "AppenderDB.h"
+#include "LogOperation.h"
 
-#include "Implementation/LoginDatabase.h" // For logging
-extern LoginDatabaseWorkerPool LoginDatabase;
+#include <cstdarg>
+#include <cstdio>
+#include <sstream>
 
-#include <stdarg.h>
-#include <stdio.h>
-
-Log::Log() :
-    raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL),
-    dberLogfile(NULL), chatLogfile(NULL), arenaLogFile(NULL), sqlLogFile(NULL), sqlDevLogFile(NULL),
-    m_gmlog_per_account(false), m_enableLogDBLater(false),
-    m_enableLogDB(false), m_colored(false)
+Log::Log() : _ioService(nullptr), _strand(nullptr)
 {
-    Initialize();
+    m_logsTimestamp = "_" + GetTimestampStr();
+    LoadFromConfig();
 }
 
 Log::~Log()
 {
-    if( logfile != NULL )
-        fclose(logfile);
-    logfile = NULL;
-
-    if( gmLogfile != NULL )
-        fclose(gmLogfile);
-    gmLogfile = NULL;
-
-    if (charLogfile != NULL)
-        fclose(charLogfile);
-    charLogfile = NULL;
-
-    if( dberLogfile != NULL )
-        fclose(dberLogfile);
-    dberLogfile = NULL;
-
-    if (raLogfile != NULL)
-        fclose(raLogfile);
-    raLogfile = NULL;
-
-    if (chatLogfile != NULL)
-        fclose(chatLogfile);
-    chatLogfile = NULL;
-
-    if (arenaLogFile != NULL)
-        fclose(arenaLogFile);
-    arenaLogFile = NULL;
-
-    if (sqlLogFile != NULL)
-        fclose(sqlLogFile);
-    sqlLogFile = NULL;
-
-    if (sqlDevLogFile != NULL)
-        fclose(sqlDevLogFile);
-    sqlDevLogFile = NULL;
+    delete _strand;
+    Close();
 }
 
-void Log::SetLogLevel(char *Level)
+uint8 Log::NextAppenderId()
 {
-    int32 NewLevel =atoi((char*)Level);
-    if ( NewLevel <0 )
-        NewLevel = 0;
-    m_logLevel = NewLevel;
-
-    outString( "LogLevel is %u", m_logLevel );
+    return AppenderId++;
 }
 
-void Log::SetLogFileLevel(char *Level)
+int32 GetConfigIntDefault(std::string base, const char* name, int32 value)
 {
-    int32 NewLevel =atoi((char*)Level);
-    if ( NewLevel <0 )
-        NewLevel = 0;
-    m_logFileLevel = NewLevel;
-
-    outString( "LogFileLevel is %u", m_logFileLevel );
+    base.append(name);
+    return sConfigMgr->GetIntDefault(base.c_str(), value);
 }
 
-void Log::SetDBLogLevel(char *Level)
+std::string GetConfigStringDefault(std::string base, const char* name, const char* value)
 {
-    int32 NewLevel = atoi((char*)Level);
-    if ( NewLevel < 0 )
-        NewLevel = 0;
-    m_dbLogLevel = NewLevel;
-
-    outString( "DBLogLevel is %u", m_dbLogLevel );
+    base.append(name);
+    return sConfigMgr->GetStringDefault(base.c_str(), value);
 }
 
-void Log::Initialize()
+Appender* Log::GetAppenderByName(std::string const& name)
 {
-    /// Check whether we'll log GM commands/RA events/character outputs/chat stuffs
-    m_dbChar = sConfig->GetBoolDefault("LogDB.Char", false);
-    m_dbRA = sConfig->GetBoolDefault("LogDB.RA", false);
-    m_dbGM = sConfig->GetBoolDefault("LogDB.GM", false);
-    m_dbChat = sConfig->GetBoolDefault("LogDB.Chat", false);
+    AppenderMap::iterator it = appenders.begin();
+    while (it != appenders.end() && it->second && it->second->getName() != name)
+        ++it;
 
-    /// Realm must be 0 by default
-    SetRealmID(0);
+    return it == appenders.end() ? NULL : it->second;
+}
 
-    /// Common log files data
-    m_logsDir = sConfig->GetStringDefault("LogsDir", "");
-    if (!m_logsDir.empty())
-        if ((m_logsDir.at(m_logsDir.length() - 1) != '/') && (m_logsDir.at(m_logsDir.length() - 1) != '\\'))
-            m_logsDir.append("/");
+void Log::CreateAppenderFromConfig(std::string const& appenderName)
+{
+    if (appenderName.empty())
+        return;
 
-    m_logsTimestamp = "_" + GetTimestampStr();
+    // Format=type, level, flags, optional1, optional2
+    // if type = File. optional1 = file and option2 = mode
+    // if type = Console. optional1 = Color
+    std::string options = sConfigMgr->GetStringDefault(appenderName.c_str(), "");
 
-    /// Open specific log files
-    logfile = openLogFile("LogFile", "LogTimestamp", "w");
-    InitColors(sConfig->GetStringDefault("LogColors", ""));
+    Tokenizer tokens(options, ',');
+    Tokenizer::const_iterator iter = tokens.begin();
 
-    m_gmlog_per_account = sConfig->GetBoolDefault("GmLogPerAccount", false);
-    if(!m_gmlog_per_account)
-        gmLogfile = openLogFile("GMLogFile", "GmLogTimestamp", "a");
-    else
+    size_t size = tokens.size();
+    std::string name = appenderName.substr(9);
+
+    if (size < 2)
     {
-        // GM log settings for per account case
-        m_gmlog_filename_format = sConfig->GetStringDefault("GMLogFile", "");
-        if(!m_gmlog_filename_format.empty())
-        {
-            bool m_gmlog_timestamp = sConfig->GetBoolDefault("GmLogTimestamp", false);
-
-            size_t dot_pos = m_gmlog_filename_format.find_last_of(".");
-            if(dot_pos!=m_gmlog_filename_format.npos)
-            {
-                if(m_gmlog_timestamp)
-                    m_gmlog_filename_format.insert(dot_pos, m_logsTimestamp);
-
-                m_gmlog_filename_format.insert(dot_pos, "_#%u");
-            }
-            else
-            {
-                m_gmlog_filename_format += "_#%u";
-
-                if(m_gmlog_timestamp)
-                    m_gmlog_filename_format += m_logsTimestamp;
-            }
-
-            m_gmlog_filename_format = m_logsDir + m_gmlog_filename_format;
-        }
-    }
-
-    charLogfile = openLogFile("CharLogFile", "CharLogTimestamp", "a");
-    dberLogfile = openLogFile("DBErrorLogFile", NULL, "a");
-    raLogfile = openLogFile("RaLogFile", NULL, "a");
-    chatLogfile = openLogFile("ChatLogFile", "ChatLogTimestamp", "a");
-    arenaLogFile = openLogFile("ArenaLogFile", NULL, "a");
-    sqlLogFile = openLogFile("SQLDriverLogFile", NULL, "a");
-    sqlDevLogFile = openLogFile("SQLDeveloperLogFile", NULL, "a");
-
-    // Main log file settings
-    m_logLevel     = sConfig->GetIntDefault("LogLevel", LOGL_NORMAL);
-    m_logFileLevel = sConfig->GetIntDefault("LogFileLevel", LOGL_NORMAL);
-    m_dbLogLevel   = sConfig->GetIntDefault("DBLogLevel", LOGL_NORMAL);
-    m_sqlDriverQueryLogging  = sConfig->GetBoolDefault("SQLDriverQueryLogging", false);
-
-    m_DebugLogMask = DebugLogFilters(sConfig->GetIntDefault("DebugLogMask", LOG_FILTER_NONE));
-
-    // Char log settings
-    m_charLog_Dump = sConfig->GetBoolDefault("CharLogDump", false);
-    m_charLog_Dump_Separate = sConfig->GetBoolDefault("CharLogDump.Separate", false);
-    if (m_charLog_Dump_Separate)
-    {
-        m_dumpsDir = sConfig->GetStringDefault("CharLogDump.SeparateDir", "");
-        if (!m_dumpsDir.empty())
-            if ((m_dumpsDir.at(m_dumpsDir.length() - 1) != '/') && (m_dumpsDir.at(m_dumpsDir.length() - 1) != '\\'))
-                m_dumpsDir.append("/");
-    }
-}
-
-FILE* Log::openLogFile(char const* configFileName, char const* configTimeStampFlag, char const* mode)
-{
-    std::string logfn=sConfig->GetStringDefault(configFileName, "");
-    if(logfn.empty())
-        return NULL;
-
-    if(configTimeStampFlag && sConfig->GetBoolDefault(configTimeStampFlag, false))
-    {
-        size_t dot_pos = logfn.find_last_of(".");
-        if(dot_pos!=logfn.npos)
-            logfn.insert(dot_pos, m_logsTimestamp);
-        else
-            logfn += m_logsTimestamp;
-    }
-
-    return fopen((m_logsDir+logfn).c_str(), mode);
-}
-
-FILE* Log::openGmlogPerAccount(uint32 account)
-{
-    if(m_gmlog_filename_format.empty())
-        return NULL;
-
-    char namebuf[TRINITY_PATH_MAX];
-    snprintf(namebuf, TRINITY_PATH_MAX, m_gmlog_filename_format.c_str(), account);
-    return fopen(namebuf, "a");
-}
-
-void Log::outTimestamp(FILE* file)
-{
-    time_t t = time(NULL);
-    tm* aTm = localtime(&t);
-    //       YYYY   year
-    //       MM     month (2 digits 01-12)
-    //       DD     day (2 digits 01-31)
-    //       HH     hour (2 digits 00-23)
-    //       MM     minutes (2 digits 00-59)
-    //       SS     seconds (2 digits 00-59)
-    fprintf(file, "%-4d-%02d-%02d %02d:%02d:%02d ", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec);
-}
-
-void Log::InitColors(const std::string& str)
-{
-    if(str.empty())
-    {
-        m_colored = false;
+        fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong configuration for appender %s. Config line: %s\n", name.c_str(), options.c_str());
         return;
     }
 
-    int color[4];
+    AppenderFlags flags = APPENDER_FLAGS_NONE;
+    AppenderType type = AppenderType(atoi(*iter++));
+    LogLevel level = LogLevel(atoi(*iter++));
 
-    std::istringstream ss(str);
-
-    for (uint8 i = 0; i < LogLevels; ++i)
+    if (level > LOG_LEVEL_FATAL)
     {
-        ss >> color[i];
-
-        if(!ss)
-            return;
-
-        if(color[i] < 0 || color[i] >= Colors)
-            return;
+        fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong Log Level %d for appender %s\n", level, name.c_str());
+        return;
     }
 
-    for (uint8 i = 0; i < LogLevels; ++i)
-        m_colors[i] = ColorTypes(color[i]);
+    if (size > 2)
+        flags = AppenderFlags(atoi(*iter++));
 
-    m_colored = true;
+    switch (type)
+    {
+        case APPENDER_CONSOLE:
+        {
+            AppenderConsole* appender = new AppenderConsole(NextAppenderId(), name, level, flags);
+            appenders[appender->getId()] = appender;
+            if (size > 3)
+                appender->InitColors(*iter++);
+            //fprintf(stdout, "Log::CreateAppenderFromConfig: Created Appender %s (%u), Type CONSOLE, Mask %u\n", appender->getName().c_str(), appender->getId(), appender->getLogLevel());
+            break;
+        }
+        case APPENDER_FILE:
+        {
+            std::string filename;
+            std::string mode = "a";
+
+            if (size < 4)
+            {
+                fprintf(stderr, "Log::CreateAppenderFromConfig: Missing file name for appender %s\n", name.c_str());
+                return;
+            }
+
+            filename = *iter++;
+
+            if (size > 4)
+                mode = *iter++;
+
+            if (flags & APPENDER_FLAGS_USE_TIMESTAMP)
+            {
+                size_t dot_pos = filename.find_last_of(".");
+                if (dot_pos != filename.npos)
+                    filename.insert(dot_pos, m_logsTimestamp);
+                else
+                    filename += m_logsTimestamp;
+            }
+
+            uint64 maxFileSize = 0;
+            if (size > 5)
+                maxFileSize = atoi(*iter++);
+
+            uint8 id = NextAppenderId();
+            appenders[id] = new AppenderFile(id, name, level, filename.c_str(), m_logsDir.c_str(), mode.c_str(), flags, maxFileSize);
+            //fprintf(stdout, "Log::CreateAppenderFromConfig: Created Appender %s (%u), Type FILE, Mask %u, File %s, Mode %s\n", name.c_str(), id, level, filename.c_str(), mode.c_str());
+            break;
+        }
+        case APPENDER_DB:
+        {
+            uint8 id = NextAppenderId();
+            appenders[id] = new AppenderDB(id, name, level);
+            break;
+        }
+        default:
+            fprintf(stderr, "Log::CreateAppenderFromConfig: Unknown type %d for appender %s\n", type, name.c_str());
+            break;
+    }
 }
 
-void Log::SetColor(bool stdout_stream, ColorTypes color)
+void Log::CreateLoggerFromConfig(std::string const& appenderName)
 {
-    #if PLATFORM == PLATFORM_WINDOWS
-    static WORD WinColorFG[Colors] =
-    {
-        0,                                                  // BLACK
-        FOREGROUND_RED,                                     // RED
-        FOREGROUND_GREEN,                                   // GREEN
-        FOREGROUND_RED | FOREGROUND_GREEN,                  // BROWN
-        FOREGROUND_BLUE,                                    // BLUE
-        FOREGROUND_RED |                    FOREGROUND_BLUE, // MAGENTA
-        FOREGROUND_GREEN | FOREGROUND_BLUE,                 // CYAN
-        FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, // WHITE
-                                                            // YELLOW
-        FOREGROUND_RED | FOREGROUND_GREEN |                   FOREGROUND_INTENSITY,
-                                                            // RED_BOLD
-        FOREGROUND_RED |                                      FOREGROUND_INTENSITY,
-                                                            // GREEN_BOLD
-        FOREGROUND_GREEN |                   FOREGROUND_INTENSITY,
-        FOREGROUND_BLUE | FOREGROUND_INTENSITY,             // BLUE_BOLD
-                                                            // MAGENTA_BOLD
-        FOREGROUND_RED |                    FOREGROUND_BLUE | FOREGROUND_INTENSITY,
-                                                            // CYAN_BOLD
-        FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY,
-                                                            // WHITE_BOLD
-        FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
-    };
+    if (appenderName.empty())
+        return;
 
-    HANDLE hConsole = GetStdHandle(stdout_stream ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE );
-    SetConsoleTextAttribute(hConsole, WinColorFG[color]);
-    #else
-    enum ANSITextAttr
-    {
-        TA_NORMAL=0,
-        TA_BOLD=1,
-        TA_BLINK=5,
-        TA_REVERSE=7
-    };
+    LogLevel level = LOG_LEVEL_DISABLED;
+    uint8 type = uint8(-1);
 
-    enum ANSIFgTextAttr
-    {
-        FG_BLACK=30, FG_RED,  FG_GREEN, FG_BROWN, FG_BLUE,
-        FG_MAGENTA,  FG_CYAN, FG_WHITE, FG_YELLOW
-    };
+    std::string options = sConfigMgr->GetStringDefault(appenderName.c_str(), "");
+    std::string name = appenderName.substr(7);
 
-    enum ANSIBgTextAttr
+    if (options.empty())
     {
-        BG_BLACK=40, BG_RED,  BG_GREEN, BG_BROWN, BG_BLUE,
-        BG_MAGENTA,  BG_CYAN, BG_WHITE
-    };
+        fprintf(stderr, "Log::CreateLoggerFromConfig: Missing config option Logger.%s\n", name.c_str());
+        return;
+    }
 
-    static uint8 UnixColorFG[Colors] =
+    Tokenizer tokens(options, ',');
+    Tokenizer::const_iterator iter = tokens.begin();
+
+    if (tokens.size() != 2)
     {
-        FG_BLACK,                                           // BLACK
-        FG_RED,                                             // RED
-        FG_GREEN,                                           // GREEN
-        FG_BROWN,                                           // BROWN
-        FG_BLUE,                                            // BLUE
-        FG_MAGENTA,                                         // MAGENTA
-        FG_CYAN,                                            // CYAN
-        FG_WHITE,                                           // WHITE
-        FG_YELLOW,                                          // YELLOW
-        FG_RED,                                             // LRED
-        FG_GREEN,                                           // LGREEN
-        FG_BLUE,                                            // LBLUE
-        FG_MAGENTA,                                         // LMAGENTA
-        FG_CYAN,                                            // LCYAN
-        FG_WHITE                                            // LWHITE
-    };
+        fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong config option Logger.%s=%s\n", name.c_str(), options.c_str());
+        return;
+    }
 
-    fprintf((stdout_stream? stdout : stderr), "\x1b[%d%sm", UnixColorFG[color], (color >= YELLOW && color < Colors ? ";1" : ""));
-    #endif
+    Logger& logger = loggers[name];
+    if (!logger.getName().empty())
+    {
+        fprintf(stderr, "Error while configuring Logger %s. Already defined\n", name.c_str());
+        return;
+    }
+
+    level = LogLevel(atoi(*iter++));
+    if (level > LOG_LEVEL_FATAL)
+    {
+        fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong Log Level %u for logger %s\n", type, name.c_str());
+        return;
+    }
+
+    logger.Create(name, level);
+    //fprintf(stdout, "Log::CreateLoggerFromConfig: Created Logger %s, Level %u\n", name.c_str(), level);
+
+    std::istringstream ss(*iter);
+    std::string str;
+
+    ss >> str;
+    while (ss)
+    {
+        if (Appender* appender = GetAppenderByName(str))
+        {
+            logger.addAppender(appender->getId(), appender);
+            //fprintf(stdout, "Log::CreateLoggerFromConfig: Added Appender %s to Logger %s\n", appender->getName().c_str(), name.c_str());
+        }
+        else
+            fprintf(stderr, "Error while configuring Appender %s in Logger %s. Appender does not exist", str.c_str(), name.c_str());
+        ss >> str;
+    }
 }
 
-void Log::ResetColor(bool stdout_stream)
+void Log::ReadAppendersFromConfig()
 {
-    #if PLATFORM == PLATFORM_WINDOWS
-    HANDLE hConsole = GetStdHandle(stdout_stream ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE );
-    SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED );
-    #else
-    fprintf(( stdout_stream ? stdout : stderr ), "\x1b[0m");
-    #endif
+    std::list<std::string> keys = sConfigMgr->GetKeysByString("Appender.");
+
+    while (!keys.empty())
+    {
+        CreateAppenderFromConfig(keys.front());
+        keys.pop_front();
+    }
+}
+
+void Log::ReadLoggersFromConfig()
+{
+    std::list<std::string> keys = sConfigMgr->GetKeysByString("Logger.");
+
+    while (!keys.empty())
+    {
+        CreateLoggerFromConfig(keys.front());
+        keys.pop_front();
+    }
+
+    // Bad config configuration, creating default config
+    if (loggers.find(LOGGER_ROOT) == loggers.end())
+    {
+        fprintf(stderr, "Wrong Loggers configuration. Review your Logger config section.\n"
+                        "Creating default loggers [root (Error), server (Info)] to console\n");
+
+        Close(); // Clean any Logger or Appender created
+
+        AppenderConsole* appender = new AppenderConsole(NextAppenderId(), "Console", LOG_LEVEL_DEBUG, APPENDER_FLAGS_NONE);
+        appenders[appender->getId()] = appender;
+
+        Logger& logger = loggers[LOGGER_ROOT];
+        logger.Create(LOGGER_ROOT, LOG_LEVEL_ERROR);
+        logger.addAppender(appender->getId(), appender);
+
+        logger = loggers["server"];
+        logger.Create("server", LOG_LEVEL_ERROR);
+        logger.addAppender(appender->getId(), appender);
+    }
+}
+
+void Log::vlog(std::string const& filter, LogLevel level, char const* str, va_list argptr)
+{
+    char text[MAX_QUERY_LEN];
+    vsnprintf(text, MAX_QUERY_LEN, str, argptr);
+    write(new LogMessage(level, filter, text));
+}
+
+void Log::write(LogMessage* msg) const
+{
+    Logger const* logger = GetLoggerByType(msg->type);
+    msg->text.append("\n");
+
+    if (_ioService)
+    {
+        auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, msg));
+
+        _ioService->post(_strand->wrap([logOperation](){ logOperation->call(); }));
+
+    }
+    else
+    {
+        logger->write(*msg);
+        delete msg;
+    }
 }
 
 std::string Log::GetTimestampStr()
 {
-    time_t t = time(NULL);
-    tm* aTm = localtime(&t);
+    time_t tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+    std::tm aTm;
+    localtime_r(&tt, &aTm);
+
     //       YYYY   year
     //       MM     month (2 digits 01-12)
     //       DD     day (2 digits 01-31)
@@ -352,681 +301,105 @@ std::string Log::GetTimestampStr()
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
     char buf[20];
-    snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec);
+    snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year+1900, aTm.tm_mon+1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
     return std::string(buf);
 }
 
-void Log::outDB(LogTypes type, const char * str)
+bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLogger /* = true */)
 {
-    if (!str || type >= MAX_LOG_TYPES)
-         return;
+    LogLevel newLevel = LogLevel(atoi(newLevelc));
+    if (newLevel < 0)
+        return false;
 
-    std::string new_str(str);
-    if (new_str.empty())
-        return;
-    LoginDatabase.EscapeString(new_str);
+    if (isLogger)
+    {
+        LoggerMap::iterator it = loggers.begin();
+        while (it != loggers.end() && it->second.getName() != name)
+            ++it;
 
-    LoginDatabase.PExecute("INSERT INTO logs (time, realm, type, string) "
-        "VALUES (" UI64FMTD ", %u, %u, '%s');", uint64(time(0)), realm, type, new_str.c_str());
+        if (it == loggers.end())
+            return false;
+
+        it->second.setLogLevel(newLevel);
+    }
+    else
+    {
+        Appender* appender = GetAppenderByName(name);
+        if (!appender)
+            return false;
+
+        appender->setLogLevel(newLevel);
+    }
+
+    return true;
 }
 
-void Log::outString(const char * str, ...)
+void Log::outCharDump(char const* str, uint32 accountId, uint64 guid, char const* name)
 {
-    if (!str)
+    if (!str || !ShouldLog("entities.player.dump", LOG_LEVEL_INFO))
         return;
 
-    if (m_enableLogDB)
-    {
-        // we don't want empty strings in the DB
-        std::string s(str);
-        if (s.empty() || s == " ")
-            return;
+    std::ostringstream ss;
+    ss << "== START DUMP == (account: " << accountId << " guid: " << guid << " name: " << name
+       << ")\n" << str << "\n== END DUMP ==\n";
 
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_STRING, nnew_str);
-        va_end(ap2);
-    }
+    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, "entities.player.dump", ss.str());
+    std::ostringstream param;
+    param << guid << '_' << name;
 
-    if (m_colored)
-        SetColor(true, m_colors[LOGL_NORMAL]);
+    msg->param1 = param.str();
 
-    va_list ap;
-
-    va_start(ap, str);
-    vutf8printf(stdout, str, &ap);
-    va_end(ap);
-
-    if (m_colored)
-        ResetColor(true);
-
-    printf("\n");
-    if(logfile)
-    {
-        outTimestamp(logfile);
-        va_start(ap, str);
-        vfprintf(logfile, str, ap);
-        fprintf(logfile, "\n");
-        va_end(ap);
-
-        fflush(logfile);
-    }
-    fflush(stdout);
-}
-
-void Log::outString()
-{
-    printf("\n");
-    if (logfile)
-    {
-        outTimestamp(logfile);
-        fprintf(logfile, "\n");
-        fflush(logfile);
-    }
-    fflush(stdout);
-}
-
-void Log::outCrash(const char * err, ...)
-{
-    if (!err)
-        return;
-
-    if (m_enableLogDB)
-    {
-        va_list ap2;
-        va_start(ap2, err);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, err, ap2);
-        outDB(LOG_TYPE_CRASH, nnew_str);
-        va_end(ap2);
-    }
-
-    if (m_colored)
-        SetColor(false, LRED);
-
-    va_list ap;
-
-    va_start(ap, err);
-    vutf8printf(stderr, err, &ap);
-    va_end(ap);
-
-    if (m_colored)
-        ResetColor(false);
-
-    fprintf(stderr, "\n");
-    if (logfile)
-    {
-        outTimestamp(logfile);
-        fprintf(logfile, "CRASH ALERT: ");
-
-        va_start(ap, err);
-        vfprintf(logfile, err, ap);
-        va_end(ap);
-
-        fprintf(logfile, "\n");
-        fflush(logfile);
-    }
-    fflush(stderr);
-}
-
-void Log::outError(const char * err, ...)
-{
-    if (!err)
-        return;
-
-    if (m_enableLogDB)
-    {
-        va_list ap2;
-        va_start(ap2, err);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, err, ap2);
-        outDB(LOG_TYPE_ERROR, nnew_str);
-        va_end(ap2);
-    }
-
-    if (m_colored)
-        SetColor(false, LRED);
-
-    va_list ap;
-
-    va_start(ap, err);
-    vutf8printf(stderr, err, &ap);
-    va_end(ap);
-
-    if (m_colored)
-        ResetColor(false);
-
-    fprintf( stderr, "\n");
-    if (logfile)
-    {
-        outTimestamp(logfile);
-        fprintf(logfile, "ERROR: ");
-
-        va_start(ap, err);
-        vfprintf(logfile, err, ap);
-        va_end(ap);
-
-        fprintf(logfile, "\n");
-        fflush(logfile);
-    }
-    fflush(stderr);
-}
-
-void Log::outArena(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    if (arenaLogFile)
-    {
-        va_list ap;
-        outTimestamp(arenaLogFile);
-        va_start(ap, str);
-        vfprintf(arenaLogFile, str, ap);
-        fprintf(arenaLogFile, "\n");
-        va_end(ap);
-        fflush(arenaLogFile);
-    }
-}
-
-void Log::outSQLDriver(const char* str, ...)
-{
-    if (!str)
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-    vutf8printf(stdout, str, &ap);
-    va_end(ap);
-
-    printf("\n");
-
-    if (sqlLogFile)
-    {
-        outTimestamp(sqlLogFile);
-
-        va_list ap;
-        va_start(ap, str);
-        vfprintf(sqlLogFile, str, ap);
-        va_end(ap);
-
-        fprintf(sqlLogFile, "\n");
-        fflush(sqlLogFile);
-    }
-
-    fflush(stdout);
-}
-
-void Log::outErrorDb(const char * err, ...)
-{
-    if (!err)
-        return;
-
-    if (m_colored)
-        SetColor(false, LRED);
-
-    va_list ap;
-
-    va_start(ap, err);
-    vutf8printf(stderr, err, &ap);
-    va_end(ap);
-
-    if (m_colored)
-        ResetColor(false);
-
-    fprintf( stderr, "\n" );
-
-    if (logfile)
-    {
-        outTimestamp(logfile);
-        fprintf(logfile, "ERROR: " );
-
-        va_start(ap, err);
-        vfprintf(logfile, err, ap);
-        va_end(ap);
-
-        fprintf(logfile, "\n" );
-        fflush(logfile);
-    }
-
-    if (dberLogfile)
-    {
-        outTimestamp(dberLogfile);
-        va_start(ap, err);
-        vfprintf(dberLogfile, err, ap);
-        va_end(ap);
-
-        fprintf(dberLogfile, "\n" );
-        fflush(dberLogfile);
-    }
-    fflush(stderr);
-}
-
-void Log::outBasic(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    if (m_enableLogDB && m_dbLogLevel > LOGL_NORMAL)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_BASIC, nnew_str);
-        va_end(ap2);
-    }
-
-    if (m_logLevel > LOGL_NORMAL)
-    {
-        if (m_colored)
-            SetColor(true, m_colors[LOGL_BASIC]);
-
-        va_list ap;
-        va_start(ap, str);
-        vutf8printf(stdout, str, &ap);
-        va_end(ap);
-
-        if (m_colored)
-            ResetColor(true);
-
-        printf("\n");
-
-        if (logfile)
-        {
-            outTimestamp(logfile);
-            va_list ap;
-            va_start(ap, str);
-            vfprintf(logfile, str, ap);
-            fprintf(logfile, "\n" );
-            va_end(ap);
-            fflush(logfile);
-        }
-    }
-    fflush(stdout);
-}
-
-void Log::outDetail(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    if (m_enableLogDB && m_dbLogLevel > LOGL_BASIC)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_DETAIL, nnew_str);
-        va_end(ap2);
-    }
-
-    if (m_logLevel > LOGL_BASIC)
-    {
-        if (m_colored)
-            SetColor(true, m_colors[LOGL_DETAIL]);
-
-        va_list ap;
-        va_start(ap, str);
-        vutf8printf(stdout, str, &ap);
-        va_end(ap);
-
-        if (m_colored)
-            ResetColor(true);
-
-        printf("\n");
-
-        if (logfile)
-        {
-            outTimestamp(logfile);
-            va_list ap;
-            va_start(ap, str);
-            vfprintf(logfile, str, ap);
-            va_end(ap);
-
-            fprintf(logfile, "\n");
-            fflush(logfile);
-        }
-    }
-
-    fflush(stdout);
-}
-
-void Log::outDebugInLine(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    if (m_logLevel > LOGL_DETAIL)
-    {
-        va_list ap;
-        va_start(ap, str);
-        vutf8printf(stdout, str, &ap);
-        va_end(ap);
-
-        //if(m_colored)
-        //    ResetColor(true);
-
-        if (logfile)
-        {
-            va_list ap;
-            va_start(ap, str);
-            vfprintf(logfile, str, ap);
-            va_end(ap);
-        }
-    }
-}
-
-void Log::outSQLDev(const char* str, ...)
-{
-    if (!str)
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-    vutf8printf(stdout, str, &ap);
-    va_end(ap);
-
-    printf("\n");
-
-    if (sqlDevLogFile)
-    {
-        va_list ap;
-        va_start(ap, str);
-        vfprintf(sqlDevLogFile, str, ap);
-        va_end(ap);
-
-        fprintf(sqlDevLogFile, "\n");
-        fflush(sqlDevLogFile);
-    }
-
-    fflush(stdout);
-}
-
-void Log::outDebug(DebugLogFilters f, const char * str, ...)
-{
-    if (!(m_DebugLogMask & f))
-        return;
-
-    if (!str)
-        return;
-
-    if (m_enableLogDB && m_dbLogLevel > LOGL_DETAIL)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_DEBUG, nnew_str);
-        va_end(ap2);
-    }
-
-    if( m_logLevel > LOGL_DETAIL )
-    {
-        if (m_colored)
-            SetColor(true, m_colors[LOGL_DEBUG]);
-
-        va_list ap;
-        va_start(ap, str);
-        vutf8printf(stdout, str, &ap);
-        va_end(ap);
-
-        if(m_colored)
-            ResetColor(true);
-
-        printf( "\n" );
-
-        if (logfile)
-        {
-            outTimestamp(logfile);
-            va_list ap;
-            va_start(ap, str);
-            vfprintf(logfile, str, ap);
-            va_end(ap);
-
-            fprintf(logfile, "\n" );
-            fflush(logfile);
-        }
-    }
-    fflush(stdout);
-}
-
-void Log::outStaticDebug(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    if (m_enableLogDB && m_dbLogLevel > LOGL_DETAIL)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_DEBUG, nnew_str);
-        va_end(ap2);
-    }
-
-    if( m_logLevel > LOGL_DETAIL )
-    {
-        if (m_colored)
-            SetColor(true, m_colors[LOGL_DEBUG]);
-
-        va_list ap;
-        va_start(ap, str);
-        vutf8printf(stdout, str, &ap);
-        va_end(ap);
-
-        if(m_colored)
-            ResetColor(true);
-
-        printf( "\n" );
-
-        if (logfile)
-        {
-            outTimestamp(logfile);
-            va_list ap;
-            va_start(ap, str);
-            vfprintf(logfile, str, ap);
-            va_end(ap);
-
-            fprintf(logfile, "\n" );
-            fflush(logfile);
-        }
-    }
-    fflush(stdout);
-}
-
-void Log::outStringInLine(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    va_list ap;
-
-    va_start(ap, str);
-    vutf8printf(stdout, str, &ap);
-    va_end(ap);
-
-    if (logfile)
-    {
-        va_start(ap, str);
-        vfprintf(logfile, str, ap);
-        va_end(ap);
-    }
+    write(msg);
 }
 
 void Log::outCommand(uint32 account, const char * str, ...)
 {
-    if (!str)
+    if (!str || !ShouldLog("commands.gm", LOG_LEVEL_INFO))
         return;
 
-    // TODO: support accountid
-    if (m_enableLogDB && m_dbGM)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_GM, nnew_str);
-        va_end(ap2);
-    }
+    va_list ap;
+    va_start(ap, str);
+    char text[MAX_QUERY_LEN];
+    vsnprintf(text, MAX_QUERY_LEN, str, ap);
+    va_end(ap);
 
-    if (m_logLevel > LOGL_NORMAL)
-    {
-        if (m_colored)
-            SetColor(true, m_colors[LOGL_BASIC]);
+    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, "commands.gm", text);
 
-        va_list ap;
-        va_start(ap, str);
-        vutf8printf(stdout, str, &ap);
-        va_end(ap);
+    std::ostringstream ss;
+    ss << account;
+    msg->param1 = ss.str();
 
-        if (m_colored)
-            ResetColor(true);
-
-        printf("\n");
-
-        if (logfile)
-        {
-            outTimestamp(logfile);
-            va_list ap;
-            va_start(ap, str);
-            vfprintf(logfile, str, ap);
-            fprintf(logfile, "\n" );
-            va_end(ap);
-            fflush(logfile);
-        }
-    }
-
-    if (m_gmlog_per_account)
-    {
-        if (FILE* per_file = openGmlogPerAccount (account))
-        {
-            outTimestamp(per_file);
-            va_list ap;
-            va_start(ap, str);
-            vfprintf(per_file, str, ap);
-            fprintf(per_file, "\n" );
-            va_end(ap);
-            fclose(per_file);
-        }
-    }
-    else if (gmLogfile)
-    {
-        outTimestamp(gmLogfile);
-        va_list ap;
-        va_start(ap, str);
-        vfprintf(gmLogfile, str, ap);
-        fprintf(gmLogfile, "\n" );
-        va_end(ap);
-        fflush(gmLogfile);
-    }
-
-    fflush(stdout);
+    write(msg);
 }
 
-void Log::outChar(const char * str, ...)
+void Log::SetRealmId(uint32 id)
 {
-    if (!str)
-        return;
-
-    if (m_enableLogDB && m_dbChar)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_CHAR, nnew_str);
-        va_end(ap2);
-    }
-
-    if (charLogfile)
-    {
-        outTimestamp(charLogfile);
-        va_list ap;
-        va_start(ap, str);
-        vfprintf(charLogfile, str, ap);
-        fprintf(charLogfile, "\n" );
-        va_end(ap);
-        fflush(charLogfile);
-    }
+    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
+        if (it->second && it->second->getType() == APPENDER_DB)
+            ((AppenderDB *)it->second)->setRealmId(id);
 }
 
-void Log::outCharDump(const char * str, uint32 account_id, uint32 guid, const char * name)
+void Log::Close()
 {
-    FILE *file = NULL;
-    if (m_charLog_Dump_Separate)
+    loggers.clear();
+    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
     {
-        char fileName[29]; // Max length: name(12) + guid(11) + _.log (5) + \0
-        snprintf(fileName, 29, "%d_%s.log", guid, name);
-        std::string sFileName(m_dumpsDir);
-        sFileName.append(fileName);
-        file = fopen((m_logsDir + sFileName).c_str(), "w");
+        delete it->second;
+        it->second = NULL;
     }
-    else
-        file = charLogfile;
-    if (file)
-    {
-        fprintf(file, "== START DUMP == (account: %u guid: %u name: %s )\n%s\n== END DUMP ==\n",
-            account_id, guid, name, str);
-        fflush(file);
-        if (m_charLog_Dump_Separate)
-            fclose(file);
-    }
+    appenders.clear();
 }
 
-void Log::outRemote(const char * str, ...)
+void Log::LoadFromConfig()
 {
-    if (!str)
-        return;
+    Close();
 
-    if (m_enableLogDB && m_dbRA)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_RA, nnew_str);
-        va_end(ap2);
-    }
+    AppenderId = 0;
+    m_logsDir = sConfigMgr->GetStringDefault("LogsDir", "");
+    if (!m_logsDir.empty())
+        if ((m_logsDir.at(m_logsDir.length() - 1) != '/') && (m_logsDir.at(m_logsDir.length() - 1) != '\\'))
+            m_logsDir.push_back('/');
 
-    if (raLogfile)
-    {
-        outTimestamp(raLogfile);
-        va_list ap;
-        va_start(ap, str);
-        vfprintf(raLogfile, str, ap);
-        fprintf(raLogfile, "\n" );
-        va_end(ap);
-        fflush(raLogfile);
-    }
-}
-
-void Log::outChat(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    if (m_enableLogDB && m_dbChat)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_CHAT, nnew_str);
-        va_end(ap2);
-    }
-
-    if (chatLogfile)
-    {
-        outTimestamp(chatLogfile);
-        va_list ap;
-        va_start(ap, str);
-        vfprintf(chatLogfile, str, ap);
-        fprintf(chatLogfile, "\n" );
-        fflush(chatLogfile);
-        va_end(ap);
-    }
+    ReadAppendersFromConfig();
+    ReadLoggersFromConfig();
 }

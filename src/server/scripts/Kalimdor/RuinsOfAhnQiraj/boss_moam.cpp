@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
 
 enum Texts
 {
-    EMOTE_AGGRO             = -1509000,
-    EMOTE_MANA_FULL         = -1509001
+    EMOTE_AGGRO             = 0,
+    EMOTE_MANA_FULL         = 1
 };
 
 enum Spells
@@ -57,20 +58,26 @@ class boss_moam : public CreatureScript
 
         struct boss_moamAI : public BossAI
         {
-            boss_moamAI(Creature* creature) : BossAI(creature, BOSS_MOAM)
+            boss_moamAI(Creature* creature) : BossAI(creature, DATA_MOAM)
             {
+                Initialize();
             }
 
-            void Reset()
+            void Initialize()
+            {
+                _isStonePhase = false;
+            }
+
+            void Reset() override
             {
                 _Reset();
                 me->SetPower(POWER_MANA, 0);
-                _isStonePhase = false;
+                Initialize();
                 events.ScheduleEvent(EVENT_STONE_PHASE, 90000);
                 //events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 if (!_isStonePhase && HealthBelowPct(45))
                 {
@@ -79,7 +86,7 @@ class boss_moam : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -104,7 +111,7 @@ class boss_moam : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -127,7 +134,7 @@ class boss_moam : public CreatureScript
                 }
 
                 // Messing up mana-drain channel
-                //if (me->HasUnitState(UNIT_STAT_CASTING))
+                //if (me->HasUnitState(UNIT_STATE_CASTING))
                 //    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -147,12 +154,12 @@ class boss_moam : public CreatureScript
                                         targetList.push_back((*itr)->getTarget());
                             }
 
-                            Trinity::RandomResizeList(targetList, 5);
+                            Trinity::Containers::RandomResizeList(targetList, 5);
 
                             for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                                 DoCast(*itr, SPELL_DRAIN_MANA);
 
-                            events.ScheduleEvent(EVENT_DRAIN_MANA, urand(5000,15000));
+                            events.ScheduleEvent(EVENT_DRAIN_MANA, urand(5000, 15000));
                             break;
                         }/*
                         case EVENT_WIDE_SLASH:
@@ -174,7 +181,7 @@ class boss_moam : public CreatureScript
             bool _isStonePhase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_moamAI(creature);
         }

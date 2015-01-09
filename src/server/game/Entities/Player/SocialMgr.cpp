@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,22 +19,14 @@
 #include "SocialMgr.h"
 
 #include "DatabaseEnv.h"
-#include "Opcodes.h"
+#include "WorldSession.h"
 #include "WorldPacket.h"
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "World.h"
 #include "Util.h"
-
-PlayerSocial::PlayerSocial()
-{
-    m_playerGUID = 0;
-}
-
-PlayerSocial::~PlayerSocial()
-{
-    m_playerSocialMap.clear();
-}
+#include "AccountMgr.h"
+#include "WorldSession.h"
 
 uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
 {
@@ -46,7 +38,7 @@ uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
     return counter;
 }
 
-bool PlayerSocial::AddToSocialList(uint32 friend_guid, bool ignore)
+bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, bool ignore)
 {
     // check client limits
     if (ignore)
@@ -60,76 +52,110 @@ bool PlayerSocial::AddToSocialList(uint32 friend_guid, bool ignore)
             return false;
     }
 
-    uint32 flag = SOCIAL_FLAG_FRIEND;
+    uint8 flag = SOCIAL_FLAG_FRIEND;
     if (ignore)
         flag = SOCIAL_FLAG_IGNORED;
 
-    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friend_guid);
+    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friendGuid);
     if (itr != m_playerSocialMap.end())
     {
-        CharacterDatabase.PExecute("UPDATE character_social SET flags = (flags | %u) WHERE guid = '%u' AND friend = '%u'", flag, GetPlayerGUID(), friend_guid);
-        m_playerSocialMap[friend_guid].Flags |= flag;
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_CHARACTER_SOCIAL_FLAGS);
+
+        stmt->setUInt8(0, flag);
+        stmt->setUInt64(1, GetPlayerGUID().GetCounter());
+        stmt->setUInt64(2, friendGuid.GetCounter());
+
+        CharacterDatabase.Execute(stmt);
+
+        m_playerSocialMap[friendGuid].Flags |= flag;
     }
     else
     {
-        CharacterDatabase.PExecute("INSERT INTO character_social (guid, friend, flags) VALUES ('%u', '%u', '%u')", GetPlayerGUID(), friend_guid, flag);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SOCIAL);
+
+        stmt->setUInt64(0, GetPlayerGUID().GetCounter());
+        stmt->setUInt64(1, friendGuid.GetCounter());
+        stmt->setUInt8(2, flag);
+
+        CharacterDatabase.Execute(stmt);
+
         FriendInfo fi;
         fi.Flags |= flag;
-        m_playerSocialMap[friend_guid] = fi;
+        m_playerSocialMap[friendGuid] = fi;
     }
     return true;
 }
 
-void PlayerSocial::RemoveFromSocialList(uint32 friend_guid, bool ignore)
+void PlayerSocial::RemoveFromSocialList(ObjectGuid const& friendGuid, bool ignore)
 {
-    PlayerSocialMap::iterator itr = m_playerSocialMap.find(friend_guid);
+    PlayerSocialMap::iterator itr = m_playerSocialMap.find(friendGuid);
     if (itr == m_playerSocialMap.end())                     // not exist
         return;
 
-    uint32 flag = SOCIAL_FLAG_FRIEND;
+    uint8 flag = SOCIAL_FLAG_FRIEND;
     if (ignore)
         flag = SOCIAL_FLAG_IGNORED;
 
     itr->second.Flags &= ~flag;
     if (itr->second.Flags == 0)
     {
-        CharacterDatabase.PExecute("DELETE FROM character_social WHERE guid = '%u' AND friend = '%u'", GetPlayerGUID(), friend_guid);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SOCIAL);
+
+        stmt->setUInt64(0, GetPlayerGUID().GetCounter());
+        stmt->setUInt64(1, friendGuid.GetCounter());
+
+        CharacterDatabase.Execute(stmt);
+
         m_playerSocialMap.erase(itr);
     }
     else
-        CharacterDatabase.PExecute("UPDATE character_social SET flags = (flags & ~%u) WHERE guid = '%u' AND friend = '%u'", flag, GetPlayerGUID(), friend_guid);
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_REM_CHARACTER_SOCIAL_FLAGS);
+
+        stmt->setUInt8(0, flag);
+        stmt->setUInt64(1, GetPlayerGUID().GetCounter());
+        stmt->setUInt64(2, friendGuid.GetCounter());
+
+        CharacterDatabase.Execute(stmt);
+    }
 }
 
-void PlayerSocial::SetFriendNote(uint32 friend_guid, std::string note)
+void PlayerSocial::SetFriendNote(ObjectGuid const& friendGuid, std::string note)
 {
-    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friend_guid);
+    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friendGuid);
     if (itr == m_playerSocialMap.end())                     // not exist
         return;
 
     utf8truncate(note, 48);                                  // DB and client size limitation
 
-    CharacterDatabase.EscapeString(note);
-    CharacterDatabase.PExecute("UPDATE character_social SET note = '%s' WHERE guid = '%u' AND friend = '%u'", note.c_str(), GetPlayerGUID(), friend_guid);
-    m_playerSocialMap[friend_guid].Note = note;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_SOCIAL_NOTE);
+
+    stmt->setString(0, note);
+    stmt->setUInt64(1, GetPlayerGUID().GetCounter());
+    stmt->setUInt64(2, friendGuid.GetCounter());
+
+    CharacterDatabase.Execute(stmt);
+
+    m_playerSocialMap[friendGuid].Note = note;
 }
 
-void PlayerSocial::SendSocialList(Player* plr)
+void PlayerSocial::SendSocialList(Player* player)
 {
-    if (!plr)
+    if (!player)
         return;
 
     uint32 size = m_playerSocialMap.size();
 
     WorldPacket data(SMSG_CONTACT_LIST, (4+4+size*25));     // just can guess size
-    data << uint32(7);                                      // unk flag (0x1, 0x2, 0x4), 0x7 if it include ignore list
+    data << uint32(7);                                      // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
     data << uint32(size);                                   // friends count
 
     for (PlayerSocialMap::iterator itr = m_playerSocialMap.begin(); itr != m_playerSocialMap.end(); ++itr)
     {
-        sSocialMgr->GetFriendInfo(plr, itr->first, itr->second);
+        sSocialMgr->GetFriendInfo(player, itr->first, itr->second);
 
-        data << uint64(itr->first);                         // player guid
-        data << uint32(itr->second.Flags);                  // player flag (0x1-friend?, 0x2-ignored?, 0x4-muted?)
+        data << itr->first;                                 // player guid
+        data << uint32(itr->second.Flags);                  // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
         data << itr->second.Note;                           // string note
         if (itr->second.Flags & SOCIAL_FLAG_FRIEND)         // if IsFriend()
         {
@@ -143,35 +169,31 @@ void PlayerSocial::SendSocialList(Player* plr)
         }
     }
 
-    plr->GetSession()->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_CONTACT_LIST");
+    player->GetSession()->SendPacket(&data);
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CONTACT_LIST");
 }
 
-bool PlayerSocial::HasFriend(uint32 friend_guid)
+bool PlayerSocial::HasFriend(ObjectGuid const& friendGuid)
 {
-    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friend_guid);
+    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friendGuid);
     if (itr != m_playerSocialMap.end())
         return itr->second.Flags & SOCIAL_FLAG_FRIEND;
     return false;
 }
 
-bool PlayerSocial::HasIgnore(uint32 ignore_guid)
+bool PlayerSocial::HasIgnore(ObjectGuid const& ignore_guid)
 {
     PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(ignore_guid);
     if (itr != m_playerSocialMap.end())
-        return itr->second.Flags & SOCIAL_FLAG_IGNORED;
+        return (itr->second.Flags & SOCIAL_FLAG_IGNORED) != 0;
     return false;
 }
 
-SocialMgr::SocialMgr()
-{
-}
+SocialMgr::SocialMgr() { }
 
-SocialMgr::~SocialMgr()
-{
-}
+SocialMgr::~SocialMgr() { }
 
-void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &friendInfo)
+void SocialMgr::GetFriendInfo(Player* player, ObjectGuid const& friendGUID, FriendInfo &friendInfo)
 {
     if (!player)
         return;
@@ -181,14 +203,9 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
     friendInfo.Level = 0;
     friendInfo.Class = 0;
 
-    Player *pFriend = ObjectAccessor::FindPlayer(friendGUID);
-    if (!pFriend)
+    Player* target = ObjectAccessor::FindPlayer(friendGUID);
+    if (!target)
         return;
-
-    uint32 team = player->GetTeam();
-    AccountTypes security = player->GetSession()->GetSecurity();
-    bool allowTwoSideWhoList = sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
-    AccountTypes gmLevelInWhoList = AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST));
 
     PlayerSocialMap::iterator itr = player->GetSocial()->m_playerSocialMap.find(friendGUID);
     if (itr != player->GetSocial()->m_playerSocialMap.end())
@@ -196,36 +213,44 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
 
     // PLAYER see his team only and PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
     // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
-    if (pFriend && pFriend->GetName() &&
-        (security > SEC_PLAYER ||
-        ((pFriend->GetTeam() == team || allowTwoSideWhoList) && (pFriend->GetSession()->GetSecurity() <= gmLevelInWhoList))) &&
-        pFriend->IsVisibleGloballyFor(player))
+
+    if (!player->GetSession()->HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) &&
+        target->GetSession()->GetSecurity() > AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST)))
+        return;
+
+    // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
+    if (target->GetTeam() != player->GetTeam() && !player->GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_WHO_LIST))
+        return;
+
+    if (target->IsVisibleGloballyFor(player))
     {
-        friendInfo.Status = FRIEND_STATUS_ONLINE;
-        if (pFriend->isAFK())
-            friendInfo.Status = FRIEND_STATUS_AFK;
-        if (pFriend->isDND())
+        if (target->isDND())
             friendInfo.Status = FRIEND_STATUS_DND;
-        friendInfo.Area = pFriend->GetZoneId();
-        friendInfo.Level = pFriend->getLevel();
-        friendInfo.Class = pFriend->getClass();
+        else if (target->isAFK())
+            friendInfo.Status = FRIEND_STATUS_AFK;
+        else
+            friendInfo.Status = FRIEND_STATUS_ONLINE;
+
+        friendInfo.Area = target->GetZoneId();
+        friendInfo.Level = target->getLevel();
+        friendInfo.Class = target->getClass();
     }
 }
 
-void SocialMgr::MakeFriendStatusPacket(FriendsResult result, uint32 guid, WorldPacket *data)
+void SocialMgr::MakeFriendStatusPacket(FriendsResult result, ObjectGuid const& guid, WorldPacket* data)
 {
-    data->Initialize(SMSG_FRIEND_STATUS, 5);
+    data->Initialize(SMSG_FRIEND_STATUS, 9);
     *data << uint8(result);
-    *data << uint64(guid);
+    *data << guid;
 }
 
-void SocialMgr::SendFriendStatus(Player* player, FriendsResult result, uint32 friend_guid, bool broadcast)
+void SocialMgr::SendFriendStatus(Player* player, FriendsResult result, ObjectGuid const& friendGuid, bool broadcast)
 {
     FriendInfo fi;
 
     WorldPacket data;
-    MakeFriendStatusPacket(result, friend_guid, &data);
-    GetFriendInfo(player, friend_guid, fi);
+    MakeFriendStatusPacket(result, friendGuid, &data);
+    GetFriendInfo(player, friendGuid, fi);
     switch (result)
     {
         case FRIEND_ADDED_OFFLINE:
@@ -260,33 +285,30 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
     if (!player)
         return;
 
-    uint32 team = player->GetTeam();
-    AccountTypes security = player->GetSession()->GetSecurity();
-    uint32 guid = player->GetGUIDLow();
-    AccountTypes gmLevelInWhoList = AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST));
-    bool allowTwoSideWhoList = sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
-
+    AccountTypes gmSecLevel = AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST));
     for (SocialMap::const_iterator itr = m_socialMap.begin(); itr != m_socialMap.end(); ++itr)
     {
-        PlayerSocialMap::const_iterator itr2 = itr->second.m_playerSocialMap.find(guid);
+        PlayerSocialMap::const_iterator itr2 = itr->second.m_playerSocialMap.find(player->GetGUID());
         if (itr2 != itr->second.m_playerSocialMap.end() && (itr2->second.Flags & SOCIAL_FLAG_FRIEND))
         {
-            Player *pFriend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
+            Player* target = ObjectAccessor::FindPlayer(itr->first);
+            if (!target)
+                continue;
 
-            // PLAYER see his team only and PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
-            // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
-            if (pFriend && pFriend->IsInWorld() &&
-                (pFriend->GetSession()->GetSecurity() > SEC_PLAYER ||
-                ((pFriend->GetTeam() == team || allowTwoSideWhoList) && security <= gmLevelInWhoList)) &&
-                player->IsVisibleGloballyFor(pFriend))
-            {
-                pFriend->GetSession()->SendPacket(packet);
-            }
+            WorldSession* session = target->GetSession();
+            if (!session->HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) && player->GetSession()->GetSecurity() > gmSecLevel)
+                continue;
+
+            if (target->GetTeam() != player->GetTeam() && !session->HasPermission(rbac::RBAC_PERM_TWO_SIDE_WHO_LIST))
+                continue;
+
+            if (player->IsVisibleGloballyFor(target))
+                session->SendPacket(packet);
         }
     }
 }
 
-PlayerSocial *SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
+PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, ObjectGuid const& guid)
 {
     PlayerSocial *social = &m_socialMap[guid];
     social->SetPlayerGUID(guid);
@@ -294,19 +316,19 @@ PlayerSocial *SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
     if (!result)
         return social;
 
-    uint32 friend_guid = 0;
-    uint32 flags = 0;
+    ObjectGuid friendGuid;
+    uint8 flags = 0;
     std::string note = "";
 
     do
     {
         Field* fields = result->Fetch();
 
-        friend_guid = fields[0].GetUInt32();
-        flags = fields[1].GetUInt32();
+        friendGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
+        flags = fields[1].GetUInt8();
         note = fields[2].GetString();
 
-        social->m_playerSocialMap[friend_guid] = FriendInfo(flags, note);
+        social->m_playerSocialMap[friendGuid] = FriendInfo(flags, note);
 
         // client's friends list and ignore list limit
         if (social->m_playerSocialMap.size() >= (SOCIALMGR_FRIEND_LIMIT + SOCIALMGR_IGNORE_LIMIT))
@@ -316,4 +338,3 @@ PlayerSocial *SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
 
     return social;
 }
-

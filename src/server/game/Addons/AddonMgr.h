@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,36 +19,28 @@
 #ifndef _ADDONMGR_H
 #define _ADDONMGR_H
 
-#include "Common.h"
-#include <ace/Singleton.h>
-
+#include "Define.h"
 #include <string>
-
-class WorldSession;
+#include <list>
+#include <openssl/md5.h>
 
 struct AddonInfo
 {
     AddonInfo(const std::string& name, uint8 enabled, uint32 crc, uint8 state, bool crcOrPubKey)
-    {
-        Name = name;
-        Enabled = enabled;
-        CRC = crc;
-        State = state;
-        UsePublicKeyOrCRC = crcOrPubKey;
-    }
+        : Name(name), Enabled(enabled), CRC(crc), Status(state), UsePublicKeyOrCRC(crcOrPubKey)
+        { }
 
     std::string Name;
     uint8 Enabled;
     uint32 CRC;
-    uint8 State;
+    uint8 Status;
     bool UsePublicKeyOrCRC;
 };
 
 struct SavedAddon
 {
-    SavedAddon(const std::string& name, uint32 crc)
+    SavedAddon(std::string const& name, uint32 crc) : Name(name)
     {
-        Name = name;
         CRC = crc;
     }
 
@@ -56,33 +48,24 @@ struct SavedAddon
     uint32 CRC;
 };
 
-// List of client addons (for WorldSession).
-typedef std::list<AddonInfo> AddonsList;
-
-// List of saved addons (in DB).
-typedef std::list<SavedAddon> SavedAddonsList;
-
-#define STANDARD_ADDON_CRC 0x4c1c776d
-
-class AddonMgr
+struct BannedAddon
 {
-    friend class ACE_Singleton<AddonMgr, ACE_Null_Mutex>;
-    AddonMgr();
-    ~AddonMgr();
-
-    public:
-
-        void LoadFromDB();
-        void SaveAddon(AddonInfo const& addon);
-
-        SavedAddon const* GetAddonInfo(const std::string& name) const;
-
-    private:
-
-        SavedAddonsList m_knownAddons;                           // Known addons.
+    uint32 Id;
+    uint8 NameMD5[MD5_DIGEST_LENGTH];
+    uint8 VersionMD5[MD5_DIGEST_LENGTH];
+    uint32 Timestamp;
 };
 
-#define sAddonMgr ACE_Singleton<AddonMgr, ACE_Null_Mutex>::instance()
+#define STANDARD_ADDON_CRC 0x4C1C776D
+
+namespace AddonMgr
+{
+    void LoadFromDB();
+    void SaveAddon(AddonInfo const& addon);
+    SavedAddon const* GetAddonInfo(const std::string& name);
+
+    typedef std::list<BannedAddon> BannedAddonList;
+    BannedAddonList const* GetBannedAddons();
+}
 
 #endif
-

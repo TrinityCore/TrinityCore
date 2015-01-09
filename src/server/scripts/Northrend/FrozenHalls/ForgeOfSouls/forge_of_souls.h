@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #define DEF_FORGE_OF_SOULS_H
 
 #define FoSScriptName "instance_forge_of_souls"
+#define DataHeader    "FOS"
 
 enum Data
 {
@@ -46,5 +47,6 @@ enum Creatures
     NPC_CHAMPION_3_HORDE                          = 37588,
     NPC_CHAMPION_1_ALLIANCE                       = 37496,
     NPC_CHAMPION_2_ALLIANCE                       = 37497,
+    NPC_CRUCIBLE_OF_SOULS                         = 37094,
 };
 #endif

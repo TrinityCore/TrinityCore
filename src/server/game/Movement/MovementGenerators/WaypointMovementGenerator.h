@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,10 +26,8 @@
  */
 
 #include "MovementGenerator.h"
-#include "DestinationHolder.h"
 #include "WaypointManager.h"
 #include "Path.h"
-#include "Traveller.h"
 
 #include "Player.h"
 
@@ -44,88 +42,108 @@ template<class T, class P>
 class PathMovementBase
 {
     public:
-        PathMovementBase() : i_currentNode(0) {}
-        virtual ~PathMovementBase() {};
+        PathMovementBase() : i_path(NULL), i_currentNode(0) { }
+        virtual ~PathMovementBase() { };
 
-        bool MovementInProgress(void) const { return i_currentNode < i_path->size(); }
-
+        // template pattern, not defined .. override required
         void LoadPath(T &);
-        void ReloadPath(T &);
         uint32 GetCurrentNode() const { return i_currentNode; }
 
-        bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x, y, z); return true; }
-        bool GetPosition(float& x, float& y, float& z) const { i_destinationHolder.GetLocationNowNoMicroMovement(x, y, z); return true; }
-
     protected:
-        uint32 i_currentNode;
-        DestinationHolder< Traveller<T> > i_destinationHolder;
         P i_path;
+        uint32 i_currentNode;
 };
 
 template<class T>
+class WaypointMovementGenerator;
 
-class WaypointMovementGenerator
-    : public MovementGeneratorMedium< T, WaypointMovementGenerator<T> >, public PathMovementBase<T, WaypointPath const*>
+template<>
+class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Creature, WaypointMovementGenerator<Creature> >,
+    public PathMovementBase<Creature, WaypointPath const*>
 {
     public:
-        WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true) :
-          node(NULL), path_id(_path_id), i_nextMoveTime(0), repeating(_repeating), StopedByPlayer(false) {}
+        WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true)
+            : i_nextMoveTime(0), m_isArrivalDone(false), path_id(_path_id), repeating(_repeating)  { }
+        ~WaypointMovementGenerator() { i_path = NULL; }
+        void DoInitialize(Creature*);
+        void DoFinalize(Creature*);
+        void DoReset(Creature*);
+        bool DoUpdate(Creature*, uint32 diff);
 
-        void Initialize(T &);
-        void Finalize(T &);
-        void MovementInform(T &);
-        void InitTraveller(T &, const WaypointData &);
-        void GeneratePathId(T &);
-        void Reset(T &unit);
-        bool Update(T &, const uint32 &);
-        bool GetDestination(float &x, float &y, float &z) const;
-        MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
+        void MovementInform(Creature*);
+
+        MovementGeneratorType GetMovementGeneratorType() override { return WAYPOINT_MOTION_TYPE; }
+
+        // now path movement implmementation
+        void LoadPath(Creature*);
+
+        bool GetResetPos(Creature*, float& x, float& y, float& z);
 
     private:
-        WaypointData *node;
-        uint32 path_id;
+
+        void Stop(int32 time) { i_nextMoveTime.Reset(time);}
+
+        bool Stopped() { return !i_nextMoveTime.Passed();}
+
+        bool CanMove(int32 diff)
+        {
+            i_nextMoveTime.Update(diff);
+            return i_nextMoveTime.Passed();
+        }
+
+        void OnArrived(Creature*);
+        bool StartMove(Creature*);
+
+        void StartMoveNow(Creature* creature)
+        {
+            i_nextMoveTime.Reset(0);
+            StartMove(creature);
+        }
+
         TimeTrackerSmall i_nextMoveTime;
-        WaypointPath const* waypoints;
-        bool repeating, StopedByPlayer;
+        bool m_isArrivalDone;
+        uint32 path_id;
+        bool repeating;
 };
 
 /** FlightPathMovementGenerator generates movement of the player for the paths
  * and hence generates ground and activities for the player.
  */
-class FlightPathMovementGenerator
-: public MovementGeneratorMedium< Player, FlightPathMovementGenerator >,
-public PathMovementBase<Player, TaxiPathNodeList const*>
+class FlightPathMovementGenerator : public MovementGeneratorMedium< Player, FlightPathMovementGenerator >,
+    public PathMovementBase<Player, TaxiPathNodeList const*>
 {
     public:
         explicit FlightPathMovementGenerator(TaxiPathNodeList const& pathnodes, uint32 startNode = 0)
         {
             i_path = &pathnodes;
             i_currentNode = startNode;
+            _endGridX = 0.0f;
+            _endGridY = 0.0f;
+            _endMapId = 0;
+            _preloadTargetNode = 0;
         }
-        void Initialize(Player &);
-        void Reset(Player & /*u*/){};
-        void Finalize(Player &);
-        bool Update(Player &, const uint32 &);
-        MovementGeneratorType GetMovementGeneratorType() { return FLIGHT_MOTION_TYPE; }
+        void DoInitialize(Player*);
+        void DoReset(Player*);
+        void DoFinalize(Player*);
+        bool DoUpdate(Player*, uint32);
+        MovementGeneratorType GetMovementGeneratorType() override { return FLIGHT_MOTION_TYPE; }
 
         TaxiPathNodeList const& GetPath() { return *i_path; }
         uint32 GetPathAtMapEnd() const;
         bool HasArrived() const { return (i_currentNode >= i_path->size()); }
         void SetCurrentNodeAfterTeleport();
         void SkipCurrentNode() { ++i_currentNode; }
-        void DoEventIfAny(Player& player, TaxiPathNodeEntry const& node, bool departure);
+        void DoEventIfAny(Player* player, TaxiPathNodeEntry const& node, bool departure);
 
-        bool GetDestination(float& x, float& y, float& z) const { return PathMovementBase<Player, TaxiPathNodeList const*>::GetDestination(x, y, z); }
+        bool GetResetPos(Player*, float& x, float& y, float& z);
 
-        void PreloadEndGrid();
         void InitEndGridInfo();
+        void PreloadEndGrid();
+
     private:
-        // storage for preloading the flightmaster grid at end
-        // before reaching final waypoint
-        uint32 m_endMapId;
-        uint32 m_preloadTargetNode;
-        float m_endGridX;
-        float m_endGridY;
+        float _endGridX;                //! X coord of last node location
+        float _endGridY;                //! Y coord of last node location
+        uint32 _endMapId;               //! map Id of last node location
+        uint32 _preloadTargetNode;      //! node index where preloading starts
 };
 #endif
-

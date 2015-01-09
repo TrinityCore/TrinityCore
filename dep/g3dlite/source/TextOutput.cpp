@@ -1,11 +1,11 @@
 /**
-  @file TextOutput.cpp
+  \file G3D.lib/source/TextOutput.cpp
 
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
-  @created 2004-06-21
-  @edited  2010-03-14
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \created 2004-06-21
+  \edited  2013-04-09
 
-  Copyright 2000-2010, Morgan McGuire.
+  Copyright 2000-2013, Morgan McGuire.
   All rights reserved.
  */
 
@@ -17,11 +17,12 @@
 namespace G3D {
 
 TextOutput::TextOutput(const TextOutput::Settings& opt) :
-	startingNewLine(true),
+    startingNewLine(true),
     currentColumn(0),
-	inDQuote(false),
-	filename(""),
-	indentLevel(0)
+    inDQuote(false),
+    filename(""),
+    indentLevel(0),
+    m_currentLine(0)
 {
     setOptions(opt);
 }
@@ -30,9 +31,10 @@ TextOutput::TextOutput(const TextOutput::Settings& opt) :
 TextOutput::TextOutput(const std::string& fil, const TextOutput::Settings& opt) :
     startingNewLine(true),
     currentColumn(0),
-	inDQuote(false),
-	filename(fil),
-	indentLevel(0) 
+    inDQuote(false),
+    filename(fil),
+    indentLevel(0),
+    m_currentLine(0)
 {
 
     setOptions(opt);
@@ -106,9 +108,17 @@ static std::string escape(const std::string& string) {
     return result;
 }
 
+
 void TextOutput::writeString(const std::string& string) {
+    // Never break a line in a string
+    const Settings::WordWrapMode old = option.wordWrap;
+
+    if (! option.allowWordWrapInsideDoubleQuotes) {
+        option.wordWrap = Settings::WRAP_NONE;
+    }
     // Convert special characters to escape sequences
     this->printf("\"%s\"", escape(string).c_str());
+    option.wordWrap = old;
 }
 
 
@@ -117,7 +127,7 @@ void TextOutput::writeBoolean(bool b) {
 }
 
 void TextOutput::writeNumber(double n) {
-    this->printf("%f ", n);
+    this->printf("%g ", n);
 }
 
 
@@ -128,9 +138,12 @@ void TextOutput::writeNumber(int n) {
 
 void TextOutput::writeSymbol(const std::string& string) {
     if (string.size() > 0) {
-        // TODO: check for legal symbols?
         this->printf("%s ", string.c_str());
     }
+}
+
+void TextOutput::writeSymbol(char c) {
+    this->printf("%c ", c);
 }
 
 void TextOutput::writeSymbols(
@@ -163,6 +176,17 @@ void TextOutput::printf(const char* formatString, ...) {
     va_start(argList, formatString);
     this->vprintf(formatString, argList);
     va_end(argList);
+}
+
+
+bool TextOutput::deleteSpace() {
+    if ((currentColumn > 0) && (data.last() == ' ')) {
+        data.popDiscard();
+        --currentColumn;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 
@@ -256,20 +280,20 @@ void TextOutput::wordWrapIndentAppend(const std::string& str) {
             //     search backwards for a space, then execute case 2.
 
             // Index of most recent space
-            uint32 lastSpace = data.size() - 1;
+            size_t lastSpace = data.size() - 1;
 
             // How far back we had to look for a space
-            uint32 k = 0;
-            uint32 maxLookBackward = currentColumn - indentSpaces;
+            size_t k = 0;
+            size_t maxLookBackward = currentColumn - indentSpaces;
 
             // Search backwards (from current character), looking for a space.
             while ((k < maxLookBackward) &&
-                (lastSpace > 0) &&
-                (! ((data[lastSpace] == ' ') && unquotedSpace))) {
+                   (lastSpace > 0) &&
+                   (! ((data[(int)lastSpace] == ' ') && unquotedSpace))) {
                 --lastSpace;
                 ++k;
 
-                if ((data[lastSpace] == '\"') && !option.allowWordWrapInsideDoubleQuotes) {
+                if ((data[(int)lastSpace] == '\"') && !option.allowWordWrapInsideDoubleQuotes) {
                     unquotedSpace = ! unquotedSpace;
                 }
             }
@@ -296,10 +320,10 @@ void TextOutput::wordWrapIndentAppend(const std::string& str) {
 
                 // Find the start of the spaces.  firstSpace is the index of the
                 // first non-space, looking backwards from lastSpace.
-                uint32 firstSpace = lastSpace;
+                size_t firstSpace = lastSpace;
                 while ((k < maxLookBackward) &&
                     (firstSpace > 0) &&
-                    (data[firstSpace] == ' ')) {
+                       (data[(int)firstSpace] == ' ')) {
                     --firstSpace;
                     ++k;
                 }
@@ -323,8 +347,8 @@ void TextOutput::wordWrapIndentAppend(const std::string& str) {
 
                     // Copy over the characters that should be saved
                     Array<char> temp;
-                    for (uint32 j = lastSpace + 1; j < (uint32)data.size(); ++j) {
-                        char c = data[j];
+                    for (size_t j = lastSpace + 1; j < (uint32)data.size(); ++j) {
+                        char c = data[(int)j];
 
                         if (c == '\"') {
                             // Undo changes to quoting (they will be re-done
@@ -339,8 +363,8 @@ void TextOutput::wordWrapIndentAppend(const std::string& str) {
                     writeNewline();
 
                     // Write them back
-                    for (uint32 j = 0; j < (uint32)temp.size(); ++j) {
-                        indentAppend(temp[j]);
+                    for (size_t j = 0; j < (uint32)temp.size(); ++j) {
+                        indentAppend(temp[(int)j]);
                     }
 
                     // We are now free to continue adding from the
@@ -378,12 +402,13 @@ void TextOutput::indentAppend(char c) {
     startingNewLine = (c == '\n');
     if (startingNewLine) {
         currentColumn = 0;
+        ++m_currentLine;
     }
 }
 
 
 void TextOutput::vprintf(const char* formatString, va_list argPtr) {
-    std::string str = vformat(formatString, argPtr);
+    const std::string& str = vformat(formatString, argPtr);
 
     std::string clean;
     convertNewlines(str, clean);

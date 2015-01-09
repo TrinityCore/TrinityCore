@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,46 +15,45 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "violet_hold.h"
+#include "Player.h"
 
 enum Spells
 {
-    SPELL_ARCANE_BARRAGE_VOLLEY               = 54202,
-    SPELL_ARCANE_BARRAGE_VOLLEY_H             = 59483,
-    SPELL_ARCANE_BUFFET                       = 54226,
-    SPELL_ARCANE_BUFFET_H                     = 59485,
-    SPELL_SUMMON_ETHEREAL_SPHERE_1            = 54102,
-    SPELL_SUMMON_ETHEREAL_SPHERE_2            = 54137,
-    SPELL_SUMMON_ETHEREAL_SPHERE_3            = 54138,
+    SPELL_ARCANE_BARRAGE_VOLLEY                 = 54202,
+    SPELL_ARCANE_BARRAGE_VOLLEY_H               = 59483,
+    SPELL_ARCANE_BUFFET                         = 54226,
+    SPELL_ARCANE_BUFFET_H                       = 59485,
+    SPELL_SUMMON_ETHEREAL_SPHERE_1              = 54102,
+    SPELL_SUMMON_ETHEREAL_SPHERE_2              = 54137,
+    SPELL_SUMMON_ETHEREAL_SPHERE_3              = 54138
 };
 
 enum NPCs
 {
-    NPC_ETHEREAL_SPHERE                       = 29271,
-    //NPC_ETHEREAL_SPHERE2                    = 32582, // heroic only?
+    NPC_ETHEREAL_SPHERE                         = 29271,
+    //NPC_ETHEREAL_SPHERE2                      = 32582, // heroic only?
 };
 
 enum CreatureSpells
 {
-    SPELL_ARCANE_POWER                             = 54160,
-    H_SPELL_ARCANE_POWER                           = 59474,
-    SPELL_SUMMON_PLAYERS                           = 54164,
-    SPELL_POWER_BALL_VISUAL                        = 54141,
+    SPELL_ARCANE_POWER                          = 54160,
+    H_SPELL_ARCANE_POWER                        = 59474,
+    SPELL_SUMMON_PLAYERS                        = 54164,
+    SPELL_POWER_BALL_VISUAL                     = 54141
 };
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1608027,
-    SAY_SLAY_1                                  = -1608028,
-    SAY_SLAY_2                                  = -1608029,
-    SAY_SLAY_3                                  = -1608030,
-    SAY_DEATH                                   = -1608031,
-    SAY_SPAWN                                   = -1608032,
-    SAY_CHARGED                                 = -1608033,
-    SAY_REPEAT_SUMMON_1                         = -1608034,
-    SAY_REPEAT_SUMMON_2                         = -1608035,
-    SAY_SUMMON_ENERGY                           = -1608036
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_CHARGED                                 = 4,
+    SAY_REPEAT_SUMMON                           = 5,
+    SAY_SUMMON_ENERGY                           = 6
 };
 
 class boss_xevozz : public CreatureScript
@@ -62,44 +61,47 @@ class boss_xevozz : public CreatureScript
 public:
     boss_xevozz() : CreatureScript("boss_xevozz") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_xevozzAI (creature);
+        return GetInstanceAI<boss_xevozzAI>(creature);
     }
 
     struct boss_xevozzAI : public ScriptedAI
     {
         boss_xevozzAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance  = creature->GetInstanceScript();
+            Initialize();
+            instance  = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        void Initialize()
+        {
+            uiSummonEtherealSphere_Timer = urand(10000, 12000);
+            uiArcaneBarrageVolley_Timer = urand(20000, 22000);
+            uiArcaneBuffet_Timer = uiSummonEtherealSphere_Timer + urand(5000, 6000);
+        }
+
+        InstanceScript* instance;
 
         uint32 uiSummonEtherealSphere_Timer;
         uint32 uiArcaneBarrageVolley_Timer;
         uint32 uiArcaneBuffet_Timer;
 
-        void Reset()
+        void Reset() override
         {
-            if (pInstance)
-            {
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-            }
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
 
-            uiSummonEtherealSphere_Timer = urand(10000, 12000);
-            uiArcaneBarrageVolley_Timer = urand(20000, 22000);
-            uiArcaneBuffet_Timer = uiSummonEtherealSphere_Timer + urand(5000, 6000);
+            Initialize();
             DespawnSphere();
         }
 
         void DespawnSphere()
         {
             std::list<Creature*> assistList;
-            GetCreatureListWithEntryInGrid(assistList, me, NPC_ETHEREAL_SPHERE , 150.0f);
+            GetCreatureListWithEntryInGrid(assistList, me, NPC_ETHEREAL_SPHERE, 150.0f);
 
             if (assistList.empty())
                 return;
@@ -111,7 +113,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             summoned->SetSpeed(MOVE_RUN, 0.5f);
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -121,9 +123,9 @@ public:
             }
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) override
         {
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
 
             if (me->Attack(who, true))
@@ -135,27 +137,25 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            DoScriptText(SAY_AGGRO, me);
-            if (pInstance)
-            {
-                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_XEVOZZ_CELL)))
-                    if (pDoor->GetGoState() == GO_STATE_READY)
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
-            }
+            Talk(SAY_AGGRO);
+            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_XEVOZZ_CELL)))
+                if (pDoor->GetGoState() == GO_STATE_READY)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void UpdateAI(const uint32 uiDiff)
+
+        void UpdateAI(uint32 uiDiff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -172,7 +172,7 @@ public:
             {
                 if (uiArcaneBuffet_Timer < uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_ARCANE_BUFFET);
+                    DoCastVictim(SPELL_ARCANE_BUFFET);
                     uiArcaneBuffet_Timer = 0;
                 }
                 else uiArcaneBuffet_Timer -= uiDiff;
@@ -180,10 +180,10 @@ public:
 
             if (uiSummonEtherealSphere_Timer < uiDiff)
             {
-                DoScriptText(SAY_SPAWN, me);
+                Talk(SAY_SPAWN);
                 DoCast(me, SPELL_SUMMON_ETHEREAL_SPHERE_1);
                 if (IsHeroic()) // extra one for heroic
-                    me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX()-5+rand()%10, me->GetPositionY()-5+rand()%10, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
+                    me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX() - 5 + rand32() % 10, me->GetPositionY() - 5 + rand32() % 10, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
 
                 uiSummonEtherealSphere_Timer = urand(45000, 47000);
                 uiArcaneBuffet_Timer = urand(5000, 6000);
@@ -193,66 +193,69 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             DespawnSphere();
 
-            if (pInstance)
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
-                {
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                    pInstance->SetData(DATA_WAVE_COUNT, 7);
-                }
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
-                {
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-                    pInstance->SetData(DATA_WAVE_COUNT, 13);
-                }
+                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetData(DATA_WAVE_COUNT, 7);
+            }
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+            {
+                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
     };
 
 };
 
-class mob_ethereal_sphere : public CreatureScript
+class npc_ethereal_sphere : public CreatureScript
 {
 public:
-    mob_ethereal_sphere() : CreatureScript("mob_ethereal_sphere") { }
+    npc_ethereal_sphere() : CreatureScript("npc_ethereal_sphere") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_ethereal_sphereAI (creature);
+        return GetInstanceAI<npc_ethereal_sphereAI>(creature);
     }
 
-    struct mob_ethereal_sphereAI : public ScriptedAI
+    struct npc_ethereal_sphereAI : public ScriptedAI
     {
-        mob_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
+        npc_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance   = creature->GetInstanceScript();
+            Initialize();
+            instance   = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
-
-        uint32 uiSummonPlayers_Timer;
-        uint32 uiRangeCheck_Timer;
-
-        void Reset()
+        void Initialize()
         {
             uiSummonPlayers_Timer = urand(33000, 35000);
             uiRangeCheck_Timer = 1000;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        InstanceScript* instance;
+
+        uint32 uiSummonPlayers_Timer;
+        uint32 uiRangeCheck_Timer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void UpdateAI(uint32 uiDiff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -263,16 +266,13 @@ public:
 
             if (uiRangeCheck_Timer < uiDiff)
             {
-                if (pInstance)
+                if (Creature* pXevozz = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_XEVOZZ)))
                 {
-                    if (Creature* pXevozz = Unit::GetCreature(*me, pInstance->GetData64(DATA_XEVOZZ)))
-                    {
-                        float fDistance = me->GetDistance2d(pXevozz);
-                        if (fDistance <= 3)
-                            DoCast(pXevozz, SPELL_ARCANE_POWER);
-                        else
-                            DoCast(me, 35845); //Is it blizzlike?
-                    }
+                    float fDistance = me->GetDistance2d(pXevozz);
+                    if (fDistance <= 3)
+                        DoCast(pXevozz, SPELL_ARCANE_POWER);
+                    else
+                        DoCast(me, 35845); //Is it blizzlike?
                 }
                 uiRangeCheck_Timer = 1000;
             }
@@ -282,15 +282,15 @@ public:
             {
                 DoCast(me, SPELL_SUMMON_PLAYERS); // not working right
 
-                Map* pMap = me->GetMap();
-                if (pMap && pMap->IsDungeon())
+                Map* map = me->GetMap();
+                if (map && map->IsDungeon())
                 {
-                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                    Map::PlayerList const &PlayerList = map->GetPlayers();
 
                     if (!PlayerList.isEmpty())
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                            if (i->getSource()->isAlive())
-                                DoTeleportPlayer(i->getSource(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), i->getSource()->GetOrientation());
+                            if (i->GetSource()->IsAlive())
+                                DoTeleportPlayer(i->GetSource(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), i->GetSource()->GetOrientation());
                 }
 
                 uiSummonPlayers_Timer = urand(33000, 35000);
@@ -304,5 +304,5 @@ public:
 void AddSC_boss_xevozz()
 {
     new boss_xevozz();
-    new mob_ethereal_sphere();
+    new npc_ethereal_sphere();
 }

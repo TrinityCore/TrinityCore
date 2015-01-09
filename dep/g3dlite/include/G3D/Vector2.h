@@ -1,19 +1,19 @@
 /**
-  @file Vector2.h
+  \file G3D/Vector2.h
  
   2D vector class
  
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
   
-  @created 2001-06-02
-  @edited  2008-11-30
+  \created 2001-06-02
+  \edited  2011-11-30
 
-  Copyright 2000-2009, Morgan McGuire.
+  Copyright 2000-2012, Morgan McGuire.
   All rights reserved.
 */
 
-#ifndef G3D_VECTOR2_H
-#define G3D_VECTOR2_H
+#ifndef G3D_Vector2_h
+#define G3D_Vector2_h
 
 #include <string>
 
@@ -22,6 +22,7 @@
 #include "G3D/Table.h"
 #include "G3D/HashTrait.h"
 #include "G3D/Vector2int16.h"
+#include "G3D/Vector2unorm16.h"
 #include "G3D/Random.h"
 
 namespace G3D {
@@ -29,6 +30,7 @@ namespace G3D {
 class Vector2;    
 class Vector3;
 class Vector4;
+class Vector2int32;
 class Any;
 
 /**
@@ -51,7 +53,7 @@ public:
     Vector2(const Any& any);
     
     /** Converts the Vector2 to an Any. */
-    operator Any() const;
+    Any toAny() const;
 
     /** Creates the zero vector */
     Vector2();
@@ -62,6 +64,12 @@ public:
     Vector2(double coordinate[2]);
     Vector2(const Vector2& other);
     Vector2(const Vector2int16& other); 
+    Vector2(const Vector2unorm16& other);
+
+    // explicit because of precision loss
+    explicit Vector2(const Vector2int32& other);
+
+    Vector2& operator=(const Any& a);
 
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
@@ -83,6 +91,11 @@ public:
     /** Returns true if this vector has finite length */
     bool isFinite() const;
 
+    /** True if any field is NaN */
+    bool isNaN() const {
+        return G3D::isNaN(x) || G3D::isNaN(y);
+    }
+
     /** Returns true if this vector has length == 0 */
     bool isZero() const;
 
@@ -93,6 +106,11 @@ public:
     Vector2 operator+(const Vector2& v) const;
     Vector2 operator-(const Vector2& v) const;
     Vector2 operator*(float s) const;
+
+    /** Raise each component of this vector to a power */
+    Vector2 pow(float p) const {
+        return Vector2(powf(x, p), powf(y, p));
+    }
 
     /** Array (pointwise) multiplication */
     Vector2 operator*(const Vector2& v) const;
@@ -138,11 +156,18 @@ public:
 
     // vector operations
 
-    /**  */
+    /** Magnitude of the vector */
     float length() const;
     
-    /** Returns a unit-length vector */
+    /**
+     Returns a unit-length version of this vector.
+     Returns nan if length is almost zero.
+     */
     Vector2 direction() const;
+
+    /** Returns Vector2::zero() is magnitude is almost zero,
+        otherwise returns unit-length vector. */
+    Vector2 directionOrZero() const;
 
     /**
      Potentially less accurate but faster than direction().
@@ -155,14 +180,34 @@ public:
     float squaredLength() const;
     float dot(const Vector2& s) const;
 
-    /**
-     Make this vector have unit length and return the old length.
-     If the vector length was less than tolerance, do not normalize.
-     */
-    float unitize(float fTolerance = 1e-06);
+    /** Componentwise absolute value */
+    Vector2 abs() const {
+        return Vector2(fabs(x), fabs(y));
+    }
 
+    /** Component-wise minimum */
     Vector2 min(const Vector2& v) const;
+
+    /** Component-wise maximum */
     Vector2 max(const Vector2& v) const;
+
+    /** Component-wise argmax(abs(), v.abs()).
+
+        For the larger magnitude vector, simply use <code>(a.squaredMagnitude() > b.squaredMagnitude) ?  a : b</code>.
+        \sa max
+     */
+    Vector2 maxAbs(const Vector2& v) const {
+        return Vector2(::fabsf(x) > ::fabsf(v.x) ? x : v.x, ::fabsf(y) > ::fabsf(v.y) ? y : v.y);
+    }
+
+    /** Component-wise argmin(abs(), v.abs()).
+
+        For the smaller magnitude vector, simply use <code>(a.squaredMagnitude() < b.squaredMagnitude) ?  a : b</code>.
+        \sa max
+     */
+    Vector2 minAbs(const Vector2& v) const {
+        return Vector2(::fabsf(x) < ::fabsf(v.x) ? x : v.x, ::fabsf(y) < ::fabsf(v.y) ? y : v.y);
+    }
 
     /** Uniformly distributed random vector on the unit sphere */
     static Vector2 random(Random& r = Random::common());
@@ -263,7 +308,8 @@ inline Vector2::Vector2 (const Vector2& rkVector) {
 
 inline Vector2::Vector2 (const Vector2int16& v) : x(v.x), y(v.y) {
 }
-
+inline Vector2::Vector2 (const Vector2unorm16& v) : x(float(v.x)), y(float(v.y)) {
+}
 
 inline float& Vector2::operator[] (int i) {
     return ((float*)this)[i];
@@ -385,6 +431,16 @@ inline Vector2 Vector2::direction () const {
     }
 }
 
+inline Vector2 Vector2::directionOrZero() const {
+    float mag = length();
+    if (mag < 0.0000001f) {
+        return Vector2::zero();
+    } else if (mag < 1.00001f && mag > 0.99999f) {
+        return *this;
+    } else {
+        return *this * (1.0f / mag);
+    }
+}
 
 
 inline float Vector2::dot (const Vector2& rkVector) const {
@@ -424,14 +480,18 @@ inline bool Vector2::isFinite() const {
 
 
 inline bool Vector2::isZero() const {
-    return (x == 0.0f) && (y == 0.0f);
+    return G3D::fuzzyEq(fabsf(x) + fabsf(y), 0.0f);
 }
 
 
 
 inline bool Vector2::isUnit() const {
-    return squaredLength() == 1.0f;
+    return G3D::fuzzyEq(squaredLength(), 1.0f);
 }
+
+typedef Vector2 Point2;
+void serialize(const Vector2& v, class BinaryOutput& b);
+void deserialize(Vector2& v, class BinaryInput& b);
 
 } // namespace G3D
 

@@ -33,7 +33,7 @@ bool MemoryManager::isThreadsafe() const {
 
 
 MemoryManager::Ref MemoryManager::create() {
-    static MemoryManager::Ref m = new MemoryManager();
+    static MemoryManager::Ref m(new MemoryManager());
     return m;
 }
 
@@ -59,7 +59,7 @@ bool AlignedMemoryManager::isThreadsafe() const {
 
 
 AlignedMemoryManager::Ref AlignedMemoryManager::create() {
-    static AlignedMemoryManager::Ref m = new AlignedMemoryManager();
+    static AlignedMemoryManager::Ref m(new AlignedMemoryManager());
     return m;
 }
 
@@ -85,7 +85,7 @@ bool CRTMemoryManager::isThreadsafe() const {
 
 
 CRTMemoryManager::Ref CRTMemoryManager::create() {
-    static CRTMemoryManager::Ref m = new CRTMemoryManager();
+    static CRTMemoryManager::Ref m(new CRTMemoryManager());
     return m;
 }
 }

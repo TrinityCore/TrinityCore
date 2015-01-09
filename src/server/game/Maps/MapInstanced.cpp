@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,15 +21,15 @@
 #include "MapManager.h"
 #include "BattlegroundMap.h"
 #include "VMapFactory.h"
+#include "MMapFactory.h"
 #include "InstanceSaveMgr.h"
 #include "World.h"
 #include "Group.h"
 #include "BattlegroundMgr.h"
 
-MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DUNGEON_DIFFICULTY_NORMAL)
+MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFICULTY_NORMAL)
 {
-    // initialize instanced maps list
-    _instancedMaps.clear();
+    m_InstancedMaps.clear();
 
     // fill with zero
     memset(&GridMapReference, 0, MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS * sizeof(uint16));
@@ -45,7 +45,7 @@ void MapInstanced::InitVisibilityDistance()
         i->second->InitVisibilityDistance();
 }
 
-void MapInstanced::Update(const uint32& t)
+void MapInstanced::Update(const uint32 t)
 {
     // take care of loaded GridMaps (when unused, unload it!)
     Map::Update(t);
@@ -72,7 +72,7 @@ void MapInstanced::UnloadAll()
 - create the instance if it's not created already
 - the player is not actually added to the instance (only in InstanceMap::Add)
 */
-Map* MapInstanced::CreateInstance(uint32 const mapId, Player* player)
+Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
 {
     if (GetId() != mapId || !player)
         return NULL;
@@ -90,7 +90,15 @@ Map* MapInstanced::CreateInstance(uint32 const mapId, Player* player)
 
         map = _FindMap(newInstanceId);
         if (!map)
-            map = CreateBattlegroundOrArena(newInstanceId, player->GetBattlegroundTypeId());
+            map = CreateBattleground(NewInstanceId, player->GetBattleground());
+            if (Battleground* bg = player->GetBattleground())
+                map = CreateBattleground(newInstanceId, bg);
+            else
+            {
+                player->TeleportToBGEntryPoint();
+                return NULL;
+            }
+        }
     }
     else
     {
@@ -127,7 +135,11 @@ Map* MapInstanced::CreateInstance(uint32 const mapId, Player* player)
             newInstanceId = sMapMgr->GenerateInstanceId();
 
             Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficulty(IsRaid()) : player->GetDifficulty(IsRaid());
-            map = CreateInstance(newInstanceId, NULL, diff);
+            //Seems it is now possible, but I do not know if it should be allowed
+            //ASSERT(!FindInstanceMap(NewInstanceId));
+            map = FindInstanceMap(newInstanceId);
+            if (!map)
+                map = CreateInstance(newInstanceId, NULL, diff);
         }
     }
 
@@ -137,29 +149,31 @@ Map* MapInstanced::CreateInstance(uint32 const mapId, Player* player)
 InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty)
 {
     // load/create a map
-    ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
+    std::lock_guard<std::mutex> lock(_mapLock);
 
     // make sure we have a valid map id
     const MapEntry* entry = sMapStore.LookupEntry(GetId());
     if (!entry)
     {
-        sLog->outError("CreateInstance: no entry for map %d", GetId());
+        TC_LOG_ERROR("maps", "CreateInstance: no entry for map %d", GetId());
         ASSERT(false);
     }
     const InstanceTemplate* iTemplate = sObjectMgr->GetInstanceTemplate(GetId());
     if (!iTemplate)
     {
-        sLog->outError("CreateInstance: no instance template for map %d", GetId());
+        TC_LOG_ERROR("maps", "CreateInstance: no instance template for map %d", GetId());
         ASSERT(false);
     }
 
     // some instances only have one difficulty
     GetDownscaledMapDifficultyData(GetId(), difficulty);
 
-    sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
+    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
 
     InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
     ASSERT(map->IsDungeon());
+
+    map->LoadRespawnTimes();
 
     bool load_data = save != NULL;
     map->CreateInstanceData(load_data);
@@ -171,20 +185,12 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
 BattlegroundMap* MapInstanced::CreateBattlegroundOrArena(uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
     // load/create a map
-    ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
+    std::lock_guard<std::mutex> lock(_mapLock);
 
     sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateBattleground: InstanceId %u for map %u created.", instanceId, GetId());
 
-    BattlegroundTemplate const* bgTemplate = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
+    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), bg->GetMinLevel());
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(GetId(), bgTemplate->MinLevel);
-
-    uint8 spawnMode;
-
-    if (bracketEntry)
-        spawnMode = bracketEntry->difficulty;
-    else
-        spawnMode = REGULAR_DIFFICULTY;
-
     ArenaMap* map;
     BattlegroundMap* map = new BattlegroundMap(GetId(), GetGridExpiry(), instanceId, this, spawnMode);
     ASSERT(map->IsBattlegroundOrArena());
@@ -208,6 +214,7 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
     if (_instancedMaps.size() <= 1 && sWorld->getBoolConfig(CONFIG_GRID_UNLOAD))
     {
         VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(itr->second->GetId());
+        MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(itr->second->GetId());
         // in that case, unload grids of the base map, too
         // so in the next map creation, (EnsureGridCreated actually) VMaps will be reloaded
         Map::UnloadAll();

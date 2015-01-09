@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,12 +28,12 @@
 
 namespace FactorySelector
 {
-    CreatureAI* selectAI(Creature *creature)
+    CreatureAI* selectAI(Creature* creature)
     {
-        const CreatureAICreator *ai_factory = NULL;
-        CreatureAIRegistry& ai_registry(*CreatureAIRepository::instance());
+        const CreatureAICreator* ai_factory = NULL;
+        CreatureAIRegistry& ai_registry(*CreatureAIRegistry::instance());
 
-        if (creature->isPet())
+        if (creature->IsPet())
             ai_factory = ai_registry.GetRegistryItem("PetAI");
 
         //scriptname in db
@@ -44,7 +44,7 @@ namespace FactorySelector
         // AIname in db
         std::string ainame=creature->GetAIName();
         if (!ai_factory && !ainame.empty())
-            ai_factory = ai_registry.GetRegistryItem(ainame.c_str());
+            ai_factory = ai_registry.GetRegistryItem(ainame);
 
         // select by NPC flags
         if (!ai_factory)
@@ -55,20 +55,20 @@ namespace FactorySelector
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
             else if (creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
-            else if (creature->isGuard())
+            else if (creature->IsGuard())
                 ai_factory = ai_registry.GetRegistryItem("GuardAI");
             else if (creature->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
-            else if (creature->isTotem())
+            else if (creature->IsTotem())
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");
-            else if (creature->isTrigger())
+            else if (creature->IsTrigger())
             {
                 if (creature->m_spells[0])
                     ai_factory = ai_registry.GetRegistryItem("TriggerAI");
                 else
                     ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
             }
-            else if (creature->GetCreatureType() == CREATURE_TYPE_CRITTER && !creature->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+            else if (creature->IsCritter() && !creature->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
                 ai_factory = ai_registry.GetRegistryItem("CritterAI");
         }
 
@@ -77,12 +77,12 @@ namespace FactorySelector
         {
             int best_val = -1;
             typedef CreatureAIRegistry::RegistryMapType RMT;
-            RMT const &l = ai_registry.GetRegisteredItems();
+            RMT const& l = ai_registry.GetRegisteredItems();
             for (RMT::const_iterator iter = l.begin(); iter != l.end(); ++iter)
             {
-                const CreatureAICreator *factory = iter->second;
-                const SelectableAI *p = dynamic_cast<const SelectableAI *>(factory);
-                ASSERT(p != NULL);
+                const CreatureAICreator* factory = iter->second;
+                const SelectableAI* p = dynamic_cast<const SelectableAI*>(factory);
+                ASSERT(p);
                 int val = p->Permit(creature);
                 if (val > best_val)
                 {
@@ -95,15 +95,15 @@ namespace FactorySelector
         // select NullCreatureAI if not another cases
         ainame = (ai_factory == NULL) ? "NullCreatureAI" : ai_factory->key();
 
-        sLog->outDebug(LOG_FILTER_TSCR, "Creature %u used AI is %s.", creature->GetGUIDLow(), ainame.c_str());
+        TC_LOG_DEBUG("scripts", "Creature %s (%s DB GUID: " UI64FMTD ") is using AI type: %s.", creature->GetName().c_str(), creature->GetGUID().ToString().c_str(), creature->GetDBTableGUIDLow(), ainame.c_str());
         return (ai_factory == NULL ? new NullCreatureAI(creature) : ai_factory->Create(creature));
     }
 
-    MovementGenerator* selectMovementGenerator(Creature *creature)
+    MovementGenerator* selectMovementGenerator(Creature* creature)
     {
-        MovementGeneratorRegistry& mv_registry(*MovementGeneratorRepository::instance());
-        ASSERT(creature->GetCreatureInfo() != NULL);
-        const MovementGeneratorCreator *mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
+        MovementGeneratorRegistry& mv_registry(*MovementGeneratorRegistry::instance());
+        ASSERT(creature->GetCreatureTemplate());
+        const MovementGeneratorCreator* mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
 
         /* if (mv_factory == NULL)
         {
@@ -125,13 +125,16 @@ namespace FactorySelector
         }*/
 
         return (mv_factory == NULL ? NULL : mv_factory->Create(creature));
-
     }
 
-    GameObjectAI* SelectGameObjectAI(GameObject *go)
+    GameObjectAI* SelectGameObjectAI(GameObject* go)
     {
-        const GameObjectAICreator *ai_factory = NULL;
-        GameObjectAIRegistry& ai_registry(*GameObjectAIRepository::instance());
+        const GameObjectAICreator* ai_factory = NULL;
+        GameObjectAIRegistry& ai_registry(*GameObjectAIRegistry::instance());
+
+        // scriptname in db
+        if (GameObjectAI* scriptedAI = sScriptMgr->GetGameObjectAI(go))
+            return scriptedAI;
 
         ai_factory = ai_registry.GetRegistryItem(go->GetAIName());
 
@@ -139,9 +142,8 @@ namespace FactorySelector
 
         std::string ainame = (ai_factory == NULL || go->GetScriptId()) ? "NullGameObjectAI" : ai_factory->key();
 
-        sLog->outDebug(LOG_FILTER_TSCR, "GameObject %u used AI is %s.", go->GetGUIDLow(), ainame.c_str());
+        TC_LOG_DEBUG("scripts", "%s used AI is %s.", go->GetGUID().ToString().c_str(), ainame.c_str());
 
         return (ai_factory == NULL ? new NullGameObjectAI(go) : ai_factory->Create(go));
     }
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,17 +27,29 @@ EndScriptData */
 npc_kalecgos
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 /*######
 ## npc_kalecgos
 ######*/
 
-enum eEnums
+enum Spells
 {
     SPELL_TRANSFORM_TO_KAEL     = 44670,
-    SPELL_ORB_KILL_CREDIT       = 46307,
-    NPC_KAEL                    = 24848,                    //human form entry
+    SPELL_ORB_KILL_CREDIT       = 46307
+};
+
+enum Creatures
+{
+    NPC_KAEL                    = 24848 //human form entry
+};
+
+enum Misc
+{
     POINT_ID_LAND               = 1
 };
 
@@ -56,10 +68,10 @@ class npc_kalecgos : public CreatureScript
 public:
     npc_kalecgos() : CreatureScript("npc_kalecgos") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAEL_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -85,9 +97,9 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAEL_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -96,27 +108,35 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_kalecgosAI(creature);
     }
 
     struct npc_kalecgosAI : public ScriptedAI
     {
-        npc_kalecgosAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_kalecgosAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_uiTransformTimer = 0;
+        }
 
         uint32 m_uiTransformTimer;
 
-        void Reset()
+        void Reset() override
         {
-            m_uiTransformTimer = 0;
+            Initialize();
 
             // we must assume he appear as dragon somewhere outside the platform of orb, and then move directly to here
             if (me->GetEntry() != NPC_KAEL)
                 me->GetMotionMaster()->MovePoint(POINT_ID_LAND, afKaelLandPoint[0], afKaelLandPoint[1], afKaelLandPoint[2]);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId)
+        void MovementInform(uint32 uiType, uint32 uiPointId) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -128,29 +148,31 @@ public:
         // some targeting issues with the spell, so use this workaround as temporary solution
         void DoWorkaroundForQuestCredit()
         {
-            Map* pMap = me->GetMap();
+            Map* map = me->GetMap();
 
-            if (!pMap || pMap->IsHeroic())
+            if (!map || map->IsHeroic())
                 return;
 
-            Map::PlayerList const &lList = pMap->GetPlayers();
+            Map::PlayerList const &lList = map->GetPlayers();
 
             if (lList.isEmpty())
                 return;
 
-            SpellEntry const* pSpell = GetSpellStore()->LookupEntry(SPELL_ORB_KILL_CREDIT);
+            SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_ORB_KILL_CREDIT);
 
             for (Map::PlayerList::const_iterator i = lList.begin(); i != lList.end(); ++i)
             {
-                if (Player* player = i->getSource())
+                if (Player* player = i->GetSource())
                 {
-                    if (pSpell && pSpell->EffectMiscValue[0])
-                        player->KilledMonsterCredit(pSpell->EffectMiscValue[0], 0);
+                    if (spell)
+                        if (SpellEffectInfo const* effect = spell->GetEffect(EFFECT_0))
+                            if (effect->MiscValue)
+                                player->KilledMonsterCredit(effect->MiscValue);
                 }
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) override
         {
             if (m_uiTransformTimer)
             {
@@ -168,7 +190,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_magisters_terrace()

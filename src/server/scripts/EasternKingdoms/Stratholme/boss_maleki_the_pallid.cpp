@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,55 +23,65 @@ SDComment:
 SDCategory: Stratholme
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SPELL_FROSTBOLT    17503
-#define SPELL_DRAINLIFE    20743
-#define SPELL_DRAIN_MANA    17243
-#define SPELL_ICETOMB    16869
+enum Spells
+{
+    SPELL_FROSTBOLT     = 17503,
+    SPELL_DRAINLIFE     = 20743,
+    SPELL_DRAIN_MANA    = 17243,
+    SPELL_ICETOMB       = 16869
+
+};
 
 class boss_maleki_the_pallid : public CreatureScript
 {
 public:
     boss_maleki_the_pallid() : CreatureScript("boss_maleki_the_pallid") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_maleki_the_pallidAI (creature);
+        return GetInstanceAI<boss_maleki_the_pallidAI>(creature);
     }
 
     struct boss_maleki_the_pallidAI : public ScriptedAI
     {
-        boss_maleki_the_pallidAI(Creature* c) : ScriptedAI(c)
+        boss_maleki_the_pallidAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = me->GetInstanceScript();
+            Initialize();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
-
-        uint32 Frostbolt_Timer;
-        uint32 IceTomb_Timer;
-        uint32 DrainLife_Timer;
-
-        void Reset()
+        void Initialize()
         {
             Frostbolt_Timer = 1000;
             IceTomb_Timer = 16000;
             DrainLife_Timer = 31000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        InstanceScript* instance;
+
+        uint32 Frostbolt_Timer;
+        uint32 IceTomb_Timer;
+        uint32 DrainLife_Timer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_PALLID, IN_PROGRESS);
+            instance->SetData(TYPE_PALLID, IN_PROGRESS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -80,24 +90,24 @@ public:
             //Frostbolt
             if (Frostbolt_Timer <= diff)
             {
-                 if (rand()%100 < 90)
-                    DoCast(me->getVictim(), SPELL_FROSTBOLT);
+                if (rand32() % 100 < 90)
+                    DoCastVictim(SPELL_FROSTBOLT);
                 Frostbolt_Timer = 3500;
             } else Frostbolt_Timer -= diff;
 
             //IceTomb
             if (IceTomb_Timer <= diff)
             {
-                if (rand()%100 < 65)
-                    DoCast(me->getVictim(), SPELL_ICETOMB);
+                if (rand32() % 100 < 65)
+                    DoCastVictim(SPELL_ICETOMB);
                 IceTomb_Timer = 28000;
             } else IceTomb_Timer -= diff;
 
             //DrainLife
             if (DrainLife_Timer <= diff)
             {
-                  if (rand()%100 < 55)
-                    DoCast(me->getVictim(), SPELL_DRAINLIFE);
+                if (rand32() % 100 < 55)
+                    DoCastVictim(SPELL_DRAINLIFE);
                 DrainLife_Timer = 31000;
             } else DrainLife_Timer -= diff;
 

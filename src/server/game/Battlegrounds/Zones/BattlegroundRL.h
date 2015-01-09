@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDRL_H
 #define __BATTLEGROUNDRL_H
 
-#include "ArenaMap.h"
+class Battleground;
 
 enum BattlegroundRLObjectTypes
 {
@@ -29,7 +29,7 @@ enum BattlegroundRLObjectTypes
     BG_RL_OBJECT_MAX            = 4
 };
 
-enum BattlegroundRLObjects
+enum BattlegroundRLGameObjects
 {
     BG_RL_OBJECT_TYPE_DOOR_1    = 185918,
     BG_RL_OBJECT_TYPE_DOOR_2    = 185917,
@@ -37,23 +37,19 @@ enum BattlegroundRLObjects
     BG_RL_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class ArenaMap;
-
+class BattlegroundRL : public Arena
 class BattlegroundRL : public ArenaMap
 {
-    friend class BattlegroundMgr;
-
     protected:
         BattlegroundRL();
-        ~BattlegroundRL();
 
         void FillInitialWorldStates(WorldPacket &d);
-        void StartBattleground();
-        void InitializeObjects();
+        virtual void AddPlayer(Player *plr);
+        virtual void Reset();
+        virtual void FillInitialWorldStates(WorldPacket &d);
 
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        bool SetupBattleground() override;
 
-        bool HandlePlayerUnderMap(Player* plr);
 };
 #endif

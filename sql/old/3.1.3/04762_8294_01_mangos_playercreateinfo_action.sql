@@ -41,7 +41,7 @@ INSERT INTO playercreateinfo_action VALUES
 DELETE FROM playercreateinfo_action WHERE race=2 AND class=3 AND button IN (4,9);
 INSERT INTO playercreateinfo_action VALUES (2,3,9,20572,0);
 
--- Moved Berserking to correct action bar location for Non-Heroic Troll classes 
+-- Moved Berserking to correct action bar location for Non-Heroic Troll classes
 DELETE FROM playercreateinfo_action WHERE race=8 AND class IN (3,5,7,8) AND button IN (3,76);
 INSERT INTO playercreateinfo_action VALUES
 (8,3,3,20554,0),

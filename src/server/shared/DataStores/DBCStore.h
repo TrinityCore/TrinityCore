@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@
 #define DBCSTORE_H
 
 #include "DBCFileLoader.h"
-#include "Logging/Log.h"
+#include "Log.h"
 #include "Field.h"
 #include "DatabaseWorkerPool.h"
 #include "Implementation/WorldDatabase.h"
@@ -28,20 +28,20 @@
 
 struct SqlDbc
 {
-    const std::string * formatString;
-    const std::string * indexName;
+    std::string const* formatString;
+    std::string const* indexName;
     std::string sqlTableName;
     int32 indexPos;
     int32 sqlIndexPos;
-    SqlDbc(const std::string * _filename, const std::string * _format, const std::string * _idname, const char * fmt)
-        :formatString(_format), indexName (_idname), sqlIndexPos(0)
+    SqlDbc(std::string const* _filename, std::string const* _format, std::string const* _idname, char const* fmt)
+        : formatString(_format), indexName (_idname), sqlIndexPos(0)
     {
         // Convert dbc file name to sql table name
         sqlTableName = *_filename;
         for (uint32 i = 0; i< sqlTableName.size(); ++i)
         {
             if (isalpha(sqlTableName[i]))
-                sqlTableName[i] = tolower(sqlTableName[i]);
+                sqlTableName[i] = char(tolower(sqlTableName[i]));
             else if (sqlTableName[i] == '.')
                 sqlTableName[i] = '_';
         }
@@ -63,6 +63,10 @@ struct SqlDbc
             }
         }
     }
+
+private:
+    SqlDbc(SqlDbc const& right) = delete;
+    SqlDbc& operator=(SqlDbc const& right) = delete;
 };
 
 template<class T>
@@ -70,24 +74,33 @@ class DBCStorage
 {
     typedef std::list<char*> StringPoolList;
     public:
-        explicit DBCStorage(const char *f) : fmt(f), nCount(0), fieldCount(0), indexTable(NULL), m_dataTable(NULL) { }
+        explicit DBCStorage(char const* f)
+            : fmt(f), nCount(0), fieldCount(0), dataTable(NULL)
+        {
+            indexTable.asT = NULL;
+        }
+
         ~DBCStorage() { Clear(); }
 
-        T const* LookupEntry(uint32 id) const { return (id>=nCount)?NULL:indexTable[id]; }
+        T const* LookupEntry(uint32 id) const
+        {
+            return (id >= nCount) ? NULL : indexTable.asT[id];
+        }
+
         uint32  GetNumRows() const { return nCount; }
         char const* GetFormat() const { return fmt; }
         uint32 GetFieldCount() const { return fieldCount; }
 
-        bool Load(char const* fn, SqlDbc * sql)
+        bool Load(char const* fn, SqlDbc* sql)
         {
             DBCFileLoader dbc;
-            // Check if load was sucessful, only then continue
+            // Check if load was successful, only then continue
             if (!dbc.Load(fn, fmt))
                 return false;
 
             uint32 sqlRecordCount = 0;
             uint32 sqlHighestIndex = 0;
-            Field *fields = NULL;
+            Field* fields = NULL;
             QueryResult result = QueryResult(NULL);
             // Load data from sql
             if (sql)
@@ -95,7 +108,7 @@ class DBCStorage
                 std::string query = "SELECT * FROM " + sql->sqlTableName;
                 if (sql->indexPos >= 0)
                     query +=" ORDER BY " + *sql->indexName + " DESC";
-                query += ";";
+                query += ';';
 
 
                 result = WorldDatabase.Query(query.c_str());
@@ -107,24 +120,28 @@ class DBCStorage
                         fields = result->Fetch();
                         sqlHighestIndex = fields[sql->sqlIndexPos].GetUInt32();
                     }
+
                     // Check if sql index pos is valid
-                    if (int32(result->GetFieldCount()-1) < sql->sqlIndexPos)
+                    if (int32(result->GetFieldCount() - 1) < sql->sqlIndexPos)
                     {
-                        sLog->outError("Invalid index pos for dbc:'%s'", sql->sqlTableName.c_str());
+                        TC_LOG_ERROR("server.loading", "Invalid index pos for dbc:'%s'", sql->sqlTableName.c_str());
                         return false;
                     }
                 }
             }
-            char * sqlDataTable;
-            fieldCount = dbc.GetCols();
-            m_dataTable = (T*)dbc.AutoProduceData(fmt, nCount, (char**&)indexTable, sqlRecordCount, sqlHighestIndex, sqlDataTable);
 
-            m_stringPoolList.push_back(dbc.AutoProduceStrings(fmt, (char*)m_dataTable));
+            char* sqlDataTable = NULL;
+            fieldCount = dbc.GetCols();
+
+            dataTable = reinterpret_cast<T*>(dbc.AutoProduceData(fmt, nCount, indexTable.asChar,
+                sqlRecordCount, sqlHighestIndex, sqlDataTable));
+
+            stringPoolList.push_back(dbc.AutoProduceStrings(fmt, reinterpret_cast<char*>(dataTable)));
 
             // Insert sql data into arrays
             if (result)
             {
-                if (indexTable)
+                if (indexTable.asT)
                 {
                     uint32 offset = 0;
                     uint32 rowIndex = dbc.GetNumRows();
@@ -133,18 +150,20 @@ class DBCStorage
                         if (!fields)
                             fields = result->Fetch();
 
-                        if(sql->indexPos >= 0)
+                        if (sql->indexPos >= 0)
                         {
                             uint32 id = fields[sql->sqlIndexPos].GetUInt32();
-                            if (indexTable[id])
+                            if (indexTable.asT[id])
                             {
-                                sLog->outError("Index %d already exists in dbc:'%s'", id, sql->sqlTableName.c_str());
+                                TC_LOG_ERROR("server.loading", "Index %d already exists in dbc:'%s'", id, sql->sqlTableName.c_str());
                                 return false;
                             }
-                            indexTable[id]=(T*)&sqlDataTable[offset];
+
+                            indexTable.asT[id] = reinterpret_cast<T*>(&sqlDataTable[offset]);
                         }
                         else
-                            indexTable[rowIndex]=(T*)&sqlDataTable[offset];
+                            indexTable.asT[rowIndex]= reinterpret_cast<T*>(&sqlDataTable[offset]);
+
                         uint32 columnNumber = 0;
                         uint32 sqlColumnNumber = 0;
 
@@ -152,110 +171,121 @@ class DBCStorage
                         {
                             if ((*sql->formatString)[columnNumber] == FT_SQL_ABSENT)
                             {
-                                switch(fmt[columnNumber])
+                                switch (fmt[columnNumber])
                                 {
                                     case FT_FLOAT:
-                                        *((float*)(&sqlDataTable[offset]))= 0.0f;
-                                        offset+=4;
+                                        *reinterpret_cast<float*>(&sqlDataTable[offset]) = 0.0f;
+                                        offset += 4;
                                         break;
                                     case FT_IND:
                                     case FT_INT:
-                                        *((uint32*)(&sqlDataTable[offset]))=uint32(0);
-                                        offset+=4;
+                                        *reinterpret_cast<uint32*>(&sqlDataTable[offset]) = uint32(0);
+                                        offset += 4;
                                         break;
                                     case FT_BYTE:
-                                        *((uint8*)(&sqlDataTable[offset]))=uint8(0);
-                                        offset+=1;
+                                        *reinterpret_cast<uint8*>(&sqlDataTable[offset]) = uint8(0);
+                                        offset += 1;
+                                        break;
+                                    case FT_LONG:
+                                        *reinterpret_cast<uint64*>(&sqlDataTable[offset]) = uint64(0);
+                                        offset += 8;
                                         break;
                                     case FT_STRING:
                                         // Beginning of the pool - empty string
-                                        *((char**)(&sqlDataTable[offset]))=m_stringPoolList.back();
-                                        offset+=sizeof(char*);
+                                        *reinterpret_cast<char**>(&sqlDataTable[offset]) = stringPoolList.back();
+                                        offset += sizeof(char*);
                                         break;
                                 }
                             }
                             else if ((*sql->formatString)[columnNumber] == FT_SQL_PRESENT)
                             {
                                 bool validSqlColumn = true;
-                                switch(fmt[columnNumber])
+                                switch (fmt[columnNumber])
                                 {
                                     case FT_FLOAT:
-                                        *((float*)(&sqlDataTable[offset]))=fields[sqlColumnNumber].GetFloat();
-                                        offset+=4;
+                                        *reinterpret_cast<float*>(&sqlDataTable[offset]) = fields[sqlColumnNumber].GetFloat();
+                                        offset += 4;
                                         break;
                                     case FT_IND:
                                     case FT_INT:
-                                        *((uint32*)(&sqlDataTable[offset]))=fields[sqlColumnNumber].GetUInt32();
-                                        offset+=4;
+                                        *reinterpret_cast<uint32*>(&sqlDataTable[offset]) = fields[sqlColumnNumber].GetUInt32();
+                                        offset += 4;
                                         break;
                                     case FT_BYTE:
-                                        *((uint8*)(&sqlDataTable[offset]))=fields[sqlColumnNumber].GetUInt8();
-                                        offset+=1;
+                                        *reinterpret_cast<uint8*>(&sqlDataTable[offset]) = fields[sqlColumnNumber].GetUInt8();
+                                        offset += 1;
+                                        break;
+                                    case FT_LONG:
+                                        *reinterpret_cast<uint64*>(&sqlDataTable[offset]) = fields[sqlColumnNumber].GetUInt64();
+                                        offset += 8;
                                         break;
                                     case FT_STRING:
-                                        sLog->outError("Unsupported data type in table '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
+                                        TC_LOG_ERROR("server.loading", "Unsupported data type in table '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
                                         return false;
                                     case FT_SORT:
                                         break;
                                     default:
                                         validSqlColumn = false;
+                                        break;
                                 }
                                 if (validSqlColumn && (columnNumber != (sql->formatString->size()-1)))
                                     sqlColumnNumber++;
                             }
                             else
                             {
-                                sLog->outError("Incorrect sql format string '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
+                                TC_LOG_ERROR("server.loading", "Incorrect sql format string '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
                                 return false;
                             }
                         }
-                        if (sqlColumnNumber != (result->GetFieldCount()-1))
+
+                        if (sqlColumnNumber != (result->GetFieldCount() - 1))
                         {
-                            sLog->outError("SQL and DBC format strings are not matching for table: '%s'", sql->sqlTableName.c_str());
+                            TC_LOG_ERROR("server.loading", "SQL and DBC format strings are not matching for table: '%s'", sql->sqlTableName.c_str());
                             return false;
                         }
 
                         fields = NULL;
                         ++rowIndex;
-                    }while (result->NextRow());
+                    } while (result->NextRow());
                 }
             }
 
             // error in dbc file at loading if NULL
-            return indexTable!=NULL;
+            return indexTable.asT != NULL;
         }
 
         bool LoadStringsFrom(char const* fn)
         {
             // DBC must be already loaded using Load
-            if(!indexTable)
+            if (!indexTable.asT)
                 return false;
 
             DBCFileLoader dbc;
             // Check if load was successful, only then continue
-            if(!dbc.Load(fn, fmt))
+            if (!dbc.Load(fn, fmt))
                 return false;
 
-            m_stringPoolList.push_back(dbc.AutoProduceStrings(fmt, (char*)m_dataTable));
+            stringPoolList.push_back(dbc.AutoProduceStrings(fmt, reinterpret_cast<char*>(dataTable)));
 
             return true;
         }
 
         void Clear()
         {
-            if (!indexTable)
+            if (!indexTable.asT)
                 return;
 
-            delete[] ((char*)indexTable);
-            indexTable = NULL;
-            delete[] ((char*)m_dataTable);
-            m_dataTable = NULL;
+            delete[] reinterpret_cast<char*>(indexTable.asT);
+            indexTable.asT = NULL;
+            delete[] reinterpret_cast<char*>(dataTable);
+            dataTable = NULL;
 
-            while(!m_stringPoolList.empty())
+            while (!stringPoolList.empty())
             {
-                delete[] m_stringPoolList.front();
-                m_stringPoolList.pop_front();
+                delete[] stringPoolList.front();
+                stringPoolList.pop_front();
             }
+
             nCount = 0;
         }
 
@@ -263,9 +293,19 @@ class DBCStorage
         char const* fmt;
         uint32 nCount;
         uint32 fieldCount;
-        T** indexTable;
-        T* m_dataTable;
-        StringPoolList m_stringPoolList;
+
+        union
+        {
+            T** asT;
+            char** asChar;
+        }
+        indexTable;
+
+        T* dataTable;
+        StringPoolList stringPoolList;
+
+        DBCStorage(DBCStorage const& right) = delete;
+        DBCStorage& operator=(DBCStorage const& right) = delete;
 };
 
 #endif

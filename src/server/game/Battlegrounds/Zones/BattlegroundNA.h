@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,7 +31,7 @@ enum BattlegroundNAObjectTypes
     BG_NA_OBJECT_MAX            = 6
 };
 
-enum BattlegroundNAObjects
+enum BattlegroundNAGameObjects
 {
     BG_NA_OBJECT_TYPE_DOOR_1    = 183978,
     BG_NA_OBJECT_TYPE_DOOR_2    = 183980,
@@ -41,25 +41,18 @@ enum BattlegroundNAObjects
     BG_NA_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class ArenaMap;
-
+class BattlegroundNAScore : public BattlegroundScore
 class BattlegroundNA : public ArenaMap
 {
-    friend class BattlegroundMgr;
-
     public:
         BattlegroundNA();
-        ~BattlegroundNA();
 
         /* inherited from BattlegroundClass */
-        void StartBattleground();
-        void InitializeObjects();
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        bool SetupBattleground();
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPacket &d);
-        void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* plr);
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        bool SetupBattleground() override;
+        void FillInitialWorldStates(WorldPacket &d) override;
 };
 #endif
