@@ -94,17 +94,17 @@ public:
                 switch (eventId)
                 {
                     case EVENT_FROSTBOLT:
-                        if (rand() % 100 < 90)
+                        if (rand32() % 90)
                             DoCastVictim(SPELL_FROSTBOLT);
                         _events.ScheduleEvent(EVENT_FROSTBOLT, 3.5*IN_MILLISECONDS);
                         break;
                     case EVENT_ICETOMB:
-                        if (rand() % 100 < 65)
+                        if (rand32() % 65)
                             DoCastVictim(SPELL_ICETOMB);
                         _events.ScheduleEvent(EVENT_ICETOMB, 28 * IN_MILLISECONDS);
                         break;
                     case EVENT_DRAINLIFE:
-                        if (rand() % 100 < 55)
+                        if (rand32() % 55)
                             DoCastVictim(SPELL_DRAINLIFE);
                         _events.ScheduleEvent(EVENT_DRAINLIFE, 31 * IN_MILLISECONDS);
                         break;
