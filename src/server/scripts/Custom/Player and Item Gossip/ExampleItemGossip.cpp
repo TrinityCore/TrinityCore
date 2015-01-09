@@ -1,3 +1,5 @@
+#include "ScriptPCH.h"
+
 class example_ItemGossip : public ItemScript
 {
 public: 
