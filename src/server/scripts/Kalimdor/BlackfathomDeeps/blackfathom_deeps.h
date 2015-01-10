@@ -37,9 +37,9 @@ enum Data64
 
 enum Data
 {
-    TYPE_GELIHAST,
-    TYPE_KELRIS,
-    TYPE_AKU_MAI,
+    DATA_GELIHAST,
+    DATA_KELRIS,
+    DATA_AKU_MAI,
     DATA_FIRE,
     DATA_EVENT
 };

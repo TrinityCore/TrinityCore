@@ -28,7 +28,7 @@ enum Spells
 enum Events
 {
     EVENT_POISON_CLOUD     = 1,
-    EVENT_FRENZIED_RAGE,
+    EVENT_FRENZIED_RAGE
 };
 
 class boss_aku_mai : public CreatureScript
@@ -38,7 +38,7 @@ public:
 
     struct boss_aku_maiAI : public BossAI
     {
-        boss_aku_maiAI(Creature* creature) : BossAI(creature, TYPE_AKU_MAI)
+        boss_aku_maiAI(Creature* creature) : BossAI(creature, DATA_AKU_MAI)
         {
             Initialize();
         }
@@ -69,23 +69,17 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void ExecuteEvent(uint32 eventId) override
         {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                if (eventId == EVENT_POISON_CLOUD)
-                {
+                case EVENT_POISON_CLOUD:
                     DoCastVictim(SPELL_POISON_CLOUD);
                     events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
-                }
+                    break;
+                default:
+                    break;
             }
-
-            DoMeleeAttackIfReady();
         }
 
         private:
