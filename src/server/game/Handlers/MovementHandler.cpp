@@ -158,7 +158,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattlegroundOrArena();
     if (mInstance)
     {
-        Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
+        Difficulty diff = GetPlayer()->GetDifficultyID(mEntry);
         if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->ID, diff))
         {
             if (mapDiff->resetTime)

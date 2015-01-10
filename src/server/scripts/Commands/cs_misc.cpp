@@ -369,7 +369,7 @@ public:
 
                 // if the player or the player's group is bound to another instance
                 // the player will not be bound to another one
-                InstancePlayerBind* bind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficulty(map->IsRaid()));
+                InstancePlayerBind* bind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficultyID(map->GetEntry()));
                 if (!bind)
                 {
                     Group* group = _player->GetGroup();
@@ -381,9 +381,12 @@ public:
                 }
 
                 if (map->IsRaid())
-                    _player->SetRaidDifficulty(target->GetRaidDifficulty());
+                {
+                    _player->SetRaidDifficultyID(target->GetRaidDifficultyID());
+                    _player->SetLegacyRaidDifficultyID(target->GetLegacyRaidDifficultyID());
+                }
                 else
-                    _player->SetDungeonDifficulty(target->GetDungeonDifficulty());
+                    _player->SetDungeonDifficultyID(target->GetDungeonDifficultyID());
             }
 
             handler->PSendSysMessage(LANG_APPEARING_AT, chrNameLink.c_str());
@@ -496,7 +499,7 @@ public:
                 Map* destMap = target->GetMap();
 
                 if (destMap->Instanceable() && destMap->GetInstanceId() != map->GetInstanceId())
-                    target->UnbindInstance(map->GetInstanceId(), target->GetDungeonDifficulty(), true);
+                    target->UnbindInstance(map->GetInstanceId(), target->GetDungeonDifficultyID(), true);
 
                 // we are in an instance, and can only summon players in our group with us as leader
                 if (!handler->GetSession()->GetPlayer()->GetGroup() || !target->GetGroup() ||

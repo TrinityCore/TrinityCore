@@ -352,21 +352,28 @@ enum Difficulty
     DIFFICULTY_40             = 9,
     DIFFICULTY_HC_SCENARIO    = 11,
     DIFFICULTY_N_SCENARIO     = 12,
-    DIFFICULTY_NORMAL2        = 14,
-    DIFFICULTY_HEROIC2        = 15,
-    DIFFICULTY_MYTHIC         = 16,
-    DIFFICULTY_LFR2           = 17,
-    DIFFICULTY_EVENT          = 18,
-    DIFFICULTY_EVENT2         = 19,
+    DIFFICULTY_NORMAL_RAID    = 14,
+    DIFFICULTY_HEROIC_RAID    = 15,
+    DIFFICULTY_MYTHIC_RAID    = 16,
+    DIFFICULTY_LFR_NEW        = 17,
+    DIFFICULTY_EVENT_RAID     = 18,
+    DIFFICULTY_EVENT_DUNGEON  = 19,
     DIFFICULTY_EVENT_SCENARIO = 20,
-    DIFFICULTY_MAX            = 21,
+
+    MAX_DIFFICULTY
 };
 
-#define RAID_DIFFICULTY_MASK_25MAN 1    // since 25man difficulties are 1 and 3, we can check them like that
+enum DifficultyFlags
+{
+    DIFFICULTY_FLAG_HEROIC          = 0x01,
+    DIFFICULTY_FLAG_DEFAULT         = 0x02,
+    DIFFICULTY_FLAG_CAN_SELECT      = 0x04, // Player can select this difficulty in dropdown menu
+    DIFFICULTY_FLAG_CHALLENGE_MODE  = 0x08,
 
-#define MAX_DUNGEON_DIFFICULTY     3
-#define MAX_RAID_DIFFICULTY        4
-#define MAX_DIFFICULTY             4
+    DIFFICULTY_FLAG_LEGACY          = 0x20,
+    DIFFICULTY_FLAG_DISPLAY_HEROIC  = 0x40, // Controls icon displayed on minimap when inside the instance
+    DIFFICULTY_FLAG_DISPLAY_MYTHIC  = 0x80  // Controls icon displayed on minimap when inside the instance
+};
 
 enum SpawnMask
 {
@@ -415,7 +422,9 @@ enum MapTypes                                               // Lua_IsInInstance
 
 enum MapFlags
 {
-    MAP_FLAG_DYNAMIC_DIFFICULTY = 0x100
+    MAP_FLAG_CAN_TOGGLE_DIFFICULTY  = 0x0100,
+    MAP_FLAG_FLEX_LOCKING           = 0x8000, // All difficulties share completed encounters lock, not bound to a single instance id
+                                              // heroic difficulty flag overrides it and uses instance id bind
 };
 
 enum AbilytyLearnType

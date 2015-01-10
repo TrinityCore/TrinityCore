@@ -72,12 +72,13 @@ enum CreatureFlagsExtra
 #define MAX_CREATURE_QUEST_ITEMS 6
 #define MAX_CREATURE_NAMES 4
 #define CREATURE_MAX_SPELLS 8
+#define MAX_CREATURE_DIFFICULTIES 3
 
 // from `creature_template` table
 struct CreatureTemplate
 {
     uint32  Entry;
-    uint32  DifficultyEntry[MAX_DIFFICULTY - 1];
+    uint32  DifficultyEntry[MAX_CREATURE_DIFFICULTIES];
     uint32  KillCredit[MAX_KILL_CREDIT];
     uint32  Modelid1;
     uint32  Modelid2;
@@ -169,6 +170,38 @@ struct CreatureTemplate
 
         // if can tame exotic then can tame any tameable
         return canTameExotic || !IsExotic();
+    }
+
+    static int32 DifficultyIDToDifficultyEntryIndex(uint32 difficulty)
+    {
+        switch (difficulty)
+        {
+            case DIFFICULTY_NONE:
+            case DIFFICULTY_NORMAL:
+            case DIFFICULTY_10_N:
+            case DIFFICULTY_40:
+            case DIFFICULTY_N_SCENARIO:
+            case DIFFICULTY_NORMAL_RAID:
+                return -1;
+            case DIFFICULTY_HEROIC:
+            case DIFFICULTY_25_N:
+            case DIFFICULTY_HC_SCENARIO:
+            case DIFFICULTY_HEROIC_RAID:
+                return 0;
+            case DIFFICULTY_10_HC:
+            case DIFFICULTY_CHALLENGE:
+            case DIFFICULTY_MYTHIC_RAID:
+                return 1;
+            case DIFFICULTY_25_HC:
+                return 2;
+            case DIFFICULTY_LFR:
+            case DIFFICULTY_LFR_NEW:
+            case DIFFICULTY_EVENT_RAID:
+            case DIFFICULTY_EVENT_DUNGEON:
+            case DIFFICULTY_EVENT_SCENARIO:
+            default:
+                return -1;
+        }
     }
 };
 
@@ -274,7 +307,7 @@ struct CreatureData
     uint32 curhealth;
     uint32 curmana;
     uint8 movementType;
-    uint8 spawnMask;
+    uint32 spawnMask;
     uint32 npcflag;
     uint32 unit_flags;                                      // enum UnitFlags mask values
     uint32 dynamicflags;
@@ -549,7 +582,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap = true);
         void SaveToDB();
                                                             // overriden in Pet
-        virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
+        virtual void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
         virtual void DeleteFromDB();                        // overriden in Pet
 
         Loot loot;

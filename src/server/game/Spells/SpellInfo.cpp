@@ -1739,7 +1739,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // aura limitations
     if (player)
     {
-        for (SpellEffectInfo const* effect : GetEffectsForDifficulty(player->GetMap()->GetDifficulty()))
+        for (SpellEffectInfo const* effect : GetEffectsForDifficulty(player->GetMap()->GetDifficultyID()))
         {
             if (!effect || !effect->IsAura())
                 continue;
@@ -1910,7 +1910,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
         return SPELL_FAILED_TARGET_AURASTATE;
 
     if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
-    if (HasEffect(caster->GetMap()->GetDifficulty(), SPELL_EFFECT_SELF_RESURRECT) || HasEffect(caster->GetMap()->GetDifficulty(), SPELL_EFFECT_RESURRECT) || HasEffect(caster->GetMap()->GetDifficulty(), SPELL_EFFECT_RESURRECT_NEW))
+    if (HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_SELF_RESURRECT) || HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_RESURRECT) || HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_RESURRECT_NEW))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
     return SPELL_CAST_OK;
@@ -1961,7 +1961,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
     if (vehicle)
     {
         uint16 checkMask = 0;
-        for (SpellEffectInfo const* effect : GetEffectsForDifficulty(caster->GetMap()->GetDifficulty()))
+        for (SpellEffectInfo const* effect : GetEffectsForDifficulty(caster->GetMap()->GetDifficultyID()))
         {
             if (effect && effect->ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
             {
@@ -1972,7 +1972,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
             }
         }
 
-        if (HasAura(caster->GetMap()->GetDifficulty(), SPELL_AURA_MOUNTED))
+        if (HasAura(caster->GetMap()->GetDifficultyID(), SPELL_AURA_MOUNTED))
             checkMask |= VEHICLE_SEAT_FLAG_CAN_CAST_MOUNT_SPELL;
 
         if (!checkMask)
@@ -1986,7 +1986,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
         // Can only summon uncontrolled minions/guardians when on controlled vehicle
         if (vehicleSeat->Flags & (VEHICLE_SEAT_FLAG_CAN_CONTROL | VEHICLE_SEAT_FLAG_UNK2))
         {
-            for (SpellEffectInfo const* effect : GetEffectsForDifficulty(caster->GetMap()->GetDifficulty()))
+            for (SpellEffectInfo const* effect : GetEffectsForDifficulty(caster->GetMap()->GetDifficultyID()))
             {
                 if (!effect || effect->Effect != SPELL_EFFECT_SUMMON)
                     continue;
@@ -3076,7 +3076,7 @@ SpellCooldownsEntry const* SpellInfo::GetSpellCooldowns() const
 void SpellInfo::_UnloadImplicitTargetConditionLists()
 {
     // find the same instances of ConditionList and delete them.
-    for (uint32 d = 0; d < DIFFICULTY_MAX; ++d)
+    for (uint32 d = 0; d < MAX_DIFFICULTY; ++d)
     {
         for (uint32 i = 0; i < _effects.size(); ++i)
         {

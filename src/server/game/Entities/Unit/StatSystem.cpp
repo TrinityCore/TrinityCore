@@ -990,7 +990,7 @@ bool Guardian::UpdateStats(Stats stat)
         if (aurEff)
         {
             SpellInfo const* spellInfo = aurEff->GetSpellInfo();                                               // Then get the SpellProto and add the dummy effect value
-            if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficulty(), EFFECT_1))
+            if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), EFFECT_1))
                 AddPct(mod, effect->CalcValue(owner));                                                         // Ravenous Dead edits the original scale
         }
         // Glyph of the Ghoul

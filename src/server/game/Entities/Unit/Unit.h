@@ -225,7 +225,20 @@ enum UnitBytes0Offsets
 {
     UNIT_BYTES_0_OFFSET_RACE    = 0,
     UNIT_BYTES_0_OFFSET_CLASS   = 1,
-    UNIT_BYTES_0_OFFSET_GENDER  = 3,
+    UNIT_BYTES_0_OFFSET_GENDER  = 3
+};
+
+enum UnitBytes1Offsets
+{
+    UNIT_BYTES_1_OFFSET_STAND_STATE = 0,
+    UNIT_BYTES_1_OFFSET_VIS_FLAG    = 2,
+    UNIT_BYTES_1_OFFSET_ANIM_TIER   = 3
+};
+
+enum UnitBytes2Offsets
+{
+    UNIT_BYTES_2_OFFSET_SHEATH_STATE    = 0,
+    UNIT_BYTES_2_OFFSET_PVP_FLAG        = 1,
 };
 
 // byte flags value (UNIT_FIELD_BYTES_1, 3)

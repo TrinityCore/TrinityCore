@@ -183,3 +183,27 @@ void WorldPackets::Misc::AreaTrigger::Read()
     Entered = _worldPacket.ReadBit();
     FromClient = _worldPacket.ReadBit();
 }
+
+void WorldPackets::Misc::SetDungeonDifficulty::Read()
+{
+    _worldPacket >> DifficultyID;
+}
+
+void WorldPackets::Misc::SetRaidDifficulty::Read()
+{
+    _worldPacket >> DifficultyID;
+    _worldPacket >> Legacy;
+}
+
+WorldPacket const* WorldPackets::Misc::DungeonDifficultySet::Write()
+{
+    _worldPacket << int32(DifficultyID);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::RaidDifficultySet::Write()
+{
+    _worldPacket << int32(DifficultyID);
+    _worldPacket << uint8(Legacy);
+    return &_worldPacket;
+}
