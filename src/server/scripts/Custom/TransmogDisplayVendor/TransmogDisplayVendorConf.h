@@ -59,8 +59,8 @@ public:
     static const bool IgnoreReqEvent;
     static const bool IgnoreReqStats;
 
-    static const std::set<uint32> Allowed;
-    static const std::set<uint32> NotAllowed;
+    static std::set<uint32> Allowed;
+    static std::set<uint32> NotAllowed;
 
     static void HandleTransmogrify(Player* player, Creature* creature, uint32 vendorslot, uint32 itemEntry, bool no_cost = false);
 

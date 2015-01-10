@@ -48,9 +48,9 @@ const bool TransmogDisplayVendorMgr::IgnoreReqLevel = false;
 const bool TransmogDisplayVendorMgr::IgnoreReqEvent = false;
 const bool TransmogDisplayVendorMgr::IgnoreReqStats = false;
 
-// Example Allowed = { 123, 234, 345 };
-const std::set<uint32> TransmogDisplayVendorMgr::Allowed = { };
-const std::set<uint32> TransmogDisplayVendorMgr::NotAllowed = { };
+// Example AllowedItems[] = { 123, 234, 345 };
+static const uint32 AllowedItems[] = { 0 };
+static const uint32 NotAllowedItems[] = { 0 };
 
 // Config end
 
@@ -841,6 +841,11 @@ public:
 
     void OnStartup() override
     {
+        for (size_t i = 0; i < sizeof(AllowedItems) / sizeof(*AllowedItems); ++i)
+            TransmogDisplayVendorMgr::Allowed.insert(AllowedItems[i]);
+        for (size_t i = 0; i < sizeof(NotAllowedItems) / sizeof(*NotAllowedItems); ++i)
+            TransmogDisplayVendorMgr::NotAllowed.insert(NotAllowedItems[i]);
+
         TC_LOG_INFO("server.loading", "Creating a list of usable transmogrification entries...");
         optionMap.clear();
         std::set<uint32> displays;
