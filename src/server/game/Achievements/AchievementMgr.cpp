@@ -1990,33 +1990,39 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->Points, 0, 0, NULL, referencePlayer);
 }
 
-struct VisibleAchievementPred
+struct VisibleAchievementCheck
 {
-    bool operator()(CompletedAchievementMap::value_type const& val)
+    AchievementEntry const* operator()(CompletedAchievementMap::value_type const& val)
     {
         AchievementEntry const* achievement = sAchievementMgr->GetAchievement(val.first);
-        return achievement && !(achievement->Flags & ACHIEVEMENT_FLAG_HIDDEN);
+        if (achievement && !(achievement->Flags & ACHIEVEMENT_FLAG_HIDDEN))
+            return achievement;
+        return nullptr;
     }
 };
 
 template<class T>
 void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
 {
-    VisibleAchievementPred isVisible;
+    VisibleAchievementCheck filterInvisible;
     WorldPackets::Achievement::AllAchievements achievementData;
     achievementData.Earned.reserve(m_completedAchievements.size());
     achievementData.Progress.reserve(m_criteriaProgress.size());
 
     for (auto itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
-        if (!isVisible(*itr))
+        AchievementEntry const* achievement = filterInvisible(*itr);
+        if (!achievement)
             continue;
 
         WorldPackets::Achievement::EarnedAchievement earned;
         earned.Id = itr->first;
         earned.Date = itr->second.date;
-        earned.Owner = GetOwner()->GetGUID();
-        earned.VirtualRealmAddress = earned.NativeRealmAddress = GetVirtualRealmAddress();
+        if (!(achievement->Flags & ACHIEVEMENT_FLAG_ACCOUNT))
+        {
+            earned.Owner = GetOwner()->GetGUID();
+            earned.VirtualRealmAddress = earned.NativeRealmAddress = GetVirtualRealmAddress();
+        }
         achievementData.Earned.push_back(earned);
     }
 
@@ -2039,7 +2045,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
 template<>
 void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver) const
 {
-    VisibleAchievementPred isVisible;
+    VisibleAchievementCheck isVisible;
 
     auto count = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), isVisible);
 
@@ -2066,9 +2072,9 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
     ObjectGuid guid = GetOwner()->GetGUID();
     ObjectGuid counter;
 
-    VisibleAchievementPred isVisible;
+    VisibleAchievementCheck filterInvisible;
     size_t numCriteria = m_criteriaProgress.size();
-    size_t numAchievements = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), isVisible);
+    size_t numAchievements = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), filterInvisible);
     ByteBuffer criteriaData(numCriteria * 16);
 
     WorldPacket data(SMSG_RESPOND_INSPECT_ACHIEVEMENTS, 1 + 8 + 3 + 3 + numAchievements * (4 + 4) + numCriteria * (0));
@@ -2136,7 +2142,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
 
     for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
-        if (!isVisible(*itr))
+        if (!filterInvisible(*itr))
             continue;
 
         data << uint32(itr->first);
@@ -3105,7 +3111,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         achievementCriteriaTree->ID = i;
         achievementCriteriaTree->Achievement = achievementItr->second;
         achievementCriteriaTree->Entry = tree;
-        achievementCriteriaTree->Criteria = nullptr;
 
         _achievementCriteriaTrees[achievementCriteriaTree->Entry->ID] = achievementCriteriaTree;
         if (sCriteriaStore.LookupEntry(tree->CriteriaID))
@@ -3142,29 +3147,28 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         auto mod = _criteriaModifiers.find(criteria->ModifierTreeId);
         if (mod != _criteriaModifiers.end())
             achievementCriteria->Modifier = mod->second;
-        else
-            achievementCriteria->Modifier = nullptr;
 
         _achievementCriteria[achievementCriteria->ID] = achievementCriteria;
 
-        bool isGuild = false, isPlayer = false;
         for (AchievementCriteriaTree const* tree : treeItr->second)
         {
             const_cast<AchievementCriteriaTree*>(tree)->Criteria = achievementCriteria;
 
             if (tree->Achievement->Flags & ACHIEVEMENT_FLAG_GUILD)
-                isGuild = true;
+                achievementCriteria->FlagsCu |= ACHIEVEMENT_CRITERIA_FLAG_CU_GUILD;
+            else if (tree->Achievement->Flags & ACHIEVEMENT_FLAG_ACCOUNT)
+                achievementCriteria->FlagsCu |= ACHIEVEMENT_CRITERIA_FLAG_CU_ACCOUNT;
             else
-                isPlayer = true;
+                achievementCriteria->FlagsCu |= ACHIEVEMENT_CRITERIA_FLAG_CU_PLAYER;
         }
 
-        if (isGuild)
+        if (achievementCriteria->FlagsCu & ACHIEVEMENT_CRITERIA_FLAG_CU_GUILD)
         {
             ++guildCriterias;
             _guildAchievementCriteriasByType[criteria->Type].push_back(achievementCriteria);
         }
 
-        if (isPlayer)
+        if (achievementCriteria->FlagsCu & (ACHIEVEMENT_CRITERIA_FLAG_CU_PLAYER | ACHIEVEMENT_CRITERIA_FLAG_CU_ACCOUNT))
         {
             ++criterias;
             _achievementCriteriasByType[criteria->Type].push_back(achievementCriteria);
