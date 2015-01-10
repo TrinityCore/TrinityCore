@@ -275,6 +275,8 @@ namespace WorldPackets
         class TutorialSetFlag;
         class TutorialClear;
         class TutorialReset;
+        class SetDungeonDifficulty;
+        class SetRaidDifficulty;
         class ReclaimCorpse;
         class RepopRequest;
         class ResurrectResponse;
@@ -1103,8 +1105,8 @@ class TC_GAME_API WorldSession
         void HandleMinimapPingOpcode(WorldPacket& recvData);
         void HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet);
         void HandleFarSightOpcode(WorldPacket& recvData);
-        void HandleSetDungeonDifficultyOpcode(WorldPacket& recvData);
-        void HandleSetRaidDifficultyOpcode(WorldPacket& recvData);
+        void HandleSetDungeonDifficultyOpcode(WorldPackets::Misc::SetDungeonDifficulty& setDungeonDifficulty);
+        void HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDifficulty& setRaidDifficulty);
         void HandleSetTitleOpcode(WorldPacket& recvData);
         void HandleRealmSplitOpcode(WorldPacket& recvData);
         void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet);

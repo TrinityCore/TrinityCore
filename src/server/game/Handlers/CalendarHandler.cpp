@@ -103,7 +103,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
                 InstanceSave const* save = itr->second.save;
                 WorldPackets::Calendar::CalendarSendCalendarRaidLockoutInfo& lockoutInfo = packet.RaidLockouts.emplace_back();
                 lockoutInfo.MapID = save->GetMapId();
-                lockoutInfo.DifficultyID = save->GetDifficulty();
+                lockoutInfo.DifficultyID = save->GetDifficultyID();
                 lockoutInfo.ExpireTime = int32(std::max(save->GetResetTime() - currTime, time_t(SI64LIT(0))));
                 lockoutInfo.InstanceID = save->GetInstanceId();
             }
@@ -652,7 +652,7 @@ void WorldSession::SendCalendarRaidLockoutAdded(InstanceSave const* save)
     calendarRaidLockoutAdded.InstanceID = save->GetInstanceId();
     calendarRaidLockoutAdded.ServerTime = *GameTime::GetWowTime();
     calendarRaidLockoutAdded.MapID = int32(save->GetMapId());
-    calendarRaidLockoutAdded.DifficultyID = save->GetDifficulty();
+    calendarRaidLockoutAdded.DifficultyID = save->GetDifficultyID();
     calendarRaidLockoutAdded.TimeRemaining = int32(save->GetResetTime() - GameTime::GetGameTime());
     SendPacket(calendarRaidLockoutAdded.Write());
 }
@@ -662,7 +662,7 @@ void WorldSession::SendCalendarRaidLockoutRemoved(InstanceSave const* save)
     WorldPackets::Calendar::CalendarRaidLockoutRemoved calendarRaidLockoutRemoved;
     calendarRaidLockoutRemoved.InstanceID = save->GetInstanceId();
     calendarRaidLockoutRemoved.MapID = int32(save->GetMapId());
-    calendarRaidLockoutRemoved.DifficultyID = save->GetDifficulty();
+    calendarRaidLockoutRemoved.DifficultyID = save->GetDifficultyID();
     calendarRaidLockoutRemoved.TimeRemaining = int32(save->GetResetTime() - GameTime::GetGameTime());
     SendPacket(calendarRaidLockoutRemoved.Write());
 }
@@ -674,12 +674,12 @@ void WorldSession::SendCalendarRaidLockoutUpdated(InstanceSave const* save)
 
     ObjectGuid guid = _player->GetGUID();
     TC_LOG_DEBUG("network", "SMSG_CALENDAR_RAID_LOCKOUT_UPDATED [{}] Map: {}, Difficulty {}",
-        guid.ToString(), save->GetMapId(), static_cast<uint32>(save->GetDifficulty()));
+        guid.ToString(), save->GetMapId(), static_cast<uint32>(save->GetDifficultyID()));
 
     WorldPackets::Calendar::CalendarRaidLockoutUpdated calendarRaidLockoutUpdated;
     calendarRaidLockoutUpdated.ServerTime = *GameTime::GetWowTime();
     calendarRaidLockoutUpdated.MapID = save->GetMapId();
-    calendarRaidLockoutUpdated.DifficultyID = save->GetDifficulty();
+    calendarRaidLockoutUpdated.DifficultyID = save->GetDifficultyID();
     calendarRaidLockoutUpdated.OldTimeRemaining = 0;
     calendarRaidLockoutUpdated.NewTimeRemaining = std::max(save->GetResetTime() - GameTime::GetGameTime(), time_t(SI64LIT(0)));
     SendPacket(calendarRaidLockoutUpdated.Write());

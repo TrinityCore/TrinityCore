@@ -19,6 +19,7 @@
 #include "AchievementMgr.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
+#include "Group.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -361,7 +362,8 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                 if (mapEntry->IsDungeon())
                 {
                     uint8 disabledModes = itr->second.flags;
-                    Difficulty targetDifficulty = player->GetDifficulty(mapEntry->IsRaid());
+                    Group const* group = player->GetGroup();
+                    Difficulty targetDifficulty = group ? group->GetDifficultyID(mapEntry) : player->GetDifficultyID(mapEntry);
                     GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     switch (targetDifficulty)
                     {
