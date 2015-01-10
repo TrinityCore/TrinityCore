@@ -21,7 +21,12 @@
 
 enum Spells
 {
-    SPELL_NET                                              = 6533
+    SPELL_NET         = 6533
+};
+
+enum Events
+{
+    EVENT_THROW_NET   = 1
 };
 
 class boss_gelihast : public CreatureScript
@@ -29,42 +34,14 @@ class boss_gelihast : public CreatureScript
 public:
     boss_gelihast() : CreatureScript("boss_gelihast") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct boss_gelihastAI : public BossAI
     {
-        return GetInstanceAI<boss_gelihastAI>(creature);
-    }
-
-    struct boss_gelihastAI : public ScriptedAI
-    {
-        boss_gelihastAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            netTimer = urand(2000, 4000);
-        }
-
-        uint32 netTimer;
-
-        InstanceScript* instance;
-
-        void Reset() override
-        {
-            Initialize();
-            instance->SetData(TYPE_GELIHAST, NOT_STARTED);
-        }
+        boss_gelihastAI(Creature* creature) : BossAI(creature, TYPE_GELIHAST) { }
 
         void EnterCombat(Unit* /*who*/) override
         {
-            instance->SetData(TYPE_GELIHAST, IN_PROGRESS);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(TYPE_GELIHAST, DONE);
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_THROW_NET, urand(2000, 4000));
         }
 
         void UpdateAI(uint32 diff) override
@@ -72,15 +49,25 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (netTimer < diff)
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                DoCastVictim(SPELL_NET);
-                netTimer = urand(4000, 7000);
-            } else netTimer -= diff;
+                if (eventId == EVENT_THROW_NET)
+                {
+                    DoCastVictim(SPELL_NET);
+                    events.ScheduleEvent(EVENT_THROW_NET, urand(4000, 7000));
+                }
+            }
 
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_gelihastAI>(creature);
+    }
 };
 
 void AddSC_boss_gelihast()
