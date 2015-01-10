@@ -155,22 +155,22 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     _worldPacket << uint32(DifficultyID);
     _worldPacket << uint8(IsTournamentRealm);
     _worldPacket << uint32(WeeklyReset);
-    _worldPacket.WriteBit(IneligibleForLootMask.HasValue);
-    _worldPacket.WriteBit(InstanceGroupSize.HasValue);
     _worldPacket.WriteBit(RestrictedAccountMaxLevel.HasValue);
     _worldPacket.WriteBit(RestrictedAccountMaxMoney.HasValue);
-
-    if (IneligibleForLootMask.HasValue)
-        _worldPacket << uint32(IneligibleForLootMask.Value);
-
-    if (InstanceGroupSize.HasValue)
-        _worldPacket << uint32(InstanceGroupSize.Value);
+    _worldPacket.WriteBit(IneligibleForLootMask.HasValue);
+    _worldPacket.WriteBit(InstanceGroupSize.HasValue);
 
     if (RestrictedAccountMaxLevel.HasValue)
         _worldPacket << uint32(RestrictedAccountMaxLevel.Value);
 
     if (RestrictedAccountMaxMoney.HasValue)
         _worldPacket << uint32(RestrictedAccountMaxMoney.Value);
+
+    if (IneligibleForLootMask.HasValue)
+        _worldPacket << uint32(IneligibleForLootMask.Value);
+
+    if (InstanceGroupSize.HasValue)
+        _worldPacket << uint32(InstanceGroupSize.Value);
 
     _worldPacket.FlushBits();
 
