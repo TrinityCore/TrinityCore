@@ -40,11 +40,19 @@ struct ModifierTreeNode
 
 typedef std::unordered_map<uint32, ModifierTreeNode*> ModifierTreeMap;
 
+enum AchievementCriteriaFlagsCu
+{
+    ACHIEVEMENT_CRITERIA_FLAG_CU_PLAYER     = 0x1,
+    ACHIEVEMENT_CRITERIA_FLAG_CU_ACCOUNT    = 0x2,
+    ACHIEVEMENT_CRITERIA_FLAG_CU_GUILD      = 0x4
+};
+
 struct AchievementCriteria
 {
-    uint32 ID;
-    CriteriaEntry const* Entry;
-    ModifierTreeNode const* Modifier;
+    uint32 ID = 0;
+    CriteriaEntry const* Entry = nullptr;
+    ModifierTreeNode const* Modifier = nullptr;
+    uint32 FlagsCu = 0;
 };
 
 typedef std::vector<AchievementCriteria const*> AchievementCriteriaList;
@@ -52,10 +60,10 @@ typedef std::unordered_map<uint32, AchievementCriteria*> AchievementCriteriaMap;
 
 struct AchievementCriteriaTree
 {
-    uint32 ID;
-    CriteriaTreeEntry const* Entry;
-    AchievementEntry const* Achievement;
-    AchievementCriteria const* Criteria;
+    uint32 ID = 0;
+    CriteriaTreeEntry const* Entry = nullptr;
+    AchievementEntry const* Achievement = nullptr;
+    AchievementCriteria const* Criteria = nullptr;
     std::vector<AchievementCriteriaTree const*> Children;
 };
 
@@ -68,10 +76,10 @@ typedef std::unordered_map<uint32, AchievementEntryList>        AchievementListB
 
 struct CriteriaProgress
 {
-    uint64 counter;
-    time_t date;                                            // latest update time.
-    ObjectGuid PlayerGUID;                               // GUID of the player that completed this criteria (guild achievements)
-    bool changed;
+    uint64 counter = 0;
+    time_t date = time_t(0);                                // latest update time.
+    ObjectGuid PlayerGUID;                                  // GUID of the player that last updated the criteria
+    bool changed = false;
 };
 
 enum AchievementCriteriaDataType
