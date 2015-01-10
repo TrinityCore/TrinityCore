@@ -30,6 +30,7 @@
 #include "ClientConfigPackets.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
+#include "DuelPackets.h"
 #include "EquipmentSetPackets.h"
 #include "GameObjectPackets.h"
 #include "GuildPackets.h"

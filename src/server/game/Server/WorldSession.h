@@ -178,6 +178,11 @@ namespace WorldPackets
         class SetSheathed;
     }
 
+    namespace Duel
+    {
+        class DuelResponse;
+    }
+
     namespace EquipmentSet
     {
         class SaveEquipmentSet;
@@ -932,8 +937,8 @@ class TC_GAME_API WorldSession
         void HandleStableRevivePet(WorldPacket& recvPacket);
         void HandleStableSwapPet(WorldPacket& recvPacket);
 
-        void HandleDuelAcceptedOpcode(WorldPacket& recvPacket);
-        void HandleDuelCancelledOpcode(WorldPacket& recvPacket);
+        void HandleDuelAccepted(WorldPackets::Duel::DuelResponse& duelResponse);
+        void HandleDuelCancelled(WorldPackets::Duel::DuelResponse& duelResponse);
 
         void HandleAcceptTradeOpcode(WorldPacket& recvPacket);
         void HandleBeginTradeOpcode(WorldPacket& recvPacket);
