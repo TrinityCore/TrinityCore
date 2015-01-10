@@ -17,31 +17,32 @@
  */
 
 #include "Common.h"
-#include "WorldPacket.h"
+#include "DuelPackets.h"
 #include "WorldSession.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "UpdateData.h"
 #include "Player.h"
 
-void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse)
 {
-    ObjectGuid guid;
-    Player* player;
-    Player* plTarget;
+    if (duelResponse.Accepted)
+        HandleDuelAccepted();
+    else
+        HandleDuelCancelled();
+}
 
-    recvPacket >> guid;
-
+void WorldSession::HandleDuelAccepted()
+{
     if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
         return;
 
-    player = GetPlayer();
-    plTarget = player->duel->opponent;
+    Player* player = GetPlayer();
+    Player* plTarget = player->duel->opponent;
 
     if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
         return;
 
-    //TC_LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_ACCEPTED");
     TC_LOG_DEBUG("network", "Player 1 is: %s (%s)", player->GetGUID().ToString().c_str(), player->GetName().c_str());
     TC_LOG_DEBUG("network", "Player 2 is: %s (%s)", plTarget->GetGUID().ToString().c_str(), plTarget->GetName().c_str());
 
@@ -53,12 +54,8 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     plTarget->SendDuelCountdown(3000);
 }
 
-void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleDuelCancelled()
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_CANCELLED");
-    ObjectGuid guid;
-    recvPacket >> guid;
-
     // no duel requested
     if (!GetPlayer()->duel)
         return;

@@ -41,11 +41,6 @@ void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& pa
         _player->SendTalentsInfoData();
 }
 
-void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
-{
-    TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS");
-}
-
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "MSG_TALENT_WIPE_CONFIRM");
