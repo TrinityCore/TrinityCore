@@ -8365,7 +8365,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
     //                                               0      1      2        3        4        5        6         7      8          9          10           11                 12           13           14           15           16           16
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basehp4, basehp5, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2, damage_exp3, damage_exp4, damage_exp5 FROM creature_classlevelstats");
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2, damage_exp3, damage_exp4, damage_exp5 FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -8384,19 +8384,25 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             TC_LOG_ERROR("sql.sql", "Creature base stats for level %u has invalid class %u", Level, Class);
 
+        GtNpcTotalHpEntry const* HpExp0 = sGtNpcTotalHpStore.EvaluateTable(Level - 1, Class - 1);
+        GtNpcTotalHpExp1Entry const* HpExp1 = sGtNpcTotalHpExp1Store.EvaluateTable(Level - 1, Class - 1);
+        GtNpcTotalHpExp2Entry const* HpExp2 = sGtNpcTotalHpExp2Store.EvaluateTable(Level - 1, Class - 1);
+        GtNpcTotalHpExp3Entry const* HpExp3 = sGtNpcTotalHpExp3Store.EvaluateTable(Level - 1, Class - 1);
+        GtNpcTotalHpExp4Entry const* HpExp4 = sGtNpcTotalHpExp4Store.EvaluateTable(Level - 1, Class - 1);
+        GtNpcTotalHpExp5Entry const* HpExp5 = sGtNpcTotalHpExp5Store.EvaluateTable(Level - 1, Class - 1);
+
         CreatureBaseStats stats;
+
+        stats.BaseHealth[0] = uint32(HpExp0->HP);
+        stats.BaseHealth[1] = uint32(HpExp1->HP);
+        stats.BaseHealth[2] = uint32(HpExp2->HP);
+        stats.BaseHealth[3] = uint32(HpExp3->HP);
+        stats.BaseHealth[4] = uint32(HpExp4->HP);
+        stats.BaseHealth[5] = uint32(HpExp5->HP);
 
         for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
         {
-            stats.BaseHealth[i] = fields[2 + i].GetUInt32();
-
-            if (stats.BaseHealth[i] == 0)
-            {
-                TC_LOG_ERROR("sql.sql", "Creature base stats for class %u, level %u has invalid zero base HP[%u] - set to 1", Class, Level, i);
-                stats.BaseHealth[i] = 1;
-            }
-
-            stats.BaseDamage[i] = fields[12 + i].GetFloat();
+            stats.BaseDamage[i] = fields[6 + i].GetFloat();
             if (stats.BaseDamage[i] < 0.0f)
             {
                 TC_LOG_ERROR("sql.sql", "Creature base stats for class %u, level %u has invalid negative base damage[%u] - set to 0.0", Class, Level, i);
@@ -8404,11 +8410,11 @@ void ObjectMgr::LoadCreatureClassLevelStats()
             }
         }
 
-        stats.BaseMana = fields[8].GetUInt32();
-        stats.BaseArmor = fields[9].GetUInt32();
+        stats.BaseMana = fields[2].GetUInt32();
+        stats.BaseArmor = fields[3].GetUInt32();
 
-        stats.AttackPower = fields[10].GetUInt16();
-        stats.RangedAttackPower = fields[11].GetUInt16();
+        stats.AttackPower = fields[4].GetUInt16();
+        stats.RangedAttackPower = fields[5].GetUInt16();
 
         _creatureBaseStatsStore[MAKE_PAIR16(Level, Class)] = stats;
 
