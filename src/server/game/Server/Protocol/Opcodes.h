@@ -441,7 +441,7 @@ enum OpcodeClient : uint32
     CMSG_OBJECT_UPDATE_RESCUED                        = 0xBADD,
     CMSG_OFFER_PETITION                               = 0xBADD,
     CMSG_OPENING_CINEMATIC                            = 0xBADD,
-    CMSG_OPEN_ITEM                                    = 0xBADD,
+    CMSG_OPEN_ITEM                                    = 0x08AD,
     CMSG_OPT_OUT_OF_LOOT                              = 0xBADD,
     CMSG_PAGE_TEXT_QUERY                              = 0x0BBB,
     CMSG_PARTY_SILENCE                                = 0xBADD,

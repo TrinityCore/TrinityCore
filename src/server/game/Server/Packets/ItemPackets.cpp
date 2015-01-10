@@ -42,6 +42,14 @@ void WorldPackets::Item::SellItem::Read()
     _worldPacket >> Amount;
 }
 
+WorldPacket const* WorldPackets::Item::ItemTimeUpdate::Write()
+{
+    _worldPacket << ItemGuid;
+    _worldPacket << DurationLeft;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Item::SetProficiency::Write()
 {
     _worldPacket << ProficiencyMask;
