@@ -48,11 +48,6 @@ class boss_maleki_the_pallid : public CreatureScript
 public:
     boss_maleki_the_pallid() : CreatureScript("boss_maleki_the_pallid") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_maleki_the_pallidAI>(creature);
-    }
-
     struct boss_maleki_the_pallidAI : public ScriptedAI
     {
         boss_maleki_the_pallidAI(Creature* creature) : ScriptedAI(creature)
@@ -85,6 +80,9 @@ public:
 
             _events.Update(diff);
 
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
             while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
@@ -111,11 +109,16 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
     private:
         EventMap _events;
         InstanceScript* instance;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_maleki_the_pallidAI>(creature);
+    }
 };
 
 void AddSC_boss_maleki_the_pallid()

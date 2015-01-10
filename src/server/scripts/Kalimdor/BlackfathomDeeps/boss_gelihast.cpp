@@ -36,7 +36,7 @@ public:
 
     struct boss_gelihastAI : public BossAI
     {
-        boss_gelihastAI(Creature* creature) : BossAI(creature, TYPE_GELIHAST) { }
+        boss_gelihastAI(Creature* creature) : BossAI(creature, DATA_GELIHAST) { }
 
         void EnterCombat(Unit* /*who*/) override
         {
