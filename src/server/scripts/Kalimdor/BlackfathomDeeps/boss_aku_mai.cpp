@@ -28,7 +28,7 @@ enum Spells
 enum Events
 {
     EVENT_POISON_CLOUD     = 1,
-    EVENT_FRENZIED_RAGE    = 2
+    EVENT_FRENZIED_RAGE,
 };
 
 class boss_aku_mai : public CreatureScript
@@ -56,13 +56,17 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
             _EnterCombat();
+            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void DamageTaken(Unit* /*atacker*/, uint32 &damage) override
         {
-            _JustDied();
+            if (!IsEnraged && me->HealthBelowPctDamaged(30, damage))
+            {
+                DoCast(me, SPELL_FRENZIED_RAGE);
+                IsEnraged = true;
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -72,25 +76,15 @@ public:
 
             events.Update(diff);
 
-            if (!IsEnraged && HealthBelowPct(30))
-                events.ScheduleEvent(EVENT_FRENZIED_RAGE, 100);
-
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
+                if (eventId == EVENT_POISON_CLOUD)
                 {
-                    case EVENT_POISON_CLOUD:
-                        DoCastVictim(SPELL_POISON_CLOUD);
-                        events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
-                        break;
-                    case EVENT_FRENZIED_RAGE:
-                        DoCast(me, SPELL_FRENZIED_RAGE);
-                        IsEnraged = true;
-                        break;
-                    default:
-                        break;
+                    DoCastVictim(SPELL_POISON_CLOUD);
+                    events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
                 }
             }
+
             DoMeleeAttackIfReady();
         }
 
@@ -100,7 +94,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_aku_maiAI(creature);
+        return GetInstanceAI<boss_aku_maiAI>(creature);
     }
 };
 
