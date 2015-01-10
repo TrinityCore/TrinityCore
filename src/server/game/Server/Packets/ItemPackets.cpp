@@ -44,6 +44,14 @@ void SellItem::Read()
     _worldPacket >> Amount;
 }
 
+WorldPacket const* ItemTimeUpdate::Write()
+{
+    _worldPacket << ItemGuid;
+    _worldPacket << uint32(DurationLeft);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* SetProficiency::Write()
 {
     _worldPacket << uint8(ProficiencyClass);
