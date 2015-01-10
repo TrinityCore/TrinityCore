@@ -611,7 +611,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     // player_creature_honor script
     PrepareStatement(CHAR_DEL_CREATUREHONOR_MESSAGE, "DELETE FROM creaturehonor_message WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_CREATUREHONOR_MESSAGE, "INSERT IGNORE INTO creaturehonor_message (guid, message_sent) VALUES (?, 0)", CONNECTION_BOTH);
-    PrepareStatement(CHAR_SEL_CREATUREHONOR_MESSAGE, "SELECT message_sent FROM creaturehonor_message WHERE guid = ?", CONNECTION_SYNCH);
-    PrepareStatement(CHAR_UPD_CREATUREHONOR_MESSAGE, "UPDATE creaturehonor_message SET message_sent = 1 WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CREATUREHONOR_MESSAGE, "INSERT INTO creaturehonor_message (guid, message_checksum) VALUES (?, 0)", CONNECTION_BOTH);
+    PrepareStatement(CHAR_SEL_CREATUREHONOR_MESSAGE, "SELECT message_checksum FROM creaturehonor_message WHERE guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_CREATUREHONOR_MESSAGE, "UPDATE creaturehonor_message SET message_checksum = ? WHERE guid = ?", CONNECTION_ASYNC);
 }

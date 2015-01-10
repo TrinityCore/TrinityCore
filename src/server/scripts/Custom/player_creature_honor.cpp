@@ -12,12 +12,13 @@ class player_creature_honor : public PlayerScript
     public:
         player_creature_honor() : PlayerScript("player_creature_honor")
         {
-            // Init Config Settings
+            // Init Config Settings. If you add or remove configs, be sure to also
+            //  make necessary changes in CalcConfigChecksum()
 
             // General
             creatureHonorScriptEnabled = sConfigMgr->GetBoolDefault("CreatureHonor.Enabled", false);
             allowAchievementGain = sConfigMgr->GetBoolDefault("CreatureHonor.Allow.Achievement", false);
-            
+
             // Levels
             playerMinLevel = sConfigMgr->GetIntDefault("CreatureHonor.Player.Minlevel", 10);
 
@@ -56,10 +57,10 @@ class player_creature_honor : public PlayerScript
             allowUndead = sConfigMgr->GetBoolDefault("CreatureHonor.Allow.Undead", true);
 
             // Messaging - General
-            creatureHonorLvlReachedMsg = sConfigMgr->GetStringDefault("CreatureHonor.Message.Chat.LevelReachedMessage", "@@Congratulations, you are now able to earn honor@@from NPC kills. Good hunting!");
+            creatureHonorLvlReachedMsg = sConfigMgr->GetStringDefault("CreatureHonor.Message.Chat.LevelReachedMessage", "@@Congratulations, you are now able to earn honor@@from NPC kills. Check your mail for rules.");
 
             // Messaging - Rules message
-            creatureHonorRulesMsg.append("* Honor from NPC kills:\n");
+            creatureHonorRulesMsg.append("* Allowed NPC types:\n");
 
             if (allowBeast)
                 creatureHonorRulesMsg.append("\n  Beast");
@@ -92,6 +93,9 @@ class player_creature_honor : public PlayerScript
                 creatureHonorRulesMsg.append("\n* NPC can not be neutral");
             if (penaltyLevelDiff > 0)
                 creatureHonorRulesMsg.append("\n* NPC can't be more than " + std::to_string(penaltyLevelDiff) + "\n  levels below you");
+
+            // This MUST come last
+            CalcConfigChecksum();
 
         }
 
@@ -132,12 +136,10 @@ class player_creature_honor : public PlayerScript
         void OnLogin(Player* pl, bool firstLogin) override
         {
             // Checks if logged in character needs to have messages sent.
-            // Admins can force this by setting the DB value to 0
-            // Useful for existing characters (prior to the script implementation) or when CONF is changed
 
             if (creatureHonorScriptEnabled && (pl->getLevel() >= playerMinLevel))
             {
-                uint32 msgSent = 0;
+                uint32 savedChecksum = 0;
 
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CREATUREHONOR_MESSAGE);
                 stmt->setUInt32(0, pl->GetGUIDLow());
@@ -147,7 +149,7 @@ class player_creature_honor : public PlayerScript
                 {
                     // Check if message has already been sent
                     Field* fields = result->Fetch();
-                    msgSent = fields[0].GetUInt32();
+                    savedChecksum = fields[0].GetUInt32();
                 }
                 else
                 {
@@ -156,8 +158,8 @@ class player_creature_honor : public PlayerScript
                 }
 
                 // Send messages to player if needed
-                if (msgSent == 0)
-                    SendMessagesToPlayer(pl);
+                if (savedChecksum != configChecksum)
+                    SendMessagesToPlayer(pl, (savedChecksum == 0)); // assume first time if zero
             }
 
         }
@@ -168,7 +170,7 @@ class player_creature_honor : public PlayerScript
 
             if (creatureHonorScriptEnabled && (pl->getLevel() == playerMinLevel))
             {
-                SendMessagesToPlayer(pl);
+                SendMessagesToPlayer(pl, true); // assume first time on level reached
             }
 
         }
@@ -185,6 +187,7 @@ class player_creature_honor : public PlayerScript
         bool requireCreaturePvP;
         std::string creatureHonorLvlReachedMsg;
         std::string creatureHonorRulesMsg;
+        uint32 configChecksum;
 
         // Levels
         uint32 playerMinLevel;
@@ -212,25 +215,83 @@ class player_creature_honor : public PlayerScript
         bool allowHumanoid;
         bool allowMechanical;
 
-        void SendMessagesToPlayer(Player* pl)
+        void CalcConfigChecksum()
+        {
+            // Calculates the sum of all player_creature_honor config values. Used to determine
+            //  if the config has changed and trigger the rules message to be resent
+            //
+            // Note: Settings that cannot be directly changed in the config file should not be
+            //       included (eg: creatureHonorRulesMsg.length())
+
+            configChecksum = 0;
+
+            // General
+            configChecksum += creatureHonorScriptEnabled;
+            configChecksum += allowAchievementGain;
+
+            // Levels
+            configChecksum += playerMinLevel;
+            configChecksum += creatureBonusLevelDiff;
+            configChecksum += penaltyLevelDiff;
+
+            // Rates - Base
+            configChecksum += rateNormal;
+            configChecksum += rateElite;
+
+            // Rates - Bonuses
+            configChecksum += rateGuardBonus;
+            configChecksum += rateLevelDiffBonus;
+            configChecksum += rateRareEliteBonus;
+            configChecksum += rateRacialLeaderBonus;
+            configChecksum += rateWorldBossBonus;
+
+            // Rules - General
+            configChecksum += onlyInInstances;
+            configChecksum += requireXP;
+            configChecksum += honorFromNeutral;
+            configChecksum += requirePlayerPvP;
+            configChecksum += requireCreaturePvP;
+
+            // Rules - Creature Types
+            configChecksum += allowBeast;
+            configChecksum += allowDragonkin;
+            configChecksum += allowDemon;
+            configChecksum += allowElemental;
+            configChecksum += allowGiant;
+            configChecksum += allowHumanoid;
+            configChecksum += allowMechanical;
+            configChecksum += allowUndead;
+
+            // Messaging - General
+            configChecksum += creatureHonorLvlReachedMsg.length();
+
+        }
+
+        void SendMessagesToPlayer(Player* pl, bool firstTime)
         {
             // Sends messages and updates the message tracker DB table
 
             // Chat - General notify message
             SendMessageToChat(pl, creatureHonorLvlReachedMsg);
 
+            std::string msgSubject = "Honor From NPC Kills";
+
+            if (!firstTime)
+                msgSubject.append(" - Update");
+
             // Mail - Rules List
-            SendMessageToMail(pl, "Honor From NPC Kills", creatureHonorRulesMsg);
+            SendMessageToMail(pl, msgSubject, creatureHonorRulesMsg, firstTime);
 
             // Update DB to indicate messages have been sent
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CREATUREHONOR_MESSAGE);
-            stmt->setUInt32(0, pl->GetGUIDLow());
+            stmt->setUInt32(0, configChecksum);
+            stmt->setUInt32(1, pl->GetGUIDLow());
             trans->Append(stmt);
             CharacterDatabase.CommitTransaction(trans);
         }
 
-        void SendMessageToMail(Player* receiver, const std::string& mailSubject, const std::string& mailMsg)
+        void SendMessageToMail(Player* receiver, const std::string& mailSubject, const std::string& mailMsg, bool firstTime)
         {
             // Sends mail to the player. Mail sender is the class trainer from the player's
             //  starting zone which is looked up by using CinematicCamera.dbc. If for some
@@ -295,17 +356,27 @@ class player_creature_honor : public PlayerScript
 
                 // Add some flavor text to the message
                 msgFinal.append("Greetings " + receiver->GetName() + ", I hope this\nletter finds you in good health.\n\n");
-                msgFinal.append("I have received word that you have\nreached level " + std::to_string(receiver->getLevel()) + ", well done!\n\n");
+
+                if (firstTime)
+                    msgFinal.append("I have received word that you have\nreached level " + std::to_string(receiver->getLevel()) + ", well done!\n\n");
+                else
+                    msgFinal.append("I have received word that the\nrules for honor from NPC kills\nhave changed.\n\n");
+
                 msgFinal.append("You will now receive honor for NPC\nkills if you follow these rules:\n\n");
                 msgFinal.append(mailMsg);
                 msgFinal.append("\n\nGood Hunting!\n\n");
                 msgFinal.append(fields[1].GetString() + ",\n" + fields[2].GetString()); // fields[2] is 'subname', for Deathknight this is blank
+                msgFinal.append("\n\nPS:\n\nI will message you again if these\nrules change.\n");
+
             }
             else
             {
+                // Couldn't find an NPC trainer for some reason, just send the message
                 mailSenderID = receiver->GetGUIDLow();
                 mailType = MAIL_NORMAL;
-                msgFinal = mailMsg;
+                msgFinal.append("You will now receive honor for NPC\nkills if you follow these rules:\n\n");
+                msgFinal.append(mailMsg);
+                msgFinal.append("\n\nI will message you again if these\nrules change.");
             }
 
             // Send the mail. Receiver can choose to "make a copy" through the client
@@ -439,7 +510,7 @@ class player_creature_honor : public PlayerScript
             thePlayer->ApplyModUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, honor, true);
 
             // Send honor message to client
-            thePlayer->SendPVPCreditMessage(uint32(honor), thePlayer->GetGUID());
+            thePlayer->SendPVPCreditMessage(honor, victim->GetGUID());
         }
 
         bool IsHonorEnabled(Player* thePlayer, Creature* target)

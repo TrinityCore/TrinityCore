@@ -1971,7 +1971,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
         void SetHonorPoints(uint32 value);
         void SetArenaPoints(uint32 value);
-        void SendPVPCreditMessage(uint32 honor, ObjectGuid victimGuid, uint32 victimRank = 0);
+        void SendPVPCreditMessage(int32 honor, ObjectGuid victimGuid, uint32 victimRank = 0); // Honor must be allowed to be negative for penalties (player_creature_honor)
 
         //End of PvP System
 

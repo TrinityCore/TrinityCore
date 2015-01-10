@@ -7,6 +7,6 @@ DROP TABLE IF EXISTS `creaturehonor_message`;
 
 CREATE TABLE `creaturehonor_message` (
   `guid` int(10) unsigned NOT NULL COMMENT 'characters.guid',
-  `message_sent` int(1) unsigned DEFAULT '0' COMMENT 'Set to 0 to force message resend at login. Useful after CONF change.',
+  `message_checksum` int(10) unsigned DEFAULT '0' COMMENT 'Checksum of CreatureHonor config rules. Script sends mail to player when config changes.',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tracks CreatureHonor script messages sent to characters.';

@@ -7299,7 +7299,7 @@ void Player::SetArenaPoints(uint32 value)
         AddKnownCurrency(ITEM_ARENA_POINTS_ID);
 }
 
-void Player::SendPVPCreditMessage(uint32 honor, ObjectGuid victimGuid, uint32 victimRank)
+void Player::SendPVPCreditMessage(int32 honor, ObjectGuid victimGuid, uint32 victimRank)
 {
     // Sends honor message to client (chat log, floating text)
     
@@ -7318,7 +7318,7 @@ void Player::SendPVPCreditMessage(uint32 honor, ObjectGuid victimGuid, uint32 vi
 
     WorldPacket data(SMSG_PVP_CREDIT, 4 + 8 + 4);
     data << honor;
-    data << (victimGuid.IsPlayer() ? victimGuid : ObjectGuid::Empty);
+    data << uint64((victimGuid.IsPlayer() ? victimGuid.GetCounter() : 0)); // must force uint64 or results in wrong message
     data << victimRank;
 
     GetSession()->SendPacket(&data);
