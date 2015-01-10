@@ -57,15 +57,11 @@ public:
     {
         boss_maleki_the_pallidAI(Creature* creature) : ScriptedAI(creature)
         {
-            Initialize();
             instance = me->GetInstanceScript();
         }
-
-        void Initialize() { }
         
         void Reset() override
         {
-            Initialize();
             _events.Reset();
         }
 
