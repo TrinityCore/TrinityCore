@@ -96,16 +96,16 @@ public:
                     break;
                 case GO_SHRINE_OF_GELIHAST:
                     shrineOfGelihastGUID = go->GetGUID();
-                    if (GetBossState(TYPE_GELIHAST) != DONE)
+                    if (GetBossState(DATA_GELIHAST) != DONE)
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case GO_ALTAR_OF_THE_DEEPS:
                     altarOfTheDeepsGUID = go->GetGUID();
-                    if (GetBossState(TYPE_AKU_MAI) != DONE)
+                    if (GetBossState(DATA_AKU_MAI) != DONE)
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case GO_AKU_MAI_DOOR:
-                    if (GetBossState(TYPE_AKU_MAI) == DONE)
+                    if (GetBossState(DATA_AKU_MAI) == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     mainDoorGUID = go->GetGUID();
                     break;
@@ -170,12 +170,12 @@ public:
 
             switch (type)
             {
-                case TYPE_GELIHAST:
+                case DATA_GELIHAST:
                     if (state == DONE)
                         if (GameObject* go = instance->GetGameObject(shrineOfGelihastGUID))
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
-                case TYPE_AKU_MAI:
+                case DATA_AKU_MAI:
                     if (state == DONE)
                         if (GameObject* go = instance->GetGameObject(altarOfTheDeepsGUID))
                         {

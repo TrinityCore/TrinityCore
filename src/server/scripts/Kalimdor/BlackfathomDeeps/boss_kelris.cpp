@@ -45,7 +45,7 @@ public:
 
     struct boss_kelrisAI : public BossAI
     {
-        boss_kelrisAI(Creature* creature) : BossAI(creature, TYPE_KELRIS) { }
+        boss_kelrisAI(Creature* creature) : BossAI(creature, DATA_KELRIS) { }
 
         void EnterCombat(Unit* /*who*/) override
         {
@@ -58,7 +58,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
-            instance->SetData(TYPE_KELRIS, DONE);
+            _JustDied();
         }
 
         void UpdateAI(uint32 diff) override
