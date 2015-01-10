@@ -54,6 +54,8 @@ static const uint32 NotAllowedItems[] = { 0 };
 
 // Config end
 
+std::set<uint32> TransmogDisplayVendorMgr::Allowed;
+std::set<uint32> TransmogDisplayVendorMgr::NotAllowed;
 
 #ifndef UNORDERED_MAP
 #define UNORDERED_MAP std::unordered_map
