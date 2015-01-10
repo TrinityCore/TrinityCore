@@ -70,6 +70,17 @@ namespace WorldPackets
             uint32 Amount = 0;
         };
 
+        class ItemTimeUpdate final : public ServerPacket
+        {
+        public:
+            ItemTimeUpdate() : ServerPacket(SMSG_ITEM_TIME_UPDATE, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GUID;
+            uint32 Duration = 0;
+        };
+
         class SetProficiency final : public ServerPacket
         {
         public:
