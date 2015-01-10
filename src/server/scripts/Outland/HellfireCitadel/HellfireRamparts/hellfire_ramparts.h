@@ -43,7 +43,7 @@ enum CreatureIds
 enum GameobjectIds
 {
     GO_FEL_IRON_CHEST_NORMAL      = 185168,
-    GO_FEL_IRON_CHECT_HEROIC      = 185169
+    GO_FEL_IRON_CHEST_HEROIC      = 185169
 };
 
 #endif
