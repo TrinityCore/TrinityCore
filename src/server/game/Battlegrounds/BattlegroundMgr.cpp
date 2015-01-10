@@ -942,11 +942,16 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 
 void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, ObjectGuid guid)
 {
-    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
-    if (time_ == uint32(-1))
-        time_ = 0;
-    data << guid << time_;
+    uint32 TimeLeft = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
+
+    if (TimeLeft == uint32(-1))
+        TimeLeft = 0;
+
+    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 18 + 4);
+
+    data << guid;
+    data << TimeLeft;
+
     player->GetSession()->SendPacket(&data);
 }
 
