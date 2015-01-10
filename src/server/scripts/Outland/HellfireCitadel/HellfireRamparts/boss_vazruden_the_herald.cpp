@@ -297,7 +297,6 @@ class boss_vazruden_the_herald : public CreatureScript
                 Initialize();
                 summoned = false;
                 sentryDown = false;
-                lootSpawned = false;
             }
 
             void Initialize()
@@ -450,7 +449,6 @@ class boss_vazruden_the_herald : public CreatureScript
                 ObjectGuid NazanGUID;
                 ObjectGuid VazrudenGUID;
                 bool summoned;
-                bool lootSpawned;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
