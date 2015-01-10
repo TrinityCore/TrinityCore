@@ -67,17 +67,6 @@ enum RivendareCreatures
     NPC_SKELETON                = 11197
 };
 
-// Define Add positions
-Position const SkeletonLoc[6] =
-{
-    { 4017.403809f, -3339.703369f, 115.057655f, 5.487860f },
-    { 4013.189209f, -3351.808350f, 115.052254f, 0.134280f },
-    { 4017.738037f, -3363.478016f, 115.057274f, 0.723313f },
-    { 4048.877197f, -3363.223633f, 115.054253f, 3.627735f },
-    { 4051.777588f, -3350.893311f, 115.055351f, 3.066176f },
-    { 4048.375977f, -3339.966309f, 115.055222f, 2.457497f }
-};
-
 class boss_baron_rivendare : public CreatureScript
 {
 public:
@@ -126,8 +115,12 @@ public:
 
         void DoSpawnSkeleton()
         {
-            for (int i = 0; i < 6; ++i)
-                me->SummonCreature(NPC_SKELETON, SkeletonLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 29000);
+            DoCast(me, SPELL_RAISE_DEAD1);
+            DoCast(me, SPELL_RAISE_DEAD2);
+            DoCast(me, SPELL_RAISE_DEAD3);
+            DoCast(me, SPELL_RAISE_DEAD4);
+            DoCast(me, SPELL_RAISE_DEAD5);
+            DoCast(me, SPELL_RAISE_DEAD6);
         }
 
         void JustDied(Unit* /*killer*/) override
