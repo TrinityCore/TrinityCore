@@ -845,7 +845,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     SendTutorialsData();
 
     pCurrChar->GetMotionMaster()->Initialize();
-    pCurrChar->SendDungeonDifficulty(false);
+    pCurrChar->SendDungeonDifficulty();
 
     WorldPackets::Character::LoginVerifyWorld loginVerifyWorld;
     loginVerifyWorld.MapID = pCurrChar->GetMapId();
@@ -873,7 +873,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         features.ScrollOfResurrectionMaxRequestsPerDay = 1;
         features.CfgRealmID = 2;
         features.CfgRealmRecID = 0;
-        features.VoiceEnabled = true;
+        features.VoiceEnabled = false;
         /// END OF DUMMY VALUES
 
         features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
@@ -2489,6 +2489,7 @@ void WorldSession::SendCharRename(ResponseCodes result, WorldPackets::Character:
 void WorldSession::SendCharCustomize(ResponseCodes result, WorldPackets::Character::CharCustomizeInfo const* customizeInfo)
 {
     /// @todo: fix 6.x implementation
+    (void)result;
     (void)customizeInfo;
     /*
     WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1 + 8 + customizeInfo.NewName.size() + 1 + 6);

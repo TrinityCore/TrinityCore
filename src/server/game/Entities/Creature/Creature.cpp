@@ -269,26 +269,28 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     }
 
     // get difficulty 1 mode entry
-    CreatureTemplate const* cinfo = normalInfo;
-    for (uint8 diff = uint8(GetMap()->GetSpawnMode()); diff > 0;)
+    CreatureTemplate const* cinfo = nullptr;
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(GetMap()->GetSpawnMode());
+    while (!cinfo && difficultyEntry)
     {
-        // we already have valid Map pointer for current creature!
-        if (normalInfo->DifficultyEntry[diff - 1])
-        {
-            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[diff - 1]);
-            if (cinfo)
-                break;                                      // template found
+        int32 idx = CreatureTemplate::DifficultyIDToDifficultyEntryIndex(difficultyEntry->ID);
+        if (idx == -1)
+            break;
 
-            // check and reported at startup, so just ignore (restore normalInfo)
-            cinfo = normalInfo;
+        if (normalInfo->DifficultyEntry[idx])
+        {
+            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[idx]);
+            break;
         }
 
-        // for instances heroic to normal, other cases attempt to retrieve previous difficulty
-        if (diff >= DIFFICULTY_10_HC && GetMap()->IsRaid())
-            diff -= 2;                                      // to normal raid difficulty cases
-        else
-            --diff;
+        if (!difficultyEntry->FallbackDifficultyID)
+            break;
+
+        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
     }
+
+    if (!cinfo)
+        cinfo = normalInfo;
 
     // Initialize loot duplicate count depending on raid difficulty
     if (GetMap()->Is25ManRaid())
@@ -946,7 +948,7 @@ void Creature::SaveToDB()
     SaveToDB(mapId, data->spawnMask, GetPhaseMask());
 }
 
-void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
+void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
 {
     // update in loaded data
     if (!m_DBTableGuid)
@@ -1620,7 +1622,7 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo) const
     // This check must be done instead of 'if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))' for not break
     // the check of mechanic immunity on DB (tested) because GetCreatureTemplate()->MechanicImmuneMask and m_spellImmune[IMMUNITY_MECHANIC] don't have same data.
     bool immunedToAllEffects = true;
-    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
+    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficultyID()))
     {
         if (!effect || !effect->IsEffect())
             continue;
@@ -1638,7 +1640,7 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo) const
 
 bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
-    SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficulty());
+    SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID());
     if (!effect)
         return true;
     if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (effect->Mechanic - 1)))
@@ -1684,7 +1686,7 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
         }
 
         bool bcontinue = true;
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
+        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficultyID()))
         {
             if (effect && ((effect->Effect == SPELL_EFFECT_SCHOOL_DAMAGE)       ||
                 (effect->Effect == SPELL_EFFECT_INSTAKILL)            ||
@@ -1732,7 +1734,7 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
         }
 
         bool bcontinue = true;
-        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
+        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficultyID()))
         {
             if (effect && (effect->Effect == SPELL_EFFECT_HEAL))
             {

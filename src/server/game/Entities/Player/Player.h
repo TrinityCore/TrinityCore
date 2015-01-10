@@ -2006,13 +2006,16 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetArenaTeamIdInvited() { return m_ArenaTeamIdInvited; }
         uint32 GetRBGPersonalRating() const { return 0; }
 
-        Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
-        Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
-        Difficulty GetRaidDifficulty() const { return m_raidDifficulty; }
-        Difficulty GetStoredRaidDifficulty() const { return m_raidMapDifficulty; } // only for use in difficulty packet after exiting to raid map
-        void SetDungeonDifficulty(Difficulty dungeon_difficulty) { m_dungeonDifficulty = dungeon_difficulty; }
-        void SetRaidDifficulty(Difficulty raid_difficulty) { m_raidDifficulty = raid_difficulty; }
-        void StoreRaidMapDifficulty() { m_raidMapDifficulty = GetMap()->GetDifficulty(); }
+        Difficulty GetDifficultyID(MapEntry const* mapEntry) const;
+        Difficulty GetDungeonDifficultyID() const { return m_dungeonDifficulty; }
+        Difficulty GetRaidDifficultyID() const { return m_raidDifficulty; }
+        Difficulty GetLegacyRaidDifficultyID() const { return m_legacyRaidDifficulty; }
+        void SetDungeonDifficultyID(Difficulty dungeon_difficulty) { m_dungeonDifficulty = dungeon_difficulty; }
+        void SetRaidDifficultyID(Difficulty raid_difficulty) { m_raidDifficulty = raid_difficulty; }
+        void SetLegacyRaidDifficultyID(Difficulty raid_difficulty) { m_legacyRaidDifficulty = raid_difficulty; }
+        static Difficulty CheckLoadedDungeonDifficultyID(Difficulty difficulty);
+        static Difficulty CheckLoadedRaidDifficultyID(Difficulty difficulty);
+        static Difficulty CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty);
 
         bool UpdateSkill(uint32 skill_id, uint32 step);
         bool UpdateSkillPro(uint16 skillId, int32 chance, uint32 step);
@@ -2100,9 +2103,9 @@ class Player : public Unit, public GridObject<Player>
         void SendAutoRepeatCancel(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
-        void SendDungeonDifficulty(bool IsInGroup);
-        void SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty = -1);
-        void ResetInstances(uint8 method, bool isRaid);
+        void SendDungeonDifficulty();
+        void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1);
+        void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
         void SendResetInstanceFailed(uint32 reason, uint32 MapId);
         void SendResetFailedNotify(uint32 mapid);
@@ -2468,7 +2471,7 @@ class Player : public Unit, public GridObject<Player>
         BoundInstancesMap m_boundInstances[MAX_DIFFICULTY];
         InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty);
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty) { return m_boundInstances[difficulty]; }
-        InstanceSave* GetInstanceSave(uint32 mapid, bool raid);
+        InstanceSave* GetInstanceSave(uint32 mapid);
         void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
         void UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficulty, bool unload = false);
         InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
@@ -2732,6 +2735,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_speakCount;
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
+        Difficulty m_legacyRaidDifficulty;
         Difficulty m_raidMapDifficulty;
 
         uint32 m_atLoginFlags;

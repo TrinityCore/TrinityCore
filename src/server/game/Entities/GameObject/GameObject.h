@@ -828,7 +828,7 @@ struct GameObjectData
     int32  spawntimesecs;
     uint32 animprogress;
     GOState go_state;
-    uint8 spawnMask;
+    uint32 spawnMask;
     uint8 artKit;
     uint32 phaseid;
     uint32 phaseGroup;
@@ -883,7 +883,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
 
         void SaveToDB();
-        void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
+        void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
         bool LoadFromDB(ObjectGuid::LowType guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
         bool LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap = true);
         void DeleteFromDB();

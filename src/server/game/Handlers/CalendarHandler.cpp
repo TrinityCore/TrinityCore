@@ -111,7 +111,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
             {
                 InstanceSave const* save = itr->second.save;
                 dataBuffer << uint32(save->GetMapId());
-                dataBuffer << uint32(save->GetDifficulty());
+                dataBuffer << uint32(save->GetDifficultyID());
                 dataBuffer << uint32(save->GetResetTime() - currTime);
                 dataBuffer << uint64(save->GetInstanceId());     // instance save id as unique instance copy id
                 ++boundCounter;
@@ -726,7 +726,7 @@ void WorldSession::SendCalendarRaidLockout(InstanceSave const* save, bool add)
     }
 
     data << uint32(save->GetMapId());
-    data << uint32(save->GetDifficulty());
+    data << uint32(save->GetDifficultyID());
     data << uint32(save->GetResetTime() - currTime);
     data << uint64(save->GetInstanceId());
     SendPacket(&data);
@@ -739,14 +739,14 @@ void WorldSession::SendCalendarRaidLockoutUpdated(InstanceSave const* save)
 
     ObjectGuid guid = _player->GetGUID();
     TC_LOG_DEBUG("network", "SMSG_CALENDAR_RAID_LOCKOUT_UPDATED [%s] Map: %u, Difficulty %u",
-        guid.ToString().c_str(), save->GetMapId(), save->GetDifficulty());
+        guid.ToString().c_str(), save->GetMapId(), save->GetDifficultyID());
 
     time_t currTime = time(NULL);
 
     WorldPacket data(SMSG_CALENDAR_RAID_LOCKOUT_UPDATED, 4 + 4 + 4 + 4 + 8);
     data.AppendPackedTime(currTime);
     data << uint32(save->GetMapId());
-    data << uint32(save->GetDifficulty());
+    data << uint32(save->GetDifficultyID());
     data << uint32(0); // Amount of seconds that has changed to the reset time
     data << uint32(save->GetResetTime() - currTime);
     SendPacket(&data);

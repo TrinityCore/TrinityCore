@@ -96,10 +96,10 @@ namespace WorldPackets
             {
                 int32 Type = 0;                       // ID from CurrencyTypes.dbc
                 int32 Quantity = 0;
-                Optional<int32> WeeklyQuantity;       // Currency count obtained this Week.  
+                Optional<int32> WeeklyQuantity;       // Currency count obtained this Week.
                 Optional<int32> MaxWeeklyQuantity;    // Weekly Currency cap.
                 Optional<int32> TrackedQuantity;
-                uint8 Flags = 0;                      // 0 = none, 
+                uint8 Flags = 0;                      // 0 = none,
             };
 
             SetupCurrency() : ServerPacket(SMSG_SETUP_CURRENCY, 22) { }
@@ -220,6 +220,48 @@ namespace WorldPackets
             int32 AreaTriggerID = 0;
             bool Entered = false;
             bool FromClient = false;
+        };
+
+        class SetDungeonDifficulty final : public ClientPacket
+        {
+        public:
+            SetDungeonDifficulty(WorldPacket&& packet) : ClientPacket(CMSG_SET_DUNGEON_DIFFICULTY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 DifficultyID;
+        };
+
+        class SetRaidDifficulty final : public ClientPacket
+        {
+        public:
+            SetRaidDifficulty(WorldPacket&& packet) : ClientPacket(CMSG_SET_RAID_DIFFICULTY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 DifficultyID;
+            uint8 Legacy;
+        };
+
+        class DungeonDifficultySet final : public ServerPacket
+        {
+        public:
+            DungeonDifficultySet() : ServerPacket(SMSG_SET_DUNGEON_DIFFICULTY, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 DifficultyID;
+        };
+
+        class RaidDifficultySet final : public ServerPacket
+        {
+        public:
+            RaidDifficultySet() : ServerPacket(SMSG_SET_RAID_DIFFICULTY, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 DifficultyID;
+            uint8 Legacy;
         };
     }
 }

@@ -2709,7 +2709,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(ModifierTreeNode const* 
             break;
         }
         case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY: // 20
-            if (uint32(referencePlayer->GetMap()->GetDifficulty()) != reqValue)
+            if (uint32(referencePlayer->GetMap()->GetDifficultyID()) != reqValue)
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE:

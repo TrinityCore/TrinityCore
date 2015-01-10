@@ -1234,30 +1234,34 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
         SpellEffectInfo const* effect = spellInfo->GetEffect(DIFFICULTY_NONE, i);
         if (!effect)
             continue;
+
         // check if effect is already a part of some shared mask
         bool found = false;
         for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
         {
-            if ((1<<i) & *itr)
+            if ((1 << i) & *itr)
             {
                 found = true;
                 break;
             }
         }
+
         if (found)
             continue;
 
         // build new shared mask with found effect
-        uint32 sharedMask = (1<<i);
+        uint32 sharedMask = 1 << i;
         ConditionList* cmp = effect->ImplicitTargetConditions;
-        for (uint8 effIndex = i+1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+        for (uint8 effIndex = i + 1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         {
             SpellEffectInfo const* inner = spellInfo->GetEffect(DIFFICULTY_NONE, effIndex);
             if (!inner)
                 continue;
+
             if (inner->ImplicitTargetConditions == cmp)
-                sharedMask |= 1<<effIndex;
+                sharedMask |= 1 << effIndex;
         }
+
         sharedMasks.push_back(sharedMask);
     }
 
@@ -1304,7 +1308,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
                     if (!eff)
                         continue;
 
-                    if ((1<<i) & commonMask)
+                    if ((1 << i) & commonMask)
                     {
                         const_cast<SpellEffectInfo*>(eff)->ImplicitTargetConditions = sharedList;
                         assigned = true;

@@ -572,7 +572,7 @@ public:
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-                for (SpellEffectInfo const* effect : spell->GetEffectsForDifficulty(me->GetMap()->GetDifficulty()))
+                for (SpellEffectInfo const* effect : spell->GetEffectsForDifficulty(me->GetMap()->GetDifficultyID()))
                     if (effect->Effect == SPELL_EFFECT_INTERRUPT_CAST)
                         if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_SOUL_SHOCK
                             || me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DEADEN)

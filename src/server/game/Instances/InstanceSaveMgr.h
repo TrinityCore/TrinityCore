@@ -118,7 +118,7 @@ class InstanceSave
 
         /* currently it is possible to omit this information from this structure
            but that would depend on a lot of things that can easily change in future */
-        Difficulty GetDifficulty() const { return m_difficulty; }
+        Difficulty GetDifficultyID() const { return m_difficulty; }
 
         /* used to flag the InstanceSave as to be deleted, so the caller can delete it */
         void SetToDelete(bool toDelete)

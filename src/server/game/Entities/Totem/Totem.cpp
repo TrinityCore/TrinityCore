@@ -145,7 +145,7 @@ bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) con
     /// @todo possibly all negative auras immune?
     if (GetEntry() == 5925)
         return false;
-    if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficulty(), index))
+    if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), index))
     {
         switch (effect->ApplyAuraName)
         {

@@ -1786,10 +1786,10 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
                 {
                     // Resize list only to objects that are vehicles.
                     IsCreatureVehicleCheck check(true);
-                    Trinity::Containers::RandomResizeList(targets, check, (malygos->GetMap()->GetDifficulty() == DIFFICULTY_10_N ? 4 : 10));
+                    Trinity::Containers::RandomResizeList(targets, check, (malygos->GetMap()->GetDifficultyID() == DIFFICULTY_10_N ? 4 : 10));
                 }
                 else
-                    Trinity::Containers::RandomResizeList(targets, (malygos->GetMap()->GetDifficulty() == DIFFICULTY_10_N ? 4 : 10));
+                    Trinity::Containers::RandomResizeList(targets, (malygos->GetMap()->GetDifficultyID() == DIFFICULTY_10_N ? 4 : 10));
             }
 
             void HandleVisual(SpellEffIndex /*effIndex*/)
@@ -2475,9 +2475,9 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
             {
                 if (Creature* target = GetTarget()->ToCreature())
                 {
-                    if (target->GetMap()->GetDifficulty() == DIFFICULTY_10_N)
+                    if (target->GetMap()->GetDifficultyID() == DIFFICULTY_10_N)
                         _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
-                    else if (target->GetMap()->GetDifficulty() == DIFFICULTY_25_N)
+                    else if (target->GetMap()->GetDifficultyID() == DIFFICULTY_25_N)
                         _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
                 }
             }

@@ -1088,7 +1088,7 @@ class spell_putricide_choking_gas_bomb : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 uint32 skipIndex = urand(0, 2);
-                for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffectsForDifficulty(GetCaster()->GetMap()->GetDifficulty()))
+                for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffectsForDifficulty(GetCaster()->GetMap()->GetDifficultyID()))
                 {
                     if (!effect || effect->EffectIndex == skipIndex)
                         continue;

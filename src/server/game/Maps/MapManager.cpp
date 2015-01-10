@@ -133,7 +133,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         return false;
 
     Difficulty targetDifficulty, requestedDifficulty;
-    targetDifficulty = requestedDifficulty = player->GetDifficulty(entry->IsRaid());
+    targetDifficulty = requestedDifficulty = player->GetDifficultyID(entry);
     // Get the highest available difficulty if current setting is higher than the instance allows
     MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
     if (!mapDiff)
@@ -203,7 +203,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             /*
                 This check has to be moved to InstanceMap::CanEnter()
                 // Player permanently bounded to different instance than groups one
-                InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDifficulty(entry->IsRaid()));
+                InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDifficultyID(entry));
                 if (playerBoundedInstance && playerBoundedInstance->perm && playerBoundedInstance->save &&
                     boundedInstance->save->GetInstanceId() != playerBoundedInstance->save->GetInstanceId())
                 {
@@ -216,7 +216,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (entry->IsDungeon() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
     {
         uint32 instanceIdToCheck = 0;
-        if (InstanceSave* save = player->GetInstanceSave(mapid, entry->IsRaid()))
+        if (InstanceSave* save = player->GetInstanceSave(mapid))
             instanceIdToCheck = save->GetInstanceId();
 
         // instanceId can never be 0 - will not be found

@@ -773,7 +773,7 @@ void GameObject::SaveToDB()
     SaveToDB(GetMapId(), data->spawnMask, data->phaseMask);
 }
 
-void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
+void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
 {
     const GameObjectTemplate* goI = GetGOInfo();
 
@@ -1809,7 +1809,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true
         return;
 
     bool self = false;
-    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficulty()))
+    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(GetMap()->GetDifficultyID()))
     {
         if (effect && effect->TargetA.GetTarget() == TARGET_UNIT_CASTER)
         {
