@@ -2551,6 +2551,14 @@ bool FileStream_SetCallback(TFileStream * pStream, STREAM_DOWNLOAD_CALLBACK pfnC
  */
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead)
 {
+    //FILE * fp = fopen("E:\\Loading.txt", "at");
+    //if(fp != NULL)
+    //{
+    //    ULONGLONG ByteOffset = (pByteOffset != NULL) ? pByteOffset[0] : 0;
+    //    fprintf(fp, "%-32ws\t%08X\t%08X\n", GetPlainFileName(pStream->szFileName), (ULONG)ByteOffset, dwBytesToRead);
+    //    fclose(fp);
+    //}
+
     assert(pStream->StreamRead != NULL);
     return pStream->StreamRead(pStream, pByteOffset, pvBuffer, dwBytesToRead);
 }

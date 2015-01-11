@@ -99,7 +99,7 @@ static TCHAR * CheckForIndexDirectory(TCascStorage * hs, const TCHAR * szSubDir)
         return hs->szIndexPath;
     }
 
-    delete [] szIndexPath;
+    CASC_FREE(szIndexPath);
     return NULL;
 }
 
@@ -270,7 +270,7 @@ static int LoadInfoVariable(PQUERY_KEY pVarBlob, const char * szLineBegin, const
 
     // Initialize the blob
     pVarBlob->pbData = CASC_ALLOC(BYTE, (szLinePtr - szLineBegin) + 1);
-    pVarBlob->cbData = (size_t)(szLinePtr - szLineBegin);
+    pVarBlob->cbData = (DWORD)(szLinePtr - szLineBegin);
 
     // Check for success
     if(pVarBlob->pbData == NULL)
@@ -826,7 +826,7 @@ static int LoadCdnBuildFile(TCascStorage * hs, PQUERY_KEY pFileBlob)
 //-----------------------------------------------------------------------------
 // Public functions
 
-int LoadBuildConfiguration(TCascStorage * hs)
+int LoadBuildInfo(TCascStorage * hs)
 {
     QUERY_KEY InfoFile = {NULL, 0};
     QUERY_KEY FileData = {NULL, 0};
