@@ -8572,10 +8572,13 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
 
                     switch ((*i)->GetMiscValue())
                     {
-                         // Shatter
-                        case  911:
+                        case 911: // Shatter
                             if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
-                                AddPct(crit_chance, (*i)->GetAmount()*20);
+                            {
+                                crit_chance *= 1.5f;
+                                if (AuraEffect const* eff = (*i)->GetBase()->GetEffect(EFFECT_1))
+                                    crit_chance += (*i)->GetAmount();
+                            }
                             break;
                         case 7917: // Glyph of Shadowburn
                             if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
