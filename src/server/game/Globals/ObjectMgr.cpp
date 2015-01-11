@@ -4417,7 +4417,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
                 for (uint8 i = 0; i < MAX_STATS; ++i)
-                    levelInfo.stats[i] = fields[i + 3].GetUInt8();
+                    levelInfo.stats[i] = fields[i + 3].GetUInt16();
             }
 
             ++count;
