@@ -381,7 +381,7 @@ struct PlayerLevelInfo
 {
     PlayerLevelInfo() { for (uint8 i=0; i < MAX_STATS; ++i) stats[i] = 0; }
 
-    uint8 stats[MAX_STATS];
+    uint16 stats[MAX_STATS];
 };
 
 typedef std::list<uint32> PlayerCreateInfoSpells;
