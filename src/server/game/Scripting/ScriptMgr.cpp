@@ -1142,7 +1142,7 @@ void ScriptMgr::OnWeatherChange(Weather* weather, WeatherState state, float grad
 {
     ASSERT(weather);
 #ifdef ELUNA
-    sEluna->OnChange(weather, state, grade);
+    sEluna->OnChange(weather, weather->GetZone(), state, grade);
 #endif
 
     GET_SCRIPT(WeatherScript, weather->GetScriptId(), tmpscript);
