@@ -125,12 +125,12 @@ static size_t ReadListFileLine(TListFileCache * pCache, char * szLine, size_t nM
         }
 
         // If we have found a newline, stop loading
-        if(*pCache->pPos == 0x0D || *pCache->pPos == 0x0A)
+        if(pCache->pPos[0] == 0x0D || pCache->pPos[0] == 0x0A)
             break;
 
         // Blizzard listfiles can also contain information about patch:
         // Pass1\Files\MacOS\unconditional\user\Background Downloader.app\Contents\Info.plist~Patch(Data#frFR#base-frFR,1326)
-        if(*pCache->pPos == '~')
+        if(pCache->pPos[0] == '~')
             szExtraString = szLine;
 
         // Copy the character
@@ -190,7 +190,7 @@ static TListFileCache * CreateListFileCache(RELOAD_CACHE pfnReloadCache, CLOSE_S
 }
 
 //-----------------------------------------------------------------------------
-// Listfile functions
+// Functions for parsing an external listfile
 
 void * ListFile_OpenExternal(const TCHAR * szListFile)
 {
@@ -262,5 +262,162 @@ void ListFile_Free(void * pvListFile)
         if(pCache->pfnCloseStream != NULL)
             pCache->pfnCloseStream(pCache->pvCacheContext);
         CASC_FREE(pCache);
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Functions for creating a listfile map
+
+#define LISTMAP_INITIAL   0x100000
+
+static PLISTFILE_MAP ListMap_Create()
+{
+    PLISTFILE_MAP pListMap;
+    size_t cbToAllocate;
+    
+    // Create buffer for the listfile
+    // Note that because the listfile is quite big and CASC_REALLOC
+    // is a costly operation, we want to have as few reallocs as possible.
+    cbToAllocate = sizeof(LISTFILE_MAP) + LISTMAP_INITIAL;
+    pListMap = (PLISTFILE_MAP)CASC_ALLOC(BYTE, cbToAllocate);
+    if(pListMap != NULL)
+    {
+        // Fill the listfile buffer
+        memset(pListMap, 0, sizeof(LISTFILE_MAP));
+        pListMap->cbBufferMax = LISTMAP_INITIAL;
+    }
+
+    return pListMap;
+}
+
+static PLISTFILE_MAP ListMap_InsertName(PLISTFILE_MAP pListMap, const char * szFileName, size_t nLength)
+{
+    PLISTFILE_ENTRY pListEntry;
+    char szFileName2[MAX_PATH+1];
+    size_t cbToAllocate;
+    size_t cbEntrySize;
+    uint32_t dwHashHigh = 0;
+    uint32_t dwHashLow = 0;
+
+    // Make sure there is enough space in the list map
+    cbEntrySize = sizeof(LISTFILE_ENTRY) + nLength;
+    cbEntrySize = ALIGN_TO_SIZE(cbEntrySize, 8);
+    if((pListMap->cbBuffer + cbEntrySize) > pListMap->cbBufferMax)
+    {
+        cbToAllocate = sizeof(LISTFILE_MAP) + (pListMap->cbBufferMax * 3) / 2;
+        pListMap = (PLISTFILE_MAP)CASC_REALLOC(BYTE, pListMap, cbToAllocate);
+        if(pListMap == NULL)
+            return NULL;
+
+        pListMap->cbBufferMax = (pListMap->cbBufferMax * 3) / 2;
+    }
+
+    // Get the pointer to the first entry
+    pListEntry = (PLISTFILE_ENTRY)((LPBYTE)(pListMap + 1) + pListMap->cbBuffer);
+
+    // Get the name hash
+    NormalizeFileName_UpperBkSlash(szFileName, szFileName2);
+    hashlittle2(szFileName2, nLength, &dwHashHigh, &dwHashLow);
+    
+    // Calculate the HASH value of the normalized file name
+    pListEntry->FileNameHash = ((ULONGLONG)dwHashHigh << 0x20) | dwHashLow;
+    pListEntry->cbEntrySize = (DWORD)cbEntrySize;
+    memcpy(pListEntry->szFileName, szFileName, nLength);
+    pListEntry->szFileName[nLength] = 0;
+
+    // Move the next entry
+    pListMap->cbBuffer += cbEntrySize;
+    pListMap->nEntries++;
+    return pListMap;
+}
+
+static PLISTFILE_MAP ListMap_Finish(PLISTFILE_MAP pListMap)
+{
+    PLISTFILE_ENTRY pListEntry;
+    PCASC_MAP pMap;
+    LPBYTE pbEntry;
+
+    // Sanity check
+    assert(pListMap->pNameMap == NULL);
+    
+    // Create the map
+    pListMap->pNameMap = pMap = Map_Create((DWORD)pListMap->nEntries, sizeof(ULONGLONG), 0);
+    if(pListMap->pNameMap == NULL)
+    {
+        ListFile_FreeMap(pListMap);
+        return NULL;
+    }
+
+    // Fill the map
+    pbEntry = (LPBYTE)(pListMap + 1);
+    for(size_t i = 0; i < pListMap->nEntries; i++)
+    {
+        // Get the listfile entry
+        pListEntry = (PLISTFILE_ENTRY)pbEntry;
+        pbEntry += pListEntry->cbEntrySize;
+
+        // Insert the entry to the map
+        Map_InsertObject(pMap, pListEntry);
+    }
+
+    return pListMap;
+}
+
+PLISTFILE_MAP ListFile_CreateMap(const TCHAR * szListFile)
+{
+    PLISTFILE_MAP pListMap = NULL;
+    void * pvListFile;
+    char szFileName[MAX_PATH+1];
+    size_t nLength;
+
+    // Only if the listfile name has been given
+    if(szListFile != NULL)
+    {
+        // Create map for the listfile
+        pListMap = ListMap_Create();
+        if(pListMap != NULL)
+        {
+            // Open the external listfile
+            pvListFile = ListFile_OpenExternal(szListFile);
+            if(pvListFile != NULL)
+            {
+                // Go through the entire listfile and insert each name to the map
+                while((nLength = ListFile_GetNext(pvListFile, "*", szFileName, MAX_PATH)) != 0)
+                {
+                    // Insert the file name to the map
+                    pListMap = ListMap_InsertName(pListMap, szFileName, nLength);
+                    if(pListMap == NULL)
+                        break;
+                }
+
+                // Finish the listfile map
+                pListMap = ListMap_Finish(pListMap);
+
+                // Free the listfile
+                ListFile_Free(pvListFile);
+            }
+        }
+    }
+
+    // Return the created map
+    return pListMap;
+}
+
+const char * ListFile_FindName(PLISTFILE_MAP pListMap, ULONGLONG FileNameHash)
+{
+    PLISTFILE_ENTRY pListEntry = NULL;
+
+    if(pListMap != NULL)
+        pListEntry = (PLISTFILE_ENTRY)Map_FindObject(pListMap->pNameMap, &FileNameHash);
+    return (pListEntry != NULL) ? pListEntry->szFileName : "";
+}
+
+void ListFile_FreeMap(PLISTFILE_MAP pListMap)
+{
+    if(pListMap != NULL)
+    {
+        if(pListMap->pNameMap != NULL)
+            Map_Free(pListMap->pNameMap);
+        CASC_FREE(pListMap);
     }
 }

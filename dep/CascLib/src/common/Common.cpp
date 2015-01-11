@@ -62,20 +62,6 @@ unsigned char AsciiToUpperTable[256] =
 unsigned char IntToHexChar[] = "0123456789abcdef";
                         
 //-----------------------------------------------------------------------------
-// Support for memory reallocation
-
-#if defined(_MSC_VER) && defined(_DEBUG)
-void * DbgRealloc(void * ptr, size_t nSize)
-{
-    // HeapReAlloc does not support NULL as previous block
-    if(ptr == NULL)
-        return HeapAlloc(GetProcessHeap, 0, nSize);
-
-    return HeapReAlloc(GetProcessHeap(), 0, ptr, nSize);
-}
-#endif
-
-//-----------------------------------------------------------------------------
 // GetLastError/SetLastError support for non-Windows platform
 
 #ifndef PLATFORM_WINDOWS
@@ -232,11 +218,14 @@ TCHAR * CombinePath(const TCHAR * szDirectory, const TCHAR * szSubDir)
     return szFullPath;
 }
 
-void NormalizeFileName_UpperBkSlash(char * szFileName)
+void NormalizeFileName_UpperBkSlash(const char * szSrcFileName, char * szTrgFileName)
 {
+    size_t i;
+
     // Normalize the file name: ToLower + BackSlashToSlash
-    for(size_t i = 0; szFileName[i] != 0; i++)
-        szFileName[i] = AsciiToUpperTable[szFileName[i]];
+    for(i = 0; szSrcFileName[i] != 0; i++)
+        szTrgFileName[i] = AsciiToUpperTable[szSrcFileName[i]];
+    szTrgFileName[i] = 0;
 }
 
 void NormalizeFileName_LowerSlash(char * szFileName)

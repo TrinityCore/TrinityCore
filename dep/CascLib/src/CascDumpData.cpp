@@ -16,24 +16,19 @@
 #ifdef _DEBUG       // The entire file is only valid for debug purposes
 
 //-----------------------------------------------------------------------------
-// Local functions
+// Forward definitions
 
-static char * StringFromIndexKey(LPBYTE md5, char * szBuffer)
-{
-    return StringFromBinary(md5, 9, szBuffer);
-}
+LPBYTE VerifyLocaleBlock(PROOT_BLOCK_INFO pBlockInfo, LPBYTE pbFilePointer, LPBYTE pbFileEnd);
 
-static char * StringFromMD5(LPBYTE md5, char * szBuffer)
-{
-    return StringFromBinary(md5, MD5_HASH_SIZE, szBuffer);
-}
+//-----------------------------------------------------------------------------
+// Sort compare functions
 
 static int CompareIndexEntries_FilePos(const void *, const void * pvIndexEntry1, const void * pvIndexEntry2)
 {
     PCASC_INDEX_ENTRY pIndexEntry1 = (PCASC_INDEX_ENTRY)pvIndexEntry1;
     PCASC_INDEX_ENTRY pIndexEntry2 = (PCASC_INDEX_ENTRY)pvIndexEntry2;
-    ULONGLONG FileOffset1 = ConvertBytesToInteger_5(pIndexEntry1->FileOffset);
-    ULONGLONG FileOffset2 = ConvertBytesToInteger_5(pIndexEntry2->FileOffset);
+    ULONGLONG FileOffset1 = ConvertBytesToInteger_5(pIndexEntry1->FileOffsetBE);
+    ULONGLONG FileOffset2 = ConvertBytesToInteger_5(pIndexEntry2->FileOffsetBE);
     DWORD ArchIndex1 = (DWORD)(FileOffset1 >> 0x1E);
     DWORD ArchIndex2 = (DWORD)(FileOffset2 >> 0x1E);
 
@@ -54,98 +49,121 @@ static int CompareIndexEntries_FilePos(const void *, const void * pvIndexEntry1,
     return 0;
 }
 
+//-----------------------------------------------------------------------------
+// Local functions
 
-static char ** CreateFileNameArray(TCascStorage * hs, const TCHAR * szListFile)
+static char * StringFromMD5(LPBYTE md5, char * szBuffer)
 {
-    PCASC_ROOT_ENTRY pRootEntry;
-    char ** FileNameArray = NULL;
-    void * pvListFile;
-    size_t nRootIndex;
-    char szFileName1[MAX_PATH+1];
-    char szFileName2[MAX_PATH+1];
-
-    // Open the listfile stream and initialize the listfile cache
-    pvListFile = ListFile_OpenExternal(szListFile);
-    if(pvListFile != NULL)
-    {
-        // Allocate the array of file names
-        FileNameArray = CASC_ALLOC(char*, hs->nRootEntries);
-        if(FileNameArray != NULL)
-        {
-            // Zero the name array
-            memset(FileNameArray, 0, hs->nRootEntries * sizeof(char *));
-
-            // Perform search
-            while(ListFile_GetNext(pvListFile, "*", szFileName1, MAX_PATH))
-            {
-                // Create normalized name
-                strcpy(szFileName2, szFileName1);
-                NormalizeFileName_UpperBkSlash(szFileName2);
-
-                // Try to find the root entry
-                pRootEntry = FindFirstRootEntry(hs, szFileName2, &nRootIndex);
-                if(pRootEntry != NULL)
-                {
-                    assert(nRootIndex < hs->nRootEntries);
-                    if(FileNameArray[nRootIndex] == NULL)
-                        FileNameArray[nRootIndex] = NewStr(szFileName1, 0);
-                }
-            }
-        }
-
-        // Close the listfile cache
-        ListFile_Free(pvListFile);
-    }
-
-    return FileNameArray;
+    return StringFromBinary(md5, MD5_HASH_SIZE, szBuffer);
 }
 
-static void FreeFileNameArray(TCascStorage * hs, char ** FileNameArray)
+static char * FormatFileName(const char * szFormat, TCascStorage * hs)
 {
-    if(FileNameArray != NULL)
+    char * szFileName;
+    char * szSrc;
+    char * szTrg;
+
+    // Create copy of the file name
+    szFileName = szSrc = szTrg = NewStr(szFormat, 0);
+    if(szFileName != NULL)
     {
-        // Free all sub-entries
-        for(size_t i = 0; i < hs->nRootEntries; i++)
+        // Format the file name
+        while(szSrc[0] != 0)
         {
-            if(FileNameArray[i] != NULL)
-                CASC_FREE(FileNameArray[i]);
+            if(szSrc[0] == '%')
+            {
+                // Replace "%build%" with a build number
+                if(!strncmp(szSrc, "%build%", 7))
+                {
+                    szTrg += sprintf(szTrg, "%u", hs->dwBuildNumber);
+                    szSrc += 7;
+                    continue;
+                }
+            }
+
+            // Just copy the character
+            *szTrg++ = *szSrc++;
         }
 
-        // Free the array itself
-        CASC_FREE(FileNameArray);
+        // Terminate the target file name
+        szTrg[0] = 0;
     }
+
+    return szFileName;
+}
+
+FILE * CreateDumpFile(const char * szFormat, TCascStorage * hs)
+{
+    FILE * fp = NULL;
+    char * szFileName;
+
+    // Validate the storage handle
+    if(hs != NULL)
+    {
+        // Format the real file name
+        szFileName = FormatFileName(szFormat, hs);
+        if(szFileName != NULL)
+        {
+            // Create the dump file
+            fp = fopen(szFileName, "wt");
+            CASC_FREE(szFileName);
+        }
+    }
+
+    return fp;
 }
 
 static void DumpIndexKey(
     FILE * fp,
     TCascStorage * hs,
-    LPBYTE pbEncodingKey,
-    PCASC_INDEX_ENTRY * ppIndexEntries)
+    LPBYTE pbIndexKey,
+    int nDumpLevel)
 {
     PCASC_INDEX_ENTRY pIndexEntry;
+    TCascFile * hf;
     QUERY_KEY QueryKey;
-    size_t EntryIndex = 0;
-    char szMd5[MD5_STRING_SIZE];
+    HANDLE hFile;
+    BYTE HeaderArea[MAX_HEADER_AREA_SIZE];
+    char szBuffer[0x20];
 
-    QueryKey.pbData = pbEncodingKey;
+    QueryKey.pbData = pbIndexKey;
     QueryKey.cbData = MD5_HASH_SIZE;
     pIndexEntry = FindIndexEntry(hs, &QueryKey);
     if(pIndexEntry != NULL)
     {
-        ULONGLONG FileOffset = ConvertBytesToInteger_5(pIndexEntry->FileOffset);
+        ULONGLONG FileOffset = ConvertBytesToInteger_5(pIndexEntry->FileOffsetBE);
         DWORD ArchIndex = (DWORD)(FileOffset >> 0x1E);
-        DWORD FileSize = *(PDWORD)pIndexEntry->FileSize;
-
-        // Mark the index entry as dumped
-        ppIndexEntries[EntryIndex] = NULL;
+        DWORD FileSize = ConvertBytesToInteger_4_LE(pIndexEntry->FileSizeLE);
 
         // Mask the file offset
         FileOffset &= 0x3FFFFFFF;
-        fprintf(fp, "    Index: %s, ArchIdx: %02x  FileOffset %08x  FileSize: %lx\n",
-                    StringFromIndexKey(pIndexEntry->IndexKey, szMd5),
+        fprintf(fp, "    data.%03u at 0x%08x (0x%lx bytes)\n",
                     ArchIndex,
              (DWORD)FileOffset,
                     FileSize);
+
+        if(nDumpLevel > 2)
+        {
+            QueryKey.pbData = pIndexEntry->IndexKey;
+            QueryKey.cbData = MD5_HASH_SIZE;
+            if(CascOpenFileByIndexKey((HANDLE)hs, &QueryKey, 0, &hFile))
+            {
+                // Make sure that the data file is open and frame header loaded
+                CascGetFileSize(hFile, NULL);
+                hf = IsValidFileHandle(hFile);
+                assert(hf->pStream != NULL);
+
+                // Read the header area
+                FileOffset = hf->HeaderOffset - BLTE_HEADER_DELTA;
+                FileStream_Read(hf->pStream, &FileOffset, HeaderArea, sizeof(HeaderArea));
+                CascCloseFile(hFile);
+
+                // Dump the header area
+                fprintf(fp, "    FileSize: %X  Rest: %s\n",
+                            ConvertBytesToInteger_4_LE(&HeaderArea[0x10]),
+                            StringFromBinary(&HeaderArea[0x14], 10, szBuffer));
+            }
+        }
     }
     else
     {
@@ -157,122 +175,31 @@ static void DumpEncodingEntry(
     FILE * fp,
     TCascStorage * hs,
     PCASC_ENCODING_ENTRY pEncodingEntry,
-    PCASC_INDEX_ENTRY * ppIndexEntries)
+    int nDumpLevel)
 {
-    LPBYTE pbEncodingKey;
+    LPBYTE pbIndexKey;
     char szMd5[MD5_STRING_SIZE];
 
-    fprintf(fp, "  Encoding Key: %s  Key Count: %u  Size: %lx\n",
-                StringFromMD5(pEncodingEntry->EncodingKey, szMd5),
-                pEncodingEntry->KeyCount,
-                ConvertBytesToInteger_4(pEncodingEntry->FileSizeBytes));
+    // If the encoding key exists
+    if(pEncodingEntry != NULL)
+    {
+        fprintf(fp, "  Size %lx Key Count: %u\n",
+                    ConvertBytesToInteger_4(pEncodingEntry->FileSizeBE),
+                    pEncodingEntry->KeyCount);
 
-    // If there is a file key
-    if(pEncodingEntry->KeyCount != 0)
-    {                 
-        // Get the first encoding key
-        pbEncodingKey = pEncodingEntry->EncodingKey + MD5_HASH_SIZE;
-
-        // Dump all encoding keys
+        // Dump all index keys
+        pbIndexKey = pEncodingEntry->EncodingKey + MD5_HASH_SIZE;
         for(DWORD j = 0; j < pEncodingEntry->KeyCount; j++)
         {
-            fprintf(fp, "  Index Key: %s\n", StringFromMD5(pbEncodingKey, szMd5));
-            DumpIndexKey(fp, hs, pbEncodingKey, ppIndexEntries);
-            pbEncodingKey += MD5_HASH_SIZE;
+            fprintf(fp, "  %s\n", StringFromMD5(pbIndexKey, szMd5));
+            DumpIndexKey(fp, hs, pbIndexKey, nDumpLevel);
+            pbIndexKey += MD5_HASH_SIZE;
         }
+
     }
     else
     {
-        fprintf(fp, "    ZERO FILE KEYS\n");
-        return;
-    }
-}
-
-static void DumpEncodingEntry(
-    FILE * fp,
-    TCascStorage * hs,
-    PCASC_ROOT_ENTRY pRootEntry,
-    PCASC_ENCODING_ENTRY * ppEncodingKeys,
-    PCASC_INDEX_ENTRY * ppIndexEntries)
-{
-    PCASC_ENCODING_ENTRY pEncodingKey;
-    QUERY_KEY QueryKey;
-    size_t EntryIndex = 0;
-
-    // Find the encoding key
-    QueryKey.pbData = pRootEntry->EncodingKey;
-    QueryKey.cbData = MD5_HASH_SIZE;
-    pEncodingKey = FindEncodingEntry(hs, &QueryKey, &EntryIndex);
-    if(pEncodingKey == NULL)
-    {
-        fprintf(fp, "  NO ENCODING KEY\n");
-        return;
-    }
-
-    // Get the file key, clear the encoding key
-    ppEncodingKeys[EntryIndex] = NULL;
-    DumpEncodingEntry(fp, hs, pEncodingKey, ppIndexEntries);
-}
-
-static void DumpRootEntries(FILE * fp, TCascStorage * hs, char ** FileNameArray)
-{
-    PCASC_ENCODING_ENTRY * ppEncodingEntries;      // Array of encoding entries
-    PCASC_INDEX_ENTRY * ppIndexEntries;         // Complete list of key entries for all files
-    const char * szFileName = NULL;
-    ULONGLONG PrevNameHash = (ULONGLONG)-1;
-    char szMd5[MD5_STRING_SIZE];
-
-    // Create copy of the encoding keys and file keys
-    ppEncodingEntries = CASC_ALLOC(PCASC_ENCODING_ENTRY, hs->nEncodingEntries);
-    ppIndexEntries = CASC_ALLOC(PCASC_INDEX_ENTRY, hs->pIndexEntryMap->ItemCount);
-    if(ppEncodingEntries && ppIndexEntries)
-    {
-        // Copy all pointers
-        memcpy(ppEncodingEntries, hs->ppEncodingEntries, hs->nEncodingEntries * sizeof(PCASC_ENCODING_ENTRY));
-        Map_EnumObjects(hs->pIndexEntryMap, (void **)ppIndexEntries);
-
-        // Parse all entries
-        for(size_t i = 0; i < hs->nRootEntries; i++)
-        {
-            PCASC_ROOT_ENTRY pRootEntry = hs->ppRootEntries[i];
-            const char * szDuplicate = "";
-
-            // Check duplicates
-            if(pRootEntry->FileNameHash != PrevNameHash)
-                szFileName = FileNameArray[i];
-            else
-                szDuplicate = "(DUPLICATE)  ";
-
-            // Dump the root entry
-            fprintf(fp, "NameHash: %016llx  Locales: %08lx  MD5: %s  %sFileName: %s\n",
-                pRootEntry->FileNameHash,
-                pRootEntry->Locales,
-                StringFromMD5(pRootEntry->EncodingKey, szMd5),
-                szDuplicate,
-                szFileName);
-
-            DumpEncodingEntry(fp, hs, pRootEntry, ppEncodingEntries, ppIndexEntries);
-            PrevNameHash = pRootEntry->FileNameHash;
-            fprintf(fp, "\n");
-        }
-
-        // Dump all orphaned encoding keys
-        for(size_t i = 0; i < hs->nEncodingEntries; i++)
-        {
-            if(ppEncodingEntries[i] != NULL)
-            {
-                fprintf(fp, "[NO ROOT KEY]\n");
-                
-                DumpEncodingEntry(fp, hs, ppEncodingEntries[i], ppIndexEntries);
-                ppEncodingEntries[i] = NULL;
-
-                fprintf(fp, "\n");
-            }
-        }
-
-
-        CASC_FREE(ppIndexEntries);
-        CASC_FREE(ppEncodingEntries);
+        fprintf(fp, "  NO ENCODING KEYS\n");
     }
 }
 
@@ -398,7 +325,7 @@ void CascDumpFileNames(const char * szFileName, void * pvMarFile)
 
 void CascDumpMndxRoot(const char * szFileName, PCASC_MNDX_INFO pMndxInfo)
 {
-    PCASC_MNDX_ENTRY pMndxEntry;
+    PCASC_ROOT_ENTRY_MNDX pRootEntry;
     FILE * fp;
     char szMd5[MD5_STRING_SIZE];
 
@@ -409,12 +336,12 @@ void CascDumpMndxRoot(const char * szFileName, PCASC_MNDX_INFO pMndxInfo)
         fprintf(fp, "Indx Fl+Asset EncodingKey                      FileSize\n==== ======== ================================ ========\n");
         for(DWORD i = 0; i < pMndxInfo->MndxEntriesValid; i++)
         {
-            pMndxEntry = pMndxInfo->ppValidEntries[i];
+            pRootEntry = pMndxInfo->ppValidEntries[i];
 
             fprintf(fp, "%04X %08X %s %08X\n", i,
-                                               pMndxEntry->Flags,
-                                               StringFromMD5(pMndxEntry->EncodingKey, szMd5),
-                                               pMndxEntry->FileSize);
+                                               pRootEntry->Flags,
+                                               StringFromMD5(pRootEntry->EncodingKey, szMd5),
+                                               pRootEntry->FileSize);
         }
         fclose(fp);
     }
@@ -446,11 +373,11 @@ void CascDumpIndexEntries(const char * szFileName, TCascStorage * hs)
             for(size_t i = 0; i < nIndexEntries; i++)
             {
                 PCASC_INDEX_ENTRY pIndexEntry = ppIndexEntries[i];
-                ULONGLONG ArchOffset = ConvertBytesToInteger_5(pIndexEntry->FileOffset);
+                ULONGLONG ArchOffset = ConvertBytesToInteger_5(pIndexEntry->FileOffsetBE);
                 DWORD ArchIndex = (DWORD)(ArchOffset >> 0x1E);
                 DWORD FileSize;
 
-                FileSize = ConvertBytesToInteger_4_LE(pIndexEntry->FileSize);
+                FileSize = ConvertBytesToInteger_4_LE(pIndexEntry->FileSizeLE);
                 ArchOffset &= 0x3FFFFFFF;
                 
                 fprintf(fp, " %02X  %08X %08X %s\n", ArchIndex, ArchOffset, FileSize, StringFromBinary(pIndexEntry->IndexKey, CASC_FILE_KEY_SIZE, szIndexKey));
@@ -463,32 +390,80 @@ void CascDumpIndexEntries(const char * szFileName, TCascStorage * hs)
     }
 }
 
-void CascDumpStorage(const char * szFileName, TCascStorage * hs, const TCHAR * szListFile)
+void CascDumpRootFile(
+    TCascStorage * hs,
+    LPBYTE pbRootFile,
+    DWORD cbRootFile,
+    const char * szFormat,
+    const TCHAR * szListFile,
+    int nDumpLevel)
 {
-    char ** FileNameArray = NULL;
+    PCASC_ENCODING_ENTRY pEncodingEntry;
+    ROOT_BLOCK_INFO BlockInfo;
+    PLISTFILE_MAP pListMap;
+    QUERY_KEY EncodingKey;
+    LPBYTE pbRootFileEnd = pbRootFile + cbRootFile;
+    LPBYTE pbFilePointer;
     FILE * fp;
+    char szOneLine[0x100];
+    DWORD i;
 
-    // Validate the storage handle
-    if(hs != NULL)
+    // This function only dumps WoW-style root file
+    assert(*(PDWORD)pbRootFile != CASC_MNDX_SIGNATURE);
+
+    // Create the dump file
+    fp = CreateDumpFile(szFormat, hs);
+    if(fp != NULL)                      
     {
-        // Create the dump file
-        fp = fopen(szFileName, "wt");
-        if(fp != NULL)
+        // Create the listfile map
+//      DWORD dwTickCount = GetTickCount();
+        pListMap = ListFile_CreateMap(szListFile);
+//      dwTickCount = GetTickCount() - dwTickCount;
+
+        // Dump the root entries as-is
+        for(pbFilePointer = pbRootFile; pbFilePointer <= pbRootFileEnd; )
         {
-            // If we also have listfile, open it
-            if(szListFile != NULL)
-                FileNameArray = CreateFileNameArray(hs, szListFile);
+            // Validate the root block
+            pbFilePointer = VerifyLocaleBlock(&BlockInfo, pbFilePointer, pbRootFileEnd);
+            if(pbFilePointer == NULL)
+                break;
 
-            // Dump all root keys
-            fprintf(fp, "Root Entries\n=========\n\n");
-            DumpRootEntries(fp, hs, FileNameArray);
+            // Dump the locale block
+            fprintf(fp, "Flags: %08X  Locales: %08X  NumberOfFiles: %u\n"
+                        "=========================================================\n",
+                        BlockInfo.pLocaleBlockHdr->Flags, 
+                        BlockInfo.pLocaleBlockHdr->Locales,
+                        BlockInfo.pLocaleBlockHdr->NumberOfFiles);
 
-            FreeFileNameArray(hs, FileNameArray);
-            fclose(fp);
+            // Dump the hashes and encoding keys
+            for(i = 0; i < BlockInfo.pLocaleBlockHdr->NumberOfFiles; i++)
+            {
+                // Dump the entry
+                fprintf(fp, "%08X %08X-%08X %s %s\n",
+                            (DWORD)(BlockInfo.pInt32Array[i]),
+                            (DWORD)(BlockInfo.pRootEntries[i].FileNameHash >> 0x20),
+                            (DWORD)(BlockInfo.pRootEntries[i].FileNameHash),
+                            StringFromMD5((LPBYTE)BlockInfo.pRootEntries[i].EncodingKey, szOneLine),
+                            ListFile_FindName(pListMap, BlockInfo.pRootEntries[i].FileNameHash));
+
+                // Find the encoding entry in the encoding table
+                if(nDumpLevel > 1)
+                {
+                    EncodingKey.pbData = (LPBYTE)BlockInfo.pRootEntries[i].EncodingKey;
+                    EncodingKey.cbData = MD5_HASH_SIZE;
+                    pEncodingEntry = FindEncodingEntry(hs, &EncodingKey, NULL);
+                    DumpEncodingEntry(fp, hs, pEncodingEntry, nDumpLevel);
+                }
+            }
+
+            // Put extra newline
+            fprintf(fp, "\n");
         }
+        
+        ListFile_FreeMap(pListMap);
+        fclose(fp);
     }
 }
-
 
 void CascDumpFile(const char * szFileName, HANDLE hFile)
 {

@@ -15,28 +15,11 @@
 //-----------------------------------------------------------------------------
 // Local structures
 
-#define BLTE_HEADER_SIGNATURE   0x45544C42
-
-// Data file begin:
-//  BYTE  HeaderHash[MD5_HASH_SIZE];            // MD5 of the frame array
-//  DWORD dwFileSize;                           // Size of the file
-//  BYTE  SomeSize[4];                          // Some size (big endian)
-//  BYTE  Padding[6];                           // Padding (?)
-
-typedef struct _BLTE_HEADER
-{
-    DWORD dwSignature;                          // Must be "BLTE"
-    BYTE  HeaderSizeAsBytes[4];                 // Header size in bytes (big endian)
-    BYTE  MustBe0F;                             // Must be 0x0F
-    BYTE  FrameCount[3];                        // Number of frames (big endian)
-
-} BLTE_HEADER, *PBLTE_HEADER;
-
 typedef struct _BLTE_FRAME
 {
     BYTE CompressedSize[4];                     // Compressed file size as big endian
     BYTE FrameSize[4];                          // File size as big endian
-    BYTE md5[MD5_HASH_SIZE];                    // Hash of the frame
+    BYTE md5[MD5_HASH_SIZE];                    // Hash of the compressed frame
 
 } BLTE_FRAME, *PBLTE_FRAME;
 
@@ -65,11 +48,6 @@ static int EnsureDataStreamIsOpen(TCascFile * hf)
             // Open the stream
             pStream = FileStream_OpenFile(szDataFile, STREAM_FLAG_READ_ONLY | STREAM_PROVIDER_FLAT | BASE_PROVIDER_FILE);
             hs->DataFileArray[hf->ArchiveIndex] = pStream;
-
-            // TODO: There is 0x1E bytes at the beginning of the file stream
-            // Ignore them for now, but we will want to know what they mean
-            // Offs0000: MD5 of something
-            // Offs0010: 2 bytes
             CASC_FREE(szDataFile);
         }
     }
@@ -79,7 +57,7 @@ static int EnsureDataStreamIsOpen(TCascFile * hf)
     return (hf->pStream != NULL) ? ERROR_SUCCESS : ERROR_FILE_NOT_FOUND;
 }
 
-static int LoadFileFrames(TCascFile * hf, DWORD FrameCount)
+static int LoadFileFrames(TCascFile * hf)
 {
     PBLTE_FRAME pFileFrames;
     PBLTE_FRAME pFileFrame;
@@ -93,39 +71,40 @@ static int LoadFileFrames(TCascFile * hf, DWORD FrameCount)
     assert(hf->pFrames != NULL);
 
     // Allocate frame array
-    pFileFrames = pFileFrame = CASC_ALLOC(BLTE_FRAME, FrameCount);
+    pFileFrames = pFileFrame = CASC_ALLOC(BLTE_FRAME, hf->FrameCount);
     if(pFileFrames != NULL)
     {
         // Load the frame array
         ArchiveFileOffset = hf->FramesOffset;
-        if(FileStream_Read(hf->pStream, &ArchiveFileOffset, pFileFrames, FrameCount * sizeof(BLTE_FRAME)))
+        if(FileStream_Read(hf->pStream, &ArchiveFileOffset, pFileFrames, hf->FrameCount * sizeof(BLTE_FRAME)))
         {
             // Move the raw archive offset
             ArchiveFileOffset += (hf->FrameCount * sizeof(BLTE_FRAME));
 
             // Copy the frames to the file structure
-            for(DWORD i = 0; i < FrameCount; i++, pFileFrame++)
+            for(DWORD i = 0; i < hf->FrameCount; i++, pFileFrame++)
             {
                 hf->pFrames[i].FrameArchiveOffset = (DWORD)ArchiveFileOffset;
                 hf->pFrames[i].FrameFileOffset = FrameOffset;
                 hf->pFrames[i].CompressedSize = ConvertBytesToInteger_4(pFileFrame->CompressedSize);
-                hf->pFrames[i].FrameSize      = ConvertBytesToInteger_4(pFileFrame->FrameSize);
+                hf->pFrames[i].FrameSize = ConvertBytesToInteger_4(pFileFrame->FrameSize);
                 memcpy(hf->pFrames[i].md5, pFileFrame->md5, MD5_HASH_SIZE);
 
                 ArchiveFileOffset += hf->pFrames[i].CompressedSize;
                 FrameOffset += hf->pFrames[i].FrameSize;
                 FileSize += hf->pFrames[i].FrameSize;
             }
-
-            // Fill-in the frame count
-            hf->FrameCount = FrameCount;
         }
         else
             nError = GetLastError();
 
-        // Verify the file size
-//      assert(FileSize == hf->FileSize);
+        // Note: Do not take the FileSize from the sum of frames.
+        // This value is invalid when loading the ENCODING file.
 //      hf->FileSize = FileSize;
+
+#ifdef CASCLIB_TEST
+        hf->FileSize_FrameSum = FileSize;
+#endif
 
         // Free the array
         CASC_FREE(pFileFrames);
@@ -136,66 +115,115 @@ static int LoadFileFrames(TCascFile * hf, DWORD FrameCount)
     return nError;
 }
 
+static int EnsureHeaderAreaIsLoaded(TCascFile * hf)
+{
+    TCascStorage * hs = hf->hs;
+    ULONGLONG FileOffset = hf->HeaderOffset;
+    LPBYTE pbHeaderArea;
+    DWORD FileSignature;
+    DWORD FileSize;
+    BYTE HeaderArea[MAX_HEADER_AREA_SIZE];
+    int nError;
+
+    // We need the data file to be open
+    nError = EnsureDataStreamIsOpen(hf);
+    if(nError != ERROR_SUCCESS)
+        return nError;
+
+    // Make sure that we already know the shift
+    // to the begin of file data.
+    // Note that older builds of Heroes of the Storm have entries pointing
+    // to the beginning of the header area.
+    // Newer versions of HOTS have encoding entries pointing directly to
+    // the BLTE header
+    if(hs->dwFileBeginDelta == 0xFFFFFFFF)
+    {
+        FileSignature = 0;
+        FileOffset = hf->HeaderOffset;
+        if(!FileStream_Read(hf->pStream, &FileOffset, &FileSignature, sizeof(DWORD)))
+            return ERROR_FILE_CORRUPT;
+
+        hs->dwFileBeginDelta = (FileSignature == BLTE_HEADER_SIGNATURE) ? BLTE_HEADER_DELTA : 0;
+    }
+           
+    // If the file size is not loaded yet, do it
+    if(hf->FrameCount == 0)
+    {
+        // Load the part before BLTE header + header itself
+        FileOffset = hf->HeaderOffset - hs->dwFileBeginDelta;
+        if(!FileStream_Read(hf->pStream, &FileOffset, HeaderArea, sizeof(HeaderArea)))
+            return ERROR_FILE_CORRUPT;
+
+        // Copy the MD5 hash of the frame array
+        memcpy(hf->FrameArrayHash, HeaderArea, MD5_HASH_SIZE);
+        pbHeaderArea = HeaderArea + MD5_HASH_SIZE;
+
+        // Copy the file size
+        FileSize = ConvertBytesToInteger_4_LE(pbHeaderArea);
+        pbHeaderArea += 0x0E;
+
+        // Verify the BLTE signature
+        if(ConvertBytesToInteger_4_LE(pbHeaderArea) != BLTE_HEADER_SIGNATURE)
+            return ERROR_BAD_FORMAT;
+        pbHeaderArea += sizeof(DWORD);
+
+        // Load the size of the frame headers
+        hf->HeaderSize = ConvertBytesToInteger_4(pbHeaderArea);
+        if(hf->HeaderSize & 0x80000000)
+            return ERROR_BAD_FORMAT;
+        pbHeaderArea += sizeof(DWORD);
+
+        // Read the header size
+        assert(hs->dwFileBeginDelta <= BLTE_HEADER_DELTA);
+        hf->HeaderOffset += (BLTE_HEADER_DELTA - hs->dwFileBeginDelta);
+        hf->FrameCount = 1;
+
+        // Retrieve the frame count, if different from 1
+        if(hf->HeaderSize != 0)
+        {
+            // The next byte must be 0x0F
+            if(pbHeaderArea[0] != 0x0F)
+                return ERROR_BAD_FORMAT;
+            pbHeaderArea++;
+
+            // Next three bytes form number of frames
+            hf->FrameCount = ConvertBytesToInteger_3(pbHeaderArea);
+        }
+
+#ifdef CASCLIB_TEST
+        hf->FileSize_HdrArea = FileSize;
+#endif
+    }
+
+    return ERROR_SUCCESS;
+}
+
 static int EnsureFrameHeadersLoaded(TCascFile * hf)
 {
-    PBLTE_HEADER pBlteHeader;
-    ULONGLONG FileOffset = hf->HeaderOffset;
-    DWORD dwHeaderOffsetFixup = 0;
-    DWORD dwFrameHeaderSize;
-    DWORD dwFrameCount;
-    BYTE HeaderBuffer[sizeof(BLTE_HEADER) + 0x20];
-    int nError = ERROR_SUCCESS;
+    int nError;
 
-    // Sanity check
-    assert(hf->pStream != NULL);
+    // Make sure we have header area loaded
+    nError = EnsureHeaderAreaIsLoaded(hf);
+    if(nError != ERROR_SUCCESS)
+        return nError;
 
     // If the frame headers are not loaded yet, do it
     if(hf->pFrames == NULL)
     {
-        // Note that older builds of Heroes of the Storm have entries pointing
-        // to the begin of the BLTE header, which is MD5 + some junk.
-        // Newer versions of HOTS have encoding entries pointing directly to
-        // the BLTE header
-        FileStream_Read(hf->pStream, &FileOffset, HeaderBuffer, sizeof(HeaderBuffer));
-        pBlteHeader = (PBLTE_HEADER)HeaderBuffer;
-
-        // If we don't have the BLTE header right there,
-        // just get the block that is 0x1E bytes later
-        if(pBlteHeader->dwSignature != BLTE_HEADER_SIGNATURE)
-        {
-            memcpy(&HeaderBuffer[0x00], &HeaderBuffer[0x1E], sizeof(BLTE_HEADER));
-            dwHeaderOffsetFixup = 0x1E;
-        }
-
-        // Check for the BLTE header signature
-        if(pBlteHeader->dwSignature != BLTE_HEADER_SIGNATURE)
-            return ERROR_BAD_FORMAT;
-        hf->HeaderOffset += dwHeaderOffsetFixup;
-
-        // Check for a single unit file
-        dwFrameHeaderSize = ConvertBytesToInteger_4(pBlteHeader->HeaderSizeAsBytes);
-        dwFrameCount = (dwFrameHeaderSize != 0) ? ConvertBytesToInteger_3(pBlteHeader->FrameCount) : 1;
-
         // Allocate the frame array
-        hf->pFrames = CASC_ALLOC(CASC_FILE_FRAME, dwFrameCount);
+        hf->pFrames = CASC_ALLOC(CASC_FILE_FRAME, hf->FrameCount);
         if(hf->pFrames != NULL)
         {
-            // Save the number of frames
-            hf->FrameCount = dwFrameCount;
-
             // Either load the frames from the file or supply them on our own
-            if(dwFrameHeaderSize != 0)
+            if(hf->HeaderSize != 0)
             {
-                if(pBlteHeader->MustBe0F != 0x0F)
-                    return ERROR_FILE_CORRUPT;
-
-                hf->FramesOffset = hf->HeaderOffset + sizeof(BLTE_HEADER);
-                nError = LoadFileFrames(hf, dwFrameCount);
+                hf->FramesOffset = hf->HeaderOffset + sizeof(DWORD) + sizeof(DWORD) + sizeof(DWORD);
+                nError = LoadFileFrames(hf);
             }
             else
             {
                 // Offset of the first frame is right after the file frames
-                hf->FramesOffset = hf->HeaderOffset + sizeof(pBlteHeader->dwSignature) + sizeof(pBlteHeader->HeaderSizeAsBytes);
+                hf->FramesOffset = hf->HeaderOffset + sizeof(DWORD) + sizeof(DWORD);
                 
                 hf->pFrames[0].FrameArchiveOffset = hf->FramesOffset;
                 hf->pFrames[0].FrameFileOffset = 0;
@@ -239,9 +267,27 @@ static PCASC_FILE_FRAME FindFileFrame(TCascFile * hf, DWORD FilePointer)
 //-----------------------------------------------------------------------------
 // Public functions
 
+//
+// THE FILE SIZE PROBLEM
+//
+// There are members called "FileSize" in many CASC-related structure
+// For various files, these variables have different meaning.
+//
+// Storage      FileName  FileSize     FrameSum    HdrArea     IdxEntry    EncEntry    RootEntry
+// -----------  --------  ----------   --------    --------    --------    --------    ---------
+// HotS(29049)  ENCODING  0x0024BA45 - 0x0024b98a  0x0024BA45  0x0024BA45  n/a         n/a
+// HotS(29049)  ROOT      0x00193340 - 0x00193340  0x0010db65  0x0010db65  0x00193340  n/a
+// HotS(29049)  (other)   0x00001080 - 0x00001080  0x000008eb  0x000008eb  0x00001080  0x00001080
+//
+// WoW(18888)   ENCODING  0x030d487b - 0x030dee79  0x030d487b  0x030d487b  n/a         n/a
+// WoW(18888)   ROOT      0x016a9800 - n/a         0x0131313d  0x0131313d  0x016a9800  n/a
+// WoW(18888)   (other)   0x000007d0 - 0x000007d0  0x00000397  0x00000397  0x000007d0  n/a
+//
+
 DWORD WINAPI CascGetFileSize(HANDLE hFile, PDWORD pdwFileSizeHigh)
 {
     TCascFile * hf;
+    int nError;
 
     CASCLIB_UNUSED(pdwFileSizeHigh);
 
@@ -249,6 +295,14 @@ DWORD WINAPI CascGetFileSize(HANDLE hFile, PDWORD pdwFileSizeHigh)
     if((hf = IsValidFileHandle(hFile)) == NULL)
     {
         SetLastError(ERROR_INVALID_HANDLE);
+        return CASC_INVALID_SIZE;
+    }
+
+    // Make sure that the file header area is loaded
+    nError = EnsureHeaderAreaIsLoaded(hf);
+    if(nError != ERROR_SUCCESS)
+    {
+        SetLastError(nError);
         return CASC_INVALID_SIZE;
     }
 
@@ -348,23 +402,17 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
         return false;
     }
 
-    // If the file position is at or beyond end of file, do nothing
-    if(hf->FilePointer >= hf->FileSize)
-    {
-        *pdwBytesRead = 0;
-        return ERROR_SUCCESS;
-    }
-
-    // Make sure we have that data file open
-    if(nError == ERROR_SUCCESS)
-    {
-        nError = EnsureDataStreamIsOpen(hf);
-    }
-
     // If the file frames are not loaded yet, do it now
     if(nError == ERROR_SUCCESS)
     {
         nError = EnsureFrameHeadersLoaded(hf);
+    }
+
+    // If the file position is at or beyond end of file, do nothing
+    if(nError == ERROR_SUCCESS && hf->FilePointer >= hf->FileSize)
+    {
+        *pdwBytesRead = 0;
+        return ERROR_SUCCESS;
     }
 
     // Find the file frame where to read from
@@ -423,7 +471,7 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
                 }
 
                 // Verify the block MD5
-                if(IsValidMD5(pFrame->md5) && !VerifyDataBlockHash(pbRawData, pFrame->CompressedSize, pFrame->md5))
+                if(!VerifyDataBlockHash(pbRawData, pFrame->CompressedSize, pFrame->md5))
                 {
                     CASC_FREE(pbRawData);
                     nError = ERROR_FILE_CORRUPT;
