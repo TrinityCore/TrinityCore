@@ -18868,6 +18868,9 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS));
         stmt->setUInt16(index++, (uint16)GetMapId());
         stmt->setUInt32(index++, (uint32)GetInstanceId());
+        stmt->setUInt8(index++, uint8(GetDungeonDifficultyID()));
+        stmt->setUInt8(index++, uint8(GetRaidDifficultyID()));
+        stmt->setUInt8(index++, uint8(GetLegacyRaidDifficultyID()));
         stmt->setFloat(index++, finiteAlways(GetPositionX()));
         stmt->setFloat(index++, finiteAlways(GetPositionY()));
         stmt->setFloat(index++, finiteAlways(GetPositionZ()));
