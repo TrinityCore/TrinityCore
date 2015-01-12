@@ -473,6 +473,23 @@ namespace WorldPackets
             int32 MapID = -1;
             bool Showing = false;
         };
+
+        class InitialSetup final : public ServerPacket
+        {
+        public:
+            InitialSetup() : ServerPacket(SMSG_INITIAL_SETUP, 1 + 1 + 4 + QUESTS_COMPLETED_BITS_SIZE + 4)
+            {
+                QuestsCompleted.reserve(QUESTS_COMPLETED_BITS_SIZE);
+            }
+
+            WorldPacket const* Write() override;
+
+            uint8 ServerExpansionTier = 0;
+            uint8 ServerExpansionLevel = 0;
+            time_t RaidOrigin = time_t(1135753200); // 28/12/2005 07:00:00
+            std::vector<uint8> QuestsCompleted;
+            int32 ServerRegionID = 3;   // Cfg_Regions.dbc, EU
+        };
     }
 }
 
