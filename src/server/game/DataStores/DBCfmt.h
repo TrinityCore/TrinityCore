@@ -123,6 +123,7 @@ char const NameGenfmt[] = "dsii";
 char const NumTalentsAtLevelfmt[] = "df";
 char const QuestFactionRewardfmt[] = "niiiiiiiiii";
 char const QuestSortEntryfmt[] = "nx";
+char const QuestV2fmt[] = "ni";
 char const QuestXPfmt[] = "niiiiiiiiii";
 char const PowerDisplayfmt[] = "nixXXX";
 char const PvPDifficultyfmt[] = "diiii";

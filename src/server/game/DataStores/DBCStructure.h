@@ -1347,6 +1347,12 @@ struct QuestSortEntry
     //char*     SortName_lang;                              // 1
 };
 
+struct QuestV2Entry
+{
+    uint32      ID;                                         // 0
+    uint32      UniqueBitFlag;                              // 1
+};
+
 struct QuestXPEntry
 {
     uint32      ID;                                         // 0
