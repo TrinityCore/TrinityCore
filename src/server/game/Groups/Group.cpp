@@ -164,7 +164,7 @@ bool Group::Create(Player* leader)
 
 void Group::LoadGroupFromDB(Field* fields)
 {
-    m_dbStoreId = fields[16].GetUInt32();
+    m_dbStoreId = fields[17].GetUInt32();
     m_guid = ObjectGuid::Create<HighGuid::Party>(sGroupMgr->GenerateGroupId());
     m_leaderGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
 
@@ -185,8 +185,9 @@ void Group::LoadGroupFromDB(Field* fields)
 
     m_dungeonDifficulty = Player::CheckLoadedDungeonDifficultyID(Difficulty(fields[13].GetUInt8()));
     m_raidDifficulty = Player::CheckLoadedRaidDifficultyID(Difficulty(fields[14].GetUInt8()));
+    m_legacyRaidDifficulty = Player::CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[15].GetUInt8()));
 
-    m_masterLooterGuid = ObjectGuid::Create<HighGuid::Player>(fields[15].GetUInt64());
+    m_masterLooterGuid = ObjectGuid::Create<HighGuid::Player>(fields[16].GetUInt64());
 
     if (m_groupType & GROUPTYPE_LFG)
         sLFGMgr->_LoadFromDB(fields, GetGUID());
