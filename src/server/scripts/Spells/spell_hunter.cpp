@@ -209,14 +209,11 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                             {
                                 int32 TickCount = aurEff->GetTotalTicks();
                                 spellId = SPELL_HUNTER_CHIMERA_SHOT_SERPENT;
-                                basePoint = aurEff->GetDamage();
+                                basePoint = (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct();
                                 ApplyPct(basePoint, TickCount * 40);
                                 basePoint = unitTarget->SpellDamageBonusTaken(caster, aura->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
 
-                                // Recalculate bonus damage on roll.
-                                uint32 damage = std::max(aurEff->GetAmount(), 0);
-                                sScriptMgr->ModifyPeriodicDamageAurasTick(unitTarget, caster, damage);
-                                aurEff->SetDamage(caster->SpellDamageBonusDone(unitTarget, aurEff->GetSpellInfo(), damage, DOT) * aurEff->GetDonePct());
+                                aurEff->SetBonusAmount(caster->SpellDamageBonusDone(unitTarget, aurEff->GetSpellInfo(), 0, DOT));
                             }
                             // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
                             else if (familyFlag[1] & 0x00000080)

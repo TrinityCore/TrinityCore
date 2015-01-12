@@ -544,9 +544,7 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                     if (AuraEffect* aur = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, caster->GetGUID()))
                     {
-                        uint32 damage = std::max(aur->GetAmount(), 0);
-                        sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
-                        aur->SetDamage(caster->SpellDamageBonusDone(target, aur->GetSpellInfo(), damage, DOT) * aur->GetDonePct());
+                        aur->SetBonusAmount(caster->SpellDamageBonusDone(target, aur->GetSpellInfo(), 0, DOT));
                         aur->CalculatePeriodic(caster, false, false);
                         aur->GetBase()->RefreshDuration();
                     }
