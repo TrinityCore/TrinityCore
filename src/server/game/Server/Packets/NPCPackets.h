@@ -26,6 +26,29 @@ namespace WorldPackets
 {
     namespace NPC
     {
+        class CloseInteraction final : public ClientPacket
+        {
+        public:
+            CloseInteraction(WorldPacket&& packet) : ClientPacket(CMSG_CLOSE_INTERACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid UnitGuid;
+        
+        };
+
+        class GossipSelectOption final : public ClientPacket
+        {
+        public:
+            GossipSelectOption(WorldPacket&& packet) : ClientPacket(CMSG_GOSSIP_SELECT_OPTION, std::move(packet)) { }
+                
+            void Read() override;
+                
+            ObjectGuid GossipUnit;
+            uint32 GossipID = 0;
+            uint32 GossipIndex = 0;
+            std::string PromotionCode;
+        };
         // CMSG_BANKER_ACTIVATE
         // CMSG_BINDER_ACTIVATE
         // CMSG_BINDER_CONFIRM

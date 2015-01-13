@@ -23,6 +23,20 @@ void WorldPackets::NPC::Hello::Read()
     _worldPacket >> Unit;
 }
 
+void WorldPackets::NPC::GossipSelectOption::Read()
+{
+    _worldPacket >> GossipUnit;
+    _worldPacket >> GossipID;
+    _worldPacket >> GossipIndex;
+    uint8 promotioncode_lenght = _worldPacket.ReadBits(8);
+    PromotionCode = _worldPacket.ReadString(promotioncode_lenght);
+}
+
+void WorldPackets::NPC::CloseInteraction::Read()
+{
+    _worldPacket >> UnitGuid;
+}
+
 WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
 {
     _worldPacket << GossipGUID;

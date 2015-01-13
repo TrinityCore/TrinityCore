@@ -60,6 +60,7 @@
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
+#include "NPCPackets.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -91,53 +92,43 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
     GetPlayer()->RepopAtGraveyard();
 }
 
-void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
+void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_GOSSIP_SELECT_OPTION");
 
-    uint32 gossipListId;
-    uint32 menuId;
-    ObjectGuid guid;
-    std::string code = "";
-
-    recvData >> guid >> menuId >> gossipListId;
-
-    if (!_player->PlayerTalkClass->GetGossipMenu().GetItem(gossipListId))
+    
+    if (!_player->PlayerTalkClass->GetGossipMenu().GetItem(packet.GossipID))
     {
-        recvData.rfinish();
         return;
     }
 
-    if (_player->PlayerTalkClass->IsGossipOptionCoded(gossipListId))
-        recvData >> code;
-
     // Prevent cheating on C++ scripted menus
-    if (_player->PlayerTalkClass->GetGossipMenu().GetSenderGUID() != guid)
+    if (_player->PlayerTalkClass->GetGossipMenu().GetSenderGUID() != packet.GossipUnit)
         return;
 
     Creature* unit = NULL;
     GameObject* go = NULL;
-    if (guid.IsCreatureOrVehicle())
+    if (packet.GossipUnit.IsCreatureOrVehicle())
     {
-        unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
+        unit = GetPlayer()->GetNPCIfCanInteractWith(packet.GossipUnit, UNIT_NPC_FLAG_NONE);
         if (!unit)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found or you can't interact with him.", guid.ToString().c_str());
+            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found or you can't interact with him.", packet.GossipUnit.ToString().c_str());
             return;
         }
     }
-    else if (guid.IsGameObject())
+    else if (packet.GossipUnit.IsGameObject())
     {
-        go = _player->GetMap()->GetGameObject(guid);
+        go = _player->GetMap()->GetGameObject(packet.GossipUnit);
         if (!go)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
+            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", packet.GossipUnit.ToString().c_str());
             return;
         }
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - unsupported %s.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - unsupported %s.", packet.GossipUnit.ToString().c_str());
         return;
     }
 
@@ -155,34 +146,34 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         _player->PlayerTalkClass->SendCloseGossip();
         return;
     }
-    if (!code.empty())
+    if (!packet.PromotionCode.empty())
     {
         if (unit)
         {
-            unit->AI()->sGossipSelectCode(_player, menuId, gossipListId, code.c_str());
-            if (!sScriptMgr->OnGossipSelectCode(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str()))
-                _player->OnGossipSelect(unit, gossipListId, menuId);
+            unit->AI()->sGossipSelectCode(_player, packet.GossipIndex, packet.GossipID, packet.PromotionCode.c_str());
+            if (!sScriptMgr->OnGossipSelectCode(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipID), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipID), packet.PromotionCode.c_str()))
+                _player->OnGossipSelect(unit, packet.GossipID, packet.GossipIndex);
         }
         else
         {
-            go->AI()->GossipSelectCode(_player, menuId, gossipListId, code.c_str());
-            if (!sScriptMgr->OnGossipSelectCode(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str()))
-                _player->OnGossipSelect(go, gossipListId, menuId);
+            go->AI()->GossipSelectCode(_player, packet.GossipIndex, packet.GossipID, packet.PromotionCode.c_str());
+            if (!sScriptMgr->OnGossipSelectCode(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipID), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipID), packet.PromotionCode.c_str()))
+                _player->OnGossipSelect(go, packet.GossipID, packet.GossipIndex);
         }
     }
     else
     {
         if (unit)
         {
-            unit->AI()->sGossipSelect(_player, menuId, gossipListId);
-            if (!sScriptMgr->OnGossipSelect(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)))
-                _player->OnGossipSelect(unit, gossipListId, menuId);
+            unit->AI()->sGossipSelect(_player, packet.GossipIndex, packet.GossipID);
+            if (!sScriptMgr->OnGossipSelect(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipID), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipID)))
+                _player->OnGossipSelect(unit, packet.GossipID, packet.GossipIndex);
         }
         else
         {
-            go->AI()->GossipSelect(_player, menuId, gossipListId);
-            if (!sScriptMgr->OnGossipSelect(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)))
-                _player->OnGossipSelect(go, gossipListId, menuId);
+            go->AI()->GossipSelect(_player, packet.GossipIndex, packet.GossipID);
+            if (!sScriptMgr->OnGossipSelect(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipID), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipID)))
+                _player->OnGossipSelect(go, packet.GossipID, packet.GossipIndex);
         }
     }
 }
