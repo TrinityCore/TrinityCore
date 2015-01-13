@@ -1225,7 +1225,6 @@ enum OpcodeServer : uint32
     SMSG_PVP_LOG_DATA                                 = 0x1ECA,
     SMSG_PVP_OPTIONS_ENABLED                          = 0xBADD,
     SMSG_PVP_SEASON                                   = 0x09E3,
-    SMSG_QUERY_QUESTS_COMPLETED_RESPONSE              = 0xBADD,
     SMSG_QUERY_TIME_RESPONSE                          = 0x1DB0,
     SMSG_QUESTGIVER_OFFER_REWARD                      = 0x17B2,
     SMSG_QUESTGIVER_QUEST_COMPLETE                    = 0x1773,
