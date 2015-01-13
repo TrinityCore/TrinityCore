@@ -646,6 +646,9 @@ CharacterCreating.Disabled = 0
 #                     512  - (Disabled, Blood Elf)
 #                     1024 - (Disabled, Draenei)
 #                     2097152 - (Disabled, Worgen)
+#                     8388608 - (Disabled, Pandaren Neutral)
+#                     16777216 - (Disabled, Pandaren Alliance)
+#                     33554432 - (Disabled, Pandaren Horde)
 
 CharacterCreating.Disabled.RaceMask = 0
 
@@ -663,6 +666,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #                     64   - (Disabled, Shaman)
 #                     128  - (Disabled, Mage)
 #                     256  - (Disabled, Warlock)
+#                     512  - (Disabled, Monk)
 #                     1024 - (Disabled, Druid)
 
 CharacterCreating.Disabled.ClassMask = 0
