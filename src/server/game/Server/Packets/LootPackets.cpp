@@ -21,3 +21,67 @@ void WorldPackets::Loot::LootUnit::Read()
 {
     _worldPacket >> Unit;
 }
+
+WorldPacket const* WorldPackets::Loot::LootResponse::Write()
+{
+    _worldPacket << LootObj;
+    _worldPacket << Owner;
+    _worldPacket << Threshold;
+    _worldPacket << LootMethod;
+    _worldPacket << AcquireReason;
+    _worldPacket << FailureReason;
+    _worldPacket << Coins;
+    _worldPacket << uint32(Items.size());
+    _worldPacket << uint32(Currencies.size());
+    
+    for (LootItem const& item : Items)
+    {
+        _worldPacket.WriteBits(item.Type, 2);
+        _worldPacket.WriteBits(item.UIType, 3);
+        _worldPacket.WriteBit(item.CanTradeToTapList);
+        _worldPacket.FlushBits();
+
+        _worldPacket << item.Quantity;
+        _worldPacket << item.LootItemType;
+        _worldPacket << item.LootListID;
+        _worldPacket << item.Loot; // WorldPackets::Item::ItemInstance
+    }
+
+    for (LootCurrency const& currency : Currencies)
+    {
+        _worldPacket << currency.CurrencyID;
+        _worldPacket << currency.Quantity;
+        _worldPacket << currency.LootListID;
+        _worldPacket.WriteBits(currency.UIType, 3);
+        _worldPacket.FlushBits();
+    }
+
+    _worldPacket.WriteBit(PersonalLooting);
+    _worldPacket.WriteBit(Acquired);
+    _worldPacket.WriteBit(AELooting);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Loot::AutoStoreLootItem::Read()
+{
+    uint32 Count;
+    _worldPacket >> Count;
+
+    Loot.resize(Count);
+    for (uint32 i = 0; i < Count; ++i)
+    {
+        _worldPacket >> Loot[i].Object;
+        _worldPacket >> Loot[i].LootListID;
+    }
+}
+
+WorldPacket const* WorldPackets::Loot::LootRemoved::Write()
+{
+    _worldPacket << Owner;
+    _worldPacket << LootObj;
+    _worldPacket << LootListID;
+
+    return &_worldPacket;
+}

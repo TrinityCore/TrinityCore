@@ -250,5 +250,6 @@ template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Item>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::GameObject>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::DynamicObject>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Corpse>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::LootObject>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::AreaTrigger>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Transport>::Generate();

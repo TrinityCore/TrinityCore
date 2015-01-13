@@ -167,6 +167,7 @@ namespace WorldPackets
     namespace Loot
     {
         class LootUnit;
+        class AutoStoreLootItem;
     }
 
     namespace Misc
@@ -680,7 +681,7 @@ class WorldSession
 
         void HandlePingOpcode(WorldPacket& recvPacket);
         void HandleRepopRequestOpcode(WorldPacket& recvPacket);
-        void HandleAutostoreLootItemOpcode(WorldPacket& recvPacket);
+        void HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLootItem& packet);
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
         void HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
         void HandleLootReleaseOpcode(WorldPacket& recvPacket);
