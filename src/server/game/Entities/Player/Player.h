@@ -35,7 +35,7 @@
 #include <limits>
 #include <string>
 #include <vector>
-#include <boost/dynamic_bitset.hpp>
+#include <boost/dynamic_bitset_fwd.hpp>
 
 struct CreatureTemplate;
 struct Mail;
@@ -2783,7 +2783,7 @@ class Player : public Unit, public GridObject<Player>
         RewardedQuestSet m_RewardedQuests;
         QuestStatusSaveMap m_RewardedQuestsSave;
 
-        boost::dynamic_bitset<uint8> _completedQuestBits;
+        boost::dynamic_bitset<uint8>* _completedQuestBits;
 
         SkillStatusMap mSkillStatus;
 
