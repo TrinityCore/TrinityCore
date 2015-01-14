@@ -1,5 +1,5 @@
 -- Pandaren Skills
-DELETE FROM `playercreateinfo_skills` WHERE `raceMask` = 8388608;
+DELETE FROM `playercreateinfo_skills` WHERE `raceMask` IN (8388608, 16777216, 33554432, 58720256);
 INSERT INTO `playercreateinfo_skills` (`raceMask`, `classMask`, `skill`, `rank`, `comment`)
 VALUES
 	(8388608, 0, 905, 0, 'Language: Pandaren (Neutral)'),
