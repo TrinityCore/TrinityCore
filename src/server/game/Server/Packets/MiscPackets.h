@@ -263,6 +263,103 @@ namespace WorldPackets
             int32 DifficultyID;
             uint8 Legacy;
         };
+
+        class CorpseReclaimDelay : public ServerPacket
+        {
+        public:
+            CorpseReclaimDelay() : ServerPacket(SMSG_CORPSE_RECLAIM_DELAY, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Remaining = 0;
+        };
+
+        class DeathReleaseLoc : public ServerPacket
+        {
+        public:
+            DeathReleaseLoc() : ServerPacket(SMSG_DEATH_RELEASE_LOC, 4 + (3 * 4)) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MapID = 0;
+            G3D::Vector3 Loc;
+        };
+
+        class PortGraveyard final : public ClientPacket
+        {
+        public:
+            PortGraveyard(WorldPacket&& packet) : ClientPacket(CMSG_PORT_GRAVEYARD, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class PreRessurect : public ServerPacket
+        {
+        public:
+            PreRessurect() : ServerPacket(SMSG_PRE_RESURRECT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGUID;
+        };
+
+        class ReclaimCorpse final : public ClientPacket
+        {
+        public:
+            ReclaimCorpse(WorldPacket&& packet) : ClientPacket(CMSG_RECLAIM_CORPSE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid CorpseGUID;
+        };
+
+        class RepopRequest final : public ClientPacket
+        {
+        public:
+            RepopRequest(WorldPacket&& packet) : ClientPacket(CMSG_REPOP_REQUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            bool CheckInstance = false;
+        };
+
+        class RequestCemeteryList final : public ClientPacket
+        {
+        public:
+            RequestCemeteryList(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_CEMETERY_LIST, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class RequestCemeteryListResponse : public ServerPacket
+        {
+        public:
+            RequestCemeteryListResponse() : ServerPacket(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsGossipTriggered = false;
+            std::vector<uint32> CemeteryID;
+        };
+
+        class ResurrectResponse final : public ClientPacket
+        {
+        public:
+            ResurrectResponse(WorldPacket&& packet) : ClientPacket(CMSG_RESURRECT_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Resurrecter;
+            uint32 Response = 0;
+        };
+
+        class AreaTriggerNoCorpse : public ServerPacket
+        {
+        public:
+            AreaTriggerNoCorpse() : ServerPacket(SMSG_AREA_TRIGGER_NO_CORPSE, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 

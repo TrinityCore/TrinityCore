@@ -165,38 +165,38 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received MSG_CORPSE_QUERY");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT");
 
     Corpse* corpse = GetPlayer()->GetCorpse();
 
     if (!corpse)
     {
-        WorldPacket data(MSG_CORPSE_QUERY, 1);
-        data << uint8(0);                                   // corpse not found
-        SendPacket(&data);
+        WorldPackets::Query::CorpseLocation packet;
+        packet.Valid = false;                               // corpse not found
+        SendPacket(packet.Write());
         return;
     }
 
-    uint32 mapid = corpse->GetMapId();
+    uint32 mapID = corpse->GetMapId();
     float x = corpse->GetPositionX();
     float y = corpse->GetPositionY();
     float z = corpse->GetPositionZ();
-    uint32 corpsemapid = mapid;
+    uint32 corpseMapID = mapID;
 
     // if corpse at different map
-    if (mapid != _player->GetMapId())
+    if (mapID != _player->GetMapId())
     {
         // search entrance map for proper show entrance
-        if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapid))
+        if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapID))
         {
             if (corpseMapEntry->IsDungeon() && corpseMapEntry->CorpseMapID >= 0)
             {
                 // if corpse map have entrance
                 if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->CorpseMapID))
                 {
-                    mapid = corpseMapEntry->CorpseMapID;
+                    mapID = corpseMapEntry->CorpseMapID;
                     x = corpseMapEntry->CorpsePos.X;
                     y = corpseMapEntry->CorpsePos.Y;
                     z = entranceMap->GetHeight(GetPlayer()->GetPhaseMask(), x, y, MAX_HEIGHT);
@@ -205,15 +205,13 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
         }
     }
 
-    WorldPacket data(MSG_CORPSE_QUERY, 1+(6*4));
-    data << uint8(1);                                       // corpse found
-    data << int32(mapid);
-    data << float(x);
-    data << float(y);
-    data << float(z);
-    data << int32(corpsemapid);
-    data << uint32(0);                                      // unknown
-    SendPacket(&data);
+    WorldPackets::Query::CorpseLocation packet;
+    packet.Valid = true;
+    packet.MapID = corpseMapID;
+    packet.ActualMapID = mapID;
+    packet.Position = G3D::Vector3(x, y, z);
+    packet.Transport = ObjectGuid::Empty;                   // NYI
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet)
@@ -280,19 +278,14 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText&
     }
 }
 
-void WorldSession::HandleCorpseMapPositionQuery(WorldPacket& recvData)
+void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_CORPSE_MAP_POSITION_QUERY");
+    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_QUERY_CORPSE_TRANSPORT");
 
-    uint32 transportGuidLow;
-    recvData >> transportGuidLow;
-
-    WorldPacket data(SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4+4+4+4);
-    data << float(0);
-    data << float(0);
-    data << float(0);
-    data << float(0);
-    SendPacket(&data);
+    WorldPackets::Query::CorpseTransportQuery response;
+    response.Position = G3D::Vector3(0.0f, 0.0f, 0.0f);
+    response.Facing = 0.0f;
+    SendPacket(response.Write());
 }
 
 void WorldSession::HandleQuestNPCQuery(WorldPacket& recvData)
