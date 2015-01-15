@@ -33,6 +33,14 @@ namespace WorldPackets
 
             int32 AreaTriggerID = 0;
         };
+
+        class AreaTriggerNoCorpse final : public ServerPacket
+        {
+        public:
+            explicit AreaTriggerNoCorpse() : ServerPacket(SMSG_CORPSE_NOT_IN_INSTANCE, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 
