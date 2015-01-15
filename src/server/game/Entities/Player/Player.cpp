@@ -7234,17 +7234,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     honor_f *= sWorld->getRate(RATE_HONOR);
     // Back to int now
     honor = int32(honor_f);
-    // honor - for show honor points in log
-    // victim_guid - for show victim name in log
-    // victim_rank [1..4]  HK: <dishonored rank>
-    // victim_rank [5..19] HK: <alliance\horde rank>
-    // victim_rank [0, 20+] HK: <>
-    WorldPacket data(SMSG_PVP_CREDIT, 4+8+4);
-    data << uint32(honor);
-    data << uint64(victim_guid);
-    data << uint32(victim_rank);
-
-    GetSession()->SendPacket(&data);
+    SendPVPCreditMessage(uint32(honor), victim_guid, uint32(victim_rank));
 
     // add honor points
     ModifyHonorPoints(honor);
@@ -7300,6 +7290,31 @@ void Player::SetArenaPoints(uint32 value)
     SetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY, value);
     if (value)
         AddKnownCurrency(ITEM_ARENA_POINTS_ID);
+}
+
+void Player::SendPVPCreditMessage(int32 honor, ObjectGuid victimGuid, uint32 victimRank)
+{
+    // Sends honor message to client (chat log, floating text)
+    
+    // Packet details:
+    //      honor - amount of honor to show in log
+    //      victim_guid - to show victim name in log
+    //      victim_rank [1..4]  HK: <dishonored rank>
+    //      victim_rank [5..19] HK: <alliance\horde rank>
+    //      victim_rank [0, 20+] HK: <>
+    //
+    //      NOTE: The "HK:" is also displayed as floating text
+
+    // Defaulting victim_guid and victim_rank to zero prevents the client from displaying an
+    //  empty "HK:" floating message if victim has no rank, such as an NPC (script: player_creature_honor)
+    //  or an invalid player (though the second case should NEVER happen)
+
+    WorldPacket data(SMSG_PVP_CREDIT, 4 + 8 + 4);
+    data << honor;
+    data << uint64((victimGuid.IsPlayer() ? victimGuid.GetCounter() : 0)); // must force uint64 or results in wrong message
+    data << victimRank;
+
+    GetSession()->SendPacket(&data);
 }
 
 void Player::ModifyHonorPoints(int32 value, SQLTransaction trans)

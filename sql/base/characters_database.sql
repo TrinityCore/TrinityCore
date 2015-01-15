@@ -2535,8 +2535,20 @@ LOCK TABLES `worldstates` WRITE;
 INSERT INTO `worldstates` VALUES (20001,0,'NextArenaPointDistributionTime'),(20002,0,'NextWeeklyQuestResetTime'),(20003,0,'NextBGRandomDailyResetTime'),(20004,0,'cleaning_flags');
 /*!40000 ALTER TABLE `worldstates` ENABLE KEYS */;
 UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
+--
+-- Table structure for table `creturehonor_message`
+--
+
+DROP TABLE IF EXISTS `creaturehonor_message`;
+
+CREATE TABLE `creaturehonor_message` (
+  `guid` int(10) unsigned NOT NULL COMMENT 'characters.guid',
+  `message_checksum` int(10) unsigned DEFAULT '0' COMMENT 'Checksum of CreatureHonor config rules. Script sends mail to player when config changes.',
+  PRIMARY KEY (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tracks CreatureHonor script messages sent to characters.';
+
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

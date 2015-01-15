@@ -608,4 +608,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_UPD_QUEST_TRACK_GM_COMPLETE, "UPDATE quest_tracker SET completed_by_gm = 1 WHERE id = ? AND character_guid = ? ORDER BY quest_accept_time DESC LIMIT 1", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_QUEST_TRACK_COMPLETE_TIME, "UPDATE quest_tracker SET quest_complete_time = NOW() WHERE id = ? AND character_guid = ? ORDER BY quest_accept_time DESC LIMIT 1", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_QUEST_TRACK_ABANDON_TIME, "UPDATE quest_tracker SET quest_abandon_time = NOW() WHERE id = ? AND character_guid = ? ORDER BY quest_accept_time DESC LIMIT 1", CONNECTION_ASYNC);
+
+    // player_creature_honor script
+    PrepareStatement(CHAR_DEL_CREATUREHONOR_MESSAGE, "DELETE FROM creaturehonor_message WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CREATUREHONOR_MESSAGE, "INSERT INTO creaturehonor_message (guid, message_checksum) VALUES (?, 0)", CONNECTION_BOTH);
+    PrepareStatement(CHAR_SEL_CREATUREHONOR_MESSAGE, "SELECT message_checksum FROM creaturehonor_message WHERE guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_CREATUREHONOR_MESSAGE, "UPDATE creaturehonor_message SET message_checksum = ? WHERE guid = ?", CONNECTION_ASYNC);
 }
