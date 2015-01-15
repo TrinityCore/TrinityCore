@@ -731,6 +731,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
     private:
         void ForcedDespawn(uint32 timeMSToDespawn = 0);
+        bool IsCreatureTooGray(uint32 player, uint32 creature) const; // No aggro from gray creatures
 
         //WaypointMovementGenerator vars
         uint32 m_waypointID;
