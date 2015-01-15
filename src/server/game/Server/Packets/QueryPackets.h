@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "DB2Stores.h"
 #include "NPCHandler.h"
+#include "G3D/Vector3.h"
 
 namespace WorldPackets
 {
@@ -252,6 +253,49 @@ namespace WorldPackets
             uint32 GameObjectID = 0;
             bool Allow = false;
             GameObjectStats Stats;
+        };
+        
+        class QueryCorpseLocationFromClient final : public ClientPacket
+        {
+        public:
+            QueryCorpseLocationFromClient(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CorpseLocation final : public ServerPacket
+        {
+        public:
+            CorpseLocation() : ServerPacket(SMSG_CORPSE_LOCATION, 1 + (5 * 4) + 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Transport;
+            G3D::Vector3 Position;
+            int32 ActualMapID = 0;
+            int32 MapID = 0;
+            bool Valid = false;
+        };
+
+        class QueryCorpseTransport final : public ClientPacket
+        {
+        public:
+            QueryCorpseTransport(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_CORPSE_TRANSPORT , std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Transport;
+        };
+
+        class CorpseTransportQuery final : public ServerPacket
+        {
+        public:
+            CorpseTransportQuery() : ServerPacket(SMSG_CORPSE_TRANSPORT_QUERY, 16) { }
+
+            WorldPacket const* Write() override;
+
+            G3D::Vector3 Position;
+            float Facing = 0.0f;
         };
     }
 }
