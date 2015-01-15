@@ -37,6 +37,7 @@
 #include "WorldSession.h"
 #include "Opcodes.h"
 #include "AchievementMgr.h"
+#include "MiscPackets.h"
 
 MapManager::MapManager()
 {
@@ -179,8 +180,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 
             if (!corpseMap)
             {
-                WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
-                player->GetSession()->SendPacket(&data);
+                WorldPackets::Misc::AreaTriggerNoCorpse packet;
+                player->GetSession()->SendPacket(packet.Write());
                 TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance '%s' and cannot enter.", player->GetName().c_str(), mapName);
                 return false;
             }
