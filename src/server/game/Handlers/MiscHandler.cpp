@@ -61,11 +61,9 @@
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
 
-void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
+void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_REPOP_REQUEST Message");
-
-    recvData.read_skip<uint8>();
 
     if (GetPlayer()->IsAlive() || GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
@@ -501,14 +499,14 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)
     //GetPlayer()->SendInitWorldStates(true, newZone);
 }
 
-void WorldSession::HandleReturnToGraveyard(WorldPacket& /*recvPacket*/)
+void WorldSession::HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& /*packet*/)
 {
     if (GetPlayer()->IsAlive() || !GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
     GetPlayer()->RepopAtGraveyard();
 }
 
-void WorldSession::HandleRequestCemeteryList(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleRequestCemeteryList(WorldPackets::Misc::RequestCemeteryList& /*packet*/)
 {
     uint32 zoneId = _player->GetZoneId();
     uint32 team = _player->GetTeam();
@@ -529,14 +527,14 @@ void WorldSession::HandleRequestCemeteryList(WorldPacket& /*recvPacket*/)
         return;
     }
 
-    WorldPacket data(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 4 + 4 * graveyardIds.size());
-    data.WriteBit(0); // Is MicroDungeon (WorldMapFrame.lua)
+    WorldPackets::Misc::RequestCemeteryListResponse packet;
+    packet.IsGossipTriggered = false;
+    packet.CemeteryID.reserve(graveyardIds.size());
 
-    data.WriteBits(graveyardIds.size(), 24);
     for (uint32 id : graveyardIds)
-        data << id;
+        packet.CemeteryID.push_back(id);
 
-    SendPacket(&data);
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet)
@@ -761,12 +759,9 @@ void WorldSession::HandleBugOpcode(WorldPacket& recvData)
     CharacterDatabase.Execute(stmt);
 }
 
-void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
+void WorldSession::HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_RECLAIM_CORPSE");
-
-    ObjectGuid guid;
-    recvData >> guid;
 
     if (_player->IsAlive())
         return;
@@ -798,25 +793,20 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
     _player->SpawnCorpseBones();
 }
 
-void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_RESURRECT_RESPONSE");
-
-    ObjectGuid guid;
-    uint8 status;
-    recvData >> guid;
-    recvData >> status;
 
     if (GetPlayer()->IsAlive())
         return;
 
-    if (status == 0)
+    if (packet.Response == 0)
     {
         GetPlayer()->ClearResurrectRequestData();           // reject
         return;
     }
 
-    if (!GetPlayer()->IsResurrectRequestedBy(guid))
+    if (!GetPlayer()->IsResurrectRequestedBy(packet.Resurrecter))
         return;
 
     GetPlayer()->ResurrectUsingRequestData();

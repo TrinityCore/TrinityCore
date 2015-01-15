@@ -207,3 +207,55 @@ WorldPacket const* WorldPackets::Misc::RaidDifficultySet::Write()
     _worldPacket << uint8(Legacy);
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()
+{
+    _worldPacket << Remaining;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::DeathReleaseLoc::Write()
+{
+    _worldPacket << MapID;
+    _worldPacket << float(Loc.x);
+    _worldPacket << float(Loc.y);
+    _worldPacket << float(Loc.z);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PreRessurect::Write()
+{
+    _worldPacket << PlayerGUID;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::ReclaimCorpse::Read()
+{
+    _worldPacket >> CorpseGUID;
+}
+
+void WorldPackets::Misc::RepopRequest::Read()
+{
+    CheckInstance = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Misc::RequestCemeteryListResponse::Write()
+{
+    _worldPacket.WriteBit(IsGossipTriggered);
+    _worldPacket.FlushBits();
+
+    _worldPacket << uint32(CemeteryID.size());
+    for (uint32 cemetery : CemeteryID)
+        _worldPacket << cemetery;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::ResurrectResponse::Read()
+{
+    _worldPacket >> Resurrecter;
+    _worldPacket >> Response;
+}

@@ -265,3 +265,33 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
+{
+    _worldPacket.WriteBit(Valid);
+    _worldPacket.FlushBits();
+
+    _worldPacket << ActualMapID;
+    _worldPacket << Position.x;
+    _worldPacket << Position.y;
+    _worldPacket << Position.z;
+    _worldPacket << MapID;
+    _worldPacket << Transport;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryCorpseTransport::Read()
+{
+    _worldPacket >> Transport;
+}
+
+WorldPacket const* WorldPackets::Query::CorpseTransportQuery::Write()
+{
+    _worldPacket << Position.x;
+    _worldPacket << Position.y;
+    _worldPacket << Position.z;
+    _worldPacket << Facing;
+
+    return &_worldPacket;
+}

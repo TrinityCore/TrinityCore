@@ -178,6 +178,11 @@ namespace WorldPackets
         class TutorialSetFlag;
         class SetDungeonDifficulty;
         class SetRaidDifficulty;
+        class PortGraveyard;
+        class ReclaimCorpse;
+        class RepopRequest;
+        class RequestCemeteryList;
+        class ResurrectResponse;
     }
 
     namespace Movement
@@ -200,6 +205,8 @@ namespace WorldPackets
         class QueryNPCText;
         class DBQueryBulk;
         class QueryGameObject;
+        class QueryCorpseLocationFromClient;
+        class QueryCorpseTransport;
     }
 
     namespace Quest
@@ -648,8 +655,8 @@ class WorldSession
         void HandleLookingForGroup(WorldPacket& recvPacket);
 
         // cemetery/graveyard related
-        void HandleReturnToGraveyard(WorldPacket& recvPacket);
-        void HandleRequestCemeteryList(WorldPacket& recvPacket);
+        void HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& packet);
+        void HandleRequestCemeteryList(WorldPackets::Misc::RequestCemeteryList& packet);
 
         // new inspect
         void HandleInspectOpcode(WorldPacket& recvPacket);
@@ -679,7 +686,7 @@ class WorldSession
         void HandleSetCollisionHeightAck(WorldPacket& recvPacket);
 
         void HandlePingOpcode(WorldPacket& recvPacket);
-        void HandleRepopRequestOpcode(WorldPacket& recvPacket);
+        void HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet);
         void HandleAutostoreLootItemOpcode(WorldPacket& recvPacket);
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
         void HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
@@ -961,10 +968,10 @@ class WorldSession
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
 
-        void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
-        void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
-        void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
-        void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
+        void HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& packet);
+        void HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& packet);
+        void HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet);
+        void HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse& packet);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
 
         void HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet);
