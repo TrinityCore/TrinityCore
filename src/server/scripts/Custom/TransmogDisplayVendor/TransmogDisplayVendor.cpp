@@ -778,6 +778,63 @@ class Player_Transmogrify : public PlayerScript
 public:
     Player_Transmogrify() : PlayerScript("Player_Transmogrify") { }
 
+    std::vector<ObjectGuid> GetItemList(const Player* player) const
+    {
+        std::vector<ObjectGuid> itemlist;
+
+        // Copy paste from Player::GetItemByGuid(guid)
+
+        for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+            if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                itemlist.push_back(pItem->GetGUID());
+
+        for (uint8 i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
+            if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                itemlist.push_back(pItem->GetGUID());
+
+        for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+            if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                itemlist.push_back(pItem->GetGUID());
+
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+            if (Bag* pBag = player->GetBagByPos(i))
+                for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
+                    if (Item* pItem = pBag->GetItemByPos(j))
+                        itemlist.push_back(pItem->GetGUID());
+
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+            if (Bag* pBag = player->GetBagByPos(i))
+                for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
+                    if (Item* pItem = pBag->GetItemByPos(j))
+                        itemlist.push_back(pItem->GetGUID());
+
+        return itemlist;
+    }
+
+    void OnSave(Player* player) override
+    {
+        uint32 lowguid = player->GetGUIDLow();
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        trans->PAppend("DELETE FROM `custom_transmogrification` WHERE `Owner` = %u", lowguid);
+
+        if (!player->transmogMap.empty())
+        {
+            // Only save items that are in inventory / bank / etc
+            std::vector<ObjectGuid> items = GetItemList(player);
+            for (std::vector<ObjectGuid>::const_iterator it = items.begin(); it != items.end(); ++it)
+            {
+                TransmogMapType::const_iterator it2 = player->transmogMap.find(*it);
+                if (it2 == player->transmogMap.end())
+                    continue;
+
+                trans->PAppend("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES (%u, %u, %u)", it2->first.GetCounter(), it2->second, lowguid);
+            }
+        }
+
+        if (trans->GetSize()) // basically never false
+            CharacterDatabase.CommitTransaction(trans);
+    }
+
     void OnLogin(Player* player, bool /*firstLogin*/) override
     {
         QueryResult result = CharacterDatabase.PQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = %u", player->GetGUIDLow());
