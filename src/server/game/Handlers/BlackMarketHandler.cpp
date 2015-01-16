@@ -21,7 +21,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleBlackMarketHello(WorldPackets::BlackMarket::ClientBlackMarketHello& packet)
+void WorldSession::HandleBlackMarketHello(WorldPackets::BlackMarket::BlackMarketHelloClient& packet)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Guid, UNIT_NPC_FLAG_BLACK_MARKET);
     if (!unit)
@@ -37,10 +37,10 @@ void WorldSession::HandleBlackMarketHello(WorldPackets::BlackMarket::ClientBlack
     SendBlackMarketHello(packet.Guid, unit);
 }
 
-void WorldSession::SendBlackMarketHello(ObjectGuid Guid, Creature* unit)
+void WorldSession::SendBlackMarketHello(ObjectGuid guid, Creature* auctioneer)
 {
-    WorldPackets::BlackMarket::PlayerCliBlackMarketHello packet;
-    packet.Guid = Guid;
-    packet.Enable = true;
+    WorldPackets::BlackMarket::BlackMarketHelloServer packet;
+    packet.Guid = guid;
+    packet.Enable = false;
     SendPacket(packet.Write());
 }

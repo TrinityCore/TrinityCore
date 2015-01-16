@@ -19,15 +19,16 @@
 #include "AuctionHouseMgr.h"
 #include "ObjectGuid.h"
 
-void WorldPackets::AuctionHouse::ClientAuctionHello::Read()
+void WorldPackets::AuctionHouse::AuctionHello::Read()
 {
     _worldPacket >> Guid;
 }
 
-WorldPacket const* WorldPackets::AuctionHouse::PlayerCliAuctionHelloResponse::Write()
+WorldPacket const* WorldPackets::AuctionHouse::AuctionHelloResponse::Write()
 {
     _worldPacket << Guid;
     _worldPacket.WriteBit(OpenForBusiness);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

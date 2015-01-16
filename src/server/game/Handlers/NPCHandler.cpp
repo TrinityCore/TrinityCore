@@ -96,7 +96,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet)
 
 void WorldSession::SendShowBank(ObjectGuid guid)
 {
-    WorldPackets::NPC::PlayerCliShowBank packet;
+    WorldPackets::NPC::ShowBank packet;
     packet.Guid = guid;
     SendPacket(packet.Write());
 }

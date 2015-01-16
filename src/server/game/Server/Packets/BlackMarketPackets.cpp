@@ -17,15 +17,16 @@
 
 #include "BlackMarketPackets.h"
 
-void WorldPackets::BlackMarket::ClientBlackMarketHello::Read()
+void WorldPackets::BlackMarket::BlackMarketHelloClient::Read()
 {
     _worldPacket >> Guid;
 }
 
-WorldPacket const* WorldPackets::BlackMarket::PlayerCliBlackMarketHello::Write()
+WorldPacket const* WorldPackets::BlackMarket::BlackMarketHelloServer::Write()
 {
     _worldPacket << Guid;
     _worldPacket.WriteBit(Enable);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

@@ -77,12 +77,12 @@ namespace WorldPackets
 {
     namespace AuctionHouse
     {
-        class ClientAuctionHello;
+        class AuctionHello;
     }
 
     namespace BlackMarket
     {
-        class ClientBlackMarketHello;
+        class BlackMarketHelloClient;
     }
 
     namespace Character
@@ -561,7 +561,7 @@ class WorldSession
         void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
         // Black Market
-        void SendBlackMarketHello(ObjectGuid Guid, Creature* unit);
+        void SendBlackMarketHello(ObjectGuid guid, Creature* auctioneer);
 
         //Item Enchantment
         void SendEnchantmentLog(ObjectGuid target, ObjectGuid caster, uint32 itemId, uint32 enchantId);
@@ -889,7 +889,7 @@ class WorldSession
         void HandleSetTradeItemOpcode(WorldPacket& recvPacket);
         void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
 
-        void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::ClientAuctionHello& packet);
+        void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHello& packet);
         void HandleAuctionListItems(WorldPacket& recvData);
         void HandleAuctionListBidderItems(WorldPacket& recvData);
         void HandleAuctionSellItem(WorldPacket& recvData);
@@ -899,7 +899,7 @@ class WorldSession
         void HandleAuctionListPendingSales(WorldPacket& recvData);
 
         // Black Market
-        void HandleBlackMarketHello(WorldPackets::BlackMarket::ClientBlackMarketHello& packet);
+        void HandleBlackMarketHello(WorldPackets::BlackMarket::BlackMarketHelloClient& packet);
 
         void HandleGetMailList(WorldPacket& recvData);
         void HandleSendMail(WorldPacket& recvData);

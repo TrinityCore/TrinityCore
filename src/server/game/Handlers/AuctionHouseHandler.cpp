@@ -33,7 +33,7 @@
 #include "AuctionHousePackets.h"
 
 //void called when player click on auctioneer npc
-void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::ClientAuctionHello& packet)
+void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHello& packet)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
@@ -62,7 +62,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
     if (!ahEntry)
         return;
 
-    WorldPackets::AuctionHouse::PlayerCliAuctionHelloResponse auctionHelloResponse;
+    WorldPackets::AuctionHouse::AuctionHelloResponse auctionHelloResponse;
     auctionHelloResponse.Guid = guid;
     auctionHelloResponse.OpenForBusiness = true;                         // 3.3.3: 1 - AH enabled, 0 - AH disabled
     SendPacket(auctionHelloResponse.Write());
