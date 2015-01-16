@@ -33,15 +33,12 @@
 #include "AuctionHousePackets.h"
 
 //void called when player click on auctioneer npc
-void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
+void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHello& packet)
 {
-    ObjectGuid guid;                                            //NPC guid
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleAuctionHelloOpcode - Unit (%s) not found or you can't interact with him.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleAuctionHelloOpcode - Unit (%s) not found or you can't interact with him.", packet.Guid.ToString().c_str());
         return;
     }
 
@@ -49,7 +46,7 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendAuctionHello(guid, unit);
+    SendAuctionHello(packet.Guid, unit);
 }
 
 //this void causes that auction window is opened
@@ -65,11 +62,10 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
     if (!ahEntry)
         return;
 
-    WorldPacket data(SMSG_AUCTION_HELLO, 12);
-    data << guid;
-    data << uint32(ahEntry->ID);
-    data << uint8(1);                                       // 3.3.3: 1 - AH enabled, 0 - AH disabled
-    SendPacket(&data);
+    WorldPackets::AuctionHouse::AuctionHelloResponse auctionHelloResponse;
+    auctionHelloResponse.Guid = guid;
+    auctionHelloResponse.OpenForBusiness = true;                         // 3.3.3: 1 - AH enabled, 0 - AH disabled
+    SendPacket(auctionHelloResponse.Write());
 }
 
 void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action, uint32 errorCode, uint32 /*bidError = 0*/)

@@ -755,7 +755,8 @@ enum NPCFlags
     UNIT_NPC_FLAG_MAILBOX               = 0x04000000,       // mailbox
     UNIT_NPC_FLAG_REFORGER              = 0x08000000,       // reforging
     UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x10000000,       // transmogrification
-    UNIT_NPC_FLAG_VAULTKEEPER           = 0x20000000        // void storage
+    UNIT_NPC_FLAG_VAULTKEEPER           = 0x20000000,       // void storage
+    UNIT_NPC_FLAG_BLACK_MARKET          = 0x80000000        // black market
 };
 
 enum MovementFlags
