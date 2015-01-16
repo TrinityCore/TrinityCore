@@ -483,22 +483,16 @@ DROP TABLE IF EXISTS `character_aura`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_aura` (
   `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `caster_guid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier',
-  `item_guid` binary(16) NOT NULL DEFAULT '0',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `effect_mask` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `recalculate_mask` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `stackcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `amount0` int(11) NOT NULL DEFAULT '0',
-  `amount1` int(11) NOT NULL DEFAULT '0',
-  `amount2` int(11) NOT NULL DEFAULT '0',
-  `base_amount0` int(11) NOT NULL DEFAULT '0',
-  `base_amount1` int(11) NOT NULL DEFAULT '0',
-  `base_amount2` int(11) NOT NULL DEFAULT '0',
-  `maxduration` int(11) NOT NULL DEFAULT '0',
-  `remaintime` int(11) NOT NULL DEFAULT '0',
-  `remaincharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`caster_guid`,`item_guid`,`spell`,`effect_mask`)
+  `casterGuid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier',
+  `itemGuid` binary(16) NOT NULL,
+  `spell` int(10) unsigned NOT NULL,
+  `effectMask` int(10) unsigned NOT NULL,
+  `recalculateMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `stackCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `maxDuration` int(11) NOT NULL DEFAULT '0',
+  `remainTime` int(11) NOT NULL DEFAULT '0',
+  `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -509,6 +503,34 @@ CREATE TABLE `character_aura` (
 LOCK TABLES `character_aura` WRITE;
 /*!40000 ALTER TABLE `character_aura` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_aura` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_aura_effect`
+--
+
+DROP TABLE IF EXISTS `character_aura_effect`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_aura_effect` (
+  `guid` bigint(20) unsigned NOT NULL,
+  `casterGuid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier' ,
+  `itemGuid` binary(16) NOT NULL,
+  `spell` int(10) unsigned NOT NULL ,
+  `effectMask` int(10) unsigned NOT NULL,
+  `effectIndex` tinyint(3) unsigned NOT NULL,
+  `amount` int(11) NOT NULL DEFAULT 0,
+  `baseAmount` int(11) NOT NULL DEFAULT 0,
+PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`,`effectIndex`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+
+--
+-- Dumping data for table `character_aura_effect`
+--
+
+LOCK TABLES `character_aura_effect` WRITE;
+/*!40000 ALTER TABLE `character_aura_effect` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_aura_effect` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2476,22 +2498,16 @@ DROP TABLE IF EXISTS `pet_aura`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pet_aura` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `caster_guid` binary(16) NOT NULL DEFAULT '0' COMMENT 'Full Global Unique Identifier',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `effect_mask` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `recalculate_mask` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `stackcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `amount0` mediumint(8) NOT NULL,
-  `amount1` mediumint(8) NOT NULL,
-  `amount2` mediumint(8) NOT NULL,
-  `base_amount0` mediumint(8) NOT NULL,
-  `base_amount1` mediumint(8) NOT NULL,
-  `base_amount2` mediumint(8) NOT NULL,
-  `maxduration` int(11) NOT NULL DEFAULT '0',
-  `remaintime` int(11) NOT NULL DEFAULT '0',
-  `remaincharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spell`,`effect_mask`)
+  `guid` int(10) unsigned NOT NULL COMMENT 'Global Unique Identifier',
+  `casterGuid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier',
+  `spell` int(10) unsigned NOT NULL,
+  `effectMask` int(10) unsigned NOT NULL,
+  `recalculateMask` int(10) unsigned NOT NULL DEFAULT 0,
+  `stackCount` tinyint(3) unsigned NOT NULL DEFAULT 1,
+  `maxDuration` int(11) NOT NULL DEFAULT 0,
+  `remainTime` int(11) NOT NULL DEFAULT 0,
+  `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY (`guid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2502,6 +2518,33 @@ CREATE TABLE `pet_aura` (
 LOCK TABLES `pet_aura` WRITE;
 /*!40000 ALTER TABLE `pet_aura` DISABLE KEYS */;
 /*!40000 ALTER TABLE `pet_aura` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `pet_aura_effect`
+--
+
+DROP TABLE IF EXISTS `pet_aura_effect`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pet_aura_effect` (
+  `guid` int(10) unsigned NOT NULL COMMENT 'Global Unique Identifier',
+  `casterGuid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier' ,
+  `spell` int(10) unsigned NOT NULL,
+  `effectMask` int(10) unsigned NOT NULL,
+  `effectIndex` tinyint(3) unsigned NOT NULL,
+  `amount` int(11) NOT NULL DEFAULT 0,
+  `baseAmount` int(11) NOT NULL DEFAULT 0,
+PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`,`effectIndex`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
+
+--
+-- Dumping data for table `pet_aura_effect`
+--
+
+LOCK TABLES `pet_aura_effect` WRITE;
+/*!40000 ALTER TABLE `pet_aura_effect` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pet_aura_effect` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

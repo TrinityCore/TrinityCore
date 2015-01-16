@@ -4594,6 +4594,10 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_EFFECT);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
@@ -17209,7 +17213,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
 
     _LoadGlyphs(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GLYPHS));
-    _LoadAuras(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURAS), time_diff);
+    _LoadAuras(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURAS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS), time_diff);
     _LoadGlyphAuras();
     // add ghost flag (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
@@ -17474,67 +17478,83 @@ void Player::_LoadActions(PreparedQueryResult result)
     }
 }
 
-void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
+void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectResult, uint32 timediff)
 {
     TC_LOG_DEBUG("entities.player.loading", "Loading auras for %s", GetGUID().ToString().c_str());
 
-    /*                                                           0       1        2         3                 4         5      6       7         8              9            10
-    QueryResult* result = CharacterDatabase.PQuery("SELECT caster_guid, spell, effect_mask, recalculate_mask, stackcount, amount0, amount1, amount2, base_amount0, base_amount1, base_amount2,
-                                                        11          12          13
-                                                    maxduration, remaintime, remaincharges FROM character_aura WHERE guid = '%u'", GetGUIDLow());
+    /*
+                    0         1      2           3            4       5           6
+    SELECT casterGuid, itemGuid, spell, effectMask, effectIndex, amount, baseAmount FROM character_aura_effect WHERE guid = ?
     */
 
-    if (result)
+    ObjectGuid casterGuid, itemGuid;
+    std::map<AuraKey, AuraLoadEffectInfo> effectInfo;
+    if (effectResult)
     {
-        ObjectGuid caster_guid;
         do
         {
-            Field* fields = result->Fetch();
-            int32 damage[3];
-            int32 baseDamage[3];
-            caster_guid.SetRawValue(fields[0].GetBinary());
-            uint32 spellid = fields[1].GetUInt32();
-            uint8 effmask = fields[2].GetUInt8();
-            uint8 recalculatemask = fields[3].GetUInt8();
-            uint8 stackcount = fields[4].GetUInt8();
-            damage[0] = fields[5].GetInt32();
-            damage[1] = fields[6].GetInt32();
-            damage[2] = fields[7].GetInt32();
-            baseDamage[0] = fields[8].GetInt32();
-            baseDamage[1] = fields[9].GetInt32();
-            baseDamage[2] = fields[10].GetInt32();
-            int32 maxduration = fields[11].GetInt32();
-            int32 remaintime = fields[12].GetInt32();
-            uint8 remaincharges = fields[13].GetUInt8();
+            Field* fields = effectResult->Fetch();
+            uint32 effectIndex = fields[4].GetUInt8();
+            if (effectIndex < MAX_SPELL_EFFECTS)
+            {
+                casterGuid.SetRawValue(fields[0].GetBinary());
+                itemGuid.SetRawValue(fields[1].GetBinary());
+                AuraKey key{ casterGuid, itemGuid, fields[2].GetUInt32(), fields[3].GetUInt32() };
+                AuraLoadEffectInfo& info = effectInfo[key];
+                info.Amounts[effectIndex] = fields[5].GetInt32();
+                info.BaseAmounts[effectIndex] = fields[6].GetInt32();
+            }
+        }
+        while (effectResult->NextRow());
+    }
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
+    /*
+                    0         1      2           3                4           5            6           7              8
+    SELECT casterGuid, itemGuid, spell, effectMask, recalculateMask, stackCount, maxDuration, remainTime, remainCharges FROM character_aura WHERE guid = ?
+    */
+    if (auraResult)
+    {
+        do
+        {
+            Field* fields = auraResult->Fetch();
+            casterGuid.SetRawValue(fields[0].GetBinary());
+            itemGuid.SetRawValue(fields[1].GetBinary());
+            AuraKey key{ casterGuid, itemGuid, fields[2].GetUInt32(), fields[3].GetUInt32() };
+            uint32 recalculateMask = fields[4].GetUInt32();
+            uint8 stackCount = fields[5].GetUInt8();
+            int32 maxDuration = fields[6].GetInt32();
+            int32 remainTime = fields[7].GetInt32();
+            uint8 remainCharges = fields[8].GetUInt8();
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(key.SpellId);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.player", "Unknown aura (spellid %u), ignore.", spellid);
+                TC_LOG_ERROR("entities.player", "Unknown aura (spellid %u), ignore.", key.SpellId);
                 continue;
             }
 
             // negative effects should continue counting down after logout
-            if (remaintime != -1 && !spellInfo->IsPositive())
+            if (remainTime != -1 && !spellInfo->IsPositive())
             {
-                if (remaintime/IN_MILLISECONDS <= int32(timediff))
+                if (remainTime/IN_MILLISECONDS <= int32(timediff))
                     continue;
 
-                remaintime -= timediff*IN_MILLISECONDS;
+                remainTime -= timediff*IN_MILLISECONDS;
             }
 
-            // prevent wrong values of remaincharges
+            // prevent wrong values of remainCharges
             if (spellInfo->ProcCharges)
             {
                 // we have no control over the order of applying auras and modifiers allow auras
                 // to have more charges than value in SpellInfo
-                if (remaincharges <= 0/* || remaincharges > spellproto->procCharges*/)
-                    remaincharges = spellInfo->ProcCharges;
+                if (remainCharges <= 0/* || remainCharges > spellproto->procCharges*/)
+                    remainCharges = spellInfo->ProcCharges;
             }
             else
-                remaincharges = 0;
+                remainCharges = 0;
 
-            if (Aura* aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid))
+            AuraLoadEffectInfo& info = effectInfo[key];
+            if (Aura* aura = Aura::TryCreate(spellInfo, key.EffectMask, this, NULL, info.BaseAmounts.data(), NULL, casterGuid))
             {
                 if (!aura->CanBeSaved())
                 {
@@ -17542,12 +17562,12 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
                     continue;
                 }
 
-                aura->SetLoadedState(maxduration, remaintime, remaincharges, stackcount, recalculatemask, &damage[0]);
+                aura->SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, info.Amounts.data());
                 aura->ApplyForTargets();
-                TC_LOG_INFO("entities.player", "Added aura spellid %u, effectmask %u", spellInfo->Id, effmask);
+                TC_LOG_INFO("entities.player", "Added aura spellid %u, effectmask %u", spellInfo->Id, key.EffectMask);
             }
         }
-        while (result->NextRow());
+        while (auraResult->NextRow());
     }
 }
 
@@ -19229,57 +19249,55 @@ void Player::_SaveActions(SQLTransaction& trans)
 
 void Player::_SaveAuras(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_EFFECT);
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    trans->Append(stmt);
+
+    uint8 index;
     for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end(); ++itr)
     {
         if (!itr->second->CanBeSaved())
             continue;
 
         Aura* aura = itr->second;
+        uint32 recalculateMask = 0;
+        AuraKey key = aura->GenerateKey(recalculateMask);
 
-        int32 damage[MAX_SPELL_EFFECTS];
-        int32 baseDamage[MAX_SPELL_EFFECTS];
-        uint8 effMask = 0;
-        uint8 recalculateMask = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (AuraEffect const* effect = aura->GetEffect(i))
-            {
-                baseDamage[i] = effect->GetBaseAmount();
-                damage[i] = effect->GetAmount();
-                effMask |= 1 << i;
-                if (effect->CanBeRecalculated())
-                    recalculateMask |= 1 << i;
-            }
-            else
-            {
-                baseDamage[i] = 0;
-                damage[i] = 0;
-            }
-        }
-
-        uint8 index = 0;
+        index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
         stmt->setUInt64(index++, GetGUID().GetCounter());
-        stmt->setBinary(index++, itr->second->GetCasterGUID().GetRawValue());
-        stmt->setBinary(index++, itr->second->GetCastItemGUID().GetRawValue());
-        stmt->setUInt32(index++, itr->second->GetId());
-        stmt->setUInt8(index++, effMask);
+        stmt->setBinary(index++, key.Caster.GetRawValue());
+        stmt->setBinary(index++, key.Item.GetRawValue());
+        stmt->setUInt32(index++, key.SpellId);
+        stmt->setUInt32(index++, key.EffectMask);
         stmt->setUInt8(index++, recalculateMask);
-        stmt->setUInt8(index++, itr->second->GetStackAmount());
-        stmt->setInt32(index++, damage[0]);
-        stmt->setInt32(index++, damage[1]);
-        stmt->setInt32(index++, damage[2]);
-        stmt->setInt32(index++, baseDamage[0]);
-        stmt->setInt32(index++, baseDamage[1]);
-        stmt->setInt32(index++, baseDamage[2]);
-        stmt->setInt32(index++, itr->second->GetMaxDuration());
-        stmt->setInt32(index++, itr->second->GetDuration());
-        stmt->setUInt8(index, itr->second->GetCharges());
+        stmt->setUInt8(index++, aura->GetStackAmount());
+        stmt->setInt32(index++, aura->GetMaxDuration());
+        stmt->setInt32(index++, aura->GetDuration());
+        stmt->setUInt8(index, aura->GetCharges());
         trans->Append(stmt);
+
+        for (AuraEffect const* effect : aura->GetAuraEffects())
+        {
+            if (effect)
+            {
+                index = 0;
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA_EFFECT);
+                stmt->setUInt64(index++, GetGUID().GetCounter());
+                stmt->setBinary(index++, key.Caster.GetRawValue());
+                stmt->setBinary(index++, key.Item.GetRawValue());
+                stmt->setUInt32(index++, key.SpellId);
+                stmt->setUInt32(index++, key.EffectMask);
+                stmt->setUInt8(index++, effect->GetEffIndex());
+                stmt->setInt32(index++, effect->GetAmount());
+                stmt->setInt32(index++, effect->GetBaseAmount());
+                trans->Append(stmt);
+            }
+        }
     }
 }
 
