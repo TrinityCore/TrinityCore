@@ -656,7 +656,7 @@ void Loot::NotifyMoneyRemoved()
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyLootMoneyRemoved();
+            player->SendNotifyLootMoneyRemoved(GetGUID());
         else
             PlayersLooting.erase(i);
     }
