@@ -908,6 +908,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_GROUP,
     PLAYER_LOGIN_QUERY_LOAD_BOUND_INSTANCES,
     PLAYER_LOGIN_QUERY_LOAD_AURAS,
+    PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS,
     PLAYER_LOGIN_QUERY_LOAD_SPELLS,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES,
@@ -2659,7 +2660,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         void _LoadActions(PreparedQueryResult result);
-        void _LoadAuras(PreparedQueryResult result, uint32 timediff);
+        void _LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectResult, uint32 timediff);
         void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);

@@ -398,7 +398,7 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
 
     for (SpellEffectInfo const* effect : GetSpellEffectInfos())
     {
-        if (effect && effMask & (uint8(1) << effect->EffectIndex))
+        if (effect && effMask & (1 << effect->EffectIndex))
             _effects[effect->EffectIndex] = new AuraEffect(this, effect->EffectIndex, baseAmount ? baseAmount + effect->EffectIndex : NULL, caster);
     }
 }
@@ -1113,18 +1113,40 @@ int32 Aura::CalcDispelChance(Unit* auraTarget, bool offensive) const
     return 100 - resistChance;
 }
 
-void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, int32 *amount)
+AuraKey Aura::GenerateKey(uint32& recalculateMask) const
 {
-    m_maxDuration = maxduration;
+    AuraKey key;
+    key.Caster = GetCasterGUID();
+    key.Item = GetCastItemGUID();
+    key.SpellId = GetId();
+    key.EffectMask = 0;
+    recalculateMask = 0;
+    for (uint32 i = 0; i < _effects.size(); ++i)
+    {
+        if (AuraEffect const* effect = _effects[i])
+        {
+            key.EffectMask |= 1 << i;
+            if (effect->CanBeRecalculated())
+                recalculateMask |= 1 << i;
+        }
+    }
+
+    return key;
+}
+
+void Aura::SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint32 recalculateMask, int32* amount)
+{
+    m_maxDuration = maxDuration;
     m_duration = duration;
     m_procCharges = charges;
     m_isUsingCharges = m_procCharges != 0;
-    m_stackAmount = stackamount;
+    m_stackAmount = stackAmount;
     Unit* caster = GetCaster();
     for (AuraEffect* effect : GetAuraEffects())
     {
         if (!effect)
             continue;
+
         effect->SetAmount(amount[effect->GetEffIndex()]);
         effect->SetCanBeRecalculated((recalculateMask & (1 << effect->GetEffIndex())) != 0);
         effect->CalculatePeriodic(caster, false, true);

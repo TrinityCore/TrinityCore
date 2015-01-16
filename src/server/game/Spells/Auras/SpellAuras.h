@@ -91,6 +91,28 @@ class AuraApplication
         void ClientUpdate(bool remove = false);
 };
 
+#pragma pack(push, 1)
+// Structure representing database aura primary key fields
+struct AuraKey
+{
+    ObjectGuid Caster;
+    ObjectGuid Item;
+    uint32 SpellId;
+    uint32 EffectMask;
+
+    bool operator<(AuraKey const& right) const
+    {
+        return memcmp(this, &right, sizeof(*this)) < 0;
+    }
+};
+
+struct AuraLoadEffectInfo
+{
+    std::array<int32, MAX_SPELL_EFFECTS> Amounts;
+    std::array<int32, MAX_SPELL_EFFECTS> BaseAmounts;
+};
+#pragma pack(pop)
+
 class Aura
 {
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID);
@@ -184,12 +206,21 @@ class Aura
         void UnregisterSingleTarget();
         int32 CalcDispelChance(Unit* auraTarget, bool offensive) const;
 
-        void SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, int32 *baseAmount);
+        /**
+        * @fn AuraKey Aura::GenerateKey(uint32& recalculateMask) const
+        *
+        * @brief Fills a helper structure containing aura primary key for `character_aura`, `character_aura_effect`, `pet_aura`, `pet_aura_effect` tables.
+        *
+        * @param [out] recalculateMask Mask of effects that can be recalculated to store in database - not part of aura key.
+        *
+        * @return Aura key.
+        */
+        AuraKey GenerateKey(uint32& recalculateMask) const;
+        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint32 recalculateMask, int32* amount);
 
         // helpers for aura effects
         bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != NULL; }
         bool HasEffectType(AuraType type) const;
-        //AuraEffect* GetEffect(uint8 effIndex) const { ASSERT (effIndex < MAX_SPELL_EFFECTS); return Effects[effIndex]; }
         AuraEffect* GetEffect(uint32 index) const;
         uint32 GetEffectMask() const;
         void RecalculateAmountOfEffects();
@@ -335,4 +366,5 @@ class ChargeDropEvent : public BasicEvent
         Aura* _base;
         AuraRemoveMode _mode;
 };
+
 #endif
