@@ -94,7 +94,7 @@ void WorldPackets::Loot::LootRelease::Read()
 WorldPacket const* WorldPackets::Loot::LootMoneyNotify::Write()
 {
     _worldPacket << Money;
-    _worldPacket << SoleLooter;
+    _worldPacket.WriteBit(SoleLooter);
 
     return &_worldPacket;
 }

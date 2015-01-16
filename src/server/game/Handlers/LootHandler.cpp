@@ -198,7 +198,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
                 
                 WorldPackets::Loot::LootMoneyNotify packet;
                 packet.Money = goldPerPlayer;
-                packet.SoleLooter = uint8(playersNear.size() <= 1);
+                packet.SoleLooter = playersNear.size() <= 1 ? true : false;
                 (*i)->GetSession()->SendPacket(packet.Write());
             }
         }
@@ -213,7 +213,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
                     
             WorldPackets::Loot::LootMoneyNotify packet;
             packet.Money = loot->gold;
-            packet.SoleLooter = 1; // "You loot..."
+            packet.SoleLooter = true; // "You loot..."
             SendPacket(packet.Write());
         }
 

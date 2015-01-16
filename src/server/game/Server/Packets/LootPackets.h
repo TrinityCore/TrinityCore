@@ -131,7 +131,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Money = 0;
-            uint8 SoleLooter = 0;
+            bool SoleLooter = false;
         };
         
         class CoinRemoved final : public ServerPacket
