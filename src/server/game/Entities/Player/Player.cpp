@@ -8944,10 +8944,11 @@ void Player::SendLootError(ObjectGuid guid, LootError error)
     SendDirectMessage(&data);
 }
 
-void Player::SendNotifyLootMoneyRemoved()
+void Player::SendNotifyLootMoneyRemoved(ObjectGuid lootObj)
 {
-    WorldPacket data(SMSG_LOOT_CLEAR_MONEY, 0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Loot::CoinRemoved packet;
+    packet.LootObj = lootObj;
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendNotifyLootItemRemoved(ObjectGuid owner, ObjectGuid lootObj, uint8 lootSlot)

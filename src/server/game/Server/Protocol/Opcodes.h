@@ -343,7 +343,7 @@ enum OpcodeClient : uint32
     CMSG_LOOT_CURRENCY                                = 0xBADD,
     CMSG_LOOT_MASTER_GIVE                             = 0xBADD,
     CMSG_LOOT_METHOD                                  = 0x0729,
-    CMSG_LOOT_MONEY                                   = 0xBADD,
+    CMSG_LOOT_MONEY                                   = 0x1991,
     CMSG_LOOT_RELEASE                                 = 0x1199,
     CMSG_LOOT_ROLL                                    = 0xBADD,
     CMSG_MAIL_CREATE_TEXT_ITEM                        = 0x13D1,
