@@ -647,7 +647,7 @@ void Loot::NotifyItemRemoved(uint8 lootIndex)
     }
 }
 
-void Loot::NotifyMoneyRemoved()
+void Loot::NotifyCoinRemoved()
 {
     // notify all players that are looting this that the money was removed
     GuidSet::iterator i_next;
@@ -656,7 +656,7 @@ void Loot::NotifyMoneyRemoved()
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyLootMoneyRemoved();
+            player->SendNotifyCoinRemoved(GetGUID());
         else
             PlayersLooting.erase(i);
     }
