@@ -120,7 +120,7 @@ namespace WorldPackets
         public:
             LootMoney(WorldPacket&& packet) : ClientPacket(CMSG_LOOT_MONEY, std::move(packet)) { }
 
-            void Read() override;
+            void Read() override { }
         };
         
         class LootMoneyNotify final : public ServerPacket
