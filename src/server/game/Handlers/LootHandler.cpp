@@ -199,7 +199,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
                 WorldPackets::Loot::LootMoneyNotify packet;
                 packet.Money = goldPerPlayer;
                 packet.SoleLooter = playersNear.size() <= 1 ? true : false;
-                (*i)->GetSession()->SendPacket(packet.Write());
+                (*i)->SendDirectMessage(packet.Write());
             }
         }
         else

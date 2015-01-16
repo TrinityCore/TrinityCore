@@ -8948,7 +8948,7 @@ void Player::SendNotifyLootMoneyRemoved(ObjectGuid lootObj)
 {
     WorldPackets::Loot::CoinRemoved packet;
     packet.LootObj = lootObj;
-    GetSession()->SendPacket(packet.Write());
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendNotifyLootItemRemoved(ObjectGuid owner, ObjectGuid lootObj, uint8 lootSlot)
