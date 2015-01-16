@@ -65,4 +65,17 @@ WorldPacket const* LootRemoved::Write()
 
     return &_worldPacket;
 }
+
+void LootRelease::Read()
+{
+    _worldPacket >> Unit;
+}
+
+WorldPacket const* LootMoneyNotify::Write()
+{
+    _worldPacket << uint32(Money);
+    _worldPacket << bool(SoleLooter);
+
+    return &_worldPacket;
+}
 }
