@@ -130,7 +130,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Coins = 0;
+            uint32 Money = 0;
             uint8 SoleLooter = 0;
         };
         

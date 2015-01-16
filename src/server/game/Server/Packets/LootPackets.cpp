@@ -93,7 +93,7 @@ void WorldPackets::Loot::LootRelease::Read()
 
 WorldPacket const* WorldPackets::Loot::LootMoneyNotify::Write()
 {
-    _worldPacket << Coins;
+    _worldPacket << Money;
     _worldPacket << SoleLooter;
 
     return &_worldPacket;

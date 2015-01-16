@@ -169,7 +169,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
 
     if (loot)
     {
-        loot->NotifyCoinRemoved();
+        loot->NotifyMoneyRemoved();
         if (shareMoney && player->GetGroup())      //item, pickpocket and players can be looted only single player
         {
             Group* group = player->GetGroup();
@@ -197,7 +197,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
                         guild->HandleMemberDepositMoney(this, guildGold, true);
 
                 WorldPackets::Loot::LootMoneyNotify packet;
-                packet.Coins = goldPerPlayer;
+                packet.Money = goldPerPlayer;
                 packet.SoleLooter = uint8(playersNear.size() <= 1);
                 (*i)->GetSession()->SendPacket(packet.Write());
             }
@@ -212,7 +212,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
                     guild->HandleMemberDepositMoney(this, guildGold, true);
                     
             WorldPackets::Loot::LootMoneyNotify packet;
-            packet.Coins = loot->gold;
+            packet.Money = loot->gold;
             packet.SoleLooter = 1; // "You loot..."
             SendPacket(packet.Write());
         }

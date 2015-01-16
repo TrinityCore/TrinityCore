@@ -8944,7 +8944,7 @@ void Player::SendLootError(ObjectGuid guid, LootError error)
     SendDirectMessage(&data);
 }
 
-void Player::SendNotifyCoinRemoved(ObjectGuid lootObj)
+void Player::SendNotifyLootMoneyRemoved(ObjectGuid lootObj)
 {
     WorldPackets::Loot::CoinRemoved packet;
     packet.LootObj = lootObj;
