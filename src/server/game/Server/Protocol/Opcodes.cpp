@@ -19,6 +19,8 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "Packets/AchievementPackets.h"
+#include "Packets/AuctionHousePackets.h"
+#include "Packets/BlackMarketPackets.h"
 #include "Packets/CharacterPackets.h"
 #include "Packets/ChannelPackets.h"
 #include "Packets/ChatPackets.h"
@@ -159,7 +161,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ARENA_TEAM_ROSTER,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamRosterOpcode     );
     DEFINE_HANDLER(CMSG_ATTACKSTOP,                                         STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Combat::AttackStop, &WorldSession::HandleAttackStopOpcode);
     DEFINE_HANDLER(CMSG_ATTACKSWING,                                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Combat::AttackSwing, &WorldSession::HandleAttackSwingOpcode);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_HELLO,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionHelloOpcode        );
+    DEFINE_HANDLER(CMSG_AUCTION_HELLO,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::AuctionHouse::AuctionHello, &WorldSession::HandleAuctionHelloOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_LIST_BIDDER_ITEMS,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionListBidderItems    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_LIST_ITEMS,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionListItems          );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_LIST_OWNER_ITEMS,                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionListOwnerItems     );
@@ -198,6 +200,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_SET_BATTLE_SLOT,              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BEGIN_TRADE,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBeginTradeOpcode          );
     DEFINE_HANDLER(CMSG_BINDER_ACTIVATE,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleBinderActivateOpcode);
+    DEFINE_HANDLER(CMSG_BLACK_MARKET_OPEN,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BlackMarket::BlackMarketOpen, &WorldSession::HandleBlackMarketOpen);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BUG,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBugOpcode                 );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BUSY_TRADE,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBusyTradeOpcode           );
     DEFINE_HANDLER(CMSG_BUYBACK_ITEM,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::BuyBackItem, &WorldSession::HandleBuybackItem);
@@ -743,7 +746,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_AUCTION_BIDDER_LIST_RESULT,              STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_AUCTION_BIDDER_NOTIFICATION,             STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_AUCTION_COMMAND_RESULT,                  STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_AUCTION_HELLO,                           STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_AUCTION_HELLO,                           STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_AUCTION_LIST_PENDING_SALES,              STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_AUCTION_LIST_ITEMS_RESULT,               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_AUCTION_OWNER_LIST_RESULT,               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
@@ -787,6 +790,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BINDER_CONFIRM,                          STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BINDPOINTUPDATE,                         STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BINDZONEREPLY,                           STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_BLACK_MARKET_OPEN_RESULT,                STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BREAK_TARGET,                            STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BUY_BANK_SLOT_RESULT,                    STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BUY_FAILED,                              STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
@@ -1323,7 +1327,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_TIME_ZONE_INFORMATION,               STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SETUP_CURRENCY,                          STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SHOWTAXINODES,                           STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_SHOW_BANK,                               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_SHOW_BANK,                               STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SHOW_MAILBOX,                            STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SHOW_RATINGS,                            STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SOCKET_GEMS_RESULT,                      STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);

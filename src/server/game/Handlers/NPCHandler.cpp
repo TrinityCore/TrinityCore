@@ -96,10 +96,9 @@ void WorldSession::HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet)
 
 void WorldSession::SendShowBank(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_SHOW_BANK, 8);
-    data << guid;
-    m_currentBankerGUID = guid;
-    SendPacket(&data);
+    WorldPackets::NPC::ShowBank packet;
+    packet.Guid = guid;
+    SendPacket(packet.Write());
 }
 
 void WorldSession::SendShowMailBox(ObjectGuid guid)

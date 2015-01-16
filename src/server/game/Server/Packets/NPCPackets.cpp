@@ -118,3 +118,10 @@ WorldPacket const* WorldPackets::NPC::TrainerList::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::NPC::ShowBank::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
