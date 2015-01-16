@@ -26,20 +26,20 @@ namespace WorldPackets
 {
     namespace BlackMarket
     {
-        class BlackMarketHelloClient final : public ClientPacket
+        class BlackMarketOpen final : public ClientPacket
         {
         public:
-            BlackMarketHelloClient(WorldPacket&& packet) : ClientPacket(CMSG_BLACK_MARKET_HELLO, std::move(packet)) { }
+            BlackMarketOpen(WorldPacket&& packet) : ClientPacket(CMSG_BLACK_MARKET_OPEN, std::move(packet)) { }
 
             void Read() override;
 
             ObjectGuid Guid;
         };
 
-        class BlackMarketHelloServer final : public ServerPacket
+        class BlackMarketOpenResult final : public ServerPacket
         {
         public:
-            BlackMarketHelloServer() : ServerPacket(SMSG_BLACK_MARKET_HELLO, 15) { }
+            BlackMarketOpenResult() : ServerPacket(SMSG_BLACK_MARKET_OPEN_RESULT, 15) { }
 
             WorldPacket const* Write() override;
 

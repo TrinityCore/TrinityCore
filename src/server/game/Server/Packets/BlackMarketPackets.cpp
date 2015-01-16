@@ -17,12 +17,12 @@
 
 #include "BlackMarketPackets.h"
 
-void WorldPackets::BlackMarket::BlackMarketHelloClient::Read()
+void WorldPackets::BlackMarket::BlackMarketOpen::Read()
 {
     _worldPacket >> Guid;
 }
 
-WorldPacket const* WorldPackets::BlackMarket::BlackMarketHelloServer::Write()
+WorldPacket const* WorldPackets::BlackMarket::BlackMarketOpenResult::Write()
 {
     _worldPacket << Guid;
     _worldPacket.WriteBit(Enable);

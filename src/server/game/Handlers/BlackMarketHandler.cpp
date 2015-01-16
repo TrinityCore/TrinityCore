@@ -21,7 +21,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleBlackMarketHello(WorldPackets::BlackMarket::BlackMarketHelloClient& packet)
+void WorldSession::HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketOpen& packet)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Guid, UNIT_NPC_FLAG_BLACK_MARKET);
     if (!unit)
@@ -34,12 +34,12 @@ void WorldSession::HandleBlackMarketHello(WorldPackets::BlackMarket::BlackMarket
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendBlackMarketHello(packet.Guid, unit);
+    SendBlackMarketOpenResult(packet.Guid, unit);
 }
 
-void WorldSession::SendBlackMarketHello(ObjectGuid guid, Creature* auctioneer)
+void WorldSession::SendBlackMarketOpenResult(ObjectGuid guid, Creature* auctioneer)
 {
-    WorldPackets::BlackMarket::BlackMarketHelloServer packet;
+    WorldPackets::BlackMarket::BlackMarketOpenResult packet;
     packet.Guid = guid;
     packet.Enable = false;
     SendPacket(packet.Write());

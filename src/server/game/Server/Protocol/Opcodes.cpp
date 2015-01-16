@@ -200,7 +200,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_SET_BATTLE_SLOT,              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BEGIN_TRADE,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBeginTradeOpcode          );
     DEFINE_HANDLER(CMSG_BINDER_ACTIVATE,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleBinderActivateOpcode);
-    DEFINE_HANDLER(CMSG_BLACK_MARKET_HELLO,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BlackMarket::BlackMarketHelloClient, &WorldSession::HandleBlackMarketHello);
+    DEFINE_HANDLER(CMSG_BLACK_MARKET_OPEN,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BlackMarket::BlackMarketOpen, &WorldSession::HandleBlackMarketOpen);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BUG,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBugOpcode                 );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BUSY_TRADE,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBusyTradeOpcode           );
     DEFINE_HANDLER(CMSG_BUYBACK_ITEM,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::BuyBackItem, &WorldSession::HandleBuybackItem);
@@ -790,7 +790,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BINDER_CONFIRM,                          STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BINDPOINTUPDATE,                         STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BINDZONEREPLY,                           STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_BLACK_MARKET_HELLO,                      STATUS_NEVER,        CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_BLACK_MARKET_OPEN_RESULT,                STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BREAK_TARGET,                            STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BUY_BANK_SLOT_RESULT,                    STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BUY_FAILED,                              STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);

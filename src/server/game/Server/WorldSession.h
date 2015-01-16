@@ -82,7 +82,7 @@ namespace WorldPackets
 
     namespace BlackMarket
     {
-        class BlackMarketHelloClient;
+        class BlackMarketOpen;
     }
 
     namespace Character
@@ -561,7 +561,7 @@ class WorldSession
         void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
         // Black Market
-        void SendBlackMarketHello(ObjectGuid guid, Creature* auctioneer);
+        void SendBlackMarketOpenResult(ObjectGuid guid, Creature* auctioneer);
 
         //Item Enchantment
         void SendEnchantmentLog(ObjectGuid target, ObjectGuid caster, uint32 itemId, uint32 enchantId);
@@ -899,7 +899,7 @@ class WorldSession
         void HandleAuctionListPendingSales(WorldPacket& recvData);
 
         // Black Market
-        void HandleBlackMarketHello(WorldPackets::BlackMarket::BlackMarketHelloClient& packet);
+        void HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketOpen& packet);
 
         void HandleGetMailList(WorldPacket& recvData);
         void HandleSendMail(WorldPacket& recvData);
