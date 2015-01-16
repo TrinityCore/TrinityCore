@@ -85,3 +85,24 @@ WorldPacket const* WorldPackets::Loot::LootRemoved::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Loot::LootRelease::Read()
+{
+    _worldPacket >> Unit;
+}
+
+WorldPacket const* WorldPackets::Loot::LootMoneyNotify::Write()
+{
+    _worldPacket << Money;
+    _worldPacket.WriteBit(SoleLooter);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Loot::CoinRemoved::Write()
+{
+    _worldPacket << LootObj;
+
+    return &_worldPacket;
+}

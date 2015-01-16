@@ -104,6 +104,45 @@ namespace WorldPackets
             ObjectGuid Owner;
             uint8 LootListID = 0;
         };
+        
+        class LootRelease final : public ClientPacket
+        {
+        public:
+            LootRelease(WorldPacket&& packet) : ClientPacket(CMSG_LOOT_RELEASE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Unit;
+        };
+        
+        class LootMoney final : public ClientPacket
+        {
+        public:
+            LootMoney(WorldPacket&& packet) : ClientPacket(CMSG_LOOT_MONEY, std::move(packet)) { }
+
+            void Read() override { }
+        };
+        
+        class LootMoneyNotify final : public ServerPacket
+        {
+        public:
+            LootMoneyNotify() : ServerPacket(SMSG_LOOT_MONEY_NOTIFY, 5) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Money = 0;
+            bool SoleLooter = false;
+        };
+        
+        class CoinRemoved final : public ServerPacket
+        {
+        public:
+            CoinRemoved() : ServerPacket(SMSG_COIN_REMOVED, 9) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+        };
     }
 }
 
