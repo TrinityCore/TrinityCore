@@ -1414,9 +1414,10 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
     return IsWithinLOSInMap(who);
 }
 
-bool Creature::IsCreatureTooGray(uint32 player, uint32 creature) const
+
+bool Creature::IsCreatureTooGray(uint32 playerLevel, uint32 creatureLevel) const
 {
-    if (Trinity::XP::GetColorCode(player, creature) != XP_GRAY)
+    if (Trinity::XP::GetColorCode(playerLevel, creatureLevel) != XP_GRAY)
         return false;
 
     uint32 noabove = sWorld->getIntConfig(CONFIG_NO_GRAY_AGGRO_ABOVE);
@@ -1424,7 +1425,7 @@ bool Creature::IsCreatureTooGray(uint32 player, uint32 creature) const
     if (noabove == 0 && nobelow == 0)
         return false;
 
-    if (player <= nobelow || (player >= noabove && noabove > 0))
+    if (playerLevel <= nobelow || (playerLevel >= noabove && noabove > 0))
         return true;
     return false;
 }
