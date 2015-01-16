@@ -103,7 +103,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
     }
 }
 
-void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_MONEY");
 
@@ -195,11 +195,11 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 if (Guild* guild = sGuildMgr->GetGuildById((*i)->GetGuildId()))
                     if (uint32 guildGold = CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
                         guild->HandleMemberDepositMoney(this, guildGold, true);
-
-                WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-                data << uint32(goldPerPlayer);
-                data << uint8(playersNear.size() <= 1); // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
-                (*i)->GetSession()->SendPacket(&data);
+                
+                WorldPackets::Loot::LootMoneyNotify packet;
+                packet.Money = goldPerPlayer;
+                packet.SoleLooter = playersNear.size() <= 1 ? true : false;
+                (*i)->GetSession()->SendPacket(packet.Write());
             }
         }
         else
@@ -210,11 +210,11 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
                 if (uint32 guildGold = CalculatePct(loot->gold, player->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
                     guild->HandleMemberDepositMoney(this, guildGold, true);
-
-            WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-            data << uint32(loot->gold);
-            data << uint8(1);   // "You loot..."
-            SendPacket(&data);
+                    
+            WorldPackets::Loot::LootMoneyNotify packet;
+            packet.Money = loot->gold;
+            packet.SoleLooter = true; // "You loot..."
+            SendPacket(packet.Write());
         }
 
         loot->gold = 0;
@@ -244,18 +244,15 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
         GetPlayer()->InterruptNonMeleeSpells(false);
 }
 
-void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
+void WorldSession::HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_RELEASE");
 
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
-    ObjectGuid guid;
-    recvData >> guid;
-
     ObjectGuid lguid = GetPlayer()->GetLootGUID();
     if (!lguid.IsEmpty())
-        if (lguid == guid)
+        if (lguid == packet.Unit)
             DoLootRelease(lguid);
 }
 
