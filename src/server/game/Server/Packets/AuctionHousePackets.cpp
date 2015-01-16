@@ -19,6 +19,19 @@
 #include "AuctionHouseMgr.h"
 #include "ObjectGuid.h"
 
+void WorldPackets::AuctionHouse::ClientAuctionHello::Read()
+{
+    _worldPacket >> Guid;
+}
+
+WorldPacket const* WorldPackets::AuctionHouse::PlayerCliAuctionHelloResponse::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket.WriteBit(OpenForBusiness);
+
+    return &_worldPacket;
+}
+
 WorldPackets::AuctionHouse::AuctionCommandResult::AuctionCommandResult()
     : ServerPacket(SMSG_AUCTION_COMMAND_RESULT, 4 + 4 + 4 + 8 + 4 + 8 + 8 + 8) { }
 

@@ -75,6 +75,16 @@ class RBACData;
 
 namespace WorldPackets
 {
+    namespace AuctionHouse
+    {
+        class ClientAuctionHello;
+    }
+
+    namespace BlackMarket
+    {
+        class ClientBlackMarketHello;
+    }
+
     namespace Character
     {
         struct CharacterCreateInfo;
@@ -550,6 +560,9 @@ class WorldSession
         void SendAuctionOwnerNotification(AuctionEntry* auction);
         void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
+        // Black Market
+        void SendBlackMarketHello(ObjectGuid Guid, Creature* unit);
+
         //Item Enchantment
         void SendEnchantmentLog(ObjectGuid target, ObjectGuid caster, uint32 itemId, uint32 enchantId);
         void SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid Itemguid, uint32 slot, uint32 Duration);
@@ -876,7 +889,7 @@ class WorldSession
         void HandleSetTradeItemOpcode(WorldPacket& recvPacket);
         void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
 
-        void HandleAuctionHelloOpcode(WorldPacket& recvPacket);
+        void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::ClientAuctionHello& packet);
         void HandleAuctionListItems(WorldPacket& recvData);
         void HandleAuctionListBidderItems(WorldPacket& recvData);
         void HandleAuctionSellItem(WorldPacket& recvData);
@@ -884,6 +897,9 @@ class WorldSession
         void HandleAuctionListOwnerItems(WorldPacket& recvData);
         void HandleAuctionPlaceBid(WorldPacket& recvData);
         void HandleAuctionListPendingSales(WorldPacket& recvData);
+
+        // Black Market
+        void HandleBlackMarketHello(WorldPackets::BlackMarket::ClientBlackMarketHello& packet);
 
         void HandleGetMailList(WorldPacket& recvData);
         void HandleSendMail(WorldPacket& recvData);

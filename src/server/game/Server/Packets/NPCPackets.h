@@ -127,6 +127,16 @@ namespace WorldPackets
             int32 TrainerID     = 1;
             std::vector<TrainerListSpell> Spells;
         };
+
+        class PlayerCliShowBank final : public ServerPacket
+        {
+        public:
+            PlayerCliShowBank() : ServerPacket(SMSG_SHOW_BANK, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
     }
 }
 
