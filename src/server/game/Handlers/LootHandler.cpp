@@ -195,7 +195,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
                 if (Guild* guild = sGuildMgr->GetGuildById((*i)->GetGuildId()))
                     if (uint32 guildGold = CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
                         guild->HandleMemberDepositMoney(this, guildGold, true);
-
+                        
                 WorldPackets::Loot::LootMoneyNotify packet;
                 packet.Money = goldPerPlayer;
                 packet.SoleLooter = uint8(playersNear.size() <= 1);
