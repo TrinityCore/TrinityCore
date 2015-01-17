@@ -4275,7 +4275,7 @@ void Spell::WriteSpellGoTargets(WorldPacket* data)
 
 void Spell::SendLogExecute()
 {
-    WorldPacket data(SMSG_SPELLLOGEXECUTE, (8+4+4+4+4+8));
+    WorldPacket data(SMSG_SPELL_EXECUTE_LOG, (8+4+4+4+4+8));
 
     data << m_caster->GetPackGUID();
 
@@ -4328,7 +4328,7 @@ void Spell::ExecuteLogEffectInterruptCast(uint8 /*effIndex*/, Unit* victim, uint
     ObjectGuid casterGuid = m_caster->GetGUID();
     ObjectGuid targetGuid = victim->GetGUID();
 
-    WorldPacket data(SMSG_SPELLINTERRUPTLOG, 8 + 8 + 4 + 4);
+    WorldPacket data(SMSG_SPELL_INTERRUPT_LOG, 8 + 8 + 4 + 4);
     data.WriteBit(targetGuid[4]);
     data.WriteBit(casterGuid[5]);
     data.WriteBit(casterGuid[6]);

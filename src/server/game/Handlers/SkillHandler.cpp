@@ -41,7 +41,7 @@ void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& pa
         _player->SendTalentsInfoData();
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
+void WorldSession::HandleConfirmRespecWipeOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "MSG_TALENT_WIPE_CONFIRM");
     ObjectGuid guid;
@@ -50,7 +50,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTalentWipeConfirmOpcode - %s not found or you can't interact with him.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleConfirmRespecWipeOpcode - %s not found or you can't interact with him.", guid.ToString().c_str());
         return;
     }
 
@@ -63,10 +63,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 
     if (!_player->ResetTalents())
     {
-        WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8+4);    //you have not any talent
-        data << uint64(0);
-        data << uint32(0);
-        SendPacket(&data);
+        GetPlayer()->SendRespecWipeConfirm(ObjectGuid::Empty, 0);
         return;
     }
 

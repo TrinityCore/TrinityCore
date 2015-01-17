@@ -28,7 +28,7 @@ namespace WorldPackets
         class SpellNonMeleeDamageLog final : public ServerPacket
         {
         public:
-            SpellNonMeleeDamageLog() : ServerPacket(SMSG_SPELLNONMELEEDAMAGELOG, 60) { }
+            SpellNonMeleeDamageLog() : ServerPacket(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, 60) { }
 
             WorldPacket const* Write() override;
 

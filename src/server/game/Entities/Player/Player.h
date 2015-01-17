@@ -1737,7 +1737,7 @@ class Player : public Unit, public GridObject<Player>
         bool m_mailsUpdated;
 
         void SetBindPoint(ObjectGuid guid);
-        void SendTalentWipeConfirm(ObjectGuid guid);
+        void SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost);
         void ResetPetTalents();
         void CalcRage(uint32 damage, bool attacker);
         void RegenerateAll();

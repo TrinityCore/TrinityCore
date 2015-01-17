@@ -28,7 +28,7 @@ namespace WorldPackets
         class BuyBackItem final : public ClientPacket
         {
         public:
-            BuyBackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUYBACK_ITEM, std::move(packet)) { }
+            BuyBackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_BACK_ITEM, std::move(packet)) { }
 
             void Read() override;
 

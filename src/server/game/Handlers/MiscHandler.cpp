@@ -732,7 +732,7 @@ void WorldSession::HandleSetContactNotesOpcode(WorldPacket& recvData)
     _player->GetSocial()->SetFriendNote(guid, note);
 }
 
-void WorldSession::HandleBugOpcode(WorldPacket& recvData)
+void WorldSession::HandleBugReportOpcode(WorldPacket& recvData)
 {
     uint32 suggestion, contentlen, typelen;
     std::string content, type;
@@ -744,9 +744,9 @@ void WorldSession::HandleBugOpcode(WorldPacket& recvData)
     type = recvData.ReadString(typelen);
 
     if (suggestion == 0)
-        TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUG [Bug Report]");
+        TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUG_REPORT [Bug Report]");
     else
-        TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUG [Suggestion]");
+        TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUG_REPORT [Suggestion]");
 
     TC_LOG_DEBUG("network", "%s", type.c_str());
     TC_LOG_DEBUG("network", "%s", content.c_str());

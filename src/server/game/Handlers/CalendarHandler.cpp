@@ -51,7 +51,7 @@ Copied events should probably have a new owner
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 {
     ObjectGuid guid = _player->GetGUID();
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_GET_CALENDAR [%s]", guid.ToString().c_str());
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_GET [%s]", guid.ToString().c_str());
 
     time_t currTime = time(NULL);
 
