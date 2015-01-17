@@ -59,6 +59,7 @@ enum ContentLevels
 };
 
 uint32 GetMaxLevelForExpansion(uint32 expansion);
+uint32 GetExpansionForLevel(uint32 level);
 
 ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId);
 
@@ -187,6 +188,7 @@ extern GameTable <GtNpcTotalHpExp3Entry>        sGtNpcTotalHpExp3Store;
 extern GameTable <GtNpcTotalHpExp4Entry>        sGtNpcTotalHpExp4Store;
 extern GameTable <GtNpcTotalHpExp5Entry>        sGtNpcTotalHpExp5Store;
 extern GameTable <GtOCTClassCombatRatingScalarEntry> sGtOCTClassCombatRatingScalarStore;
+extern GameTable <GtOCTLevelExperienceEntry>    sGtOCTLevelExperienceStore;
 extern GameTable <gtOCTHpPerStaminaEntry>       sGtOCTHpPerStaminaStore;
 extern GameTable <GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore;
 extern GameTable <GtSpellScalingEntry>          sGtSpellScalingStore;
