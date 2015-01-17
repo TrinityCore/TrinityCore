@@ -723,7 +723,7 @@ enum UnitFlags2
 };
 
 /// Non Player Character flags
-enum NPCFlags
+enum NPCFlags : uint32
 {
     UNIT_NPC_FLAG_NONE                  = 0x00000000,
     UNIT_NPC_FLAG_GOSSIP                = 0x00000001,       // 100%
