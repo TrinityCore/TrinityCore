@@ -4313,7 +4313,7 @@ enum AiReaction
 // Diminishing Returns Types
 enum DiminishingReturnsType
 {
-    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have limited it's duration to 10s
+    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have its duration limited
     DRTYPE_PLAYER       = 1,                                // this spell is diminished only when applied on players
     DRTYPE_ALL          = 2                                 // this spell is diminished in every case
 };
@@ -4321,27 +4321,15 @@ enum DiminishingReturnsType
 // Diminishing Return Groups
 enum DiminishingGroup
 {
-    DIMINISHING_NONE                = 0,
-    DIMINISHING_BANISH              = 1,
-    DIMINISHING_CHARGE              = 2,
-    DIMINISHING_OPENING_STUN        = 3, // Cheap Shot and Pounce
-    DIMINISHING_CONTROLLED_STUN     = 4,
-    DIMINISHING_CONTROLLED_ROOT     = 5,
-    DIMINISHING_CYCLONE             = 6,
-    DIMINISHING_DISARM              = 7,
-    DIMINISHING_DISORIENT           = 8, // Several spells where name cant be generalized.
-    DIMINISHING_ENTRAPMENT          = 9,
-    DIMINISHING_FEAR                = 10,
-    DIMINISHING_HORROR              = 11,
-    DIMINISHING_MIND_CONTROL        = 12,
-    DIMINISHING_ROOT                = 13,
-    DIMINISHING_STUN                = 14,
-    DIMINISHING_SCATTER_SHOT        = 15,
-    DIMINISHING_SILENCE             = 16,
-    DIMINISHING_SLEEP               = 17,
-    DIMINISHING_TAUNT               = 18,
-    DIMINISHING_LIMITONLY           = 19,
-    DIMINISHING_DRAGONS_BREATH      = 20
+    DIMINISHING_NONE             = 0,
+    DIMINISHING_ROOT             = 1,
+    DIMINISHING_STUN             = 2,
+    DIMINISHING_INCAPACITATE     = 3,
+    DIMINISHING_DISORIENT        = 4,
+    DIMINISHING_SILENCE          = 5,
+    DIMINISHING_AOE_KNOCKBACK    = 6,
+    DIMINISHING_TAUNT            = 7,
+    DIMINISHING_LIMITONLY        = 8,
 };
 
 enum SummonCategory
@@ -4626,6 +4614,8 @@ enum SpellFamilyNames
     // 16 - unused
     SPELLFAMILY_PET         = 17,
     SPELLFAMILY_UNK3        = 50,
+    SPELLFAMILY_MONK        = 53,
+    SPELLFAMILY_WARLOCK_PET = 57,
 };
 
 enum TradeStatus
