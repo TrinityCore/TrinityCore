@@ -132,7 +132,7 @@ namespace Trinity
                 if (nLevelDiff > 4)
                     nLevelDiff = 4;
 
-                baseGain = BaseExpPlayer->Data * (1 + 0.05 * nLevelDiff);
+                baseGain = round(BaseExpPlayer->Data * (1 + 0.05f * nLevelDiff));
             }
             else
             {
