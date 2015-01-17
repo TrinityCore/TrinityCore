@@ -982,7 +982,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     {
         const_cast<CreatureTemplate*>(cInfo)->minlevel = (MAX_LEVEL + cInfo->minlevel);
         const_cast<CreatureTemplate*>(cInfo)->maxlevel = (MAX_LEVEL + cInfo->maxlevel);
-        const_cast<CreatureTemplate*>(cInfo)->expansion = EXPANSION_WARLORDS_OF_DRAENOR;
+        const_cast<CreatureTemplate*>(cInfo)->expansion = CURRENT_EXPANSION;
     }
 
     if (cInfo->minlevel < 1 || cInfo->minlevel > STRONG_MAX_LEVEL)
@@ -3311,8 +3311,8 @@ void ObjectMgr::LoadPlayerInfo()
             {
                 Field* fields = result->Fetch();
 
-                uint32 current_level = fields[0].GetUInt16();
-                uint32 current_xp = uint32(fields[1].GetFloat());
+                uint32 current_level = fields[0].GetUInt8();
+                uint32 current_xp = fields[1].GetUInt32();
 
                 if (current_level >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
                 {
