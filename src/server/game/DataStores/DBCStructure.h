@@ -890,6 +890,11 @@ struct GtOCTClassCombatRatingScalarEntry
     float    ratio;
 };
 
+struct GtOCTLevelExperienceEntry
+{
+    float    Data;
+};
+
 struct GtOCTRegenHPEntry
 {
     float    ratio;

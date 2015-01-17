@@ -47,14 +47,18 @@ namespace Trinity
         {
             uint8 level;
 
-            if (pl_level <= 5)
+            if (pl_level < 7)
                 level = 0;
-            else if (pl_level <= 39)
-                level = pl_level - 5 - pl_level / 10;
-            else if (pl_level <= 59)
-                level = pl_level - 1 - pl_level / 5;
+            else if (pl_level < 35)
+            {
+                uint8 count = 0;
+                for (int i = 15; i <= pl_level; ++i)
+                    if (i % 5 == 0) ++count;
+
+                level = (pl_level - 7) - (count - 1);
+            }
             else
-                level = pl_level - 9;
+                level = pl_level - 10;
 
             sScriptMgr->OnGrayLevelCalculation(level, pl_level);
             return level;
@@ -83,7 +87,7 @@ namespace Trinity
         {
             uint8 diff;
 
-            if (pl_level < 8)
+            if (pl_level < 4)
                 diff = 5;
             else if (pl_level < 10)
                 diff = 6;
@@ -112,30 +116,15 @@ namespace Trinity
             return diff;
         }
 
-        inline uint32 BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels content)
+        inline uint32 BaseGain(uint8 pl_level, uint8 mob_level)
         {
             uint32 baseGain;
-            uint32 nBaseExp;
 
-            switch (content)
-            {
-                case CONTENT_1_60:
-                    nBaseExp = 45;
-                    break;
-                case CONTENT_61_70:
-                    nBaseExp = 235;
-                    break;
-                case CONTENT_71_80:
-                    nBaseExp = 580;
-                    break;
-                case CONTENT_81_85:
-                    nBaseExp = 1878;
-                    break;
-                default:
-                    TC_LOG_ERROR("misc", "BaseGain: Unsupported content level %u", content);
-                    nBaseExp = 45;
-                    break;
-            }
+            GtOCTLevelExperienceEntry const* BaseExpPlayer = sGtOCTLevelExperienceStore.EvaluateTable(pl_level - 1, 1);
+            GtOCTLevelExperienceEntry const* BaseExpMob = sGtOCTLevelExperienceStore.EvaluateTable(mob_level - 1, 1);
+
+            GtOCTLevelExperienceEntry const* CoefPlayer = sGtOCTLevelExperienceStore.EvaluateTable(pl_level - 1, 4);
+            GtOCTLevelExperienceEntry const* CoefMob = sGtOCTLevelExperienceStore.EvaluateTable(mob_level - 1, 4);
 
             if (mob_level >= pl_level)
             {
@@ -143,7 +132,7 @@ namespace Trinity
                 if (nLevelDiff > 4)
                     nLevelDiff = 4;
 
-                baseGain = ((pl_level * 5 + nBaseExp) * (20 + nLevelDiff) / 10 + 1) / 2;
+                baseGain = BaseExpPlayer->Data * (1 + 0.05 * nLevelDiff);
             }
             else
             {
@@ -151,13 +140,13 @@ namespace Trinity
                 if (mob_level > gray_level)
                 {
                     uint8 ZD = GetZeroDifference(pl_level);
-                    baseGain = (pl_level * 5 + nBaseExp) * (ZD + mob_level - pl_level) / ZD;
+                    baseGain = round(BaseExpMob->Data * ((1 - ((pl_level - mob_level) / float(ZD))) * (CoefMob->Data / CoefPlayer->Data)));
                 }
                 else
                     baseGain = 0;
             }
 
-            sScriptMgr->OnBaseGainCalculation(baseGain, pl_level, mob_level, content);
+            sScriptMgr->OnBaseGainCalculation(baseGain, pl_level, mob_level);
             return baseGain;
         }
 
@@ -171,10 +160,14 @@ namespace Trinity
             {
                 float xpMod = 1.0f;
 
-                gain = BaseGain(player->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
+                gain = BaseGain(player->getLevel(), u->getLevel());
 
                 if (gain && creature)
                 {
+                    // Players get only 10% xp for killing creatures of lower expansion levels than himself
+                    if ((creature->GetCreatureTemplate()->expansion < GetExpansionForLevel(player->getLevel())))
+                        gain = uint32(round(gain / 10.0f));
+
                     if (creature->isElite())
                     {
                         // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
