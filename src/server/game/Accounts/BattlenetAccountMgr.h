@@ -29,7 +29,7 @@ namespace Battlenet
 {
     namespace AccountMgr
     {
-        AccountOpResult CreateBattlenetAccount(std::string email, std::string password);
+        AccountOpResult CreateBattlenetAccount(std::string email, std::string password, bool withGameAccount = true);
         AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
         bool CheckPassword(uint32 accountId, std::string password);
         AccountOpResult LinkWithGameAccount(std::string const& email, std::string const& gameAccountName);
