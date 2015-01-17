@@ -911,8 +911,8 @@ uint32 GetExpansionForLevel(uint32 level)
         return EXPANSION_CATACLYSM;
     else if (level < 90)
         return EXPANSION_MISTS_OF_PANDARIA;
-    else if (level < 100)
-        return EXPANSION_WARLORDS_OF_DRAENOR;
+    else
+        return CURRENT_EXPANSION;
 }
 
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)
