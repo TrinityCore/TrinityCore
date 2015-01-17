@@ -29,7 +29,7 @@
 
 // Force locale statments to appear exactly in locale declaration order, right after normal data fetch statement
 #define PREPARE_LOCALE_STMT(stmtBase, loc, sql, con) \
-    static_assert(stmtBase + loc == stmtBase##_##loc, "Invalid prepared statement index for " ## STRINGIZE(stmtBase##_##loc)); \
+    static_assert(stmtBase + loc == stmtBase##_##loc, "Invalid prepared statement index for " STRINGIZE(stmtBase##_##loc)); \
     PrepareLocaleStatement(stmtBase##_##loc, loc, sql, con);
 
 #define PREPARE_LOCALE_STMTS(stmtBase, sql, con) \
