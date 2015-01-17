@@ -23,7 +23,7 @@
 
 using GameAccountMgr = AccountMgr;
 
-AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email, std::string password)
+AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email, std::string password, bool withGameAccount /*= true*/)
 {
     if (utf8length(email) > MAX_BNET_EMAIL_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;
@@ -45,7 +45,9 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     uint32 newAccountId = GetId(email);
     ASSERT(newAccountId);
 
-    GameAccountMgr::instance()->CreateAccount(std::to_string(newAccountId) + "#1", password, email, newAccountId, 1);
+    if (withGameAccount)
+        GameAccountMgr::instance()->CreateAccount(std::to_string(newAccountId) + "#1", password, email, newAccountId, 1);
+
     return AccountOpResult::AOR_OK;
 }
 

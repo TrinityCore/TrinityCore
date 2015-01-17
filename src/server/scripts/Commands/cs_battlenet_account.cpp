@@ -21,6 +21,7 @@
 #include "Language.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "Util.h"
 
 class battlenet_account_commandscript : public CommandScript
 {
@@ -84,7 +85,12 @@ public:
             return false;
         }
 
-        switch (Battlenet::AccountMgr::CreateBattlenetAccount(std::string(accountName), std::string(password)))
+        char* createGameAccountParam = strtok(NULL, " ");
+        bool createGameAccount = true;
+        if (createGameAccountParam)
+            createGameAccount = StringToBool(createGameAccountParam);
+
+        switch (Battlenet::AccountMgr::CreateBattlenetAccount(std::string(accountName), std::string(password), createGameAccount))
         {
             case AccountOpResult::AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
@@ -417,7 +423,11 @@ public:
         uint8 index = Battlenet::AccountMgr::GetMaxIndex(accountId) + 1;
         std::string accountName = std::to_string(accountId) + '#' + std::to_string(uint32(index));
 
-        switch (sAccountMgr->CreateAccount(accountName, "DUMMY", bnetAccountName, accountId, index))
+        // Generate random hex string for password, these accounts must not be logged on with GRUNT
+        BigNumber randPassword;
+        randPassword.SetRand(8 * 16);
+
+        switch (sAccountMgr->CreateAccount(accountName, ByteArrayToHexStr(randPassword.AsByteArray().get(), randPassword.GetNumBytes()), bnetAccountName, accountId, index))
         {
             case AccountOpResult::AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName.c_str());

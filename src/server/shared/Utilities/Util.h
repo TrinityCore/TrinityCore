@@ -370,6 +370,8 @@ uint32 CreatePIDFile(const std::string& filename);
 std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
 void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
 
+bool StringToBool(std::string const& str);
+
 // simple class for not-modifyable list
 template <typename T>
 class HookList
