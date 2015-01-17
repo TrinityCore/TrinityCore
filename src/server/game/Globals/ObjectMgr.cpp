@@ -3289,16 +3289,14 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        _playerXPperLevel.resize(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
-        for (uint8 level = 0; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
-            _playerXPperLevel[level] = 0;
+        _playerXPperLevel.resize(sGtOCTLevelExperienceStore.GetTableRowCount() + 1, 0);
 
         //                                               0      1
         QueryResult result = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
 
         // load the DBC's levels at first...
         GtOCTLevelExperienceEntry const* exp;
-        for (int level = 0; level < MAX_LEVEL; ++level)
+        for (int level = 0; level < sGtOCTLevelExperienceStore.GetTableRowCount(); ++level)
         {
             exp = sGtOCTLevelExperienceStore.EvaluateTable(level, 0);
             _playerXPperLevel[level + 1] = exp->Data;
