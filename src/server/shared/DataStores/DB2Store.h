@@ -142,7 +142,8 @@ public:
             m_stringPoolList.push_back(stringHolders);
 
             // load strings from db2 data
-            m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
+            if (char* stringBlock = db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale))
+                m_stringPoolList.push_back(stringBlock);
         }
 
         // error in db2 file at loading if NULL
@@ -162,24 +163,33 @@ public:
 
         // load strings from another locale db2 data
         if (DB2FileLoader::GetFormatStringFieldCount(fmt))
-            m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
-
+            if (char* stringBlock = db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale))
+                m_stringPoolList.push_back(stringBlock);
         return true;
     }
 
-    void LoadSQLData()
+    void LoadFromDB()
     {
         if (_hotfixStatement == -1)
             return;
 
-        DB2DatabaseLoader db2;
         char* extraStringHolders = nullptr;
-        if (char* dataTable = db2.Load(fmt, _hotfixStatement, nCount, indexTable.asChar, extraStringHolders, m_stringPoolList))
-        {
+        if (char* dataTable = DB2DatabaseLoader().Load(fmt, _hotfixStatement, nCount, indexTable.asChar, extraStringHolders, m_stringPoolList))
             m_dataTableEx = reinterpret_cast<T*>(dataTable);
-            if (extraStringHolders)
-                m_stringPoolList.push_back(extraStringHolders);
-        }
+
+        if (extraStringHolders)
+            m_stringPoolList.push_back(extraStringHolders);
+    }
+
+    void LoadStringsFromDB(uint32 locale)
+    {
+        if (_hotfixStatement == -1)
+            return;
+
+        if (!DB2FileLoader::GetFormatStringFieldCount(fmt))
+            return;
+
+        DB2DatabaseLoader().LoadStrings(fmt, _hotfixStatement + locale, locale, indexTable.asChar, m_stringPoolList);
     }
 
     void Clear()

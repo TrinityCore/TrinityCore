@@ -30,6 +30,9 @@ class HotfixDatabaseConnection : public MySQLConnection
 
         //- Loads database type specific prepared statements
         void DoPrepareStatements() override;
+
+    private:
+        void PrepareLocaleStatement(uint32 index, uint32 localeIndex, const char* sql, ConnectionFlags flags);
 };
 
 typedef DatabaseWorkerPool<HotfixDatabaseConnection> HotfixDatabaseWorkerPool;
@@ -40,9 +43,20 @@ enum HotfixDatabaseStatements
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
         When updating more than one field, consider looking at the calling function
         name for a suiting suffix.
+
+        DB2 locale loading statements must have the name of base statement with locale enum value name suffix
     */
 
     HOTFIX_SEL_BROADCAST_TEXT,
+    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_koKR,
+    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_frFR,
+    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_deDE,
+    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_zhCN,
+    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_zhTW,
+    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_esES,
+    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_esMX,
+    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_ruRU,
+
     HOTFIX_SEL_TAXI_PATH_NODE,
     MAX_HOTFIXDATABASE_STATEMENTS
 };

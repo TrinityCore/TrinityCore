@@ -419,19 +419,16 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
     if (!result)
         return nullptr;
 
-    // we store flat holders pool as single memory block
-    size_t stringFields = DB2FileLoader::GetFormatStringFieldCount(format);
-
-    size_t expectedFields = strlen(format) + 1 /*VerifiedBuild*/;
-    if (stringFields)
-        expectedFields += 1 /*ID*/ + stringFields * (TOTAL_LOCALES - 1) + 1 /*VerifiedBuild in locale table*/;
-
-    if (expectedFields != result->GetFieldCount())
+    uint32 const fieldCount = strlen(format);
+    if (fieldCount + 1 /*VerifiedBuild*/ != result->GetFieldCount())
         return nullptr;
 
-    //get struct size and index pos
+    // get struct size and index pos
     int32 indexField;
     uint32 recordSize = DB2FileLoader::GetFormatRecordSize(format, &indexField);
+
+    // we store flat holders pool as single memory block
+    size_t stringFields = DB2FileLoader::GetFormatStringFieldCount(format);
 
     // each string field at load have array of string for each locale
     size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
@@ -445,63 +442,154 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
         // DB2 strings expected to have at least empty string
         for (size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
             ((char const**)stringHolders)[i] = nullStr;
-
     }
     else
         stringHolders = nullptr;
 
-    std::unordered_map<uint32, char*> tempIndexTable;
-    tempIndexTable.reserve(result->GetRowCount());
-    char* dataTable = new char[result->GetRowCount() * recordSize];
-    uint32 offset = 0;
+    // Resize index table
+    // database query *MUST* contain ORDER BY `index_field` DESC clause
+    uint32 indexTableSize;
+    if (indexField >= 0)
+    {
+        indexTableSize = (*result)[indexField].GetUInt32() + 1;
+        if (indexTableSize < records)
+            indexTableSize = records;
+    }
+    else
+        indexTableSize = records + result->GetRowCount();
 
-    uint32 const fieldCount = strlen(format);
-    uint32 const localeFieldsOffset = fieldCount + 2 /*VerifiedBuild in main table, ID in locale table*/;
-    uint32 oldIndexSize = records;
+    if (indexTableSize > records)
+    {
+        char** tmpIdxTable = new char*[indexTableSize];
+        memset(tmpIdxTable, 0, indexTableSize * sizeof(char*));
+        memcpy(tmpIdxTable, indexTable, records * sizeof(char*));
+        delete[] indexTable;
+        indexTable = tmpIdxTable;
+    }
+
+    char* tempDataTable = new char[result->GetRowCount() * recordSize];
+    uint32* newIndexes = new uint32[result->GetRowCount()];
     uint32 rec = 0;
+    uint32 newRecords = 0;
+
     do
     {
         Field* fields = result->Fetch();
+        uint32 offset = 0;
         uint32 stringFieldNumInRecord = 0;
 
+        uint32 indexValue;
         if (indexField >= 0)
-        {
-            uint32 indexValue = fields[indexField].GetUInt32();
-            tempIndexTable[indexValue] = &dataTable[offset];
-            if (records <= indexValue)
-                records = indexValue + 1;
-        }
+            indexValue = fields[indexField].GetUInt32();
         else
-            tempIndexTable[records++] = &dataTable[offset];
+            indexValue = records + rec;
+
+        // Attempt to overwrite existing data
+        char* dataValue = indexTable[indexValue];
+        if (!dataValue)
+        {
+            newIndexes[newRecords] = indexValue;
+            dataValue = &tempDataTable[newRecords++ * recordSize];
+        }
 
         for (uint32 f = 0; f < fieldCount; f++)
         {
             switch (format[f])
             {
                 case FT_FLOAT:
-                    *((float*)(&dataTable[offset])) = fields[f].GetFloat();
+                    *((float*)(&dataValue[offset])) = fields[f].GetFloat();
                     offset += 4;
                     break;
                 case FT_IND:
                 case FT_INT:
-                    *((int32*)(&dataTable[offset])) = fields[f].GetInt32();
+                    *((int32*)(&dataValue[offset])) = fields[f].GetInt32();
                     offset += 4;
                     break;
                 case FT_BYTE:
-                    *((int8*)(&dataTable[offset])) = fields[f].GetInt8();
+                    *((int8*)(&dataValue[offset])) = fields[f].GetInt8();
                     offset += 1;
                     break;
                 case FT_STRING:
                 {
-                    LocalizedString** slot = (LocalizedString**)(&dataTable[offset]);
+                    LocalizedString** slot = (LocalizedString**)(&dataValue[offset]);
                     *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringHolderSize * stringFieldNumInRecord]);
 
                     // Value in database in main table field must be for enUS locale
                     if (char* str = AddLocaleString(*slot, LOCALE_enUS, fields[f].GetString()))
                         stringPool.push_back(str);
 
-                    for (uint32 locale = LOCALE_koKR; locale < TOTAL_LOCALES; ++locale)
-                        if (char* str = AddLocaleString(*slot, locale, fields[localeFieldsOffset + (locale - 1) + stringFields * stringFieldNumInRecord].GetString()))
+                    ++stringFieldNumInRecord;
+                    offset += sizeof(char*);
+                    break;
+                }
+            }
+        }
+
+        ASSERT(offset == recordSize);
+        ++rec;
+    } while (result->NextRow());
+
+    if (!newRecords)
+        return nullptr;
+
+    // Compact new data table to only contain new records not previously loaded from file
+    char* dataTable = new char[newRecords * recordSize];
+    memcpy(dataTable, tempDataTable, newRecords * recordSize);
+
+    // insert new records to index table
+    for (uint32 i = 0; i < newRecords; ++i)
+        indexTable[newIndexes[i]] = &dataTable[i * recordSize];
+
+    delete[] tempDataTable;
+    delete[] newIndexes;
+
+    records = indexTableSize;
+
+    return dataTable;
+}
+
+void DB2DatabaseLoader::LoadStrings(const char* format, int32 preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool)
+{
+    PreparedQueryResult result = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(preparedStatement));
+    if (!result)
+        return;
+
+    size_t stringFields = DB2FileLoader::GetFormatStringFieldCount(format);
+    if (result->GetFieldCount() != stringFields + 1 /*ID*/)
+        return;
+
+    uint32 const fieldCount = strlen(format);
+    int32 indexField;
+    uint32 recordSize = DB2FileLoader::GetFormatRecordSize(format, &indexField);
+    ASSERT(indexField >= 0, "DB2Storage must be indexed to load localized strings");
+
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 offset = 0;
+        uint32 stringFieldNumInRecord = 0;
+        uint32 indexValue = fields[0].GetUInt32();
+
+        // Attempt to overwrite existing data
+        char* dataValue = indexTable[indexValue];
+        for (uint32 x = 0; x < fieldCount; x++)
+        {
+            switch (format[x])
+            {
+                case FT_FLOAT:
+                case FT_IND:
+                case FT_INT:
+                    offset += 4;
+                    break;
+                case FT_BYTE:
+                    offset += 1;
+                    break;
+                case FT_STRING:
+                {
+                    // fill only not filled entries
+                    LocalizedString* db2str = *(LocalizedString**)(&dataValue[offset]);
+                    if (db2str->Str[locale] == nullStr)
+                        if (char* str = AddLocaleString(db2str, locale, fields[1 + stringFieldNumInRecord].GetString()))
                             stringPool.push_back(str);
 
                     ++stringFieldNumInRecord;
@@ -511,30 +599,26 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
             }
         }
 
-        ++rec;
+        ASSERT(offset == recordSize);
     } while (result->NextRow());
 
-    // Reallocate index if needed
-    if (records > oldIndexSize)
-    {
-        char** tmpIdxTable = new char*[records];
-        memset(tmpIdxTable, 0, records * sizeof(char*));
-        memcpy(tmpIdxTable, indexTable, oldIndexSize * sizeof(char*));
-        delete[] indexTable;
-        indexTable = tmpIdxTable;
-    }
-
-    // Merge new data into index
-    for (auto itr = tempIndexTable.begin(); itr != tempIndexTable.end(); ++itr)
-        indexTable[itr->first] = itr->second;
-
-    return dataTable;
+    return;
 }
 
 char* DB2DatabaseLoader::AddLocaleString(LocalizedString* holder, uint32 locale, std::string const& value)
 {
     if (!value.empty())
     {
+        std::size_t existingLength = strlen(holder->Str[locale]);
+        if (existingLength >= value.length())
+        {
+            // Reuse existing storage if there is enough space
+            char* str = const_cast<char*>(holder->Str[locale]);
+            memcpy(str, value.c_str(), value.length());
+            str[value.length()] = '\0';
+            return nullptr;
+        }
+
         char* str = new char[value.length() + 1];
         memcpy(str, value.c_str(), value.length());
         str[value.length()] = '\0';
