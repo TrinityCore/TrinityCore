@@ -1144,9 +1144,10 @@ void ExtractDBFilesClient(int l)
     HANDLE dbcFile;
     while (fileName)
     {
-        if (CascOpenFile(CascStorage, fileName, 1 << l, 0, &dbcFile))
+        std::string filename = fileName;
+        if (CascOpenFile(CascStorage, (filename = (filename + ".db2")).c_str(), 1 << l, 0, &dbcFile) ||
+            CascOpenFile(CascStorage, (filename = (filename.substr(0, filename.length() - 4) + ".dbc")).c_str(), 1 << l, 0, &dbcFile))
         {
-            std::string filename = fileName;
             filename = outputPath + filename.substr(filename.rfind('\\') + 1);
 
             if (!FileExists(filename.c_str()))
