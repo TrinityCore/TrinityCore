@@ -74,24 +74,27 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     std::string db2_filename = db2_path + filename;
     if (storage.Load(db2_filename.c_str(), uint32(sWorld->GetDefaultDbcLocale())))
     {
-        storage.LoadSQLData();
+        storage.LoadFromDB();
 
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            if (!(availableDb2Locales & (1 << i)))
-                continue;
-
             if (uint32(sWorld->GetDefaultDbcLocale()) == i)
                 continue;
 
-            std::string localizedName(db2_path);
-            localizedName.append(localeNames[i]);
-            localizedName.push_back('/');
-            localizedName.append(filename);
+            if (availableDb2Locales & (1 << i))
+            {
+                std::string localizedName(db2_path);
+                localizedName.append(localeNames[i]);
+                localizedName.push_back('/');
+                localizedName.append(filename);
 
-            if (!storage.LoadStringsFrom(localizedName.c_str(), i))
-                availableDb2Locales &= ~(1<<i);             // mark as not available for speedup next checks
+                if (!storage.LoadStringsFrom(localizedName.c_str(), i))
+                    availableDb2Locales &= ~(1 << i);             // mark as not available for speedup next checks
+            }
+
+            storage.LoadStringsFromDB(i);
         }
+
     }
     else
     {
