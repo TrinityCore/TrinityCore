@@ -9627,11 +9627,10 @@ void Player::SetBindPoint(ObjectGuid guid)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendTalentWipeConfirm(ObjectGuid guid)
+void Player::SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost)
 {
-    WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4);
+    WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM, 8 + 4);
     data << guid;
-    uint32 cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost();
     data << cost;
     GetSession()->SendPacket(&data);
 }
@@ -14022,7 +14021,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         case GOSSIP_OPTION_UNLEARNTALENTS:
             PlayerTalkClass->SendCloseGossip();
-            SendTalentWipeConfirm(guid);
+            SendRespecWipeConfirm(guid, sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost());
             break;
         case GOSSIP_OPTION_UNLEARNPETTALENTS:
             PlayerTalkClass->SendCloseGossip();

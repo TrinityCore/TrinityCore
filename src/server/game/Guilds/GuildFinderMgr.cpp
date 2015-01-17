@@ -325,6 +325,6 @@ void GuildFinderMgr::SendApplicantListUpdate(Guild* guild)
 
 void GuildFinderMgr::SendMembershipRequestListUpdate(Player* player)
 {
-    WorldPacket data(SMSG_LF_GUILD_APPLICATIONS_LIST_CHANGED, 0);
+    WorldPacket data(SMSG_LF_GUILD_APPLICATIONS, 0);
     player->SendDirectMessage(&data);
 }

@@ -33,7 +33,7 @@
 #include "AuctionHousePackets.h"
 
 //void called when player click on auctioneer npc
-void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHello& packet)
+void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& packet)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
@@ -755,7 +755,7 @@ void WorldSession::HandleAuctionListPendingSales(WorldPacket& recvData)
 
     uint32 count = 0;
 
-    WorldPacket data(SMSG_AUCTION_LIST_PENDING_SALES, 4);
+    WorldPacket data(SMSG_AUCTION_LIST_PENDING_SALES_RESULT, 4);
     data << uint32(count);                                  // count
     /*for (uint32 i = 0; i < count; ++i)
     {

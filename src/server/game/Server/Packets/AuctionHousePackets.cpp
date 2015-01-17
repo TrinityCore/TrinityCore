@@ -19,7 +19,7 @@
 #include "AuctionHouseMgr.h"
 #include "ObjectGuid.h"
 
-void WorldPackets::AuctionHouse::AuctionHello::Read()
+void WorldPackets::AuctionHouse::AuctionHelloRequest::Read()
 {
     _worldPacket >> Guid;
 }

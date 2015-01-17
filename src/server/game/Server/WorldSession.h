@@ -77,7 +77,7 @@ namespace WorldPackets
 {
     namespace AuctionHouse
     {
-        class AuctionHello;
+        class AuctionHelloRequest;
     }
 
     namespace BlackMarket
@@ -520,7 +520,7 @@ class WorldSession
         void SendPetNameQuery(ObjectGuid guid, uint32 petnumber);
         void SendStablePet(ObjectGuid guid);
         void SendStablePetCallback(PreparedQueryResult result, ObjectGuid guid);
-        void SendStableResult(uint8 guid);
+        void SendPetStableResult(uint8 guid);
         bool CheckStableMaster(ObjectGuid guid);
 
         // Account Data
@@ -736,7 +736,7 @@ class WorldSession
         void HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result);
         void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
-        void HandleBugOpcode(WorldPacket& recvPacket);
+        void HandleBugReportOpcode(WorldPacket& recvPacket);
 
         void HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet);
 
@@ -780,7 +780,6 @@ class WorldSession
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
         void HandleGroupInviteResponseOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
-        void HandleGroupUninviteGuidOpcode(WorldPacket& recvPacket);
         void HandleGroupSetLeaderOpcode(WorldPacket& recvPacket);
         void HandleGroupSetRolesOpcode(WorldPacket& recvData);
         void HandleGroupDisbandOpcode(WorldPacket& recvPacket);
@@ -790,7 +789,6 @@ class WorldSession
         void HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData);
         void HandleRaidTargetUpdateOpcode(WorldPacket& recvData);
         void HandleRaidReadyCheckOpcode(WorldPacket& recvData);
-        void HandleRaidReadyCheckFinishedOpcode(WorldPacket& recvData);
         void HandleGroupRaidConvertOpcode(WorldPacket& recvData);
         void HandleGroupRequestJoinUpdates(WorldPacket& recvData);
         void HandleGroupChangeSubGroupOpcode(WorldPacket& recvData);
@@ -891,7 +889,7 @@ class WorldSession
         void HandleSetTradeItemOpcode(WorldPacket& recvPacket);
         void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
 
-        void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHello& packet);
+        void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& packet);
         void HandleAuctionListItems(WorldPacket& recvData);
         void HandleAuctionListBidderItems(WorldPacket& recvData);
         void HandleAuctionSellItem(WorldPacket& recvData);
@@ -946,7 +944,7 @@ class WorldSession
         void HandleCancelAutoRepeatSpellOpcode(WorldPacket& recvPacket);
 
         void HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet);
-        void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
+        void HandleConfirmRespecWipeOpcode(WorldPacket& recvPacket);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
         void HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet);
 

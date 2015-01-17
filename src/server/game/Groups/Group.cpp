@@ -707,7 +707,7 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid)
     m_leaderName = newLeader->GetName();
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
-    WorldPacket data(SMSG_GROUP_SET_LEADER, m_leaderName.size()+1);
+    WorldPacket data(SMSG_GROUP_NEW_LEADER, m_leaderName.size()+1);
     data << slot->name;
     BroadcastPacket(&data, true);
 }
@@ -1671,7 +1671,7 @@ void Group::OfflineReadyCheck()
         Player* player = ObjectAccessor::FindConnectedPlayer(citr->guid);
         if (!player || !player->GetSession())
         {
-            WorldPacket data(SMSG_RAID_READY_CHECK_CONFIRM, 9);
+            WorldPacket data(SMSG_READY_CHECK_RESPONSE, 9);
             data << citr->guid;
             data << uint8(0);
             BroadcastReadyCheck(&data);

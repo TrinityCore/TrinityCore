@@ -399,9 +399,9 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_GROUP_UNINVITE_GUID");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PARTY_UNINVITE");
 
     ObjectGuid guid;
     std::string reason;
@@ -440,52 +440,6 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket& recvData)
     }
 
     SendPartyResult(PARTY_OP_UNINVITE, "", ERR_TARGET_NOT_IN_GROUP_S);
-}
-
-void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_GROUP_UNINVITE");
-
-    std::string membername;
-    recvData >> membername;
-
-    // player not found
-    if (!normalizePlayerName(membername))
-        return;
-
-    // can't uninvite yourself
-    if (GetPlayer()->GetName() == membername)
-    {
-        TC_LOG_ERROR("network", "WorldSession::HandleGroupUninviteOpcode: leader %s (%s) tried to uninvite himself from the group.",
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
-        return;
-    }
-
-    PartyResult res = GetPlayer()->CanUninviteFromGroup();
-    if (res != ERR_PARTY_RESULT_OK)
-    {
-        SendPartyResult(PARTY_OP_UNINVITE, "", res);
-        return;
-    }
-
-    Group* grp = GetPlayer()->GetGroup();
-    if (!grp)
-        return;
-
-    ObjectGuid guid = grp->GetMemberGUID(membername);
-    if (!guid.IsEmpty())
-    {
-        Player::RemoveFromGroup(grp, guid, GROUP_REMOVEMETHOD_KICK, GetPlayer()->GetGUID());
-        return;
-    }
-
-    if (Player* player = grp->GetInvited(guid))
-    {
-        player->UninviteFromGroup();
-        return;
-    }
-
-    SendPartyResult(PARTY_OP_UNINVITE, membername, ERR_TARGET_NOT_IN_GROUP_S);
 }
 
 void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
@@ -905,7 +859,7 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received MSG_RAID_READY_CHECK");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_DO_READY_CHECK");
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -919,7 +873,7 @@ void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket& recvData)
         /********************/
 
         // everything's fine, do it
-        WorldPacket data(MSG_RAID_READY_CHECK, 8);
+        WorldPacket data(SMSG_READY_CHECK_STARTED, 8);
         data << GetPlayer()->GetGUID();
         group->BroadcastPacket(&data, false, -1);
 
@@ -931,23 +885,11 @@ void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket& recvData)
         recvData >> state;
 
         // everything's fine, do it
-        WorldPacket data(SMSG_RAID_READY_CHECK_CONFIRM, 9);
+        WorldPacket data(SMSG_READY_CHECK_RESPONSE, 9);
         data << GetPlayer()->GetGUID();
         data << uint8(state);
         group->BroadcastReadyCheck(&data);
     }
-}
-
-void WorldSession::HandleRaidReadyCheckFinishedOpcode(WorldPacket& /*recvData*/)
-{
-    //Group* group = GetPlayer()->GetGroup();
-    //if (!group)
-    //    return;
-
-    //if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
-    //    return;
-
-    // Is any reaction need?
 }
 
 void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data)

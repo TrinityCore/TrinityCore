@@ -699,7 +699,7 @@ class npc_boombot : public CreatureScript
                 {
                     _boomed = true; // Prevent recursive calls
 
-                    WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
+                    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 8+8+4);
                     data << me->GetGUID();
                     data << me->GetGUID();
                     data << uint32(SPELL_BOOM);

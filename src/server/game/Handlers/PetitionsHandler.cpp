@@ -595,9 +595,11 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
     Player* owner = ObjectAccessor::FindConnectedPlayer(ownerguid);
     if (owner)                                               // petition owner online
     {
-        WorldPacket data(MSG_PETITION_DECLINE, 8);
+        /*
+        WorldPacket data(SMSG_DECLINE_PETITION, 18);
         data << _player->GetGUID();
         owner->GetSession()->SendPacket(&data);
+        */
     }
 }
 
