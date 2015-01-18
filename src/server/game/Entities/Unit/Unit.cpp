@@ -4803,7 +4803,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 
 void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
 {
-    WorldPacket data(SMSG_SPELLLOGMISS, (4+8+1+4+8+1));
+    WorldPacket data(SMSG_SPELL_MISS_LOG, (4+8+1+4+8+1));
     data << uint32(spellID);
     data << GetGUID();
     data << uint8(0);                                       // can be 0 or 1
@@ -4827,7 +4827,7 @@ void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 
 void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 {
-    WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8+8+4+1);
+    WorldPacket data(SMSG_SPELL_OR_DAMAGE_IMMUNE, 8+8+4+1);
     data << GetGUID();
     data << target->GetGUID();
     data << uint32(spellId);
@@ -16007,8 +16007,8 @@ bool Unit::SetWaterWalking(bool enable, bool packetOnly /*= false */)
 
     static OpcodeServer const waterWalkingOpcodeTable[2][2] =
     {
-        { SMSG_MOVE_SPLINE_SET_LAND_WALK,  SMSG_MOVE_LAND_WALK  },
-        { SMSG_MOVE_SPLINE_SET_WATER_WALK, SMSG_MOVE_WATER_WALK }
+        { SMSG_MOVE_SPLINE_SET_LAND_WALK,  SMSG_MOVE_SET_LAND_WALK  },
+        { SMSG_MOVE_SPLINE_SET_WATER_WALK, SMSG_MOVE_SET_WATER_WALK }
     };
 
     bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
@@ -16045,8 +16045,8 @@ bool Unit::SetFeatherFall(bool enable, bool packetOnly /*= false */)
 
     static OpcodeServer const featherFallOpcodeTable[2][2] =
     {
-        { SMSG_MOVE_SPLINE_SET_NORMAL_FALL,  SMSG_MOVE_NORMAL_FALL  },
-        { SMSG_MOVE_SPLINE_SET_FEATHER_FALL, SMSG_MOVE_FEATHER_FALL }
+        { SMSG_MOVE_SPLINE_SET_NORMAL_FALL,  SMSG_MOVE_SET_NORMAL_FALL  },
+        { SMSG_MOVE_SPLINE_SET_FEATHER_FALL, SMSG_MOVE_SET_FEATHER_FALL }
     };
 
     bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
@@ -16344,7 +16344,7 @@ void Unit::DestroyForPlayer(Player* target) const
     {
         if (bg->isArena())
         {
-            WorldPacket data(SMSG_ARENA_UNIT_DESTROYED, 8);
+            WorldPacket data(SMSG_DESTROY_ARENA_UNIT, 18);
             data << GetGUID();
             target->GetSession()->SendPacket(&data);
         }

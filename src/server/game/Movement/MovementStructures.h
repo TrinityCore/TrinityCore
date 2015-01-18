@@ -139,7 +139,7 @@ namespace Movement
     class PacketSender
     {
     public:
-        PacketSender(Unit* unit, OpcodeServer serverControl, OpcodeServer playerControl, OpcodeServer broadcast = SMSG_PLAYER_MOVE, ExtraMovementStatusElement* extras = NULL);
+        PacketSender(Unit* unit, OpcodeServer serverControl, OpcodeServer playerControl, OpcodeServer broadcast = SMSG_MOVE_UPDATE, ExtraMovementStatusElement* extras = NULL);
 
         void Send() const;
 

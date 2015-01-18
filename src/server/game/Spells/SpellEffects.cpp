@@ -5676,7 +5676,7 @@ void Spell::EffectBind(SpellEffIndex /*effIndex*/)
         homeLoc.GetPositionX(), homeLoc.GetPositionY(), homeLoc.GetPositionZ(), homeLoc.GetMapId(), areaId);
 
     // zone update
-    WorldPacket data(SMSG_PLAYERBOUND, 8 + 4);
+    WorldPacket data(SMSG_PLAYER_BOUND, 8 + 4);
     data << m_caster->GetGUID();
     data << uint32(areaId);
     player->SendDirectMessage(&data);

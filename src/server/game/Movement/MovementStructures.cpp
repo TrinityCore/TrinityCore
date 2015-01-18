@@ -5294,9 +5294,9 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
             return DismissControlledVehicle;
         case SMSG_MOVE_UPDATE_TELEPORT:
             return MoveUpdateTeleport;
-        case CMSG_FORCE_MOVE_ROOT_ACK:
+        case CMSG_MOVE_FORCE_ROOT_ACK:
             return ForceMoveRootAck;
-        case CMSG_FORCE_MOVE_UNROOT_ACK:
+        case CMSG_MOVE_FORCE_UNROOT_ACK:
             return ForceMoveUnrootAck;
         case CMSG_MOVE_FALL_RESET:
             return MovementFallReset;
@@ -5426,13 +5426,13 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
             return MoveSetHover;
         case SMSG_MOVE_UNSET_HOVER:
             return MoveUnsetHover;
-        case SMSG_MOVE_WATER_WALK:
+        case SMSG_MOVE_SET_WATER_WALK:
             return MoveWaterWalk;
-        case SMSG_MOVE_LAND_WALK:
+        case SMSG_MOVE_SET_LAND_WALK:
             return MoveLandWalk;
-        case SMSG_MOVE_FEATHER_FALL:
+        case SMSG_MOVE_SET_FEATHER_FALL:
             return MoveFeatherFall;
-        case SMSG_MOVE_NORMAL_FALL:
+        case SMSG_MOVE_SET_NORMAL_FALL:
             return MoveNormalFall;
         case SMSG_MOVE_ROOT:
             return MoveRoot;

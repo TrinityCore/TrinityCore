@@ -42,10 +42,10 @@ namespace WorldPackets
             MovementInfo movementInfo;
         };
 
-        class ServerPlayerMovement final : public ServerPacket
+        class MoveUpdate final : public ServerPacket
         {
         public:
-            ServerPlayerMovement() : ServerPacket(SMSG_PLAYER_MOVE) { }
+            MoveUpdate() : ServerPacket(SMSG_MOVE_UPDATE) { }
 
             WorldPacket const* Write() override;
 
@@ -107,7 +107,7 @@ namespace WorldPackets
         class MonsterMove final : public ServerPacket
         {
         public:
-            MonsterMove() : ServerPacket(SMSG_MONSTER_MOVE) { }
+            MonsterMove() : ServerPacket(SMSG_ON_MONSTER_MOVE) { }
 
             void InitializeSplineData(::Movement::MoveSpline const& moveSpline);
 

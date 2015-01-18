@@ -58,12 +58,12 @@ namespace WorldPackets
             uint32 SpecGroupIndex = 0;
         };
 
-        class LearnTalent final : public ClientPacket
+        class LearnTalents final : public ClientPacket
         {
         public:
-            LearnTalent(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            LearnTalents(WorldPacket&& packet) : ClientPacket(std::move(packet))
             {
-                ASSERT(packet.GetOpcode() == CMSG_LEARN_TALENT);
+                ASSERT(packet.GetOpcode() == CMSG_LEARN_TALENTS);
             }
 
             void Read() override;

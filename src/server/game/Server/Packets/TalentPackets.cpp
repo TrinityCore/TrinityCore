@@ -43,7 +43,7 @@ void WorldPackets::Talent::SetSpecialization::Read()
 }
 
 
-void WorldPackets::Talent::LearnTalent::Read()
+void WorldPackets::Talent::LearnTalents::Read()
 {
     uint32 count;
     _worldPacket >> count;
