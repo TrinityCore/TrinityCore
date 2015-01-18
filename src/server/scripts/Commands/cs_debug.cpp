@@ -1343,7 +1343,7 @@ public:
                 target->DestroyForNearbyPlayers();  // Force new SMSG_UPDATE_OBJECT:CreateObject
             else
             {
-                WorldPacket data(SMSG_PLAYER_MOVE);
+                WorldPacket data(SMSG_MOVE_UPDATE);
                 target->WriteMovementInfo(data);
                 target->SendMessageToSet(&data, true);
             }

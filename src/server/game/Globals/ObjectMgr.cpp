@@ -488,9 +488,9 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.GossipMenuId      = fields[14].GetUInt32();
     creatureTemplate.minlevel          = fields[15].GetInt16();
     creatureTemplate.maxlevel          = fields[16].GetInt16();
-    creatureTemplate.expansion         = uint32(fields[17].GetInt16());
-    creatureTemplate.expansionUnknown  = uint32(fields[18].GetUInt16());
-    creatureTemplate.faction           = uint32(fields[19].GetUInt16());
+    creatureTemplate.expansion         = fields[17].GetInt16();
+    creatureTemplate.expansionUnknown  = fields[18].GetUInt16();
+    creatureTemplate.faction           = fields[19].GetUInt16();
     creatureTemplate.npcflag           = fields[20].GetUInt32();
     creatureTemplate.speed_walk        = fields[21].GetFloat();
     creatureTemplate.speed_run         = fields[22].GetFloat();
@@ -3296,7 +3296,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         // load the DBC's levels at first...
         GtOCTLevelExperienceEntry const* exp;
-        for (int level = 0; level < sGtOCTLevelExperienceStore.GetTableRowCount(); ++level)
+        for (uint32 level = 0; level < sGtOCTLevelExperienceStore.GetTableRowCount(); ++level)
         {
             exp = sGtOCTLevelExperienceStore.EvaluateTable(level, 0);
             _playerXPperLevel[level + 1] = exp->Data;

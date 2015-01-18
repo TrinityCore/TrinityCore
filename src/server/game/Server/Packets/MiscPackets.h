@@ -132,7 +132,7 @@ namespace WorldPackets
         class TimeSyncResponse final : public ClientPacket
         {
         public:
-            TimeSyncResponse(WorldPacket&& packet) : ClientPacket(CMSG_TIME_SYNC_RESP, std::move(packet)) { }
+            TimeSyncResponse(WorldPacket&& packet) : ClientPacket(CMSG_TIME_SYNC_RESPONSE, std::move(packet)) { }
 
             void Read() override;
 
@@ -296,7 +296,7 @@ namespace WorldPackets
         class PreRessurect : public ServerPacket
         {
         public:
-            PreRessurect() : ServerPacket(SMSG_PRE_RESURRECT, 16) { }
+            PreRessurect() : ServerPacket(SMSG_PRE_RESSURECT, 18) { }
 
             WorldPacket const* Write() override;
 

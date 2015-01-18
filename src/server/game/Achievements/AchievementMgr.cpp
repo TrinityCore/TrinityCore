@@ -2049,7 +2049,7 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver) const
 
     auto count = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), isVisible);
 
-    WorldPacket data(SMSG_GUILD_ACHIEVEMENT_DATA, count * (4 + 4) + 3);
+    WorldPacket data(SMSG_ALL_GUILD_ACHIEVEMENTS, count * (4 + 4) + 3);
     data.WriteBits(count, 23);
     data.FlushBits();
 

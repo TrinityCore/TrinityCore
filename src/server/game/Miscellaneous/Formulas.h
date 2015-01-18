@@ -165,7 +165,7 @@ namespace Trinity
                 if (gain && creature)
                 {
                     // Players get only 10% xp for killing creatures of lower expansion levels than himself
-                    if ((creature->GetCreatureTemplate()->expansion < GetExpansionForLevel(player->getLevel())))
+                    if ((uint32(creature->GetCreatureTemplate()->expansion) < GetExpansionForLevel(player->getLevel())))
                         gain = uint32(round(gain / 10.0f));
 
                     if (creature->isElite())

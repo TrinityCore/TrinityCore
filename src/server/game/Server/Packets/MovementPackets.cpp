@@ -476,7 +476,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetFlag::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Movement::ServerPlayerMovement::Write()
+WorldPacket const* WorldPackets::Movement::MoveUpdate::Write()
 {
     _worldPacket << *movementInfo;
 

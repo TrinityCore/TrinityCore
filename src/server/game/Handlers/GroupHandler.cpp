@@ -163,7 +163,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
         if (group2)
         {
             // tell the player that they were invited but it failed as they were already in a group
-            WorldPacket data(SMSG_GROUP_INVITE, 45);
+            WorldPacket data(SMSG_PARTY_INVITE, 45);
 
             data.WriteBit(0);
 
@@ -265,7 +265,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     }
 
     // ok, we do it
-    WorldPacket data(SMSG_GROUP_INVITE, 45);
+    WorldPacket data(SMSG_PARTY_INVITE, 45);
 
     data.WriteBit(0);
 
