@@ -107,7 +107,16 @@ class boss_mandokir : public CreatureScript
 
         struct boss_mandokirAI : public BossAI
         {
-            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) { }
+            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _ohganotSoFast = true;
+                _reanimateOhganCooldown = false;
+            }
 
             void Reset() override
             {
@@ -116,8 +125,7 @@ class boss_mandokir : public CreatureScript
                 _Reset();
 
                 me->SummonCreatureGroup(SUMMON_GROUP_CHAINED_SPIRIT);
-                _ohganotSoFast = true;
-                _reanimateOhganCooldown = false;
+                Initialize();
                 _reviveGUID.Clear();
             }
 

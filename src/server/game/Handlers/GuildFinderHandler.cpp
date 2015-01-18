@@ -111,6 +111,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
     {
         LFGuildSettings guildSettings = itr->second;
         Guild* guild = sGuildMgr->GetGuildByGuid(itr->first);
+        ASSERT(guild);
 
         ObjectGuid guildGUID = guild->GetGUID();
 
@@ -222,6 +223,7 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
         for (std::list<MembershipRequest>::const_iterator itr = applicatedGuilds.begin(); itr != applicatedGuilds.end(); ++itr)
         {
             Guild* guild = sGuildMgr->GetGuildByGuid(itr->GetGuildGuid());
+            ASSERT(guild);
             LFGuildSettings guildSettings = sGuildFinderMgr->GetGuildSettings(itr->GetGuildGuid());
             MembershipRequest request = *itr;
 

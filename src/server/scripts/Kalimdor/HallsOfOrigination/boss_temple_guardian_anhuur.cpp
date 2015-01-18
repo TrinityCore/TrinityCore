@@ -133,22 +133,25 @@ public:
 
                 DoCastAOE(SPELL_ACTIVATE_BEACONS);
 
-                std::list<Creature*> stalkers;
                 GameObject* door = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ANHUUR_DOOR));
-                GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
-
-                stalkers.remove_if(Trinity::HeightDifferenceCheck(door, 0.0f, false)); // Target only the bottom ones
-                for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
+                if (door)
                 {
-                    if ((*itr)->GetPositionX() > door->GetPositionX())
+                    std::list<Creature*> stalkers;
+                    GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
+
+                    stalkers.remove_if(Trinity::HeightDifferenceCheck(door, 0.0f, false)); // Target only the bottom ones
+                    for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
                     {
-                        (*itr)->CastSpell((*itr), SPELL_SHIELD_VISUAL_LEFT, true);
-                        (*itr)->CastSpell((*itr), SPELL_BEAM_OF_LIGHT_LEFT, true);
-                    }
-                    else
-                    {
-                        (*itr)->CastSpell((*itr), SPELL_SHIELD_VISUAL_RIGHT, true);
-                        (*itr)->CastSpell((*itr), SPELL_BEAM_OF_LIGHT_RIGHT, true);
+                        if ((*itr)->GetPositionX() > door->GetPositionX())
+                        {
+                            (*itr)->CastSpell((*itr), SPELL_SHIELD_VISUAL_LEFT, true);
+                            (*itr)->CastSpell((*itr), SPELL_BEAM_OF_LIGHT_LEFT, true);
+                        }
+                        else
+                        {
+                            (*itr)->CastSpell((*itr), SPELL_SHIELD_VISUAL_RIGHT, true);
+                            (*itr)->CastSpell((*itr), SPELL_BEAM_OF_LIGHT_RIGHT, true);
+                        }
                     }
                 }
 

@@ -853,6 +853,13 @@ class spell_warr_vigilance : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_vigilance_AuraScript);
 
+        public:
+            spell_warr_vigilance_AuraScript()
+            {
+                _procTarget = nullptr;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_VENGEANCE))
