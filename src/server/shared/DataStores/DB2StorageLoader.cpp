@@ -513,6 +513,7 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
                 {
                     LocalizedString** slot = (LocalizedString**)(&dataValue[offset]);
                     *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringHolderSize * stringFieldNumInRecord]);
+                    ASSERT(*slot);
 
                     // Value in database in main table field must be for enUS locale
                     if (char* str = AddLocaleString(*slot, LOCALE_enUS, fields[f].GetString()))
