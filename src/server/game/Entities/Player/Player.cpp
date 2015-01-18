@@ -7249,6 +7249,7 @@ void Player::ResetCurrencyWeekCap()
         if (uint32 arenaTeamId = GetArenaTeamId(arenaSlot))
         {
             ArenaTeam* arenaTeam = sArenaTeamMgr->GetArenaTeamById(arenaTeamId);
+            ASSERT(arenaTeam);
             arenaTeam->FinishWeek();                              // set played this week etc values to 0 in memory, too
             arenaTeam->SaveToDB();                                // save changes
             arenaTeam->NotifyStatsChanged();                      // notify the players of the changes

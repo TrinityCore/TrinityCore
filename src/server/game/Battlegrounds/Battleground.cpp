@@ -177,6 +177,8 @@ Battleground::Battleground()
     m_PrematureCountDown = false;
     m_PrematureCountDownTimer = 0;
 
+    m_Guid = 0;
+
     m_HonorMode = BG_NORMAL;
 
     StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_2M;
