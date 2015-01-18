@@ -86,6 +86,7 @@ class boss_nazan : public CreatureScript
             void Reset() override
             {
                 Initialize();
+                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/) override { }
