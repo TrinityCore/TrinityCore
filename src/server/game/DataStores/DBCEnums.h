@@ -85,7 +85,7 @@ enum AchievementFlags
     ACHIEVEMENT_FLAG_REALM_FIRST_REACH     = 0x00000100,    //
     ACHIEVEMENT_FLAG_REALM_FIRST_KILL      = 0x00000200,    //
     ACHIEVEMENT_FLAG_UNK3                  = 0x00000400,    // ACHIEVEMENT_FLAG_HIDE_NAME_IN_TIE
-    ACHIEVEMENT_FLAG_REALM_FIRST_GUILD     = 0x00000800,    // first guild on realm done something
+    ACHIEVEMENT_FLAG_UNK4                  = 0x00000800,    // first guild on realm done something
     ACHIEVEMENT_FLAG_SHOW_IN_GUILD_NEWS    = 0x00001000,    // Shows in guild news
     ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER  = 0x00002000,    // Shows in guild news header
     ACHIEVEMENT_FLAG_GUILD                 = 0x00004000,    //
