@@ -86,6 +86,26 @@ namespace WorldPackets
             uint32 CreationTime = 0;
         };
 
+        class CriteriaDeleted final : public ServerPacket
+        {
+        public:
+            explicit CriteriaDeleted() : ServerPacket(SMSG_CRITERIA_DELETED, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 CriteriaID = 0;
+        };
+
+        class AchievementDeleted final : public ServerPacket
+        {
+        public:
+            explicit AchievementDeleted() : ServerPacket(SMSG_ACHIEVEMENT_DELETED, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 AchievementID = 0;
+        };
+
         class AchievementEarned final : public ServerPacket
         {
         public:
@@ -97,6 +117,19 @@ namespace WorldPackets
             uint32 AchievementID = 0;
             WowTime Time;
             bool Initial = false;
+        };
+
+        class BroadcastAchievement final : public ServerPacket
+        {
+        public:
+            explicit BroadcastAchievement() : ServerPacket(SMSG_SERVER_FIRST_ACHIEVEMENT) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGUID;
+            std::string Name;
+            uint32 AchievementID = 0;
+            bool DisplayLink = false;
         };
     }
 }
