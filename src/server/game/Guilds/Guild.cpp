@@ -1550,19 +1550,20 @@ void Guild::HandleSetAchievementTracking(WorldSession* session, std::set<uint32>
     {
         std::set<uint32> criteriaIds;
 
-        /*
-        for (std::set<uint32>::iterator achievementId = achievementIds.begin(); achievementId != achievementIds.end(); ++achievementId)
+        for (uint32 achievementId : achievementIds)
         {
-            if (AchievementCriteriaEntryList const* cList = sAchievementMgr->GetAchievementCriteriaByAchievement(*achievementId))
+            if (AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementId))
             {
-                for (AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
+                if (AchievementCriteriaTree const* tree = sAchievementMgr->GetAchievementCriteriaTree(achievement->CriteriaTree))
                 {
-                    AchievementCriteriaTree const* criteria = *itr;
-                    criteriaIds.insert(criteria->ID);
+                    sAchievementMgr->WalkCriteriaTree(tree, [&criteriaIds](AchievementCriteriaTree const* node)
+                    {
+                        if (node->Criteria)
+                            criteriaIds.insert(node->Criteria->ID);
+                    });
                 }
             }
         }
-        */
 
         member->SetTrackedCriteriaIds(criteriaIds);
         m_achievementMgr.SendAllTrackedCriterias(player, member->GetTrackedCriteriaIds());
@@ -2641,7 +2642,7 @@ void Guild::BroadcastPacket(WorldPacket const* packet) const
             player->GetSession()->SendPacket(packet);
 }
 
-void Guild::BroadcastPacketIfTrackingAchievement(WorldPacket* packet, uint32 criteriaId) const
+void Guild::BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint32 criteriaId) const
 {
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (itr->second->IsTrackingCriteriaId(criteriaId))

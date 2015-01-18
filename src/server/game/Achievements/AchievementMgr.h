@@ -319,7 +319,6 @@ class AchievementMgr
         void CompletedCriteriaFor(AchievementEntry const* achievement, Player* referencePlayer);
         bool IsCompletedCriteriaTree(AchievementCriteriaTree const* tree);
         bool IsCompletedCriteria(AchievementCriteria const* achievementCriteria, uint64 requiredAmount);
-        uint64 GetTotalCriteriaTreeProgress(AchievementCriteriaTree const* criteriaTree);
         bool IsCompletedAchievement(AchievementEntry const* entry);
         bool CanUpdateCriteria(AchievementCriteria const* criteria, AchievementCriteriaTreeList const* trees, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer);
         void SendPacket(WorldPacket const* data) const;
@@ -427,6 +426,15 @@ class AchievementGlobalMgr
             }
 
             return false;
+        }
+
+        template<typename Func>
+        void WalkCriteriaTree(AchievementCriteriaTree const* tree, Func const& func) const
+        {
+            for (AchievementCriteriaTree const* node : tree->Children)
+                WalkCriteriaTree(node, func);
+
+            func(tree);
         }
 
         // Removes instanceId as valid id to complete realm first kill achievements

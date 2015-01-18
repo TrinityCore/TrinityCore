@@ -60,6 +60,7 @@
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
+#include "AchievementPackets.h"
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
 {
@@ -1763,13 +1764,10 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
     player->SendRespondInspectAchievements(_player);
 }
 
-void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& recvData)
+void WorldSession::HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& setFocusedAchievement)
 {
-    uint32 achievementId;
-    recvData >> achievementId;
-
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
-        guild->GetAchievementMgr().SendAchievementInfo(_player, achievementId);
+        guild->GetAchievementMgr().SendAchievementInfo(_player, setFocusedAchievement.AchievementID);
 }
 
 void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)

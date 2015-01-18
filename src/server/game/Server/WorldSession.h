@@ -75,6 +75,11 @@ class RBACData;
 
 namespace WorldPackets
 {
+    namespace Achievement
+    {
+        class GuildSetFocusedAchievement;
+    }
+
     namespace AuctionHouse
     {
         class AuctionHelloRequest;
@@ -1184,7 +1189,7 @@ class WorldSession
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
         void HandleRemoveGlyph(WorldPacket& recvData);
         void HandleQueryInspectAchievements(WorldPacket& recvData);
-        void HandleGuildAchievementProgressQuery(WorldPacket& recvData);
+        void HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& setFocusedAchievement);
         void HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet);
         void HandleEquipmentSetDelete(WorldPacket& recvData);
         void HandleEquipmentSetUse(WorldPacket& recvData);

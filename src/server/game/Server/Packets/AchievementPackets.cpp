@@ -17,31 +17,50 @@
 
 #include "AchievementPackets.h"
 
-WorldPacket const* WorldPackets::Achievement::AllAchievements::Write()
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::EarnedAchievement const& earned)
 {
-    _worldPacket << uint32(Earned.size());
-    _worldPacket << uint32(Progress.size());
+    data << uint32(earned.Id);
+    data.AppendPackedTime(earned.Date);
+    data << earned.Owner;
+    data << uint32(earned.VirtualRealmAddress);
+    data << uint32(earned.NativeRealmAddress);
+    return data;
+}
 
-    for (EarnedAchievement const& earned : Earned)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::AllAchievements const& allAchievements)
+{
+    data << uint32(allAchievements.Earned.size());
+    data << uint32(allAchievements.Progress.size());
+
+    for (WorldPackets::Achievement::EarnedAchievement const& earned : allAchievements.Earned)
+        data << earned;
+
+    for (WorldPackets::Achievement::CriteriaProgress const& progress : allAchievements.Progress)
     {
-        _worldPacket << uint32(earned.Id);
-        _worldPacket.AppendPackedTime(earned.Date);
-        _worldPacket << earned.Owner;
-        _worldPacket << uint32(earned.VirtualRealmAddress);
-        _worldPacket << uint32(earned.NativeRealmAddress);
+        data << uint32(progress.Id);
+        data << uint64(progress.Quantity);
+        data << progress.Player;
+        data.AppendPackedTime(progress.Date);
+        data << uint32(progress.TimeFromStart);
+        data << uint32(progress.TimeFromCreate);
+        data.WriteBits(progress.Flags, 4);
+        data.FlushBits();
     }
 
-    for (CriteriaProgress const& progress : Progress)
-    {
-        _worldPacket << uint32(progress.Id);
-        _worldPacket << uint64(progress.Quantity);
-        _worldPacket << progress.Player;
-        _worldPacket.AppendPackedTime(progress.Date);
-        _worldPacket << uint32(progress.TimeFromStart);
-        _worldPacket << uint32(progress.TimeFromCreate);
-        _worldPacket.WriteBits(progress.Flags, 4);
-        _worldPacket.FlushBits();
-    }
+    return data;
+}
+
+WorldPacket const* WorldPackets::Achievement::AllAchievementData::Write()
+{
+    _worldPacket << Data;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::RespondInspectAchievements::Write()
+{
+    _worldPacket << Player;
+    _worldPacket << Data;
 
     return &_worldPacket;
 }
@@ -59,6 +78,21 @@ WorldPacket const* WorldPackets::Achievement::CriteriaUpdate::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Achievement::CriteriaDeleted::Write()
+{
+    _worldPacket << uint32(CriteriaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::AchievementDeleted::Write()
+{
+    _worldPacket << uint32(AchievementID);
+    _worldPacket << uint32(Immunities);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Achievement::AchievementEarned::Write()
 {
     _worldPacket << Sender;
@@ -69,6 +103,76 @@ WorldPacket const* WorldPackets::Achievement::AchievementEarned::Write()
     _worldPacket << uint32(EarnerVirtualRealm);
     _worldPacket.WriteBit(Initial);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::ServerFirstAchievement::Write()
+{
+    _worldPacket.WriteBits(Name.length(), 7);
+    _worldPacket.WriteBit(GuildAchievement);
+    _worldPacket << PlayerGUID;
+    _worldPacket << AchievementID;
+    _worldPacket.WriteString(Name);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::GuildCriteriaUpdate::Write()
+{
+    _worldPacket << uint32(Progress.size());
+
+    for (GuildCriteriaProgress const& progress : Progress)
+    {
+        _worldPacket << int32(progress.CriteriaID);
+        _worldPacket << uint32(progress.DateCreated);
+        _worldPacket << uint32(progress.DateStarted);
+        _worldPacket.AppendPackedTime(progress.DateUpdated);
+        _worldPacket << uint64(progress.Quantity);
+        _worldPacket << progress.PlayerGUID;
+        _worldPacket << int32(progress.Flags);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::GuildCriteriaDeleted::Write()
+{
+    _worldPacket << GuildGUID;
+    _worldPacket << int32(CriteriaID);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Achievement::GuildSetFocusedAchievement::Read()
+{
+    _worldPacket >> AchievementID;
+}
+
+WorldPacket const* WorldPackets::Achievement::GuildAchievementDeleted::Write()
+{
+    _worldPacket << GuildGUID;
+    _worldPacket << uint32(AchievementID);
+    _worldPacket.AppendPackedTime(TimeDeleted);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::GuildAchievementEarned::Write()
+{
+    _worldPacket << GuildGUID;
+    _worldPacket << uint32(AchievementID);
+    _worldPacket.AppendPackedTime(TimeEarned);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::AllGuildAchievements::Write()
+{
+    _worldPacket << uint32(Earned.size());
+
+    for (EarnedAchievement const& earned : Earned)
+        _worldPacket << earned;
 
     return &_worldPacket;
 }
