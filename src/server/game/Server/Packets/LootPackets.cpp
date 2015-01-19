@@ -33,7 +33,7 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
     _worldPacket << Coins;
     _worldPacket << uint32(Items.size());
     _worldPacket << uint32(Currencies.size());
-    
+
     for (LootItem const& item : Items)
     {
         _worldPacket.WriteBits(item.Type, 2);

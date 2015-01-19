@@ -436,7 +436,7 @@ UPDATE `page_text` SET `text`='Warning:  Lava Blast is not for everyone. Pregnan
 ', `WDBVerified`=14007 WHERE `entry`=3400; -- 3400
 UPDATE `page_text` SET `text`='Possible Side Effects May Include: Dry mouth, upset stomach, dry eyes, indigestion, back pain, bone and joint pain, slight disfiguration, internal bleeding, temporary insanity, Lava Blast addiction, magic addiction, pyromania, fear of spiders, lightning eyes, heart palpitations, fever, spontaneous child birth, lack of sleep, vulnerability to cold iron, hysteria, random songs popping into your head, asthma, demonic possession, headaches, footaches, the inability to use the letter ''R'', and death.
 ', `WDBVerified`=14007 WHERE `entry`=3401; -- 3401
-UPDATE `page_text` SET `text`='Caution: Drinking multiple Lava Blasts in rapid succession can result in spontaneous combustion.
+UPDATE `page_text` SET `text`='Caution: Drinking multiple Lava Blasts in rapid succession can result in spontaneous combustion.
 
 Try new LAVA BLAST now!', `WDBVerified`=14007 WHERE `entry`=3402; -- 3402
 UPDATE `page_text` SET `text`='Ask The Mage!

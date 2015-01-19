@@ -104,7 +104,7 @@ namespace WorldPackets
             ObjectGuid Owner;
             uint8 LootListID = 0;
         };
-        
+
         class LootRelease final : public ClientPacket
         {
         public:
@@ -114,7 +114,7 @@ namespace WorldPackets
 
             ObjectGuid Unit;
         };
-        
+
         class LootMoney final : public ClientPacket
         {
         public:
@@ -122,7 +122,7 @@ namespace WorldPackets
 
             void Read() override { }
         };
-        
+
         class LootMoneyNotify final : public ServerPacket
         {
         public:
@@ -133,7 +133,7 @@ namespace WorldPackets
             uint32 Money = 0;
             bool SoleLooter = false;
         };
-        
+
         class CoinRemoved final : public ServerPacket
         {
         public:

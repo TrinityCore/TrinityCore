@@ -254,7 +254,7 @@ namespace WorldPackets
             bool Allow = false;
             GameObjectStats Stats;
         };
-        
+
         class QueryCorpseLocationFromClient final : public ClientPacket
         {
         public:

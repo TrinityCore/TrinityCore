@@ -87,7 +87,7 @@ class spell_dk_anti_magic_shell : public SpellScriptLoader
             PrepareAuraScript(spell_dk_anti_magic_shell_AuraScript);
 
         public:
-            spell_dk_anti_magic_shell_AuraScript() 
+            spell_dk_anti_magic_shell_AuraScript()
             {
                 absorbPct = 0;
                 maxHealth = 0;
