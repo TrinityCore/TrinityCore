@@ -3928,8 +3928,17 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     TC_LOG_DEBUG("spells", "Spell Effect: Stuck");
     TC_LOG_INFO("spells", "Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", player->GetName().c_str(), player->GetGUIDLow(), player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 
-    if (player->IsInFlight() || player->isDead())
+    if (player->IsInFlight())
         return;
+    
+    // if player is dead without death timer is teleported to graveyard, otherwise not apply the effect
+    if (player->isDead())
+    {
+        if (!player->GetDeathTimer())
+            player->RepopAtGraveyard();
+            
+        return;
+    }
 
     // the player dies
     player->Kill(player);
