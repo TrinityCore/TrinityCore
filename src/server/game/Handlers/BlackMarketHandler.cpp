@@ -26,7 +26,7 @@ void WorldSession::HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketO
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Guid, UNIT_NPC_FLAG_BLACK_MARKET);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBlackMarketHello - Unit (GUID: %u) not found or you can't interact with him.", packet.Guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleBlackMarketHello - Unit (GUID: %s) not found or you can't interact with him.", packet.Guid.ToString().c_str());
         return;
     }
 
