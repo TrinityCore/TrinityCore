@@ -9130,8 +9130,8 @@ void Player::SetBindPoint(ObjectGuid guid) const
 void Player::SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost) const
 {
     WorldPackets::Talent::RespecWipeConfirm respecWipeConfirm;
-    respecWipeConfirm.RespecMaster = trainerGuid;
-    respecWipeConfirm.Cost = GetNextResetTalentsCost();
+    respecWipeConfirm.RespecMaster = guid;
+    respecWipeConfirm.Cost = cost;
     SendDirectMessage(respecWipeConfirm.Write());
 }
 

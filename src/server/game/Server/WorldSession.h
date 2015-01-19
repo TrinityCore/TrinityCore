@@ -339,6 +339,7 @@ namespace WorldPackets
         class QueryGameObject;
         class QueryCorpseLocationFromClient;
         class QueryCorpseTransport;
+        class QueryTime;
         class QueryItemSingle;
         class QuestPOIQuery;
     }
@@ -849,7 +850,7 @@ class TC_GAME_API WorldSession
         void HandleGameobjectReportUse(WorldPackets::GameObject::GameObjReportUse& packet);
 
         void HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& queryPlayerName);
-        void HandleQueryTimeOpcode(WorldPacket& recvPacket);
+        void HandleQueryTimeOpcode(WorldPackets::Query::QueryTime& queryTime);
         void HandleCreatureQueryOpcode(WorldPackets::Query::QueryCreature& query);
 
         void HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& query);
