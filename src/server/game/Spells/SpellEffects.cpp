@@ -3930,7 +3930,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     TC_LOG_DEBUG("spells", "Spell Effect: Stuck");
     TC_LOG_INFO("spells", "Player %s (%s) used auto-unstuck future at map %u (%f, %f, %f)", player->GetName().c_str(), player->GetGUID().ToString().c_str(), player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 
-    if (player->IsInFlight())
+    if (player->IsInFlight() || player->isDead())
         return;
 
     // the player is teleported to home
