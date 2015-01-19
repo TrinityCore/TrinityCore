@@ -73,17 +73,17 @@ void WorldSession::HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& p
     SendNameQueryOpcode(packet.Player);
 }
 
-void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleQueryTimeOpcode(WorldPackets::Query::QueryTime& /*queryTime*/)
 {
     SendQueryTimeResponse();
 }
 
 void WorldSession::SendQueryTimeResponse()
 {
-    WorldPacket data(SMSG_QUERY_TIME_RESPONSE, 4+4);
-    data << uint32(time(NULL));
-    data << uint32(sWorld->GetNextDailyQuestsResetTime() - time(NULL));
-    SendPacket(&data);
+    WorldPackets::Query::QueryTimeResponse queryTimeResponse;
+    queryTimeResponse.CurrentTime = time(nullptr);
+    queryTimeResponse.TimeOutRequest = sWorld->GetNextDailyQuestsResetTime() - queryTimeResponse.CurrentTime;
+    SendPacket(queryTimeResponse.Write());
 }
 
 /// Only _static_ data is sent in this packet !!!
@@ -210,7 +210,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     packet.MapID = corpseMapID;
     packet.ActualMapID = mapID;
     packet.Position = G3D::Vector3(x, y, z);
-    packet.Transport = ObjectGuid::Empty;                   // NYI
+    packet.Transport = corpse->GetTransGUID();
     SendPacket(packet.Write());
 }
 
@@ -282,9 +282,20 @@ void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTr
 {
     TC_LOG_DEBUG("network", "WORLD: Recv CMSG_QUERY_CORPSE_TRANSPORT");
 
+    Corpse* corpse = _player->GetCorpse();
+
     WorldPackets::Query::CorpseTransportQuery response;
-    response.Position = G3D::Vector3(0.0f, 0.0f, 0.0f);
-    response.Facing = 0.0f;
+    if (!corpse || corpse->GetTransGUID().IsEmpty() || corpse->GetTransGUID() != packet.Transport)
+    {
+        response.Position = G3D::Vector3(0.0f, 0.0f, 0.0f);
+        response.Facing = 0.0f;
+    }
+    else
+    {
+        response.Position = G3D::Vector3(corpse->GetTransOffsetX(), corpse->GetTransOffsetY(), corpse->GetTransOffsetZ());
+        response.Facing = corpse->GetTransOffsetO();
+    }
+
     SendPacket(response.Write());
 }
 

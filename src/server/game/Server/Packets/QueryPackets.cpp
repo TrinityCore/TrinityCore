@@ -295,3 +295,11 @@ WorldPacket const* WorldPackets::Query::CorpseTransportQuery::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Query::QueryTimeResponse::Write()
+{
+    _worldPacket << uint32(CurrentTime);
+    _worldPacket << int32(TimeOutRequest);
+
+    return &_worldPacket;
+}
