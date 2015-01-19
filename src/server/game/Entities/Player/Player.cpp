@@ -22152,7 +22152,7 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
                     continue;
 
                 SpellInfo const* spellInfo2 = sSpellMgr->GetSpellInfo(i->first);
-                if (!spellInfo2->IsCooldownStartedOnEvent())
+                if (!spellInfo2 || !spellInfo2->IsCooldownStartedOnEvent())
                     continue;
 
                 if (catSet.find(i->first) != catSet.end())
