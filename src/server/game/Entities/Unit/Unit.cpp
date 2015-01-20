@@ -12180,6 +12180,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         uint32 Id = i->aura->GetId();
 
         AuraApplication* aurApp = i->aura->GetApplicationOfTarget(GetGUID());
+        ASSERT(aurApp);
 
         bool prepare = i->aura->CallScriptPrepareProcHandlers(aurApp, eventInfo);
 

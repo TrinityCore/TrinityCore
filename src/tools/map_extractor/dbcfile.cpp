@@ -21,7 +21,8 @@
 #include "dbcfile.h"
 
 DBCFile::DBCFile(HANDLE file) :
-    _file(file), _data(NULL), _stringTable(NULL)
+    _file(file), _recordSize(0), _recordCount(0), _fieldCount(0),
+    _stringSize(0), _data(NULL), _stringTable(NULL)
 {
 }
 

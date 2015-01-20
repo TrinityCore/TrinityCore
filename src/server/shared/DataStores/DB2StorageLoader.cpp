@@ -545,7 +545,11 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
     } while (result->NextRow());
 
     if (!newRecords)
+    {
+        delete[] tempDataTable;
+        delete[] newIndexes;
         return nullptr;
+    }
 
     // Compact new data table to only contain new records not previously loaded from file
     char* dataTable = new char[newRecords * recordSize];

@@ -229,7 +229,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 DifficultyID;
+            int32 DifficultyID = 0;
         };
 
         class SetRaidDifficulty final : public ClientPacket
@@ -239,8 +239,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 DifficultyID;
-            uint8 Legacy;
+            int32 DifficultyID = 0;
+            uint8 Legacy = 0;
         };
 
         class DungeonDifficultySet final : public ServerPacket
@@ -250,7 +250,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 DifficultyID;
+            int32 DifficultyID = 0;
         };
 
         class RaidDifficultySet final : public ServerPacket
@@ -260,8 +260,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 DifficultyID;
-            uint8 Legacy;
+            int32 DifficultyID = 0;
+            uint8 Legacy = 0;
         };
 
         class CorpseReclaimDelay : public ServerPacket
