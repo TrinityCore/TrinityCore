@@ -12033,6 +12033,10 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
         if (HasSpell(proto->Spells[1].SpellId))
             return EQUIP_ERR_NONE;
 
+    InventoryResult eres = sEluna->OnCanUseItem(this, proto->ItemId);
+    if (eres != EQUIP_ERR_OK)
+        return eres;
+
     return EQUIP_ERR_OK;
 }
 
@@ -25452,6 +25456,8 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
 
     // update free talent points
     SetFreeTalentPoints(CurTalentPoints - (talentRank - curtalent_maxrank + 1));
+
+    sEluna->OnLearnTalents(this, talentId, talentRank, spellid);
 }
 
 void Player::LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRank)

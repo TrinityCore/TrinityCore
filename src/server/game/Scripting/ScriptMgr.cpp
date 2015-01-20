@@ -951,6 +951,8 @@ bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
 #ifdef ELUNA
     if (sEluna->OnGossipHello(player, go))
         return true;
+    if (sEluna->OnGameObjectUse(player, go))
+        return true;
 #endif
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);

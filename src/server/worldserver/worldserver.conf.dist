@@ -3044,6 +3044,27 @@ AuctionHouseBot.Buyer.Neutral.Chance.Ratio = 3
 ###################################################################################################
 
 ###################################################################################################
+#  ELUNA SETTINGS
+#
+#   Eluna.TraceBack
+#       Description: Sets whether to use debug.traceback function on a lua error or not.
+#                    Notice that you can redefine the function.
+#       Default:    false - (use default error output)
+#                   true  - (use debug.traceback function)
+#
+#   Eluna.ScriptPath
+#       Description: Sets the location of the script folder to load scripts from
+#                    The path can be relative or absolute.
+#       Default:    "lua_scripts"
+#
+
+Eluna.TraceBack = false
+Eluna.ScriptPath = "lua_scripts"
+
+#
+###################################################################################################
+
+###################################################################################################
 # LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
