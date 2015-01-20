@@ -3046,6 +3046,11 @@ AuctionHouseBot.Buyer.Neutral.Chance.Ratio = 3
 ###################################################################################################
 #  ELUNA SETTINGS
 #
+#   Eluna.Enabled
+#       Description: Enable or disable Eluna LuaEngine
+#       Default:    true  - (enabled)
+#                   false - (disabled)
+#
 #   Eluna.TraceBack
 #       Description: Sets whether to use debug.traceback function on a lua error or not.
 #                    Notice that you can redefine the function.
@@ -3058,6 +3063,7 @@ AuctionHouseBot.Buyer.Neutral.Chance.Ratio = 3
 #       Default:    "lua_scripts"
 #
 
+Eluna.Enabled = true
 Eluna.TraceBack = false
 Eluna.ScriptPath = "lua_scripts"
 
