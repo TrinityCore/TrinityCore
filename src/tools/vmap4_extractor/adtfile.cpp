@@ -79,7 +79,7 @@ char* GetExtension(char* FileName)
 
 extern HANDLE CascStorage;
 
-ADTFile::ADTFile(char* filename) : ADT(CascStorage, filename, false)
+ADTFile::ADTFile(char* filename) : ADT(CascStorage, filename, false), nWMO(0), nMDX(0)
 {
     Adtfilename.append(filename);
 }
