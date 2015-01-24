@@ -164,6 +164,7 @@ struct LootItem
     uint32  itemid;
     uint32  randomSuffix;
     int32   randomPropertyId;
+    std::vector<int32> BonusListIDs;
     ConditionList conditions;                               // additional loot condition
     GuidSet allowedGUIDs;
     uint8   count             : 8;
@@ -335,7 +336,7 @@ struct Loot
     //  Only set for inventory items that can be right-click looted
     ObjectGuid containerID;
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(), loot_type(LOOT_CORPSE), maxDuplicates(1) { }
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(), loot_type(LOOT_CORPSE), maxDuplicates(1), _difficultyBonusTreeMod(0){ }
     ~Loot() { clear(); }
 
     ObjectGuid const& GetGUID() const { return _GUID; }
@@ -374,6 +375,7 @@ struct Loot
         roundRobinPlayer.Clear();
         loot_type = LOOT_NONE;
         i_LootValidatorRefManager.clearReferences();
+        _difficultyBonusTreeMod = 0;
     }
 
     bool empty() const { return items.empty() && gold == 0; }
@@ -416,6 +418,7 @@ private:
 
     // Loot GUID
     ObjectGuid _GUID;
+    uint32 _difficultyBonusTreeMod;
 };
 
 extern LootStore LootTemplates_Creature;

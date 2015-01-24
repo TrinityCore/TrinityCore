@@ -501,11 +501,10 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapStore,                    dbcPath, "Map.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore,          dbcPath, "MapDifficulty.dbc");//19116
     // fill data
-    sMapDifficultyMap[0][0] = MapDifficulty(DIFFICULTY_NONE, 0, 0, false);//map 0 is missingg from MapDifficulty.dbc use this till its ported to sql
     for (uint32 i = 0; i < sMapDifficultyStore.GetNumRows(); ++i)
         if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
-            sMapDifficultyMap[entry->MapID][entry->DifficultyID] = MapDifficulty(entry->DifficultyID, entry->RaidDuration, entry->MaxPlayers, entry->Message_lang[0] > 0);
-    sMapDifficultyStore.Clear();
+            sMapDifficultyMap[entry->MapID][entry->DifficultyID] = entry;
+    sMapDifficultyMap[0][0] = sMapDifficultyMap[1][0]; //map 0 is missing from MapDifficulty.dbc use this till its ported to sql
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sModifierTreeStore,           dbcPath, "ModifierTree.dbc");//19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sMountCapabilityStore,        dbcPath, "MountCapability.dbc");//19116
@@ -961,7 +960,7 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     std::swap(x, y);                                         // client have map coords swapped
 }
 
-MapDifficulty const* GetDefaultMapDifficulty(uint32 mapID)
+MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapID)
 {
     auto itr = sMapDifficultyMap.find(mapID);
     if (itr == sMapDifficultyMap.end())
@@ -977,13 +976,13 @@ MapDifficulty const* GetDefaultMapDifficulty(uint32 mapID)
             continue;
 
         if (difficulty->Flags & DIFFICULTY_FLAG_DEFAULT)
-            return &p.second;
+            return p.second;
     }
 
-    return &itr->second.begin()->second;
+    return itr->second.begin()->second;
 }
 
-MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
+MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
 {
     auto itr = sMapDifficultyMap.find(mapId);
     if (itr == sMapDifficultyMap.end())
@@ -993,17 +992,17 @@ MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
     if (diffItr == itr->second.end())
         return nullptr;
 
-    return &diffItr->second;
+    return diffItr->second;
 }
 
-MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
+MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
 {
     DifficultyEntry const* diffEntry = sDifficultyStore.LookupEntry(difficulty);
     if (!diffEntry)
         return GetDefaultMapDifficulty(mapId);
 
     uint32 tmpDiff = difficulty;
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
+    MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
     while (!mapDiff)
     {
         tmpDiff = diffEntry->FallbackDifficultyID;

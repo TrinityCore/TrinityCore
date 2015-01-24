@@ -503,10 +503,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
     for (char const* token : bonusListIDs)
     {
         uint32 bonusListID = atoul(token);
-        DB2Manager::ItemBonusList bonuses = sDB2Manager.GetItemBonusList(bonusListID);
-        AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
-        for (ItemBonusEntry const* bonus : bonuses)
-            _bonusData.AddBonus(bonus->Type, bonus->Value);
+        AddBonuses(bonusListID);
     }
 
     if (need_save)                                           // normal item changed state set not work at loading
@@ -1795,6 +1792,14 @@ uint32 Item::GetVisibleAppearanceModId() const
         return transmogMod;
 
     return GetAppearanceModId();
+}
+
+void Item::AddBonuses(uint32 bonusListID)
+{
+    DB2Manager::ItemBonusList bonuses = sDB2Manager.GetItemBonusList(bonusListID);
+    AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
+    for (ItemBonusEntry const* bonus : bonuses)
+        _bonusData.AddBonus(bonus->Type, bonus->Value);
 }
 
 void BonusData::Initialize(ItemTemplate const* proto)

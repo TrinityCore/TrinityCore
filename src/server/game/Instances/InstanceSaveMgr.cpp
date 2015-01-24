@@ -373,7 +373,7 @@ void InstanceSaveManager::LoadResetTimes()
             Difficulty difficulty = Difficulty(fields[1].GetUInt8());
             uint64 oldresettime = fields[2].GetUInt32();
 
-            MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);
+            MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid, difficulty);
             if (!mapDiff)
             {
                 TC_LOG_ERROR("misc", "InstanceSaveManager::LoadResetTimes: invalid mapid(%u)/difficulty(%u) pair in instance_reset!", mapid, difficulty);
@@ -399,12 +399,12 @@ void InstanceSaveManager::LoadResetTimes()
         for (auto& difficultyPair : mapDifficultyPair.second)
         {
             Difficulty difficulty = Difficulty(difficultyPair.first);
-            MapDifficulty const* mapDiff = &difficultyPair.second;
-            if (!mapDiff->resetTime)
+            MapDifficultyEntry const* mapDiff = difficultyPair.second;
+            if (!mapDiff->RaidDuration)
                 continue;
 
             // the reset_delay must be at least one day
-            uint32 period = uint32(((mapDiff->resetTime * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
+            uint32 period = uint32(((mapDiff->RaidDuration * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
             if (period < DAY)
                 period = DAY;
 
@@ -577,8 +577,8 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
 
     if (!warn)
     {
-        MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);
-        if (!mapDiff || !mapDiff->resetTime)
+        MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid, difficulty);
+        if (!mapDiff || !mapDiff->RaidDuration)
         {
             TC_LOG_ERROR("misc", "InstanceSaveManager::ResetOrWarnAll: not valid difficulty or no reset delay for map %d", mapid);
             return;
@@ -616,7 +616,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         // calculate the next reset time
         uint32 diff = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
 
-        uint32 period = uint32(((mapDiff->resetTime * sWorld->getRate(RATE_INSTANCE_RESET_TIME))/DAY) * DAY);
+        uint32 period = uint32(((mapDiff->RaidDuration * sWorld->getRate(RATE_INSTANCE_RESET_TIME))/DAY) * DAY);
         if (period < DAY)
             period = DAY;
 

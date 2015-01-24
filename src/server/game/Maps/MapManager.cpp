@@ -136,7 +136,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     Difficulty targetDifficulty, requestedDifficulty;
     targetDifficulty = requestedDifficulty = player->GetDifficultyID(entry);
     // Get the highest available difficulty if current setting is higher than the instance allows
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
+    MapDifficultyEntry const* mapDiff = GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
     if (!mapDiff)
     {
         player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, requestedDifficulty);

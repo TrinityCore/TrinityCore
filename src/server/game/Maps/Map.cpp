@@ -3201,9 +3201,21 @@ void InstanceMap::SetResetSchedule(bool on)
     }
 }
 
-MapDifficulty const* Map::GetMapDifficulty() const
+MapDifficultyEntry const* Map::GetMapDifficulty() const
 {
     return GetMapDifficultyData(GetId(), GetDifficultyID());
+}
+
+uint32 Map::GetDifficultyLootBonusTreeMod() const
+{
+    if (MapDifficultyEntry const* mapDifficulty = GetMapDifficulty())
+        if (mapDifficulty->ItemBonusTreeModID)
+            return mapDifficulty->ItemBonusTreeModID;
+
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetDifficultyID()))
+        return difficulty->ItemBonusTreeModID;
+
+    return 0;
 }
 
 bool Map::IsHeroic() const
@@ -3215,17 +3227,17 @@ bool Map::IsHeroic() const
 
 uint32 InstanceMap::GetMaxPlayers() const
 {
-    MapDifficulty const* mapDiff = GetMapDifficulty();
-    if (mapDiff && mapDiff->maxPlayers)
-        return mapDiff->maxPlayers;
+    MapDifficultyEntry const* mapDiff = GetMapDifficulty();
+    if (mapDiff && mapDiff->MaxPlayers)
+        return mapDiff->MaxPlayers;
 
     return GetEntry()->MaxPlayers;
 }
 
 uint32 InstanceMap::GetMaxResetDelay() const
 {
-    MapDifficulty const* mapDiff = GetMapDifficulty();
-    return mapDiff ? mapDiff->resetTime : 0;
+    MapDifficultyEntry const* mapDiff = GetMapDifficulty();
+    return mapDiff ? mapDiff->RaidDuration : 0;
 }
 
 /* ******* Battleground Instance Maps ******* */

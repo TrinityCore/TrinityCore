@@ -261,6 +261,9 @@ class Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
+
+        void AddBonuses(uint32 bonusListID);
+
         static void DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
         virtual void DeleteFromDB(SQLTransaction& trans);
         static void DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
