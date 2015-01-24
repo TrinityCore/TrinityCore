@@ -97,8 +97,9 @@ typedef struct
 map_id *map_ids;
 uint16 *areas;
 uint16 *LiqType;
-char output_path[128] = ".";
-char input_path[128] = ".";
+#define MAX_PATH_LENGTH 128
+char output_path[MAX_PATH_LENGTH] = ".";
+char input_path[MAX_PATH_LENGTH] = ".";
 uint32 maxAreaId = 0;
 
 // **************************************************
@@ -173,11 +174,11 @@ void Usage(char const* prg)
     printf(
         "Usage:\n"\
         "%s -[var] [value]\n"\
-        "-i set input path\n"\
-        "-o set output path\n"\
+        "-i set input path (max %d characters)\n"\
+        "-o set output path (max %d characters)\n"\
         "-e extract only MAP(1)/DBC(2) - standard: both(3)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
-        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
+        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
     exit(1);
 }
 
@@ -197,14 +198,20 @@ void HandleArgs(int argc, char* arg[])
         switch (arg[c][1])
         {
             case 'i':
-                if (c + 1 < argc)                            // all ok
-                    strcpy(input_path, arg[c++ + 1]);
+                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
+                {
+                    strncpy(input_path, arg[c++ + 1], MAX_PATH_LENGTH);
+                    input_path[MAX_PATH_LENGTH - 1] = '\0';
+                }
                 else
                     Usage(arg[0]);
                 break;
             case 'o':
-                if (c + 1 < argc)                            // all ok
-                    strcpy(output_path, arg[c++ + 1]);
+                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
+                {
+                    strncpy(output_path, arg[c++ + 1], MAX_PATH_LENGTH);
+                    output_path[MAX_PATH_LENGTH - 1] = '\0';
+                }
                 else
                     Usage(arg[0]);
                 break;
@@ -313,7 +320,17 @@ uint32 ReadMapDBC()
     for(uint32 x = 0; x < map_count; ++x)
     {
         map_ids[x].id = dbc.getRecord(x).getUInt(0);
-        strcpy(map_ids[x].name, dbc.getRecord(x).getString(1));
+
+        const char* map_name = dbc.getRecord(x).getString(1);
+        size_t max_map_name_length = sizeof(map_ids[x].name);
+        if (strlen(map_name) >= max_map_name_length)
+        {
+            printf("Fatal error: Map name too long!\n");
+            exit(1);
+        }
+
+        strncpy(map_ids[x].name, map_name, max_map_name_length);
+        map_ids[x].name[max_map_name_length - 1] = '\0';
     }
 
     CascCloseFile(dbcFile);
