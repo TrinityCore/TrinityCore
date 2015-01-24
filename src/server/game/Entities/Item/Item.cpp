@@ -264,6 +264,7 @@ Item::Item()
     m_paidExtendedCost = 0;
 
     memset(_modifiers, 0, sizeof(_modifiers));
+    memset(&_bonusData, 0, sizeof(_bonusData));
 }
 
 bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner)

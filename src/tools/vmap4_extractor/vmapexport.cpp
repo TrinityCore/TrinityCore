@@ -213,7 +213,7 @@ bool ExtractSingleWmo(std::string& fname)
         for (uint32 i = 0; i < froot.nGroups; ++i)
         {
             char temp[1024];
-            strcpy(temp, fname.c_str());
+            strncpy(temp, fname.c_str(), 1024);
             temp[fname.length()-4] = 0;
             char groupFileName[1024];
             sprintf(groupFileName, "%s_%03u.wmo", temp, i);
@@ -300,7 +300,9 @@ bool processArgv(int argc, char ** argv, const char *versionString)
             if((i+1)<argc)
             {
                 hasInputPathParam = true;
-                strcpy(input_path, argv[i+1]);
+                strncpy(input_path, argv[i + 1], sizeof(input_path));
+                input_path[sizeof(input_path) - 1] = '\0';
+
                 if (input_path[strlen(input_path) - 1] != '\\' && input_path[strlen(input_path) - 1] != '/')
                     strcat(input_path, "/");
                 ++i;
@@ -417,7 +419,19 @@ int main(int argc, char ** argv)
         for (unsigned int x = 0; x < map_count; ++x)
         {
             map_ids[x].id = dbc->getRecord(x).getUInt(0);
-            strcpy(map_ids[x].name, dbc->getRecord(x).getString(1));
+
+            const char* map_name = dbc->getRecord(x).getString(1);
+            size_t max_map_name_length = sizeof(map_ids[x].name);
+            if (strlen(map_name) >= max_map_name_length)
+            {
+                delete dbc;
+                delete[] map_ids;
+                printf("FATAL ERROR: Map name too long.\n");
+                return 1;
+            }
+
+            strncpy(map_ids[x].name, map_name, max_map_name_length);
+            map_ids[x].name[max_map_name_length - 1] = '\0';
             printf("Map - %s\n", map_ids[x].name);
         }
 
