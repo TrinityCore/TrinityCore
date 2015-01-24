@@ -1642,7 +1642,7 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo) const
 
 bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
-    SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID());
+    SpellEffectInfo const* effect = spellInfo->GetEffect(this, index);
     if (!effect)
         return true;
     if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (effect->Mechanic - 1)))
