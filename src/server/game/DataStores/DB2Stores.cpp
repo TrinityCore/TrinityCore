@@ -29,11 +29,13 @@ DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
 DB2Storage<ItemEntry>                       sItemStore(Itemfmt);
 DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceEntryfmt);
 DB2Storage<ItemBonusEntry>                  sItemBonusStore(ItemBonusEntryfmt);
+DB2Storage<ItemBonusTreeNodeEntry>          sItemBonusTreeNodeStore(ItemBonusTreeNodeEntryfmt);
 DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectEntryfmt);
 DB2Storage<ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore(ItemModifiedAppearanceEntryfmt);
 DB2Storage<ItemSparseEntry>                 sItemSparseStore(ItemSparsefmt);
+DB2Storage<ItemXBonusTreeEntry>             sItemXBonusTreeStore(ItemXBonusTreeEntryfmt);
 DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainfmt);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore(OverrideSpellDataEntryfmt);
 DB2Storage<PhaseGroupEntry>                 sPhaseGroupStore(PhaseGroupEntryfmt);
@@ -127,11 +129,13 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sItemStore,                 db2Path,    "Item.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sItemAppearanceStore,       db2Path,    "ItemAppearance.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sItemBonusStore,            db2Path,    "ItemBonus.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, sItemBonusTreeNodeStore,    db2Path,    "ItemBonusTreeNode.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sItemCurrencyCostStore,     db2Path,    "ItemCurrencyCost.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sItemExtendedCostStore,     db2Path,    "ItemExtendedCost.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sItemEffectStore,           db2Path,    "ItemEffect.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sItemModifiedAppearanceStore, db2Path,  "ItemModifiedAppearance.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sItemSparseStore,           db2Path,    "Item-sparse.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, sItemXBonusTreeStore,       db2Path,    "ItemXBonusTree.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sKeyChainStore,             db2Path,    "KeyChain.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sOverrideSpellDataStore,    db2Path,    "OverrideSpellData.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, sPhaseGroupStore,           db2Path,    "PhaseXPhaseGroup.db2");
@@ -151,10 +155,27 @@ void DB2Manager::LoadStores(std::string const& dataPath)
         if (ItemBonusEntry const* bonus = sItemBonusStore.LookupEntry(i))
             _itemBonusLists[bonus->BonusListID].push_back(bonus);
 
+    for (uint32 i = 0; i < sItemBonusTreeNodeStore.GetNumRows(); ++i)
+    {
+        if (ItemBonusTreeNodeEntry const* bonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(i))
+        {
+            uint32 bonusTreeId = bonusTreeNode->BonusTreeID;
+            while (bonusTreeNode)
+            {
+                _itemBonusTrees[bonusTreeId].insert(bonusTreeNode);
+                bonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(bonusTreeNode->SubTreeID);
+            }
+        }
+    }
+
     for (uint32 i = 0; i < sItemModifiedAppearanceStore.GetNumRows(); ++i)
         if (ItemModifiedAppearanceEntry const* appearanceMod = sItemModifiedAppearanceStore.LookupEntry(i))
             if (ItemAppearanceEntry const* appearance = sItemAppearanceStore.LookupEntry(appearanceMod->AppearanceID))
                 _itemDisplayIDs[appearanceMod->ItemID | (appearanceMod->AppearanceModID << 24)] = appearance->DisplayID;
+
+    for (uint32 i = 0; i < sItemXBonusTreeStore.GetNumRows(); ++i)
+        if (ItemXBonusTreeEntry const* itemBonusTreeAssignment = sItemXBonusTreeStore.LookupEntry(i))
+            _itemToBonusTree.insert({ itemBonusTreeAssignment->ItemID, itemBonusTreeAssignment->BonusTreeID });
 
     {
         std::set<uint32> scalingCurves;
@@ -393,6 +414,27 @@ uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const
     }
 
     return 0;
+}
+
+std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const
+{
+    std::set<uint32> bonusListIDs;
+    auto itemIdRange = _itemToBonusTree.equal_range(itemId);
+    if (itemIdRange.first == itemIdRange.second)
+        return bonusListIDs;
+
+    for (auto itemTreeItr = itemIdRange.first; itemTreeItr != itemIdRange.second; ++itemTreeItr)
+    {
+        auto treeItr = _itemBonusTrees.find(itemTreeItr->second);
+        if (treeItr == _itemBonusTrees.end())
+            continue;
+
+        for (ItemBonusTreeNodeEntry const* bonusTreeNode : treeItr->second)
+            if (bonusTreeNode->BonusTreeModID == itemBonusTreeMod)
+                bonusListIDs.insert(bonusTreeNode->BonusListID);
+    }
+
+    return bonusListIDs;
 }
 
 DB2Manager::ItemBonusList DB2Manager::GetItemBonusList(uint32 bonusListId) const

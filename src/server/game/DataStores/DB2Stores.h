@@ -69,6 +69,8 @@ public:
     typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, uint32> ItemDisplayIdContainer;
     typedef std::vector<ItemBonusEntry const*> ItemBonusList;
     typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
+    typedef std::unordered_multimap<uint32 /*itemId*/, uint32 /*bonusTreeId*/> ItemToBonusTreeContainer;
+    typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
     typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
 
     static DB2Manager& Instance()
@@ -87,6 +89,7 @@ public:
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
     uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level) const;
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
+    std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     ItemBonusList GetItemBonusList(uint32 bonusListId) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
 
@@ -97,6 +100,8 @@ private:
     HeirloomCurvesContainer _heirloomCurvePoints;
     ItemDisplayIdContainer _itemDisplayIDs;
     ItemBonusListContainer _itemBonusLists;
+    ItemToBonusTreeContainer _itemToBonusTree;
+    ItemBonusTreeContainer _itemBonusTrees;
     PhaseGroupContainer _phasesByGroup;
 };
 

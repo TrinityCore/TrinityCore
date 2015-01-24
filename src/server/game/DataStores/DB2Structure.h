@@ -99,6 +99,15 @@ struct ItemBonusEntry
     uint32      Index;                                              // 5
 };
 
+struct ItemBonusTreeNodeEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      BonusTreeID;                                        // 1
+    uint32      BonusTreeModID;                                     // 2
+    uint32      SubTreeID;                                          // 3
+    uint32      BonusListID;                                        // 4
+};
+
 struct ItemCurrencyCostEntry
 {
     //uint32    ID;                                                 // 0
@@ -213,6 +222,13 @@ struct ItemSparseEntry
     uint32      CurrencySubstitutionID;                             // 99
     uint32      CurrencySubstitutionCount;                          // 100
     uint32      ItemNameDescriptionID;                              // 101
+};
+
+struct ItemXBonusTreeEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      ItemID;                                             // 1
+    uint32      BonusTreeID;                                        // 2
 };
 
 #define KEYCHAIN_SIZE   32

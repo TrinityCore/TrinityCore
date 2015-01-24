@@ -574,7 +574,7 @@ public:
     SpellEffectInfoVector GetEffectsForDifficulty(uint32 difficulty) const;
     SpellEffectInfo const* GetEffect(uint32 difficulty, uint32 index) const;
     SpellEffectInfo const* GetEffect(uint32 index) const { return GetEffect(DIFFICULTY_NONE, index); }
-    SpellEffectInfo const* GetEffect(WorldObject* obj, uint32 index) const { return GetEffect(obj->GetMap()->GetDifficultyID(), index); }
+    SpellEffectInfo const* GetEffect(WorldObject const* obj, uint32 index) const { return GetEffect(obj->GetMap()->GetDifficultyID(), index); }
 
     SpellEffectInfoMap _effects;
 };

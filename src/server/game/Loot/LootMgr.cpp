@@ -419,6 +419,12 @@ void LootItem::BuildItemInstance(WorldPackets::Item::ItemInstance& instance) con
     instance.ItemID = itemid;
     instance.RandomPropertiesSeed = randomSuffix;
     instance.RandomPropertiesID = randomPropertyId;
+    if (!BonusListIDs.empty())
+    {
+        WorldPackets::Item::ItemBonusInstanceData bonusData;
+        instance.ItemBonus.Value.BonusListIDs = BonusListIDs;
+        instance.ItemBonus.HasValue = true;
+    }
 }
 
 //
@@ -442,6 +448,12 @@ void Loot::AddItem(LootStoreItem const& item)
     {
         LootItem generatedLoot(item);
         generatedLoot.count = std::min(count, proto->GetMaxStackSize());
+        if (_difficultyBonusTreeMod)
+        {
+            std::set<uint32> bonusListIDs = sDB2Manager.GetItemBonusTree(generatedLoot.itemid, _difficultyBonusTreeMod);
+            generatedLoot.BonusListIDs.insert(generatedLoot.BonusListIDs.end(), bonusListIDs.begin(), bonusListIDs.end());
+        }
+
         lootItems.push_back(generatedLoot);
         count -= proto->GetMaxStackSize();
 
@@ -468,6 +480,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
             TC_LOG_ERROR("sql.sql", "Table '%s' loot id #%u used but it doesn't have records.", store.GetName(), lootId);
         return false;
     }
+
+    _difficultyBonusTreeMod = lootOwner->GetMap()->GetDifficultyLootBonusTreeMod();
 
     items.reserve(MAX_NR_LOOT_ITEMS);
     quest_items.reserve(MAX_NR_QUEST_ITEMS);
