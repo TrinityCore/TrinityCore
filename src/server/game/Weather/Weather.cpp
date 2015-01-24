@@ -41,10 +41,6 @@ Weather::Weather(uint32 zone, WeatherData const* weatherChances)
     TC_LOG_INFO("misc", "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
 }
 
-Weather::~Weather()
-{
-};
-
 /// Launch a weather update
 bool Weather::Update(uint32 diff)
 {

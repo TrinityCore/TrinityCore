@@ -907,7 +907,6 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
     }
 #endif
 
-    /// @todo 100 is a funny magic number to have hanging around here...
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, DIALOG_STATUS_SCRIPTED_NO_STATUS);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->GetDialogStatus(player, creature);
@@ -1511,6 +1510,8 @@ void ScriptMgr::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)
 void ScriptMgr::OnPlayerLogin(Player* player, bool firstLogin)
 {
 #ifdef ELUNA
+    if (firstLogin)
+        sEluna->OnFirstLogin(player);
     sEluna->OnLogin(player);
 #endif
     FOREACH_SCRIPT(PlayerScript)->OnLogin(player, firstLogin);

@@ -96,7 +96,11 @@ struct AuctionEntry
 class AuctionHouseObject
 {
   public:
-      ~AuctionHouseObject();
+    ~AuctionHouseObject()
+    {
+        for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
+            delete itr->second;
+    }
 
     typedef std::map<uint32, AuctionEntry*> AuctionEntryMap;
 

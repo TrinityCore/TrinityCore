@@ -968,10 +968,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SendTalentsInfoData(false);              // original talents send already in to SendInitialPacketsBeforeAddToMap, resend reset state
         SendNotification(LANG_RESET_TALENTS);
     }
-#ifdef ELUNA
-    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
-        sEluna->OnFirstLogin(pCurrChar);
-#endif
 
     bool firstLogin = pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST);
     if (firstLogin)
