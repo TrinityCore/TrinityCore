@@ -27229,7 +27229,7 @@ Difficulty Player::CheckLoadedRaidDifficultyID(Difficulty difficulty)
     if (!difficultyEntry)
         return DIFFICULTY_NORMAL_RAID;
 
-    if (difficultyEntry->InstanceType != MAP_INSTANCE)
+    if (difficultyEntry->InstanceType != MAP_RAID)
         return DIFFICULTY_NORMAL_RAID;
 
     if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || (difficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
@@ -27244,7 +27244,7 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
     if (!difficultyEntry)
         return DIFFICULTY_10_N;
 
-    if (difficultyEntry->InstanceType != MAP_INSTANCE)
+    if (difficultyEntry->InstanceType != MAP_RAID)
         return DIFFICULTY_10_N;
 
     if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || !(difficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
