@@ -111,7 +111,8 @@ bool IsInterestingChunk(u_map_fcc const& fcc)
 void ChunkedFile::parseChunks()
 {
     uint8* ptr = GetData();
-    while (ptr < GetData() + GetDataSize())
+    // Make sure there's enough data to read u_map_fcc struct and the uint32 size after it
+    while (ptr <= GetData() + GetDataSize() - 8)
     {
         u_map_fcc header = *(u_map_fcc*)ptr;
         if (IsInterestingChunk(header))
