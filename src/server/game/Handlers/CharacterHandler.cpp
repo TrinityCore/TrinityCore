@@ -1093,7 +1093,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_ATWAR");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_AT_WAR");
 
     uint32 repListID;
     uint8  flag;

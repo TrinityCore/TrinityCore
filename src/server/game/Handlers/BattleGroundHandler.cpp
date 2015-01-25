@@ -599,7 +599,7 @@ void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& /*recvData*/)
     _player->LeaveBattleground();
 }
 
-void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 {
     // empty opcode
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_STATUS Message");

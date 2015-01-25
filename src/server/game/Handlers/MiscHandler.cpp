@@ -1264,7 +1264,7 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player)
     {
-        TC_LOG_DEBUG("network", "CMSG_INSPECT_HONOR_STATS: No player found from %s", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "CMSG_REQUEST_HONOR_STATS: No player found from %s", guid.ToString().c_str());
         return;
     }
 
@@ -1784,7 +1784,7 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
 {
     ObjectGuid guid = _player->GetGUID();
 
-    WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
+    WorldPacket data(SMSG_SET_PHASE_SHIFT_CHANGE, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[3]);
     data.WriteBit(guid[1]);

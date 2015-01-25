@@ -621,7 +621,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    WorldPacket data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4+4+4));
+    WorldPacket data(SMSG_AUCTION_LIST_BIDDER_ITEMS_RESULT, (4+4+4));
     Player* player = GetPlayer();
     data << uint32(0);                                     //add 0 as count
     uint32 count = 0;
@@ -670,7 +670,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket& recvData)
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    WorldPacket data(SMSG_AUCTION_OWNER_LIST_RESULT, (4+4+4));
+    WorldPacket data(SMSG_AUCTION_LIST_OWNER_ITEMS_RESULT, (4+4+4));
     data << uint32(0);                                     // amount place holder
 
     uint32 count = 0;

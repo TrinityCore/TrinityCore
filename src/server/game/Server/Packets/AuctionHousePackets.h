@@ -38,7 +38,7 @@ namespace WorldPackets
         class AuctionHelloResponse final : public ServerPacket
         {
         public:
-            AuctionHelloResponse() : ServerPacket(SMSG_AUCTION_HELLO, 1 + 16) { }
+            AuctionHelloResponse() : ServerPacket(SMSG_AUCTION_HELLO_RESPONSE, 1 + 16) { }
 
             WorldPacket const* Write() override;
 
