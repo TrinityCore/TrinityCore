@@ -15892,8 +15892,8 @@ bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
 
     static OpcodeServer const gravityOpcodeTable[2][2] =
     {
-        {SMSG_MOVE_SPLINE_ENABLE_GRAVITY,   SMSG_MOVE_GRAVITY_ENABLE    },
-        {SMSG_MOVE_SPLINE_DISABLE_GRAVITY,  SMSG_MOVE_GRAVITY_DISABLE   }
+        { SMSG_MOVE_SPLINE_ENABLE_GRAVITY,  SMSG_MOVE_ENABLE_GRAVITY  },
+        { SMSG_MOVE_SPLINE_DISABLE_GRAVITY, SMSG_MOVE_DISABLE_GRAVITY }
     };
 
     bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;

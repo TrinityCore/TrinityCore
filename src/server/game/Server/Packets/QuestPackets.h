@@ -184,7 +184,7 @@ namespace WorldPackets
         class QuestUpdateAddCredit final : public ServerPacket
         {
         public:
-            QuestUpdateAddCredit() : ServerPacket(SMSG_QUESTUPDATE_ADD_KILL, 16+4+4+2+2+1) { }
+            QuestUpdateAddCredit() : ServerPacket(SMSG_QUEST_UPDATE_ADD_CREDIT, 16+4+4+2+2+1) { }
 
             WorldPacket const* Write() override;
 

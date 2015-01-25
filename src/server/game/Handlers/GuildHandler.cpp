@@ -59,7 +59,7 @@ void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
             guild->HandleInviteMember(this, invitedName);
 }
 
-void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildOfficerRemoveMemberOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid playerGuid;
 
@@ -81,7 +81,7 @@ void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(playerGuid[3]);
     recvPacket.ReadByteSeq(playerGuid[0]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_REMOVE [%s]: Target: %s", GetPlayerInfo().c_str(), playerGuid.ToString().c_str());
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_OFFICER_REMOVE_MEMBER [%s]: Target: %s", GetPlayerInfo().c_str(), playerGuid.ToString().c_str());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRemoveMember(this, playerGuid);
@@ -278,7 +278,7 @@ void WorldSession::HandleGuildSetNoteOpcode(WorldPacket& recvPacket)
         guild->HandleSetMemberNote(this, note, playerGuid, ispublic);
 }
 
-void WorldSession::HandleGuildQueryRanksOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildGetRanksOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guildGuid;
 
@@ -300,7 +300,7 @@ void WorldSession::HandleGuildQueryRanksOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guildGuid[6]);
     recvPacket.ReadByteSeq(guildGuid[2]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_QUERY_RANKS [%s]: Guild: %s",
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_GET_RANKS [%s]: Guild: %s",
         GetPlayerInfo().c_str(), guildGuid.ToString().c_str());
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
@@ -322,12 +322,12 @@ void WorldSession::HandleGuildAddRankOpcode(WorldPacket& recvPacket)
         guild->HandleAddNewRank(this, rankName);
 }
 
-void WorldSession::HandleGuildDelRankOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildDeleteRankOpcode(WorldPacket& recvPacket)
 {
     uint32 rankId;
     recvPacket >> rankId;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_DEL_RANK [%s]: Rank: %u", GetPlayerInfo().c_str(), rankId);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_DELETE_RANK [%s]: Rank: %u", GetPlayerInfo().c_str(), rankId);
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRemoveRank(this, rankId);

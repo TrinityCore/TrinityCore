@@ -1249,7 +1249,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_SELF_RES:                             //   0               1.5
         case CMSG_UNLEARN_SKILL:                        //   0               1.5
         case CMSG_EQUIPMENT_SET_SAVE:                   //   0               1.5
-        case CMSG_EQUIPMENT_SET_DELETE:                 //   0               1.5
+        case CMSG_DELETE_EQUIPMENT_SET:                 //   0               1.5
         //case CMSG_DISMISS_CRITTER:                      //   0               1.5
         case CMSG_REPOP_REQUEST:                        //   0               1.5
         //case CMSG_GROUP_INVITE:                         //   0               1.5
@@ -1400,7 +1400,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         //case CMSG_GUILD_MOTD:                           // not profiled
         case CMSG_GUILD_SET_RANK_PERMISSIONS:           // not profiled
         case CMSG_GUILD_ADD_RANK:                       // not profiled
-        case CMSG_GUILD_DEL_RANK:                       // not profiled
+        case CMSG_GUILD_DELETE_RANK:                    // not profiled
         case CMSG_GUILD_UPDATE_INFO_TEXT:                 // not profiled
         case CMSG_GUILD_BANK_DEPOSIT_MONEY:             // not profiled
         //case CMSG_GUILD_BANK_WITHDRAW_MONEY:            // not profiled
@@ -1413,7 +1413,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_SET_DUNGEON_DIFFICULTY:               // not profiled
         case CMSG_SET_RAID_DIFFICULTY:                  // not profiled
         //case MSG_PARTY_ASSIGNMENT:                      // not profiled
-        //case MSG_RAID_READY_CHECK:                      // not profiled
+        //case CMSG_DO_READY_CHECK:                       // not profiled
         {
             maxPacketCounterAllowed = 3;
             break;

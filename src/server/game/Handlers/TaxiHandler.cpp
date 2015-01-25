@@ -103,7 +103,7 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 
     TC_LOG_DEBUG("network", "WORLD: CMSG_TAXINODE_STATUS_QUERY %u ", curloc);
 
-    WorldPacket data(SMSG_SHOWTAXINODES, (4 + 8 + 4 + 8 * 4));
+    WorldPacket data(SMSG_SHOW_TAXI_NODES, (4 + 8 + 4 + 8 * 4));
     data << uint32(1);
     data << unit->GetGUID();
     data << uint32(curloc);

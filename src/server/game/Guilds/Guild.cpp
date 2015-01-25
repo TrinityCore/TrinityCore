@@ -1366,7 +1366,7 @@ bool Guild::SetName(std::string const& name)
     CharacterDatabase.Execute(stmt);
 
     ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_GUILD_RENAMED, 24 + 8 + 1);
+    WorldPacket data(SMSG_GUILD_NAME_CHANGED, 24 + 8 + 1);
     data.WriteBit(guid[5]);
     data.WriteBits(name.length(), 8);
     data.WriteBit(guid[4]);
@@ -1507,7 +1507,7 @@ void Guild::SendQueryResponse(WorldSession* session)
 void Guild::SendGuildRankInfo(WorldSession* session) const
 {
     ByteBuffer rankData(100);
-    WorldPacket data(SMSG_GUILD_RANK, 100);
+    WorldPacket data(SMSG_GUILD_RANKS, 100);
 
     data.WriteBits(_GetRanksSize(), 18);
 
@@ -3493,7 +3493,7 @@ void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, u
     Member* member = GetMember(targetGuid);
     ASSERT(member);
 
-    WorldPacket data(SMSG_GUILD_RANKS_UPDATE, 100);
+    WorldPacket data(SMSG_GUILD_SEND_RANK_CHANGE, 100);
     data.WriteBit(setterGuid[7]);
     data.WriteBit(setterGuid[2]);
     data.WriteBit(targetGuid[2]);

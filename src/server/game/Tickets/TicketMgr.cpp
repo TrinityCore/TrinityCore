@@ -139,7 +139,7 @@ void GmTicket::WritePacket(WorldPacket& data) const
 
 void GmTicket::SendResponse(WorldSession* session) const
 {
-    WorldPacket data(SMSG_GMRESPONSE_RECEIVED);
+    WorldPacket data(SMSG_GM_TICKET_RESPONSE);
     data << uint32(1);          // responseID
     data << uint32(_id);        // ticketID
     data << _message.c_str();
@@ -408,7 +408,7 @@ void TicketMgr::ShowEscalatedList(ChatHandler& handler) const
 
 void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
 {
-    WorldPacket data(SMSG_GMTICKET_GETTICKET, (ticket ? (4 + 4 + 1 + 4 + 4 + 4 + 1 + 1) : 4));
+    WorldPacket data(SMSG_GM_TICKET_GET_TICKET_RESPONSE, (ticket ? (4 + 4 + 1 + 4 + 4 + 4 + 1 + 1) : 4));
 
     if (ticket)
         ticket->WritePacket(data);

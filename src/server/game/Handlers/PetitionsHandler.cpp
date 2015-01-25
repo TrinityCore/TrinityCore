@@ -921,7 +921,7 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
         return;
     }
 
-    WorldPacket data(SMSG_PETITION_SHOWLIST, 8+1+4*6);
+    WorldPacket data(SMSG_PETITION_SHOW_LIST, 8+1+4*6);
     data << guid;                                           // npc guid
 
     if (creature->IsTabardDesigner())
