@@ -67,9 +67,6 @@ bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredT
 
 void Zone2MapCoordinates(float &x, float &y, uint32 zone);
 void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
-uint32 GetClassBySkillId(uint32 skillId);
-uint32 GetSkillIdByClass(uint32 classId);
-std::list<uint32> GetSpellsForLevels(uint32 classId, uint32 raceMask, uint32 specializationId, uint32 minLevel, uint32 maxLevel);
 
 typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyMap;
 MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapID);
