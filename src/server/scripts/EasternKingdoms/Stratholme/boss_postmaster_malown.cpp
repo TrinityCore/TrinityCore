@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,7 +55,8 @@ enum Events
 
 class boss_postmaster_malown : public CreatureScript
 {
-    public: boss_postmaster_malown() : CreatureScript("boss_postmaster_malown") { }
+    public:
+        boss_postmaster_malown() : CreatureScript("boss_postmaster_malown") { }
 
         struct boss_postmaster_malownAI : public BossAI
         {
@@ -120,13 +121,14 @@ class boss_postmaster_malown : public CreatureScript
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_postmaster_malownAI(creature);
+            return GetInstanceAI<boss_postmaster_malownAI>(creature);
         }
 };
 
