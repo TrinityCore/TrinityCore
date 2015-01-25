@@ -21,6 +21,8 @@
 
 #define DataHeader "BFD"
 
+uint32 const EncounterCount = 3;
+
 enum Data64
 {
     DATA_SHRINE1,
@@ -35,10 +37,9 @@ enum Data64
 
 enum Data
 {
-    TYPE_GELIHAST,
-    TYPE_KELRIS,
-    TYPE_SHRINE,
-    TYPE_AKU_MAI,
+    DATA_GELIHAST,
+    DATA_KELRIS,
+    DATA_AKU_MAI,
     DATA_FIRE,
     DATA_EVENT
 };
