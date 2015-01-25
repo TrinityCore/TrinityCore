@@ -273,7 +273,7 @@ uint32 ReadBuild(int locale)
         exit(1);
     }
 
-    std::string text = buff;
+    std::string text = std::string(buff, readBytes);
     CascCloseFile(dbcFile);
 
     size_t pos = text.find("version=\"");
@@ -358,6 +358,7 @@ void ReadAreaTableDBC()
     size_t area_count = dbc.getRecordCount();
     maxAreaId = dbc.getMaxId();
     areas = new uint16[maxAreaId + 1];
+    memset(areas, 0xFF, sizeof(uint16) * (maxAreaId + 1));
 
     for (uint32 x = 0; x < area_count; ++x)
         areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
