@@ -2977,7 +2977,9 @@ void Player::GiveLevel(uint8 level)
 
     // Refer-A-Friend
     if (GetSession()->GetRecruiterId())
+    {
         if (level < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+        {
             if (level % 2 == 0)
             {
                 ++m_grantableLevels;
@@ -2985,12 +2987,7 @@ void Player::GiveLevel(uint8 level)
                 if (!HasByteFlag(PLAYER_FIELD_BYTES, 1, 0x01))
                     SetByteFlag(PLAYER_FIELD_BYTES, 1, 0x01);
             }
-
-    std::list<uint32> learnList = GetSpellsForLevels(getClass(), getRaceMask(), GetTalentSpec(GetActiveTalentGroup()), oldLevel, level);
-    for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
-    {
-        if (!HasSpell(*iter))
-            LearnSpell(*iter, true);
+        }
     }
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
@@ -4178,12 +4175,6 @@ bool Player::ResetTalents(bool noCost, bool resetTalents, bool resetSpecializati
 
     if (resetSpecialization)
     {
-        std::list<uint32> learnList = GetSpellsForLevels(0, getRaceMask(), GetTalentSpec(GetActiveTalentGroup()), 0, getLevel());
-        for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
-        {
-            if (HasSpell(*iter))
-                RemoveSpell(*iter, true);
-        }
         SetTalentSpec(GetActiveTalentGroup(), 0);
         SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, 0);
     }
@@ -18331,13 +18322,6 @@ void Player::_LoadSpells(PreparedQueryResult result)
             AddSpell((*result)[0].GetUInt32(), (*result)[1].GetBool(), false, false, (*result)[2].GetBool(), true);
         while (result->NextRow());
     }
-
-    std::list<uint32> learnList = GetSpellsForLevels(getClass(), getRaceMask(), GetActiveTalentSpec(), 0, getLevel());
-    for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
-    {
-        if (!HasSpell(*iter))
-            LearnSpell(*iter, true);
-    }
 }
 
 void Player::_LoadGroup(PreparedQueryResult result)
@@ -25500,13 +25484,6 @@ void Player::LearnTalentSpecialization(uint32 talentSpec)
 
     SendTalentsInfoData();
 
-    std::list<uint32> learnList = GetSpellsForLevels(0, getRaceMask(), GetActiveTalentSpec(), 0, getLevel());
-    for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
-    {
-        if (!HasSpell(*iter))
-            LearnSpell(*iter, true);
-    }
-
     SaveToDB();
 
     SendTalentsInfoData();
@@ -26070,14 +26047,6 @@ void Player::ActivateTalentGroup(uint8 group)
                 RemoveSpell(effect->TriggerSpell, true);
     }
 
-    // Unlearn specialization specific spells
-    std::list<uint32> learnList = GetSpellsForLevels(0, getRaceMask(), GetActiveTalentSpec(), 0, getLevel());
-    for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
-    {
-        if (HasSpell(*iter))
-            RemoveSpell(*iter, true);
-    }
-
     // remove glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
         // remove secondary glyph
@@ -26089,13 +26058,6 @@ void Player::ActivateTalentGroup(uint8 group)
     SetActiveTalentGroup(group);
 
     uint32 spentTalents = 0;
-
-    learnList = GetSpellsForLevels(getClass(), getRaceMask(), GetActiveTalentSpec(), 0, getLevel());
-    for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
-    {
-        if (!HasSpell(*iter))
-            LearnSpell(*iter, true);
-    }
 
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {

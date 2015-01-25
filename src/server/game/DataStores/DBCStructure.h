@@ -1584,8 +1584,6 @@ typedef std::set<uint32> SpellCategorySet;
 typedef std::map<uint32, SpellCategorySet > SpellCategoryStore;
 typedef std::set<uint32> PetFamilySpellsSet;
 typedef std::map<uint32, PetFamilySpellsSet > PetFamilySpellsStore;
-typedef std::unordered_map<uint32, std::list<SkillLineAbilityEntry const*> > SpellsPerClassStore;
-typedef std::unordered_map<uint32, uint32> ClassBySkillIdStore;
 typedef std::unordered_map<uint32, uint32> SpellEffectScallingByEffectId;
 
 struct SpellCastTimesEntry
