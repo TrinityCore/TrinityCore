@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,6 +52,11 @@ enum Data
     DATA_HORSEMEN2,
     DATA_HORSEMEN3,
     DATA_ABOMINATION_KILLED,
+
+    DATA_NAXX_PORTAL_ARACHNID,
+    DATA_NAXX_PORTAL_CONSTRUCT,
+    DATA_NAXX_PORTAL_PLAGUE,
+    DATA_NAXX_PORTAL_MILITARY
 };
 
 enum Data64
@@ -137,7 +142,13 @@ enum GameObjectsIds
     GO_CONS_EYE_RAMP_BOSS       = 181232,
     GO_CONS_NOX_TESLA_FEUGEN    = 181477,
     GO_CONS_NOX_TESLA_STALAGG   = 181478,
-    GO_BIRTH                    = 181356
+    GO_BIRTH                    = 181356,
+
+    // Teleporting pads spawned by the end of every quarter.
+    GO_NAXX_PORTAL_ARACHNID     = 181575,
+    GO_NAXX_PORTAL_CONSTRUCT    = 181576,
+    GO_NAXX_PORTAL_PLAGUE       = 181577,
+    GO_NAXX_PORTAL_MILITARY     = 181578
 };
 
 enum SpellIds

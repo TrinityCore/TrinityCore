@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,6 +39,7 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_COIL_HEAL                    = 47633,
+    SPELL_DK_DEATH_GRIP                         = 49560,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_FROST_PRESENCE                     = 48263,
@@ -1644,6 +1645,50 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
         }
 };
 
+// 49576 - Death Grip Initial
+class spell_dk_death_grip_initial : public SpellScriptLoader
+{
+public:
+    spell_dk_death_grip_initial() : SpellScriptLoader("spell_dk_death_grip_initial") { }
+
+    class spell_dk_death_grip_initial_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_death_grip_initial_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            Unit* caster = GetCaster();
+            // Death Grip should not be castable while jumping/falling
+            if (caster->HasUnitState(UNIT_STATE_JUMPING) || caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+                return SPELL_FAILED_MOVING;
+
+            // Patch 3.3.3 (2010-03-23): Minimum range has been changed to 8 yards in PvP.
+            Unit* target = GetExplTargetUnit();
+            if (target && target->GetTypeId() == TYPEID_PLAYER)
+                if (caster->GetDistance(target) < 8.f)
+                    return SPELL_FAILED_TOO_CLOSE;
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_DEATH_GRIP, true);
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_dk_death_grip_initial_SpellScript::CheckCast);
+            OnEffectHitTarget += SpellEffectFn(spell_dk_death_grip_initial_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_dk_death_grip_initial_SpellScript();
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1673,4 +1718,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_spell_deflection();
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
+    new spell_dk_death_grip_initial();
 }
