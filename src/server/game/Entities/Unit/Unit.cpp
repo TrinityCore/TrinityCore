@@ -10918,8 +10918,8 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
         if (!i->hitTime)
             return DIMINISHING_LEVEL_1;
 
-        // If last spell was cast more than 15 seconds ago - reset the count.
-        if (i->stack == 0 && getMSTimeDiff(i->hitTime, getMSTime()) > 15000)
+        // If last spell was cast more than 18 seconds ago - reset the count.
+        if (i->stack == 0 && getMSTimeDiff(i->hitTime, getMSTime()) > 18 * IN_MILLISECONDS)
         {
             i->hitCount = DIMINISHING_LEVEL_1;
             return DIMINISHING_LEVEL_1;
@@ -10951,53 +10951,74 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
         return 1.0f;
 
     // test pet/charm masters instead pets/charmeds
-    Unit const* tarGetOwner = GetCharmerOrOwner();
+    Unit const* targetOwner = GetCharmerOrOwner();
     Unit const* casterOwner = caster->GetCharmerOrOwner();
 
-    // Duration of crowd control abilities on pvp target is limited by 10 sec. (2.2.0)
     if (limitduration > 0 && duration > limitduration)
     {
-        Unit const* target = tarGetOwner ? tarGetOwner : this;
+        Unit const* target = targetOwner ? targetOwner : this;
         Unit const* source = casterOwner ? casterOwner : caster;
 
         if ((target->GetTypeId() == TYPEID_PLAYER
-            || target->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH)
+            || (target->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))
             && source->GetTypeId() == TYPEID_PLAYER)
             duration = limitduration;
     }
 
     float mod = 1.0f;
 
-    if (group == DIMINISHING_TAUNT)
+    switch (group)
     {
-        if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TAUNT_DIMINISH))
+        case DIMINISHING_TAUNT:
         {
-            DiminishingLevels diminish = Level;
-            switch (diminish)
+            if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TAUNT_DIMINISH))
             {
-                case DIMINISHING_LEVEL_1: break;
-                case DIMINISHING_LEVEL_2: mod = 0.65f; break;
-                case DIMINISHING_LEVEL_3: mod = 0.4225f; break;
-                case DIMINISHING_LEVEL_4: mod = 0.274625f; break;
-                case DIMINISHING_LEVEL_TAUNT_IMMUNE: mod = 0.0f; break;
-                default: break;
+                DiminishingLevels diminish = Level;
+                switch (diminish)
+                {
+                    case DIMINISHING_LEVEL_1: break;
+                    case DIMINISHING_LEVEL_2: mod = 0.65f; break;
+                    case DIMINISHING_LEVEL_3: mod = 0.4225f; break;
+                    case DIMINISHING_LEVEL_4: mod = 0.274625f; break;
+                    case DIMINISHING_LEVEL_TAUNT_IMMUNE: mod = 0.0f; break;
+                    default: break;
+                }
             }
+            break;
         }
-    }
-    // Some diminishings applies to mobs too (for example, Stun)
-    else if ((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER
-        && ((tarGetOwner ? (tarGetOwner->GetTypeId() == TYPEID_PLAYER) : (GetTypeId() == TYPEID_PLAYER))
-        || (GetTypeId() == TYPEID_UNIT && ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH)))
-        || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
-    {
-        DiminishingLevels diminish = Level;
-        switch (diminish)
+        case DIMINISHING_AOE_KNOCKBACK:
         {
-            case DIMINISHING_LEVEL_1: break;
-            case DIMINISHING_LEVEL_2: mod = 0.5f; break;
-            case DIMINISHING_LEVEL_3: mod = 0.25f; break;
-            case DIMINISHING_LEVEL_IMMUNE: mod = 0.0f; break;
-            default: break;
+            if ((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
+                || (ToCreature() && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))))
+                || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
+            {
+                DiminishingLevels diminish = Level;
+                switch (diminish)
+                {
+                    case DIMINISHING_LEVEL_1: break;
+                    case DIMINISHING_LEVEL_2: mod = 0.0f; break;
+                    default: break;
+                }
+            }
+            break;
+        }
+        default:
+        {
+            if ((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
+                || (ToCreature() && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))))
+                || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
+            {
+                DiminishingLevels diminish = Level;
+                switch (diminish)
+                {
+                    case DIMINISHING_LEVEL_1: break;
+                    case DIMINISHING_LEVEL_2: mod = 0.5f; break;
+                    case DIMINISHING_LEVEL_3: mod = 0.25f; break;
+                    case DIMINISHING_LEVEL_IMMUNE: mod = 0.0f; break;
+                    default: break;
+                }
+            }
+            break;
         }
     }
 

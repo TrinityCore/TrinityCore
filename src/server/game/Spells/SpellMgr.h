@@ -583,11 +583,10 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
 // spell diminishing returns
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, bool triggered);
+DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto);
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
-int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
-bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
+int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
 
 class SpellMgr
 {
