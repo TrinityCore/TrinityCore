@@ -122,6 +122,13 @@ void AutoEquipItem::Read()
     _worldPacket >> Slot;
 }
 
+void AutoStoreBagItem::Read()
+{
+    _worldPacket >> ContainerSlotA;
+    _worldPacket >> SlotA;
+    _worldPacket >> ContainerSlotB;
+}
+
 void DestroyItem::Read()
 {
     _worldPacket >> ContainerId;

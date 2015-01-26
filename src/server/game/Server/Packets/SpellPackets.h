@@ -32,7 +32,7 @@ namespace WorldPackets
         class CancelAura final : public ClientPacket
         {
         public:
-            CancelAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AURA, std::move(packet)) { }
+            explicit CancelAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AURA, std::move(packet)) { }
 
             void Read() override;
 

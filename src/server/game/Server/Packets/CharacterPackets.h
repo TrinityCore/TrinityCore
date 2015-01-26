@@ -28,6 +28,14 @@ namespace WorldPackets
 {
     namespace Character
     {
+        class EnumCharacters final : public ClientPacket
+        {
+        public:
+            explicit EnumCharacters(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_ENUM, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         struct CharacterCreateInfo
         {
             /// User specified variables

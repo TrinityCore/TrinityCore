@@ -657,42 +657,39 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
     SendPacket(packet.Write());
 }
 
-void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet)
 {
-    //TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOSTORE_BAG_ITEM");
-    uint8 srcbag, srcslot, dstbag;
+    TC_LOG_DEBUG("network", "HandleAutoStoreBagItemOpcode: receive ContainerSlotA: {}, SlotA: {}, ContainerSlotB: {}",
+        packet.ContainerSlotA, packet.SlotA, packet.ContainerSlotB);
 
-    recvData >> srcbag >> srcslot >> dstbag;
-    //TC_LOG_DEBUG("STORAGE: receive srcbag = {}, srcslot = {}, dstbag = {}", srcbag, srcslot, dstbag);
-
-    Item* pItem = _player->GetItemByPos(srcbag, srcslot);
-    if (!pItem)
+    Item* item = _player->GetItemByPos(packet.ContainerSlotA, packet.SlotA);
+    if (!item)
         return;
 
-    if (!_player->IsValidPos(dstbag, NULL_SLOT, false))      // can be autostore pos
+    if (!_player->IsValidPos(packet.ContainerSlotB, NULL_SLOT, false))      // can be autostore pos
     {
-        _player->SendEquipError(EQUIP_ERR_WRONG_SLOT, nullptr, nullptr);
+        _player->SendEquipError(EQUIP_ERR_WRONG_SLOT);
         return;
     }
 
-    uint16 src = pItem->GetPos();
+    uint16 src = item->GetPos();
 
     // check unequip potability for equipped items and bank bags
-    if (_player->IsEquipmentPos (src) || _player->IsBagPos (src))
+    if (_player->IsEquipmentPos(src) || _player->IsBagPos(src))
     {
-        InventoryResult msg = _player->CanUnequipItem(src, !_player->IsBagPos (src));
+        InventoryResult msg = _player->CanUnequipItem(src, !_player->IsBagPos(src));
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, nullptr);
+            _player->SendEquipError(msg, item);
             return;
         }
     }
 
     ItemPosCountVec dest;
-    InventoryResult msg = _player->CanStoreItem(dstbag, NULL_SLOT, dest, pItem, false);
+    InventoryResult msg = _player->CanStoreItem(packet.ContainerSlotB, NULL_SLOT, dest, item, false);
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendEquipError(msg, pItem, nullptr);
+        _player->SendEquipError(msg, item);
         return;
     }
 
@@ -700,12 +697,12 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
     if (dest.size() == 1 && dest[0].pos == src)
     {
         // just remove grey item state
-        _player->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, pItem, nullptr);
+        _player->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, item);
         return;
     }
 
-    _player->RemoveItem(srcbag, srcslot, true);
-    _player->StoreItem(dest, pItem, true);
+    _player->RemoveItem(packet.ContainerSlotA, packet.SlotA, true);
+    _player->StoreItem(dest, item, true);
 }
 
 void WorldSession::HandleSetAmmoOpcode(WorldPacket& recvData)
