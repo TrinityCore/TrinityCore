@@ -8579,7 +8579,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             {
                                 crit_chance *= 1.5f;
                                 if (AuraEffect const* eff = (*i)->GetBase()->GetEffect(EFFECT_1))
-                                    crit_chance += (*i)->GetAmount();
+                                    crit_chance += eff->GetAmount();
                             }
                             break;
                         case 7917: // Glyph of Shadowburn

@@ -168,7 +168,6 @@ enum OpcodeClient : uint32
     CMSG_CAST_SPELL                                   = 0x08FE,
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0x0E66,
     CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS             = 0x0E78,
-    CMSG_CHANGEPLAYER_DIFFICULTY                      = 0xBADD,
     CMSG_CHANGE_BAG_SLOT_FLAG                         = 0x1959,
     CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE           = 0xBADD,
     CMSG_CHANGE_SUB_GROUP                             = 0x0BA4,
@@ -281,6 +280,7 @@ enum OpcodeClient : uint32
     CMSG_GET_MIRROR_IMAGE_DATA                        = 0x08F6,
     CMSG_GET_SHIPMENT_INFO                            = 0x06E3,
     CMSG_GET_TROPHY_LIST                              = 0x13B1,
+    CMSG_GET_UNDELETE_COOLDOWN_STATUS                 = 0x19A9,
     CMSG_GHOST                                        = 0xBADD,
     CMSG_GMRESPONSE_RESOLVE                           = 0xBADD,
     CMSG_GMSURVEY_SUBMIT                              = 0xBADD,
@@ -757,9 +757,9 @@ enum OpcodeClient : uint32
     CMSG_TROPHY_MONUMENT_LOAD_SELECTED_TROPHY_ID      = 0x03DE,
     CMSG_TURN_IN_PETITION                             = 0x1C89,
     CMSG_TUTORIAL_FLAG                                = 0x0B16,
+    CMSG_UI_TIME_REQUEST                              = 0x0302,
     CMSG_UNACCEPT_TRADE                               = 0x13BA,
     CMSG_UNDELETE_CHARACTER                           = 0x0D99,
-    CMSG_UNDELETE_COOLDOWN_STATUS_QUERY               = 0x19A9,
     CMSG_UNLEARN_SKILL                                = 0x0A26,
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0x082A,
     CMSG_UPDATE_ACCOUNT_DATA                          = 0x12A1,
@@ -783,7 +783,6 @@ enum OpcodeClient : uint32
     CMSG_WARGAME_START                                = 0xBADD,
     CMSG_WHO                                          = 0x1322,
     CMSG_WHOIS                                        = 0x011F,
-    CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0302,
     CMSG_WORLD_TELEPORT                               = 0xBADD,
     CMSG_WRAP_ITEM                                    = 0xBADD,
     CMSG_ZONEUPDATE                                   = 0xBADD,
@@ -803,8 +802,7 @@ enum OpcodeClient : uint32
     MSG_MOVE_SET_WALK_SPEED_CHEAT                     = 0xBADD,
     MSG_MOVE_TOGGLE_FALL_LOGGING                      = 0xBADD,
     MSG_MOVE_TOGGLE_LOGGING                           = 0xBADD,
-    MSG_NOTIFY_PARTY_SQUELCH                          = 0xBADD,
-    MSG_PETITION_RENAME                               = 0xBADD
+    MSG_NOTIFY_PARTY_SQUELCH                          = 0xBADD
 };
 
 // SMSGs 6.0.3.19342
@@ -885,7 +883,6 @@ enum OpcodeServer : uint32
     SMSG_BATTLEFIELD_MGR_QUEUE_INVITE                 = 0x0B32,
     SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE       = 0x0B28,
     SMSG_BATTLEFIELD_MGR_STATE_CHANGED                = 0x13C3,
-    SMSG_BATTLEFIELD_PLAYER_POSITIONS                 = 0xBADD,
     SMSG_BATTLEFIELD_PORT_DENIED                      = 0x0930,
     SMSG_BATTLEFIELD_RATED_INFO                       = 0x1F0A,
     SMSG_BATTLEFIELD_STATUS_ACTIVE                    = 0x1284,
@@ -1479,7 +1476,7 @@ enum OpcodeServer : uint32
     SMSG_PERIODICAURALOG                              = 0x0B1B,
     SMSG_PETGODMODE                                   = 0xBADD,
     SMSG_PETITION_ALREADY_SIGNED                      = 0x0D8E,
-    SMSG_PETITION_RENAME_GUILD_RESULT                 = 0x1055,
+    SMSG_PETITION_RENAME_GUILD_RESPONSE               = 0x1055,
     SMSG_PETITION_SHOW_LIST                           = 0x0915,
     SMSG_PETITION_SHOW_SIGNATURES                     = 0x0830,
     SMSG_PETITION_SIGN_RESULTS                        = 0x11E9,
@@ -1760,6 +1757,7 @@ enum OpcodeServer : uint32
     SMSG_TRIGGER_MOVIE                                = 0x151F,
     SMSG_TURN_IN_PETITION_RESULTS                     = 0x0919,
     SMSG_TUTORIAL_FLAGS                               = 0x020F,
+    SMSG_UI_TIME                                      = 0x0B83,
     SMSG_UNDELETE_CHARACTER_RESPONSE                  = 0x0344,
     SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE            = 0x0310,
     SMSG_UNIT_HEALTH_FREQUENT                         = 0xBADD,
@@ -1804,7 +1802,6 @@ enum OpcodeServer : uint32
     SMSG_WHO                                          = 0x0601,
     SMSG_WHOIS                                        = 0x1D30,
     SMSG_WORLD_SERVER_INFO                            = 0x11AC,
-    SMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0B83,
     SMSG_XP_GAIN_ABORTED                              = 0x031E,
     SMSG_XP_GAIN_ENABLED                              = 0x0FAA,
     SMSG_ZONE_UNDER_ATTACK                            = 0x1401

@@ -297,7 +297,7 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
     ObjectGuid aguid = aplr ? aplr->GetGUID() : ObjectGuid::Empty;
     ObjectGuid hguid = hplr ? hplr->GetGUID() : ObjectGuid::Empty;
 
-    WorldPacket data(SMSG_BATTLEFIELD_PLAYER_POSITIONS);
+    WorldPacket data(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
 
     data.WriteBits(acount, 22);
     for (uint8 i = 0; i < acount; i++)

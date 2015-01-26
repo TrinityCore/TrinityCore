@@ -1770,10 +1770,9 @@ void WorldSession::HandleGuildSetFocusedAchievement(WorldPackets::Achievement::G
         guild->GetAchievementMgr().SendAchievementInfo(_player, setFocusedAchievement.AchievementID);
 }
 
-void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)
+void WorldSession::HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/)
 {
-    // empty opcode
-    TC_LOG_DEBUG("network", "WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_UI_TIME_REQUEST");
 
     WorldPackets::Misc::UITime response;
     response.Time = time(NULL);

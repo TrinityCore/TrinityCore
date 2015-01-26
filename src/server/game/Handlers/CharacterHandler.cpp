@@ -314,7 +314,7 @@ void WorldSession::HandleCharUndeleteEnum(PreparedQueryResult result)
     SendPacket(charEnum.Write());
 }
 
-void WorldSession::HandleCharUndeleteEnumOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
 {
     /// get all the data necessary for loading all undeleted characters (along with their pets) on the account
     PreparedStatement* stmt = nullptr;
@@ -2290,7 +2290,7 @@ void WorldSession::HandleOpeningCinematic(WorldPacket& /*recvData*/)
     }
 }
 
-void WorldSession::HandleUndeleteCooldownStatusQuery(WorldPacket& /*recvData*/)
+void WorldSession::HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCooldownStatus& /*getCooldown*/)
 {
     /// empty result to force wait
     PreparedQueryResultPromise result;

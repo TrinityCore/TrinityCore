@@ -188,6 +188,19 @@ namespace WorldPackets
             uint8 PackSlot = 0;
         };
 
+        class AutoStoreBagItem final : public ClientPacket
+        {
+        public:
+            AutoStoreBagItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BAG_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 ContainerSlotB = 0;
+            InvUpdate Inv;
+            uint8 ContainerSlotA = 0;
+            uint8 SlotA = 0;
+        };
+
         class DestroyItem final : public ClientPacket
         {
         public:
