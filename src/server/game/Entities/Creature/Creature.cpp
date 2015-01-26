@@ -1433,7 +1433,27 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
     if (!CanCreatureAttack(who, force))
         return false;
 
+    // No aggro from gray creatures
+    if (CheckNoGrayAggroConfig(who->getLevelForTarget(this), getLevelForTarget(who)))
+        return false;
+
     return IsWithinLOSInMap(who);
+}
+
+
+bool Creature::CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const
+{
+    if (Trinity::XP::GetColorCode(playerLevel, creatureLevel) != XP_GRAY)
+        return false;
+
+    uint32 notAbove = sWorld->getIntConfig(CONFIG_NO_GRAY_AGGRO_ABOVE);
+    uint32 notBelow = sWorld->getIntConfig(CONFIG_NO_GRAY_AGGRO_BELOW);
+    if (notAbove == 0 && notBelow == 0)
+        return false;
+
+    if (playerLevel <= notBelow || (playerLevel >= notAbove && notAbove > 0))
+        return true;
+    return false;
 }
 
 float Creature::GetAttackDistance(Unit const* player) const
