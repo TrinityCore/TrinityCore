@@ -3944,11 +3944,11 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     player->Kill(player);
 
     // Stuck spell trigger Hearthstone cooldown
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(8690);
-    if (!spellInfo)
-        return;
-    Spell spell(player, spellInfo, TRIGGERED_FULL_MASK);
-    spell.SendSpellCooldown();
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(8690))
+    {
+        Spell spell(player, spellInfo, TRIGGERED_FULL_MASK);
+        spell.SendSpellCooldown();
+    }
 }
 
 void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
