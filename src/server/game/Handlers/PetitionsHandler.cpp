@@ -367,9 +367,10 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
+void WorldSession::HandlePetitionRenameGuildOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "Received opcode MSG_PETITION_RENAME");
+    /// @todo: drop arena team code
+    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_RENAME_GUILD");
 
     ObjectGuid petitionGuid;
     uint32 type;
@@ -434,7 +435,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
     CharacterDatabase.Execute(stmt);
 
     TC_LOG_DEBUG("network", "Petition %s renamed to '%s'", petitionGuid.ToString().c_str(), newName.c_str());
-    WorldPacket data(MSG_PETITION_RENAME, (8 + newName.size() + 1));
+    WorldPacket data(SMSG_PETITION_RENAME_GUILD_RESPONSE, (8 + newName.size() + 1));
     data << petitionGuid;
     data << newName;
     SendPacket(&data);

@@ -19,6 +19,12 @@
 #include "SpellAuraEffects.h"
 #include "MovementPackets.h"
 
+void WorldPackets::Spells::CancelAura::Read()
+{
+    _worldPacket >> SpellID;
+    _worldPacket >> CasterGUID;
+}
+
 WorldPacket const* WorldPackets::Spells::CategoryCooldown::Write()
 {
     _worldPacket.reserve(4 + 8 * CategoryCooldowns.size());

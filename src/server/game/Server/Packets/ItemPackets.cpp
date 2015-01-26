@@ -157,6 +157,14 @@ void WorldPackets::Item::AutoEquipItem::Read()
                  >> Slot;
 }
 
+void WorldPackets::Item::AutoStoreBagItem::Read()
+{
+    _worldPacket >> Inv
+                 >> ContainerSlotB
+                 >> ContainerSlotA
+                 >> SlotA;
+}
+
 void WorldPackets::Item::DestroyItem::Read()
 {
     _worldPacket >> Count

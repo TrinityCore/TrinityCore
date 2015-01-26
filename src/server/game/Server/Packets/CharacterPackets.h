@@ -28,7 +28,10 @@ namespace WorldPackets
         class EnumCharacters final : public ClientPacket
         {
         public:
-            EnumCharacters(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_ENUM, std::move(packet)) { }
+            EnumCharacters(WorldPacket&& packet) : ClientPacket(std::move(packet))
+            {
+                ASSERT(GetOpcode() == CMSG_CHAR_ENUM || GetOpcode() == CMSG_CHAR_UNDELETE_ENUM);
+            }
 
             void Read() override { }
         };
@@ -381,6 +384,14 @@ namespace WorldPackets
              */
             CharacterUndeleteInfo const* UndeleteInfo = nullptr;
             uint32 Result = 0; ///< @see enum CharacterUndeleteResult
+        };
+
+        class GetUndeleteCooldownStatus final : public ClientPacket
+        {
+        public:
+            GetUndeleteCooldownStatus(WorldPacket&& packet) : ClientPacket(CMSG_GET_UNDELETE_COOLDOWN_STATUS, std::move(packet)) { }
+
+            void Read() override { }
         };
 
         class UndeleteCooldownStatusResponse final : public ServerPacket

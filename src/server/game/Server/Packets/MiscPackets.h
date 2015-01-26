@@ -160,10 +160,18 @@ namespace WorldPackets
             uint32 MovieID = 0;
         };
 
+        class UITimeRequest final : public ClientPacket
+        {
+        public:
+            UITimeRequest(WorldPacket&& packet) : ClientPacket(CMSG_UI_TIME_REQUEST, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class UITime final : public ServerPacket
         {
         public:
-            UITime() : ServerPacket(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4) { }
+            UITime() : ServerPacket(SMSG_UI_TIME, 4) { }
 
             WorldPacket const* Write() override;
 

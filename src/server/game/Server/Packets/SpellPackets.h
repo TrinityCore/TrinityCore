@@ -27,6 +27,17 @@ namespace WorldPackets
 {
     namespace Spells
     {
+        class CancelAura final : public ClientPacket
+        {
+        public:
+            CancelAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AURA, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid CasterGUID;
+            int32 SpellID = 0;
+        };
+
         class CategoryCooldown final : public ServerPacket
         {
         public:
