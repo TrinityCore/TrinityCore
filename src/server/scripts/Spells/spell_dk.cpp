@@ -658,11 +658,7 @@ class spell_dk_festering_strike : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_festering_strike_SpellScript);
 
-        public:
-            spell_dk_festering_strike_SpellScript() { }
-
-        private:
-            bool Validate(SpellInfo const* spellInfo) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DK_FROST_FEVER) || !sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_PLAGUE) || !sSpellMgr->GetSpellInfo(SPELL_DK_CHAINS_OF_ICE))
                     return false;
@@ -760,7 +756,8 @@ class spell_dk_glyph_of_deaths_embrace : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return (GetTarget()->GetCreatureType() == CREATURE_TYPE_UNDEAD && GetTarget()->GetOwner());
+                Unit* actionTarget = eventInfo.GetActionTarget();
+                return actionTarget && actionTarget->GetCreatureType() == CREATURE_TYPE_UNDEAD && actionTarget->GetOwner();
             }
 
             void Register() override
@@ -793,6 +790,11 @@ class spell_dk_glyph_of_runic_power : public SpellScriptLoader
                 return true;
             }
 
+            bool Load() override
+            {
+                return GetUnitOwner()->getClass() == CLASS_DEATH_KNIGHT;
+            }
+
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 return eventInfo.GetSpellInfo() && (eventInfo.GetSpellInfo()->GetAllEffectsMechanicMask() & (1 << MECHANIC_SNARE | 1 << MECHANIC_ROOT | 1 << MECHANIC_FREEZE));
@@ -801,8 +803,7 @@ class spell_dk_glyph_of_runic_power : public SpellScriptLoader
             void HandleProc(ProcEventInfo& eventInfo)
             {
                 if (Unit* target = eventInfo.GetProcTarget())
-                    if (target->getClass() == CLASS_DEATH_KNIGHT)
-                        target->CastSpell(target, SPELL_DK_GLYPH_OF_RUNIC_POWER_TRIGGERED, true);
+                    target->CastSpell(target, SPELL_DK_GLYPH_OF_RUNIC_POWER_TRIGGERED, true);
             }
 
             void Register() override
@@ -1075,19 +1076,23 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_will_of_the_necropolis_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            bool Validate(SpellInfo const* spellInfo) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DK_WILL_OF_THE_NECROPOLIS))
+                    return false;
+                if (!spellInfo->GetEffect(EFFECT_0))
                     return false;
                 return true;
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                if (GetTarget()->HasAura(SPELL_DK_WILL_OF_THE_NECROPOLIS))
+                Unit* target = GetTarget();
+
+                if (target->HasAura(SPELL_DK_WILL_OF_THE_NECROPOLIS))
                     return false;
 
-               return GetTarget()->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage());
+                return target->HealthBelowPctDamaged(GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(target), eventInfo.GetDamageInfo()->GetDamage());
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
