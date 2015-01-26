@@ -417,9 +417,8 @@ Aura::~Aura()
         m_loadedScripts.erase(itr);
     }
 
-    // free effects memory todo 6.x
-    //for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    //     delete m_effects[i];
+    for (AuraEffect* effect : _effects)
+        delete effect;
 
     ASSERT(m_applications.empty());
     _DeleteRemovedApplications();
