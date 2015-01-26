@@ -161,6 +161,30 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
     _damageInfo(damageInfo), _healInfo(healInfo)
 { }
 
+SpellInfo const* ProcEventInfo::GetSpellInfo() const
+{
+    /// WORKAROUND: unfinished new proc system
+    if (_spell)
+        return _spell->GetSpellInfo();
+    if (_damageInfo)
+        return _damageInfo->GetSpellInfo();
+    /*if (_healInfo)
+        return _healInfo->GetSpellInfo();*/
+    return nullptr;
+}
+
+SpellSchoolMask ProcEventInfo::GetSchoolMask() const
+{
+    /// WORKAROUND: unfinished new proc system
+    if (_spell)
+        return _spell->GetSpellInfo()->GetSchoolMask();
+    if (_damageInfo)
+        return _damageInfo->GetSchoolMask();
+    /*if (_healInfo)
+        return _healInfo->GetSchoolMask();*/
+    return SPELL_SCHOOL_MASK_NONE;
+}
+
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
     IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(),
