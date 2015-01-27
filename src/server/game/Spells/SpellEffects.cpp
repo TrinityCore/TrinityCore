@@ -3940,8 +3940,14 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
         return;
     }
 
-    // the player dies
-    player->Kill(player);
+    // the player dies if hearthstone is in cooldown, else the player is teleported to home
+    if (player->HasSpellCooldown(8690))
+    {
+        player->Kill(player);
+        return;
+    }
+    
+    player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, player->GetOrientation(), TELE_TO_SPELL);
 
     // Stuck spell trigger Hearthstone cooldown
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(8690);
