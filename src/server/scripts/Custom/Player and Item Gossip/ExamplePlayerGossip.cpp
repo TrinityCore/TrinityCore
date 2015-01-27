@@ -7,7 +7,7 @@ class example_PlayerGossip : public PlayerScript
 public: 
     example_PlayerGossip() : PlayerScript("example_PlayerGossip") {}
 
-    void OnPlayerLeaveCombat(Player* player) override                       // Any hook here
+    void OnLevelChanged(Player* player, uint8 oldlevel) override            // Any hook here
     {
         player->PlayerTalkClass->ClearMenus();                              // Clears old options
         player->ADD_GOSSIP_ITEM(0, "Morph", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
