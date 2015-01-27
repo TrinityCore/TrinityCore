@@ -22141,7 +22141,7 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
     
     uint32 cat = spellInfo->GetCategory();
     uint32 catRec = spellInfo->CategoryRecoveryTime;
-    if (cat && catRec)
+    if (cat && spellInfo->CategoryRecoveryTime)
     {
         SpellCategoryStore::const_iterator ct = sSpellsByCategoryStore.find(cat);
         if (ct != sSpellsByCategoryStore.end())
@@ -26947,4 +26947,3 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
     data << uint32(oldSpell) << uint32(newSpell);
     GetSession()->SendPacket(&data);
 }
-
