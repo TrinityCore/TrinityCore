@@ -514,15 +514,16 @@ DROP TABLE IF EXISTS `character_aura_effect`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_aura_effect` (
   `guid` bigint(20) unsigned NOT NULL,
-  `casterGuid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier' ,
+  `casterGuid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier',
   `itemGuid` binary(16) NOT NULL,
-  `spell` int(10) unsigned NOT NULL ,
+  `spell` int(10) unsigned NOT NULL,
   `effectMask` int(10) unsigned NOT NULL,
   `effectIndex` tinyint(3) unsigned NOT NULL,
-  `amount` int(11) NOT NULL DEFAULT 0,
-  `baseAmount` int(11) NOT NULL DEFAULT 0,
-PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`,`effectIndex`)
+  `amount` int(11) NOT NULL DEFAULT '0',
+  `baseAmount` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`,`effectIndex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `character_aura_effect`
@@ -965,11 +966,11 @@ DROP TABLE IF EXISTS `character_queststatus`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_queststatus` (
-  `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
-  `quest` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  `status` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
-  `timer` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`, `quest`)
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `quest` int(10) unsigned NOT NULL DEFAULT '0',
+  `status` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `timer` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`quest`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -980,31 +981,6 @@ CREATE TABLE `character_queststatus` (
 LOCK TABLES `character_queststatus` WRITE;
 /*!40000 ALTER TABLE `character_queststatus` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_queststatus` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `character_queststatus_objectives`
---
-
-DROP TABLE IF EXISTS `character_queststatus_objectives`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `character_queststatus_objectives` (
-  `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
-  `quest` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  `objective` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
-  `data` INT(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`, `quest`, `objective`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `character_queststatus_objectives`
---
-
-LOCK TABLES `character_queststatus_objectives` WRITE;
-/*!40000 ALTER TABLE `character_queststatus_objectives` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_queststatus_objectives` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1054,6 +1030,31 @@ CREATE TABLE `character_queststatus_monthly` (
 LOCK TABLES `character_queststatus_monthly` WRITE;
 /*!40000 ALTER TABLE `character_queststatus_monthly` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_queststatus_monthly` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_queststatus_objectives`
+--
+
+DROP TABLE IF EXISTS `character_queststatus_objectives`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_queststatus_objectives` (
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `quest` int(10) unsigned NOT NULL DEFAULT '0',
+  `objective` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `data` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`quest`,`objective`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_queststatus_objectives`
+--
+
+LOCK TABLES `character_queststatus_objectives` WRITE;
+/*!40000 ALTER TABLE `character_queststatus_objectives` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_queststatus_objectives` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2013,15 +2014,15 @@ DROP TABLE IF EXISTS `guild_finder_applicant`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_finder_applicant` (
-  `guildId` bigint(20) unsigned DEFAULT NULL,
-  `playerGuid` bigint(20) unsigned DEFAULT NULL,
+  `guildId` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `playerGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `availability` tinyint(3) unsigned DEFAULT '0',
   `classRole` tinyint(3) unsigned DEFAULT '0',
   `interests` tinyint(3) unsigned DEFAULT '0',
   `comment` varchar(255) DEFAULT NULL,
   `submitTime` int(10) unsigned DEFAULT NULL,
-  UNIQUE KEY `guildId` (`guildId`,`playerGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`guildId`,`playerGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2049,7 +2050,7 @@ CREATE TABLE `guild_finder_guild_settings` (
   `listed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `comment` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`guildId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2121,7 +2122,7 @@ LOCK TABLES `guild_member_withdraw` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `guild_news_log`
+-- Table structure for table `guild_newslog`
 --
 
 DROP TABLE IF EXISTS `guild_newslog`;
@@ -2291,8 +2292,9 @@ CREATE TABLE `item_loot_items` (
   `under_threshold` tinyint(1) NOT NULL DEFAULT '0',
   `needs_quest` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'quest drop',
   `rnd_prop` int(10) NOT NULL DEFAULT '0' COMMENT 'random enchantment added when originally rolled',
-  `rnd_suffix` int(10) NOT NULL DEFAULT '0' COMMENT 'random suffix added when originally rolled'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `rnd_suffix` int(10) NOT NULL DEFAULT '0' COMMENT 'random suffix added when originally rolled',
+  PRIMARY KEY (`container_id`,`item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2313,8 +2315,9 @@ DROP TABLE IF EXISTS `item_loot_money`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_loot_money` (
   `container_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
-  `money` int(10) NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `money` int(10) NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)',
+  PRIMARY KEY (`container_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2502,11 +2505,11 @@ CREATE TABLE `pet_aura` (
   `casterGuid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier',
   `spell` int(10) unsigned NOT NULL,
   `effectMask` int(10) unsigned NOT NULL,
-  `recalculateMask` int(10) unsigned NOT NULL DEFAULT 0,
-  `stackCount` tinyint(3) unsigned NOT NULL DEFAULT 1,
-  `maxDuration` int(11) NOT NULL DEFAULT 0,
-  `remainTime` int(11) NOT NULL DEFAULT 0,
-  `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  `recalculateMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `stackCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `maxDuration` int(11) NOT NULL DEFAULT '0',
+  `remainTime` int(11) NOT NULL DEFAULT '0',
+  `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2529,14 +2532,15 @@ DROP TABLE IF EXISTS `pet_aura_effect`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pet_aura_effect` (
   `guid` int(10) unsigned NOT NULL COMMENT 'Global Unique Identifier',
-  `casterGuid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier' ,
+  `casterGuid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier',
   `spell` int(10) unsigned NOT NULL,
   `effectMask` int(10) unsigned NOT NULL,
   `effectIndex` tinyint(3) unsigned NOT NULL,
-  `amount` int(11) NOT NULL DEFAULT 0,
-  `baseAmount` int(11) NOT NULL DEFAULT 0,
-PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`,`effectIndex`)
+  `amount` int(11) NOT NULL DEFAULT '0',
+  `baseAmount` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`,`effectIndex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `pet_aura_effect`
@@ -2686,7 +2690,7 @@ CREATE TABLE `pvpstats_battlegrounds` (
   `type` tinyint(3) unsigned NOT NULL,
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2720,7 +2724,7 @@ CREATE TABLE `pvpstats_players` (
   `attr_4` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `attr_5` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`battleground_id`,`character_guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2747,8 +2751,9 @@ CREATE TABLE `quest_tracker` (
   `quest_abandon_time` datetime DEFAULT NULL,
   `completed_by_gm` tinyint(1) NOT NULL DEFAULT '0',
   `core_hash` varchar(120) NOT NULL DEFAULT '0',
-  `core_revision` varchar(120) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `core_revision` varchar(120) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`,`character_guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2839,4 +2844,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-10-18 18:02:06
+-- Dump completed on 2015-01-27 22:41:44
