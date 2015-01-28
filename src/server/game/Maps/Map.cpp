@@ -29,6 +29,7 @@
 #include "InstanceScript.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
@@ -36,6 +37,7 @@
 #include "Transport.h"
 #include "Vehicle.h"
 #include "VMapFactory.h"
+#include "Weather.h"
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
 u_map_magic MapVersionMagic = { {'v','1','.','4'} };
@@ -48,6 +50,10 @@ u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
 #define MAX_CREATURE_ATTACK_RADIUS  (45.0f * sWorld->getRate(RATE_CREATURE_AGGRO))
 
 GridState* si_GridStates[MAX_GRID_STATE];
+
+
+ZoneDynamicInfo::ZoneDynamicInfo() : MusicId(0), WeatherId(WEATHER_STATE_FINE),
+    WeatherGrade(0.0f), OverrideLightId(0), LightFadeInTime(0) { }
 
 Map::~Map()
 {
@@ -2706,7 +2712,7 @@ uint32 Map::GetPlayersCountExceptGMs() const
     return count;
 }
 
-void Map::SendToPlayers(WorldPacket* data) const
+void Map::SendToPlayers(WorldPacket const* data) const
 {
     for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
         itr->GetSource()->GetSession()->SendPacket(data);
@@ -3491,13 +3497,10 @@ void Map::SendZoneDynamicInfo(Player* player)
         player->SendDirectMessage(&data);
     }
 
-    if (uint32 weather = itr->second.WeatherId)
+    if (WeatherState weatherId = itr->second.WeatherId)
     {
-        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-        data << uint32(weather);
-        data << float(itr->second.WeatherGrade);
-        data << uint8(0);
-        player->SendDirectMessage(&data);
+        WorldPackets::Misc::Weather weather(weatherId, itr->second.WeatherGrade);
+        player->SendDirectMessage(weather.Write());
     }
 
     if (uint32 overrideLight = itr->second.OverrideLightId)
@@ -3532,7 +3535,7 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
     }
 }
 
-void Map::SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade)
+void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGrade)
 {
     if (_zoneDynamicInfo.find(zoneId) == _zoneDynamicInfo.end())
         _zoneDynamicInfo.insert(ZoneDynamicInfoMap::value_type(zoneId, ZoneDynamicInfo()));
@@ -3544,15 +3547,12 @@ void Map::SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade)
 
     if (!players.isEmpty())
     {
-        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-        data << uint32(weatherId);
-        data << float(weatherGrade);
-        data << uint8(0);
+        WorldPackets::Misc::Weather weather(weatherId, weatherGrade);
 
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
                 if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(&data);
+                    player->SendDirectMessage(weather.Write());
     }
 }
 

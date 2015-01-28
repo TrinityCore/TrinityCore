@@ -314,7 +314,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             time_t CurrentTime = time_t(0);
-            int32 TimeOutRequest;
+            int32 TimeOutRequest = 0;
         };
     }
 }

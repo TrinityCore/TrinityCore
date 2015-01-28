@@ -41,6 +41,7 @@
 #include "WeatherMgr.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
+#include "MiscPackets.h"
 
 class Aura;
 //
@@ -6633,10 +6634,8 @@ void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mod
 
     if (apply)
     {
-        WorldPacket data(SMSG_WEATHER, (4 + 4 + 1));
-
-        data << uint32(GetMiscValue()) << 1.0f << uint8(0);
-        target->GetSession()->SendPacket(&data);
+        WorldPackets::Misc::Weather weather(WeatherState(GetMiscValue()), 1.0f);
+        target->GetSession()->SendPacket(weather.Write());
     }
     else
     {
