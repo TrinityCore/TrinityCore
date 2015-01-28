@@ -452,7 +452,7 @@ class spell_dk_death_coil : public SpellScriptLoader
                         {
                             SpellInfo const* DCD = sSpellMgr->EnsureSpellInfo(SPELL_DK_DEATH_COIL_DAMAGE);
                             SpellEffectInfo const* eff = DCD->GetEffect(EFFECT_0);
-                            int32 bp = caster->SpellDamageBonusDone(target, DCD, eff->CalcValue(caster), DIRECT_DAMAGE, eff);
+                            int32 bp = caster->SpellDamageBonusDone(target, DCD, eff->CalcValue(caster), SPELL_DIRECT_DAMAGE, eff);
 
                             caster->CastCustomSpell(target, SPELL_DK_DEATH_COIL_BARRIER, &bp, nullptr, nullptr, true);
                         }
@@ -667,7 +667,7 @@ class spell_dk_festering_strike : public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                int32 extraDuration = GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue();
+                int32 extraDuration = GetEffectValue();
                 Unit* target = GetHitUnit();
                 ObjectGuid casterGUID = GetCaster()->GetGUID();
 
@@ -722,6 +722,11 @@ class spell_dk_ghoul_explode : public SpellScriptLoader
                 return true;
             }
 
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                SetHitDamage(GetCaster()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_2)->CalcValue(GetCaster())));
+            }
+
             void Suicide(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* unitTarget = GetHitUnit())
@@ -733,6 +738,7 @@ class spell_dk_ghoul_explode : public SpellScriptLoader
 
             void Register() override
             {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::Suicide, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
@@ -946,7 +952,7 @@ class spell_dk_raise_dead : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell(((Unit*)nullptr), GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(), true);
+                GetCaster()->CastSpell(((Unit*)nullptr), GetEffectValue(), true);
             }
 
             void Register() override
