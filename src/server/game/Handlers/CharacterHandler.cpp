@@ -1369,7 +1369,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
         return;
     }
 
-    if (_player->getStandState() != UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight)
+    if (_player->GetStandState() != UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight)
     {
         SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
         return;
@@ -1399,7 +1399,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
-    _player->SetStandState(0);                              // stand up
+    _player->SetStandState(UNIT_STAND_STATE_STAND);
 }
 
 void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)

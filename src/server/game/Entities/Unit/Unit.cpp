@@ -63,6 +63,7 @@
 #include "MovementStructures.h"
 #include "WorldSession.h"
 #include "ChatPackets.h"
+#include "MiscPackets.h"
 #include "MovementPackets.h"
 #include "CombatPackets.h"
 #include "CombatLogPackets.h"
@@ -12599,7 +12600,7 @@ void Unit::StopMoving()
 
 bool Unit::IsSitState() const
 {
-    uint8 s = getStandState();
+    UnitStandStateType s = GetStandState();
     return
         s == UNIT_STAND_STATE_SIT_CHAIR        || s == UNIT_STAND_STATE_SIT_LOW_CHAIR  ||
         s == UNIT_STAND_STATE_SIT_MEDIUM_CHAIR || s == UNIT_STAND_STATE_SIT_HIGH_CHAIR ||
@@ -12608,22 +12609,21 @@ bool Unit::IsSitState() const
 
 bool Unit::IsStandState() const
 {
-    uint8 s = getStandState();
+    UnitStandStateType s = GetStandState();
     return !IsSitState() && s != UNIT_STAND_STATE_SLEEP && s != UNIT_STAND_STATE_KNEEL;
 }
 
-void Unit::SetStandState(uint8 state)
+void Unit::SetStandState(UnitStandStateType state)
 {
-    SetByteValue(UNIT_FIELD_BYTES_1, 0, state);
+    SetByteValue(UNIT_FIELD_BYTES_1, 0, uint8(state));
 
     if (IsStandState())
        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_SEATED);
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldPacket data(SMSG_STANDSTATE_UPDATE, 1);
-        data << (uint8)state;
-        ToPlayer()->GetSession()->SendPacket(&data);
+        WorldPackets::Misc::StandStateUpdate packet(state);
+        ToPlayer()->GetSession()->SendPacket(packet.Write());
     }
 }
 

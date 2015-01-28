@@ -274,3 +274,18 @@ WorldPacket const* WorldPackets::Misc::Weather::Write()
     _worldPacket.FlushBits();
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::StandStateChange::Read()
+{
+    uint32 state;
+    _worldPacket >> state;
+
+    StandState = UnitStandStateType(state);
+}
+
+WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
+{
+    _worldPacket << uint8(State);
+
+    return &_worldPacket;
+}

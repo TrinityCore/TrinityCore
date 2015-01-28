@@ -1500,10 +1500,10 @@ class Unit : public WorldObject
         uint32 GetCreatureType() const;
         uint32 GetCreatureTypeMask() const;
 
-        uint8 getStandState() const { return GetByteValue(UNIT_FIELD_BYTES_1, 0); }
+        UnitStandStateType GetStandState() const { return UnitStandStateType(GetByteValue(UNIT_FIELD_BYTES_1, 0)); }
         bool IsSitState() const;
         bool IsStandState() const;
-        void SetStandState(uint8 state);
+        void SetStandState(UnitStandStateType state);
 
         void  SetStandFlags(uint8 flags) { SetByteFlag(UNIT_FIELD_BYTES_1, 2, flags); }
         void  RemoveStandFlags(uint8 flags) { RemoveByteFlag(UNIT_FIELD_BYTES_1, 2, flags); }
