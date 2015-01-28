@@ -203,6 +203,7 @@ namespace WorldPackets
         class RepopRequest;
         class RequestCemeteryList;
         class ResurrectResponse;
+        class StandStateChange;
         class UITimeRequest;
     }
 
@@ -735,7 +736,7 @@ class WorldSession
 
         void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
-        void HandleStandStateChangeOpcode(WorldPacket& recvPacket);
+        void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
         void HandleEmoteOpcode(WorldPacket& recvPacket);
         void HandleContactListOpcode(WorldPacket& recvPacket);
         void HandleAddFriendOpcode(WorldPacket& recvPacket);

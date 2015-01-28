@@ -23,6 +23,7 @@
 #include "WorldSession.h"
 #include "G3D/Vector3.h"
 #include "Object.h"
+#include "Unit.h"
 #include "Weather.h"
 
 namespace WorldPackets
@@ -381,6 +382,27 @@ namespace WorldPackets
             bool Abrupt = false;
             float Intensity = 0.0f;
             WeatherState WeatherID = WEATHER_STATE_FINE;
+        };
+
+        class StandStateChange : public ClientPacket
+        {
+        public:
+            StandStateChange(WorldPacket&& packet) : ClientPacket(CMSG_STAND_STATE_CHANGE, std::move(packet)) { }
+
+            void Read() override;
+
+            UnitStandStateType StandState = UNIT_STAND_STATE_STAND;
+        };
+
+        class StandStateUpdate : public ServerPacket
+        {
+        public:
+            StandStateUpdate() : ServerPacket(SMSG_STAND_STATE_UPDATE, 1) { }
+            StandStateUpdate(UnitStandStateType state) : ServerPacket(SMSG_STAND_STATE_UPDATE, 1), State(state) { }
+
+            WorldPacket const* Write() override;
+
+            UnitStandStateType State = UNIT_STAND_STATE_STAND;
         };
     }
 }
