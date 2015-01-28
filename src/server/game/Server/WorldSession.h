@@ -295,6 +295,7 @@ namespace WorldPackets
         class ReclaimCorpse;
         class RepopRequest;
         class ResurrectResponse;
+        class StandStateChange;
         class UITimeRequest;
         class RandomRollClient;
         class CompleteCinematic;
@@ -822,7 +823,7 @@ class TC_GAME_API WorldSession
 
         void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
-        void HandleStandStateChangeOpcode(WorldPacket& recvPacket);
+        void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
         void HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet);
 
         // Social

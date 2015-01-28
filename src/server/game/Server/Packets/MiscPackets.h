@@ -27,6 +27,7 @@
 #include "WowTime.h"
 #include <array>
 
+enum UnitStandStateType : uint8;
 enum WeatherState : uint32;
 
 namespace WorldPackets
@@ -315,6 +316,27 @@ namespace WorldPackets
             bool Abrupt = false;
             float Intensity = 0.0f;
             WeatherState WeatherID = WeatherState(0);
+        };
+
+        class StandStateChange final : public ClientPacket
+        {
+        public:
+            explicit StandStateChange(WorldPacket&& packet) : ClientPacket(CMSG_STANDSTATECHANGE, std::move(packet)) { }
+
+            void Read() override;
+
+            UnitStandStateType StandState = UnitStandStateType(0);
+        };
+
+        class StandStateUpdate final : public ServerPacket
+        {
+        public:
+            explicit StandStateUpdate() : ServerPacket(SMSG_STANDSTATE_UPDATE, 1) { }
+            explicit StandStateUpdate(UnitStandStateType state) : ServerPacket(SMSG_STANDSTATE_UPDATE, 1), State(state) { }
+
+            WorldPacket const* Write() override;
+
+            UnitStandStateType State = UnitStandStateType(0);
         };
 
         class StartMirrorTimer final : public ServerPacket

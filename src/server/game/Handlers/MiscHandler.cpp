@@ -499,12 +499,9 @@ void WorldSession::HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& pa
     }
 }
 
-void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
+void WorldSession::HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet)
 {
-    uint32 animstate;
-    recvData >> animstate;
-
-    switch (animstate)
+    switch (packet.StandState)
     {
         case UNIT_STAND_STATE_STAND:
         case UNIT_STAND_STATE_SIT:
@@ -515,7 +512,7 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
             return;
     }
 
-    _player->SetStandState(UnitStandStateType(animstate));
+    _player->SetStandState(packet.StandState);
 }
 
 void WorldSession::HandleBugOpcode(WorldPacket& recvData)
