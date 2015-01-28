@@ -33,6 +33,7 @@
 #include "CharacterPackets.h"
 #include "TalentPackets.h"
 #include "Chat.h"
+#include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
@@ -19937,12 +19938,6 @@ bool Player::CanSpeak() const
 /***              LOW LEVEL FUNCTIONS:Notifiers        ***/
 /*********************************************************/
 
-void Player::SendAttackSwingNotInRange()
-{
-    WorldPacket data(SMSG_ATTACKSWING_NOTINRANGE, 0);
-    GetSession()->SendPacket(&data);
-}
-
 void Player::SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
@@ -19971,26 +19966,32 @@ void Player::SetUInt32ValueInArray(Tokenizer& Tokenizer, uint16 index, uint32 va
 
 void Player::SendAttackSwingDeadTarget()
 {
-    WorldPacket data(SMSG_ATTACKSWING_DEADTARGET, 0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Combat::AttackSwingError packet(ATTACKSWINGERR_DEADTARGET);
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::SendAttackSwingCantAttack()
 {
-    WorldPacket data(SMSG_ATTACKSWING_CANT_ATTACK, 0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Combat::AttackSwingError packet(ATTACKSWINGERR_CANT_ATTACK);
+    GetSession()->SendPacket(packet.Write());
 }
 
-void Player::SendAttackSwingCancelAttack()
+void Player::SendAttackSwingNotInRange()
 {
-    WorldPacket data(SMSG_CANCEL_COMBAT, 0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Combat::AttackSwingError packet(ATTACKSWINGERR_NOTINRANGE);
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::SendAttackSwingBadFacingAttack()
 {
-    WorldPacket data(SMSG_ATTACKSWING_BADFACING, 0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Combat::AttackSwingError packet(ATTACKSWINGERR_BADFACING);
+    GetSession()->SendPacket(packet.Write());
+}
+
+void Player::SendAttackSwingCancelAttack()
+{
+    WorldPackets::Combat::CancelCombat packet;
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::SendAutoRepeatCancel(Unit* target)

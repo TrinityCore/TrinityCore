@@ -140,3 +140,10 @@ WorldPacket const* WorldPackets::Combat::AttackerStateUpdate::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Combat::AttackSwingError::Write()
+{
+    _worldPacket.WriteBits(Reason, 2);
+    _worldPacket.FlushBits();
+    return &_worldPacket;
+}
