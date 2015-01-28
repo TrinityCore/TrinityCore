@@ -36,6 +36,17 @@ namespace WorldPackets
             ObjectGuid Victim;
         };
 
+        class AttackSwingError final : public ServerPacket
+        {
+        public:
+            AttackSwingError() : ServerPacket(SMSG_ATTACKSWING_ERROR, 4) { }
+            AttackSwingError(AttackSwingErr reason) : ServerPacket(SMSG_ATTACKSWING_ERROR, 4), Reason(reason) { }
+
+            WorldPacket const* Write() override;
+
+            AttackSwingErr Reason = ATTACKSWINGERR_CANT_ATTACK;
+        };
+
         class AttackStop final : public ClientPacket
         {
         public:
@@ -164,6 +175,14 @@ namespace WorldPackets
             int32 RageGained        = 0;
             UnkAttackerState UnkState;
             float Unk               = 0.0f;
+        };
+
+        class CancelCombat final : public ServerPacket
+        {
+        public:
+            CancelCombat() : ServerPacket(SMSG_CANCEL_COMBAT, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
     }
 }

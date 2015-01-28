@@ -670,6 +670,14 @@ struct SkillStatusData
 
 typedef std::unordered_map<uint32, SkillStatusData> SkillStatusMap;
 
+enum AttackSwingErr
+{
+    ATTACKSWINGERR_CANT_ATTACK = 0,
+    ATTACKSWINGERR_NOTINRANGE  = 1,
+    ATTACKSWINGERR_BADFACING   = 2,
+    ATTACKSWINGERR_DEADTARGET  = 3
+};
+
 class Quest;
 class Spell;
 class Item;

@@ -341,7 +341,7 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class RequestCemeteryListResponse : public ServerPacket
+        class RequestCemeteryListResponse final : public ServerPacket
         {
         public:
             RequestCemeteryListResponse() : ServerPacket(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 1) { }
@@ -363,7 +363,7 @@ namespace WorldPackets
             uint32 Response = 0;
         };
 
-        class AreaTriggerNoCorpse : public ServerPacket
+        class AreaTriggerNoCorpse final : public ServerPacket
         {
         public:
             AreaTriggerNoCorpse() : ServerPacket(SMSG_AREA_TRIGGER_NO_CORPSE, 0) { }
@@ -371,7 +371,7 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
-        class Weather : public ServerPacket
+        class Weather final : public ServerPacket
         {
         public:
             Weather();
@@ -384,7 +384,7 @@ namespace WorldPackets
             WeatherState WeatherID = WEATHER_STATE_FINE;
         };
 
-        class StandStateChange : public ClientPacket
+        class StandStateChange final : public ClientPacket
         {
         public:
             StandStateChange(WorldPacket&& packet) : ClientPacket(CMSG_STAND_STATE_CHANGE, std::move(packet)) { }
@@ -394,7 +394,7 @@ namespace WorldPackets
             UnitStandStateType StandState = UNIT_STAND_STATE_STAND;
         };
 
-        class StandStateUpdate : public ServerPacket
+        class StandStateUpdate final : public ServerPacket
         {
         public:
             StandStateUpdate() : ServerPacket(SMSG_STAND_STATE_UPDATE, 1) { }
