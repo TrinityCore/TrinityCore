@@ -259,3 +259,18 @@ void WorldPackets::Misc::ResurrectResponse::Read()
     _worldPacket >> Resurrecter;
     _worldPacket >> Response;
 }
+
+WorldPackets::Misc::Weather::Weather() : ServerPacket(SMSG_WEATHER, 4 + 4 + 1) { }
+
+WorldPackets::Misc::Weather::Weather(WeatherState weatherID, float intensity /*= 0.0f*/, bool abrupt /*= false*/)
+    : ServerPacket(SMSG_WEATHER, 4 + 4 + 1), WeatherID(weatherID), Intensity(intensity), Abrupt(abrupt) { }
+
+WorldPacket const* WorldPackets::Misc::Weather::Write()
+{
+    _worldPacket << uint32(WeatherID);
+    _worldPacket << float(Intensity);
+    _worldPacket.WriteBit(Abrupt);
+
+    _worldPacket.FlushBits();
+    return &_worldPacket;
+}

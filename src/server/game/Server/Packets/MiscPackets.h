@@ -23,6 +23,7 @@
 #include "WorldSession.h"
 #include "G3D/Vector3.h"
 #include "Object.h"
+#include "Weather.h"
 
 namespace WorldPackets
 {
@@ -367,6 +368,19 @@ namespace WorldPackets
             AreaTriggerNoCorpse() : ServerPacket(SMSG_AREA_TRIGGER_NO_CORPSE, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class Weather : public ServerPacket
+        {
+        public:
+            Weather();
+            Weather(WeatherState weatherID, float intensity = 0.0f, bool abrupt = false);
+
+            WorldPacket const* Write() override;
+
+            bool Abrupt = false;
+            float Intensity = 0.0f;
+            WeatherState WeatherID = WEATHER_STATE_FINE;
         };
     }
 }
