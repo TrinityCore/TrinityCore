@@ -141,7 +141,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
 
     // check info existence
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
-    if (!goinfo || goinfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
+    if (!goinfo || goinfo->type != GAMEOBJECT_TYPE_CONTROL_ZONE)
     {
         TC_LOG_ERROR("outdoorpvp", "OutdoorPvP: GO %u is not capture point!", entry);
         return false;
@@ -548,21 +548,6 @@ bool OutdoorPvP::HandleDropFlag(Player* player, uint32 id)
     return false;
 }
 
-bool OPvPCapturePoint::HandleGossipOption(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*id*/)
-{
-    return false;
-}
-
-bool OPvPCapturePoint::CanTalkTo(Player* /*player*/, Creature* /*c*/, GossipMenuItems const& /*gso*/)
-{
-    return false;
-}
-
-bool OPvPCapturePoint::HandleDropFlag(Player* /*player*/, uint32 /*id*/)
-{
-    return false;
-}
-
 int32 OPvPCapturePoint::HandleOpenGo(Player* /*player*/, ObjectGuid guid)
 {
     std::map<ObjectGuid, uint32>::iterator itr = m_ObjectTypes.find(guid);
@@ -573,18 +558,32 @@ int32 OPvPCapturePoint::HandleOpenGo(Player* /*player*/, ObjectGuid guid)
     return -1;
 }
 
-bool OutdoorPvP::HandleAreaTrigger(Player* /*player*/, uint32 /*trigger*/)
-{
-    return false;
-}
-
-void OutdoorPvP::BroadcastPacket(WorldPacket &data) const
+void OutdoorPvP::BroadcastPacket(WorldPacket const* data) const
 {
     // This is faster than sWorld->SendZoneMessage
     for (uint32 team = 0; team < 2; ++team)
         for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if (Player* const player = ObjectAccessor::FindPlayer(*itr))
-                player->GetSession()->SendPacket(&data);
+                player->SendDirectMessage(data);
+}
+
+void OutdoorPvP::AddCapturePoint(OPvPCapturePoint* cp)
+{
+    OPvPCapturePointMap::iterator i = m_capturePoints.find(cp->m_capturePointGUID);
+    if (i != m_capturePoints.end())
+    {
+        TC_LOG_ERROR("outdoorpvp", "OutdoorPvP::AddCapturePoint: CapturePoint %s already exists!", cp->m_capturePointGUID);
+        delete i->second;
+    }
+    m_capturePoints[cp->m_capturePointGUID] = cp;
+}
+
+OPvPCapturePoint* OutdoorPvP::GetCapturePoint(ObjectGuid guid) const
+{
+    OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(guid);
+    if (itr != m_capturePoints.end())
+        return itr->second;
+    return nullptr;
 }
 
 void OutdoorPvP::RegisterZone(uint32 zoneId)
@@ -622,7 +621,7 @@ void OutdoorPvP::TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2)
 
 void OutdoorPvP::OnGameObjectCreate(GameObject* go)
 {
-    if (go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
+    if (go->GetGoType() != GAMEOBJECT_TYPE_CONTROL_ZONE)
         return;
 
     if (OPvPCapturePoint *cp = GetCapturePoint(go->GetGUID()))
@@ -631,7 +630,7 @@ void OutdoorPvP::OnGameObjectCreate(GameObject* go)
 
 void OutdoorPvP::OnGameObjectRemove(GameObject* go)
 {
-    if (go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
+    if (go->GetGoType() != GAMEOBJECT_TYPE_CONTROL_ZONE)
         return;
 
     if (OPvPCapturePoint *cp = GetCapturePoint(go->GetGUID()))

@@ -156,11 +156,11 @@ bool normalizePlayerName(std::string& name)
 }
 
 // Extracts player and realm names delimited by -
-ExtendedPlayerName ExtractExtendedPlayerName(std::string& name)
+ExtendedPlayerName ExtractExtendedPlayerName(std::string const& name)
 {
     size_t pos = name.find('-');
     if (pos != std::string::npos)
-        return ExtendedPlayerName(name.substr(0, pos), name.substr(pos+1));
+        return ExtendedPlayerName(name.substr(0, pos), name.substr(pos + 1));
     else
         return ExtendedPlayerName(name, "");
 }
@@ -1869,7 +1869,7 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
     data.spawnMask      = 1;
     data.go_state       = GO_STATE_READY;
     data.phaseMask      = PHASEMASK_NORMAL;
-    data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT ? 21 : 0;
+    data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CONTROL_ZONE ? 21 : 0;
     data.dbData = false;
 
     AddGameobjectToGrid(guid, &data);
