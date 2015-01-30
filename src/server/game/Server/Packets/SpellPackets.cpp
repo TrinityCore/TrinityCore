@@ -141,78 +141,91 @@ WorldPacket const* WorldPackets::Spells::AuraUpdate::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Spells::SpellCastRequest::Read()
+ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::TargetLocation& location)
 {
-    if (_worldPacket.GetOpcode() == CMSG_PET_CAST_SPELL)
-        _worldPacket >> PetGuid;
+    buffer >> location.Transport;
+    buffer >> location.Location.m_positionX;
+    buffer >> location.Location.m_positionY;
+    buffer >> location.Location.m_positionZ;
+    return buffer;
+}
 
-    _worldPacket >> CastID;
-    _worldPacket >> SpellID;
-    _worldPacket >> Misc;
+ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellTargetData& targetData)
+{
+    buffer.ResetBitPos();
 
-    _worldPacket.ResetBitPos();
+    targetData.Flags = buffer.ReadBits(21);
+    targetData.SrcLocation.HasValue = buffer.ReadBit();
+    targetData.DstLocation.HasValue = buffer.ReadBit();
+    targetData.Orientation.HasValue = buffer.ReadBit();
+    uint32 nameLength = buffer.ReadBits(7);
 
-    TargetFlags = _worldPacket.ReadBits(21);
-    bool HasSrcLocation = _worldPacket.ReadBit();
-    bool HasDstLocation = _worldPacket.ReadBit();
-    bool HasOrientation = _worldPacket.ReadBit();
-    uint32 NameLen = _worldPacket.ReadBits(7);
+    buffer >> targetData.Unit;
+    buffer >> targetData.Item;
 
-    _worldPacket >> UnitGuid;
-    _worldPacket >> ItemGuid;
+    if (targetData.SrcLocation.HasValue)
+        buffer >> targetData.SrcLocation.Value;
 
-    if (HasSrcLocation)
+    if (targetData.DstLocation.HasValue)
+        buffer >> targetData.DstLocation.Value;
+
+    if (targetData.Orientation.HasValue)
+        buffer >> targetData.Orientation.Value;
+
+    targetData.Name = buffer.ReadString(nameLength);
+
+    return buffer;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::MissileTrajectoryRequest& trajectory)
+{
+    buffer >> trajectory.Pitch;
+    buffer >> trajectory.Speed;
+    return buffer;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellCastRequest& request)
+{
+    buffer >> request.CastID;
+    buffer >> request.SpellID;
+    buffer >> request.Misc;
+    buffer >> request.Target;
+    buffer >> request.MissileTrajectory;
+    buffer >> request.Charmer;
+
+    buffer.ResetBitPos();
+    request.SendCastFlags = buffer.ReadBits(5);
+    request.MoveUpdate.HasValue = buffer.ReadBit();
+    request.Weight.resize(buffer.ReadBits(2));
+
+    if (request.MoveUpdate.HasValue)
+        buffer >> request.MoveUpdate.Value;
+
+    for (WorldPackets::Spells::SpellWeight& weight : request.Weight)
     {
-        _worldPacket >> SrcTransportGuid;
-        _worldPacket >> SrcPos.m_positionX;
-        _worldPacket >> SrcPos.m_positionY;
-        _worldPacket >> SrcPos.m_positionZ;
+        buffer.ResetBitPos();
+        weight.Type = buffer.ReadBits(2);
+        buffer >> weight.ID;
+        buffer >> weight.Quantity;
     }
 
-    if (HasDstLocation)
-    {
-        _worldPacket >> DstTransportGuid;
-        _worldPacket >> DstPos.m_positionX;
-        _worldPacket >> DstPos.m_positionY;
-        _worldPacket >> DstPos.m_positionZ;
-    }
+    return buffer;
+}
 
-    if (HasOrientation)
-        _worldPacket >> Orientation;
+void WorldPackets::Spells::CastSpell::Read()
+{
+    _worldPacket >> Cast;
+}
 
-    Name = _worldPacket.ReadString(NameLen);
-
-    _worldPacket >> Pitch;
-    _worldPacket >> Speed;
-
-    _worldPacket >> Guid;
-
-    _worldPacket.ResetBitPos();
-
-    SendCastFlags = _worldPacket.ReadBits(5);
-
-    bool HasMoveUpdate = _worldPacket.ReadBit();
-    uint32 SpellWeightCount = _worldPacket.ReadBits(2);
-
-    if (HasMoveUpdate)
-    {
-        _worldPacket >> movementInfo;
-    }
-
-    for (uint32 i = 0; i < SpellWeightCount; ++i)
-    {
-        _worldPacket.ResetBitPos();
-        SpellWeight unused;
-        unused.Type = _worldPacket.ReadBits(2);
-        _worldPacket >> unused.ID;
-        _worldPacket >> unused.Quantity;
-    }
+void WorldPackets::Spells::PetCastSpell::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> Cast;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::TargetLocation const& targetLocation)
 {
     data << targetLocation.Transport;
-    // data << targetLocation.Location.PositionXYZStream();
     data << targetLocation.Location.m_positionX;
     data << targetLocation.Location.m_positionY;
     data << targetLocation.Location.m_positionZ;

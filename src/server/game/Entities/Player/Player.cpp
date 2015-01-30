@@ -2998,13 +2998,14 @@ void Player::InitTalentForLevel()
 {
     uint8 level = getLevel();
     // talents base at level diff (talents = level - 9 but some can be used already)
+    if (level < MIN_SPECIALIZATION_LEVEL)
+        ResetTalentSpecialization();
+
+    uint32 talentTiers = CalculateTalentsTiers();
     if (level < 15)
     {
         // Remove all talent points
-        if (GetUsedTalentCount() > 0)                           // Free any used talents
-        {
-            ResetTalents(true);
-        }
+        ResetTalents(true);
     }
     else
     {
@@ -3013,9 +3014,15 @@ void Player::InitTalentForLevel()
             SetTalentGroupsCount(1);
             SetActiveTalentGroup(0);
         }
+
+        if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED))
+            for (uint32 t = talentTiers; t < MAX_TALENT_TIERS; ++t)
+                for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
+                    for (TalentEntry const* talent : sTalentByPos[getClass()][t][c])
+                        RemoveTalent(talent);
     }
 
-    SetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS, CalculateTalentsPoints());
+    SetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS, talentTiers);
 
     if (!GetSession()->PlayerLoading())
         SendTalentsInfoData(); // update at client
@@ -3294,29 +3301,20 @@ void DeleteSpellFromAllPlayers(uint32 spellId)
     }
 }
 
-bool Player::AddTalent(uint32 talentId, uint8 spec, bool learning)
+bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
 {
-    TalentEntry const* talentEntry = sTalentStore.LookupEntry(talentId);
-
-    // Check if talent exists in Talent.dbc
-    if (!talentEntry)
-    {
-        TC_LOG_ERROR("spells", "Player::addTalent: Talent %u not found", talentId);
-        return false;
-    }
-
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentEntry->SpellID);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID);
     if (!spellInfo)
     {
         // do character spell book cleanup (all characters)
-        if (!IsInWorld()) // spell load case
+        if (!IsInWorld() && !learning)                       // spell load case
         {
-            TC_LOG_ERROR("spells", "Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", talentEntry->SpellID);
+            TC_LOG_ERROR("spells", "Player::AddTalent: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", talent->SpellID);
 
-            DeleteSpellFromAllPlayers(talentEntry->SpellID);
+            DeleteSpellFromAllPlayers(talent->SpellID);
         }
         else
-            TC_LOG_ERROR("spells", "Player::addSpell: Non-existed in SpellStore spell #%u request.", talentEntry->SpellID);
+            TC_LOG_ERROR("spells", "Player::AddTalent: Non-existed in SpellStore spell #%u request.", talent->SpellID);
 
         return false;
     }
@@ -3324,40 +3322,58 @@ bool Player::AddTalent(uint32 talentId, uint8 spec, bool learning)
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
     {
         // do character spell book cleanup (all characters)
-        if (!IsInWorld()) // spell load case
+        if (!IsInWorld() && !learning)                       // spell load case
         {
-            TC_LOG_ERROR("spells", "Player::addTalent: Broken spell #%u learning not allowed, deleting for all characters in `character_talent`.", talentEntry->SpellID);
+            TC_LOG_ERROR("spells", "Player::AddTalent: Broken spell #%u learning not allowed, deleting for all characters in `character_talent`.", talent->SpellID);
 
-            DeleteSpellFromAllPlayers(talentEntry->SpellID);
+            DeleteSpellFromAllPlayers(talent->SpellID);
         }
         else
-            TC_LOG_ERROR("spells", "Player::addTalent: Broken spell #%u learning not allowed.", talentEntry->SpellID);
+            TC_LOG_ERROR("spells", "Player::AddTalent: Broken spell #%u learning not allowed.", talent->SpellID);
 
         return false;
     }
 
-    PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(talentId);
-    if (itr == GetTalentMap(spec)->end())
-    {
-        //if (GetTalentBySpellID(talentEntry->SpellID))
-        {
-            PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
-            PlayerTalent* newtalent = new PlayerTalent();
+    if (talent->OverridesSpellID)
+        AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
 
-            newtalent->state = state;
-            newtalent->spec = spec;
-
-            (*GetTalentMap(spec))[talentId] = newtalent;
-
-            return true;
-        }
-        //else
-        //    TC_LOG_ERROR("spells", "Player::addTalent: Talent %u not found in talent store.", talentId);
-    }
-    else
+    PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(talent->ID);
+    if (itr != GetTalentMap(spec)->end())
         itr->second->state = PLAYERSPELL_UNCHANGED;
+    else
+    {
+        PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
+        PlayerTalent* newtalent = new PlayerTalent();
 
-    return false;
+        newtalent->state = state;
+        newtalent->spec = spec;
+
+        (*GetTalentMap(spec))[talent->ID] = newtalent;
+    }
+
+    return true;
+}
+
+void Player::RemoveTalent(TalentEntry const* talent)
+{
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID);
+    if (!spellInfo)
+        return;
+
+    RemoveSpell(talent->SpellID, true);
+
+    // search for spells that the talent teaches and unlearn them
+    for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
+            RemoveSpell(effect->TriggerSpell, true);
+
+    if (talent->OverridesSpellID)
+        RemoveOverrideSpell(talent->OverridesSpellID, talent->SpellID);
+
+    // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
+    PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveTalentGroup())->find(talent->ID);
+    if (plrTalent != GetTalentMap(GetActiveTalentGroup())->end())
+        plrTalent->second->state = PLAYERSPELL_REMOVED;
 }
 
 bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool fromSkill /*= false*/)
@@ -3453,7 +3469,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
             if (active)
             {
                 if (spellInfo->IsPassive() && IsNeedCastPassiveSpellAtLearn(spellInfo))
-                    CastSpell (this, spellId, true);
+                    CastSpell(this, spellId, true);
             }
             else if (IsInWorld())
             {
@@ -3569,11 +3585,9 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
             return false;
     }
 
-    uint32 talentCost = GetTalentSpellCost(spellId);
-
     // cast talents with SPELL_EFFECT_LEARN_SPELL (other dependent spells will learned later as not auto-learned)
     // note: all spells with SPELL_EFFECT_LEARN_SPELL isn't passive
-    if (!loading && talentCost > 0 && spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
+    if (!loading && spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT) && spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
     {
         // ignore stance requirement for talent learn spell (stance set for spell only for client spell description show)
         CastSpell(this, spellId, true);
@@ -3590,72 +3604,45 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         return false;
     }
 
-    // update used talent points count
-    SetUsedTalentCount(GetUsedTalentCount() + talentCost);
-
     // update free primary prof.points (if any, can be none in case GM .learn prof. learning)
     if (uint32 freeProfs = GetFreePrimaryProfessionPoints())
     {
         if (spellInfo->IsPrimaryProfessionFirstRank())
-            SetFreePrimaryProfessions(freeProfs-1);
+            SetFreePrimaryProfessions(freeProfs - 1);
     }
-
-    // add dependent skills
-    uint16 maxskill     = GetMaxSkillValueForLevel();
-
-    SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId);
 
     SkillLineAbilityMapBounds skill_bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
 
-    if (spellLearnSkill)
+    // add dependent skills if this spell is not learned from adding skill already
+    if (!fromSkill)
     {
-        uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
-        uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
-
-        if (skill_value < spellLearnSkill->value)
-            skill_value = spellLearnSkill->value;
-
-        uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? maxskill : spellLearnSkill->maxvalue;
-
-        if (skill_max_value < new_skill_max_value)
-            skill_max_value = new_skill_max_value;
-
-        SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
-    }
-    else
-    {
-        // not ranked skills
-        for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
+        if (SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId))
         {
-            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->SkillLine);
-            if (!pSkill)
-                continue;
+            uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
+            uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
 
-            if (HasSkill(pSkill->ID))
-                continue;
+            if (skill_value < spellLearnSkill->value)
+                skill_value = spellLearnSkill->value;
 
-            SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(pSkill->ID, getRace(), getClass());
-            if (!rcEntry)
-                continue;
+            uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? GetMaxSkillValueForLevel() : spellLearnSkill->maxvalue;
 
-            if (_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN ||
-                // lockpicking/runeforging special case, not have SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN
-                ((pSkill->ID == SKILL_LOCKPICKING || pSkill->ID == SKILL_RUNEFORGING) && (_spell_idx->second->TrivialSkillLineRankHigh == 0 || _spell_idx->second->TrivialSkillLineRankHigh == 1)))
+            if (skill_max_value < new_skill_max_value)
+                skill_max_value = new_skill_max_value;
+
+            SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
+        }
+        else
+        {
+            // not ranked skills
+            for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
             {
-                switch (GetSkillRangeType(rcEntry))
-                {
-                    case SKILL_RANGE_LANGUAGE:
-                        SetSkill(pSkill->ID, GetSkillStep(pSkill->ID), 300, 300);
-                        break;
-                    case SKILL_RANGE_LEVEL:
-                        SetSkill(pSkill->ID, GetSkillStep(pSkill->ID), 1, GetMaxSkillValueForLevel());
-                        break;
-                    case SKILL_RANGE_MONO:
-                        SetSkill(pSkill->ID, GetSkillStep(pSkill->ID), 1, 1);
-                        break;
-                    default:
-                        break;
-                }
+                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->SkillLine);
+                if (!pSkill)
+                    continue;
+
+                ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
+                if ((_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->ID)) || (pSkill->ID == SKILL_LOCKPICKING && _spell_idx->second->TrivialSkillLineRankHigh == 0))
+                    LearnDefaultSkill(pSkill->ID, 0);
             }
         }
     }
@@ -3734,8 +3721,7 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
 
 bool Player::IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const
 {
-
-    if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetActiveTalentSpec()))
+    if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetSpecId(GetActiveTalentGroup())))
         return spellInfo->Id == chrSpec->MasterySpellID[0] || spellInfo->Id == chrSpec->MasterySpellID[1];
 
     return false;
@@ -3790,7 +3776,8 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // unlearn non talent higher ranks (recursive)
     if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
     {
-        if (HasSpell(nextSpell) && !GetTalentBySpellID(nextSpell))
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(nextSpell);
+        if (HasSpell(nextSpell) && !spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
             RemoveSpell(nextSpell, disabled, false);
     }
     //unlearn spells dependent from recently removed spells
@@ -3915,6 +3902,8 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             }
         }
     }
+
+    m_overrideSpells.erase(spell_id);
 
     if (spell_id == 46917 && m_canTitanGrip)
         SetCanTitanGrip(false);
@@ -4118,11 +4107,8 @@ uint32 Player::GetNextResetTalentsCost() const
     }
 }
 
-bool Player::ResetTalents(bool noCost, bool resetTalents, bool resetSpecialization)
+bool Player::ResetTalents(bool noCost)
 {
-    if (!resetTalents && !resetSpecialization)
-        return false;
-
     sScriptMgr->OnPlayerTalentsReset(this, noCost);
 
     // not need after this call
@@ -4144,41 +4130,30 @@ bool Player::ResetTalents(bool noCost, bool resetTalents, bool resetSpecializati
 
     RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
 
-    if (resetTalents)
+    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
-        for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
-        {
-            TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+        if (!talentInfo)
+            continue;
 
-            if (!talentInfo)
-                continue;
+        // unlearn only talents for character class
+        // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
+        // to prevent unexpected lost normal learned spell skip another class talents
+        if (talentInfo->ClassID != getClass())
+            continue;
 
-            // unlearn only talents for character class
-            // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
-            // to prevent unexpected lost normal learned spell skip another class talents
-            if (talentInfo->ClassID != getClass())
-                continue;
+        // skip non-existant talent ranks
+        if (talentInfo->SpellID == 0)
+            continue;
 
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
-            if (!spellEntry)
-                continue;
-
-            RemoveSpell(spellEntry->Id, false);
-
-            // search for spells that the talent teaches and unlearn them, 6.x remove?
-            for (SpellEffectInfo const* effect : spellEntry->GetEffectsForDifficulty(DIFFICULTY_NONE))
-                if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
-                    RemoveSpell(effect->TriggerSpell, true);
-
-            GetTalentMap(GetActiveTalentGroup())->erase(talentId);
-        }
+        RemoveTalent(talentInfo);
     }
 
-    if (resetSpecialization)
-    {
-        SetTalentSpec(GetActiveTalentGroup(), 0);
-        SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, 0);
-    }
+    // Remove spec specific spells
+    RemoveSpecializationSpells();
+
+    SetSpecId(GetActiveTalentGroup(), 0);
+    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, 0);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     _SaveTalents(trans);
@@ -4203,35 +4178,6 @@ bool Player::ResetTalents(bool noCost, bool resetTalents, bool resetSpecializati
     }
     */
 
-    return true;
-}
-
-bool Player::RemoveTalent(uint32 talentId)
-{
-    TalentEntry const* talent = sTalentStore.LookupEntry(talentId);
-    if (!talent)
-        return false;
-
-    uint32 spellId = talent->SpellID;
-
-    SpellInfo const* unlearnSpellProto = sSpellMgr->GetSpellInfo(spellId);
-
-    RemoveSpell(spellId, false);
-
-    // 6.x remove?
-    for (SpellEffectInfo const* effect : unlearnSpellProto->GetEffectsForDifficulty(DIFFICULTY_NONE))
-        if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
-            RemoveSpell(effect->TriggerSpell, false);
-
-    GetTalentMap(GetActiveTalentSpec())->erase(talentId);
-
-    // Needs to be executed orthewise the talents will be screwedsx
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    _SaveTalents(trans);
-    _SaveSpells(trans);
-    CharacterDatabase.CommitTransaction(trans);
-
-    SendTalentsInfoData();
     return true;
 }
 
@@ -4299,10 +4245,10 @@ bool Player::HasSpell(uint32 spell) const
         !itr->second->disabled);
 }
 
-bool Player::HasTalent(uint32 talentId, uint8 group)
+bool Player::HasTalent(uint32 talentId, uint8 group) const
 {
     PlayerTalentMap::const_iterator itr = GetTalentMap(group)->find(talentId);
-    return (itr != GetTalentMap(group)->end());
+    return (itr != GetTalentMap(group)->end() && itr->second->state != PLAYERSPELL_REMOVED);
 }
 
 bool Player::HasActiveSpell(uint32 spell) const
@@ -5951,26 +5897,28 @@ void Player::UpdateSkillsForLevel()
         if (!rcEntry)
             continue;
 
-        if (GetSkillRangeType(rcEntry) != SKILL_RANGE_LEVEL)
-            continue;
-
-        if (IsWeaponSkill(rcEntry->SkillID))
-            continue;
-
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
-        //uint16 val = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
-        uint16 max = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
-
-        /// update only level dependent max skill values
-        if (max != 1)
+        if (GetSkillRangeType(rcEntry) == SKILL_RANGE_LEVEL)
         {
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, maxSkill);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, maxSkill);
-            if (itr->second.uState != SKILL_NEW)
-                itr->second.uState = SKILL_CHANGED;
+            if (!IsWeaponSkill(rcEntry->SkillID))
+            {
+                uint16 max = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
+
+                /// update only level dependent max skill values
+                if (max != 1)
+                {
+                    SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, maxSkill);
+                    SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, maxSkill);
+                    if (itr->second.uState != SKILL_NEW)
+                        itr->second.uState = SKILL_CHANGED;
+                }
+            }
         }
+
+        // Update level dependent skillline spells
+        LearnSkillRewardedSpells(rcEntry->SkillID, GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset));
     }
 }
 
@@ -8415,7 +8363,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
         spell->m_CastItem = item;
         spell->m_cast_count = cast_count;                   // set count of casts
-        spell->m_glyphIndex = glyphIndex;                   // glyph index
+        spell->m_misc.Data = glyphIndex;                    // glyph index
         spell->prepare(&targets);
 
         ++count;
@@ -8443,7 +8391,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
             Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
             spell->m_CastItem = item;
             spell->m_cast_count = cast_count;               // set count of casts
-            spell->m_glyphIndex = glyphIndex;               // glyph index
+            spell->m_misc.Data = glyphIndex;                // glyph index
             spell->prepare(&targets);
 
             ++count;
@@ -17193,16 +17141,18 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         if (talentSpec)
         {
             if (sChrSpecializationStore.LookupEntry(talentSpec))
-                SetTalentSpec(i, talentSpec);
+                SetSpecId(i, talentSpec);
             else
                 SetAtLoginFlag(AT_LOGIN_RESET_TALENTS);
         }
     }
 
-    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, GetActiveTalentSpec());
+    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, GetSpecId(GetActiveTalentGroup()));
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
+
+    LearnSpecializationSpells();
 
     _LoadGlyphs(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GLYPHS));
     _LoadAuras(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURAS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS), time_diff);
@@ -18912,7 +18862,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
-            ss << GetTalentSpec(i) << " ";
+            ss << GetSpecId(i) << " ";
         stmt->setString(index++, ss.str());
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt8(index++,  m_stableSlots);
@@ -19049,7 +18999,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
-            ss << GetTalentSpec(i) << " ";
+            ss << GetSpecId(i) << " ";
         stmt->setString(index++, ss.str());
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt8(index++,  m_stableSlots);
@@ -25404,43 +25354,60 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 bool Player::LearnTalent(uint32 talentId)
 {
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
     if (!talentInfo)
         return false;
 
-    uint32 maxTalentTier = GetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS);
+    if (talentInfo->SpecID && talentInfo->SpecID != GetSpecId(GetActiveTalentGroup()))
+        return false;
 
     // prevent learn talent for different class (cheating)
     if (talentInfo->ClassID != getClass())
         return false;
 
     // check if we have enough talent points
-    if (talentInfo->TierID > maxTalentTier)
+    if (talentInfo->TierID >= GetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS))
         return false;
 
-    // Check if player doesnt have any spell in selected collumn
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
+    // Check if there is a different talent for us to learn in selected slot
+    // Example situation:
+    // Warrior talent row 2 slot 0
+    // Talent.dbc has an entry for each specialization
+    // but only 2 out of 3 have SpecID != 0
+    // We need to make sure that if player is in one of these defined specs he will not learn the other choice
+    TalentEntry const* bestSlotMatch = nullptr;
+    for (TalentEntry const* talent : sTalentByPos[getClass()][talentInfo->TierID][talentInfo->ColumnIndex])
     {
-        if (TalentEntry const* talent = sTalentStore.LookupEntry(i))
+        if (!talent->SpecID)
+            bestSlotMatch = talent;
+        else if (talent->SpecID == GetSpecId(GetActiveTalentGroup()))
         {
-            if (talentInfo->TierID == talent->TierID && HasSpell(talent->SpellID))
-                return false;
+            bestSlotMatch = talent;
+            break;
         }
     }
 
+    if (talentInfo != bestSlotMatch)
+        return false;
+
+    // Check if player doesnt have any talent in current tier
+    for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
+        for (TalentEntry const* talent : sTalentByPos[getClass()][talentInfo->TierID][c])
+            if (HasTalent(talent->ID, GetActiveTalentGroup()))
+                return false;
+
     // spell not set in talent.dbc
     uint32 spellid = talentInfo->SpellID;
-    if (spellid == 0)
+    if (!spellid)
     {
         TC_LOG_ERROR("entities.player", "Talent.dbc has no spellInfo for talent: %u (spell id = 0)", talentId);
         return false;
     }
 
     // already known
-    if (HasSpell(spellid))
+    if (HasTalent(talentId, GetActiveTalentGroup()) || HasSpell(spellid))
         return false;
 
-    if (!AddTalent(talentId, GetActiveTalentGroup(), true))
+    if (!AddTalent(talentInfo, GetActiveTalentGroup(), true))
         return false;
 
     LearnSpell(spellid, false);
@@ -25452,49 +25419,42 @@ bool Player::LearnTalent(uint32 talentId)
 
 void Player::LearnTalentSpecialization(uint32 talentSpec)
 {
-    if (GetActiveTalentSpec())
+    if (GetSpecId(GetActiveTalentGroup()))
         return;
 
-    SetTalentSpec(GetActiveTalentGroup(), talentSpec);
-
+    SetSpecId(GetActiveTalentGroup(), talentSpec);
     SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, talentSpec);
 
-    PlayerTalentMap* talents = GetTalentMap(GetActiveTalentGroup());
+    // Reset only talents that have different spells for each spec
+    uint32 class_ = getClass();
+    for (uint32 t = 0; t < MAX_TALENT_TIERS; ++t)
+        for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
+            if (sTalentByPos[class_][t][c].size() > 1)
+                for (TalentEntry const* talent : sTalentByPos[class_][t][c])
+                    RemoveTalent(talent);
 
-    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
-    {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
-        if (!talentInfo || talentInfo->ClassID != getClass() || talentInfo->SpecID != talentSpec)
-            continue;
-
-        for (PlayerTalentMap::iterator itr = talents->begin(); itr != talents->end();)
-        {
-            TalentEntry const* talent = sTalentStore.LookupEntry(itr->first);
-            if (!talent || talent->TierID != talentInfo->TierID)
-            {
-                ++itr;
-                continue;
-            }
-            RemoveSpell(talent->SpellID, false);
-            itr = talents->erase(itr);
-
-            TC_LOG_DEBUG("spells", "Player %s unlearning talent id: %u tier: %u due to specialization change", GetName().c_str(), talent->ID, talent->TierID);
-        }
-    }
-
-    SendTalentsInfoData();
-
-    SaveToDB();
-
+    LearnSpecializationSpells();
     SendTalentsInfoData();
 }
 
-
-void Player::AddKnownCurrency(uint32 itemId)
+void Player::ResetTalentSpecialization()
 {
-    if (CurrencyTypesEntry const* ctEntry = sCurrencyTypesStore.LookupEntry(itemId))
-        SetFlag64(0, (1LL << (ctEntry->ID-1)));
+    if (!GetSpecId(GetActiveTalentGroup()))
+        return;
+
+    SetSpecId(GetActiveTalentGroup(), 0);
+    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, 0);
+
+    // Reset only talents that have different spells for each spec
+    uint32 class_ = getClass();
+    for (uint32 t = 0; t < MAX_TALENT_TIERS; ++t)
+        for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
+            if (sTalentByPos[class_][t][c].size() > 1)
+                for (TalentEntry const* talent : sTalentByPos[class_][t][c])
+                    RemoveTalent(talent);
+
+    RemoveSpecializationSpells();
+    SendTalentsInfoData();
 }
 
 void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
@@ -25577,12 +25537,14 @@ void Player::SendTalentsInfoData()
     {
         WorldPackets::Talent::TalentGroupInfo groupInfoPkt;
 
-        groupInfoPkt.SpecID = GetTalentSpec(i);
-
+        groupInfoPkt.SpecID = GetSpecId(i);
         groupInfoPkt.TalentIDs.reserve(GetTalentMap(i)->size());
 
         for (PlayerTalentMap::const_iterator itr = GetTalentMap(i)->begin(); itr != GetTalentMap(i)->end(); ++itr)
         {
+            if (itr->second->state == PLAYERSPELL_REMOVED)
+                continue;
+
             TalentEntry const* talentInfo = sTalentStore.LookupEntry(itr->first);
             if (!talentInfo)
             {
@@ -25599,9 +25561,6 @@ void Player::SendTalentsInfoData()
                 TC_LOG_ERROR("entities.player", "Player %s has unknown talent spell: %u", GetName().c_str(), talentInfo->SpellID);
                 continue;
             }
-
-            if (!HasTalent(itr->first, i))
-                continue;
 
             groupInfoPkt.TalentIDs.push_back(uint16(itr->first));
         }
@@ -25919,7 +25878,8 @@ void Player::_LoadTalents(PreparedQueryResult result)
     if (result)
     {
         do
-            AddTalent((*result)[0].GetUInt32(), (*result)[1].GetUInt8(), false);
+            if (TalentEntry const* talent = sTalentStore.LookupEntry((*result)[0].GetUInt32()))
+                AddTalent(talent, (*result)[1].GetUInt8(), false);
         while (result->NextRow());
     }
 }
@@ -25930,15 +25890,25 @@ void Player::_SaveTalents(SQLTransaction& trans)
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
+    PlayerTalentMap* talents;
     for (uint8 group = 0; group < MAX_TALENT_GROUPS; ++group)
     {
-        for (PlayerTalentMap::iterator itr = GetTalentMap(group)->begin(); itr != GetTalentMap(group)->end(); ++itr)
+        talents = GetTalentMap(group);
+        for (PlayerTalentMap::iterator itr = talents->begin(); itr != talents->end();)
         {
+            if (itr->second->state == PLAYERSPELL_REMOVED)
+            {
+                delete itr->second;
+                itr = talents->erase(itr);
+                continue;
+            }
+
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
             stmt->setUInt64(0, GetGUID().GetCounter());
             stmt->setUInt32(1, itr->first);
             stmt->setUInt8(2, itr->second->spec);
             trans->Append(stmt);
+            ++itr;
         }
     }
 }
@@ -25989,12 +25959,12 @@ void Player::UpdateTalentGroupCount(uint8 count)
     SendTalentsInfoData();
 }
 
-void Player::ActivateTalentGroup(uint8 group)
+void Player::ActivateTalentGroup(uint8 spec)
 {
-    if (GetActiveTalentGroup() == group)
+    if (GetActiveTalentGroup() == spec)
         return;
 
-    if (group > GetTalentGroupsCount())
+    if (spec > GetTalentGroupsCount())
         return;
 
     if (IsNonMeleeSpellCast(false))
@@ -26026,56 +25996,75 @@ void Player::ActivateTalentGroup(uint8 group)
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
         TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
         if (!talentInfo)
             continue;
 
         // unlearn only talents for character class
         // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
         // to prevent unexpected lost normal learned spell skip another class talents
-        if (getClass() != talentInfo->ClassID)
+        if (talentInfo->ClassID != getClass())
             continue;
 
-        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
-        if (!spellEntry)
+        if (talentInfo->SpellID == 0)
+            continue;
+
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
+        if (!spellInfo)
             continue;
 
         RemoveSpell(talentInfo->SpellID, true);
 
         // search for spells that the talent teaches and unlearn them
-        for (SpellEffectInfo const* effect : spellEntry->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
             if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
                 RemoveSpell(effect->TriggerSpell, true);
+
+        if (talentInfo->OverridesSpellID)
+            RemoveOverrideSpell(talentInfo->OverridesSpellID, talentInfo->SpellID);
     }
 
-    // remove glyphs
+    // Remove spec specific spells
+    RemoveSpecializationSpells();
+
+    // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
         // remove secondary glyph
         if (uint32 oldglyph = GetGlyph(GetActiveTalentGroup(), slot))
             if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
                 RemoveAurasDueToSpell(old_gp->SpellID);
 
-    // Activate new group
-    SetActiveTalentGroup(group);
-
-    uint32 spentTalents = 0;
+    SetActiveTalentGroup(spec);
+    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, GetSpecId(spec));
 
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
         TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
         if (!talentInfo)
             continue;
 
         // learn only talents for character class
-        if (getClass() != talentInfo->ClassID)
+        if (talentInfo->ClassID != getClass())
             continue;
 
-        ++spentTalents;
+        if (!talentInfo->SpellID)
+            continue;
 
-        if (HasTalent(talentInfo->SpellID, group))
-            LearnSpell(talentInfo->SpellID, false);
+        // if the talent can be found in the newly activated PlayerTalentMap
+        if (HasTalent(talentInfo->ID, GetActiveTalentGroup()))
+        {
+            LearnSpell(talentInfo->SpellID, false);      // add the talent to the PlayerSpellMap
+            if (talentInfo->OverridesSpellID)
+                AddOverrideSpell(talentInfo->OverridesSpellID, talentInfo->SpellID);
+        }
     }
+
+    LearnSpecializationSpells();
+
+    if (CanUseMastery())
+        if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(GetSpecId(GetActiveTalentGroup())))
+            for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
+                if (uint32 mastery = specialization->MasterySpellID[i])
+                    LearnSpell(mastery, false);
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
@@ -26090,7 +26079,6 @@ void Player::ActivateTalentGroup(uint8 group)
         SetGlyph(slot, glyph);
     }
 
-    SetUsedTalentCount(spentTalents);
     InitTalentForLevel();
 
     {
@@ -26109,10 +26097,8 @@ void Player::ActivateTalentGroup(uint8 group)
 
     SetPower(pw, 0);
 
-    if (!sChrSpecializationStore.LookupEntry(GetActiveTalentSpec()))
-    {
+    if (!sChrSpecializationStore.LookupEntry(GetSpecId(GetActiveTalentGroup())))
         ResetTalents(true);
-    }
 }
 
 void Player::ResetTimeSync()
@@ -27153,10 +27139,17 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
     GetSession()->SendPacket(&data);
 }
 
-uint32 Player::CalculateTalentsPoints() const
+uint32 Player::CalculateTalentsTiers() const
 {
-    // 1 talent point for every 15 levels
-    return getLevel() >= 100 ? 7 : uint32(floor(getLevel() / 15.f));
+    static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
+    static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
+
+    uint32 const* rowLevels = (getClass() != CLASS_DEATH_KNIGHT) ? DefaultTalentRowLevels : DKTalentRowLevels;
+    for (uint32 i = MAX_TALENT_TIERS; i; --i)
+        if (getLevel() >= rowLevels[i - 1])
+            return i;
+
+    return 0;
 }
 
 Difficulty Player::GetDifficultyID(MapEntry const* mapEntry) const
@@ -27218,4 +27211,65 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
         return DIFFICULTY_10_N;
 
     return difficulty;
+}
+
+SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo) const
+{
+    auto range = m_overrideSpells.equal_range(spellInfo->Id);
+    for (auto itr = range.first; itr != range.second; ++itr)
+        if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(itr->second))
+            return Unit::GetCastSpellInfo(newInfo);
+
+    return Unit::GetCastSpellInfo(spellInfo);
+}
+
+void Player::RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId)
+{
+    auto range = m_overrideSpells.equal_range(overridenSpellId);
+    for (auto itr = range.first; itr != range.second; ++itr)
+    {
+        if (itr->second == newSpellId)
+        {
+            m_overrideSpells.erase(itr);
+            break;
+        }
+    }
+}
+
+void Player::LearnSpecializationSpells()
+{
+    if (std::vector<SpecializationSpellsEntry const*> const* specSpells = GetSpecializationSpells(GetSpecId(GetActiveTalentGroup())))
+    {
+        for (size_t j = 0; j < specSpells->size(); ++j)
+        {
+            SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+            LearnSpell(specSpell->SpellID, false);
+            if (specSpell->OverridesSpellID)
+                AddOverrideSpell(specSpell->OverridesSpellID, specSpell->SpellID);
+        }
+    }
+}
+
+void Player::RemoveSpecializationSpells()
+{
+    for (uint32 i = 0; i < MAX_SPECIALIZATIONS; ++i)
+    {
+        if (ChrSpecializationEntry const* specialization = sChrSpecializationByIndexStore[getClass()][i])
+        {
+            if (std::vector<SpecializationSpellsEntry const*> const* specSpells = GetSpecializationSpells(specialization->ID))
+            {
+                for (size_t j = 0; j < specSpells->size(); ++j)
+                {
+                    SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+                    RemoveSpell(specSpell->SpellID, true);
+                    if (specSpell->OverridesSpellID)
+                        RemoveOverrideSpell(specSpell->OverridesSpellID, specSpell->SpellID);
+                }
+            }
+
+            for (uint32 j = 0; j < MAX_MASTERY_SPELLS; ++j)
+                if (uint32 mastery = specialization->MasterySpellID[j])
+                    RemoveAurasDueToSpell(mastery);
+        }
+    }
 }

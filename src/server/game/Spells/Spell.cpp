@@ -109,34 +109,43 @@ void SpellDestination::RelocateOffset(Position const& offset)
     _position.RelocateOffset(offset);
 }
 
-SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
+SpellCastTargets::SpellCastTargets() : m_targetMask(0), m_objectTarget(nullptr), m_itemTarget(nullptr),
+    m_itemTargetEntry(0), m_elevation(0.0f), m_speed(0.0f)
 {
-    m_objectTarget = NULL;
-    m_itemTarget = NULL;
-
-    m_itemTargetEntry  = 0;
-
-    m_targetMask = 0;
 }
 
-SpellCastTargets::SpellCastTargets(Unit* caster, uint32 targetMask, ObjectGuid targetGuid, ObjectGuid itemTargetGuid, ObjectGuid srcTransportGuid, ObjectGuid destTransportGuid, Position srcPos, Position destPos, float elevation, float missileSpeed, std::string targetString) :
-    m_targetMask(targetMask), m_objectTargetGUID(targetGuid), m_itemTargetGUID(itemTargetGuid), m_elevation(elevation), m_speed(missileSpeed), m_strTarget(targetString)
+SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellTargetData const& spellTargetData) :
+    m_targetMask(spellTargetData.Flags), m_objectTarget(nullptr), m_itemTarget(nullptr),
+    m_objectTargetGUID(spellTargetData.Unit), m_itemTargetGUID(spellTargetData.Item),
+    m_itemTargetEntry(0), m_elevation(0.0f), m_speed(0.0f), m_strTarget(spellTargetData.Name)
 {
-    m_objectTarget = NULL;
-    m_itemTarget = NULL;
-    m_itemTargetEntry = 0;
+    if (spellTargetData.SrcLocation.HasValue)
+    {
+        m_src._transportGUID = spellTargetData.SrcLocation.Value.Transport;
+        Position* pos;
+        if (!m_src._transportGUID.IsEmpty())
+            pos = &m_src._transportOffset;
+        else
+            pos = &m_src._position;
 
-    m_src._transportGUID = srcTransportGuid;
-    if (m_src._transportGUID != ObjectGuid::Empty)
-        m_src._transportOffset.Relocate(srcPos);
-    else
-        m_src._position.Relocate(srcPos);
+        pos->Relocate(spellTargetData.SrcLocation.Value.Location);
+        if (spellTargetData.Orientation.HasValue)
+            pos->SetOrientation(spellTargetData.Orientation.Value);
+    }
 
-    m_dst._transportGUID = destTransportGuid;
-    if (m_dst._transportGUID != ObjectGuid::Empty)
-        m_dst._transportOffset.Relocate(destPos);
-    else
-        m_dst._position.Relocate(destPos);
+    if (spellTargetData.DstLocation.HasValue)
+    {
+        m_dst._transportGUID = spellTargetData.DstLocation.Value.Transport;
+        Position* pos;
+        if (!m_dst._transportGUID.IsEmpty())
+            pos = &m_dst._transportOffset;
+        else
+            pos = &m_dst._position;
+
+        pos->Relocate(spellTargetData.DstLocation.Value.Location);
+        if (spellTargetData.Orientation.HasValue)
+            pos->SetOrientation(spellTargetData.Orientation.Value);
+    }
 
     Update(caster);
 }
@@ -230,39 +239,6 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
 
     if (m_targetMask & TARGET_FLAG_STRING)
         data.Name = m_strTarget;
-    /*data << uint32(m_targetMask);
-
-    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_MINIPET))
-        data << m_objectTargetGUID.WriteAsPacked();
-
-    if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
-    {
-        if (m_itemTarget)
-            data << m_itemTarget->GetPackGUID();
-        else
-            data << uint8(0);
-    }
-
-    if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
-    {
-        data << m_src._transportGUID.WriteAsPacked(); // relative position guid here - transport for example
-        if (!m_src._transportGUID.IsEmpty())
-            data << m_src._transportOffset.PositionXYZStream();
-        else
-            data << m_src._position.PositionXYZStream();
-    }
-
-    if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
-    {
-        data << m_dst._transportGUID.WriteAsPacked(); // relative position guid here - transport for example
-        if (!m_dst._transportGUID.IsEmpty())
-            data << m_dst._transportOffset.PositionXYZStream();
-        else
-            data << m_dst._position.PositionXYZStream();
-    }
-
-    if (m_targetMask & TARGET_FLAG_STRING)
-        data << m_strTarget;*/
 }
 
 ObjectGuid SpellCastTargets::GetOrigUnitTargetGUID() const
@@ -665,7 +641,7 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), 
     m_procEx = 0;
     focusObject = NULL;
     m_cast_count = 0;
-    m_glyphIndex = 0;
+    m_misc.Data = 0;
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
     m_spellAura = NULL;
@@ -3744,7 +3720,7 @@ void Spell::SendCastResult(SpellCastResult result)
     if (m_caster->ToPlayer()->GetSession()->PlayerLoading())  // don't send cast results at loading time
         return;
 
-    SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError);
+    SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError, SMSG_CAST_FAILED, m_misc.Data);
 }
 
 void Spell::SendPetCastResult(SpellCastResult result)
@@ -3756,10 +3732,10 @@ void Spell::SendPetCastResult(SpellCastResult result)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    SendCastResult(owner->ToPlayer(), m_spellInfo, m_cast_count, result, SPELL_CUSTOM_ERROR_NONE, SMSG_PET_CAST_FAILED);
+    SendCastResult(owner->ToPlayer(), m_spellInfo, m_cast_count, result, SPELL_CUSTOM_ERROR_NONE, SMSG_PET_CAST_FAILED, m_misc.Data);
 }
 
-void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, OpcodeServer opcode /*= SMSG_CAST_FAILED*/)
+void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, OpcodeServer opcode /*= SMSG_CAST_FAILED*/, uint32 misc /*= 0*/)
 {
     if (result == SPELL_CAST_OK)
         return;
@@ -3868,6 +3844,12 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
             }
 
             packet.FailedArg1 = missingItem;  // first missing item
+            break;
+        }
+        case  SPELL_FAILED_CANT_UNTALENT:
+        {
+            if (TalentEntry const* talent = sTalentStore.LookupEntry(misc))
+                packet.FailedArg1 = talent->SpellID;
             break;
         }
         // TODO: SPELL_FAILED_NOT_STANDING
@@ -5606,12 +5588,25 @@ SpellCastResult Spell::CheckCast(bool strict)
                 break;
             }
             case SPELL_EFFECT_TALENT_SPEC_SELECT:
+            {
                 // can't change during already started arena/battleground
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     if (Battleground const* bg = m_caster->ToPlayer()->GetBattleground())
                         if (bg->GetStatus() == STATUS_IN_PROGRESS)
                             return SPELL_FAILED_NOT_IN_BATTLEGROUND;
                 break;
+            }
+            case SPELL_EFFECT_REMOVE_TALENT:
+            {
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+                TalentEntry const* talent = sTalentStore.LookupEntry(m_misc.TalentId);
+                if (!talent)
+                    return SPELL_FAILED_DONT_REPORT;
+                if (m_caster->ToPlayer()->HasSpellCooldown(talent->SpellID))
+                    return SPELL_FAILED_CANT_UNTALENT;
+                break;
+            }
             default:
                 break;
         }

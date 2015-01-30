@@ -250,7 +250,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
     &Spell::EffectCreateAreaTrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
     &Spell::EffectNULL,                                     //180 SPELL_EFFECT_UPDATE_AREATRIGGER
-    &Spell::EffectNULL,                                     //181 SPELL_EFFECT_REMOVE_TALENT
+    &Spell::EffectRemoveTalent,                             //181 SPELL_EFFECT_REMOVE_TALENT
     &Spell::EffectNULL,                                     //182 SPELL_EFFECT_182
     &Spell::EffectNULL,                                     //183 SPELL_EFFECT_183
     &Spell::EffectNULL,                                     //184 SPELL_EFFECT_REPUTATION
@@ -3938,7 +3938,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     {
         if (!player->GetDeathTimer())
             player->RepopAtGraveyard();
-            
+
         return;
     }
 
@@ -3948,7 +3948,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
         player->Kill(player);
         return;
     }
-    
+
     player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, player->GetOrientation(), TELE_TO_SPELL);
 
     // Stuck spell trigger Hearthstone cooldown
@@ -4005,7 +4005,7 @@ void Spell::EffectApplyGlyph(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_glyphIndex >= MAX_GLYPH_SLOT_INDEX)
+    if (m_misc.GlyphSlot >= MAX_GLYPH_SLOT_INDEX)
         return;
 
     Player* player = m_caster->ToPlayer();
@@ -4014,7 +4014,7 @@ void Spell::EffectApplyGlyph(SpellEffIndex /*effIndex*/)
 
     // glyph sockets level requirement
     uint8 minLevel = 0;
-    switch (m_glyphIndex)
+    switch (m_misc.GlyphSlot)
     {
         case 0:
         case 1:
@@ -4038,7 +4038,7 @@ void Spell::EffectApplyGlyph(SpellEffIndex /*effIndex*/)
     {
         if (GlyphPropertiesEntry const* newGlyphProperties = sGlyphPropertiesStore.LookupEntry(newGlyph))
         {
-            if (GlyphSlotEntry const* newGlyphSlot = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_glyphIndex)))
+            if (GlyphSlotEntry const* newGlyphSlot = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_misc.GlyphSlot)))
             {
                 if (newGlyphProperties->Type != newGlyphSlot->Type)
                 {
@@ -4048,26 +4048,26 @@ void Spell::EffectApplyGlyph(SpellEffIndex /*effIndex*/)
             }
 
             // remove old glyph
-            if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_glyphIndex))
+            if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_misc.GlyphSlot))
             {
                 if (GlyphPropertiesEntry const* oldGlyphProperties = sGlyphPropertiesStore.LookupEntry(oldGlyph))
                 {
                     player->RemoveAurasDueToSpell(oldGlyphProperties->SpellID);
-                    player->SetGlyph(m_glyphIndex, 0);
+                    player->SetGlyph(m_misc.GlyphSlot, 0);
                 }
             }
 
             player->CastSpell(m_caster, newGlyphProperties->SpellID, true);
-            player->SetGlyph(m_glyphIndex, newGlyph);
+            player->SetGlyph(m_misc.GlyphSlot, newGlyph);
             player->SendTalentsInfoData();
         }
     }
-    else if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_glyphIndex)) // Removing the glyph, get the old one
+    else if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_misc.GlyphSlot)) // Removing the glyph, get the old one
     {
         if (GlyphPropertiesEntry const* oldGlyphProperties = sGlyphPropertiesStore.LookupEntry(oldGlyph))
         {
             player->RemoveAurasDueToSpell(oldGlyphProperties->SpellID);
-            player->SetGlyph(m_glyphIndex, 0);
+            player->SetGlyph(m_misc.GlyphSlot, 0);
             player->SendTalentsInfoData();
         }
     }
@@ -5767,4 +5767,21 @@ void Spell::EffectCreateAreaTrigger(SpellEffIndex /*effIndex*/)
     AreaTrigger * areaTrigger = new AreaTrigger;
     if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), triggerEntry, GetCaster(), GetSpellInfo(), pos))
         delete areaTrigger;
+}
+
+void Spell::EffectRemoveTalent(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    TalentEntry const* talent = sTalentStore.LookupEntry(m_misc.TalentId);
+    if (!talent)
+        return;
+
+    Player* player = unitTarget ? unitTarget->ToPlayer() : nullptr;
+    if (!player)
+        return;
+
+    player->RemoveTalent(talent);
+    player->SendTalentsInfoData();
 }

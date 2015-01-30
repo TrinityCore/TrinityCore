@@ -30,8 +30,6 @@ typedef std::list<uint32> SimpleFactionsList;
 SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 
 char const* GetPetName(uint32 petfamily, uint32 dbclang);
-uint32 GetTalentSpellCost(uint32 spellId);
-TalentEntry const* GetTalentBySpellID(uint32 spellID);
 
 int32 GetAreaFlagByAreaID(uint32 area_id);                  // -1 if not found
 AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id);
@@ -91,14 +89,10 @@ typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRac
 typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
 SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
 
-typedef std::vector<SpecializationSpellsEntry const*> SpecializationSpellsBySpecEntry;
-typedef std::unordered_map<uint32, SpecializationSpellsBySpecEntry> SpecializationSpellsBySpecStore;
 typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES][MAX_SPECIALIZATIONS];
-typedef std::unordered_map<uint32, TalentEntry const*> TalentBySpellIDMap;
-
-typedef std::map<uint32, std::vector<uint32> > SpecializationSpellsMap;
-extern SpecializationSpellsMap sSpecializationSpellsMap;
-extern SpecializationOverrideSpellsMap sSpecializationOverrideSpellMap;
+std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId);
+typedef std::vector<TalentEntry const*> TalentsByPosition[MAX_CLASSES][MAX_TALENT_TIERS][MAX_TALENT_COLUMNS];
+extern TalentsByPosition sTalentByPos;
 
 template<class T>
 class GameTable
@@ -243,8 +237,6 @@ extern DBCStorage <SkillLineAbilityEntry>        sSkillLineAbilityStore;
 extern DBCStorage <SkillTiersEntry>              sSkillTiersStore;
 extern DBCStorage <SoundEntriesEntry>            sSoundEntriesStore;
 extern SpellEffectScallingByEffectId             sSpellEffectScallingByEffectId;
-extern DBCStorage <SpecializationSpellsEntry>    sSpecializationSpellsStore;
-extern SpecializationSpellsBySpecStore           sSpecializationSpellsBySpecStore;
 extern DBCStorage <SpellCastTimesEntry>          sSpellCastTimesStore;
 extern DBCStorage <SpellCategoryEntry>           sSpellCategoryStore;
 extern DBCStorage <SpellDurationEntry>           sSpellDurationStore;
@@ -271,7 +263,6 @@ extern DBCStorage <SpellTargetRestrictionsEntry> sSpellTargetRestrictionsStore;
 //extern DBCStorage <StableSlotPricesEntry>        sStableSlotPricesStore;
 extern DBCStorage <SummonPropertiesEntry>        sSummonPropertiesStore;
 extern DBCStorage <TalentEntry>                  sTalentStore;
-extern TalentBySpellIDMap                        sTalentBySpellIDMap;
 extern DBCStorage <TotemCategoryEntry>           sTotemCategoryStore;
 extern DBCStorage <UnitPowerBarEntry>            sUnitPowerBarStore;
 extern DBCStorage <VehicleEntry>                 sVehicleStore;

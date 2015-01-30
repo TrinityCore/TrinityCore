@@ -1188,7 +1188,7 @@ enum SpellEffectName
     SPELL_EFFECT_178                                = 178, // Unused (4.3.4)
     SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,
     SPELL_EFFECT_UPDATE_AREATRIGGER                 = 180, // NYI
-    SPELL_EFFECT_REMOVE_TALENT                      = 181, // NYI
+    SPELL_EFFECT_REMOVE_TALENT                      = 181,
     SPELL_EFFECT_182                                = 182,
     SPELL_EFFECT_183                                = 183,
     SPELL_EFFECT_REPUTATION_2                       = 184, // NYI
@@ -1517,7 +1517,7 @@ enum SpellCastResult // 19116
     SPELL_FAILED_BUILDING_ACTIVATE_NOT_READY      = 257,
     SPELL_FAILED_NOT_SOULBOUND                    = 258,
     SPELL_FAILED_RIDING_VEHICLE                   = 259,
-    SPELL_FAILED_UNKNOWN                          = 260, // custom value, default case
+    SPELL_FAILED_UNKNOWN                          = 260,
     SPELL_CAST_OK                                 = 0xFFFF // custom value, must not be sent to client
 };
 

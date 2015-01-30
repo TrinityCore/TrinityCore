@@ -1247,13 +1247,15 @@ private:
 
 struct PlayerTalentInfo
 {
-    PlayerTalentInfo() : UsedTalentCount(0), ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0), GroupsCount(1)
+    PlayerTalentInfo() :
+        ResetTalentsCost(0), ResetTalentsTime(0),
+        ActiveGroup(0), GroupsCount(1)
     {
         for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
         {
             GroupInfo[i].Talents = new PlayerTalentMap();
             memset(GroupInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
-            GroupInfo[i].TalentTree = 0;
+            GroupInfo[i].SpecId = 0;
         }
     }
 
@@ -1271,10 +1273,9 @@ struct PlayerTalentInfo
     {
         PlayerTalentMap* Talents;
         uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
-        uint32 TalentTree;
+        uint32 SpecId;
     } GroupInfo[MAX_TALENT_GROUPS];
 
-    uint32 UsedTalentCount;
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
     uint8 ActiveGroup;
@@ -1283,6 +1284,7 @@ struct PlayerTalentInfo
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
+
 
 class Player : public Unit, public GridObject<Player>
 {
@@ -1820,6 +1822,7 @@ class Player : public Unit, public GridObject<Player>
         void SendRemoveControlBar();
         bool HasSpell(uint32 spell) const override;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
+        SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const override;
         TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
@@ -1839,41 +1842,37 @@ class Player : public Unit, public GridObject<Player>
         void LearnSpellHighestRank(uint32 spellid);
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
+        void AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId) { m_overrideSpells.emplace(overridenSpellId, newSpellId); }
+        void RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
+        void LearnSpecializationSpells();
+        void RemoveSpecializationSpells();
         void SetReputation(uint32 factionentry, uint32 value);
         uint32 GetReputation(uint32 factionentry) const;
         std::string GetGuildName();
 
         // Talents
-        uint32 GetUsedTalentCount() const { return _talentMgr->UsedTalentCount; }
-        void SetUsedTalentCount(uint32 talents) { _talentMgr->UsedTalentCount = talents; }
         uint32 GetTalentResetCost() const { return _talentMgr->ResetTalentsCost; }
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
         uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
-
-        uint8 GetTalentGroupsCount() const { return _talentMgr->GroupsCount; }
-        void SetTalentGroupsCount(uint8 count) { _talentMgr->GroupsCount = count; }
+        uint32 GetSpecId(uint8 group) const { return _talentMgr->GroupInfo[group].SpecId; }
+        void SetSpecId(uint8 group, uint32 tree) { _talentMgr->GroupInfo[group].SpecId = tree; }
         uint8 GetActiveTalentGroup() const { return _talentMgr->ActiveGroup; }
         void SetActiveTalentGroup(uint8 group){ _talentMgr->ActiveGroup = group; }
+        uint8 GetTalentGroupsCount() const { return _talentMgr->GroupsCount; }
+        void SetTalentGroupsCount(uint8 count) { _talentMgr->GroupsCount = count; }
 
-        uint32 GetTalentSpec(uint8 group) const { return _talentMgr->GroupInfo[group].TalentTree; }
-        void SetTalentSpec(uint8 group, uint32 talentSpec) const { _talentMgr->GroupInfo[group].TalentTree = talentSpec; }
-        uint32 GetActiveTalentSpec() const { return _talentMgr->GroupInfo[_talentMgr->ActiveGroup].TalentTree; }
-
-
-        bool ResetTalents(bool noCost = false, bool resetTalents = true, bool resetSpecialization = true);
-        bool RemoveTalent(uint32 talentId);
-
+        bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
         void SendTalentsInfoData();
         bool LearnTalent(uint32 talentId);
-        bool AddTalent(uint32 talentId, uint8 spec, bool learning);
-        bool HasTalent(uint32 talentId, uint8 spec);
-        uint32 CalculateTalentsPoints() const;
-
-
+        bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
+        bool HasTalent(uint32 spell_id, uint8 spec) const;
+        void RemoveTalent(TalentEntry const* talent);
+        uint32 CalculateTalentsTiers() const;
         void LearnTalentSpecialization(uint32 talentSpec);
+        void ResetTalentSpecialization();
 
         // Dual Spec
         void UpdateTalentGroupCount(uint8 count);
@@ -2801,6 +2800,7 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
+        std::unordered_multimap<uint32 /*overridenSpellId*/, uint32 /*newSpellId*/> m_overrideSpells;
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 
         GlobalCooldownMgr m_GlobalCooldownMgr;
@@ -2918,9 +2918,6 @@ class Player : public Unit, public GridObject<Player>
         void SendRefundInfo(Item* item);
         void RefundItem(Item* item);
         void SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error);
-
-        // know currencies are not removed at any point (0 displayed)
-        void AddKnownCurrency(uint32 itemId);
 
         void AdjustQuestReqItemCount(Quest const* quest);
 

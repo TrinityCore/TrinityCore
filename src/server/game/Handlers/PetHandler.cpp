@@ -752,7 +752,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     charmInfo->SetSpellAutocast(spellInfo, state != 0);
 }
 
-void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::SpellCastRequest& castRequest)
+void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& castRequest)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL");
     /*

@@ -22,6 +22,7 @@
 #include "World.h"
 #include "Database/DatabaseEnv.h"
 #include "SpellMgr.h"
+#include "SpellInfo.h"
 #include "DBCStores.h"
 
 void CharacterDatabaseCleaner::CleanDatabase()
@@ -128,7 +129,8 @@ void CharacterDatabaseCleaner::CleanCharacterSkills()
 
 bool CharacterDatabaseCleaner::SpellCheck(uint32 spell_id)
 {
-    return sSpellMgr->GetSpellInfo(spell_id) && GetTalentBySpellID(spell_id) != nullptr;
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
+    return spellInfo && !spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterSpell()

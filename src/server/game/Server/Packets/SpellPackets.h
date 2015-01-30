@@ -155,46 +155,6 @@ namespace WorldPackets
             std::vector<AuraInfo> Auras;
         };
 
-        class SpellCastRequest final : public ClientPacket
-        {
-        public:
-            struct SpellWeight
-            {
-                uint32 Type = 0;
-                int32 ID = 0;
-                uint32 Quantity = 0;
-            };
-
-            SpellCastRequest(WorldPacket&& packet) : ClientPacket(std::move(packet))
-            {
-                ASSERT(packet.GetOpcode() == CMSG_CAST_SPELL || packet.GetOpcode() == CMSG_PET_CAST_SPELL);
-            }
-
-            void Read() override;
-
-            ObjectGuid PetGuid;
-            uint8 CastID = 0;
-            uint32 SpellID = 0;
-            uint32 Misc = 0;
-            uint32 TargetFlags = 0;
-            ObjectGuid UnitGuid;
-            ObjectGuid ItemGuid;
-
-            ObjectGuid SrcTransportGuid;
-            ObjectGuid DstTransportGuid;
-            Position SrcPos;
-            Position DstPos;
-            float Orientation = 0.0f;
-
-            std::string Name;
-            float Pitch = 0.0f;
-            float Speed = 0.0f;
-            ObjectGuid Guid;
-            uint32 SendCastFlags = 0;
-
-            MovementInfo movementInfo;
-        };
-
         struct TargetLocation
         {
             ObjectGuid Transport;
@@ -208,8 +168,57 @@ namespace WorldPackets
             ObjectGuid Item;
             Optional<TargetLocation> SrcLocation;
             Optional<TargetLocation> DstLocation;
-            Optional<float> Orientation; // Not found in JAM structures
+            Optional<float> Orientation;
             std::string Name;
+        };
+
+        struct MissileTrajectoryRequest
+        {
+            float Pitch = 0.0f;
+            float Speed = 0.0f;
+        };
+
+        struct SpellWeight
+        {
+            uint32 Type = 0;
+            int32 ID = 0;
+            uint32 Quantity = 0;
+        };
+
+        struct SpellCastRequest
+        {
+            uint8 CastID = 0;
+            uint32 SpellID = 0;
+            uint32 Misc = 0;
+            uint8 SendCastFlags = 0;
+            SpellTargetData Target;
+            MissileTrajectoryRequest MissileTrajectory;
+            Optional<MovementInfo> MoveUpdate;
+            std::vector<SpellWeight> Weight;
+            ObjectGuid Charmer;
+        };
+
+        class CastSpell final : public ClientPacket
+        {
+        public:
+
+            CastSpell(WorldPacket&& packet) : ClientPacket(CMSG_CAST_SPELL, std::move(packet)) { }
+
+            void Read() override;
+
+            SpellCastRequest Cast;
+        };
+
+        class PetCastSpell final : public ClientPacket
+        {
+        public:
+
+            PetCastSpell(WorldPacket&& packet) : ClientPacket(CMSG_PET_CAST_SPELL, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+            SpellCastRequest Cast;
         };
 
         struct SpellMissStatus
@@ -392,18 +401,5 @@ namespace WorldPackets
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::TargetLocation const& targetLocation);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellTargetData const& spellTargetData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellMissStatus const& spellMissStatus);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellPowerData const& spellPowerData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::RuneData const& runeData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::MissileTrajectoryResult const& missileTrajectory);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellAmmo const& spellAmmo);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ProjectileVisualData const& projectileVisual);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::CreatureImmunities const& immunities);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHealPrediction const& spellPred);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData const& spellCastData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifierData const& spellModifierData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifier const& spellModifier);
 
 #endif // SpellPackets_h__

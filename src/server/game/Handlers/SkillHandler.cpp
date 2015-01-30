@@ -32,10 +32,8 @@ void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& 
 {
     bool anythingLearned = false;
     for (uint32 talentId : packet.Talents)
-    {
         if (_player->LearnTalent(talentId))
             anythingLearned = true;
-    }
 
     if (anythingLearned)
         _player->SendTalentsInfoData();
