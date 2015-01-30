@@ -450,6 +450,25 @@ void Battlefield::SendUpdateWorldState(uint32 variable, uint32 value, bool hidde
     BroadcastPacketToZone(worldstate.Write());
 }
 
+void Battlefield::AddCapturePoint(BfCapturePoint* cp)
+{
+    Battlefield::BfCapturePointMap::iterator i = m_capturePoints.find(cp->GetCapturePointEntry());
+    if (i != m_capturePoints.end())
+    {
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::AddCapturePoint: CapturePoint %s already exists!", cp->GetCapturePointEntry());
+        delete i->second;
+    }
+    m_capturePoints[cp->GetCapturePointEntry()] = cp;
+}
+
+BfCapturePoint* Battlefield::GetCapturePoint(uint32 entry) const
+{
+    Battlefield::BfCapturePointMap::const_iterator itr = m_capturePoints.find(entry);
+    if (itr != m_capturePoints.end())
+        return itr->second;
+    return nullptr;
+}
+
 void Battlefield::RegisterZone(uint32 zoneId)
 {
     sBattlefieldMgr->AddZone(zoneId, this);
@@ -913,10 +932,11 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
     TC_LOG_DEBUG("bg.battlefield", "Creating capture point %u", capturePoint->GetEntry());
 
     m_capturePointGUID = capturePoint->GetGUID();
+    m_capturePointEntry = capturePoint->GetEntry();
 
     // check info existence
     GameObjectTemplate const* goinfo = capturePoint->GetGOInfo();
-    if (goinfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
+    if (goinfo->type != GAMEOBJECT_TYPE_CONTROL_ZONE)
     {
         TC_LOG_ERROR("misc", "OutdoorPvP: GO %u is not capture point!", capturePoint->GetEntry());
         return false;
@@ -927,7 +947,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
     m_maxSpeed = m_maxValue / (goinfo->controlZone.minTime ? goinfo->controlZone.minTime : 60);
     m_neutralValuePct = goinfo->controlZone.neutralPercent;
     m_minValue = m_maxValue * goinfo->controlZone.neutralPercent / 100;
-    m_capturePointEntry = capturePoint->GetEntry();
+
     if (m_team == TEAM_ALLIANCE)
     {
         m_value = m_maxValue;
