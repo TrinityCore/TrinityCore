@@ -1788,6 +1788,7 @@ struct SummonPropertiesEntry
 };
 
 #define MAX_TALENT_TIERS 7
+#define MAX_TALENT_COLUMNS 3
 
 struct TalentEntry
 {

@@ -76,7 +76,6 @@ DBCStorage <ChrRacesEntry> sChrRacesStore(ChrRacesEntryfmt);
 DBCStorage <ChrPowerTypesEntry> sChrPowerTypesStore(ChrClassesXPowerTypesfmt);
 DBCStorage <ChrSpecializationEntry> sChrSpecializationStore(ChrSpecializationEntryfmt);
 ChrSpecializationByIndexArray sChrSpecializationByIndexStore;
-SpecializationSpellsBySpecStore sSpecializationSpellsBySpecStore;
 DBCStorage <CinematicSequencesEntry> sCinematicSequencesStore(CinematicSequencesEntryfmt);
 DBCStorage <CreatureDisplayInfoEntry> sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
 DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore(CreatureDisplayInfoExtrafmt);
@@ -199,6 +198,7 @@ DBCStorage <SkillTiersEntry> sSkillTiersStore(SkillTiersfmt);
 DBCStorage <SoundEntriesEntry> sSoundEntriesStore(SoundEntriesfmt);
 
 DBCStorage <SpecializationSpellsEntry> sSpecializationSpellsStore(SpecializationSpellsEntryfmt);
+std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> sSpecializationSpellsBySpecStore;
 DBCStorage <SpellItemEnchantmentEntry> sSpellItemEnchantmentStore(SpellItemEnchantmentfmt);
 DBCStorage <SpellItemEnchantmentConditionEntry> sSpellItemEnchantmentConditionStore(SpellItemEnchantmentConditionfmt);
 DBCStorage <SpellEntry> sSpellStore(SpellEntryfmt);
@@ -229,9 +229,7 @@ DBCStorage <SpellShapeshiftFormEntry> sSpellShapeshiftFormStore(SpellShapeshiftF
 DBCStorage <StableSlotPricesEntry> sStableSlotPricesStore(StableSlotPricesfmt);
 DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
 DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
-TalentBySpellIDMap sTalentBySpellIDMap;
-SpecializationSpellsMap sSpecializationSpellsMap;
-SpecializationOverrideSpellsMap sSpecializationOverrideSpellMap;
+TalentsByPosition sTalentByPos;
 
 DBCStorage <TotemCategoryEntry> sTotemCategoryStore(TotemCategoryEntryfmt);
 DBCStorage <TransportAnimationEntry> sTransportAnimationStore(TransportAnimationfmt);
@@ -546,16 +544,15 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillTiersStore,             dbcPath, "SkillTiers.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSoundEntriesStore,           dbcPath, "SoundEntries.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpecializationSpellsStore,   dbcPath, "SpecializationSpells.dbc");
-    for (uint32 i = 1; i < sSpecializationSpellsStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sSpecializationSpellsStore.GetNumRows(); ++i)
     {
         SpecializationSpellsEntry const* specSpells = sSpecializationSpellsStore.LookupEntry(i);
         if (!specSpells)
             continue;
-        sSpecializationSpellsBySpecStore[specSpells->SpecID].push_back(specSpells);
 
-        if (specSpells->OverridesSpellID)
-            sSpecializationOverrideSpellMap[specSpells->SpecID][specSpells->OverridesSpellID] = specSpells->SpellID;
+        sSpecializationSpellsBySpecStore[specSpells->SpecID].push_back(specSpells);
     }
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellStore,                  dbcPath, "Spell.dbc"/*, &CustomSpellEntryfmt, &CustomSpellEntryIndex*/);
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoriesStore,        dbcPath, "SpellCategories.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoryStore,          dbcPath, "SpellCategory.dbc");
@@ -599,15 +596,17 @@ void LoadDBCStores(const std::string& dataPath)
         sSpellEffectScallingByEffectId.insert(std::make_pair(spellEffectScaling->SpellEffectID, j));
     }
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");//15595
-
-    for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)
+    LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");//19342
+    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
-        if (!talentInfo)
-            continue;
-
-        sTalentBySpellIDMap[talentInfo->SpellID] = talentInfo;
+        if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(i))
+        {
+            if (talentInfo->ClassID < MAX_CLASSES && talentInfo->TierID < MAX_TALENT_TIERS && talentInfo->ColumnIndex < MAX_TALENT_COLUMNS)
+                sTalentByPos[talentInfo->ClassID][talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
+            else
+                TC_LOG_ERROR("server.loading", "Value of class (found: %u, max allowed %u) or (found: %u, max allowed %u) tier or column (found: %u, max allowed %u) is invalid.",
+                    talentInfo->ClassID, MAX_CLASSES, talentInfo->TierID, MAX_TALENT_TIERS, talentInfo->ColumnIndex, MAX_TALENT_COLUMNS);
+        }
     }
 
     //LoadDBC(availableDbcLocales, bad_dbc_files, sTeamContributionPointsStore, dbcPath, "TeamContributionPoints.dbc");
@@ -967,14 +966,6 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
     return NULL;
 }
 
-TalentEntry const* GetTalentBySpellID(uint32 spellID)
-{
-    auto itr = sTalentBySpellIDMap.find(spellID);
-    if (itr != sTalentBySpellIDMap.end())
-        return itr->second;
-    return nullptr;
-}
-
 uint32 GetLiquidFlags(uint32 liquidType)
 {
     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquidType))
@@ -1044,14 +1035,6 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     return NULL;
 }
 
-uint32 GetTalentSpellCost(uint32 spellId)
-{
-    TalentBySpellIDMap::const_iterator itr = sTalentBySpellIDMap.find(spellId);
-    if (itr == sTalentBySpellIDMap.end())
-        return 0;
-    return 1;
-}
-
 uint32 GetQuestUniqueBitFlag(uint32 questId)
 {
     QuestV2Entry const* v2 = sQuestV2Store.LookupEntry(questId);
@@ -1059,4 +1042,13 @@ uint32 GetQuestUniqueBitFlag(uint32 questId)
         return 0;
 
     return v2->UniqueBitFlag;
+}
+
+std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId)
+{
+    auto itr = sSpecializationSpellsBySpecStore.find(specId);
+    if (itr != sSpecializationSpellsBySpecStore.end())
+        return &itr->second;
+
+    return nullptr;
 }

@@ -814,7 +814,7 @@ public:
 
                 SpellInfo const* learnSpellInfo = effect ? sSpellMgr->GetSpellInfo(effect->TriggerSpell) : NULL;
 
-                bool talent = (GetTalentBySpellID(id) != nullptr);
+                bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
                 bool passive = spellInfo->IsPassive();
                 bool active = target && target->HasAura(id);
 
@@ -886,7 +886,7 @@ public:
 
                 SpellInfo const* learnSpellInfo = effect ? sSpellMgr->GetSpellInfo(effect->TriggerSpell) : NULL;
 
-                bool talent = (GetTalentBySpellID(id) != nullptr);
+                bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
                 bool passive = spellInfo->IsPassive();
                 bool active = target && target->HasAura(id);
 

@@ -164,7 +164,7 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
 
                 // No boomy, no deal.
-                if (caster->GetActiveTalentSpec() != TALENT_SPEC_DRUID_BALANCE)
+                if (caster->GetSpecId(caster->GetActiveTalentGroup()) != TALENT_SPEC_DRUID_BALANCE)
                     return;
 
                 switch (GetSpellInfo()->Id)
