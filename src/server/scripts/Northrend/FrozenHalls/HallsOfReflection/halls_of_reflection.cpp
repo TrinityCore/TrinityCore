@@ -2468,7 +2468,7 @@ class npc_uther_quel_delar : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 pointId) override
+            void MovementInform(uint32 /*type*/, uint32 pointId) override
             {
                 switch (pointId)
                 {
