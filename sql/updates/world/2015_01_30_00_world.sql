@@ -19,9 +19,9 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (5660, 'at_hor_uther_quel_delar_start');
 
 DELETE FROM `spell_target_position` WHERE `id` IN(70719,70700);
-INSERT INTO `spell_target_position` (`id`,`target_map`,`target_position_x`,`target_position_y`,`target_position_z`,`target_orientation`) VALUES
-(70719, 668, 5302, 1989, 708, 0),
-(70700, 668, 5298, 1995, 708, 0);
+INSERT INTO `spell_target_position` (`id`,`MapID`,`PositionX`,`PositionY`,`PositionZ`) VALUES
+(70719, 668, 5302, 1989, 708),
+(70700, 668, 5298, 1995, 708);
 
 DELETE FROM `creature_loot_template` WHERE `entry` = 37158 AND `item` = 50254;
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
