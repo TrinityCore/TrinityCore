@@ -3220,7 +3220,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     // cast talents with SPELL_EFFECT_LEARN_SPELL (other dependent spells will learned later as not auto-learned)
     // note: all spells with SPELL_EFFECT_LEARN_SPELL isn't passive
-    if (!loading && talentCost > 0 && spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
+    if (!loading && spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT) && spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
     {
         // ignore stance requirement for talent learn spell (stance set for spell only for client spell description show)
         CastSpell(this, spellId, true);
@@ -3244,7 +3244,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     if (uint32 freeProfs = GetFreePrimaryProfessionPoints())
     {
         if (spellInfo->IsPrimaryProfessionFirstRank())
-            SetFreePrimaryProfessions(freeProfs-1);
+            SetFreePrimaryProfessions(freeProfs - 1);
     }
 
     SkillLineAbilityMapBounds skill_bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
@@ -3427,7 +3427,8 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // unlearn non talent higher ranks (recursive)
     if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
     {
-        if (HasSpell(nextSpell) && !GetTalentSpellPos(nextSpell))
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(nextSpell);
+        if (HasSpell(nextSpell) && !spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
             RemoveSpell(nextSpell, disabled, false);
     }
     //unlearn spells dependent from recently removed spells
@@ -7832,7 +7833,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
     }
 }
 
-void Player::CastItemUseSpell(Item* item, uint32 spellId, SpellCastTargets const& targets, uint8 cast_count, uint32 glyphIndex)
+void Player::CastItemUseSpell(Item* item, uint32 spellId, SpellCastTargets const& targets, uint8 cast_count, uint32 misc)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -7871,7 +7872,7 @@ void Player::CastItemUseSpell(Item* item, uint32 spellId, SpellCastTargets const
     spell->m_fromClient = true;
     spell->m_CastItem = item;
     spell->m_cast_count = cast_count; // set count of casts
-    spell->m_glyphIndex = glyphIndex; // glyph index
+    spell->m_misc.Data = misc;
     spell->prepare(targets);
 }
 
@@ -24934,7 +24935,6 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
 {
     uint32 CurTalentPoints = GetFreeTalentPoints();
-
     if (CurTalentPoints == 0)
         return false;
 
@@ -24942,12 +24942,10 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
         return false;
 
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
     if (!talentInfo)
         return false;
 
     TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
-
     if (!talentTabInfo)
         return false;
 
@@ -25010,14 +25008,14 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
 
     // spell not set in talent.dbc
     uint32 spellid = talentInfo->SpellRank[talentRank];
-    if (spellid == 0)
+    if (!spellid)
     {
         TC_LOG_ERROR("entities.player", "Player::LearnTalent: Talent.dbc has no spellInfo for talent: {} (spell id = 0)", talentId);
         return false;
     }
 
     // already known
-    if (HasSpell(spellid))
+    if (HasTalent(spellid, GetActiveTalentGroup()) || HasSpell(spellid))
         return false;
 
     // learn! (other talent ranks will unlearned at learning)
@@ -25722,12 +25720,10 @@ void Player::ActivateTalentGroup(uint8 group)
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
         TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
         if (!talentInfo)
             continue;
 
         TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
-
         if (!talentTabInfo)
             continue;
 
@@ -25742,11 +25738,15 @@ void Player::ActivateTalentGroup(uint8 group)
             // skip non-existing talent ranks
             if (talentInfo->SpellRank[rank] == 0)
                 continue;
+
             RemoveSpell(talentInfo->SpellRank[rank], true); // removes the talent, and all dependant, learned, and chained spells..
-            if (SpellInfo const* _spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellRank[rank]))
-                for (SpellEffectInfo const& spellEffectInfo : _spellEntry->GetEffects())                  // search through the SpellInfo for valid trigger spells
+
+            // search for spells that the talent teaches and unlearn them
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellRank[rank]))
+                for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
                     if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
-                        RemoveSpell(spellEffectInfo.TriggerSpell, true); // and remove any spells that the talent teaches
+                        RemoveSpell(spellEffectInfo.TriggerSpell, true);
+
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             //PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveTalentGroup())->find(talentInfo->SpellRank[rank]);
             //if (plrTalent != GetTalentMap(GetActiveTalentGroup())->end())
@@ -25767,12 +25767,10 @@ void Player::ActivateTalentGroup(uint8 group)
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
         TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
         if (!talentInfo)
             continue;
 
         TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
-
         if (!talentTabInfo)
             continue;
 
@@ -25786,6 +25784,7 @@ void Player::ActivateTalentGroup(uint8 group)
             // skip non-existing talent ranks
             if (talentInfo->SpellRank[rank] == 0)
                 continue;
+
             // if the talent can be found in the newly activated PlayerTalentMap
             if (HasTalent(talentInfo->SpellRank[rank], GetActiveTalentGroup()))
             {

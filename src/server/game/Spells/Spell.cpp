@@ -622,7 +622,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     m_hitMask = 0;
     focusObject = nullptr;
     m_cast_count = 0;
-    m_glyphIndex = 0;
+    m_misc.Data = 0;
     m_triggeredByAuraSpell  = nullptr;
     _spellAura = nullptr;
     _dynObjAura = nullptr;

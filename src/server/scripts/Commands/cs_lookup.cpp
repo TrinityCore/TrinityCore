@@ -945,7 +945,7 @@ public:
 
                     uint32 talentCost = GetTalentSpellCost(id);
 
-                    bool talent = (talentCost > 0);
+                    bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
                     bool passive = spellInfo->IsPassive();
                     bool active = target && target->HasAura(id);
 
@@ -1022,7 +1022,7 @@ public:
 
             uint32 talentCost = GetTalentSpellCost(id);
 
-            bool talent = (talentCost > 0);
+            bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
             bool passive = spellInfo->IsPassive();
             bool active = target && target->HasAura(id);
 

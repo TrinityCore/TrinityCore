@@ -3762,7 +3762,7 @@ void Spell::EffectApplyGlyph()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_glyphIndex >= MAX_GLYPH_SLOT_INDEX)
+    if (m_misc.GlyphSlot >= MAX_GLYPH_SLOT_INDEX)
         return;
 
     Player* player = m_caster->ToPlayer();
@@ -3771,7 +3771,7 @@ void Spell::EffectApplyGlyph()
 
     // glyph sockets level requirement
     uint8 minLevel = 0;
-    switch (m_glyphIndex)
+    switch (m_misc.GlyphSlot)
     {
         case 0:
         case 1: minLevel = 15; break;
@@ -3791,7 +3791,7 @@ void Spell::EffectApplyGlyph()
     {
         if (GlyphPropertiesEntry const* newGlyphProperties = sGlyphPropertiesStore.LookupEntry(newGlyph))
         {
-            if (GlyphSlotEntry const* newGlyphSlot = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_glyphIndex)))
+            if (GlyphSlotEntry const* newGlyphSlot = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_misc.GlyphSlot)))
             {
                 if (newGlyphProperties->GlyphSlotFlags != newGlyphSlot->Type)
                 {
@@ -3801,17 +3801,17 @@ void Spell::EffectApplyGlyph()
             }
 
             // remove old glyph
-            if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_glyphIndex))
+            if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_misc.GlyphSlot))
             {
                 if (GlyphPropertiesEntry const* oldGlyphProperties = sGlyphPropertiesStore.LookupEntry(oldGlyph))
                 {
                     player->RemoveAurasDueToSpell(oldGlyphProperties->SpellID);
-                    player->SetGlyph(m_glyphIndex, 0);
+                    player->SetGlyph(m_misc.GlyphSlot, 0);
                 }
             }
 
             player->CastSpell(player, newGlyphProperties->SpellID, true);
-            player->SetGlyph(m_glyphIndex, newGlyph);
+            player->SetGlyph(m_misc.GlyphSlot, newGlyph);
             player->SendTalentsInfoData(false);
         }
     }
