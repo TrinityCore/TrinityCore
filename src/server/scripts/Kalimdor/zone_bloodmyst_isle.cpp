@@ -48,13 +48,17 @@ class npc_webbed_creature : public CreatureScript
 public:
     npc_webbed_creature() : CreatureScript("npc_webbed_creature") { }
 
-    struct npc_webbed_creatureAI : public ScriptedAI
+    struct npc_webbed_creatureAI : public NullCreatureAI
     {
-        npc_webbed_creatureAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_webbed_creatureAI(Creature* creature) : NullCreatureAI(creature) { }
 
         void Reset() override { }
 
         void EnterCombat(Unit* /*who*/) override { }
+
+        void AttackStart(Unit* /*who*/) override { }
+
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
         void JustDied(Unit* killer) override
         {
