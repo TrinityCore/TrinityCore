@@ -3072,6 +3072,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 45976: // Muru Portal Channel
             case 52124: // Sky Darkener Assault
             case 53096: // Quetz'lun's Judgment
+            case 70743: // AoD Special
+            case 70614: // AoD Special - Vegard
             case 52479: // Gift of the Harvester
             case 61588: // Blazing Harpoon
                 spellInfo->MaxAffectedTargets = 1;
