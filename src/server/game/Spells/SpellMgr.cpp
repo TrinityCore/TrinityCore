@@ -2959,6 +2959,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         switch (spellInfo->Id)
         {
             case 53096: // Quetz'lun's Judgment
+            case 70743: // AoD Special
+            case 70614: // AoD Special - Vegard
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 42436: // Drink! (Brewfest)
