@@ -22928,7 +22928,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (GetMap()->IsRaid())
     {
-        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetMap()->GetDifficultyID());
+        DifficultyEntry const* difficulty = sDifficultyStore.AssertEntry(GetMap()->GetDifficultyID());
         SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, GetMap()->GetDifficultyID());
     }
     else if (GetMap()->IsNonRaidDungeon())
