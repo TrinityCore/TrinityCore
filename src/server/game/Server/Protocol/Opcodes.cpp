@@ -40,6 +40,7 @@
 #include "Packets/QuestPackets.h"
 #include "Packets/TalentPackets.h"
 #include "Packets/TradePackets.h"
+#include "Packets/TicketPackets.h"
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
 class PacketHandler : public ClientOpcodeHandler
@@ -390,7 +391,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_TICKET_CREATE,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketCreateOpcode      );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_TICKET_DELETE_TICKET,                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketDeleteOpcode      );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_TICKET_GET_CASE_STATUS,               STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_TICKET_GET_SYSTEM_STATUS,             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketSystemStatusOpcode);
+    DEFINE_HANDLER(CMSG_GM_TICKET_GET_SYSTEM_STATUS,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketGetSystemStatus, &WorldSession::HandleGMTicketSystemStatusOpcode)
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_TICKET_GET_TICKET,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketGetTicketOpcode   );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_TICKET_RESPONSE_RESOLVE,              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMResponseResolve         );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_TICKET_UPDATE_TEXT,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketUpdateOpcode      );
@@ -1282,7 +1283,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_TICKET_RESPONSE,                      STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_TICKET_RESPONSE_ERROR,                STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_TICKET_STATUS_UPDATE,                 STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_TICKET_SYSTEM_STATUS,                 STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_TICKET_SYSTEM_STATUS,                 STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_TICKET_UPDATE,                        STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GOD_MODE,                                STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GOSSIP_COMPLETE,                         STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
