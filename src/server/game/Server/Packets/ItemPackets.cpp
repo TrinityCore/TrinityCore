@@ -23,7 +23,7 @@ void WorldPackets::Item::BuyBackItem::Read()
     _worldPacket >> Slot;
 }
 
-void WorldPackets::Item::ItemRefundInfo::Read()
+void WorldPackets::Item::GetItemPurchaseData::Read()
 {
     _worldPacket >> ItemGUID;
 }
@@ -75,18 +75,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
     data << itemInstance.RandomPropertiesID;
 
     data.WriteBit(itemInstance.ItemBonus.HasValue);
-    data.WriteBit(!itemInstance.Modifications.empty());
+    data.WriteBit(itemInstance.Modifications.HasValue);
     data.FlushBits();
 
     if (itemInstance.ItemBonus.HasValue)
         data << itemInstance.ItemBonus.Value;
 
-    if (!itemInstance.Modifications.empty())
-    {
-        data << uint32(itemInstance.Modifications.size() * sizeof(uint32));
-        for (int32 itemMod : itemInstance.Modifications)
-            data << itemMod;
-    }
+    if (itemInstance.Modifications.HasValue)
+        data << itemInstance.Modifications.Value;
 
     return data;
 }
@@ -101,6 +97,44 @@ ByteBuffer& WorldPackets::Item::operator>>(ByteBuffer& data, InvUpdate& invUpdat
     }
 
     return data;
+}
+
+void WorldPackets::Item::ItemInstance::Initalize(::Item const* item)
+{
+    ItemID               = item->GetEntry();
+    RandomPropertiesSeed = item->GetTemplate()->GetRandomSuffix(); /// @todo: confirm this
+    RandomPropertiesID   = item->GetItemRandomPropertyId();
+    std::vector<uint32> const& bonusListIds = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
+    if (!bonusListIds.empty())
+    {
+        ItemBonus.HasValue = true;
+        ItemBonus.Value.BonusListIDs.insert(ItemBonus.Value.BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
+        ItemBonus.Value.Context = 0; /// @todo
+    }
+
+    for (uint8 i = 1; i < MAX_ITEM_MODIFIERS; ++i)
+    {
+        if (int32 mod = item->GetModifier(ItemModifier(i)))
+        {
+            Modifications.HasValue = true;
+            Modifications.Value.Insert(i - 1, mod);
+        }
+    }
+}
+
+void WorldPackets::Item::ItemInstance::Initalize(::LootItem const& lootItem)
+{
+    ItemID               = lootItem.itemid;
+    RandomPropertiesSeed = lootItem.randomSuffix;
+    RandomPropertiesID   = lootItem.randomPropertyId;
+    if (!lootItem.BonusListIDs.empty())
+    {
+        ItemBonus.HasValue = true;
+        ItemBonus.Value.BonusListIDs = lootItem.BonusListIDs;
+        ItemBonus.Value.Context = 0; /// @todo
+    }
+
+    /// no Modifications
 }
 
 WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()

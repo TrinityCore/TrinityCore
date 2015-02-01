@@ -100,7 +100,7 @@ enum BuyBankSlotResult
     ERR_BANKSLOT_OK                 = 3
 };
 
-enum PlayerSpellState
+enum PlayerSpellState : uint8
 {
     PLAYERSPELL_UNCHANGED = 0,
     PLAYERSPELL_CHANGED   = 1,
@@ -115,12 +115,6 @@ struct PlayerSpell
     bool active            : 1;                             // show in spellbook
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
-};
-
-struct PlayerTalent
-{
-    PlayerSpellState state : 8;
-    uint8 spec             : 8;
 };
 
 extern uint32 const MasterySpells[MAX_CLASSES];
@@ -193,7 +187,7 @@ struct PlayerCurrency
     uint8 Flags;
 };
 
-typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
+typedef std::unordered_map<uint32, PlayerSpellState> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
 typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
@@ -579,6 +573,12 @@ enum PlayerFieldByte2Flags
     PLAYER_FIELD_BYTE2_NONE                 = 0x00,
     PLAYER_FIELD_BYTE2_STEALTH              = 0x20,
     PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW    = 0x40
+};
+
+enum PlayerFieldKillsOffsets
+{
+    PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS     = 0,
+    PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS = 1
 };
 
 enum MirrorTimerType
@@ -1262,11 +1262,7 @@ struct PlayerTalentInfo
     ~PlayerTalentInfo()
     {
         for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
-        {
-            for (PlayerTalentMap::const_iterator itr = GroupInfo[i].Talents->begin(); itr != GroupInfo[i].Talents->end(); ++itr)
-                delete itr->second;
             delete GroupInfo[i].Talents;
-        }
     }
 
     struct TalentGroupInfo
@@ -1564,7 +1560,6 @@ class Player : public Unit, public GridObject<Player>
         void ApplyEnchantment(Item* item, bool apply);
         void UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 new_value);
         void SendEnchantmentDurations();
-        void BuildEnchantmentsInfoData(WorldPacket* data);
         void AddItemDurations(Item* item);
         void RemoveItemDurations(Item* item);
         void SendItemDurations();

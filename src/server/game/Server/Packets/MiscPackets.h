@@ -177,7 +177,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Time = 0;
+            uint32 Time = 0; ///< UnixTime
         };
 
         class TutorialFlags : public ServerPacket

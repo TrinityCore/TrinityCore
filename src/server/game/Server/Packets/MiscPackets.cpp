@@ -16,12 +16,11 @@
  */
 
 #include "MiscPackets.h"
+#include "PacketUtilities.h"
 
 WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
 {
-    _worldPacket << float(BindPosition.x);
-    _worldPacket << float(BindPosition.y);
-    _worldPacket << float(BindPosition.z);
+    _worldPacket << BindPosition;
     _worldPacket << uint32(BindMapID);
     _worldPacket << uint32(BindAreaID);
 
@@ -218,9 +217,7 @@ WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()
 WorldPacket const* WorldPackets::Misc::DeathReleaseLoc::Write()
 {
     _worldPacket << MapID;
-    _worldPacket << float(Loc.x);
-    _worldPacket << float(Loc.y);
-    _worldPacket << float(Loc.z);
+    _worldPacket << Loc;
 
     return &_worldPacket;
 }

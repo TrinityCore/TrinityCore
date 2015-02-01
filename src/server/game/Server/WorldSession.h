@@ -167,13 +167,21 @@ namespace WorldPackets
         class QueryGuildInfo;
     }
 
+    namespace Inspect
+    {
+        class Inspect;
+        class InspectPVPRequest;
+        class QueryInspectAchievements;
+        class RequestHonorStats;
+    }
+
     namespace Item
     {
         class AutoEquipItem;
         class AutoStoreBagItem;
         class BuyBackItem;
         class DestroyItem;
-        class ItemRefundInfo;
+        class GetItemPurchaseData;
         class RepairItem;
         class SellItem;
         class SplitItem;
@@ -685,11 +693,11 @@ class WorldSession
         void HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& packet);
         void HandleRequestCemeteryList(WorldPackets::Misc::RequestCemeteryList& packet);
 
-        // new inspect
-        void HandleInspectOpcode(WorldPacket& recvPacket);
-
-        // new party stats
-        void HandleInspectHonorStatsOpcode(WorldPacket& recvPacket);
+        // Inspect
+        void HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect);
+        void HandleRequestHonorStatsOpcode(WorldPackets::Inspect::RequestHonorStats& request);
+        void HandleInspectPVP(WorldPackets::Inspect::InspectPVPRequest& request);
+        void HandleQueryInspectAchievements(WorldPackets::Inspect::QueryInspectAchievements& inspect);
 
         void HandleMoveWaterWalkAck(WorldPacket& recvPacket);
         void HandleFeatherFallAck(WorldPacket& recvData);
@@ -1049,7 +1057,7 @@ class WorldSession
         void HandleBattlefieldLeaveOpcode(WorldPacket& recvData);
         void HandleBattlemasterJoinArena(WorldPacket& recvData);
         void HandleReportPvPAFK(WorldPacket& recvData);
-        void HandleRequestRatedBgInfo(WorldPacket& recvData);
+        void HandleRequestRatedBattlefieldInfo(WorldPacket& recvData);
         void HandleRequestPvpOptions(WorldPacket& recvData);
         void HandleRequestPvpReward(WorldPacket& recvData);
         void HandleRequestRatedBgStats(WorldPacket& recvData);
@@ -1133,7 +1141,7 @@ class WorldSession
 
         void HandleCancelTempEnchantmentOpcode(WorldPacket& recvData);
 
-        void HandleItemRefundInfoRequest(WorldPackets::Item::ItemRefundInfo& packet);
+        void HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchaseData& packet);
         void HandleItemRefund(WorldPacket& recvData);
 
         void HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData);
@@ -1194,7 +1202,6 @@ class WorldSession
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
         void HandleRemoveGlyph(WorldPacket& recvData);
-        void HandleQueryInspectAchievements(WorldPacket& recvData);
         void HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& setFocusedAchievement);
         void HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet);
         void HandleEquipmentSetDelete(WorldPacket& recvData);

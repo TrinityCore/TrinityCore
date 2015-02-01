@@ -190,8 +190,6 @@ struct LootItem
     bool AllowedForPlayer(Player const* player) const;
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
-
-    void BuildItemInstance(WorldPackets::Item::ItemInstance& instance) const;
 };
 
 struct QuestItem

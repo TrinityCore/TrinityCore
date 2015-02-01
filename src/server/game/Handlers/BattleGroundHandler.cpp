@@ -788,14 +788,14 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
     reportedPlayer->ReportedAfkBy(_player);
 }
 
-void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
+void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_BG_INFO");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_BATTLEFIELD_INFO");
 
     uint8 unk;
     recvData >> unk;
 
-    TC_LOG_DEBUG("bg.battleground", "WorldSession::HandleRequestRatedBgInfo: unk = %u", unk);
+    TC_LOG_DEBUG("bg.battleground", "WorldSession::HandleRequestRatedBattlefieldInfo: unk = %u", unk);
 
     /// @Todo: perfome research in this case
     /// The unk fields are related to arenas
