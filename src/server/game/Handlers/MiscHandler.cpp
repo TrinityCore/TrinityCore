@@ -34,8 +34,6 @@
 #include "GameTime.h"
 #include "GossipDef.h"
 #include "Group.h"
-#include "GuildMgr.h"
-#include "InspectPackets.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -44,7 +42,6 @@
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -889,70 +886,6 @@ void WorldSession::HandlePlayedTime(WorldPackets::Character::PlayedTimeClient& p
     SendPacket(playedTime.Write());
 }
 
-void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
-{
-    Player* player = ObjectAccessor::GetPlayer(*_player, inspect.Target);
-    if (!player)
-    {
-        TC_LOG_DEBUG("network", "CMSG_INSPECT: No player found from {}", inspect.Target.ToString());
-        return;
-    }
-
-    TC_LOG_DEBUG("network", "WorldSession::HandleInspectOpcode: Target {}.", inspect.Target.ToString());
-
-    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
-        return;
-
-    if (GetPlayer()->IsValidAttackTarget(player))
-        return;
-
-    WorldPackets::Inspect::InspectResult inspectResult;
-    inspectResult.InspecteeGUID = inspect.Target;
-
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-        {
-            inspectResult.ItemSlots[i] = true;
-            inspectResult.Items.emplace_back(item);
-        }
-    }
-
-    if (GetPlayer()->CanBeGameMaster() || sWorld->getIntConfig(CONFIG_TALENTS_INSPECTING) + (GetPlayer()->GetTeamId() == player->GetTeamId()) > 1)
-        player->BuildPlayerTalentsInfoData(inspectResult.TalentInfo);
-
-    SendPacket(inspectResult.Write());
-}
-
-void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    recvData >> guid;
-
-    Player* player = ObjectAccessor::GetPlayer(*_player, guid);
-
-    if (!player)
-    {
-        TC_LOG_DEBUG("network", "CMSG_REQUEST_HONOR_STATS: No player found from {}", guid.ToString());
-        return;
-    }
-
-    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
-        return;
-
-    if (GetPlayer()->IsValidAttackTarget(player))
-        return;
-
-    WorldPacket data(MSG_INSPECT_HONOR_STATS, 8+1+4*4);
-    data << player->GetGUID();
-    data << uint8(player->GetHonorPoints());
-    data << uint32(player->GetUInt32Value(PLAYER_FIELD_KILLS));
-    data << uint32(player->GetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION));
-    data << uint32(player->GetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION));
-    data << uint32(player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
-    SendPacket(&data);
-}
-
 void WorldSession::HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& worldTeleport)
 {
     if (_player->IsInFlight())
@@ -1293,29 +1226,8 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "Client used \"/timetest {}\" command", mode);
 }
 
-void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
-
-    TC_LOG_DEBUG("network", "CMSG_QUERY_INSPECT_ACHIEVEMENTS [{}] Inspected Player [{}]", _player->GetGUID().ToString(), guid.ToString());
-    Player* player = ObjectAccessor::GetPlayer(*_player, guid);
-    if (!player)
-        return;
-
-    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
-        return;
-
-    if (GetPlayer()->IsValidAttackTarget(player))
-        return;
-
-    player->SendRespondInspectAchievements(_player);
-}
-
 void WorldSession::HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_UI_TIME_REQUEST");
-
     WorldPackets::Misc::UITime response;
     response.Time = GameTime::GetGameTime();
     SendPacket(response.Write());

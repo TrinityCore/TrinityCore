@@ -63,6 +63,42 @@ namespace WorldPackets
             std::vector<InspectItemData> Items;
             Talent::TalentInfoUpdate TalentInfo;
         };
+
+        class RequestHonorStats final : public ClientPacket
+        {
+        public:
+            explicit RequestHonorStats(WorldPacket&& packet) : ClientPacket(MSG_INSPECT_HONOR_STATS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid TargetGUID;
+        };
+
+        class InspectHonorStats final : public ServerPacket
+        {
+        public:
+            explicit InspectHonorStats() : ServerPacket(MSG_INSPECT_HONOR_STATS, 8 + 1 + 2 + 2 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGUID;
+            uint8 LifetimeMaxRank = 0;
+            uint16 TodayHonorableKills = 0;
+            uint16 YesterdayHonorableKills = 0;
+            uint32 TodayContribution = 0;
+            uint32 YesterdayContribution = 0;
+            uint32 LifetimeHonorableKills = 0;
+        };
+
+        class QueryInspectAchievements final : public ClientPacket
+        {
+        public:
+            explicit QueryInspectAchievements(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_INSPECT_ACHIEVEMENTS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid;
+        };
     }
 }
 

@@ -439,6 +439,12 @@ enum PlayerFieldByte2Flags
     PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW    = 0x40
 };
 
+enum PlayerFieldKillsOffsets
+{
+    PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS     = 0,
+    PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS = 1
+};
+
 enum MirrorTimerType
 {
     FATIGUE_TIMER      = 0,
