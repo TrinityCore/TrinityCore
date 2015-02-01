@@ -286,20 +286,17 @@ namespace WorldPackets
             int32 MoveTime = 0;
         };
     }
-}
 
-ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v);
-ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v);
+    ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);
+    ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilter const& monsterSplineFilter);
+    ByteBuffer& operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline);
+    ByteBuffer& operator<<(ByteBuffer& data, Movement::MovementMonsterSpline const& movementMonsterSpline);
+}
 
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo);
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo);
 
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo::TransportInfo& transportInfo);
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo::TransportInfo const& transportInfo);
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilter const& monsterSplineFilter);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline const& movementSpline);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonsterSpline const& movementMonsterSpline);
 
 #endif // MovementPackets_h__

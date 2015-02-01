@@ -1237,16 +1237,16 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
     item->ClearEnchantment(TEMP_ENCHANTMENT_SLOT);
 }
 
-void WorldSession::HandleItemRefundInfoRequest(WorldPackets::Item::ItemRefundInfo& packet)
+void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchaseData& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_REFUND_INFO: Item %s", packet.ItemGUID.ToString().c_str());
-
     Item* item = _player->GetItemByGuid(packet.ItemGUID);
     if (!item)
     {
-        TC_LOG_DEBUG("network", "Item refund: item not found!");
+        TC_LOG_DEBUG("network", "HandleGetItemPurchaseData: Item %s not found!", packet.ItemGUID.ToString().c_str());
         return;
     }
+
+    TC_LOG_DEBUG("network", "HandleGetItemPurchaseData: Item %s", packet.ItemGUID.ToString().c_str());
 
     GetPlayer()->SendRefundInfo(item);
 }

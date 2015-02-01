@@ -1030,7 +1030,7 @@ bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) cons
 
 void Item::SendUpdateSockets()
 {
-    WorldPacket data(SMSG_SOCKET_GEMS_RESULT, 8+4+4+4+4);
+    WorldPacket data(SMSG_SOCKET_GEMS, 8+4+4+4+4);
     data << GetGUID();
     for (uint32 i = SOCK_ENCHANTMENT_SLOT; i <= BONUS_ENCHANTMENT_SLOT; ++i)
         data << uint32(GetEnchantmentId(EnchantmentSlot(i)));

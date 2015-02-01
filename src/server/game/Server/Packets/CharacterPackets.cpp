@@ -17,6 +17,7 @@
 
 #include "CharacterPackets.h"
 #include "ObjectMgr.h"
+#include "PacketUtilities.h"
 #include "World.h"
 
 WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
@@ -130,9 +131,7 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
         _worldPacket << uint8(charInfo.Level);
         _worldPacket << int32(charInfo.ZoneId);
         _worldPacket << int32(charInfo.MapId);
-        _worldPacket << float(charInfo.PreLoadPosition.x);
-        _worldPacket << float(charInfo.PreLoadPosition.y);
-        _worldPacket << float(charInfo.PreLoadPosition.z);
+        _worldPacket << charInfo.PreLoadPosition;
         _worldPacket << charInfo.GuildGuid;
         _worldPacket << uint32(charInfo.Flags);
         _worldPacket << uint32(charInfo.CustomizationFlag);

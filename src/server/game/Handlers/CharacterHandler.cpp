@@ -1638,7 +1638,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         _player->SwapItem(item->GetPos(), dstpos);
     }
 
-    WorldPacket data(SMSG_EQUIPMENT_SET_USE_RESULT, 1);
+    WorldPacket data(SMSG_USE_EQUIPMENT_SET_RESULT, 1);
     data << uint8(0);                                       // 4 - equipment swap failed - inventory is full
     SendPacket(&data);
 }

@@ -462,10 +462,10 @@ WorldPacket const* WorldPackets::Spells::SetSpellModifier::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Spells::SendRemovedSpell::Write()
+WorldPacket const* WorldPackets::Spells::UnlearnedSpells::Write()
 {
-    _worldPacket << uint32(Spells.size());
-    for (uint32 spellId : Spells)
+    _worldPacket << uint32(SpellID.size());
+    for (uint32 spellId : SpellID)
         _worldPacket << uint32(spellId);
 
     return &_worldPacket;

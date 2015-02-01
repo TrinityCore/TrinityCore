@@ -19,19 +19,8 @@
 #include "MoveSpline.h"
 #include "MoveSplineFlag.h"
 #include "MovementTypedefs.h"
+#include "PacketUtilities.h"
 #include "Unit.h"
-
-ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v)
-{
-    data << v.x << v.y << v.z;
-    return data;
-}
-
-ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
-{
-    data >> v.x >> v.y >> v.z;
-    return data;
-}
 
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
 {
@@ -189,7 +178,7 @@ void WorldPackets::Movement::ClientPlayerMovement::Read()
     _worldPacket >> movementInfo;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilterKey const& monsterSplineFilterKey)
+ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey)
 {
     data << monsterSplineFilterKey.Idx;
     data << monsterSplineFilterKey.Speed;
@@ -197,7 +186,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFi
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilter const& monsterSplineFilter)
+ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MonsterSplineFilter const& monsterSplineFilter)
 {
     data << uint32(monsterSplineFilter.FilterKeys.size());
     data << monsterSplineFilter.BaseSpeed;
@@ -212,7 +201,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFi
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline const& movementSpline)
+ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline)
 {
     data << movementSpline.Flags;
     data << movementSpline.AnimTier;
@@ -255,7 +244,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonsterSpline const& movementMonsterSpline)
+ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementMonsterSpline const& movementMonsterSpline)
 {
     data << movementMonsterSpline.ID;
     data << movementMonsterSpline.Destination;
@@ -276,13 +265,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonster
 void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::Movement::MoveSpline const& moveSpline, ByteBuffer& data)
 {
     data << uint32(moveSpline.GetId());                                         // ID
+
     if (!moveSpline.isCyclic())                                                 // Destination
-    {
-        G3D::Vector3 dest = moveSpline.FinalDestination();
-        data << float(dest.z);
-        data << float(dest.x);
-        data << float(dest.y);
-    }
+        data << moveSpline.FinalDestination().zxy();
     else
         data << G3D::Vector3::zero();
 

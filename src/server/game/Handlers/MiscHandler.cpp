@@ -551,7 +551,6 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateCh
 void WorldSession::HandleContactListOpcode(WorldPacket& recvData)
 {
     recvData.read_skip<uint32>(); // always 1
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_CONTACT_LIST");
     _player->GetSocial()->SendSocialList(_player);
 }
 
@@ -588,9 +587,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
     ObjectGuid friendGuid;
     uint32 friendAccountId;
     uint32 team;
-    FriendsResult friendResult;
-
-    friendResult = FRIEND_NOT_FOUND;
+    FriendsResult friendResult = FRIEND_NOT_FOUND;
 
     if (result)
     {
@@ -675,9 +672,7 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
         return;
 
     ObjectGuid IgnoreGuid;
-    FriendsResult ignoreResult;
-
-    ignoreResult = FRIEND_IGNORE_NOT_FOUND;
+    FriendsResult ignoreResult = FRIEND_IGNORE_NOT_FOUND;
 
     if (result)
     {
@@ -1191,110 +1186,6 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    recvData >> guid;
-
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_INSPECT");
-
-    Player* player = ObjectAccessor::FindPlayer(guid);
-    if (!player)
-    {
-        TC_LOG_DEBUG("network", "CMSG_INSPECT: No player found from %s", guid.ToString().c_str());
-        return;
-    }
-
-    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
-        return;
-
-    if (GetPlayer()->IsValidAttackTarget(player))
-        return;
-
-    uint32 talent_points = 41;
-    WorldPacket data(SMSG_INSPECT_TALENT, 8 + 4 + 1 + 1 + talent_points + 8 + 4 + 8 + 4);
-    data << player->GetGUID();
-
-    /* TODO: 6.x update packet structure (BuildPlayerTalentsInfoData no longer exists)
-    if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || _player->IsGameMaster())
-        player->BuildPlayerTalentsInfoData(&data);
-    else
-    {
-        data << uint32(0);                                  // unspentTalentPoints
-        data << uint8(0);                                   // talentGroupCount
-        data << uint8(0);                                   // talentGroupIndex
-    }
-    */
-
-    player->BuildEnchantmentsInfoData(&data);
-    if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
-    {
-        data << guild->GetGUID();
-        data << uint32(guild->GetLevel());
-        data << uint64(guild->GetExperience());
-        data << uint32(guild->GetMembersCount());
-    }
-    SendPacket(&data);
-}
-
-void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    guid[1] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[3]);
-    Player* player = ObjectAccessor::FindPlayer(guid);
-    if (!player)
-    {
-        TC_LOG_DEBUG("network", "CMSG_REQUEST_HONOR_STATS: No player found from %s", guid.ToString().c_str());
-        return;
-    }
-
-    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
-        return;
-
-    if (GetPlayer()->IsValidAttackTarget(player))
-        return;
-
-    ObjectGuid playerGuid = player->GetGUID();
-    WorldPacket data(SMSG_INSPECT_HONOR_STATS, 8+1+4+4);
-    data.WriteBit(playerGuid[4]);
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[6]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(playerGuid[5]);
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(playerGuid[1]);
-    data << uint8(0);                                               // rank
-    data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 1));  // yesterday kills
-    data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 0));  // today kills
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(playerGuid[0]);
-    data.WriteByteSeq(playerGuid[6]);
-    data.WriteByteSeq(playerGuid[3]);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(playerGuid[5]);
-    data << uint32(player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
-    data.WriteByteSeq(playerGuid[7]);
-    SendPacket(&data);
-}
-
 void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
 {
     uint32 time;
@@ -1423,7 +1314,7 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
     // if it's mail spam - ALL mails from this spammer automatically removed by client
 
     // Complaint Received message
-    WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
+    WorldPacket data(SMSG_COMPLAINT_RESULT, 2);
     data << uint8(0); // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
     data << uint8(0); // value 0xC generates a "CalendarError" in client.
     SendPacket(&data);
@@ -1741,25 +1632,6 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "Client used \"/timetest %d\" command", mode);
 }
 
-void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
-
-    TC_LOG_DEBUG("network", "CMSG_QUERY_INSPECT_ACHIEVEMENTS [%s] Inspected Player [%s]", _player->GetGUID().ToString().c_str(), guid.ToString().c_str());
-    Player* player = ObjectAccessor::FindPlayer(guid);
-    if (!player)
-        return;
-
-    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
-        return;
-
-    if (GetPlayer()->IsValidAttackTarget(player))
-        return;
-
-    player->SendRespondInspectAchievements(_player);
-}
-
 void WorldSession::HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& setFocusedAchievement)
 {
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
@@ -1768,8 +1640,6 @@ void WorldSession::HandleGuildSetFocusedAchievement(WorldPackets::Achievement::G
 
 void WorldSession::HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_UI_TIME_REQUEST");
-
     WorldPackets::Misc::UITime response;
     response.Time = time(NULL);
     SendPacket(response.Write());

@@ -3339,17 +3339,9 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
 
     PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(talent->ID);
     if (itr != GetTalentMap(spec)->end())
-        itr->second->state = PLAYERSPELL_UNCHANGED;
+        itr->second = PLAYERSPELL_UNCHANGED;
     else
-    {
-        PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
-        PlayerTalent* newtalent = new PlayerTalent();
-
-        newtalent->state = state;
-        newtalent->spec = spec;
-
-        (*GetTalentMap(spec))[talent->ID] = newtalent;
-    }
+        (*GetTalentMap(spec))[talent->ID] = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
 
     return true;
 }
@@ -3373,7 +3365,7 @@ void Player::RemoveTalent(TalentEntry const* talent)
     // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
     PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveTalentGroup())->find(talent->ID);
     if (plrTalent != GetTalentMap(GetActiveTalentGroup())->end())
-        plrTalent->second->state = PLAYERSPELL_REMOVED;
+        plrTalent->second = PLAYERSPELL_REMOVED;
 }
 
 bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool fromSkill /*= false*/)
@@ -3477,9 +3469,9 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                     SendSupercededSpell(spellId, next_active_spell_id);
                 else
                 {
-                    WorldPackets::Spells::SendRemovedSpell removedSpells;
-                    removedSpells.Spells.push_back(spellId);
-                    GetSession()->SendPacket(removedSpells.Write());
+                    WorldPackets::Spells::UnlearnedSpells unlearnedSpells;
+                    unlearnedSpells.SpellID.push_back(spellId);
+                    SendDirectMessage(unlearnedSpells.Write());
                 }
             }
 
@@ -3920,9 +3912,9 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // remove from spell book if not replaced by lesser rank
     if (!prev_activate)
     {
-        WorldPackets::Spells::SendRemovedSpell removedSpells;
-        removedSpells.Spells.push_back(spell_id);
-        GetSession()->SendPacket(removedSpells.Write());
+        WorldPackets::Spells::UnlearnedSpells unlearnedSpells;
+        unlearnedSpells.SpellID.push_back(spell_id);
+        SendDirectMessage(unlearnedSpells.Write());
     }
 }
 
@@ -4248,7 +4240,7 @@ bool Player::HasSpell(uint32 spell) const
 bool Player::HasTalent(uint32 talentId, uint8 group) const
 {
     PlayerTalentMap::const_iterator itr = GetTalentMap(group)->find(talentId);
-    return (itr != GetTalentMap(group)->end() && itr->second->state != PLAYERSPELL_REMOVED);
+    return (itr != GetTalentMap(group)->end() && itr->second != PLAYERSPELL_REMOVED);
 }
 
 bool Player::HasActiveSpell(uint32 spell) const
@@ -6719,13 +6711,13 @@ void Player::UpdateHonorFields()
     {
         time_t yesterday = today - DAY;
 
-        uint16 kills_today = PAIR32_LOPART(GetUInt32Value(PLAYER_FIELD_KILLS));
-
         // update yesterday's contribution
         if (m_lastHonorUpdateTime >= yesterday)
         {
             // this is the first update today, reset today's contribution
-            SetUInt32Value(PLAYER_FIELD_KILLS, MAKE_PAIR32(0, kills_today));
+            uint16 killsToday = GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS);
+            SetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS, 0);
+            SetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS, killsToday);
         }
         else
         {
@@ -6814,7 +6806,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             honor_f = std::ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
 
             // count the number of playerkills in one day
-            ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
+            ApplyModUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS, 1, true);
             // and those in a lifetime
             ApplyModUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 1, true);
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL);
@@ -7562,7 +7554,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = currTime;
 
-            WorldPacket data(SMSG_DUEL_OUTOFBOUNDS, 0);
+            WorldPacket data(SMSG_DUEL_OUT_OF_BOUNDS, 0);
             GetSession()->SendPacket(&data);
         }
     }
@@ -7572,7 +7564,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = 0;
 
-            WorldPacket data(SMSG_DUEL_INBOUNDS, 0);
+            WorldPacket data(SMSG_DUEL_IN_BOUNDS, 0);
             GetSession()->SendPacket(&data);
         }
         else if (currTime >= (duel->outOfBound+10))
@@ -16777,8 +16769,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadCurrency(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CURRENCY));
     SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, fields[40].GetUInt32());
-    SetUInt16Value(PLAYER_FIELD_KILLS, 0, fields[41].GetUInt16());
-    SetUInt16Value(PLAYER_FIELD_KILLS, 1, fields[42].GetUInt16());
+    SetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS, fields[41].GetUInt16());
+    SetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS, fields[42].GetUInt16());
 
     _LoadBoundInstances(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BOUND_INSTANCES));
     _LoadInstanceTimeRestrictions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
@@ -18875,8 +18867,8 @@ void Player::SaveToDB(bool create /*=false*/)
 
         stmt->setString(index++, ss.str());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, 0));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, 1));
+        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS));
+        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_CHOSEN_TITLE));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX));
         stmt->setUInt8(index++, GetDrunkValue());
@@ -19012,8 +19004,8 @@ void Player::SaveToDB(bool create /*=false*/)
 
         stmt->setString(index++, ss.str());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, 0));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, 1));
+        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS));
+        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_CHOSEN_TITLE));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX));
         stmt->setUInt8(index++, GetDrunkValue());
@@ -25542,7 +25534,7 @@ void Player::SendTalentsInfoData()
 
         for (PlayerTalentMap::const_iterator itr = GetTalentMap(i)->begin(); itr != GetTalentMap(i)->end(); ++itr)
         {
-            if (itr->second->state == PLAYERSPELL_REMOVED)
+            if (itr->second == PLAYERSPELL_REMOVED)
                 continue;
 
             TalentEntry const* talentInfo = sTalentStore.LookupEntry(itr->first);
@@ -25572,49 +25564,6 @@ void Player::SendTalentsInfoData()
     }
 
     SendDirectMessage(packet.Write());
-}
-
-void Player::BuildEnchantmentsInfoData(WorldPacket* data)
-{
-    uint32 slotUsedMask = 0;
-    size_t slotUsedMaskPos = data->wpos();
-    *data << uint32(slotUsedMask);                          // slotUsedMask < 0x80000
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-
-        if (!item)
-            continue;
-
-        slotUsedMask |= (1 << i);
-
-        *data << uint32(item->GetEntry());                  // item entry
-
-        uint16 enchantmentMask = 0;
-        size_t enchantmentMaskPos = data->wpos();
-        *data << uint16(enchantmentMask);                   // enchantmentMask < 0x1000
-
-        for (uint32 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
-        {
-            uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(j));
-
-            if (!enchId)
-                continue;
-
-            enchantmentMask |= (1 << j);
-
-            *data << uint16(enchId);                        // enchantmentId?
-        }
-
-        data->put<uint16>(enchantmentMaskPos, enchantmentMask);
-
-        *data << uint16(0);                                 // unknown
-        *data << item->GetGuidValue(ITEM_FIELD_CREATOR).WriteAsPacked(); // item creator
-        *data << uint32(0);                                 // seed?
-    }
-
-    data->put<uint32>(slotUsedMaskPos, slotUsedMask);
 }
 
 void Player::SendEquipmentSetList()
@@ -25890,15 +25839,14 @@ void Player::_SaveTalents(SQLTransaction& trans)
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
-    PlayerTalentMap* talents;
+    PlayerTalentMap* talents = nullptr;
     for (uint8 group = 0; group < MAX_TALENT_GROUPS; ++group)
     {
         talents = GetTalentMap(group);
         for (PlayerTalentMap::iterator itr = talents->begin(); itr != talents->end();)
         {
-            if (itr->second->state == PLAYERSPELL_REMOVED)
+            if (itr->second == PLAYERSPELL_REMOVED)
             {
-                delete itr->second;
                 itr = talents->erase(itr);
                 continue;
             }
@@ -25906,7 +25854,7 @@ void Player::_SaveTalents(SQLTransaction& trans)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
             stmt->setUInt64(0, GetGUID().GetCounter());
             stmt->setUInt32(1, itr->first);
-            stmt->setUInt8(2, itr->second->spec);
+            stmt->setUInt8(2, group);
             trans->Append(stmt);
             ++itr;
         }

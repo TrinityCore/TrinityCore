@@ -4840,7 +4840,7 @@ void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
 
 void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 {
-    WorldPacket data(SMSG_PROCRESIST, 8+8+4+1);
+    WorldPacket data(SMSG_PROC_RESIST, 8+8+4+1);
     data << GetGUID();
     data << target->GetGUID();
     data << uint32(spellId);

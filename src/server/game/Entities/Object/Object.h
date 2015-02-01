@@ -133,7 +133,6 @@ class Object
         void SetFloatValue(uint16 index, float value);
         void SetByteValue(uint16 index, uint8 offset, uint8 value);
         void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
-        void SetInt16Value(uint16 index, uint8 offset, int16 value) { SetUInt16Value(index, offset, (uint16)value); }
         void SetGuidValue(uint16 index, ObjectGuid const& value);
         void SetStatFloatValue(uint16 index, float value);
         void SetStatInt32Value(uint16 index, int32 value);
@@ -143,7 +142,7 @@ class Object
 
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);
-        void ApplyModUInt64Value(uint16 index, int32 val, bool apply);
+        void ApplyModUInt16Value(uint16 index, uint8 offset, int16 val, bool apply);
         void ApplyModPositiveFloatValue(uint16 index, float val, bool apply);
         void ApplyModSignedFloatValue(uint16 index, float val, bool apply);
         void ApplyPercentModFloatValue(uint16 index, float val, bool apply);
