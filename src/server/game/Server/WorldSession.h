@@ -386,6 +386,11 @@ namespace WorldPackets
         class TotemDestroyed;
     }
 
+    namespace Ticket
+    {
+        class GMTicketGetSystemStatus;
+    }
+
     namespace Trade
     {
         class CancelTrade;
@@ -816,7 +821,7 @@ class TC_GAME_API WorldSession
         void HandleGMTicketUpdateOpcode(WorldPacket& recvPacket);
         void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
         void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
+        void HandleGMTicketSystemStatusOpcode(WorldPackets::Ticket::GMTicketGetSystemStatus& packet);
         void HandleGMSurveySubmit(WorldPacket& recvPacket);
         void HandleReportLag(WorldPacket& recvPacket);
         void HandleGMResponseResolve(WorldPacket& recvPacket);
