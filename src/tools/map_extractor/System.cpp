@@ -107,12 +107,6 @@ static const char* const langs[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koK
 
 void CreateDir( const std::string& Path )
 {
-    if(chdir(Path.c_str()) == 0)
-    {
-            chdir("../");
-            return;
-    }
-
     int ret;
     #ifdef _WIN32
     ret = _mkdir( Path.c_str());
