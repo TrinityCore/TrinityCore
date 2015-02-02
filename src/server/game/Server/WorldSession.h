@@ -112,6 +112,7 @@ namespace WorldPackets
         class LogoutRequest;
         class LogoutCancel;
         class LoadingScreenNotify;
+        class SetActionBarToggles;
     }
 
     namespace ClientConfig
@@ -1042,7 +1043,7 @@ class WorldSession
         void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& castRequest);
         void HandlePetLearnTalent(WorldPacket& recvPacket);
 
-        void HandleSetActionBarToggles(WorldPacket& recvData);
+        void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 
         void HandleTotemDestroyed(WorldPacket& recvData);
         void HandleDismissCritter(WorldPacket& recvData);

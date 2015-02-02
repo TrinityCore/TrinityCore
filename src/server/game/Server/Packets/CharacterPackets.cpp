@@ -389,3 +389,8 @@ WorldPacket const* WorldPackets::Character::InitialSetup::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Character::SetActionBarToggles::Read()
+{
+    _worldPacket >> ActionBar;
+}
