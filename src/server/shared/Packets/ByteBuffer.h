@@ -544,6 +544,12 @@ class ByteBuffer
                 append(str.c_str(), len);
         }
 
+        void WriteString(char const* str, size_t len)
+        {
+            if (len)
+                append(str, len);
+        }
+
         uint32 ReadPackedTime()
         {
             uint32 packedDate = read<uint32>();
