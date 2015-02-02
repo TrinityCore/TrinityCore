@@ -42,7 +42,7 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
         _worldPacket << uint32(Info.Value.BorderColor);
         _worldPacket << uint32(Info.Value.BackgroundColor);
 
-        for (GuildInfo::GuildInfoRank const& rank : Info.Value.Ranks)
+        for (GuildRank const& rank : Info.Value.Ranks)
         {
             _worldPacket << uint32(rank.RankID);
             _worldPacket << uint32(rank.RankOrder);
@@ -54,6 +54,89 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
         _worldPacket.WriteBits(Info.Value.GuildName.size(), 7);
         _worldPacket.WriteString(Info.Value.GuildName);
     }
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildRosterResponse::Write()
+{
+    _worldPacket << uint32(MemberCount);
+    _worldPacket.AppendPackedTime(CreatedDate);
+    _worldPacket << uint32(GuildFlags);
+    _worldPacket << uint32(Members.size());
+
+    for (GuildMemberInfo const& member : Members)
+    {
+        _worldPacket << member.MemberGUID;
+        _worldPacket << uint32(member.RankID);
+        _worldPacket << uint32(member.AreaID);
+        _worldPacket << uint32(member.AchivementPoints);
+        _worldPacket << uint32(member.Reputation);
+        _worldPacket << float(member.LastOnlineTime);
+
+        for (GuildMemberInfo::GuildMemberProfession const& profession : member.Professions)
+        {
+            _worldPacket << uint32(profession.ID);
+            _worldPacket << uint32(profession.Rank);
+            _worldPacket << uint32(profession.Step);
+        }
+
+        _worldPacket << uint32(member.VirtualRealmAddress);
+        _worldPacket << uint8(member.Flags);
+        _worldPacket << uint8(member.Level);
+        _worldPacket << uint8(member.Class);
+        _worldPacket << uint8(member.Gender);
+
+        _worldPacket.WriteBits(member.Name.size(), 6);
+        _worldPacket.WriteBits(member.Note.size(), 8);
+        _worldPacket.WriteBits(member.OfficerNote.size(), 8);
+
+        _worldPacket.WriteBit(member.Authenticated);
+        _worldPacket.WriteBit(member.ScrollOfResurrection);
+
+        _worldPacket.WriteString(member.Name);
+        _worldPacket.WriteString(member.Note);
+        _worldPacket.WriteString(member.OfficerNote);
+    }
+
+    _worldPacket.WriteBits(WelcomeText.size(), 10);
+    _worldPacket.WriteBits(InfoText.size(), 11);
+
+    _worldPacket.WriteString(WelcomeText);
+    _worldPacket.WriteString(InfoText);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Guild::GuildGetRanks::Read()
+{
+    _worldPacket >> GuildGUID;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildRanksResponse::Write()
+{
+    _worldPacket << uint32(Ranks.size());
+
+    for (auto rank : Ranks)
+    {
+        _worldPacket << int32(rank.RankID);
+        _worldPacket << int32(rank.RankOrder);
+        _worldPacket << int32(rank.Flags);
+        _worldPacket << int32(rank.WithdrawGoldLimit);
+
+        for (GuildRank::GuildRankTabInfo tab : rank.TabInfo)
+        {
+            _worldPacket << int32(tab.TabFlags);
+            _worldPacket << int32(tab.TabWithdrawItemLimit);
+        }
+
+        _worldPacket.WriteBits(rank.RankName.size(), 7);
+        _worldPacket.WriteString(rank.RankName);
+    }
+
     _worldPacket.FlushBits();
 
     return &_worldPacket;

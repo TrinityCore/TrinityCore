@@ -20,11 +20,41 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "Guild.h"
 
 namespace WorldPackets
 {
     namespace Guild
     {
+
+        struct GuildRank
+        {
+            GuildRank() { }
+
+            GuildRank(uint32 id, uint32 order, std::string const& name)
+                : RankID(id), RankOrder(order), RankName(name) { }
+
+            uint32 RankID;
+            uint32 RankOrder;
+            uint32 Flags;
+            uint32 WithdrawGoldLimit;
+
+            std::string RankName;
+
+            struct GuildRankTabInfo
+            {
+                int32 TabFlags;
+                int32 TabWithdrawItemLimit;
+            };
+
+            GuildRankTabInfo TabInfo[GUILD_BANK_MAX_TABS];
+
+            bool operator<(GuildRank const& right) const
+            {
+                return RankID < right.RankID;
+            }
+        };
+
         class QueryGuildInfo final : public ClientPacket
         {
         public:
@@ -47,22 +77,7 @@ namespace WorldPackets
 
                 std::string GuildName;
 
-                struct GuildInfoRank
-                {
-                    GuildInfoRank(uint32 id, uint32 order, std::string const& name)
-                        : RankID(id), RankOrder(order), RankName(name) { }
-
-                    uint32 RankID;
-                    uint32 RankOrder;
-                    std::string RankName;
-
-                    bool operator<(GuildInfoRank const& right) const
-                    {
-                        return RankID < right.RankID;
-                    }
-                };
-
-                std::set<GuildInfoRank> Ranks;
+                std::set<GuildRank> Ranks;
 
                 uint32 EmblemStyle = 0;
                 uint32 EmblemColor = 0;
@@ -77,6 +92,85 @@ namespace WorldPackets
 
             ObjectGuid GuildGuid;
             Optional<GuildInfo> Info;
+        };
+
+        class GuildGetRoster final : public ClientPacket
+        {
+        public:
+            GuildGetRoster(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_GET_ROSTER, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GuildRosterResponse final : public ServerPacket
+        {
+        public:
+            struct GuildMemberInfo
+            {
+                ObjectGuid MemberGUID;
+                uint32 RankID;
+                uint32 AreaID;
+                uint32 AchivementPoints;
+                uint32 Reputation;
+                float LastOnlineTime; //LastSave
+
+                struct GuildMemberProfession
+                {
+                    uint32 ID;
+                    uint32 Rank;
+                    uint32 Step;
+                };
+
+                GuildMemberProfession Professions[2];
+                uint32 VirtualRealmAddress;
+                uint8 Flags;
+                uint8 Level;
+                uint8 Class;
+                uint8 Gender;
+                bool Authenticated;
+                bool ScrollOfResurrection;
+                std::string Name;
+                std::string Note;
+                std::string OfficerNote;
+
+                bool operator<(GuildMemberInfo const& right) const
+                {
+                    return LastOnlineTime < right.LastOnlineTime;
+                }
+
+            };
+            GuildRosterResponse() : ServerPacket(SMSG_GUILD_ROSTER) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 MemberCount = 0; //NumAccounts
+            time_t CreatedDate;
+            uint32 GuildFlags;
+
+            std::set<GuildMemberInfo> Members;
+
+            std::string WelcomeText;
+            std::string InfoText;
+        };
+
+        class GuildGetRanks final : public ClientPacket
+        {
+        public:
+            GuildGetRanks(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_GET_RANKS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid GuildGUID;
+        };
+
+        class GuildRanksResponse final : public ServerPacket
+        {
+        public:
+            GuildRanksResponse() : ServerPacket(SMSG_GUILD_RANKS) { }
+
+            WorldPacket const* Write() override;
+
+            std::set<GuildRank> Ranks;
         };
     }
 }

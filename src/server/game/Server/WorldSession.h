@@ -165,6 +165,8 @@ namespace WorldPackets
     namespace Guild
     {
         class QueryGuildInfo;
+        class GuildGetRoster;
+        class GuildGetRanks;
     }
 
     namespace Inspect
@@ -831,7 +833,7 @@ class WorldSession
         void HandleGuildAcceptOpcode(WorldPacket& recvPacket);
         void HandleGuildDeclineOpcode(WorldPacket& recvPacket);
         void HandleGuildEventLogQueryOpcode(WorldPacket& recvPacket);
-        void HandleGuildRosterOpcode(WorldPacket& recvPacket);
+        void HandleGuildRosterOpcode(WorldPackets::Guild::GuildGetRoster& packet);
         void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildPromoteOpcode(WorldPacket& recvPacket);
         void HandleGuildDemoteOpcode(WorldPacket& recvPacket);
@@ -843,7 +845,7 @@ class WorldSession
         void HandleGuildMOTDOpcode(WorldPacket& recvPacket);
         void HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket);
         void HandleGuildSetNoteOpcode(WorldPacket& recvPacket);
-        void HandleGuildGetRanksOpcode(WorldPacket& recvPacket);
+        void HandleGuildGetRanksOpcode(WorldPackets::Guild::GuildGetRanks& packet);
         void HandleGuildQueryNewsOpcode(WorldPacket& recvPacket);
         void HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket);
         void HandleGuildAddRankOpcode(WorldPacket& recvPacket);
