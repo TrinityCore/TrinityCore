@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Guild.h"
+#include "GuildPackets.h"
 #include "GossipDef.h"
 #include "SocialMgr.h"
 #include "GuildPackets.h"
@@ -104,10 +105,9 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
     GetPlayer()->SetInGuild(UI64LIT(0));
 }
 
-void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildRosterOpcode(WorldPackets::Guild::GuildGetRoster& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_ROSTER [%s]", GetPlayerInfo().c_str());
-    recvPacket.rfinish();
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRoster(this);
@@ -278,32 +278,12 @@ void WorldSession::HandleGuildSetNoteOpcode(WorldPacket& recvPacket)
         guild->HandleSetMemberNote(this, note, playerGuid, ispublic);
 }
 
-void WorldSession::HandleGuildGetRanksOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildGetRanksOpcode(WorldPackets::Guild::GuildGetRanks& packet)
 {
-    ObjectGuid guildGuid;
-
-    guildGuid[2] = recvPacket.ReadBit();
-    guildGuid[3] = recvPacket.ReadBit();
-    guildGuid[0] = recvPacket.ReadBit();
-    guildGuid[6] = recvPacket.ReadBit();
-    guildGuid[4] = recvPacket.ReadBit();
-    guildGuid[7] = recvPacket.ReadBit();
-    guildGuid[5] = recvPacket.ReadBit();
-    guildGuid[1] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guildGuid[3]);
-    recvPacket.ReadByteSeq(guildGuid[4]);
-    recvPacket.ReadByteSeq(guildGuid[5]);
-    recvPacket.ReadByteSeq(guildGuid[7]);
-    recvPacket.ReadByteSeq(guildGuid[1]);
-    recvPacket.ReadByteSeq(guildGuid[0]);
-    recvPacket.ReadByteSeq(guildGuid[6]);
-    recvPacket.ReadByteSeq(guildGuid[2]);
-
     TC_LOG_DEBUG("guild", "CMSG_GUILD_GET_RANKS [%s]: Guild: %s",
-        GetPlayerInfo().c_str(), guildGuid.ToString().c_str());
+        GetPlayerInfo().c_str(), packet.GuildGUID.ToString().c_str());
 
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
+    if (Guild* guild = sGuildMgr->GetGuildByGuid(packet.GuildGUID))
         if (guild->IsMember(_player->GetGUID()))
             guild->SendGuildRankInfo(this);
 }

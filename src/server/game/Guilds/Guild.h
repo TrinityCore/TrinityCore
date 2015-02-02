@@ -345,6 +345,7 @@ private:
             m_zoneId(0),
             m_level(0),
             m_class(0),
+            m_gender(0),
             m_flags(GUILDMEMBER_STATUS_NONE),
             m_logoutTime(::time(NULL)),
             m_accountId(0),
@@ -359,7 +360,7 @@ private:
         }
 
         void SetStats(Player* player);
-        void SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId, uint32 reputation);
+        void SetStats(std::string const& name, uint8 level, uint8 _class, uint8 _gender, uint32 zoneId, uint32 accountId, uint32 reputation);
         bool CheckStats() const;
 
         void SetPublicNote(std::string const& publicNote);
@@ -386,6 +387,7 @@ private:
         std::string GetOfficerNote() const { return m_officerNote; }
         uint8 GetClass() const { return m_class; }
         uint8 GetLevel() const { return m_level; }
+        uint8 GetGender() const { return m_gender; }
         uint8 GetFlags() const { return m_flags; }
         uint32 GetZoneId() const { return m_zoneId; }
         uint32 GetAchievementPoints() const { return m_achievementPoints; }
@@ -422,6 +424,7 @@ private:
         uint32 m_zoneId;
         uint8 m_level;
         uint8 m_class;
+        uint8 m_gender;
         uint8 m_flags;
         uint64 m_logoutTime;
         uint32 m_accountId;
