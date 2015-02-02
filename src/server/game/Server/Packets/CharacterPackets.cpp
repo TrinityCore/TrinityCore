@@ -163,6 +163,11 @@ WorldPacket const* WorldPackets::Character::LogoutResponse::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Character::SetActionBarToggles::Read()
+{
+    _worldPacket >> Mask;
+}
+
 void WorldPackets::Character::PlayedTimeClient::Read()
 {
     _worldPacket >> TriggerScriptEvent;

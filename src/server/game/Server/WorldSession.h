@@ -153,6 +153,7 @@ namespace WorldPackets
         class ShowingHelm;
         class PlayerLogout;
         class PlayedTimeClient;
+        class SetActionBarToggles;
     }
 
     namespace ClientConfig
@@ -1088,7 +1089,7 @@ class TC_GAME_API WorldSession
         void HandlePetLearnTalent(WorldPacket& recvPacket);
         void HandleLearnPreviewTalentsPet(WorldPacket& recvPacket);
 
-        void HandleSetActionBarToggles(WorldPacket& recvData);
+        void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 
         void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed);
         void HandleDismissCritter(WorldPackets::Pet::DismissCritter& dismissCritter);

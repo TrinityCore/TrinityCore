@@ -310,6 +310,16 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class SetActionBarToggles final : public ClientPacket
+        {
+        public:
+            explicit SetActionBarToggles(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIONBAR_TOGGLES, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Mask = 0;
+        };
+
         class PlayedTimeClient final : public ClientPacket
         {
         public:
