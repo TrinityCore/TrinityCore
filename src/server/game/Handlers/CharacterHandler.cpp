@@ -868,23 +868,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     SendPacket(accountDataTimes.Write());
 
     /// Send FeatureSystemStatus
-    {
-        WorldPackets::System::FeatureSystemStatus features;
-
-        /// START OF DUMMY VALUES
-        features.ComplaintStatus = 2;
-        features.ScrollOfResurrectionRequestsRemaining = 1;
-        features.ScrollOfResurrectionMaxRequestsPerDay = 1;
-        features.CfgRealmID = 2;
-        features.CfgRealmRecID = 0;
-        features.VoiceEnabled = false;
-        /// END OF DUMMY VALUES
-
-        features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
-        features.BpayStoreEnabled    = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
-
-        SendPacket(features.Write());
-    }
+    SendFeatureSystemStatus();
 
     // Send MOTD
     {
@@ -1089,6 +1073,35 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     sBattlenetServer.SendChangeToonOnlineState(GetBattlenetAccountId(), GetAccountId(), _player->GetGUID(), _player->GetName(), true);
 
     delete holder;
+}
+
+void WorldSession::SendFeatureSystemStatus()
+{
+    WorldPackets::System::FeatureSystemStatus features;
+
+    /// START OF DUMMY VALUES
+    features.ComplaintStatus = 2;
+    features.ScrollOfResurrectionRequestsRemaining = 1;
+    features.ScrollOfResurrectionMaxRequestsPerDay = 1;
+    features.CfgRealmID = 2;
+    features.CfgRealmRecID = 0;
+    features.VoiceEnabled = false;
+    features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
+    
+    features.EuropaTicketSystemStatus.HasValue = true;
+    features.EuropaTicketSystemStatus.Value.ThrottleState.MaxTries = 5;
+    features.EuropaTicketSystemStatus.Value.ThrottleState.PerMilliseconds = 5;
+    features.EuropaTicketSystemStatus.Value.ThrottleState.TryCount = 0;
+    features.EuropaTicketSystemStatus.Value.ThrottleState.LastResetTimeBeforeNow = time(nullptr) - 5000;
+    /// END OF DUMMY VALUES
+
+    features.EuropaTicketSystemStatus.Value.SubmitBugEnabled = sWorld->getBoolConfig(CONFIG_TICKET_SUBMIT_BUG);
+    features.EuropaTicketSystemStatus.Value.TicketSystemEnabled = sWorld->getBoolConfig(CONFIG_TICKET_SUBMIT_TICKET);
+    features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
+    features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
+
+    SendPacket(features.Write());
+    TC_LOG_DEBUG("misc", "SMSG_FEATURE_SYSTEM_STATUS [%s]", GetPlayerInfo().c_str());
 }
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
