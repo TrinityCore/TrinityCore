@@ -509,7 +509,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 ActionBar = 0;
+            uint8 Mask = 0;
         };
     }
 }
