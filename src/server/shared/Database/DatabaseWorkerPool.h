@@ -368,7 +368,8 @@ class DatabaseWorkerPool
         void DirectCommitTransaction(SQLTransaction& transaction)
         {
             T* con = GetFreeConnection();
-            if (con->ExecuteTransaction(transaction))
+            int errorCode = con->ExecuteTransaction(transaction);
+            if (!errorCode)
             {
                 con->Unlock();      // OK, operation succesful
                 return;
@@ -376,12 +377,12 @@ class DatabaseWorkerPool
 
             //! Handle MySQL Errno 1213 without extending deadlock to the core itself
             /// @todo More elegant way
-            if (con->GetLastError() == 1213)
+            if (errorCode == ER_LOCK_DEADLOCK)
             {
                 uint8 loopBreaker = 5;
                 for (uint8 i = 0; i < loopBreaker; ++i)
                 {
-                    if (con->ExecuteTransaction(transaction))
+                    if (!con->ExecuteTransaction(transaction))
                         break;
                 }
             }
