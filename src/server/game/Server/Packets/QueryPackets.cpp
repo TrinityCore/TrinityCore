@@ -106,6 +106,21 @@ void WorldPackets::Query::QueryPlayerName::Read()
         _worldPacket >> Hint.NativeRealmAddress.Value;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint)
+{
+    data.WriteBit(lookupHint.VirtualRealmAddress.HasValue);
+    data.WriteBit(lookupHint.NativeRealmAddress.HasValue);
+    data.FlushBits();
+
+    if (lookupHint.VirtualRealmAddress.HasValue)
+        data << uint32(lookupHint.VirtualRealmAddress.Value);
+
+    if (lookupHint.NativeRealmAddress.HasValue)
+        data << uint32(lookupHint.NativeRealmAddress.Value);
+
+    return data;
+}
+
 bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* player /*= nullptr*/)
 {
     CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);

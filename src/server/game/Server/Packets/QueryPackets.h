@@ -323,6 +323,7 @@ namespace WorldPackets
     }
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupData const& lookupData);
 
 #endif // QueryPackets_h__
