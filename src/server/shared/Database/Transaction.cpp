@@ -17,6 +17,7 @@
 
 #include "DatabaseEnv.h"
 #include "Transaction.h"
+#include <mysqld_error.h>
 
 //- Append a raw ad-hoc query to the transaction
 void Transaction::Append(const char* sql)
@@ -74,14 +75,15 @@ void Transaction::Cleanup()
 
 bool TransactionTask::Execute()
 {
-    if (m_conn->ExecuteTransaction(m_trans))
+    int errorCode = m_conn->ExecuteTransaction(m_trans);
+    if (!errorCode)
         return true;
 
-    if (m_conn->GetLastError() == 1213)
+    if (errorCode == ER_LOCK_DEADLOCK)
     {
         uint8 loopBreaker = 5;  // Handle MySQL Errno 1213 without extending deadlock to the core itself
         for (uint8 i = 0; i < loopBreaker; ++i)
-            if (m_conn->ExecuteTransaction(m_trans))
+            if (!m_conn->ExecuteTransaction(m_trans))
                 return true;
     }
 
