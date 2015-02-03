@@ -5769,7 +5769,7 @@ void Spell::EffectCreateAreaTrigger(SpellEffIndex /*effIndex*/)
         delete areaTrigger;
 }
 
-void Spell::EffectRemoveTalent(SpellEffIndex effIndex)
+void Spell::EffectRemoveTalent(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;

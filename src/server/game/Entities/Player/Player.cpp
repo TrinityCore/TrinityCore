@@ -2935,6 +2935,7 @@ void Player::GiveLevel(uint8 level)
     SetLevel(level);
 
     UpdateSkillsForLevel();
+    LearnSpecializationSpells();
 
     // save base values (bonuses already included in stored stats
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
@@ -3046,6 +3047,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetUInt32Value(UNIT_FIELD_AURASTATE, 0);
 
     UpdateSkillsForLevel();
+    LearnSpecializationSpells();
 
     // set default cast time multiplier
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
@@ -4140,12 +4142,6 @@ bool Player::ResetTalents(bool noCost)
 
         RemoveTalent(talentInfo);
     }
-
-    // Remove spec specific spells
-    RemoveSpecializationSpells();
-
-    SetSpecId(GetActiveTalentGroup(), 0);
-    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, 0);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     _SaveTalents(trans);
@@ -27163,25 +27159,28 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
 
 SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo) const
 {
-    auto range = m_overrideSpells.equal_range(spellInfo->Id);
-    for (auto itr = range.first; itr != range.second; ++itr)
-        if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(itr->second))
+    auto overrides = m_overrideSpells.find(spellInfo->Id);
+    for (uint32 spellId : overrides->second)
+        if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(spellId))
             return Unit::GetCastSpellInfo(newInfo);
 
     return Unit::GetCastSpellInfo(spellInfo);
 }
 
+void Player::AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId)
+{
+    m_overrideSpells[overridenSpellId].insert(newSpellId);
+}
+
 void Player::RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId)
 {
-    auto range = m_overrideSpells.equal_range(overridenSpellId);
-    for (auto itr = range.first; itr != range.second; ++itr)
-    {
-        if (itr->second == newSpellId)
-        {
-            m_overrideSpells.erase(itr);
-            break;
-        }
-    }
+    auto overrides = m_overrideSpells.find(overridenSpellId);
+    if (overrides == m_overrideSpells.end())
+        return;
+
+    overrides->second.erase(newSpellId);
+    if (overrides->second.empty())
+        m_overrideSpells.erase(overrides);
 }
 
 void Player::LearnSpecializationSpells()
@@ -27191,6 +27190,10 @@ void Player::LearnSpecializationSpells()
         for (size_t j = 0; j < specSpells->size(); ++j)
         {
             SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID);
+            if (!spellInfo || spellInfo->SpellLevel > getLevel())
+                continue;
+
             LearnSpell(specSpell->SpellID, false);
             if (specSpell->OverridesSpellID)
                 AddOverrideSpell(specSpell->OverridesSpellID, specSpell->SpellID);
