@@ -269,6 +269,9 @@ namespace WorldPackets
     namespace Ticket
     {
         class GMTicketGetSystemStatus;
+        class GMTicketGetCaseStatus;
+        class GMTicketGetTicket;
+        class GMTicketAcknowledgeSurvey;
     }
 
     namespace Trade
@@ -514,6 +517,7 @@ class WorldSession
         void SendAuthWaitQue(uint32 position);
 
         void SendSetTimeZoneInformation();
+        void SendFeatureSystemStatus();
         void SendFeatureSystemStatusGlueScreen();
 
         void SendNameQueryOpcode(ObjectGuid guid);
@@ -740,7 +744,8 @@ class WorldSession
         void HandleGMTicketCreateOpcode(WorldPacket& recvPacket);
         void HandleGMTicketUpdateOpcode(WorldPacket& recvPacket);
         void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
+        void HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus& packet);
+        void HandleGMTicketGetTicketOpcode(WorldPackets::Ticket::GMTicketGetTicket& packet);
         void HandleGMTicketSystemStatusOpcode(WorldPackets::Ticket::GMTicketGetSystemStatus& packet);
         void HandleGMSurveySubmit(WorldPacket& recvPacket);
         void HandleReportLag(WorldPacket& recvPacket);
