@@ -23,6 +23,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "TicketMgr.h"
+#include "TicketPackets.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -171,13 +172,12 @@ void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recvData*/)
         sTicketMgr->SendTicket(this, NULL);
 }
 
-void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPackets::Ticket::GMTicketGetSystemStatus& /*packet*/)
 {
     // Note: This only disables the ticket UI at client side and is not fully reliable
-    // are we sure this is a uint32? Should ask Zor
-    WorldPacket data(SMSG_GM_TICKET_SYSTEM_STATUS, 4);
-    data << uint32(sTicketMgr->GetStatus() ? GMTICKET_QUEUE_STATUS_ENABLED : GMTICKET_QUEUE_STATUS_DISABLED);
-    SendPacket(&data);
+    WorldPackets::Ticket::GMTicketSystemStatus response;
+    response.Status = sTicketMgr->GetStatus() ? GMTICKET_QUEUE_STATUS_ENABLED : GMTICKET_QUEUE_STATUS_DISABLED;
+    SendPacket(response.Write());
 }
 
 void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
