@@ -1837,7 +1837,7 @@ class Player : public Unit, public GridObject<Player>
         void LearnSpellHighestRank(uint32 spellid);
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
-        void AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId) { m_overrideSpells.emplace(overridenSpellId, newSpellId); }
+        void AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
         void RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
         void LearnSpecializationSpells();
         void RemoveSpecializationSpells();
@@ -2795,7 +2795,7 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
-        std::unordered_multimap<uint32 /*overridenSpellId*/, uint32 /*newSpellId*/> m_overrideSpells;
+        std::unordered_map<uint32 /*overridenSpellId*/, std::unordered_set<uint32> /*newSpellId*/> m_overrideSpells;
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 
         GlobalCooldownMgr m_GlobalCooldownMgr;
