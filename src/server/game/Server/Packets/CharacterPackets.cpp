@@ -392,5 +392,5 @@ WorldPacket const* WorldPackets::Character::InitialSetup::Write()
 
 void WorldPackets::Character::SetActionBarToggles::Read()
 {
-    _worldPacket >> ActionBar;
+    _worldPacket >> Mask;
 }
