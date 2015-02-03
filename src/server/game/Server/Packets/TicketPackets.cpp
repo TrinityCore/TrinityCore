@@ -16,12 +16,36 @@
  */
 
 #include "TicketPackets.h"
+#include "TicketMgr.h"
 
 namespace WorldPackets::Ticket
 {
 WorldPacket const* GMTicketSystemStatus::Write()
 {
     _worldPacket << int32(Status);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, GMTicketInfo const& gmTicketInfo)
+{
+    data << int32(gmTicketInfo.TicketID);
+    data << gmTicketInfo.TicketDescription;
+    data << uint8(gmTicketInfo.Category);
+    data << float(gmTicketInfo.TicketOpenTime);
+    data << float(gmTicketInfo.OldestTicketTime);
+    data << float(gmTicketInfo.UpdateTime);
+    data << uint8(gmTicketInfo.AssignedToGM);
+    data << uint8(gmTicketInfo.OpenedByGM);
+
+    return data;
+}
+
+WorldPacket const* GMTicketGetTicketResponse::Write()
+{
+    _worldPacket << int32(Result);
+    if (Result == GMTICKET_STATUS_HASTEXT)
+        _worldPacket << Info;
 
     return &_worldPacket;
 }

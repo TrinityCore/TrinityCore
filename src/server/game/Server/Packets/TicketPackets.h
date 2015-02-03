@@ -41,6 +41,37 @@ namespace WorldPackets
 
             int32 Status = 0;
         };
+
+        class GMTicketGetTicket final : public ClientPacket
+        {
+        public:
+            explicit GMTicketGetTicket(WorldPacket&& packet) : ClientPacket(CMSG_GMTICKET_GETTICKET, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        struct GMTicketInfo
+        {
+            int32 TicketID = 0;
+            std::string_view TicketDescription;
+            uint8 Category = 0;
+            float TicketOpenTime = 0;
+            float OldestTicketTime = 0;
+            float UpdateTime = 0;
+            uint8 AssignedToGM = 0;
+            uint8 OpenedByGM = 0;
+        };
+
+        class GMTicketGetTicketResponse final : public ServerPacket
+        {
+        public:
+            explicit GMTicketGetTicketResponse() : ServerPacket(SMSG_GMTICKET_GETTICKET) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Result = 0;
+            GMTicketInfo Info;
+        };
     }
 }
 
