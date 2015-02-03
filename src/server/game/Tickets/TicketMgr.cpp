@@ -18,6 +18,7 @@
 
 #include "Common.h"
 #include "TicketMgr.h"
+#include "TicketPackets.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "Language.h"
@@ -28,7 +29,7 @@
 #include "Player.h"
 #include "Opcodes.h"
 
-inline float GetAge(uint64 t) { return float(time(NULL) - t) / DAY; }
+inline time_t GetAge(uint64 t) { return (time(NULL) - t) / DAY; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // GM ticket
@@ -111,30 +112,6 @@ void GmTicket::DeleteFromDB()
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GM_TICKET);
     stmt->setUInt32(0, _id);
     CharacterDatabase.Execute(stmt);
-}
-
-void GmTicket::WritePacket(WorldPacket& data) const
-{
-    data << uint32(GMTICKET_STATUS_HASTEXT);
-    data << uint32(_id);
-    data << _message;
-    data << uint8(_needMoreHelp);
-    data << GetAge(_lastModifiedTime);
-    if (GmTicket* ticket = sTicketMgr->GetOldestOpenTicket())
-        data << GetAge(ticket->GetLastModifiedTime());
-    else
-        data << float(0);
-
-    // I am not sure how blizzlike this is, and we don't really have a way to find out
-    data << GetAge(sTicketMgr->GetLastChange());
-
-    data << uint8(std::min(_escalatedStatus, TICKET_IN_ESCALATION_QUEUE));                              // escalated data
-    data << uint8(_viewed ? GMTICKET_OPENEDBYGM_STATUS_OPENED : GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED); // whether or not it has been viewed
-
-    // TODO: implement these
-    std::string waitTimeOverrideMessage = "";
-    data << waitTimeOverrideMessage;
-    data << uint32(0); // waitTimeOverrideMinutes
 }
 
 void GmTicket::SendResponse(WorldSession* session) const
@@ -267,7 +244,7 @@ TicketMgr::~TicketMgr()
 
 void TicketMgr::Initialize()
 {
-    SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS));
+    SetStatus(sWorld->getBoolConfig(CONFIG_TICKET_SYSTEM_STATUS));
 }
 
 void TicketMgr::ResetTickets()
@@ -408,12 +385,27 @@ void TicketMgr::ShowEscalatedList(ChatHandler& handler) const
 
 void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
 {
-    WorldPacket data(SMSG_GM_TICKET_GET_TICKET_RESPONSE, (ticket ? (4 + 4 + 1 + 4 + 4 + 4 + 1 + 1) : 4));
+    WorldPackets::Ticket::GMTicketGetTicketResponse response;
 
     if (ticket)
-        ticket->WritePacket(data);
-    else
-        data << uint32(GMTICKET_STATUS_DEFAULT);
+    {
+        response.Result = GMTICKET_STATUS_HASTEXT;
+        response.Info.HasValue = true;
 
-    session->SendPacket(&data);
+        response.Info.Value.TicketID = ticket->GetId();
+        response.Info.Value.TicketDescription = ticket->GetMessage();
+        response.Info.Value.Category = ticket->GetNeedMoreHelp();
+        response.Info.Value.TicketOpenTime = GetAge(ticket->GetLastModifiedTime());
+        response.Info.Value.OldestTicketTime = sTicketMgr->GetOldestOpenTicket() ? GetAge(sTicketMgr->GetOldestOpenTicket()->GetLastModifiedTime()) : float(0);
+        response.Info.Value.UpdateTime = GetAge(sTicketMgr->GetLastChange());
+        response.Info.Value.AssignedToGM = ticket->IsAssigned();
+        response.Info.Value.OpenedByGM = ticket->IsViewed();
+        response.Info.Value.WaitTimeOverrideMessage = "";
+        response.Info.Value.WaitTimeOverrideMinutes = 0;
+    }
+    else
+        response.Result = GMTICKET_STATUS_DEFAULT;
+
+    session->SendPacket(response.Write());
+    TC_LOG_DEBUG("misc", "SMSG_GM_GET_TICKET_RESPONSE [%s]", session->GetPlayerInfo().c_str());
 }

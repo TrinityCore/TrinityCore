@@ -157,13 +157,21 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
     }
 }
 
-void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus& /*packet*/)
 {
+    //TODO: Implement GmCase and handle this packet correctly
+    TC_LOG_DEBUG("misc", "CMSG_GM_TICKET_GET_CASE_STATUS [%s]", GetPlayerInfo().c_str());
+}
+
+void WorldSession::HandleGMTicketGetTicketOpcode(WorldPackets::Ticket::GMTicketGetTicket& /*packet*/)
+{
+    TC_LOG_DEBUG("misc", "CMSG_GM_TICKET_GET_TICKET [%s]", GetPlayerInfo().c_str());
     SendQueryTimeResponse();
 
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
         if (ticket->IsCompleted())
+            //TODO: Update SMSG_GM_TICKET_RESPONSE
             ticket->SendResponse(this);
         else
             sTicketMgr->SendTicket(this, ticket);
@@ -174,10 +182,13 @@ void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recvData*/)
 
 void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPackets::Ticket::GMTicketGetSystemStatus& /*packet*/)
 {
+    TC_LOG_DEBUG("misc", "CMSG_GM_TICKET_GET_SYSTEM_STATUS [%s]", GetPlayerInfo().c_str());
     // Note: This only disables the ticket UI at client side and is not fully reliable
+    // Note: This disables the whole customer support UI after trying to send a ticket in disabled state (MessageBox: "GM Help Tickets are currently unavaiable."). UI remains disabled until the character relogs.
     WorldPackets::Ticket::GMTicketSystemStatus response;
     response.Status = sTicketMgr->GetStatus() ? GMTICKET_QUEUE_STATUS_ENABLED : GMTICKET_QUEUE_STATUS_DISABLED;
     SendPacket(response.Write());
+    TC_LOG_DEBUG("misc", "SMSG_GM_TICKET_SYSTEM_STATUS [%s]", GetPlayerInfo().c_str());
 }
 
 void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
