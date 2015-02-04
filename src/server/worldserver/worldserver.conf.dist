@@ -1063,10 +1063,10 @@ Command.LookupMaxResults = 0
 #    Ticket.SystemStatus
 #        Description: Enable/disable the ticket system. This disables the whole customer 
 #                     support UI after trying to send a ticket in disabled state
-#                     (MessageBox: "GM Help Tickets are currently unavaiable."). 
+#                     (MessageBox: "GM Help Tickets are currently unavailable."). 
 #                     UI remains disabled until the character relogs.
 #        Default:     1 - (Enabled)
-#                     0 - (Disabled)                  0 - (Disabled)
+#                     0 - (Disabled)
 
 Ticket.SystemStatus = 1
 

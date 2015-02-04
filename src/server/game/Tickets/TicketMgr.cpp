@@ -407,5 +407,4 @@ void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
         response.Result = GMTICKET_STATUS_DEFAULT;
 
     session->SendPacket(response.Write());
-    TC_LOG_DEBUG("misc", "SMSG_GM_GET_TICKET_RESPONSE [%s]", session->GetPlayerInfo().c_str());
 }

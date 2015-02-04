@@ -24,7 +24,6 @@ WorldPacket const* WorldPackets::Ticket::GMTicketSystemStatus::Write()
     return &_worldPacket;
 }
 
-
 WorldPacket const* WorldPackets::Ticket::GMTicketCaseStatus::Write()
 {
     _worldPacket.AppendPackedTime(OldestTicketTime);
@@ -76,6 +75,8 @@ WorldPacket const* WorldPackets::Ticket::GMTicketGetTicketResponse::Write()
         _worldPacket.WriteString(Info.Value.TicketDescription);
         _worldPacket.WriteString(Info.Value.WaitTimeOverrideMessage);
     }
+
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
