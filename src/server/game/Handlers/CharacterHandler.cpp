@@ -867,7 +867,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     SendPacket(accountDataTimes.Write());
 
-    /// Send FeatureSystemStatus
     SendFeatureSystemStatus();
 
     // Send MOTD
@@ -1101,13 +1100,10 @@ void WorldSession::SendFeatureSystemStatus()
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
 
     SendPacket(features.Write());
-    TC_LOG_DEBUG("misc", "SMSG_FEATURE_SYSTEM_STATUS [%s]", GetPlayerInfo().c_str());
 }
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_AT_WAR");
-
     uint32 repListID;
     uint8  flag;
 

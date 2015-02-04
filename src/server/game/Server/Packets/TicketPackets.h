@@ -70,7 +70,7 @@ namespace WorldPackets
                 }
             };
 
-            GMTicketCaseStatus() : ServerPacket(SMSG_GM_TICKET_CASE_STATUS) { }
+            GMTicketCaseStatus() : ServerPacket(SMSG_GM_TICKET_CASE_STATUS, 12) { }
 
             WorldPacket const* Write() override;
 
@@ -84,7 +84,7 @@ namespace WorldPackets
         public:
             GMTicketGetTicket(WorldPacket&& packet) : ClientPacket(CMSG_GM_TICKET_GET_TICKET, std::move(packet)) { }
 
-            void Read() override { };
+            void Read() override { }
         };
 
         class GMTicketGetTicketResponse final : public ServerPacket
@@ -104,13 +104,12 @@ namespace WorldPackets
                 int32 WaitTimeOverrideMinutes = 0;
             };
 
-            GMTicketGetTicketResponse() : ServerPacket(SMSG_GM_TICKET_GET_TICKET_RESPONSE) { }
+            GMTicketGetTicketResponse() : ServerPacket(SMSG_GM_TICKET_GET_TICKET_RESPONSE, 5) { }
 
             WorldPacket const* Write() override;
 
             int32 Result = 0;
             Optional<GMTicketInfo> Info;
-
         };
 
         class GMTicketAcknowledgeSurvey final : public ClientPacket
