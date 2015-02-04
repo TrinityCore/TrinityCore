@@ -501,6 +501,16 @@ namespace WorldPackets
             std::vector<uint8> QuestsCompleted;
             int32 ServerRegionID = 3;   // Cfg_Regions.dbc, EU
         };
+		
+        class SetActionBarToggles final : public ClientPacket
+        {
+        public:
+            SetActionBarToggles(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIONBAR_TOGGLES, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Mask = 0;
+        };
     }
 }
 

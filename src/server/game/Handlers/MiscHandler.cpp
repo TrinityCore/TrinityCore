@@ -1159,19 +1159,16 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
 */
 }
 
-void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
+void WorldSession::HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet)
 {
-    uint8 actionBar;
-    recvData >> actionBar;
-
     if (!GetPlayer())                                        // ignore until not logged (check needed because STATUS_AUTHED)
     {
-        if (actionBar != 0)
-            TC_LOG_ERROR("network", "WorldSession::HandleSetActionBarToggles in not logged state with value: %u, ignored", uint32(actionBar));
+        if (packet.Mask != 0)
+            TC_LOG_ERROR("network", "WorldSession::HandleSetActionBarToggles in not logged state with value: %u, ignored", uint32(packet.Mask));
         return;
     }
 
-    GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, 2, actionBar);
+    GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, 2, packet.Mask);
 }
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
