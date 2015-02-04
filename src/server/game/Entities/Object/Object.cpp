@@ -1401,7 +1401,7 @@ void Object::AddDynamicValue(uint16 index, uint32 value)
     if (mask.GetCount() < values.size())
         mask.AddBlock();
 
-    mask.SetBit(values.size());
+    mask.SetBit(values.size() - 1);
 
     if (m_inWorld && !m_objectUpdated)
     {
