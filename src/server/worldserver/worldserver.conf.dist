@@ -1060,12 +1060,31 @@ Server.LoginInfo = 0
 Command.LookupMaxResults = 0
 
 #
-#    AllowTickets
-#        Description: Allow/disallow sending new tickets.
+#    Ticket.SystemStatus
+#        Description: Enable/disable the ticket system. This disables the whole customer 
+#                     support UI after trying to send a ticket in disabled state
+#                     (MessageBox: "GM Help Tickets are currently unavaiable."). 
+#                     UI remains disabled until the character relogs.
 #        Default:     1 - (Enabled)
-#                     0 - (Disabled)
+#                     0 - (Disabled)                  0 - (Disabled)
 
-AllowTickets = 1
+Ticket.SystemStatus = 1
+
+#
+#    Ticket.SubmitTicket
+#        Description: Allow/disallow opening new tickets.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled, Experimental)
+
+Ticket.SubmitTicket = 0
+
+#
+#    Ticket.SubmitBug
+#        Description: Allow/disallow opening new bug reports.
+#        Default:    0 - (Disabled)
+#		             1 - (Enabled, Experimental)
+
+Ticket.SubmitBug = 0
 
 #
 #     DungeonFinder.OptionsMask

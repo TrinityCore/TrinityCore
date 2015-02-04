@@ -278,6 +278,7 @@ void World::AddSession_(WorldSession* s)
     s->SendAuthResponse(AUTH_OK, false);
 
     s->SendSetTimeZoneInformation();
+    s->SendFeatureSystemStatus();
     s->SendFeatureSystemStatusGlueScreen();
 
     s->SendAddonsInfo();
@@ -377,6 +378,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
         pop_sess->SendAuthWaitQue(0);
 
         pop_sess->SendSetTimeZoneInformation();
+        pop_sess->SendFeatureSystemStatus();
         pop_sess->SendFeatureSystemStatusGlueScreen();
 
         pop_sess->SendAddonsInfo();
@@ -428,7 +430,11 @@ void World::LoadConfigSettings(bool reload)
     SetMotd(sConfigMgr->GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
 
     ///- Read ticket system setting from the config file
-    m_bool_configs[CONFIG_ALLOW_TICKETS] = sConfigMgr->GetBoolDefault("AllowTickets", true);
+    m_bool_configs[CONFIG_TICKET_SYSTEM_STATUS] = sConfigMgr->GetBoolDefault("Ticket.SystemStatus", true);
+    if (reload)
+        sTicketMgr->SetStatus(m_bool_configs[CONFIG_TICKET_SYSTEM_STATUS]);
+    m_bool_configs[CONFIG_TICKET_SUBMIT_TICKET] = sConfigMgr->GetBoolDefault("Ticket.SubmitTicket", false);
+    m_bool_configs[CONFIG_TICKET_SUBMIT_BUG] = sConfigMgr->GetBoolDefault("Ticket.SubmitBug", false);
 
     ///- Get string for new logins (newly created characters)
     SetNewCharString(sConfigMgr->GetStringDefault("PlayerStart.String", ""));

@@ -23,3 +23,59 @@ WorldPacket const* WorldPackets::Ticket::GMTicketSystemStatus::Write()
 
     return &_worldPacket;
 }
+
+
+WorldPacket const* WorldPackets::Ticket::GMTicketCaseStatus::Write()
+{
+    _worldPacket.AppendPackedTime(OldestTicketTime);
+    _worldPacket.AppendPackedTime(UpdateTime);
+
+    _worldPacket << int32(Cases.size());
+
+    for (auto const& c : Cases)
+    {
+        _worldPacket << int32(c.CaseID);
+        _worldPacket << int32(c.CaseOpened);
+        _worldPacket << int32(c.CaseStatus);
+        _worldPacket << int16(c.CfgRealmID);
+        _worldPacket << int64(c.CharacterID);
+        _worldPacket << int32(c.WaitTimeOverrideMinutes);
+
+        _worldPacket.WriteBits(c.Url.size(), 11);
+        _worldPacket.WriteBits(c.WaitTimeOverrideMessage.size(), 10);
+    }
+
+    _worldPacket.FlushBits();
+    return &_worldPacket;
+}
+
+void WorldPackets::Ticket::GMTicketAcknowledgeSurvey::Read()
+{
+    _worldPacket >> CaseID;
+}
+
+WorldPacket const* WorldPackets::Ticket::GMTicketGetTicketResponse::Write()
+{
+    _worldPacket << Result;
+    _worldPacket.WriteBit(Info.HasValue);
+
+    if (Info.HasValue)
+    {
+        _worldPacket << int32(Info.Value.TicketID);
+        _worldPacket << uint8(Info.Value.Category);
+        _worldPacket.AppendPackedTime(Info.Value.TicketOpenTime);
+        _worldPacket.AppendPackedTime(Info.Value.OldestTicketTime);
+        _worldPacket.AppendPackedTime(Info.Value.UpdateTime);
+        _worldPacket << uint8(Info.Value.AssignedToGM);
+        _worldPacket << uint8(Info.Value.OpenedByGM);
+        _worldPacket << int32(Info.Value.WaitTimeOverrideMinutes);
+
+        _worldPacket.WriteBits(Info.Value.TicketDescription.size(), 11);
+        _worldPacket.WriteBits(Info.Value.WaitTimeOverrideMessage.size(), 10);
+
+        _worldPacket.WriteString(Info.Value.TicketDescription);
+        _worldPacket.WriteString(Info.Value.WaitTimeOverrideMessage);
+    }
+
+    return &_worldPacket;
+}
