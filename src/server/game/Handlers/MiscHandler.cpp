@@ -216,7 +216,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
     wWords.resize(request.Words.size());
     for (size_t i = 0; i < request.Words.size(); ++i)
     {
-        TC_LOG_DEBUG("network", "WorldSession::HandleWhoOpcode: Word: %s", request.Words[i].Word);
+        TC_LOG_DEBUG("network", "WorldSession::HandleWhoOpcode: Word: %s", request.Words[i].Word.c_str());
 
         // user entered string, it used as universal search pattern(guild+player name)?
         if (!Utf8toWStr(request.Words[i].Word, wWords[i]))

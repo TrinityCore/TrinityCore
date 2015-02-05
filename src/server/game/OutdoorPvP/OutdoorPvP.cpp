@@ -572,7 +572,7 @@ void OutdoorPvP::AddCapturePoint(OPvPCapturePoint* cp)
     OPvPCapturePointMap::iterator i = m_capturePoints.find(cp->m_capturePointGUID);
     if (i != m_capturePoints.end())
     {
-        TC_LOG_ERROR("outdoorpvp", "OutdoorPvP::AddCapturePoint: CapturePoint %s already exists!", cp->m_capturePointGUID);
+        TC_LOG_ERROR("outdoorpvp", "OutdoorPvP::AddCapturePoint: CapturePoint %s already exists!", cp->m_capturePointGUID.ToString().c_str());
         delete i->second;
     }
     m_capturePoints[cp->m_capturePointGUID] = cp;

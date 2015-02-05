@@ -96,7 +96,7 @@ public:
     Player* GetPlayer() const { return ObjectAccessor::FindPlayer(_playerGuid); }
     std::string const& GetPlayerName() const { return _playerName; }
     std::string const& GetMessage() const { return _message; }
-    bool const GetNeedMoreHelp() const { return _needMoreHelp; }
+    bool GetNeedMoreHelp() const { return _needMoreHelp; }
     Player* GetAssignedPlayer() const { return ObjectAccessor::FindPlayer(_assignedTo); }
     ObjectGuid GetAssignedToGUID() const { return _assignedTo; }
     std::string GetAssignedToName() const
