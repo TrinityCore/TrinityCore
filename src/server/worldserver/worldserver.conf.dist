@@ -718,9 +718,9 @@ ArenaTeam.CharterCost.5v5 = 2000000
 #
 #    MaxWhoListReturns
 #        Description: Set the max number of players returned in the /who list and interface.
-#        Default:     49 - (stable)
+#        Default:     50 - (stable)
 
-MaxWhoListReturns = 49
+MaxWhoListReturns = 50
 
 #
 #    WhoList.Update.Interval

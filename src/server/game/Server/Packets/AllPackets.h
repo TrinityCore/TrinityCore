@@ -55,6 +55,7 @@
 #include "TicketPackets.h"
 #include "TotemPackets.h"
 #include "TradePackets.h"
+#include "WhoPackets.h"
 #include "WorldStatePackets.h"
 
 #endif // TRINITYCORE_ALL_PACKETS_H
