@@ -14576,7 +14576,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 // Based on Hair color
                 if (getRace() == RACE_NIGHTELF)
                 {
-                    uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
+                    uint8 hairColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                     switch (hairColor)
                     {
                         case 7: // Violet
@@ -14596,7 +14596,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 }
                 else if (getRace() == RACE_TROLL)
                 {
-                    uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
+                    uint8 hairColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                     switch (hairColor)
                     {
                         case 0: // Red
@@ -14619,7 +14619,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 else if (getRace() == RACE_WORGEN)
                 {
                     // Based on Skin color
-                    uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
+                    uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
                     // Male
                     if (getGender() == GENDER_MALE)
                     {
@@ -14663,7 +14663,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 // Based on Skin color
                 else if (getRace() == RACE_TAUREN)
                 {
-                    uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
+                    uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
                     // Male
                     if (getGender() == GENDER_MALE)
                     {
@@ -14724,7 +14724,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 // Based on Hair color
                 if (getRace() == RACE_NIGHTELF)
                 {
-                    uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
+                    uint8 hairColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                     switch (hairColor)
                     {
                         case 0: // Green
@@ -14743,7 +14743,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 }
                 else if (getRace() == RACE_TROLL)
                 {
-                    uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
+                    uint8 hairColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                     switch (hairColor)
                     {
                         case 0: // Red
@@ -14767,7 +14767,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 else if (getRace() == RACE_WORGEN)
                 {
                     // Based on Skin color
-                    uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
+                    uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
                     // Male
                     if (getGender() == GENDER_MALE)
                     {
@@ -14811,7 +14811,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 // Based on Skin color
                 else if (getRace() == RACE_TAUREN)
                 {
-                    uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
+                    uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
                     // Male
                     if (getGender() == GENDER_MALE)
                     {
