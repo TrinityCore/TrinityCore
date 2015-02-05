@@ -3769,6 +3769,8 @@ CREATE TABLE `version` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Version Notes';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+INSERT INTO `version` (`core_version`) VALUES ('');
+
 --
 -- Table structure for table `warden_checks`
 --
