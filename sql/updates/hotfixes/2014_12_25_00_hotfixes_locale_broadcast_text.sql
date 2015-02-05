@@ -23,6 +23,15 @@ CREATE TABLE `locales_broadcast_text` (
 PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+DELIMITER $$
+DROP PROCEDURE IF EXISTS `2014_12_25_00_hotfixes_locale_broadcast_text`$$
+CREATE PROCEDURE `2014_12_25_00_hotfixes_locale_broadcast_text`()
+BEGIN
+SET @querydbversion := CONCAT('SET @worlddbversion = (SELECT `db_version` FROM `', @world_db_name, '`.`version`);');
+PREPARE stmtdbversion FROM @querydbversion;
+EXECUTE stmtdbversion;
+DEALLOCATE PREPARE stmtdbversion;
+IF @worlddbversion = 'TDB 6.00' THEN
 SET @query := CONCAT('INSERT INTO `locales_broadcast_text` SELECT * FROM `', @world_db_name, '`.`locales_broadcast_text`;');
 PREPARE stmt FROM @query;
 EXECUTE stmt;
@@ -32,3 +41,11 @@ SET @query := CONCAT('DROP TABLE IF EXISTS `', @world_db_name, '`.`locales_broad
 PREPARE stmt2 FROM @query;
 EXECUTE stmt2;
 DEALLOCATE PREPARE stmt2;
+ELSE
+CALL set_the_6x_world_database_name_at_line_1_of_this_script;
+END IF;
+END$$
+
+CALL `2014_12_25_00_hotfixes_locale_broadcast_text`$$
+DROP PROCEDURE IF EXISTS `2014_12_25_00_hotfixes_locale_broadcast_text`$$
+DELIMITER ;
