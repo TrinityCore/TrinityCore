@@ -39,7 +39,7 @@ namespace WorldPackets
 
         struct InspectEnchantData
         {
-            InspectEnchantData(uint32 id, uint8 index) : Id(id), Index(Index) { }
+            InspectEnchantData(uint32 id, uint8 index) : Id(id), Index(index) { }
 
             uint32 Id   = 0;
             uint8 Index = 0;

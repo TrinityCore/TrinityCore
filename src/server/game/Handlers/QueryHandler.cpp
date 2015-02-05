@@ -30,38 +30,18 @@
 #include "NPCHandler.h"
 #include "Pet.h"
 #include "MapManager.h"
-#include "BattlenetAccountMgr.h"
 #include "CharacterPackets.h"
 #include "QueryPackets.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
 
     WorldPackets::Query::QueryPlayerNameResponse response;
     response.Player = guid;
 
-    if (characterInfo)
-    {
-        uint32 accountId = player ? player->GetSession()->GetAccountId() : ObjectMgr::GetPlayerAccountIdByGUID(guid);
-        uint32 bnetAccountId = player ? player->GetSession()->GetBattlenetAccountId() : Battlenet::AccountMgr::GetIdByGameAccount(accountId);
-
-        response.Result             = RESPONSE_SUCCESS; // name known
-        response.Data.IsDeleted     = characterInfo->IsDeleted;
-        response.Data.AccountID     = ObjectGuid::Create<HighGuid::WowAccount>(accountId);
-        response.Data.BnetAccountID = ObjectGuid::Create<HighGuid::BNetAccount>(bnetAccountId);
-        response.Data.Name          = characterInfo->Name;
-        response.Data.VirtualRealmAddress = GetVirtualRealmAddress();
-        response.Data.Race          = characterInfo->Race;
-        response.Data.Sex           = characterInfo->Sex;
-        response.Data.ClassID       = characterInfo->Class;
-        response.Data.Level         = characterInfo->Level;
-
-        if (DeclinedName const* names = (player ? player->GetDeclinedNames() : nullptr))
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                response.Data.DeclinedNames.name[i] = names->name[i];
-    }
+    if (response.Data.Initialize(guid, player))
+        response.Result = RESPONSE_SUCCESS; // name known
     else
         response.Result = RESPONSE_FAILURE; // name unknown
 

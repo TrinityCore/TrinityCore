@@ -29,7 +29,7 @@ namespace WorldPackets
         public:
             GMTicketGetSystemStatus(WorldPacket&& packet) : ClientPacket(CMSG_GM_TICKET_GET_SYSTEM_STATUS, std::move(packet)) { }
 
-            void Read() override { };
+            void Read() override { }
         };
 
         class GMTicketSystemStatus final : public ServerPacket
@@ -47,7 +47,7 @@ namespace WorldPackets
         public:
             GMTicketGetCaseStatus(WorldPacket&& packet) : ClientPacket(CMSG_GM_TICKET_GET_CASE_STATUS, std::move(packet)) { }
 
-            void Read() override { };
+            void Read() override { }
         };
 
         class GMTicketCaseStatus final : public ServerPacket
@@ -63,11 +63,6 @@ namespace WorldPackets
                 int32 WaitTimeOverrideMinutes = 0;
                 std::string Url;
                 std::string WaitTimeOverrideMessage;
-
-                bool operator<(GMTicketCase const& right) const
-                {
-                    return CaseID < right.CaseID;
-                }
             };
 
             GMTicketCaseStatus() : ServerPacket(SMSG_GM_TICKET_CASE_STATUS, 12) { }
@@ -76,7 +71,7 @@ namespace WorldPackets
 
             time_t OldestTicketTime = 0;
             time_t UpdateTime = 0;
-            std::set<GMTicketCase> Cases;
+            std::vector<GMTicketCase> Cases;
         };
 
         class GMTicketGetTicket final : public ClientPacket
