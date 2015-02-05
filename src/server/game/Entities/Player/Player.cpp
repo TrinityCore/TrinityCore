@@ -27160,9 +27160,10 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
 SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo) const
 {
     auto overrides = m_overrideSpells.find(spellInfo->Id);
-    for (uint32 spellId : overrides->second)
-        if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(spellId))
-            return Unit::GetCastSpellInfo(newInfo);
+    if (overrides != m_overrideSpells.end())
+        for (uint32 spellId : overrides->second)
+            if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(spellId))
+                return Unit::GetCastSpellInfo(newInfo);
 
     return Unit::GetCastSpellInfo(spellInfo);
 }
