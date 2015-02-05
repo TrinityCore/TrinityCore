@@ -1149,7 +1149,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPackets::Character::SetActionB
         return;
     }
 
-    GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, 2, packet.Mask);
+    GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, packet.Mask);
 }
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
