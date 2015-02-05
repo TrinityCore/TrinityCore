@@ -278,7 +278,6 @@ void World::AddSession_(WorldSession* s)
     s->SendAuthResponse(AUTH_OK, false);
 
     s->SendSetTimeZoneInformation();
-    s->SendFeatureSystemStatus();
     s->SendFeatureSystemStatusGlueScreen();
 
     s->SendAddonsInfo();
@@ -378,7 +377,6 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
         pop_sess->SendAuthWaitQue(0);
 
         pop_sess->SendSetTimeZoneInformation();
-        pop_sess->SendFeatureSystemStatus();
         pop_sess->SendFeatureSystemStatusGlueScreen();
 
         pop_sess->SendAddonsInfo();

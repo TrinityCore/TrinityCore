@@ -102,7 +102,7 @@ ByteBuffer& WorldPackets::Item::operator>>(ByteBuffer& data, InvUpdate& invUpdat
 void WorldPackets::Item::ItemInstance::Initalize(::Item const* item)
 {
     ItemID               = item->GetEntry();
-    RandomPropertiesSeed = item->GetTemplate()->GetRandomSuffix(); /// @todo: confirm this
+    RandomPropertiesSeed = item->GetItemSuffixFactor();
     RandomPropertiesID   = item->GetItemRandomPropertyId();
     std::vector<uint32> const& bonusListIds = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
     if (!bonusListIds.empty())
