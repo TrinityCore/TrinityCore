@@ -56,6 +56,7 @@
 #include "LFGMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "MailPackets.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
 #include "MovementStructures.h"
@@ -3236,26 +3237,36 @@ void Player::RemoveMail(uint32 id)
 
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count)
 {
-    WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(mailError == MAIL_ERR_EQUIP_ERROR?4:(mailAction == MAIL_ITEM_TAKEN?4+4:0))));
-    data << uint32(mailId);
-    data << uint32(mailAction);
-    data << uint32(mailError);
-    if (mailError == MAIL_ERR_EQUIP_ERROR)
-        data << uint32(equipError);
-    else if (mailAction == MAIL_ITEM_TAKEN)
+
+    WorldPackets::Mail::MailCommandResult result;
+
+    result.MailID = mailId;
+    result.Command = mailAction;
+    result.ErrorCode = mailError;
+
+    switch (mailError)
     {
-        data << uint64(item_guid);                         // item guid low?
-        data << uint32(item_count);                        // item count?
+        case MAIL_ERR_EQUIP_ERROR:
+            result.BagResult = equipError;
+            break;
+        case MAIL_ITEM_TAKEN:
+            result.AttachID = item_guid;
+            result.QtyInInventory = item_count;
+            break;
+        default:
+            break;
     }
-    GetSession()->SendPacket(&data);
+
+    GetSession()->SendPacket(result.Write());
 }
 
 void Player::SendNewMail()
 {
     // deliver undelivered mail
-    WorldPacket data(SMSG_RECEIVED_MAIL, 4);
-    data << (uint32) 0;
-    GetSession()->SendPacket(&data);
+    WorldPackets::Mail::NotifyRecievedMail notify;
+    notify.Delay = 0.0f;
+
+    GetSession()->SendPacket(notify.Write());
 }
 
 void Player::UpdateNextMailTimeAndUnreads()
