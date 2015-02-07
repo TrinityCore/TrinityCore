@@ -24,6 +24,7 @@ WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8
 {
     Position = pos;
     AttachID = item->GetGUID().GetCounter();
+    Item.Initalize(item);
     Count = item->GetCount();
     Charges = item->GetSpellCharges();
     MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
@@ -42,7 +43,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailAttachedItem co
 {
     data << uint8(att.Position);
     data << uint32(att.AttachID);
-    data << WorldPackets::Item::ItemInstance(att.Item);
+    data << att.Item;
 
     for (auto const& en : att.Enchants)
     {
@@ -120,9 +121,19 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
 
     data.WriteBit(entry.SenderCharacter.HasValue);
     data.WriteBit(entry.AltSenderID.HasValue);
+
     data.WriteBits(entry.Subject.size(), 8);
     data.WriteBits(entry.Body.size(), 13);
     data.FlushBits();
+
+    if (entry.SenderCharacter.HasValue)
+        data << entry.SenderCharacter.Value;
+
+    if (entry.AltSenderID.HasValue)
+        data << int32(entry.AltSenderID.Value);
+
+    data.WriteString(entry.Subject);
+    data.WriteString(entry.Body);
 
     return data;
 }
