@@ -126,7 +126,7 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
 
         if (ObjectGuid::LowType lowGuid = fields[0].GetUInt64())
         {
-            ignoreGuid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt64());
+            ignoreGuid = ObjectGuid::Create<HighGuid::Player>(lowGuid);
 
             if (ignoreGuid == GetPlayer()->GetGUID())              //not add yourself
                 ignoreResult = FRIEND_IGNORE_SELF;
@@ -159,6 +159,6 @@ void WorldSession::HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet
 void WorldSession::HandleSetContactNotesOpcode(WorldPackets::Social::SetContactNotes& packet)
 {
     /// @todo: handle VirtualRealmAddress
-    TC_LOG_DEBUG("network", "WorldSession::HandleSetContactNotesOpcode: Contact: %s, Notes: %s", packet.Player.Guid.ToString().c_str(), packet.Notes);
+    TC_LOG_DEBUG("network", "WorldSession::HandleSetContactNotesOpcode: Contact: %s, Notes: %s", packet.Player.Guid.ToString().c_str(), packet.Notes.c_str());
     _player->GetSocial()->SetFriendNote(packet.Player.Guid, packet.Notes);
 }
