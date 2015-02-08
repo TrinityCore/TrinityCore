@@ -3785,7 +3785,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // unlearn non talent higher ranks (recursive)
     if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(nextSpell);
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(nextSpell);
         if (HasSpell(nextSpell) && !spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
             RemoveSpell(nextSpell, disabled, false);
     }
@@ -21221,7 +21221,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         if (itr->second->state == PLAYERSPELL_REMOVED)
             continue;
         uint32 unSpellId = itr->first;
-        SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(unSpellId);
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(unSpellId);
 
         // Not send cooldown for this spells
         if (spellInfo->IsCooldownStartedOnEvent())

@@ -1994,7 +1994,7 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
             continue;
 
         uint32 unSpellId = itr->first;
-        SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(unSpellId);
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(unSpellId);
 
         // Not send cooldown for this spells
         if (spellInfo->IsCooldownStartedOnEvent())

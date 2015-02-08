@@ -477,7 +477,13 @@ class spell_item_flask_of_the_north : public SpellScriptLoader
                         break;
                 }
 
-                caster->CastSpell(caster, possibleSpells[irand(0, (possibleSpells.size() - 1))], true, NULL);
+                if (possibleSpells.empty())
+                {
+                    TC_LOG_WARN("spells", "Missing spells for class %u in script spell_item_flask_of_the_north", caster->getClass());
+                    return;
+                }
+
+                caster->CastSpell(caster, possibleSpells[urand(0, (possibleSpells.size() - 1))], true, NULL);
             }
 
             void Register() override

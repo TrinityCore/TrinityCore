@@ -556,7 +556,7 @@ class spell_rog_preparation : public SpellScriptLoader
                 SpellCooldowns const& cm = caster->GetSpellCooldownMap();
                 for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
                     if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE)
                     {
                         ++itr;
