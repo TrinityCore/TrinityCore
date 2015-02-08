@@ -170,7 +170,7 @@ PoolObject* PoolGroup<T>::RollOne(ActivePoolData& spawns, uint64 triggerFrom)
     }
     if (!EqualChanced.empty())
     {
-        int32 index = irand(0, EqualChanced.size()-1);
+        uint32 index = urand(0, EqualChanced.size()-1);
         // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
         // so this need explicit check for this case
         if (EqualChanced[index].guid == triggerFrom || !spawns.IsActiveObject<T>(EqualChanced[index].guid))

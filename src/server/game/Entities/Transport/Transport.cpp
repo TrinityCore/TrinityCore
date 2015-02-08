@@ -286,6 +286,8 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
         return NULL;
     }
 
+    ASSERT(data);
+
     float x = data->posX;
     float y = data->posY;
     float z = data->posZ;
@@ -340,6 +342,8 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
         delete go;
         return NULL;
     }
+
+    ASSERT(data);
 
     float x = data->posX;
     float y = data->posY;

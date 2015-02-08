@@ -1705,7 +1705,7 @@ void Spell::EffectEnergize(SpellEffIndex /*effIndex*/)
             sSpellMgr->GetSetOfSpellsInSpellGroup(SPELL_GROUP_ELIXIR_BATTLE, avalibleElixirs);
         for (std::set<uint32>::iterator itr = avalibleElixirs.begin(); itr != avalibleElixirs.end();)
         {
-            SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(*itr);
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(*itr);
             if (spellInfo->SpellLevel < m_spellInfo->SpellLevel || spellInfo->SpellLevel > unitTarget->getLevel())
                 avalibleElixirs.erase(itr++);
             else if (sSpellMgr->IsSpellMemberOfSpellGroup(*itr, SPELL_GROUP_ELIXIR_SHATTRATH))

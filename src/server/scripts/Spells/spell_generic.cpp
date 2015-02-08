@@ -1221,7 +1221,7 @@ class spell_gen_defend : public SpellScriptLoader
             void Register() override
             {
                 /*
-                SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(m_scriptSpellId);
+                SpellInfo const* spell = sSpellMgr->AssertSpellInfo(m_scriptSpellId);
 
                 // 6.x effects removed
 
@@ -1949,7 +1949,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
 
             void Register() override
             {
-                SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(m_scriptSpellId);
+                SpellInfo const* spell = sSpellMgr->AssertSpellInfo(m_scriptSpellId);
 
                 if (spell->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_SCRIPT_EFFECT))
                     OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);

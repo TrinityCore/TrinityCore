@@ -451,7 +451,7 @@ class spell_dk_death_coil : public SpellScriptLoader
                         }
                         else if (target != caster) // Any non undead ally except caster and only if caster has glyph of death coil.
                         {
-                            SpellInfo const* DCD = sSpellMgr->EnsureSpellInfo(SPELL_DK_DEATH_COIL_DAMAGE);
+                            SpellInfo const* DCD = sSpellMgr->AssertSpellInfo(SPELL_DK_DEATH_COIL_DAMAGE);
                             SpellEffectInfo const* eff = DCD->GetEffect(EFFECT_0);
                             int32 bp = caster->SpellDamageBonusDone(target, DCD, eff->CalcValue(caster), SPELL_DIRECT_DAMAGE, eff);
 

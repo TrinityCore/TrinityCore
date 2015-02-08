@@ -331,7 +331,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
                 const SpellCooldowns& cm = caster->GetSpellCooldownMap();
                 for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
 
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_MAGE &&
                         (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) &&
@@ -895,7 +895,7 @@ class spell_mage_ignite : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                SpellInfo const* igniteDot = sSpellMgr->EnsureSpellInfo(SPELL_MAGE_IGNITE);
+                SpellInfo const* igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE);
                 int32 pct = 8 * GetSpellInfo()->GetRank();
 
                 int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks(DIFFICULTY_NONE));
@@ -1297,7 +1297,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (TempSummon* ringOfFrost = GetRingOfFrostMinion())
-                    if (GetMaxDuration() - int32(ringOfFrost->GetTimer()) >= sSpellMgr->EnsureSpellInfo(SPELL_MAGE_RING_OF_FROST_DUMMY)->GetDuration())
+                    if (GetMaxDuration() - int32(ringOfFrost->GetTimer()) >= sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_DUMMY)->GetDuration())
                         GetTarget()->CastSpell(ringOfFrost->GetPositionX(), ringOfFrost->GetPositionY(), ringOfFrost->GetPositionZ(), SPELL_MAGE_RING_OF_FROST_FREEZE, true);
             }
 
@@ -1372,7 +1372,7 @@ class spell_mage_ring_of_frost_freeze : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 WorldLocation const* dest = GetExplTargetDest();
-                float outRadius = sSpellMgr->EnsureSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON)->GetEffect(EFFECT_0)->CalcRadius();
+                float outRadius = sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON)->GetEffect(EFFECT_0)->CalcRadius();
                 float inRadius  = 4.7f;
 
                 targets.remove_if([dest, outRadius, inRadius](WorldObject* target)
