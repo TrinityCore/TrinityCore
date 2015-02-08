@@ -16,6 +16,7 @@
 #    CREATURE SETTINGS
 #    CHAT SETTINGS
 #    GAME MASTER SETTINGS
+#    SUPPORT SETTINGS
 #    VISIBILITY AND DISTANCES
 #    SERVER RATES
 #    STATS LIMITS
@@ -1060,33 +1061,6 @@ Server.LoginInfo = 0
 Command.LookupMaxResults = 0
 
 #
-#    Ticket.SystemStatus
-#        Description: Enable/disable the ticket system. This disables the whole customer
-#                     support UI after trying to send a ticket in disabled state
-#                     (MessageBox: "GM Help Tickets are currently unavailable.").
-#                     UI remains disabled until the character relogs.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
-
-Ticket.SystemStatus = 1
-
-#
-#    Ticket.SubmitTicket
-#        Description: Allow/disallow opening new tickets.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled, Experimental)
-
-Ticket.SubmitTicket = 0
-
-#
-#    Ticket.SubmitBug
-#        Description: Allow/disallow opening new bug reports.
-#        Default:    0 - (Disabled)
-#                    1 - (Enabled, Experimental)
-
-Ticket.SubmitBug = 0
-
-#
 #     DungeonFinder.OptionsMask
 #        Description: Dungeon and raid finder system.
 #        Value is a bitmask consisting of:
@@ -1662,12 +1636,60 @@ GM.AllowInvite = 0
 GM.LowerSecurity = 0
 
 #
-#    GM.TicketSystem.ChanceOfGMSurvey
+###################################################################################################
+
+###################################################################################################
+# SUPPORT SETTINGS
+#
+#    Support.Enabled
+#        Description: Enable/disable the ticket system. This disables the whole customer
+#                     support UI after trying to send a ticket in disabled state
+#                     (MessageBox: "GM Help Tickets are currently unavailable.").
+#                     UI remains disabled until the character relogs.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Support.Enabled = 1
+
+#
+#    Support.TicketsEnabled
+#        Description: Allow/disallow opening new tickets.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled, Experimental)
+
+Support.TicketsEnabled = 0
+
+#
+#    Support.BugsEnabled
+#        Description: Allow/disallow opening new bug reports.
+#        Default:    0 - (Disabled)
+#                    1 - (Enabled, Experimental)
+
+Support.BugsEnabled = 0
+
+#
+#    Support.ComplaintsEnabled
+#        Description: Allow/disallow creating new player complaints.
+#        Default:    0 - (Disabled)
+#                    1 - (Enabled, Experimental)
+
+Support.ComplaintsEnabled = 0
+
+#
+#    Support.SuggestionsEnabled
+#        Description: Allow/disallow opening new suggestion reports.
+#        Default:    0 - (Disabled)
+#                    1 - (Enabled, Experimental)
+
+Support.SuggestionsEnabled = 0
+
+#
+#    Support.ChanceOfGMSurvey
 #        Description: Chance of sending a GM survey after ticket completion.
 #        Default:     50 - (Enabled)
 #                     0  - (Disabled)
 
-GM.TicketSystem.ChanceOfGMSurvey = 50
+Support.ChanceOfGMSurvey = 50
 
 #
 ###################################################################################################

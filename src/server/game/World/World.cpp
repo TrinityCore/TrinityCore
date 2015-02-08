@@ -57,7 +57,7 @@
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
 #include "SystemConfig.h"
-#include "TicketMgr.h"
+#include "SupportMgr.h"
 #include "TransportMgr.h"
 #include "Unit.h"
 #include "VMapFactory.h"
@@ -427,12 +427,22 @@ void World::LoadConfigSettings(bool reload)
     SetPlayerAmountLimit(sConfigMgr->GetIntDefault("PlayerLimit", 100));
     SetMotd(sConfigMgr->GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
 
-    ///- Read ticket system setting from the config file
-    m_bool_configs[CONFIG_TICKET_SYSTEM_STATUS] = sConfigMgr->GetBoolDefault("Ticket.SystemStatus", true);
+    ///- Read support system setting from the config file
+    m_bool_configs[CONFIG_SUPPORT_ENABLED] = sConfigMgr->GetBoolDefault("Support.Enabled", true);
+    m_bool_configs[CONFIG_SUPPORT_TICKETS_ENABLED] = sConfigMgr->GetBoolDefault("Support.TicketsEnabled", false);
+    m_bool_configs[CONFIG_SUPPORT_BUGS_ENABLED] = sConfigMgr->GetBoolDefault("Support.BugsEnabled", false);
+    m_bool_configs[CONFIG_SUPPORT_COMPLAINTS_ENABLED] = sConfigMgr->GetBoolDefault("Support.ComplaintsEnabled", false);
+    m_bool_configs[CONFIG_SUPPORT_SUGGESTIONS_ENABLED] = sConfigMgr->GetBoolDefault("Support.SuggestionsEnabled", false);
     if (reload)
-        sTicketMgr->SetStatus(m_bool_configs[CONFIG_TICKET_SYSTEM_STATUS]);
-    m_bool_configs[CONFIG_TICKET_SUBMIT_TICKET] = sConfigMgr->GetBoolDefault("Ticket.SubmitTicket", false);
-    m_bool_configs[CONFIG_TICKET_SUBMIT_BUG] = sConfigMgr->GetBoolDefault("Ticket.SubmitBug", false);
+    {
+        sSupportMgr->SetSupportSystemStatus(m_bool_configs[CONFIG_SUPPORT_ENABLED]);
+        sSupportMgr->SetTicketSystemStatus(m_bool_configs[CONFIG_SUPPORT_TICKETS_ENABLED]);
+        sSupportMgr->SetBugSystemStatus(m_bool_configs[CONFIG_SUPPORT_BUGS_ENABLED]);
+        sSupportMgr->SetComplaintSystemStatus(m_bool_configs[CONFIG_SUPPORT_COMPLAINTS_ENABLED]);
+        sSupportMgr->SetSuggestionSystemStatus(m_bool_configs[CONFIG_SUPPORT_SUGGESTIONS_ENABLED]);
+    }
+    m_float_configs[CONFIG_CHANCE_OF_GM_SURVEY] = sConfigMgr->GetFloatDefault("Support.ChanceOfGMSurvey", 50.0f);
+    
 
     ///- Get string for new logins (newly created characters)
     SetNewCharString(sConfigMgr->GetStringDefault("PlayerStart.String", ""));
@@ -954,7 +964,6 @@ void World::LoadConfigSettings(bool reload)
     }
     m_bool_configs[CONFIG_ALLOW_GM_GROUP]       = sConfigMgr->GetBoolDefault("GM.AllowInvite", false);
     m_bool_configs[CONFIG_GM_LOWER_SECURITY] = sConfigMgr->GetBoolDefault("GM.LowerSecurity", false);
-    m_float_configs[CONFIG_CHANCE_OF_GM_SURVEY] = sConfigMgr->GetFloatDefault("GM.TicketSystem.ChanceOfGMSurvey", 50.0f);
 
     m_int_configs[CONFIG_GROUP_VISIBILITY] = sConfigMgr->GetIntDefault("Visibility.GroupMode", 1);
 
@@ -1814,10 +1823,19 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadFactionChangeTitles();
 
     TC_LOG_INFO("server.loading", "Loading GM tickets...");
-    sTicketMgr->LoadTickets();
+    sSupportMgr->LoadGmTickets();
 
-    TC_LOG_INFO("server.loading", "Loading GM surveys...");
-    sTicketMgr->LoadSurveys();
+    TC_LOG_INFO("server.loading", "Loading GM bugs...");
+    sSupportMgr->LoadBugTickets();
+
+    TC_LOG_INFO("server.loading", "Loading GM complaints...");
+    sSupportMgr->LoadComplaintTickets();
+
+    TC_LOG_INFO("server.loading", "Loading GM suggestions...");
+    sSupportMgr->LoadSuggestionTickets();
+
+    /*TC_LOG_INFO("server.loading", "Loading GM surveys...");
+    sSupportMgr->LoadSurveys();*/
 
     TC_LOG_INFO("server.loading", "Loading client addons...");
     AddonMgr::LoadFromDB();
@@ -1916,7 +1934,7 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Starting Arena Season...");
     sGameEventMgr->StartArenaSeason();
 
-    sTicketMgr->Initialize();
+    sSupportMgr->Initialize();
 
     ///- Initialize Battlegrounds
     TC_LOG_INFO("server.loading", "Starting Battleground System");

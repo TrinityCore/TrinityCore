@@ -985,7 +985,8 @@ enum TrinityStrings
     LANG_ACCOUNT_ALREADY_LINKED         = 1187,
     LANG_ACCOUNT_BNET_UNLINKED          = 1188,
     LANG_ACCOUNT_BNET_NOT_LINKED        = 1189,
-    // Room for more level 3              1190-1199 not used
+    LANG_DISALLOW_TICKETS_CONFIG        = 1190,
+    // Room for more level 3              1191-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
