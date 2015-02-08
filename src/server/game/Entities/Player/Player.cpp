@@ -3658,13 +3658,16 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     for (SpellLearnSpellMap::const_iterator itr2 = spell_bounds.first; itr2 != spell_bounds.second; ++itr2)
     {
-        if (!itr2->second.autoLearned)
+        if (!itr2->second.AutoLearned)
         {
-            if (!IsInWorld() || !itr2->second.active)       // at spells loading, no output, but allow save
-                AddSpell(itr2->second.spell, itr2->second.active, true, true, false);
+            if (!IsInWorld() || !itr2->second.Active)       // at spells loading, no output, but allow save
+                AddSpell(itr2->second.Spell, itr2->second.Active, true, true, false);
             else                                            // at normal learning
-                LearnSpell(itr2->second.spell, true);
+                LearnSpell(itr2->second.Spell, true);
         }
+
+        if (itr2->second.OverridesSpell && itr2->second.Active)
+            AddOverrideSpell(itr2->second.OverridesSpell, itr2->second.Spell);
     }
 
     if (!GetSession()->PlayerLoading())
@@ -3873,7 +3876,11 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     SpellLearnSpellMapBounds spell_bounds = sSpellMgr->GetSpellLearnSpellMapBounds(spell_id);
 
     for (SpellLearnSpellMap::const_iterator itr2 = spell_bounds.first; itr2 != spell_bounds.second; ++itr2)
-        RemoveSpell(itr2->second.spell, disabled);
+    {
+        RemoveSpell(itr2->second.Spell, disabled);
+        if (itr2->second.OverridesSpell)
+            RemoveOverrideSpell(itr2->second.OverridesSpell, itr2->second.Spell);
+    }
 
     // activate lesser rank in spellbook/action bar, and cast it if need
     bool prev_activate = false;

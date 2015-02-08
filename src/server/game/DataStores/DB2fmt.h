@@ -37,6 +37,7 @@ char const PhaseGroupEntryfmt[] = "nii";
 char const SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";
 char const SpellCastingRequirementsEntryfmt[] = "dixxixi";
 char const SpellClassOptionsEntryfmt[] = "niiiiii";
+char const SpellLearnSpellEntryfmt[] = "niii";
 char const SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiifiiiiix";
 char const SpellPowerEntryfmt[] = "niiiiiixxxffix";
 char const SpellReagentsEntryfmt[] = "niiiiiiiiiiiiiiiixx";

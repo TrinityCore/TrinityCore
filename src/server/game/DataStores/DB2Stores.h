@@ -35,6 +35,7 @@ extern DB2Storage<PhaseGroupEntry>              sPhaseGroupStore;
 extern DB2Storage<SpellAuraRestrictionsEntry>   sSpellAuraRestrictionsStore;
 extern DB2Storage<SpellCastingRequirementsEntry> sSpellCastingRequirementsStore;
 extern DB2Storage<SpellClassOptionsEntry>       sSpellClassOptionsStore;
+extern DB2Storage<SpellLearnSpellEntry>         sSpellLearnSpellStore;
 extern DB2Storage<SpellMiscEntry>               sSpellMiscStore;
 extern DB2Storage<SpellPowerEntry>              sSpellPowerStore;
 extern SpellPowerBySpellIDMap                   sSpellPowerBySpellIDStore;

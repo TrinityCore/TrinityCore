@@ -543,6 +543,7 @@ SpellValue::SpellValue(Difficulty diff, SpellInfo const* proto)
     // todo 6.x
     SpellEffectInfoVector effects = proto->GetEffectsForDifficulty(diff);
     ASSERT(effects.size() <= MAX_SPELL_EFFECTS);
+    memset(EffectBasePoints, 0, sizeof(EffectBasePoints));
     for (SpellEffectInfo const* effect : effects)
         if (effect)
             EffectBasePoints[effect->EffectIndex] = effect->BasePoints;

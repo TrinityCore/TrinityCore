@@ -288,6 +288,14 @@ struct SpellClassOptionsEntry
     uint32      SpellClassSet;                                      // 3
 };
 
+struct SpellLearnSpellEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      LearnSpellID;                                       // 1
+    uint32      SpellID;                                            // 2
+    uint32      OverridesSpellID;                                   // 3
+};
+
 struct SpellMiscEntry
 {
     uint32      ID;                                                 // 0

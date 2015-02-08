@@ -677,7 +677,7 @@ bool SpellMgr::IsSpellLearnToSpell(uint32 spell_id1, uint32 spell_id2) const
 {
     SpellLearnSpellMapBounds bounds = GetSpellLearnSpellMapBounds(spell_id1);
     for (SpellLearnSpellMap::const_iterator i = bounds.first; i != bounds.second; ++i)
-        if (i->second.spell == spell_id2)
+        if (i->second.Spell == spell_id2)
             return true;
     return false;
 }
@@ -1484,9 +1484,10 @@ void SpellMgr::LoadSpellLearnSpells()
         uint32 spell_id = fields[0].GetUInt32();
 
         SpellLearnSpellNode node;
-        node.spell       = fields[1].GetUInt32();
-        node.active      = fields[2].GetBool();
-        node.autoLearned = false;
+        node.Spell       = fields[1].GetUInt32();
+        node.OverridesSpell = 0;
+        node.Active      = fields[2].GetBool();
+        node.AutoLearned = false;
 
         SpellInfo const* spellInfo = GetSpellInfo(spell_id);
         if (!spellInfo)
@@ -1495,15 +1496,15 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
         }
 
-        if (!GetSpellInfo(node.spell))
+        if (!GetSpellInfo(node.Spell))
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` learning not existed spell %u", spell_id, node.spell);
+            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` learning not existed spell %u", spell_id, node.Spell);
             continue;
         }
 
         if (spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` attempt learning talent spell %u, skipped", spell_id, node.spell);
+            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` attempt learning talent spell %u, skipped", spell_id, node.Spell);
             continue;
         }
 
@@ -1529,27 +1530,28 @@ void SpellMgr::LoadSpellLearnSpells()
             if (effect && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
             {
                 SpellLearnSpellNode dbc_node;
-                dbc_node.spell = effect->TriggerSpell;
-                dbc_node.active = true;                     // all dbc based learned spells is active (show in spell book or hide by client itself)
+                dbc_node.Spell = effect->TriggerSpell;
+                dbc_node.Active = true;                     // all dbc based learned spells is active (show in spell book or hide by client itself)
+                dbc_node.OverridesSpell = 0;
 
                 // ignore learning not existed spells (broken/outdated/or generic learnig spell 483
-                if (!GetSpellInfo(dbc_node.spell))
+                if (!GetSpellInfo(dbc_node.Spell))
                     continue;
 
                 // talent or passive spells or skill-step spells auto-cast and not need dependent learning,
                 // pet teaching spells must not be dependent learning (cast)
                 // other required explicit dependent learning
-                dbc_node.autoLearned = effect->TargetA.GetTarget() == TARGET_UNIT_PET || entry->HasAttribute(SPELL_ATTR0_CU_IS_TALENT) || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
+                dbc_node.AutoLearned = effect->TargetA.GetTarget() == TARGET_UNIT_PET || entry->HasAttribute(SPELL_ATTR0_CU_IS_TALENT) || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
 
                 SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spell);
 
                 bool found = false;
                 for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
                 {
-                    if (itr->second.spell == dbc_node.spell)
+                    if (itr->second.Spell == dbc_node.Spell)
                     {
                         TC_LOG_ERROR("sql.sql", "Spell %u auto-learn spell %u in spell.dbc then the record in `spell_learn_spell` is redundant, please fix DB.",
-                            spell, dbc_node.spell);
+                            spell, dbc_node.Spell);
                         found = true;
                         break;
                     }
@@ -1564,6 +1566,55 @@ void SpellMgr::LoadSpellLearnSpells()
         }
     }
 
+    for (uint32 i = 0; i < sSpellLearnSpellStore.GetNumRows(); ++i)
+    {
+        SpellLearnSpellEntry const* spellLearnSpell = sSpellLearnSpellStore.LookupEntry(i);
+        if (!spellLearnSpell)
+            continue;
+
+        if (!GetSpellInfo(spellLearnSpell->SpellID))
+            continue;
+
+        SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spellLearnSpell->LearnSpellID);
+        bool found = false;
+        for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
+        {
+            if (itr->second.Spell == spellLearnSpell->SpellID)
+            {
+                TC_LOG_ERROR("sql.sql", "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically from SpellLearnSpell.db2", spellLearnSpell->LearnSpellID, spellLearnSpell->SpellID);
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+            continue;
+
+        // Check if it is already found in Spell.dbc, ignore silently if yes
+        SpellLearnSpellMapBounds dbc_node_bounds = GetSpellLearnSpellMapBounds(spellLearnSpell->LearnSpellID);
+        found = false;
+        for (SpellLearnSpellMap::const_iterator itr = dbc_node_bounds.first; itr != dbc_node_bounds.second; ++itr)
+        {
+            if (itr->second.Spell == spellLearnSpell->SpellID)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+            continue;
+
+        SpellLearnSpellNode dbcLearnNode;
+        dbcLearnNode.Spell = spellLearnSpell->SpellID;
+        dbcLearnNode.OverridesSpell = spellLearnSpell->OverridesSpellID;
+        dbcLearnNode.Active = true;
+        dbcLearnNode.AutoLearned = false;
+
+        mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spellLearnSpell->LearnSpellID, dbcLearnNode));
+        ++dbc_count;
+    }
+
     uint32 mastery_count = 0;
     for (uint32 i = 0; i < sChrSpecializationStore.GetNumRows(); ++i)
     {
@@ -1571,57 +1622,55 @@ void SpellMgr::LoadSpellLearnSpells()
         if (!chrSpec)
             continue;
 
-        for (uint32 c = CLASS_WARRIOR; c < MAX_CLASSES; ++c)
+        if (chrSpec->ClassID >= MAX_CLASSES)
+            continue;
+
+        uint32 masteryMainSpell = MasterySpells[chrSpec->ClassID];
+
+        for (uint32 m = 0; m < MAX_MASTERY_SPELLS; ++m)
         {
-            if (chrSpec->ClassID != c)
+            uint32 mastery = chrSpec->MasterySpellID[m];
+            if (!mastery)
                 continue;
 
-            uint32 masteryMainSpell = MasterySpells[c];
-
-            for (uint32 m = 0; m < MAX_MASTERY_SPELLS; ++m)
+            SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(masteryMainSpell);
+            bool found = false;
+            for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
             {
-                uint32 mastery = chrSpec->MasterySpellID[m];
-                if (!mastery)
-                    continue;
-
-                SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(masteryMainSpell);
-                bool found = false;
-                for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
+                if (itr->second.Spell == mastery)
                 {
-                    if (itr->second.spell == mastery)
-                    {
-                        TC_LOG_ERROR("sql.sql", "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically as mastery learned spell from ChrSpecialization.dbc", masteryMainSpell, mastery);
-                        found = true;
-                        break;
-                    }
+                    TC_LOG_ERROR("sql.sql", "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically as mastery learned spell from ChrSpecialization.dbc", masteryMainSpell, mastery);
+                    found = true;
+                    break;
                 }
-
-                if (found)
-                    continue;
-
-                // Check if it is already found in Spell.dbc, ignore silently if yes
-                SpellLearnSpellMapBounds dbc_node_bounds = GetSpellLearnSpellMapBounds(masteryMainSpell);
-                found = false;
-                for (SpellLearnSpellMap::const_iterator itr = dbc_node_bounds.first; itr != dbc_node_bounds.second; ++itr)
-                {
-                    if (itr->second.spell == mastery)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found)
-                    continue;
-
-                SpellLearnSpellNode masteryNode;
-                masteryNode.spell       = mastery;
-                masteryNode.active      = true;
-                masteryNode.autoLearned = false;
-
-                mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(masteryMainSpell, masteryNode));
-                ++mastery_count;
             }
+
+            if (found)
+                continue;
+
+            // Check if it is already found in Spell.dbc, ignore silently if yes
+            SpellLearnSpellMapBounds dbc_node_bounds = GetSpellLearnSpellMapBounds(masteryMainSpell);
+            found = false;
+            for (SpellLearnSpellMap::const_iterator itr = dbc_node_bounds.first; itr != dbc_node_bounds.second; ++itr)
+            {
+                if (itr->second.Spell == mastery)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found)
+                continue;
+
+            SpellLearnSpellNode masteryNode;
+            masteryNode.Spell       = mastery;
+            masteryNode.OverridesSpell = 0;
+            masteryNode.Active      = true;
+            masteryNode.AutoLearned = false;
+
+            mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(masteryMainSpell, masteryNode));
+            ++mastery_count;
         }
     }
 
