@@ -131,7 +131,7 @@ namespace WorldPackets
                 std::string Target;
                 String<255, Strings::NoHyperlinks> Subject;
                 String<7999, Strings::NoHyperlinks> Body;
-                Array<MailAttachment, MAX_MAIL_ITEMS> Attachments;
+                std::vector<MailAttachment> Attachments;
             };
 
             explicit SendMail(WorldPacket&& packet) : ClientPacket(CMSG_SEND_MAIL, std::move(packet)) { }

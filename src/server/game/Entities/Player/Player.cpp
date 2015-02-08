@@ -17850,7 +17850,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
                 ObjectGuid bagGuid = fields[11].GetUInt32() ? ObjectGuid::Create<HighGuid::Item>(fields[11].GetUInt32()) : ObjectGuid::Empty;
-                uint8  slot     = fields[12].GetUInt8();
+                uint8 slot = fields[12].GetUInt8();
 
                 InventoryResult err = EQUIP_ERR_OK;
                 // Item is not in bag

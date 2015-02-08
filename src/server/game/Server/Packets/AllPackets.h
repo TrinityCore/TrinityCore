@@ -49,6 +49,7 @@
 #include "QueryPackets.h"
 #include "QuestPackets.h"
 #include "ReputationPackets.h"
+#include "SocialPackets.h"
 #include "SpellPackets.h"
 #include "SystemPackets.h"
 #include "TalentPackets.h"
