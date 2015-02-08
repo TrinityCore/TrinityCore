@@ -70,5 +70,5 @@ inline Item* NewItemOrBag(ItemTemplate const* proto)
 {
     return (proto->GetInventoryType() == INVTYPE_BAG) ? new Bag : new Item;
 }
-#endif
 
+#endif

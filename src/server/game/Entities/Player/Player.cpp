@@ -4450,27 +4450,27 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                             do
                             {
                                 Field* itemFields = resultItems->Fetch();
-                                ObjectGuid::LowType item_guidlow = itemFields[15].GetUInt64();
-                                uint32 item_template = itemFields[16].GetUInt32();
+                                ObjectGuid::LowType itemGuidLow = itemFields[0].GetUInt64();
+                                uint32 itemEntry = itemFields[1].GetUInt32();
 
-                                ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
+                                ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemEntry);
                                 if (!itemProto)
                                 {
                                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                                    stmt->setUInt64(0, item_guidlow);
+                                    stmt->setUInt64(0, itemGuidLow);
                                     trans->Append(stmt);
                                     continue;
                                 }
 
-                                Item* pItem = NewItemOrBag(itemProto);
-                                if (!pItem->LoadFromDB(item_guidlow, playerguid, itemFields, item_template))
+                                Item* item = NewItemOrBag(itemProto);
+                                if (!item->LoadFromDB(itemGuidLow, playerguid, itemFields, itemEntry))
                                 {
-                                    pItem->FSetState(ITEM_REMOVED);
-                                    pItem->SaveToDB(trans);              // it also deletes item object!
+                                    item->FSetState(ITEM_REMOVED);
+                                    item->SaveToDB(trans);              // it also deletes item object!
                                     continue;
                                 }
 
-                                draft.AddItem(pItem);
+                                draft.AddItem(item);
                             }
                             while (resultItems->NextRow());
                         }
@@ -17562,8 +17562,8 @@ void Player::LoadCorpse()
 
 void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 {
-    //                 0                1      2         3        4      5             6                 7           8           9    10                  11         12               13            14   15    16    17         18
-    //SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, transmogrification, upgradeId, enchantIllusion, bonusListIDs, bag, slot, item, itemEntry FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
+    //              0             1               2                   3         4            5           6         7                8                    9             10             11       12                     13            14                  15               16   17    18
+    // SELECT ii.guid, ii.itemEntry, ii.creatorGuid, ii.giftCreatorGuid, ii.count, ii.duration, ii.charges, ii.flags, ii.enchantments, ii.randomPropertyId, ii.durability, ii.playedTime, ii.text, ii.transmogrification, ii.upgradeId, ii.enchantIllusion, ii.bonusListIDs, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
@@ -17585,8 +17585,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid bagGuid = fields[15].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[15].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[16].GetUInt8();
+                ObjectGuid bagGuid = fields[17].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[17].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[18].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -17742,8 +17742,8 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = NULL;
-    ObjectGuid::LowType itemGuid  = fields[17].GetUInt64();
-    uint32 itemEntry = fields[18].GetUInt32();
+    ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
+    uint32 itemEntry = fields[1].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
@@ -17880,16 +17880,15 @@ void Player::_LoadMailedItems(Mail* mail)
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType itemGuid = fields[15].GetUInt64();
-        uint32 itemTemplate = fields[16].GetUInt32();
+        ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
+        uint32 itemEntry = fields[1].GetUInt32();
 
-        mail->AddItem(itemGuid, itemTemplate);
+        mail->AddItem(itemGuid, itemEntry);
 
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemTemplate);
-
+        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
         if (!proto)
         {
-            TC_LOG_ERROR("entities.player", "%s has unknown item_template (ProtoType) in mailed items(GUID: " UI64FMTD " template: %u) in mail (%u), deleted.", GetGUID().ToString().c_str(), itemGuid, itemTemplate, mail->messageID);
+            TC_LOG_ERROR("entities.player", "%s has unknown item_template (ProtoType) in mailed items(GUID: " UI64FMTD " template: %u) in mail (%u), deleted.", GetGUID().ToString().c_str(), itemGuid, itemEntry, mail->messageID);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
             stmt->setUInt64(0, itemGuid);
@@ -17903,7 +17902,8 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(itemGuid, ObjectGuid::Create<HighGuid::Player>(fields[17].GetUInt64()), fields, itemTemplate))
+        ObjectGuid ownerGuid = fields[17].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[17].GetUInt64()) : ObjectGuid::Empty;
+        if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: " UI64FMTD ", deleted from mail", mail->messageID, itemGuid);
 

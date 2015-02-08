@@ -498,9 +498,9 @@ void Guild::BankTab::LoadFromDB(Field* fields)
 
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
-    uint8 slotId = fields[13].GetUInt8();
-    ObjectGuid::LowType itemGuid = fields[14].GetUInt64();
-    uint32 itemEntry = fields[15].GetUInt32();
+    uint8 slotId = fields[19].GetUInt8();
+    ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
+    uint32 itemEntry = fields[1].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
     {
         TC_LOG_ERROR("guild", "Invalid slot for item (GUID: " UI64FMTD ", id: %u) in guild bank, skipped.", itemGuid, itemEntry);
@@ -2513,11 +2513,11 @@ void Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[12].GetUInt8();
+    uint8 tabId = fields[18].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
         TC_LOG_ERROR("guild", "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
-            fields[14].GetUInt32(), fields[15].GetUInt32());
+            fields[0].GetUInt32(), fields[1].GetUInt32());
         return false;
     }
     return m_bankTabs[tabId]->LoadItemFromDB(fields);
@@ -2536,7 +2536,7 @@ bool Guild::Validate()
     if (ranks < GUILD_RANKS_MIN_COUNT || ranks > GUILD_RANKS_MAX_COUNT)
     {
         TC_LOG_ERROR("guild", "Guild " UI64FMTD " has invalid number of ranks, creating new...", m_id);
-        broken_ranks = true;\
+        broken_ranks = true;
     }
     else
     {

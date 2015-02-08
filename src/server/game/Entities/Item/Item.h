@@ -260,7 +260,7 @@ class Item : public Object
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
-        virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
+        virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
 
         void AddBonuses(uint32 bonusListID);
 
