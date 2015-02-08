@@ -281,7 +281,6 @@ void AuctionHouseMgr::LoadAuctionItems()
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 auction items. DB table `auctionhouse` or `item_instance` is empty!");
-
         return;
     }
 
@@ -291,18 +290,18 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType item_guid = fields[15].GetUInt64();
-        uint32 itemEntry    = fields[16].GetUInt32();
+        ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
+        uint32 itemEntry = fields[1].GetUInt32();
 
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
         if (!proto)
         {
-            TC_LOG_ERROR("misc", "AuctionHouseMgr::LoadAuctionItems: Unknown item (GUID: " UI64FMTD " id: #%u) in auction, skipped.", item_guid, itemEntry);
+            TC_LOG_ERROR("misc", "AuctionHouseMgr::LoadAuctionItems: Unknown item (GUID: " UI64FMTD " id: #%u) in auction, skipped.", itemGuid, itemEntry);
             continue;
         }
 
         Item* item = NewItemOrBag(proto);
-        if (!item->LoadFromDB(item_guid, ObjectGuid::Empty, fields, itemEntry))
+        if (!item->LoadFromDB(itemGuid, ObjectGuid::Empty, fields, itemEntry))
         {
             delete item;
             continue;
@@ -314,7 +313,6 @@ void AuctionHouseMgr::LoadAuctionItems()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u auction items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
 }
 
 void AuctionHouseMgr::LoadAuctions()
@@ -327,7 +325,6 @@ void AuctionHouseMgr::LoadAuctions()
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
-
         return;
     }
 
