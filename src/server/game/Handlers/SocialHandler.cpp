@@ -20,6 +20,7 @@
 #include "Player.h"
 #include "SocialMgr.h"
 #include "SocialPackets.h"
+#include "ObjectMgr.h"
 
 void WorldSession::HandleContactListOpcode(WorldPackets::Social::SendContactList& packet)
 {
