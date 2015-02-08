@@ -412,10 +412,10 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
         CharacterDatabase.CommitTransaction(trans);
 }
 
-bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
+bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry)
 {
-    //                                                    0                1      2         3        4      5             6                 7           8           9    10
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '{}'", guid);
+    //                                             0          1            2                3      4         5        6      7             8                 9          10          11    12
+    //result = CharacterDatabase.PQuery("SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '{}'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -433,17 +433,17 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
     }
 
     // set owner (not if item is only loaded for gbank/auction/mail
-    if (!owner_guid.IsEmpty())
-        SetOwnerGUID(owner_guid);
+    if (!ownerGuid.IsEmpty())
+        SetOwnerGUID(ownerGuid);
 
     bool need_save = false;                                 // need explicit save data at load fixes
-    if (uint32 creator = fields[0].GetUInt32())
+    if (uint32 creator = fields[2].GetUInt32())
         SetCreator(ObjectGuid::Create<HighGuid::Player>(creator));
-    if (uint32 giftCreator = fields[1].GetUInt32())
+    if (uint32 giftCreator = fields[3].GetUInt32())
         SetGiftCreator(ObjectGuid::Create<HighGuid::Player>(giftCreator));
-    SetCount(fields[2].GetUInt32());
+    SetCount(fields[4].GetUInt32());
 
-    uint32 duration = fields[3].GetUInt32();
+    uint32 duration = fields[5].GetUInt32();
     SetExpiration(duration);
     // update duration if need, and remove if not need
     if ((proto->GetDuration() == 0) != (duration == 0))
@@ -452,7 +452,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         need_save = true;
     }
 
-    std::vector<std::string_view> tokens = Trinity::Tokenize(fields[4].GetStringView(), ' ', false);
+    std::vector<std::string_view> tokens = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
     if (tokens.size() == MAX_ITEM_PROTO_SPELLS)
     {
         for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
@@ -464,7 +464,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         }
     }
 
-    ReplaceAllItemFlags(ItemFieldFlags(fields[5].GetUInt32()));
+    ReplaceAllItemFlags(ItemFieldFlags(fields[7].GetUInt32()));
     // Remove bind flag for items vs NO_BIND set
     if (IsSoulBound() && proto->GetBonding() == NO_BIND)
     {
@@ -472,15 +472,15 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         need_save = true;
     }
 
-    if (!_LoadIntoDataField(fields[6].GetString(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET))
-        TC_LOG_WARN("entities.item", "Invalid enchantment data '{}' for item {}. Forcing partial load.", fields[6].GetString(), GetGUID().ToString());
+    if (!_LoadIntoDataField(fields[8].GetString(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET))
+        TC_LOG_WARN("entities.item", "Invalid enchantment data '{}' for item {}. Forcing partial load.", fields[8].GetString(), GetGUID().ToString());
 
-    SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].GetInt16());
+    SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[9].GetInt16());
     // recalculate suffix factor
     if (GetItemRandomPropertyId() < 0)
         UpdateItemSuffixFactor();
 
-    uint32 durability = fields[8].GetUInt16();
+    uint32 durability = fields[10].GetUInt16();
     SetDurability(durability);
     // update max durability (and durability) if need
     SetMaxDurability(proto->MaxDurability);
@@ -492,8 +492,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         need_save = true;
     }
 
-    SetCreatePlayedTime(fields[9].GetUInt32());
-    SetText(fields[10].GetString());
+    SetCreatePlayedTime(fields[11].GetUInt32());
+    SetText(fields[12].GetString());
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
@@ -1058,7 +1058,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player /*= 
         if (count > proto->GetMaxStackSize())
             count = proto->GetMaxStackSize();
 
-        ASSERT_NODEBUGINFO(count != 0 && "pProto->Stackable == 0 but checked at loading already");
+        ASSERT_NODEBUGINFO(count != 0 && "proto->Stackable == 0 but checked at loading already");
 
         Item* item = NewItemOrBag(proto);
         if (item->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), itemEntry, player))
