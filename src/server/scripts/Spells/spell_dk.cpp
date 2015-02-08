@@ -663,7 +663,7 @@ class spell_dk_festering_strike : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DK_FROST_FEVER) || !sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_PLAGUE) || !sSpellMgr->GetSpellInfo(SPELL_DK_CHAINS_OF_ICE))
                     return false;
-                return false;
+                return true;
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -943,7 +943,7 @@ class spell_dk_raise_dead : public SpellScriptLoader
             {
                 if (!spellInfo->GetEffect(EFFECT_0) || !sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->CalcValue()))
                     return false;
-                return false;
+                return true;
             }
 
             bool Load() override
