@@ -3243,17 +3243,12 @@ void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResp
     result.Command = mailAction;
     result.ErrorCode = mailError;
 
-    switch (mailError)
+    if (mailError == MAIL_ERR_EQUIP_ERROR)
+        result.BagResult = equipError;
+    else if (mailAction == MAIL_ITEM_TAKEN)
     {
-        case MAIL_ERR_EQUIP_ERROR:
-            result.BagResult = equipError;
-            break;
-        case MAIL_ITEM_TAKEN:
-            result.AttachID = item_guid;
-            result.QtyInInventory = item_count;
-            break;
-        default:
-            break;
+        result.AttachID = item_guid;
+        result.QtyInInventory = item_count;
     }
 
     GetSession()->SendPacket(result.Write());

@@ -39,18 +39,20 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(SessionAlert.HasValue);
     _worldPacket.WriteBit(RecruitAFriendSendingEnabled);
     _worldPacket.WriteBit(CharUndeleteEnabled);
-    _worldPacket.WriteBit(UnkBit21);
-    _worldPacket.WriteBit(UnkBit22);
+    _worldPacket.WriteBit(RestrictedAccount);
+    _worldPacket.WriteBit(TutorialsEnabled);
     _worldPacket.WriteBit(UnkBit90);
     _worldPacket.WriteBit(TwitterEnabled);
     _worldPacket.WriteBit(UnkBit61);
 
+    _worldPacket.FlushBits();
+
     if (EuropaTicketSystemStatus.HasValue)
     {
-        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.UnkBit0);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.UnkBit1);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.TicketSystemEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.SubmitBugEnabled);
+        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.TicketsEnabled);
+        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.BugsEnabled);
+        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.ComplaintsEnabled);
+        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.SuggestionsEnabled);
 
         _worldPacket << uint32(EuropaTicketSystemStatus.Value.ThrottleState.MaxTries);
         _worldPacket << uint32(EuropaTicketSystemStatus.Value.ThrottleState.PerMilliseconds);
