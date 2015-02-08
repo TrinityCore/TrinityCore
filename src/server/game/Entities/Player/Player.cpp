@@ -4498,16 +4498,15 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             // Delete char from social list of online chars
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_SOCIAL);
             stmt->setUInt64(0, guid);
-            PreparedQueryResult resultFriends = CharacterDatabase.Query(stmt);
 
-            if (resultFriends)
+            if (PreparedQueryResult resultFriends = CharacterDatabase.Query(stmt))
             {
                 do
                 {
-                    if (Player* pFriend = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>((*resultFriends)[0].GetUInt64())))
+                    if (Player* playerFriend = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>((*resultFriends)[0].GetUInt64())))
                     {
-                        pFriend->GetSocial()->RemoveFromSocialList(playerguid, false);
-                        sSocialMgr->SendFriendStatus(pFriend, FRIEND_REMOVED, playerguid, false);
+                        playerFriend->GetSocial()->RemoveFromSocialList(playerguid, SOCIAL_FLAG_ALL);
+                        sSocialMgr->SendFriendStatus(playerFriend, FRIEND_REMOVED, playerguid);
                     }
                 } while (resultFriends->NextRow());
             }
@@ -17580,7 +17579,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
                 ObjectGuid bagGuid = fields[15].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[15].GetUInt64()) : ObjectGuid::Empty;
-                uint8  slot     = fields[16].GetUInt8();
+                uint8 slot = fields[16].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -22811,7 +22810,7 @@ void Player::SetGroup(Group* group, int8 subgroup)
 void Player::SendInitialPacketsBeforeAddToMap()
 {
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
-    GetSocial()->SendSocialList(this);
+    GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
 
     /// SMSG_SPELL_CATEGORY_COOLDOWN
     GetSession()->SendSpellCategoryCooldowns();
@@ -27232,4 +27231,10 @@ void Player::RemoveSpecializationSpells()
                     RemoveAurasDueToSpell(mastery);
         }
     }
+}
+
+void Player::RemoveSocial()
+{
+    sSocialMgr->RemovePlayerSocial(GetGUID());
+    m_social = nullptr;
 }

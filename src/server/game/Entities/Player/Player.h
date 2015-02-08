@@ -1384,7 +1384,8 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=NULL);
 
-        PlayerSocial *GetSocial() { return m_social; }
+        PlayerSocial* GetSocial() { return m_social; }
+        void RemoveSocial();
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
@@ -1835,7 +1836,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetMailSize() { return m_mail.size();}
         Mail* GetMail(uint32 id);
 
-        PlayerMails const& GetMails() const { return m_mail; } 
+        PlayerMails const& GetMails() const { return m_mail; }
 
         void SendItemRetrievalMail(uint32 itemEntry, uint32 count); // Item retrieval mails sent by The Postmaster (34337), used in multiple places.
 
@@ -2912,7 +2913,7 @@ class Player : public Unit, public GridObject<Player>
         ////////////////////Rest System/////////////////////
 
         // Social
-        PlayerSocial *m_social;
+        PlayerSocial* m_social;
 
         // Groups
         GroupReference m_group;
