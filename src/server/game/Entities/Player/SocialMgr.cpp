@@ -22,6 +22,7 @@
 #include "SocialPackets.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "ObjectAccessor.h"
 
 uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
 {

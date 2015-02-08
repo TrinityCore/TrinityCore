@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
 
 struct FriendInfo;
 enum FriendsResult : uint8;
