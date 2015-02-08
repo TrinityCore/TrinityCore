@@ -338,7 +338,7 @@ bool SpellMgr::IsSpellLearnToSpell(uint32 spell_id1, uint32 spell_id2) const
 {
     SpellLearnSpellMapBounds bounds = GetSpellLearnSpellMapBounds(spell_id1);
     for (SpellLearnSpellMap::const_iterator i = bounds.first; i != bounds.second; ++i)
-        if (i->second.spell == spell_id2)
+        if (i->second.Spell == spell_id2)
             return true;
     return false;
 }
@@ -1085,9 +1085,9 @@ void SpellMgr::LoadSpellLearnSpells()
         uint32 spell_id = fields[0].GetUInt32();
 
         SpellLearnSpellNode node;
-        node.spell       = fields[1].GetUInt32();
-        node.active      = fields[2].GetBool();
-        node.autoLearned = false;
+        node.Spell       = fields[1].GetUInt32();
+        node.Active      = fields[2].GetBool();
+        node.AutoLearned = false;
 
         if (!GetSpellInfo(spell_id))
         {
@@ -1095,16 +1095,16 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
         }
 
-        SpellInfo const* learnedSpellInfo = GetSpellInfo(node.spell);
+        SpellInfo const* learnedSpellInfo = GetSpellInfo(node.Spell);
         if (!learnedSpellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_learn_spell` learning non-existing spell {}.", spell_id, node.spell);
+            TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_learn_spell` learning non-existing spell {}.", spell_id, node.Spell);
             continue;
         }
 
         if (learnedSpellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
         {
-            TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_learn_spell` attempts learning talent spell {}, skipped.", spell_id, node.spell);
+            TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_learn_spell` attempts learning talent spell {}, skipped.", spell_id, node.Spell);
             continue;
         }
 
@@ -1127,27 +1127,27 @@ void SpellMgr::LoadSpellLearnSpells()
             if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL))
             {
                 SpellLearnSpellNode dbc_node;
-                dbc_node.spell = spellEffectInfo.TriggerSpell;
-                dbc_node.active = true;                     // all dbc based learned spells is active (show in spell book or hide by client itself)
+                dbc_node.Spell = spellEffectInfo.TriggerSpell;
+                dbc_node.Active = true;                     // all dbc based learned spells is active (show in spell book or hide by client itself)
 
                 // ignore learning not existed spells (broken/outdated/or generic learnig spell 483
-                if (!GetSpellInfo(dbc_node.spell))
+                if (!GetSpellInfo(dbc_node.Spell))
                     continue;
 
                 // talent or passive spells or skill-step spells auto-cast and not need dependent learning,
                 // pet teaching spells must not be dependent learning (cast)
                 // other required explicit dependent learning
-                dbc_node.autoLearned = spellEffectInfo.TargetA.GetTarget() == TARGET_UNIT_PET || entry->HasAttribute(SPELL_ATTR0_CU_IS_TALENT) || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
+                dbc_node.AutoLearned = spellEffectInfo.TargetA.GetTarget() == TARGET_UNIT_PET || entry->HasAttribute(SPELL_ATTR0_CU_IS_TALENT) || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
 
                 SpellLearnSpellMapBounds db_node_bounds = GetSpellLearnSpellMapBounds(spell);
 
                 bool found = false;
                 for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
                 {
-                    if (itr->second.spell == dbc_node.spell)
+                    if (itr->second.Spell == dbc_node.Spell)
                     {
                         TC_LOG_ERROR("sql.sql", "The spell {} is an auto-learn spell {} in spell.dbc and the record in `spell_learn_spell` is redundant. Please update your DB.",
-                            spell, dbc_node.spell);
+                            spell, dbc_node.Spell);
                         found = true;
                         break;
                     }
