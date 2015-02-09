@@ -1105,9 +1105,9 @@ static int LoadRootFile(TCascStorage * hs, DWORD dwLocaleMask)
     assert(hs->ppEncodingEntries != NULL);
 
     // Locale: The default parameter is 0 - in that case,
-    // we load enUS+enGB
+    // We assign the default locale, loaded from the .build.info file
     if(dwLocaleMask == 0)
-        dwLocaleMask = CASC_LOCALE_ENUS | CASC_LOCALE_ENGB;
+        dwLocaleMask = hs->dwDefaultLocale;
 
     // The root file is either MNDX file (Heroes of the Storm)
     // or a file containing an array of root entries (World of Warcraft 6.0+)
@@ -1243,6 +1243,7 @@ bool WINAPI CascOpenStorage(const TCHAR * szDataPath, DWORD dwLocaleMask, HANDLE
         memset(hs, 0, sizeof(TCascStorage));
         hs->szClassName = "TCascStorage";
         hs->dwFileBeginDelta = 0xFFFFFFFF;
+        hs->dwDefaultLocale = CASC_LOCALE_ENUS | CASC_LOCALE_ENGB;
         hs->dwRefCount = 1;
         nError = InitializeCascDirectories(hs, szDataPath);
     }
