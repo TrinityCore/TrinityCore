@@ -1776,7 +1776,7 @@ uint32 Item::GetDisplayId() const
 void Item::SetModifier(ItemModifier modifier, uint32 value)
 {
     _modifiers[modifier] = value;
-    ApplyModFlag(ITEM_FIELD_MODIFIERS_MASK, 1 << (modifier - 1), value != 0);
+    ApplyModFlag(ITEM_FIELD_MODIFIERS_MASK, 1 << modifier, value != 0);
 }
 
 uint32 Item::GetVisibleEntry() const
