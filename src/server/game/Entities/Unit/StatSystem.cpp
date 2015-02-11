@@ -316,17 +316,17 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
     {
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
-        val2 = (level + std::max(GetStat(STAT_AGILITY) - 10.0f, 0.0f)) * entry->RangedAttackPowerPerAgility;
+        val2 = (level + std::max(GetStat(STAT_AGILITY), 0.0f)) * entry->RangedAttackPowerPerAgility;
     }
     else
     {
-        float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * entry->AttackPowerPerStrength, 0.0f);
-        float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->AttackPowerPerAgility, 0.0f);
+        float strengthValue = std::max(GetStat(STAT_STRENGTH) * entry->AttackPowerPerStrength, 0.0f);
+        float agilityValue = std::max(GetStat(STAT_AGILITY) * entry->AttackPowerPerAgility, 0.0f);
 
         SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
         // Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
         if (form && form->Flags & 0x20)
-            agilityValue += std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->AttackPowerPerStrength, 0.0f);
+            agilityValue += std::max(GetStat(STAT_AGILITY) * entry->AttackPowerPerStrength, 0.0f);
 
         val2 = strengthValue + agilityValue;
     }
