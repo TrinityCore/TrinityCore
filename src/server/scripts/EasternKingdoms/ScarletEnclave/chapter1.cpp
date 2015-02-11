@@ -174,7 +174,7 @@ public:
             anchor->GetContactPoint(me, anchorX, anchorY, z, 1.0f);
 
             playerGUID = target->GetGUID();
-            Talk(SAY_EVENT_START);
+            Talk(SAY_EVENT_START, target);
         }
 
         void UpdateAI(uint32 diff) override
