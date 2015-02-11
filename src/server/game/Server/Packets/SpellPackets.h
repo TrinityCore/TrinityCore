@@ -397,6 +397,18 @@ namespace WorldPackets
 
             std::vector<uint32> SpellID;
         };
+
+        class CooldownEvent final : public ServerPacket
+        {
+        public:
+            CooldownEvent() : ServerPacket(SMSG_COOLDOWN_EVENT, 16 + 4) { }
+            CooldownEvent(ObjectGuid casterGuid, int32 spellId) : ServerPacket(SMSG_COOLDOWN_EVENT, 16 + 4), CasterGUID(casterGuid), SpellID(spellId) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterGUID;
+            int32 SpellID;
+        };
     }
 }
 

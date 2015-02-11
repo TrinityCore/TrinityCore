@@ -470,3 +470,11 @@ WorldPacket const* WorldPackets::Spells::UnlearnedSpells::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::CooldownEvent::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
