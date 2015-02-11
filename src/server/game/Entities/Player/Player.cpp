@@ -3974,7 +3974,7 @@ void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
 
 void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 {
-    // remove cooldowns on spells that have <= 10 min CD
+    // remove cooldowns on spells that have < 10 min CD
 
     SpellCooldowns::iterator itr, next;
     for (itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); itr = next)
@@ -3982,10 +3982,10 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
         next = itr;
         ++next;
         SpellInfo const* entry = sSpellMgr->GetSpellInfo(itr->first);
-        // check if spellentry is present and if the cooldown is less or equal to 10 min
+        // check if spellentry is present and if the cooldown is less than 10 min
         if (entry &&
-            entry->RecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
-            entry->CategoryRecoveryTime <= 10 * MINUTE * IN_MILLISECONDS)
+            entry->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            entry->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS)
         {
             // remove & notify
             RemoveSpellCooldown(itr->first, true);
