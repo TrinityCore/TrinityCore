@@ -360,19 +360,13 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
         auto categoryItr = _categoryCooldowns.find(category);
         if (categoryItr != _categoryCooldowns.end() && categoryItr->second->SpellId != spellInfo->Id)
         {
-            WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
-            data << uint32(categoryItr->second->SpellId);
-            data << _owner->GetGUID();
-            player->SendDirectMessage(&data);
+            player->SendDirectMessage(WorldPackets::Spells::CooldownEvent(_owner->GetGUID(), categoryItr->second->SpellId).Write());
 
             if (startCooldown)
                 StartCooldown(sSpellMgr->AssertSpellInfo(categoryItr->second->SpellId), itemId, spell);
         }
 
-        WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
-        data << uint32(spellInfo->Id);
-        data << _owner->GetGUID();
-        player->SendDirectMessage(&data);
+        player->SendDirectMessage(WorldPackets::Spells::CooldownEvent(_owner->GetGUID(), spellInfo->Id).Write());
     }
 
     // start cooldowns at server side, if any

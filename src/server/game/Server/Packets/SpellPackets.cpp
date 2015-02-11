@@ -462,6 +462,14 @@ WorldPacket const* UnlearnedSpell::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* CooldownEvent::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << CasterGUID;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* PlaySpellVisualKit::Write()
 {
     _worldPacket << Unit;

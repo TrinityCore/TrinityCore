@@ -412,6 +412,18 @@ namespace WorldPackets
             uint32 SpellID = 0;
         };
 
+        class CooldownEvent final : public ServerPacket
+        {
+        public:
+            explicit CooldownEvent() : ServerPacket(SMSG_COOLDOWN_EVENT, 4 + 8) { }
+            explicit CooldownEvent(ObjectGuid casterGuid, int32 spellId) : ServerPacket(SMSG_COOLDOWN_EVENT, 4 + 8), SpellID(spellId), CasterGUID(casterGuid) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            ObjectGuid CasterGUID;
+        };
+
         class PlaySpellVisualKit final : public ServerPacket
         {
         public:
