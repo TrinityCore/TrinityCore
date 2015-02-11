@@ -531,7 +531,7 @@ void Battlenet::Session::ReadHandler()
             if (stream.Read<bool>(1))
                 header.Channel = stream.Read<int32>(4);
 
-            if (header.Channel != AUTHENTICATION && !_authed)
+            if (header.Channel != AUTHENTICATION && (header.Channel != CONNECTION || header.Opcode != Connection::CMSG_PING) && !_authed)
             {
                 TC_LOG_DEBUG("session.packets", "%s Received not allowed %s. Client has not authed yet.", GetClientInfo().c_str(), header.ToString().c_str());
                 CloseSocket();
