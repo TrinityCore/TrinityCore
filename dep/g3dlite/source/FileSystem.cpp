@@ -38,6 +38,10 @@
 #   define _stat stat
 #   define stricmp strcasecmp 
 #   define strnicmp strncasecmp 
+#  ifdef G3D_FREEBSD
+#   define O_LARGEFILE 0100000
+#   define stat64 stat
+#  endif
 #endif
 
 namespace G3D {

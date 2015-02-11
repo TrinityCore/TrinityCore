@@ -393,7 +393,11 @@ class ByteBuffer
             lt.tm_mon = (packedDate >> 20) & 0xF;
             lt.tm_year = ((packedDate >> 24) & 0x1F) + 100;
 
+#ifdef __FreeBSD__
+            return uint32(mktime(&lt));
+#else
             return uint32(mktime(&lt) + timezone);
+#endif
         }
 
         ByteBuffer& ReadPackedTime(uint32& time)
