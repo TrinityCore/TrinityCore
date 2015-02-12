@@ -66,6 +66,15 @@ WorldPacket const* GossipMessage::Write()
     return &_worldPacket;
 }
 
+void GossipSelectOption::Read()
+{
+    _worldPacket >> GossipUnit;
+    _worldPacket >> GossipID;
+    _worldPacket >> GossipIndex;
+    if (_worldPacket.rpos() < _worldPacket.size())
+        _worldPacket >> PromotionCode;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, VendorItem const& item)
 {
     data << int32(item.MuID);

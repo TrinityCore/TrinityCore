@@ -255,8 +255,8 @@ void PlayerMenu::SendCloseGossip()
 {
     _gossipMenu.SetSenderGUID(ObjectGuid::Empty);
 
-    WorldPacket data(SMSG_GOSSIP_COMPLETE, 0);
-    _session->SendPacket(&data);
+    WorldPackets::NPC::GossipComplete packet;
+    _session->SendPacket(packet.Write());
 }
 
 void PlayerMenu::SendPointOfInterest(uint32 id) const

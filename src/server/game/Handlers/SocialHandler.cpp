@@ -54,7 +54,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet
         playerGuid = _player->GetGUID(),
         friendGuid = friendCharacterInfo->Guid,
         team = Player::TeamForRace(friendCharacterInfo->Race),
-        friendNote = std::move(packet.Name)]()
+        friendNote = std::move(packet.Notes)]()
     {
         if (playerGuid.GetCounter() != m_GUIDLow)
             return; // not the player initiating request, do nothing
