@@ -42,6 +42,29 @@ namespace WorldPackets
             uint32 BindAreaID = 0;
         };
 
+        class PlayerBound final : public ServerPacket
+        {
+        public:
+            PlayerBound() : ServerPacket(SMSG_PLAYER_BOUND, 16 + 4) { }
+            PlayerBound(ObjectGuid binderId, uint32 areaId) : ServerPacket(SMSG_PLAYER_BOUND, 16 + 4), BinderID(binderId), AreaID(areaId) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid BinderID;
+            uint32 AreaID = 0;
+        };
+        
+        class BinderConfirm final : public ServerPacket
+        {
+        public:
+            BinderConfirm() : ServerPacket(SMSG_BINDER_CONFIRM, 16) { }
+            BinderConfirm(ObjectGuid unit) : ServerPacket(SMSG_BINDER_CONFIRM, 16), Unit(unit) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+        };
+
         class InvalidatePlayer final : public ServerPacket
         {
         public:
