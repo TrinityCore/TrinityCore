@@ -411,7 +411,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_SHARE_DAMAGE))
                 {
                     uint32 count = 0;
-                    for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    for (std::vector<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         if (ihit->effectMask & (1<<effIndex))
                             ++count;
 
@@ -590,7 +590,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 31789:                                 // Righteous Defense (step 1)
                 {
                     // Clear targets for eff 1
-                    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    for (std::vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         ihit->effectMask &= ~(1<<1);
 
                     // not empty (checked), copy

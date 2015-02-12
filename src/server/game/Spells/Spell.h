@@ -438,7 +438,6 @@ class Spell
         void setState(uint32 state) { m_spellState = state; }
 
         void DoCreateItem(uint32 i, uint32 itemtype);
-        void WriteSpellGoTargets(WorldPackets::Spells::SpellCastData& data);
 
         bool CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect, Position const* losPosition) const;
         bool CheckEffectTarget(GameObject const* target, SpellEffectInfo const* effect) const;
@@ -637,7 +636,7 @@ class Spell
             bool   scaleAura:1;
             int32  damage;
         };
-        std::list<TargetInfo> m_UniqueTargetInfo;
+        std::vector<TargetInfo> m_UniqueTargetInfo;
         uint32 m_channelTargetEffectMask;                        // Mask req. alive targets
 
         struct GOTargetInfo
@@ -647,14 +646,14 @@ class Spell
             uint32  effectMask:32;
             bool   processed:1;
         };
-        std::list<GOTargetInfo> m_UniqueGOTargetInfo;
+        std::vector<GOTargetInfo> m_UniqueGOTargetInfo;
 
         struct ItemTargetInfo
         {
             Item  *item;
             uint32 effectMask;
         };
-        std::list<ItemTargetInfo> m_UniqueItemInfo;
+        std::vector<ItemTargetInfo> m_UniqueItemInfo;
 
         SpellDestination m_destTargets[MAX_SPELL_EFFECTS];
 
@@ -714,6 +713,8 @@ class Spell
         // effect helpers
         void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons);
         void CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedxy, float& speedz);
+
+        void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
