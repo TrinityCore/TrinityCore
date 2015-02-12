@@ -29,6 +29,7 @@ namespace WorldPackets
 {
     namespace Spells
     {
+        struct SpellCastRequest;
         struct SpellTargetData;
     }
 }
@@ -107,7 +108,7 @@ class SpellCastTargets
 {
     public:
         SpellCastTargets();
-        SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellTargetData const& spellTargetData);
+        SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest);
         ~SpellCastTargets();
 
         void Read(ByteBuffer& data, Unit* caster);
@@ -166,14 +167,14 @@ class SpellCastTargets
         bool HasDst() const { return (GetTargetMask() & TARGET_FLAG_DEST_LOCATION) != 0; }
         bool HasTraj() const { return m_speed != 0; }
 
-        float GetElevation() const { return m_elevation; }
-        void SetElevation(float elevation) { m_elevation = elevation; }
+        float GetPitch() const { return m_pitch; }
+        void SetPitch(float pitch) { m_pitch = pitch; }
         float GetSpeed() const { return m_speed; }
         void SetSpeed(float speed) { m_speed = speed; }
 
         float GetDist2d() const { return m_src._position.GetExactDist2d(&m_dst._position); }
-        float GetSpeedXY() const { return m_speed * std::cos(m_elevation); }
-        float GetSpeedZ() const { return m_speed * std::sin(m_elevation); }
+        float GetSpeedXY() const { return m_speed * std::cos(m_pitch); }
+        float GetSpeedZ() const { return m_speed * std::sin(m_pitch); }
 
         void Update(Unit* caster);
         void OutDebug() const;
@@ -195,7 +196,7 @@ class SpellCastTargets
         SpellDestination m_src;
         SpellDestination m_dst;
 
-        float m_elevation, m_speed;
+        float m_pitch, m_speed;
         std::string m_strTarget;
 };
 

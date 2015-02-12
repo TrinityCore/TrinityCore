@@ -281,6 +281,7 @@ namespace WorldPackets
         class CancelAura;
         class CastSpell;
         class PetCastSpell;
+        class UseItem;
         class SetActionButton;
     }
 
@@ -997,7 +998,7 @@ class WorldSession
         void HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& packet);
         void HandleSetSheathedOpcode(WorldPacket& recvPacket);
 
-        void HandleUseItemOpcode(WorldPacket& recvPacket);
+        void HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet);
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
         void HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest);
         void HandleCancelCastOpcode(WorldPacket& recvPacket);
