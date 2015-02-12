@@ -31,6 +31,7 @@ namespace WorldPackets
     {
         struct SpellCastRequest;
         struct SpellTargetData;
+        struct SpellCastData;
     }
 }
 
@@ -437,7 +438,7 @@ class Spell
         void setState(uint32 state) { m_spellState = state; }
 
         void DoCreateItem(uint32 i, uint32 itemtype);
-        void WriteSpellGoTargets(WorldPacket* data);
+        void WriteSpellGoTargets(WorldPackets::Spells::SpellCastData& data);
 
         bool CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect, Position const* losPosition) const;
         bool CheckEffectTarget(GameObject const* target, SpellEffectInfo const* effect) const;

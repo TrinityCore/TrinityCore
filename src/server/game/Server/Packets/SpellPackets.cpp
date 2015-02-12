@@ -235,9 +235,9 @@ void WorldPackets::Spells::UseItem::Read()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::TargetLocation const& targetLocation)
 {
     data << targetLocation.Transport;
-    data << targetLocation.Location.m_positionX;
-    data << targetLocation.Location.m_positionY;
-    data << targetLocation.Location.m_positionZ;
+    data << float(targetLocation.Location.m_positionX);
+    data << float(targetLocation.Location.m_positionY);
+    data << float(targetLocation.Location.m_positionZ);
     return data;
 }
 
@@ -277,15 +277,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellMissStatus c
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellPowerData const& spellPowerData)
 {
-    data << spellPowerData.Cost;
-    data << spellPowerData.Type;
+    data << int32(spellPowerData.Cost);
+    data << int8(spellPowerData.Type);
     return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::RuneData const& runeData)
 {
-    data << runeData.Start;
-    data << runeData.Count;
+    data << uint8(runeData.Start);
+    data << uint8(runeData.Count);
 
     data.WriteBits(runeData.Cooldowns.size(), 3);
     data.FlushBits();
@@ -298,36 +298,36 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::RuneData const& r
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::MissileTrajectoryResult const& missileTrajectory)
 {
-    data << missileTrajectory.TravelTime;
-    data << missileTrajectory.Pitch;
+    data << uint32(missileTrajectory.TravelTime);
+    data << float(missileTrajectory.Pitch);
     return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellAmmo const& spellAmmo)
 {
-    data << spellAmmo.DisplayID;
-    data << spellAmmo.InventoryType;
+    data << int32(spellAmmo.DisplayID);
+    data << int8(spellAmmo.InventoryType);
     return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ProjectileVisualData const& projectileVisual)
 {
-    data << projectileVisual.ID[0];
-    data << projectileVisual.ID[1];
+    data << int32(projectileVisual.ID[0]);
+    data << int32(projectileVisual.ID[1]);
     return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::CreatureImmunities const& immunities)
 {
-    data << immunities.School;
-    data << immunities.Value;
+    data << int32(immunities.School);
+    data << int32(immunities.Value);
     return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHealPrediction const& spellPred)
 {
-    data << spellPred.Points;
-    data << spellPred.Type;
+    data << int32(spellPred.Points);
+    data << uint8(spellPred.Type);
     data << spellPred.BeaconGUID;
     return data;
 }
@@ -336,10 +336,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
 {
     data << spellCastData.CasterGUID;
     data << spellCastData.CasterUnit;
-    data << spellCastData.CastID;
-    data << spellCastData.SpellID;
-    data << spellCastData.CastFlags;
-    data << spellCastData.CastTime;
+    data << uint8(spellCastData.CastID);
+    data << int32(spellCastData.SpellID);
+    data << uint32(spellCastData.CastFlags);
+    data << uint32(spellCastData.CastTime);
     data << uint32(spellCastData.HitTargets.size());
     data << uint32(spellCastData.MissTargets.size());
     data << uint32(spellCastData.MissStatus.size());
@@ -347,7 +347,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << uint32(spellCastData.RemainingPower.size());
     data << spellCastData.MissileTrajectory;
     data << spellCastData.Ammo;
-    data << spellCastData.DestLocSpellCastIndex;
+    data << uint8(spellCastData.DestLocSpellCastIndex);
     data << uint32(spellCastData.TargetPoints.size());
     data << spellCastData.Immunities;
     data << spellCastData.Predict;
@@ -416,9 +416,9 @@ WorldPacket const* WorldPackets::Spells::LearnedSpells::Write()
 WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
 {
     _worldPacket << CasterUnit;
-    _worldPacket << CastID;
-    _worldPacket << SpellID;
-    _worldPacket << Reason;
+    _worldPacket << uint8(CastID);
+    _worldPacket << int32(SpellID);
+    _worldPacket << uint8(Reason);
 
     return &_worldPacket;
 }
@@ -426,35 +426,35 @@ WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
 WorldPacket const* WorldPackets::Spells::SpellFailedOther::Write()
 {
     _worldPacket << CasterUnit;
-    _worldPacket << CastID;
-    _worldPacket << SpellID;
-    _worldPacket << Reason;
+    _worldPacket << uint8(CastID);
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint8(Reason);
 
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Spells::CastFailed::Write()
 {
-    _worldPacket << SpellID;
-    _worldPacket << Reason;
-    _worldPacket << FailedArg1;
-    _worldPacket << FailedArg2;
-    _worldPacket << CastID;
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(Reason);
+    _worldPacket << int32(FailedArg1);
+    _worldPacket << int32(FailedArg2);
+    _worldPacket << uint8(CastID);
 
     return &_worldPacket;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifierData const& spellModifierData)
 {
-    data << spellModifierData.ModifierValue;
-    data << spellModifierData.ClassIndex;
+    data << float(spellModifierData.ModifierValue);
+    data << uint8(spellModifierData.ClassIndex);
 
     return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifier const& spellModifier)
 {
-    data << spellModifier.ModIndex;
+    data << uint8(spellModifier.ModIndex);
     data << uint32(spellModifier.ModifierData.size());
     for (WorldPackets::Spells::SpellModifierData const& modData : spellModifier.ModifierData)
         data << modData;

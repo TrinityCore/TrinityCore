@@ -4075,9 +4075,7 @@ void Spell::SendSpellGo()
     castData.CastFlags = castFlags;
     castData.CastTime = getMSTime();
 
-    /// @todo implement multiple targets
-    if (m_targets.GetUnitTarget())
-        castData.HitTargets.push_back(m_targets.GetUnitTargetGUID());
+    WriteSpellGoTargets(castData);
 
     m_targets.Write(castData.Target);
 
@@ -4122,86 +4120,12 @@ void Spell::SendSpellGo()
         castData.MissileTrajectory.TravelTime = m_delayMoment;
         castData.MissileTrajectory.Pitch = m_targets.GetPitch();
     }
-    /*WorldPacket data(SMSG_SPELL_GO, 50);                    // guess size
-
-    if (m_CastItem)
-        data << m_CastItem->GetPackGUID();
-    else
-        data << m_caster->GetPackGUID();
-
-    data << m_caster->GetPackGUID();
-    data << uint8(m_cast_count);                            // pending spell cast?
-    data << uint32(m_spellInfo->Id);                        // spellId
-    data << uint32(castFlags);                              // cast flags
-    data << uint32(m_timer);
-    data << uint32(getMSTime());                            // timestamp
-
-    WriteSpellGoTargets(&data);
-
-    //m_targets.Write(data);
-
-    if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
-        data << uint32(m_caster->GetPower((Powers)m_spellInfo->PowerType));
-
-    if (castFlags & CAST_FLAG_RUNE_LIST)                   // rune cooldowns list
-    {
-        /// @todo There is a crash caused by a spell with CAST_FLAG_RUNE_LIST cast by a creature
-        //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
-        if (Player* player = m_caster->ToPlayer())
-        {
-            data << uint8(m_runesState);                     // runes state before
-            data << uint8(player->GetRunesState());          // runes state after
-            for (uint8 i = 0; i < MAX_RUNES; ++i)
-            {
-                // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(player->GetRuneBaseCooldown(i));
-                data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-            }
-        }
-    }
-
-    if (castFlags & CAST_FLAG_ADJUST_MISSILE)
-    {
-        data << m_targets.GetElevation();
-        data << uint32(m_delayMoment);
-    }
-
-    if (castFlags & CAST_FLAG_PROJECTILE)
-    {
-        data << uint32(0); // Ammo display ID
-        data << uint32(0); // Inventory Type
-    }
-
-    if (castFlags & CAST_FLAG_VISUAL_CHAIN)
-    {
-        data << uint32(0);
-        data << uint32(0);
-    }
-
-    if (m_targets.GetTargetMask() & TARGET_FLAG_DEST_LOCATION)
-    {
-        data << uint8(0);
-    }
-
-    if (m_targets.GetTargetMask() & TARGET_FLAG_EXTRA_TARGETS)
-    {
-        data << uint32(0); // Extra targets count
-
-        for (uint8 i = 0; i < count; ++i)
-        {
-            data << float(0);   // Target Position X
-            data << float(0);   // Target Position Y
-            data << float(0);   // Target Position Z
-            data << uint64(0);  // Target Guid
-        }
-
-    }*/
 
     m_caster->SendMessageToSet(packet.Write(), true);
 }
 
 /// Writes miss and hit targets for a SMSG_SPELL_GO packet
-void Spell::WriteSpellGoTargets(WorldPacket* data)
+void Spell::WriteSpellGoTargets(WorldPackets::Spells::SpellCastData& data)
 {
     // This function also fill data for channeled spells:
     // m_needAliveTargetMask req for stop channelig if one target die
@@ -4219,44 +4143,39 @@ void Spell::WriteSpellGoTargets(WorldPacket* data)
     // correct count for both hit and miss).
 
     uint32 hit = 0;
-    size_t hitPos = data->wpos();
-    *data << (uint8)0; // placeholder
-    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && hit < 255; ++ihit)
+
+    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
         if ((*ihit).missCondition == SPELL_MISS_NONE)       // Add only hits
         {
-            *data << (ihit->targetGUID);
-            m_channelTargetEffectMask |=ihit->effectMask;
-            ++hit;
+            data.HitTargets.push_back(ihit->targetGUID);
+            m_channelTargetEffectMask |= ihit->effectMask;
         }
     }
 
-    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && hit < 255; ++ighit)
+    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end(); ++ighit)
     {
-        *data << (ighit->targetGUID);                 // Always hits
-        ++hit;
+        data.HitTargets.push_back(ighit->targetGUID);                 // Always hits
     }
 
-    uint32 miss = 0;
-    size_t missPos = data->wpos();
-    *data << (uint8)0; // placeholder
-    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && miss < 255; ++ihit)
+    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
         if (ihit->missCondition != SPELL_MISS_NONE)        // Add only miss
         {
-            *data << (ihit->targetGUID);
-            *data << uint8(ihit->missCondition);
+            data.MissTargets.push_back(ihit->targetGUID);
+
+            WorldPackets::Spells::SpellMissStatus missStatus;
+            missStatus.Reason = ihit->missCondition;
             if (ihit->missCondition == SPELL_MISS_REFLECT)
-                *data << uint8(ihit->reflectResult);
-            ++miss;
+                missStatus.ReflectStatus = ihit->reflectResult;
+
+            data.MissStatus.push_back(missStatus);
         }
     }
+
     // Reset m_needAliveTargetMask for non channeled spell
     if (!m_spellInfo->IsChanneled())
         m_channelTargetEffectMask = 0;
-
-    data->put<uint8>(hitPos, (uint8)hit);
-    data->put<uint8>(missPos, (uint8)miss);
 }
 
 void Spell::SendLogExecute()
