@@ -186,6 +186,22 @@ void PetCastSpell::Read()
     _worldPacket >> Cast;
 }
 
+void UseItem::Read()
+{
+    _worldPacket >> PackSlot;
+    _worldPacket >> Slot;
+    _worldPacket >> Cast.CastID;
+    _worldPacket >> Cast.SpellID;
+    _worldPacket >> CastItem;
+    _worldPacket >> Misc;
+    _worldPacket >> Cast.SendCastFlags;
+
+    _worldPacket >> Cast.Target;
+
+    if (Cast.SendCastFlags & 0x2)
+        _worldPacket >> Cast.MissileTrajectory.emplace();
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, InitialSpell const& initialSpell)
 {
     data << uint32(initialSpell.SpellID);

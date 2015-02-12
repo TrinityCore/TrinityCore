@@ -115,14 +115,9 @@ void SpellDestination::RelocateOffset(Position const& offset)
     _position.RelocateOffset(offset);
 }
 
-SpellCastTargets::SpellCastTargets() : m_pitch(0), m_speed(0), m_strTarget()
+SpellCastTargets::SpellCastTargets() : m_targetMask(0), m_objectTarget(nullptr), m_itemTarget(nullptr),
+    m_itemTargetEntry(0), m_pitch(0.0f), m_speed(0.0f)
 {
-    m_objectTarget = nullptr;
-    m_itemTarget = nullptr;
-
-    m_itemTargetEntry  = 0;
-
-    m_targetMask = 0;
 }
 
 SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest) :

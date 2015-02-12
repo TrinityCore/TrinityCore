@@ -7823,7 +7823,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
     }
 }
 
-void Player::CastItemUseSpell(Item* item, uint32 spellId, SpellCastTargets const& targets, uint8 cast_count, uint32 misc)
+void Player::CastItemUseSpell(Item* item, uint32 spellId, SpellCastTargets const& targets, uint8 castCount, uint32 misc)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -7861,7 +7861,7 @@ void Player::CastItemUseSpell(Item* item, uint32 spellId, SpellCastTargets const
     Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
     spell->m_fromClient = true;
     spell->m_CastItem = item;
-    spell->m_cast_count = cast_count; // set count of casts
+    spell->m_cast_count = castCount; // set count of casts
     spell->m_misc.Data = misc;
     spell->prepare(targets);
 }

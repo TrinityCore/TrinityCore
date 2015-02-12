@@ -1216,12 +1216,12 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
 
     ObjectGuid guid;
     uint32 spellId;
-    float elevation, speed;
+    float pitch, speed;
     TaggedPosition<Position::XYZ> firePos;
     TaggedPosition<Position::XYZ> impactPos;
     uint8 moveStop;
 
-    recvPacket >> guid >> spellId >> elevation >> speed;
+    recvPacket >> guid >> spellId >> pitch >> speed;
     recvPacket >> firePos;
     recvPacket >> impactPos;
     recvPacket >> moveStop;
@@ -1237,7 +1237,7 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
     spell->m_targets.ModSrc(firePos);
     spell->m_targets.ModDst(impactPos);
 
-    spell->m_targets.SetPitch(elevation);
+    spell->m_targets.SetPitch(pitch);
     spell->m_targets.SetSpeed(speed);
 
     if (moveStop)

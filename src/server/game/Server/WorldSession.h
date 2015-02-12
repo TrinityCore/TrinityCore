@@ -381,6 +381,7 @@ namespace WorldPackets
         class CancelCast;
         class CastSpell;
         class PetCastSpell;
+        class UseItem;
         class SetActionButton;
     }
 
@@ -656,9 +657,6 @@ class TC_GAME_API WorldSession
         void SendCancelTrade(TradeStatus status);
 
         void SendPetitionQueryOpcode(ObjectGuid petitionguid);
-
-        // Spell
-        void HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets);
 
         // Pet
         void SendQueryPetNameResponse(ObjectGuid guid, uint32 petnumber);
@@ -1033,7 +1031,7 @@ class TC_GAME_API WorldSession
         void HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& packet);
         void HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& packet);
 
-        void HandleUseItemOpcode(WorldPacket& recvPacket);
+        void HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet);
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
         void HandleOpenWrappedItemCallback(uint16 pos, ObjectGuid itemGuid, PreparedQueryResult result);
         void HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest);

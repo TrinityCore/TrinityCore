@@ -41,102 +41,59 @@
 #include "World.h"
 #include "WorldPacket.h"
 
-void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
+void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
 {
-    // some spell cast packet including more data (for projectiles?)
-    if (castFlags & 0x02)
+    Player* user = _player;
+
+    Item* item = user->GetUseableItemByPos(packet.PackSlot, packet.Slot);
+    if (!item)
     {
-        // not sure about these two
-        float elevation, speed;
-        recvPacket >> elevation;
-        recvPacket >> speed;
-
-        targets.SetPitch(elevation);
-        targets.SetSpeed(speed);
-
-        uint8 hasMovementData;
-        recvPacket >> hasMovementData;
-        if (hasMovementData)
-        {
-            OpcodeClient opcode = static_cast<OpcodeClient>(recvPacket.read<uint32>());
-            MovementInfo movementInfo;
-            recvPacket >> movementInfo.guid.ReadAsPacked();
-            recvPacket >> movementInfo;
-            HandleMovementOpcode(opcode, movementInfo);
-        }
-    }
-}
-
-void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
-{
-    /// @todo add targets.read() check
-    Player* pUser = _player;
-
-    uint8 bagIndex, slot, castFlags;
-    uint8 castCount;                                        // next cast if exists (single or not)
-    ObjectGuid itemGUID;
-    uint32 glyphIndex;                                      // something to do with glyphs?
-    uint32 spellId;                                         // cast spell id
-
-    recvPacket >> bagIndex >> slot >> castCount >> spellId >> itemGUID >> glyphIndex >> castFlags;
-
-    if (glyphIndex >= MAX_GLYPH_SLOT_INDEX)
-    {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+        user->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
         return;
     }
 
-    Item* pItem = pUser->GetUseableItemByPos(bagIndex, slot);
-    if (!pItem)
+    if (item->GetGUID() != packet.CastItem)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+        user->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
         return;
     }
 
-    if (pItem->GetGUID() != itemGUID)
-    {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
-        return;
-    }
-
-    TC_LOG_DEBUG("network", "WORLD: CMSG_USE_ITEM packet, bagIndex: {}, slot: {}, castCount: {}, spellId: {}, Item: {}, glyphIndex: {}, data length = {}", bagIndex, slot, castCount, spellId, pItem->GetEntry(), glyphIndex, (uint32)recvPacket.size());
-
-    ItemTemplate const* proto = pItem->GetTemplate();
+    ItemTemplate const* proto = item->GetTemplate();
     if (!proto)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, nullptr);
+        user->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, nullptr);
         return;
     }
 
     // some item classes can be used only in equipped state
-    if (proto->GetInventoryType() != INVTYPE_NON_EQUIP && !pItem->IsEquipped())
+    if (proto->GetInventoryType() != INVTYPE_NON_EQUIP && !item->IsEquipped())
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, nullptr);
+        user->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, nullptr);
         return;
     }
 
-    InventoryResult msg = pUser->CanUseItem(pItem);
+    InventoryResult msg = user->CanUseItem(item);
     if (msg != EQUIP_ERR_OK)
     {
-        pUser->SendEquipError(msg, pItem, nullptr);
+        user->SendEquipError(msg, item, nullptr);
         return;
     }
 
     // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
-    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !proto->HasFlag(ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && pUser->InArena())
+    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !proto->HasFlag(ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && user->InArena())
     {
-        pUser->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, pItem, nullptr);
+        user->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, item, nullptr);
         return;
     }
 
     // don't allow items banned in arena
-    if (proto->HasFlag(ITEM_FLAG_NOT_USEABLE_IN_ARENA) && pUser->InArena())
+    if (proto->HasFlag(ITEM_FLAG_NOT_USEABLE_IN_ARENA) && user->InArena())
     {
-        pUser->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, pItem, nullptr);
+        user->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, item, nullptr);
         return;
     }
 
-    if (pUser->IsInCombat())
+    if (user->IsInCombat())
     {
         for (ItemEffect const& effectData : proto->Effects)
         {
@@ -144,7 +101,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
             {
                 if (!spellInfo->CanBeUsedInCombat())
                 {
-                    pUser->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, pItem, nullptr);
+                    user->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, item, nullptr);
                     return;
                 }
             }
@@ -152,24 +109,22 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
-    if (pItem->GetTemplate()->GetBonding() == BIND_WHEN_USE || pItem->GetTemplate()->GetBonding() == BIND_WHEN_PICKED_UP || pItem->GetTemplate()->GetBonding() == BIND_QUEST_ITEM)
+    if (item->GetTemplate()->GetBonding() == BIND_WHEN_USE || item->GetTemplate()->GetBonding() == BIND_WHEN_PICKED_UP || item->GetTemplate()->GetBonding() == BIND_QUEST_ITEM)
     {
-        if (!pItem->IsSoulBound())
+        if (!item->IsSoulBound())
         {
-            pItem->SetState(ITEM_CHANGED, pUser);
-            pItem->SetBinding(true);
+            item->SetState(ITEM_CHANGED, user);
+            item->SetBinding(true);
         }
     }
 
-    SpellCastTargets targets;
-    targets.Read(recvPacket, pUser);
-    HandleClientCastFlags(recvPacket, castFlags, targets);
+    SpellCastTargets targets(user, packet.Cast);
 
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
-    if (!sScriptMgr->OnItemUse(pUser, pItem, targets))
+    if (!sScriptMgr->OnItemUse(user, item, targets))
     {
         // no script or script not process request by self
-        pUser->CastItemUseSpell(pItem, spellId, targets, castCount, glyphIndex);
+        user->CastItemUseSpell(item, packet.Cast.SpellID, targets, packet.Cast.CastID, packet.Misc);
     }
 }
 
