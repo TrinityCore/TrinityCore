@@ -188,8 +188,8 @@ namespace WorldPackets
         struct SpellCastRequest
         {
             uint8 CastID = 0;
-            uint32 SpellID = 0;
-            uint32 Misc = 0;
+            int32 SpellID = 0;
+            int32 Misc = 0;
             uint8 SendCastFlags = 0;
             SpellTargetData Target;
             MissileTrajectoryRequest MissileTrajectory;
@@ -201,7 +201,6 @@ namespace WorldPackets
         class CastSpell final : public ClientPacket
         {
         public:
-
             CastSpell(WorldPacket&& packet) : ClientPacket(CMSG_CAST_SPELL, std::move(packet)) { }
 
             void Read() override;
@@ -212,12 +211,24 @@ namespace WorldPackets
         class PetCastSpell final : public ClientPacket
         {
         public:
-
             PetCastSpell(WorldPacket&& packet) : ClientPacket(CMSG_PET_CAST_SPELL, std::move(packet)) { }
 
             void Read() override;
 
             ObjectGuid PetGUID;
+            SpellCastRequest Cast;
+        };
+
+        class UseItem final : public ClientPacket
+        {
+        public:
+            UseItem(WorldPacket&& packet) : ClientPacket(CMSG_USE_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PackSlot;
+            uint8 Slot;
+            ObjectGuid CastItem;
             SpellCastRequest Cast;
         };
 

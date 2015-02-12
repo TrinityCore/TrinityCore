@@ -223,6 +223,15 @@ void WorldPackets::Spells::PetCastSpell::Read()
     _worldPacket >> Cast;
 }
 
+
+void WorldPackets::Spells::UseItem::Read()
+{
+    _worldPacket >> PackSlot;
+    _worldPacket >> Slot;
+    _worldPacket >> CastItem;
+    _worldPacket >> Cast;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::TargetLocation const& targetLocation)
 {
     data << targetLocation.Transport;
