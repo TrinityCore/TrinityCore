@@ -27,6 +27,7 @@ enum Data
     DATA_DEVOURER           = 1,
     DATA_DEVOURER_EVENT     = 2,
     DATA_TEAM_IN_INSTANCE   = 3,
+    DATA_SOUL_POWER         = 4,
 };
 
 enum Creatures

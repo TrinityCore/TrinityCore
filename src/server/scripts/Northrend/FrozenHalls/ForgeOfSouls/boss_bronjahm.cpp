@@ -21,6 +21,8 @@
 #include "SpellAuraEffects.h"
 #include "forge_of_souls.h"
 
+#define DATA_SOUL_POWER   1
+
 enum Yells
 {
     SAY_AGGRO           = 0,
@@ -194,10 +196,15 @@ class npc_corrupted_soul_fragment : public CreatureScript
             npc_corrupted_soul_fragmentAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
+                if (instance)
+                    instance->SetData(DATA_SOUL_POWER, 1);
             }
 
             void MovementInform(uint32 type, uint32 id) override
             {
+                if (instance)
+                    instance->SetData(DATA_SOUL_POWER, 0);
+
                 if (type != CHASE_MOTION_TYPE)
                     return;
 
@@ -210,7 +217,9 @@ class npc_corrupted_soul_fragment : public CreatureScript
                     if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))
                         me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
 
+                    summ->GetMotionMaster()->MoveIdle();
                     summ->UnSummon();
+                    instance->SetData(DATA_SOUL_POWER, 0);
                 }
             }
 
@@ -395,6 +404,19 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
         }
 };
 
+class achievement_bronjahm_soul_power : public AchievementCriteriaScript
+{
+public:
+    achievement_bronjahm_soul_power() : AchievementCriteriaScript("achievement_bronjahm_soul_power") { }
+
+    bool OnCheck(Player* /*source*/, Unit* target) override
+    {
+        if (!target)
+            return false;
+        return target->GetAI()->GetData(DATA_SOUL_POWER) >= 4;
+    }
+};
+
 void AddSC_boss_bronjahm()
 {
     new boss_bronjahm();
@@ -404,4 +426,5 @@ void AddSC_boss_bronjahm()
     new spell_bronjahm_soulstorm_channel();
     new spell_bronjahm_soulstorm_visual();
     new spell_bronjahm_soulstorm_targeting();
+    new achievement_bronjahm_soul_power();
 }
