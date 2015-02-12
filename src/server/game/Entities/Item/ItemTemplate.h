@@ -198,6 +198,13 @@ enum ItemFlagsExtra
     ITEM_FLAGS_EXTRA_CAN_TRANSMOG            = 0x00800000,
 };
 
+enum ItemFlags3
+{
+    ITEM_FLAG3_IGNORE_ITEM_LEVEL_DELTAS  = 0x080,   // Ignore item level adjustments from PLAYER_FIELD_ITEM_LEVEL_DELTA
+    ITEM_FLAG3_IGNORE_PVP_ITEM_LEVEL_CAP = 0x100,
+    ITEM_FLAG3_HEIRLOOM_QUALITY          = 0x200,   // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
+};
+
 enum ItemFlagsCustom
 {
     ITEM_FLAGS_CU_DURATION_REAL_TIME    = 0x0001,   // Item duration will tick even if player is offline
