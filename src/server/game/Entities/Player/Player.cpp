@@ -9566,9 +9566,8 @@ uint32 Player::GetXPRestBonus(uint32 xp)
 
 void Player::SetBindPoint(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_BINDER_CONFIRM, 8);
-    data << guid;
-    GetSession()->SendPacket(&data);
+    WorldPackets::Misc::BinderConfirm packet(guid);
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost)

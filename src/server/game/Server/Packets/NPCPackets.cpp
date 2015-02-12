@@ -125,3 +125,13 @@ WorldPacket const* WorldPackets::NPC::ShowBank::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::NPC::GossipSelectOption::Read()
+{
+    _worldPacket >> GossipUnit;
+    _worldPacket >> GossipID;
+    _worldPacket >> GossipIndex;
+
+    uint32 length = _worldPacket.ReadBits(8);
+    PromotionCode = _worldPacket.ReadString(length);
+}

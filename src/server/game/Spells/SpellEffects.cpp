@@ -66,6 +66,7 @@
 #include "GuildMgr.h"
 #include "ReputationMgr.h"
 #include "AreaTrigger.h"
+#include "MiscPackets.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -5690,10 +5691,8 @@ void Spell::EffectBind(SpellEffIndex /*effIndex*/)
         homeLoc.GetPositionX(), homeLoc.GetPositionY(), homeLoc.GetPositionZ(), homeLoc.GetMapId(), areaId);
 
     // zone update
-    WorldPacket data(SMSG_PLAYER_BOUND, 8 + 4);
-    data << m_caster->GetGUID();
-    data << uint32(areaId);
-    player->SendDirectMessage(&data);
+    WorldPackets::Misc::PlayerBound packet(m_caster->GetGUID(), areaId);
+    player->SendDirectMessage(packet.Write());
 }
 
 void Spell::EffectSummonRaFFriend(SpellEffIndex /*effIndex*/)
