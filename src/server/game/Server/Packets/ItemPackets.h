@@ -26,6 +26,24 @@ namespace WorldPackets
 {
     namespace Item
     {
+        struct ItemBonusInstanceData
+        {
+            uint8 Context = 0;
+            std::vector<int32> BonusListIDs;
+        };
+
+        struct ItemInstance
+        {
+            void Initalize(::Item const* item);
+            void Initalize(::LootItem const& lootItem);
+
+            uint32 ItemID = 0;
+            uint32 RandomPropertiesSeed = 0;
+            uint32 RandomPropertiesID = 0;
+            Optional<ItemBonusInstanceData> ItemBonus;
+            Optional<CompactArray<int32>> Modifications;
+        };
+
         class BuyBackItem final : public ClientPacket
         {
         public:
@@ -35,6 +53,47 @@ namespace WorldPackets
 
             ObjectGuid VendorGUID;
             uint32 Slot = 0;
+        };
+
+        class BuyItem final : public ClientPacket
+        {
+        public:
+            BuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid VendorGUID;
+            ItemInstance Item;
+            uint32 Muid = 0u;
+            uint32 Slot = 0u;
+            ItemVendorType ItemType = ITEM_VENDOR_TYPE_NONE;
+            int32 Quantity = 0;
+            ObjectGuid ContainerGUID;
+        };
+
+        class BuySucceeded final : ServerPacket
+        {
+        public:
+            BuySucceeded() : ServerPacket(SMSG_BUY_SUCCEEDED, 16 + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VendorGUID;
+            uint32 Muid = 0u;
+            uint32 QuantityBought = 0u;
+            int32 NewQuantity = 0;
+        };
+
+        class BuyFailed final : ServerPacket
+        {
+        public:
+            BuyFailed() : ServerPacket(SMSG_BUY_FAILED, 16 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VendorGUID;
+            uint32 Muid = 0u;
+            BuyResult Reason = BUY_ERR_CANT_FIND_ITEM;
         };
 
         class GetItemPurchaseData final : public ClientPacket
@@ -91,24 +150,6 @@ namespace WorldPackets
 
             uint32 ProficiencyMask = 0;
             uint8 ProficiencyClass = 0;
-        };
-
-        struct ItemBonusInstanceData
-        {
-            uint8 Context = 0;
-            std::vector<int32> BonusListIDs;
-        };
-
-        struct ItemInstance
-        {
-            void Initalize(::Item const* item);
-            void Initalize(::LootItem const& lootItem);
-
-            uint32 ItemID                   = 0;
-            uint32 RandomPropertiesSeed     = 0;
-            uint32 RandomPropertiesID       = 0;
-            Optional<ItemBonusInstanceData> ItemBonus;
-            Optional<CompactArray<int32>> Modifications;
         };
 
         struct InvUpdate
@@ -222,6 +263,8 @@ namespace WorldPackets
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData const& itemBonusInstanceData);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData& itemBonusInstanceData);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const& itemInstance);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemInstance);
 
 #endif // ItemPackets_h__

@@ -958,7 +958,7 @@ enum OpcodeServer : uint32
     SMSG_BREAK_TARGET                                 = 0x11A2,
     SMSG_BUY_BANK_SLOT_RESULT                         = 0xBADD,
     SMSG_BUY_FAILED                                   = 0x013A,
-    SMSG_BUY_ITEM                                     = 0x0BD1,
+    SMSG_BUY_SUCCEEDED                                = 0x0BD1,
     SMSG_CALENDAR_ACTION_PENDING                      = 0xBADD,
     SMSG_CALENDAR_ARENA_TEAM                          = 0xBADD,
     SMSG_CALENDAR_CLEAR_PENDING_ACTION                = 0x1E8A,
