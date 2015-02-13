@@ -1,10 +1,19 @@
-DELETE FROM `terrain_map_info` WHERE `MapId` IN (656, 655);
-INSERT INTO `terrain_map_info` (MapId, TerrainSwapMap, Comment) VALUES 
-(655, 677, 'Gilneas_terrain1'),
-(656, 679, 'Gilneas_terrain2');
+DROP TABLE IF EXISTS `phase_definitions`;
+DROP TABLE IF EXISTS `phase_info`;
+DROP TABLE IF EXISTS `terrain_phase_info`;
+DROP TABLE IF EXISTS `terrain_map_info`;
 
-DELETE FROM `terrain_phase_info` WHERE `Id` IN (182, 186);
-INSERT INTO `terrain_phase_info` (Id, TerrainSwapMap, Comment) VALUES 
-(182, 655, 'Quest Zone-Specific 07'),
-(186, 656, 'Quest Zone-Specific 11');
-DELETE FROM `disables` WHERE `entry` IN (10068, 10069) AND `sourceType` = 4;
+CREATE TABLE `terrain_phase_info`(  
+  `Id` INT(10) unsigned NOT NULL,
+  `TerrainSwapMap` INT(10) unsigned NOT NULL,
+  `Comment` VARCHAR(255),
+  PRIMARY KEY (`Id`, `TerrainSwapMap`)
+);
+
+CREATE TABLE `terrain_map_info`(
+  `MapId` INT(10) unsigned NOT NULL,
+  `TerrainSwapMap` INT(10) unsigned NOT NULL,
+  `Comment` VARCHAR(255),
+  PRIMARY KEY (`MapId`, `TerrainSwapMap`)
+);
+
