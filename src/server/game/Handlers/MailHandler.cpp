@@ -578,7 +578,7 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
     response.TotalNumRecords = player->GetMailSize();
 
     time_t cur_time = time(nullptr);
-    
+
     for (Mail* m : player->GetMails())
     {
         // skip deleted or not delivered (deliver delay not expired) mails
