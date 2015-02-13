@@ -25,6 +25,43 @@ void BuyBackItem::Read()
     _worldPacket >> Slot;
 }
 
+void BuyItem::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> ItemID;
+    _worldPacket >> Muid;
+    _worldPacket >> Quantity;
+}
+
+void BuyItemInSlot::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> ItemID;
+    _worldPacket >> Muid;
+    _worldPacket >> ContainerGUID;
+    _worldPacket >> Slot;
+    _worldPacket >> Quantity;
+}
+
+WorldPacket const* BuySucceeded::Write()
+{
+    _worldPacket << VendorGUID;
+    _worldPacket << uint32(Muid);
+    _worldPacket << int32(NewQuantity);
+    _worldPacket << uint32(QuantityBought);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* BuyFailed::Write()
+{
+    _worldPacket << VendorGUID;
+    _worldPacket << uint32(Muid);
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
 void GetItemPurchaseData::Read()
 {
     _worldPacket >> ItemGUID;

@@ -249,6 +249,8 @@ namespace WorldPackets
     {
         class AutoEquipItem;
         class AutoStoreBagItem;
+        class BuyItem;
+        class BuyItemInSlot;
         class BuyBackItem;
         class DestroyItem;
         class GetItemPurchaseData;
@@ -1018,8 +1020,8 @@ class TC_GAME_API WorldSession
         void HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem);
         void HandleItemQuerySingleOpcode(WorldPackets::Query::QueryItemSingle& query);
         void HandleSellItemOpcode(WorldPackets::Item::SellItem& packet);
-        void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
-        void HandleBuyItemOpcode(WorldPacket& recvPacket);
+        void HandleBuyItemInSlotOpcode(WorldPackets::Item::BuyItemInSlot& packet);
+        void HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet);
         void HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet);
         void HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet);
         void HandleReadItem(WorldPacket& recvPacket);

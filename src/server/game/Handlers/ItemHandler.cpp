@@ -492,7 +492,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
         uint32 price = _player->GetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + packet.Slot - BUYBACK_SLOT_START);
         if (!_player->HasEnoughMoney(price))
         {
-            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry(), 0);
+            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry());
             return;
         }
 
@@ -510,51 +510,39 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
         return;
     }
     else
-        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, 0, 0);
+        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, 0);
 }
 
-void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
+void WorldSession::HandleBuyItemInSlotOpcode(WorldPackets::Item::BuyItemInSlot& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUY_ITEM_IN_SLOT");
-    ObjectGuid vendorguid, bagguid;
-    uint32 item, slot, count;
-    uint8 bagslot;
-
-    recvData >> vendorguid >> item  >> slot >> bagguid >> bagslot >> count;
-
     // client expects count starting at 1, and we send vendorslot+1 to client already
-    if (slot > 0)
-        --slot;
+    if (packet.Muid > 0)
+        --packet.Muid;
     else
         return;                                             // cheating
 
     uint8 bag = NULL_BAG;
-    if (bagguid == GetPlayer()->GetGUID()) // The client sends the player guid when trying to store an item in the default backpack
+    if (packet.ContainerGUID == GetPlayer()->GetGUID()) // The client sends the player guid when trying to store an item in the default backpack
         bag = INVENTORY_SLOT_BAG_0;
-    else if (Item* bagItem = _player->GetItemByGuid(bagguid))
+    else if (Item* bagItem = _player->GetItemByGuid(packet.ContainerGUID))
         bag = bagItem->GetSlot();
     else
         return;
 
-    GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
+    GetPlayer()->BuyItemFromVendorSlot(packet.VendorGUID, packet.Muid, packet.ItemID,
+        packet.Quantity, bag, packet.Slot);
 }
 
-void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUY_ITEM");
-    ObjectGuid vendorguid;
-    uint32 item, slot, count;
-    uint8 unk1;
-
-    recvData >> vendorguid >> item >> slot >> count >> unk1;
-
     // client expects count starting at 1, and we send vendorslot+1 to client already
-    if (slot > 0)
-        --slot;
+    if (packet.Muid > 0)
+        --packet.Muid;
     else
         return; // cheating
 
-    GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, NULL_BAG, NULL_SLOT);
+    GetPlayer()->BuyItemFromVendorSlot(packet.VendorGUID, packet.Muid, packet.ItemID,
+        packet.Quantity, NULL_BAG, NULL_SLOT);
 }
 
 void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
