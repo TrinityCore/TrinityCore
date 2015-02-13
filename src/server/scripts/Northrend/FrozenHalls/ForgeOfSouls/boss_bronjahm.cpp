@@ -82,10 +82,10 @@ class boss_bronjahm : public CreatureScript
                 instance->SetBossState(DATA_BRONJAHM, NOT_STARTED);
             }
 
-           void JustReachedHome() override
-           {
-               DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
-           }
+            void JustReachedHome() override
+            {
+                DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
+            }
 
             void EnterCombat(Unit* /*who*/) override
             {
