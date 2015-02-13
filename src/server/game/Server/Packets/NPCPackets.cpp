@@ -135,3 +135,9 @@ void WorldPackets::NPC::GossipSelectOption::Read()
     uint32 length = _worldPacket.ReadBits(8);
     PromotionCode = _worldPacket.ReadString(length);
 }
+WorldPacket const* WorldPackets::NPC::PlayerTabardVendorActivate::Write()
+{
+    _worldPacket << Vendor;
+
+    return &_worldPacket;
+}

@@ -2045,7 +2045,7 @@ class Player : public Unit, public GridObject<Player>
         static ObjectGuid::LowType GetGuildIdFromDB(ObjectGuid guid);
         static uint8 GetRankFromDB(ObjectGuid guid);
         ObjectGuid::LowType GetGuildIdInvited() { return m_GuildIdInvited; }
-        static void RemovePetitionsAndSigns(ObjectGuid guid, uint32 type);
+        static void RemovePetitionsAndSigns(ObjectGuid guid);
 
         // Arena Team
         void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type);

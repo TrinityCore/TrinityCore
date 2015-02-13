@@ -53,7 +53,7 @@ namespace WorldPackets
             ObjectGuid BinderID;
             uint32 AreaID = 0;
         };
-        
+
         class BinderConfirm final : public ServerPacket
         {
         public:

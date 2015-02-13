@@ -29,6 +29,16 @@
 
 class Item;
 
+namespace WorldPackets
+{
+    namespace Guild
+    {
+        class GuildBankLogQueryResults;
+        class GuildEventLogQueryResults;
+        class GuildNews;
+    }
+}
+
 enum GuildMisc
 {
     GUILD_BANK_MAX_TABS                 = 8,                    // send by client for money log also
@@ -40,7 +50,6 @@ enum GuildMisc
     GUILD_WITHDRAW_MONEY_UNLIMITED      = 0xFFFFFFFF,
     GUILD_WITHDRAW_SLOT_UNLIMITED       = 0xFFFFFFFF,
     GUILD_EVENT_LOG_GUID_UNDEFINED      = 0xFFFFFFFF,
-    GUILD_EXPERIENCE_UNCAPPED_LEVEL     = 20,                   ///> Hardcoded in client, starting from this level, guild daily experience gain is unlimited.
     TAB_UNDEFINED                       = 0xFF,
 };
 
@@ -65,20 +74,24 @@ enum GuildDefaultRanks
 
 enum GuildRankRights
 {
-    GR_RIGHT_EMPTY                      = 0x00000040,
-    GR_RIGHT_GCHATLISTEN                = GR_RIGHT_EMPTY | 0x00000001,
-    GR_RIGHT_GCHATSPEAK                 = GR_RIGHT_EMPTY | 0x00000002,
-    GR_RIGHT_OFFCHATLISTEN              = GR_RIGHT_EMPTY | 0x00000004,
-    GR_RIGHT_OFFCHATSPEAK               = GR_RIGHT_EMPTY | 0x00000008,
-    GR_RIGHT_INVITE                     = GR_RIGHT_EMPTY | 0x00000010,
-    GR_RIGHT_REMOVE                     = GR_RIGHT_EMPTY | 0x00000020,
-    GR_RIGHT_PROMOTE                    = GR_RIGHT_EMPTY | 0x00000080,
-    GR_RIGHT_DEMOTE                     = GR_RIGHT_EMPTY | 0x00000100,
-    GR_RIGHT_SETMOTD                    = GR_RIGHT_EMPTY | 0x00001000,
-    GR_RIGHT_EPNOTE                     = GR_RIGHT_EMPTY | 0x00002000,
-    GR_RIGHT_VIEWOFFNOTE                = GR_RIGHT_EMPTY | 0x00004000,
-    GR_RIGHT_EOFFNOTE                   = GR_RIGHT_EMPTY | 0x00008000,
-    GR_RIGHT_MODIFY_GUILD_INFO          = GR_RIGHT_EMPTY | 0x00010000,
+    GR_RIGHT_NONE                       = 0x00000000,
+    GR_RIGHT_GCHATLISTEN                = 0x00000001,
+    GR_RIGHT_GCHATSPEAK                 = 0x00000002,
+    GR_RIGHT_OFFCHATLISTEN              = 0x00000004,
+    GR_RIGHT_OFFCHATSPEAK               = 0x00000008,
+    GR_RIGHT_INVITE                     = 0x00000010,
+    GR_RIGHT_REMOVE                     = 0x00000020,
+    GR_RIGHT_ROSTER                     = 0x00000040,
+    GR_RIGHT_PROMOTE                    = 0x00000080,
+    GR_RIGHT_DEMOTE                     = 0x00000100,
+    GR_RIGHT_UNK_200                    = 0x00000200,
+    GR_RIGHT_UNK_400                    = 0x00000400,
+    GR_RIGHT_UNK_800                    = 0x00000800,
+    GR_RIGHT_SETMOTD                    = 0x00001000,
+    GR_RIGHT_EDIT_PUBLIC_NOTE           = 0x00002000,
+    GR_RIGHT_VIEWOFFNOTE                = 0x00004000,
+    GR_RIGHT_EOFFNOTE                   = 0x00008000,
+    GR_RIGHT_MODIFY_GUILD_INFO          = 0x00010000,
     GR_RIGHT_WITHDRAW_GOLD_LOCK         = 0x00020000,                   // remove money withdraw capacity
     GR_RIGHT_WITHDRAW_REPAIR            = 0x00040000,                   // withdraw for repair
     GR_RIGHT_WITHDRAW_GOLD              = 0x00080000,                   // withdraw gold
@@ -88,19 +101,19 @@ enum GuildRankRights
 
 enum GuildCommandType
 {
-    GUILD_COMMAND_CREATE                = 0,
-    GUILD_COMMAND_INVITE                = 1,
-    GUILD_COMMAND_QUIT                  = 3,
-    GUILD_COMMAND_ROSTER                = 5,
-    GUILD_COMMAND_PROMOTE               = 6,
-    GUILD_COMMAND_DEMOTE                = 7,
-    GUILD_COMMAND_REMOVE                = 8,
+    GUILD_COMMAND_CREATE_GUILD          = 0,
+    GUILD_COMMAND_INVITE_PLAYER         = 1,
+    GUILD_COMMAND_LEAVE_GUILD           = 3,
+    GUILD_COMMAND_GET_ROSTER            = 5,
+    GUILD_COMMAND_PROMOTE_PLAYER        = 6,
+    GUILD_COMMAND_DEMOTE_PLAYER         = 7,
+    GUILD_COMMAND_REMOVE_PLAYER         = 8,
     GUILD_COMMAND_CHANGE_LEADER         = 10,
     GUILD_COMMAND_EDIT_MOTD             = 11,
     GUILD_COMMAND_GUILD_CHAT            = 13,
     GUILD_COMMAND_FOUNDER               = 14,
     GUILD_COMMAND_CHANGE_RANK           = 16,
-    GUILD_COMMAND_PUBLIC_NOTE           = 19,
+    GUILD_COMMAND_EDIT_PUBLIC_NOTE      = 19,
     GUILD_COMMAND_VIEW_TAB              = 21,
     GUILD_COMMAND_MOVE_ITEM             = 22,
     GUILD_COMMAND_REPAIR                = 25,
@@ -142,36 +155,6 @@ enum GuildCommandError
     ERR_GUILD_REP_TOO_LOW               = 39
 };
 
-enum GuildEvents
-{
-    GE_PROMOTION                        = 1,
-    GE_DEMOTION                         = 2,
-    GE_MOTD                             = 3,
-    GE_JOINED                           = 4,
-    GE_LEFT                             = 5,
-    GE_REMOVED                          = 6,
-    GE_LEADER_IS                        = 7,
-    GE_LEADER_CHANGED                   = 8,
-    GE_DISBANDED                        = 9,
-    GE_TABARDCHANGE                     = 10,
-    GE_RANK_UPDATED                     = 11,
-    GE_RANK_CREATED                     = 12,
-    GE_RANK_DELETED                     = 13,
-    GE_RANK_ORDER_CHANGED               = 14,
-    GE_FOUNDER                          = 15,
-    GE_SIGNED_ON                        = 16,
-    GE_SIGNED_OFF                       = 17,
-    GE_GUILDBANKBAGSLOTS_CHANGED        = 18,
-    GE_BANK_TAB_PURCHASED               = 19,
-    GE_BANK_TAB_UPDATED                 = 20,
-    GE_BANK_MONEY_SET                   = 21,
-    GE_BANK_TAB_AND_MONEY_UPDATED       = 22,
-    GE_BANK_TEXT_CHANGED                = 23,
-    // 24 - error 795
-    GE_SIGNED_ON_MOBILE                 = 25,
-    GE_SIGNED_Off_MOBILE                = 26,
-};
-
 enum PetitionTurns
 {
     PETITION_TURN_OK                    = 0,
@@ -200,7 +183,7 @@ enum GuildBankRights
     GUILD_BANK_RIGHT_UPDATE_TEXT        = 0x04,
 
     GUILD_BANK_RIGHT_DEPOSIT_ITEM       = GUILD_BANK_RIGHT_VIEW_TAB | GUILD_BANK_RIGHT_PUT_ITEM,
-    GUILD_BANK_RIGHT_FULL               = 0xFF
+    GUILD_BANK_RIGHT_FULL               = -1
 };
 
 enum GuildBankEventLogTypes
@@ -255,26 +238,27 @@ enum GuildNews
     GUILD_NEWS_ITEM_CRAFTED             = 4,
     GUILD_NEWS_ITEM_PURCHASED           = 5,
     GUILD_NEWS_LEVEL_UP                 = 6,
+    GUILD_NEWS_CREATE                   = 7, // @todo Implement
+    GUILD_NEWS_EVENT                    = 8  // @todo Implement
 };
 
 struct GuildReward
 {
-    uint32 Entry;
-    int32 Racemask;
-    uint64 Price;
-    uint32 AchievementId;
-    uint8 Standing;
+    uint32 ItemID;
+    uint8 MinGuildRep;
+    int32 RaceMask;
+    uint64 Cost;
+    std::vector<uint32> AchievementsRequired;
 };
 
 uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 };
 
 // Guild Challenge
-#define GUILD_CHALLENGES_TYPES 4
+#define GUILD_CHALLENGES_TYPES 6
 
-const uint32 GuildChallengeGoldReward[GUILD_CHALLENGES_TYPES]         = { 0, 250,    1000,    500 };
-const uint32 GuildChallengeMaxLevelGoldReward[GUILD_CHALLENGES_TYPES] = { 0, 125,    500,     250 };
-const uint32 GuildChallengeXPReward[GUILD_CHALLENGES_TYPES]           = { 0, 300000, 3000000, 1500000 };
-const uint32 GuildChallengesPerWeek[GUILD_CHALLENGES_TYPES]           = { 0, 7,      1,       3 };
+const uint32 GuildChallengeGoldReward[GUILD_CHALLENGES_TYPES]         = { 0, 250,    1000,    500,   250,   500 };
+const uint32 GuildChallengeMaxLevelGoldReward[GUILD_CHALLENGES_TYPES] = { 0, 125,    500,     250,   125,   250 };
+const uint32 GuildChallengesMaxCount[GUILD_CHALLENGES_TYPES]          = { 0, 7,      1,       3,     0,     3 };
 
 // Emblem info
 class EmblemInfo
@@ -284,7 +268,7 @@ public:
 
     void LoadFromDB(Field* fields);
     void SaveToDB(ObjectGuid::LowType guildId) const;
-    void ReadPacket(WorldPacket& recv);
+    void ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet);
 
     uint32 GetStyle() const { return m_style; }
     uint32 GetColor() const { return m_color; }
@@ -306,26 +290,26 @@ class GuildBankRightsAndSlots
 public:
     GuildBankRightsAndSlots() : tabId(TAB_UNDEFINED), rights(0), slots(0) { }
     GuildBankRightsAndSlots(uint8 _tabId) : tabId(_tabId), rights(0), slots(0) { }
-    GuildBankRightsAndSlots(uint8 _tabId, uint8 _rights, uint32 _slots) : tabId(_tabId), rights(_rights), slots(_slots) { }
+    GuildBankRightsAndSlots(uint8 _tabId, int8 _rights, int32 _slots) : tabId(_tabId), rights(_rights), slots(_slots) { }
 
     void SetGuildMasterValues()
     {
         rights = GUILD_BANK_RIGHT_FULL;
-        slots = uint32(GUILD_WITHDRAW_SLOT_UNLIMITED);
+        slots = int32(GUILD_WITHDRAW_SLOT_UNLIMITED);
     }
 
     void SetTabId(uint8 _tabId) { tabId = _tabId; }
-    void SetSlots(uint32 _slots) { slots = _slots; }
-    void SetRights(uint8 _rights) { rights = _rights; }
+    void SetSlots(int32 _slots) { slots = _slots; }
+    void SetRights(int8 _rights) { rights = _rights; }
 
     int8 GetTabId() const { return tabId; }
     int32 GetSlots() const { return slots; }
     int8 GetRights() const { return rights; }
 
 private:
-    uint8  tabId;
-    uint8  rights;
-    uint32 slots;
+    uint8 tabId;
+    int8  rights;
+    int32 slots;
 };
 
 typedef std::vector <GuildBankRightsAndSlots> GuildBankRightsAndSlotsVec;
@@ -345,6 +329,7 @@ private:
             m_zoneId(0),
             m_level(0),
             m_class(0),
+            _gender(0),
             m_flags(GUILDMEMBER_STATUS_NONE),
             m_logoutTime(::time(NULL)),
             m_accountId(0),
@@ -359,7 +344,7 @@ private:
         }
 
         void SetStats(Player* player);
-        void SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId, uint32 reputation);
+        void SetStats(std::string const& name, uint8 level, uint8 _class, uint8 gender, uint32 zoneId, uint32 accountId, uint32 reputation);
         bool CheckStats() const;
 
         void SetPublicNote(std::string const& publicNote);
@@ -385,6 +370,7 @@ private:
         std::string GetPublicNote() const { return m_publicNote; }
         std::string GetOfficerNote() const { return m_officerNote; }
         uint8 GetClass() const { return m_class; }
+        uint8 GetGender() const { return _gender; }
         uint8 GetLevel() const { return m_level; }
         uint8 GetFlags() const { return m_flags; }
         uint32 GetZoneId() const { return m_zoneId; }
@@ -422,6 +408,7 @@ private:
         uint32 m_zoneId;
         uint8 m_level;
         uint8 m_class;
+        uint8 _gender;
         uint8 m_flags;
         uint64 m_logoutTime;
         uint32 m_accountId;
@@ -452,7 +439,6 @@ private:
         uint64 GetTimestamp() const { return m_timestamp; }
 
         virtual void SaveToDB(SQLTransaction& trans) const = 0;
-        virtual void WritePacket(WorldPacket& data, ByteBuffer& content) const = 0;
 
     protected:
         ObjectGuid::LowType m_guildId;
@@ -473,7 +459,7 @@ private:
         ~EventLogEntry() { }
 
         void SaveToDB(SQLTransaction& trans) const override;
-        void WritePacket(WorldPacket& data, ByteBuffer& content) const override;
+        void WritePacket(WorldPackets::Guild::GuildEventLogQueryResults& packet) const;
 
     private:
         GuildEventLogTypes m_eventType;
@@ -511,7 +497,7 @@ private:
         ~BankEventLogEntry() { }
 
         void SaveToDB(SQLTransaction& trans) const override;
-        void WritePacket(WorldPacket& data, ByteBuffer& content) const override;
+        void WritePacket(WorldPackets::Guild::GuildBankLogQueryResults& packet) const;
 
     private:
         GuildBankEventLogTypes m_eventType;
@@ -547,7 +533,7 @@ private:
         }
 
         void SaveToDB(SQLTransaction& trans) const;
-        void WritePacket(WorldPacket& data, ByteBuffer& content) const;
+        void WritePacket(WorldPackets::Guild::GuildNews& newsPacket) const;
 
     private:
         GuildNews m_type;
@@ -572,10 +558,8 @@ private:
         void LoadEvent(LogEntry* entry);
         // Adds new event to collection and saves it to DB
         void AddEvent(SQLTransaction& trans, LogEntry* entry);
-        // Writes information about all events to packet
-        void WritePacket(WorldPacket& data) const;
         uint32 GetNextGUID();
-        GuildLog* GetGuildLog() { return &m_log; } // Hack needed for news as WritePacket can't be used
+        GuildLog* GetGuildLog() { return &m_log; }
 
     private:
         GuildLog m_log;
@@ -587,8 +571,8 @@ private:
     class RankInfo
     {
     public:
-        RankInfo(): m_guildId(UI64LIT(0)), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
-        RankInfo(ObjectGuid::LowType guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
+        RankInfo(): m_guildId(UI64LIT(0)), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_NONE), m_bankMoneyPerDay(0) { }
+        RankInfo(ObjectGuid::LowType guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_NONE), m_bankMoneyPerDay(0) { }
         RankInfo(ObjectGuid::LowType guildId, uint8 rankId, std::string const& name, uint32 rights, uint32 money) :
             m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights),
             m_bankMoneyPerDay(rankId != GR_GUILDMASTER ? money : GUILD_WITHDRAW_MONEY_UNLIMITED) { }
@@ -810,7 +794,7 @@ public:
     void HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow = false);
     bool HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair = false);
     void HandleMemberLogout(WorldSession* session);
-    void HandleDisband(WorldSession* session);
+    void HandleDelete(WorldSession* session);
     void HandleGuildPartyRequest(WorldSession* session);
     void HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky);
     void HandleGuildRequestChallengeUpdate(WorldSession* session);
@@ -822,13 +806,19 @@ public:
     void SendGuildRankInfo(WorldSession* session) const;
     void SendEventLog(WorldSession* session) const;
     void SendBankLog(WorldSession* session, uint8 tabId) const;
-    void SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const;
-    void SendGuildXP(WorldSession* session = NULL) const;
+    void SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) const;
     void SendBankTabText(WorldSession* session, uint8 tabId) const;
     void SendPermissions(WorldSession* session) const;
     void SendMoneyInfo(WorldSession* session) const;
     void SendLoginInfo(WorldSession* session);
     void SendNewsUpdate(WorldSession* session);
+
+    // Send events
+    void SendEventBankMoneyChanged();
+    void SendEventMOTD(WorldSession* session, bool broadcast = false);
+    void SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelfPromoted = false);
+    void SendEventPlayerLeft(Player* leaver, Player* remover = nullptr, bool isRemoved = false);
+    void SendEventPresenceChanged(WorldSession* session, bool loggedOn, bool broadcast = false);
 
     // Load from DB
     bool LoadFromDB(Field* fields);
@@ -880,9 +870,6 @@ public:
 
     // Guild leveling
     uint8 GetLevel() const { return _level; }
-    void GiveXP(uint32 xp, Player* source);
-    uint64 GetExperience() const { return _experience; }
-    uint64 GetTodayExperience() const { return _todayExperience; }
 
     void AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value);
 
@@ -915,8 +902,6 @@ protected:
     AchievementMgr<Guild> m_achievementMgr;
 
     uint8 _level;
-    uint64 _experience;
-    uint64 _todayExperience;
 
 private:
     inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }
@@ -926,7 +911,7 @@ private:
     {
         if (player)
             if (Member const* member = GetMember(player->GetGUID()))
-                return (_GetRankRights(member->GetRankId()) & right) != GR_RIGHT_EMPTY;
+                return (_GetRankRights(member->GetRankId()) & right) != GR_RIGHT_NONE;
         return false;
     }
 
@@ -990,7 +975,7 @@ private:
     int32 _GetMemberRemainingSlots(Member const* member, uint8 tabId) const;
     int32 _GetMemberRemainingMoney(Member const* member) const;
     void _UpdateMemberWithdrawSlots(SQLTransaction& trans, ObjectGuid guid, uint8 tabId);
-    bool _MemberHasTabRights(ObjectGuid guid, uint8 tabId, uint32 rights) const;
+    bool _MemberHasTabRights(ObjectGuid guid, uint8 tabId, int32 rights) const;
 
     void _LogEvent(GuildEventLogTypes eventType, ObjectGuid::LowType playerGuid1, ObjectGuid::LowType playerGuid2 = UI64LIT(0), uint8 newRank = 0);
     void _LogBankEvent(SQLTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, ObjectGuid::LowType playerGuid, uint64 itemOrMoney, uint16 itemStackCount = 0, uint8 destTabId = 0);
@@ -1002,9 +987,6 @@ private:
 
     void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
-    void SendGuildReputationWeeklyCap(WorldSession* session, uint32 reputation) const;
     void SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank);
-
-    void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
 };
 #endif

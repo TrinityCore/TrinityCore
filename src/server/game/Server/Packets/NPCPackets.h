@@ -158,6 +158,16 @@ namespace WorldPackets
 
             ObjectGuid Guid;
         };
+
+        class PlayerTabardVendorActivate final : public ServerPacket
+        {
+        public:
+            PlayerTabardVendorActivate() : ServerPacket(SMSG_TABARD_VENDOR_ACTIVATE, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Vendor;
+        };
     }
 }
 

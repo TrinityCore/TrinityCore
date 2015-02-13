@@ -1385,23 +1385,23 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         //case CMSG_ARENA_TEAM_REMOVE:                    // not profiled
         //case CMSG_ARENA_TEAM_LEADER:                    // not profiled
         case CMSG_LOOT_METHOD:                          // not profiled
-        case CMSG_GUILD_INVITE_BY_NAME:                   // not profiled
-        //case CMSG_GUILD_ACCEPT:                         // not profiled
-        case CMSG_GUILD_DECLINE:                        // not profiled
+        case CMSG_GUILD_INVITE_BY_NAME:                 // not profiled
+        case CMSG_ACCEPT_GUILD_INVITE:                  // not profiled
+        case CMSG_GUILD_DECLINE_INVITATION:             // not profiled
         case CMSG_GUILD_LEAVE:                          // not profiled
-        case CMSG_GUILD_DISBAND:                        // not profiled
+        case CMSG_GUILD_DELETE:                         // not profiled
         case CMSG_GUILD_SET_GUILD_MASTER:               // not profiled
-        //case CMSG_GUILD_MOTD:                           // not profiled
+        case CMSG_GUILD_UPDATE_MOTD_TEXT:               // not profiled
         case CMSG_GUILD_SET_RANK_PERMISSIONS:           // not profiled
         case CMSG_GUILD_ADD_RANK:                       // not profiled
         case CMSG_GUILD_DELETE_RANK:                    // not profiled
-        case CMSG_GUILD_UPDATE_INFO_TEXT:                 // not profiled
+        case CMSG_GUILD_UPDATE_INFO_TEXT:               // not profiled
         case CMSG_GUILD_BANK_DEPOSIT_MONEY:             // not profiled
-        //case CMSG_GUILD_BANK_WITHDRAW_MONEY:            // not profiled
+        case CMSG_GUILD_BANK_WITHDRAW_MONEY:            // not profiled
         case CMSG_GUILD_BANK_BUY_TAB:                   // not profiled
-        //case CMSG_GUILD_BANK_UPDATE_TAB:                // not profiled
+        case CMSG_GUILD_BANK_UPDATE_TAB:                // not profiled
         //case CMSG_SET_GUILD_BANK_TEXT:                  // not profiled
-        //case CMSG_SAVE_GUILD_EMBLEM:                     // not profiled
+        case CMSG_SAVE_GUILD_EMBLEM:                    // not profiled
         //case MSG_PETITION_RENAME:                       // not profiled
         //case MSG_TALENT_WIPE_CONFIRM:                   // not profiled
         case CMSG_SET_DUNGEON_DIFFICULTY:               // not profiled

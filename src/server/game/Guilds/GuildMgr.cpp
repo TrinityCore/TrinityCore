@@ -105,13 +105,6 @@ Guild* GuildMgr::GetGuildByLeader(ObjectGuid guid) const
     return NULL;
 }
 
-uint64 GuildMgr::GetXPForGuildLevel(uint8 level) const
-{
-    if (level < GuildXPperLevel.size())
-        return GuildXPperLevel[level];
-    return 0;
-}
-
 void GuildMgr::LoadGuilds()
 {
     // 1. Load all guilds
@@ -119,11 +112,11 @@ void GuildMgr::LoadGuilds()
     {
         uint32 oldMSTime = getMSTime();
 
-                                                     //          0          1       2             3              4              5              6
+        //          0          1       2             3              4              5              6
         QueryResult result = CharacterDatabase.Query("SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, "
-                                                     //   7                  8       9       10            11          12        13                14                 15
-                                                     "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, g.level, g.experience, g.todayExperience, COUNT(gbt.guildid) "
-                                                     "FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC");
+            //   7                  8       9       10            11          12           13
+            "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, g.level, COUNT(gbt.guildid) "
+            "FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC");
 
         if (!result)
         {
@@ -199,8 +192,8 @@ void GuildMgr::LoadGuilds()
 
                                                 //           0           1        2     3      4        5       6       7       8       9       10
         QueryResult result = CharacterDatabase.Query("SELECT gm.guildid, gm.guid, rank, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
-                                                //    11      12      13       14      15       16       17      18         19
-                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.zone, c.account, c.logout_time "
+                                                //    11      12      13       14      15       16       17        18      19         20
+                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.gender, c.zone, c.account, c.logout_time "
                                                      "FROM guild_member gm "
                                                      "LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid "
                                                      "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY gm.guildid ASC");
@@ -404,7 +397,7 @@ void GuildMgr::LoadGuilds()
 
         //           0          1            2                3      4         5        6      7             8                 9          10          11    12                  13         14                15           16
         // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, transmogrification, upgradeId, enchantIllusion, bonusListIDs,
-        //             17     18      19      
+        //             17     18      19
         //        guildid, TabId, SlotId FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid
 
         PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_ITEMS));
@@ -465,62 +458,12 @@ void GuildMgr::LoadGuilds()
     }
 }
 
-void GuildMgr::LoadGuildXpForLevel()
-{
-    uint32 oldMSTime = getMSTime();
-
-    GuildXPperLevel.resize(sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL));
-    for (uint8 level = 0; level < sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL); ++level)
-        GuildXPperLevel[level] = 0;
-
-    //                                                 0         1
-    QueryResult result  = WorldDatabase.Query("SELECT lvl, xp_for_next_level FROM guild_xp_for_level");
-
-    if (!result)
-    {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 xp for guild level definitions. DB table `guild_xp_for_level` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 level        = fields[0].GetUInt8();
-        uint32 requiredXP   = fields[1].GetUInt32();
-
-        if (level >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
-        {
-            TC_LOG_INFO("misc", "Unused (> Guild.MaxLevel in worldserver.conf) level %u in `guild_xp_for_level` table, ignoring.", uint32(level));
-            continue;
-        }
-
-        GuildXPperLevel[level] = requiredXP;
-        ++count;
-
-    } while (result->NextRow());
-
-    // fill level gaps
-    for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL); ++level)
-    {
-        if (!GuildXPperLevel[level])
-        {
-            TC_LOG_ERROR("sql.sql", "Level %i does not have XP for guild level data. Using data of level [%i] + 1660000.", level+1, level);
-            GuildXPperLevel[level] = GuildXPperLevel[level - 1] + 1660000;
-        }
-    }
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u xp for guild level definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
 void GuildMgr::LoadGuildRewards()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0     1         2         3      4
-    QueryResult result  = WorldDatabase.Query("SELECT entry, standing, racemask, price, achievement FROM guild_rewards");
+    //                                                 0      1            2         3
+    QueryResult result  = WorldDatabase.Query("SELECT ItemID, MinGuildRep, RaceMask, Cost FROM guild_rewards");
 
     if (!result)
     {
@@ -534,28 +477,42 @@ void GuildMgr::LoadGuildRewards()
     {
         GuildReward reward;
         Field* fields = result->Fetch();
-        reward.Entry         = fields[0].GetUInt32();
-        reward.Standing      = fields[1].GetUInt8();
-        reward.Racemask      = fields[2].GetInt32();
-        reward.Price         = fields[3].GetUInt64();
-        reward.AchievementId = fields[4].GetUInt32();
+        reward.ItemID        = fields[0].GetUInt32();
+        reward.MinGuildRep   = fields[1].GetUInt8();
+        reward.RaceMask      = fields[2].GetInt32();
+        reward.Cost          = fields[3].GetUInt64();
 
-        if (!sObjectMgr->GetItemTemplate(reward.Entry))
+        if (!sObjectMgr->GetItemTemplate(reward.ItemID))
         {
-            TC_LOG_ERROR("server.loading", "Guild rewards constains not existing item entry %u", reward.Entry);
+            TC_LOG_ERROR("server.loading", "Guild rewards constains not existing item entry %u", reward.ItemID);
             continue;
         }
 
-        if (reward.AchievementId != 0 && (!sAchievementMgr->GetAchievement(reward.AchievementId)))
+        if (reward.MinGuildRep >= MAX_REPUTATION_RANK)
         {
-            TC_LOG_ERROR("server.loading", "Guild rewards constains not existing achievement entry %u", reward.AchievementId);
+            TC_LOG_ERROR("server.loading", "Guild rewards contains wrong reputation standing %u, max is %u", uint32(reward.MinGuildRep), MAX_REPUTATION_RANK - 1);
             continue;
         }
 
-        if (reward.Standing >= MAX_REPUTATION_RANK)
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS);
+        stmt->setUInt32(0, reward.ItemID);
+        PreparedQueryResult reqAchievementResult = WorldDatabase.Query(stmt);
+        if (reqAchievementResult)
         {
-            TC_LOG_ERROR("server.loading", "Guild rewards contains wrong reputation standing %u, max is %u", uint32(reward.Standing), MAX_REPUTATION_RANK - 1);
-            continue;
+            do
+            {
+                Field* fields = reqAchievementResult->Fetch();
+
+                uint32 requiredAchievementId = fields[0].GetUInt32();
+
+                if (!sAchievementMgr->GetAchievement(requiredAchievementId))
+                {
+                    TC_LOG_ERROR("server.loading", "Guild rewards constains not existing achievement entry %u", requiredAchievementId);
+                    continue;
+                }
+
+                reward.AchievementsRequired.push_back(requiredAchievementId);
+            } while (reqAchievementResult->NextRow());
         }
 
         GuildRewards.push_back(reward);
@@ -567,7 +524,6 @@ void GuildMgr::LoadGuildRewards()
 
 void GuildMgr::ResetTimes(bool week)
 {
-    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE));
     CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER_WITHDRAW));
 
     for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
