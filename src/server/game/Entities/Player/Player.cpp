@@ -12997,12 +12997,11 @@ void Player::SendEquipError(InventoryResult msg, Item* item1 /*= nullptr*/, Item
 
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 /*param*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_BUY_FAILED");
-    WorldPacket data(SMSG_BUY_FAILED, (8+4+4+1));
-    data << (creature ? creature->GetGUID() : ObjectGuid::Empty);
-    data << uint32(item);
-    data << uint8(msg);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Item::BuyFailed packet;
+    packet.VendorGUID = creature ? creature->GetGUID() : ObjectGuid::Empty;
+    packet.Muid = item;
+    packet.Reason = msg;
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid)
@@ -21358,12 +21357,13 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     {
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
-        WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
-        data << pVendor->GetGUID();
-        data << uint32(vendorslot + 1);                   // numbered from 1 at client
-        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
-        data << uint32(count);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Item::BuySucceeded packet;
+        packet.VendorGUID = pVendor->GetGUID();
+        packet.Muid = vendorslot + 1;
+        packet.NewQuantity = crItem->maxcount > 0 ? new_count : 0xFFFFFFFF;
+        packet.QuantityBought = count;
+        GetSession()->SendPacket(packet.Write());
+
         SendNewItem(it, count, true, false, false);
 
         if (!bStore)

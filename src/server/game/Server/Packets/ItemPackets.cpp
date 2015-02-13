@@ -19,8 +19,39 @@
 
 void WorldPackets::Item::BuyBackItem::Read()
 {
-    _worldPacket >> VendorGUID;
-    _worldPacket >> Slot;
+    _worldPacket >> VendorGUID
+                 >> Slot;
+}
+
+void WorldPackets::Item::BuyItem::Read()
+{
+    _worldPacket >> VendorGUID
+                 >> ContainerGUID
+                 >> Item
+                 >> Quantity
+                 >> Muid
+                 >> Slot;
+
+    ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(2));
+}
+
+WorldPacket const* WorldPackets::Item::BuySucceeded::Write()
+{
+    _worldPacket << VendorGUID
+                 << uint32(Muid)
+                 << int32(NewQuantity)
+                 << uint32(QuantityBought);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::BuyFailed::Write()
+{
+    _worldPacket << VendorGUID
+                 << uint32(Muid)
+                 << uint8(Reason);
+
+    return &_worldPacket;
 }
 
 void WorldPackets::Item::GetItemPurchaseData::Read()
@@ -68,11 +99,28 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceDa
     return data;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData& itemBonusInstanceData)
+{
+    uint32 bonusListIdSize;
+
+    data >> itemBonusInstanceData.Context;
+    data >> bonusListIdSize;
+
+    for (uint32 i = 0u; i < bonusListIdSize; ++i)
+    {
+        uint32 bonusId;
+        data >> bonusId;
+        itemBonusInstanceData.BonusListIDs.push_back(bonusId);
+    }
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const& itemInstance)
 {
-    data << itemInstance.ItemID;
-    data << itemInstance.RandomPropertiesSeed;
-    data << itemInstance.RandomPropertiesID;
+    data << int32(itemInstance.ItemID);
+    data << int32(itemInstance.RandomPropertiesSeed);
+    data << int32(itemInstance.RandomPropertiesID);
 
     data.WriteBit(itemInstance.ItemBonus.HasValue);
     data.WriteBit(itemInstance.Modifications.HasValue);
@@ -83,6 +131,24 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
 
     if (itemInstance.Modifications.HasValue)
         data << itemInstance.Modifications.Value;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemInstance)
+{
+    data >> itemInstance.ItemID;
+    data >> itemInstance.RandomPropertiesSeed;
+    data >> itemInstance.RandomPropertiesID;
+
+    itemInstance.ItemBonus.HasValue = data.ReadBit();
+    itemInstance.Modifications.HasValue = data.ReadBit();
+
+    if (itemInstance.ItemBonus.HasValue)
+        data >> itemInstance.ItemBonus.Value;
+
+    if (itemInstance.Modifications.HasValue)
+        data >> itemInstance.Modifications.Value;
 
     return data;
 }

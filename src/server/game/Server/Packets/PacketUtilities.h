@@ -73,4 +73,23 @@ namespace WorldPackets
 
         return data;
     }
+
+    template <typename T>
+    ByteBuffer& operator>>(ByteBuffer& data, CompactArray<T>& v)
+    {
+        uint32 mask;
+        data >> mask;
+
+        for (size_t index = 0; mask != 0; mask >>= 1, ++index)
+        {
+            if ((mask & 1) != 0)
+            {
+                T value;
+                data >> value;
+                v.Insert(index, value);
+            }
+        }
+
+        return data;
+    }
 }
