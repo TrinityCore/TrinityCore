@@ -469,7 +469,7 @@ void AuctionHouseObject::Update()
             continue;
 
         ///- Either cancel the auction if there was no bidder
-        if (!auction->bidder)
+        if (auction->bidder == 0 && auction->bid == 0)
         {
             sAuctionMgr->SendAuctionExpiredMail(auction, trans);
             sScriptMgr->OnAuctionExpire(this, auction);
