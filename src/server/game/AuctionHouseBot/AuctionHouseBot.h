@@ -39,9 +39,9 @@ enum AuctionQuality
 
 enum AuctionHouseType
 {
-    AUCTION_HOUSE_ALLIANCE  = 0,
-    AUCTION_HOUSE_HORDE     = 1,
-    AUCTION_HOUSE_NEUTRAL   = 2
+    AUCTION_HOUSE_NEUTRAL   = 0,
+    AUCTION_HOUSE_ALLIANCE  = 1,
+    AUCTION_HOUSE_HORDE     = 2
 };
 
 #define MAX_AUCTION_HOUSE_TYPE 3
