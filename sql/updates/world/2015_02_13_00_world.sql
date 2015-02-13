@@ -1,4 +1,4 @@
-DROP TABLE `guild_xp_for_level` IF EXISTS;
+DROP TABLE IF EXISTS `guild_xp_for_level`;
 
 ALTER TABLE `guild_rewards` CHANGE COLUMN `entry` `ItemID` mediumint(8) UNSIGNED NOT NULL DEFAULT 0;
 ALTER TABLE `guild_rewards` CHANGE COLUMN `standing` `MinGuildRep` tinyint(3) UNSIGNED NULL DEFAULT 0;
