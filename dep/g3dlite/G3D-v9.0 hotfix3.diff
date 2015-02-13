@@ -1,0 +1,50 @@
+ dep/g3dlite/include/G3D/System.h   | 4 ++++
+ dep/g3dlite/include/G3D/platform.h | 2 +-
+ dep/g3dlite/source/FileSystem.cpp  | 4 ++++
+ 3 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/dep/g3dlite/include/G3D/System.h b/dep/g3dlite/include/G3D/System.h
+index 4624dd9..db0532e 100644
+--- a/dep/g3dlite/include/G3D/System.h
++++ b/dep/g3dlite/include/G3D/System.h
+@@ -21,6 +21,10 @@
+ #include "G3D/FileNotFound.h"
+ #include <string>
+ 
++#ifdef G3D_FREEBSD
++#   include <sys/_timeval.h>
++#endif
++
+ #ifdef G3D_OSX
+ #define Zone OSX_Zone
+ #   include <CoreServices/CoreServices.h>
+
+diff --git a/dep/g3dlite/include/G3D/platform.h b/dep/g3dlite/include/G3D/platform.h
+index 17e3bf2..35d80b4 100644
+--- a/dep/g3dlite/include/G3D/platform.h
++++ b/dep/g3dlite/include/G3D/platform.h
+@@ -50,7 +50,7 @@ These control the version of Winsock used by G3D.
+ #define G3D_WINSOCK_MAJOR_VERSION 2
+ #define G3D_WINSOCK_MINOR_VERSION 0
+ 
+-#ifndef _MSC_VER
++#if !defined(_MSC_VER) && !defined(__FreeBSD__)
+ /// Fast call is a register-based optimized calling convention supported only by Visual C++
+ #define __fastcall
+ #endif
+
+diff --git a/dep/g3dlite/source/FileSystem.cpp b/dep/g3dlite/source/FileSystem.cpp
+index 32a84e7..8097bf9 100644
+--- a/dep/g3dlite/source/FileSystem.cpp
++++ b/dep/g3dlite/source/FileSystem.cpp
+@@ -38,6 +38,10 @@
+ #   define _stat stat
+ #   define stricmp strcasecmp 
+ #   define strnicmp strncasecmp 
++#  ifdef G3D_FREEBSD
++#   define O_LARGEFILE 0100000
++#   define stat64 stat
++#  endif
+ #endif
+ 
+ namespace G3D {
