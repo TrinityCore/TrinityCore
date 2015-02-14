@@ -69,13 +69,14 @@ namespace WorldPackets
         class SAttackStop final : public ServerPacket
         {
         public:
-            SAttackStop() : ServerPacket(SMSG_ATTACKSTOP, 17) { }
+            SAttackStop() : ServerPacket(SMSG_ATTACKSTOP, 16 + 16 + 1) { }
+            SAttackStop(ObjectGuid attacker, ObjectGuid victim, bool nowDead) : ServerPacket(SMSG_ATTACKSTOP, 16 + 16 + 1), Attacker(attacker), Victim(victim), NowDead(nowDead) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid Attacker;
             ObjectGuid Victim;
-            bool Dead = false;
+            bool NowDead = false;
         };
 
         struct ThreatInfo
@@ -183,6 +184,34 @@ namespace WorldPackets
             CancelCombat() : ServerPacket(SMSG_CANCEL_COMBAT, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        struct PowerUpdatePower
+        {
+            int32 Power = 0;
+            uint8 PowerType = 0;
+        };
+
+        class PowerUpdate final : public ServerPacket
+        {
+        public:
+            PowerUpdate() : ServerPacket(SMSG_POWER_UPDATE, 16 + 4 + 1) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            std::vector<PowerUpdatePower> Powers;
+        };
+
+        class SetSheathed final : public ClientPacket
+        {
+        public:
+            SetSheathed(WorldPacket&& packet) : ClientPacket(CMSG_SET_SHEATHED, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 CurrentSheathState = 0;
+            bool Animate = true;
         };
     }
 }
