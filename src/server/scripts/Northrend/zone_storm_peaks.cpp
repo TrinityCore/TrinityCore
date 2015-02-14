@@ -846,6 +846,120 @@ class spell_close_rift : public SpellScriptLoader
         }
 };
 
+/*######
+## Quest: Fervor of the Frostborn (12874)
+######*/
+enum FervoroftheFrostborn
+{
+    // Entries
+    NPC_STORMCREST_EAGLE = 30108,
+    NPC_VELOG_ICEBELLOW = 30401,
+    // Texts
+    SAY_VELOG_0 = 0,
+    SAY_VELOG_1 = 1,
+    SAY_VELOG_2 = 2,
+    SAY_VELOG_3 = 3,
+    SAY_VELOG_4 = 4,
+    SAY_VELOG_5 = 5,
+    SAY_VELOG_6 = 6,
+    SAY_VELOG_7 = 7,
+    SAY_VELOG_8 = 8,
+    SAY_VELOG_9 = 9,
+    SAY_VELOG_10 = 10,
+    SAY_VELOG_11 = 11,
+    SAY_VELOG_12 = 12,
+    SAY_VELOG_13 = 13
+};
+
+class npc_stormcrest_eagle : public CreatureScript
+{
+    public:
+        npc_stormcrest_eagle() : CreatureScript("npc_stormcrest_eagle") { }
+
+        struct npc_stormcrest_eagleAI : public VehicleAI
+        {
+            npc_stormcrest_eagleAI(Creature* creature) : VehicleAI(creature) { }
+
+            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+            {
+                if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+                {
+                    // Hack cuz the the player kicks out the vehicle_npc, so we change the seats :)
+                    passenger->ChangeSeat(1, false);
+                    me->GetVehicleKit()->InstallAccessory(NPC_VELOG_ICEBELLOW, 0, true, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    me->GetMotionMaster()->MovePath(NPC_STORMCREST_EAGLE, false);
+                }
+            }
+
+            void MovementInform(uint32 type, uint32 id) override
+            {
+                if (type != WAYPOINT_MOTION_TYPE)
+                    return;
+
+                if (Creature* velog = GetClosestCreatureWithEntry(me, NPC_VELOG_ICEBELLOW, 10.0f))
+                    switch (id)
+                    {
+                        case 1:
+                            velog->AI()->Talk(SAY_VELOG_0);
+                        break;
+                        case 2:
+                            velog->AI()->Talk(SAY_VELOG_1);
+                            break;
+                        case 4:
+                            velog->AI()->Talk(SAY_VELOG_2);
+                            break;
+                        case 6:
+                            velog->AI()->Talk(SAY_VELOG_3);
+                            break;
+                        case 8:
+                            velog->AI()->Talk(SAY_VELOG_4);
+                            break;
+                        case 10:
+                            velog->AI()->Talk(SAY_VELOG_5);
+                            break;
+                        case 12:
+                            velog->AI()->Talk(SAY_VELOG_6);
+                            break;
+                        case 14:
+                            velog->AI()->Talk(SAY_VELOG_7);
+                            break;
+                        case 16:
+                            velog->AI()->Talk(SAY_VELOG_8);
+                            break;
+                        case 18:
+                            velog->AI()->Talk(SAY_VELOG_9);
+                            break;
+                        case 20:
+                            velog->AI()->Talk(SAY_VELOG_9);
+                            break;
+                        case 22:
+                            velog->AI()->Talk(SAY_VELOG_10);
+                            break;
+                        case 24:
+                            velog->AI()->Talk(SAY_VELOG_11);
+                            break;
+                        case 25:
+                            velog->AI()->Talk(SAY_VELOG_12);
+                            break;
+                        case 26:
+                            velog->AI()->Talk(SAY_VELOG_13);
+                            break;
+                        case 28:
+                            velog->DespawnOrUnsummon();
+                            me->Kill(me);
+                            break;
+                }
+            }
+
+            void UpdateAI(uint32 /*diff*/) override { }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_stormcrest_eagleAI(creature);
+        }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_injured_goblin();
@@ -859,4 +973,5 @@ void AddSC_storm_peaks()
     new spell_jokkum_scriptcast();
     new spell_veranus_summon();
     new spell_close_rift();
+    new npc_stormcrest_eagle();
 }
