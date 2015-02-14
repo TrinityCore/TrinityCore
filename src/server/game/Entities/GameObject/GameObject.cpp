@@ -222,10 +222,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
         return false;
     }
 
-    SetFloatValue(GAMEOBJECT_PARENTROTATION+0, rotation0);
-    SetFloatValue(GAMEOBJECT_PARENTROTATION+1, rotation1);
-
-    UpdateRotationFields(rotation2, rotation3);              // GAMEOBJECT_FACING, GAMEOBJECT_ROTATION, GAMEOBJECT_PARENTROTATION+2/3
+    SetRotationQuat(rotation0, rotation1, rotation2, rotation3);
 
     SetObjectScale(goinfo->size);
 
@@ -1899,34 +1896,50 @@ std::string const & GameObject::GetNameForLocaleIdx(LocaleConstant loc_idx) cons
     return GetName();
 }
 
-void GameObject::UpdateRotationFields(float rotation2 /*=0.0f*/, float rotation3 /*=0.0f*/)
+struct QuatCompressed
 {
-    static double const atan_pow = atan(pow(2.0f, -20.0f));
+    QuatCompressed() : m_raw(0) { };
+    QuatCompressed(int64 val) : m_raw(val) { };
 
-    double f_rot1 = std::sin(GetOrientation() / 2.0f);
-    double f_rot2 = std::cos(GetOrientation() / 2.0f);
-
-    int64 i_rot1 = int64(f_rot1 / atan_pow *(f_rot2 >= 0 ? 1.0f : -1.0f));
-    int64 rotation = (i_rot1 << 43 >> 43) & 0x00000000001FFFFF;
-
-    //float f_rot2 = std::sin(0.0f / 2.0f);
-    //int64 i_rot2 = f_rot2 / atan(pow(2.0f, -20.0f));
-    //rotation |= (((i_rot2 << 22) >> 32) >> 11) & 0x000003FFFFE00000;
-
-    //float f_rot3 = std::sin(0.0f / 2.0f);
-    //int64 i_rot3 = f_rot3 / atan(pow(2.0f, -21.0f));
-    //rotation |= (i_rot3 >> 42) & 0x7FFFFC0000000000;
-
-    m_rotation = rotation;
-
-    if (rotation2 == 0.0f && rotation3 == 0.0f)
+    enum : int32
     {
-        rotation2 = (float)f_rot1;
-        rotation3 = (float)f_rot2;
-    }
+        PACK_YZ = 1 << 20,
+        PACK_X  = 1 << 21
+    };
 
-    SetFloatValue(GAMEOBJECT_PARENTROTATION+2, rotation2);
-    SetFloatValue(GAMEOBJECT_PARENTROTATION+3, rotation3);
+    QuatCompressed(const G3D::Quat& quat) : m_raw(0)
+    {
+        int8 w_sign = (quat.w >= 0 ? 1 : -1);
+        int64 x = int32(quat.x * PACK_X) * w_sign & ((1 << 22) - 1);
+        int64 y = int32(quat.y * PACK_YZ) * w_sign & ((1 << 21) - 1);
+        int64 z = int32(quat.z * PACK_YZ) * w_sign & ((1 << 21) - 1);
+        m_raw = z | (y << 21) | (x << 42);
+    };
+
+    int64 GetComp() const { return m_raw; };
+
+    private:
+        int64 m_raw;
+};
+
+void GameObject::SetRotationQuat(float qx, float qy, float qz, float qw)
+{
+    G3D::Quat quat(qx, qy, qz, qw);
+    // Temporary solution for gameobjects that has no rotation data in DB:
+    if (qz == 0 && qw == 0)
+        quat = G3D::Quat::fromAxisAngleRotation(G3D::Vector3::unitZ(), GetOrientation());
+
+    m_rotation = QuatCompressed(quat).GetComp();
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 0, quat.x);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 1, quat.y);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 2, quat.z);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 3, quat.w);
+}
+
+void GameObject::SetRotationAngles(float z_rot, float y_rot, float x_rot)
+{
+    G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot));
+    SetRotationQuat(quat.x, quat.y, quat.z, quat.w);
 }
 
 void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= nullptr*/, uint32 spellId /*= 0*/)

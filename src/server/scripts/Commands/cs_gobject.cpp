@@ -415,20 +415,33 @@ public:
         }
 
         char* orientation = strtok(NULL, " ");
-        float o;
+        float oz, oy, ox;
 
         if (orientation)
-            o = (float)atof(orientation);
+            oz = (float)atof(orientation);
         else
         {
             Player* player = handler->GetSession()->GetPlayer();
-            o = player->GetOrientation();
+            oz = player->GetOrientation();
         }
 
         Map* map = object->GetMap();
 
-        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
-        object->UpdateRotationFields();
+        // try extract two opt-parameters
+        orientation = strtok(NULL, " ");
+        if (orientation)
+        {
+            oy = float(atof(orientation));
+            if (orientation = strtok(NULL, " "))
+                ox = float(atof(orientation));
+            else
+                ox = 0.f;
+        }
+        else
+            oy = 0.f;
+
+        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
+        object->SetWorldRotationAngles(oz, oy, ox);
         object->SaveToDB();
 
         // Generate a completely new spawn with new guid
