@@ -35,7 +35,7 @@ WorldPacket const* WorldPackets::Combat::SAttackStop::Write()
 {
     _worldPacket << Attacker;
     _worldPacket << Victim;
-    _worldPacket.WriteBit(Dead);
+    _worldPacket.WriteBit(NowDead);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -146,4 +146,23 @@ WorldPacket const* WorldPackets::Combat::AttackSwingError::Write()
     _worldPacket.WriteBits(Reason, 2);
     _worldPacket.FlushBits();
     return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::PowerUpdate::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << uint32(Powers.size());
+    for (WorldPackets::Combat::PowerUpdatePower const& power : Powers)
+    {
+        _worldPacket << power.Power;
+        _worldPacket << power.PowerType;
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Combat::SetSheathed::Read()
+{
+    _worldPacket >> CurrentSheathState;
+    Animate = _worldPacket.ReadBit();
 }
