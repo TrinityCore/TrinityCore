@@ -145,6 +145,7 @@ namespace WorldPackets
     {
         class AttackSwing;
         class AttackStop;
+        class SetSheathed;
     }
 
     namespace Duel
@@ -1048,7 +1049,7 @@ class WorldSession
 
         void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
         void HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& packet);
-        void HandleSetSheathedOpcode(WorldPacket& recvPacket);
+        void HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& packet);
 
         void HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet);
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
