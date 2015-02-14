@@ -2134,11 +2134,10 @@ void Unit::SendMeleeAttackStop(Unit* victim)
     if (victim)
     {
         packet.Victim = victim->GetGUID();
-        packet.Dead = victim->isDead();
+        packet.NowDead = victim->isDead();
     }
 
     SendMessageToSet(packet.Write(), true);
-    TC_LOG_DEBUG("entities.unit", "WORLD: Sent SMSG_ATTACKSTOP");
 
     if (victim)
         TC_LOG_INFO("entities.unit", "%s stopped attacking %s", GetGUID().ToString().c_str(), victim->GetGUID().ToString().c_str());
@@ -11465,12 +11464,19 @@ void Unit::SetPower(Powers power, int32 val)
 
     if (IsInWorld())
     {
-        WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
-        data << GetPackGUID();
-        data << uint32(1); //power count
-        data << uint8(powerIndex);
-        data << int32(val);
-        SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER);
+        WorldPackets::Combat::PowerUpdate packet;
+        WorldPackets::Combat::PowerUpdatePower power;
+        packet.Guid = GetGUID();
+        /// @todo: Support multiple counts ?
+        /*for (uint8 i = 0; i < 1; i++)
+        {
+            _power.Power = val;
+            _power.PowerType = powerIndex;
+        }*/
+        power.Power = val;
+        power.PowerType = powerIndex;
+        packet.Powers.push_back(power);
+        SendMessageToSet(packet.Write(), GetTypeId() == TYPEID_PLAYER);
     }
 
     // group update

@@ -793,7 +793,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_ROLE,                                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_SAVED_INSTANCE_EXTEND,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetSavedInstanceExtend    );
     DEFINE_HANDLER(CMSG_SET_SELECTION,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::SetSelection, &WorldSession::HandleSetSelectionOpcode);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_SHEATHED,                            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode         );
+    DEFINE_HANDLER(CMSG_SET_SHEATHED,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Combat::SetSheathed, &WorldSession::HandleSetSheathedOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_SKILL_CHEAT,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_SORT_BAGS_RIGHT_TO_LEFT,             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_SET_SPECIALIZATION,                                 STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Talent::SetSpecialization, &WorldSession::HandleSetSpecializationOpcode);
@@ -1650,7 +1650,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PLAY_SPELL_VISUAL_KIT,                   STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PLAY_TIME_WARNING,                       STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PONG,                                    STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_POWER_UPDATE,                            STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_POWER_UPDATE,                            STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PRE_RESSURECT,                           STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PROC_RESIST,                             STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PROPOSE_LEVEL_GRANT,                     STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
