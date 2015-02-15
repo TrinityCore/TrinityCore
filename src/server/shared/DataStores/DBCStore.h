@@ -95,6 +95,13 @@ class DBCStorage
             return (id >= nCount) ? NULL : indexTable.asT[id];
         }
 
+        T const* AssertEntry(uint32 id) const
+        {
+            T const* entry = LookupEntry(id);
+            ASSERT(entry);
+            return entry;
+        }
+
 #ifdef ELUNA
         void SetEntry(uint32 id, T* t)
         {
@@ -106,7 +113,7 @@ class DBCStorage
 #endif
 
 #ifdef ELUNA
-        uint32  GetNumRows() const { return std::max(maxdatacount+1, nCount); }
+        uint32  GetNumRows() const { return std::max(maxdatacount + 1, nCount); }
 #else
         uint32  GetNumRows() const { return nCount; }
 #endif
