@@ -2187,12 +2187,20 @@ void Guild::SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelf
 {
     WorldPackets::Guild::GuildEventNewLeader eventPacket;
     eventPacket.SelfPromoted = isSelfPromoted;
-    eventPacket.NewLeaderGUID = newLeader->GetGUID();
-    eventPacket.NewLeaderName = newLeader->GetName();
-    eventPacket.NewLeaderVirtualRealmAddress = GetVirtualRealmAddress();
-    eventPacket.OldLeaderGUID = oldLeader->GetGUID();
-    eventPacket.OldLeaderName = oldLeader->GetName();
-    eventPacket.OldLeaderVirtualRealmAddress = GetVirtualRealmAddress();
+    if (newLeader)
+    {
+        eventPacket.NewLeaderGUID = newLeader->GetGUID();
+        eventPacket.NewLeaderName = newLeader->GetName();
+        eventPacket.NewLeaderVirtualRealmAddress = GetVirtualRealmAddress();
+    }
+
+    if (oldLeader)
+    {
+        eventPacket.OldLeaderGUID = oldLeader->GetGUID();
+        eventPacket.OldLeaderName = oldLeader->GetName();
+        eventPacket.OldLeaderVirtualRealmAddress = GetVirtualRealmAddress();
+    }
+
     BroadcastPacket(eventPacket.Write());
 }
 
@@ -2204,7 +2212,7 @@ void Guild::SendEventPlayerLeft(Player* leaver, Player* remover, bool isRemoved)
     eventPacket.LeaverName = leaver->GetName();
     eventPacket.LeaverVirtualRealmAddress = GetVirtualRealmAddress();
 
-    if (isRemoved)
+    if (isRemoved && remover != nullptr)
     {
         eventPacket.RemoverGUID = remover->GetGUID();
         eventPacket.RemoverName = remover->GetName();
