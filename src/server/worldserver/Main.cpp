@@ -97,8 +97,7 @@ void ShutdownThreadPool(std::vector<std::thread>& threadPool);
 bool LoadRealmInfo();
 variables_map GetConsoleArguments(int argc, char** argv, std::string& cfg_file, std::string& cfg_service);
 
-/// Launch the Trinity server
-extern int main(int argc, char** argv)
+int mainImpl(int argc, char** argv)
 {
     std::string configFile = _TRINITY_CORE_CONFIG;
     std::string configService;
@@ -304,6 +303,25 @@ extern int main(int argc, char** argv)
     // 2 - restart command used, this code can be used by restarter for restart Trinityd
 
     return World::GetExitCode();
+}
+
+/// Launch the Trinity server
+extern int main(int argc, char** argv)
+{
+    try
+    {
+        return mainImpl(argc, argv);
+    }
+    catch (std::exception& ex)
+    {
+        std::cerr << "Top-level exception caught:" << ex.what() << "\n";
+
+#ifndef NDEBUG // rethrow exception for the debugger
+        throw;
+#else
+        return 1;
+#endif
+    }
 }
 
 void ShutdownCLIThread(std::thread* cliThread)
