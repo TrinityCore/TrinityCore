@@ -167,7 +167,7 @@ void WorldSession::SendBfEntered(ObjectGuid guid)
 {
     uint8 isAFK = _player->isAFK() ? 1 : 0;
 
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERED, 11);
+    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERING, 11);
 
     data.WriteBit(0);               // unk
     data.WriteBit(isAFK);           // Clear AFK

@@ -1286,7 +1286,7 @@ void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
 
     TC_LOG_DEBUG("network", "CMSG_ITEM_TEXT_QUERY %s", itemGuid.ToString().c_str());
 
-    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, 14);    // guess size
+    WorldPacket data(SMSG_QUERY_ITEM_TEXT_RESPONSE, 14);    // guess size
 
     if (Item* item = _player->GetItemByGuid(itemGuid))
     {
