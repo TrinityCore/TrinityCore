@@ -291,7 +291,7 @@ void WorldSession::HandleQuestNPCQuery(WorldPacket& recvData)
 
         if (!sObjectMgr->GetQuestTemplate(questId))
         {
-            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUEST_NPC_QUERY by %s", questId, _player->GetGUID().ToString().c_str());
+            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUERY_QUEST_COMPLETION_NPCS by %s", questId, _player->GetGUID().ToString().c_str());
             continue;
         }
 
@@ -304,7 +304,7 @@ void WorldSession::HandleQuestNPCQuery(WorldPacket& recvData)
             quests[questId].push_back(it->second | 0x80000000); // GO mask
     }
 
-    WorldPacket data(SMSG_QUEST_NPC_QUERY_RESPONSE, 3 + quests.size() * 14);
+    WorldPacket data(SMSG_QUEST_COMPLETION_NPC_RESPONSE, 3 + quests.size() * 14);
     data.WriteBits(quests.size(), 23);
 
     for (auto it = quests.begin(); it != quests.end(); ++it)
