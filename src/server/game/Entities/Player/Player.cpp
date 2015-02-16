@@ -8923,30 +8923,26 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     InstanceScript* instance = GetInstanceScript();
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(zoneid);
 
-    TC_LOG_DEBUG("network", "Sending SMSG_INIT_WORLD_STATES to Map: %u, Zone: %u", mapid, zoneid);
+    WorldPackets::WorldState::InitWorldStates packet;
+    packet.MapID = mapid;
+    packet.AreaID = zoneid;
+    packet.SubareaID = areaid;
+    packet.Worldstates.emplace_back(2264, 0);              // 1
+    packet.Worldstates.emplace_back(2263, 0);              // 2
+    packet.Worldstates.emplace_back(2262, 0);              // 3
+    packet.Worldstates.emplace_back(2261, 0);              // 4
+    packet.Worldstates.emplace_back(2260, 0);              // 5
+    packet.Worldstates.emplace_back(2259, 0);              // 6
 
-    WorldPacket data(SMSG_INIT_WORLD_STATES, (4+4+4+2+(12*8)));
-    data << uint32(mapid);                                  // mapid
-    data << uint32(zoneid);                                 // zone id
-    data << uint32(areaid);                                 // area id, new 2.1.0
-    size_t countPos = data.wpos();
-    data << uint16(0);                                      // count of uint64 blocks
-    data << uint32(2264) << uint32(0);                      // 1
-    data << uint32(2263) << uint32(0);                      // 2
-    data << uint32(2262) << uint32(0);                      // 3
-    data << uint32(2261) << uint32(0);                      // 4
-    data << uint32(2260) << uint32(0);                      // 5
-    data << uint32(2259) << uint32(0);                      // 6
-
-    data << uint32(3191) << uint32(sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) : 0); // 7 Current Season - Arena season in progress
-                                                                                                                                               //                0 - End of season
-    data << uint32(3901) << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS));     // 8 PreviousSeason
+    packet.Worldstates.emplace_back(3191, int32(sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) : 0)); // 7 Current Season - Arena season in progress
+                                                                                                                                                              // 0 - End of season
+    packet.Worldstates.emplace_back(3901, int32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS)));     // 8 PreviousSeason   
 
     if (mapid == 530)                                       // Outland
     {
-        data << uint32(2495) << uint32(0x0);                // 7
-        data << uint32(2493) << uint32(0xF);                // 8
-        data << uint32(2491) << uint32(0xF);                // 9
+        packet.Worldstates.emplace_back(2495, 0);          // 7
+        packet.Worldstates.emplace_back(2493, 0xF);        // 8
+        packet.Worldstates.emplace_back(2491, 0xF);        // 9
     }
 
     // insert <field> <value>
@@ -8961,197 +8957,197 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 1519:                                          // Stormwind City
         case 1537:                                          // Ironforge
         case 2257:                                          // Deeprun Tram
-        case 3703:                                          // Shattrath City
+        case 3703:                                          // Shattrath City});
             break;
         case 1377:                                          // Silithus
             if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_SI)
-                pvp->FillInitialWorldStates(data);
+                pvp->FillInitialWorldStates(packet);
             else
             {
                 // states are always shown
-                data << uint32(2313) << uint32(0x0); // 7 ally silityst gathered
-                data << uint32(2314) << uint32(0x0); // 8 horde silityst gathered
-                data << uint32(2317) << uint32(0x0); // 9 max silithyst
+                packet.Worldstates.emplace_back(2313, 0x0); // 7 ally silityst gathered
+                packet.Worldstates.emplace_back(2314, 0x0); // 8 horde silityst gathered
+                packet.Worldstates.emplace_back(2317, 0x0); // 9 max silithyst
             }
             // dunno about these... aq opening event maybe?
-            data << uint32(2322) << uint32(0x0); // 10 sandworm N
-            data << uint32(2323) << uint32(0x0); // 11 sandworm S
-            data << uint32(2324) << uint32(0x0); // 12 sandworm SW
-            data << uint32(2325) << uint32(0x0); // 13 sandworm E
+            packet.Worldstates.emplace_back(2322, 0x0); // 10 sandworm N
+            packet.Worldstates.emplace_back(2323, 0x0); // 11 sandworm S
+            packet.Worldstates.emplace_back(2324, 0x0); // 12 sandworm SW
+            packet.Worldstates.emplace_back(2325, 0x0); // 13 sandworm E
             break;
         case 2597:                                          // Alterac Valley
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_AV)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0x7ae) << uint32(0x1);           // 7 snowfall n
-                data << uint32(0x532) << uint32(0x1);           // 8 frostwolfhut hc
-                data << uint32(0x531) << uint32(0x0);           // 9 frostwolfhut ac
-                data << uint32(0x52e) << uint32(0x0);           // 10 stormpike firstaid a_a
-                data << uint32(0x571) << uint32(0x0);           // 11 east frostwolf tower horde assaulted -unused
-                data << uint32(0x570) << uint32(0x0);           // 12 west frostwolf tower horde assaulted - unused
-                data << uint32(0x567) << uint32(0x1);           // 13 frostwolfe c
-                data << uint32(0x566) << uint32(0x1);           // 14 frostwolfw c
-                data << uint32(0x550) << uint32(0x1);           // 15 irondeep (N) ally
-                data << uint32(0x544) << uint32(0x0);           // 16 ice grave a_a
-                data << uint32(0x536) << uint32(0x0);           // 17 stormpike grave h_c
-                data << uint32(0x535) << uint32(0x1);           // 18 stormpike grave a_c
-                data << uint32(0x518) << uint32(0x0);           // 19 stoneheart grave a_a
-                data << uint32(0x517) << uint32(0x0);           // 20 stoneheart grave h_a
-                data << uint32(0x574) << uint32(0x0);           // 21 1396 unk
-                data << uint32(0x573) << uint32(0x0);           // 22 iceblood tower horde assaulted -unused
-                data << uint32(0x572) << uint32(0x0);           // 23 towerpoint horde assaulted - unused
-                data << uint32(0x56f) << uint32(0x0);           // 24 1391 unk
-                data << uint32(0x56e) << uint32(0x0);           // 25 iceblood a
-                data << uint32(0x56d) << uint32(0x0);           // 26 towerp a
-                data << uint32(0x56c) << uint32(0x0);           // 27 frostwolfe a
-                data << uint32(0x56b) << uint32(0x0);           // 28 froswolfw a
-                data << uint32(0x56a) << uint32(0x1);           // 29 1386 unk
-                data << uint32(0x569) << uint32(0x1);           // 30 iceblood c
-                data << uint32(0x568) << uint32(0x1);           // 31 towerp c
-                data << uint32(0x565) << uint32(0x0);           // 32 stoneh tower a
-                data << uint32(0x564) << uint32(0x0);           // 33 icewing tower a
-                data << uint32(0x563) << uint32(0x0);           // 34 dunn a
-                data << uint32(0x562) << uint32(0x0);           // 35 duns a
-                data << uint32(0x561) << uint32(0x0);           // 36 stoneheart bunker alliance assaulted - unused
-                data << uint32(0x560) << uint32(0x0);           // 37 icewing bunker alliance assaulted - unused
-                data << uint32(0x55f) << uint32(0x0);           // 38 dunbaldar south alliance assaulted - unused
-                data << uint32(0x55e) << uint32(0x0);           // 39 dunbaldar north alliance assaulted - unused
-                data << uint32(0x55d) << uint32(0x0);           // 40 stone tower d
-                data << uint32(0x3c6) << uint32(0x0);           // 41 966 unk
-                data << uint32(0x3c4) << uint32(0x0);           // 42 964 unk
-                data << uint32(0x3c2) << uint32(0x0);           // 43 962 unk
-                data << uint32(0x516) << uint32(0x1);           // 44 stoneheart grave a_c
-                data << uint32(0x515) << uint32(0x0);           // 45 stonheart grave h_c
-                data << uint32(0x3b6) << uint32(0x0);           // 46 950 unk
-                data << uint32(0x55c) << uint32(0x0);           // 47 icewing tower d
-                data << uint32(0x55b) << uint32(0x0);           // 48 dunn d
-                data << uint32(0x55a) << uint32(0x0);           // 49 duns d
-                data << uint32(0x559) << uint32(0x0);           // 50 1369 unk
-                data << uint32(0x558) << uint32(0x0);           // 51 iceblood d
-                data << uint32(0x557) << uint32(0x0);           // 52 towerp d
-                data << uint32(0x556) << uint32(0x0);           // 53 frostwolfe d
-                data << uint32(0x555) << uint32(0x0);           // 54 frostwolfw d
-                data << uint32(0x554) << uint32(0x1);           // 55 stoneh tower c
-                data << uint32(0x553) << uint32(0x1);           // 56 icewing tower c
-                data << uint32(0x552) << uint32(0x1);           // 57 dunn c
-                data << uint32(0x551) << uint32(0x1);           // 58 duns c
-                data << uint32(0x54f) << uint32(0x0);           // 59 irondeep (N) horde
-                data << uint32(0x54e) << uint32(0x0);           // 60 irondeep (N) ally
-                data << uint32(0x54d) << uint32(0x1);           // 61 mine (S) neutral
-                data << uint32(0x54c) << uint32(0x0);           // 62 mine (S) horde
-                data << uint32(0x54b) << uint32(0x0);           // 63 mine (S) ally
-                data << uint32(0x545) << uint32(0x0);           // 64 iceblood h_a
-                data << uint32(0x543) << uint32(0x1);           // 65 iceblod h_c
-                data << uint32(0x542) << uint32(0x0);           // 66 iceblood a_c
-                data << uint32(0x540) << uint32(0x0);           // 67 snowfall h_a
-                data << uint32(0x53f) << uint32(0x0);           // 68 snowfall a_a
-                data << uint32(0x53e) << uint32(0x0);           // 69 snowfall h_c
-                data << uint32(0x53d) << uint32(0x0);           // 70 snowfall a_c
-                data << uint32(0x53c) << uint32(0x0);           // 71 frostwolf g h_a
-                data << uint32(0x53b) << uint32(0x0);           // 72 frostwolf g a_a
-                data << uint32(0x53a) << uint32(0x1);           // 73 frostwolf g h_c
-                data << uint32(0x539) << uint32(0x0);           // 74 frostwolf g a_c
-                data << uint32(0x538) << uint32(0x0);           // 75 stormpike grave h_a
-                data << uint32(0x537) << uint32(0x0);           // 76 stormpike grave a_a
-                data << uint32(0x534) << uint32(0x0);           // 77 frostwolf hut h_a
-                data << uint32(0x533) << uint32(0x0);           // 78 frostwolf hut a_a
-                data << uint32(0x530) << uint32(0x0);           // 79 stormpike first aid h_a
-                data << uint32(0x52f) << uint32(0x0);           // 80 stormpike first aid h_c
-                data << uint32(0x52d) << uint32(0x1);           // 81 stormpike first aid a_c
+                packet.Worldstates.emplace_back(0x7ae, 0x1);           // 7 snowfall n
+                packet.Worldstates.emplace_back(0x532, 0x1);           // 8 frostwolfhut hc
+                packet.Worldstates.emplace_back(0x531, 0x0);           // 9 frostwolfhut ac
+                packet.Worldstates.emplace_back(0x52e, 0x0);           // 10 stormpike firstaid a_a
+                packet.Worldstates.emplace_back(0x571, 0x0);           // 11 east frostwolf tower horde assaulted -unused
+                packet.Worldstates.emplace_back(0x570, 0x0);           // 12 west frostwolf tower horde assaulted - unused
+                packet.Worldstates.emplace_back(0x567, 0x1);           // 13 frostwolfe c
+                packet.Worldstates.emplace_back(0x566, 0x1);           // 14 frostwolfw c
+                packet.Worldstates.emplace_back(0x550, 0x1);           // 15 irondeep (N) ally
+                packet.Worldstates.emplace_back(0x544, 0x0);           // 16 ice grave a_a
+                packet.Worldstates.emplace_back(0x536, 0x0);           // 17 stormpike grave h_c
+                packet.Worldstates.emplace_back(0x535, 0x1);           // 18 stormpike grave a_c
+                packet.Worldstates.emplace_back(0x518, 0x0);           // 19 stoneheart grave a_a
+                packet.Worldstates.emplace_back(0x517, 0x0);           // 20 stoneheart grave h_a
+                packet.Worldstates.emplace_back(0x574, 0x0);           // 21 1396 unk
+                packet.Worldstates.emplace_back(0x573, 0x0);           // 22 iceblood tower horde assaulted -unused
+                packet.Worldstates.emplace_back(0x572, 0x0);           // 23 towerpoint horde assaulted - unused
+                packet.Worldstates.emplace_back(0x56f, 0x0);           // 24 1391 unk
+                packet.Worldstates.emplace_back(0x56e, 0x0);           // 25 iceblood a
+                packet.Worldstates.emplace_back(0x56d, 0x0);           // 26 towerp a
+                packet.Worldstates.emplace_back(0x56c, 0x0);           // 27 frostwolfe a
+                packet.Worldstates.emplace_back(0x56b, 0x0);           // 28 froswolfw a
+                packet.Worldstates.emplace_back(0x56a, 0x1);           // 29 1386 unk
+                packet.Worldstates.emplace_back(0x569, 0x1);           // 30 iceblood c
+                packet.Worldstates.emplace_back(0x568, 0x1);           // 31 towerp c
+                packet.Worldstates.emplace_back(0x565, 0x0);           // 32 stoneh tower a
+                packet.Worldstates.emplace_back(0x564, 0x0);           // 33 icewing tower a
+                packet.Worldstates.emplace_back(0x563, 0x0);           // 34 dunn a
+                packet.Worldstates.emplace_back(0x562, 0x0);           // 35 duns a
+                packet.Worldstates.emplace_back(0x561, 0x0);           // 36 stoneheart bunker alliance assaulted - unused
+                packet.Worldstates.emplace_back(0x560, 0x0);           // 37 icewing bunker alliance assaulted - unused
+                packet.Worldstates.emplace_back(0x55f, 0x0);           // 38 dunbaldar south alliance assaulted - unused
+                packet.Worldstates.emplace_back(0x55e, 0x0);           // 39 dunbaldar north alliance assaulted - unused
+                packet.Worldstates.emplace_back(0x55d, 0x0);           // 40 stone tower d
+                packet.Worldstates.emplace_back(0x3c6, 0x0);           // 41 966 unk
+                packet.Worldstates.emplace_back(0x3c4, 0x0);           // 42 964 unk
+                packet.Worldstates.emplace_back(0x3c2, 0x0);           // 43 962 unk
+                packet.Worldstates.emplace_back(0x516, 0x1);           // 44 stoneheart grave a_c
+                packet.Worldstates.emplace_back(0x515, 0x0);           // 45 stonheart grave h_c
+                packet.Worldstates.emplace_back(0x3b6, 0x0);           // 46 950 unk
+                packet.Worldstates.emplace_back(0x55c, 0x0);           // 47 icewing tower d
+                packet.Worldstates.emplace_back(0x55b, 0x0);           // 48 dunn d
+                packet.Worldstates.emplace_back(0x55a, 0x0);           // 49 duns d
+                packet.Worldstates.emplace_back(0x559, 0x0);           // 50 1369 unk
+                packet.Worldstates.emplace_back(0x558, 0x0);           // 51 iceblood d
+                packet.Worldstates.emplace_back(0x557, 0x0);           // 52 towerp d
+                packet.Worldstates.emplace_back(0x556, 0x0);           // 53 frostwolfe d
+                packet.Worldstates.emplace_back(0x555, 0x0);           // 54 frostwolfw d
+                packet.Worldstates.emplace_back(0x554, 0x1);           // 55 stoneh tower c
+                packet.Worldstates.emplace_back(0x553, 0x1);           // 56 icewing tower c
+                packet.Worldstates.emplace_back(0x552, 0x1);           // 57 dunn c
+                packet.Worldstates.emplace_back(0x551, 0x1);           // 58 duns c
+                packet.Worldstates.emplace_back(0x54f, 0x0);           // 59 irondeep (N) horde
+                packet.Worldstates.emplace_back(0x54e, 0x0);           // 60 irondeep (N) ally
+                packet.Worldstates.emplace_back(0x54d, 0x1);           // 61 mine (S) neutral
+                packet.Worldstates.emplace_back(0x54c, 0x0);           // 62 mine (S) horde
+                packet.Worldstates.emplace_back(0x54b, 0x0);           // 63 mine (S) ally
+                packet.Worldstates.emplace_back(0x545, 0x0);           // 64 iceblood h_a
+                packet.Worldstates.emplace_back(0x543, 0x1);           // 65 iceblod h_c
+                packet.Worldstates.emplace_back(0x542, 0x0);           // 66 iceblood a_c
+                packet.Worldstates.emplace_back(0x540, 0x0);           // 67 snowfall h_a
+                packet.Worldstates.emplace_back(0x53f, 0x0);           // 68 snowfall a_a
+                packet.Worldstates.emplace_back(0x53e, 0x0);           // 69 snowfall h_c
+                packet.Worldstates.emplace_back(0x53d, 0x0);           // 70 snowfall a_c
+                packet.Worldstates.emplace_back(0x53c, 0x0);           // 71 frostwolf g h_a
+                packet.Worldstates.emplace_back(0x53b, 0x0);           // 72 frostwolf g a_a
+                packet.Worldstates.emplace_back(0x53a, 0x1);           // 73 frostwolf g h_c
+                packet.Worldstates.emplace_back(0x539, 0x0);           // 74 frostwolf g a_c
+                packet.Worldstates.emplace_back(0x538, 0x0);           // 75 stormpike grave h_a
+                packet.Worldstates.emplace_back(0x537, 0x0);           // 76 stormpike grave a_a
+                packet.Worldstates.emplace_back(0x534, 0x0);           // 77 frostwolf hut h_a
+                packet.Worldstates.emplace_back(0x533, 0x0);           // 78 frostwolf hut a_a
+                packet.Worldstates.emplace_back(0x530, 0x0);           // 79 stormpike first aid h_a
+                packet.Worldstates.emplace_back(0x52f, 0x0);           // 80 stormpike first aid h_c
+                packet.Worldstates.emplace_back(0x52d, 0x1);           // 81 stormpike first aid a_c
             }
             break;
         case 3277:                                          // Warsong Gulch
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_WS)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0x62d) << uint32(0x0);       // 7 1581 alliance flag captures
-                data << uint32(0x62e) << uint32(0x0);       // 8 1582 horde flag captures
-                data << uint32(0x609) << uint32(0x0);       // 9 1545 unk, set to 1 on alliance flag pickup...
-                data << uint32(0x60a) << uint32(0x0);       // 10 1546 unk, set to 1 on horde flag pickup, after drop it's -1
-                data << uint32(0x60b) << uint32(0x2);       // 11 1547 unk
-                data << uint32(0x641) << uint32(0x3);       // 12 1601 unk (max flag captures?)
-                data << uint32(0x922) << uint32(0x1);       // 13 2338 horde (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
-                data << uint32(0x923) << uint32(0x1);       // 14 2339 alliance (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+                packet.Worldstates.emplace_back(0x62d, 0x0);       // 7 1581 alliance flag captures
+                packet.Worldstates.emplace_back(0x62e, 0x0);       // 8 1582 horde flag captures
+                packet.Worldstates.emplace_back(0x609, 0x0);       // 9 1545 unk, set to 1 on alliance flag pickup...
+                packet.Worldstates.emplace_back(0x60a, 0x0);       // 10 1546 unk, set to 1 on horde flag pickup, after drop it's -1
+                packet.Worldstates.emplace_back(0x60b, 0x2);       // 11 1547 unk
+                packet.Worldstates.emplace_back(0x641, 0x3);       // 12 1601 unk (max flag captures?)
+                packet.Worldstates.emplace_back(0x922, 0x1);       // 13 2338 horde (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+                packet.Worldstates.emplace_back(0x923, 0x1);       // 14 2339 alliance (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
             }
             break;
         case 3358:                                          // Arathi Basin
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_AB)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0x6e7) << uint32(0x0);       // 7 1767 stables alliance
-                data << uint32(0x6e8) << uint32(0x0);       // 8 1768 stables horde
-                data << uint32(0x6e9) << uint32(0x0);       // 9 1769 unk, ST?
-                data << uint32(0x6ea) << uint32(0x0);       // 10 1770 stables (show/hide)
-                data << uint32(0x6ec) << uint32(0x0);       // 11 1772 farm (0 - horde controlled, 1 - alliance controlled)
-                data << uint32(0x6ed) << uint32(0x0);       // 12 1773 farm (show/hide)
-                data << uint32(0x6ee) << uint32(0x0);       // 13 1774 farm color
-                data << uint32(0x6ef) << uint32(0x0);       // 14 1775 gold mine color, may be FM?
-                data << uint32(0x6f0) << uint32(0x0);       // 15 1776 alliance resources
-                data << uint32(0x6f1) << uint32(0x0);       // 16 1777 horde resources
-                data << uint32(0x6f2) << uint32(0x0);       // 17 1778 horde bases
-                data << uint32(0x6f3) << uint32(0x0);       // 18 1779 alliance bases
-                data << uint32(0x6f4) << uint32(0x7d0);     // 19 1780 max resources (2000)
-                data << uint32(0x6f6) << uint32(0x0);       // 20 1782 blacksmith color
-                data << uint32(0x6f7) << uint32(0x0);       // 21 1783 blacksmith (show/hide)
-                data << uint32(0x6f8) << uint32(0x0);       // 22 1784 unk, bs?
-                data << uint32(0x6f9) << uint32(0x0);       // 23 1785 unk, bs?
-                data << uint32(0x6fb) << uint32(0x0);       // 24 1787 gold mine (0 - horde contr, 1 - alliance contr)
-                data << uint32(0x6fc) << uint32(0x0);       // 25 1788 gold mine (0 - conflict, 1 - horde)
-                data << uint32(0x6fd) << uint32(0x0);       // 26 1789 gold mine (1 - show/0 - hide)
-                data << uint32(0x6fe) << uint32(0x0);       // 27 1790 gold mine color
-                data << uint32(0x700) << uint32(0x0);       // 28 1792 gold mine color, wtf?, may be LM?
-                data << uint32(0x701) << uint32(0x0);       // 29 1793 lumber mill color (0 - conflict, 1 - horde contr)
-                data << uint32(0x702) << uint32(0x0);       // 30 1794 lumber mill (show/hide)
-                data << uint32(0x703) << uint32(0x0);       // 31 1795 lumber mill color color
-                data << uint32(0x732) << uint32(0x1);       // 32 1842 stables (1 - uncontrolled)
-                data << uint32(0x733) << uint32(0x1);       // 33 1843 gold mine (1 - uncontrolled)
-                data << uint32(0x734) << uint32(0x1);       // 34 1844 lumber mill (1 - uncontrolled)
-                data << uint32(0x735) << uint32(0x1);       // 35 1845 farm (1 - uncontrolled)
-                data << uint32(0x736) << uint32(0x1);       // 36 1846 blacksmith (1 - uncontrolled)
-                data << uint32(0x745) << uint32(0x2);       // 37 1861 unk
-                data << uint32(0x7a3) << uint32(0x708);     // 38 1955 warning limit (1800)
+                packet.Worldstates.emplace_back(0x6e7, 0x0);       // 7 1767 stables alliance
+                packet.Worldstates.emplace_back(0x6e8, 0x0);       // 8 1768 stables horde
+                packet.Worldstates.emplace_back(0x6e9, 0x0);       // 9 1769 unk, ST?
+                packet.Worldstates.emplace_back(0x6ea, 0x0);       // 10 1770 stables (show/hide)
+                packet.Worldstates.emplace_back(0x6ec, 0x0);       // 11 1772 farm (0 - horde controlled, 1 - alliance controlled)
+                packet.Worldstates.emplace_back(0x6ed, 0x0);       // 12 1773 farm (show/hide)
+                packet.Worldstates.emplace_back(0x6ee, 0x0);       // 13 1774 farm color
+                packet.Worldstates.emplace_back(0x6ef, 0x0);       // 14 1775 gold mine color, may be FM?
+                packet.Worldstates.emplace_back(0x6f0, 0x0);       // 15 1776 alliance resources
+                packet.Worldstates.emplace_back(0x6f1, 0x0);       // 16 1777 horde resources
+                packet.Worldstates.emplace_back(0x6f2, 0x0);       // 17 1778 horde bases
+                packet.Worldstates.emplace_back(0x6f3, 0x0);       // 18 1779 alliance bases
+                packet.Worldstates.emplace_back(0x6f4, 0x7d0);     // 19 1780 max resources (2000)
+                packet.Worldstates.emplace_back(0x6f6, 0x0);       // 20 1782 blacksmith color
+                packet.Worldstates.emplace_back(0x6f7, 0x0);       // 21 1783 blacksmith (show/hide)
+                packet.Worldstates.emplace_back(0x6f8, 0x0);       // 22 1784 unk, bs?
+                packet.Worldstates.emplace_back(0x6f9, 0x0);       // 23 1785 unk, bs?
+                packet.Worldstates.emplace_back(0x6fb, 0x0);       // 24 1787 gold mine (0 - horde contr, 1 - alliance contr)
+                packet.Worldstates.emplace_back(0x6fc, 0x0);       // 25 1788 gold mine (0 - conflict, 1 - horde)
+                packet.Worldstates.emplace_back(0x6fd, 0x0);       // 26 1789 gold mine (1 - show/0 - hide)
+                packet.Worldstates.emplace_back(0x6fe, 0x0);       // 27 1790 gold mine color
+                packet.Worldstates.emplace_back(0x700, 0x0);       // 28 1792 gold mine color, wtf?, may be LM?
+                packet.Worldstates.emplace_back(0x701, 0x0);       // 29 1793 lumber mill color (0 - conflict, 1 - horde contr)
+                packet.Worldstates.emplace_back(0x702, 0x0);       // 30 1794 lumber mill (show/hide)
+                packet.Worldstates.emplace_back(0x703, 0x0);       // 31 1795 lumber mill color color
+                packet.Worldstates.emplace_back(0x732, 0x1);       // 32 1842 stables (1 - uncontrolled)
+                packet.Worldstates.emplace_back(0x733, 0x1);       // 33 1843 gold mine (1 - uncontrolled)
+                packet.Worldstates.emplace_back(0x734, 0x1);       // 34 1844 lumber mill (1 - uncontrolled)
+                packet.Worldstates.emplace_back(0x735, 0x1);       // 35 1845 farm (1 - uncontrolled)
+                packet.Worldstates.emplace_back(0x736, 0x1);       // 36 1846 blacksmith (1 - uncontrolled)
+                packet.Worldstates.emplace_back(0x745, 0x2);       // 37 1861 unk
+                packet.Worldstates.emplace_back(0x7a3, 0x708);     // 38 1955 warning limit (1800)
             }
             break;
         case 3820:                                          // Eye of the Storm
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_EY)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0xac1) << uint32(0x0);       // 7  2753 Horde Bases
-                data << uint32(0xac0) << uint32(0x0);       // 8  2752 Alliance Bases
-                data << uint32(0xab6) << uint32(0x0);       // 9  2742 Mage Tower - Horde conflict
-                data << uint32(0xab5) << uint32(0x0);       // 10 2741 Mage Tower - Alliance conflict
-                data << uint32(0xab4) << uint32(0x0);       // 11 2740 Fel Reaver - Horde conflict
-                data << uint32(0xab3) << uint32(0x0);       // 12 2739 Fel Reaver - Alliance conflict
-                data << uint32(0xab2) << uint32(0x0);       // 13 2738 Draenei - Alliance conflict
-                data << uint32(0xab1) << uint32(0x0);       // 14 2737 Draenei - Horde conflict
-                data << uint32(0xab0) << uint32(0x0);       // 15 2736 unk // 0 at start
-                data << uint32(0xaaf) << uint32(0x0);       // 16 2735 unk // 0 at start
-                data << uint32(0xaad) << uint32(0x0);       // 17 2733 Draenei - Horde control
-                data << uint32(0xaac) << uint32(0x0);       // 18 2732 Draenei - Alliance control
-                data << uint32(0xaab) << uint32(0x1);       // 19 2731 Draenei uncontrolled (1 - yes, 0 - no)
-                data << uint32(0xaaa) << uint32(0x0);       // 20 2730 Mage Tower - Alliance control
-                data << uint32(0xaa9) << uint32(0x0);       // 21 2729 Mage Tower - Horde control
-                data << uint32(0xaa8) << uint32(0x1);       // 22 2728 Mage Tower uncontrolled (1 - yes, 0 - no)
-                data << uint32(0xaa7) << uint32(0x0);       // 23 2727 Fel Reaver - Horde control
-                data << uint32(0xaa6) << uint32(0x0);       // 24 2726 Fel Reaver - Alliance control
-                data << uint32(0xaa5) << uint32(0x1);       // 25 2725 Fel Reaver uncontrolled (1 - yes, 0 - no)
-                data << uint32(0xaa4) << uint32(0x0);       // 26 2724 Boold Elf - Horde control
-                data << uint32(0xaa3) << uint32(0x0);       // 27 2723 Boold Elf - Alliance control
-                data << uint32(0xaa2) << uint32(0x1);       // 28 2722 Boold Elf uncontrolled (1 - yes, 0 - no)
-                data << uint32(0xac5) << uint32(0x1);       // 29 2757 Flag (1 - show, 0 - hide) - doesn't work exactly this way!
-                data << uint32(0xad2) << uint32(0x1);       // 30 2770 Horde top-stats (1 - show, 0 - hide) // 02 -> horde picked up the flag
-                data << uint32(0xad1) << uint32(0x1);       // 31 2769 Alliance top-stats (1 - show, 0 - hide) // 02 -> alliance picked up the flag
-                data << uint32(0xabe) << uint32(0x0);       // 32 2750 Horde resources
-                data << uint32(0xabd) << uint32(0x0);       // 33 2749 Alliance resources
-                data << uint32(0xa05) << uint32(0x8e);      // 34 2565 unk, constant?
-                data << uint32(0xaa0) << uint32(0x0);       // 35 2720 Capturing progress-bar (100 -> empty (only grey), 0 -> blue|red (no grey), default 0)
-                data << uint32(0xa9f) << uint32(0x0);       // 36 2719 Capturing progress-bar (0 - left, 100 - right)
-                data << uint32(0xa9e) << uint32(0x0);       // 37 2718 Capturing progress-bar (1 - show, 0 - hide)
-                data << uint32(0xc0d) << uint32(0x17b);     // 38 3085 unk
+                packet.Worldstates.emplace_back(0xac1, 0x0);       // 7  2753 Horde Bases
+                packet.Worldstates.emplace_back(0xac0, 0x0);       // 8  2752 Alliance Bases
+                packet.Worldstates.emplace_back(0xab6, 0x0);       // 9  2742 Mage Tower - Horde conflict
+                packet.Worldstates.emplace_back(0xab5, 0x0);       // 10 2741 Mage Tower - Alliance conflict
+                packet.Worldstates.emplace_back(0xab4, 0x0);       // 11 2740 Fel Reaver - Horde conflict
+                packet.Worldstates.emplace_back(0xab3, 0x0);       // 12 2739 Fel Reaver - Alliance conflict
+                packet.Worldstates.emplace_back(0xab2, 0x0);       // 13 2738 Draenei - Alliance conflict
+                packet.Worldstates.emplace_back(0xab1, 0x0);       // 14 2737 Draenei - Horde conflict
+                packet.Worldstates.emplace_back(0xab0, 0x0);       // 15 2736 unk // 0 at start
+                packet.Worldstates.emplace_back(0xaaf, 0x0);       // 16 2735 unk // 0 at start
+                packet.Worldstates.emplace_back(0xaad, 0x0);       // 17 2733 Draenei - Horde control
+                packet.Worldstates.emplace_back(0xaac, 0x0);       // 18 2732 Draenei - Alliance control
+                packet.Worldstates.emplace_back(0xaab, 0x1);       // 19 2731 Draenei uncontrolled (1 - yes, 0 - no)
+                packet.Worldstates.emplace_back(0xaaa, 0x0);       // 20 2730 Mage Tower - Alliance control
+                packet.Worldstates.emplace_back(0xaa9, 0x0);       // 21 2729 Mage Tower - Horde control
+                packet.Worldstates.emplace_back(0xaa8, 0x1);       // 22 2728 Mage Tower uncontrolled (1 - yes, 0 - no)
+                packet.Worldstates.emplace_back(0xaa7, 0x0);       // 23 2727 Fel Reaver - Horde control
+                packet.Worldstates.emplace_back(0xaa6, 0x0);       // 24 2726 Fel Reaver - Alliance control
+                packet.Worldstates.emplace_back(0xaa5, 0x1);       // 25 2725 Fel Reaver uncontrolled (1 - yes, 0 - no)
+                packet.Worldstates.emplace_back(0xaa4, 0x0);       // 26 2724 Boold Elf - Horde control
+                packet.Worldstates.emplace_back(0xaa3, 0x0);       // 27 2723 Boold Elf - Alliance control
+                packet.Worldstates.emplace_back(0xaa2, 0x1);       // 28 2722 Boold Elf uncontrolled (1 - yes, 0 - no)
+                packet.Worldstates.emplace_back(0xac5, 0x1);       // 29 2757 Flag (1 - show, 0 - hide) - doesn't work exactly this way!
+                packet.Worldstates.emplace_back(0xad2, 0x1);       // 30 2770 Horde top-stats (1 - show, 0 - hide) // 02 -> horde picked up the flag
+                packet.Worldstates.emplace_back(0xad1, 0x1);       // 31 2769 Alliance top-stats (1 - show, 0 - hide) // 02 -> alliance picked up the flag
+                packet.Worldstates.emplace_back(0xabe, 0x0);       // 32 2750 Horde resources
+                packet.Worldstates.emplace_back(0xabd, 0x0);       // 33 2749 Alliance resources
+                packet.Worldstates.emplace_back(0xa05, 0x8e);      // 34 2565 unk, constant?
+                packet.Worldstates.emplace_back(0xaa0, 0x0);       // 35 2720 Capturing progress-bar (100 -> empty (only grey), 0 -> blue|red (no grey), default 0)
+                packet.Worldstates.emplace_back(0xa9f, 0x0);       // 36 2719 Capturing progress-bar (0 - left, 100 - right)
+                packet.Worldstates.emplace_back(0xa9e, 0x0);       // 37 2718 Capturing progress-bar (1 - show, 0 - hide)
+                packet.Worldstates.emplace_back(0xc0d, 0x17b);     // 38 3085 unk
                 // and some more ... unknown
             }
             break;
@@ -9159,361 +9155,358 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         // ON EVERY ZONE LEAVE, RESET THE OLD ZONE'S WORLD STATE, BUT AT LEAST THE UI STUFF!
         case 3483:                                          // Hellfire Peninsula
             if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_HP)
-                pvp->FillInitialWorldStates(data);
+                pvp->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0x9ba) << uint32(0x1);           // 10 // add ally tower main gui icon       // maybe should be sent only on login?
-                data << uint32(0x9b9) << uint32(0x1);           // 11 // add horde tower main gui icon      // maybe should be sent only on login?
-                data << uint32(0x9b5) << uint32(0x0);           // 12 // show neutral broken hill icon      // 2485
-                data << uint32(0x9b4) << uint32(0x1);           // 13 // show icon above broken hill        // 2484
-                data << uint32(0x9b3) << uint32(0x0);           // 14 // show ally broken hill icon         // 2483
-                data << uint32(0x9b2) << uint32(0x0);           // 15 // show neutral overlook icon         // 2482
-                data << uint32(0x9b1) << uint32(0x1);           // 16 // show the overlook arrow            // 2481
-                data << uint32(0x9b0) << uint32(0x0);           // 17 // show ally overlook icon            // 2480
-                data << uint32(0x9ae) << uint32(0x0);           // 18 // horde pvp objectives captured      // 2478
-                data << uint32(0x9ac) << uint32(0x0);           // 19 // ally pvp objectives captured       // 2476
-                data << uint32(2475)  << uint32(100); //: ally / horde slider grey area                              // show only in direct vicinity!
-                data << uint32(2474)  << uint32(50);  //: ally / horde slider percentage, 100 for ally, 0 for horde  // show only in direct vicinity!
-                data << uint32(2473)  << uint32(0);   //: ally / horde slider display                                // show only in direct vicinity!
-                data << uint32(0x9a8) << uint32(0x0);           // 20 // show the neutral stadium icon      // 2472
-                data << uint32(0x9a7) << uint32(0x0);           // 21 // show the ally stadium icon         // 2471
-                data << uint32(0x9a6) << uint32(0x1);           // 22 // show the horde stadium icon        // 2470
+                packet.Worldstates.emplace_back(0x9ba, 0x1);           // 10 // add ally tower main gui icon       // maybe should be sent only on login?
+                packet.Worldstates.emplace_back(0x9b9, 0x1);           // 11 // add horde tower main gui icon      // maybe should be sent only on login?
+                packet.Worldstates.emplace_back(0x9b5, 0x0);           // 12 // show neutral broken hill icon      // 2485
+                packet.Worldstates.emplace_back(0x9b4, 0x1);           // 13 // show icon above broken hill        // 2484
+                packet.Worldstates.emplace_back(0x9b3, 0x0);           // 14 // show ally broken hill icon         // 2483
+                packet.Worldstates.emplace_back(0x9b2, 0x0);           // 15 // show neutral overlook icon         // 2482
+                packet.Worldstates.emplace_back(0x9b1, 0x1);           // 16 // show the overlook arrow            // 2481
+                packet.Worldstates.emplace_back(0x9b0, 0x0);           // 17 // show ally overlook icon            // 2480
+                packet.Worldstates.emplace_back(0x9ae, 0x0);           // 18 // horde pvp objectives captured      // 2478
+                packet.Worldstates.emplace_back(0x9ac, 0x0);           // 19 // ally pvp objectives captured       // 2476
+                packet.Worldstates.emplace_back(2475, 100);            //: ally / horde slider grey area                              // show only in direct vicinity!
+                packet.Worldstates.emplace_back(2474, 50);             //: ally / horde slider percentage, 100 for ally, 0 for horde  // show only in direct vicinity!
+                packet.Worldstates.emplace_back(2473, 0);              //: ally / horde slider display                                // show only in direct vicinity!
+                packet.Worldstates.emplace_back(0x9a8, 0x0);           // 20 // show the neutral stadium icon      // 2472
+                packet.Worldstates.emplace_back(0x9a7, 0x0);           // 21 // show the ally stadium icon         // 2471
+                packet.Worldstates.emplace_back(0x9a6, 0x1);           // 22 // show the horde stadium icon        // 2470
             }
             break;
         case 3518:                                          // Nagrand
             if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_NA)
-                pvp->FillInitialWorldStates(data);
+                pvp->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(2503) << uint32(0x0);    // 10
-                data << uint32(2502) << uint32(0x0);    // 11
-                data << uint32(2493) << uint32(0x0);    // 12
-                data << uint32(2491) << uint32(0x0);    // 13
+                packet.Worldstates.emplace_back(2503, 0x0);    // 10
+                packet.Worldstates.emplace_back(2502, 0x0);    // 11
+                packet.Worldstates.emplace_back(2493, 0x0);    // 12
+                packet.Worldstates.emplace_back(2491, 0x0);    // 13
 
-                data << uint32(2495) << uint32(0x0);    // 14
-                data << uint32(2494) << uint32(0x0);    // 15
-                data << uint32(2497) << uint32(0x0);    // 16
+                packet.Worldstates.emplace_back(2495, 0x0);    // 14
+                packet.Worldstates.emplace_back(2494, 0x0);    // 15
+                packet.Worldstates.emplace_back(2497, 0x0);    // 16
 
-                data << uint32(2762) << uint32(0x0);    // 17
-                data << uint32(2662) << uint32(0x0);    // 18
-                data << uint32(2663) << uint32(0x0);    // 19
-                data << uint32(2664) << uint32(0x0);    // 20
+                packet.Worldstates.emplace_back(2762, 0x0);    // 17
+                packet.Worldstates.emplace_back(2662, 0x0);    // 18
+                packet.Worldstates.emplace_back(2663, 0x0);    // 19
+                packet.Worldstates.emplace_back(2664, 0x0);    // 20
 
-                data << uint32(2760) << uint32(0x0);    // 21
-                data << uint32(2670) << uint32(0x0);    // 22
-                data << uint32(2668) << uint32(0x0);    // 23
-                data << uint32(2669) << uint32(0x0);    // 24
+                packet.Worldstates.emplace_back(2760, 0x0);    // 21
+                packet.Worldstates.emplace_back(2670, 0x0);    // 22
+                packet.Worldstates.emplace_back(2668, 0x0);    // 23
+                packet.Worldstates.emplace_back(2669, 0x0);    // 24
 
-                data << uint32(2761) << uint32(0x0);    // 25
-                data << uint32(2667) << uint32(0x0);    // 26
-                data << uint32(2665) << uint32(0x0);    // 27
-                data << uint32(2666) << uint32(0x0);    // 28
+                packet.Worldstates.emplace_back(2761, 0x0);    // 25
+                packet.Worldstates.emplace_back(2667, 0x0);    // 26
+                packet.Worldstates.emplace_back(2665, 0x0);    // 27
+                packet.Worldstates.emplace_back(2666, 0x0);    // 28
 
-                data << uint32(2763) << uint32(0x0);    // 29
-                data << uint32(2659) << uint32(0x0);    // 30
-                data << uint32(2660) << uint32(0x0);    // 31
-                data << uint32(2661) << uint32(0x0);    // 32
+                packet.Worldstates.emplace_back(2763, 0x0);    // 29
+                packet.Worldstates.emplace_back(2659, 0x0);    // 30
+                packet.Worldstates.emplace_back(2660, 0x0);    // 31
+                packet.Worldstates.emplace_back(2661, 0x0);    // 32
 
-                data << uint32(2671) << uint32(0x0);    // 33
-                data << uint32(2676) << uint32(0x0);    // 34
-                data << uint32(2677) << uint32(0x0);    // 35
-                data << uint32(2672) << uint32(0x0);    // 36
-                data << uint32(2673) << uint32(0x0);    // 37
+                packet.Worldstates.emplace_back(2671, 0x0);    // 33
+                packet.Worldstates.emplace_back(2676, 0x0);    // 34
+                packet.Worldstates.emplace_back(2677, 0x0);    // 35
+                packet.Worldstates.emplace_back(2672, 0x0);    // 36
+                packet.Worldstates.emplace_back(2673, 0x0);    // 37
             }
             break;
         case 3519:                                          // Terokkar Forest
             if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_TF)
-                pvp->FillInitialWorldStates(data);
+                pvp->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0xa41) << uint32(0x0);           // 10 // 2625 capture bar pos
-                data << uint32(0xa40) << uint32(0x14);          // 11 // 2624 capture bar neutral
-                data << uint32(0xa3f) << uint32(0x0);           // 12 // 2623 show capture bar
-                data << uint32(0xa3e) << uint32(0x0);           // 13 // 2622 horde towers controlled
-                data << uint32(0xa3d) << uint32(0x5);           // 14 // 2621 ally towers controlled
-                data << uint32(0xa3c) << uint32(0x0);           // 15 // 2620 show towers controlled
-                data << uint32(0xa88) << uint32(0x0);           // 16 // 2696 SE Neu
-                data << uint32(0xa87) << uint32(0x0);           // 17 // SE Horde
-                data << uint32(0xa86) << uint32(0x0);           // 18 // SE Ally
-                data << uint32(0xa85) << uint32(0x0);           // 19 //S Neu
-                data << uint32(0xa84) << uint32(0x0);           // 20 S Horde
-                data << uint32(0xa83) << uint32(0x0);           // 21 S Ally
-                data << uint32(0xa82) << uint32(0x0);           // 22 NE Neu
-                data << uint32(0xa81) << uint32(0x0);           // 23 NE Horde
-                data << uint32(0xa80) << uint32(0x0);           // 24 NE Ally
-                data << uint32(0xa7e) << uint32(0x0);           // 25 // 2686 N Neu
-                data << uint32(0xa7d) << uint32(0x0);           // 26 N Horde
-                data << uint32(0xa7c) << uint32(0x0);           // 27 N Ally
-                data << uint32(0xa7b) << uint32(0x0);           // 28 NW Ally
-                data << uint32(0xa7a) << uint32(0x0);           // 29 NW Horde
-                data << uint32(0xa79) << uint32(0x0);           // 30 NW Neutral
-                data << uint32(0x9d0) << uint32(0x5);           // 31 // 2512 locked time remaining seconds first digit
-                data << uint32(0x9ce) << uint32(0x0);           // 32 // 2510 locked time remaining seconds second digit
-                data << uint32(0x9cd) << uint32(0x0);           // 33 // 2509 locked time remaining minutes
-                data << uint32(0x9cc) << uint32(0x0);           // 34 // 2508 neutral locked time show
-                data << uint32(0xad0) << uint32(0x0);           // 35 // 2768 horde locked time show
-                data << uint32(0xacf) << uint32(0x1);           // 36 // 2767 ally locked time show
+                packet.Worldstates.emplace_back(0xa41, 0x0);           // 10 // 2625 capture bar pos
+                packet.Worldstates.emplace_back(0xa40, 0x14);          // 11 // 2624 capture bar neutral
+                packet.Worldstates.emplace_back(0xa3f, 0x0);           // 12 // 2623 show capture bar
+                packet.Worldstates.emplace_back(0xa3e, 0x0);           // 13 // 2622 horde towers controlled
+                packet.Worldstates.emplace_back(0xa3d, 0x5);           // 14 // 2621 ally towers controlled
+                packet.Worldstates.emplace_back(0xa3c, 0x0);           // 15 // 2620 show towers controlled
+                packet.Worldstates.emplace_back(0xa88, 0x0);           // 16 // 2696 SE Neu
+                packet.Worldstates.emplace_back(0xa87, 0x0);           // 17 // SE Horde
+                packet.Worldstates.emplace_back(0xa86, 0x0);           // 18 // SE Ally
+                packet.Worldstates.emplace_back(0xa85, 0x0);           // 19 //S Neu
+                packet.Worldstates.emplace_back(0xa84, 0x0);           // 20 S Horde
+                packet.Worldstates.emplace_back(0xa83, 0x0);           // 21 S Ally
+                packet.Worldstates.emplace_back(0xa82, 0x0);           // 22 NE Neu
+                packet.Worldstates.emplace_back(0xa81, 0x0);           // 23 NE Horde
+                packet.Worldstates.emplace_back(0xa80, 0x0);           // 24 NE Ally
+                packet.Worldstates.emplace_back(0xa7e, 0x0);           // 25 // 2686 N Neu
+                packet.Worldstates.emplace_back(0xa7d, 0x0);           // 26 N Horde
+                packet.Worldstates.emplace_back(0xa7c, 0x0);           // 27 N Ally
+                packet.Worldstates.emplace_back(0xa7b, 0x0);           // 28 NW Ally
+                packet.Worldstates.emplace_back(0xa7a, 0x0);           // 29 NW Horde
+                packet.Worldstates.emplace_back(0xa79, 0x0);           // 30 NW Neutral
+                packet.Worldstates.emplace_back(0x9d0, 0x5);           // 31 // 2512 locked time remaining seconds first digit
+                packet.Worldstates.emplace_back(0x9ce, 0x0);           // 32 // 2510 locked time remaining seconds second digit
+                packet.Worldstates.emplace_back(0x9cd, 0x0);           // 33 // 2509 locked time remaining minutes
+                packet.Worldstates.emplace_back(0x9cc, 0x0);           // 34 // 2508 neutral locked time show
+                packet.Worldstates.emplace_back(0xad0, 0x0);           // 35 // 2768 horde locked time show
+                packet.Worldstates.emplace_back(0xacf, 0x1);           // 36 // 2767 ally locked time show
             }
             break;
         case 3521:                                          // Zangarmarsh
             if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_ZM)
-                pvp->FillInitialWorldStates(data);
+                pvp->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0x9e1) << uint32(0x0);           // 10 //2529
-                data << uint32(0x9e0) << uint32(0x0);           // 11
-                data << uint32(0x9df) << uint32(0x0);           // 12
-                data << uint32(0xa5d) << uint32(0x1);           // 13 //2653
-                data << uint32(0xa5c) << uint32(0x0);           // 14 //2652 east beacon neutral
-                data << uint32(0xa5b) << uint32(0x1);           // 15 horde
-                data << uint32(0xa5a) << uint32(0x0);           // 16 ally
-                data << uint32(0xa59) << uint32(0x1);           // 17 // 2649 Twin spire graveyard horde  12???
-                data << uint32(0xa58) << uint32(0x0);           // 18 ally     14 ???
-                data << uint32(0xa57) << uint32(0x0);           // 19 neutral  7???
-                data << uint32(0xa56) << uint32(0x0);           // 20 // 2646 west beacon neutral
-                data << uint32(0xa55) << uint32(0x1);           // 21 horde
-                data << uint32(0xa54) << uint32(0x0);           // 22 ally
-                data << uint32(0x9e7) << uint32(0x0);           // 23 // 2535
-                data << uint32(0x9e6) << uint32(0x0);           // 24
-                data << uint32(0x9e5) << uint32(0x0);           // 25
-                data << uint32(0xa00) << uint32(0x0);           // 26 // 2560
-                data << uint32(0x9ff) << uint32(0x1);           // 27
-                data << uint32(0x9fe) << uint32(0x0);           // 28
-                data << uint32(0x9fd) << uint32(0x0);           // 29
-                data << uint32(0x9fc) << uint32(0x1);           // 30
-                data << uint32(0x9fb) << uint32(0x0);           // 31
-                data << uint32(0xa62) << uint32(0x0);           // 32 // 2658
-                data << uint32(0xa61) << uint32(0x1);           // 33
-                data << uint32(0xa60) << uint32(0x1);           // 34
-                data << uint32(0xa5f) << uint32(0x0);           // 35
+                packet.Worldstates.emplace_back(0x9e1, 0x0);           // 10 //2529
+                packet.Worldstates.emplace_back(0x9e0, 0x0);           // 11
+                packet.Worldstates.emplace_back(0x9df, 0x0);           // 12
+                packet.Worldstates.emplace_back(0xa5d, 0x1);           // 13 //2653
+                packet.Worldstates.emplace_back(0xa5c, 0x0);           // 14 //2652 east beacon neutral
+                packet.Worldstates.emplace_back(0xa5b, 0x1);           // 15 horde
+                packet.Worldstates.emplace_back(0xa5a, 0x0);           // 16 ally
+                packet.Worldstates.emplace_back(0xa59, 0x1);           // 17 // 2649 Twin spire graveyard horde  12???
+                packet.Worldstates.emplace_back(0xa58, 0x0);           // 18 ally     14 ???
+                packet.Worldstates.emplace_back(0xa57, 0x0);           // 19 neutral  7???
+                packet.Worldstates.emplace_back(0xa56, 0x0);           // 20 // 2646 west beacon neutral
+                packet.Worldstates.emplace_back(0xa55, 0x1);           // 21 horde
+                packet.Worldstates.emplace_back(0xa54, 0x0);           // 22 ally
+                packet.Worldstates.emplace_back(0x9e7, 0x0);           // 23 // 2535
+                packet.Worldstates.emplace_back(0x9e6, 0x0);           // 24
+                packet.Worldstates.emplace_back(0x9e5, 0x0);           // 25
+                packet.Worldstates.emplace_back(0xa00, 0x0);           // 26 // 2560
+                packet.Worldstates.emplace_back(0x9ff, 0x1);           // 27
+                packet.Worldstates.emplace_back(0x9fe, 0x0);           // 28
+                packet.Worldstates.emplace_back(0x9fd, 0x0);           // 29
+                packet.Worldstates.emplace_back(0x9fc, 0x1);           // 30
+                packet.Worldstates.emplace_back(0x9fb, 0x0);           // 31
+                packet.Worldstates.emplace_back(0xa62, 0x0);           // 32 // 2658
+                packet.Worldstates.emplace_back(0xa61, 0x1);           // 33
+                packet.Worldstates.emplace_back(0xa60, 0x1);           // 34
+                packet.Worldstates.emplace_back(0xa5f, 0x0);           // 35
             }
             break;
         case 3698:                                          // Nagrand Arena
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_NA)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0xa0f) << uint32(0x0);           // 7
-                data << uint32(0xa10) << uint32(0x0);           // 8
-                data << uint32(0xa11) << uint32(0x0);           // 9 show
+                packet.Worldstates.emplace_back(0xa0f, 0x0);           // 7
+                packet.Worldstates.emplace_back(0xa10, 0x0);           // 8
+                packet.Worldstates.emplace_back(0xa11, 0x0);           // 9 show
             }
             break;
         case 3702:                                          // Blade's Edge Arena
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_BE)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0x9f0) << uint32(0x0);           // 7 gold
-                data << uint32(0x9f1) << uint32(0x0);           // 8 green
-                data << uint32(0x9f3) << uint32(0x0);           // 9 show
+                packet.Worldstates.emplace_back(0x9f0, 0x0);           // 7 gold
+                packet.Worldstates.emplace_back(0x9f1, 0x0);           // 8 green
+                packet.Worldstates.emplace_back(0x9f3, 0x0);           // 9 show
             }
             break;
         case 3968:                                          // Ruins of Lordaeron
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_RL)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0xbb8) << uint32(0x0);           // 7 gold
-                data << uint32(0xbb9) << uint32(0x0);           // 8 green
-                data << uint32(0xbba) << uint32(0x0);           // 9 show
+                packet.Worldstates.emplace_back(0xbb8, 0x0);           // 7 gold
+                packet.Worldstates.emplace_back(0xbb9, 0x0);           // 8 green
+                packet.Worldstates.emplace_back(0xbba, 0x0);           // 9 show
             }
             break;
         case 4378:                                          // Dalaran Sewers
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_DS)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(3601) << uint32(0x0);           // 7 gold
-                data << uint32(3600) << uint32(0x0);           // 8 green
-                data << uint32(3610) << uint32(0x0);           // 9 show
+                packet.Worldstates.emplace_back(3601, 0x0);           // 7 gold
+                packet.Worldstates.emplace_back(3600, 0x0);           // 8 green
+                packet.Worldstates.emplace_back(3610, 0x0);           // 9 show
             }
             break;
         case 4384:                                          // Strand of the Ancients
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_SA)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
                 // 1-3 A defend, 4-6 H defend, 7-9 unk defend, 1 - ok, 2 - half destroyed, 3 - destroyed
-                data << uint32(0xf09) << uint32(0x0);       // 7  3849 Gate of Temple
-                data << uint32(0xe36) << uint32(0x0);       // 8  3638 Gate of Yellow Moon
-                data << uint32(0xe27) << uint32(0x0);       // 9  3623 Gate of Green Emerald
-                data << uint32(0xe24) << uint32(0x0);       // 10 3620 Gate of Blue Sapphire
-                data << uint32(0xe21) << uint32(0x0);       // 11 3617 Gate of Red Sun
-                data << uint32(0xe1e) << uint32(0x0);       // 12 3614 Gate of Purple Ametyst
+                packet.Worldstates.emplace_back(0xf09, 0x0);       // 7  3849 Gate of Temple
+                packet.Worldstates.emplace_back(0xe36, 0x0);       // 8  3638 Gate of Yellow Moon
+                packet.Worldstates.emplace_back(0xe27, 0x0);       // 9  3623 Gate of Green Emerald
+                packet.Worldstates.emplace_back(0xe24, 0x0);       // 10 3620 Gate of Blue Sapphire
+                packet.Worldstates.emplace_back(0xe21, 0x0);       // 11 3617 Gate of Red Sun
+                packet.Worldstates.emplace_back(0xe1e, 0x0);       // 12 3614 Gate of Purple Ametyst
 
-                data << uint32(0xdf3) << uint32(0x0);       // 13 3571 bonus timer (1 - on, 0 - off)
-                data << uint32(0xded) << uint32(0x0);       // 14 3565 Horde Attacker
-                data << uint32(0xdec) << uint32(0x0);       // 15 3564 Alliance Attacker
+                packet.Worldstates.emplace_back(0xdf3, 0x0);       // 13 3571 bonus timer (1 - on, 0 - off)
+                packet.Worldstates.emplace_back(0xded, 0x0);       // 14 3565 Horde Attacker
+                packet.Worldstates.emplace_back(0xdec, 0x0);       // 15 3564 Alliance Attacker
                 // End Round (timer), better explain this by example, eg. ends in 19:59 -> A:BC
-                data << uint32(0xde9) << uint32(0x0);       // 16 3561 C
-                data << uint32(0xde8) << uint32(0x0);       // 17 3560 B
-                data << uint32(0xde7) << uint32(0x0);       // 18 3559 A
-                data << uint32(0xe35) << uint32(0x0);       // 19 3637 East g - Horde control
-                data << uint32(0xe34) << uint32(0x0);       // 20 3636 West g - Horde control
-                data << uint32(0xe33) << uint32(0x0);       // 21 3635 South g - Horde control
-                data << uint32(0xe32) << uint32(0x0);       // 22 3634 East g - Alliance control
-                data << uint32(0xe31) << uint32(0x0);       // 23 3633 West g - Alliance control
-                data << uint32(0xe30) << uint32(0x0);       // 24 3632 South g - Alliance control
-                data << uint32(0xe2f) << uint32(0x0);       // 25 3631 Chamber of Ancients - Horde control
-                data << uint32(0xe2e) << uint32(0x0);       // 26 3630 Chamber of Ancients - Alliance control
-                data << uint32(0xe2d) << uint32(0x0);       // 27 3629 Beach1 - Horde control
-                data << uint32(0xe2c) << uint32(0x0);       // 28 3628 Beach2 - Horde control
-                data << uint32(0xe2b) << uint32(0x0);       // 29 3627 Beach1 - Alliance control
-                data << uint32(0xe2a) << uint32(0x0);       // 30 3626 Beach2 - Alliance control
+                packet.Worldstates.emplace_back(0xde9, 0x0);       // 16 3561 C
+                packet.Worldstates.emplace_back(0xde8, 0x0);       // 17 3560 B
+                packet.Worldstates.emplace_back(0xde7, 0x0);       // 18 3559 A
+                packet.Worldstates.emplace_back(0xe35, 0x0);       // 19 3637 East g - Horde control
+                packet.Worldstates.emplace_back(0xe34, 0x0);       // 20 3636 West g - Horde control
+                packet.Worldstates.emplace_back(0xe33, 0x0);       // 21 3635 South g - Horde control
+                packet.Worldstates.emplace_back(0xe32, 0x0);       // 22 3634 East g - Alliance control
+                packet.Worldstates.emplace_back(0xe31, 0x0);       // 23 3633 West g - Alliance control
+                packet.Worldstates.emplace_back(0xe30, 0x0);       // 24 3632 South g - Alliance control
+                packet.Worldstates.emplace_back(0xe2f, 0x0);       // 25 3631 Chamber of Ancients - Horde control
+                packet.Worldstates.emplace_back(0xe2e, 0x0);       // 26 3630 Chamber of Ancients - Alliance control
+                packet.Worldstates.emplace_back(0xe2d, 0x0);       // 27 3629 Beach1 - Horde control
+                packet.Worldstates.emplace_back(0xe2c, 0x0);       // 28 3628 Beach2 - Horde control
+                packet.Worldstates.emplace_back(0xe2b, 0x0);       // 29 3627 Beach1 - Alliance control
+                packet.Worldstates.emplace_back(0xe2a, 0x0);       // 30 3626 Beach2 - Alliance control
                 // and many unks...
             }
             break;
         case 4406:                                          // Ring of Valor
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_RV)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0xe10) << uint32(0x0);           // 7 gold
-                data << uint32(0xe11) << uint32(0x0);           // 8 green
-                data << uint32(0xe1a) << uint32(0x0);           // 9 show
+                packet.Worldstates.emplace_back(0xe10, 0x0);           // 7 gold
+                packet.Worldstates.emplace_back(0xe11, 0x0);           // 8 green
+                packet.Worldstates.emplace_back(0xe1a, 0x0);           // 9 show
             }
             break;
         case 4710:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_IC)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(4221) << uint32(1); // 7 BG_IC_ALLIANCE_RENFORT_SET
-                data << uint32(4222) << uint32(1); // 8 BG_IC_HORDE_RENFORT_SET
-                data << uint32(4226) << uint32(300); // 9 BG_IC_ALLIANCE_RENFORT
-                data << uint32(4227) << uint32(300); // 10 BG_IC_HORDE_RENFORT
-                data << uint32(4322) << uint32(1); // 11 BG_IC_GATE_FRONT_H_WS_OPEN
-                data << uint32(4321) << uint32(1); // 12 BG_IC_GATE_WEST_H_WS_OPEN
-                data << uint32(4320) << uint32(1); // 13 BG_IC_GATE_EAST_H_WS_OPEN
-                data << uint32(4323) << uint32(1); // 14 BG_IC_GATE_FRONT_A_WS_OPEN
-                data << uint32(4324) << uint32(1); // 15 BG_IC_GATE_WEST_A_WS_OPEN
-                data << uint32(4325) << uint32(1); // 16 BG_IC_GATE_EAST_A_WS_OPEN
-                data << uint32(4317) << uint32(1); // 17 unknown
+                packet.Worldstates.emplace_back(4221, 1); // 7 BG_IC_ALLIANCE_RENFORT_SET
+                packet.Worldstates.emplace_back(4222, 1); // 8 BG_IC_HORDE_RENFORT_SET
+                packet.Worldstates.emplace_back(4226, 300); // 9 BG_IC_ALLIANCE_RENFORT
+                packet.Worldstates.emplace_back(4227, 300); // 10 BG_IC_HORDE_RENFORT
+                packet.Worldstates.emplace_back(4322, 1); // 11 BG_IC_GATE_FRONT_H_WS_OPEN
+                packet.Worldstates.emplace_back(4321, 1); // 12 BG_IC_GATE_WEST_H_WS_OPEN
+                packet.Worldstates.emplace_back(4320, 1); // 13 BG_IC_GATE_EAST_H_WS_OPEN
+                packet.Worldstates.emplace_back(4323, 1); // 14 BG_IC_GATE_FRONT_A_WS_OPEN
+                packet.Worldstates.emplace_back(4324, 1); // 15 BG_IC_GATE_WEST_A_WS_OPEN
+                packet.Worldstates.emplace_back(4325, 1); // 16 BG_IC_GATE_EAST_A_WS_OPEN
+                packet.Worldstates.emplace_back(4317, 1); // 17 unknown
 
-                data << uint32(4301) << uint32(1); // 18 BG_IC_DOCKS_UNCONTROLLED
-                data << uint32(4296) << uint32(1); // 19 BG_IC_HANGAR_UNCONTROLLED
-                data << uint32(4306) << uint32(1); // 20 BG_IC_QUARRY_UNCONTROLLED
-                data << uint32(4311) << uint32(1); // 21 BG_IC_REFINERY_UNCONTROLLED
-                data << uint32(4294) << uint32(1); // 22 BG_IC_WORKSHOP_UNCONTROLLED
-                data << uint32(4243) << uint32(1); // 23 unknown
-                data << uint32(4345) << uint32(1); // 24 unknown
+                packet.Worldstates.emplace_back(4301, 1); // 18 BG_IC_DOCKS_UNCONTROLLED
+                packet.Worldstates.emplace_back(4296, 1); // 19 BG_IC_HANGAR_UNCONTROLLED
+                packet.Worldstates.emplace_back(4306, 1); // 20 BG_IC_QUARRY_UNCONTROLLED
+                packet.Worldstates.emplace_back(4311, 1); // 21 BG_IC_REFINERY_UNCONTROLLED
+                packet.Worldstates.emplace_back(4294, 1); // 22 BG_IC_WORKSHOP_UNCONTROLLED
+                packet.Worldstates.emplace_back(4243, 1); // 23 unknown
+                packet.Worldstates.emplace_back(4345, 1); // 24 unknown
             }
             break;
         // The Ruby Sanctum
         case 4987:
             if (instance && mapid == 724)
-                instance->FillInitialWorldStates(data);
+                instance->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(5049) << uint32(50);             // 9  WORLDSTATE_CORPOREALITY_MATERIAL
-                data << uint32(5050) << uint32(50);             // 10 WORLDSTATE_CORPOREALITY_TWILIGHT
-                data << uint32(5051) << uint32(0);              // 11 WORLDSTATE_CORPOREALITY_TOGGLE
+                packet.Worldstates.emplace_back(5049, 50);             // 9  WORLDSTATE_CORPOREALITY_MATERIAL
+                packet.Worldstates.emplace_back(5050, 50);             // 10 WORLDSTATE_CORPOREALITY_TWILIGHT
+                packet.Worldstates.emplace_back(5051, 0);              // 11 WORLDSTATE_CORPOREALITY_TOGGLE
             }
             break;
         // Icecrown Citadel
         case 4812:
             if (instance && mapid == 631)
-                instance->FillInitialWorldStates(data);
+                instance->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(4903) << uint32(0);              // 9  WORLDSTATE_SHOW_TIMER (Blood Quickening weekly)
-                data << uint32(4904) << uint32(30);             // 10 WORLDSTATE_EXECUTION_TIME
-                data << uint32(4940) << uint32(0);              // 11 WORLDSTATE_SHOW_ATTEMPTS
-                data << uint32(4941) << uint32(50);             // 12 WORLDSTATE_ATTEMPTS_REMAINING
-                data << uint32(4942) << uint32(50);             // 13 WORLDSTATE_ATTEMPTS_MAX
+                packet.Worldstates.emplace_back(4903, 0);              // 9  WORLDSTATE_SHOW_TIMER (Blood Quickening weekly)
+                packet.Worldstates.emplace_back(4904, 30);             // 10 WORLDSTATE_EXECUTION_TIME
+                packet.Worldstates.emplace_back(4940, 0);              // 11 WORLDSTATE_SHOW_ATTEMPTS
+                packet.Worldstates.emplace_back(4941, 50);             // 12 WORLDSTATE_ATTEMPTS_REMAINING
+                packet.Worldstates.emplace_back(4942, 50);             // 13 WORLDSTATE_ATTEMPTS_MAX
             }
             break;
         // The Culling of Stratholme
         case 4100:
             if (instance && mapid == 595)
-                instance->FillInitialWorldStates(data);
+                instance->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(3479) << uint32(0);              // 9  WORLDSTATE_SHOW_CRATES
-                data << uint32(3480) << uint32(0);              // 10 WORLDSTATE_CRATES_REVEALED
-                data << uint32(3504) << uint32(0);              // 11 WORLDSTATE_WAVE_COUNT
-                data << uint32(3931) << uint32(25);             // 12 WORLDSTATE_TIME_GUARDIAN
-                data << uint32(3932) << uint32(0);              // 13 WORLDSTATE_TIME_GUARDIAN_SHOW
+                packet.Worldstates.emplace_back(3479, 0);              // 9  WORLDSTATE_SHOW_CRATES
+                packet.Worldstates.emplace_back(3480, 0);              // 10 WORLDSTATE_CRATES_REVEALED
+                packet.Worldstates.emplace_back(3504, 0);              // 11 WORLDSTATE_WAVE_COUNT
+                packet.Worldstates.emplace_back(3931, 25);             // 12 WORLDSTATE_TIME_GUARDIAN
+                packet.Worldstates.emplace_back(3932, 0);              // 13 WORLDSTATE_TIME_GUARDIAN_SHOW
             }
             break;
         // The Oculus
         case 4228:
             if (instance && mapid == 578)
-                instance->FillInitialWorldStates(data);
+                instance->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(3524) << uint32(0);              // 9  WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW
-                data << uint32(3486) << uint32(0);              // 10 WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT
+                packet.Worldstates.emplace_back(3524, 0);              // 9  WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW
+                packet.Worldstates.emplace_back(3486, 0);              // 10 WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT
             }
             break;
         // Ulduar
         case 4273:
             if (instance && mapid == 603)
-                instance->FillInitialWorldStates(data);
+                instance->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(4132) << uint32(0);              // 9  WORLDSTATE_ALGALON_TIMER_ENABLED
-                data << uint32(4131) << uint32(0);              // 10 WORLDSTATE_ALGALON_DESPAWN_TIMER
+                packet.Worldstates.emplace_back(4132, 0);              // 9  WORLDSTATE_ALGALON_TIMER_ENABLED
+                packet.Worldstates.emplace_back(4131, 0);              // 10 WORLDSTATE_ALGALON_DESPAWN_TIMER
             }
             break;
         // Halls of Refection
         case 4820:
             if (instance && mapid == 668)
-                instance->FillInitialWorldStates(data);
+                instance->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(4884) << uint32(0);              // 9  WORLD_STATE_HOR_WAVES_ENABLED
-                data << uint32(4882) << uint32(0);              // 10 WORLD_STATE_HOR_WAVE_COUNT
+                packet.Worldstates.emplace_back(4884, 0);              // 9  WORLD_STATE_HOR_WAVES_ENABLED
+                packet.Worldstates.emplace_back(4882, 0);              // 10 WORLD_STATE_HOR_WAVE_COUNT
             }
             break;
         // Zul Aman
         case 3805:
             if (instance && mapid == 568)
-                instance->FillInitialWorldStates(data);
+                instance->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(3104) << uint32(0);              // 9  WORLD_STATE_ZULAMAN_TIMER_ENABLED
-                data << uint32(3106) << uint32(0);              // 10 WORLD_STATE_ZULAMAN_TIMER
+                packet.Worldstates.emplace_back(3104, 0);              // 9  WORLD_STATE_ZULAMAN_TIMER_ENABLED
+                packet.Worldstates.emplace_back(3106, 0);              // 10 WORLD_STATE_ZULAMAN_TIMER
             }
             break;
         // Twin Peaks
         case 5031:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_TP)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             else
             {
-                data << uint32(0x62d) << uint32(0x0);       //  7 1581 alliance flag captures
-                data << uint32(0x62e) << uint32(0x0);       //  8 1582 horde flag captures
-                data << uint32(0x609) << uint32(0x0);       //  9 1545 unk
-                data << uint32(0x60a) << uint32(0x0);       // 10 1546 unk
-                data << uint32(0x60b) << uint32(0x2);       // 11 1547 unk
-                data << uint32(0x641) << uint32(0x3);       // 12 1601 unk
-                data << uint32(0x922) << uint32(0x1);       // 13 2338 horde (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
-                data << uint32(0x923) << uint32(0x1);       // 14 2339 alliance (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+                packet.Worldstates.emplace_back(0x62d, 0x0);       //  7 1581 alliance flag captures
+                packet.Worldstates.emplace_back(0x62e, 0x0);       //  8 1582 horde flag captures
+                packet.Worldstates.emplace_back(0x609, 0x0);       //  9 1545 unk
+                packet.Worldstates.emplace_back(0x60a, 0x0);       // 10 1546 unk
+                packet.Worldstates.emplace_back(0x60b, 0x2);       // 11 1547 unk
+                packet.Worldstates.emplace_back(0x641, 0x3);       // 12 1601 unk
+                packet.Worldstates.emplace_back(0x922, 0x1);       // 13 2338 horde (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+                packet.Worldstates.emplace_back(0x923, 0x1);       // 14 2339 alliance (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
             }
             break;
         // Battle for Gilneas
         case 5449:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_BFG)
-                bg->FillInitialWorldStates(data);
+                bg->FillInitialWorldStates(packet);
             break;
         // Wintergrasp
         case 4197:
             if (bf && bf->GetTypeId() == BATTLEFIELD_WG)
-                bf->FillInitialWorldStates(data);
+                bf->FillInitialWorldStates(packet);
             // No break here, intended.
         default:
-            data << uint32(0x914) << uint32(0x0);           // 7
-            data << uint32(0x913) << uint32(0x0);           // 8
-            data << uint32(0x912) << uint32(0x0);           // 9
-            data << uint32(0x915) << uint32(0x0);           // 10
+            packet.Worldstates.emplace_back(0x914, 0x0);           // 7
+            packet.Worldstates.emplace_back(0x913, 0x0);           // 8
+            packet.Worldstates.emplace_back(0x912, 0x0);           // 9
+            packet.Worldstates.emplace_back(0x915, 0x0);           // 10
             break;
     }
 
-    uint16 length = (data.wpos() - countPos) / 8;
-    data.put<uint16>(countPos, length);
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(packet.Write());
     SendBGWeekendWorldStates();
     SendBattlefieldWorldStates();
 }

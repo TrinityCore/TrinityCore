@@ -35,11 +35,11 @@ OutdoorPvPSI::OutdoorPvPSI()
     m_LastController = 0;
 }
 
-void OutdoorPvPSI::FillInitialWorldStates(WorldPacket &data)
+void OutdoorPvPSI::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << SI_GATHERED_A << m_Gathered_A;
-    data << SI_GATHERED_H << m_Gathered_H;
-    data << SI_SILITHYST_MAX << SI_MAX_RESOURCES;
+    packet.Worldstates.emplace_back(uint32(SI_GATHERED_A), int32(m_Gathered_A));
+    packet.Worldstates.emplace_back(uint32(SI_GATHERED_H), int32(m_Gathered_H));
+    packet.Worldstates.emplace_back(uint32(SI_SILITHYST_MAX), int32(SI_MAX_RESOURCES));
 }
 
 void OutdoorPvPSI::SendRemoveWorldStates(Player* player)

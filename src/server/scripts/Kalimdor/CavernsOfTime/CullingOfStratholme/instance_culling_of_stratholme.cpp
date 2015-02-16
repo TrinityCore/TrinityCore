@@ -66,13 +66,13 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 _infiniteCouterState = NOT_STARTED;
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                data << uint32(WORLDSTATE_SHOW_CRATES) << uint32(1);
-                data << uint32(WORLDSTATE_CRATES_REVEALED) << uint32(_crateCount);
-                data << uint32(WORLDSTATE_WAVE_COUNT) << uint32(0);
-                data << uint32(WORLDSTATE_TIME_GUARDIAN) << uint32(25);
-                data << uint32(WORLDSTATE_TIME_GUARDIAN_SHOW) << uint32(0);
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_SHOW_CRATES), 1);
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CRATES_REVEALED), int32(_crateCount));
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_WAVE_COUNT), 0);
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_TIME_GUARDIAN), 25);
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_TIME_GUARDIAN_SHOW), 0);
             }
 
             void OnCreatureCreate(Creature* creature) override
