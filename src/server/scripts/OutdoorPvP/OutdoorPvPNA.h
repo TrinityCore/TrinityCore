@@ -265,7 +265,7 @@ class OPvPCapturePointNA : public OPvPCapturePoint
 
         void ChangeState();
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
 
@@ -318,7 +318,7 @@ class OutdoorPvPNA : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void SendRemoveWorldStates(Player* player);
 

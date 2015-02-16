@@ -288,10 +288,10 @@ class instance_halls_of_reflection : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                data << uint32(WORLD_STATE_HOR_WAVES_ENABLED) << uint32(_introState == DONE && GetBossState(DATA_MARWYN) != DONE);
-                data << uint32(WORLD_STATE_HOR_WAVE_COUNT) << uint32(_waveCount);
+                packet.Worldstates.emplace_back(uint32(WORLD_STATE_HOR_WAVES_ENABLED), int32(_introState == DONE && GetBossState(DATA_MARWYN) != DONE));
+                packet.Worldstates.emplace_back(uint32(WORLD_STATE_HOR_WAVE_COUNT), int32(_waveCount));
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

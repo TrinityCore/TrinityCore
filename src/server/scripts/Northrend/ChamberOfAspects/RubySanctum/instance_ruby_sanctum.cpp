@@ -281,11 +281,11 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return BaltharusSharedHealth;
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                data << uint32(WORLDSTATE_CORPOREALITY_MATERIAL) << uint32(50);
-                data << uint32(WORLDSTATE_CORPOREALITY_TWILIGHT) << uint32(50);
-                data << uint32(WORLDSTATE_CORPOREALITY_TOGGLE) << uint32(0);
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_MATERIAL), 50);
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_TWILIGHT), 50);
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_TOGGLE), 0);
             }
 
         protected:

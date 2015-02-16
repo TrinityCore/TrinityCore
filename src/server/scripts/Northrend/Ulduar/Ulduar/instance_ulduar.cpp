@@ -148,10 +148,10 @@ class instance_ulduar : public InstanceMapScript
             bool Unbroken;
             bool IsDriveMeCrazyEligible;
 
-            void FillInitialWorldStates(WorldPacket& packet) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                packet << uint32(WORLD_STATE_ALGALON_TIMER_ENABLED) << uint32(_algalonTimer && _algalonTimer <= 60);
-                packet << uint32(WORLD_STATE_ALGALON_DESPAWN_TIMER) << uint32(std::min<uint32>(_algalonTimer, 60));
+                packet.Worldstates.emplace_back(uint32(WORLD_STATE_ALGALON_TIMER_ENABLED), int32(_algalonTimer && _algalonTimer <= 60));
+                packet.Worldstates.emplace_back(uint32(WORLD_STATE_ALGALON_DESPAWN_TIMER), int32(std::min<uint32>(_algalonTimer, 60)));
             }
 
             void OnPlayerEnter(Player* player) override

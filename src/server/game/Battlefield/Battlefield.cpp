@@ -29,7 +29,6 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
-#include "WorldStatePackets.h"
 
 Battlefield::Battlefield()
 {

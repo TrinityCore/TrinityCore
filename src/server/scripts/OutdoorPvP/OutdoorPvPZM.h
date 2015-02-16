@@ -163,7 +163,7 @@ class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
 
         void ChangeState();
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void UpdateTowerState();
 
@@ -188,7 +188,7 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         void ChangeState() { }
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void UpdateTowerState();
 
@@ -225,7 +225,7 @@ class OutdoorPvPZM : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void SendRemoveWorldStates(Player* player);
 
