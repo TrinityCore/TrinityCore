@@ -827,7 +827,6 @@ enum OpcodeServer : uint32
     SMSG_ACCOUNT_CRITERIA_UPDATE                      = 0x0912,
     SMSG_ACCOUNT_DATA_TIMES                           = 0x0120,
     SMSG_ACCOUNT_INFO_RESPONSE                        = 0x03AB,
-    SMSG_ACCOUNT_INFO_RESPONSE                        = 0xBADD,
     SMSG_ACCOUNT_MOUNT_UPDATE                         = 0x0140,
     SMSG_ACCOUNT_PROFILE                              = 0x1B1A,
     SMSG_ACCOUNT_RESTRICTED_WARNING                   = 0xBADD,
