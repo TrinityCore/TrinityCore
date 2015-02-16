@@ -415,10 +415,21 @@ public:
         }
 
         char* orientation = strtok(NULL, " ");
-        float oz, oy, ox;
+        float oz = 0.f, oy = 0.f, ox = 0.f;
 
         if (orientation)
-            oz = (float)atof(orientation);
+        {
+            oz = float(atof(orientation));
+
+            orientation = strtok(NULL, " ");
+            if (orientation)
+            {
+                oy = float(atof(orientation));
+                orientation = strtok(NULL, " ");
+                if (orientation)
+                    ox = float(atof(orientation));
+            }
+        }
         else
         {
             Player* player = handler->GetSession()->GetPlayer();
@@ -426,20 +437,6 @@ public:
         }
 
         Map* map = object->GetMap();
-
-        // try extract two opt-parameters
-        orientation = strtok(NULL, " ");
-        if (orientation)
-        {
-            oy = float(atof(orientation));
-            if (orientation = strtok(NULL, " "))
-                ox = float(atof(orientation));
-            else
-                ox = 0.f;
-        }
-        else
-            oy = 0.f;
-
         object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
         object->SetWorldRotationAngles(oz, oy, ox);
         object->SaveToDB();

@@ -1896,23 +1896,17 @@ std::string const & GameObject::GetNameForLocaleIdx(LocaleConstant loc_idx) cons
     return GetName();
 }
 
-struct QuatCompressed
+struct PackedQuat
 {
-    QuatCompressed() : m_raw(0) { };
-    QuatCompressed(int64 val) : m_raw(val) { };
+    PackedQuat() : m_raw(0) { };
+    PackedQuat(int64 val) : m_raw(val) { };
 
-    enum : int32
-    {
-        PACK_YZ = 1 << 20,
-        PACK_X  = 1 << 21
-    };
-
-    QuatCompressed(const G3D::Quat& quat) : m_raw(0)
+    PackedQuat(const G3D::Quat& quat)
     {
         int8 w_sign = (quat.w >= 0 ? 1 : -1);
-        int64 x = int32(quat.x * PACK_X) * w_sign & ((1 << 22) - 1);
-        int64 y = int32(quat.y * PACK_YZ) * w_sign & ((1 << 21) - 1);
-        int64 z = int32(quat.z * PACK_YZ) * w_sign & ((1 << 21) - 1);
+        int64 x = int32(quat.x * PACK_X)  * w_sign & PACK_X_MASK;
+        int64 y = int32(quat.y * PACK_YZ) * w_sign & PACK_YZ_MASK;
+        int64 z = int32(quat.z * PACK_YZ) * w_sign & PACK_YZ_MASK;
         m_raw = z | (y << 21) | (x << 42);
     };
 
@@ -1920,6 +1914,12 @@ struct QuatCompressed
 
     private:
         int64 m_raw;
+
+        static const int32 PACK_YZ = 1 << 20;
+        static const int32 PACK_X  = PACK_YZ << 1;
+
+        static const int32 PACK_YZ_MASK = (PACK_YZ << 1) - 1;
+        static const int32 PACK_X_MASK  = (PACK_X  << 1) - 1;
 };
 
 void GameObject::SetRotationQuat(float qx, float qy, float qz, float qw)
@@ -1929,7 +1929,7 @@ void GameObject::SetRotationQuat(float qx, float qy, float qz, float qw)
     if (qz == 0 && qw == 0)
         quat = G3D::Quat::fromAxisAngleRotation(G3D::Vector3::unitZ(), GetOrientation());
 
-    m_rotation = QuatCompressed(quat).GetComp();
+    m_rotation = PackedQuat(quat).GetComp();
     SetFloatValue(GAMEOBJECT_PARENTROTATION + 0, quat.x);
     SetFloatValue(GAMEOBJECT_PARENTROTATION + 1, quat.y);
     SetFloatValue(GAMEOBJECT_PARENTROTATION + 2, quat.z);
