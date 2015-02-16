@@ -1058,8 +1058,7 @@ bool Object::RemoveGuidValue(uint16 index, ObjectGuid const& value)
     ASSERT(index + 3 < m_valuesCount || PrintIndexError(index, true));
     if (!value.IsEmpty() && *((ObjectGuid*)&(m_uint32Values[index])) == value)
     {
-        m_uint32Values[index] = 0;
-        m_uint32Values[index + 1] = 0;
+        ((ObjectGuid*)&(m_uint32Values[index]))->Clear();
         _changesMask.SetBit(index);
         _changesMask.SetBit(index + 1);
         _changesMask.SetBit(index + 2);
