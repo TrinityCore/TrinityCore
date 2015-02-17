@@ -31,19 +31,19 @@
 
 void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)
 {
-    Unit* pEnemy = ObjectAccessor::GetUnit(*_player, packet.Victim);
+    Unit* enemy = ObjectAccessor::GetUnit(*_player, packet.Victim);
 
-    if (!pEnemy)
+    if (!enemy)
     {
         // stop attack state at client
-        SendAttackStop(NULL);
+        SendAttackStop(nullptr);
         return;
     }
 
-    if (!_player->IsValidAttackTarget(pEnemy))
+    if (!_player->IsValidAttackTarget(enemy))
     {
         // stop attack state at client
-        SendAttackStop(pEnemy);
+        SendAttackStop(enemy);
         return;
     }
 
@@ -56,12 +56,12 @@ void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& pa
         ASSERT(seat);
         if (!(seat->Flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
         {
-            SendAttackStop(pEnemy);
+            SendAttackStop(enemy);
             return;
         }
     }
 
-    _player->Attack(pEnemy, true);
+    _player->Attack(enemy, true);
 }
 
 void WorldSession::HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& /*recvData*/)
@@ -82,6 +82,5 @@ void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& pa
 
 void WorldSession::SendAttackStop(Unit const* enemy)
 {
-    WorldPackets::Combat::SAttackStop packet(GetPlayer()->GetGUID(), enemy->GetGUID(), enemy->isDead());
-    SendPacket(packet.Write());
+    SendPacket(WorldPackets::Combat::SAttackStop(GetPlayer(), enemy).Write());
 }

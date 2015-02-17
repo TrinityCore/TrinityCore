@@ -16,7 +16,6 @@
  */
 
 #include "NPCPackets.h"
-#include "ItemPackets.h"
 
 void WorldPackets::NPC::Hello::Read()
 {

@@ -70,7 +70,7 @@ namespace WorldPackets
         {
         public:
             SAttackStop() : ServerPacket(SMSG_ATTACKSTOP, 16 + 16 + 1) { }
-            SAttackStop(ObjectGuid attacker, ObjectGuid victim, bool nowDead) : ServerPacket(SMSG_ATTACKSTOP, 16 + 16 + 1), Attacker(attacker), Victim(victim), NowDead(nowDead) { }
+            SAttackStop(Unit const* attacker, Unit const* victim);
 
             WorldPacket const* Write() override;
 
@@ -162,7 +162,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Optional<WorldPackets::Spells::SpellCastLogData> LogData;
+            Optional<Spells::SpellCastLogData> LogData;
             uint32 HitInfo          = 0; // Flags
             ObjectGuid AttackerGUID;
             ObjectGuid VictimGUID;
@@ -188,6 +188,8 @@ namespace WorldPackets
 
         struct PowerUpdatePower
         {
+            PowerUpdatePower(int32 power, uint8 powerType) : Power(power), PowerType(powerType) { }
+
             int32 Power = 0;
             uint8 PowerType = 0;
         };
@@ -196,7 +198,7 @@ namespace WorldPackets
         {
         public:
             PowerUpdate() : ServerPacket(SMSG_POWER_UPDATE, 16 + 4 + 1) { }
-            
+
             WorldPacket const* Write() override;
 
             ObjectGuid Guid;

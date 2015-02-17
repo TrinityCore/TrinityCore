@@ -175,16 +175,16 @@ void WorldPackets::Item::ItemInstance::Initalize(::Item const* item)
     {
         ItemBonus.HasValue = true;
         ItemBonus.Value.BonusListIDs.insert(ItemBonus.Value.BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
-        ItemBonus.Value.Context = 0; /// @todo
+        ItemBonus.Value.Context = item->GetUInt32Value(ITEM_FIELD_CONTEXT);
     }
 
-    for (uint8 i = 1; i < MAX_ITEM_MODIFIERS; ++i)
+    uint32 mask = item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK);
+    Modifications.HasValue = mask != 0;
+
+    for (size_t i = 0; mask != 0; mask >>= 1, ++i)
     {
-        if (int32 mod = item->GetModifier(ItemModifier(i)))
-        {
-            Modifications.HasValue = true;
-            Modifications.Value.Insert(i - 1, mod);
-        }
+        if ((mask & 1) != 0)
+            Modifications.Value.Insert(i, item->GetModifier(ItemModifier(i)));
     }
 }
 
