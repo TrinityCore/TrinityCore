@@ -56,6 +56,7 @@ EndContentData */
 #include "SpellAuras.h"
 #include "Pet.h"
 #include "CreatureTextMgr.h"
+#include "SpellHistory.h"
 
 /*########
 # npc_air_force_bots
@@ -1208,14 +1209,14 @@ public:
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        if (player->HasSpellCooldown(SPELL_INT) ||
-            player->HasSpellCooldown(SPELL_ARM) ||
-            player->HasSpellCooldown(SPELL_DMG) ||
-            player->HasSpellCooldown(SPELL_RES) ||
-            player->HasSpellCooldown(SPELL_STR) ||
-            player->HasSpellCooldown(SPELL_AGI) ||
-            player->HasSpellCooldown(SPELL_STM) ||
-            player->HasSpellCooldown(SPELL_SPI))
+        if (player->GetSpellHistory()->HasCooldown(SPELL_INT) ||
+            player->GetSpellHistory()->HasCooldown(SPELL_ARM) ||
+            player->GetSpellHistory()->HasCooldown(SPELL_DMG) ||
+            player->GetSpellHistory()->HasCooldown(SPELL_RES) ||
+            player->GetSpellHistory()->HasCooldown(SPELL_STR) ||
+            player->GetSpellHistory()->HasCooldown(SPELL_AGI) ||
+            player->GetSpellHistory()->HasCooldown(SPELL_STM) ||
+            player->GetSpellHistory()->HasCooldown(SPELL_SPI))
             player->SEND_GOSSIP_MENU(7393, creature->GetGUID());
         else
         {
@@ -1282,42 +1283,42 @@ public:
                 break;
             case GOSSIP_SENDER_MAIN + 1:
                 creature->CastSpell(player, SPELL_DMG, false);
-                player->AddSpellCooldown(SPELL_DMG, 0, time(NULL) + 7200);
+                player->GetSpellHistory()->AddCooldown(SPELL_DMG, 0, std::chrono::hours(2));
                 SendAction(player, creature, action);
                 break;
             case GOSSIP_SENDER_MAIN + 2:
                 creature->CastSpell(player, SPELL_RES, false);
-                player->AddSpellCooldown(SPELL_RES, 0, time(NULL) + 7200);
+                player->GetSpellHistory()->AddCooldown(SPELL_RES, 0, std::chrono::hours(2));
                 SendAction(player, creature, action);
                 break;
             case GOSSIP_SENDER_MAIN + 3:
                 creature->CastSpell(player, SPELL_ARM, false);
-                player->AddSpellCooldown(SPELL_ARM, 0, time(NULL) + 7200);
+                player->GetSpellHistory()->AddCooldown(SPELL_ARM, 0, std::chrono::hours(2));
                 SendAction(player, creature, action);
                 break;
             case GOSSIP_SENDER_MAIN + 4:
                 creature->CastSpell(player, SPELL_SPI, false);
-                player->AddSpellCooldown(SPELL_SPI, 0, time(NULL) + 7200);
+                player->GetSpellHistory()->AddCooldown(SPELL_SPI, 0, std::chrono::hours(2));
                 SendAction(player, creature, action);
                 break;
             case GOSSIP_SENDER_MAIN + 5:
                 creature->CastSpell(player, SPELL_INT, false);
-                player->AddSpellCooldown(SPELL_INT, 0, time(NULL) + 7200);
+                player->GetSpellHistory()->AddCooldown(SPELL_INT, 0, std::chrono::hours(2));
                 SendAction(player, creature, action);
                 break;
             case GOSSIP_SENDER_MAIN + 6:
                 creature->CastSpell(player, SPELL_STM, false);
-                player->AddSpellCooldown(SPELL_STM, 0, time(NULL) + 7200);
+                player->GetSpellHistory()->AddCooldown(SPELL_STM, 0, std::chrono::hours(2));
                 SendAction(player, creature, action);
                 break;
             case GOSSIP_SENDER_MAIN + 7:
                 creature->CastSpell(player, SPELL_STR, false);
-                player->AddSpellCooldown(SPELL_STR, 0, time(NULL) + 7200);
+                player->GetSpellHistory()->AddCooldown(SPELL_STR, 0, std::chrono::hours(2));
                 SendAction(player, creature, action);
                 break;
             case GOSSIP_SENDER_MAIN + 8:
                 creature->CastSpell(player, SPELL_AGI, false);
-                player->AddSpellCooldown(SPELL_AGI, 0, time(NULL) + 7200);
+                player->GetSpellHistory()->AddCooldown(SPELL_AGI, 0, std::chrono::hours(2));
                 SendAction(player, creature, action);
                 break;
         }

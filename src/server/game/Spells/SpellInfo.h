@@ -399,6 +399,7 @@ public:
     uint32 PreventionType;
     int32  RequiredAreasID;
     uint32 SchoolMask;
+    SpellCategoryEntry const* ChargeCategoryEntry;
     uint32 SpellDifficultyId;
     uint32 SpellScalingId;
     uint32 SpellAuraOptionsId;

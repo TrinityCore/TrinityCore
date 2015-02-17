@@ -32,6 +32,7 @@
 #include "DynamicObject.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
 #include "Group.h"
 #include "UpdateData.h"
 #include "MapManager.h"
@@ -672,9 +673,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
                     return;
 
                 // Reset cooldown on stealth if needed
-                if (unitTarget->ToPlayer()->HasSpellCooldown(1784))
-                    unitTarget->ToPlayer()->RemoveSpellCooldown(1784);
-
+                unitTarget->GetSpellHistory()->ResetCooldown(1784);
                 unitTarget->CastSpell(unitTarget, 1784, true);
                 return;
             }
@@ -778,7 +777,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
         && m_spellInfo->GetCategory() == spellInfo->GetCategory())
-        m_caster->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
+        m_caster->GetSpellHistory()->ResetCooldown(spellInfo->Id);
 
     // original caster guid only for GO cast
     m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULL, m_originalCasterGUID);
@@ -831,7 +830,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex /*effIndex*/)
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
         && m_spellInfo->GetCategory() == spellInfo->GetCategory())
-        m_caster->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
+        m_caster->GetSpellHistory()->ResetCooldown(spellInfo->Id);
 
     // original caster guid only for GO cast
     m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULL, m_originalCasterGUID);
@@ -3175,7 +3174,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                 if (m_originalCaster)
                 {
                     int32 duration = m_spellInfo->GetDuration();
-                    unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
+                    unitTarget->GetSpellHistory()->LockSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
                 }
                 ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
@@ -3944,7 +3943,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     }
 
     // the player dies if hearthstone is in cooldown, else the player is teleported to home
-    if (player->HasSpellCooldown(8690))
+    if (player->GetSpellHistory()->HasCooldown(8690))
     {
         player->Kill(player);
         return;
@@ -5616,7 +5615,7 @@ void Spell::EffectCastButtons(SpellEffIndex /*effIndex*/)
         if (!spellInfo)
             continue;
 
-        if (!p_caster->HasSpell(spell_id) || p_caster->HasSpellCooldown(spell_id))
+        if (!p_caster->HasSpell(spell_id) || p_caster->GetSpellHistory()->HasCooldown(spell_id))
             continue;
 
         if (!spellInfo->HasAttribute(SPELL_ATTR9_SUMMON_PLAYER_TOTEM))

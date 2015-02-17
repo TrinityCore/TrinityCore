@@ -30,6 +30,7 @@
 #include "Pet.h"
 #include "World.h"
 #include "Group.h"
+#include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "Player.h"
 
@@ -361,8 +362,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
 
             if (result == SPELL_CAST_OK)
             {
-                pet->ToCreature()->AddCreatureSpellCooldown(spellid);
-
                 unit_target = spell->m_targets.GetUnitTarget();
 
                 //10% chance to play special pet attack talk, else growl
@@ -396,8 +395,8 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 else
                     spell->SendPetCastResult(result);
 
-                if (!pet->ToCreature()->HasSpellCooldown(spellid))
-                    GetPlayer()->SendClearCooldown(spellid, pet);
+                if (!pet->GetSpellHistory()->HasCooldown(spellid))
+                    pet->GetSpellHistory()->ResetCooldown(spellid, true);
 
                 spell->finish(false);
                 delete spell;
@@ -804,7 +803,6 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     {
         if (Creature* creature = caster->ToCreature())
         {
-            creature->AddCreatureSpellCooldown(spellId);
             if (Pet* pet = creature->ToPet())
             {
                 // 10% chance to play special pet attack talk, else growl
@@ -822,16 +820,8 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     {
         spell->SendPetCastResult(result);
 
-        if (caster->GetTypeId() == TYPEID_PLAYER)
-        {
-            if (!caster->ToPlayer()->HasSpellCooldown(spellId))
-                GetPlayer()->SendClearCooldown(spellId, caster);
-        }
-        else
-        {
-            if (!caster->ToCreature()->HasSpellCooldown(spellId))
-                GetPlayer()->SendClearCooldown(spellId, caster);
-        }
+        if (!caster->GetSpellHistory()->HasCooldown(spellId))
+            caster->GetSpellHistory()->ResetCooldown(spellId, true);
 
         spell->finish(false);
         delete spell;

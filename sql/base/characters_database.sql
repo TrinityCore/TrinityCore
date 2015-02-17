@@ -1232,6 +1232,31 @@ LOCK TABLES `character_spell` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_spell_charges`
+--
+
+DROP TABLE IF EXISTS `character_spell_charges`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_spell_charges` (
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
+  `categoryId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'SpellCategory.dbc Identifier',
+  `rechargeStart` int(10) unsigned NOT NULL DEFAULT '0',
+  `rechargeEnd` int(10) unsigned NOT NULL DEFAULT '0',
+  KEY `idx_guid` (`guid`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_spell_charges`
+--
+
+LOCK TABLES `character_spell_charges` WRITE;
+/*!40000 ALTER TABLE `character_spell_charges` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_spell_charges` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_spell_cooldown`
 --
 
@@ -1240,7 +1265,7 @@ DROP TABLE IF EXISTS `character_spell_cooldown`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_spell_cooldown` (
   `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
+  `spell` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `item` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Item Identifier',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
@@ -2574,6 +2599,31 @@ LOCK TABLES `pet_spell` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `pet_spell_charges`
+--
+
+DROP TABLE IF EXISTS `pet_spell_charges`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pet_spell_charges` (
+  `guid` int(10) unsigned NOT NULL,
+  `categoryId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'SpellCategory.dbc Identifier',
+  `rechargeStart` int(10) unsigned NOT NULL DEFAULT '0',
+  `rechargeEnd` int(10) unsigned NOT NULL DEFAULT '0',
+  KEY `idx_guid` (`guid`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pet_spell_charges`
+--
+
+LOCK TABLES `pet_spell_charges` WRITE;
+/*!40000 ALTER TABLE `pet_spell_charges` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pet_spell_charges` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `pet_spell_cooldown`
 --
 
@@ -2582,7 +2632,7 @@ DROP TABLE IF EXISTS `pet_spell_cooldown`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pet_spell_cooldown` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
+  `spell` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

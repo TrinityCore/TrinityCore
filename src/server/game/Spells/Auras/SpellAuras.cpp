@@ -26,6 +26,7 @@
 #include "Unit.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
 #include "SpellPackets.h"
 #include "DynamicObject.h"
 #include "ObjectAccessor.h"
@@ -117,7 +118,7 @@ void AuraApplication::_Remove()
 void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
 {
     // mark as selfcast if needed
-    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_NONE : AFLAG_NOCASTER;
+    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_NOCASTER : AFLAG_NONE;
 
     // aura is cast by self or an enemy
     // one negative effect and we know aura is negative
@@ -150,7 +151,10 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         _flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
 
-    if (GetBase()->GetSpellInfo()->AttributesEx8 & SPELL_ATTR8_AURA_SEND_AMOUNT)
+    if (GetBase()->GetSpellInfo()->AttributesEx8 & SPELL_ATTR8_AURA_SEND_AMOUNT ||
+        GetBase()->HasEffectType(SPELL_AURA_MOD_MAX_CHARGES) ||
+        GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD) ||
+        GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER))
         _flags |= AFLAG_SCALABLE;
 }
 
@@ -182,6 +186,7 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
         // Remove all triggered by aura spells vs unlimited duration
         aurEff->CleanupTriggeredSpells(GetTarget());
     }
+
     SetNeedClientUpdate();
 }
 
@@ -218,10 +223,10 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
 
     if (auraData.Flags & AFLAG_SCALABLE)
     {
-        auraData.Points.reserve(aura->GetAuraEffects().size());
+        auraData.Points.resize(aura->GetAuraEffects().size(), 0.0f);
         for (AuraEffect const* effect : GetBase()->GetAuraEffects())
             if (effect && HasEffect(effect->GetEffIndex()))       // Not all of aura's effects have to be applied on every target
-                auraData.Points.push_back(float(effect->GetAmount()));
+                auraData.Points[effect->GetEffIndex()] = float(effect->GetAmount());
     }
 
     auraInfo.AuraData.Set(auraData);
@@ -462,7 +467,7 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp
         if (m_spellInfo->IsCooldownStartedOnEvent())
         {
             Item* castItem = !m_castItemGuid.IsEmpty() ? caster->ToPlayer()->GetItemByGuid(m_castItemGuid) : NULL;
-            caster->ToPlayer()->AddSpellAndCategoryCooldowns(m_spellInfo, castItem ? castItem->GetEntry() : 0, NULL, true);
+            caster->GetSpellHistory()->StartCooldown(m_spellInfo, castItem ? castItem->GetEntry() : 0, nullptr, true);
         }
     }
 }
@@ -490,12 +495,9 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraA
     m_removedApplications.push_back(auraApp);
 
     // reset cooldown state for spells
-    if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-    {
-        if (GetSpellInfo()->IsCooldownStartedOnEvent())
-            // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
-            caster->ToPlayer()->SendCooldownEvent(GetSpellInfo());
-    }
+    if (caster && GetSpellInfo()->IsCooldownStartedOnEvent())
+        // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
+        caster->GetSpellHistory()->SendCooldownEvent(GetSpellInfo());
 }
 
 // removes aura from all targets
@@ -1055,7 +1057,12 @@ bool Aura::CanBeSaved() const
 
 bool Aura::CanBeSentToClient() const
 {
-    return !IsPassive() || GetSpellInfo()->HasAreaAuraEffect(GetOwner() ? GetOwner()->GetMap()->GetDifficultyID() : DIFFICULTY_NONE) || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE) || HasEffectType(SPELL_AURA_CAST_WHILE_WALKING);
+    return !IsPassive() || GetSpellInfo()->HasAreaAuraEffect(GetOwner() ? GetOwner()->GetMap()->GetDifficultyID() : DIFFICULTY_NONE)
+        || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE)
+        || HasEffectType(SPELL_AURA_CAST_WHILE_WALKING)
+        || HasEffectType(SPELL_AURA_MOD_MAX_CHARGES)
+        || HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD)
+        || HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER);
 }
 
 bool Aura::IsSingleTargetWith(Aura const* aura) const
@@ -1310,7 +1317,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                     case 60970: // Heroic Fury (remove Intercept cooldown)
                         if (target->GetTypeId() == TYPEID_PLAYER)
-                            target->ToPlayer()->RemoveSpellCooldown(20252, true);
+                            target->GetSpellHistory()->ResetCooldown(20252, true);
                         break;
                 }
                 break;
@@ -1470,15 +1477,15 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // check cooldown
                         if (caster->GetTypeId() == TYPEID_PLAYER)
                         {
-                            if (caster->ToPlayer()->HasSpellCooldown(aura->GetId()))
+                            if (caster->GetSpellHistory()->HasCooldown(aura->GetId()))
                             {
                                 // This additional check is needed to add a minimal delay before cooldown in in effect
                                 // to allow all bubbles broken by a single damage source proc mana return
-                                if (caster->ToPlayer()->GetSpellCooldownDelay(aura->GetId()) <= 11)
+                                if (caster->GetSpellHistory()->GetRemainingCooldown(aura->GetId()) <= 11)
                                     break;
                             }
                             else    // and add if needed
-                                caster->ToPlayer()->AddSpellCooldown(aura->GetId(), 0, uint32(time(NULL) + 12));
+                                caster->GetSpellHistory()->AddCooldown(aura->GetId(), 0, std::chrono::seconds(12));
                         }
 
                         // effect on caster
