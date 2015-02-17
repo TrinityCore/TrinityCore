@@ -2108,20 +2108,11 @@ void Unit::SendMeleeAttackStart(Unit* victim)
     packet.Attacker = GetGUID();
     packet.Victim = victim->GetGUID();
     SendMessageToSet(packet.Write(), true);
-    TC_LOG_DEBUG("entities.unit", "WORLD: Sent SMSG_ATTACKSTART");
 }
 
 void Unit::SendMeleeAttackStop(Unit* victim)
 {
-    WorldPackets::Combat::SAttackStop packet;
-    packet.Attacker = GetGUID();
-    if (victim)
-    {
-        packet.Victim = victim->GetGUID();
-        packet.NowDead = victim->isDead();
-    }
-
-    SendMessageToSet(packet.Write(), true);
+    SendMessageToSet(WorldPackets::Combat::SAttackStop(this, victim).Write(), true);
 
     if (victim)
         TC_LOG_INFO("entities.unit", "%s stopped attacking %s", GetGUID().ToString().c_str(), victim->GetGUID().ToString().c_str());
@@ -11440,17 +11431,9 @@ void Unit::SetPower(Powers power, int32 val)
     if (IsInWorld())
     {
         WorldPackets::Combat::PowerUpdate packet;
-        WorldPackets::Combat::PowerUpdatePower power;
         packet.Guid = GetGUID();
         /// @todo: Support multiple counts ?
-        /*for (uint8 i = 0; i < 1; i++)
-        {
-            _power.Power = val;
-            _power.PowerType = powerIndex;
-        }*/
-        power.Power = val;
-        power.PowerType = powerIndex;
-        packet.Powers.push_back(power);
+        packet.Powers.emplace_back(val, powerIndex);
         SendMessageToSet(packet.Write(), GetTypeId() == TYPEID_PLAYER);
     }
 
