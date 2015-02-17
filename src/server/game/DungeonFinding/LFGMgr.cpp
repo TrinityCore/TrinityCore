@@ -755,7 +755,7 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& playe
     {
         ObjectGuid guid = (*it);
         LfgLockMap const& cachedLockMap = GetLockedDungeons(guid);
-        Player* player = ObjectAccessor::FindPlayer(guid);
+        Player* player = ObjectAccessor::FindConnectedPlayer(guid);
         for (LfgLockMap::const_iterator it2 = cachedLockMap.begin(); it2 != cachedLockMap.end() && !dungeons.empty(); ++it2)
         {
             uint32 dungeonId = (it2->first & 0x00FFFFFF); // Compare dungeon ids
