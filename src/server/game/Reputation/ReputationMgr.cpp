@@ -84,7 +84,7 @@ bool ReputationMgr::IsAtWar(uint32 faction_id) const
     if (!factionEntry)
     {
         TC_LOG_ERROR("misc", "ReputationMgr::IsAtWar: Can't get AtWar flag of {} for unknown faction (faction id) #{}.", _player->GetName(), faction_id);
-        return 0;
+        return false;
     }
 
     return IsAtWar(factionEntry);

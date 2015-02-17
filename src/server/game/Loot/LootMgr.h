@@ -51,8 +51,7 @@ struct TC_GAME_API LootStoreItem
          { }
 
     bool Roll(bool rate) const;                             // Checks if the entry takes it's chance (at loot generation)
-    bool IsValid(LootStore const& store, uint32 entry) const;
-                                                            // Checks correctness of values
+    bool IsValid(LootStore const& store, uint32 entry) const; // Checks correctness of values
 };
 
 typedef std::list<LootStoreItem*> LootStoreItemList;
