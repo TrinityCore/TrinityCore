@@ -112,14 +112,14 @@ WorldPacket const* WorldPackets::Spells::AuraUpdate::Write()
             _worldPacket << uint32(data.ActiveFlags);
             _worldPacket << uint16(data.CastLevel);
             _worldPacket << uint8(data.Applications);
-            _worldPacket << uint32(data.EstimatedPoints.size());
             _worldPacket << uint32(data.Points.size());
-
-            if (!data.EstimatedPoints.empty())
-                _worldPacket.append(data.EstimatedPoints.data(), data.EstimatedPoints.size());
+            _worldPacket << uint32(data.EstimatedPoints.size());
 
             if (!data.Points.empty())
                 _worldPacket.append(data.Points.data(), data.Points.size());
+
+            if (!data.EstimatedPoints.empty())
+                _worldPacket.append(data.EstimatedPoints.data(), data.EstimatedPoints.size());
 
             _worldPacket.WriteBit(data.CastUnit.HasValue);
             _worldPacket.WriteBit(data.Duration.HasValue);
@@ -484,6 +484,117 @@ WorldPacket const* WorldPackets::Spells::CooldownEvent::Write()
 {
     _worldPacket << CasterGUID;
     _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::ClearCooldowns::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << uint32(SpellID.size());
+    if (!SpellID.empty())
+        _worldPacket.append(SpellID.data(), SpellID.size());
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::ClearCooldown::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << uint32(SpellID);
+    _worldPacket.WriteBit(ClearOnHold);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::ModifyCooldown::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << UnitGUID;
+    _worldPacket << int32(DeltaTime);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCooldownStruct const& cooldown)
+{
+    data << uint32(cooldown.SrecID);
+    data << uint32(cooldown.ForcedCooldown);
+    return data;
+}
+
+WorldPacket const* WorldPackets::Spells::SpellCooldown::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << uint8(Flags);
+    _worldPacket << uint32(SpellCooldowns.size());
+    for (SpellCooldownStruct const& cooldown : SpellCooldowns)
+        _worldPacket << cooldown;
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHistoryEntry const& historyEntry)
+{
+    data << uint32(historyEntry.SpellID);
+    data << uint32(historyEntry.ItemID);
+    data << uint32(historyEntry.Category);
+    data << int32(historyEntry.RecoveryTime);
+    data << int32(historyEntry.CategoryRecoveryTime);
+    data.WriteBit(historyEntry.OnHold);
+    data.FlushBits();
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Spells::SendSpellHistory::Write()
+{
+    _worldPacket << uint32(Entries.size());
+    for (SpellHistoryEntry const& historyEntry : Entries)
+        _worldPacket << historyEntry;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::ClearAllSpellCharges::Write()
+{
+    _worldPacket << Unit;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::ClearSpellCharges::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << int32(Category);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::SetSpellCharges::Write()
+{
+    _worldPacket << int32(Category);
+    _worldPacket << float(Count);
+    _worldPacket.WriteBit(IsPet);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellChargeEntry const& chargeEntry)
+{
+    data << uint32(chargeEntry.Category);
+    data << uint32(chargeEntry.NextRecoveryTime);
+    data << uint8(chargeEntry.ConsumedCharges);
+    return data;
+}
+
+WorldPacket const* WorldPackets::Spells::SendSpellCharges::Write()
+{
+    _worldPacket << uint32(Entries.size());
+    for (SpellChargeEntry const& chargeEntry : Entries)
+        _worldPacket << chargeEntry;
 
     return &_worldPacket;
 }

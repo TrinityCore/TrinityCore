@@ -1031,7 +1031,7 @@ enum OpcodeServer : uint32
     SMSG_CHEAT_IGNORE_DIMISHING_RETURNS               = 0x194C,
     SMSG_CHECK_FOR_BOTS                               = 0xBADD,
     SMSG_CHECK_WARGAME_ENTRY                          = 0x1203,
-    SMSG_CLEAR_ALL_SPELL_CHARGE                       = 0x088B,
+    SMSG_CLEAR_ALL_SPELL_CHARGES                      = 0x088B,
     SMSG_CLEAR_BOSS_EMOTES                            = 0x118B,
     SMSG_CLEAR_COOLDOWN                               = 0x0226,
     SMSG_CLEAR_COOLDOWNS                              = 0x0BFA,

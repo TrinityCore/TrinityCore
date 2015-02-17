@@ -42,6 +42,7 @@
 #include "Pet.h"
 #include "ReputationMgr.h"
 #include "MiscPackets.h"
+#include "SpellHistory.h"
 
 class Aura;
 //
@@ -470,7 +471,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //408
     &AuraEffect::HandleNULL,                                      //409
     &AuraEffect::HandleNULL,                                      //410
-    &AuraEffect::HandleNULL,                                      //411 SPELL_AURA_MOD_CHARGES
+    &AuraEffect::HandleNoImmediateEffect,                         //411 SPELL_AURA_MOD_MAX_CHARGES implemented in SpellHistory::GetMaxCharges
     &AuraEffect::HandleNULL,                                      //412
     &AuraEffect::HandleNULL,                                      //413
     &AuraEffect::HandleNULL,                                      //414
@@ -510,19 +511,19 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //448
     &AuraEffect::HandleNULL,                                      //449
     &AuraEffect::HandleNULL,                                      //450
-    &AuraEffect::HandleNULL,                                      //451
+    &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_OVERRIDE_PET_SPECS
     &AuraEffect::HandleNULL,                                      //452
-    &AuraEffect::HandleNULL,                                      //453
-    &AuraEffect::HandleNULL,                                      //454
+    &AuraEffect::HandleNoImmediateEffect,                         //453 SPELL_AURA_CHARGE_RECOVERY_MOD implemented in SpellHistory::GetChargeRecoveryTime
+    &AuraEffect::HandleNoImmediateEffect,                         //454 SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER implemented in SpellHistory::GetChargeRecoveryTime
     &AuraEffect::HandleNULL,                                      //455
-    &AuraEffect::HandleNULL,                                      //456
-    &AuraEffect::HandleNULL,                                      //457
-    &AuraEffect::HandleNULL,                                      //458
+    &AuraEffect::HandleNoImmediateEffect,                         //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE implemented in SpellHistory::GetChargeRecoveryTime
+    &AuraEffect::HandleNoImmediateEffect,                         //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN implemented in SpellHistory::GetChargeRecoveryTime
+    &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY
     &AuraEffect::HandleNULL,                                      //459
     &AuraEffect::HandleNULL,                                      //460
     &AuraEffect::HandleNULL,                                      //461
     &AuraEffect::HandleNULL,                                      //462
-    &AuraEffect::HandleNULL,                                      //463
+    &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_CRIT_RATING_AFFECTS_PARRY used by Riposte
     &AuraEffect::HandleNULL,                                      //464
     &AuraEffect::HandleNULL,                                      //465
     &AuraEffect::HandleNULL,                                      //466
@@ -1321,15 +1322,13 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         // Remove cooldown of spells triggered on stance change - they may share cooldown with stance spell
         if (spellId)
         {
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                target->ToPlayer()->RemoveSpellCooldown(spellId);
+            target->GetSpellHistory()->ResetCooldown(spellId);
             target->CastSpell(target, spellId, true, NULL, this);
         }
 
         if (spellId2)
         {
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                target->ToPlayer()->RemoveSpellCooldown(spellId2);
+            target->GetSpellHistory()->ResetCooldown(spellId2);
             target->CastSpell(target, spellId2, true, NULL, this);
         }
 

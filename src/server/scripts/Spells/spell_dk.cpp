@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
 #include "Containers.h"
 
 enum DeathKnightSpells
@@ -148,7 +149,7 @@ class spell_dk_anti_magic_shell : public SpellScriptLoader
                     {
                         // Cannot reduce cooldown by more than 50%
                         int32 val = std::min(glyph->GetAmount(), int32(absorbedAmount) * 100 / maxHealth);
-                        player->ModifySpellCooldown(GetId(), -int32(player->GetSpellCooldownDelay(GetId()) * val / 100));
+                        player->GetSpellHistory()->ModifyCooldown(GetId(), -int32(player->GetSpellHistory()->GetRemainingCooldown(GetId()) * val / 100));
                     }
             }
 

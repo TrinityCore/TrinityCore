@@ -106,7 +106,6 @@ class Pet : public Guardian
         bool IsPetAura(Aura const* aura);
 
         void _LoadSpellCooldowns();
-        void _SaveSpellCooldowns(SQLTransaction& trans);
         void _LoadAuras(uint32 timediff);
         void _SaveAuras(SQLTransaction& trans);
         void _LoadSpells();
@@ -119,7 +118,6 @@ class Pet : public Guardian
         bool unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         bool removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         void CleanupActionBar();
-        virtual void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs) override;
 
         PetSpellMap     m_spells;
         AutoSpellList   m_autospells;

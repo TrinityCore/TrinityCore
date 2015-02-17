@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
 #include "SpellScript.h"
 #include "Transport.h"
 #include "TransportMgr.h"
@@ -644,10 +645,10 @@ protected:
     {
         if (Instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) == IN_PROGRESS &&
             !me->HasUnitState(UNIT_STATE_CASTING) && !me->HasReactState(REACT_PASSIVE) &&
-            !me->HasSpellCooldown(BurningPitchId))
+            !me->GetSpellHistory()->HasCooldown(BurningPitchId))
         {
             DoCastAOE(BurningPitchId, true);
-            me->_AddCreatureSpellCooldown(BurningPitchId, time(NULL) + urand(3000, 4000) / IN_MILLISECONDS);
+            me->GetSpellHistory()->AddCooldown(BurningPitchId, 0, std::chrono::milliseconds(urand(3000, 4000)));
         }
     }
 
@@ -1469,7 +1470,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
             DoCast(me, SPELL_BATTLE_EXPERIENCE, true);
             DoCast(me, SPELL_TELEPORT_TO_ENEMY_SHIP, true);
             DoCast(me, Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_MELEE_TARGETING_ON_ORGRIMS_HAMMER : SPELL_MELEE_TARGETING_ON_SKYBREAKER, true);
-            me->_AddCreatureSpellCooldown(BurningPitchId, time(NULL) + 3);
+            me->GetSpellHistory()->AddCooldown(BurningPitchId, 0, std::chrono::seconds(3));
 
             std::list<Player*> players;
             Trinity::UnitAuraCheck check(true, Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
@@ -1698,11 +1699,11 @@ class npc_gunship_rocketeer : public CreatureScript
                     return;
 
                 uint32 spellId = me->GetEntry() == NPC_SKYBREAKER_MORTAR_SOLDIER ? SPELL_ROCKET_ARTILLERY_A : SPELL_ROCKET_ARTILLERY_H;
-                if (me->HasSpellCooldown(spellId))
+                if (me->GetSpellHistory()->HasCooldown(spellId))
                     return;
 
                 DoCastAOE(spellId, true);
-                me->_AddCreatureSpellCooldown(spellId, time(NULL) + 9);
+                me->GetSpellHistory()->AddCooldown(spellId, 0, std::chrono::seconds(9));
             }
         };
 
