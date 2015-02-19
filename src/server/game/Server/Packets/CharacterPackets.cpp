@@ -46,7 +46,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     PreLoadPosition.y = fields[11].GetFloat();
     PreLoadPosition.z = fields[12].GetFloat();
 
-    if (uint32 guildId = fields[13].GetUInt32())
+    if (ObjectGuid::LowType guildId = fields[13].GetUInt64())
         GuildGuid = ObjectGuid::Create<HighGuid::Guild>(guildId);
 
     uint32 playerFlags  = fields[14].GetUInt32();
