@@ -4218,7 +4218,7 @@ void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
 
 void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 {
-    // remove cooldowns on spells that have <= 10 min CD
+    // remove cooldowns on spells that have < 10 min CD
 
     SpellCooldowns::iterator itr, next;
     for (itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); itr = next)
@@ -4226,10 +4226,10 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
         next = itr;
         ++next;
         SpellInfo const* entry = sSpellMgr->GetSpellInfo(itr->first);
-        // check if spellentry is present and if the cooldown is less or equal to 10 min
+        // check if spellentry is present and if the cooldown is less than 10 min
         if (entry &&
-            entry->RecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
-            entry->CategoryRecoveryTime <= 10 * MINUTE * IN_MILLISECONDS)
+            entry->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            entry->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS)
         {
             // remove & notify
             RemoveSpellCooldown(itr->first, true);
@@ -19116,7 +19116,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
                 else if (mapDiff->hasErrorMessage) // if (missingAchievement) covered by this case
                     SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, target_difficulty);
                 else if (missingItem)
-                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, sObjectMgr->GetItemTemplate(missingItem)->Name1.c_str());
+                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(missingItem))->Name1.c_str());
                 else if (LevelMin)
                     GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED), LevelMin);
             }
@@ -22168,6 +22168,34 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
     data << uint32(spellInfo->Id);
     data << uint64(GetGUID());
     SendDirectMessage(&data);
+
+    uint32 cat = spellInfo->GetCategory();
+    if (cat && spellInfo->CategoryRecoveryTime)
+    {
+        SpellCategoryStore::const_iterator ct = sSpellsByCategoryStore.find(cat);
+        if (ct != sSpellsByCategoryStore.end())
+        {
+            SpellCategorySet const& catSet = ct->second;
+            for (SpellCooldowns::const_iterator i = m_spellCooldowns.begin(); i != m_spellCooldowns.end(); ++i)
+            {
+                if (i->first == spellInfo->Id) // skip main spell, already handled above
+                    continue;
+
+                SpellInfo const* spellInfo2 = sSpellMgr->GetSpellInfo(i->first);
+                if (!spellInfo2 || !spellInfo2->IsCooldownStartedOnEvent())
+                    continue;
+
+                if (catSet.find(i->first) != catSet.end())
+                {
+                    // Send activate cooldown timer (possible 0) at client side
+                    WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
+                    data << uint32(i->first);
+                    data << uint64(GetGUID());
+                    SendDirectMessage(&data);
+                }
+            }
+        }
+    }
 }
 
 void Player::UpdatePotionCooldown(Spell* spell)
@@ -25077,6 +25105,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max FROM character_skills WHERE guid = '%u'", GUID_LOPART(m_guid));
 
     uint32 count = 0;
+    std::unordered_map<uint32, uint32> loadedSkillValues;
     if (result)
     {
         do
@@ -25144,8 +25173,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SetUInt32Value(PLAYER_SKILL_BONUS_INDEX(count), 0);
 
             mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(count, SKILL_UNCHANGED)));
-
-            LearnSkillRewardedSpells(skill, value);
+            loadedSkillValues[skill] = value;
 
             ++count;
 
@@ -25157,6 +25185,10 @@ void Player::_LoadSkills(PreparedQueryResult result)
         }
         while (result->NextRow());
     }
+
+    // Learn skill rewarded spells after all skills have been loaded to prevent learning a skill from them before its loaded with proper value from DB
+    for (auto& skill : loadedSkillValues)
+        LearnSkillRewardedSpells(skill.first, skill.second);
 
     for (; count < PLAYER_MAX_SKILLS; ++count)
     {

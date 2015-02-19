@@ -275,7 +275,7 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
                     // Add remaining ticks to damage done
                     if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, EFFECT_0, caster->GetGUID()))
-                        damage += aurEff->GetDamage() * int32(ticks - aurEff->GetTickNumber());
+                        damage += (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct() * int32(ticks - aurEff->GetTickNumber());
 
                     damage /= int32(ticks);
 
