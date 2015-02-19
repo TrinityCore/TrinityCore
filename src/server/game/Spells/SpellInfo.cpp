@@ -1823,7 +1823,10 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
                 }
                 case SPELL_AURA_MOUNTED:
                 {
-                    if (effect->MiscValueB && !player->GetMountCapability(effect->MiscValueB))
+                    uint32 mountType = effect->MiscValueB;
+                    if (MountEntry const* mountEntry = sDB2Manager.GetMount(Id))
+                        mountType = mountEntry->MountTypeId;
+                    if (mountType && !player->GetMountCapability(mountType))
                         return SPELL_FAILED_NOT_HERE;
                     break;
                 }
