@@ -32,6 +32,7 @@ char const ItemModifiedAppearanceEntryfmt[] = "niiiii";
 char const ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
 char const ItemXBonusTreeEntryfmt[] = "nii";
 char const KeyChainfmt[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+char const Mountfmt[] = "niiisssiii";
 char const OverrideSpellDataEntryfmt[] = "niiiiiiiiiixx";
 char const PhaseGroupEntryfmt[] = "nii";
 char const SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";

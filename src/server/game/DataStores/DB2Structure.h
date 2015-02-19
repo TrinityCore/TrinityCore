@@ -239,6 +239,20 @@ struct KeyChainEntry
     uint8       Key[KEYCHAIN_SIZE];
 };
 
+struct MountEntry
+{
+    uint32 Id;
+    uint32 MountTypeId;
+    uint32 DisplayId;
+    uint32 Flags;
+    LocalizedString* Name;
+    LocalizedString* Description;
+    LocalizedString* SourceDescription;
+    uint32 Source;
+    uint32 SpellId;
+    uint32 PlayerConditionId;
+};
+
 #define MAX_OVERRIDE_SPELL 10
 
 struct OverrideSpellDataEntry
