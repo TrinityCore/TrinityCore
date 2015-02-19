@@ -387,6 +387,37 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
+void MotionMaster::MoveCirclePath(Position const& centerPos, float z, float radius, bool clockwise)
+{
+    float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
+    float angle = centerPos.GetAngle(_owner->GetPositionX(), _owner->GetPositionY());
+
+    Movement::MoveSplineInit init(_owner);
+
+    for (uint8 i = 0; i < 16; angle += step, ++i)
+    {
+        G3D::Vector3 point;
+        point.x = centerPos.GetPositionX() + radius * cosf(angle);
+        point.y = centerPos.GetPositionY() + radius * sinf(angle);
+        point.z = z;
+        init.Path().push_back(point);
+    }
+
+    if (_owner->CanFly())
+    {
+        init.SetFly();
+        init.SetCyclic();
+        init.SetAnimation(Movement::ToFly);
+    }
+    else
+    {
+        init.SetWalk(true);
+        init.SetCyclic();
+    }
+
+    init.Launch();
+}
+
 void MotionMaster::MoveFall(uint32 id /*=0*/)
 {
     // use larger distance for vmap height search than in most other cases
