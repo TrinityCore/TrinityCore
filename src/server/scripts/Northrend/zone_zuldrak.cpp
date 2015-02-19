@@ -313,7 +313,7 @@ public:
             {
                 player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
                 gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
-                gymerDummy->DespawnOrUnsummon();
+                gymerDummy->DespawnOrUnsummon(4 * IN_MILLISECONDS);
             }
         }
         return true;
