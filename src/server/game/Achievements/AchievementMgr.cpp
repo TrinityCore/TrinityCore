@@ -733,7 +733,7 @@ void AchievementMgr<Guild>::LoadFromDB(PreparedQueryResult achievementResult, Pr
         {
             Field* fields = criteriaResult->Fetch();
             uint32 id      = fields[0].GetUInt32();
-            uint32 counter = fields[1].GetUInt32();
+            uint64 counter = fields[1].GetUInt64();
             time_t date    = time_t(fields[2].GetUInt32());
             ObjectGuid::LowType guid = fields[3].GetUInt64();
 
