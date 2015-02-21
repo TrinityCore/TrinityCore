@@ -30,6 +30,7 @@ void AddSC_rogue_spell_scripts();
 void AddSC_shaman_spell_scripts();
 void AddSC_warlock_spell_scripts();
 void AddSC_warrior_spell_scripts();
+void AddSC_monk_spell_scripts();
 void AddSC_quest_spell_scripts();
 void AddSC_item_spell_scripts();
 void AddSC_holiday_spell_scripts();
@@ -684,6 +685,202 @@ void AddSC_boss_slabhide();
 void AddSC_boss_ozruk();
 void AddSC_boss_high_priestess_azil();
 
+//Pandaria
+void AddSC_boss_ordos();
+void AddSC_boss_sha_of_anger();
+
+//Pandaria Instances
+void AddSC_instance_mogushan_palace();
+void AddSC_boss_gekkan();
+void AddSC_boss_trial_of_king();
+void AddSC_boss_xin_the_weaponmaster();
+
+// Mogushan Vaults
+void AddSC_instance_mogushan_vaults();
+void AddSC_boss_elegon();
+void AddSC_boss_feng_the_accursed();
+void AddSC_boss_garajal_the_spiritbinder();
+void AddSC_boss_the_spirit_kings();
+void AddSC_boss_the_stone_guard();
+void AddSC_boss_will_of_the_emperor();
+
+// Shadopan Monastery
+void AddSC_instance_shadopan_monastery();
+void AddSC_boss_gu_cloudstrike();
+void AddSC_boss_master_snowdrift();
+void AddSC_boss_sha_of_violence();
+void AddSC_boss_taran_zhu();
+
+// Temple of the Jade Serpent
+void AddSC_instance_temple_of_the_jade_serpent();
+void AddSC_boss_liu_flameheart();
+void AddSC_boss_lorewalker_stonestep();
+void AddSC_boss_sha_of_doubt();
+void AddSC_boss_wise_mari();
+
+// Terrace of Endless Spring
+void AddSC_instance_terrace_of_the_endless_spring();
+void AddSC_boss_lei_shi();
+void AddSC_boss_protectors_of_the_endless();
+void AddSC_boss_sha_of_fear();
+void AddSC_boss_tsulong();
+
+// Stormstout Brewery
+void AddSC_instance_stormstout_brewery();
+void AddSC_boss_hoptallus();
+void AddSC_boss_ook_ook();
+void AddSC_boss_yan_zhu();
+
+// Gate of the Setting Sun
+void AddSC_instance_gate_of_the_setting_sun();
+void AddSC_boss_commander_rimok();
+void AddSC_boss_raigonn();
+void AddSC_boss_saboteur_kiptilak();
+void AddSC_boss_striker_gadok();
+
+// Heart of Fear
+void AddSC_instance_heart_of_fear();
+void AddSC_boss_ambershaper_unsok();
+void AddSC_boss_blade_lord_tayak();
+void AddSC_boss_garalon();
+void AddSC_boss_grand_empress_shekzeer();
+void AddSC_boss_imperial_vizier_zorlok();
+void AddSC_boss_wind_lord_meljarak();
+
+// Siege of Niuzao Temple
+void AddSC_instance_siege_of_niuzao_temple();
+void AddSC_boss_commander_vojak();
+void AddSC_boss_general_pavalak();
+void AddSC_boss_vizier_jinbak();
+void AddSC_boss_wing_leader_neronok();
+
+// SiegeOfOrgrimmar
+void AddSC_instance_SiegeOfOrgrimmar();
+void AddSC_boss_Immerseus();
+void AddSC_boss_TheFallenProtectors();
+void AddSC_boss_Norushen();
+void AddSC_boss_ShaOfPride();
+void AddSC_boss_Galakras();
+void AddSC_boss_IronJuggernaut();
+void AddSC_boss_KorKron();
+void AddSC_boss_GeneralNazgrim();
+void AddSC_boss_Malkorok();
+void AddSC_boss_SpoilsOfPandaria();
+void AddSC_boss_Thok();
+void AddSC_boss_SiegecrafterBlackfuse();
+void AddSC_boss_ParagonsOfTheKlaxxi();
+void AddSC_boss_GarroshHellscream();
+
+// Throne Of Thunder
+void AddSC_instance_ThroneOfThunder();
+void AddSC_boss_Jinrokh();
+void AddSC_boss_Horridon();
+void AddSC_boss_Council();
+void AddSC_boss_Tortos();
+void AddSC_boss_Megaera();
+void AddSC_boss_JiKun();
+void AddSC_boss_Durumu();
+void AddSC_boss_Primordius();
+void AddSC_boss_DarkAnimus();
+void AddSC_boss_IronQon();
+void AddSC_boss_TwinConsorts();
+void AddSC_boss_LeiShen();
+void AddSC_boss_Raden();
+
+// Garrison
+void AddSC_Garrison_Frostwall();
+
+// Draenor Worldbosses
+void AddSC_worldboss_Drov();
+void AddSC_worldboss_Tarlna();
+void AddSC_worldboss_Rukhmar();
+
+// Auchindoun Dungeon
+void AddSC_instance_Auchindoun();
+void AddSC_boss_azzakel();
+void AddSC_boss_Nyami();
+void AddSC_boss_ProtectorOfAuch();
+void AddSC_boss_Terongor();
+
+// BloodmaulSlagMines
+void AddSC_instance_BloodmaulSlagMines();
+void AddSC_boss_Crushto();
+void AddSC_boss_Gugrokk();
+void AddSC_boss_Magmolatus();
+void AddSC_boss_Roltall();
+
+// IronDocks
+void AddSC_instance_IronDocks();
+void AddSC_boss_GrimrailEnforcers();
+void AddSC_boss_Nokgar();
+void AddSC_boss_Oshir();
+void AddSC_boss_Skulloc();
+
+// GrimrailDepot
+void AddSC_instance_GrimrailDepot();
+void AddSC_boss_BlackrockAssaultCommander();
+void AddSC_boss_RocketAndBorka();
+void AddSC_boss_ThunderlordGeneral();
+
+// ShadowmoonBurialGrounds
+void AddSC_instance_ShadowmoonBurialGrounds();
+void AddSC_boss_Bonemaw();
+void AddSC_boss_Nerzhul();
+void AddSC_boss_Nhallish();
+void AddSC_boss_SadanaBloodfury();
+
+// Skyreach
+void AddSC_instance_Skyreach();
+void AddSC_boss_Araknath();
+void AddSC_boss_Ranjit();
+void AddSC_boss_Rukhran();
+void AddSC_boss_Viryx();
+
+// TheEverbloom
+void AddSC_instance_TheEverbloom();
+void AddSC_boss_AncientProtectors();
+void AddSC_boss_ArchmageSol();
+void AddSC_boss_Witherbark();
+void AddSC_boss_Xeritac();
+void AddSC_boss_Yalnu();
+
+// UpperBlackrockSpire
+void AddSC_instance_UpperBlackrockSpire();
+void AddSC_boss_Gorashan();
+void AddSC_boss_Kyrak();
+void AddSC_boss_Ragewing();
+void AddSC_boss_Tharbek();
+void AddSC_boss_Zaela();
+
+// BlackrockFoundry
+void AddSC_instance_BlackrockFoundry();
+void AddSC_boss_Blackhand();
+void AddSC_boss_Darmac();
+void AddSC_boss_HansgarAndFranzok();
+void AddSC_boss_Kagraz();
+void AddSC_boss_Kromog();
+void AddSC_boss_Oregorger();
+void AddSC_boss_TheBlastFurnace();
+void AddSC_boss_TheIronMaidens();
+void AddSC_boss_Thogar();
+
+// Highmaul
+void AddSC_instance_Highmaul();
+void AddSC_boss_Brackenspore();
+void AddSC_boss_KargathBladefist();
+void AddSC_boss_Koragh();
+void AddSC_boss_Margok();
+void AddSC_boss_Tectus();
+void AddSC_boss_TheButcher();
+void AddSC_boss_TwinOgron();
+
+// Objectscripts
+void AddSC_Bonemaw_doorlevers();
+void AddSC_bossdoor_levers1();
+void AddSC_Highmaul_doorlevers();
+void AddSC_karabor_doorlevers();
+void AddSC_SpiresofArak_doorlevers();
+
 // Events
 void AddSC_event_childrens_week();
 
@@ -722,7 +919,9 @@ void AddScripts()
     AddOutlandScripts();
     AddNorthrendScripts();
     AddMaelstromScripts();
-    AddEventScripts();
+    //AddPandariaScripts();
+    //AddDraenorScripts();
+	AddEventScripts();
     AddPetScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
@@ -743,7 +942,8 @@ void AddSpellScripts()
     AddSC_shaman_spell_scripts();
     AddSC_warlock_spell_scripts();
     AddSC_warrior_spell_scripts();
-    AddSC_quest_spell_scripts();
+	AddSC_monk_spell_scripts();
+	AddSC_quest_spell_scripts();
     AddSC_item_spell_scripts();
     AddSC_holiday_spell_scripts();
 }
@@ -1426,6 +1626,214 @@ void AddMaelstromScripts()
 #endif
 }
 
+void AddPandariaScripts()
+{
+#ifdef SCRIPTS
+    //Pandaria
+    AddSC_boss_ordos();
+    AddSC_boss_sha_of_anger();
+
+    // SiegeOfOrgrimmar
+    AddSC_instance_SiegeOfOrgrimmar();
+    AddSC_boss_Immerseus();
+    AddSC_boss_TheFallenProtectors();
+    AddSC_boss_Norushen();
+    AddSC_boss_ShaOfPride();
+    AddSC_boss_Galakras();
+    AddSC_boss_IronJuggernaut();
+    AddSC_boss_KorKron();
+    AddSC_boss_GeneralNazgrim();
+    AddSC_boss_Malkorok();
+    AddSC_boss_SpoilsOfPandaria();
+    AddSC_boss_Thok();
+    AddSC_boss_SiegecrafterBlackfuse();
+    AddSC_boss_ParagonsOfTheKlaxxi();
+    AddSC_boss_GarroshHellscream();
+
+    // Throne Of Thunder
+    AddSC_instance_ThroneOfThunder();
+    AddSC_boss_Jinrokh();
+    AddSC_boss_Horridon();
+    AddSC_boss_Council();
+    AddSC_boss_Tortos();
+    AddSC_boss_Megaera();
+    AddSC_boss_JiKun();
+    AddSC_boss_Durumu();
+    AddSC_boss_Primordius();
+    AddSC_boss_DarkAnimus();
+    AddSC_boss_IronQon();
+    AddSC_boss_TwinConsorts();
+    AddSC_boss_LeiShen();
+    AddSC_boss_Raden();
+
+    // Mogushan Palace
+    AddSC_instance_mogushan_palace();
+    AddSC_boss_gekkan();
+    AddSC_boss_trial_of_king();
+    AddSC_boss_xin_the_weaponmaster();
+
+    // Mogushan Vaults
+    AddSC_instance_mogushan_vaults();
+    AddSC_boss_elegon();
+    AddSC_boss_feng_the_accursed();
+    AddSC_boss_garajal_the_spiritbinder();
+    AddSC_boss_the_spirit_kings();
+    AddSC_boss_the_stone_guard();
+    AddSC_boss_will_of_the_emperor();
+
+    // Shadopan Monastery
+    AddSC_instance_shadopan_monastery();
+    AddSC_boss_gu_cloudstrike();
+    AddSC_boss_master_snowdrift();
+    AddSC_boss_sha_of_violence();
+    AddSC_boss_taran_zhu();
+
+    // Temple of the Jade Serpent
+    AddSC_instance_temple_of_the_jade_serpent();
+    AddSC_boss_liu_flameheart();
+    AddSC_boss_lorewalker_stonestep();
+    AddSC_boss_sha_of_doubt();
+    AddSC_boss_wise_mari();
+
+    // Terrace of Endless Spring
+    AddSC_instance_terrace_of_the_endless_spring();
+    AddSC_boss_lei_shi();
+    AddSC_boss_protectors_of_the_endless();
+    AddSC_boss_sha_of_fear();
+    AddSC_boss_tsulong();
+
+    // Stormstout Brewery
+    AddSC_instance_stormstout_brewery();
+    AddSC_boss_hoptallus();
+    AddSC_boss_ook_ook();
+    AddSC_boss_yan_zhu();
+
+    // gate_of_the_setting_sun
+    AddSC_instance_gate_of_the_setting_sun();
+    AddSC_boss_commander_rimok();
+    AddSC_boss_raigonn();
+    AddSC_boss_saboteur_kiptilak();
+    AddSC_boss_striker_gadok();
+
+    // Heart of Fear
+    AddSC_instance_heart_of_fear();
+    AddSC_boss_ambershaper_unsok();
+    AddSC_boss_blade_lord_tayak();
+    AddSC_boss_garalon();
+    AddSC_boss_grand_empress_shekzeer();
+    AddSC_boss_imperial_vizier_zorlok();
+    AddSC_boss_wind_lord_meljarak();
+
+    // Siege of Niuzao Temple
+    AddSC_instance_siege_of_niuzao_temple();
+    AddSC_boss_commander_vojak();
+    AddSC_boss_general_pavalak();
+    AddSC_boss_vizier_jinbak();
+    AddSC_boss_wing_leader_neronok();
+
+#endif
+}
+
+void AddDraenorScripts()
+{
+#ifdef SCRIPTS
+    //Garrison
+    AddSC_Garrison_Frostwall();
+
+    // Draenor Worldbosses
+    AddSC_worldboss_Drov();
+    AddSC_worldboss_Tarlna();
+    AddSC_worldboss_Rukhmar();
+
+    // Auchindoun Dungeon
+    AddSC_instance_Auchindoun();
+    AddSC_boss_azzakel();
+    AddSC_boss_Nyami();
+    AddSC_boss_ProtectorOfAuch();
+    AddSC_boss_Terongor();
+
+    // BloodmaulSlagMines
+    AddSC_instance_BloodmaulSlagMines();
+    AddSC_boss_Crushto();
+    AddSC_boss_Gugrokk();
+    AddSC_boss_Magmolatus();
+    AddSC_boss_Roltall();
+
+    // IronDocks
+    AddSC_instance_IronDocks();
+    AddSC_boss_GrimrailEnforcers();
+    AddSC_boss_Nokgar();
+    AddSC_boss_Oshir();
+    AddSC_boss_Skulloc();
+
+    // GrimrailDepot
+    AddSC_instance_GrimrailDepot();
+    AddSC_boss_BlackrockAssaultCommander();
+    AddSC_boss_RocketAndBorka();
+    AddSC_boss_ThunderlordGeneral();
+
+    // ShadowmoonBurialGrounds
+    AddSC_instance_ShadowmoonBurialGrounds();
+    AddSC_boss_Bonemaw();
+    AddSC_boss_Nerzhul();
+    AddSC_boss_Nhallish();
+    AddSC_boss_SadanaBloodfury();
+
+    // Skyreach
+    AddSC_instance_Skyreach();
+    AddSC_boss_Araknath();
+    AddSC_boss_Ranjit();
+    AddSC_boss_Rukhran();
+    AddSC_boss_Viryx();
+
+    // TheEverbloom
+    AddSC_instance_TheEverbloom();
+    AddSC_boss_AncientProtectors();
+    AddSC_boss_ArchmageSol();
+    AddSC_boss_Witherbark();
+    AddSC_boss_Xeritac();
+    AddSC_boss_Yalnu();
+
+    // UpperBlackrockSpire
+    AddSC_instance_UpperBlackrockSpire();
+    AddSC_boss_Gorashan();
+    AddSC_boss_Kyrak();
+    AddSC_boss_Ragewing();
+    AddSC_boss_Tharbek();
+    AddSC_boss_Zaela();
+
+    // BlackrockFoundry
+    AddSC_instance_BlackrockFoundry();
+    AddSC_boss_Blackhand();
+    AddSC_boss_Darmac();
+    AddSC_boss_HansgarAndFranzok();
+    AddSC_boss_Kagraz();
+    AddSC_boss_Kromog();
+    AddSC_boss_Oregorger();
+    AddSC_boss_TheBlastFurnace();
+    AddSC_boss_TheIronMaidens();
+    AddSC_boss_Thogar();
+
+    // Highmaul
+    AddSC_instance_Highmaul();
+    AddSC_boss_Brackenspore();
+    AddSC_boss_KargathBladefist();
+    AddSC_boss_Koragh();
+    AddSC_boss_Margok();
+    AddSC_boss_Tectus();
+    AddSC_boss_TheButcher();
+    AddSC_boss_TwinOgron();
+
+    // Objectscripts
+    AddSC_Bonemaw_doorlevers();
+    AddSC_bossdoor_levers1();
+    AddSC_Highmaul_doorlevers();
+    AddSC_karabor_doorlevers();
+    AddSC_SpiresofArak_doorlevers();
+
+#endif
+}
+
 void AddEventScripts()
 {
 #ifdef SCRIPTS
@@ -1464,13 +1872,41 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
+void AddSC_GossipNpc();
+void AddSC_npc_organizer();
+void AddSC_go_scripts2();
+void AddSC_npc_battlemaster();
+void AddSC_npc_dungeonmaster();
+void AddSC_npc_raidmaster();
+void AddSC_cs_world_chat();
+void AddSC_Arena_Gobjects();
+void AddSC_GateOfTheSettingSun_doorlevers();
+void AddSC_HeartofFear_doorlevers();
+void AddSC_ograid_doorlevers();
+void AddSC_shadopan_monastery_doorlevers();
+void AddSC_TempleOfTheJadeSerpent_doorlevers();
+void AddSC_npc_shop();
 
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
-    /* This is where custom scripts should be added. */
+/* This is where custom scripts should be added. */
+	AddSC_GossipNpc();
+	AddSC_npc_organizer();
+	AddSC_go_scripts2();
+	AddSC_npc_battlemaster();
+	AddSC_npc_dungeonmaster();
+	AddSC_npc_raidmaster();
+	AddSC_cs_world_chat();
+	AddSC_Arena_Gobjects();
+	AddSC_GateOfTheSettingSun_doorlevers();
+	AddSC_HeartofFear_doorlevers();
+	AddSC_ograid_doorlevers();
+	AddSC_shadopan_monastery_doorlevers();
+	AddSC_TempleOfTheJadeSerpent_doorlevers();
+	AddSC_npc_shop();
 
 #endif
 }
