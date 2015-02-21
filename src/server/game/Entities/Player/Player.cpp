@@ -1164,7 +1164,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
             {
                 if (iProto->Effects.size() >= 1)
                 {
-                    switch (iProto->Effects[0].Category)
+                    switch (iProto->Effects[0]->Category)
                     {
                         case SPELL_CATEGORY_FOOD:                                // food
                             count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
@@ -7967,14 +7967,14 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
 
     for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
-        ItemEffect const& effectData = proto->Effects[i];
+        ItemEffectEntry const* effectData = proto->Effects[i];
 
         // wrong triggering type
-        if (apply && effectData.Trigger != ITEM_SPELLTRIGGER_ON_EQUIP)
+        if (apply && effectData->Trigger != ITEM_SPELLTRIGGER_ON_EQUIP)
             continue;
 
         // check if it is valid spell
-        SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(effectData.SpellID);
+        SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(effectData->SpellID);
         if (!spellproto)
             continue;
 
@@ -8091,16 +8091,16 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
     {
         for (uint8 i = 0; i < proto->Effects.size(); ++i)
         {
-            ItemEffect const& effectData = proto->Effects[i];
+            ItemEffectEntry const* effectData = proto->Effects[i];
 
             // wrong triggering type
-            if (effectData.Trigger != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
+            if (effectData->Trigger != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData.SpellID);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.player.items", "WORLD: unknown Item spellid %i", effectData.SpellID);
+                TC_LOG_ERROR("entities.player.items", "WORLD: unknown Item spellid %i", effectData->SpellID);
                 continue;
             }
 
@@ -8194,10 +8194,10 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     // special learning case
     if (proto->Effects.size() >= 2)
     {
-        if (proto->Effects[0].SpellID == 483 || proto->Effects[0].SpellID == 55884)
+        if (proto->Effects[0]->SpellID == 483 || proto->Effects[0]->SpellID == 55884)
         {
-            uint32 learn_spell_id = proto->Effects[0].SpellID;
-            uint32 learning_spell_id = proto->Effects[1].SpellID;
+            uint32 learn_spell_id = proto->Effects[0]->SpellID;
+            uint32 learning_spell_id = proto->Effects[1]->SpellID;
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
             if (!spellInfo)
@@ -8222,16 +8222,16 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     // item spells cast at use
     for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
-        ItemEffect const& effectData = proto->Effects[i];
+        ItemEffectEntry const* effectData = proto->Effects[i];
 
         // wrong triggering type
-        if (effectData.Trigger != ITEM_SPELLTRIGGER_ON_USE)
+        if (effectData->Trigger != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData.SpellID);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring", proto->GetId(), effectData.SpellID);
+            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring", proto->GetId(), effectData->SpellID);
             continue;
         }
 
@@ -11365,8 +11365,8 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
 
     // learning (recipes, mounts, pets, etc.)
     if (proto->Effects.size() >= 2)
-        if (proto->Effects[0].SpellID == 483 || proto->Effects[0].SpellID == 55884)
-            if (HasSpell(proto->Effects[1].SpellID))
+        if (proto->Effects[0]->SpellID == 483 || proto->Effects[0]->SpellID == 55884)
+            if (HasSpell(proto->Effects[1]->SpellID))
                 return EQUIP_ERR_INTERNAL_BAG_ERROR;
 
     return EQUIP_ERR_OK;
@@ -11573,10 +11573,10 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
 
         const ItemTemplate* proto = pItem->GetTemplate();
         for (uint8 i = 0; i < proto->Effects.size(); ++i)
-            if (proto->Effects[i].Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
+            if (proto->Effects[i]->Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
                 if (bag == INVENTORY_SLOT_BAG_0 || (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END))
-                    if (!HasAura(proto->Effects[i].SpellID))
-                        CastSpell(this, proto->Effects[i].SpellID, true, pItem);
+                    if (!HasAura(proto->Effects[i]->SpellID))
+                        CastSpell(this, proto->Effects[i]->SpellID, true, pItem);
 
         return pItem;
     }
@@ -11616,10 +11616,10 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
 
         const ItemTemplate* proto = pItem2->GetTemplate();
         for (uint8 i = 0; i < proto->Effects.size(); ++i)
-            if (proto->Effects[i].Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
+            if (proto->Effects[i]->Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
                 if (bag == INVENTORY_SLOT_BAG_0 || (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END))
-                    if (!HasAura(proto->Effects[i].SpellID))
-                        CastSpell(this, proto->Effects[i].SpellID, true, pItem2);
+                    if (!HasAura(proto->Effects[i]->SpellID))
+                        CastSpell(this, proto->Effects[i]->SpellID, true, pItem2);
 
         return pItem2;
     }
@@ -11964,8 +11964,8 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         const ItemTemplate* proto = pItem->GetTemplate();
         for (uint8 i = 0; i < proto->Effects.size(); ++i)
-            if (proto->Effects[i].Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
-                RemoveAurasDueToSpell(proto->Effects[i].SpellID);
+            if (proto->Effects[i]->Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
+                RemoveAurasDueToSpell(proto->Effects[i]->SpellID);
 
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
         sScriptMgr->OnItemRemove(this, pItem);
@@ -21618,8 +21618,8 @@ void Player::UpdatePotionCooldown(Spell* spell)
         // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
             for (uint8 idx = 0; idx < proto->Effects.size(); ++idx)
-                if (proto->Effects[idx].Trigger == ITEM_SPELLTRIGGER_ON_USE)
-                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Effects[idx].SpellID))
+                if (proto->Effects[idx]->Trigger == ITEM_SPELLTRIGGER_ON_USE)
+                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Effects[idx]->SpellID))
                         GetSpellHistory()->SendCooldownEvent(spellInfo, m_lastPotionId);
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
@@ -22543,22 +22543,21 @@ void Player::ApplyEquipCooldown(Item* pItem)
 
     for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
-        ItemEffect const& effectData = proto->Effects[i];
+        ItemEffectEntry const* effectData = proto->Effects[i];
 
         // wrong triggering type (note: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE not have cooldown)
-        if (effectData.Trigger != ITEM_SPELLTRIGGER_ON_USE)
+        if (effectData->Trigger != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
         // Don't replace longer cooldowns by equip cooldown if we have any.
-        SpellCooldowns::iterator itr = m_spellCooldowns.find(effectData.SpellID);
-        if (itr != m_spellCooldowns.end() && itr->second.itemid == pItem->GetEntry() && itr->second.end > time(NULL) + 30)
+        if (GetSpellHistory()->GetRemainingCooldown(effectData->SpellID) > 30 * IN_MILLISECONDS)
             continue;
 
-        GetSpellHistory()->AddCooldown(effectData.SpellID, pItem->GetEntry(), std::chrono::seconds(30));
+        GetSpellHistory()->AddCooldown(effectData->SpellID, pItem->GetEntry(), std::chrono::seconds(30));
 
         WorldPacket data(SMSG_ITEM_COOLDOWN, 12);
         data << pItem->GetGUID();
-        data << uint32(effectData.SpellID);
+        data << uint32(effectData->SpellID);
         GetSession()->SendPacket(&data);
     }
 }

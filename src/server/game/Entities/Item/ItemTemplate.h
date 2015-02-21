@@ -581,20 +581,6 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_GLYPH
 };
 
-#pragma pack(push, 1)
-
-struct ItemEffect
-{
-    uint32  SpellID;
-    uint32  Trigger;
-    int32   Charges;
-    int32   Cooldown;
-    uint32  Category;
-    int32   CategoryCooldown;
-};
-
-#pragma pack(pop)
-
 #define MIN_ITEM_LEVEL 1
 #define MAX_ITEM_LEVEL 1000
 
@@ -657,7 +643,7 @@ struct ItemTemplate
     void GetBaseDamage(float& minDamage, float& maxDamage) const { GetDamage(ExtendedData->ItemLevel, minDamage, maxDamage); }
 
     uint32 MaxDurability;
-    std::vector<ItemEffect> Effects;
+    std::vector<ItemEffectEntry const*> Effects;
 
     // extra fields, not part of db2 files
     uint32 ScriptId;

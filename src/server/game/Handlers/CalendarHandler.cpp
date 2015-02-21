@@ -173,7 +173,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         for (uint8 j = 0; j < MAX_HOLIDAY_FLAGS; ++j)
             data << uint32(holiday->CalendarFlags[j]);      // 10 * m_calendarFlags
 
-        data << holiday->TextureFilename;                   // m_textureFilename (holiday name)
+        data << holiday->TextureFilename->Str[sWorld->GetDefaultDbcLocale()]; // m_textureFilename (holiday name)
     }
 
     SendPacket(&data);

@@ -107,7 +107,10 @@ public:
         for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
         {
             if (predicate(itr))
+            {
+                resetCooldowns.push_back(int32(itr->first));
                 ResetCooldown(itr, false);
+            }
             else
                 ++itr;
         }

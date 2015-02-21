@@ -366,13 +366,13 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
     {
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId))
         {
-            for (uint8 idx = 0; idx < proto->Effects.size(); ++idx)
+            for (ItemEffectEntry const* itemEffect : proto->Effects)
             {
-                if (uint32(proto->Effects[idx].SpellID) == spellInfo->Id)
+                if (itemEffect->SpellID == spellInfo->Id)
                 {
-                    categoryId = proto->Effects[idx].Category;
-                    cooldown = proto->Effects[idx].Cooldown;
-                    categoryCooldown = proto->Effects[idx].CategoryCooldown;
+                    categoryId = itemEffect->Category;
+                    cooldown = itemEffect->Cooldown;
+                    categoryCooldown = itemEffect->CategoryCooldown;
                     break;
                 }
             }
