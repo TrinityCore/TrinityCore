@@ -10003,13 +10003,13 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
         pItem = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (pItem && IsTotemCategoryCompatiableWith(pItem->GetTemplate()->GetTotemCategory(), TotemCategory))
+        if (pItem && IsTotemCategoryCompatibleWith(pItem->GetTemplate()->GetTotemCategory(), TotemCategory))
             return true;
     }
     for (uint8 i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
     {
         pItem = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (pItem && IsTotemCategoryCompatiableWith(pItem->GetTemplate()->GetTotemCategory(), TotemCategory))
+        if (pItem && IsTotemCategoryCompatibleWith(pItem->GetTemplate()->GetTotemCategory(), TotemCategory))
             return true;
     }
     for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
@@ -10019,7 +10019,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
             for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
             {
                 pItem = GetUseableItemByPos(i, j);
-                if (pItem && IsTotemCategoryCompatiableWith(pItem->GetTemplate()->GetTotemCategory(), TotemCategory))
+                if (pItem && IsTotemCategoryCompatibleWith(pItem->GetTemplate()->GetTotemCategory(), TotemCategory))
                     return true;
             }
         }
