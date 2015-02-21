@@ -177,7 +177,9 @@ void WorldSession::HandlePetitionShowSignatures(WorldPackets::Petition::Petition
         signature.Choice = 0;
         signaturesPacket.Signatures.push_back(signature);
 
-        result->NextRow();
+        // Checking the return value just to be double safe
+        if (!result->NextRow())
+            break;
     }
 
     SendPacket(signaturesPacket.Write());
@@ -447,7 +449,9 @@ void WorldSession::HandleOfferPetition(WorldPackets::Petition::OfferPetition& pa
         signature.Choice = 0;
         signaturesPacket.Signatures.push_back(signature);
 
-        result->NextRow();
+        // Checking the return value just to be double safe
+        if (!result->NextRow())
+            break;
     }
 
     player->GetSession()->SendPacket(signaturesPacket.Write());
@@ -551,7 +555,10 @@ void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& 
     {
         Field* fields = result->Fetch();
         guild->AddMember(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()));
-        result->NextRow();
+
+        // Checking the return value just to be double safe
+        if (!result->NextRow())
+            break;
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
