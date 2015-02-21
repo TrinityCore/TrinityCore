@@ -58,6 +58,15 @@ enum RogueSpellIcons
     ICON_ROGUE_IMPROVED_RECUPERATE                  = 4819
 };
 
+enum RogueWeaponSkills
+{
+    SPELL_ROGUE_ONE_HANDED_AXES = 196,
+    SPELL_ROGUE_ONE_HANDED_MACES = 198,
+    SPELL_ROGUE_ONE_HANDED_SWORDS = 201,
+    SPELL_ROGUE_DAGGERS = 1180,
+    SPELL_ROGUE_FIST_WEAPONS = 15590,
+};
+
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
 class spell_rog_blade_flurry : public SpellScriptLoader
 {
@@ -921,6 +930,48 @@ public:
     }
 };
 
+// 76297 - Weapon Skills
+class spell_rog_weapon_skills : public SpellScriptLoader
+{
+public:
+    spell_rog_weapon_skills() : SpellScriptLoader("spell_rog_weapon_skills") { }
+
+    class spell_rog_weapon_skills_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_weapon_skills_SpellScript);
+
+        void HandleCast()
+        {
+            Player *player = GetCaster()->ToPlayer();
+            
+            if (!player->HasSpell(SPELL_ROGUE_DAGGERS))
+                player->LearnSpell(SPELL_ROGUE_DAGGERS, false);
+
+            if (!player->HasSpell(SPELL_ROGUE_FIST_WEAPONS))
+                player->LearnSpell(SPELL_ROGUE_FIST_WEAPONS, false);
+
+            if (!player->HasSpell(SPELL_ROGUE_ONE_HANDED_AXES))
+                player->LearnSpell(SPELL_ROGUE_ONE_HANDED_AXES, false);
+
+            if (!player->HasSpell(SPELL_ROGUE_ONE_HANDED_MACES))
+                player->LearnSpell(SPELL_ROGUE_ONE_HANDED_MACES, false);
+
+            if (!player->HasSpell(SPELL_ROGUE_ONE_HANDED_SWORDS))
+                player->LearnSpell(SPELL_ROGUE_ONE_HANDED_SWORDS, false);
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_rog_weapon_skills_SpellScript::HandleCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_weapon_skills_SpellScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -939,4 +990,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
     new spell_rog_serrated_blades();
+    new spell_rog_weapon_skills();
 }
