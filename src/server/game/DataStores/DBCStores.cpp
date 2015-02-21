@@ -991,7 +991,7 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
     }
 }
 
-bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)
+bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)
 {
     if (requiredTotemCategoryId == 0)
         return true;
