@@ -631,6 +631,7 @@ struct ItemTemplate
     uint32 GetArea() const { return ExtendedData->Area; }
     uint32 GetMap() const { return ExtendedData->Map; }
     uint32 GetBagFamily() const { return ExtendedData->BagFamily; }
+    uint32 GetTotemCategory() const { return ExtendedData->TotemCategory; }
     SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(ExtendedData->SocketColor[index]); }
     uint32 GetSocketBonus() const { return ExtendedData->SocketBonus; }
     uint32 GetGemProperties() const { return ExtendedData->GemProperties; }

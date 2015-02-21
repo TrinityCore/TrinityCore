@@ -10211,6 +10211,34 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& des
     return CanStoreItem(bag, slot, dest, pItem->GetEntry(), count, pItem, swap, NULL);
 }
 
+bool Player::HasItemTotemCategory(uint32 TotemCategory) const
+{
+    Item* item;
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    {
+        item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+            return true;
+    }
+
+    Bag* bag;
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        bag = GetBagByPos(i);
+        if (bag)
+        {
+            for (uint32 j = 0; j < bag->GetBagSize(); ++j)
+            {
+                item = GetUseableItemByPos(i, j);
+                if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 InventoryResult Player::CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec &dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const
 {
     Item* pItem2 = GetItemByPos(bag, slot);
