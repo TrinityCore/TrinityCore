@@ -6146,8 +6146,28 @@ SpellCastResult Spell::CheckItems()
             else
                 totems -= 1;
         }
+
         if (totems != 0)
             return SPELL_FAILED_TOTEMS;
+
+        // Check items for TotemCategory (items presence in inventory)
+        uint32 totemCategory = 2;
+        for (uint8 i = 0; i < 2; ++i)
+        {
+            if (m_spellInfo->TotemCategory[i] != 0)
+            {
+                if (player->HasItemTotemCategory(m_spellInfo->TotemCategory[i]))
+                {
+                    totemCategory -= 1;
+                    continue;
+                }
+            }
+            else
+                totemCategory -= 1;
+        }
+
+        if (totemCategory != 0)
+            return SPELL_FAILED_TOTEM_CATEGORY;
     }
 
     // special checks for spell effects
