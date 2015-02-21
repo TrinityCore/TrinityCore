@@ -2438,14 +2438,7 @@ void ObjectMgr::LoadItemTemplates()
         if (itemItr == _itemTemplateStore.end())
             continue;
 
-        ItemEffect effect;
-        effect.SpellID = effectEntry->SpellID;
-        effect.Trigger = effectEntry->Trigger;
-        effect.Charges = effectEntry->Charges;
-        effect.Cooldown = effectEntry->Cooldown;
-        effect.Category = effectEntry->Category;
-        effect.CategoryCooldown = effectEntry->CategoryCooldown;
-        itemItr->second.Effects.push_back(effect);
+        itemItr->second.Effects.push_back(effectEntry);
     }
 
     // Check if item templates for DBC referenced character start outfit are present

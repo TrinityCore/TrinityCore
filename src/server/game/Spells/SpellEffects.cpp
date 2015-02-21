@@ -5655,8 +5655,8 @@ void Spell::EffectRechargeManaGem(SpellEffIndex /*effIndex*/)
 
         if (Item* pItem = player->GetItemByEntry(item_id))
         {
-            for (size_t x = 0; x < pProto->Effects.size(); ++x)
-                pItem->SetSpellCharges(x, pProto->Effects[x].Charges);
+            for (size_t x = 0; x < pProto->Effects.size() && x < 5; ++x)
+                pItem->SetSpellCharges(x, pProto->Effects[x]->Charges);
             pItem->SetState(ITEM_CHANGED, player);
         }
     }

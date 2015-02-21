@@ -289,8 +289,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owne
     SetUInt32Value(ITEM_FIELD_MAXDURABILITY, itemProto->MaxDurability);
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
 
-    for (uint8 i = 0; i < itemProto->Effects.size(); ++i)
-        SetSpellCharges(i, itemProto->Effects[i].Charges);
+    for (uint8 i = 0; i < itemProto->Effects.size() && i < 5; ++i)
+        SetSpellCharges(i, itemProto->Effects[i]->Charges);
 
     SetUInt32Value(ITEM_FIELD_DURATION, itemProto->GetDuration());
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);

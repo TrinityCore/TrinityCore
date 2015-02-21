@@ -4398,12 +4398,12 @@ void Spell::TakeCastItem()
     bool expendable = false;
     bool withoutCharges = false;
 
-    for (uint8 i = 0; i < proto->Effects.size(); ++i)
+    for (uint8 i = 0; i < proto->Effects.size() && i < 5; ++i)
     {
         // item has limited charges
-        if (proto->Effects[i].Charges)
+        if (proto->Effects[i]->Charges)
         {
-            if (proto->Effects[i].Charges < 0)
+            if (proto->Effects[i]->Charges < 0)
                 expendable = true;
 
             int32 charges = m_CastItem->GetSpellCharges(i);
@@ -4640,11 +4640,11 @@ void Spell::TakeReagents()
         // if CastItem is also spell reagent
         if (castItemTemplate && castItemTemplate->GetId() == itemid)
         {
-            for (uint8 s = 0; s < castItemTemplate->Effects.size(); ++s)
+            for (uint8 s = 0; s < castItemTemplate->Effects.size() && s < 5; ++s)
             {
                 // CastItem will be used up and does not count as reagent
                 int32 charges = m_CastItem->GetSpellCharges(s);
-                if (castItemTemplate->Effects[s].Charges < 0 && abs(charges) < 2)
+                if (castItemTemplate->Effects[s]->Charges < 0 && abs(charges) < 2)
                 {
                     ++itemcount;
                     break;
@@ -6014,8 +6014,8 @@ SpellCastResult Spell::CheckItems()
         if (!proto)
             return SPELL_FAILED_ITEM_NOT_READY;
 
-        for (uint8 i = 0; i < proto->Effects.size(); ++i)
-            if (proto->Effects[i].Charges)
+        for (uint8 i = 0; i < proto->Effects.size() && i < 5; ++i)
+            if (proto->Effects[i]->Charges)
                 if (m_CastItem->GetSpellCharges(i) == 0)
                     return SPELL_FAILED_NO_CHARGES_REMAIN;
 
@@ -6115,11 +6115,11 @@ SpellCastResult Spell::CheckItems()
                     ItemTemplate const* proto = m_CastItem->GetTemplate();
                     if (!proto)
                         return SPELL_FAILED_ITEM_NOT_READY;
-                    for (uint8 s = 0; s < proto->Effects.size(); ++s)
+                    for (uint8 s = 0; s < proto->Effects.size() && s < 5; ++s)
                     {
                         // CastItem will be used up and does not count as reagent
                         int32 charges = m_CastItem->GetSpellCharges(s);
-                        if (proto->Effects[s].Charges < 0 && abs(charges) < 2)
+                        if (proto->Effects[s]->Charges < 0 && abs(charges) < 2)
                         {
                             ++itemcount;
                             break;
@@ -6220,9 +6220,9 @@ SpellCastResult Spell::CheckItems()
                 ItemTemplate const* proto = targetItem->GetTemplate();
                 for (uint8 e = 0; e < proto->Effects.size(); ++e)
                 {
-                    if (proto->Effects[e].SpellID && (
-                        proto->Effects[e].Trigger == ITEM_SPELLTRIGGER_ON_USE ||
-                        proto->Effects[e].Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
+                    if (proto->Effects[e]->SpellID && (
+                        proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_USE ||
+                        proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
                     {
                         isItemUsable = true;
                         break;
@@ -6399,8 +6399,8 @@ SpellCastResult Spell::CheckItems()
 
                  if (Item* pitem = player->GetItemByEntry(item_id))
                  {
-                     for (uint8 x = 0; x < pProto->Effects.size(); ++x)
-                         if (pProto->Effects[x].Charges != 0 && pitem->GetSpellCharges(x) == pProto->Effects[x].Charges)
+                     for (uint8 x = 0; x < pProto->Effects.size() && x < 5; ++x)
+                         if (pProto->Effects[x]->Charges != 0 && pitem->GetSpellCharges(x) == pProto->Effects[x]->Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
                  break;
