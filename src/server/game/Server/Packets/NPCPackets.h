@@ -85,8 +85,8 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid GossipUnit;
-            int32 GossipIndex;
-            int32 GossipID;
+            int32 GossipIndex = 0;
+            int32 GossipID = 0;
             std::string PromotionCode;
         };
 

@@ -640,7 +640,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
     else if (Pet* petOwner = _owner->ToPet())
     {
         for (auto const& p : petOwner->m_spells)
-            if (p.second.state != PLAYERSPELL_REMOVED)
+            if (p.second.state != PETSPELL_REMOVED)
                 knownSpells.insert(p.first);
     }
     else

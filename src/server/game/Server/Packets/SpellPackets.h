@@ -226,8 +226,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 PackSlot;
-            uint8 Slot;
+            uint8 PackSlot = 0;
+            uint8 Slot = 0;
             ObjectGuid CastItem;
             SpellCastRequest Cast;
         };
