@@ -1121,19 +1121,22 @@ public:
             if (itemNameStr && itemNameStr[0])
             {
                 std::string itemName = itemNameStr+1;
-                WorldDatabase.EscapeString(itemName);
+                auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* itemSparse)
+                {
+                    for (uint32 i = 0; i < MAX_LOCALES; ++i)
+                        if (itemName == itemSparse->Name->Str[i])
+                            return true;
+                    return false;
+                });
 
-                PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_BY_NAME);
-                stmt->setString(0, itemName);
-                PreparedQueryResult result = WorldDatabase.Query(stmt);
-
-                if (!result)
+                if (itr == sItemSparseStore.end())
                 {
                     handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr+1);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
-                itemId = result->Fetch()->GetUInt32();
+
+                itemId = itr->ID;
             }
             else
                 return false;
