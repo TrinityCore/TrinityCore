@@ -1566,12 +1566,8 @@ void SpellMgr::LoadSpellLearnSpells()
         }
     }
 
-    for (uint32 i = 0; i < sSpellLearnSpellStore.GetNumRows(); ++i)
+    for (SpellLearnSpellEntry const* spellLearnSpell : sSpellLearnSpellStore)
     {
-        SpellLearnSpellEntry const* spellLearnSpell = sSpellLearnSpellStore.LookupEntry(i);
-        if (!spellLearnSpell)
-            continue;
-
         if (!GetSpellInfo(spellLearnSpell->SpellID))
             continue;
 

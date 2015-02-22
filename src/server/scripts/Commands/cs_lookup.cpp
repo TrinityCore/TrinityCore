@@ -949,35 +949,31 @@ public:
         int32 locale = handler->GetSessionDbcLocale();
 
         // Search in TaxiNodes.dbc
-        for (uint32 id = 0; id < sTaxiNodesStore.GetNumRows(); id++)
+        for (TaxiNodesEntry const* nodeEntry : sTaxiNodesStore)
         {
-            TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(id);
-            if (nodeEntry)
+            std::string name = nodeEntry->Name_lang->Str[locale];
+            if (name.empty())
+                continue;
+
+            if (!Utf8FitTo(name, wNamePart))
+                continue;
+
+            if (maxResults && count++ == maxResults)
             {
-                std::string name = nodeEntry->Name_lang->Str[locale];
-                if (name.empty())
-                    continue;
-
-                if (!Utf8FitTo(name, wNamePart))
-                    continue;
-
-                if (maxResults && count++ == maxResults)
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                    return true;
-                }
-
-                // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
-                if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CHAT, id, id, name.c_str(), "",
-                        nodeEntry->MapID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
-                else
-                    handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CONSOLE, id, name.c_str(), "",
-                        nodeEntry->MapID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
-
-                if (!found)
-                    found = true;
+                handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                return true;
             }
+
+            // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
+            if (handler->GetSession())
+                handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CHAT, nodeEntry->ID, nodeEntry->ID, name.c_str(), "",
+                    nodeEntry->MapID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
+            else
+                handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CONSOLE, nodeEntry->ID, name.c_str(), "",
+                    nodeEntry->MapID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
+
+            if (!found)
+                found = true;
         }
         if (!found)
             handler->SendSysMessage(LANG_COMMAND_NOTAXINODEFOUND);
