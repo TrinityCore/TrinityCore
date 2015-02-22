@@ -467,6 +467,18 @@ namespace WorldPackets
 
             int32 Timer = 0;
         };
+
+        class ExplorationExperience final : public ServerPacket
+        {
+        public:
+            ExplorationExperience() : ServerPacket(SMSG_EXPLORATION_EXPERIENCE, 8) { }
+            ExplorationExperience(int32 experience, int32 areaID) : ServerPacket(SMSG_EXPLORATION_EXPERIENCE, 8), Experience(experience), AreaID(areaID) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Experience = 0;
+            int32 AreaID = 0;
+        };
     }
 }
 
