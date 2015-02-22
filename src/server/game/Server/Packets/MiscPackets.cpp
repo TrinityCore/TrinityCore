@@ -330,3 +330,11 @@ WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::ExplorationExperience::Write()
+{
+    _worldPacket << int32(AreaID);
+    _worldPacket << int32(Experience);
+
+    return &_worldPacket;
+}
