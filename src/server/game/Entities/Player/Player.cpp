@@ -10748,7 +10748,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
         item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+        if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->TotemCategory, TotemCategory))
             return true;
     }
 
