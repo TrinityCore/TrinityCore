@@ -30,9 +30,6 @@ class HotfixDatabaseConnection : public MySQLConnection
 
         //- Loads database type specific prepared statements
         void DoPrepareStatements() override;
-
-    private:
-        void PrepareLocaleStatement(uint32 index, uint32 localeIndex, const char* sql, ConnectionFlags flags);
 };
 
 typedef DatabaseWorkerPool<HotfixDatabaseConnection> HotfixDatabaseWorkerPool;
@@ -43,21 +40,71 @@ enum HotfixDatabaseStatements
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
         When updating more than one field, consider looking at the calling function
         name for a suiting suffix.
-
-        DB2 locale loading statements must have the name of base statement with locale enum value name suffix
     */
 
     HOTFIX_SEL_BROADCAST_TEXT,
-    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_koKR,
-    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_frFR,
-    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_deDE,
-    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_zhCN,
-    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_zhTW,
-    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_esES,
-    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_esMX,
-    HOTFIX_SEL_BROADCAST_TEXT_LOCALE_ruRU,
+    HOTFIX_SEL_BROADCAST_TEXT_LOCALE,
+
+    HOTFIX_SEL_CURVE_POINT,
+
+    HOTFIX_SEL_HOLIDAYS,
+    HOTFIX_SEL_HOLIDAYS_LOCALE,
+
+    HOTFIX_SEL_ITEM_APPEARANCE,
+
+    HOTFIX_SEL_ITEM_BONUS,
+
+    HOTFIX_SEL_ITEM_BONUS_TREE_NODE,
+
+    HOTFIX_SEL_ITEM_CURRENCY_COST,
+
+    HOTFIX_SEL_ITEM_EFFECT,
+
+    HOTFIX_SEL_ITEM,
+
+    HOTFIX_SEL_ITEM_EXTENDED_COST,
+
+    HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE,
+
+    HOTFIX_SEL_ITEM_SPARSE,
+    HOTFIX_SEL_ITEM_SPARSE_LOCALE,
+
+    HOTFIX_SEL_ITEM_X_BONUS_TREE,
+
+    HOTFIX_SEL_KEY_CHAIN,
+
+    HOTFIX_SEL_MOUNT,
+    HOTFIX_SEL_MOUNT_LOCALE,
+
+    HOTFIX_SEL_OVERRIDE_SPELL_DATA,
+
+    HOTFIX_SEL_PHASE_GROUP,
+
+    HOTFIX_SEL_SPELL_AURA_RESTRICTIONS,
+
+    HOTFIX_SEL_SPELL_CASTING_REQUIREMENTS,
+
+    HOTFIX_SEL_SPELL_CLASS_OPTIONS,
+
+    HOTFIX_SEL_SPELL_LEARN_SPELL,
+
+    HOTFIX_SEL_SPELL_MISC,
+
+    HOTFIX_SEL_SPELL_POWER,
+
+    HOTFIX_SEL_SPELL_REAGENTS,
+
+    HOTFIX_SEL_SPELL_RUNE_COST,
+
+    HOTFIX_SEL_SPELL_TOTEMS,
+
+    HOTFIX_SEL_TAXI_NODES,
+    HOTFIX_SEL_TAXI_NODES_LOCALE,
+
+    HOTFIX_SEL_TAXI_PATH,
 
     HOTFIX_SEL_TAXI_PATH_NODE,
+
     MAX_HOTFIXDATABASE_STATEMENTS
 };
 

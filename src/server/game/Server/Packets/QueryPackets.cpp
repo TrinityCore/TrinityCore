@@ -267,14 +267,8 @@ WorldPacket const* WorldPackets::Query::DBReply::Write()
     _worldPacket << TableHash;
     _worldPacket << RecordID;
     _worldPacket << Timestamp;
-
-    size_t sizePos = _worldPacket.wpos();
-    _worldPacket << int32(0); // size of next block
-
-    if (Data)
-        Data->WriteRecord(RecordID, Locale, _worldPacket);
-
-    _worldPacket.put<int32>(sizePos, _worldPacket.wpos() - sizePos - sizeof(int32));
+    _worldPacket << uint32(Data.size());
+    _worldPacket.append(Data);
 
     return &_worldPacket;
 }

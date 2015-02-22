@@ -18,34 +18,34 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
-char const BroadcastTextEntryfmt[] = "nissiiiiiiiii";
-char const CurvePointEntryfmt[] = "niiff";
-char const HolidaysEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
-char const Itemfmt[] = "niiiiiiii";
-char const ItemAppearanceEntryfmt[] = "nii";
-char const ItemBonusEntryfmt[] = "niiiii";
-char const ItemBonusTreeNodeEntryfmt[] = "niiii";
-char const ItemCurrencyCostfmt[] = "xn";
-char const ItemExtendedCostEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
-char const ItemEffectEntryfmt[] = "niiiiiiii";
-char const ItemModifiedAppearanceEntryfmt[] = "niiiii";
-char const ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
-char const ItemXBonusTreeEntryfmt[] = "nii";
-char const KeyChainfmt[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
-char const Mountfmt[] = "niiisssiii";
-char const OverrideSpellDataEntryfmt[] = "niiiiiiiiiixx";
-char const PhaseGroupEntryfmt[] = "nii";
-char const SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";
-char const SpellCastingRequirementsEntryfmt[] = "dixxixi";
-char const SpellClassOptionsEntryfmt[] = "niiiiii";
-char const SpellLearnSpellEntryfmt[] = "niii";
-char const SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiifiiiiix";
-char const SpellPowerEntryfmt[] = "niiiiiixxxffix";
-char const SpellReagentsEntryfmt[] = "niiiiiiiiiiiiiiiixx";
-char const SpellRuneCostEntryfmt[] = "niiixi";
-char const SpellTotemsEntryfmt[] = "niiii";
-char const TaxiNodesEntryfmt[] = "nifffsiiiiff";
-char const TaxiPathEntryfmt[] = "niii";
-char const TaxiPathNodeEntryfmt[] = "niiifffiiii";
+char const BroadcastTextFormat[] = "nissiiiiiiiii";
+char const CurvePointFormat[] = "niiff";
+char const HolidaysEntryFormat[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
+char const ItemFormat[] = "niiiiiiii";
+char const ItemAppearanceFormat[] = "nii";
+char const ItemBonusFormat[] = "niiiii";
+char const ItemBonusTreeNodeFormat[] = "niiii";
+char const ItemCurrencyCostFormat[] = "in";
+char const ItemExtendedCostFormat[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
+char const ItemEffectFormat[] = "niiiiiiii";
+char const ItemModifiedAppearanceFormat[] = "niiiii";
+char const ItemSparseFormat[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
+char const ItemXBonusTreeFormat[] = "nii";
+char const KeyChainFormat[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+char const MountFormat[] = "niiisssiii";
+char const OverrideSpellDataFormat[] = "niiiiiiiiiiii";
+char const PhaseGroupFormat[] = "nii";
+char const SpellAuraRestrictionsFormat[] = "niiiiiiii";
+char const SpellCastingRequirementsFormat[] = "niiiiii";
+char const SpellClassOptionsFormat[] = "niiiiii";
+char const SpellLearnSpellFormat[] = "niii";
+char const SpellMiscFormat[] = "niiiiiiiiiiiiiiiiifiiiiif";
+char const SpellPowerFormat[] = "niiiiiiiiiffif";
+char const SpellReagentsFormat[] = "niiiiiiiiiiiiiiiiii";
+char const SpellRuneCostFormat[] = "niiiii";
+char const SpellTotemsFormat[] = "niiii";
+char const TaxiNodesFormat[] = "nifffsiiiiff";
+char const TaxiPathFormat[] = "niii";
+char const TaxiPathNodeFormat[] = "niiifffiiii";
 
 #endif

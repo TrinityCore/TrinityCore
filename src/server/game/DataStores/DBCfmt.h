@@ -154,7 +154,6 @@ char const SpellRadiusfmt[] = "nxfff";
 char const SpellRangefmt[] = "nffffixx";
 char const SpellScalingEntryfmt[] = "niiiifiii";
 char const SpellTargetRestrictionsEntryfmt[] = "niiffiiii";
-char const SpellPowerEntryfmt[] = "diiiiixf";
 char const SpellInterruptsEntryfmt[] = "diiiiiii";
 char const SpellEquippedItemsEntryfmt[] = "diiiii";
 char const SpellAuraOptionsEntryfmt[] = "niiiiiiii";

@@ -4525,14 +4525,14 @@ SpellCastResult Spell::CheckRuneCost(uint32 runeCostID)
 
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
 
-    for (uint32 i = 0; i < RUNE_DEATH; ++i)
+    for (uint32 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
         runeCost[i] = src->RuneCost[i];
         if (Player* modOwner = m_caster->GetSpellModOwner())
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], this);
     }
 
-    runeCost[RUNE_DEATH] = MAX_RUNES;                       // calculated later
+    runeCost[RUNE_DEATH] += MAX_RUNES;
 
     for (uint32 i = 0; i < MAX_RUNES; ++i)
     {
@@ -4565,14 +4565,12 @@ void Spell::TakeRunePower(bool didHit)
 
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
 
-    for (uint32 i = 0; i < RUNE_DEATH; ++i)
+    for (uint32 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
         runeCost[i] = runeCostData->RuneCost[i];
         if (Player* modOwner = m_caster->GetSpellModOwner())
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], this);
     }
-
-    runeCost[RUNE_DEATH] = 0;                               // calculated later
 
     for (uint32 i = 0; i < MAX_RUNES; ++i)
     {
@@ -4585,7 +4583,7 @@ void Spell::TakeRunePower(bool didHit)
         }
     }
 
-    runeCost[RUNE_DEATH] = runeCost[RUNE_BLOOD] + runeCost[RUNE_UNHOLY] + runeCost[RUNE_FROST];
+    runeCost[RUNE_DEATH] += runeCost[RUNE_BLOOD] + runeCost[RUNE_UNHOLY] + runeCost[RUNE_FROST];
 
     if (runeCost[RUNE_DEATH] > 0)
     {
@@ -4610,7 +4608,7 @@ void Spell::TakeRunePower(bool didHit)
 
     // you can gain some runic power when use runes
     if (didHit)
-        if (int32 rp = int32(runeCostData->RunePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
+        if (int32 rp = int32(runeCostData->RunicPower * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
             player->ModifyPower(POWER_RUNIC_POWER, int32(rp));
 }
 
