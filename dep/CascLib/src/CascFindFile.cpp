@@ -149,18 +149,22 @@ static bool DoStorageSearch_ListFile(TCascSearch * pSearch, PCASC_FIND_DATA pFin
 {
     PCASC_ROOT_ENTRY pRootEntry;
     TCascStorage * hs = pSearch->hs;
+    char szFileName2[MAX_PATH + 1];
     DWORD TableIndex = 0;
 
     // Get next file from the listfile
     while(ListFile_GetNext(pSearch->pCache, pSearch->szMask, pSearch->szFileName, MAX_PATH))
     {
 #ifdef _DEBUG
-        //if(!_stricmp(pSearch->szFileName, "Character\\NightElf\\Female\\NightElf_FemaleFacialLowerHair01_02_HD.blp"))
-        //    DebugBreak();
+//      if(!_stricmp(pSearch->szFileName, "Character\\BloodElf\\Female\\DeathKnightEyeGlow.blp"))
+//          DebugBreak();
 #endif
 
+        // Normalize the file name found in the list file
+        NormalizeFileName_UpperBkSlash(szFileName2, pSearch->szFileName, MAX_PATH);
+
         // Find the root entry
-        pRootEntry = FindRootEntry(hs, pSearch->szFileName, &TableIndex);
+        pRootEntry = FindRootEntry(hs, szFileName2, &TableIndex);
         if(pRootEntry != NULL)
         {
             // Verify whether the file exists in the storage

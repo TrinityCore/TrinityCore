@@ -265,7 +265,7 @@ bool WINAPI CascOpenFile(HANDLE hStorage, const char * szFileName, DWORD dwLocal
     TCascStorage * hs;
     QUERY_KEY EncodingKey;
     char * szStrippedName;
-    char * szFileName2;
+    char szFileName2[MAX_PATH+1];
     int nError = ERROR_SUCCESS;
 
     CASCLIB_UNUSED(dwLocale);
@@ -285,73 +285,63 @@ bool WINAPI CascOpenFile(HANDLE hStorage, const char * szFileName, DWORD dwLocal
         return false;
     }
 
-    // Create the copy of the file name
-    szFileName2 = NewStr(szFileName, 0);
-    if(szFileName2 != NULL)
+    // If the storage has a MNDX root directory, use it to search the entry
+    if(hs->pMndxInfo != NULL)
     {
-        // If the storage has a MNDX root directory, use it to search the entry
-        if(hs->pMndxInfo != NULL)
+        // Convert the file name to lowercase + slashes
+        NormalizeFileName_LowerSlash(szFileName2, szFileName, MAX_PATH);
+
+        // Find the package number
+        pPackage = FindMndxPackage(hs, szFileName2);
+        if(pPackage != NULL)
         {
-            // Convert the file name to lowercase + slashes
-            NormalizeFileName_LowerSlash(szFileName2);
+            // Cut the package name off the full path
+            szStrippedName = szFileName2 + pPackage->nLength;
+            while(szStrippedName[0] == '/')
+                szStrippedName++;
 
-            // Find the package number
-            pPackage = FindMndxPackage(hs, szFileName2);
-            if(pPackage != NULL)
+            nError = SearchMndxInfo(hs->pMndxInfo, szStrippedName, (DWORD)(pPackage - hs->pPackages->Packages), &pRootEntryMndx);
+            if(nError == ERROR_SUCCESS)
             {
-                // Cut the package name off the full path
-                szStrippedName = szFileName2 + pPackage->nLength;
-                while(szStrippedName[0] == '/')
-                    szStrippedName++;
-
-                nError = SearchMndxInfo(hs->pMndxInfo, szStrippedName, (DWORD)(pPackage - hs->pPackages->Packages), &pRootEntryMndx);
-                if(nError == ERROR_SUCCESS)
-                {
-                    // Prepare the encoding key
-                    EncodingKey.pbData = pRootEntryMndx->EncodingKey;
-                    EncodingKey.cbData = MD5_HASH_SIZE;
-                }
-            }
-            else
-            {
-                nError = ERROR_FILE_NOT_FOUND;
+                // Prepare the encoding key
+                EncodingKey.pbData = pRootEntryMndx->EncodingKey;
+                EncodingKey.cbData = MD5_HASH_SIZE;
             }
         }
         else
         {
-            // Convert the file name to lowercase + slashes
-            NormalizeFileName_UpperBkSlash(szFileName2, szFileName2);
-
-            // Check the root directory for that hash
-            pRootEntry = FindRootEntry(hs, szFileName2, NULL);
-            if(pRootEntry != NULL)
-            {
-                // Prepare the root key
-                EncodingKey.pbData = (LPBYTE)pRootEntry->EncodingKey;
-                EncodingKey.cbData = MD5_HASH_SIZE;
-                nError = ERROR_SUCCESS;
-            }
-            else
-            {
-                nError = ERROR_FILE_NOT_FOUND;
-            }
+            nError = ERROR_FILE_NOT_FOUND;
         }
-
-        // Use the root key to find the file in the encoding table entry
-        if(nError == ERROR_SUCCESS)
-        {
-            if(!OpenFileByEncodingKey(hs, &EncodingKey, dwFlags, (TCascFile **)phFile))
-            {
-                assert(GetLastError() != ERROR_SUCCESS);
-                nError = GetLastError();
-            }
-        }
-
-        // Delete the file name copy
-        CASC_FREE(szFileName2);
     }
     else
-        nError = ERROR_NOT_ENOUGH_MEMORY;
+    {
+        // Convert the file name to lowercase + slashes
+        NormalizeFileName_UpperBkSlash(szFileName2, szFileName, MAX_PATH);
+
+        // Check the root directory for that hash
+        pRootEntry = FindRootEntry(hs, szFileName2, NULL);
+        if(pRootEntry != NULL)
+        {
+            // Prepare the root key
+            EncodingKey.pbData = (LPBYTE)pRootEntry->EncodingKey;
+            EncodingKey.cbData = MD5_HASH_SIZE;
+            nError = ERROR_SUCCESS;
+        }
+        else
+        {
+            nError = ERROR_FILE_NOT_FOUND;
+        }
+    }
+
+    // Use the root key to find the file in the encoding table entry
+    if(nError == ERROR_SUCCESS)
+    {
+        if(!OpenFileByEncodingKey(hs, &EncodingKey, dwFlags, (TCascFile **)phFile))
+        {
+            assert(GetLastError() != ERROR_SUCCESS);
+            nError = GetLastError();
+        }
+    }
 
 #ifdef CASCLIB_TEST
     if(phFile[0] != NULL && pRootEntryMndx != NULL)
