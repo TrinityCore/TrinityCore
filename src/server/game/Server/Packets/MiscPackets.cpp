@@ -301,3 +301,32 @@ WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
+{
+    _worldPacket << int32(Timer);
+    _worldPacket << int32(Value);
+    _worldPacket << int32(MaxValue);
+    _worldPacket << int32(Scale);
+    _worldPacket << int32(SpellID);
+    _worldPacket.WriteBit(Paused);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PauseMirrorTimer::Write()
+{
+    _worldPacket << int32(Timer);
+    _worldPacket.WriteBit(Paused);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
+{
+    _worldPacket << int32(Timer);
+
+    return &_worldPacket;
+}
