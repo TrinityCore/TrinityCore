@@ -2404,14 +2404,13 @@ void ObjectMgr::LoadItemTemplates()
     uint32 oldMSTime = getMSTime();
     uint32 sparseCount = 0;
 
-    for (uint32 itemId = 0; itemId < sItemSparseStore.GetNumRows(); ++itemId)
+    for (ItemSparseEntry const* sparse : sItemSparseStore)
     {
-        ItemSparseEntry const* sparse = sItemSparseStore.LookupEntry(itemId);
-        ItemEntry const* db2Data = sItemStore.LookupEntry(itemId);
-        if (!sparse || !db2Data)
+        ItemEntry const* db2Data = sItemStore.LookupEntry(sparse->ID);
+        if (!db2Data)
             continue;
 
-        ItemTemplate& itemTemplate = _itemTemplateStore[itemId];
+        ItemTemplate& itemTemplate = _itemTemplateStore[sparse->ID];
 
         itemTemplate.BasicData = db2Data;
         itemTemplate.ExtendedData = sparse;
@@ -2428,12 +2427,8 @@ void ObjectMgr::LoadItemTemplates()
     }
 
     // Load item effects (spells)
-    for (uint32 effectId = 0; effectId < sItemEffectStore.GetNumRows(); ++effectId)
+    for (ItemEffectEntry const* effectEntry : sItemEffectStore)
     {
-        ItemEffectEntry const* effectEntry = sItemEffectStore.LookupEntry(effectId);
-        if (!effectEntry)
-            continue;
-
         auto itemItr = _itemTemplateStore.find(effectEntry->ItemID);
         if (itemItr == _itemTemplateStore.end())
             continue;
@@ -5467,34 +5462,32 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     float dist = 10000;
     uint32 id = 0;
 
-    for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+    for (TaxiNodesEntry const* node : sTaxiNodesStore)
     {
-        TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
-
         if (!node || node->MapID != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
             continue;
 
-        uint8  field   = (uint8)((i - 1) / 8);
-        uint32 submask = 1 << ((i-1) % 8);
+        uint8  field   = (uint8)((node->ID - 1) / 8);
+        uint32 submask = 1 << ((node->ID - 1) % 8);
 
         // skip not taxi network nodes
         if ((sTaxiNodesMask[field] & submask) == 0)
             continue;
 
-        float dist2 = (node->Pos.X - x)*(node->Pos.X - x)+(node->Pos.Y - y)*(node->Pos.Y - y)+(node->Pos.Z - z)*(node->Pos.Z - z);
+        float dist2 = (node->Pos.X - x)*(node->Pos.X - x) + (node->Pos.Y - y)*(node->Pos.Y - y) + (node->Pos.Z - z)*(node->Pos.Z - z);
         if (found)
         {
             if (dist2 < dist)
             {
                 dist = dist2;
-                id = i;
+                id = node->ID;
             }
         }
         else
         {
             found = true;
             dist = dist2;
-            id = i;
+            id = node->ID;
         }
     }
 

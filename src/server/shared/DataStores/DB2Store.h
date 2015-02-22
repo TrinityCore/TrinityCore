@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "DB2StorageLoader.h"
+#include "DBStorageIterator.h"
 #include "ByteBuffer.h"
 
 /// Interface class for common access
@@ -45,6 +46,8 @@ class DB2Storage : public DB2StorageBase
 {
     typedef std::list<char*> StringPoolList;
 public:
+    typedef DBStorageIterator<T> iterator;
+
     DB2Storage(char const* f, int32 preparedStmtIndex = -1)
         : _indexTableSize(0), _fieldCount(0), _format(f), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex)
     {
@@ -196,6 +199,9 @@ public:
 
         _indexTableSize = 0;
     }
+
+    iterator begin() { return iterator(_indexTable.AsT, _indexTableSize); }
+    iterator end() { return iterator(_indexTable.AsT, _indexTableSize, _indexTableSize); }
 
 private:
     uint32 _indexTableSize;
