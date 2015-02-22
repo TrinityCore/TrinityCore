@@ -136,7 +136,7 @@ class OPvPCapturePointTF : public OPvPCapturePoint
 
         void ChangeState();
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void UpdateTowerState();
 
@@ -158,7 +158,7 @@ class OutdoorPvPTF : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void SendRemoveWorldStates(Player* player);
 

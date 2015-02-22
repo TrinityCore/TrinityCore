@@ -26,6 +26,7 @@
 #include "WorldPacket.h"
 #include "Object.h"
 #include "GameObject.h"
+#include "Packets/WorldStatePackets.h"
 
 class Creature;
 class GameObject;
@@ -346,7 +347,7 @@ class Battleground
 
         // Packet Transfer
         // method that should fill worldpacket with actual world states (not yet implemented for all battlegrounds!)
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) { }
         void SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender = NULL, bool self = true) const;
         void SendPacketToAll(WorldPacket const* packet) const;
 

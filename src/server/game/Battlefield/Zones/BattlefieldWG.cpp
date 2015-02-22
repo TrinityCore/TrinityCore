@@ -807,40 +807,39 @@ uint32 BattlefieldWG::GetData(uint32 data) const
 }
 
 
-void BattlefieldWG::FillInitialWorldStates(WorldPacket& data)
+void BattlefieldWG::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << uint32(BATTLEFIELD_WG_WORLD_STATE_ATTACKER) << uint32(GetAttackerTeam());
-    data << uint32(BATTLEFIELD_WG_WORLD_STATE_DEFENDER) << uint32(GetDefenderTeam());
-    data << uint32(BATTLEFIELD_WG_WORLD_STATE_ACTIVE) << uint32(IsWarTime() ? 0 : 1); // Note: cleanup these two, their names look awkward
-    data << uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE) << uint32(IsWarTime() ? 1 : 0);
+    packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_ATTACKER), int32(GetAttackerTeam()));
+    packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_DEFENDER), int32(GetDefenderTeam()));
+    // Note: cleanup these two, their names look awkward
+    packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_ACTIVE), int32(IsWarTime() ? 0 : 1)); 
+    packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE), int32(IsWarTime() ? 1 : 0));
 
     for (uint32 i = 0; i < 2; ++i)
-        data << ClockWorldState[i] << uint32(time(NULL) + (m_Timer / 1000));
+        packet.Worldstates.emplace_back(ClockWorldState[i], int32(time(NULL) + (m_Timer / 1000)));
 
-    data << uint32(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H) << uint32(GetData(BATTLEFIELD_WG_DATA_VEHICLE_H));
-    data << uint32(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H) << GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H);
-    data << uint32(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_A) << uint32(GetData(BATTLEFIELD_WG_DATA_VEHICLE_A));
-    data << uint32(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_A) << GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A);
+    packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H), int32(GetData(BATTLEFIELD_WG_DATA_VEHICLE_H)));
+    packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H), int32(GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H)));
+    packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_A), int32(GetData(BATTLEFIELD_WG_DATA_VEHICLE_A)));
+    packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_A), int32(GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A)));
 
     for (BfWGGameObjectBuilding* building : BuildingsInZone)
-        building->FillInitialWorldStates(data);
+        building->FillInitialWorldStates(packet);
 
     for (WintergraspWorkshop* workshop : Workshops)
-        workshop->FillInitialWorldStates(data);
+        workshop->FillInitialWorldStates(packet);
 }
 
 void BattlefieldWG::SendInitWorldStatesTo(Player* player)
 {
-    WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (Workshops.size() * 8));
+    WorldPackets::WorldState::InitWorldStates packet;
+    packet.AreaID = m_ZoneId;
+    packet.MapID = m_MapId;
+    packet.SubareaID = 0;
 
-    data << uint32(m_MapId);
-    data << uint32(m_ZoneId);
-    data << uint32(0);                                              // AreaId
-    data << uint16(10 + BuildingsInZone.size() + Workshops.size()); // Number of fields
+    FillInitialWorldStates(packet);
 
-    FillInitialWorldStates(data);
-
-    player->SendDirectMessage(&data);
+    player->SendDirectMessage(packet.Write());
 }
 
 void BattlefieldWG::SendInitWorldStatesToAll()
@@ -1412,9 +1411,9 @@ void BfWGGameObjectBuilding::UpdateTurretAttack(bool disable)
     }
 }
 
-void BfWGGameObjectBuilding::FillInitialWorldStates(WorldPacket& data)
+void BfWGGameObjectBuilding::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << uint32(_worldState) << uint32(_state);
+    packet.Worldstates.emplace_back(uint32(_worldState), int32(_state));
 }
 
 void BfWGGameObjectBuilding::Save()
@@ -1550,9 +1549,9 @@ void WintergraspWorkshop::UpdateGraveyardAndWorkshop()
         GiveControlTo(_wg->GetDefenderTeam(), true);
 }
 
-void WintergraspWorkshop::FillInitialWorldStates(WorldPacket& data)
+void WintergraspWorkshop::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << uint32(_staticInfo->WorldStateId) << uint32(_state);
+    packet.Worldstates.emplace_back(uint32(_staticInfo->WorldStateId), int32(_state));
 }
 
 void WintergraspWorkshop::Save()

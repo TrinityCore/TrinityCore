@@ -945,7 +945,7 @@ class BattlegroundIC : public Battleground
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
         /* Scorekeeping */
-        void FillInitialWorldStates(WorldPacket& data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         void HandlePlayerResurrect(Player* player) override;
 

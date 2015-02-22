@@ -24,9 +24,9 @@ WorldPacket const* WorldPackets::WorldState::InitWorldStates::Write()
 {
     _worldPacket.reserve(16 + Worldstates.size() * 8);
 
+    _worldPacket << uint32(MapID);
     _worldPacket << uint32(AreaID);
     _worldPacket << uint32(SubareaID);
-    _worldPacket << uint32(MapID);
 
     _worldPacket << uint32(Worldstates.size());
     for (WorldStateInfo const& wsi : Worldstates)
