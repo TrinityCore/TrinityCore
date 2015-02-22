@@ -2696,6 +2696,13 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureL
     cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
 }
 
+void WorldObject::GetPlayerListInGrid(std::list<Player*>& playerList, float maxSearchRange) const
+{
+    Trinity::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange);
+    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, playerList, checker);
+    this->VisitNearbyWorldObject(maxSearchRange, searcher);
+}
+
 /*
 namespace Trinity
 {

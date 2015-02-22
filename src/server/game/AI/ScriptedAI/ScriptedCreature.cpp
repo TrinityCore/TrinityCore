@@ -677,3 +677,8 @@ void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject*
 {
     source->GetGameObjectListWithEntryInGrid(list, entry, maxSearchRange);
 }
+
+void GetPlayerListInGrid(std::list<Player*>& list, WorldObject* source, float maxSearchRange)
+{
+    source->GetPlayerListInGrid(list, maxSearchRange);
+}
