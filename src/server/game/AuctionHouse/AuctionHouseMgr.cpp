@@ -531,8 +531,6 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
     uint32& count, uint32& totalcount)
 {
-    int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-
     time_t curTime = sWorld->GetGameTime();
 
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
@@ -570,14 +568,9 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         // No need to do any of this if no search term was entered
         if (!wsearchedname.empty())
         {
-            std::string name = proto->GetDefaultLocaleName();
+            std::string name = proto->GetName(player->GetSession()->GetSessionDbcLocale());
             if (name.empty())
                 continue;
-
-            // local name
-            if (loc_idx >= 0)
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->GetId()))
-                    ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
 
             // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result
             //  that matches the search but it may not equal item->GetItemRandomPropertyId()

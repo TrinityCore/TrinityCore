@@ -377,39 +377,7 @@ public:
         ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
         for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
         {
-            int localeIndex = handler->GetSessionDbLocaleIndex();
-            if (localeIndex >= 0)
-            {
-                uint8 ulocaleIndex = uint8(localeIndex);
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(itr->second.GetId()))
-                {
-                    if (il->Name.size() > ulocaleIndex && !il->Name[ulocaleIndex].empty())
-                    {
-                        std::string name = il->Name[ulocaleIndex];
-
-                        if (Utf8FitTo(name, wNamePart))
-                        {
-                            if (maxResults && count++ == maxResults)
-                            {
-                                handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                                return true;
-                            }
-
-                            if (handler->GetSession())
-                                handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.GetId(), itr->second.GetId(), name.c_str());
-                            else
-                                handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.GetId(), name.c_str());
-
-                            if (!found)
-                                found = true;
-
-                            continue;
-                        }
-                    }
-                }
-            }
-
-            std::string name = itr->second.GetDefaultLocaleName();
+            std::string name = itr->second.GetName(handler->GetSessionDbcLocale());
             if (name.empty())
                 continue;
 
