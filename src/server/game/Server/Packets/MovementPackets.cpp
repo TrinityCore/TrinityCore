@@ -267,7 +267,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
     data << uint32(moveSpline.GetId());                                         // ID
 
     if (!moveSpline.isCyclic())                                                 // Destination
-        data << moveSpline.FinalDestination().zxy();
+        data << moveSpline.FinalDestination().xyz();
     else
         data << G3D::Vector3::zero();
 
