@@ -37,7 +37,6 @@
 #include "SpellAuras.h"
 #include "Util.h"
 #include "WorldPacket.h"
-#include "WorldStatePackets.h"
 #include "Transport.h"
 
 namespace Trinity

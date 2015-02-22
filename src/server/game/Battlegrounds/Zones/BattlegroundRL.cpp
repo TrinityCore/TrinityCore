@@ -56,10 +56,10 @@ void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-void BattlegroundRL::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundRL::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << uint32(0xbba) << uint32(1);     // 9 show
-    Arena::FillInitialWorldStates(data);
+    packet.Worldstates.emplace_back(0xbba, 1);
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundRL::SetupBattleground()

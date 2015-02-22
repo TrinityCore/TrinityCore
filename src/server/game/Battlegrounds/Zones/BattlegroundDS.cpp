@@ -145,10 +145,10 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-void BattlegroundDS::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundDS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << uint32(3610) << uint32(1);      // 9 show
-    Arena::FillInitialWorldStates(data);
+    packet.Worldstates.emplace_back(3610, 1);
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundDS::SetupBattleground()

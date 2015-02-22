@@ -396,7 +396,7 @@ class BattlefieldWG : public Battlefield
 
         void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll() override;
-        void FillInitialWorldStates(WorldPacket& data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         void HandleKill(Player* killer, Unit* victim) override;
         void OnUnitDeath(Unit* unit) override;
@@ -1144,7 +1144,7 @@ public:
 
     void UpdateTurretAttack(bool disable);
 
-    void FillInitialWorldStates(WorldPacket& data);
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
     void Save();
 };
@@ -1179,7 +1179,7 @@ public:
 
     void UpdateGraveyardAndWorkshop();
 
-    void FillInitialWorldStates(WorldPacket& data);
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
     void Save();
 };
