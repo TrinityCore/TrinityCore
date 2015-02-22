@@ -259,6 +259,7 @@ typedef struct _TCascStorage
     DWORD dwGameInfo;                               // Game type
     DWORD dwBuildNumber;                            // Game build number
     DWORD dwFileBeginDelta;                         // This is number of bytes to shift back from archive offset (from index entry) to actual begin of file data
+    DWORD dwDefaultLocale;                          // Default locale, read from ".build.info"
     
     QUERY_KEY CdnConfigKey;
     QUERY_KEY CdnBuildKey;

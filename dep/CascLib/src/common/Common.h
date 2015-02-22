@@ -24,8 +24,8 @@
 //-----------------------------------------------------------------------------
 // Conversion tables
 
-extern unsigned char AsciiToLowerTable[256];
-extern unsigned char AsciiToUpperTable[256];
+extern unsigned char AsciiToLowerTable_Slash[256];
+extern unsigned char AsciiToUpperTable_BkSlash[256];
 extern unsigned char IntToHexChar[];
 
 //-----------------------------------------------------------------------------
@@ -50,8 +50,8 @@ TCHAR * NewStrFromAnsi(LPBYTE pbStringBegin, LPBYTE pbStringEnd);
 
 TCHAR * CombinePath(const TCHAR * szPath, const TCHAR * szSubDir);
 
-void NormalizeFileName_UpperBkSlash(const char * szSrcFileName, char * szTrgFileName);
-void NormalizeFileName_LowerSlash(char * szFileName);
+void NormalizeFileName_UpperBkSlash(char * szTrgFileName, const char * szSrcFileName, size_t cchMaxChars);
+void NormalizeFileName_LowerSlash(char * szTrgFileName, const char * szSrcFileName, size_t cchMaxChars);
 
 int ConvertDigitToInt32(const TCHAR * szString, PDWORD PtrValue);
 int ConvertStringToInt32(const TCHAR * szString, size_t nMaxDigits, PDWORD PtrValue);

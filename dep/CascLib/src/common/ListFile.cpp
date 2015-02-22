@@ -316,7 +316,7 @@ static PLISTFILE_MAP ListMap_InsertName(PLISTFILE_MAP pListMap, const char * szF
     pListEntry = (PLISTFILE_ENTRY)((LPBYTE)(pListMap + 1) + pListMap->cbBuffer);
 
     // Get the name hash
-    NormalizeFileName_UpperBkSlash(szFileName, szFileName2);
+    NormalizeFileName_UpperBkSlash(szFileName2, szFileName, MAX_PATH);
     hashlittle2(szFileName2, nLength, &dwHashHigh, &dwHashLow);
     
     // Calculate the HASH value of the normalized file name

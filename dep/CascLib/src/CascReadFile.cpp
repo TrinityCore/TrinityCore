@@ -379,13 +379,16 @@ DWORD WINAPI CascSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePosHig
 bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDWORD pdwBytesRead)
 {
     PCASC_FILE_FRAME pFrame = NULL;
+    ULONGLONG StreamSize;
     ULONGLONG FileOffset;
     TCascFile * hf;
     LPBYTE pbBuffer = (LPBYTE)pvBuffer;
     DWORD dwStartPointer = 0;
     DWORD dwFilePointer = 0;
     DWORD dwEndPointer = 0;
+    DWORD dwFrameSize;
     DWORD cbOutBuffer;
+    bool bReadResult;
     int nError = ERROR_SUCCESS;
 
     // The buffer must be valid
@@ -463,7 +466,31 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
 
                 // Load the raw file data to memory
                 FileOffset = pFrame->FrameArchiveOffset;
-                if(!FileStream_Read(hf->pStream, &FileOffset, pbRawData, pFrame->CompressedSize))
+                bReadResult = FileStream_Read(hf->pStream, &FileOffset, pbRawData, pFrame->CompressedSize);
+                
+                // Note: The raw file data size could be less than expected
+                // Happened in WoW build 19342 with the ROOT file. MD5 in the frame header
+                // is zeroed, which means it should not be checked
+                // Frame File: data.029
+                // Frame Offs: 0x013ED9F0 size 0x01325B32
+                // Frame End:  0x02713522
+                // File Size:  0x027134FC
+                if(bReadResult == false && GetLastError() == ERROR_HANDLE_EOF && !IsValidMD5(pFrame->md5))
+                {
+                    // Get the size of the remaining file
+                    FileStream_GetSize(hf->pStream, &StreamSize);
+                    dwFrameSize = (DWORD)(StreamSize - FileOffset);
+
+                    // If the frame offset is before EOF and frame end is beyond EOF, correct it
+                    if(FileOffset < StreamSize && dwFrameSize < pFrame->CompressedSize)
+                    {
+                        memset(pbRawData + dwFrameSize, 0, (pFrame->CompressedSize - dwFrameSize));
+                        bReadResult = true;
+                    }
+                }
+
+                // If the read result failed, we cannot finish reading it
+                if(bReadResult == false)
                 {
                     CASC_FREE(pbRawData);
                     nError = GetLastError();

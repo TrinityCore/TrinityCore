@@ -37,6 +37,56 @@ static void FreeCascBlob(PQUERY_KEY pBlob)
     }
 }
 
+static DWORD GetLocaleMask(const char * szTag)
+{
+    if(!strcmp(szTag, "enUS"))
+        return CASC_LOCALE_ENUS;
+
+    if(!strcmp(szTag, "koKR"))
+        return CASC_LOCALE_KOKR;
+
+    if(!strcmp(szTag, "frFR"))
+        return CASC_LOCALE_FRFR;
+
+    if(!strcmp(szTag, "deDE"))
+        return CASC_LOCALE_DEDE;
+
+    if(!strcmp(szTag, "zhCN"))
+        return CASC_LOCALE_ZHCN;
+
+    if(!strcmp(szTag, "esES"))
+        return CASC_LOCALE_ESES;
+
+    if(!strcmp(szTag, "zhTW"))
+        return CASC_LOCALE_ZHTW;
+
+    if(!strcmp(szTag, "enGB"))
+        return CASC_LOCALE_ENGB;
+
+    if(!strcmp(szTag, "enCN"))
+        return CASC_LOCALE_ENCN;
+
+    if(!strcmp(szTag, "enTW"))
+        return CASC_LOCALE_ENTW;
+
+    if(!strcmp(szTag, "esMX"))
+        return CASC_LOCALE_ESMX;
+
+    if(!strcmp(szTag, "ruRU"))
+        return CASC_LOCALE_RURU;
+
+    if(!strcmp(szTag, "ptBR"))
+        return CASC_LOCALE_PTBR;
+
+    if(!strcmp(szTag, "itIT"))
+        return CASC_LOCALE_ITIT;
+
+    if(!strcmp(szTag, "ptPT"))
+        return CASC_LOCALE_PTPT;
+
+    return 0;
+}
+
 static bool IsInfoVariable(const char * szLineBegin, const char * szLineEnd, const char * szVarName, const char * szVarType)
 {
     size_t nLength;
@@ -141,11 +191,11 @@ static int StringBlobToBinaryBlob(
         BYTE DigitOne;
         BYTE DigitTwo;
 
-        DigitOne = (BYTE)(AsciiToUpperTable[pbBlobBegin[0]] - '0');
+        DigitOne = (BYTE)(AsciiToUpperTable_BkSlash[pbBlobBegin[0]] - '0');
         if(DigitOne > 9)
             DigitOne -= 'A' - '9' - 1;
 
-        DigitTwo = (BYTE)(AsciiToUpperTable[pbBlobBegin[1]] - '0');
+        DigitTwo = (BYTE)(AsciiToUpperTable_BkSlash[pbBlobBegin[1]] - '0');
         if(DigitTwo > 9)
             DigitTwo -= 'A' - '9' - 1;
 
@@ -513,6 +563,37 @@ static int GetBuildNumber(TCascStorage * hs, LPBYTE pbVarBegin, LPBYTE pbLineEnd
     return (dwBuildNumber != 0) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
 }
 
+static int GetDefaultLocaleMask(TCascStorage * hs, PQUERY_KEY pTagsString)
+{
+    char * szTagEnd = (char *)pTagsString->pbData + pTagsString->cbData;
+    char * szTagPtr = (char *)pTagsString->pbData;
+    char * szNext;
+    DWORD dwLocaleMask = 0;
+
+    while(szTagPtr < szTagEnd)
+    {
+        // Get the next part
+        szNext = strchr(szTagPtr, ' ');
+        if(szNext != NULL)
+            *szNext++ = 0;
+
+        // Check whether the current tag is a language identifier
+        dwLocaleMask = dwLocaleMask | GetLocaleMask(szTagPtr);
+
+        // Get the next part
+        if(szNext == NULL)
+            break;
+        
+        // Skip spaces
+        while(szNext < szTagEnd && szNext[0] == ' ')
+            szNext++;
+        szTagPtr = szNext;
+    }
+
+    hs->dwDefaultLocale = dwLocaleMask;
+    return ERROR_SUCCESS;
+}
+
 static int FetchAndVerifyConfigFile(TCascStorage * hs, PQUERY_KEY pFileKey, PQUERY_KEY pFileBlob)
 {
     TCHAR * szFileName;
@@ -544,6 +625,7 @@ static int FetchAndVerifyConfigFile(TCascStorage * hs, PQUERY_KEY pFileKey, PQUE
 
 static int ParseInfoFile(TCascStorage * hs, PQUERY_KEY pFileBlob)
 {
+    QUERY_KEY TagString = {NULL, 0};
     QUERY_KEY CdnHost = {NULL, 0};
     QUERY_KEY CdnPath = {NULL, 0};
     const char * szLineBegin1 = NULL;
@@ -598,6 +680,8 @@ static int ParseInfoFile(TCascStorage * hs, PQUERY_KEY pFileBlob)
             LoadInfoVariable(&CdnHost, szLineBegin2, szLineEnd2, false);
         if(IsInfoVariable(szLineBegin1, szLineEnd1, "CDN Path", "STRING"))
             LoadInfoVariable(&CdnPath, szLineBegin2, szLineEnd2, false);
+        if(IsInfoVariable(szLineBegin1, szLineEnd1, "Tags", "STRING"))
+            LoadInfoVariable(&TagString, szLineBegin2, szLineEnd2, false);
 
         // Move both line pointers
         szLineBegin1 = SkipInfoVariable(szLineBegin1, szLineEnd1);
@@ -625,8 +709,13 @@ static int ParseInfoFile(TCascStorage * hs, PQUERY_KEY pFileBlob)
         }
     }
 
+    // If we found tags, we can extract language build from it
+    if(TagString.pbData != NULL)
+        GetDefaultLocaleMask(hs, &TagString);
+
     FreeCascBlob(&CdnHost);
     FreeCascBlob(&CdnPath);
+    FreeCascBlob(&TagString);
     return nError;
 }
 
