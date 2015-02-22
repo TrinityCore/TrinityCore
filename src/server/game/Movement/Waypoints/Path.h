@@ -28,8 +28,8 @@ struct PathNode
     PathNode(float _x, float _y, float _z): x(_x), y(_y), z(_z) { }
     float x, y, z;
 };
-template<typename PathElem, typename PathNode = PathElem>
 
+template<typename PathElem, typename PathNode = PathElem>
 class Path
 {
     public:
@@ -37,7 +37,7 @@ class Path
         bool empty() const { return i_nodes.empty(); }
         void resize(unsigned int sz) { i_nodes.resize(sz); }
         void clear() { i_nodes.clear(); }
-        void erase(uint32 idx) { i_nodes.erase(i_nodes.begin()+idx); }
+        void erase(uint32 idx) { i_nodes.erase(i_nodes.begin() + idx); }
         void crop(unsigned int start, unsigned int end)
         {
             while (start && !i_nodes.empty())
@@ -56,10 +56,10 @@ class Path
         float GetTotalLength(uint32 start, uint32 end) const
         {
             float len = 0.0f;
-            for (uint32 idx=start+1; idx < end; ++idx)
+            for (uint32 idx = start + 1; idx < end; ++idx)
             {
                 PathNode const& node = i_nodes[idx];
-                PathNode const& prev = i_nodes[idx-1];
+                PathNode const& prev = i_nodes[idx - 1];
                 float xd = node.x - prev.x;
                 float yd = node.y - prev.y;
                 float zd = node.z - prev.z;
@@ -76,7 +76,7 @@ class Path
 
             if (curnode > 0)
             {
-                PathNode const& node = i_nodes[curnode-1];
+                PathNode const& node = i_nodes[curnode - 1];
                 float xd = x - node.x;
                 float yd = y - node.y;
                 float zd = z - node.z;
@@ -94,7 +94,5 @@ class Path
     protected:
         std::deque<PathElem> i_nodes;
 };
-
-typedef Path<PathNode> SimplePath;
 
 #endif

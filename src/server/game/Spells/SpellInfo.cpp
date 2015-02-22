@@ -1114,7 +1114,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& ef
     // SpellTotemsEntry
     SpellTotemsEntry const* _totem = GetSpellTotems();
     for (uint8 i = 0; i < 2; ++i)
-        TotemCategory[i] = _totem ? _totem->TotemCategory[i] : 0;
+        TotemCategory[i] = _totem ? _totem->RequiredTotemCategoryID[i] : 0;
     for (uint8 i = 0; i < 2; ++i)
         Totem[i] = _totem ? _totem->Totem[i] : 0;
 

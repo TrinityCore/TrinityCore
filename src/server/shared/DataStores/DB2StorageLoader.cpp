@@ -169,14 +169,14 @@ bool DB2FileLoader::Load(const char *filename, const char *fmt)
     for (uint32 i = 1; i < fieldCount; i++)
     {
         fieldsOffset[i] = fieldsOffset[i - 1];
-        if (fmt[i - 1] == 'b' || fmt[i - 1] == 'X')
+        if (fmt[i - 1] == 'b')
             fieldsOffset[i] += 1;
         else
             fieldsOffset[i] += 4;
     }
 
-    data = new unsigned char[recordSize*recordCount+stringSize];
-    stringTable = data + recordSize*recordCount;
+    data = new unsigned char[recordSize * recordCount + stringSize];
+    stringTable = data + recordSize * recordCount;
 
     if (fread(data, recordSize * recordCount + stringSize, 1, f) != 1)
     {
@@ -368,10 +368,6 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
                     offset += sizeof(char*);
                     break;
                 }
-                case FT_NA:
-                case FT_NA_BYTE:
-                case FT_SORT:
-                    break;
                 default:
                     ASSERT(false, "unknown format character %c", format[x]);
             }
@@ -434,7 +430,7 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
         return nullptr;
 
     uint32 const fieldCount = strlen(format);
-    if (fieldCount + 1 /*VerifiedBuild*/ != result->GetFieldCount())
+    if (fieldCount != result->GetFieldCount())
         return nullptr;
 
     // get struct size and index pos
@@ -569,7 +565,9 @@ char* DB2DatabaseLoader::Load(const char* format, int32 preparedStatement, uint3
 
 void DB2DatabaseLoader::LoadStrings(const char* format, int32 preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool)
 {
-    PreparedQueryResult result = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(preparedStatement));
+    PreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(preparedStatement);
+    stmt->setString(0, localeNames[locale]);
+    PreparedQueryResult result = HotfixDatabase.Query(stmt);
     if (!result)
         return;
 

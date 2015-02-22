@@ -1456,6 +1456,12 @@ void World::SetInitialWorldSettings()
     LoadDBCStores(m_dataPath);
     sDB2Manager.LoadStores(m_dataPath);
 
+    TC_LOG_INFO("misc", "Loading hotfix info...");
+    sDB2Manager.LoadHotfixData();
+
+    // Close hotfix database - it is only used during DB2 loading
+    HotfixDatabase.Close();
+
     sSpellMgr->LoadPetFamilySpellsStore();
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
@@ -1957,9 +1963,6 @@ void World::SetInitialWorldSettings()
     InitCurrencyResetTime();
 
     LoadCharacterInfoStore();
-
-    TC_LOG_INFO("misc", "Loading hotfix info...");
-    sDB2Manager.LoadHotfixData();
 
     TC_LOG_INFO("server.loading", "Loading race and class expansion requirements...");
     sObjectMgr->LoadRaceAndClassExpansionRequirements();

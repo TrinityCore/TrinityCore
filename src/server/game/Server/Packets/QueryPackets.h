@@ -20,7 +20,6 @@
 
 #include "Packet.h"
 #include "Creature.h"
-#include "DB2Stores.h"
 #include "NPCHandler.h"
 #include "G3D/Vector3.h"
 
@@ -200,10 +199,7 @@ namespace WorldPackets
             uint32 TableHash = 0;
             uint32 Timestamp = 0;
             int32 RecordID   = 0;
-
-            // These are not sent directly
-            uint32 Locale = 0;
-            DB2StorageBase const* Data = nullptr;
+            ByteBuffer Data;
         };
 
         class HotfixNotifyBlob final : public ServerPacket
