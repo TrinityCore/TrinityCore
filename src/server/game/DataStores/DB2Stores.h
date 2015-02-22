@@ -43,6 +43,7 @@ extern DB2Storage<SpellTotemsEntry>              sSpellTotemsStore;
 extern DB2Storage<TaxiNodesEntry>                sTaxiNodesStore;
 extern DB2Storage<TaxiPathEntry>                 sTaxiPathStore;
 
+extern SpellPowerBySpellIDMap                    sSpellPowerBySpellIDStore;
 extern TaxiMask                                  sTaxiNodesMask;
 extern TaxiMask                                  sOldContinentsNodesMask;
 extern TaxiMask                                  sHordeTaxiNodesMask;
