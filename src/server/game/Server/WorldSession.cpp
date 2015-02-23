@@ -52,6 +52,7 @@
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
+#include "ChatPackets.h"
 
 namespace {
 
@@ -654,12 +655,7 @@ void WorldSession::SendNotification(char const* format, ...)
         vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
-        size_t len = strlen(szStr);
-        WorldPacket data(SMSG_NOTIFICATION, 2 + len);
-        data.WriteBits(len, 13);
-        data.FlushBits();
-        data.append(szStr, len);
-        SendPacket(&data);
+        SendPacket(WorldPackets::Chat::PrintNotification(szStr).Write());
     }
 }
 
@@ -675,12 +671,7 @@ void WorldSession::SendNotification(uint32 stringId, ...)
         vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
-        size_t len = strlen(szStr);
-        WorldPacket data(SMSG_NOTIFICATION, 2 + len);
-        data.WriteBits(len, 13);
-        data.FlushBits();
-        data.append(szStr, len);
-        SendPacket(&data);
+        SendPacket(WorldPackets::Chat::PrintNotification(szStr).Write());
     }
 }
 

@@ -196,6 +196,17 @@ namespace WorldPackets
             int32 SoundIndex = -1;
             int32 EmoteID = 0;
         };
+
+        class PrintNotification final : public ServerPacket
+        {
+        public:
+            PrintNotification() : ServerPacket(SMSG_NOTIFICATION, 3) { }
+            PrintNotification(std::string const& notifyText) : ServerPacket(SMSG_NOTIFICATION, 3), NotifyText(notifyText) { }
+
+            WorldPacket const* Write() override;
+
+            std::string NotifyText;
+        };
     }
 }
 
