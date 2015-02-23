@@ -26,6 +26,7 @@ EndScriptData */
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "Chat.h"
+#include "ChatPackets.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "Language.h"
@@ -174,9 +175,7 @@ public:
         std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
         str += message;
 
-        WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
-        data << str;
-        sWorld->SendGlobalMessage(&data);
+        sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(str).Write());
 
         return true;
     }
@@ -190,9 +189,7 @@ public:
         std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
         str += message;
 
-        WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
-        data << str;
-        sWorld->SendGlobalGMMessage(&data);
+        sWorld->SendGlobalGMMessage(WorldPackets::Chat::PrintNotification(str).Write());
 
         return true;
     }

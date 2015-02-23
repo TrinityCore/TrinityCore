@@ -227,3 +227,10 @@ WorldPacket const* WorldPackets::Chat::STextEmote::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Chat::PrintNotification::Write()
+{
+    _worldPacket << NotifyText;
+
+    return &_worldPacket;
+}

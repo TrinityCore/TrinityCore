@@ -107,6 +107,16 @@ namespace WorldPackets
             int32 SoundIndex = 0;
         };
 
+        class TC_GAME_API PrintNotification final : public ServerPacket
+        {
+        public:
+            explicit PrintNotification(std::string const& notifyText) : ServerPacket(SMSG_NOTIFICATION, notifyText.size() + 1), NotifyText(notifyText) { }
+
+            WorldPacket const* Write() override;
+
+            std::string NotifyText;
+        };
+
         class EmoteClient final : public ClientPacket
         {
         public:

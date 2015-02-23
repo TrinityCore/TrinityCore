@@ -24,6 +24,7 @@
 #include "AddonMgr.h"
 #include "BattlegroundMgr.h"
 #include "CharacterPackets.h"
+#include "ChatPackets.h"
 #include "ClientConfigPackets.h"
 #include "Config.h"
 #include "Common.h"
@@ -678,9 +679,7 @@ void WorldSession::SendNotification(char const* format, ...)
         vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
-        WorldPacket data(SMSG_NOTIFICATION, (strlen(szStr) + 1));
-        data << szStr;
-        SendPacket(&data);
+        SendPacket(WorldPackets::Chat::PrintNotification(szStr).Write());
     }
 }
 
@@ -696,9 +695,7 @@ void WorldSession::SendNotification(uint32 stringId, ...)
         vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
-        WorldPacket data(SMSG_NOTIFICATION, (strlen(szStr) + 1));
-        data << szStr;
-        SendPacket(&data);
+        SendPacket(WorldPackets::Chat::PrintNotification(szStr).Write());
     }
 }
 
