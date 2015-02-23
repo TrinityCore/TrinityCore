@@ -357,6 +357,12 @@ WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Character::CharacterLoginFailed::Write()
+{
+    _worldPacket << uint8(Code);
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Character::LogoutResponse::Write()
 {
     _worldPacket << int32(LogoutResult);

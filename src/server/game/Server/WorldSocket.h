@@ -40,6 +40,7 @@ namespace WorldPackets
     {
         class AuthSession;
         class AuthContinuedSession;
+        class ConnectToFailed;
     }
 }
 
@@ -96,6 +97,7 @@ private:
     void HandleSendAuthSession();
     void HandleAuthSession(WorldPackets::Auth::AuthSession& authSession);
     void HandleAuthContinuedSession(WorldPackets::Auth::AuthContinuedSession& authSession);
+    void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
     void SendAuthResponseError(uint8 code);
 
     void HandlePing(WorldPacket& recvPacket);
