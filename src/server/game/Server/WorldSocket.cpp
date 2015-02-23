@@ -747,7 +747,7 @@ void WorldSocket::HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& con
                 case WorldPackets::Auth::ConnectToSerial::WorldAttempt5:
                 {
                     TC_LOG_ERROR("network", "%s failed to connect 5 times to world socket, aborting login", _worldSession->GetPlayerInfo().c_str());
-                        _worldSession->AbortLogin(WorldPackets::Character::LoginFailureReason::NoWorld);
+                    _worldSession->AbortLogin(WorldPackets::Character::LoginFailureReason::NoWorld);
                     break;
                 }
                 default:
