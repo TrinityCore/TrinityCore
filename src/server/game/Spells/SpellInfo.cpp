@@ -1959,7 +1959,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     }
 
     // not allow casting on flying player
-    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT))
+    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT) && !(AttributesCu & SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET))
         return SPELL_FAILED_BAD_TARGETS;
 
     /* TARGET_UNIT_MASTER gets blocked here for passengers, because the whole idea of this check is to
