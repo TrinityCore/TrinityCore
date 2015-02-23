@@ -251,12 +251,10 @@ bool WorldSocket::ReadDataHandler()
                 HandleAuthContinuedSession(authSession);
                 break;
             }
-                /*
             case CMSG_KEEP_ALIVE:
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 break;
-            */
             case CMSG_LOG_DISCONNECT:
                 packet.rfinish();   // contains uint32 disconnectReason;
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
