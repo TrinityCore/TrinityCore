@@ -138,6 +138,17 @@ namespace WorldPackets
             uint8 Result = 0; ///< the result of the authentication process, it is AUTH_OK if it succeeded and the account is ready to log in. It can also be AUTH_WAIT_QUEUE if the account entered the login queue (Queued, QueuePos), possible values are @ref ResponseCodes
         };
 
+        enum class ConnectToSerial : uint32
+        {
+            None            = 0,
+            Realm           = 14,
+            WorldAttempt1   = 17,
+            WorldAttempt2   = 35,
+            WorldAttempt3   = 53,
+            WorldAttempt4   = 71,
+            WorldAttempt5   = 89
+        };
+
         class ConnectTo final : public ServerPacket
         {
             static std::string const Haiku;
@@ -157,7 +168,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 Key = 0;
-            uint32 Serial = 0;
+            ConnectToSerial Serial = ConnectToSerial::None;
             ConnectPayload Payload;
             uint8 Con = 0;
 
@@ -190,6 +201,17 @@ namespace WorldPackets
             ResumeComms() : ServerPacket(SMSG_RESUME_COMMS, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class ConnectToFailed final : public ClientPacket
+        {
+        public:
+            ConnectToFailed(WorldPacket&& packet) : ClientPacket(CMSG_CONNECT_TO_FAILED, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Serial = 0;
+            uint8 Con = 0;
         };
     }
 }

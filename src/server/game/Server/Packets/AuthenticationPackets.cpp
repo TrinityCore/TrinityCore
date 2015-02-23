@@ -592,3 +592,9 @@ void WorldPackets::Auth::AuthContinuedSession::Read()
     _worldPacket >> Key;
     _worldPacket.read(Digest, SHA_DIGEST_LENGTH);
 }
+
+void WorldPackets::Auth::ConnectToFailed::Read()
+{
+    _worldPacket >> Serial;
+    _worldPacket >> Con;
+}

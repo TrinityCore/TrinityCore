@@ -19,6 +19,7 @@
 #include "WorldSocket.h"
 #include "AuthenticationPackets.h"
 #include "BigNumber.h"
+#include "CharacterPackets.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -266,6 +267,13 @@ bool WorldSocket::ReadDataHandler()
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 if (_worldSession)
                     _worldSession->HandleEnableNagleAlgorithm();
+                break;
+            }
+            case CMSG_CONNECT_TO_FAILED:
+            {
+                WorldPackets::Auth::ConnectToFailed connectToFailed(std::move(packet));
+                connectToFailed.Read();
+                HandleConnectToFailed(connectToFailed);
                 break;
             }
             default:
@@ -714,6 +722,45 @@ void WorldSocket::HandleAuthContinuedSession(WorldPackets::Auth::AuthContinuedSe
 
     _worldSession->AddInstanceConnection(shared_from_this());
     _worldSession->HandleContinuePlayerLogin();
+}
+
+void WorldSocket::HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed)
+{
+    if (_worldSession)
+    {
+        if (_worldSession->PlayerLoading())
+        {
+            switch (connectToFailed.Serial)
+            {
+                case WorldPackets::Auth::ConnectToSerial::WorldAttempt1:
+                    _worldSession->SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt2);
+                    break;
+                case WorldPackets::Auth::ConnectToSerial::WorldAttempt2:
+                    _worldSession->SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt3);
+                    break;
+                case WorldPackets::Auth::ConnectToSerial::WorldAttempt3:
+                    _worldSession->SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt4);
+                    break;
+                case WorldPackets::Auth::ConnectToSerial::WorldAttempt4:
+                    _worldSession->SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt5);
+                    break;
+                case WorldPackets::Auth::ConnectToSerial::WorldAttempt5:
+                {
+                    TC_LOG_ERROR("network", "%s failed to connect 5 times to world socket, aborting login", _worldSession->GetPlayerInfo().c_str());
+                        _worldSession->AbortLogin(WorldPackets::Character::LoginFailureReason::NoWorld);
+                    break;
+                }
+                default:
+                    return;
+            }
+        }
+        //else
+        //{
+        //    transfer_aborted when/if we get map node redirection
+        //    SendPacket(*WorldPackets::Auth::ResumeComms().Write());
+        //}
+    }
+
 }
 
 void WorldSocket::SendAuthResponseError(uint8 code)

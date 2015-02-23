@@ -85,6 +85,11 @@ namespace WorldPackets
         class AuctionHelloRequest;
     }
 
+    namespace Auth
+    {
+        enum class ConnectToSerial : uint32;
+    }
+
     namespace BlackMarket
     {
         class BlackMarketOpen;
@@ -113,6 +118,8 @@ namespace WorldPackets
         class LogoutCancel;
         class LoadingScreenNotify;
         class SetActionBarToggles;
+
+        enum class LoginFailureReason : uint8;
     }
 
     namespace ClientConfig
@@ -746,7 +753,10 @@ class WorldSession
         void HandleCharCreateOpcode(WorldPackets::Character::CreateChar& charCreate);
         void HandleCharCreateCallback(PreparedQueryResult result, WorldPackets::Character::CharacterCreateInfo* createInfo);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
+
+        void SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial);
         void HandleContinuePlayerLogin();
+        void AbortLogin(WorldPackets::Character::LoginFailureReason reason);
         void HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& loadingScreenNotify);
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request);
