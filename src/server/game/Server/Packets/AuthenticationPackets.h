@@ -210,7 +210,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 Serial = 0;
+            ConnectToSerial Serial = ConnectToSerial::None;
             uint8 Con = 0;
         };
     }

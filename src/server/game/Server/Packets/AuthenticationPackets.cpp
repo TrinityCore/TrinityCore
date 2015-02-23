@@ -595,6 +595,6 @@ void WorldPackets::Auth::AuthContinuedSession::Read()
 
 void WorldPackets::Auth::ConnectToFailed::Read()
 {
-    _worldPacket >> Serial;
+    Serial = _worldPacket.read<ConnectToSerial>();
     _worldPacket >> Con;
 }
