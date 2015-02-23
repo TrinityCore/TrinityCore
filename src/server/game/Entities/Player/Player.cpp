@@ -19838,10 +19838,7 @@ void Player::SendAutoRepeatCancel(Unit* target)
 
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
 {
-    WorldPacket data(SMSG_EXPLORATION_EXPERIENCE, 8);
-    data << uint32(Area);
-    data << uint32(Experience);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Misc::ExplorationExperience(Experience, Area).Write());
 }
 
 void Player::SendDungeonDifficulty()
