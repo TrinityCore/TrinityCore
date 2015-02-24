@@ -90,6 +90,22 @@ std::string ObjectGuid::ToString() const
     return str.str();
 }
 
+ObjectGuid ObjectGuid::Global(HighGuid type, LowType counter)
+{
+    return ObjectGuid(uint64(uint64(type) << 58), counter);
+}
+
+ObjectGuid ObjectGuid::RealmSpecific(HighGuid type, LowType counter)
+{
+    return ObjectGuid(uint64(uint64(type) << 58 | uint64(realmHandle.Index) << 42), counter);
+}
+
+ObjectGuid ObjectGuid::MapSpecific(HighGuid type, uint8 subType, uint16 mapId, uint32 serverId, uint32 entry, LowType counter)
+{
+    return ObjectGuid(uint64((uint64(type) << 58) | (uint64(realmHandle.Index & 0x1FFF) << 42) | (uint64(mapId & 0x1FFF) << 29) | (uint64(entry & 0x7FFFFF) << 6) | (uint64(subType) & 0x3F)),
+        uint64((uint64(serverId & 0xFFFFFF) << 40) | (counter & UI64LIT(0xFFFFFFFFFF))));
+}
+
 std::vector<uint8> ObjectGuid::GetRawValue() const
 {
     std::vector<uint8> raw(16);
@@ -119,17 +135,6 @@ void PackedGuid::Set(ObjectGuid const& guid)
 
     _packedGuid.put(0, lowMask);
     _packedGuid.put(1, highMask);
-}
-
-template<HighGuid high>
-ObjectGuid::LowType ObjectGuidGenerator<high>::Generate()
-{
-    if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
-    {
-        TC_LOG_ERROR("", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(high));
-        World::StopNow(ERROR_EXIT_CODE);
-    }
-    return _nextGuid++;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
@@ -167,89 +172,11 @@ std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid)
     return stream;
 }
 
-class GuidFormat
-{
-public:
-    inline static ObjectGuid Global(HighGuid type, ObjectGuid::LowType counter)
-    {
-        return ObjectGuid(uint64(uint64(type) << 58), counter);
-    }
-
-    inline static ObjectGuid RealmSpecific(HighGuid type, ObjectGuid::LowType counter)
-    {
-        return ObjectGuid(uint64(uint64(type) << 58 | uint64(realmHandle.Index) << 42), counter);
-    }
-
-    inline static ObjectGuid MapSpecific(HighGuid type, uint8 subType, uint16 mapId, uint32 serverId, uint32 entry, ObjectGuid::LowType counter)
-    {
-        return ObjectGuid(uint64((uint64(type) << 58) | (uint64(realmHandle.Index & 0x1FFF) << 42) | (uint64(mapId & 0x1FFF) << 29) | (uint64(entry & 0x7FFFFF) << 6) | (uint64(subType) & 0x3F)),
-            uint64((uint64(serverId & 0xFFFFFF) << 40) | (counter & UI64LIT(0xFFFFFFFFFF))));
-    }
-};
-
-#define GLOBAL_GUID_CREATE(highguid) template<> ObjectGuid ObjectGuid::Create<highguid>(LowType counter) { return GuidFormat::Global(highguid, counter); }
-#define REALM_GUID_CREATE(highguid) template<> ObjectGuid ObjectGuid::Create<highguid>(LowType counter) { return GuidFormat::RealmSpecific(highguid, counter); }
-#define MAP_GUID_CREATE(highguid) template<> ObjectGuid ObjectGuid::Create<highguid>(uint16 mapId, uint32 entry, LowType counter) { return GuidFormat::MapSpecific(highguid, 0, mapId, 0, entry, counter); }
-
-GLOBAL_GUID_CREATE(HighGuid::Uniq)
-GLOBAL_GUID_CREATE(HighGuid::Party)
-GLOBAL_GUID_CREATE(HighGuid::WowAccount)
-GLOBAL_GUID_CREATE(HighGuid::BNetAccount)
-GLOBAL_GUID_CREATE(HighGuid::GMTask)
-GLOBAL_GUID_CREATE(HighGuid::RaidGroup)
-GLOBAL_GUID_CREATE(HighGuid::Spell)
-GLOBAL_GUID_CREATE(HighGuid::Mail)
-GLOBAL_GUID_CREATE(HighGuid::UserRouter)
-GLOBAL_GUID_CREATE(HighGuid::PVPQueueGroup)
-GLOBAL_GUID_CREATE(HighGuid::UserClient)
-GLOBAL_GUID_CREATE(HighGuid::UniqueUserClient)
-GLOBAL_GUID_CREATE(HighGuid::BattlePet)
-REALM_GUID_CREATE(HighGuid::Player)
-REALM_GUID_CREATE(HighGuid::Item)   // This is not exactly correct, there are 2 more unknown parts in highguid: (high >> 10 & 0xFF), (high >> 18 & 0xFFFFFF)
-REALM_GUID_CREATE(HighGuid::Transport)
-REALM_GUID_CREATE(HighGuid::Guild)
-MAP_GUID_CREATE(HighGuid::Conversation)
-MAP_GUID_CREATE(HighGuid::Creature)
-MAP_GUID_CREATE(HighGuid::Vehicle)
-MAP_GUID_CREATE(HighGuid::Pet)
-MAP_GUID_CREATE(HighGuid::GameObject)
-MAP_GUID_CREATE(HighGuid::DynamicObject)
-MAP_GUID_CREATE(HighGuid::AreaTrigger)
-MAP_GUID_CREATE(HighGuid::Corpse)
-MAP_GUID_CREATE(HighGuid::LootObject)
-MAP_GUID_CREATE(HighGuid::SceneObject)
-MAP_GUID_CREATE(HighGuid::Scenario)
-MAP_GUID_CREATE(HighGuid::AIGroup)
-MAP_GUID_CREATE(HighGuid::DynamicDoor)
-MAP_GUID_CREATE(HighGuid::Vignette)
-MAP_GUID_CREATE(HighGuid::CallForHelp)
-MAP_GUID_CREATE(HighGuid::AIResource)
-MAP_GUID_CREATE(HighGuid::AILock)
-MAP_GUID_CREATE(HighGuid::AILockTicket)
-
 ObjectGuid const ObjectGuid::Empty = ObjectGuid();
 ObjectGuid const ObjectGuid::TradeItem = ObjectGuid::Create<HighGuid::Uniq>(uint64(10));
 
-template<HighGuid type>
-ObjectGuid ObjectGuid::Create(LowType /*counter*/)
+void ObjectGuidGeneratorBase::HandleCounterOverflow(HighGuid high)
 {
-    static_assert(type == HighGuid::Count, "This guid type cannot be constructed using Create(LowType counter).");
+    TC_LOG_ERROR("misc", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(high));
+    World::StopNow(ERROR_EXIT_CODE);
 }
-
-template<HighGuid type>
-ObjectGuid ObjectGuid::Create(uint16 /*mapId*/, uint32 /*entry*/, LowType /*counter*/)
-{
-    static_assert(type == HighGuid::Count, "This guid type cannot be constructed using Create(uint16 mapId, uint32 entry, LowType counter).");
-}
-
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Player>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Creature>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Pet>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Vehicle>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Item>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::GameObject>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::DynamicObject>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Corpse>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::LootObject>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::AreaTrigger>::Generate();
-template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Transport>::Generate();

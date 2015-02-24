@@ -24,7 +24,7 @@
 
 void WorldSession::HandleGrantLevel(WorldPackets::RaF::GrantLevel& grantLevel)
 {
-    Player* target = ObjectAccessor::GetObjectInWorld(grantLevel.Target, _player);
+    Player* target = ObjectAccessor::GetPlayer(*_player, grantLevel.Target);
 
     // check cheating
     uint8 levels = _player->GetGrantableLevels();
@@ -64,7 +64,7 @@ void WorldSession::HandleGrantLevel(WorldPackets::RaF::GrantLevel& grantLevel)
 
 void WorldSession::HandleAcceptGrantLevel(WorldPackets::RaF::AcceptLevelGrant& acceptLevelGrant)
 {
-    Player* other = ObjectAccessor::GetObjectInWorld(acceptLevelGrant.Granter, _player);
+    Player* other = ObjectAccessor::GetPlayer(*_player, acceptLevelGrant.Granter);
     if (!(other && other->GetSession()))
         return;
 
