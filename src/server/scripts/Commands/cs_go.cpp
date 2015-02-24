@@ -143,16 +143,6 @@ public:
 
         Transport* transport = NULL;
 
-        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::Creature>(mapId, id, guid), (Creature*)NULL))
-        {
-            x = creature->GetPositionX();
-            y = creature->GetPositionY();
-            z = creature->GetPositionZ();
-            o = creature->GetOrientation();
-            mapId = creature->GetMapId();
-            transport = creature->GetTransport();
-        }
-
         if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);

@@ -321,26 +321,23 @@ void Map::ScriptsProcess()
                     break;
                 case HighGuid::Creature:
                 case HighGuid::Vehicle:
-                    source = HashMapHolder<Creature>::Find(step.sourceGUID);
+                    source = GetCreature(step.sourceGUID);
                     break;
                 case HighGuid::Pet:
-                    source = HashMapHolder<Pet>::Find(step.sourceGUID);
+                    source = GetPet(step.sourceGUID);
                     break;
                 case HighGuid::Player:
                     source = HashMapHolder<Player>::Find(step.sourceGUID);
                     break;
                 case HighGuid::GameObject:
-                    source = HashMapHolder<GameObject>::Find(step.sourceGUID);
+                    source = GetGameObject(step.sourceGUID);
                     break;
                 case HighGuid::Corpse:
-                    source = HashMapHolder<Corpse>::Find(step.sourceGUID);
+                    source = GetCorpse(step.sourceGUID);
                     break;
                 case HighGuid::Transport:
-                {
-                    GameObject* go = HashMapHolder<GameObject>::Find(step.sourceGUID);
-                    source = go ? go->ToTransport() : NULL;
+                    source = GetTransport(step.sourceGUID);
                     break;
-                }
                 default:
                     TC_LOG_ERROR("scripts", "%s source with unsupported high guid %s.",
                         step.script->GetDebugInfo().c_str(), step.sourceGUID.ToString().c_str());
@@ -355,26 +352,23 @@ void Map::ScriptsProcess()
             {
                 case HighGuid::Creature:
                 case HighGuid::Vehicle:
-                    target = HashMapHolder<Creature>::Find(step.targetGUID);
+                    target = GetCreature(step.targetGUID);
                     break;
                 case HighGuid::Pet:
-                    target = HashMapHolder<Pet>::Find(step.targetGUID);
+                    target = GetPet(step.targetGUID);
                     break;
                 case HighGuid::Player:
                     target = HashMapHolder<Player>::Find(step.targetGUID);
                     break;
                 case HighGuid::GameObject:
-                    target = HashMapHolder<GameObject>::Find(step.targetGUID);
+                    target = GetGameObject(step.targetGUID);
                     break;
                 case HighGuid::Corpse:
-                    target = HashMapHolder<Corpse>::Find(step.targetGUID);
+                    target = GetCorpse(step.targetGUID);
                     break;
                 case HighGuid::Transport:
-                {
-                    GameObject* go = HashMapHolder<GameObject>::Find(step.targetGUID);
-                    target = go ? go->ToTransport() : NULL;
+                    target = GetTransport(step.targetGUID);
                     break;
-                }
                 default:
                     TC_LOG_ERROR("scripts", "%s target with unsupported high guid %s.",
                         step.script->GetDebugInfo().c_str(), step.targetGUID.ToString().c_str());
@@ -827,7 +821,11 @@ void Map::ScriptsProcess()
                 else //check hashmap holders
                 {
                     if (CreatureData const* data = sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
-                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, uint64(step.script->CallScript.CreatureEntry)), cTarget);
+                    {
+                        auto creatureBounds = _creatureBySpawnIdStore.equal_range(step.script->CallScript.CreatureEntry);
+                        if (creatureBounds.first != creatureBounds.second)
+                            cTarget = creatureBounds.first->second;
+                    }
                 }
 
                 if (!cTarget)
