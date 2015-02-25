@@ -26,7 +26,15 @@ class DBStorageIterator : public std::iterator<std::forward_iterator_tag, T>
 {
 public:
     DBStorageIterator() : _index(nullptr), _pos(0), _end(0) { }
-    DBStorageIterator(T** index, uint32 size, uint32 pos = 0) : _index(index), _pos(pos), _end(size) { while (_pos < _end && !_index[++_pos]); }
+    DBStorageIterator(T** index, uint32 size, uint32 pos = 0) : _index(index), _pos(pos), _end(size)
+    {
+        if (_pos < _end)
+        {
+            do
+                ++_pos;
+            while (_pos < _end && !_index[_pos]);
+        }
+    }
 
     T* operator->() { return _index[_pos]; }
     T* operator*() { return _index[_pos]; }
@@ -34,8 +42,24 @@ public:
     bool operator==(DBStorageIterator const& right) const { /*ASSERT(_index == right._index, "Iterator belongs to a different container")*/ return _pos == right._pos; }
     bool operator!=(DBStorageIterator const& right) const { return !(*this == right); }
 
-    DBStorageIterator& operator++() { while (_pos < _end && !_index[++_pos]); return *this; }
-    DBStorageIterator operator++(int) { DBStorageIterator tmp = *this; ++*this; return tmp; }
+    DBStorageIterator& operator++()
+    {
+        if (_pos < _end)
+        {
+            do
+                ++_pos;
+            while (_pos < _end && !_index[_pos]);
+        }
+
+        return *this;
+    }
+
+    DBStorageIterator operator++(int)
+    {
+        DBStorageIterator tmp = *this;
+        ++*this;
+        return tmp;
+    }
 
 private:
     T** _index;
