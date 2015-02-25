@@ -1883,10 +1883,10 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
     data.posY           = y;
     data.posZ           = z;
     data.orientation    = o;
-    data.rotation0      = rotation0;
-    data.rotation1      = rotation1;
-    data.rotation2      = rotation2;
-    data.rotation3      = rotation3;
+    data.rotation.x     = rotation0;
+    data.rotation.y     = rotation1;
+    data.rotation.z     = rotation2;
+    data.rotation.w     = rotation3;
     data.spawntimesecs  = spawntimedelay;
     data.animprogress   = 100;
     data.spawnMask      = 1;
@@ -2036,10 +2036,10 @@ void ObjectMgr::LoadGameobjects()
         data.posY           = fields[4].GetFloat();
         data.posZ           = fields[5].GetFloat();
         data.orientation    = fields[6].GetFloat();
-        data.rotation0      = fields[7].GetFloat();
-        data.rotation1      = fields[8].GetFloat();
-        data.rotation2      = fields[9].GetFloat();
-        data.rotation3      = fields[10].GetFloat();
+        data.rotation.x     = fields[7].GetFloat();
+        data.rotation.y     = fields[8].GetFloat();
+        data.rotation.z     = fields[9].GetFloat();
+        data.rotation.w     = fields[10].GetFloat();
         data.spawntimesecs  = fields[11].GetInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
@@ -2080,15 +2080,27 @@ void ObjectMgr::LoadGameobjects()
             data.orientation = Position::NormalizeOrientation(data.orientation);
         }
 
-        if (data.rotation2 < -1.0f || data.rotation2 > 1.0f)
+        if (data.rotation.x < -1.0f || data.rotation.x > 1.0f)
         {
-            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation2 (%f) value, skip", guid, data.id, data.rotation2);
+            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotationX (%f) value, skip", guid, data.id, data.rotation.x);
             continue;
         }
 
-        if (data.rotation3 < -1.0f || data.rotation3 > 1.0f)
+        if (data.rotation.y < -1.0f || data.rotation.y > 1.0f)
         {
-            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation3 (%f) value, skip", guid, data.id, data.rotation3);
+            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotationY (%f) value, skip", guid, data.id, data.rotation.y);
+            continue;
+        }
+
+        if (data.rotation.z < -1.0f || data.rotation.z > 1.0f)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotationZ (%f) value, skip", guid, data.id, data.rotation.z);
+            continue;
+        }
+
+        if (data.rotation.w < -1.0f || data.rotation.w > 1.0f)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotationW (%f) value, skip", guid, data.id, data.rotation.w);
             continue;
         }
 

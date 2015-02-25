@@ -33,6 +33,8 @@
 #include "World.h"
 #include "Transport.h"
 
+QuatData const QuatData::Empty = QuatData();
+
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(nullptr), m_goValue(), m_AI(nullptr)
 {
@@ -53,7 +55,6 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_goData = nullptr;
 
     m_spawnId = 0;
-    m_rotation = 0;
 
     m_lootRecipientGroup = 0;
     m_groupLootTimer = 0;
@@ -173,7 +174,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
+bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, QuatData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit)
 {
     ASSERT(map);
     SetMap(map);
@@ -222,7 +223,8 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
         return false;
     }
 
-    SetRotationQuat(rotation0, rotation1, rotation2, rotation3);
+    SetWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w);
+    SetTransportPathRotation(0.f, 0.f, 0.f, 1.f);
 
     SetObjectScale(goinfo->size);
 
@@ -777,10 +779,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.posY = GetPositionY();
     data.posZ = GetPositionZ();
     data.orientation = GetOrientation();
-    data.rotation0 = GetFloatValue(GAMEOBJECT_PARENTROTATION+0);
-    data.rotation1 = GetFloatValue(GAMEOBJECT_PARENTROTATION+1);
-    data.rotation2 = GetFloatValue(GAMEOBJECT_PARENTROTATION+2);
-    data.rotation3 = GetFloatValue(GAMEOBJECT_PARENTROTATION+3);
+    data.rotation = m_worldRotation;
     data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
     data.go_state = GetGoState();
@@ -806,10 +805,10 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     stmt->setFloat(index++, GetPositionY());
     stmt->setFloat(index++, GetPositionZ());
     stmt->setFloat(index++, GetOrientation());
-    stmt->setFloat(index++, GetFloatValue(GAMEOBJECT_PARENTROTATION));
-    stmt->setFloat(index++, GetFloatValue(GAMEOBJECT_PARENTROTATION+1));
-    stmt->setFloat(index++, GetFloatValue(GAMEOBJECT_PARENTROTATION+2));
-    stmt->setFloat(index++, GetFloatValue(GAMEOBJECT_PARENTROTATION+3));
+    stmt->setFloat(index++, m_worldRotation.x);
+    stmt->setFloat(index++, m_worldRotation.y);
+    stmt->setFloat(index++, m_worldRotation.z);
+    stmt->setFloat(index++, m_worldRotation.w);
     stmt->setInt32(index++, int32(m_respawnDelayTime));
     stmt->setUInt8(index++, GetGoAnimProgress());
     stmt->setUInt8(index++, uint8(GetGoState()));
@@ -836,17 +835,12 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, boo
     float z = data->posZ;
     float ang = data->orientation;
 
-    float rotation0 = data->rotation0;
-    float rotation1 = data->rotation1;
-    float rotation2 = data->rotation2;
-    float rotation3 = data->rotation3;
-
     uint32 animprogress = data->animprogress;
     GOState go_state = data->go_state;
     uint32 artKit = data->artKit;
 
     m_spawnId = spawnId;
-    if (!Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
+    if (!Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, phaseMask, x, y, z, ang, data->rotation, animprogress, go_state, artKit))
         return false;
 
     if (data->spawntimesecs >= 0)
@@ -1922,24 +1916,33 @@ struct PackedQuat
         static const int32 PACK_X_MASK  = (PACK_X  << 1) - 1;
 };
 
-void GameObject::SetRotationQuat(float qx, float qy, float qz, float qw)
+void GameObject::SetWorldRotation(float qx, float qy, float qz, float qw)
 {
-    G3D::Quat quat(qx, qy, qz, qw);
+    G3D::Quat rotation(qx, qy, qz, qw);
     // Temporary solution for gameobjects that has no rotation data in DB:
-    if (qz == 0 && qw == 0)
-        quat = G3D::Quat::fromAxisAngleRotation(G3D::Vector3::unitZ(), GetOrientation());
+    if (qz == 0.f && qw == 0.f)
+        rotation = G3D::Quat::fromAxisAngleRotation(G3D::Vector3::unitZ(), GetOrientation());
 
-    m_rotation = PackedQuat(quat).GetComp();
-    SetFloatValue(GAMEOBJECT_PARENTROTATION + 0, quat.x);
-    SetFloatValue(GAMEOBJECT_PARENTROTATION + 1, quat.y);
-    SetFloatValue(GAMEOBJECT_PARENTROTATION + 2, quat.z);
-    SetFloatValue(GAMEOBJECT_PARENTROTATION + 3, quat.w);
+    rotation.unitize();
+    m_packedRotation = PackedQuat(rotation).GetComp();
+    m_worldRotation.x = rotation.x;
+    m_worldRotation.y = rotation.y;
+    m_worldRotation.z = rotation.z;
+    m_worldRotation.w = rotation.w;
 }
 
-void GameObject::SetRotationAngles(float z_rot, float y_rot, float x_rot)
+void GameObject::SetTransportPathRotation(float qx, float qy, float qz, float qw)
+{
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 0, qx);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 1, qy);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 2, qz);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 3, qw);
+}
+
+void GameObject::SetWorldRotationAngles(float z_rot, float y_rot, float x_rot)
 {
     G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot));
-    SetRotationQuat(quat.x, quat.y, quat.z, quat.w);
+    SetWorldRotation(quat.x, quat.y, quat.z, quat.w);
 }
 
 void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= nullptr*/, uint32 spellId /*= 0*/)

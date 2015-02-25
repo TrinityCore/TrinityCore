@@ -32,6 +32,18 @@ class Transport;
 
 #define MAX_GAMEOBJECT_QUEST_ITEMS 6
 
+// small wrapper to avoid clutter
+struct QuatData
+{
+    static QuatData const Empty;
+    float x, y, z, w;
+
+    QuatData() : x(0.f), y(0.f), z(0.f), w(0.f) { }
+    QuatData(float qx, float qy, float qz, float qw) : x(qx), y(qy), z(qz), w(qw) { }
+
+    bool isUnit() const { return fabs(x*x + y*y + z*z + w*w - 1.f) < 1e-5f; }
+};
+
 // from `gameobject_template`
 struct GameObjectTemplate
 {
@@ -622,8 +634,7 @@ enum GOState
 // from `gameobject`
 struct GameObjectData
 {
-    explicit GameObjectData() : id(0), mapid(0), phaseMask(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f),
-                                rotation0(0.0f), rotation1(0.0f), rotation2(0.0f), rotation3(0.0f), spawntimesecs(0),
+    explicit GameObjectData() : id(0), mapid(0), phaseMask(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
                                 animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0), dbData(true) { }
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
@@ -632,10 +643,7 @@ struct GameObjectData
     float posY;
     float posZ;
     float orientation;
-    float rotation0;
-    float rotation1;
-    float rotation2;
-    float rotation3;
+    QuatData rotation;
     int32  spawntimesecs;
     uint32 animprogress;
     GOState go_state;
@@ -677,7 +685,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld() override;
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
-        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, QuatData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectData const* GetGOData() const { return m_goData; }
@@ -690,8 +698,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
          // z_rot, y_rot, x_rot - rotation angles around z, y and x axes
-        void SetRotationAngles(float z_rot, float y_rot, float x_rot);
-        int64 GetRotation() const { return m_rotation; }
+        void SetWorldRotationAngles(float z_rot, float y_rot, float x_rot);
+        void SetWorldRotation(float qx, float qy, float qz, float qw);
+        void SetTransportPathRotation(float qx, float qy, float qz, float qw);
+        int64 GetPackedWorldRotation() const { return m_packedRotation; }
 
         // overwrite WorldObject function for proper name localization
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
@@ -903,7 +913,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectData const* m_goData;
         GameObjectValue m_goValue;
 
-        int64 m_rotation;
+        int64 m_packedRotation;
+        QuatData m_worldRotation;
         Position m_stationaryPosition;
 
         ObjectGuid m_lootRecipient;
@@ -912,7 +923,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
     private:
         void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
-        void SetRotationQuat(float qx, float qy, float qz, float qw);
 
         //! Object distance/size - overridden from Object::_IsWithinDist. Needs to take in account proper GO size.
         bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool /*is3D*/) const override
