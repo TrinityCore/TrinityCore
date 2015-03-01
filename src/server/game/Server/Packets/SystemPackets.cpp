@@ -25,6 +25,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket << uint32(ScrollOfResurrectionMaxRequestsPerDay);
     _worldPacket << uint32(CfgRealmID);
     _worldPacket << int32(CfgRealmRecID);
+    _worldPacket << uint32(UnkInt27);
+    _worldPacket << uint32(UnkInt29);
 
     _worldPacket.WriteBit(VoiceEnabled);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.HasValue);
@@ -40,6 +42,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(UnkBit21);
     _worldPacket.WriteBit(UnkBit22);
     _worldPacket.WriteBit(UnkBit90);
+    _worldPacket.WriteBit(TwitterEnabled);
+    _worldPacket.WriteBit(UnkBit61);
 
     if (EuropaTicketSystemStatus.HasValue)
     {
@@ -60,6 +64,13 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert.Value.Period);
         _worldPacket << int32(SessionAlert.Value.DisplayTime);
     }
+
+    /*if (bit61)
+    {
+        var int88 = packet.ReadInt32("int88");
+        for (int i = 0; i < int88; i++)
+            packet.ReadByte("byte23", i);
+    }*/
 
     _worldPacket.FlushBits();
 
