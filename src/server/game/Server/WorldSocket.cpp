@@ -252,16 +252,16 @@ bool WorldSocket::ReadDataHandler()
                 HandleAuthContinuedSession(authSession);
                 break;
             }
-            case CMSG_KEEP_ALIVE:
+            /*case CMSG_KEEP_ALIVE:
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
-                break;
+                break;*/
             case CMSG_LOG_DISCONNECT:
                 packet.rfinish();   // contains uint32 disconnectReason;
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 return true;
-            case CMSG_ENABLE_NAGLE:
+            /*case CMSG_ENABLE_NAGLE:
             {
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
@@ -275,7 +275,7 @@ bool WorldSocket::ReadDataHandler()
                 connectToFailed.Read();
                 HandleConnectToFailed(connectToFailed);
                 break;
-            }
+            }*/
             default:
             {
                 if (!_worldSession)

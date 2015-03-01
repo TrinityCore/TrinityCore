@@ -69,13 +69,17 @@ namespace WorldPackets
             uint32 CfgRealmID                            = 0;
             uint8 ComplaintStatus                        = 0;
             int32 CfgRealmRecID                          = 0;
+            int32 UnkInt27                               = 0;
+            int32 UnkInt29                               = 0;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
+            bool TwitterEnabled                      = false;
 
             bool UnkBit21                            = false;
             bool UnkBit22                            = false;
             bool UnkBit90                            = false;
+            bool UnkBit61                            = false;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
