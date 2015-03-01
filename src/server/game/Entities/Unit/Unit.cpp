@@ -13295,7 +13295,7 @@ void Unit::SetMovementAnimKitId(uint16 animKitId)
 
     _movementAnimKitId = animKitId;
 
-    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
+    WorldPacket data(SMSG_MOVE_SET_ANIM_KIT, 8 + 2);
     data << GetPackGUID();
     data << uint16(animKitId);
     SendMessageToSet(&data, true);

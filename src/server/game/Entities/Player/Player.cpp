@@ -7069,7 +7069,7 @@ void Player::ResetCurrencyWeekCap()
         itr->second.state = PLAYERCURRENCY_CHANGED;
     }
 
-    WorldPacket data(SMSG_WEEKLY_RESET_CURRENCY, 0);
+    WorldPacket data(SMSG_RESET_WEEKLY_CURRENCY, 0);
     SendDirectMessage(&data);
 }
 
@@ -12893,8 +12893,8 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid)
 {
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_SELL_ITEM");
-    WorldPacket data(SMSG_SELL_ITEM, (8+8+1));  // last check 4.3.4
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_SELL_RESPONSE");
+    WorldPacket data(SMSG_SELL_RESPONSE, (8+8+1));  // last check 4.3.4
     data << (creature ? creature->GetGUID() : ObjectGuid::Empty);
     data << guid;
     data << uint8(msg);
@@ -25730,7 +25730,7 @@ bool Player::AddItem(uint32 itemId, uint32 count)
 void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error)
 {
     ObjectGuid guid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_REFUND_RESULT, 1 + 1 + 8 + 4*8 + 4 + 4*8 + 1);
+    WorldPacket data(SMSG_ITEM_PURCHASE_REFUND_RESULT, 1 + 1 + 8 + 4*8 + 4 + 4*8 + 1);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[5]);
     data.WriteBit(guid[1]);

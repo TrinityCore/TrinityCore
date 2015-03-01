@@ -493,7 +493,7 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid2[2]);
     recvData.ReadByteSeq(guid2[7]);
 
-    WorldPacket data(SMSG_GROUP_SET_ROLE, 24);
+    WorldPacket data(SMSG_ROLE_CHANGED_INFORM, 24);
 
     data.WriteBit(guid1[1]);
     data.WriteBit(guid2[0]);
@@ -1349,7 +1349,7 @@ void WorldSession::HandleRolePollBeginOpcode(WorldPacket& recvData)
 
         ObjectGuid guid = GetPlayer()->GetGUID();
 
-        WorldPacket data(SMSG_ROLE_POLL_BEGIN, 8);
+        WorldPacket data(SMSG_ROLE_POLL_INFORM, 8);
         data.WriteBit(guid[1]);
         data.WriteBit(guid[5]);
         data.WriteBit(guid[7]);

@@ -508,7 +508,7 @@ void CalendarMgr::SendCalendarEventInviteRemove(CalendarEvent const& calendarEve
 
 void CalendarMgr::SendCalendarEventModeratorStatusAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite)
 {
-    WorldPacket data(SMSG_CALENDAR_EVENT_MODERATOR_STATUS_ALERT, 8 + 8 + 1 + 1);
+    WorldPacket data(SMSG_CALENDAR_EVENT_INVITE_MODERATOR_STATUS, 8 + 8 + 1 + 1);
     data << invite.GetInviteeGUID().WriteAsPacked();
     data << uint64(invite.GetEventId());
     data << uint8(invite.GetRank());
