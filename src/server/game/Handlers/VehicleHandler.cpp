@@ -27,7 +27,7 @@
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_MOVE_DISMISS_VEHICLE");
 
     MovementInfo mi;
 
@@ -50,7 +50,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 
 void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_MOVE_CHANGE_VEHICLE_SEATS");
 
     Unit* vehicle_base = GetPlayer()->GetVehicleBase();
     if (!vehicle_base)

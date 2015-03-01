@@ -57,7 +57,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& packet)
 
     if (packet.Slots.empty())
     {
-        TC_LOG_DEBUG("lfg", "CMSG_LFG_JOIN {} no dungeons selected", GetPlayerInfo());
+        TC_LOG_DEBUG("lfg", "CMSG_DF_JOIN {} no dungeons selected", GetPlayerInfo());
         return;
     }
 
@@ -69,7 +69,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& packet)
             newDungeons.insert(dungeon);
     }
 
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_JOIN {} roles: {}, Dungeons: {}, Comment: {}",
+    TC_LOG_DEBUG("lfg", "CMSG_DF_JOIN {} roles: {}, Dungeons: {}, Comment: {}",
                  GetPlayerInfo(), packet.Roles, newDungeons.size(), packet.Comment);
 
     sLFGMgr->JoinLfg(GetPlayer(), uint8(packet.Roles), newDungeons, packet.Comment);
@@ -109,12 +109,12 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
     Group* group = GetPlayer()->GetGroup();
     if (!group)
     {
-        TC_LOG_DEBUG("lfg", "CMSG_LFG_SET_ROLES {} Not in group",
+        TC_LOG_DEBUG("lfg", "CMSG_DF_SET_ROLES {} Not in group",
             GetPlayerInfo());
         return;
     }
     ObjectGuid gguid = group->GetGUID();
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_SET_ROLES: Group {}, Player {}, Roles: {}",
+    TC_LOG_DEBUG("lfg", "CMSG_DF_SET_ROLES: Group {}, Player {}, Roles: {}",
         gguid.ToString(), GetPlayerInfo(), roles);
     sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
 }
@@ -146,7 +146,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
     bool out;
     recvData >> out;
 
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_TELEPORT {} out: {}",
+    TC_LOG_DEBUG("lfg", "CMSG_DF_TELEPORT {} out: {}",
         GetPlayerInfo(), out ? 1 : 0);
     sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
 }
