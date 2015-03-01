@@ -869,7 +869,7 @@ enum OpcodeServer : uint32
     SMSG_ARENA_TEAM_ROSTER                            = 0xBADD,
     SMSG_ARENA_TEAM_STATS                             = 0xBADD,
     SMSG_ATTACKERSTATEUPDATE                          = 0x13DC,
-    SMSG_ATTACKSTART                                  = 0xBADD,
+    SMSG_ATTACKSTART                                  = 0x19A4,
     SMSG_ATTACKSTOP                                   = 0xBADD,
     SMSG_ATTACKSWING_ERROR                            = 0xBADD,
     SMSG_ATTACKSWING_LANDED_LOG                       = 0xBADD,
