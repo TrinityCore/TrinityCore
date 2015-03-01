@@ -5284,13 +5284,15 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
             return MovementStopTurn;
         case SMSG_PLAYER_MOVE:
             return PlayerMove;
+        case CMSG_MOVE_CHANGE_VEHICLE_SEATS:
+            return ChangeSeatsOnControlledVehicle;
         case CMSG_MOVE_CHNG_TRANSPORT:
             return MoveChngTransport;
         case CMSG_MOVE_SPLINE_DONE:
             return MoveSplineDone;
         case CMSG_MOVE_NOT_ACTIVE_MOVER:
             return MoveNotActiveMover;
-        case CMSG_DISMISS_CONTROLLED_VEHICLE:
+        case CMSG_MOVE_DISMISS_VEHICLE:
             return DismissControlledVehicle;
         case SMSG_MOVE_UPDATE_TELEPORT:
             return MoveUpdateTeleport;
@@ -5438,8 +5440,6 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
             return MoveRoot;
         case SMSG_MOVE_UNROOT:
             return MoveUnroot;
-        case CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE:
-            return ChangeSeatsOnControlledVehicle;
         case CMSG_CAST_SPELL:
         case CMSG_PET_CAST_SPELL:
         case CMSG_USE_ITEM:

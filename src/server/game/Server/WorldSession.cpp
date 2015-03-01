@@ -1258,7 +1258,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         //case CMSG_GROUP_INVITE:                         //   0               1.5
         //case CMSG_GROUP_INVITE_RESPONSE:                //   0               1.5
         //case CMSG_GROUP_UNINVITE_GUID:                  //   0               1.5
-        //case CMSG_GROUP_DISBAND:                        //   0               1.5
+        //case CMSG_LEAVE_GROUP:                          //   0               1.5
         case CMSG_BATTLEMASTER_JOIN_ARENA:              //   0               1.5
         case CMSG_BATTLEFIELD_LEAVE:                    //   0               1.5
         case CMSG_GUILD_BANK_LOG_QUERY:                 //   0               2
@@ -1334,7 +1334,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 
         //case CMSG_GM_REPORT_LAG:                        //   1               3         1 async db query
         case CMSG_SPELLCLICK:                           // not profiled
-        //case CMSG_DISMISS_CONTROLLED_VEHICLE:           // not profiled
+        //case CMSG_MOVE_DISMISS_VEHICLE:                 // not profiled
         {
             maxPacketCounterAllowed = 20;
             break;
@@ -1342,7 +1342,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 
         //case CMSG_PETITION_SIGN:                        //   9               4         2 sync 1 async db queries
         //case CMSG_TURN_IN_PETITION:                     //   8               5.5       2 sync db query
-        //case CMSG_GROUP_CHANGE_SUB_GROUP:               //   6               5         1 sync 1 async db queries
+        //case CMSG_CHANGE_SUB_GROUP:               //   6               5         1 sync 1 async db queries
         //case CMSG_PETITION_QUERY:                       //   4               3.5       1 sync db query
         case CMSG_CHAR_CUSTOMIZE:                       //   5               5         1 sync db query
         case CMSG_CHAR_RACE_OR_FACTION_CHANGE:          //   5               5         1 sync db query
@@ -1352,12 +1352,12 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_CHAR_RENAME:                          //   5               3         1 async db query
         //case CMSG_GMSURVEY_SUBMIT:                      //   2               3         1 async db query
         //case CMSG_BUG:                                  //   1               1         1 async db query
-        //case CMSG_GROUP_SET_LEADER:                     //   1               2         1 async db query
-        //case CMSG_GROUP_RAID_CONVERT:                   //   1               5         1 async db query
-        //case CMSG_GROUP_ASSISTANT_LEADER:               //   1               2         1 async db query
+        //case CMSG_SET_PARTY_LEADER:                     //   1               2         1 async db query
+        //case CMSG_CONVERT_RAID:                         //   1               5         1 async db query
+        //case CMSG_SET_ASSISTANT_LEADER:                 //   1               2         1 async db query
         //case CMSG_CALENDAR_ADD_EVENT:                   //  21              10         2 async db query
+        //case CMSG_MOVE_CHANGE_VEHICLE_SEATS:            // not profiled
         //case CMSG_PETITION_BUY:                         // not profiled                1 sync 1 async db queries
-        //case CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE:   // not profiled
         //case CMSG_REQUEST_VEHICLE_PREV_SEAT:            // not profiled
         //case CMSG_REQUEST_VEHICLE_NEXT_SEAT:            // not profiled
         //case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:          // not profiled
@@ -1384,8 +1384,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         //case CMSG_CALENDAR_EVENT_INVITE:                // not profiled
         //case CMSG_CALENDAR_EVENT_SIGNUP:                // not profiled
         //case CMSG_CALENDAR_EVENT_RSVP:                  // not profiled
-        //case CMSG_CALENDAR_EVENT_REMOVE_INVITE:         // not profiled
         //case CMSG_CALENDAR_EVENT_MODERATOR_STATUS:      // not profiled
+        //case CMSG_CALENDAR_REMOVE_INVITE:               // not profiled
         //case CMSG_ARENA_TEAM_INVITE:                    // not profiled
         //case CMSG_ARENA_TEAM_ACCEPT:                    // not profiled
         //case CMSG_ARENA_TEAM_DECLINE:                   // not profiled
