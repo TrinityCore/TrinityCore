@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "NPCHandler.h"
 #include "G3D/Vector3.h"
+#include "DB2Stores.h"
 
 class Player;
 
