@@ -131,6 +131,7 @@ namespace WorldPackets
                 uint32 CustomizationFlag = 0; ///< Character customization flags @see enum CharacterCustomizeFlags
                 uint32 Flags3            = 0; ///< Character flags 3 @todo research
                 bool FirstLogin      = false;
+                uint8 unkWod61x          = 0;
 
                 struct PetInfo
                 {

@@ -86,7 +86,7 @@ WorldPacket const* WorldPackets::Channel::ChannelNotifyLeft::Write()
 void WorldPackets::Channel::ChannelPlayerCommand::Read()
 {
     switch (GetOpcode())
-    {
+    {/*
         case CMSG_CHANNEL_BAN:
         case CMSG_CHANNEL_INVITE:
         case CMSG_CHANNEL_KICK:
@@ -126,7 +126,7 @@ void WorldPackets::Channel::ChannelPlayerCommand::Read()
             ChannelName = _worldPacket.ReadString(channelNameLength);
             Name = _worldPacket.ReadString(nameLength);
             break;
-        }
+        }*/
         default:
             break;
     }

@@ -46,7 +46,7 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& pack
     ChatMsg type;
 
     switch (packet.GetOpcode())
-    {
+    {/*
         case CMSG_MESSAGECHAT_SAY:
             type = CHAT_MSG_SAY;
             break;
@@ -68,7 +68,7 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& pack
         case CMSG_MESSAGECHAT_RAID_WARNING:
             type = CHAT_MSG_RAID_WARNING;
             break;
-        default:
+        default:*/
             TC_LOG_ERROR("network", "HandleMessagechatOpcode : Unknown chat opcode (%u)", packet.GetOpcode());
             return;
     }
@@ -377,7 +377,7 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
     ChatMsg type;
 
     switch (packet.GetOpcode())
-    {
+    {/*
         case CMSG_MESSAGECHAT_ADDON_GUILD:
             type = CHAT_MSG_GUILD;
             break;
@@ -389,7 +389,7 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
             break;
         case CMSG_MESSAGECHAT_ADDON_RAID:
             type = CHAT_MSG_RAID;
-            break;
+            break;*/
         default:
             TC_LOG_ERROR("network", "HandleChatAddonMessageOpcode: Unknown addon chat opcode (%u)", packet.GetOpcode());
             return;

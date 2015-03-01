@@ -19,7 +19,7 @@
 #ifndef _UPDATEFIELDS_H
 #define _UPDATEFIELDS_H
 
-// Auto generated for version 6, 0, 2, 19034
+// Auto generated for version 6, 1, 0, 19678
 
 enum ObjectFields
 {
@@ -60,8 +60,8 @@ enum ItemFields
 
 enum ItemDynamicFields
 {
-    ITEM_DYNAMIC_FIELD_MODIFIERS                           = OBJECT_DYNAMIC_END + 0x000, //  Flags: OWNER
-    ITEM_DYNAMIC_FIELD_BONUSLIST_IDS                       = OBJECT_DYNAMIC_END + 0x001, //  Flags: OWNER
+    ITEM_DYNAMIC_FIELD_MODIFIERS                           = OBJECT_DYNAMIC_END + 0x000, // Flags: OWNER
+    ITEM_DYNAMIC_FIELD_BONUSLIST_IDS                       = OBJECT_DYNAMIC_END + 0x001, // Flags: OWNER, 0x100
     ITEM_DYNAMIC_END                                       = OBJECT_DYNAMIC_END + 0x002,
 };
 
@@ -170,13 +170,15 @@ enum UnitFields
     UNIT_FIELD_SCALE_DURATION                              = OBJECT_END + 0x0BC, // Size: 1, Flags: PUBLIC
     UNIT_FIELD_LOOKS_LIKE_MOUNT_ID                         = OBJECT_END + 0x0BD, // Size: 1, Flags: PUBLIC
     UNIT_FIELD_LOOKS_LIKE_CREATURE_ID                      = OBJECT_END + 0x0BE, // Size: 1, Flags: PUBLIC
-    UNIT_END                                               = OBJECT_END + 0x0BF,
+    UNIT_FIELD_LOOK_AT_CONTROLLER_ID                       = OBJECT_END + 0x0BF, // Size: 1, Flags: PUBLIC
+    UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET                   = OBJECT_END + 0x0C0, // Size: 4, Flags: PUBLIC
+    UNIT_END                                               = OBJECT_END + 0x0C4,
 };
 
 enum UnitDynamicFields
 {
-    UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS                      = OBJECT_DYNAMIC_END + 0x000, //  Flags: PUBLIC, URGENT
-    UNIT_DYNAMIC_FIELD_WORLD_EFFECTS                       = OBJECT_DYNAMIC_END + 0x001, //  Flags: PUBLIC, URGENT
+    UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS                      = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC, URGENT
+    UNIT_DYNAMIC_FIELD_WORLD_EFFECTS                       = OBJECT_DYNAMIC_END + 0x001, // Flags: PUBLIC, URGENT
     UNIT_DYNAMIC_END                                       = OBJECT_DYNAMIC_END + 0x002,
 };
 
@@ -205,9 +207,8 @@ enum PlayerFields
     PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL                      = UNIT_END + 0x342, // Size: 1, Flags: PUBLIC
     PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED                   = UNIT_END + 0x343, // Size: 1, Flags: PUBLIC
     PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY          = UNIT_END + 0x344, // Size: 1, Flags: PUBLIC
-    PLAYER_END_NOT_SELF                                    = UNIT_END + 0x345,
-
     PLAYER_FIELD_INV_SLOT_HEAD                             = UNIT_END + 0x345, // Size: 736, Flags: PRIVATE
+    PLAYER_FIELD_END_NOT_SELF                              = UNIT_END + 0x345,
     PLAYER_FARSIGHT                                        = UNIT_END + 0x625, // Size: 4, Flags: PRIVATE
     PLAYER__FIELD_KNOWN_TITLES                             = UNIT_END + 0x629, // Size: 10, Flags: PRIVATE
     PLAYER_FIELD_COINAGE                                   = UNIT_END + 0x633, // Size: 2, Flags: PRIVATE
@@ -295,18 +296,20 @@ enum PlayerFields
     PLAYER_FIELD_BAG_SLOT_FLAGS                            = UNIT_END + 0x99D, // Size: 4, Flags: PRIVATE
     PLAYER_FIELD_BANK_BAG_SLOT_FLAGS                       = UNIT_END + 0x9A1, // Size: 7, Flags: PRIVATE
     PLAYER_FIELD_INSERT_ITEMS_LEFT_TO_RIGHT                = UNIT_END + 0x9A8, // Size: 1, Flags: PRIVATE
-    PLAYER_END                                             = UNIT_END + 0x9A9,
+    PLAYER_FIELD_QUEST_COMPLETED                           = UNIT_END + 0x9A9, // Size: 625, Flags: PRIVATE
+    PLAYER_END                                             = UNIT_END + 0xC1A,
 };
 
 enum PlayerDynamicFields
 {
-    PLAYER_DYNAMIC_FIELD_RESERACH_SITE                     = UNIT_DYNAMIC_END + 0x000, //  Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS            = UNIT_DYNAMIC_END + 0x001, //  Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS                      = UNIT_DYNAMIC_END + 0x002, //  Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_AVAILABLE_QUEST_LINE_X_QUEST_ID   = UNIT_DYNAMIC_END + 0x003, //  Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_HEIRLOOMS                         = UNIT_DYNAMIC_END + 0x004, //  Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_TOYS                              = UNIT_DYNAMIC_END + 0x005, //  Flags: PRIVATE
-    PLAYER_DYNAMIC_END                                     = UNIT_DYNAMIC_END + 0x006,
+    PLAYER_DYNAMIC_FIELD_RESERACH_SITE                     = UNIT_DYNAMIC_END + 0x000, // Flags: PRIVATE
+    PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS            = UNIT_DYNAMIC_END + 0x001, // Flags: PRIVATE
+    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS                      = UNIT_DYNAMIC_END + 0x002, // Flags: PRIVATE
+    PLAYER_DYNAMIC_FIELD_AVAILABLE_QUEST_LINE_X_QUEST_ID   = UNIT_DYNAMIC_END + 0x003, // Flags: PRIVATE
+    PLAYER_DYNAMIC_FIELD_HEIRLOOMS                         = UNIT_DYNAMIC_END + 0x004, // Flags: PRIVATE
+    PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS                    = UNIT_DYNAMIC_END + 0x005, // Flags: PRIVATE
+    PLAYER_DYNAMIC_FIELD_TOYS                              = UNIT_DYNAMIC_END + 0x006, // Flags: PRIVATE
+    PLAYER_DYNAMIC_END                                     = UNIT_DYNAMIC_END + 0x007,
 };
 
 enum GameObjectFields
@@ -394,16 +397,16 @@ enum SceneObjectDynamicFields
     SCENEOBJECT_DYNAMIC_END                                = OBJECT_DYNAMIC_END + 0x000,
 };
 
-enum ConversationField
+enum ConversationFields
 {
     CONVERSATION_FIELD_DUMMY                               = OBJECT_END + 0x000, // Size: 1, Flags: PRIVATE
     CONVERSATION_END                                       = OBJECT_END + 0x001,
 };
 
-enum ConversationDynamicField
+enum ConversationDynamicFields
 {
-    CONVERSATION_DYNAMIC_FIELD_ACTORS                      = OBJECT_DYNAMIC_END + 0x000, //  Flags: PUBLIC
-    CONVERSATION_DYNAMIC_FIELD_LINES                       = OBJECT_DYNAMIC_END + 0x001, //  Flags: 0x100
+    CONVERSATION_DYNAMIC_FIELD_ACTORS                      = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC
+    CONVERSATION_DYNAMIC_FIELD_LINES                       = OBJECT_DYNAMIC_END + 0x001, // Flags: 0x100
     CONVERSATION_DYNAMIC_END                               = OBJECT_DYNAMIC_END + 0x002,
 };
 

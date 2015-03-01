@@ -1204,7 +1204,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 {
     uint32 maxPacketCounterAllowed;
     switch (opcode)
-    {
+    {/*
         // CPU usage sending 2000 packets/second on a 3.70 GHz 4 cores on Win x64
         //                                              [% CPU mysqld]   [%CPU worldserver RelWithDebInfo]
         case CMSG_PLAYER_LOGIN:                         //   0               0.5
@@ -1426,7 +1426,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         {
             maxPacketCounterAllowed = PLAYER_SLOTS_COUNT;
             break;
-        }
+        }*/
         default:
         {
             maxPacketCounterAllowed = 100;

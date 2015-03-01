@@ -103,7 +103,7 @@ namespace WorldPackets
                 switch (GetOpcode())
                 {
                     default:
-                        ASSERT(false);
+                        ASSERT(false);/*
                     case CMSG_CHANNEL_ANNOUNCEMENTS:
                     case CMSG_CHANNEL_BAN:
                     case CMSG_CHANNEL_DECLINE_INVITE:
@@ -125,7 +125,7 @@ namespace WorldPackets
                     case CMSG_CHANNEL_UNSILENCE_ALL:
                     case CMSG_CHANNEL_UNSILENCE_VOICE:
                     case CMSG_CHANNEL_VOICE_OFF:
-                    case CMSG_CHANNEL_VOICE_ON:
+                    case CMSG_CHANNEL_VOICE_ON:*/
                         break;
                 }
             }
