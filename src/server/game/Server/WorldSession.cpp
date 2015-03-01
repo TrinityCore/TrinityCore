@@ -1306,7 +1306,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_AUTOBANK_ITEM:                        //   0               6
         case CMSG_AUTOSTORE_BANK_ITEM:                  //   0               6
         case CMSG_WHO:                                  //   0               7
-        //case CMSG_PLAYER_VEHICLE_ENTER:                 //   0               8
+        //case CMSG_RIDE_VEHICLE_INTERACT:                //   0               8
         case CMSG_MOVE_HEARTBEAT:
         {
             maxPacketCounterAllowed = 200;
@@ -1363,7 +1363,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         //case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:          // not profiled
         //case CMSG_REQUEST_VEHICLE_EXIT:                 // not profiled
         //case CMSG_EJECT_PASSENGER:                      // not profiled
-        //case CMSG_ITEM_REFUND:                          // not profiled
+        //case CMSG_ITEM_PURCHASE_REFUND:                 // not profiled
         case CMSG_SOCKET_GEMS:                          // not profiled
         //case CMSG_WRAP_ITEM:                            // not profiled
         //case CMSG_REPORT_PVP_AFK:                       // not profiled

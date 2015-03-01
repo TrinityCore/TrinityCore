@@ -5286,7 +5286,7 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
             return PlayerMove;
         case CMSG_MOVE_CHANGE_VEHICLE_SEATS:
             return ChangeSeatsOnControlledVehicle;
-        case CMSG_MOVE_CHNG_TRANSPORT:
+        case CMSG_MOVE_CHANGE_TRANSPORT:
             return MoveChngTransport;
         case CMSG_MOVE_SPLINE_DONE:
             return MoveSplineDone;
@@ -5322,7 +5322,7 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
             return MovementHoverAck;
         case CMSG_MOVE_KNOCK_BACK_ACK:
             return MovementKnockBackAck;
-        case CMSG_MOVE_SET_CAN_FLY:
+        case CMSG_MOVE_SET_FLY:
             return MovementSetCanFly;
         case CMSG_MOVE_SET_CAN_FLY_ACK:
             return MovementSetCanFlyAck;
