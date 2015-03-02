@@ -1,6 +1,6 @@
 -- Quest - Iron Rune Constructs and You: Collecting Data
 
-SET @GUID := 21202; -- Set by TC
+SET @GUID := 49220; -- Set by TC
 SET @SUMMON := 49986;
 SET @GOLEM  := 24821;
 SET @BENCH  := 186958;
