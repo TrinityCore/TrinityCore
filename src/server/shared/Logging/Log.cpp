@@ -324,6 +324,9 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
             return false;
 
         it->second.setLogLevel(newLevel);
+
+        if (newLevel != LOG_LEVEL_DISABLED && newLevel < lowestLogLevel)
+            lowestLogLevel = newLevel;
     }
     else
     {
