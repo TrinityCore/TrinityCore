@@ -1,4 +1,4 @@
-DELETE FROM `command` WHERE `name`='pvpstats';
+DELETE FROM `command` WHERE `name`='modify xp';
 INSERT INTO `command` (`name`, `permission`, `help`) VALUES
 ('modify xp', 797, 'Syntax: .modify xp #xp
 
