@@ -24,6 +24,7 @@
 
 extern DB2Storage<BroadcastTextEntry>            sBroadcastTextStore;
 extern DB2Storage<HolidaysEntry>                 sHolidaysStore;
+extern DB2Storage<CurrencyTypesEntry>            sCurrencyTypesStore;
 extern DB2Storage<ItemCurrencyCostEntry>         sItemCurrencyCostStore;
 extern DB2Storage<ItemEffectEntry>               sItemEffectStore;
 extern DB2Storage<ItemEntry>                     sItemStore;
@@ -31,6 +32,7 @@ extern DB2Storage<ItemExtendedCostEntry>         sItemExtendedCostStore;
 extern DB2Storage<ItemSparseEntry>               sItemSparseStore;
 extern DB2Storage<OverrideSpellDataEntry>        sOverrideSpellDataStore;
 extern DB2Storage<PhaseGroupEntry>               sPhaseGroupStore;
+extern DB2Storage<SoundEntriesEntry>             sSoundEntriesStore;
 extern DB2Storage<SpellAuraRestrictionsEntry>    sSpellAuraRestrictionsStore;
 extern DB2Storage<SpellCastingRequirementsEntry> sSpellCastingRequirementsStore;
 extern DB2Storage<SpellClassOptionsEntry>        sSpellClassOptionsStore;
@@ -65,6 +67,7 @@ class DB2Manager
 {
 public:
     typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
+    typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
     typedef std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvesContainer;
     typedef std::vector<ItemBonusEntry const*> ItemBonusList;
     typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
@@ -87,6 +90,7 @@ public:
     HotfixData const* GetHotfixData() const { return &_hotfixData; }
     time_t GetHotfixDate(uint32 entry, uint32 type) const;
 
+    std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
     uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level) const;
     ItemBonusList GetItemBonusList(uint32 bonusListId) const;
@@ -99,6 +103,7 @@ private:
     StorageMap _stores;
     HotfixData _hotfixData;
 
+    AreaGroupMemberContainer _areaGroupMembers;
     HeirloomCurvesContainer _heirloomCurvePoints;
     ItemBonusListContainer _itemBonusLists;
     ItemBonusTreeContainer _itemBonusTrees;

@@ -1695,16 +1695,14 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     if (RequiredAreasID > 0)
     {
         bool found = false;
-        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(RequiredAreasID);
-        while (groupEntry)
+        std::vector<uint32> areaGroupMembers = sDB2Manager.GetAreasForGroup(RequiredAreasID);
+        for (uint32 areaId : areaGroupMembers)
         {
-            for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
-                if (groupEntry->AreaID[i] == zone_id || groupEntry->AreaID[i] == area_id)
-                    found = true;
-            if (found || !groupEntry->NextAreaID)
+            if (areaId == zone_id || areaId == area_id)
+            {
+                found = true;
                 break;
-            // Try search in next group
-            groupEntry = sAreaGroupStore.LookupEntry(groupEntry->NextAreaID);
+            }
         }
 
         if (!found)
