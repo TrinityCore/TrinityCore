@@ -585,7 +585,7 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket& recvData)
     recvData >> invitee.ReadAsPacked();
     recvData >> inviteId >> ownerInviteId >> eventId;
 
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_REMOVE_INVITE [%s] EventId [" UI64FMTD
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_REMOVE_INVITE [%s] EventId [" UI64FMTD
         "], ownerInviteId [" UI64FMTD "], Invitee ([%s] id: [" UI64FMTD "])",
         guid.ToString().c_str(), eventId, ownerInviteId, invitee.ToString().c_str(), inviteId);
 

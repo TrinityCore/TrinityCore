@@ -96,15 +96,6 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
 void WorldPackets::Query::QueryPlayerName::Read()
 {
     _worldPacket >> Player;
-
-    Hint.VirtualRealmAddress.HasValue = _worldPacket.ReadBit();
-    Hint.NativeRealmAddress.HasValue = _worldPacket.ReadBit();
-
-    if (Hint.VirtualRealmAddress.HasValue)
-        _worldPacket >> Hint.VirtualRealmAddress.Value;
-
-    if (Hint.NativeRealmAddress.HasValue)
-        _worldPacket >> Hint.NativeRealmAddress.Value;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint)

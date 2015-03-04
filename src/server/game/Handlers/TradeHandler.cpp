@@ -104,7 +104,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         if (view_trade->GetItem(TradeSlots(i)))
             ++count;
 
-    WorldPacket data(SMSG_TRADE_STATUS_EXTENDED, 4*6 + 8 + 1 + 3 + count * 70);
+    WorldPacket data(SMSG_TRADE_UPDATED, 4*6 + 8 + 1 + 3 + count * 70);
     data << uint32(0);                                      // CGTradeInfo::m_tradeID
     data << uint32(0);                                      // unk 2
     data << uint64(view_trade->GetMoney());                 // trader gold

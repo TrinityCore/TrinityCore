@@ -5365,12 +5365,10 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         level = sGtCombatRatingsStore.GetTableRowCount() - 1;
 
     GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.EvaluateTable(level - 1, cr);
-    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
-    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.EvaluateTable(cr + 1, getClass() - 1);
-    if (!Rating || !classRating || !Rating->ratio)
+    if (!Rating || !Rating->ratio)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
-    return classRating->ratio / Rating->ratio;
+    return 1.0f / Rating->ratio;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
@@ -7069,7 +7067,7 @@ void Player::ResetCurrencyWeekCap()
         itr->second.state = PLAYERCURRENCY_CHANGED;
     }
 
-    WorldPacket data(SMSG_WEEKLY_RESET_CURRENCY, 0);
+    WorldPacket data(SMSG_RESET_WEEKLY_CURRENCY, 0);
     SendDirectMessage(&data);
 }
 
@@ -8800,7 +8798,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 
     packet.Worldstates.emplace_back(3191, int32(sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) : 0)); // 7 Current Season - Arena season in progress
                                                                                                                                                               // 0 - End of season
-    packet.Worldstates.emplace_back(3901, int32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS)));     // 8 PreviousSeason   
+    packet.Worldstates.emplace_back(3901, int32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS)));     // 8 PreviousSeason
 
     if (mapid == 530)                                       // Outland
     {
@@ -12893,8 +12891,8 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid)
 {
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_SELL_ITEM");
-    WorldPacket data(SMSG_SELL_ITEM, (8+8+1));  // last check 4.3.4
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_SELL_RESPONSE");
+    WorldPacket data(SMSG_SELL_RESPONSE, (8+8+1));  // last check 4.3.4
     data << (creature ? creature->GetGUID() : ObjectGuid::Empty);
     data << guid;
     data << uint8(msg);
@@ -25730,7 +25728,7 @@ bool Player::AddItem(uint32 itemId, uint32 count)
 void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error)
 {
     ObjectGuid guid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_REFUND_RESULT, 1 + 1 + 8 + 4*8 + 4 + 4*8 + 1);
+    WorldPacket data(SMSG_ITEM_PURCHASE_REFUND_RESULT, 1 + 1 + 8 + 4*8 + 4 + 4*8 + 1);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[5]);
     data.WriteBit(guid[1]);

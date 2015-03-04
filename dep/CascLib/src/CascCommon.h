@@ -38,6 +38,7 @@
 
 #define CASC_GAME_HOTS      0x00010000          // Heroes of the Storm
 #define CASC_GAME_WOW6      0x00020000          // World of Warcraft - Warlords of Draenor
+#define CASC_GAME_DIABLO3   0x00030000          // Diablo 3 Since PTR 2.2.0
 #define CASC_GAME_MASK      0xFFFF0000          // Mask for getting game ID
 
 #define CASC_INDEX_COUNT          0x10
