@@ -48,7 +48,7 @@ class DB2Storage : public DB2StorageBase
 public:
     typedef DBStorageIterator<T> iterator;
 
-    DB2Storage(char const* f, int32 preparedStmtIndex = -1)
+    DB2Storage(char const* f, int32 preparedStmtIndex)
         : _indexTableSize(0), _fieldCount(0), _format(f), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex)
     {
         _indexTable.AsT = NULL;
