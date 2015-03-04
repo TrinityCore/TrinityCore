@@ -23,7 +23,10 @@
 #include "World.h"
 #include <functional>
 
+DB2Storage<AreaGroupEntry>                  sAreaGroupStore(AreaGroupFormat, HOTFIX_SEL_AREA_GROUP);
+DB2Storage<AreaGroupMemberEntry>            sAreaGroupMemberStore(AreaGroupMemberFormat, HOTFIX_SEL_AREA_GROUP_MEMBER);
 DB2Storage<BroadcastTextEntry>              sBroadcastTextStore(BroadcastTextFormat, HOTFIX_SEL_BROADCAST_TEXT);
+DB2Storage<CurrencyTypesEntry>              sCurrencyTypesStore(CurrencyTypesFormat, HOTFIX_SEL_CURRENCY_TYPES);
 DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointFormat, HOTFIX_SEL_CURVE_POINT);
 DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryFormat, HOTFIX_SEL_HOLIDAYS);
 DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceFormat, HOTFIX_SEL_ITEM_APPEARANCE);
@@ -40,6 +43,7 @@ DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainFormat, HOTFI
 DB2Storage<MountEntry>                      sMountStore(MountFormat, HOTFIX_SEL_MOUNT);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore(OverrideSpellDataFormat, HOTFIX_SEL_OVERRIDE_SPELL_DATA);
 DB2Storage<PhaseGroupEntry>                 sPhaseGroupStore(PhaseGroupFormat, HOTFIX_SEL_PHASE_GROUP);
+DB2Storage<SoundEntriesEntry>               sSoundEntriesStore(SoundEntriesFormat, HOTFIX_SEL_SOUND_ENTRIES);
 DB2Storage<SpellAuraRestrictionsEntry>      sSpellAuraRestrictionsStore(SpellAuraRestrictionsFormat, HOTFIX_SEL_SPELL_AURA_RESTRICTIONS);
 DB2Storage<SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore(SpellCastingRequirementsFormat, HOTFIX_SEL_SPELL_CASTING_REQUIREMENTS);
 DB2Storage<SpellClassOptionsEntry>          sSpellClassOptionsStore(SpellClassOptionsFormat, HOTFIX_SEL_SPELL_CLASS_OPTIONS);
@@ -127,7 +131,10 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     DB2StoreProblemList bad_db2_files;
     uint32 availableDb2Locales = 0xFF;
 
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sAreaGroupStore,                db2Path, "AreaGroup.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sAreaGroupMemberStore,          db2Path, "AreaGroupMember.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sBroadcastTextStore,            db2Path, "BroadcastText.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sCurrencyTypesStore,            db2Path, "CurrencyTypes.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sCurvePointStore,               db2Path, "CurvePoint.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sHolidaysStore,                 db2Path, "Holidays.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemAppearanceStore,           db2Path, "ItemAppearance.db2");
@@ -144,6 +151,7 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sMountStore,                    db2Path, "Mount.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sOverrideSpellDataStore,        db2Path, "OverrideSpellData.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sPhaseGroupStore,               db2Path, "PhaseXPhaseGroup.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSoundEntriesStore,             db2Path, "SoundEntries.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellAuraRestrictionsStore,    db2Path, "SpellAuraRestrictions.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellCastingRequirementsStore, db2Path, "SpellCastingRequirements.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellClassOptionsStore,        db2Path, "SpellClassOptions.db2");
@@ -156,6 +164,9 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sTaxiNodesStore,                db2Path, "TaxiNodes.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sTaxiPathNodeStore,             db2Path, "TaxiPathNode.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sTaxiPathStore,                 db2Path, "TaxiPath.db2");
+
+    for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
+        _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);
 
     for (ItemBonusEntry const* bonus : sItemBonusStore)
         _itemBonusLists[bonus->BonusListID].push_back(bonus);
@@ -357,6 +368,15 @@ time_t DB2Manager::GetHotfixDate(uint32 entry, uint32 type) const
                 ret = time_t(hotfix.Timestamp);
 
     return ret ? ret : time(NULL);
+}
+
+std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const
+{
+    auto itr = _areaGroupMembers.find(areaGroupId);
+    if (itr != _areaGroupMembers.end())
+        return itr->second;
+
+    return std::vector<uint32>();
 }
 
 char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale /*= DEFAULT_LOCALE*/, uint8 gender /*= GENDER_MALE*/, bool forceGender /*= false*/)

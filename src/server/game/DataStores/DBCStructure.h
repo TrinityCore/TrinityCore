@@ -104,15 +104,6 @@ struct AreaTableEntry
     }
 };
 
-#define MAX_GROUP_AREA_IDS 6
-
-struct AreaGroupEntry
-{
-    uint32  ID;                                             // 0
-    uint32  AreaID[MAX_GROUP_AREA_IDS];                     // 1-6
-    uint32  NextAreaID;                                     // 7 index of next group
-};
-
 struct AreaTriggerEntry
 {
     uint32          ID;                                     // 0
@@ -565,21 +556,6 @@ struct CurrencyCategoryEntry
 };
 */
 
-struct CurrencyTypesEntry
-{
-    uint32      ID;                                         // 0
-    uint32      CategoryID;                                 // 1
-    //char*     Name_lang;                                  // 2
-    //char*     InventoryIcon[2];                           // 3-4
-    //uint32    SpellWeight;                                // 5 archaeology-related (?)
-    //uint32    SpellCategory;                              // 6
-    uint32      MaxQty;                                     // 7
-    uint32      MaxEarnablePerWeek;                         // 8
-    uint32      Flags;                                      // 9
-    //uint32    Quality;                                    // 10
-    //char*     Description_lang;                           // 11
-};
-
 struct DestructibleModelDataEntry
 {
     uint32          ID;                                     // 0
@@ -881,11 +857,6 @@ struct GtNpcTotalHpExp5Entry
 };
 
 struct GtChanceToSpellCritEntry
-{
-    float    ratio;
-};
-
-struct GtOCTClassCombatRatingScalarEntry
 {
     float    ratio;
 };
@@ -1443,28 +1414,6 @@ struct SkillTiersEntry
 {
     uint32      ID;                                         // 0
     uint32      Value[MAX_SKILL_STEP];                      // 1-16
-};
-
-struct SoundEntriesEntry
-{
-    uint32      ID;                                         // 0
-    //uint32    SoundType;                                  // 1
-    //char*     Name;                                       // 2
-    //uint32    FileDataID[20];                             // 3-22
-    //uint32    Freq[20];                                   // 23-42
-    //float     VolumeFloat;                                // 43
-    //uint32    Flags;                                      // 44
-    //float     MinDistance;                                // 45
-    //float     DistanceCutoff;                             // 46
-    //uint32    EAXDef;                                     // 47
-    //uint32    SoundEntriesAdvancedID;                     // 48
-    //float     VolumeVariationPlus;                        // 49
-    //float     VolumeVariationMinus;                       // 50
-    //float     PitchVariationPlus;                         // 51
-    //float     PitchVariationMinus;                        // 52
-    //float     PitchAdjust;                                // 53
-    //uint32    DialogType;                                 // 54
-    //uint32    BusOverwriteID;                             // 55
 };
 
 // SpecializationSpells.dbc

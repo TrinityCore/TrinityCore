@@ -124,7 +124,6 @@ private:
 
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
-extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
 extern DBCStorage <ArmorLocationEntry>           sArmorLocationStore;
 extern DBCStorage <AuctionHouseEntry>            sAuctionHouseStore;
@@ -149,7 +148,6 @@ extern DBCStorage <CreatureSpellDataEntry>       sCreatureSpellDataStore;
 extern DBCStorage <CreatureTypeEntry>            sCreatureTypeStore;
 extern DBCStorage <CriteriaEntry>                sCriteriaStore;
 extern DBCStorage <CriteriaTreeEntry>            sCriteriaTreeStore;
-extern DBCStorage <CurrencyTypesEntry>           sCurrencyTypesStore;
 extern DBCStorage <DestructibleModelDataEntry>   sDestructibleModelDataStore;
 extern DBCStorage <DifficultyEntry>              sDifficultyStore;
 extern DBCStorage <DungeonEncounterEntry>        sDungeonEncounterStore;
@@ -178,7 +176,6 @@ extern GameTable <GtNpcTotalHpExp2Entry>        sGtNpcTotalHpExp2Store;
 extern GameTable <GtNpcTotalHpExp3Entry>        sGtNpcTotalHpExp3Store;
 extern GameTable <GtNpcTotalHpExp4Entry>        sGtNpcTotalHpExp4Store;
 extern GameTable <GtNpcTotalHpExp5Entry>        sGtNpcTotalHpExp5Store;
-extern GameTable <GtOCTClassCombatRatingScalarEntry> sGtOCTClassCombatRatingScalarStore;
 extern GameTable <GtOCTLevelExperienceEntry>    sGtOCTLevelExperienceStore;
 extern GameTable <gtOCTHpPerStaminaEntry>       sGtOCTHpPerStaminaStore;
 extern GameTable <GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore;
@@ -235,7 +232,6 @@ extern DBCStorage <ScalingStatDistributionEntry> sScalingStatDistributionStore;
 extern DBCStorage <SkillLineEntry>               sSkillLineStore;
 extern DBCStorage <SkillLineAbilityEntry>        sSkillLineAbilityStore;
 extern DBCStorage <SkillTiersEntry>              sSkillTiersStore;
-extern DBCStorage <SoundEntriesEntry>            sSoundEntriesStore;
 extern SpellEffectScallingByEffectId             sSpellEffectScallingByEffectId;
 extern DBCStorage <SpellCastTimesEntry>          sSpellCastTimesStore;
 extern DBCStorage <SpellCategoryEntry>           sSpellCategoryStore;

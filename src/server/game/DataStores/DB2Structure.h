@@ -32,6 +32,18 @@
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
 
+struct AreaGroupEntry
+{
+    uint32      ID;                                                 // 0
+};
+
+struct AreaGroupMemberEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      AreaGroupID;                                        // 1
+    uint32      AreaID;                                             // 2
+};
+
 struct BroadcastTextEntry
 {
     uint32 ID;
@@ -43,6 +55,21 @@ struct BroadcastTextEntry
     uint32 SoundID;
     uint32 UnkEmoteID;
     uint32 Type;
+};
+
+struct CurrencyTypesEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      CategoryID;                                         // 1
+    LocalizedString* Name_lang;                                     // 2
+    LocalizedString* InventoryIcon[2];                              // 3-4
+    uint32      SpellWeight;                                        // 5
+    uint32      SpellCategory;                                      // 6
+    uint32      MaxQty;                                             // 7
+    uint32      MaxEarnablePerWeek;                                 // 8
+    uint32      Flags;                                              // 9
+    uint32      Quality;                                            // 10
+    LocalizedString* Description_lang;                              // 11
 };
 
 struct CurvePointEntry
@@ -133,19 +160,18 @@ struct ItemEntry
 struct ItemExtendedCostEntry
 {
     uint32      ID;                                                 // 0 extended-cost entry id
-    uint32      RequiredHonorPoints;                                // 1 required honor points
-    uint32      RequiredArenaPoints;                                // 2 required arena points
     uint32      RequiredArenaSlot;                                  // 3 arena slot restrictions (min slot value)
-    uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];              // 4-8 required item id
-    uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS];         // 9-13 required count of 1st item
-    uint32      RequiredPersonalArenaRating;                        // 14 required personal arena rating
-    uint32      ItemPurchaseGroup;                                  // 15
-    uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];     // 16-20 required curency id
-    uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];// 21-25 required curency count
-    uint32      RequiredFactionId;
-    uint32      RequiredFactionStanding;
-    uint32      RequirementFlags;
-    uint32      RequiredAchievement;
+    uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];              // 3-6 required item id
+    uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS];         // 7-11 required count of 1st item
+    uint32      RequiredPersonalArenaRating;                        // 12 required personal arena rating
+    uint32      ItemPurchaseGroup;                                  // 13
+    uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];     // 14-18 required curency id
+    uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];// 19-23 required curency count
+    uint32      RequiredFactionId;                                  // 24
+    uint32      RequiredFactionStanding;                            // 25
+    uint32      RequirementFlags;                                   // 26
+    uint32      RequiredAchievement;                                // 27
+    uint32      RequiredMoney;                                      // 28
 };
 
 struct ItemModifiedAppearanceEntry
@@ -268,6 +294,28 @@ struct PhaseGroupEntry
     uint32      ID;
     uint32      PhaseID;
     uint32      PhaseGroupID;
+};
+
+struct SoundEntriesEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      SoundType;                                          // 1
+    LocalizedString* Name;                                          // 2
+    uint32      FileDataID[20];                                     // 3-22
+    uint32      Freq[20];                                           // 23-42
+    float       VolumeFloat;                                        // 43
+    uint32      Flags;                                              // 44
+    float       MinDistance;                                        // 45
+    float       DistanceCutoff;                                     // 46
+    uint32      EAXDef;                                             // 47
+    uint32      SoundEntriesAdvancedID;                             // 48
+    float       VolumeVariationPlus;                                // 49
+    float       VolumeVariationMinus;                               // 50
+    float       PitchVariationPlus;                                 // 51
+    float       PitchVariationMinus;                                // 52
+    float       PitchAdjust;                                        // 53
+    uint32      DialogType;                                         // 54
+    uint32      BusOverwriteID;                                     // 55
 };
 
 struct SpellAuraRestrictionsEntry
@@ -395,8 +443,9 @@ struct TaxiNodesEntry
     LocalizedString* Name_lang;                                     // 5
     uint32           MountCreatureID[2];                            // 6-7
     uint32           ConditionID;                                   // 8
-    uint32           Flags;                                         // 9
-    DBCPosition2D    MapOffset;                                     // 10-11
+    uint32           LearnableIndex;                                // 9 - some kind of index only for learnable nodes
+    uint32           Flags;                                         // 10
+    DBCPosition2D    MapOffset;                                     // 11-12
 };
 
 struct TaxiPathEntry

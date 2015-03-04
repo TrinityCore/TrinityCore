@@ -5365,12 +5365,10 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         level = sGtCombatRatingsStore.GetTableRowCount() - 1;
 
     GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.EvaluateTable(level - 1, cr);
-    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
-    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.EvaluateTable(cr + 1, getClass() - 1);
-    if (!Rating || !classRating || !Rating->ratio)
+    if (!Rating || !Rating->ratio)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
-    return classRating->ratio / Rating->ratio;
+    return 1.0f / Rating->ratio;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
@@ -8800,7 +8798,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 
     packet.Worldstates.emplace_back(3191, int32(sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) : 0)); // 7 Current Season - Arena season in progress
                                                                                                                                                               // 0 - End of season
-    packet.Worldstates.emplace_back(3901, int32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS)));     // 8 PreviousSeason   
+    packet.Worldstates.emplace_back(3901, int32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS)));     // 8 PreviousSeason
 
     if (mapid == 530)                                       // Outland
     {
