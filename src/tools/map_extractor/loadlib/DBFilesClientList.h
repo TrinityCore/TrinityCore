@@ -555,7 +555,7 @@ char const* DBFilesClientList[] =
     "DBFilesClient\\gtOCTClassCombatRatingScalar",
     "DBFilesClient\\gtOCTClassStats",
     "DBFilesClient\\gtOCTHPFromItems",
-    "DBFilesClient\\gtOCTHPPerStamina",
+    "DBFilesClient\\gtOCTHpPerStamina",
     "DBFilesClient\\gtOCTLevelExperience",
     "DBFilesClient\\gtOCTMPFromItems",
     "DBFilesClient\\gtOCTMPPerIntellect",
