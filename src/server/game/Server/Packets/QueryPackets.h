@@ -87,7 +87,6 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Player;
-            PlayerGuidLookupHint Hint;
         };
 
         struct PlayerGuidLookupData
