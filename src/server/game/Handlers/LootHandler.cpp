@@ -27,6 +27,7 @@
 #include "Object.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "PoolMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -379,6 +380,15 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                     creature->ForceValuesUpdateAtIndex(UNIT_DYNAMIC_FLAGS);
                 }
             }
+        }
+
+        // If parameter set to reset loot timer on inspection, do so
+        if (sPoolMgr->IsPoolCreature(lguid.GetCounter()) != 0 && sWorld->getBoolConfig(CONFIG_POOL_LOOT_RESET_CORPSE_DECAY))
+        {
+            uint32 guidlow = lguid.GetCounter();
+            if (Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid))
+                if (loot && !loot->isLooted())
+                    creature->ResetLootTimer();
         }
     }
 
