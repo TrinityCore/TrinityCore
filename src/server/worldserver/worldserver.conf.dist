@@ -3213,6 +3213,7 @@ Logger.sql.sql=5,Console DBErrors
 #Logger.scripts.ai=3,Console Server
 #Logger.server.authserver=3,Console Server
 #Logger.spells=3,Console Server
+#Logger.spells.periodic=3,Console Server
 #Logger.sql.dev=3,Console Server
 #Logger.sql.driver=3,Console Server
 #Logger.warden=3,Console Server
