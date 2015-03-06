@@ -23,6 +23,7 @@
 #include "ByteBuffer.h"
 
 #include <functional>
+#include <unordered_set>
 
 enum TypeID
 {
@@ -202,6 +203,7 @@ typedef std::set<ObjectGuid> GuidSet;
 typedef std::list<ObjectGuid> GuidList;
 typedef std::deque<ObjectGuid> GuidDeque;
 typedef std::vector<ObjectGuid> GuidVector;
+typedef std::unordered_set<ObjectGuid> GuidUnorderedSet;
 
 // minimum buffer size for packed guid is 9 bytes
 #define PACKED_GUID_MIN_BUFFER_SIZE 9
