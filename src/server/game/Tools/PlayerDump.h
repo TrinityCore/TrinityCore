@@ -32,7 +32,9 @@ enum DumpTableType
                                                             // character_action, character_aura, character_homebind,
                                                             // character_queststatus, character_queststatus_rewarded, character_reputation,
                                                             // character_spell, character_spell_cooldown, character_ticket, character_talent.
-                                                            // character_cuf_profiles, character_currency
+                                                            // character_cuf_profiles
+
+    DTT_CURRENCY,       //                                  // character_currency
 
     DTT_EQSET_TABLE,    // <- guid                          // character_equipmentsets
 
@@ -65,6 +67,10 @@ enum DumpReturn
 
 class PlayerDump
 {
+    public:
+        typedef std::set<ObjectGuid::LowType> DumpGuidSet;
+        typedef std::map<ObjectGuid::LowType, ObjectGuid::LowType> DumpGuidMap;
+
     protected:
         PlayerDump() { }
 };
@@ -74,18 +80,18 @@ class PlayerDumpWriter : public PlayerDump
     public:
         PlayerDumpWriter() { }
 
-        typedef std::set<ObjectGuid::LowType> GUIDs;
         bool GetDump(ObjectGuid::LowType guid, std::string& dump);
         DumpReturn WriteDump(std::string const& file, ObjectGuid::LowType guid);
+
     private:
 
-        bool DumpTable(std::string& dump, ObjectGuid::LowType guid, char const*tableFrom, char const*tableTo, DumpTableType type);
-        std::string GenerateWhereStr(char const* field, GUIDs const& guids, GUIDs::const_iterator& itr);
+        bool DumpTable(std::string& dump, ObjectGuid::LowType guid, char const* tableFrom, char const* tableTo, DumpTableType type);
+        std::string GenerateWhereStr(char const* field, DumpGuidSet const& guids, DumpGuidSet::const_iterator& itr);
         std::string GenerateWhereStr(char const* field, ObjectGuid::LowType guid);
 
-        GUIDs pets;
-        GUIDs mails;
-        GUIDs items;
+        DumpGuidSet pets;
+        DumpGuidSet mails;
+        DumpGuidSet items;
 };
 
 class PlayerDumpReader : public PlayerDump
