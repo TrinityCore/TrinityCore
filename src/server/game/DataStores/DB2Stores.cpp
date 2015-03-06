@@ -23,39 +23,39 @@
 #include "World.h"
 #include <functional>
 
-DB2Storage<AreaGroupEntry>                  sAreaGroupStore(AreaGroupFormat, HOTFIX_SEL_AREA_GROUP);
-DB2Storage<AreaGroupMemberEntry>            sAreaGroupMemberStore(AreaGroupMemberFormat, HOTFIX_SEL_AREA_GROUP_MEMBER);
-DB2Storage<BroadcastTextEntry>              sBroadcastTextStore(BroadcastTextFormat, HOTFIX_SEL_BROADCAST_TEXT);
-DB2Storage<CurrencyTypesEntry>              sCurrencyTypesStore(CurrencyTypesFormat, HOTFIX_SEL_CURRENCY_TYPES);
-DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointFormat, HOTFIX_SEL_CURVE_POINT);
-DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryFormat, HOTFIX_SEL_HOLIDAYS);
-DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceFormat, HOTFIX_SEL_ITEM_APPEARANCE);
-DB2Storage<ItemBonusEntry>                  sItemBonusStore(ItemBonusFormat, HOTFIX_SEL_ITEM_BONUS);
-DB2Storage<ItemBonusTreeNodeEntry>          sItemBonusTreeNodeStore(ItemBonusTreeNodeFormat, HOTFIX_SEL_ITEM_BONUS_TREE_NODE);
-DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore(ItemCurrencyCostFormat, HOTFIX_SEL_ITEM_CURRENCY_COST);
-DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectFormat, HOTFIX_SEL_ITEM_EFFECT);
-DB2Storage<ItemEntry>                       sItemStore(ItemFormat, HOTFIX_SEL_ITEM);
-DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedCostFormat, HOTFIX_SEL_ITEM_EXTENDED_COST);
-DB2Storage<ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore(ItemModifiedAppearanceFormat, HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE);
-DB2Storage<ItemSparseEntry>                 sItemSparseStore(ItemSparseFormat, HOTFIX_SEL_ITEM_SPARSE);
-DB2Storage<ItemXBonusTreeEntry>             sItemXBonusTreeStore(ItemXBonusTreeFormat, HOTFIX_SEL_ITEM_X_BONUS_TREE);
-DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainFormat, HOTFIX_SEL_KEY_CHAIN);
-DB2Storage<MountEntry>                      sMountStore(MountFormat, HOTFIX_SEL_MOUNT);
-DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore(OverrideSpellDataFormat, HOTFIX_SEL_OVERRIDE_SPELL_DATA);
-DB2Storage<PhaseGroupEntry>                 sPhaseGroupStore(PhaseGroupFormat, HOTFIX_SEL_PHASE_GROUP);
-DB2Storage<SoundEntriesEntry>               sSoundEntriesStore(SoundEntriesFormat, HOTFIX_SEL_SOUND_ENTRIES);
-DB2Storage<SpellAuraRestrictionsEntry>      sSpellAuraRestrictionsStore(SpellAuraRestrictionsFormat, HOTFIX_SEL_SPELL_AURA_RESTRICTIONS);
-DB2Storage<SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore(SpellCastingRequirementsFormat, HOTFIX_SEL_SPELL_CASTING_REQUIREMENTS);
-DB2Storage<SpellClassOptionsEntry>          sSpellClassOptionsStore(SpellClassOptionsFormat, HOTFIX_SEL_SPELL_CLASS_OPTIONS);
-DB2Storage<SpellLearnSpellEntry>            sSpellLearnSpellStore(SpellLearnSpellFormat, HOTFIX_SEL_SPELL_LEARN_SPELL);
-DB2Storage<SpellMiscEntry>                  sSpellMiscStore(SpellMiscFormat, HOTFIX_SEL_SPELL_MISC);
-DB2Storage<SpellPowerEntry>                 sSpellPowerStore(SpellPowerFormat, HOTFIX_SEL_SPELL_POWER);
-DB2Storage<SpellReagentsEntry>              sSpellReagentsStore(SpellReagentsFormat, HOTFIX_SEL_SPELL_REAGENTS);
-DB2Storage<SpellRuneCostEntry>              sSpellRuneCostStore(SpellRuneCostFormat, HOTFIX_SEL_SPELL_RUNE_COST);
-DB2Storage<SpellTotemsEntry>                sSpellTotemsStore(SpellTotemsFormat, HOTFIX_SEL_SPELL_TOTEMS);
-DB2Storage<TaxiNodesEntry>                  sTaxiNodesStore(TaxiNodesFormat, HOTFIX_SEL_TAXI_NODES);
-DB2Storage<TaxiPathEntry>                   sTaxiPathStore(TaxiPathFormat, HOTFIX_SEL_TAXI_PATH);
-DB2Storage<TaxiPathNodeEntry>               sTaxiPathNodeStore(TaxiPathNodeFormat, HOTFIX_SEL_TAXI_PATH_NODE);
+DB2Storage<AreaGroupEntry>                  sAreaGroupStore("AreaGroup.db2", AreaGroupFormat, HOTFIX_SEL_AREA_GROUP);
+DB2Storage<AreaGroupMemberEntry>            sAreaGroupMemberStore("AreaGroupMember.db2", AreaGroupMemberFormat, HOTFIX_SEL_AREA_GROUP_MEMBER);
+DB2Storage<BroadcastTextEntry>              sBroadcastTextStore("BroadcastText.db2", BroadcastTextFormat, HOTFIX_SEL_BROADCAST_TEXT);
+DB2Storage<CurrencyTypesEntry>              sCurrencyTypesStore("CurrencyTypes.db2", CurrencyTypesFormat, HOTFIX_SEL_CURRENCY_TYPES);
+DB2Storage<CurvePointEntry>                 sCurvePointStore("CurvePoint.db2", CurvePointFormat, HOTFIX_SEL_CURVE_POINT);
+DB2Storage<HolidaysEntry>                   sHolidaysStore("Holidays.db2", HolidaysEntryFormat, HOTFIX_SEL_HOLIDAYS);
+DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore("ItemAppearance.db2", ItemAppearanceFormat, HOTFIX_SEL_ITEM_APPEARANCE);
+DB2Storage<ItemBonusEntry>                  sItemBonusStore("ItemBonus.db2", ItemBonusFormat, HOTFIX_SEL_ITEM_BONUS);
+DB2Storage<ItemBonusTreeNodeEntry>          sItemBonusTreeNodeStore("ItemBonusTreeNode.db2", ItemBonusTreeNodeFormat, HOTFIX_SEL_ITEM_BONUS_TREE_NODE);
+DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore("ItemCurrencyCost.db2", ItemCurrencyCostFormat, HOTFIX_SEL_ITEM_CURRENCY_COST);
+DB2Storage<ItemEffectEntry>                 sItemEffectStore("ItemEffect.db2", ItemEffectFormat, HOTFIX_SEL_ITEM_EFFECT);
+DB2Storage<ItemEntry>                       sItemStore("Item.db2", ItemFormat, HOTFIX_SEL_ITEM);
+DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore("ItemExtendedCost.db2", ItemExtendedCostFormat, HOTFIX_SEL_ITEM_EXTENDED_COST);
+DB2Storage<ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore("ItemModifiedAppearance.db2", ItemModifiedAppearanceFormat, HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE);
+DB2Storage<ItemSparseEntry>                 sItemSparseStore("Item-sparse.db2", ItemSparseFormat, HOTFIX_SEL_ITEM_SPARSE);
+DB2Storage<ItemXBonusTreeEntry>             sItemXBonusTreeStore("ItemXBonusTree.db2", ItemXBonusTreeFormat, HOTFIX_SEL_ITEM_X_BONUS_TREE);
+DB2Storage<KeyChainEntry>                   sKeyChainStore("KeyChain.db2", KeyChainFormat, HOTFIX_SEL_KEY_CHAIN);
+DB2Storage<MountEntry>                      sMountStore("Mount.db2", MountFormat, HOTFIX_SEL_MOUNT);
+DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore("OverrideSpellData.db2", OverrideSpellDataFormat, HOTFIX_SEL_OVERRIDE_SPELL_DATA);
+DB2Storage<PhaseXPhaseGroupEntry>           sPhaseXPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseXPhaseGroupFormat, HOTFIX_SEL_PHASE_GROUP);
+DB2Storage<SoundEntriesEntry>               sSoundEntriesStore("SoundEntries.db2", SoundEntriesFormat, HOTFIX_SEL_SOUND_ENTRIES);
+DB2Storage<SpellAuraRestrictionsEntry>      sSpellAuraRestrictionsStore("SpellAuraRestrictions.db2", SpellAuraRestrictionsFormat, HOTFIX_SEL_SPELL_AURA_RESTRICTIONS);
+DB2Storage<SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore("SpellCastingRequirements.db2", SpellCastingRequirementsFormat, HOTFIX_SEL_SPELL_CASTING_REQUIREMENTS);
+DB2Storage<SpellClassOptionsEntry>          sSpellClassOptionsStore("SpellClassOptions.db2", SpellClassOptionsFormat, HOTFIX_SEL_SPELL_CLASS_OPTIONS);
+DB2Storage<SpellLearnSpellEntry>            sSpellLearnSpellStore("SpellLearnSpell.db2", SpellLearnSpellFormat, HOTFIX_SEL_SPELL_LEARN_SPELL);
+DB2Storage<SpellMiscEntry>                  sSpellMiscStore("SpellMisc.db2", SpellMiscFormat, HOTFIX_SEL_SPELL_MISC);
+DB2Storage<SpellPowerEntry>                 sSpellPowerStore("SpellPower.db2", SpellPowerFormat, HOTFIX_SEL_SPELL_POWER);
+DB2Storage<SpellReagentsEntry>              sSpellReagentsStore("SpellReagents.db2", SpellReagentsFormat, HOTFIX_SEL_SPELL_REAGENTS);
+DB2Storage<SpellRuneCostEntry>              sSpellRuneCostStore("SpellRuneCost.db2", SpellRuneCostFormat, HOTFIX_SEL_SPELL_RUNE_COST);
+DB2Storage<SpellTotemsEntry>                sSpellTotemsStore("SpellTotems.db2", SpellTotemsFormat, HOTFIX_SEL_SPELL_TOTEMS);
+DB2Storage<TaxiNodesEntry>                  sTaxiNodesStore("TaxiNodes.db2", TaxiNodesFormat, HOTFIX_SEL_TAXI_NODES);
+DB2Storage<TaxiPathEntry>                   sTaxiPathStore("TaxiPath.db2", TaxiPathFormat, HOTFIX_SEL_TAXI_PATH);
+DB2Storage<TaxiPathNodeEntry>               sTaxiPathNodeStore("TaxiPathNode.db2", TaxiPathNodeFormat, HOTFIX_SEL_TAXI_PATH_NODE);
 
 SpellPowerBySpellIDMap                      sSpellPowerBySpellIDStore;
 TaxiMask                                    sTaxiNodesMask;
@@ -71,17 +71,16 @@ typedef std::list<std::string> DB2StoreProblemList;
 uint32 DB2FilesCount = 0;
 
 template<class T>
-inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, DB2Manager::StorageMap& stores, DB2Storage<T>* storage, std::string const& db2_path, std::string const& filename)
+inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, DB2Manager::StorageMap& stores, DB2Storage<T>* storage, std::string const& db2_path)
 {
     // compatibility format and C++ structure sizes
     ASSERT(DB2FileLoader::GetFormatRecordSize(storage->GetFormat()) == sizeof(T),
         "Size of '%s' set by format string (%u) not equal size of C++ structure (" SZFMTD ").",
-        filename.c_str(), DB2FileLoader::GetFormatRecordSize(storage->GetFormat()), sizeof(T));
+        storage->GetFileName().c_str(), DB2FileLoader::GetFormatRecordSize(storage->GetFormat()), sizeof(T));
 
     ++DB2FilesCount;
 
-    std::string db2_filename = db2_path + filename;
-    if (storage->Load(db2_filename.c_str(), uint32(sWorld->GetDefaultDbcLocale())))
+    if (storage->Load(db2_path, uint32(sWorld->GetDefaultDbcLocale())))
     {
         storage->LoadFromDB();
 
@@ -91,15 +90,8 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
                 continue;
 
             if (availableDb2Locales & (1 << i))
-            {
-                std::string localizedName(db2_path);
-                localizedName.append(localeNames[i]);
-                localizedName.push_back('/');
-                localizedName.append(filename);
-
-                if (!storage->LoadStringsFrom(localizedName.c_str(), i))
+                if (!storage->LoadStringsFrom((db2_path + localeNames[i] + '/'), i))
                     availableDb2Locales &= ~(1 << i);             // mark as not available for speedup next checks
-            }
 
             storage->LoadStringsFromDB(i);
         }
@@ -107,16 +99,17 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     else
     {
         // sort problematic db2 to (1) non compatible and (2) nonexistent
-        if (FILE* f = fopen(db2_filename.c_str(), "rb"))
+        if (FILE* f = fopen((db2_path + storage->GetFileName()).c_str(), "rb"))
         {
             std::ostringstream stream;
-            stream << db2_filename << " exists, and has " << storage->GetFieldCount() << " field(s) (expected " << strlen(storage->GetFormat()) << "). Extracted file might be from wrong client version.";
+            stream << storage->GetFileName() << " exists, and has " << storage->GetFieldCount() << " field(s) (expected " << strlen(storage->GetFormat())
+                << "). Extracted file might be from wrong client version.";
             std::string buf = stream.str();
             errlist.push_back(buf);
             fclose(f);
         }
         else
-            errlist.push_back(db2_filename);
+            errlist.push_back(storage->GetFileName());
     }
 
     stores[storage->GetHash()] = storage;
@@ -131,39 +124,39 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     DB2StoreProblemList bad_db2_files;
     uint32 availableDb2Locales = 0xFF;
 
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sAreaGroupStore,                db2Path, "AreaGroup.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sAreaGroupMemberStore,          db2Path, "AreaGroupMember.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sBroadcastTextStore,            db2Path, "BroadcastText.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sCurrencyTypesStore,            db2Path, "CurrencyTypes.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sCurvePointStore,               db2Path, "CurvePoint.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sHolidaysStore,                 db2Path, "Holidays.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemAppearanceStore,           db2Path, "ItemAppearance.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemBonusStore,                db2Path, "ItemBonus.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemBonusTreeNodeStore,        db2Path, "ItemBonusTreeNode.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemCurrencyCostStore,         db2Path, "ItemCurrencyCost.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemEffectStore,               db2Path, "ItemEffect.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemExtendedCostStore,         db2Path, "ItemExtendedCost.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemModifiedAppearanceStore,   db2Path, "ItemModifiedAppearance.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemSparseStore,               db2Path, "Item-sparse.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemStore,                     db2Path, "Item.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemXBonusTreeStore,           db2Path, "ItemXBonusTree.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sKeyChainStore,                 db2Path, "KeyChain.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sMountStore,                    db2Path, "Mount.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sOverrideSpellDataStore,        db2Path, "OverrideSpellData.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sPhaseGroupStore,               db2Path, "PhaseXPhaseGroup.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSoundEntriesStore,             db2Path, "SoundEntries.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellAuraRestrictionsStore,    db2Path, "SpellAuraRestrictions.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellCastingRequirementsStore, db2Path, "SpellCastingRequirements.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellClassOptionsStore,        db2Path, "SpellClassOptions.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellLearnSpellStore,          db2Path, "SpellLearnSpell.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellMiscStore,                db2Path, "SpellMisc.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellPowerStore,               db2Path, "SpellPower.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellReagentsStore,            db2Path, "SpellReagents.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellRuneCostStore,            db2Path, "SpellRuneCost.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellTotemsStore,              db2Path, "SpellTotems.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sTaxiNodesStore,                db2Path, "TaxiNodes.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sTaxiPathNodeStore,             db2Path, "TaxiPathNode.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sTaxiPathStore,                 db2Path, "TaxiPath.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sAreaGroupStore,                db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sAreaGroupMemberStore,          db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sBroadcastTextStore,            db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sCurrencyTypesStore,            db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sCurvePointStore,               db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sHolidaysStore,                 db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemAppearanceStore,           db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemBonusStore,                db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemBonusTreeNodeStore,        db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemCurrencyCostStore,         db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemEffectStore,               db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemExtendedCostStore,         db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemModifiedAppearanceStore,   db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemSparseStore,               db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemStore,                     db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemXBonusTreeStore,           db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sKeyChainStore,                 db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sMountStore,                    db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sOverrideSpellDataStore,        db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sPhaseXPhaseGroupStore,         db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSoundEntriesStore,             db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellAuraRestrictionsStore,    db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellCastingRequirementsStore, db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellClassOptionsStore,        db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellLearnSpellStore,          db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellMiscStore,                db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellPowerStore,               db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellReagentsStore,            db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellRuneCostStore,            db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellTotemsStore,              db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sTaxiNodesStore,                db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sTaxiPathNodeStore,             db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sTaxiPathStore,                 db2Path);
 
     for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
         _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);
@@ -201,7 +194,7 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     for (MountEntry const* mount : sMountStore)
         _mountsBySpellId[mount->SpellId] = mount;
 
-    for (PhaseGroupEntry const* group : sPhaseGroupStore)
+    for (PhaseXPhaseGroupEntry const* group : sPhaseXPhaseGroupStore)
         if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
             _phasesByGroup[group->PhaseGroupID].insert(phase->ID);
 

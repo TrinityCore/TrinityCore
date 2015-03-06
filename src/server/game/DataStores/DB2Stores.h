@@ -31,7 +31,6 @@ extern DB2Storage<ItemEntry>                     sItemStore;
 extern DB2Storage<ItemExtendedCostEntry>         sItemExtendedCostStore;
 extern DB2Storage<ItemSparseEntry>               sItemSparseStore;
 extern DB2Storage<OverrideSpellDataEntry>        sOverrideSpellDataStore;
-extern DB2Storage<PhaseGroupEntry>               sPhaseGroupStore;
 extern DB2Storage<SoundEntriesEntry>             sSoundEntriesStore;
 extern DB2Storage<SpellAuraRestrictionsEntry>    sSpellAuraRestrictionsStore;
 extern DB2Storage<SpellCastingRequirementsEntry> sSpellCastingRequirementsStore;

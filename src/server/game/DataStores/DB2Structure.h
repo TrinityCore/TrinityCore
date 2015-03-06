@@ -289,7 +289,7 @@ struct OverrideSpellDataEntry
     uint32      PlayerActionbarFileDataID;                          // 12
 };
 
-struct PhaseGroupEntry
+struct PhaseXPhaseGroupEntry
 {
     uint32      ID;
     uint32      PhaseID;
