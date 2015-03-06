@@ -1285,6 +1285,9 @@ private:
     bool _isPvP;
 };
 
+static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
+static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
+
 struct PlayerTalentInfo
 {
     PlayerTalentInfo() :

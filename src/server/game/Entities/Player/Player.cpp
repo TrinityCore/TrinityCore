@@ -2904,21 +2904,27 @@ void Player::GiveLevel(uint8 level)
     uint32 basehp = 0, basemana = 0;
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basehp, basemana);
 
-    // send levelup info to client
-    WorldPacket data(SMSG_LEVELUP_INFO, (4+4+MAX_POWERS_PER_CLASS*4+MAX_STATS*4));
-    data << uint32(level);
-    data << uint32(int32(basehp) - int32(GetCreateHealth()));
-    // for (int i = 0; i < MAX_STORED_POWERS; ++i)          // Powers loop (0-10)
-    data << uint32(int32(basemana)   - int32(GetCreateMana()));
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    // end for
-    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
-        data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
+    WorldPackets::Misc::LevelUpInfo packet;
+    packet.Level = level;
+    packet.HealthDelta = int32(basehp) - int32(GetCreateHealth());
 
-    GetSession()->SendPacket(&data);
+    /// @todo find some better solution
+    // for (int i = 0; i < MAX_STORED_POWERS; ++i) 
+    packet.PowerDelta[0] = int32(basemana) - int32(GetCreateMana());
+    packet.PowerDelta[1] = 0;
+    packet.PowerDelta[2] = 0;
+    packet.PowerDelta[3] = 0;
+    packet.PowerDelta[4] = 0;
+    packet.PowerDelta[5] = 0;
+
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+        packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
+
+    uint32 const* rowLevels = (getClass() != CLASS_DEATH_KNIGHT) ? DefaultTalentRowLevels : DKTalentRowLevels;
+
+    packet.Cp = std::find(rowLevels, rowLevels + MAX_TALENT_TIERS, level) != (rowLevels + MAX_TALENT_TIERS);
+
+    GetSession()->SendPacket(packet.Write());
 
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(level));
 
@@ -26637,9 +26643,6 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
 
 uint32 Player::CalculateTalentsTiers() const
 {
-    static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
-    static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
-
     uint32 const* rowLevels = (getClass() != CLASS_DEATH_KNIGHT) ? DefaultTalentRowLevels : DKTalentRowLevels;
     for (uint32 i = MAX_TALENT_TIERS; i; --i)
         if (getLevel() >= rowLevels[i - 1])
