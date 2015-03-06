@@ -43,7 +43,7 @@ namespace Trinity
         Player &i_player;
         UpdateData i_data;
         std::set<Unit*> i_visibleNow;
-        GuidSet vis_guids;
+        GuidUnorderedSet vis_guids;
 
         VisibleNotifier(Player &player) : i_player(player), vis_guids(player.m_clientGUIDs) { }
         template<class T> void Visit(GridRefManager<T> &m);

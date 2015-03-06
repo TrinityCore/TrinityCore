@@ -146,14 +146,12 @@ bool WorldSocket::ReadDataHandler()
 
     uint16 opcode = uint16(header->cmd);
 
-    std::string opcodeName = GetOpcodeNameForLogging(opcode);
-
     WorldPacket packet(opcode, std::move(_packetBuffer));
 
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
 
-    TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
+    TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(opcode).c_str());
 
     switch (opcode)
     {
@@ -170,7 +168,7 @@ bool WorldSocket::ReadDataHandler()
             HandleAuthSession(packet);
             break;
         case CMSG_KEEP_ALIVE:
-            TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+            TC_LOG_DEBUG("network", "%s", GetOpcodeNameForLogging(opcode).c_str());
             sScriptMgr->OnPacketReceive(_worldSession, packet);
             break;
         default:
