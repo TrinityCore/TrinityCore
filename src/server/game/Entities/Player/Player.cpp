@@ -2909,7 +2909,7 @@ void Player::GiveLevel(uint8 level)
     packet.HealthDelta = int32(basehp) - int32(GetCreateHealth());
 
     /// @todo find some better solution
-    // for (int i = 0; i < MAX_STORED_POWERS; ++i) 
+    // for (int i = 0; i < MAX_STORED_POWERS; ++i)
     packet.PowerDelta[0] = int32(basemana) - int32(GetCreateMana());
     packet.PowerDelta[1] = 0;
     packet.PowerDelta[2] = 0;
@@ -2936,6 +2936,7 @@ void Player::GiveLevel(uint8 level)
     SetLevel(level);
 
     UpdateSkillsForLevel();
+    LearnDefaultSkills();
     LearnSpecializationSpells();
 
     // save base values (bonuses already included in stored stats
@@ -3048,7 +3049,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetUInt32Value(UNIT_FIELD_AURASTATE, 0);
 
     UpdateSkillsForLevel();
-    LearnSpecializationSpells();
 
     // set default cast time multiplier
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
@@ -3645,9 +3645,9 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                 if (!pSkill)
                     continue;
 
-                ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
-                if ((_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->ID)) || (pSkill->ID == SKILL_LOCKPICKING && _spell_idx->second->TrivialSkillLineRankHigh == 0))
-                    LearnDefaultSkill(pSkill->ID, 0);
+                if ((_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->ID)))
+                    if (SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(pSkill->ID, getRace(), getClass()))
+                        LearnDefaultSkill(rcInfo);
             }
         }
     }
@@ -22675,20 +22675,20 @@ void Player::LearnDefaultSkills()
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     for (PlayerCreateInfoSkills::const_iterator itr = info->skills.begin(); itr != info->skills.end(); ++itr)
     {
-        uint32 skillId = itr->SkillId;
-        if (HasSkill(skillId))
+        SkillRaceClassInfoEntry const* rcInfo = *itr;
+        if (HasSkill(rcInfo->SkillID))
             continue;
 
-        LearnDefaultSkill(skillId, itr->Rank);
+        if (rcInfo->MinLevel > getLevel())
+            continue;
+
+        LearnDefaultSkill(rcInfo);
     }
 }
 
-void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
+void Player::LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo)
 {
-    SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(skillId, getRace(), getClass());
-    if (!rcInfo)
-        return;
-
+    uint16 skillId = rcInfo->SkillID;
     switch (GetSkillRangeType(rcInfo))
     {
         case SKILL_RANGE_LANGUAGE:
@@ -22715,8 +22715,9 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
             break;
         case SKILL_RANGE_RANK:
         {
-            if (!rank)
-                break;
+            uint16 rank = 1;
+            if (getClass() == CLASS_DEATH_KNIGHT && skillId == SKILL_FIRST_AID)
+                rank = 4;
 
             SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcInfo->SkillTierID);
             uint16 maxValue = tier->Value[std::max<int32>(rank - 1, 0)];
@@ -22724,7 +22725,7 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
                 skillValue = maxValue;
             else if (getClass() == CLASS_DEATH_KNIGHT)
-                skillValue = std::min(std::max<uint16>({ uint16(1), uint16((getLevel() - 1) * 5) }), maxValue);
+                skillValue = std::min(std::max(uint16(1), uint16((getLevel() - 1) * 5)), maxValue);
 
             SetSkill(skillId, rank, skillValue, maxValue);
             break;
