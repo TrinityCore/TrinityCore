@@ -543,7 +543,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             bool Validate(SpellInfo const* spellInfo) override
             {
                 SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_2);
-                if (!effect || sSpellMgr->GetSpellInfo(effect->CalcValue()))
+                if (!effect || !sSpellMgr->GetSpellInfo(uint32(effect->CalcValue())))
                     return false;
                 return true;
             }
@@ -551,7 +551,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->CastSpell(target, GetAura()->GetSpellEffectInfo(EFFECT_2)->CalcValue(), true, nullptr, aurEff, GetCasterGUID());
+                target->CastSpell(target, uint32(GetAura()->GetSpellEffectInfo(EFFECT_2)->CalcValue()), true, nullptr, aurEff, GetCasterGUID());
             }
 
             void Register() override
