@@ -542,7 +542,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (sSpellMgr->GetSpellInfo(uint32(spellInfo->Effects[EFFECT_2].CalcValue())))
+                if (!sSpellMgr->GetSpellInfo(uint32(spellInfo->Effects[EFFECT_2].CalcValue())))
                     return false;
                 return true;
             }
