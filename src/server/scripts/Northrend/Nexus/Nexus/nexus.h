@@ -21,18 +21,19 @@
 #define NexusScriptName "instance_nexus"
 #define DataHeader "NEX"
 
-uint32 const EncounterCount = 4;
-
+uint32 const EncounterCount = 5;
+ 
 enum DataTypes
 {
-    DATA_MAGUS_TELESTRA               = 0,
-    DATA_ANOMALUS                     = 1,
-    DATA_ORMOROK                      = 2,
-    DATA_KERISTRASZA                  = 3,
+    DATA_COMMANDER                    = 0,
+    DATA_MAGUS_TELESTRA               = 1,
+    DATA_ANOMALUS                     = 2,
+    DATA_ORMOROK                      = 3,
+    DATA_KERISTRASZA                  = 4,
 
-    ANOMALUS_CONTAINMET_SPHERE        = 4,
-    ORMOROKS_CONTAINMET_SPHERE        = 5,
-    TELESTRAS_CONTAINMET_SPHERE       = 6
+    ANOMALUS_CONTAINMET_SPHERE        = 5,
+    ORMOROKS_CONTAINMET_SPHERE        = 6,
+    TELESTRAS_CONTAINMET_SPHERE       = 7
 };
 
 enum CreatureIds
