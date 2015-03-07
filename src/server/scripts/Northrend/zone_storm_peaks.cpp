@@ -764,7 +764,6 @@ void AddSC_storm_peaks()
     new npc_icefang();
     new npc_hyldsmeet_protodrake();
     new npc_brann_bronzebeard_keystone();
-    new npc_king_jokkum_vehicle();
     new spell_jokkum_scriptcast();
     new spell_veranus_summon();
     new spell_close_rift();
