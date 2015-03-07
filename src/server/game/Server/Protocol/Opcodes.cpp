@@ -227,9 +227,9 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BOT_DETECTED2,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BUG_REPORT,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBugReportOpcode           );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BUSY_TRADE,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBusyTradeOpcode           );
-    DEFINE_HANDLER(CMSG_BUY_BACK_ITEM,                                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::BuyBackItem, &WorldSession::HandleBuybackItem);
+    DEFINE_HANDLER(CMSG_BUY_BACK_ITEM,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::BuyBackItem, &WorldSession::HandleBuybackItem);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BUY_BANK_SLOT,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBuyBankSlotOpcode         );
-    DEFINE_HANDLER(CMSG_BUY_ITEM,                                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::BuyItem, &WorldSession::HandleBuyItemOpcode);
+    DEFINE_HANDLER(CMSG_BUY_ITEM,                                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::BuyItem, &WorldSession::HandleBuyItemOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CAGE_BATTLE_PET,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CALENDAR_ADD_EVENT,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarAddEvent          );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CALENDAR_ARENA_TEAM,                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarArenaTeam         );
@@ -489,7 +489,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LF_GUILD_GET_RECRUITS,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderGetRecruits    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LF_GUILD_REMOVE_RECRUIT,                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderRemoveRecruit  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LF_GUILD_SET_GUILD_POST,                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderSetGuildPost   );
-    DEFINE_HANDLER(CMSG_LIST_INVENTORY,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleListInventoryOpcode);
+    DEFINE_HANDLER(CMSG_LIST_INVENTORY,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleListInventoryOpcode);
     DEFINE_HANDLER(CMSG_LOAD_SCREEN,                                        STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::LoadingScreenNotify, &WorldSession::HandleLoadScreenOpcode);
     DEFINE_HANDLER(CMSG_LOGOUT_CANCEL,                                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Character::LogoutCancel, &WorldSession::HandleLogoutCancelOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOGOUT_INSTANT,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -734,7 +734,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SCENE_PLAYBACK_COMPLETE,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SCENE_TRIGGER_EVENT,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SELF_RES,                                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSelfResOpcode             );
-    DEFINE_HANDLER(CMSG_SELL_ITEM,                                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::SellItem, &WorldSession::HandleSellItemOpcode);
+    DEFINE_HANDLER(CMSG_SELL_ITEM,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::SellItem, &WorldSession::HandleSellItemOpcode);
     DEFINE_HANDLER(CMSG_SEND_CONTACT_LIST,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Social::SendContactList, &WorldSession::HandleContactListOpcode);
     DEFINE_HANDLER(CMSG_SEND_MAIL,                                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Mail::SendMail, &WorldSession::HandleSendMail);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SEND_SOR_REQUEST_VIA_ADDRESS,            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
