@@ -18,7 +18,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
 #include "icecrown_citadel.h"
 
@@ -213,7 +213,7 @@ class boss_rotface : public CreatureScript
                             }
                             break;
                         case EVENT_MUTATED_INFECTION:
-                            me->CastCustomSpell(SPELL_MUTATED_INFECTION, SPELLVALUE_MAX_TARGETS, 1, NULL, false);
+                            DoCastAOE(SPELL_MUTATED_INFECTION);
                             events.ScheduleEvent(EVENT_MUTATED_INFECTION, infectionCooldown);
                             break;
                         case EVENT_VILE_GAS:
@@ -509,13 +509,6 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rotface_mutated_infection_SpellScript);
 
-        public:
-            spell_rotface_mutated_infection_SpellScript()
-            {
-                _target = nullptr;
-            }
-
-        private:
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 // remove targets with this aura already
@@ -527,14 +520,6 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
                 WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
-                _target = target;
-            }
-
-            void ReplaceTargets(std::list<WorldObject*>& targets)
-            {
-                targets.clear();
-                if (_target)
-                    targets.push_back(_target);
             }
 
             void NotifyTargets()
@@ -546,18 +531,43 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rotface_mutated_infection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rotface_mutated_infection_SpellScript::ReplaceTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rotface_mutated_infection_SpellScript::ReplaceTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rotface_mutated_infection_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterHit += SpellHitFn(spell_rotface_mutated_infection_SpellScript::NotifyTargets);
             }
+        };
 
-            WorldObject* _target;
+        class spell_rotface_mutated_infection_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rotface_mutated_infection_AuraScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_2);
+                if (!effect || sSpellMgr->GetSpellInfo(effect->CalcValue()))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                target->CastSpell(target, GetAura()->GetSpellEffectInfo(EFFECT_2)->CalcValue(), true, nullptr, aurEff, GetCasterGUID());
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rotface_mutated_infection_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
         };
 
         SpellScript* GetSpellScript() const override
         {
             return new spell_rotface_mutated_infection_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rotface_mutated_infection_AuraScript();
         }
 };
 
