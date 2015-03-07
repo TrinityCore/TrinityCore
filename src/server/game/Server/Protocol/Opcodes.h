@@ -598,7 +598,7 @@ enum OpcodeClient : uint32
     CMSG_RECLAIM_CORPSE                               = 0xBADD,
     CMSG_RECRUIT_A_FRIEND                             = 0xBADD,
     CMSG_REGISTER_ADDON_PREFIXES                      = 0xBADD,
-    CMSG_REORDER_CHARACTERS                           = 0xBADD,
+    CMSG_REORDER_CHARACTERS                           = 0x1729,
     CMSG_REPAIR_ITEM                                  = 0xBADD,
     CMSG_REPLACE_ACCOUNT_DATA                         = 0xBADD,
     CMSG_REPLACE_TROPHY                               = 0xBADD,
