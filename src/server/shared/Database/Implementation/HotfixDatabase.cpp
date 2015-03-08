@@ -148,8 +148,12 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "CastingTimeIndex, DurationIndex, RangeIndex, Speed, SpellVisualID1, SpellVisualID2, SpellIconID, ActiveIconID, "
         "SchoolMask, MultistrikeSpeedMod FROM spell_misc ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // SpellPower.db2
     PrepareStatement(HOTFIX_SEL_SPELL_POWER, "SELECT ID, SpellID, PowerIndex, PowerType, ManaCost, ManaCostPerLevel, ManaCostPerSecond, ManaCostAdditional, "
         "PowerDisplayID, UnitPowerBarID, ManaCostPercentage, ManaCostPercentagePerSecond, RequiredAura, HealthCostPercentage FROM spell_power ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // SpellPowerDifficulty.db2
+    PrepareStatement(HOTFIX_SEL_SPELL_POWER_DIFFICULTY, "SELECT SpellPowerID, DifficultyID, PowerIndex FROM spell_power_difficulty ORDER BY SpellPowerID DESC", CONNECTION_SYNCH);
 
     // SpellReagents.db2
     PrepareStatement(HOTFIX_SEL_SPELL_REAGENTS, "SELECT ID, Reagent1, Reagent2, Reagent3, Reagent4, Reagent5, Reagent6, Reagent7, Reagent8, "

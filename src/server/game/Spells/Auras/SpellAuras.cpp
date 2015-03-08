@@ -369,7 +369,12 @@ m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr)
 {
-    if (m_spellInfo->ManaPerSecond)
+    std::vector<SpellPowerEntry const*> powers = sDB2Manager.GetSpellPowers(GetId(), caster ? caster->GetMap()->GetDifficultyID() : DIFFICULTY_NONE);
+    for (SpellPowerEntry const* power : powers)
+        if (power->ManaCostPerSecond != 0 || power->ManaCostPercentagePerSecond > 0.0f)
+            m_periodicCosts.push_back(power);
+
+    if (!m_periodicCosts.empty())
         m_timeCla = 1 * IN_MILLISECONDS;
 
     m_maxDuration = CalcMaxDuration(caster);
@@ -737,22 +742,37 @@ void Aura::Update(uint32 diff, Unit* caster)
                 m_timeCla -= diff;
             else if (caster)
             {
-                if (int32 manaPerSecond = m_spellInfo->ManaPerSecond)
+                if (!m_periodicCosts.empty())
                 {
                     m_timeCla += 1000 - diff;
 
-                    Powers powertype = Powers(m_spellInfo->PowerType);
-                    if (powertype == POWER_HEALTH)
+                    for (SpellPowerEntry const* power : m_periodicCosts)
                     {
-                        if (int32(caster->GetHealth()) > manaPerSecond)
-                            caster->ModifyHealth(-manaPerSecond);
+                        if (power->RequiredAura && !caster->HasAura(power->RequiredAura))
+                            continue;
+
+                        int32 manaPerSecond = power->ManaCostPerSecond;
+                        Powers powertype = Powers(power->PowerType);
+                        if (powertype != POWER_HEALTH)
+                            manaPerSecond += int32(CalculatePct(caster->GetMaxPower(powertype), power->ManaCostPercentagePerSecond));
                         else
-                            Remove();
+                            manaPerSecond += int32(CalculatePct(caster->GetMaxHealth(), power->ManaCostPercentagePerSecond));
+
+                        if (manaPerSecond)
+                        {
+                            if (powertype == POWER_HEALTH)
+                            {
+                                if (int32(caster->GetHealth()) > manaPerSecond)
+                                    caster->ModifyHealth(-manaPerSecond);
+                                else
+                                    Remove();
+                            }
+                            else if (int32(caster->GetPower(powertype)) >= manaPerSecond)
+                                caster->ModifyPower(powertype, -manaPerSecond);
+                            else
+                                Remove();
+                        }
                     }
-                    else if (int32(caster->GetPower(powertype)) >= manaPerSecond)
-                        caster->ModifyPower(powertype, -manaPerSecond);
-                    else
-                        Remove();
                 }
             }
         }
@@ -809,7 +829,7 @@ void Aura::RefreshDuration(bool withMods)
     else
         SetDuration(GetMaxDuration());
 
-    if (m_spellInfo->ManaPerSecond)
+    if (!m_periodicCosts.empty())
         m_timeCla = 1 * IN_MILLISECONDS;
 }
 

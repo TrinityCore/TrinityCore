@@ -3701,10 +3701,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 40167: // Introspection
                 spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
                 break;
-            case 2378: // Minor Fortitude
-                spellInfo->ManaCost = 0;
-                spellInfo->ManaPerSecond = 0;
-                break;
             // Stonecore spells
             case 95284: // Teleport (from entrance to Slabhide)
             case 95285: // Teleport (from Slabhide to entrance)

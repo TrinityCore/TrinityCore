@@ -45,6 +45,7 @@ char const SpellClassOptionsFormat[] = "niiiiii";
 char const SpellLearnSpellFormat[] = "niii";
 char const SpellMiscFormat[] = "niiiiiiiiiiiiiiiiifiiiiif";
 char const SpellPowerFormat[] = "niiiiiiiiiffif";
+char const SpellPowerDifficultyFormat[] = "nii";
 char const SpellReagentsFormat[] = "niiiiiiiiiiiiiiiiii";
 char const SpellRuneCostFormat[] = "niiiii";
 char const SpellTotemsFormat[] = "niiii";

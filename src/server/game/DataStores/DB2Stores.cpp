@@ -50,6 +50,7 @@ DB2Storage<SpellClassOptionsEntry>          sSpellClassOptionsStore("SpellClassO
 DB2Storage<SpellLearnSpellEntry>            sSpellLearnSpellStore("SpellLearnSpell.db2", SpellLearnSpellFormat, HOTFIX_SEL_SPELL_LEARN_SPELL);
 DB2Storage<SpellMiscEntry>                  sSpellMiscStore("SpellMisc.db2", SpellMiscFormat, HOTFIX_SEL_SPELL_MISC);
 DB2Storage<SpellPowerEntry>                 sSpellPowerStore("SpellPower.db2", SpellPowerFormat, HOTFIX_SEL_SPELL_POWER);
+DB2Storage<SpellPowerDifficultyEntry>       sSpellPowerDifficultyStore("SpellPowerDifficulty.db2", SpellPowerDifficultyFormat, HOTFIX_SEL_SPELL_POWER_DIFFICULTY);
 DB2Storage<SpellReagentsEntry>              sSpellReagentsStore("SpellReagents.db2", SpellReagentsFormat, HOTFIX_SEL_SPELL_REAGENTS);
 DB2Storage<SpellRuneCostEntry>              sSpellRuneCostStore("SpellRuneCost.db2", SpellRuneCostFormat, HOTFIX_SEL_SPELL_RUNE_COST);
 DB2Storage<SpellTotemsEntry>                sSpellTotemsStore("SpellTotems.db2", SpellTotemsFormat, HOTFIX_SEL_SPELL_TOTEMS);
@@ -57,7 +58,6 @@ DB2Storage<TaxiNodesEntry>                  sTaxiNodesStore("TaxiNodes.db2", Tax
 DB2Storage<TaxiPathEntry>                   sTaxiPathStore("TaxiPath.db2", TaxiPathFormat, HOTFIX_SEL_TAXI_PATH);
 DB2Storage<TaxiPathNodeEntry>               sTaxiPathNodeStore("TaxiPathNode.db2", TaxiPathNodeFormat, HOTFIX_SEL_TAXI_PATH_NODE);
 
-SpellPowerBySpellIDMap                      sSpellPowerBySpellIDStore;
 TaxiMask                                    sTaxiNodesMask;
 TaxiMask                                    sOldContinentsNodesMask;
 TaxiMask                                    sHordeTaxiNodesMask;
@@ -199,7 +199,24 @@ void DB2Manager::LoadStores(std::string const& dataPath)
             _phasesByGroup[group->PhaseGroupID].insert(phase->ID);
 
     for (SpellPowerEntry const* power : sSpellPowerStore)
-        sSpellPowerBySpellIDStore[power->SpellID] = power;
+    {
+        if (SpellPowerDifficultyEntry const* powerDifficulty = sSpellPowerDifficultyStore.LookupEntry(power->ID))
+        {
+            std::vector<SpellPowerEntry const*>& powers = _spellPowerDifficulties[power->SpellID][powerDifficulty->DifficultyID];
+            if (powers.size() <= powerDifficulty->PowerIndex)
+                powers.resize(powerDifficulty->PowerIndex + 1);
+
+            powers[powerDifficulty->PowerIndex] = power;
+        }
+        else
+        {
+            std::vector<SpellPowerEntry const*>& powers = _spellPowers[power->SpellID];
+            if (powers.size() <= power->PowerIndex)
+                powers.resize(power->PowerIndex + 1);
+
+            powers[power->PowerIndex] = power;
+        }
+    }
 
     for (TaxiPathEntry const* entry : sTaxiPathStore)
         sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
@@ -474,4 +491,46 @@ std::set<uint32> DB2Manager::GetPhasesForGroup(uint32 group) const
         return itr->second;
 
     return std::set<uint32>();
+}
+
+std::vector<SpellPowerEntry const*> DB2Manager::GetSpellPowers(uint32 spellId, Difficulty difficulty /*= DIFFICULTY_NONE*/, bool* hasDifficultyPowers /*= nullptr*/) const
+{
+    std::vector<SpellPowerEntry const*> powers;
+
+    auto difficultyItr = _spellPowerDifficulties.find(spellId);
+    if (difficultyItr != _spellPowerDifficulties.end())
+    {
+        if (hasDifficultyPowers)
+            *hasDifficultyPowers = true;
+
+        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+        while (difficultyEntry)
+        {
+            auto powerDifficultyItr = difficultyItr->second.find(difficultyEntry->ID);
+            if (powerDifficultyItr != difficultyItr->second.end())
+            {
+                if (powerDifficultyItr->second.size() > powers.size())
+                    powers.resize(powerDifficultyItr->second.size());
+
+                for (SpellPowerEntry const* difficultyPower : powerDifficultyItr->second)
+                    if (!powers[difficultyPower->PowerIndex])
+                        powers[difficultyPower->PowerIndex] = difficultyPower;
+            }
+
+            difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+        }
+    }
+
+    auto itr = _spellPowers.find(spellId);
+    if (itr != _spellPowers.end())
+    {
+        if (itr->second.size() > powers.size())
+            powers.resize(itr->second.size());
+
+        for (SpellPowerEntry const* power : itr->second)
+            if (!powers[power->PowerIndex])
+                powers[power->PowerIndex] = power;
+    }
+
+    return powers;
 }
