@@ -2336,8 +2336,9 @@ void WorldSession::HandleUndeleteCooldownStatusCallback(PreparedQueryResult resu
             if (result)
             {
                 uint32 lastUndelete = result->Fetch()[0].GetUInt32();
-                if (lastUndelete)
-                    cooldown = uint32(std::max<int32>(0, int32(lastUndelete) + maxCooldown - time(nullptr)));
+                uint32 now = uint32(time(nullptr));
+                if (lastUndelete + maxCooldown > now)
+                    cooldown = std::max<uint32>(0, lastUndelete + maxCooldown - now);
             }
 
             SendUndeleteCooldownStatusResponse(cooldown, maxCooldown);

@@ -338,7 +338,7 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
-enum Difficulty
+enum Difficulty : uint8
 {
     DIFFICULTY_NONE           = 0,
     DIFFICULTY_NORMAL         = 1,

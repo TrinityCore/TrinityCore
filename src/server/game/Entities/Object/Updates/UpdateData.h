@@ -59,7 +59,7 @@ enum OBJECT_UPDATE_FLAGS
 class UpdateData
 {
     public:
-        UpdateData(uint16 map);
+        UpdateData(uint32 map);
         UpdateData(UpdateData&& right) : m_map(right.m_map), m_blockCount(right.m_blockCount),
             m_outOfRangeGUIDs(std::move(right.m_outOfRangeGUIDs)),
             m_data(std::move(right.m_data))
@@ -76,7 +76,7 @@ class UpdateData
         GuidSet const& GetOutOfRangeGUIDs() const { return m_outOfRangeGUIDs; }
 
     protected:
-        uint16 m_map;
+        uint32 m_map;
         uint32 m_blockCount;
         GuidSet m_outOfRangeGUIDs;
         ByteBuffer m_data;

@@ -272,15 +272,15 @@ struct LFGDungeonData
         requiredItemLevel(0)
         { }
     LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->Name_lang), map(dbc->MapID),
-        type(dbc->Type), expansion(dbc->Expansion), group(dbc->GroupID),
-        minlevel(dbc->MinLevel), maxlevel(dbc->MaxLevel), difficulty(Difficulty(dbc->DifficultyID)),
+        type(uint8(dbc->Type)), expansion(uint8(dbc->Expansion)), group(uint8(dbc->GroupID)),
+        minlevel(uint8(dbc->MinLevel)), maxlevel(uint8(dbc->MaxLevel)), difficulty(Difficulty(dbc->DifficultyID)),
         seasonal((dbc->Flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
         requiredItemLevel(0)
         { }
 
     uint32 id;
     std::string name;
-    uint16 map;
+    uint32 map;
     uint8 type;
     uint8 expansion;
     uint8 group;

@@ -179,7 +179,7 @@ class UnitAI
                 case SELECT_TARGET_RANDOM:
                 {
                     std::list<Unit*>::iterator itr = targetList.begin();
-                    std::advance(itr, urand(position, targetList.size() - 1));
+                    std::advance(itr, urand(position, uint32(targetList.size() - 1)));
                     return *itr;
                 }
                 default:

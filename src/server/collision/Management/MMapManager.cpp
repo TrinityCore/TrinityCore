@@ -39,7 +39,7 @@ namespace MMAP
             return true;
 
         // load and init dtNavMesh - read parameters from file
-        uint32 pathLen = sWorld->GetDataPath().length() + strlen("mmaps/%03i.mmap")+1;
+        uint32 pathLen = uint32(sWorld->GetDataPath().length() + strlen("mmaps/%03i.mmap") + 1);
         char *fileName = new char[pathLen];
         snprintf(fileName, pathLen, (sWorld->GetDataPath()+"mmaps/%03i.mmap").c_str(), mapId);
 
@@ -52,7 +52,7 @@ namespace MMAP
         }
 
         dtNavMeshParams params;
-        int count = fread(&params, sizeof(dtNavMeshParams), 1, file);
+        uint32 count = uint32(fread(&params, sizeof(dtNavMeshParams), 1, file));
         fclose(file);
         if (count != 1)
         {
@@ -104,7 +104,7 @@ namespace MMAP
             return false;
 
         // load this tile :: mmaps/MMMXXYY.mmtile
-        uint32 pathLen = sWorld->GetDataPath().length() + strlen("mmaps/%03i%02i%02i.mmtile")+1;
+        uint32 pathLen = uint32(sWorld->GetDataPath().length() + strlen("mmaps/%03i%02i%02i.mmtile") + 1);
         char *fileName = new char[pathLen];
 
         snprintf(fileName, pathLen, (sWorld->GetDataPath()+"mmaps/%03i%02i%02i.mmtile").c_str(), mapId, x, y);
@@ -159,13 +159,9 @@ namespace MMAP
             TC_LOG_INFO("maps", "MMAP:loadMap: Loaded mmtile %03i[%02i, %02i] into %03i[%02i, %02i]", mapId, x, y, mapId, header->x, header->y);
             return true;
         }
-        else
-        {
-            TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load %03u%02i%02i.mmtile into navmesh", mapId, x, y);
-            dtFree(data);
-            return false;
-        }
 
+        TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load %03u%02i%02i.mmtile into navmesh", mapId, x, y);
+        dtFree(data);
         return false;
     }
 

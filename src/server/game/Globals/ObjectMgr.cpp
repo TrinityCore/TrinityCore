@@ -4970,14 +4970,14 @@ void ObjectMgr::LoadInstanceEncounters()
             {
                 if (GetMapDifficultyData(dungeonEncounter->MapID, Difficulty(i)))
                 {
-                    DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR32(dungeonEncounter->MapID, i)];
+                    DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR64(dungeonEncounter->MapID, i)];
                     encounters.push_back(new DungeonEncounter(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
                 }
             }
         }
         else
         {
-            DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR32(dungeonEncounter->MapID, dungeonEncounter->DifficultyID)];
+            DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR64(dungeonEncounter->MapID, dungeonEncounter->DifficultyID)];
             encounters.push_back(new DungeonEncounter(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
         }
 
@@ -5843,7 +5843,7 @@ void ObjectMgr::LoadAccessRequirements()
 
         uint32 mapid = fields[0].GetUInt32();
         uint8 difficulty = fields[1].GetUInt8();
-        uint32 requirement_ID = MAKE_PAIR32(mapid, difficulty);
+        uint32 requirement_ID = MAKE_PAIR64(mapid, difficulty);
 
         AccessRequirement* ar   = new AccessRequirement();
         ar->levelMin            = fields[2].GetUInt8();
