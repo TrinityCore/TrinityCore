@@ -118,6 +118,7 @@ namespace WorldPackets
         class LogoutCancel;
         class LoadingScreenNotify;
         class SetActionBarToggles;
+        class PlayedTimeClient;
 
         enum class LoginFailureReason : uint8;
     }
@@ -786,7 +787,7 @@ class WorldSession
         void SendUndeleteCharacterResponse(CharacterUndeleteResult result, WorldPackets::Character::CharacterUndeleteInfo const* undeleteInfo);
 
         // played time
-        void HandlePlayedTime(WorldPacket& recvPacket);
+        void HandlePlayedTime(WorldPackets::Character::PlayedTimeClient& packet);
 
         // new
         void HandleMoveUnRootAck(WorldPacket& recvPacket);
