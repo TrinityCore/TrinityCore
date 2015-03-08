@@ -6129,7 +6129,7 @@ void Player::SendActionButtons(uint32 state) const
     packet.Reason = state;
 
     SendDirectMessage(packet.Write());
-    TC_LOG_INFO("network", "Action Buttons for '%s' group '%u' Sent", GetGUID().ToString().c_str(), GetActiveTalentGroup());
+    TC_LOG_DEBUG("network", "Action Buttons for '%s' group '%u' Sent", GetGUID().ToString().c_str(), GetActiveTalentGroup());
 }
 
 bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
@@ -6377,7 +6377,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 GiveXP(XP, NULL);
                 SendExplorationExperience(area, XP);
             }
-            TC_LOG_INFO("entities.player", "Player %s discovered a new area: %u", GetGUID().ToString().c_str(), area);
+            TC_LOG_DEBUG("entities.player", "Player %s discovered a new area: %u", GetGUID().ToString().c_str(), area);
         }
     }
 }
@@ -7603,7 +7603,7 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
     if (item->IsBroken())
         return;
 
-    TC_LOG_INFO("entities.player.items", "applying mods for item %s", item->GetGUID().ToString().c_str());
+    TC_LOG_DEBUG("entities.player.items", "applying mods for item %s", item->GetGUID().ToString().c_str());
 
     uint8 attacktype = Player::GetAttackBySlot(slot);
 
@@ -9452,7 +9452,7 @@ uint32 Player::GetXPRestBonus(uint32 xp)
 
     SetRestBonus(GetRestBonus() - rested_bonus);
 
-    TC_LOG_INFO("entities.player", "Player gain %u xp (+ %u Rested Bonus). Rested points=%f", xp+rested_bonus, rested_bonus, GetRestBonus());
+    TC_LOG_DEBUG("entities.player", "Player gain %u xp (+ %u Rested Bonus). Rested points=%f", xp+rested_bonus, rested_bonus, GetRestBonus());
     return rested_bonus;
 }
 
@@ -17424,7 +17424,7 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
 
                 aura->SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, info.Amounts.data());
                 aura->ApplyForTargets();
-                TC_LOG_INFO("entities.player", "Added aura spellid %u, effectmask %u", spellInfo->Id, key.EffectMask);
+                TC_LOG_DEBUG("entities.player", "Added aura spellid %u, effectmask %u", spellInfo->Id, key.EffectMask);
             }
         }
         while (auraResult->NextRow());
@@ -24964,7 +24964,7 @@ bool Player::LearnTalent(uint32 talentId)
 
     LearnSpell(spellid, false);
 
-    TC_LOG_INFO("misc", "TalentID: %u Spell: %u Group: %u\n", talentId, spellid, GetActiveTalentGroup());
+    TC_LOG_DEBUG("misc", "TalentID: %u Spell: %u Group: %u\n", talentId, spellid, GetActiveTalentGroup());
 
     return true;
 }
