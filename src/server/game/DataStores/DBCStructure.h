@@ -2005,9 +2005,9 @@ struct SpellPowerEntry
     uint32    manaCostPerlevel;                             // 2       m_manaCostPerLevel
     uint32    ManaCostPercentage;                           // 3       m_manaCostPct
     uint32    manaPerSecond;                                // 4       m_manaPerSecond
-    uint32    manaPerSecondPerLevel;                        // 5       m_manaPerSecondPerLevel
-    //uint32  PowerDisplayId;                               // 6       m_powerDisplayID - id from PowerDisplay.dbc, new in 3.1
-    float     ManaCostPercentageFloat;                      // 7       4.3.0
+    //uint32  PowerDisplayId;                               // 5       m_powerDisplayID - id from PowerDisplay.dbc, new in 3.1
+    //uint32  UnitPowerBarId;                               // 6       m_unitPowerBarID
+    //float   ManaCostPercentageFloat;                      // 7       4.3.0
 };
 
 struct SpellRuneCostEntry
