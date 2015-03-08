@@ -463,7 +463,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
             {
                 if (!_spellInfo->HasAttribute(SPELL_ATTR11_UNK2))
                 {
-                    if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.EvaluateTable(level - 1, (_spellInfo->Scaling.Class > 0 ? _spellInfo->Scaling.Class - 1 : MAX_CLASSES - 1)))
+                    if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.EvaluateTable(level - 1, (_spellInfo->Scaling.Class > 0 ? _spellInfo->Scaling.Class : ((MAX_CLASSES - 1 /*last class*/) - _spellInfo->Scaling.Class)) - 1))
                         value = gtScaling->value;
                 }
                 else
