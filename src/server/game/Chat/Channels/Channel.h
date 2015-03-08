@@ -174,7 +174,7 @@ class Channel
         std::string const& GetPassword() const { return _password; }
         void SetPassword(std::string const& npassword) { _password = npassword; }
         void SetAnnounce(bool nannounce) { _announce = nannounce; }
-        uint32 GetNumPlayers() const { return _playersStore.size(); }
+        uint32 GetNumPlayers() const { return uint32(_playersStore.size()); }
         uint8 GetFlags() const { return _flags; }
         bool HasFlag(uint8 flag) const { return (_flags & flag) != 0; }
 

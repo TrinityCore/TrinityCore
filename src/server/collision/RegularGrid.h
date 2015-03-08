@@ -71,7 +71,7 @@ public:
     }
 
     bool contains(const T& value) const { return memberTable.containsKey(&value); }
-    int size() const { return memberTable.size(); }
+    int size() const { return uint32(memberTable.size()); }
 
     struct Cell
     {

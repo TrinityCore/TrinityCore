@@ -24,7 +24,7 @@
 #include "Opcodes.h"
 #include "World.h"
 
-UpdateData::UpdateData(uint16 map) : m_map(map), m_blockCount(0) { }
+UpdateData::UpdateData(uint32 map) : m_map(map), m_blockCount(0) { }
 
 void UpdateData::AddOutOfRangeGUID(GuidSet& guids)
 {

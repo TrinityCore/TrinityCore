@@ -765,7 +765,7 @@ public:
     std::string const& GetName() const { return m_name; }
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
-    uint32 GetMemberCount() const { return m_members.size(); }
+    uint32 GetMemberCount() const { return uint32(m_members.size()); }
     time_t GetCreatedDate() const { return m_createdDate; }
     uint64 GetBankMoney() const { return m_bankMoney; }
 
@@ -856,7 +856,7 @@ public:
     void DeleteMember(ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
     bool ChangeMemberRank(ObjectGuid guid, uint8 newRank);
     bool IsMember(ObjectGuid guid) const;
-    uint32 GetMembersCount() { return m_members.size(); }
+    uint32 GetMembersCount() { return uint32(m_members.size()); }
 
     // Bank
     void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);
