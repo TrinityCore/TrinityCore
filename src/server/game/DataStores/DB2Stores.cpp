@@ -242,9 +242,12 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     // Initialize global taxinodes mask
     // include existed nodes that have at least single not spell base (scripted) path
     {
-        ASSERT(TaxiMaskSize >= ((sTaxiNodesStore.GetNumRows() - 1) / 8) + 1,
-            "TaxiMaskSize is not large enough to contain all taxi nodes! (current value %d, required %d)",
-            TaxiMaskSize, (((sTaxiNodesStore.GetNumRows() - 1) / 8) + 1));
+        if (sTaxiNodesStore.GetNumRows())
+        {
+            ASSERT(TaxiMaskSize >= ((sTaxiNodesStore.GetNumRows() - 1) / 8) + 1,
+                "TaxiMaskSize is not large enough to contain all taxi nodes! (current value %d, required %d)",
+                TaxiMaskSize, (((sTaxiNodesStore.GetNumRows() - 1) / 8) + 1));
+        }
 
         std::set<uint32> spellPaths;
         for (SpellEffectEntry const* sInfo : sSpellEffectStore)
