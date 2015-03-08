@@ -8635,7 +8635,7 @@ void ObjectMgr::LoadBroadcastTexts()
 
         if (!GetLanguageDescByID(bct.Language))
         {
-            TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` using Language %u but Language does not exist. Skipped.", bct.Id, bct.Language);
+            TC_LOG_ERROR("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` using Language %u but Language does not exist. Skipped.", bct.Id, bct.Language);
             // don't load bct of higher expansions
             continue;
         }
@@ -8644,7 +8644,7 @@ void ObjectMgr::LoadBroadcastTexts()
         {
             if (!sEmotesStore.LookupEntry(bct.EmoteId0))
             {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId0 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId0);
+                TC_LOG_ERROR("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId0 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId0);
                 // don't load bct of higher expansions
                 continue;
             }
@@ -8654,7 +8654,7 @@ void ObjectMgr::LoadBroadcastTexts()
         {
             if (!sEmotesStore.LookupEntry(bct.EmoteId1))
             {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId1 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId1);
+                TC_LOG_ERROR("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId1 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId1);
                 // don't load bct of higher expansions
                 continue;
             }
@@ -8664,7 +8664,7 @@ void ObjectMgr::LoadBroadcastTexts()
         {
             if (!sEmotesStore.LookupEntry(bct.EmoteId2))
             {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId2 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId2);
+                TC_LOG_ERROR("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId2 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId2);
                 // don't load bct of higher expansions
                 continue;
             }
