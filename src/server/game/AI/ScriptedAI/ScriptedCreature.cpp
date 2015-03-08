@@ -303,7 +303,7 @@ bool ScriptedAI::HealthAbovePct(uint32 pct) const
     return me->HealthAbovePct(pct);
 }
 
-SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effects)
+SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, float rangeMin, float rangeMax, SelectEffect effects)
 {
     // No target so we can't cast
     if (!target)
@@ -345,17 +345,6 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
 
         // Check for spell mechanic if specified
         if (mechanic && tempSpell->Mechanic != mechanic)
-            continue;
-
-        // Make sure that the spell uses the requested amount of power
-        if (powerCostMin && tempSpell->ManaCost < powerCostMin)
-            continue;
-
-        if (powerCostMax && tempSpell->ManaCost > powerCostMax)
-            continue;
-
-        // Continue if we don't have the mana to actually cast this spell
-        if (tempSpell->ManaCost > me->GetPower(tempSpell->PowerType))
             continue;
 
         // Check if the spell meets our range requirements

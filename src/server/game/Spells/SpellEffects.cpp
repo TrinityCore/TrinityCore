@@ -4586,10 +4586,13 @@ void Spell::EffectDestroyAllTotems()
                 mana += spellInfo->ManaCost;
                 mana += int32(CalculatePct(unitCaster->GetCreateMana(), spellInfo->ManaCostPercentage));
             }
+
             totem->ToTotem()->UnSummon();
         }
     }
+
     ApplyPct(mana, damage);
+
     if (mana)
     {
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
@@ -5402,12 +5405,8 @@ void Spell::EffectCastButtons()
         if (!spellInfo->HasAttribute(SPELL_ATTR7_SUMMON_PLAYER_TOTEM))
             continue;
 
-        uint32 cost = spellInfo->CalcPowerCost(player, spellInfo->GetSchoolMask());
-        if (player->GetPower(POWER_MANA) < cost)
-            continue;
-
         CastSpellExtraArgs args;
-        args.TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY;
+        args.TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR;
         m_caster->CastSpell(m_caster, spellInfo->Id, args);
     }
 }
