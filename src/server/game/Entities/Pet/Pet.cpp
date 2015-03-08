@@ -1251,7 +1251,7 @@ void Pet::_LoadAuras(uint32 timediff)
 
                 aura->SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, info.Amounts.data());
                 aura->ApplyForTargets();
-                TC_LOG_INFO("entities.pet", "Added aura spellid %u, effectmask %u", spellInfo->Id, key.EffectMask);
+                TC_LOG_DEBUG("entities.pet", "Added aura spellid %u, effectmask %u", spellInfo->Id, key.EffectMask);
             }
         }
         while (auraResult->NextRow());
