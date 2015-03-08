@@ -162,7 +162,7 @@ class ObjectGuid
             return UI64LIT(0xFFFFFFFFFF);
         }
 
-        uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
+        LowType GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
         uint8& operator[](uint32 index)
         {

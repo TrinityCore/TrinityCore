@@ -44,7 +44,6 @@ extern DB2Storage<SpellTotemsEntry>              sSpellTotemsStore;
 extern DB2Storage<TaxiNodesEntry>                sTaxiNodesStore;
 extern DB2Storage<TaxiPathEntry>                 sTaxiPathStore;
 
-extern SpellPowerBySpellIDMap                    sSpellPowerBySpellIDStore;
 extern TaxiMask                                  sTaxiNodesMask;
 extern TaxiMask                                  sOldContinentsNodesMask;
 extern TaxiMask                                  sHordeTaxiNodesMask;
@@ -75,6 +74,8 @@ public:
     typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
     typedef std::unordered_map<uint32, MountEntry const*> MountContainer;
     typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
+    typedef std::unordered_map<uint32, std::vector<SpellPowerEntry const*>> SpellPowerContainer;
+    typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellPowerEntry const*>>> SpellPowerDifficultyContainer;
 
     static DB2Manager& Instance()
     {
@@ -97,6 +98,7 @@ public:
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     MountEntry const* GetMount(uint32 spellId) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
+    std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
 
 private:
     StorageMap _stores;
@@ -110,6 +112,8 @@ private:
     ItemToBonusTreeContainer _itemToBonusTree;
     MountContainer _mountsBySpellId;
     PhaseGroupContainer _phasesByGroup;
+    SpellPowerContainer _spellPowers;
+    SpellPowerDifficultyContainer _spellPowerDifficulties;
 };
 
 #define sDB2Manager DB2Manager::Instance()
