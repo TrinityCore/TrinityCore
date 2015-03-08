@@ -296,8 +296,8 @@ enum RuneType : uint8
 
 struct RuneInfo
 {
-    uint8 BaseRune;
-    uint8 CurrentRune;
+    RuneType BaseRune;
+    RuneType CurrentRune;
     uint32 Cooldown;
     std::unordered_set<AuraEffect const*> ConvertAuras;
 };
@@ -1415,7 +1415,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveMail(uint32 id);
 
         void AddMail(Mail* mail) { m_mail.push_front(mail);}// for call from WorldSession::SendMailTo
-        uint32 GetMailSize() { return m_mail.size();}
+        uint32 GetMailSize() { return uint32(m_mail.size()); }
         Mail* GetMail(uint32 id);
 
         PlayerMails const& GetMails() const { return m_mail; }

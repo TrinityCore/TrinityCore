@@ -262,7 +262,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
-        uint32 GetEncounterCount() const { return bosses.size(); }
+        uint32 GetEncounterCount() const { return uint32(bosses.size()); }
 
         // Only used by areatriggers that inherit from OnlyOnceAreaTriggerScript
         void MarkAreaTriggerDone(uint32 id) { _activatedAreaTriggers.insert(id); }

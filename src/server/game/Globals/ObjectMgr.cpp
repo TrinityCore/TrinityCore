@@ -6156,7 +6156,7 @@ void ObjectMgr::LoadInstanceEncounters()
                 continue;
         }
 
-        DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR32(dungeonEncounter->MapID, dungeonEncounter->Difficulty)];
+        DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR64(dungeonEncounter->MapID, dungeonEncounter->Difficulty)];
         encounters.emplace_back(std::make_unique<DungeonEncounter>(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
         ++count;
     } while (result->NextRow());
@@ -7222,7 +7222,7 @@ void ObjectMgr::LoadAccessRequirements()
 
         uint32 mapid = fields[0].GetUInt32();
         uint8 difficulty = fields[1].GetUInt8();
-        uint32 requirement_ID = MAKE_PAIR32(mapid, difficulty);
+        uint32 requirement_ID = MAKE_PAIR64(mapid, difficulty);
 
         auto& ar = _accessRequirementStore[requirement_ID];
         ar = std::make_unique<AccessRequirement>();

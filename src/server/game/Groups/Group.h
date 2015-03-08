@@ -246,7 +246,7 @@ class TC_GAME_API Group
         MemberSlotList const& GetMemberSlots() const { return m_memberSlots; }
         GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
         GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
-        uint32 GetMembersCount() const { return m_memberSlots.size(); }
+        uint32 GetMembersCount() const { return uint32(m_memberSlots.size()); }
         uint32 GetInviteeCount() const { return m_invitees.size(); }
         GroupType GetGroupType() const { return m_groupType; }
 

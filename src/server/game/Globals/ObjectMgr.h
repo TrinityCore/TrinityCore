@@ -903,7 +903,7 @@ struct DungeonEncounter
 };
 
 typedef std::vector<std::unique_ptr<DungeonEncounter const>> DungeonEncounterList;
-typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
+typedef std::unordered_map<uint64, DungeonEncounterList> DungeonEncounterContainer;
 
 typedef std::map<std::pair<SummonSlot /*TotemSlot*/, Races /*RaceId*/>, uint32 /*DisplayId*/> PlayerTotemModelMap;
 

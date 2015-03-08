@@ -177,15 +177,8 @@ class TC_GAME_API GossipMenu
 
         void AddGossipMenuItemData(uint32 menuItemId, uint32 gossipActionMenuId, uint32 gossipActionPoi);
 
-        uint32 GetMenuItemCount() const
-        {
-            return _menuItems.size();
-        }
-
-        bool Empty() const
-        {
-            return _menuItems.empty();
-        }
+        uint32 GetMenuItemCount() const { return uint32(_menuItems.size()); }
+        bool Empty() const { return _menuItems.empty(); }
 
         GossipMenuItem const* GetItem(uint32 id) const
         {
@@ -232,23 +225,10 @@ class TC_GAME_API QuestMenu
 
         void AddMenuItem(uint32 QuestId, uint8 Icon);
         void ClearMenu();
-
-        uint8 GetMenuItemCount() const
-        {
-            return _questMenuItems.size();
-        }
-
-        bool Empty() const
-        {
-            return _questMenuItems.empty();
-        }
-
+        uint8 GetMenuItemCount() const{ return uint8(_questMenuItems.size()); }
+        bool Empty() const { return _questMenuItems.empty(); }
         bool HasItem(uint32 questId) const;
-
-        QuestMenuItem const& GetItem(uint16 index) const
-        {
-            return _questMenuItems[index];
-        }
+        QuestMenuItem const& GetItem(uint16 index) const { return _questMenuItems[index]; }
 
     private:
         QuestMenuItemList _questMenuItems;

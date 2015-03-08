@@ -665,7 +665,7 @@ class TC_GAME_API SpellMgr
             ASSERT(spellInfo);
             return spellInfo;
         }
-        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
+        uint32 GetSpellInfoStoreSize() const { return uint32(mSpellInfoMap.size()); }
 
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : nullptr; }

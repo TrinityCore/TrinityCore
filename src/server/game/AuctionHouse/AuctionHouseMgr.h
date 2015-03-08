@@ -124,7 +124,7 @@ public:
     typedef std::map<uint32, AuctionEntry*> AuctionEntryMap;
     typedef std::unordered_map<ObjectGuid, time_t> PlayerGetAllThrottleMap;
 
-    uint32 Getcount() const { return AuctionsMap.size(); }
+    uint32 Getcount() const { return uint32(AuctionsMap.size()); }
 
     AuctionEntryMap::iterator GetAuctionsBegin() {return AuctionsMap.begin();}
     AuctionEntryMap::iterator GetAuctionsEnd() {return AuctionsMap.end();}
