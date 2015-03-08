@@ -22,7 +22,7 @@
 #define DataHeader "NEX"
 
 uint32 const EncounterCount = 5;
- 
+
 enum DataTypes
 {
     DATA_COMMANDER                    = 0,

@@ -538,6 +538,28 @@ namespace WorldPackets
 
             uint8 Mask = 0;
         };
+
+        class PlayedTimeClient final : public ClientPacket
+        {
+        public:
+            PlayedTimeClient(WorldPacket&& packet) : ClientPacket(CMSG_PLAYED_TIME, std::move(packet)) { }
+
+            void Read() override;
+
+            bool TriggerScriptEvent = false;
+        };
+
+        class PlayedTime final : public ServerPacket
+        {
+        public:
+            PlayedTime() : ServerPacket(SMSG_PLAYED_TIME, 9) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TotalTime = 0;
+            int32 LevelTime = 0;
+            bool TriggerEvent = false;
+        };
     }
 }
 
