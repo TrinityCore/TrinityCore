@@ -119,6 +119,8 @@ namespace WorldPackets
         class LoadingScreenNotify;
         class SetActionBarToggles;
         class PlayedTimeClient;
+        class ShowingCloak;
+        class ShowingHelm;
 
         enum class LoginFailureReason : uint8;
     }
@@ -812,8 +814,8 @@ class WorldSession
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
 
         // character view
-        void HandleShowingHelmOpcode(WorldPacket& recvData);
-        void HandleShowingCloakOpcode(WorldPacket& recvData);
+        void HandleShowingHelmOpcode(WorldPackets::Character::ShowingHelm& packet);
+        void HandleShowingCloakOpcode(WorldPackets::Character::ShowingCloak& packet);
 
         // repair
         void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);
