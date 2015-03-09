@@ -19,6 +19,8 @@
 #ifndef DBCENUMS_H
 #define DBCENUMS_H
 
+#include "Define.h"
+
 struct DBCPosition2D
 {
     float X;
