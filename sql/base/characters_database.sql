@@ -1619,93 +1619,218 @@ LOCK TABLES `gameobject_respawn` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `gm_subsurveys`
+-- Table structure for table `gm_bug`
 --
 
-DROP TABLE IF EXISTS `gm_subsurveys`;
+DROP TABLE IF EXISTS `gm_bug`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gm_subsurveys` (
-  `surveyId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `subsurveyId` int(10) unsigned NOT NULL DEFAULT '0',
-  `rank` int(10) unsigned NOT NULL DEFAULT '0',
-  `comment` text NOT NULL,
-  PRIMARY KEY (`surveyId`,`subsurveyId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+CREATE TABLE `gm_bug` (
+  `id` INT(10) UNSIGNED NOT NULL,
+  `playerGuid` BIGINT(20) UNSIGNED NOT NULL,
+  `note` TEXT NOT NULL,
+  `createTime` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `mapId` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  `posX` FLOAT NOT NULL DEFAULT '0',
+  `posY` FLOAT NOT NULL DEFAULT '0',
+  `posZ` FLOAT NOT NULL DEFAULT '0',
+  `facing` FLOAT NOT NULL DEFAULT '0',
+  `closedBy` BIGINT(20) NOT NULL DEFAULT '0',
+  `assignedTo` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
+  `comment` TEXT NOT NULL,
+  PRIMARY KEY (`id`)
+) COLLATE='utf8_general_ci' ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `gm_subsurveys`
+-- Dumping data for table `gm_bug`
 --
 
-LOCK TABLES `gm_subsurveys` WRITE;
-/*!40000 ALTER TABLE `gm_subsurveys` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gm_subsurveys` ENABLE KEYS */;
+LOCK TABLES `gm_bug` WRITE;
+/*!40000 ALTER TABLE `gm_bug` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_bug` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `gm_surveys`
+-- Table structure for table `gm_complaint`
 --
 
-DROP TABLE IF EXISTS `gm_surveys`;
+DROP TABLE IF EXISTS `gm_complaint`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gm_surveys` (
-  `surveyId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `mainSurvey` int(10) unsigned NOT NULL DEFAULT '0',
-  `overallComment` longtext NOT NULL,
-  `createTime` int(10) unsigned NOT NULL DEFAULT '0',
+CREATE TABLE `gm_complaint` (
+  `id` INT(10) UNSIGNED NOT NULL,
+  `playerGuid` BIGINT(20) UNSIGNED NOT NULL,
+  `note` TEXT NOT NULL,
+  `createTime` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `mapId` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  `posX` FLOAT NOT NULL DEFAULT '0',
+  `posY` FLOAT NOT NULL DEFAULT '0',
+  `posZ` FLOAT NOT NULL DEFAULT '0',
+  `facing` FLOAT NOT NULL DEFAULT '0',
+  `targetCharacterGuid` BIGINT(20) UNSIGNED NOT NULL,
+  `complaintType` SMALLINT(5) UNSIGNED NOT NULL,
+  `reportLineIndex` INT(10) NOT NULL,
+  `closedBy` BIGINT(20) NOT NULL DEFAULT '0',
+  `assignedTo` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
+  `comment` TEXT NOT NULL,
+  PRIMARY KEY (`id`)
+) COLLATE='utf8_general_ci' ENGINE=InnoDB;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gm_complaint`
+--
+
+LOCK TABLES `gm_complaint` WRITE;
+/*!40000 ALTER TABLE `gm_complaint` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_complaint` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `gm_complaint_chatlog`
+--
+
+DROP TABLE IF EXISTS `gm_complaint_chatlog`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gm_complaint_chatlog` (
+  `complaintId` INT(10) UNSIGNED NOT NULL,
+  `lineId` INT(10) UNSIGNED NOT NULL,
+  `timestamp` INT(10) UNSIGNED NOT NULL,
+  `text` TEXT NOT NULL,
+  PRIMARY KEY (`complaintId`, `lineId`)
+) COLLATE='utf8_general_ci' ENGINE=InnoDB;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gm_complaint_chatlog`
+--
+
+LOCK TABLES `gm_complaint_chatlog` WRITE;
+/*!40000 ALTER TABLE `gm_complaint_chatlog` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_complaint_chatlog` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `gm_subsurvey`
+--
+
+DROP TABLE IF EXISTS `gm_subsurvey`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gm_subsurvey` (
+  `surveyId` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `questionId` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `answer` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `answerComment` TEXT NOT NULL,
+  PRIMARY KEY (`surveyId`, `questionId`)
+) COMMENT='Player System' COLLATE='utf8_general_ci' ENGINE=InnoDB;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gm_subsurvey`
+--
+
+LOCK TABLES `gm_subsurvey` WRITE;
+/*!40000 ALTER TABLE `gm_subsurvey` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_subsurvey` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `gm_suggestion`
+--
+DROP TABLE IF EXISTS `gm_suggestion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gm_suggestion` (
+  `id` INT(10) UNSIGNED NOT NULL,
+  `playerGuid` BIGINT(20) UNSIGNED NOT NULL,
+  `note` TEXT NOT NULL,
+  `createTime` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `mapId` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  `posX` FLOAT NOT NULL DEFAULT '0',
+  `posY` FLOAT NOT NULL DEFAULT '0',
+  `posZ` FLOAT NOT NULL DEFAULT '0',
+  `facing` FLOAT NOT NULL DEFAULT '0',
+  `closedBy` BIGINT(20) NOT NULL DEFAULT '0',
+  `assignedTo` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
+  `comment` TEXT NOT NULL,
+  PRIMARY KEY (`id`)
+) COLLATE='utf8_general_ci' ENGINE=InnoDB;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gm_suggestion`
+--
+
+LOCK TABLES `gm_suggestion` WRITE;
+/*!40000 ALTER TABLE `gm_suggestion` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_suggestion` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `gm_survey`
+--
+
+DROP TABLE IF EXISTS `gm_survey`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gm_survey` (
+  `surveyId` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+  `mainSurvey` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `comment` LONGTEXT NOT NULL,
+  `createTime` INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`surveyId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) COMMENT='Player System' COLLATE='utf8_general_ci' ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `gm_surveys`
+-- Dumping data for table `gm_survey`
 --
 
-LOCK TABLES `gm_surveys` WRITE;
-/*!40000 ALTER TABLE `gm_surveys` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gm_surveys` ENABLE KEYS */;
+LOCK TABLES `gm_survey` WRITE;
+/*!40000 ALTER TABLE `gm_survey` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_survey` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `gm_tickets`
+-- Table structure for table `gm_ticket`
 --
 
-DROP TABLE IF EXISTS `gm_tickets`;
+DROP TABLE IF EXISTS `gm_ticket`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gm_tickets` (
-  `ticketId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier of ticket creator',
-  `name` varchar(12) NOT NULL COMMENT 'Name of ticket creator',
-  `message` text NOT NULL,
-  `createTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `mapId` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `posX` float NOT NULL DEFAULT '0',
-  `posY` float NOT NULL DEFAULT '0',
-  `posZ` float NOT NULL DEFAULT '0',
-  `lastModifiedTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `closedBy` bigint(20) NOT NULL DEFAULT '0',
-  `assignedTo` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
-  `comment` text NOT NULL,
-  `response` text NOT NULL,
-  `completed` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `escalated` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `viewed` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `haveTicket` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ticketId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+CREATE TABLE `gm_ticket` (
+  `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `playerGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier of ticket creator',
+  `description` TEXT NOT NULL,
+  `createTime` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `mapId` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  `posX` FLOAT NOT NULL DEFAULT '0',
+  `posY` FLOAT NOT NULL DEFAULT '0',
+  `posZ` FLOAT NOT NULL DEFAULT '0',
+  `lastModifiedTime` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `closedBy` BIGINT(20) NOT NULL DEFAULT '0',
+  `assignedTo` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+  `comment` TEXT NOT NULL,
+  `response` TEXT NOT NULL,
+  `completed` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  `escalated` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  `viewed` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  `needMoreHelp` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) COMMENT='Player System' COLLATE='utf8_general_ci' ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `gm_tickets`
+-- Dumping data for table `gm_ticket`
 --
 
-LOCK TABLES `gm_tickets` WRITE;
-/*!40000 ALTER TABLE `gm_tickets` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gm_tickets` ENABLE KEYS */;
+LOCK TABLES `gm_ticket` WRITE;
+/*!40000 ALTER TABLE `gm_ticket` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_ticket` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2398,36 +2523,6 @@ CREATE TABLE `item_soulbound_trade_data` (
 LOCK TABLES `item_soulbound_trade_data` WRITE;
 /*!40000 ALTER TABLE `item_soulbound_trade_data` DISABLE KEYS */;
 /*!40000 ALTER TABLE `item_soulbound_trade_data` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `lag_reports`
---
-
-DROP TABLE IF EXISTS `lag_reports`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `lag_reports` (
-  `reportId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `lagType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mapId` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `posX` float NOT NULL DEFAULT '0',
-  `posY` float NOT NULL DEFAULT '0',
-  `posZ` float NOT NULL DEFAULT '0',
-  `latency` int(10) unsigned NOT NULL DEFAULT '0',
-  `createTime` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`reportId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `lag_reports`
---
-
-LOCK TABLES `lag_reports` WRITE;
-/*!40000 ALTER TABLE `lag_reports` DISABLE KEYS */;
-/*!40000 ALTER TABLE `lag_reports` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

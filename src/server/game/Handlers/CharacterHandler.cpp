@@ -1096,14 +1096,20 @@ void WorldSession::SendFeatureSystemStatus()
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
 
     features.EuropaTicketSystemStatus.HasValue = true;
-    features.EuropaTicketSystemStatus.Value.ThrottleState.MaxTries = 5;
-    features.EuropaTicketSystemStatus.Value.ThrottleState.PerMilliseconds = 5;
-    features.EuropaTicketSystemStatus.Value.ThrottleState.TryCount = 0;
-    features.EuropaTicketSystemStatus.Value.ThrottleState.LastResetTimeBeforeNow = time(nullptr) - 5000;
+    features.EuropaTicketSystemStatus.Value.ThrottleState.MaxTries = 10;
+    features.EuropaTicketSystemStatus.Value.ThrottleState.PerMilliseconds = 60000;
+    features.EuropaTicketSystemStatus.Value.ThrottleState.TryCount = 1;
+    features.EuropaTicketSystemStatus.Value.ThrottleState.LastResetTimeBeforeNow = 111111;
+    features.ComplaintStatus = 0;
+    features.TutorialsEnabled = true;
+    features.UnkBit90 = true;
     /// END OF DUMMY VALUES
 
-    features.EuropaTicketSystemStatus.Value.SubmitBugEnabled = sWorld->getBoolConfig(CONFIG_TICKET_SUBMIT_BUG);
-    features.EuropaTicketSystemStatus.Value.TicketSystemEnabled = sWorld->getBoolConfig(CONFIG_TICKET_SUBMIT_TICKET);
+    features.EuropaTicketSystemStatus.Value.TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
+    features.EuropaTicketSystemStatus.Value.BugsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED);
+    features.EuropaTicketSystemStatus.Value.ComplaintsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED);
+    features.EuropaTicketSystemStatus.Value.SuggestionsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED);
+
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
 
