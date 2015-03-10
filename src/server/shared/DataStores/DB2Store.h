@@ -48,13 +48,20 @@ class DB2Storage : public DB2StorageBase
 public:
     typedef DBStorageIterator<T> iterator;
 
-    DB2Storage(char const* f, int32 preparedStmtIndex)
-        : _indexTableSize(0), _fieldCount(0), _format(f), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex)
+    DB2Storage(char const* fileName, char const* format, uint32 preparedStmtIndex)
+        : _fileName(fileName), _indexTableSize(0), _fieldCount(0), _format(format), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex)
     {
         _indexTable.AsT = NULL;
     }
 
-    ~DB2Storage() { Clear(); }
+    ~DB2Storage()
+    {
+        delete[] reinterpret_cast<char*>(_indexTable.AsT);
+        delete[] reinterpret_cast<char*>(_dataTable);
+        delete[] reinterpret_cast<char*>(_dataTableEx);
+        for (char* stringPool : _stringPoolList)
+            delete[] stringPool;
+    }
 
     bool HasRecord(uint32 id) const override { return id < _indexTableSize && _indexTable.AsT[id] != nullptr; }
     void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const override
@@ -105,14 +112,15 @@ public:
     void EraseRecord(uint32 id) override { if (id < _indexTableSize) _indexTable.AsT[id] = nullptr; }
 
     T const* LookupEntry(uint32 id) const { return (id >= _indexTableSize) ? nullptr : _indexTable.AsT[id]; }
+    std::string const& GetFileName() const { return _fileName; }
     uint32 GetNumRows() const { return _indexTableSize; }
     char const* GetFormat() const { return _format; }
     uint32 GetFieldCount() const { return _fieldCount; }
-    bool Load(char const* fn, uint32 locale)
+    bool Load(std::string const& path, uint32 locale)
     {
         DB2FileLoader db2;
         // Check if load was successful, only then continue
-        if (!db2.Load(fn, _format))
+        if (!db2.Load((path + _fileName).c_str(), _format))
             return false;
 
         _fieldCount = db2.GetCols();
@@ -135,7 +143,7 @@ public:
         return _indexTable.AsT != NULL;
     }
 
-    bool LoadStringsFrom(char const* fn, uint32 locale)
+    bool LoadStringsFrom(std::string const& path, uint32 locale)
     {
         // DB2 must be already loaded using Load
         if (!_indexTable.AsT)
@@ -143,7 +151,7 @@ public:
 
         DB2FileLoader db2;
         // Check if load was successful, only then continue
-        if (!db2.Load(fn, _format))
+        if (!db2.Load((path + _fileName).c_str(), _format))
             return false;
 
         // load strings from another locale db2 data
@@ -155,11 +163,8 @@ public:
 
     void LoadFromDB()
     {
-        if (_hotfixStatement == -1)
-            return;
-
         char* extraStringHolders = nullptr;
-        if (char* dataTable = DB2DatabaseLoader().Load(_format, _hotfixStatement, _indexTableSize, _indexTable.AsChar, extraStringHolders, _stringPoolList))
+        if (char* dataTable = DB2DatabaseLoader(_fileName).Load(_format, _hotfixStatement, _indexTableSize, _indexTable.AsChar, extraStringHolders, _stringPoolList))
             _dataTableEx = reinterpret_cast<T*>(dataTable);
 
         if (extraStringHolders)
@@ -168,42 +173,17 @@ public:
 
     void LoadStringsFromDB(uint32 locale)
     {
-        if (_hotfixStatement == -1)
-            return;
-
         if (!DB2FileLoader::GetFormatStringFieldCount(_format))
             return;
 
-        DB2DatabaseLoader().LoadStrings(_format, _hotfixStatement + 1, locale, _indexTable.AsChar, _stringPoolList);
-    }
-
-    void Clear()
-    {
-        if (!_indexTable.AsT)
-            return;
-
-        delete[] reinterpret_cast<char*>(_indexTable.AsT);
-        _indexTable.AsT = nullptr;
-
-        delete[] reinterpret_cast<char*>(_dataTable);
-        _dataTable = nullptr;
-
-        delete[] reinterpret_cast<char*>(_dataTableEx);
-        _dataTableEx = nullptr;
-
-        while (!_stringPoolList.empty())
-        {
-            delete[] _stringPoolList.front();
-            _stringPoolList.pop_front();
-        }
-
-        _indexTableSize = 0;
+        DB2DatabaseLoader(_fileName).LoadStrings(_format, _hotfixStatement + 1, locale, _indexTable.AsChar, _stringPoolList);
     }
 
     iterator begin() { return iterator(_indexTable.AsT, _indexTableSize); }
     iterator end() { return iterator(_indexTable.AsT, _indexTableSize, _indexTableSize); }
 
 private:
+    std::string _fileName;
     uint32 _indexTableSize;
     uint32 _fieldCount;
     char const* _format;
@@ -215,7 +195,7 @@ private:
     T* _dataTable;
     T* _dataTableEx;
     StringPoolList _stringPoolList;
-    int32 _hotfixStatement;
+    uint32 _hotfixStatement;
 };
 
 #endif

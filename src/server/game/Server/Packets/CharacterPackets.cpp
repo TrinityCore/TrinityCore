@@ -401,3 +401,28 @@ void WorldPackets::Character::SetActionBarToggles::Read()
 {
     _worldPacket >> Mask;
 }
+
+void WorldPackets::Character::PlayedTimeClient::Read()
+{
+    TriggerScriptEvent = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Character::PlayedTime::Write()
+{
+    _worldPacket << int32(TotalTime);
+    _worldPacket << int32(LevelTime);
+    _worldPacket.WriteBit(TriggerEvent);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Character::ShowingCloak::Read()
+{
+    ShowCloak = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Character::ShowingHelm::Read()
+{
+    ShowHelm = _worldPacket.ReadBit();
+}

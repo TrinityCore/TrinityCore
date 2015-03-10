@@ -490,11 +490,11 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
     if (combat_reach < 0.1f) // sometimes bugged for players
         combat_reach = DEFAULT_COMBAT_REACH;
 
-    uint32 attacker_number = getAttackers().size();
+    uint32 attacker_number = uint32(getAttackers().size());
     if (attacker_number > 0)
         --attacker_number;
-    GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin) * (float)rand_norm()
-        , GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
+    GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin) * (float)rand_norm(),
+        GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
 }
 
 AuraApplication * Unit::GetVisibleAura(uint8 slot) const
@@ -1492,7 +1492,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     if (tmpvalue > 0.75f)
         tmpvalue = 0.75f;
 
-    return std::max<uint32>(damage * (1.0f - tmpvalue), 1);
+    return std::max<uint32>(uint32(damage * (1.0f - tmpvalue)), 1);
 }
 
 uint32 Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo) const
@@ -5491,7 +5491,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 28719:
                 {
                     // mana back
-                    basepoints0 = int32(CalculatePct(procSpell->ManaCost, 30));
+                    std::vector<SpellInfo::CostData> costs = procSpell->CalcPowerCost(this, procSpell->GetSchoolMask());
+                    auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA; });
+                    if (m == costs.end())
+                        return false;
+
+                    basepoints0 = int32(CalculatePct(m->Amount, 30));
                     target = this;
                     triggered_spell_id = 28742;
                     break;
@@ -6712,7 +6717,12 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         // Enlightenment (trigger only from mana cost spells)
         case 35095:
         {
-            if (!procSpell || procSpell->PowerType != POWER_MANA || (procSpell->ManaCost == 0 && procSpell->ManaCostPercentage == 0 && procSpell->ManaCostPerlevel == 0))
+            if (!procSpell)
+                return false;
+
+            std::vector<SpellInfo::CostData> costs = procSpell->CalcPowerCost(this, procSpell->GetSchoolMask());
+            auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA && cost.Amount > 0; });
+            if (m == costs.end())
                 return false;
             break;
         }
@@ -10747,6 +10757,12 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
             case 2:
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT3, value);
                 break;
+            case 3:
+                modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT4, value);
+                break;
+            case 4:
+                modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT5, value);
+                break;
         }
     }
     return value;
@@ -11510,16 +11526,28 @@ int32 Unit::GetCreatePowers(Powers power) const
             return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
         case POWER_ENERGY:
             return 100;
+        case POWER_COMBO_POINTS:
+            return 5;
         case POWER_RUNIC_POWER:
             return 1000;
         case POWER_RUNES:
             return 0;
         case POWER_SOUL_SHARDS:
-            return 3;
+            return 400;
         case POWER_ECLIPSE:
             return 100;
         case POWER_HOLY_POWER:
             return 3;
+        case POWER_CHI:
+            return 4;
+        case POWER_SHADOW_ORBS:
+            return 3;
+        case POWER_BURNING_EMBERS:
+            return 40;
+        case POWER_DEMONIC_FURY:
+            return 1000;
+        case POWER_ARCANE_CHARGES:
+            return 4;
         case POWER_HEALTH:
             return 0;
         default:
@@ -12322,10 +12350,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT:
                     case SPELL_AURA_MOD_POWER_COST_SCHOOL:
                         // Skip melee hits and spells ws wrong school or zero cost
-                        if (procSpell &&
-                            (procSpell->ManaCost != 0 || procSpell->ManaCostPercentage != 0) && // Cost check
-                            (triggeredByAura->GetMiscValue() & procSpell->SchoolMask))          // School check
-                            takeCharges = true;
+                        if (procSpell && (triggeredByAura->GetMiscValue() & procSpell->SchoolMask)) // School check
+                        {
+                            std::vector<SpellInfo::CostData> costs = procSpell->CalcPowerCost(this, procSpell->GetSchoolMask());
+                            auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Amount > 0; });
+                            if (m != costs.end())
+                                takeCharges = true;
+                        }
                         break;
                     case SPELL_AURA_MECHANIC_IMMUNITY:
                         // Compare mechanic

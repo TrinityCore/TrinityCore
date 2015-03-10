@@ -289,7 +289,7 @@ struct OverrideSpellDataEntry
     uint32      PlayerActionbarFileDataID;                          // 12
 };
 
-struct PhaseGroupEntry
+struct PhaseXPhaseGroupEntry
 {
     uint32      ID;
     uint32      PhaseID;
@@ -405,6 +405,13 @@ struct SpellPowerEntry
     float       HealthCostPercentage;                               // 13
 };
 
+struct SpellPowerDifficultyEntry
+{
+    uint32      SpellPowerID;                                       // 0
+    uint32      DifficultyID;                                       // 1
+    uint32      PowerIndex;                                         // 2
+};
+
 #define MAX_SPELL_REAGENTS 8
 
 struct SpellReagentsEntry
@@ -471,8 +478,6 @@ struct TaxiPathNodeEntry
 
 #pragma pack(pop)
 
-typedef std::map<uint32, SpellPowerEntry const*> SpellPowerBySpellIDMap;
-
 struct TaxiPathBySourceAndDestination
 {
     TaxiPathBySourceAndDestination() : ID(0), price(0) { }
@@ -495,7 +500,7 @@ struct TaxiPathNodePtr
 typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
-#define TaxiMaskSize 114
+#define TaxiMaskSize 201
 typedef uint8 TaxiMask[TaxiMaskSize];
 
 #endif

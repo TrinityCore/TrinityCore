@@ -317,7 +317,7 @@ public:
             return false;
         }
 
-        uint8 state = map->ToInstanceMap()->GetInstanceScript()->GetBossState(encounterId);
+        uint32 state = map->ToInstanceMap()->GetInstanceScript()->GetBossState(encounterId);
         handler->PSendSysMessage(LANG_COMMAND_INST_GET_BOSS_STATE, encounterId, state);
         return true;
     }

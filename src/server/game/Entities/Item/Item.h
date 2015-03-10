@@ -157,7 +157,7 @@ enum SellResult
 };
 
 // -1 from client enchantment slot number
-enum EnchantmentSlot
+enum EnchantmentSlot : uint16
 {
     PERM_ENCHANTMENT_SLOT           = 0,
     TEMP_ENCHANTMENT_SLOT           = 1,

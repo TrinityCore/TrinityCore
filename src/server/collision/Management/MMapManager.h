@@ -73,7 +73,7 @@ namespace MMAP
             dtNavMesh const* GetNavMesh(uint32 mapId);
 
             uint32 getLoadedTilesCount() const { return loadedTiles; }
-            uint32 getLoadedMapsCount() const { return loadedMMaps.size(); }
+            uint32 getLoadedMapsCount() const { return uint32(loadedMMaps.size()); }
         private:
             bool loadMapData(uint32 mapId);
             uint32 packTileID(int32 x, int32 y);

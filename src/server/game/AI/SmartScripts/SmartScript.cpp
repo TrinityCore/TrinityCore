@@ -491,12 +491,32 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                             bool _allowMove = false;
                             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(e.action.cast.spell);
-                            int32 mana = me->GetPower(POWER_MANA);
+                            std::vector<SpellInfo::CostData> costs = spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask());
+                            bool hasPower = true;
+                            for (SpellInfo::CostData const& cost : costs)
+                            {
+                                if (cost.Power == POWER_HEALTH)
+                                {
+                                    if (me->GetHealth() <= cost.Amount)
+                                    {
+                                        hasPower = false;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (me->GetPower(cost.Power) < cost.Amount)
+                                    {
+                                        hasPower = false;
+                                        break;
+                                    }
+                                }
+
+                            }
 
                             if (me->GetDistance(*itr) > spellInfo->GetMaxRange(true) ||
                                 me->GetDistance(*itr) < spellInfo->GetMinRange(true) ||
-                                !me->IsWithinLOSInMap(*itr) ||
-                                mana < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()))
+                                !me->IsWithinLOSInMap(*itr) || !hasPower)
                                 _allowMove = true;
 
                             ENSURE_AI(SmartAI, me->AI())->SetCombatMove(_allowMove);

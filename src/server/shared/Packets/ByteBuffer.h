@@ -196,16 +196,16 @@ class ByteBuffer
             return ((_curbitval >> (7-_bitpos)) & 1) != 0;
         }
 
-        template <typename T> void WriteBits(T value, size_t bits)
+        template <typename T> void WriteBits(T value, int32 bits)
         {
-            for (int32 i = bits-1; i >= 0; --i)
+            for (int32 i = bits - 1; i >= 0; --i)
                 WriteBit((value >> i) & 1);
         }
 
-        uint32 ReadBits(size_t bits)
+        uint32 ReadBits(int32 bits)
         {
             uint32 value = 0;
-            for (int32 i = bits-1; i >= 0; --i)
+            for (int32 i = bits - 1; i >= 0; --i)
                 if (ReadBit())
                     value |= (1 << (i));
 

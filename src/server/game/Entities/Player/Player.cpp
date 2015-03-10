@@ -2904,21 +2904,27 @@ void Player::GiveLevel(uint8 level)
     uint32 basehp = 0, basemana = 0;
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basehp, basemana);
 
-    // send levelup info to client
-    WorldPacket data(SMSG_LEVELUP_INFO, (4+4+MAX_POWERS_PER_CLASS*4+MAX_STATS*4));
-    data << uint32(level);
-    data << uint32(int32(basehp) - int32(GetCreateHealth()));
-    // for (int i = 0; i < MAX_STORED_POWERS; ++i)          // Powers loop (0-10)
-    data << uint32(int32(basemana)   - int32(GetCreateMana()));
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    // end for
-    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
-        data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
+    WorldPackets::Misc::LevelUpInfo packet;
+    packet.Level = level;
+    packet.HealthDelta = int32(basehp) - int32(GetCreateHealth());
 
-    GetSession()->SendPacket(&data);
+    /// @todo find some better solution
+    // for (int i = 0; i < MAX_STORED_POWERS; ++i)
+    packet.PowerDelta[0] = int32(basemana) - int32(GetCreateMana());
+    packet.PowerDelta[1] = 0;
+    packet.PowerDelta[2] = 0;
+    packet.PowerDelta[3] = 0;
+    packet.PowerDelta[4] = 0;
+    packet.PowerDelta[5] = 0;
+
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+        packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
+
+    uint32 const* rowLevels = (getClass() != CLASS_DEATH_KNIGHT) ? DefaultTalentRowLevels : DKTalentRowLevels;
+
+    packet.Cp = std::find(rowLevels, rowLevels + MAX_TALENT_TIERS, level) != (rowLevels + MAX_TALENT_TIERS);
+
+    GetSession()->SendPacket(packet.Write());
 
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(level));
 
@@ -2930,6 +2936,7 @@ void Player::GiveLevel(uint8 level)
     SetLevel(level);
 
     UpdateSkillsForLevel();
+    LearnDefaultSkills();
     LearnSpecializationSpells();
 
     // save base values (bonuses already included in stored stats
@@ -3042,7 +3049,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetUInt32Value(UNIT_FIELD_AURASTATE, 0);
 
     UpdateSkillsForLevel();
-    LearnSpecializationSpells();
 
     // set default cast time multiplier
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
@@ -3639,9 +3645,9 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                 if (!pSkill)
                     continue;
 
-                ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
-                if ((_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->ID)) || (pSkill->ID == SKILL_LOCKPICKING && _spell_idx->second->TrivialSkillLineRankHigh == 0))
-                    LearnDefaultSkill(pSkill->ID, 0);
+                if ((_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->ID)))
+                    if (SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(pSkill->ID, getRace(), getClass()))
+                        LearnDefaultSkill(rcInfo);
             }
         }
     }
@@ -22669,20 +22675,20 @@ void Player::LearnDefaultSkills()
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     for (PlayerCreateInfoSkills::const_iterator itr = info->skills.begin(); itr != info->skills.end(); ++itr)
     {
-        uint32 skillId = itr->SkillId;
-        if (HasSkill(skillId))
+        SkillRaceClassInfoEntry const* rcInfo = *itr;
+        if (HasSkill(rcInfo->SkillID))
             continue;
 
-        LearnDefaultSkill(skillId, itr->Rank);
+        if (rcInfo->MinLevel > getLevel())
+            continue;
+
+        LearnDefaultSkill(rcInfo);
     }
 }
 
-void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
+void Player::LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo)
 {
-    SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(skillId, getRace(), getClass());
-    if (!rcInfo)
-        return;
-
+    uint16 skillId = rcInfo->SkillID;
     switch (GetSkillRangeType(rcInfo))
     {
         case SKILL_RANGE_LANGUAGE:
@@ -22709,8 +22715,9 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
             break;
         case SKILL_RANGE_RANK:
         {
-            if (!rank)
-                break;
+            uint16 rank = 1;
+            if (getClass() == CLASS_DEATH_KNIGHT && skillId == SKILL_FIRST_AID)
+                rank = 4;
 
             SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcInfo->SkillTierID);
             uint16 maxValue = tier->Value[std::max<int32>(rank - 1, 0)];
@@ -22718,7 +22725,7 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
                 skillValue = maxValue;
             else if (getClass() == CLASS_DEATH_KNIGHT)
-                skillValue = std::min(std::max<uint16>({ uint16(1), uint16((getLevel() - 1) * 5) }), maxValue);
+                skillValue = std::min(std::max(uint16(1), uint16((getLevel() - 1) * 5)), maxValue);
 
             SetSkill(skillId, rank, skillValue, maxValue);
             break;
@@ -26637,9 +26644,6 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
 
 uint32 Player::CalculateTalentsTiers() const
 {
-    static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
-    static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
-
     uint32 const* rowLevels = (getClass() != CLASS_DEATH_KNIGHT) ? DefaultTalentRowLevels : DKTalentRowLevels;
     for (uint32 i = MAX_TALENT_TIERS; i; --i)
         if (getLevel() >= rowLevels[i - 1])

@@ -4747,13 +4747,18 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
             if (spellInfo)
             {
-                mana += spellInfo->ManaCost;
-                mana += int32(CalculatePct(m_caster->GetCreateMana(), spellInfo->ManaCostPercentage));
+                std::vector<SpellInfo::CostData> costs = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
+                auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA; });
+                if (m != costs.end())
+                    mana += m->Amount;
             }
+
             totem->ToTotem()->UnSummon();
         }
     }
+
     ApplyPct(mana, damage);
+
     if (mana)
         m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
 }
@@ -5621,11 +5626,7 @@ void Spell::EffectCastButtons(SpellEffIndex /*effIndex*/)
         if (!spellInfo->HasAttribute(SPELL_ATTR9_SUMMON_PLAYER_TOTEM))
             continue;
 
-        int32 cost = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
-        if (m_caster->GetPower(POWER_MANA) < cost)
-            continue;
-
-        TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY);
+        TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR);
         m_caster->CastSpell(m_caster, spell_id, triggerFlags);
     }
 }

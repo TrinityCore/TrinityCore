@@ -684,7 +684,7 @@ class SpellMgr
             ASSERT(spellInfo);
             return spellInfo;
         }
-        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
+        uint32 GetSpellInfoStoreSize() const { return uint32(mSpellInfoMap.size()); }
 
         void LoadPetFamilySpellsStore();
 

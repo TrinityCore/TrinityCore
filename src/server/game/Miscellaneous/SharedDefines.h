@@ -232,7 +232,7 @@ enum MoneyConstants
     GOLD   = SILVER*100
 };
 
-enum Stats
+enum Stats : uint16
 {
     STAT_STRENGTH                      = 0,
     STAT_AGILITY                       = 1,
@@ -269,7 +269,7 @@ enum Powers // (6.0)
 
 #define MAX_POWERS_PER_CLASS            5
 
-enum SpellSchools
+enum SpellSchools : uint16
 {
     SPELL_SCHOOL_NORMAL                 = 0,
     SPELL_SCHOOL_HOLY                   = 1,
@@ -2029,7 +2029,7 @@ enum SpellPreventionType
     SPELL_PREVENTION_TYPE_UNK       = 3 // Only a few spells have this, but most of the should be interruptable.
 };
 
-enum GameobjectTypes // (6.0.3.19103)
+enum GameobjectTypes : uint8 // (6.0.3.19103)
 {
     GAMEOBJECT_TYPE_DOOR                        = 0,
     GAMEOBJECT_TYPE_BUTTON                      = 1,
@@ -4530,7 +4530,7 @@ enum BanReturn
     BAN_NOTFOUND
 };
 
-enum BattlegroundTeamId
+enum BattlegroundTeamId : uint8
 {
     BG_TEAM_HORDE       = 0, // Battleground: Horde,    Arena: Green
     BG_TEAM_ALLIANCE    = 1, // Battleground: Alliance, Arena: Gold

@@ -1400,11 +1400,11 @@ struct SkillRaceClassInfoEntry
 {
     //uint32    ID;                                         // 0
     uint32      SkillID;                                    // 1
-    uint32      RaceMask;                                   // 2
-    uint32      ClassMask;                                  // 3
+    int32       RaceMask;                                   // 2
+    int32       ClassMask;                                  // 3
     uint32      Flags;                                      // 4
-    //uint32    Availability;                               // 5
-    //uint32    MinLevel;                                   // 6
+    uint32      Availability;                               // 5
+    uint32      MinLevel;                                   // 6
     uint32      SkillTierID;                                // 7
 };
 

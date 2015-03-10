@@ -312,12 +312,12 @@ class Battleground
 
         typedef std::map<ObjectGuid, BattlegroundPlayer> BattlegroundPlayerMap;
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
-        uint32 GetPlayersSize() const { return m_Players.size(); }
+        uint32 GetPlayersSize() const { return uint32(m_Players.size()); }
 
         typedef std::map<ObjectGuid, BattlegroundScore*> BattlegroundScoreMap;
-        uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
+        uint32 GetPlayerScoresSize() const { return uint32(PlayerScores.size()); }
 
-        uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
+        uint32 GetReviveQueueSize() const { return uint32(m_ReviveQueue.size()); }
 
         void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
         void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);

@@ -965,16 +965,13 @@ void WorldSession::HandleSetActionBarToggles(WorldPackets::Character::SetActionB
     GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, packet.Mask);
 }
 
-void WorldSession::HandlePlayedTime(WorldPacket& recvData)
+void WorldSession::HandlePlayedTime(WorldPackets::Character::PlayedTimeClient& packet)
 {
-    uint8 unk1;
-    recvData >> unk1;                                      // 0 or 1 expected
-
-    WorldPacket data(SMSG_PLAYED_TIME, 4 + 4 + 1);
-    data << uint32(_player->GetTotalPlayedTime());
-    data << uint32(_player->GetLevelPlayedTime());
-    data << uint8(unk1);                                    // 0 - will not show in chat frame
-    SendPacket(&data);
+    WorldPackets::Character::PlayedTime playedTime;
+    playedTime.TotalTime = _player->GetTotalPlayedTime();
+    playedTime.LevelTime = _player->GetLevelPlayedTime();
+    playedTime.TriggerEvent = packet.TriggerScriptEvent;  // 0-1 - will not show in chat frame
+    SendPacket(playedTime.Write());
 }
 
 void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)

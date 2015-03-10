@@ -386,13 +386,7 @@ struct PlayerCreateInfoAction
 
 typedef std::list<PlayerCreateInfoAction> PlayerCreateInfoActions;
 
-struct PlayerCreateInfoSkill
-{
-    uint16 SkillId;
-    uint16 Rank;
-};
-
-typedef std::list<PlayerCreateInfoSkill> PlayerCreateInfoSkills;
+typedef std::list<SkillRaceClassInfoEntry const*> PlayerCreateInfoSkills;
 
 struct PlayerInfo
 {
@@ -468,8 +462,8 @@ enum RuneType
 
 struct RuneInfo
 {
-    uint8 BaseRune;
-    uint8 CurrentRune;
+    RuneType BaseRune;
+    RuneType CurrentRune;
     uint32 Cooldown;
     AuraEffect const* ConvertAura;
 };
@@ -1285,6 +1279,9 @@ private:
     bool _isPvP;
 };
 
+static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
+static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
+
 struct PlayerTalentInfo
 {
     PlayerTalentInfo() :
@@ -1827,7 +1824,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveMail(uint32 id);
 
         void AddMail(Mail* mail) { m_mail.push_front(mail);}// for call from WorldSession::SendMailTo
-        uint32 GetMailSize() { return m_mail.size();}
+        uint32 GetMailSize() { return uint32(m_mail.size()); }
         Mail* GetMail(uint32 id);
 
         PlayerMails const& GetMails() const { return m_mail; }
@@ -1871,7 +1868,7 @@ class Player : public Unit, public GridObject<Player>
         void ResetSpells(bool myClassOnly = false);
         void LearnCustomSpells();
         void LearnDefaultSkills();
-        void LearnDefaultSkill(uint32 skillId, uint16 rank);
+        void LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo);
         void LearnQuestRewardedSpells();
         void LearnQuestRewardedSpells(Quest const* quest);
         void LearnSpellHighestRank(uint32 spellid);
@@ -1888,7 +1885,7 @@ class Player : public Unit, public GridObject<Player>
         // Talents
         uint32 GetTalentResetCost() const { return _talentMgr->ResetTalentsCost; }
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
-        uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
+        time_t GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
         uint32 GetSpecId(uint8 group) const { return _talentMgr->GroupInfo[group].SpecId; }
         void SetSpecId(uint8 group, uint32 tree) { _talentMgr->GroupInfo[group].SpecId = tree; }
