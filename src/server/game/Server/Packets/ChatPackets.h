@@ -207,6 +207,16 @@ namespace WorldPackets
 
             std::string NotifyText;
         };
+
+        class EmoteClient final : public ClientPacket
+        {
+        public:
+            EmoteClient(WorldPacket&& packet) : ClientPacket(CMSG_EMOTE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 EmoteID = 0;
+        };
     }
 }
 
