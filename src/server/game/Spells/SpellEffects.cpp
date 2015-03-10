@@ -68,6 +68,7 @@
 #include "ReputationMgr.h"
 #include "AreaTrigger.h"
 #include "MiscPackets.h"
+#include "SpellPackets.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -4386,9 +4387,9 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    WorldPacket data(SMSG_CLEAR_TARGET, 8);
-    data << m_caster->GetGUID();
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::ClearTarget clearTarget;
+    clearTarget.Guid = m_caster->GetGUID();
+    m_caster->SendMessageToSet(clearTarget.Write(), true);
 }
 
 void Spell::EffectSelfResurrect(SpellEffIndex /*effIndex*/)
