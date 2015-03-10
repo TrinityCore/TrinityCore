@@ -1470,7 +1470,7 @@ CREATE TABLE `corpse_phases` (
 --
 -- Dumping data for table `corpse_phases`
 --
-LOCK TABLES `ccorpse_phases` WRITE;
+LOCK TABLES `corpse_phases` WRITE;
 /*!40000 ALTER TABLE `creature_respawn` DISABLE KEYS */;
 /*!40000 ALTER TABLE `creature_respawn` ENABLE KEYS */;
 UNLOCK TABLES;
