@@ -149,6 +149,7 @@ namespace WorldPackets
         class ChatMessageDND;
         class ChatMessageEmote;
         class CTextEmote;
+        class EmoteClient;
     }
 
     namespace Combat
@@ -854,7 +855,7 @@ class WorldSession
         void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
-        void HandleEmoteOpcode(WorldPacket& recvPacket);
+        void HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet);
 
         // Social
         void HandleContactListOpcode(WorldPackets::Social::SendContactList& packet);
