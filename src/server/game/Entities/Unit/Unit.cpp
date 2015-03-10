@@ -9831,7 +9831,7 @@ void Unit::ClearInCombat()
             return;
     }
     else
-        ToPlayer()->UpdatePotionCooldown();
+        ToPlayer()->OnCombatExit();
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
