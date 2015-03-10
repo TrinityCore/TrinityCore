@@ -37,10 +37,10 @@ namespace WorldPackets
 
             struct EuropaTicketConfig
             {
-                bool UnkBit0             = false;
-                bool UnkBit1             = false;
-                bool TicketSystemEnabled = false;
-                bool SubmitBugEnabled    = false;
+                bool TicketsEnabled     = false;
+                bool BugsEnabled        = false;
+                bool ComplaintsEnabled  = false;
+                bool SuggestionsEnabled = false;
 
                 SavedThrottleObjectState ThrottleState;
             };
@@ -76,8 +76,8 @@ namespace WorldPackets
             bool BpayStoreDisabledByParentalControls = false;
             bool TwitterEnabled                      = false;
 
-            bool UnkBit21                            = false;
-            bool UnkBit22                            = false;
+            bool RestrictedAccount                   = false;
+            bool TutorialsEnabled                    = false;
             bool UnkBit90                            = false;
             bool UnkBit61                            = false;
         };
