@@ -598,3 +598,10 @@ WorldPacket const* WorldPackets::Spells::SendSpellCharges::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::ClearTarget::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}

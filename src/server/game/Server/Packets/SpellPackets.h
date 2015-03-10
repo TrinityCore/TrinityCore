@@ -546,6 +546,16 @@ namespace WorldPackets
 
             std::vector<SpellChargeEntry> Entries;
         };
+
+        class ClearTarget final : public ServerPacket
+        {
+        public:
+            ClearTarget() : ServerPacket(SMSG_CLEAR_TARGET, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
     }
 }
 
