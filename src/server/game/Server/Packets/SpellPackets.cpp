@@ -521,6 +521,13 @@ WorldPacket const* SpellCooldown::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* ClearTarget::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* PlaySpellVisualKit::Write()
 {
     _worldPacket << Unit;

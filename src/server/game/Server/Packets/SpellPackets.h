@@ -482,6 +482,16 @@ namespace WorldPackets
             uint8 Flags = 0;
         };
 
+        class ClearTarget final : public ServerPacket
+        {
+        public:
+            explicit ClearTarget() : ServerPacket(SMSG_CLEAR_TARGET, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
         class PlaySpellVisualKit final : public ServerPacket
         {
         public:
