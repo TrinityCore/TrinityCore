@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,7 +28,11 @@ enum DataTypes
     DATA_HYDROMANCER_THESPIA        = 0,
     DATA_MEKGINEER_STEAMRIGGER      = 1,
     DATA_WARLORD_KALITHRESH         = 2,
-    DATA_DISTILLER                  = 3
+    DATA_DISTILLER                  = 3,
+
+    // Additional Data
+    DATA_ACCESS_PANEL_HYDRO         = 4,
+    DATA_ACCESS_PANEL_MEK           = 5
 };
 
 enum CreatureIds

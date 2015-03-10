@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -86,6 +86,7 @@ class boss_nazan : public CreatureScript
             void Reset() override
             {
                 Initialize();
+                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/) override { }
@@ -297,7 +298,6 @@ class boss_vazruden_the_herald : public CreatureScript
                 Initialize();
                 summoned = false;
                 sentryDown = false;
-                lootSpawned = false;
             }
 
             void Initialize()
@@ -434,13 +434,6 @@ class boss_vazruden_the_herald : public CreatureScript
                                 return;
                             }
                         }
-                        else if (!lootSpawned)
-                        {
-                            me->SummonGameObject(DUNGEON_MODE(GO_FEL_IRON_CHEST_NORMAL, GO_FEL_IRON_CHECT_HEROIC), VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, 0, 0, 0, 0, 0);
-                            me->SetLootRecipient(NULL); // don't think this is necessary..
-                            //me->Kill(me);
-                            lootSpawned = true;
-                        }
                         check = 2000;
                     }
                     else
@@ -457,7 +450,6 @@ class boss_vazruden_the_herald : public CreatureScript
                 ObjectGuid NazanGUID;
                 ObjectGuid VazrudenGUID;
                 bool summoned;
-                bool lootSpawned;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

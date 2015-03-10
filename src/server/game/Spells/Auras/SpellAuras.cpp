@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1705,14 +1705,8 @@ void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* cast
             {
                 AuraEffect* aurEff = GetEffect(i);
 
-                // ignore non positive values (can be result apply spellmods to aura damage
-                uint32 damage = std::max(aurEff->GetAmount(), 0);
-
-                // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
-                sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
-
-                aurEff->SetDonePct(caster->SpellDamagePctDone(target, m_spellInfo, DOT)); // Calculate done percentage first!
-                aurEff->SetDamage(caster->SpellDamageBonusDone(target, m_spellInfo, damage, DOT, GetStackAmount()) * aurEff->GetDonePct());
+                aurEff->SetDonePct(caster->SpellDamagePctDone(target, m_spellInfo, DOT));
+                aurEff->SetBonusAmount(caster->SpellDamageBonusDone(target, m_spellInfo, 0, DOT, GetStackAmount()));
                 aurEff->SetCritChance(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
                 break;
             }
@@ -1721,14 +1715,8 @@ void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* cast
             {
                 AuraEffect* aurEff = GetEffect(i);
 
-                // ignore non positive values (can be result apply spellmods to aura damage
-                uint32 damage = std::max(aurEff->GetAmount(), 0);
-
-                // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
-                sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
-
-                aurEff->SetDonePct(caster->SpellHealingPctDone(target, m_spellInfo)); // Calculate done percentage first!
-                aurEff->SetDamage(caster->SpellHealingBonusDone(target, m_spellInfo, damage, DOT, GetStackAmount()) * aurEff->GetDonePct());
+                aurEff->SetDonePct(caster->SpellHealingPctDone(target, m_spellInfo));
+                aurEff->SetBonusAmount(caster->SpellHealingBonusDone(target, m_spellInfo, 0, DOT, GetStackAmount()));
                 aurEff->SetCritChance(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
                 break;
             }

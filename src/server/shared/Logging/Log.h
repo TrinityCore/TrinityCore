@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -82,6 +82,7 @@ class Log
         AppenderMap appenders;
         LoggerMap loggers;
         uint8 AppenderId;
+        LogLevel lowestLogLevel;
 
         std::string m_logsDir;
         std::string m_logsTimestamp;
@@ -112,6 +113,10 @@ inline bool Log::ShouldLog(std::string const& type, LogLevel level) const
     // TODO: Use cache to store "Type.sub1.sub2": "Type" equivalence, should
     // Speed up in cases where requesting "Type.sub1.sub2" but only configured
     // Logger "Type"
+
+    // Don't even look for a logger if the LogLevel is lower than lowest log levels across all loggers
+    if (level < lowestLogLevel)
+        return false;
 
     Logger const* logger = GetLoggerByType(type);
     if (!logger)

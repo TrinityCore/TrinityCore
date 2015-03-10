@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -58,7 +58,7 @@ boost::asio::deadline_timer _dbPingTimer(_ioService);
 uint32 _dbPingInterval;
 LoginDatabaseWorkerPool LoginDatabase;
 
-int main(int argc, char** argv)
+int mainImpl(int argc, char** argv)
 {
     std::string configFile = _TRINITY_REALM_CONFIG;
     auto vm = GetConsoleArguments(argc, argv, configFile);
@@ -144,6 +144,24 @@ int main(int argc, char** argv)
     return 0;
 }
 
+/// Launch the Trinity server
+extern int main(int argc, char** argv)
+{
+    try
+    {
+        return mainImpl(argc, argv);
+    }
+    catch (std::exception& ex)
+    {
+        std::cerr << "Top-level exception caught:" << ex.what() << "\n";
+
+#ifndef NDEBUG // rethrow exception for the debugger
+        throw;
+#else
+        return 1;
+#endif
+    }
+}
 
 /// Initialize connection to the database
 bool StartDB()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,7 +34,9 @@
 using boost::asio::ip::tcp;
 
 #define READ_BLOCK_SIZE 4096
-#define TC_SOCKET_USE_IOCP BOOST_ASIO_HAS_IOCP
+#ifdef BOOST_ASIO_HAS_IOCP
+#define TC_SOCKET_USE_IOCP
+#endif
 
 template<class T>
 class Socket : public std::enable_shared_from_this<T>
@@ -90,7 +92,8 @@ public:
             return;
 
         _readBuffer.Normalize();
-        _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), READ_BLOCK_SIZE),
+        _readBuffer.EnsureFreeSpace();
+        _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
             std::bind(&Socket<T>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 

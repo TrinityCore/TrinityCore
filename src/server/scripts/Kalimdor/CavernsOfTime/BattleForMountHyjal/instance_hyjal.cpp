@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,10 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
-#include "hyjal_trash.h"
-#include "Player.h"
-#include "WorldPacket.h"
-#include "Chat.h"
+#include "hyjal.h"
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event
@@ -39,8 +36,16 @@ EndScriptData */
 4 - Archimonde event
 */
 
-#define YELL_EFFORTS        "All of your efforts have been in vain, for the draining of the World Tree has already begun. Soon the heart of your world will beat no more."
-#define YELL_EFFORTS_NAME   "Archimonde"
+enum Yells
+{
+    YELL_ARCHIMONDE_INTRO = 8
+};
+
+ObjectData const creatureData[] =
+{
+    { NPC_CHANNEL_TARGET, DATA_CHANNEL_TARGET },
+    { 0,                  0                   } // END
+};
 
 class instance_hyjal : public InstanceMapScript
 {
@@ -57,6 +62,7 @@ public:
         instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            LoadObjectData(creatureData, nullptr);
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
             RaidDamage = 0;
@@ -104,15 +110,35 @@ public:
         {
             switch (creature->GetEntry())
             {
-                case RAGE_WINTERCHILL: RageWinterchill = creature->GetGUID(); break;
-                case ANETHERON:        Anetheron = creature->GetGUID(); break;
-                case KAZROGAL:         Kazrogal = creature->GetGUID();  break;
-                case AZGALOR:          Azgalor = creature->GetGUID(); break;
-                case ARCHIMONDE:       Archimonde = creature->GetGUID(); break;
-                case JAINA:            JainaProudmoore = creature->GetGUID(); break;
-                case THRALL:           Thrall = creature->GetGUID(); break;
-                case TYRANDE:          TyrandeWhisperwind = creature->GetGUID(); break;
+                case RAGE_WINTERCHILL:
+                    RageWinterchill = creature->GetGUID();
+                    break;
+                case ANETHERON:
+                    Anetheron = creature->GetGUID();
+                    break;
+                case KAZROGAL:
+                    Kazrogal = creature->GetGUID();
+                    break;
+                case AZGALOR:
+                    Azgalor = creature->GetGUID();
+                    break;
+                case ARCHIMONDE:
+                    Archimonde = creature->GetGUID();
+                    if (GetData(DATA_AZGALOREVENT) != DONE)
+                        creature->SetVisible(false);
+                    break;
+                case JAINA:
+                    JainaProudmoore = creature->GetGUID();
+                    break;
+                case THRALL:
+                    Thrall = creature->GetGUID();
+                    break;
+                case TYRANDE:
+                    TyrandeWhisperwind = creature->GetGUID();
+                    break;
             }
+
+            InstanceScript::OnCreatureCreate(creature);
         }
 
         ObjectGuid GetGuidData(uint32 identifier) const override
@@ -146,39 +172,18 @@ public:
                     m_auiEncounter[2] = data;
                     break;
                 case DATA_AZGALOREVENT:
+                    m_auiEncounter[3] = data;
+                    if (data == DONE)
                     {
-                        m_auiEncounter[3] = data;
-                        if (data == DONE)
+                        instance->LoadGrid(5581.49f, -3445.63f);
+                        if (Creature* archimonde = instance->GetCreature(Archimonde))
                         {
-                            if (ArchiYell)
-                                break;
+                            archimonde->SetVisible(true);
 
-                            ArchiYell = true;
-
-                            Creature* creature = instance->GetCreature(Azgalor);
-                            if (creature)
+                            if (!ArchiYell)
                             {
-                                Creature* unit = creature->SummonCreature(NPC_WORLD_TRIGGER_TINY, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
-
-                                Map* map = creature->GetMap();
-                                if (map->IsDungeon() && unit)
-                                {
-                                    unit->SetVisible(false);
-                                    Map::PlayerList const &PlayerList = map->GetPlayers();
-                                    if (PlayerList.isEmpty())
-                                         return;
-
-                                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                                    {
-                                         if (Player* player = i->GetSource())
-                                         {
-                                            WorldPacket packet;
-                                            ChatHandler::BuildChatPacket(packet, CHAT_MSG_MONSTER_YELL, LANG_UNIVERSAL, unit, player, YELL_EFFORTS);
-                                            player->SendDirectMessage(&packet);
-                                            player->PlayDirectSound(10986, player);
-                                         }
-                                    }
-                                }
+                                ArchiYell = true;
+                                archimonde->AI()->Talk(YELL_ARCHIMONDE_INTRO);
                             }
                         }
                     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,7 +44,8 @@ enum DataTypes
     DATA_HORDE_RETREAT          = 17,
     DATA_RAIDDAMAGE             = 18,
     DATA_RESET_RAIDDAMAGE       = 19,
-    TYPE_RETREAT                = 20
+    TYPE_RETREAT                = 20,
+    DATA_CHANNEL_TARGET         = 21
 };
 
 enum WorldStateIds
@@ -77,7 +78,8 @@ enum CreaturesIds
     KAZROGAL                    = 17888,
     AZGALOR                     = 17842,
     ARCHIMONDE                  = 17968,
-    NPC_WORLD_TRIGGER_TINY      = 21987
+    NPC_WORLD_TRIGGER_TINY      = 21987,
+    NPC_CHANNEL_TARGET          = 22418
 };
 
 enum GameobjectIds
@@ -89,5 +91,6 @@ enum GameobjectIds
     GO_ROARING_FLAME            = 182592
 };
 
-#endif
+#define MINRAIDDAMAGE 700000 // minimal damage before trash can drop loot and reputation, resets if faction leader dies
 
+#endif

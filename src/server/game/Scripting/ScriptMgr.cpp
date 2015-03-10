@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,6 +33,12 @@
 #include "Player.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+
+// namespace
+// {
+    UnusedScriptContainer UnusedScripts;
+    UnusedScriptNamesContainer UnusedScriptNames;
+// }
 
 // This is the global static registry of scripts.
 template<class TScript>
@@ -89,6 +95,12 @@ class ScriptRegistry
                     {
                         ScriptPointerList[id] = script;
                         sScriptMgr->IncrementScriptCount();
+
+                    #ifdef SCRIPTS
+                        UnusedScriptNamesContainer::iterator itr = std::lower_bound(UnusedScriptNames.begin(), UnusedScriptNames.end(), script->GetName());
+                        if (itr != UnusedScriptNames.end() && *itr == script->GetName())
+                            UnusedScriptNames.erase(itr);
+                    #endif
                     }
                     else
                     {
@@ -106,8 +118,7 @@ class ScriptRegistry
 
                     // Avoid calling "delete script;" because we are currently in the script constructor
                     // In a valid scenario this will not happen because every script has a name assigned in the database
-                    // If that happens, it's acceptable to just leak a few bytes
-
+                    UnusedScripts.push_back(script);
                     return;
                 }
             }
@@ -189,6 +200,15 @@ void ScriptMgr::Initialize()
     FillSpellSummary();
     AddScripts();
 
+#ifdef SCRIPTS
+    for (std::string const& scriptName : UnusedScriptNames)
+    {
+        TC_LOG_ERROR("sql.sql", "ScriptName '%s' exists in database, but no core script found!", scriptName.c_str());
+    }
+#endif
+
+    UnloadUnusedScripts();
+
     TC_LOG_INFO("server.loading", ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -229,8 +249,17 @@ void ScriptMgr::Unload()
 
     #undef SCR_CLEAR
 
+    UnloadUnusedScripts();
+
     delete[] SpellSummary;
     delete[] UnitAI::AISpellInfo;
+}
+
+void ScriptMgr::UnloadUnusedScripts()
+{
+    for (size_t i = 0; i < UnusedScripts.size(); ++i)
+        delete UnusedScripts[i];
+    UnusedScripts.clear();
 }
 
 void ScriptMgr::LoadDatabase()

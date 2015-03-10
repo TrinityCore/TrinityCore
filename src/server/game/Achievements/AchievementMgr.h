@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -293,8 +293,11 @@ class AchievementMgr
         void CompletedCriteriaFor(AchievementEntry const* achievement);
         bool IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
         bool IsCompletedAchievement(AchievementEntry const* entry);
-        bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement);
+        bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, Unit const* unit);
         void BuildAllDataPacket(WorldPacket* data) const;
+
+        bool ConditionsSatisfied(AchievementCriteriaEntry const* criteria) const;
+        bool RequirementsSatisfied(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, Unit const* unit) const;
 
         Player* m_player;
         CriteriaProgressMap m_criteriaProgress;
@@ -309,6 +312,9 @@ class AchievementGlobalMgr
         ~AchievementGlobalMgr() { }
 
     public:
+        static char const* GetCriteriaTypeString(AchievementCriteriaTypes type);
+        static char const* GetCriteriaTypeString(uint32 type);
+
         static AchievementGlobalMgr* instance()
         {
             static AchievementGlobalMgr instance;

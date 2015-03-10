@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,7 +69,7 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetOwner()->GetTypeId() == TYPEID_PLAYER;
             }
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -81,16 +81,16 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* caster = GetCaster()->ToPlayer())
-                    if (Pet* pet = caster->GetPet())
-                        pet->RemoveAurasDueToSpell(SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET);
+                Player* player = GetTarget()->ToPlayer();
+                if (Pet* pet = player->GetPet())
+                    pet->RemoveAurasDueToSpell(SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* caster = GetCaster()->ToPlayer())
-                    if (caster->GetPet())
-                        caster->CastSpell(caster, SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET, true);
+                Player* player = GetTarget()->ToPlayer();
+                if (player->GetPet())
+                    player->CastSpell(player, SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET, true);
             }
 
             void Register() override
@@ -209,14 +209,11 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                             {
                                 int32 TickCount = aurEff->GetTotalTicks();
                                 spellId = SPELL_HUNTER_CHIMERA_SHOT_SERPENT;
-                                basePoint = aurEff->GetDamage();
+                                basePoint = (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct();
                                 ApplyPct(basePoint, TickCount * 40);
                                 basePoint = unitTarget->SpellDamageBonusTaken(caster, aura->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
 
-                                // Recalculate bonus damage on roll.
-                                uint32 damage = std::max(aurEff->GetAmount(), 0);
-                                sScriptMgr->ModifyPeriodicDamageAurasTick(unitTarget, caster, damage);
-                                aurEff->SetDamage(caster->SpellDamageBonusDone(unitTarget, aurEff->GetSpellInfo(), damage, DOT) * aurEff->GetDonePct());
+                                aurEff->SetBonusAmount(caster->SpellDamageBonusDone(unitTarget, aurEff->GetSpellInfo(), 0, DOT));
                             }
                             // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
                             else if (familyFlag[1] & 0x00000080)

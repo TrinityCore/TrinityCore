@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,14 +44,14 @@ bool AuctionBotSeller::Initialize()
     {
         std::stringstream includeStream(sAuctionBotConfig->GetAHBotIncludes());
         std::string temp;
-        while (getline(includeStream, temp, ','))
+        while (std::getline(includeStream, temp, ','))
             includeItems.push_back(atoi(temp.c_str()));
     }
 
     {
         std::stringstream excludeStream(sAuctionBotConfig->GetAHBotExcludes());
         std::string temp;
-        while (getline(excludeStream, temp, ','))
+        while (std::getline(excludeStream, temp, ','))
             excludeItems.push_back(atoi(temp.c_str()));
     }
 

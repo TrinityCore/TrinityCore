@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -299,7 +299,7 @@ public:
                 else if (commentToken[1] == '/')
                 {
                     std::string str;
-                    getline(ifs, str);
+                    std::getline(ifs, str);
                     continue;
                 }
                 // regular data
@@ -488,7 +488,7 @@ public:
 
     static bool HandleDebugSendQuestPartyMsgCommand(ChatHandler* handler, char const* args)
     {
-        uint32 msg = atol((char*)args);
+        uint32 msg = atoul(args);
         handler->GetSession()->GetPlayer()->SendPushToPartyResponse(handler->GetSession()->GetPlayer(), msg);
         return true;
     }
@@ -507,7 +507,7 @@ public:
 
     static bool HandleDebugSendQuestInvalidMsgCommand(ChatHandler* handler, char const* args)
     {
-        QuestFailedReason msg = static_cast<QuestFailedReason>(atol((char*)args));
+        QuestFailedReason msg = static_cast<QuestFailedReason>(atoul(args));
         handler->GetSession()->GetPlayer()->SendCanTakeQuestResponse(msg);
         return true;
     }

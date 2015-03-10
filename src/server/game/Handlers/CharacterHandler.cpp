@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2085,7 +2085,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 }
 
                 for (uint32 index = 0; index < ktcount; ++index)
-                    knownTitles[index] = atol(tokens[index]);
+                    knownTitles[index] = atoul(tokens[index]);
 
                 for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChangeTitles.begin(); it != sObjectMgr->FactionChangeTitles.end(); ++it)
                 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,7 +43,7 @@ enum CreatureIds
 enum GameobjectIds
 {
     GO_FEL_IRON_CHEST_NORMAL      = 185168,
-    GO_FEL_IRON_CHECT_HEROIC      = 185169
+    GO_FEL_IRON_CHEST_HEROIC      = 185169
 };
 
 #endif

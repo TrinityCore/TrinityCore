@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1076,9 +1076,12 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 // http://old01.wowhead.com/quest=9452 - Red Snapper - Very Tasty!
 enum RedSnapperVeryTasty
 {
-    SPELL_CAST_NET          = 29866,
-    ITEM_RED_SNAPPER        = 23614,
-    SPELL_NEW_SUMMON_TEST   = 49214,
+    ITEM_RED_SNAPPER             = 23614,
+
+    SPELL_CAST_NET               = 29866,
+    SPELL_NEW_SUMMON_TEST        = 49214,
+
+    GO_SCHOOL_OF_RED_SNAPPER     = 181616
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1095,6 +1098,15 @@ class spell_q9452_cast_net: public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
+            SpellCastResult CheckCast()
+            {
+                GameObject* go = GetCaster()->FindNearestGameObject(GO_SCHOOL_OF_RED_SNAPPER, 3.0f);
+                if (!go || go->GetRespawnTime())
+                    return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Player* caster = GetCaster()->ToPlayer();
@@ -1104,9 +1116,19 @@ class spell_q9452_cast_net: public SpellScriptLoader
                     caster->CastSpell(caster, SPELL_NEW_SUMMON_TEST, true);
             }
 
+            void HandleActiveObject(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetHitGObj()->SetRespawnTime(roll_chance_i(50) ? 2 * MINUTE : 3 * MINUTE);
+                GetHitGObj()->Use(GetCaster());
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
             void Register() override
             {
+                OnCheckCast += SpellCheckCastFn(spell_q9452_cast_net_SpellScript::CheckCast);
                 OnEffectHit += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
             }
         };
 

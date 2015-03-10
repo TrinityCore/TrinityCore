@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -364,7 +364,7 @@ class NecroticPlagueTargetCheck : public std::unary_function<Unit*, bool>
 
         bool operator()(Unit* unit) const
         {
-            if (!unit || unit == _sourceObj || !unit->isTargetableForAttack() || unit->IsTotem() || unit->HasAura(SPELL_PLAGUE_AVOIDANCE))
+            if (!unit || unit == _sourceObj || !unit->isTargetableForAttack() || unit->GetTypeId() != TYPEID_PLAYER || unit->HasAura(SPELL_PLAGUE_AVOIDANCE))
                 return false;
             if ((_notAura1 && unit->HasAura(_notAura1)) || (_notAura2 && unit->HasAura(_notAura2)))
                 return false;
@@ -2417,6 +2417,7 @@ class spell_the_lich_king_defile : public SpellScriptLoader
             void CorrectRange(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(ExactDistanceCheck(GetCaster(), 10.0f * GetCaster()->GetObjectScale()));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HARVEST_SOUL_VALKYR));
             }
 
             void ChangeDamageAndGrow()

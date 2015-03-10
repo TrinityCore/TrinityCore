@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,6 +52,11 @@ enum Data
     DATA_HORSEMEN2,
     DATA_HORSEMEN3,
     DATA_ABOMINATION_KILLED,
+
+    DATA_NAXX_PORTAL_ARACHNID,
+    DATA_NAXX_PORTAL_CONSTRUCT,
+    DATA_NAXX_PORTAL_PLAGUE,
+    DATA_NAXX_PORTAL_MILITARY
 };
 
 enum Data64
@@ -71,6 +76,7 @@ enum Data64
     DATA_KELTHUZAD_PORTAL03,
     DATA_KELTHUZAD_PORTAL04,
     DATA_KELTHUZAD_TRIGGER,
+    DATA_LICH_KING
 };
 
 enum CreaturesIds
@@ -89,7 +95,10 @@ enum CreaturesIds
     NPC_CRYPT_GUARD             = 16573,
     NPC_NAXXRAMAS_FOLLOWER      = 16505,
     NPC_FOLLOWER_WORSHIPPER     = 16506,
-    NPC_DK_UNDERSTUDY           = 16803
+    NPC_DK_UNDERSTUDY           = 16803,
+    NPC_BIGGLESWORTH            = 16998,
+    NPC_LICH_KING               = 16980,
+    NPC_OLD_WORLD_TRIGGER       = 15384
 };
 
 enum GameObjectsIds
@@ -133,13 +142,63 @@ enum GameObjectsIds
     GO_CONS_EYE_RAMP_BOSS       = 181232,
     GO_CONS_NOX_TESLA_FEUGEN    = 181477,
     GO_CONS_NOX_TESLA_STALAGG   = 181478,
-    GO_BIRTH                    = 181356
+    GO_BIRTH                    = 181356,
+
+    // Teleporting pads spawned by the end of every quarter.
+    GO_NAXX_PORTAL_ARACHNID     = 181575,
+    GO_NAXX_PORTAL_CONSTRUCT    = 181576,
+    GO_NAXX_PORTAL_PLAGUE       = 181577,
+    GO_NAXX_PORTAL_MILITARY     = 181578
 };
 
 enum SpellIds
 {
     SPELL_ERUPTION              = 29371,
     SPELL_SLIME                 = 28801
+};
+
+enum InstanceEvents
+{
+    // Dialogue that happens after Gothik's death.
+    EVENT_DIALOGUE_GOTHIK_KORTHAZZ = 1,
+    EVENT_DIALOGUE_GOTHIK_ZELIEK,
+    EVENT_DIALOGUE_GOTHIK_BLAUMEUX,
+    EVENT_DIALOGUE_GOTHIK_RIVENDARE,
+    EVENT_DIALOGUE_GOTHIK_BLAUMEUX2,
+    EVENT_DIALOGUE_GOTHIK_ZELIEK2,
+    EVENT_DIALOGUE_GOTHIK_KORTHAZZ2,
+    EVENT_DIALOGUE_GOTHIK_RIVENDARE2,
+
+    // Dialogue that happens after each wing.
+    EVENT_KELTHUZAD_WING_TAUNT,
+
+    // Dialogue that happens after Sapphiron's death.
+    EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD,
+    EVENT_DIALOGUE_SAPPHIRON_LICHKING,
+    EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD2,
+    EVENT_DIALOGUE_SAPPHIRON_LICHKING2,
+    EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD3,
+    EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD4
+};
+
+enum InstanceTexts
+{
+    // The Four Horsemen
+    SAY_DIALOGUE_GOTHIK_HORSEMAN      = 5,
+    SAY_DIALOGUE_GOTHIK_HORSEMAN2     = 6,
+
+    // Kel'Thuzad
+    SAY_DIALOGUE_SAPPHIRON_KELTHUZAD  = 0,
+    SAY_DIALOGUE_SAPPHIRON_KELTHUZAD2 = 2,
+    SAY_DIALOGUE_SAPPHIRON_KELTHUZAD3 = 4,
+    SAY_DIALOGUE_SAPPHIRON_KELTHUZAD4 = 20,
+
+    SAY_KELTHUZAD_CAT_DIED            = 5,
+    SAY_KELTHUZAD_FIRST_WING_TAUNT    = 16,
+
+    // Lich King
+    SAY_DIALOGUE_SAPPHIRON_LICH_KING  = 1,
+    SAY_DIALOGUE_SAPPHIRON_LICH_KING2 = 2
 };
 
 /*

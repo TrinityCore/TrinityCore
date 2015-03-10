@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -527,10 +527,10 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 if (!changenth(line, 2, chraccount))        // characters.account update
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                race = uint8(atol(getnth(line, 4).c_str()));
-                playerClass = uint8(atol(getnth(line, 5).c_str()));
-                gender = uint8(atol(getnth(line, 6).c_str()));
-                level = uint8(atol(getnth(line, 7).c_str()));
+                race = uint8(atoul(getnth(line, 4).c_str()));
+                playerClass = uint8(atoul(getnth(line, 5).c_str()));
+                gender = uint8(atoul(getnth(line, 6).c_str()));
+                level = uint8(atoul(getnth(line, 7).c_str()));
                 if (name.empty())
                 {
                     // check if the original name already exists

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -174,7 +174,7 @@ public:
             anchor->GetContactPoint(me, anchorX, anchorY, z, 1.0f);
 
             playerGUID = target->GetGUID();
-            Talk(SAY_EVENT_START);
+            Talk(SAY_EVENT_START, target);
         }
 
         void UpdateAI(uint32 diff) override

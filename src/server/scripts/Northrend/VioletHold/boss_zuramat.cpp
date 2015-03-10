@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,9 +26,6 @@ enum Spells
     SPELL_SUMMON_VOID_SENTRY                    = 54369,
     SPELL_VOID_SHIFT                            = 54361,
     H_SPELL_VOID_SHIFT                          = 59743,
-
-    SPELL_ZURAMAT_ADD_2                         = 54342,
-    H_SPELL_ZURAMAT_ADD_2                       = 59747
 };
 
 enum Creatures
@@ -192,12 +189,6 @@ public:
             Talk(SAY_SLAY);
         }
 
-        void JustSummoned(Creature* summon) override
-        {
-            summon->AI()->AttackStart(me->GetVictim());
-            summon->CastSpell((Unit*)NULL, SPELL_ZURAMAT_ADD_2);
-            summon->SetPhaseMask(17, true);
-        }
     };
 
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -336,6 +336,13 @@ class npc_warden_mellichar : public CreatureScript
                 instance->SetBossState(DATA_HARBINGER_SKYRISS, IN_PROGRESS);
                 instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), false);
                 IsRunning = true;
+            }
+
+            void JustSummoned(Creature* summon) override
+            {
+                DoZoneInCombat(summon);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    summon->AI()->AttackStart(target);
             }
 
             bool CanProgress()

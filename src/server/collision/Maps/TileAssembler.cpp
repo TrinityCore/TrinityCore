@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -389,6 +389,18 @@ namespace VMAP
                     else
                         bounds.merge(v);
                 }
+            }
+
+            if (bounds.isEmpty())
+            {
+                std::cout << "\nModel " << std::string(buff, name_length) << " has empty bounding box" << std::endl;
+                continue;
+            }
+
+            if (!bounds.isFinite())
+            {
+                std::cout << "\nModel " << std::string(buff, name_length) << " has invalid bounding box" << std::endl;
+                continue;
             }
 
             fwrite(&displayId, sizeof(uint32), 1, model_list_copy);

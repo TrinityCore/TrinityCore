@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -275,7 +275,7 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
                     // Add remaining ticks to damage done
                     if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, EFFECT_0, caster->GetGUID()))
-                        damage += aurEff->GetDamage() * int32(ticks - aurEff->GetTickNumber());
+                        damage += (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct() * int32(ticks - aurEff->GetTickNumber());
 
                     damage /= int32(ticks);
 

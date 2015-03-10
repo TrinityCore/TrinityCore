@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -85,6 +85,13 @@ class DBCStorage
         T const* LookupEntry(uint32 id) const
         {
             return (id >= nCount) ? NULL : indexTable.asT[id];
+        }
+
+        T const* AssertEntry(uint32 id) const
+        {
+            T const* entry = LookupEntry(id);
+            ASSERT(entry);
+            return entry;
         }
 
         uint32  GetNumRows() const { return nCount; }

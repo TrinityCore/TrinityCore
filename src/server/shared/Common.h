@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -78,6 +78,9 @@
 #endif
 
 inline float finiteAlways(float f) { return std::isfinite(f) ? f : 0.0f; }
+
+inline unsigned long atoul(char const* str) { return strtoul(str, nullptr, 10); }
+inline unsigned long long atoull(char const* str) { return strtoull(str, nullptr, 10); }
 
 #define STRINGIZE(a) #a
 

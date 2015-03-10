@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -65,7 +65,7 @@ void VisibleNotifier::SendToSelf()
         }
     }
 
-    for (GuidSet::const_iterator it = vis_guids.begin(); it != vis_guids.end(); ++it)
+    for (auto it = vis_guids.begin(); it != vis_guids.end(); ++it)
     {
         i_player.m_clientGUIDs.erase(*it);
         i_data.AddOutOfRangeGUID(*it);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -70,8 +70,8 @@ class AuraEffect
         void HandleEffect(Unit* target, uint8 mode, bool apply);
         void ApplySpellMod(Unit* target, bool apply);
 
-        void  SetDamage(int32 val) { m_damage = val; }
-        int32 GetDamage() const { return m_damage; }
+        void  SetBonusAmount(int32 val) { m_bonusAmount = val; }
+        int32 GetBonusAmount() const { return m_bonusAmount; }
         void  SetCritChance(float val) { m_critChance = val; }
         float GetCritChance() const { return m_critChance; }
         void  SetDonePct(float val) { m_donePct = val; }
@@ -105,7 +105,7 @@ class AuraEffect
         int32 const m_baseAmount;
 
         int32 m_amount;
-        int32 m_damage;
+        int32 m_bonusAmount;
         float m_critChance;
         float m_donePct;
 

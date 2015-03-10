@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -386,13 +386,12 @@ namespace VMAP
                     {
                         if (!iLoadedSpawns.count(referencedVal))
                         {
-#ifdef VMAP_DEBUG
                             if (referencedVal > iNTreeValues)
                             {
-                                TC_LOG_DEBUG("maps", "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u)", referencedVal, iNTreeValues);
+                                VMAP_ERROR_LOG("maps", "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u) referenced in tile %s", referencedVal, iNTreeValues, tilefile.c_str());
                                 continue;
                             }
-#endif
+
                             iTreeValues[referencedVal] = ModelInstance(spawn, model);
                             iLoadedSpawns[referencedVal] = 1;
                         }
