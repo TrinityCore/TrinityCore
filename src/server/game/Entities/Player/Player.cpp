@@ -2446,7 +2446,7 @@ void Player::Regenerate(Powers power)
         case POWER_HOLY_POWER:                                          // Regenerate holy power
         {
             if (!IsInCombat())
-                addvalue += -1.0f;      // remove 1 each 10 sec
+                addvalue += -1.0f;      // remove 1 every 10 sec, first one removed 20s after leaving combat
         }
         break;
         case POWER_RUNES:
@@ -26108,6 +26108,13 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
     }
 
     return NULL;
+}
+
+void Player::OnCombatExit()
+{
+    UpdatePotionCooldown();
+    if (getClass() == CLASS_PALADIN)
+        m_holyPowerRegenTimerCount = 20000; // first charge of holy power decays 20 seconds after leaving combat
 }
 
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
