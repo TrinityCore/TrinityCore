@@ -249,7 +249,7 @@ enum OpcodeClient : uint32
     CMSG_DO_READY_CHECK                               = 0xBADD,
     CMSG_DUEL_RESPONSE                                = 0x01A1,
     CMSG_EJECT_PASSENGER                              = 0xBADD,
-    CMSG_EMOTE                                        = 0xBADD,
+    CMSG_EMOTE                                        = 0x0B2B,
     CMSG_ENABLE_NAGLE                                 = 0xBADD,
     CMSG_ENABLE_TAXI_NODE                             = 0xBADD,
     CMSG_EQUIPMENT_SET_SAVE                           = 0x0A7C,
