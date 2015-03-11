@@ -213,9 +213,7 @@ namespace WorldPackets
         public:
             EmoteClient(WorldPacket&& packet) : ClientPacket(CMSG_EMOTE, std::move(packet)) { }
 
-            void Read() override;
-
-            uint32 EmoteID = 0;
+            void Read() override { }
         };
     }
 }

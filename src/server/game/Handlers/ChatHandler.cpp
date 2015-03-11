@@ -524,13 +524,13 @@ void WorldSession::HandleChatMessageDNDOpcode(WorldPackets::Chat::ChatMessageDND
     sScriptMgr->OnPlayerChat(sender, CHAT_MSG_DND, LANG_UNIVERSAL, packet.Text);
 }
 
-void WorldSession::HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet)
+void WorldSession::HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& /* packet */)
 {
     if (!GetPlayer()->IsAlive() || GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         return;
 
-    sScriptMgr->OnPlayerEmote(GetPlayer(), packet.EmoteID);
-    GetPlayer()->HandleEmoteCommand(packet.EmoteID);
+    sScriptMgr->OnPlayerEmote(GetPlayer(), 0);
+    GetPlayer()->HandleEmoteCommand(0);
 }
 
 void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
