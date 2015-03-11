@@ -1543,7 +1543,7 @@ enum OpcodeServer : uint32
     SMSG_PLAYER_SKINNED                               = 0xBADD,
     SMSG_PLAYER_VEHICLE_DATA                          = 0xBADD,
     SMSG_PLAY_DANCE                                   = 0xBADD,
-    SMSG_PLAY_MUSIC                                   = 0xBADD,
+    SMSG_PLAY_MUSIC                                   = 0x1BBA,
     SMSG_PLAY_OBJECT_SOUND                            = 0x1BB9,
     SMSG_PLAY_ONE_SHOT_ANIM_KIT                       = 0xBADD,
     SMSG_PLAY_ORPHAN_SPELL_VISUAL                     = 0xBADD,
