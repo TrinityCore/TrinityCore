@@ -1659,7 +1659,7 @@ enum OpcodeServer : uint32
     SMSG_SCENE_OBJECT_PET_BATTLE_ROUND_RESULT         = 0xBADD,
     SMSG_SCRIPT_CAST                                  = 0xBADD,
     SMSG_SCRIPT_MESSAGE                               = 0xBADD,
-    SMSG_SELL_RESPONSE                                = 0xBADD,
+    SMSG_SELL_RESPONSE                                = 0x0933,
     SMSG_SEND_ITEM_PASSIVES                           = 0xBADD,
     SMSG_SEND_MAIL_RESULT                             = 0xBADD,
     SMSG_SEND_RAID_TARGET_UPDATE_ALL                  = 0xBADD,
