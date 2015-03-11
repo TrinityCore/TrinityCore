@@ -29,7 +29,7 @@ namespace WorldPackets
             ObjectGuid RequesterGuid;
             int32 Id = 0;
             int32 Type = 0;
-            time_t Time = 0;
+            uint32 Time = 0;
         };
     }
 }
