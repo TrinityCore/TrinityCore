@@ -605,3 +605,18 @@ WorldPacket const* WorldPackets::Spells::ClearTarget::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::CancelOrphanSpellVisual::Write()
+{
+    _worldPacket << int32(SpellVisualID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::CancelSpellVisual::Write()
+{
+    _worldPacket << Source;
+    _worldPacket << int32(SpellVisualID);
+
+    return &_worldPacket;
+}

@@ -261,13 +261,13 @@ namespace WorldPackets
         class SellResponse final : public ServerPacket
         {
         public:
-            SellResponse() : ServerPacket(SMSG_SELL_RESPONSE, 8 + 8 + 1) { }
+            SellResponse() : ServerPacket(SMSG_SELL_RESPONSE, 16 + 16 + 1) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid VendorGUID;
             ObjectGuid ItemGUID;
-            SellResult Reason;
+            SellResult Reason = SELL_ERR_UNK;
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
