@@ -47,6 +47,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/gsoap
   ${CMAKE_SOURCE_DIR}/dep/sockets/include
   ${CMAKE_SOURCE_DIR}/dep/SFMT
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/zmqpp
   ${CMAKE_SOURCE_DIR}/src/server/collision
   ${CMAKE_SOURCE_DIR}/src/server/collision/Management
@@ -175,6 +176,7 @@ target_link_libraries(worldserver
   gsoap
   Detour
   zmqpp
+  format
   ${JEMALLOC_LIBRARY}
   ${READLINE_LIBRARY}
   ${TERMCAP_LIBRARY}
