@@ -1,0 +1,27 @@
+The aim of this branch is to update the pooling system as follows:
+
+ - Create a possibility to specify a minimum number of spawned objects
+ - Ensure the maximum value are actually spawned
+ - Ensure that the minumum number are maintained in the world
+
+Completion: 40%
+
+ - Databases and Pool functionality updated to handle minimum value in template: 100%
+ - Added pool information to npc info (creature pool): 100%
+ - Spawn insurance of 100% max spawn if possible: 80% (this seems to work, but I have seen npc info report not all spawned. So need to check)
+
+Creature specific:
+ - When creatures in pool drop below minimum, then process is as follows: (100% but needs testing)
+   - looks for a dead despawned creature in the pool, if found - instant respawn
+   - if none despawned, looks for a looted corpse. If found, despawns corpse
+   - if no looted corpses found, then finds an unlooted corpse and despawns it
+   - Creature class upon creature despawn, will check if an expedited respawn is required. If so, will respawn right away.
+
+ Resource Node (maybe all game objects in pools) specific:
+ - When nodes in pool drop below minimum, then process to be determined to maintain minimum nodes in pool (0%)
+
+ To Do:
+
+ - Currently more is exposed in PoolManager class than needs to be (this is due to extra detail being shows in npc info for debug purposes during development)
+ - I'm not too happy about making the ExplicitlyChanced and EqualChanced lists directly available from PoolGroup. But, it was the fastest way to achieve this.
+   It doesn't seem to pose a terrible problem.

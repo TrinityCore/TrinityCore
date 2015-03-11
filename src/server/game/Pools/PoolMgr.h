@@ -26,6 +26,7 @@
 
 struct PoolTemplateData
 {
+    uint32  MinLimit;
     uint32  MaxLimit;
 };
 
@@ -74,12 +75,12 @@ class PoolGroup
         void SetPoolId(uint32 pool_id) { poolId = pool_id; }
         ~PoolGroup() { };
         bool isEmpty() const { return ExplicitlyChanced.empty() && EqualChanced.empty(); }
-        void AddEntry(PoolObject& poolitem, uint32 maxentries);
+        void AddEntry(PoolObject& poolitem, uint32 minentries, uint32 maxentries);
         bool CheckPool() const;
         PoolObject* RollOne(ActivePoolData& spawns, uint32 triggerFrom);
         void DespawnObject(ActivePoolData& spawns, uint32 guid=0);
         void Despawn1Object(uint32 guid);
-        void SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom);
+        void SpawnObject(ActivePoolData& spawns, uint32 minlimit, uint32 maxlimit, uint32 triggerFrom);
 
         void Spawn1Object(PoolObject* obj);
         void ReSpawn1Object(PoolObject* obj);
@@ -91,6 +92,8 @@ class PoolGroup
             return EqualChanced.front().guid;
         }
         uint32 GetPoolId() const { return poolId; }
+        PoolObjectList GetExplicitlyChanced() const { return ExplicitlyChanced; }
+        PoolObjectList GetEqualChanced() const { return EqualChanced; }
     private:
         uint32 poolId;
         PoolObjectList ExplicitlyChanced;
@@ -103,6 +106,7 @@ typedef std::pair<PooledQuestRelation::iterator, PooledQuestRelation::iterator> 
 
 class PoolMgr
 {
+    typedef std::vector<PoolObject> PoolObjectList;
     private:
         PoolMgr();
         ~PoolMgr() { };
@@ -114,6 +118,8 @@ class PoolMgr
             return &instance;
         }
 
+        PoolTemplateData* GetPoolTemplate(uint32 pool_id);
+        uint32 GetPoolActiveSpawns(uint32 pool_id);
         void LoadFromDB();
         void LoadQuestPools();
         void SaveQuestsToDB();
@@ -122,6 +128,11 @@ class PoolMgr
 
         template<typename T>
         uint32 IsPartOfAPool(uint32 db_guid_or_pool_id) const;
+
+        Creature* FindDeadCreature(uint32 pool_id, bool PreferLooted);
+        void HandleCreatureDeath(uint32 guid);
+        uint32 GetAliveCreatures(uint32 guid);
+        bool NeedExpeditedRespawn(uint32 guid);
 
         template<typename T>
         bool IsSpawnedObject(uint32 db_guid_or_pool_id) const { return mSpawnedData.IsActiveObject<T>(db_guid_or_pool_id); }
