@@ -271,3 +271,12 @@ void WorldPackets::Item::DestroyItem::Read()
                  >> ContainerId
                  >> SlotNum;
 }
+
+WorldPacket const* WorldPackets::Item::SellResponse::Write()
+{
+    _worldPacket << VendorGUID
+                 << ItemGUID
+                 << uint8(Reason);
+
+    return &_worldPacket;
+}
