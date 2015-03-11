@@ -19855,9 +19855,9 @@ void Player::SendAttackSwingCancelAttack()
 
 void Player::SendAutoRepeatCancel(Unit* target)
 {
-    WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, target->GetPackGUID().size());
-    data << target->GetPackGUID();                     // may be it's target guid
-    SendMessageToSet(&data, false);
+    WorldPackets::Combat::CancelAutoRepeat cancelAutoRepeat;
+    cancelAutoRepeat.Guid = target->GetGUID();                     // may be it's target guid
+    SendMessageToSet(cancelAutoRepeat.Write(), false);
 }
 
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
