@@ -46,6 +46,21 @@ namespace WorldPackets
             int32 Flags = 0;
             int32 Overkill = 0;
         };
+
+        class EnvironmentalDamageLog final : public ServerPacket
+        {
+        public:
+            EnvironmentalDamageLog() : ServerPacket(SMSG_ENVIRONMENTALDAMAGELOG, 23) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Victim;
+            uint8 Type = 0; ///< @see enum EnviromentalDamage
+            int32 Amount = 0;
+            int32 Resisted = 0;
+            int32 Absorbed = 0;
+            Optional<Spells::SpellCastLogData> LogData; /// @todo: find the correct way where to use it, in sniff always false
+        };
     }
 }
 
