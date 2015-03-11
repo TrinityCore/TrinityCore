@@ -203,10 +203,9 @@ WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLine::Suppo
     Text = data.ReadString(textLength);
 }
 
-WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLine::SupportTicketChatLine(uint32 timestamp, std::string const& text)
+WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLine::SupportTicketChatLine(uint32 timestamp, std::string const& text) :
+    Timestamp(timestamp), Text(text)
 {
-    Timestamp = timestamp;
-    Text = text;
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLine& line)
