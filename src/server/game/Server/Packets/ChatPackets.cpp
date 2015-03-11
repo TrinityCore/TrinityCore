@@ -196,3 +196,8 @@ WorldPacket const* WorldPackets::Chat::PrintNotification::Write()
     _worldPacket.WriteString(NotifyText);
     return &_worldPacket;
 }
+
+void WorldPackets::Chat::EmoteClient::Read()
+{
+    _worldPacket >> EmoteID;
+}

@@ -147,7 +147,7 @@ enum TalentSpecialization // talent tabs
     TALENT_SPEC_ROGUE_COMBAT            = 260,
     TALENT_SPEC_ROGUE_SUBTLETY          = 261,
     TALENT_SPEC_SHAMAN_ELEMENTAL        = 262,
-    TALENT_SPEC_SHAMAN_ENCHANCEMENT     = 263,
+    TALENT_SPEC_SHAMAN_ENHANCEMENT      = 263,
     TALENT_SPEC_SHAMAN_RESTORATION      = 264,
     TALENT_SPEC_WARLOCK_AFFLICTION      = 265,
     TALENT_SPEC_WARLOCK_DEMONOLOGY      = 266,
@@ -2626,6 +2626,8 @@ class Player : public Unit, public GridObject<Player>
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
+
+        void OnCombatExit();
 
     protected:
         // Gamemaster whisper whitelist
