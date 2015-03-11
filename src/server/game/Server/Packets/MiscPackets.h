@@ -493,6 +493,17 @@ namespace WorldPackets
             std::array<int32, MAX_STATS> StatDelta;
             int32 Cp = 0;
         };
+
+        class PlayMusic final : public ServerPacket
+        {
+        public:
+            PlayMusic() : ServerPacket(SMSG_PLAY_MUSIC, 4) { }
+            PlayMusic(uint32 soundKitID) : ServerPacket(SMSG_PLAY_MUSIC, 4), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SoundKitID = 0;
+        };
     }
 }
 

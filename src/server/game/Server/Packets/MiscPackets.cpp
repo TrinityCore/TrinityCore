@@ -354,3 +354,10 @@ WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::PlayMusic::Write()
+{
+    _worldPacket << uint32(SoundKitID);
+
+    return &_worldPacket;
+}

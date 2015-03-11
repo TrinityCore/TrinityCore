@@ -3494,12 +3494,7 @@ void Map::SendZoneDynamicInfo(Player* player)
         return;
 
     if (uint32 music = itr->second.MusicId)
-    {
-        WorldPacket data(SMSG_PLAY_MUSIC, 4);
-        data << uint32(music);
-        data << player->GetGUID();
-        player->SendDirectMessage(&data);
-    }
+        player->SendDirectMessage(WorldPackets::Misc::PlayMusic(music).Write());
 
     if (WeatherState weatherId = itr->second.WeatherId)
     {
@@ -3530,12 +3525,7 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
                 if (player->GetZoneId() == zoneId)
-                {
-                    WorldPacket data(SMSG_PLAY_MUSIC, 4);
-                    data << uint32(musicId);
-                    data << player->GetGUID();
-                    player->SendDirectMessage(&data);
-                }
+                    player->SendDirectMessage(WorldPackets::Misc::PlayMusic(musicId).Write());
     }
 }
 
