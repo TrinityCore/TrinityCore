@@ -41,3 +41,20 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::EnvironmentalDamageLog::Write()
+{
+    _worldPacket << Victim;
+    _worldPacket << Type;
+    _worldPacket << Amount;
+    _worldPacket << Resisted;
+    _worldPacket << Absorbed;
+
+    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.FlushBits();
+
+    if (LogData.HasValue)
+        _worldPacket << LogData.Value;
+
+    return &_worldPacket;
+}
