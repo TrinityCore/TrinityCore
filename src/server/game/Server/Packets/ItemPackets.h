@@ -235,6 +235,18 @@ namespace WorldPackets
             uint8 SlotNum = 0;
             uint8 ContainerId = 0;
         };
+
+        class SellResponse final : public ServerPacket
+        {
+        public:
+            explicit SellResponse() : ServerPacket(SMSG_SELL_ITEM, 8 + 8 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VendorGUID;
+            ObjectGuid ItemGUID;
+            SellResult Reason = SELL_ERR_UNK;
+        };
     }
 }
 

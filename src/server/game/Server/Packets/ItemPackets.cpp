@@ -173,3 +173,12 @@ void DestroyItem::Read()
     _worldPacket >> Count;
 }
 }
+
+WorldPacket const* WorldPackets::Item::SellResponse::Write()
+{
+    _worldPacket << VendorGUID;
+    _worldPacket << ItemGUID;
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}

@@ -359,13 +359,13 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
     if (!creature)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleSellItemOpcode - {} not found or you can not interact with him.", packet.VendorGUID.ToString());
-        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, packet.ItemGUID, 0);
+        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, packet.ItemGUID);
         return;
     }
 
     if ((creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SELL_VENDOR) != 0)
     {
-        _player->SendSellError(SELL_ERR_CANT_SELL_TO_THIS_MERCHANT, creature, packet.ItemGUID, 0);
+        _player->SendSellError(SELL_ERR_CANT_SELL_TO_THIS_MERCHANT, creature, packet.ItemGUID);
         return;
     }
 
@@ -379,21 +379,21 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
         // prevent sell not owner item
         if (_player->GetGUID() != pItem->GetOwnerGUID())
         {
-            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID, 0);
+            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
             return;
         }
 
         // prevent sell non empty bag by drag-and-drop at vendor's item list
         if (pItem->IsNotEmptyBag())
         {
-            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID, 0);
+            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
             return;
         }
 
         // prevent sell currently looted item
         if (_player->GetLootGUID() == pItem->GetGUID())
         {
-            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID, 0);
+            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
             return;
         }
 
@@ -411,7 +411,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
             // prevent sell more items that exist in stack (possible only not from client)
             if (packet.Amount > pItem->GetCount())
             {
-                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID, 0);
+                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
                 return;
             }
         }
@@ -426,7 +426,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                 if (_player->GetMoney() >= MAX_MONEY_AMOUNT - money)               // prevent exceeding gold limit
                 {
                     _player->SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, nullptr, nullptr);
-                    _player->SendSellError(SELL_ERR_UNK, creature, packet.ItemGUID, 0);
+                    _player->SendSellError(SELL_ERR_UNK, creature, packet.ItemGUID);
                     return;
                 }
 
@@ -436,7 +436,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                     if (!pNewItem)
                     {
                         TC_LOG_ERROR("network", "WORLD: HandleSellItemOpcode - could not create clone of item {}; count = {}", pItem->GetEntry(), packet.Amount);
-                        _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID, 0);
+                        _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
                         return;
                     }
 
@@ -462,11 +462,11 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                 _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
             }
             else
-                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID, 0);
+                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
             return;
         }
     }
-    _player->SendSellError(SELL_ERR_CANT_FIND_ITEM, creature, packet.ItemGUID, 0);
+    _player->SendSellError(SELL_ERR_CANT_FIND_ITEM, creature, packet.ItemGUID);
     return;
 }
 
@@ -478,7 +478,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
     if (!creature)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleBuybackItem - Unit ({}) not found or you can not interact with him.", packet.VendorGUID.ToString());
-        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty, 0);
+        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty);
         return;
     }
 
@@ -561,7 +561,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
     if (!vendor)
     {
         TC_LOG_DEBUG("network", "WORLD: SendListInventory - {} not found or you can not interact with him.", vendorGuid.ToString());
-        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty, 0);
+        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty);
         return;
     }
 
