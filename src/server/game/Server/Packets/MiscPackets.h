@@ -40,15 +40,26 @@ namespace WorldPackets
             WeatherState WeatherID = WeatherState(0);
         };
 
-        class PlaySound final : public ServerPacket
+        class PlayMusic final : public ServerPacket
         {
         public:
-            PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 4) { }
-            PlaySound(int32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 4), SoundKitID(soundKitID) { }
+            PlayMusic() : ServerPacket(SMSG_PLAY_MUSIC, 4) { }
+            PlayMusic(uint32 soundKitID) : ServerPacket(SMSG_PLAY_MUSIC, 4), SoundKitID(soundKitID) { }
 
             WorldPacket const* Write() override;
 
-            int32 SoundKitID = 0;
+            uint32 SoundKitID = 0;
+        };
+
+        class TC_GAME_API PlaySound final : public ServerPacket
+        {
+        public:
+            PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 4) { }
+            PlaySound(uint32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 4), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SoundKitID = 0;
         };
 
         class OverrideLight final : public ServerPacket
