@@ -16,8 +16,8 @@
  */
 
 #include "LFGPackets.h"
-#include "PacketUtilities.h"
 #include "TicketPackets.h"
+#include "PacketUtilities.h"
 
 using namespace WorldPackets;
 
