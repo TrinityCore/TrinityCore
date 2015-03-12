@@ -26,7 +26,7 @@ AppenderDB::~AppenderDB() { }
 void AppenderDB::_write(LogMessage const& message)
 {
     // Avoid infinite loop, PExecute triggers Logging with "sql.sql" type
-    if (!enabled || !message.type.find("sql"))
+    if (!enabled || (message.type.find("sql") != std::string::npos))
         return;
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
