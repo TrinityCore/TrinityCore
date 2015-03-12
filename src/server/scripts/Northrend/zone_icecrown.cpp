@@ -24,22 +24,168 @@
 #include "TemporarySummon.h"
 #include "CombatAI.h"
 
+#define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
+#define GOSSIP_SQUIRE_ITEM_2 "How do the Argent Crusader raiders fight?"
+
+Position const SquireDavidArgentValiant[2] =
+{
+    {8575.451f, 952.472f, 547.554f, 0.38f}, // Squire David Argent Valiant Starting Position
+    {8599.258f, 963.951f, 547.553f}, // Squire David Argent Valiant Fight Position
+};
+
+Position const SquireDannyArgentChampion[2] =
+{
+    {8536.472f, 1074.847f, 553.701f, 1.18f}, // Squire Danny Argent Valiant Starting Position
+    {8550.464f, 1101.494f, 556.787f}, // Squire Danny Argent Valiant Fight Position
+};
+
+/*######
+## npc_squire_danny
+########*/
+
+enum ArgentSquires
+{
+	// Quests
+	QUEST_THE_ASPIRANT_S_CHALLENGE_H					= 13680,
+	QUEST_THE_ASPIRANT_S_CHALLENGE_A					= 13679,
+	QUEST_THE_VALIANT_S_CHALLENGE_H						= 13727,
+	QUEST_THE_VALIANT_S_CHALLENGE_A						= 13724,
+
+	// NPCs
+	NPC_ARGENT_VALIANT									= 33448,
+	NPC_ARGENT_CHAMPION									= 33707,
+
+	// Gossip Menu
+	GOSSIP_TEXTID_SQUIRE								= 14407
+};
+
+enum ArgentWarriors
+{
+	// Spells
+	SPELL_CHARGE = 63010,
+	SPELL_SHIELD_BREAKER = 65147,
+
+	//Kill Credits
+	SPELL_KILL_CREDIT_VALIANT = 63049,
+	SPELL_KILL_CREDIT_CHAMPION = 63516,
+};
+
+class npc_squire_danny : public CreatureScript
+{
+public:
+	npc_squire_danny() : CreatureScript("npc_squire_danny") { }
+
+	bool OnGossipHello(Player* player, Creature* creature) override
+	{
+		if (player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_A) == QUEST_STATUS_INCOMPLETE)
+		{
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+		}
+
+		player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_SQUIRE, creature->GetGUID());
+		return true;
+	}
+
+	bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+	{
+		player->PlayerTalkClass->ClearMenus();
+		if (action == GOSSIP_ACTION_INFO_DEF + 1)
+		{
+			player->CLOSE_GOSSIP_MENU();
+			creature->SummonCreature(NPC_ARGENT_CHAMPION, SquireDannyArgentChampion[0]);
+		}
+		return true;
+	}
+};
+
+
+/*######
+## npc_argent_champion
+######*/
+
+class npc_argent_champion : public CreatureScript
+{
+public:
+	npc_argent_champion() : CreatureScript("npc_argent_champion") { }
+
+	struct npc_argent_championAI : public ScriptedAI
+	{
+		npc_argent_championAI(Creature* creature) : ScriptedAI(creature)
+		{
+			Initialize();
+			creature->GetMotionMaster()->MovePoint(0, SquireDannyArgentChampion[1]);
+			creature->setFaction(35);
+		}
+
+		void Initialize()
+		{
+			uiChargeTimer = 7000;
+			uiShieldBreakerTimer = 10000;
+		}
+
+		uint32 uiChargeTimer;
+		uint32 uiShieldBreakerTimer;
+
+		void Reset() override
+		{
+			Initialize();
+		}
+
+		void MovementInform(uint32 uiType, uint32 /*uiId*/) override
+		{
+			if (uiType != POINT_MOTION_TYPE)
+				return;
+
+			me->setFaction(14);
+		}
+
+		void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
+		{
+			if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+			{
+				uiDamage = 0;
+				pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT_CHAMPION, true);
+				me->setFaction(35);
+				me->DespawnOrUnsummon(5000);
+				me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+				EnterEvadeMode();
+			}
+		}
+
+		void UpdateAI(uint32 uiDiff) override
+		{
+			if (!UpdateVictim())
+				return;
+
+			if (uiChargeTimer <= uiDiff)
+			{
+				DoCastVictim(SPELL_CHARGE);
+				uiChargeTimer = 7000;
+			}
+			else uiChargeTimer -= uiDiff;
+
+			if (uiShieldBreakerTimer <= uiDiff)
+			{
+				DoCastVictim(SPELL_SHIELD_BREAKER);
+				uiShieldBreakerTimer = 10000;
+			}
+			else uiShieldBreakerTimer -= uiDiff;
+
+			DoMeleeAttackIfReady();
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new npc_argent_championAI(creature);
+	}
+};
+
+
 /*######
 ## npc_squire_david
 ######*/
-
-enum SquireDavid
-{
-    QUEST_THE_ASPIRANT_S_CHALLENGE_H                    = 13680,
-    QUEST_THE_ASPIRANT_S_CHALLENGE_A                    = 13679,
-
-    NPC_ARGENT_VALIANT                                  = 33448,
-
-    GOSSIP_TEXTID_SQUIRE                                = 14407
-};
-
-#define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
-#define GOSSIP_SQUIRE_ITEM_2 "How do the Argent Crusader raiders fight?"
 
 class npc_squire_david : public CreatureScript
 {
@@ -65,7 +211,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
-            creature->SummonCreature(NPC_ARGENT_VALIANT, 8575.451f, 952.472f, 547.554f, 0.38f);
+            creature->SummonCreature(NPC_ARGENT_VALIANT, SquireDavidArgentValiant[0]);
         }
         return true;
     }
@@ -74,13 +220,6 @@ public:
 /*######
 ## npc_argent_valiant
 ######*/
-
-enum ArgentValiant
-{
-    SPELL_CHARGE                = 63010,
-    SPELL_SHIELD_BREAKER        = 65147,
-    SPELL_KILL_CREDIT           = 63049
-};
 
 class npc_argent_valiant : public CreatureScript
 {
@@ -92,8 +231,8 @@ public:
         npc_argent_valiantAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            creature->GetMotionMaster()->MovePoint(0, 8599.258f, 963.951f, 547.553f);
-            creature->setFaction(35); //wrong faction in db?
+			creature->GetMotionMaster()->MovePoint(0, SquireDavidArgentValiant[1]);
+            creature->setFaction(35);
         }
 
         void Initialize()
@@ -123,7 +262,7 @@ public:
             if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
                 uiDamage = 0;
-                pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
+                pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT_VALIANT, true);
                 me->setFaction(35);
                 me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
@@ -838,6 +977,8 @@ class npc_frostbrood_skytalon : public CreatureScript
 void AddSC_icecrown()
 {
     new npc_squire_david;
+	new npc_squire_danny;
+	new npc_argent_champion;
     new npc_argent_valiant;
     new npc_guardian_pavilion;
     new npc_tournament_training_dummy;
