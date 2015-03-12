@@ -8744,12 +8744,26 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
     if (permission != NONE_PERMISSION)
     {
+        LootMethod _lootMethod = FREE_FOR_ALL;
+        if (Group* group = GetGroup())
+        {
+            if (Creature* creature = GetMap()->GetCreature(guid))
+            {
+                if (Player* recipient = creature->GetLootRecipient())
+                {
+                    if (group == recipient->GetGroup())
+                        _lootMethod = group->GetLootMethod();
+                }
+            }
+        }
+
         SetLootGUID(guid);
 
         WorldPackets::Loot::LootResponse packet;
         packet.LootObj = guid;
         packet.Owner = loot->GetGUID();
-        packet.LootMethod = loot_type;
+        packet.LootMethod = _lootMethod;
+        packet.AcquireReason = loot_type;
         if (!GetGroup())
             packet.PersonalLooting = true;
         else
