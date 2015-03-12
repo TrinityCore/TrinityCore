@@ -1424,7 +1424,6 @@ CREATE TABLE `corpse` (
   `posZ` float NOT NULL DEFAULT '0',
   `orientation` float NOT NULL DEFAULT '0',
   `mapId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
-  `phaseMask` int(10) unsigned NOT NULL DEFAULT '1',
   `displayId` int(10) unsigned NOT NULL DEFAULT '0',
   `itemCache` text NOT NULL,
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1451,6 +1450,30 @@ LOCK TABLES `corpse` WRITE;
 /*!40000 ALTER TABLE `corpse` ENABLE KEYS */;
 UNLOCK TABLES;
 
+--
+-- Table structure for table `corpse_phases`
+--
+
+DROP TABLE IF EXISTS `corpse_phases`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `corpse_phases` (
+  `Guid` int(10) unsigned NOT NULL,
+  `PhaseId` int(10) unsigned NOT NULL,
+  `OwnerGuid` int(10) unsigned NOT NULL,
+  `Time` int(10) unsigned NOT NULL DEFAULT '0',
+  `CorpseType` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`Guid`,`PhaseId`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Grid Loading System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `corpse_phases`
+--
+LOCK TABLES `corpse_phases` WRITE;
+/*!40000 ALTER TABLE `corpse_phases` DISABLE KEYS */;
+/*!40000 ALTER TABLE `corpse_phases` ENABLE KEYS */;
+UNLOCK TABLES;
 --
 -- Table structure for table `creature_respawn`
 --
