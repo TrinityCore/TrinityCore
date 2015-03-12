@@ -64,10 +64,10 @@ namespace WorldPackets
 
             ObjectGuid LootObj;
             ObjectGuid Owner;
-            uint8 Threshold     = 17; // Most common value
-            uint8 LootMethod    = 0;
-            uint8 AcquireReason = 0;
-            uint8 FailureReason = 2; // Most common value
+            uint8 Threshold      = 2; // Most common value
+            uint8 LootMethod     = 0;
+            uint8 AcquireReason  = 0;
+            uint8 FailureReason  = 17; // Most common value
             uint32 Coins        = 0;
             std::vector<LootItem> Items;
             std::vector<LootCurrency> Currencies;
