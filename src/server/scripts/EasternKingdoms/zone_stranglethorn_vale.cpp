@@ -29,8 +29,11 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "ScriptPCH.h"
+#include <cstring>
 
 /*######
 ## npc_yenniku
@@ -130,7 +133,94 @@ public:
 ##
 ######*/
 
+
+enum LandrosTexts
+{
+    SAY_WRONG = 1,
+    SAY_CORRECT = 2
+};
+
+enum LandroMenus
+{
+    WELCOME                         =   8855,
+    PROMOTION_MENU_TEXT             =   8856,
+    PROMOTION                       =   9197
+};
+
+class landro_longshot : public CreatureScript
+{
+    public:
+
+        landro_longshot(): CreatureScript("landro_longshot") { }
+
+        int SelectedReward;
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "What promotions do you have?", GOSSIP_SENDER_MAIN, PROMOTION);
+            player->SEND_GOSSIP_MENU(WELCOME, creature->GetGUID());
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+            
+            if (action != 0)
+            {
+                SelectedReward = action;
+            }
+
+            QueryResult GetGossipFields = WorldDatabase.PQuery("SELECT option_text, action_menu_id FROM gossip_menu_option WHERE menu_id = %u", action);
+            do{
+                Field* fields = GetGossipFields->Fetch();
+
+                std::string OptionText      =   fields[0].GetString();
+                uint32  ActionMenuID        =   fields[1].GetUInt32();
+                if (ActionMenuID != 0)
+                {
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OptionText, GOSSIP_SENDER_MAIN, ActionMenuID);
+                }
+                else
+                {
+                    player->ADD_GOSSIP_ITEM_EXTENDED(0, OptionText, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1, "", 0, true);
+                }
+            } while (GetGossipFields->NextRow());
+
+            player->SEND_GOSSIP_MENU(PROMOTION_MENU_TEXT, creature->GetGUID());
+            return true;
+        }
+
+        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, char const* code)
+        {
+            player->PlayerTalkClass->ClearMenus();
+            uint32 codeUINT = (uint32)atol(code);
+            if (!codeUINT)
+                return false;
+            QueryResult SearchForCode = WorldDatabase.PQuery("SELECT item FROM promotion_codes WHERE code = %u AND collection = %u AND used = 0", codeUINT, SelectedReward);
+            if (!SearchForCode)
+            {
+                creature->AI()->Talk(SAY_WRONG);
+            }
+            else
+            {
+                creature->AI()->Talk(SAY_CORRECT);
+                do
+                {
+                    Field *fields = SearchForCode->Fetch();
+                    player->AddItem(fields[0].GetUInt32(), 1);
+                    WorldDatabase.PQuery("Update promotion_codes SET USED = 1 WHERE code = %u", codeUINT);
+                } while (SearchForCode->NextRow());
+            }
+
+            player->PlayerTalkClass->SendCloseGossip();
+            return true;
+        }
+
+};
+
 void AddSC_stranglethorn_vale()
 {
     new npc_yenniku();
+    new landro_longshot();
 }
