@@ -376,7 +376,7 @@ void Log::SetRealmId(uint32 id)
 {
     for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
         if (it->second && it->second->getType() == APPENDER_DB)
-            ((AppenderDB *)it->second)->setRealmId(id);
+            static_cast<AppenderDB*>(it->second)->setRealmId(id);
 }
 
 void Log::Close()
