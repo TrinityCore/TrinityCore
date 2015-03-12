@@ -181,3 +181,8 @@ WorldPacket const* WorldPackets::Character::PlayedTime::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Character::SetTitle::Read()
+{
+    _worldPacket >> TitleID;
+}

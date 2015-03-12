@@ -341,6 +341,16 @@ namespace WorldPackets
             uint32 LevelTime = 0;
             bool TriggerScriptEvent = false;
         };
+
+        class SetTitle final : public ClientPacket
+        {
+        public:
+            explicit SetTitle(WorldPacket&& packet) : ClientPacket(CMSG_SET_TITLE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TitleID = 0;
+        };
     }
 }
 

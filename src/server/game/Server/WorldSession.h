@@ -152,8 +152,9 @@ namespace WorldPackets
         class ShowingCloak;
         class ShowingHelm;
         class PlayerLogout;
-        class PlayedTimeClient;
         class SetActionBarToggles;
+        class PlayedTimeClient;
+        class SetTitle;
     }
 
     namespace ClientConfig
@@ -1168,7 +1169,7 @@ class TC_GAME_API WorldSession
         void HandleFarSightOpcode(WorldPacket& recvData);
         void HandleSetDungeonDifficultyOpcode(WorldPackets::Misc::SetDungeonDifficulty& setDungeonDifficulty);
         void HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDifficulty& setRaidDifficulty);
-        void HandleSetTitleOpcode(WorldPacket& recvData);
+        void HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packet);
         void HandleRealmSplitOpcode(WorldPacket& recvData);
         void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet);
         void HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet);
