@@ -5500,10 +5500,7 @@ void Spell::EffectPlayMusic(SpellEffIndex /*effIndex*/)
         return;
     }
 
-    WorldPacket data(SMSG_PLAY_MUSIC, 4);
-    data << uint32(soundid);
-    data << unitTarget->GetGUID();
-    unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
+    unitTarget->ToPlayer()->GetSession()->SendPacket(WorldPackets::Misc::PlayMusic(soundid).Write());
 }
 
 void Spell::EffectSpecCount(SpellEffIndex /*effIndex*/)

@@ -33,6 +33,7 @@
 #include "CharacterPackets.h"
 #include "TalentPackets.h"
 #include "Chat.h"
+#include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
@@ -1293,13 +1294,13 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 
     DealDamageMods(this, damage, &absorb);
 
-    WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, (21));
-    data << GetGUID();
-    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
-    data << uint32(damage);
-    data << uint32(absorb);
-    data << uint32(resist);
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::EnvironmentalDamageLog packet;
+    packet.Victim = GetGUID();
+    packet.Type = type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL;
+    packet.Amount = damage;
+    packet.Absorbed = absorb;
+    packet.Resisted = resist;
+    SendMessageToSet(packet.Write(), true);
 
     uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
@@ -12917,11 +12918,11 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid)
 {
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_SELL_RESPONSE");
-    WorldPacket data(SMSG_SELL_RESPONSE, (8+8+1));  // last check 4.3.4
-    data << (creature ? creature->GetGUID() : ObjectGuid::Empty);
-    data << guid;
-    data << uint8(msg);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Item::SellResponse sellResponse;
+    sellResponse.VendorGUID = (creature ? creature->GetGUID() : ObjectGuid::Empty);
+    sellResponse.ItemGUID = guid;
+    sellResponse.Reason = msg;
+    GetSession()->SendPacket(sellResponse.Write());
 }
 
 bool Player::IsUseEquipedWeapon(bool mainhand) const
