@@ -176,3 +176,10 @@ void WorldPackets::Combat::SetSheathed::Read()
     _worldPacket >> CurrentSheathState;
     Animate = _worldPacket.ReadBit();
 }
+
+WorldPacket const* WorldPackets::Combat::CancelAutoRepeat::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}

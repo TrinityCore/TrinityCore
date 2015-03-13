@@ -215,6 +215,16 @@ namespace WorldPackets
             int32 CurrentSheathState = 0;
             bool Animate = true;
         };
+
+        class CancelAutoRepeat final : public ServerPacket
+        {
+        public:
+            CancelAutoRepeat() : ServerPacket(SMSG_CANCEL_AUTO_REPEAT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
     }
 }
 

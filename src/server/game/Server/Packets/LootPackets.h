@@ -38,8 +38,8 @@ namespace WorldPackets
 
         struct LootItem
         {
-            uint8 Type              = 0;
-            uint8 UIType            = 0;
+            uint8 Type              = 2;
+            uint8 UIType            = 4;
             uint32 Quantity         = 0;
             uint8 LootItemType      = 0;
             uint8 LootListID        = 0;
@@ -64,16 +64,16 @@ namespace WorldPackets
 
             ObjectGuid LootObj;
             ObjectGuid Owner;
-            uint8 Threshold     = 17; // Most common value
-            uint8 LootMethod    = 0;
-            uint8 AcquireReason = 0;
-            uint8 FailureReason = 2; // Most common value
-            uint32 Coins        = 0;
+            uint8 Threshold      = 2; // Most common value, 2 = Uncommon
+            uint8 LootMethod     = 0;
+            uint8 AcquireReason  = 0;
+            uint8 FailureReason  = 17; // Most common value
+            uint32 Coins         = 0;
             std::vector<LootItem> Items;
             std::vector<LootCurrency> Currencies;
             bool PersonalLooting = false;
             bool Acquired        = false;
-            bool AELooting      = false;
+            bool AELooting       = false;
         };
 
         struct LootRequest
