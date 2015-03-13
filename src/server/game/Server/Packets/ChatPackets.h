@@ -200,8 +200,7 @@ namespace WorldPackets
         class PrintNotification final : public ServerPacket
         {
         public:
-            PrintNotification() : ServerPacket(SMSG_NOTIFICATION, 3) { }
-            PrintNotification(std::string const& notifyText) : ServerPacket(SMSG_NOTIFICATION, 3), NotifyText(notifyText) { }
+            PrintNotification(std::string const& notifyText) : ServerPacket(SMSG_NOTIFICATION, 2 + notifyText.size()), NotifyText(notifyText) { }
 
             WorldPacket const* Write() override;
 
