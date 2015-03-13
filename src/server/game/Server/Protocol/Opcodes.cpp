@@ -250,7 +250,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CALENDAR_UPDATE_EVENT,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarUpdateEvent       );
     DEFINE_HANDLER(CMSG_CANCEL_AURA,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::CancelAura, &WorldSession::HandleCancelAuraOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CANCEL_AUTO_REPEAT_SPELL,                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelAutoRepeatSpellOpcode);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CANCEL_CAST,                             STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleCancelCastOpcode          );
+    DEFINE_HANDLER(CMSG_CANCEL_CAST,                                        STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Spells::CancelCast, &WorldSession::HandleCancelCastOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CANCEL_CHANNELLING,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelChanneling          );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CANCEL_GROWTH_AURA,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelGrowthAuraOpcode    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CANCEL_MASTER_LOOT_ROLL,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
