@@ -101,9 +101,10 @@ public:
     {
         std::string name;
         if (!_assignedTo.IsEmpty())
-            ObjectMgr::GetPlayerNameByGUID(_assignedTo, name);
+            if (ObjectMgr::GetPlayerNameByGUID(_assignedTo, name))
+                return name;
 
-        return name;
+        return nullptr;
     }
     std::string const& GetComment() { return _comment; }
 
