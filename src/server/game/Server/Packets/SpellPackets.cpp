@@ -620,3 +620,9 @@ WorldPacket const* WorldPackets::Spells::CancelSpellVisual::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Spells::CancelCast::Read()
+{
+    _worldPacket >> SpellID;
+    _worldPacket >> CastID;
+}
