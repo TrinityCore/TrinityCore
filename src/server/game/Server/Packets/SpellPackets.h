@@ -556,6 +556,27 @@ namespace WorldPackets
 
             ObjectGuid Guid;
         };
+
+        class CancelOrphanSpellVisual final : public ServerPacket
+        {
+        public:
+            CancelOrphanSpellVisual() : ServerPacket(SMSG_CANCEL_ORPHAN_SPELL_VISUAL, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellVisualID = 0;
+        };
+
+        class CancelSpellVisual final : public ServerPacket
+        {
+        public:
+            CancelSpellVisual() : ServerPacket(SMSG_CANCEL_SPELL_VISUAL, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Source;
+            int32 SpellVisualID = 0;
+        };
     }
 }
 
