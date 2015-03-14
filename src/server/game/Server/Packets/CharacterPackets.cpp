@@ -386,13 +386,10 @@ void WorldPackets::Character::LoadingScreenNotify::Read()
 
 WorldPacket const* WorldPackets::Character::InitialSetup::Write()
 {
-    _worldPacket << uint32(QuestsCompleted.size());
     _worldPacket << uint8(ServerExpansionLevel);
     _worldPacket << uint8(ServerExpansionTier);
     _worldPacket << int32(ServerRegionID);
     _worldPacket << uint32(RaidOrigin);
-    if (!QuestsCompleted.empty())
-        _worldPacket.append(QuestsCompleted.data(), QuestsCompleted.size());
 
     return &_worldPacket;
 }

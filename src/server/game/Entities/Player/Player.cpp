@@ -22476,7 +22476,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     WorldPackets::Character::InitialSetup initialSetup;
     initialSetup.ServerExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);
-    boost::to_block_range(*_completedQuestBits, std::back_inserter(initialSetup.QuestsCompleted));
+    // To-Do: Move this to PLAYER_FIELD_QUEST_COMPLETED
+    //boost::to_block_range(*_completedQuestBits, std::back_inserter(initialSetup.QuestsCompleted));
     SendDirectMessage(initialSetup.Write());
 
     SetMover(this);
