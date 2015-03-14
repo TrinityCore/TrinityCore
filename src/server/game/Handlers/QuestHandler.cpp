@@ -102,20 +102,15 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     _player->SendPreparedGossip(creature);
 }
 
-void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
+void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestGiverAcceptQuest& packet)
 {
-    ObjectGuid guid;
-    uint32 questId;
-    uint32 startCheat;
-    recvData >> guid >> questId >> startCheat;
-
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_ACCEPT_QUEST {}, quest = {}, startCheat = {}", guid.ToString(), questId, startCheat);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_ACCEPT_QUEST {}, quest = {}, startCheat = {}", packet.QuestGiverGUID.ToString(), packet.QuestID, packet.StartCheat);
 
     Object* object;
-    if (!guid.IsPlayer())
-        object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
+    if (!packet.QuestGiverGUID.IsPlayer())
+        object = ObjectAccessor::GetObjectByTypeMask(*_player, packet.QuestGiverGUID, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
     else
-        object = ObjectAccessor::FindPlayer(guid);
+        object = ObjectAccessor::FindPlayer(packet.QuestGiverGUID);
 
     auto CLOSE_GOSSIP_CLEAR_SHARING_INFO = ([this]()
     {
@@ -132,7 +127,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
     if (Player* playerQuestObject = object->ToPlayer())
     {
-        if ((!_player->GetPlayerSharingQuest().IsEmpty() && _player->GetPlayerSharingQuest() != guid) || !playerQuestObject->CanShareQuest(questId))
+        if ((!_player->GetPlayerSharingQuest().IsEmpty() && _player->GetPlayerSharingQuest() != packet.QuestGiverGUID) || !playerQuestObject->CanShareQuest(packet.QuestID))
         {
             CLOSE_GOSSIP_CLEAR_SHARING_INFO();
             return;
@@ -145,7 +140,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     }
     else
     {
-        if (!object->hasQuest(questId))
+        if (!object->hasQuest(packet.QuestID))
         {
             CLOSE_GOSSIP_CLEAR_SHARING_INFO();
             return;
@@ -159,7 +154,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID))
     {
         // prevent cheating
         if (!GetPlayer()->CanTakeQuest(quest, true))
@@ -195,7 +190,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
                         if (player->CanTakeQuest(quest, true))
                         {
-                            player->SetQuestSharingInfo(_player->GetGUID(), questId);
+                            player->SetQuestSharingInfo(_player->GetGUID(), packet.QuestID);
 
                             // need confirmation that any gossip window will close
                             player->PlayerTalkClass->SendCloseGossip();

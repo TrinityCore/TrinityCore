@@ -374,6 +374,7 @@ namespace WorldPackets
         class QueryQuestInfo;
         class QuestGiverRequestReward;
         class QuestGiverQueryQuest;
+        class QuestGiverAcceptQuest;
         class QueryQuestsCompleted;
     }
 
@@ -1073,7 +1074,7 @@ class TC_GAME_API WorldSession
         void HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet);
         void HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& packet);
         void HandleQuestgiverHelloOpcode(WorldPacket& recvPacket);
-        void HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvPacket);
+        void HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestGiverAcceptQuest& packet);
         void HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGiverQueryQuest& packet);
         void HandleQuestgiverChooseRewardOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverRequestRewardOpcode(WorldPackets::Quest::QuestGiverRequestReward& packet);

@@ -270,6 +270,18 @@ namespace WorldPackets
             bool RespondToGiver = false;
         };
 
+        class QuestGiverAcceptQuest final : public ClientPacket
+        {
+        public:
+            explicit QuestGiverAcceptQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_ACCEPT_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID = 0;
+            int32 StartCheat = 0;
+        };
+
         class QuestGiverOfferRewardMessage final : public ServerPacket
         {
         public:
