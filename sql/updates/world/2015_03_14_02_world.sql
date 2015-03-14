@@ -7,7 +7,7 @@ UPDATE `creature` SET `guid`=76006 WHERE  `guid`=214008;
 UPDATE `creature` SET `guid`=76007 WHERE  `guid`=214009;
 UPDATE `creature` SET `guid`=76008 WHERE  `guid`=214010;
 UPDATE `creature` SET `guid`=76009 WHERE  `guid`=214011;
-UPDATE `creature` SET `guid`=76011 WHERE  `guid`=214012;
+UPDATE `creature` SET `guid`=76010 WHERE  `guid`=214012;
 UPDATE `creature` SET `guid`=76011 WHERE  `guid`=214013;
 UPDATE `creature` SET `guid`=76012 WHERE  `guid`=214014;
 UPDATE `creature` SET `guid`=76013 WHERE  `guid`=214015;
