@@ -332,6 +332,7 @@ namespace WorldPackets
         class QuestGiverRequestReward;
         class QuestGiverQueryQuest;
         class QuestGiverAcceptQuest;
+        class QuestLogRemoveQuest;
     }
 
     namespace Social
@@ -1102,7 +1103,7 @@ class WorldSession
         void HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& packet);
         void HandleQuestgiverCancel(WorldPacket& recvData);
         void HandleQuestLogSwapQuest(WorldPacket& recvData);
-        void HandleQuestLogRemoveQuest(WorldPacket& recvData);
+        void HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemoveQuest& packet);
         void HandleQuestConfirmAccept(WorldPacket& recvData);
         void HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet);
         void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
