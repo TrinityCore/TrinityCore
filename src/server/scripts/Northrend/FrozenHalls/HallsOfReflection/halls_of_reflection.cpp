@@ -2640,7 +2640,7 @@ class npc_quel_delar_sword : public CreatureScript
                                 break;
                             case EVENT_QUEL_DELAR_FLIGHT:
                             {
-                                me->GetMotionMaster()->MoveCirclePath(QuelDelarCenterPos.GetPositionX(), QuelDelarCenterPos.GetPositionY(), 718.046f, 18.0f, true);
+                                me->GetMotionMaster()->MoveCirclePath(QuelDelarCenterPos.GetPositionX(), QuelDelarCenterPos.GetPositionY(), 718.046f, 18.0f, true, 16);
                                 _events.ScheduleEvent(EVENT_QUEL_DELAR_LAND, 15000);
                                 break;
                             }

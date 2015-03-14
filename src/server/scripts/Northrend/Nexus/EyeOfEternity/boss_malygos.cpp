@@ -520,7 +520,7 @@ public:
                     _despawned = false;
                     break;
                 case ACTION_CYCLIC_MOVEMENT:
-                    me->GetMotionMaster()->MoveCirclePath(MalygosPositions[3].GetPositionX(), MalygosPositions[3].GetPositionY(), 283.2763f, 120.0f, true);
+                    me->GetMotionMaster()->MoveCirclePath(MalygosPositions[3].GetPositionX(), MalygosPositions[3].GetPositionY(), 283.2763f, 120.0f, true, 16);
                     break;
             }
         }
@@ -1306,7 +1306,7 @@ public:
         {
             if (action < ACTION_DELAYED_DESPAWN)
             {
-                me->GetMotionMaster()->MoveCirclePath(MalygosPositions[3].GetPositionX(), MalygosPositions[3].GetPositionY(), 282.3402f, 35.0f, true);
+                me->GetMotionMaster()->MoveCirclePath(MalygosPositions[3].GetPositionX(), MalygosPositions[3].GetPositionY(), 282.3402f, 35.0f, true, 16);
             }
             else
             {

@@ -1130,7 +1130,7 @@ class npc_ominous_cloud : public CreatureScript
 
             void DoAction(int32 action) override
             {
-                me->GetMotionMaster()->MoveCirclePath(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY(), me->GetPositionZ() + 5.0f, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), true);
+                me->GetMotionMaster()->MoveCirclePath(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY(), me->GetPositionZ() + 5.0f, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), true, 16);
             }
         };
 
