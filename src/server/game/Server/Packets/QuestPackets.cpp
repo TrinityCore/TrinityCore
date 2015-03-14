@@ -426,3 +426,10 @@ void WorldPackets::Quest::QuestGiverQueryQuest::Read()
     _worldPacket >> QuestID;
     RespondToGiver = _worldPacket.ReadBit();
 }
+
+void WorldPackets::Quest::QuestGiverAcceptQuest::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    StartCheat = _worldPacket.ReadBit();
+}
