@@ -418,7 +418,7 @@ WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
     _worldPacket << CasterUnit;
     _worldPacket << uint8(CastID);
     _worldPacket << int32(SpellID);
-    _worldPacket << uint8(Reason);
+    _worldPacket << uint16(Reason);
 
     return &_worldPacket;
 }
