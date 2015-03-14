@@ -381,16 +381,13 @@ void WorldSession::HandleQuestLogSwapQuest(WorldPacket& recvData)
     GetPlayer()->SwapQuestSlot(slot1, slot2);
 }
 
-void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
+void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemoveQuest& packet)
 {
-    uint8 slot;
-    recvData >> slot;
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTLOG_REMOVE_QUEST slot = {}", packet.Entry);
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTLOG_REMOVE_QUEST slot = {}", slot);
-
-    if (slot < MAX_QUEST_LOG_SIZE)
+    if (packet.Entry < MAX_QUEST_LOG_SIZE)
     {
-        if (uint32 questId = _player->GetQuestSlotQuestId(slot))
+        if (uint32 questId = _player->GetQuestSlotQuestId(packet.Entry))
         {
             if (!_player->TakeQuestSourceItem(questId, true))
                 return;                                     // can't un-equip some items, reject quest cancel
@@ -428,7 +425,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
             sScriptMgr->OnQuestStatusChange(_player, questId);
         }
 
-        _player->SetQuestSlot(slot, 0);
+        _player->SetQuestSlot(packet.Entry, 0);
 
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED, 1);
     }

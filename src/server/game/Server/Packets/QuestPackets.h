@@ -282,6 +282,16 @@ namespace WorldPackets
             int32 StartCheat = 0;
         };
 
+        class QuestLogRemoveQuest final : public ClientPacket
+        {
+        public:
+            explicit QuestLogRemoveQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTLOG_REMOVE_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Entry = 0;
+        };
+
         class QuestGiverOfferRewardMessage final : public ServerPacket
         {
         public:

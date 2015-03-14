@@ -246,6 +246,11 @@ void WorldPackets::Quest::QuestGiverAcceptQuest::Read()
     _worldPacket >> StartCheat;
 }
 
+void WorldPackets::Quest::QuestLogRemoveQuest::Read()
+{
+    _worldPacket >> Entry;
+}
+
 WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 {
     _worldPacket << QuestGiverGUID;
