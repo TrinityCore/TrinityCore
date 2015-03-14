@@ -577,6 +577,17 @@ namespace WorldPackets
             ObjectGuid Source;
             int32 SpellVisualID = 0;
         };
+
+        class CancelCast final : public ClientPacket
+        {
+        public:
+            CancelCast(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_CAST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SpellID = 0;
+            uint8 CastID = 0;
+        };
     }
 }
 
