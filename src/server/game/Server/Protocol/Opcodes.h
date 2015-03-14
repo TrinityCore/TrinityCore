@@ -973,7 +973,7 @@ enum OpcodeServer : uint32
     SMSG_CHALLENGE_MODE_REWARDS                       = 0xBADD,
     SMSG_CHALLENGE_MODE_START                         = 0xBADD,
     SMSG_CHANGE_PLAYER_DIFFICULTY_RESULT              = 0xBADD,
-    SMSG_CHANNEL_LIST                                 = 0xBADD,
+    SMSG_CHANNEL_LIST                                 = 0x12FC,
     SMSG_CHANNEL_NOTIFY                               = 0x1634,
     SMSG_CHANNEL_NOTIFY_JOINED                        = 0x123B,
     SMSG_CHANNEL_NOTIFY_LEFT                          = 0x143B,
