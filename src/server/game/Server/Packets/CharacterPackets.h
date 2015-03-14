@@ -576,6 +576,16 @@ namespace WorldPackets
 
             bool ShowHelm = false;
         };
+
+        class SetTitle final : public ClientPacket
+        {
+        public:
+            SetTitle(WorldPacket&& packet) : ClientPacket(CMSG_SET_TITLE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TitleID = 0;
+        };
     }
 }
 

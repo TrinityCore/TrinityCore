@@ -423,3 +423,8 @@ void WorldPackets::Character::ShowingHelm::Read()
 {
     ShowHelm = _worldPacket.ReadBit();
 }
+
+void WorldPackets::Character::SetTitle::Read()
+{
+    _worldPacket >> TitleID;
+}
