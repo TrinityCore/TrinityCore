@@ -580,7 +580,7 @@ enum OpcodeClient : uint32
     CMSG_QUESTGIVER_REQUEST_REWARD                    = 0xBADD,
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY             = 0x0A39,
     CMSG_QUESTGIVER_STATUS_QUERY                      = 0x0A7B,
-    CMSG_QUESTLOG_REMOVE_QUEST                        = 0xBADD,
+    CMSG_QUESTLOG_REMOVE_QUEST                        = 0x04C3,
     CMSG_QUESTLOG_SWAP_QUEST                          = 0xBADD,
     CMSG_QUEST_CONFIRM_ACCEPT                         = 0xBADD,
     CMSG_QUEST_POI_QUERY                              = 0x1B2A,
