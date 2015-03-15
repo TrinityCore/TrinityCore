@@ -35,7 +35,6 @@
 #include <limits>
 #include <string>
 #include <vector>
-#include <boost/dynamic_bitset_fwd.hpp>
 
 struct CreatureTemplate;
 struct Mail;
@@ -664,8 +663,8 @@ enum QuestSaveType
 //               quest
 typedef std::map<uint32, QuestSaveType> QuestStatusSaveMap;
 
-// Size (in bytes) of client completed quests bit map
-#define QUESTS_COMPLETED_BITS_SIZE 2500
+// Size of client completed quests bit map
+#define QUESTS_COMPLETED_BITS_SIZE 625
 
 enum QuestSlotOffsets
 {
@@ -1691,6 +1690,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveQuestSlotState(uint16 slot, uint32 state);
         void SetQuestSlotTimer(uint16 slot, uint32 timer);
         void SwapQuestSlot(uint16 slot1, uint16 slot2);
+        void SetQuestCompletedBit(uint32 questBit, bool completed);
 
         uint16 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry);
         void AreaExploredOrEventHappens(uint32 questId);
@@ -2800,8 +2800,6 @@ class Player : public Unit, public GridObject<Player>
 
         RewardedQuestSet m_RewardedQuests;
         QuestStatusSaveMap m_RewardedQuestsSave;
-
-        boost::dynamic_bitset<uint8>* _completedQuestBits;
 
         SkillStatusMap mSkillStatus;
 

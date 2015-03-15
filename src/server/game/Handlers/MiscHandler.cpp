@@ -1146,23 +1146,20 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
     GetPlayer()->UpdateVisibilityForPlayer();
 }
 
-void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_SET_TITLE");
-
-    int32 title;
-    recvData >> title;
-
+    
     // -1 at none
-    if (title > 0 && title < MAX_TITLE_INDEX)
+    if (packet.TitleID > 0 && packet.TitleID < MAX_TITLE_INDEX)
     {
-       if (!GetPlayer()->HasTitle(title))
+       if (!GetPlayer()->HasTitle(packet.TitleID))
             return;
     }
     else
-        title = 0;
+        packet.TitleID = 0;
 
-    GetPlayer()->SetUInt32Value(PLAYER_CHOSEN_TITLE, title);
+    GetPlayer()->SetUInt32Value(PLAYER_CHOSEN_TITLE, packet.TitleID);
 }
 
 void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet)

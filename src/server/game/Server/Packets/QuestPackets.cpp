@@ -427,25 +427,9 @@ void WorldPackets::Quest::QuestGiverQueryQuest::Read()
     RespondToGiver = _worldPacket.ReadBit();
 }
 
-WorldPacket const* WorldPackets::Quest::SetQuestCompletedBit::Write()
+void WorldPackets::Quest::QuestGiverAcceptQuest::Read()
 {
-    _worldPacket << int32(Bit);
-    _worldPacket << int32(QuestID);
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Quest::ClearQuestCompletedBit::Write()
-{
-    _worldPacket << int32(Bit);
-    _worldPacket << int32(QuestID);
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Quest::ClearQuestCompletedBits::Write()
-{
-    _worldPacket << uint32(Qbits.size());
-    if (!Qbits.empty())
-        _worldPacket.append(Qbits.data(), Qbits.size());
-
-    return &_worldPacket;
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    StartCheat = _worldPacket.ReadBit();
 }
