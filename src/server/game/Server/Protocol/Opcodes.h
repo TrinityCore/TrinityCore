@@ -986,7 +986,7 @@ enum OpcodeServer : uint32
     SMSG_CHAR_CREATE                                  = 0x13E4,
     SMSG_CHAR_CUSTOMIZE                               = 0xBADD,
     SMSG_CHAR_CUSTOMIZE_RESULT                        = 0xBADD,
-    SMSG_CHAR_DELETE                                  = 0xBADD,
+    SMSG_CHAR_DELETE                                  = 0x01C2,
     SMSG_CHAR_ENUM                                    = 0x13F2,
     SMSG_CHAR_FACTION_CHANGE                          = 0x0A64,
     SMSG_CHAR_RENAME                                  = 0xBADD,
