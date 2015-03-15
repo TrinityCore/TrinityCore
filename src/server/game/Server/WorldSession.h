@@ -332,6 +332,7 @@ namespace WorldPackets
         class QuestGiverRequestReward;
         class QuestGiverQueryQuest;
         class QuestGiverAcceptQuest;
+        class QuestLogRemoveQuest;
     }
 
     namespace Social
@@ -409,9 +410,9 @@ enum AccountDataType
 
 enum TutorialAction
 {
-    TUTORIAL_ACTION_UPDATE = 0,
-    TUTORIAL_ACTION_CLEAR  = 1,
-    TUTORIAL_ACTION_RESET  = 2
+    TUTORIAL_ACTION_CLEAR   = 1,
+    TUTORIAL_ACTION_UPDATE  = 2,
+    TUTORIAL_ACTION_RESET   = 3
 };
 
 /*
@@ -1102,7 +1103,7 @@ class WorldSession
         void HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& packet);
         void HandleQuestgiverCancel(WorldPacket& recvData);
         void HandleQuestLogSwapQuest(WorldPacket& recvData);
-        void HandleQuestLogRemoveQuest(WorldPacket& recvData);
+        void HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemoveQuest& packet);
         void HandleQuestConfirmAccept(WorldPacket& recvData);
         void HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet);
         void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
