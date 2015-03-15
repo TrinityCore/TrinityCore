@@ -2422,6 +2422,36 @@ class spell_q10929_fumping : SpellScriptLoader
     }
 };
 
+class spell_q12414_hand_over_reins : public SpellScriptLoader
+{
+    public:
+        spell_q12414_hand_over_reins() : SpellScriptLoader("spell_q12414_hand_over_reins") { }
+        
+        class spell_q12414_hand_over_reins_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12414_hand_over_reins_SpellScript);
+            
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Creature* caster = GetCaster()->ToCreature();
+                GetHitUnit()->ExitVehicle();
+
+                if (caster)
+                    caster->DespawnOrUnsummon();
+            }
+            
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12414_hand_over_reins_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+        
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12414_hand_over_reins_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2480,4 +2510,5 @@ void AddSC_quest_spell_scripts()
     new spell_q13400_illidan_kill_master();
     new spell_q14100_q14111_make_player_destroy_totems();
     new spell_q10929_fumping();
+    new spell_q12414_hand_over_reins();
 }
