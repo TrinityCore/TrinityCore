@@ -433,3 +433,8 @@ void WorldPackets::Quest::QuestGiverAcceptQuest::Read()
     _worldPacket >> QuestID;
     StartCheat = _worldPacket.ReadBit();
 }
+
+void WorldPackets::Quest::QuestLogRemoveQuest::Read()
+{
+    _worldPacket >> Entry;
+}
