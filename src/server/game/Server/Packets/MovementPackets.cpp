@@ -595,3 +595,16 @@ void WorldPackets::Movement::MoveTeleportAck::Read()
     _worldPacket >> AckIndex;
     _worldPacket >> MoveTime;
 }
+
+void WorldPackets::Movement::MovementAck::Read()
+{
+    _worldPacket >> movementInfo;
+    _worldPacket >> AckIndex;
+}
+
+void WorldPackets::Movement::MovementSpeedAck::Read()
+{
+    _worldPacket >> movementInfo;
+    _worldPacket >> AckIndex;
+    _worldPacket >> Speed;
+}

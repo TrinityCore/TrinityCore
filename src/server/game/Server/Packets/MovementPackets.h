@@ -285,6 +285,29 @@ namespace WorldPackets
             int32 AckIndex = 0;
             int32 MoveTime = 0;
         };
+
+        class MovementAck final : public ClientPacket
+        {
+        public:
+            MovementAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            MovementInfo movementInfo;
+            int32 AckIndex = 0;
+        };
+
+        class MovementSpeedAck final : public ClientPacket
+        {
+        public:
+            MovementSpeedAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            MovementInfo movementInfo;
+            int32 AckIndex = 0;
+            float Speed = 0.0f;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);
