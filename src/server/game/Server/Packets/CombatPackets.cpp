@@ -183,3 +183,11 @@ WorldPacket const* WorldPackets::Combat::CancelAutoRepeat::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Combat::HealthUpdate::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << int32(Health);
+
+    return &_worldPacket;
+}
