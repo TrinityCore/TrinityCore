@@ -409,9 +409,9 @@ enum AccountDataType
 
 enum TutorialAction
 {
-    TUTORIAL_ACTION_UPDATE = 0,
-    TUTORIAL_ACTION_CLEAR  = 1,
-    TUTORIAL_ACTION_RESET  = 2
+    TUTORIAL_ACTION_CLEAR   = 1,
+    TUTORIAL_ACTION_UPDATE  = 2,
+    TUTORIAL_ACTION_RESET   = 3
 };
 
 /*
