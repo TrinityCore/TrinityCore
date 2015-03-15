@@ -291,7 +291,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_CHANNEL_VOICE_ON,                                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Channel::ChannelPlayerCommand, &WorldSession::HandleChannelCommand<&Channel::Voice>);
     DEFINE_HANDLER(CMSG_CHAR_CREATE,                                        STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::CreateChar, &WorldSession::HandleCharCreateOpcode);
     DEFINE_HANDLER(CMSG_CHAR_CUSTOMIZE,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Character::CharCustomize, &WorldSession::HandleCharCustomizeOpcode);
-    DEFINE_HANDLER(CMSG_CHAR_DELETE,                                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Character::DeleteChar, &WorldSession::HandleCharDeleteOpcode);
+    DEFINE_HANDLER(CMSG_CHAR_DELETE,                                        STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::DeleteChar, &WorldSession::HandleCharDeleteOpcode);
     DEFINE_HANDLER(CMSG_CHAR_ENUM,                                          STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::EnumCharacters, &WorldSession::HandleCharEnumOpcode);
     DEFINE_HANDLER(CMSG_CHAR_RACE_OR_FACTION_CHANGE,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Character::CharRaceOrFactionChange, &WorldSession::HandleCharRaceOrFactionChangeOpcode);
     DEFINE_HANDLER(CMSG_CHAR_RENAME,                                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Character::CharacterRenameRequest, &WorldSession::HandleCharRenameOpcode);
@@ -1073,7 +1073,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_CREATE,                             STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_CUSTOMIZE,                          STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_CUSTOMIZE_RESULT,                   STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_DELETE,                             STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_DELETE,                             STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_ENUM,                               STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_FACTION_CHANGE,                     STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_RENAME,                             STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
