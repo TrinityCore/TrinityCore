@@ -225,6 +225,17 @@ namespace WorldPackets
 
             ObjectGuid Guid;
         };
+
+        class HealthUpdate final : public ServerPacket
+        {
+        public:
+            HealthUpdate() : ServerPacket(SMSG_HEALTH_UPDATE, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            int32 Health = 0;
+        };
     }
 }
 
