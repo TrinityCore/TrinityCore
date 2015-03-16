@@ -482,6 +482,12 @@ namespace MMAP
 
         const dtMeshTile* oldTile = navMesh->getTileByRef(loadedTileRefs[packedXY]);
 
+        if (!oldTile)
+        {
+            TC_LOG_DEBUG("phase", "MMapData::AddSwap: phased mmtile %03u[%02i, %02i] load skipped, due to not loaded base tile ref on map %u", swap, x, y, _mapId);
+            return;
+        }
+
         uint32 old_x = oldTile->header->x;
         uint32 old_y = oldTile->header->y;
 
