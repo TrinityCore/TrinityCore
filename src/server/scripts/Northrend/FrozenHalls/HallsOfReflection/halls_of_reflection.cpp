@@ -2640,13 +2640,7 @@ class npc_quel_delar_sword : public CreatureScript
                                 break;
                             case EVENT_QUEL_DELAR_FLIGHT:
                             {
-                                Movement::MoveSplineInit init(me);
-                                FillCirclePath(QuelDelarCenterPos, 18.0f, 718.046f, init.Path(), true);
-                                init.SetFly();
-                                init.SetCyclic();
-                                init.SetAnimation(Movement::ToFly);
-                                init.Launch();
-
+                                me->GetMotionMaster()->MoveCirclePath(QuelDelarCenterPos.GetPositionX(), QuelDelarCenterPos.GetPositionY(), 718.046f, 18.0f, true, 16);
                                 _events.ScheduleEvent(EVENT_QUEL_DELAR_LAND, 15000);
                                 break;
                             }
@@ -2694,21 +2688,6 @@ class npc_quel_delar_sword : public CreatureScript
             }
 
         private:
-            void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
-            {
-                float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
-                float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
-
-                for (uint8 i = 0; i < 16; angle += step, ++i)
-                {
-                    G3D::Vector3 point;
-                    point.x = centerPos.GetPositionX() + radius * cosf(angle);
-                    point.y = centerPos.GetPositionY() + radius * sinf(angle);
-                    point.z = z;
-                    path.push_back(point);
-                }
-            }
-
             EventMap _events;
             InstanceScript* _instance;
             bool _intro;

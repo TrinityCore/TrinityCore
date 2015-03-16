@@ -149,14 +149,12 @@ bool WorldSocket::ReadDataHandler()
 
     uint16 opcode = uint16(header->cmd);
 
-    std::string opcodeName = GetOpcodeNameForLogging(opcode);
-
     WorldPacket packet(opcode, std::move(_packetBuffer));
 
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
 
-    TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
+    TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(opcode).c_str());
 
     switch (opcode)
     {
@@ -173,7 +171,7 @@ bool WorldSocket::ReadDataHandler()
             HandleAuthSession(packet);
             break;
         case CMSG_KEEP_ALIVE:
-            TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+            TC_LOG_DEBUG("network", "%s", GetOpcodeNameForLogging(opcode).c_str());
             sScriptMgr->OnPacketReceive(_worldSession, packet);
 #ifdef ELUNA
             if (!sEluna->OnPacketReceive(_worldSession, packet))
@@ -264,7 +262,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     recvPacket >> unk4;
     recvPacket.read(digest, 20);
 
-    TC_LOG_INFO("network", "WorldSocket::HandleAuthSession: client %u, serverId %u, account %s, loginServerType %u, clientseed %u, realmIndex %u",
+    TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: client %u, serverId %u, account %s, loginServerType %u, clientseed %u, realmIndex %u",
         clientBuild,
         serverId,
         account.c_str(),
@@ -436,7 +434,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (allowedAccountType > SEC_PLAYER && AccountTypes(security) < allowedAccountType)
     {
         SendAuthResponseError(AUTH_UNAVAILABLE);
-        TC_LOG_INFO("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
+        TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
         sScriptMgr->OnFailedAccountLogin(id);
         DelayedCloseSocket();
         return;
