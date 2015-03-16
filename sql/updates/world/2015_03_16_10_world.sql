@@ -11,9 +11,9 @@ DELETE FROM `gossip_menu` WHERE (`entry`=12353 AND `text_id`=17477);
 INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
 (12353, 17477); -- 47923
 
-DELETE FROM `broadcast_text` WHERE `ID`=48373;
-INSERT INTO `broadcast_text` (`ID`, `Language`, `MaleText`, `FemaleText`, `EmoteID0`, `EmoteID1`, `EmoteID2`, `EmoteDelay0`, `EmoteDelay1`, `EmoteDelay2`, `SoundId`, `Unk1`, `Unk2`, `VerifiedBuild`) VALUES
-(48373, 0, 'Yes, my child?', '', 0, 0, 0, 0, 0, 0, 0, 0, 1, 19342); -- 48373
+-- DELETE FROM `broadcast_text` WHERE `ID`=48373;
+-- INSERT INTO `broadcast_text` (`ID`, `Language`, `MaleText`, `FemaleText`, `EmoteID0`, `EmoteID1`, `EmoteID2`, `EmoteDelay0`, `EmoteDelay1`, `EmoteDelay2`, `SoundId`, `Unk1`, `Unk2`, `VerifiedBuild`) VALUES
+-- (48373, 0, 'Yes, my child?', '', 0, 0, 0, 0, 0, 0, 0, 0, 1, 19342); -- 48373
 
 DELETE FROM `gossip_menu_option` WHERE (`menu_id`=12398 AND `id`=0);
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`) VALUES
