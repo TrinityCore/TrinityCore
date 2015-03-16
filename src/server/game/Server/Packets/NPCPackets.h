@@ -168,6 +168,17 @@ namespace WorldPackets
 
             ObjectGuid Vendor;
         };
+
+        class SuppressNPCGreetings final : public ServerPacket
+        {
+        public:
+            SuppressNPCGreetings() : ServerPacket(SMSG_SUPPRESS_NPC_GREETINGS, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            bool SuppressNPCGreeting = false;
+        };
     }
 }
 
