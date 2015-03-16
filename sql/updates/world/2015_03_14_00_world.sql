@@ -1,4 +1,4 @@
-SET @CGUID  := 214003;
+SET @CGUID  := 76001;
 UPDATE `gameobject_template` SET `AIName`='SmartGameObjectAI' WHERE `entry`=177746;
 UPDATE `gameobject` SET `position_x`=-2288.696777, `position_y`=1345.580078, `position_z`=66.123787 WHERE `guid`=99892;
 
