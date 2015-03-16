@@ -1279,10 +1279,13 @@ public:
         uint32 phase = (uint32)atoi((char*)args);
 
         Unit* target = handler->getSelectedUnit();
-        if (target)
-            target->SetInPhase(phase, true, !target->IsInPhase(phase));
-        else
-            handler->GetSession()->GetPlayer()->SetInPhase(phase, true, !handler->GetSession()->GetPlayer()->IsInPhase(phase));
+        if (!target)
+            target = handler->GetSession()->GetPlayer();
+        
+        target->SetInPhase(phase, true, !target->IsInPhase(phase));
+
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            target->ToPlayer()->SendUpdatePhasing();
 
         return true;
     }

@@ -318,8 +318,7 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
         for (auto phase : sDB2Manager.GetPhasesForGroup(data->phaseGroup))
             creature->SetInPhase(phase, false, true);
     else
-        for (auto phase : GetPhases()) // Set the creature to the transport's phases
-            creature->SetInPhase(phase, false, true);
+        creature->CopyPhaseFrom(this);
 
     if (!map->AddToMap(creature))
     {
@@ -463,8 +462,8 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
         return NULL;
     }
 
-    for (auto itr : phases)
-        summon->SetInPhase(itr, false, true);
+    for (uint32 phase : phases)
+        summon->SetInPhase(phase, false, true);
 
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
 

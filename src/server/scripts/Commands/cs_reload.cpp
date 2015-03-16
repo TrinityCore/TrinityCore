@@ -1104,10 +1104,10 @@ public:
 
     static bool HandleReloadPhaseDefinitionsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Reloading phase_definitions table...");
-        sObjectMgr->LoadPhaseDefinitions();
+        TC_LOG_INFO("misc", "Reloading terrain_phase_info table...");
+        sObjectMgr->LoadTerrainPhaseInfo();
         sWorld->UpdatePhaseDefinitions();
-        handler->SendGlobalGMSysMessage("Phase Definitions reloaded.");
+        handler->SendGlobalGMSysMessage("Terrain phase infos reloaded.");
         return true;
     }
 

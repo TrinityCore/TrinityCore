@@ -7431,6 +7431,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     UpdateLocalChannels(newZone);
 
     UpdateZoneDependentAuras(newZone);
+
+    UpdateAreaPhase();
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -15423,6 +15425,7 @@ void Player::SendQuestUpdate(uint32 questId)
     }
 
     UpdateForQuestWorldObjects();
+    SendUpdatePhasing();
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
@@ -26207,15 +26210,15 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     Map* map = GetMap();
     uint32 pet_number = sObjectMgr->GeneratePetNumber();
-    if (!pet->Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, GetPhaseMask(), entry))
+
+    if (!pet->Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, entry))
     {
         TC_LOG_ERROR("misc", "no such creature entry %u", entry);
         delete pet;
         return NULL;
     }
 
-    for (auto itr : GetPhases())
-        pet->SetInPhase(itr, false, true);
+    pet->CopyPhaseFrom(this);
 
     pet->SetCreatorGUID(GetGUID());
     pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
@@ -26585,25 +26588,14 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
     #undef REMOVE_VIOLATING_FLAGS
 }
 
-void Player::UpdatePhasing()
+void Player::SendUpdatePhasing()
 {
     if (!IsInWorld())
         return;
 
-    std::set<uint32> phaseIds;
-    std::set<uint32> terrainswaps;
-    std::set<uint32> worldAreaSwaps;
+    RebuildTerrainSwaps(); // to set default map swaps
 
-    for (auto phase : GetPhases())
-    {
-        PhaseInfo const* info = sObjectMgr->GetPhaseInfo(phase);
-        if (!info)
-            continue;
-        terrainswaps.insert(info->terrainSwapMap);
-        worldAreaSwaps.insert(info->worldMapAreaSwap);
-    }
-
-    GetSession()->SendSetPhaseShift(GetPhases(), terrainswaps, worldAreaSwaps);
+    GetSession()->SendSetPhaseShift(GetPhases(), GetTerrainSwaps(), GetWorldMapAreaSwaps());
 }
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)

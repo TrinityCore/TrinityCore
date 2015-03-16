@@ -2163,11 +2163,13 @@ void GameObject::SetDisplayId(uint32 displayid)
     UpdateModel();
 }
 
-void GameObject::SetInPhase(uint32 id, bool update, bool apply)
+bool GameObject::SetInPhase(uint32 id, bool update, bool apply)
 {
-    WorldObject::SetInPhase(id, update, apply);
+    bool res = WorldObject::SetInPhase(id, update, apply);
     if (m_model && m_model->isEnabled())
         EnableCollision(true);
+
+    return res;
 }
 
 void GameObject::EnableCollision(bool enable)
