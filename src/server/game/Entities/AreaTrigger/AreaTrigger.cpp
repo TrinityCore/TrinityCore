@@ -78,8 +78,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
 
-    for (auto phase : caster->GetPhases())
-        SetInPhase(phase, false, true);
+    CopyPhaseFrom(caster);
 
     if (!GetMap()->AddToMap(this))
         return false;

@@ -1733,7 +1733,7 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
     {
         if (player->IsInWorld())
             player->GetMap()->SendUpdateTransportVisibility(player, oldPhases);
-        player->UpdatePhasing();
+        player->SendUpdatePhasing();
     }
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
@@ -1765,7 +1765,7 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
     {
         if (player->IsInWorld())
             player->GetMap()->SendUpdateTransportVisibility(player, oldPhases);
-        player->UpdatePhasing();
+        player->SendUpdatePhasing();
     }
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
