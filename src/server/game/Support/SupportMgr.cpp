@@ -219,7 +219,7 @@ std::string GmTicket::FormatViewMessageString(ChatHandler& handler, const char* 
 
 BugTicket::BugTicket() : _facing(0.0f) { }
 
-BugTicket::BugTicket(Player* player) : Ticket(player)
+BugTicket::BugTicket(Player* player) : Ticket(player), _facing(0.0f)
 {
     _id = sSupportMgr->GenerateBugId();
 }
@@ -432,7 +432,7 @@ std::string ComplaintTicket::FormatViewMessageString(ChatHandler& handler, bool 
 
 SuggestionTicket::SuggestionTicket() : _facing(0.0f) { }
 
-SuggestionTicket::SuggestionTicket(Player* player) : Ticket(player)
+SuggestionTicket::SuggestionTicket(Player* player) : Ticket(player), _facing(0.0f)
 {
     _id = sSupportMgr->GenerateSuggestionId();
 }
@@ -715,7 +715,8 @@ void SupportMgr::LoadComplaintTickets()
             _lastComplaintId = id;
 
         chatLogStmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GM_COMPLAINT_CHATLINES);
-        chatLogResult = CharacterDatabase.Query(stmt);
+        chatLogStmt->setUInt32(0, id);
+        chatLogResult = CharacterDatabase.Query(chatLogStmt);
 
         if (chatLogResult)
         {
