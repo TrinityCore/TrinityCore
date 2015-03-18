@@ -212,14 +212,12 @@ bool WorldSocket::ReadDataHandler()
 
         OpcodeClient opcode = static_cast<OpcodeClient>(cmd);
 
-        std::string opcodeName = GetOpcodeNameForLogging(opcode);
-
         WorldPacket packet(opcode, std::move(_packetBuffer), GetConnectionType());
 
         if (sPacketLog->CanLogPacket())
             sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort(), GetConnectionType());
 
-        TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
+        TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(opcode).c_str());
 
         switch (opcode)
         {
@@ -253,17 +251,17 @@ bool WorldSocket::ReadDataHandler()
                 break;
             }
             case CMSG_KEEP_ALIVE:
-                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                TC_LOG_DEBUG("network", "%s", GetOpcodeNameForLogging(opcode).c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 break;
             case CMSG_LOG_DISCONNECT:
                 packet.rfinish();   // contains uint32 disconnectReason;
-                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                TC_LOG_DEBUG("network", "%s", GetOpcodeNameForLogging(opcode).c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 return true;
             case CMSG_ENABLE_NAGLE:
             {
-                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                TC_LOG_DEBUG("network", "%s", GetOpcodeNameForLogging(opcode).c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 if (_worldSession)
                     _worldSession->HandleEnableNagleAlgorithm();
@@ -627,7 +625,7 @@ void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession
     if (allowedAccountType > SEC_PLAYER && AccountTypes(security) < allowedAccountType)
     {
         SendAuthResponseError(AUTH_UNAVAILABLE);
-        TC_LOG_INFO("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
+        TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
         sScriptMgr->OnFailedAccountLogin(id);
         DelayedCloseSocket();
         return;

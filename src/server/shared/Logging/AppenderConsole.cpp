@@ -158,14 +158,14 @@ void AppenderConsole::ResetColor(bool stdout_stream)
     #endif
 }
 
-void AppenderConsole::_write(LogMessage const& message)
+void AppenderConsole::_write(LogMessage const* message)
 {
-    bool stdout_stream = !(message.level == LOG_LEVEL_ERROR || message.level == LOG_LEVEL_FATAL);
+    bool stdout_stream = !(message->level == LOG_LEVEL_ERROR || message->level == LOG_LEVEL_FATAL);
 
     if (_colored)
     {
         uint8 index;
-        switch (message.level)
+        switch (message->level)
         {
             case LOG_LEVEL_TRACE:
                index = 5;
@@ -189,9 +189,9 @@ void AppenderConsole::_write(LogMessage const& message)
         }
 
         SetColor(stdout_stream, _colors[index]);
-        utf8printf(stdout_stream ? stdout : stderr, "%s%s", message.prefix.c_str(), message.text.c_str());
+        utf8printf(stdout_stream ? stdout : stderr, "%s%s\n", message->prefix.c_str(), message->text.c_str());
         ResetColor(stdout_stream);
     }
     else
-        utf8printf(stdout_stream ? stdout : stderr, "%s%s", message.prefix.c_str(), message.text.c_str());
+        utf8printf(stdout_stream ? stdout : stderr, "%s%s\n", message->prefix.c_str(), message->text.c_str());
 }
