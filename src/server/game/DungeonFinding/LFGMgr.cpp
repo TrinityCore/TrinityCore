@@ -1522,7 +1522,7 @@ LfgState LFGMgr::GetOldState(ObjectGuid guid)
 
 bool LFGMgr::IsVoteKickActive(ObjectGuid gguid)
 {
-    ASSERT(gguid.IsGroup());
+    ASSERT(gguid.IsParty());
 
     bool active = GroupsStore[gguid].IsVoteKickActive();
     TC_LOG_TRACE("lfg.data.group.votekick.get", "Group: %s, Active: %d", gguid.ToString().c_str(), active);
@@ -1692,7 +1692,7 @@ void LFGMgr::SetState(ObjectGuid guid, LfgState state)
 
 void LFGMgr::SetVoteKick(ObjectGuid gguid, bool active)
 {
-    ASSERT(gguid.IsGroup());
+    ASSERT(gguid.IsParty());
 
     LfgGroupData& data = GroupsStore[gguid];
     TC_LOG_TRACE("lfg.data.group.votekick.set", "Group: %s, New state: %d, Previous: %d",
