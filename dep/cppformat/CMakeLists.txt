@@ -3,11 +3,6 @@ include(CheckSymbolExists)
 
 set(FMT_SOURCES format.cc format.h)
 
-if (CMAKE_COMPILER_IS_GNUCXX)
-  set_target_properties(format PROPERTIES COMPILE_FLAGS
-    "-Wall -Wextra -Wshadow -pedantic")
-endif ()
-
 # Use variadic templates
 add_definitions(-DFMT_VARIADIC_TEMPLATES=1)
 
@@ -33,3 +28,8 @@ if (HAVE_OPEN)
 endif ()
 
 add_library(format STATIC ${FMT_SOURCES})
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+  set_target_properties(format PROPERTIES COMPILE_FLAGS
+    "-Wall -Wextra -Wshadow -pedantic")
+endif ()
