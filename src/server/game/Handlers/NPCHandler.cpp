@@ -73,31 +73,6 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
     SendPacket(packet.Write());
 }
 
-void WorldSession::HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet)
-{
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BANKER_ACTIVATE");
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_BANKER);
-    if (!unit)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleBankerActivateOpcode - %s not found or you can not interact with him.", packet.Unit.ToString().c_str());
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    SendShowBank(packet.Unit);
-}
-
-void WorldSession::SendShowBank(ObjectGuid guid)
-{
-    WorldPackets::NPC::ShowBank packet;
-    packet.Guid = guid;
-    SendPacket(packet.Write());
-}
-
 void WorldSession::SendShowMailBox(ObjectGuid guid)
 {
     WorldPacket data(SMSG_SHOW_MAILBOX, 8);
