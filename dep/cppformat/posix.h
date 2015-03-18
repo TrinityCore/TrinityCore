@@ -28,6 +28,11 @@
 #ifndef FMT_POSIX_H_
 #define FMT_POSIX_H_
 
+#ifdef __MINGW32__
+// Workaround MinGW bug https://sourceforge.net/p/mingw/bugs/2024/.
+# undef __STRICT_ANSI__
+#endif
+
 #include <errno.h>
 #include <fcntl.h>  // for O_RDONLY
 #include <stdio.h>
@@ -41,7 +46,7 @@
 #endif
 
 #ifndef FMT_POSIX
-# ifdef _WIN32
+# if defined(_WIN32) && !defined(__MINGW32__)
 // Fix warnings about deprecated symbols.
 #  define FMT_POSIX(call) _##call
 # else
@@ -188,7 +193,9 @@ public:
   // Returns the pointer to a FILE object representing this file.
   FILE *get() const FMT_NOEXCEPT { return file_; }
 
-  int fileno() const;
+  // We place parentheses around fileno to workaround a bug in some versions
+  // of MinGW that define fileno as a macro.
+  int (fileno)() const;
 
   void print(fmt::StringRef format_str, const ArgList &args) {
     fmt::print(file_, format_str, args);
