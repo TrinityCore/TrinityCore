@@ -2238,7 +2238,7 @@ void SpellMgr::LoadEnchantCustomAttr()
             continue;
 
         /// @todo find a better check
-        if (!(spellInfo->AttributesEx2 & SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA) || !(spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT))
+        if (!spellInfo->HasAttribute(SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA) || !spellInfo->HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT))
             continue;
 
         for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
@@ -3748,7 +3748,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         {
             case SPELLFAMILY_PALADIN:
                 // Seals of the Pure should affect Seal of Righteousness
-                if (spellInfo->SpellIconID == 25 && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
+                if (spellInfo->SpellIconID == 25 && spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE))
                     spellInfo->Effects[EFFECT_0].SpellClassMask[1] |= 0x20000000;
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
