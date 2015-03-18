@@ -749,7 +749,7 @@ struct Arg : Value {
   Type type;
 };
 
-template <typename T>
+template <typename T = void>
 struct None {};
 
 // A helper class template to enable or disable overloads taking wide
@@ -773,7 +773,7 @@ class IsConvertibleToInt {
   typedef char no[2];
 
   static const T &get();
-  static yes &check(int);
+  static yes &check(fmt::ULongLong);
   static no &check(...);
 
  public:
