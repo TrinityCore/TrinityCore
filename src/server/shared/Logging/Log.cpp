@@ -264,30 +264,18 @@ void Log::ReadLoggersFromConfig()
     }
 }
 
-void Log::vlog(std::string const& filter, LogLevel level, char const* str, va_list argptr)
-{
-    char text[MAX_QUERY_LEN];
-    vsnprintf(text, MAX_QUERY_LEN, str, argptr);
-    write(new LogMessage(level, filter, text));
-}
-
-void Log::write(LogMessage* msg) const
+void Log::write(std::unique_ptr<LogMessage>&& msg) const
 {
     Logger const* logger = GetLoggerByType(msg->type);
-    msg->text.append("\n");
 
     if (_ioService)
     {
-        auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, msg));
+        auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, std::forward<std::unique_ptr<LogMessage>>(msg)));
 
         _ioService->post(_strand->wrap([logOperation](){ logOperation->call(); }));
-
     }
     else
-    {
-        logger->write(*msg);
-        delete msg;
-    }
+        logger->write(msg.get());
 }
 
 std::string Log::GetTimestampStr()
@@ -349,33 +337,13 @@ void Log::outCharDump(char const* str, uint32 accountId, uint64 guid, char const
     ss << "== START DUMP == (account: " << accountId << " guid: " << guid << " name: " << name
        << ")\n" << str << "\n== END DUMP ==\n";
 
-    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, "entities.player.dump", ss.str());
+    std::unique_ptr<LogMessage> msg(new LogMessage(LOG_LEVEL_INFO, "entities.player.dump", ss.str()));
     std::ostringstream param;
     param << guid << '_' << name;
 
     msg->param1 = param.str();
 
-    write(msg);
-}
-
-void Log::outCommand(uint32 account, const char * str, ...)
-{
-    if (!str || !ShouldLog("commands.gm", LOG_LEVEL_INFO))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-    char text[MAX_QUERY_LEN];
-    vsnprintf(text, MAX_QUERY_LEN, str, ap);
-    va_end(ap);
-
-    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, "commands.gm", text);
-
-    std::ostringstream ss;
-    ss << account;
-    msg->param1 = ss.str();
-
-    write(msg);
+    write(std::move(msg));
 }
 
 void Log::SetRealmId(uint32 id)
