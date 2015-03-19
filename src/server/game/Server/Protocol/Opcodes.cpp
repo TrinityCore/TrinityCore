@@ -20,6 +20,7 @@
 #include "WorldSession.h"
 #include "Packets/AchievementPackets.h"
 #include "Packets/AuctionHousePackets.h"
+#include "Packets/BankPackets.h"
 #include "Packets/BlackMarketPackets.h"
 #include "Packets/CharacterPackets.h"
 #include "Packets/ChannelPackets.h"
@@ -178,14 +179,14 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_SELL_ITEM,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionSellItem           );
     DEFINE_HANDLER(CMSG_AUTH_CONTINUED_SESSION,                             STATUS_NEVER,     PROCESS_INPLACE,      WorldPacket, &WorldSession::Handle_EarlyProccess);
     DEFINE_HANDLER(CMSG_AUTH_SESSION,                                       STATUS_NEVER,     PROCESS_INPLACE,      WorldPacket, &WorldSession::Handle_EarlyProccess);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_AUTOBANK_ITEM,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAutoBankItemOpcode        );
+    DEFINE_HANDLER(CMSG_AUTOBANK_ITEM,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Bank::AutoBankItem, &WorldSession::HandleAutoBankItemOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUTOEQUIP_GROUND_ITEM,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_AUTOEQUIP_ITEM,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::AutoEquipItem, &WorldSession::HandleAutoEquipItemOpcode);
+    DEFINE_HANDLER(CMSG_AUTOEQUIP_ITEM,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::AutoEquipItem, &WorldSession::HandleAutoEquipItemOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUTOEQUIP_ITEM_SLOT,                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAutoEquipItemSlotOpcode   );
     DEFINE_HANDLER(CMSG_AUTOSTORE_BAG_ITEM,                                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::AutoStoreBagItem, &WorldSession::HandleAutoStoreBagItemOpcode);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_AUTOSTORE_BANK_ITEM,                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAutoStoreBankItemOpcode   );
+    DEFINE_HANDLER(CMSG_AUTOSTORE_BANK_ITEM,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Bank::AutoStoreBankItem, &WorldSession::HandleAutoStoreBankItemOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUTOSTORE_GROUND_ITEM,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_AUTOSTORE_LOOT_ITEM,                                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Loot::AutoStoreLootItem, &WorldSession::HandleAutostoreLootItemOpcode);
+    DEFINE_HANDLER(CMSG_AUTOSTORE_LOOT_ITEM,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Loot::AutoStoreLootItem, &WorldSession::HandleAutostoreLootItemOpcode);
     DEFINE_HANDLER(CMSG_BANKER_ACTIVATE,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleBankerActivateOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLEFIELD_JOIN,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLEFIELD_LEAVE,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleBattlefieldLeaveOpcode    );
@@ -228,7 +229,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BUG_REPORT,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBugReportOpcode           );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BUSY_TRADE,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBusyTradeOpcode           );
     DEFINE_HANDLER(CMSG_BUY_BACK_ITEM,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::BuyBackItem, &WorldSession::HandleBuybackItem);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_BUY_BANK_SLOT,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBuyBankSlotOpcode         );
+    DEFINE_HANDLER(CMSG_BUY_BANK_SLOT,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Bank::BuyBankSlot, &WorldSession::HandleBuyBankSlotOpcode);
     DEFINE_HANDLER(CMSG_BUY_ITEM,                                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::BuyItem, &WorldSession::HandleBuyItemOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CAGE_BATTLE_PET,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CALENDAR_ADD_EVENT,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarAddEvent          );
@@ -611,7 +612,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_OFFER_PETITION,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Petition::OfferPetition, &WorldSession::HandleOfferPetition);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPENING_CINEMATIC,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleOpeningCinematic          );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPEN_GARRISON_MISSION_NPC,               STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_OPEN_ITEM,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleOpenItemOpcode            );
+    DEFINE_HANDLER(CMSG_OPEN_ITEM,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::OpenItem, &WorldSession::HandleOpenItemOpcode            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPEN_SHIPMENT_GAME_OBJ,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPEN_SHIPMENT_NPC,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPT_OUT_OF_LOOT,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleOptOutOfLootOpcode        );
@@ -808,7 +809,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SUSPEND_COMMS_ACK,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SUSPEND_TOKEN_RESPONSE,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_SWAP_INV_ITEM,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::SwapInvItem, &WorldSession::HandleSwapInvItemOpcode);
-    DEFINE_HANDLER(CMSG_SWAP_ITEM,                                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::SwapItem, &WorldSession::HandleSwapItem);
+    DEFINE_HANDLER(CMSG_SWAP_ITEM,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::SwapItem, &WorldSession::HandleSwapItem);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SWAP_SUB_GROUPS,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleGroupSwapSubGroupOpcode   );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SYNC_DANCE,                              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_TABARD_VENDOR_ACTIVATE,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleTabardVendorActivateOpcode);
@@ -1348,7 +1349,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_ENCHANT_TIME_UPDATE,                STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_EXPIRE_PURCHASE_REFUND,             STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_PURCHASE_REFUND_RESULT,             STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_PUSH_RESULT,                        STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_PUSH_RESULT,                        STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_REFUND_INFO_RESPONSE,               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_TIME_UPDATE,                        STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_UPGRADE_RESULT,                     STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
@@ -1407,7 +1408,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_MONEY_NOTIFY,                       STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_RELEASE,                            STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_RELEASE_ALL,                        STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_REMOVED,                            STATUS_UNHANDLED,    CONNECTION_TYPE_INSTANCE);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_REMOVED,                            STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_RESPONSE,                           STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_ROLL,                               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_ROLLS_COMPLETE,                     STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
