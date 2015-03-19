@@ -207,7 +207,8 @@ enum TrinityStrings
     LANG_LIQUID_STATUS                  = 175,
     LANG_INVALID_GAMEOBJECT_TYPE        = 176,
     LANG_GAMEOBJECT_DAMAGED             = 177,
-    // Room for more level 1              178-199 not used
+    LANG_GRID_POSITION                  = 178,
+    // Room for more level 1              179-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
