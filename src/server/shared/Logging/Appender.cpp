@@ -18,6 +18,10 @@
 #include "Appender.h"
 #include "Common.h"
 #include "Util.h"
+#include "StringFormat.h"
+
+#include <utility>
+#include <sstream>
 
 std::string LogMessage::getTimeStr(time_t time)
 {
@@ -68,38 +72,36 @@ void Appender::setLogLevel(LogLevel _level)
     level = _level;
 }
 
-void Appender::write(LogMessage& message)
+void Appender::write(LogMessage* message)
 {
-    if (!level || level > message.level)
+    if (!level || level > message->level)
         return;
 
-    message.prefix.clear();
+    std::ostringstream ss;
+
     if (flags & APPENDER_FLAGS_PREFIX_TIMESTAMP)
-        message.prefix.append(message.getTimeStr());
+        ss << message->getTimeStr();
 
     if (flags & APPENDER_FLAGS_PREFIX_LOGLEVEL)
     {
-        if (!message.prefix.empty())
-            message.prefix.push_back(' ');
+        if (ss.rdbuf()->in_avail() == 0)
+            ss << ' ';
 
-        char text[MAX_QUERY_LEN];
-        snprintf(text, MAX_QUERY_LEN, "%-5s", Appender::getLogLevelString(message.level));
-        message.prefix.append(text);
+        ss << Trinity::StringFormat("%-5s", Appender::getLogLevelString(message->level));
     }
 
     if (flags & APPENDER_FLAGS_PREFIX_LOGFILTERTYPE)
     {
-        if (!message.prefix.empty())
-            message.prefix.push_back(' ');
+        if (ss.rdbuf()->in_avail() == 0)
+            ss << ' ';
 
-        message.prefix.push_back('[');
-        message.prefix.append(message.type);
-        message.prefix.push_back(']');
+        ss << '[' << message->type << ']';
     }
 
-    if (!message.prefix.empty())
-        message.prefix.push_back(' ');
+    if (ss.rdbuf()->in_avail() == 0)
+        ss << ' ';
 
+    message->prefix = std::move(ss.str());
     _write(message);
 }
 

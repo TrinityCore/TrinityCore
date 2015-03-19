@@ -1738,7 +1738,7 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
     if (!GetOwner()->GetSession()->PlayerLoading())
         SendAchievementEarned(achievement);
 
-    TC_LOG_INFO("achievement", "AchievementMgr::CompletedAchievement(%u). %s %s",
+    TC_LOG_DEBUG("achievement", "AchievementMgr::CompletedAchievement(%u). %s %s",
         achievement->ID, GetOwner()->GetGUID().ToString().c_str(), GetOwner()->GetName().c_str());
 
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];

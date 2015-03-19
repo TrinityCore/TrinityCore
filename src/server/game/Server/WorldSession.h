@@ -294,6 +294,8 @@ namespace WorldPackets
         class ClientPlayerMovement;
         class WorldPortAck;
         class MoveTeleportAck;
+        class MovementAck;
+        class MovementSpeedAck;
     }
 
     namespace NPC
@@ -845,7 +847,7 @@ class WorldSession
         void HandleMoveKnockBackAck(WorldPacket& recvPacket);
 
         void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
-        void HandleForceSpeedChangeAck(WorldPacket& recvData);
+        void HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet);
         void HandleSetCollisionHeightAck(WorldPacket& recvPacket);
 
         void HandlePingOpcode(WorldPacket& recvPacket);

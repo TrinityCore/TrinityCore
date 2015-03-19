@@ -619,7 +619,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::Ques
 
     WorldPackets::Quest::QuestGiverStatusMultiple response;
 
-    for (GuidSet::const_iterator itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
+    for (auto itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
     {
         if (itr->IsAnyTypeCreature())
         {
