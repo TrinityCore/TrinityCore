@@ -402,6 +402,7 @@ namespace WorldPackets
         class CastSpell;
         class PetCastSpell;
         class UseItem;
+        class OpenItem;
         class SetActionButton;
     }
 
@@ -1058,7 +1059,7 @@ class TC_GAME_API WorldSession
         void HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& packet);
 
         void HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet);
-        void HandleOpenItemOpcode(WorldPacket& recvPacket);
+        void HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet);
         void HandleOpenWrappedItemCallback(uint16 pos, ObjectGuid itemGuid, PreparedQueryResult result);
         void HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest);
         void HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& cancelCast);

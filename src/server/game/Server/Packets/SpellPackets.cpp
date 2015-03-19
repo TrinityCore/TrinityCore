@@ -542,6 +542,12 @@ void CancelCast::Read()
     _worldPacket >> SpellID;
 }
 
+void OpenItem::Read()
+{
+    _worldPacket >> Slot;
+    _worldPacket >> PackSlot;
+}
+
 WorldPacket const* ResyncRunes::Write()
 {
     _worldPacket << Count;

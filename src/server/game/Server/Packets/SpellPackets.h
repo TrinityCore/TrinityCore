@@ -514,6 +514,17 @@ namespace WorldPackets
             uint32 SpellID = 0;
         };
 
+        class OpenItem final : public ClientPacket
+        {
+        public:
+            explicit OpenItem(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Slot = 0;
+            uint8 PackSlot = 0;
+        };
+
         struct ResyncRune
         {
             uint8 RuneType = 0;
