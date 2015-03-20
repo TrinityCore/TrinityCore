@@ -308,6 +308,26 @@ namespace WorldPackets
             int32 AckIndex = 0;
             float Speed = 0.0f;
         };
+
+        class SetActiveMover final : public ClientPacket
+        {
+        public:
+            SetActiveMover(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIVE_MOVER, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ActiveMover;
+        };
+
+        class MoveSetActiveMover final : public ServerPacket
+        {
+        public:
+            MoveSetActiveMover() : ServerPacket(SMSG_MOVE_SET_ACTIVE_MOVER, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);

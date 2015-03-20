@@ -608,3 +608,15 @@ void WorldPackets::Movement::MovementSpeedAck::Read()
     _worldPacket >> AckIndex;
     _worldPacket >> Speed;
 }
+
+void WorldPackets::Movement::SetActiveMover::Read()
+{
+    _worldPacket >> ActiveMover;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
+{
+    _worldPacket << MoverGUID;
+
+    return &_worldPacket;
+}
