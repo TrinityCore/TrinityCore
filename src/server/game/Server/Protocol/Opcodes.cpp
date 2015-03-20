@@ -601,7 +601,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_TOGGLE_COLLISION_ACK,               STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_TOGGLE_COLLISION_CHEAT,             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_WATER_WALK_ACK,                     STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveWaterWalkAck          );
-    DEFINE_HANDLER(CMSG_MOVE_WORLDPORT_ACK,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Movement::WorldPortAck, &WorldSession::HandleMoveWorldportAckOpcode);
+    DEFINE_HANDLER(CMSG_MOVE_WORLDPORT_ACK,                                 STATUS_TRANSFER,  PROCESS_THREADUNSAFE, WorldPackets::Movement::WorldPortAck, &WorldSession::HandleMoveWorldportAckOpcode);
     DEFINE_HANDLER(CMSG_NAME_QUERY,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryPlayerName, &WorldSession::HandleNameQueryOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_NEUTRAL_PLAYER_SELECT_FACTION,           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_NEW_SPELL_SLOT,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
