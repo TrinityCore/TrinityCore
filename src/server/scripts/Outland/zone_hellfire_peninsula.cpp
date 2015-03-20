@@ -502,7 +502,7 @@ public:
             events.Reset();
             step = 0;
 
-            playerGUID = 0;
+            playerGUID.Clear();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
         }
 
@@ -879,4 +879,3 @@ void AddSC_hellfire_peninsula()
     new npc_barada();
     new npc_colonel_jules();
 }
-
