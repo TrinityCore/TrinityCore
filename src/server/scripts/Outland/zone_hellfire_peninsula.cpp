@@ -709,7 +709,7 @@ public:
                                 if (playerGUID)
                                 {
                                     if (Player* player = ObjectAccessor::FindPlayer(playerGUID))
-                                        player->KilledMonsterCredit(NPC_COLONEL_JULES, 0);
+                                        player->KilledMonsterCredit(NPC_COLONEL_JULES, ObjectGuid::Empty);
                                 }
 
                                 if (jules)
