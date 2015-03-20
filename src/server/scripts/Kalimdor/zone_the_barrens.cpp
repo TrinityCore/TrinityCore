@@ -654,6 +654,7 @@ public:
         if (quest->GetQuestId() == QUEST_ESCAPE)
         {
             creature->setFaction(FACTION_RATCHET);
+            creature->AI()->Talk(SAY_START);
             if (npc_escortAI* pEscortAI = CAST_AI(npc_wizzlecrank_shredder::npc_wizzlecrank_shredderAI, creature->AI()))
                 pEscortAI->Start(true, false, player->GetGUID());
         }
