@@ -506,20 +506,20 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
         }
 
-		void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-		{
-			player->PlayerTalkClass->ClearMenus();
-			switch (gossipListId)
-			{
+        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            player->PlayerTalkClass->ClearMenus();
+            switch (gossipListId)
+            {
                 case 1:
-					player->PlayerTalkClass->SendCloseGossip();
-					me->AI()->Talk(SAY_BARADA_1);
-					me->AI()->DoAction(ACTION_START_EVENT);
-					break;
-				default:
-					break;
-			}
-		}
+                    player->PlayerTalkClass->SendCloseGossip();
+                    me->AI()->Talk(SAY_BARADA_1);
+                    me->AI()->DoAction(ACTION_START_EVENT);
+                    break;
+                default:
+                    break;
+            }
+        }
 
         void DoAction(int32 action) override
         {
@@ -727,12 +727,12 @@ public:
                 }
             }
         }
-		
-		private:
-		EventMap events;
+
+        private:
+        EventMap events;
         uint8 step;
         Creature* jules;
-		ObjectGuid playerGUID;
+        ObjectGuid playerGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -853,9 +853,9 @@ public:
                 }
             }
         }
-		
-		private:
-		EventMap events;
+        
+        private:
+        EventMap events;
         SummonList summons;
 
         uint8 circleRounds;
