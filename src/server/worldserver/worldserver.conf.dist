@@ -11,6 +11,7 @@
 #    PERFORMANCE SETTINGS
 #    SERVER LOGGING
 #    SERVER SETTINGS
+#    UPDATE SETTINGS
 #    WARDEN SETTINGS
 #    PLAYER INTERACTION
 #    CREATURE SETTINGS
@@ -1125,6 +1126,90 @@ FeatureSystem.CharacterUndelete.Enabled = 0
 #        Default:     2592000 (30 days)
 
 FeatureSystem.CharacterUndelete.Cooldown = 2592000
+
+#
+###################################################################################################
+
+###################################################################################################
+# UPDATE SETTINGS
+#
+#    Updates.EnableDatabases
+#        Description: A mask that describes which databases shall be updated.
+#
+#        Following flags are available
+#           DATABASE_LOGIN     = 1, // Auth database
+#           DATABASE_CHARACTER = 2, // Character database
+#           DATABASE_WORLD     = 4, // World database
+#           DATABASE_HOTFIX    = 8, // Hotfixes database
+#
+#        Default:     15 - (All enabled)
+#                     4  - (Enable world only)
+#                     0  - (All Disabled)
+
+Updates.EnableDatabases = 15
+
+#
+#    Updates.SourcePath
+#        Description: The path to your TrinityCore source directory.
+#                     If the path is left empty, built-in CMAKE_SOURCE_DIR is used.
+#        Example:     "../TrinityCore"
+#        Default:     ""
+
+Updates.SourcePath  = ""
+
+#
+#    Updates.SourcePath
+#        Description: The path to your mysql cli binary.
+#                     If the path is left empty, built-in path from cmake is used.
+#        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
+#                     "mysql.exe"
+#                     "/usr/bin/mysql"
+#        Default:     ""
+
+Updates.MySqlCLIPath = ""
+
+#
+#    Updates.AutoSetup
+#        Description: Auto populate empty databases.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Updates.AutoSetup   = 1
+
+#
+#    Updates.Redundancy
+#        Description: Perform data redundancy checks through hashing
+#                     to detect changes on sql updates and reapply it.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Updates.Redundancy  = 1
+
+#
+#    Updates.ArchivedRedundancy
+#        Description: Check hashes of archived updates (slows down startup).
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Updates.ArchivedRedundancy = 0
+
+#
+#    Updates.AllowRehash
+#        Description: Inserts the current file hash in the database if it is left empty.
+#                     Useful if you want to mark a file as applied but you don't know its hash.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Updates.AllowRehash = 1
+
+#
+#    Updates.CleanDeadRef
+#        Description: Cleans dead/ orphaned references that occure if a update was deleted or renamed and edited.
+#                     Disable this if you want to know if the database is in a possible "dirty state".
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Updates.CleanDeadRef = 1
 
 #
 ###################################################################################################
@@ -3224,6 +3309,7 @@ Logger.root=5,Console Server
 Logger.server=3,Console Server
 Logger.commands.gm=3,Console GM
 Logger.sql.sql=5,Console DBErrors
+Logger.sql.updates=3,Console Server
 
 #Logger.achievement=3,Console Server
 #Logger.ahbot=3,Console Server
