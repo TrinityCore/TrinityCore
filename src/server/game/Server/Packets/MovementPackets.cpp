@@ -435,4 +435,9 @@ void MovementSpeedAck::Read()
     _worldPacket >> Ack;
     _worldPacket >> Speed;
 }
+
+void SetActiveMover::Read()
+{
+    _worldPacket >> ActiveMover;
+}
 }

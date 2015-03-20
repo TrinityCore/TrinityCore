@@ -650,27 +650,22 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpe
     mover->UpdatePosition(packet.Ack.Status.pos);
 }
 
-void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recvData)
+void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
-
-    ObjectGuid guid;
-    recvData >> guid;
-
     GameClient* client = GetGameClient();
 
     // step 1: look at the list of units that this client is allowed to move. check if the client is allowed to even move the
     // unit that is mentioned in the packet. if not, either silently ignore, log this event or kick the client.
-    if (!client->IsAllowedToMove(guid))
+    if (!client->IsAllowedToMove(packet.ActiveMover))
     {
         // @todo log or kick or do nothing depending on configuration
-        TC_LOG_DEBUG("entities.unit", "set active mover FAILED for client of player {}. GUID {}.", _player->GetName(), guid.ToString());
+        TC_LOG_DEBUG("entities.unit", "set active mover FAILED for client of player {}. GUID {}.", _player->GetName(), packet.ActiveMover.ToString());
         return;
     }
 
     // step 2:
-    TC_LOG_DEBUG("entities.unit", "set active mover OK for client of player {}. GUID {}.", _player->GetName(), guid.ToString());
-    Unit* newActivelyMovedUnit = ObjectAccessor::GetUnit(*_player, guid);
+    TC_LOG_DEBUG("entities.unit", "set active mover OK for client of player {}. GUID {}.", _player->GetName(), packet.ActiveMover.ToString());
+    Unit* newActivelyMovedUnit = ObjectAccessor::GetUnit(*_player, packet.ActiveMover);
     client->SetActivelyMovedUnit(newActivelyMovedUnit);
 }
 

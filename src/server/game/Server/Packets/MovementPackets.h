@@ -276,6 +276,16 @@ namespace WorldPackets
             MovementAck Ack;
             float Speed = 0.0f;
         };
+
+        class SetActiveMover final : public ClientPacket
+        {
+        public:
+            explicit SetActiveMover(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIVE_MOVER, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ActiveMover;
+        };
     }
 }
 
