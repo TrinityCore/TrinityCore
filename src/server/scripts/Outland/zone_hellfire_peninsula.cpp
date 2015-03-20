@@ -492,37 +492,10 @@ class npc_barada : public CreatureScript
 {
 public:
     npc_barada() : CreatureScript("npc_barada") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_THE_EXORCISM_OF_COLONEL_JULES) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(0, "I am ready, Anchorite. Let us begin the exorcism.", GOSSIP_SENDER_MAIN, 1);
-
-        player->SEND_GOSSIP_MENU(BARADAS_GOSSIP_MESSAGE, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == 1)
-        {
-            creature->AI()->Talk(SAY_BARADA_1);
-            creature->GetAI()->DoAction(ACTION_START_EVENT);
-            CAST_AI(npc_barada::npc_baradaAI, creature->GetAI())->playerGUID = player->GetGUID();
-            player->CLOSE_GOSSIP_MENU();
-        }
-        return true;
-    }
-
+       
     struct npc_baradaAI : public ScriptedAI
     {
         npc_baradaAI(Creature* creature) : ScriptedAI(creature) { }
-
-        EventMap events;
-        uint8 step;
-        Creature* jules;
-        uint64 playerGUID;
 
         void Reset() override
         {
@@ -532,6 +505,21 @@ public:
             playerGUID = 0;
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
         }
+
+		void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+		{
+			player->PlayerTalkClass->ClearMenus();
+			switch (gossipListId)
+			{
+                case 1:
+					player->PlayerTalkClass->SendCloseGossip();
+					me->AI()->Talk(SAY_BARADA_1);
+					me->AI()->DoAction(ACTION_START_EVENT);
+					break;
+				default:
+					break;
+			}
+		}
 
         void DoAction(int32 action) override
         {
@@ -549,7 +537,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -739,6 +727,12 @@ public:
                 }
             }
         }
+		
+		private:
+		EventMap events;
+        uint8 step;
+        Creature* jules;
+		ObjectGuid playerGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -755,15 +749,7 @@ public:
     struct npc_colonel_julesAI : public ScriptedAI
     {
         npc_colonel_julesAI(Creature* creature) : ScriptedAI(creature), summons(me) { }
-
-        EventMap events;
-        SummonList summons;
-
-        uint8 circleRounds;
-        uint8 point;
-
-        bool wpreached;
-
+       
         void Reset() override
         {
             events.Reset();
@@ -819,7 +805,7 @@ public:
                 summon->GetMotionMaster()->MoveRandom(10.0f);
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -867,6 +853,15 @@ public:
                 }
             }
         }
+		
+		private:
+		EventMap events;
+        SummonList summons;
+
+        uint8 circleRounds;
+        uint8 point;
+
+        bool wpreached;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -884,3 +879,4 @@ void AddSC_hellfire_peninsula()
     new npc_barada();
     new npc_colonel_jules();
 }
+
