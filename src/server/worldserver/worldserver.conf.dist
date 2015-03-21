@@ -1142,11 +1142,11 @@ FeatureSystem.CharacterUndelete.Cooldown = 2592000
 #           DATABASE_WORLD     = 4, // World database
 #           DATABASE_HOTFIX    = 8, // Hotfixes database
 #
-#        Default:     15 - (All enabled)
+#        Default:     0  - (All Disabled)
 #                     4  - (Enable world only)
-#                     0  - (All Disabled)
+#                     15 - (All enabled)
 
-Updates.EnableDatabases = 15
+Updates.EnableDatabases = 0
 
 #
 #    Updates.SourcePath
