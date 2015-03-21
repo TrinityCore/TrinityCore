@@ -36,6 +36,7 @@
 #include "SystemConfig.h"
 #include "Util.h"
 #include "ZmqContext.h"
+#include "DatabaseLoader.h"
 #include <cstdlib>
 #include <iostream>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -162,32 +163,13 @@ bool StartDB()
 {
     MySQL::Library_Init();
 
-    std::string dbstring = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "");
-    if (dbstring.empty())
-    {
-        TC_LOG_ERROR("server.bnetserver", "Database not specified");
+    // Load databases
+    DatabaseLoader loader("server.bnetserver", DatabaseLoader::DATABASE_NONE);
+    loader
+        .AddDatabase(LoginDatabase, "Login");
+
+    if (!loader.Load())
         return false;
-    }
-
-    int32 worker_threads = sConfigMgr->GetIntDefault("LoginDatabase.WorkerThreads", 1);
-    if (worker_threads < 1 || worker_threads > 32)
-    {
-        TC_LOG_ERROR("server.bnetserver", "Improper value specified for LoginDatabase.WorkerThreads, defaulting to 1.");
-        worker_threads = 1;
-    }
-
-    int32 synch_threads = sConfigMgr->GetIntDefault("LoginDatabase.SynchThreads", 1);
-    if (synch_threads < 1 || synch_threads > 32)
-    {
-        TC_LOG_ERROR("server.bnetserver", "Improper value specified for LoginDatabase.SynchThreads, defaulting to 1.");
-        synch_threads = 1;
-    }
-
-    if (!LoginDatabase.Open(dbstring, uint8(worker_threads), uint8(synch_threads)))
-    {
-        TC_LOG_ERROR("server.bnetserver", "Cannot connect to database");
-        return false;
-    }
 
     TC_LOG_INFO("server.bnetserver", "Started auth database connection pool.");
     sLog->SetRealmId(0); // Enables DB appenders when realm is set.
