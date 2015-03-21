@@ -1,8 +1,8 @@
--- MySQL dump 10.15  Distrib 10.0.15-MariaDB, for Win64 (x86)
+-- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
 --
--- Host: localhost    Database: auth
+-- Host: localhost    Database: auth335
 -- ------------------------------------------------------
--- Server version   10.0.15-MariaDB
+-- Server version	5.6.9-rc
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -347,7 +347,7 @@ CREATE TABLE `rbac_default_permissions` (
 
 LOCK TABLES `rbac_default_permissions` WRITE;
 /*!40000 ALTER TABLE `rbac_default_permissions` DISABLE KEYS */;
-INSERT INTO `rbac_default_permissions` VALUES (0,195,-1),(1,194,-1),(2,193,-1),(3,192,-1);
+INSERT INTO `rbac_default_permissions` VALUES (3,192,-1),(2,193,-1),(1,194,-1),(0,195,-1);
 /*!40000 ALTER TABLE `rbac_default_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -459,8 +459,59 @@ CREATE TABLE `realmlist` (
 
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
-INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,1,0,1,0,0,12340);
+INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,12340);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `updates`
+--
+
+DROP TABLE IF EXISTS `updates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `updates` (
+  `name` varchar(200) NOT NULL COMMENT 'filename with extension of the update.',
+  `hash` char(40) DEFAULT '' COMMENT 'sha1 hash of the sql file.',
+  `state` enum('RELEASED','ARCHIVED') NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if an update is released or archived.',
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when the query was applied.',
+  `speed` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'time the query takes to apply in ms.',
+  PRIMARY KEY (`name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='List of all applied updates in this database.';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `updates`
+--
+
+LOCK TABLES `updates` WRITE;
+/*!40000 ALTER TABLE `updates` DISABLE KEYS */;
+INSERT INTO `updates` VALUES ('2014_11_10_00_auth.sql','0E3CB119442D09DD88E967015319BBC8DAFBBFE0','ARCHIVED','2015-03-21 21:44:12',0),('2014_11_10_01_auth.sql','327E77A1DA3546D5275AB249915DD57EDD6FDD3D','ARCHIVED','2015-03-21 21:44:12',0),('2014_12_10_00_auth.sql','821703A96D80F9080074852B5A46E2909C9562EA','ARCHIVED','2015-03-21 21:44:12',0),('2014_12_21_00_auth.sql','CE2E5D2CD82E79C25294539ADED27A1429105B43','ARCHIVED','2015-03-21 21:44:12',0),('2015_03_20_00_auth.sql','E8C5B74BB45F0F35DEC182C72BACF435C7066FB0','ARCHIVED','2015-03-21 21:44:12',0),('2015_03_20_01_auth.sql','862961815354DA2746F5F71FBC8155F57CBE75AB','ARCHIVED','2015-03-21 21:44:12',0),('2015_03_20_02_auth.sql','33E4F94086590768EF5D4855DD43D7DE7C06ADA4','ARCHIVED','2015-03-21 21:44:51',0);
+/*!40000 ALTER TABLE `updates` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `updates_include`
+--
+
+DROP TABLE IF EXISTS `updates_include`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `updates_include` (
+  `path` varchar(200) NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
+  `state` enum('RELEASED','ARCHIVED') NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
+  PRIMARY KEY (`path`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='List of directories where we want to include sql updates.';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `updates_include`
+--
+
+LOCK TABLES `updates_include` WRITE;
+/*!40000 ALTER TABLE `updates_include` DISABLE KEYS */;
+INSERT INTO `updates_include` VALUES ('$/sql/updates/auth','RELEASED'),('$/sql/custom/auth','RELEASED'),('$/sql/old/3.3.5a/auth','ARCHIVED');
+/*!40000 ALTER TABLE `updates_include` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -498,44 +549,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-12-21 20:42:33
-
--- Updates base tables
-DROP TABLE IF EXISTS `updates`;
-CREATE TABLE `updates` (
-    `name` VARCHAR(200) NOT NULL COMMENT 'filename with extension of the update.',
-    `hash` CHAR(40) NULL DEFAULT '' COMMENT 'sha1 hash of the sql file.',
-    `state` ENUM('RELEASED','ARCHIVED') NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if an update is released or archived.',
-    `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when the query was applied.',
-    `speed` INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'time the query takes to apply in ms.',
-    PRIMARY KEY (`name`)
-)
-COMMENT='List of all applied updates in this database.'
-COLLATE='utf8_general_ci'
-ENGINE=MyISAM;
-
-DROP TABLE IF EXISTS `updates_include`;
-CREATE TABLE `updates_include` (
-    `path` VARCHAR(200) NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
-    `state` ENUM('RELEASED','ARCHIVED') NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
-    PRIMARY KEY (`path`)
-)
-COMMENT='List of directories where we want to include sql updates.'
-COLLATE='utf8_general_ci'
-ENGINE=MyISAM;
-
--- Auth database update data
-TRUNCATE TABLE `updates_include`;
-INSERT INTO `updates_include` (`path`, `state`) VALUES
-('$/sql/updates/auth', 'RELEASED'),
-('$/sql/custom/auth', 'RELEASED'),
-('$/sql/old/3.3.5a/auth', 'ARCHIVED');
-
-INSERT IGNORE INTO `updates` (`name`, `hash`) VALUES
-('2014_11_10_00_auth.sql', '0E3CB119442D09DD88E967015319BBC8DAFBBFE0'),
-('2014_11_10_01_auth.sql', '327E77A1DA3546D5275AB249915DD57EDD6FDD3D'),
-('2014_12_10_00_auth.sql', '821703A96D80F9080074852B5A46E2909C9562EA'),
-('2014_12_21_00_auth.sql', 'CE2E5D2CD82E79C25294539ADED27A1429105B43'),
-('2015_03_20_00_auth.sql', 'E8C5B74BB45F0F35DEC182C72BACF435C7066FB0'),
-('2015_03_20_01_auth.sql', '862961815354DA2746F5F71FBC8155F57CBE75AB'),
-('2015_03_20_02_auth.sql', '');
+-- Dump completed on 2015-03-21 21:48:22
