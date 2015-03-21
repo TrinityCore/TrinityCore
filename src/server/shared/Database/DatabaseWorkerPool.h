@@ -30,6 +30,7 @@
 #include "AdhocStatement.h"
 
 #include <mysqld_error.h>
+#include <memory>
 
 #define MIN_MYSQL_SERVER_VERSION 50100u
 #define MIN_MYSQL_CLIENT_VERSION 50100u
@@ -57,9 +58,9 @@ class DatabaseWorkerPool
 
     public:
         /* Activity state */
-        DatabaseWorkerPool() : _connectionInfo(NULL)
+        DatabaseWorkerPool() : _connectionInfo(nullptr), _queue(new ProducerConsumerQueue<SQLOperation*>()),
+            _async_threads(0), _synch_threads(0)
         {
-            _queue = new ProducerConsumerQueue<SQLOperation*>();
             memset(_connectionCount, 0, sizeof(_connectionCount));
             _connections.resize(IDX_SIZE);
 
@@ -70,31 +71,37 @@ class DatabaseWorkerPool
         ~DatabaseWorkerPool()
         {
             _queue->Cancel();
-
-            delete _queue;
-
-            delete _connectionInfo;
         }
 
-        bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
+        void SetConnectionInfo(std::string const& infoString, uint8 const asyncThreads, uint8 const synchThreads)
         {
-            _connectionInfo = new MySQLConnectionInfo(infoString);
+            _connectionInfo.reset(new MySQLConnectionInfo(infoString));
+
+            _async_threads = asyncThreads;
+            _synch_threads = synchThreads;
+        }
+
+        uint32 Open()
+        {
+            WPFatal(_connectionInfo.get(), "Connection info was not set!");
 
             TC_LOG_INFO("sql.driver", "Opening DatabasePool '%s'. Asynchronous connections: %u, synchronous connections: %u.",
-                GetDatabaseName(), async_threads, synch_threads);
+                GetDatabaseName(), _async_threads, _synch_threads);
 
-            bool res = OpenConnections(IDX_ASYNC, async_threads);
+            uint32 error = OpenConnections(IDX_ASYNC, _async_threads);
 
-            if (!res)
-                return res;
+            if (error)
+                return error;
 
-            res = OpenConnections(IDX_SYNCH, synch_threads);
+            error = OpenConnections(IDX_SYNCH, _synch_threads);
 
-            if (res)
+            if (!error)
+            {
                 TC_LOG_INFO("sql.driver", "DatabasePool '%s' opened successfully. %u total connections running.", GetDatabaseName(),
                     (_connectionCount[IDX_SYNCH] + _connectionCount[IDX_ASYNC]));
+            }
 
-            return res;
+            return error;
         }
 
         void Close()
@@ -118,6 +125,32 @@ class DatabaseWorkerPool
                 _connections[IDX_SYNCH][i]->Close();
 
             TC_LOG_INFO("sql.driver", "All connections on DatabasePool '%s' closed.", GetDatabaseName());
+        }
+
+        //! Prepares all prepared statements
+        bool PrepareStatements()
+        {
+            for (uint8 i = 0; i < IDX_SIZE; ++i)
+                for (uint32 c = 0; c < _connectionCount[i]; ++c)
+                {
+                    T* t = _connections[i][c];
+                    t->LockIfReady();
+                    if (!t->PrepareStatements())
+                    {
+                        t->Unlock();
+                        Close();
+                        return false;
+                    }
+                    else
+                        t->Unlock();
+                }
+
+            return true;
+        }
+
+        inline MySQLConnectionInfo const* GetConnectionInfo() const
+        {
+            return _connectionInfo.get();
         }
 
         /**
@@ -461,7 +494,7 @@ class DatabaseWorkerPool
         }
 
     private:
-        bool OpenConnections(InternalIndex type, uint8 numConnections)
+        uint32 OpenConnections(InternalIndex type, uint8 numConnections)
         {
             _connections[type].resize(numConnections);
             for (uint8 i = 0; i < numConnections; ++i)
@@ -469,7 +502,7 @@ class DatabaseWorkerPool
                 T* t;
 
                 if (type == IDX_ASYNC)
-                    t = new T(_queue, *_connectionInfo);
+                    t = new T(_queue.get(), *_connectionInfo);
                 else if (type == IDX_SYNCH)
                     t = new T(*_connectionInfo);
                 else
@@ -478,35 +511,32 @@ class DatabaseWorkerPool
                 _connections[type][i] = t;
                 ++_connectionCount[type];
 
-                bool res = t->Open();
+                uint32 error = t->Open();
 
-                if (res)
+                if (!error)
                 {
                     if (mysql_get_server_version(t->GetHandle()) < MIN_MYSQL_SERVER_VERSION)
                     {
                         TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below 5.1");
-                        res = false;
+                        error = 1;
                     }
                 }
 
                 // Failed to open a connection or invalid version, abort and cleanup
-                if (!res)
+                if (error)
                 {
-                    TC_LOG_ERROR("sql.driver", "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
-                        "for specific errors. Read wiki at http://collab.kpsn.org/display/tc/TrinityCore+Home", GetDatabaseName());
-
                     while (_connectionCount[type] != 0)
                     {
                         T* t = _connections[type][i--];
                         delete t;
                         --_connectionCount[type];
                     }
-
-                    return false;
+                    return error;
                 }
             }
 
-            return true;
+            // Everything is fine
+            return 0;
         }
 
         unsigned long EscapeString(char *to, const char *from, unsigned long length)
@@ -546,10 +576,13 @@ class DatabaseWorkerPool
             return _connectionInfo->database.c_str();
         }
 
-        ProducerConsumerQueue<SQLOperation*>* _queue;             //! Queue shared by async worker threads.
-        std::vector< std::vector<T*> >        _connections;
-        uint32                                _connectionCount[2];       //! Counter of MySQL connections;
-        MySQLConnectionInfo*                  _connectionInfo;
+        //! Queue shared by async worker threads.
+        std::unique_ptr<ProducerConsumerQueue<SQLOperation*>> _queue;
+        std::vector<std::vector<T*>> _connections;
+        //! Counter of MySQL connections;
+        uint32 _connectionCount[IDX_SIZE];
+        std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
+        uint8 _async_threads, _synch_threads;
 };
 
 #endif
