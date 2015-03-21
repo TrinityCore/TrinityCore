@@ -1252,7 +1252,13 @@ enum SpellEffectName
     SPELL_EFFECT_242                                = 242,
     SPELL_EFFECT_243                                = 243,
     SPELL_EFFECT_244                                = 244,
-    TOTAL_SPELL_EFFECTS                             = 245,
+    SPELL_EFFECT_245                                = 245,
+    SPELL_EFFECT_246                                = 246,
+    SPELL_EFFECT_247                                = 247,
+    SPELL_EFFECT_248                                = 248,
+    SPELL_EFFECT_249                                = 249,
+    SPELL_EFFECT_250                                = 250,
+    TOTAL_SPELL_EFFECTS                             = 251,
 };
 
 enum SpellCastResult // 19702
@@ -1984,6 +1990,26 @@ enum Targets
     TARGET_UNK_125                     = 125,
     TARGET_UNK_126                     = 126,
     TARGET_UNK_127                     = 127,
+    TARGET_UNK_128                     = 128,
+    TARGET_UNK_129                     = 129,
+    TARGET_UNK_130                     = 130,
+    TARGET_UNK_131                     = 131,
+    TARGET_UNK_132                     = 132,
+    TARGET_UNK_133                     = 133,
+    TARGET_UNK_134                     = 134,
+    TARGET_UNK_135                     = 135,
+    TARGET_UNK_136                     = 136,
+    TARGET_UNK_137                     = 137,
+    TARGET_UNK_138                     = 138,
+    TARGET_UNK_139                     = 139,
+    TARGET_UNK_140                     = 140,
+    TARGET_UNK_141                     = 141,
+    TARGET_UNK_142                     = 142,
+    TARGET_UNK_143                     = 143,
+    TARGET_UNK_144                     = 144,
+    TARGET_UNK_145                     = 145,
+    TARGET_UNK_146                     = 146,
+    TARGET_UNK_147                     = 147,
     TOTAL_SPELL_TARGETS
 };
 
