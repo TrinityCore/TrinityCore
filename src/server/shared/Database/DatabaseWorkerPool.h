@@ -58,7 +58,7 @@ class DatabaseWorkerPool
 
     public:
         /* Activity state */
-        DatabaseWorkerPool() : _connectionInfo(nullptr), _queue(new ProducerConsumerQueue<SQLOperation*>()),
+        DatabaseWorkerPool() : _queue(new ProducerConsumerQueue<SQLOperation*>()),
             _async_threads(0), _synch_threads(0)
         {
             memset(_connectionCount, 0, sizeof(_connectionCount));
