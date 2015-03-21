@@ -60,9 +60,9 @@ private:
 
     static bool Process(std::stack<Predicate>& stack);
 
+    std::string const _logger;
     bool const _autoSetup;
     uint32 const _updateFlags;
-    std::string const _logger;
 
     std::stack<std::pair<Predicate, std::function<void()>>> _open;
     std::stack<std::function<void()>> _close;

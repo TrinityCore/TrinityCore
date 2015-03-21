@@ -154,7 +154,7 @@ std::string DBUpdater<HotfixDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<HotfixDatabaseConnection>::GetBaseFile()
 {
-    return DBUpdater<HotfixDatabaseConnection>::GetSourceDirectory() + "/sql/base/hotfixes_database.sql";
+    return _HOTFIXES_DATABASE;
 }
 
 template<>
@@ -162,6 +162,12 @@ bool DBUpdater<HotfixDatabaseConnection>::IsEnabled(uint32 const updateMask)
 {
     // This way silences warnings under msvc
     return (updateMask & DatabaseLoader::DATABASE_HOTFIX) ? true : false;
+}
+
+template<>
+BaseLocation DBUpdater<HotfixDatabaseConnection>::GetBaseLocationType()
+{
+    return LOCATION_DOWNLOAD;
 }
 
 // All
