@@ -24,7 +24,6 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <boost/container/flat_set.hpp>
 
 class UpdateFetcher
 {
@@ -95,7 +94,7 @@ private:
         }
     };
 
-    using LocaleFileStorage = boost::container::flat_set<LocaleFileEntry, PathCompare>;
+    using LocaleFileStorage = std::set<LocaleFileEntry, PathCompare>;
     using HashToFileNameStorage = std::unordered_map<std::string, std::string>;
     using AppliedFileStorage = std::unordered_map<std::string, AppliedFileEntry>;
     using DirectoryStorage = std::vector<UpdateFetcher::DirectoryEntry>;
