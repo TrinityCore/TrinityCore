@@ -5,7 +5,8 @@
  #define _BRANCH                    "@rev_branch@"
  #define _SOURCE_DIRECTORY          "@CMAKE_SOURCE_DIR@"
  #define _MYSQL_EXECUTABLE          "@MYSQL_EXECUTABLE@"
- #define _FULL_DATABASE             "TDB_full_6.00_2014_10_19.sql"
+ #define _FULL_DATABASE             "TDB_full_6.01_2015_03_21.sql"
+ #define _HOTFIXES_DATABASE         "TDB_hotfixes_6.01_2015_03_21.sql"
  #define VER_COMPANYNAME_STR        "TrinityCore Developers"
  #define VER_LEGALCOPYRIGHT_STR     "(c)2008-2015 TrinityCore"
  #define VER_FILEVERSION            0,0,0
