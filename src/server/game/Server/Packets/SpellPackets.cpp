@@ -626,3 +626,9 @@ void WorldPackets::Spells::CancelCast::Read()
     _worldPacket >> SpellID;
     _worldPacket >> CastID;
 }
+
+void WorldPackets::Spells::OpenItem::Read()
+{
+    _worldPacket >> Slot
+                 >> PackSlot;
+}
