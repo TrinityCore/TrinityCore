@@ -522,7 +522,7 @@ bool StartDB()
     MySQL::Library_Init();
 
     // Load databases
-    DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_MASK_ALL);
+    DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_NONE);
     loader
         .AddDatabase(HotfixDatabase, "Hotfix")
         .AddDatabase(WorldDatabase, "World")
