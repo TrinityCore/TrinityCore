@@ -19,7 +19,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 DELETE FROM `waypoints` WHERE `entry`=@Tethyr;
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`point_comment`) VALUES
 (@Tethyr,1, -3882.588379,-4670.275391,-1.823548,'Tethyr');
-UPDATE `quest_template` SET `SpecialFlags`=2 WHERE `Id`=11198;
+UPDATE `quest_template_addon` SET `SpecialFlags`=2 WHERE `Id`=11198;
 
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (@Cannon) AND `source_type`=1;
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (@Marksman) AND `source_type`=0;
