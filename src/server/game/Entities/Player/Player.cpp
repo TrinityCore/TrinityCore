@@ -12898,21 +12898,43 @@ void Player::SendEquipError(InventoryResult msg, Item* item1 /*= nullptr*/, Item
     WorldPackets::Item::InventoryChangeFailure failure;
     failure.BagResult = msg;
 
-    if (item1)
+    if (msg != EQUIP_ERR_OK)
     {
-        failure.Item[0] = item1->GetGUID();
-        failure.Level = uint32(item1->GetRequiredLevel());
+        if (item1)
+            failure.Item[0] = item1->GetGUID();
+
+        if (item2)
+            failure.Item[1] = item2->GetGUID();
+
+        failure.ContainerBSlot = 0; // bag equip slot, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
+
+        switch (msg)
+        {
+            case EQUIP_ERR_CANT_EQUIP_LEVEL_I:
+            case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
+            {
+                failure.Level = uint32(item1 ? item1->GetRequiredLevel() : 0);
+                break;
+            }
+            case EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM:    // no idea about this one...
+            {
+                //failure.SrcContainer
+                //failure.SrcSlot
+                //failure.DstContainer
+                break;
+            }
+            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS:
+            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS:
+            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS:
+            {
+                ItemTemplate const* proto = item1 ? item1->GetTemplate() : sObjectMgr->GetItemTemplate(itemId);
+                failure.LimitCategory = proto ? proto->GetItemLimitCategory() : 0;
+                break;
+            }
+            default:
+                break;
+        }
     }
-
-    if (item2)
-        failure.Item[1] = item2->GetGUID();
-
-    /// @todo: fill remaining values:
-    /// ContainerBSlot
-    /// SrcContainer
-    /// DstContainer
-    /// SrcSlot
-    /// LimitCategory
 
     SendDirectMessage(failure.Write());
 }
