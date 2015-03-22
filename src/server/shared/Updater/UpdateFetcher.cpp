@@ -119,7 +119,7 @@ UpdateFetcher::AppliedFileStorage UpdateFetcher::ReceiveAppliedFiles() const
 {
     AppliedFileStorage map;
 
-    QueryResult result = _retrieve("SELECT `name`, `hash`, `state`, `timestamp` FROM `updates` ORDER BY `name` ASC");
+    QueryResult result = _retrieve("SELECT `name`, `hash`, `state`, UNIX_TIMESTAMP(`timestamp`) FROM `updates` ORDER BY `name` ASC");
     if (!result)
         return map;
 
@@ -128,7 +128,7 @@ UpdateFetcher::AppliedFileStorage UpdateFetcher::ReceiveAppliedFiles() const
         Field* fields = result->Fetch();
 
         AppliedFileEntry const entry = { fields[0].GetString(), fields[1].GetString(),
-            AppliedFileEntry::StateConvert(fields[2].GetString()), fields[3].GetUInt32() };
+            AppliedFileEntry::StateConvert(fields[2].GetString()), fields[3].GetUInt64() };
 
         map.insert(std::make_pair(entry.name, entry));
     }
