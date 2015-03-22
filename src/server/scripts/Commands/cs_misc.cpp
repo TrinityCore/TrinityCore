@@ -2613,7 +2613,7 @@ public:
         return true;
     }
 
-    static bool HandleAurasCommand(ChatHandler* handler, char const* args)
+    static bool HandleAurasCommand(ChatHandler* handler, char const* /*args*/)
     {
         Unit* target = handler->GetSession()->GetPlayer()->GetSelectedUnit();
 

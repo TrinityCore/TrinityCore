@@ -135,7 +135,7 @@ struct ItemEffectEntry
     uint32      OrderIndex;                                         // 2
     uint32      SpellID;                                            // 3
     uint32      Trigger;                                            // 4
-    uint32      Charges;                                            // 5
+    int32       Charges;                                            // 5
     int32       Cooldown;                                           // 6
     uint32      Category;                                           // 7
     int32       CategoryCooldown;                                   // 8

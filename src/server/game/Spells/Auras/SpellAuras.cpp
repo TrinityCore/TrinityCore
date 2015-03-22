@@ -1003,11 +1003,11 @@ void Aura::RefreshSpellMods()
             player->RestoreAllSpellMods(0, this);
 }
 
-bool Aura::HasMoreThanOneEffectForType(AuraType auraType, uint32 difficulty) const
+bool Aura::HasMoreThanOneEffectForType(AuraType auraType) const
 {
     uint32 count = 0;
     for (SpellEffectInfo const* effect : GetSpellEffectInfos())
-    if (effect && HasEffect(effect->EffectIndex) && AuraType(effect->ApplyAuraName) == auraType)
+        if (effect && HasEffect(effect->EffectIndex) && AuraType(effect->ApplyAuraName) == auraType)
             ++count;
 
     return count > 1;
