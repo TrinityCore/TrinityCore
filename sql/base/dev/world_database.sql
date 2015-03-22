@@ -2736,7 +2736,7 @@ CREATE TABLE `quest_template` (
   `RewardSpell` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardSpellCast` int(11) NOT NULL DEFAULT '0',
   `RewardHonor` int(11) NOT NULL DEFAULT '0',
-  `RewardHonorMultiplier` float NOT NULL DEFAULT '1',
+  `RewardHonorMultiplier` float NOT NULL DEFAULT '0',
   `RewardMailTemplateId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardMailDelay` int(11) unsigned NOT NULL DEFAULT '0',
   `SourceItemId` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3705,4 +3705,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-03-21 21:47:40
+-- Dump completed on 2015-03-22 20:02:11
