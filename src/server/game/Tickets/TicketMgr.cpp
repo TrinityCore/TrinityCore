@@ -164,21 +164,21 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, bool detailed) c
     return ss.str();
 }
 
-std::string GmTicket::FormatMessageString(ChatHandler& handler, char const* szClosedName, char const* szAssignedToName, char const* szUnassignedName, char const* szDeletedName, char const* szCompletedName) const
+std::string GmTicket::FormatMessageString(ChatHandler& handler, char const* closedName, char const* assignedToName, char const* unassignedName, char const* deletedName, char const* completedName) const
 {
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName.c_str());
-    if (szClosedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, szClosedName);
-    if (szAssignedToName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, szAssignedToName);
-    if (szUnassignedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, szUnassignedName);
-    if (szDeletedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETDELETED, szDeletedName);
-    if (szCompletedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETCOMPLETED, szCompletedName);
+    if (closedName)
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, closedName);
+    if (assignedToName)
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, assignedToName);
+    if (unassignedName)
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, unassignedName);
+    if (deletedName)
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETDELETED, deletedName);
+    if (completedName)
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETCOMPLETED, completedName);
     return ss.str();
 }
 

@@ -739,15 +739,10 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutoc
 
 void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell)
 {
-    // This opcode is also sent from charmed and possessed units (players and creatures)
-    if (!_player->GetGuardianPet() && !_player->GetCharmed())
-        return;
-
     Unit* caster = ObjectAccessor::GetUnit(*_player, petCastSpell.PetGUID);
-
-    if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharmed()))
+    if (!caster)
     {
-        TC_LOG_ERROR("entities.pet", "HandlePetCastSpellOpcode: {} isn't pet of player {} ({}).", petCastSpell.PetGUID.ToString(), GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString());
+        TC_LOG_ERROR("entities.pet", "WorldSession::HandlePetCastSpellOpcode: Caster {} not found.", petCastSpell.PetGUID.ToString());
         return;
     }
 
@@ -756,6 +751,13 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     {
         TC_LOG_ERROR("spells.pet", "WorldSession::HandlePetCastSpellOpcode: unknown spell id {} tried to cast by {}",
             petCastSpell.Cast.SpellID, petCastSpell.PetGUID.ToString());
+        return;
+    }
+
+    // This opcode is also sent from charmed and possessed units (players and creatures)
+    if (caster != _player->GetGuardianPet() && caster != _player->GetCharmed())
+    {
+        TC_LOG_ERROR("spells.pet", "WorldSession::HandlePetCastSpellOpcode: {} isn't pet of player {} ({}).", petCastSpell.PetGUID.ToString(), GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString());
         return;
     }
 
