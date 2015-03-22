@@ -283,7 +283,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             case LOCATION_REPOSITORY:
             {
                 TC_LOG_ERROR("sql.updates", ">> Base file \"%s\" is missing, try to clone the source again.",
-                    base.generic_string().c_str(), base.filename().generic_string().c_str());
+                    base.generic_string().c_str());
 
                 break;
             }
