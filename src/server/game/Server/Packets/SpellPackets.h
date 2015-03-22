@@ -439,9 +439,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            ObjectGuid CasterGUID;
             int32 SpellID = 0;
             bool ClearOnHold = false;
+            bool Unk20 = false;
         };
 
         class ModifyCooldown final : public ServerPacket

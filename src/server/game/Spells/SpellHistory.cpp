@@ -579,7 +579,6 @@ void SpellHistory::ResetCooldown(CooldownStorageType::iterator& itr, bool update
         if (Player* playerOwner = GetPlayerOwner())
         {
             WorldPackets::Spells::ClearCooldown clearCooldown;
-            clearCooldown.CasterGUID = _owner->GetGUID();
             clearCooldown.SpellID = itr->first;
             clearCooldown.ClearOnHold = false;
             playerOwner->SendDirectMessage(clearCooldown.Write());
