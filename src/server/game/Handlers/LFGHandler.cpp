@@ -72,7 +72,7 @@ void BuildQuestReward(WorldPacket& data, Quest const* quest, Player* player)
         {
             if (uint32 itemId = quest->RewardItemId[i])
             {
-                ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
+                //ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
                 data << uint32(itemId);
                 data << uint32(/*item ? item->DisplayInfoID :*/ 0);
                 data << uint32(quest->RewardItemCount[i]);

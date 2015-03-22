@@ -27,7 +27,7 @@
 
 class UpdateFetcher
 {
-    using Path = boost::filesystem::path;
+    typedef boost::filesystem::path Path;
 
 public:
     UpdateFetcher(Path const& updateDirectory,
@@ -53,6 +53,9 @@ private:
 
     struct AppliedFileEntry
     {
+        AppliedFileEntry(std::string const& name_, std::string const& hash_, State state_, uint64 timestamp_)
+            : name(name_), hash(hash_), state(state_), timestamp(timestamp_) { }
+
         std::string const name;
 
         std::string const hash;
@@ -79,12 +82,14 @@ private:
 
     struct DirectoryEntry
     {
+        DirectoryEntry(Path const& path_, State state_) : path(path_), state(state_) { }
+
         Path const path;
 
         State const state;
     };
 
-    using LocaleFileEntry = std::pair<Path, State>;
+    typedef std::pair<Path, State> LocaleFileEntry;
 
     struct PathCompare
     {
@@ -94,11 +99,11 @@ private:
         }
     };
 
-    using LocaleFileStorage = std::set<LocaleFileEntry, PathCompare>;
-    using HashToFileNameStorage = std::unordered_map<std::string, std::string>;
-    using AppliedFileStorage = std::unordered_map<std::string, AppliedFileEntry>;
-    using DirectoryStorage = std::vector<UpdateFetcher::DirectoryEntry>;
-    using SQLUpdate = std::shared_ptr<std::string>;
+    typedef std::set<LocaleFileEntry, PathCompare> LocaleFileStorage;
+    typedef std::unordered_map<std::string, std::string> HashToFileNameStorage;
+    typedef std::unordered_map<std::string, AppliedFileEntry> AppliedFileStorage;
+    typedef std::vector<UpdateFetcher::DirectoryEntry> DirectoryStorage;
+    typedef std::shared_ptr<std::string> SQLUpdate;
 
     LocaleFileStorage GetFileList() const;
     void FillFileListRecursively(Path const& path, LocaleFileStorage& storage, State const state, uint32 const depth) const;

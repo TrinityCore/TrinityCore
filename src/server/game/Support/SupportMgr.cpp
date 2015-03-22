@@ -34,26 +34,26 @@ void Ticket::TeleportTo(Player* player) const
     player->TeleportTo(_mapId, _pos.x, _pos.y, _pos.z, 0.0f, 0);
 }
 
-std::string Ticket::FormatViewMessageString(ChatHandler& handler, const char* szClosedName, const char* szAssignedToName, const char* szUnassignedName, const char* szDeletedName, const char* szCompletedName) const
+std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* closedName, char const* assignedToName, char const* unassignedName, char const* deletedName, char const* /*completedName*/) const
 {
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayer()->GetName().c_str());
-    if (szClosedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, szClosedName);
-    if (szAssignedToName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, szAssignedToName);
-    if (szUnassignedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, szUnassignedName);
-    if (szDeletedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETDELETED, szDeletedName);
+    if (closedName)
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, closedName);
+    if (assignedToName)
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, assignedToName);
+    if (unassignedName)
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, unassignedName);
+    if (deletedName)
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETDELETED, deletedName);
     return ss.str();
 }
 
 GmTicket::GmTicket() : _lastModifiedTime(0), _completed(false), _escalatedStatus(TICKET_UNASSIGNED), _viewed(false), _needResponse(false), _needMoreHelp(false) { }
 
 GmTicket::GmTicket(Player* player) : Ticket(player), _lastModifiedTime(time(nullptr)), _completed(false), _escalatedStatus(TICKET_UNASSIGNED),
-_viewed(false), _needResponse(false), _needMoreHelp(false) 
+_viewed(false), _needResponse(false), _needMoreHelp(false)
 {
     _id = sSupportMgr->GenerateGmTicketId();
 }
@@ -71,9 +71,9 @@ void GmTicket::SetUnassigned()
     _assignedTo.Clear();
     switch (_escalatedStatus)
     {
-        case TICKET_ASSIGNED: _escalatedStatus = TICKET_UNASSIGNED; 
+        case TICKET_ASSIGNED: _escalatedStatus = TICKET_UNASSIGNED;
             break;
-        case TICKET_ESCALATED_ASSIGNED: _escalatedStatus = TICKET_IN_ESCALATION_QUEUE; 
+        case TICKET_ESCALATED_ASSIGNED: _escalatedStatus = TICKET_IN_ESCALATION_QUEUE;
             break;
         case TICKET_UNASSIGNED:
         case TICKET_IN_ESCALATION_QUEUE:
@@ -246,7 +246,7 @@ void BugTicket::LoadFromDB(Field* fields)
         _closedBy.SetRawValue(0, uint64(closedBy));
     else
         _closedBy = ObjectGuid::Create<HighGuid::Player>(uint64(closedBy));
-    
+
     uint64 assignedTo   = fields[++idx].GetUInt64();
     if (assignedTo == 0)
         _assignedTo = ObjectGuid::Empty;
@@ -330,7 +330,7 @@ void ComplaintTicket::LoadFromDB(Field* fields)
     int32 reportLineIndex = fields[++idx].GetInt32();
     if (reportLineIndex != -1)
         _chatLog.ReportLineIndex.Set(reportLineIndex);
-    
+
     int64 closedBy = fields[++idx].GetInt64();
     if (closedBy == 0)
         _closedBy = ObjectGuid::Empty;
@@ -344,7 +344,7 @@ void ComplaintTicket::LoadFromDB(Field* fields)
         _assignedTo = ObjectGuid::Empty;
     else
         _assignedTo = ObjectGuid::Create<HighGuid::Player>(assignedTo);
-    
+
     _comment                = fields[++idx].GetString();
 }
 
@@ -373,7 +373,7 @@ void ComplaintTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt8(++idx, _complaintType);
     if (_chatLog.ReportLineIndex.HasValue)
         stmt->setInt32(++idx, _chatLog.ReportLineIndex.Value);
-    else 
+    else
         stmt->setInt32(++idx, -1); // empty ReportLineIndex
     stmt->setInt64(++idx, _closedBy.GetCounter());
     stmt->setUInt64(++idx, _assignedTo.GetCounter());
@@ -393,7 +393,7 @@ void ComplaintTicket::SaveToDB(SQLTransaction& trans) const
         trans->Append(stmt);
         ++lineIndex;
     }
-    
+
     if (!isInTransaction)
         CharacterDatabase.CommitTransaction(trans);
 }
@@ -517,7 +517,7 @@ std::string SuggestionTicket::FormatViewMessageString(ChatHandler& handler, bool
     return ss.str();
 }
 
-SupportMgr::SupportMgr() : _lastGmTicketId(0), _lastBugId(0), _lastComplaintId(0), _lastSuggestionId(0), _openGmTicketCount(0), 
+SupportMgr::SupportMgr() : _lastGmTicketId(0), _lastBugId(0), _lastComplaintId(0), _lastSuggestionId(0), _openGmTicketCount(0),
 _openBugTicketCount(0), _openComplaintTicketCount(0), _openSuggestionTicketCount(0) { }
 
 SupportMgr::~SupportMgr()
@@ -701,7 +701,7 @@ void SupportMgr::LoadComplaintTickets()
     uint32 count = 0;
     PreparedStatement* chatLogStmt;
     PreparedQueryResult chatLogResult;
-    do 
+    do
     {
         Field* fields = result->Fetch();
         ComplaintTicket* complaint = new ComplaintTicket();

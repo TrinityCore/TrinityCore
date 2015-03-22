@@ -546,7 +546,6 @@ enum OpcodeClient : uint32
     CMSG_PET_BATTLE_SCRIPT_ERROR_NOTIFY               = 0xBADD,
     CMSG_PET_CANCEL_AURA                              = 0xBADD,
     CMSG_PET_CAST_SPELL                               = 0xBADD,
-    CMSG_PET_LEARN_TALENT                             = 0xBADD,
     CMSG_PET_NAME_CACHE                               = 0xBADD,
     CMSG_PET_NAME_QUERY                               = 0x0CCB,
     CMSG_PET_RENAME                                   = 0x1333,

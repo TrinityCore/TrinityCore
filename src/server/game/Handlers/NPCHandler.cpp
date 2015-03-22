@@ -120,10 +120,8 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
 
     // reputation discount
     float fDiscountMod = _player->GetReputationPriceDiscount(unit);
-    bool can_learn_primary_prof = GetPlayer()->GetFreePrimaryProfessionPoints() > 0;
 
-    packet.Spells.resize(trainer_spells->spellList.size());
-    uint32 count = 0;
+    packet.Spells.reserve(trainer_spells->spellList.size());
     for (TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
     {
         TrainerSpell const* tSpell = &itr->second;
@@ -143,12 +141,13 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
             if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank())
                 primary_prof_first_rank = true;
         }
+
         if (!valid)
             continue;
 
         TrainerSpellState state = _player->GetTrainerSpellState(tSpell);
 
-        WorldPackets::NPC::TrainerListSpell& spell = packet.Spells[count];
+        WorldPackets::NPC::TrainerListSpell spell;
         spell.SpellID = tSpell->SpellID;
         spell.MoneyCost = floor(tSpell->MoneyCost * fDiscountMod);
         spell.ReqSkillLine = tSpell->ReqSkillLine;
@@ -157,38 +156,33 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
         spell.Usable = (state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
 
         uint8 maxReq = 0;
-        /// @todo Update this when new spell system is ready
-        /*for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
         {
             if (!tSpell->ReqAbility[i])
                 continue;
+
             if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(tSpell->ReqAbility[i]))
             {
                 spell.ReqAbility[maxReq] = prevSpellId;
                 ++maxReq;
             }
+
             if (maxReq == 2)
                 break;
+
             SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->ReqAbility[i]);
             for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < 3; ++itr2)
             {
                 spell.ReqAbility[maxReq] = itr2->second;
                 ++maxReq;
             }
+
             if (maxReq == 2)
                 break;
-        }*/
-        while (maxReq < MAX_TRAINERSPELL_ABILITY_REQS)
-        {
-            spell.ReqAbility[maxReq] = 0;
-            ++maxReq;
         }
 
-        ++count;
+        packet.Spells.push_back(spell);
     }
-
-    // Shrink to actual data size
-    packet.Spells.resize(count);
 
     SendPacket(packet.Write());
 }
