@@ -59,7 +59,7 @@ private:
 
         State const state;
 
-        uint32 const timestamp;
+        uint64 const timestamp;
 
         static inline State StateConvert(std::string const& state)
         {
