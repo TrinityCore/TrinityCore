@@ -43,7 +43,7 @@ enum OpcodeMisc : uint32
     NULL_OPCODE                                       = 0xBADD
 };
 
-// CMSGs 6.0.3.19342
+// CMSGs 6.1.0.19702
 enum OpcodeClient : uint32
 {
     CMSG_ACCEPT_GUILD_INVITE                          = 0xBADD,
@@ -411,7 +411,7 @@ enum OpcodeClient : uint32
     CMSG_LOOT_ROLL                                    = 0xBADD,
     CMSG_LOW_LEVEL_RAID1                              = 0xBADD,
     CMSG_LOW_LEVEL_RAID2                              = 0xBADD,
-    CMSG_MAIL_CREATE_TEXT_ITEM                        = 0xBADD,
+    CMSG_MAIL_CREATE_TEXT_ITEM                        = 0x0EE1,
     CMSG_MAIL_DELETE                                  = 0x0C89,
     CMSG_MAIL_MARK_AS_READ                            = 0x13C9,
     CMSG_MAIL_RETURN_TO_SENDER                        = 0xBADD,
@@ -643,7 +643,7 @@ enum OpcodeClient : uint32
     CMSG_SELF_RES                                     = 0xBADD,
     CMSG_SELL_ITEM                                    = 0x1349,
     CMSG_SEND_CONTACT_LIST                            = 0x15F9,
-    CMSG_SEND_MAIL                                    = 0xBADD,
+    CMSG_SEND_MAIL                                    = 0x15EA,
     CMSG_SEND_SOR_REQUEST_VIA_ADDRESS                 = 0xBADD,
     CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID         = 0xBADD,
     CMSG_SERVERTIME                                   = 0xBADD,
@@ -796,7 +796,7 @@ enum OpcodeClient : uint32
     MSG_NOTIFY_PARTY_SQUELCH                          = 0xBADD,
 };
 
-// SMSGs 6.0.3.19342
+// SMSGs 6.1.0.19702
 enum OpcodeServer : uint32
 {
     SMSG_ABORT_NEW_WORLD                              = 0xBADD,
