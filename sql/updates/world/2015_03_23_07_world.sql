@@ -26,7 +26,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (21332, 0, 0, 'It is dying! The second part of the Cipher of Damnation is ours. I...', 12, 0, 100, 1, 0, 0, 19040, 'Spirit Hunter to Veneratus the Many'),
 (21332, 1, 0, 'I am fading... Return to Ar''tor... Ret... rn... to...', 12, 0, 100, 1, 0, 0, 19041, 'Spirit Hunter to Veneratus the Many');
 
-UPDATE `spell_dbc` SET `Effect2`=28,`EffectMiscValueB2`=64 WHERE `Id`=36616;
+/* UPDATE `spell_dbc` SET `Effect2`=28,`EffectMiscValueB2`=64 WHERE `Id`=36616; */
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=8288;
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `OptionBroadcastTextID`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`) VALUES 
