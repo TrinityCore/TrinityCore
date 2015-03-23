@@ -642,6 +642,11 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
         return 0.0f;
 
     float radius = entry->RadiusMin;
+
+    // Client uses max if min is 0
+    if (radius == 0.0f)
+        radius = entry->RadiusMax;
+
     if (caster)
     {
         radius += entry->RadiusPerLevel * caster->getLevel();
