@@ -24,6 +24,30 @@
 #include "UpdateData.h"
 #include "Player.h"
 
+#define SPELL_DUEL  7266
+#define SPELL_MOUNTED_DUEL  62875
+
+void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
+{
+    Player* player = ObjectAccessor::FindPlayer(packet.TargetGUID);
+
+    if (!player)
+        return;
+
+    WorldPackets::Duel::CanDuelResult response;
+    response.TargetGUID = packet.TargetGUID;
+    response.Result = !player->duel;
+    SendPacket(response.Write());
+
+    if (response.Result)
+    {
+        if (_player->IsMounted())
+            _player->CastSpell(player, SPELL_MOUNTED_DUEL);
+        else
+            _player->CastSpell(player, SPELL_DUEL);
+    }
+}
+
 void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse)
 {
     if (duelResponse.Accepted)
@@ -50,8 +74,9 @@ void WorldSession::HandleDuelAccepted()
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;
 
-    player->SendDuelCountdown(3000);
-    plTarget->SendDuelCountdown(3000);
+    WorldPackets::Duel::DuelCountdown packet(3000); // milliseconds
+    player->GetSession()->SendPacket(packet.Write());
+    plTarget->GetSession()->SendPacket(packet.Write());
 }
 
 void WorldSession::HandleDuelCancelled()
