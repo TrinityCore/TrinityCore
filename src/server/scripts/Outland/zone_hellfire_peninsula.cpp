@@ -495,7 +495,16 @@ public:
        
     struct npc_baradaAI : public ScriptedAI
     {
-        npc_baradaAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_baradaAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            step=0;
+            jules=0;
+        }
 
         void Reset() override
         {
@@ -748,8 +757,18 @@ public:
 
     struct npc_colonel_julesAI : public ScriptedAI
     {
-        npc_colonel_julesAI(Creature* creature) : ScriptedAI(creature), summons(me) { }
-       
+        npc_colonel_julesAI(Creature* creature) : ScriptedAI(creature), summons(me)
+
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            circleRounds=0;
+            point=0;
+        }
+
         void Reset() override
         {
             events.Reset();
