@@ -101,7 +101,7 @@ UpdateFetcher::DirectoryStorage UpdateFetcher::ReceiveIncludedDirectories() cons
 
         if (!is_directory(p))
         {
-            TC_LOG_ERROR("sql.updates", "DBUpdater: Given update include directory \"%s\" isn't existing, skipped!", p.generic_string().c_str());
+            TC_LOG_WARN("sql.updates", "DBUpdater: Given update include directory \"%s\" isn't existing, skipped!", p.generic_string().c_str());
             continue;
         }
 
@@ -154,7 +154,7 @@ UpdateFetcher::SQLUpdate UpdateFetcher::ReadSQLUpdate(boost::filesystem::path co
     return update;
 }
 
-uint32 UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash, bool const archivedRedundancy, bool const cleanDeadReferences) const
+uint32 UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash, bool const archivedRedundancy, int32 const cleanDeadReferencesMaxCount) const
 {
     LocaleFileStorage const available = GetFileList();
     AppliedFileStorage applied = ReceiveAppliedFiles();
@@ -291,14 +291,28 @@ uint32 UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash
             ++importedUpdates;
     }
 
-    for (auto const& entry : applied)
+    // Cleanup up orphaned entries if enabled
+    if (!applied.empty())
     {
-        TC_LOG_WARN("sql.updates", ">> File \'%s\' was applied to the database but is missing in" \
-            " your update directory now!%s", entry.first.c_str(), cleanDeadReferences ? " Deleting orphaned entry..." : "");
-    }
+        bool const doCleanup = (cleanDeadReferencesMaxCount < 0) || (applied.size() <= static_cast<size_t>(cleanDeadReferencesMaxCount));
 
-    if (cleanDeadReferences)
-        CleanUp(applied);
+        for (auto const& entry : applied)
+        {
+            TC_LOG_WARN("sql.updates", ">> File \'%s\' was applied to the database but is missing in" \
+                " your update directory now!", entry.first.c_str());
+
+            if (doCleanup)
+                TC_LOG_INFO("sql.updates", "Deleting orphaned entry \'%s\'...", entry.first.c_str());
+        }
+
+        if (doCleanup)
+            CleanUp(applied);
+        else
+        {
+            TC_LOG_ERROR("sql.updates", "Cleanup is disabled! There are %zu dirty files that were applied to your database " \
+                "but are now missing in your source directory!", applied.size());
+        }
+    }
 
     return importedUpdates;
 }
