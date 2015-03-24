@@ -439,9 +439,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            ObjectGuid CasterGUID;
             int32 SpellID = 0;
             bool ClearOnHold = false;
+            bool Unk20 = false;
         };
 
         class ModifyCooldown final : public ServerPacket
@@ -587,6 +587,17 @@ namespace WorldPackets
 
             uint32 SpellID = 0;
             uint8 CastID = 0;
+        };
+
+        class OpenItem final : public ClientPacket
+        {
+        public:
+            OpenItem(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Slot = 0;
+            uint8 PackSlot = 0;
         };
     }
 }

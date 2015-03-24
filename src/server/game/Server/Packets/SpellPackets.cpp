@@ -500,9 +500,9 @@ WorldPacket const* WorldPackets::Spells::ClearCooldowns::Write()
 
 WorldPacket const* WorldPackets::Spells::ClearCooldown::Write()
 {
-    _worldPacket << CasterGUID;
     _worldPacket << uint32(SpellID);
     _worldPacket.WriteBit(ClearOnHold);
+    _worldPacket.WriteBit(Unk20);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -625,4 +625,10 @@ void WorldPackets::Spells::CancelCast::Read()
 {
     _worldPacket >> SpellID;
     _worldPacket >> CastID;
+}
+
+void WorldPackets::Spells::OpenItem::Read()
+{
+    _worldPacket >> Slot
+                 >> PackSlot;
 }

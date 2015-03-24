@@ -548,7 +548,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
                 }
             }
 
-            void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& /*absorbAmount*/)
             {
                 /*Unit* target = GetTarget();
                 if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))

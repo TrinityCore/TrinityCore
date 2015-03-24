@@ -4,9 +4,17 @@ Boost
   http://www.boost.org
   Version: 1.55
 
+Boost Process (Proposed for boost, but its not an official part of it yet. Used to start child processes.)
+  http://www.highscore.de/boost/process0.5/
+  Version: 0.5
+
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
   Version: 1.0.6
+
+cppformat (type safe format library)
+  https://github.com/cppformat/cppformat
+  Version: 1.1.0 bf8636c9596fbfddded3d0f5879abc7579c9f4dd
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/

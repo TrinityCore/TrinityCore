@@ -90,6 +90,13 @@ namespace WorldPackets
         enum class ConnectToSerial : uint32;
     }
 
+    namespace Bank
+    {
+        class AutoBankItem;
+        class AutoStoreBankItem;
+        class BuyBankSlot;
+    }
+
     namespace BlackMarket
     {
         class BlackMarketOpen;
@@ -287,6 +294,9 @@ namespace WorldPackets
         class ClientPlayerMovement;
         class WorldPortAck;
         class MoveTeleportAck;
+        class MovementAck;
+        class MovementSpeedAck;
+        class SetActiveMover;
     }
 
     namespace NPC
@@ -352,6 +362,7 @@ namespace WorldPackets
         class CastSpell;
         class PetCastSpell;
         class UseItem;
+        class OpenItem;
         class SetActionButton;
     }
 
@@ -838,7 +849,7 @@ class WorldSession
         void HandleMoveKnockBackAck(WorldPacket& recvPacket);
 
         void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
-        void HandleForceSpeedChangeAck(WorldPacket& recvData);
+        void HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet);
         void HandleSetCollisionHeightAck(WorldPacket& recvPacket);
 
         void HandlePingOpcode(WorldPacket& recvPacket);
@@ -910,7 +921,7 @@ class WorldSession
         void HandleMoveWorldportAckOpcode();                // for server-side calls
 
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
-        void HandleSetActiveMoverOpcode(WorldPacket& recvData);
+        void HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet);
         void HandleMoveNotActiveMover(WorldPacket& recvData);
         void HandleDismissControlledVehicle(WorldPacket& recvData);
         void HandleRequestVehicleExit(WorldPacket& recvData);
@@ -999,7 +1010,6 @@ class WorldSession
 
         void HandleTabardVendorActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet);
-        void HandleBuyBankSlotOpcode(WorldPacket& recvPacket);
         void HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet);
         void HandleTrainerBuySpellOpcode(WorldPacket& recvPacket);
         void HandlePetitionShowList(WorldPackets::Petition::PetitionShowList& packet);
@@ -1043,6 +1053,11 @@ class WorldSession
         void HandleAuctionPlaceBid(WorldPacket& recvData);
         void HandleAuctionListPendingSales(WorldPacket& recvData);
 
+        // Bank
+        void HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& packet);
+        void HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBankItem& packet);
+        void HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& packet);
+
         // Black Market
         void HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketOpen& packet);
 
@@ -1072,8 +1087,6 @@ class WorldSession
         void HandleAutoEquipItemSlotOpcode(WorldPacket& recvPacket);
         void HandleSwapItem(WorldPackets::Item::SwapItem& swapItem);
         void HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet);
-        void HandleAutoBankItemOpcode(WorldPacket& recvPacket);
-        void HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket);
         void HandleWrapItemOpcode(WorldPacket& recvPacket);
 
         void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
@@ -1081,7 +1094,7 @@ class WorldSession
         void HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& packet);
 
         void HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet);
-        void HandleOpenItemOpcode(WorldPacket& recvPacket);
+        void HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet);
         void HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest);
         void HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& packet);
         void HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& cancelAura);
@@ -1165,8 +1178,7 @@ class WorldSession
         void HandlePetRename(WorldPacket& recvData);
         void HandlePetCancelAuraOpcode(WorldPacket& recvPacket);
         void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
-        void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& castRequest);
-        void HandlePetLearnTalent(WorldPacket& recvPacket);
+        void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell);
 
         void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 

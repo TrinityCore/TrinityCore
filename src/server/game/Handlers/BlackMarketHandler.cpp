@@ -37,7 +37,7 @@ void WorldSession::HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketO
     SendBlackMarketOpenResult(packet.Guid, unit);
 }
 
-void WorldSession::SendBlackMarketOpenResult(ObjectGuid guid, Creature* auctioneer)
+void WorldSession::SendBlackMarketOpenResult(ObjectGuid guid, Creature* /*auctioneer*/)
 {
     WorldPackets::BlackMarket::BlackMarketOpenResult packet;
     packet.Guid = guid;

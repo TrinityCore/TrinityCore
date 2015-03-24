@@ -317,6 +317,12 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242
     &Spell::EffectNULL,                                     //243 SPELL_EFFECT_243
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_244
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_245
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_246
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_247
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_248
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_249
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_250
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
@@ -3926,7 +3932,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
         return;
 
     TC_LOG_DEBUG("spells", "Spell Effect: Stuck");
-    TC_LOG_INFO("spells", "Player %s (%s) used auto-unstuck future at map %u (%f, %f, %f)", player->GetName().c_str(), player->GetGUID().ToString().c_str(), player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+    TC_LOG_DEBUG("spells", "Player %s (%s) used auto-unstuck future at map %u (%f, %f, %f)", player->GetName().c_str(), player->GetGUID().ToString().c_str(), player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 
     if (player->IsInFlight())
         return;

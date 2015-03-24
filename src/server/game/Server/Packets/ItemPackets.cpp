@@ -208,7 +208,7 @@ WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
     _worldPacket << int8(BagResult);
     _worldPacket << Item[0];
     _worldPacket << Item[1];
-    _worldPacket << uint8(ContainerBSlot); // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
+    _worldPacket << uint8(ContainerBSlot); // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_WRONG_BAG_TYPE_2
 
     switch (BagResult)
     {
@@ -216,7 +216,16 @@ WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
         case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
             _worldPacket << int32(Level);
             break;
-        /// @todo: add more cases
+        case EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM:
+            _worldPacket << SrcContainer;
+            _worldPacket << int32(SrcSlot);
+            _worldPacket << DstContainer;
+            break;
+        case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS:
+        case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS:
+        case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS:
+            _worldPacket << int32(LimitCategory);
+            break;
         default:
             break;
     }

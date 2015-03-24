@@ -470,6 +470,7 @@ struct GameObjectTemplate
         {
             uint32 chairheight;                             // 0 chairheight, int, Min value: 0, Max value: 2, Default value: 1
             int32 HeightOffset;                             // 1 Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
+            uint32 SitAnimKit;                              // 2 Sit Anim Kit, References: AnimKit, NoValue = 0
         } barberChair;
         // 33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
         struct
@@ -587,6 +588,8 @@ struct GameObjectTemplate
         {
             int32 mapID;                                    // 0 mapID, References: Map, NoValue = -1
             int32 namedset;                                 // 1 named set, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            uint32 Primarydoodadset;                        // 2 Primary doodad set, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            uint32 Secondarydoodadset;                      // 3 Secondary doodad set, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
         } phaseableMO;
         // 44 GAMEOBJECT_TYPE_GARRISON_MONUMENT
         struct

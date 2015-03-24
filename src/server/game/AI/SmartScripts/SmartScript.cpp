@@ -497,7 +497,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             {
                                 if (cost.Power == POWER_HEALTH)
                                 {
-                                    if (me->GetHealth() <= cost.Amount)
+                                    if (me->GetHealth() <= uint32(cost.Amount))
                                     {
                                         hasPower = false;
                                         break;

@@ -183,7 +183,7 @@ class Aura
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
-        bool HasMoreThanOneEffectForType(AuraType auraType, uint32 difficulty) const;
+        bool HasMoreThanOneEffectForType(AuraType auraType) const;
         bool IsArea() const;
         bool IsPassive() const;
         bool IsDeathPersistent() const;
