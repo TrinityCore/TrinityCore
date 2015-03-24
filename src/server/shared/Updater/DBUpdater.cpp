@@ -276,7 +276,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
         sConfigMgr->GetBoolDefault("Updates.Redundancy", true),
         sConfigMgr->GetBoolDefault("Updates.AllowRehash", true),
         sConfigMgr->GetBoolDefault("Updates.ArchivedRedundancy", false),
-        sConfigMgr->GetBoolDefault("Updates.CleanDeadRef", true));
+        sConfigMgr->GetIntDefault("Updates.CleanDeadRefMaxCount", 3));
 
     if (!count)
         TC_LOG_INFO("sql.updates", ">> %s database is up-to-date!", DBUpdater<T>::GetTableName().c_str());
