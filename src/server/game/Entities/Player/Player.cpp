@@ -25598,13 +25598,6 @@ std::string Player::GetGuildName()
     return GetGuildId() ? sGuildMgr->GetGuildById(GetGuildId())->GetName() : "";
 }
 
-void Player::SendDuelCountdown(uint32 counter)
-{
-    WorldPacket data(SMSG_DUEL_COUNTDOWN, 4);
-    data << uint32(counter);                                // seconds
-    GetSession()->SendPacket(&data);
-}
-
 void Player::AddRefundReference(ObjectGuid it)
 {
     m_refundableItems.insert(it);
