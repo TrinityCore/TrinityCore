@@ -325,7 +325,7 @@ void ShutdownCLIThread(std::thread* cliThread)
                 errorBuffer = "Unknown error";
 
             TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s",
-                errorCode, errorBuffer);
+                uint32(errorCode), errorBuffer);
             LocalFree(errorBuffer);
 
             // send keyboard input to safely unblock the CLI thread

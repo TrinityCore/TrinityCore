@@ -211,7 +211,7 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllMyPetTalentsCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleLearnAllMyPetTalentsCommand(ChatHandler* /*handler*/, char const* /*args*/)
     {
         /* TODO: 6.x remove pet talents
         Player* player = handler->GetSession()->GetPlayer();

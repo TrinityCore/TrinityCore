@@ -334,7 +334,7 @@ bool Quest::IsAllowedInRaid(Difficulty difficulty) const
     return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_RAID);
 }
 
-uint32 Quest::CalculateHonorGain(uint8 level) const
+uint32 Quest::CalculateHonorGain(uint8 /*level*/) const
 {
     uint32 honor = 0;
 

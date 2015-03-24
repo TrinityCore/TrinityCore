@@ -6130,7 +6130,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
 // Used in case when access to whole aura is needed
 // All procs should be handled like this...
-bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura, SpellInfo const* procSpell, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown, bool * handled)
+bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown, bool * handled)
 {
     SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
 
@@ -16445,7 +16445,7 @@ bool Unit::IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplicat
                     {
                         if (AuraApplication* aurApp = existingAurEff->GetBase()->GetApplicationOfTarget(GetGUID()))
                         {
-                            bool hasMoreThanOneEffect = base->HasMoreThanOneEffectForType(auraType, GetMap()->GetDifficultyID());
+                            bool hasMoreThanOneEffect = base->HasMoreThanOneEffectForType(auraType);
                             uint32 removedAuras = m_removedAurasCount;
                             RemoveAura(aurApp);
                             if (hasMoreThanOneEffect || m_removedAurasCount > removedAuras + 1)
