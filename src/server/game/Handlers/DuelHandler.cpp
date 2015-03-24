@@ -24,7 +24,7 @@
 #include "UpdateData.h"
 #include "Player.h"
 
-#define	SPELL_DUEL		7266 
+#define SPELL_DUEL		7266 
 #define SPELL_MOUNTED_DUEL	62875
 
 void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
@@ -75,8 +75,8 @@ void WorldSession::HandleDuelAccepted()
     plTarget->duel->startTimer = now;
     
     WorldPackets::Duel::DuelCountdown packet(3000); // seconds
-	player->GetSession()->SendPacket(packet.Write());
-	plTarget->GetSession()->SendPacket(packet.Write());
+    player->GetSession()->SendPacket(packet.Write());
+    plTarget->GetSession()->SendPacket(packet.Write());
 }
 
 void WorldSession::HandleDuelCancelled()
