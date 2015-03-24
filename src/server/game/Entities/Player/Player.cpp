@@ -7449,9 +7449,8 @@ void Player::CheckDuelDistance(time_t currTime)
         if (!IsWithinDistInMap(obj, 50))
         {
             duel->outOfBound = currTime;
-
-            WorldPacket data(SMSG_DUEL_OUT_OF_BOUNDS, 0);
-            GetSession()->SendPacket(&data);
+            
+            GetSession()->SendPacket(WorldPackets::Duel::DuelOutOfBounds().Write());
         }
     }
     else
@@ -7459,9 +7458,8 @@ void Player::CheckDuelDistance(time_t currTime)
         if (IsWithinDistInMap(obj, 40))
         {
             duel->outOfBound = 0;
-
-            WorldPacket data(SMSG_DUEL_IN_BOUNDS, 0);
-            GetSession()->SendPacket(&data);
+            
+            GetSession()->SendPacket(WorldPackets::Duel::DuelInBounds().Write());
         }
         else if (currTime >= (duel->outOfBound+10))
             DuelComplete(DUEL_FLED);
@@ -7481,20 +7479,23 @@ void Player::DuelComplete(DuelCompleteType type)
 
     TC_LOG_DEBUG("entities.unit", "Duel Complete %s %s", GetName().c_str(), duel->opponent->GetName().c_str());
 
-    WorldPacket data(SMSG_DUEL_COMPLETE, (1));
-    data << (uint8)((type != DUEL_INTERRUPTED) ? 1 : 0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Duel::DuelComplete duelCompleted;
+    duelCompleted.Started = type != DUEL_INTERRUPTED ? true : false;
+    GetSession()->SendPacket(duelCompleted.Write());
 
     if (duel->opponent->GetSession())
         duel->opponent->GetSession()->SendPacket(&data);
 
     if (type != DUEL_INTERRUPTED)
     {
-        data.Initialize(SMSG_DUEL_WINNER, (1+20));          // we guess size
-        data << uint8(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
-        data << duel->opponent->GetName();
-        data << GetName();
-        SendMessageToSet(&data, true);
+        WorldPackets::Duel::DuelWinner duelWinner;
+        duelWinner.BeatenName = (type == DUEL_WON ? duel->opponent->GetName() : GetName());
+        duelWinner.WinnerName = (type == DUEL_WON ? GetName() : duel->opponent->GetName());
+        duelWinner.BeatenVirtualRealmAddress = GetVirtualRealmAddress(); // no crossrealm support
+        duelWinner.WinnerVirtualRealmAddress = GetVirtualRealmAddress();
+        duelWinner.Fled = (type == DUEL_WON ? false : true;
+        
+        SendMessageToSet(duelWinner.Write(), true);
     }
 
     sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);
