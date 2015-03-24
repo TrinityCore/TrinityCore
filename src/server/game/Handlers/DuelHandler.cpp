@@ -39,13 +39,13 @@ void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
     response.Result = !player->duel ? true : false;
     SendPacket(response.Write());
     
-	if (response.Result)
-	{
-	    if (_player->IsMounted())
-	        _player->CastSpell(player, SPELL_MOUNTED_DUEL);
-	    else
-	        _player->CastSpell(player, SPELL_DUEL);
-	}
+    if (response.Result)
+    {
+    	if (_player->IsMounted())
+    		_player->CastSpell(player, SPELL_MOUNTED_DUEL);
+    	else
+    		_player->CastSpell(player, SPELL_DUEL);
+    }
 }
 
 void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse)
