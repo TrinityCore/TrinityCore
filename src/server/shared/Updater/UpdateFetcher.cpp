@@ -309,7 +309,7 @@ uint32 UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash
             CleanUp(applied);
         else
         {
-            TC_LOG_ERROR("sql.updates", "Cleanup is disabled! There are %zu dirty files that were applied to your database " \
+            TC_LOG_ERROR("sql.updates", "Cleanup is disabled! There are " SZFMTD " dirty files that were applied to your database " \
                 "but are now missing in your source directory!", applied.size());
         }
     }
