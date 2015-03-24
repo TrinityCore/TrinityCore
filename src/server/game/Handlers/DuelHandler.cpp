@@ -24,6 +24,9 @@
 #include "UpdateData.h"
 #include "Player.h"
 
+#define	SPELL_DUEL		7266 
+#define SPELL_MOUNTED_DUEL	62875
+
 void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
 {
     Player* player = ObjectAccessor::FindPlayer(packet.TargetGUID);
