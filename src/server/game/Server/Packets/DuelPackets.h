@@ -66,6 +66,22 @@ namespace WorldPackets
             uint32 Countdown = 0:
         };
         
+        class DuelInBounds final : public ServerPacket
+        {
+        public:
+            DuelInBounds() : ServerPacket(SMSG_DUEL_IN_BOUNDS, 0) { }
+            
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+        
+        class DuelOutOfBounds final : public ServerPacket
+        {
+        public:
+            DuelOutOfBounds() : ServerPacket(SMSG_DUEL_OUT_OF_BOUNDS, 0) { }
+            
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+        
         class DuelRequested final : public ServerPacket
         {
         public:
