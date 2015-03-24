@@ -440,8 +440,6 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction)
 
     // we need to delete the entry, it is not referenced any more
     delete auction;
-    auction = NULL;
-
     return wasInMap;
 }
 
@@ -552,7 +550,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         if (itemSubClass != 0xffffffff && proto->GetSubClass() != itemSubClass)
             continue;
 
-        if (inventoryType != 0xffffffff && proto->GetInventoryType() != inventoryType)
+        if (inventoryType != 0xffffffff && proto->GetInventoryType() != InventoryType(inventoryType))
             continue;
 
         if (quality != 0xffffffff && proto->GetQuality() != quality)

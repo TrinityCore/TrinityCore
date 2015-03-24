@@ -240,8 +240,6 @@ WorldPackets::Mail::MailQueryNextTimeResult::MailNextTimeEntry::MailNextTimeEntr
     {
         case MAIL_NORMAL:
             SenderGuid = ObjectGuid::Create<HighGuid::Player>(mail->sender);
-            SenderHint.NativeRealmAddress.Set(GetVirtualRealmAddress());
-            SenderHint.VirtualRealmAddress.Set(GetVirtualRealmAddress());
             break;
         case MAIL_AUCTION:
         case MAIL_CREATURE:
@@ -264,8 +262,6 @@ WorldPacket const* WorldPackets::Mail::MailQueryNextTimeResult::Write()
     for (auto const& entry : Next)
     {
         _worldPacket << entry.SenderGuid;
-        _worldPacket << entry.SenderHint;
-
         _worldPacket << float(entry.TimeLeft);
         _worldPacket << int32(entry.AltSenderID);
         _worldPacket << int8(entry.AltSenderType);

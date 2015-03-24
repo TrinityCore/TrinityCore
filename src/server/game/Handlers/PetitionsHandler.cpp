@@ -241,7 +241,6 @@ void WorldSession::HandlePetitionRenameGuild(WorldPackets::Petition::PetitionRen
     TC_LOG_DEBUG("network", "Received CMSG_PETITION_RENAME_GUILD");
     TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_RENAME_GUILD");
 
-    uint8 type = 0;
     Item* item = _player->GetItemByGuid(packet.PetitionGuid);
     if (!item)
         return;
@@ -292,7 +291,7 @@ void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition& pack
 
     Field* fields = result->Fetch();
     ObjectGuid ownerGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
-    uint64 signs = fields[1].GetUInt64();
+    //uint64 signs = fields[1].GetUInt64();
 
     if (ownerGuid == _player->GetGUID())
         return;

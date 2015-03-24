@@ -119,8 +119,9 @@ enum InventoryResult
     EQUIP_ERR_NOT_DURING_ARENA_MATCH                       = 78, // You can't do that while in an arena match
     EQUIP_ERR_TRADE_BOUND_ITEM                             = 79, // You can't trade a soulbound item.
     EQUIP_ERR_CANT_EQUIP_RATING                            = 80, // You don't have the personal, team, or battleground rating required to buy that item
-    EQUIP_ERR_NO_OUTPUT                                    = 81,
+    EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM                 = 81,
     EQUIP_ERR_NOT_SAME_ACCOUNT                             = 82, // Account-bound items can only be given to your own characters.
+    EQUIP_ERR_NO_OUTPUT                                    = 83,
     EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS    = 84, // You can only carry %d %s
     EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS = 85, // You can only equip %d |4item:items in the %s category
     EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED             = 86, // Your level is too high to use that item
@@ -131,6 +132,9 @@ enum InventoryResult
     EQUIP_ERR_ITEM_INVENTORY_FULL_SATCHEL                  = 91, // Your inventory is full. Your satchel has been delivered to your mailbox.
     EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_TOO_LOW              = 92, // Your level is too low to use that item
     EQUIP_ERR_CANT_BUY_QUANTITY                            = 93, // You can't buy the specified quantity of that item.
+    EQUIP_ERR_ITEM_IS_BATTLE_PAY_LOCKED                    = 94, // Your purchased item is still waiting to be unlocked
+    EQUIP_ERR_REAGENT_BANK_FULL                            = 95, // Your reagent bank is full
+    EQUIP_ERR_REAGENT_BANK_LOCKED                          = 96
 };
 
 enum BuyResult

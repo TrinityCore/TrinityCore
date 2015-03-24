@@ -63,7 +63,7 @@
 #include "AchievementPackets.h"
 #include "WhoPackets.h"
 
-void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
+void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_REPOP_REQUEST Message");
 
@@ -545,7 +545,7 @@ void WorldSession::HandleBugReportOpcode(WorldPacket& recvData)
     CharacterDatabase.Execute(stmt);
 }
 
-void WorldSession::HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& packet)
+void WorldSession::HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_RECLAIM_CORPSE");
 

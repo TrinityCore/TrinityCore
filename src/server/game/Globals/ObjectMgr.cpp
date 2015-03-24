@@ -3358,6 +3358,8 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
     }
 }
 
+int32 const ReputationMgr::Reputation_Cap;
+
 void ObjectMgr::LoadQuests()
 {
     uint32 oldMSTime = getMSTime();

@@ -390,7 +390,7 @@ void WorldSession::HandleDeclineGuildInvites(WorldPackets::Guild::DeclineGuildIn
     GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD, packet.Allow);
 }
 
-void WorldSession::HandleRequestGuildRewardsList(WorldPackets::Guild::RequestGuildRewardsList& packet)
+void WorldSession::HandleRequestGuildRewardsList(WorldPackets::Guild::RequestGuildRewardsList& /*packet*/)
 {
     if (sGuildMgr->GetGuildById(_player->GetGuildId()))
     {

@@ -25,7 +25,7 @@ if(WIN32)
   add_definitions(-D_WIN32_WINNT=${ver})
 endif()
 
-find_package(Boost 1.49 REQUIRED system filesystem thread program_options)
+find_package(Boost 1.49 REQUIRED system filesystem thread program_options iostreams)
 add_definitions(-DBOOST_DATE_TIME_NO_LIB)
 add_definitions(-DBOOST_REGEX_NO_LIB)
 add_definitions(-DBOOST_CHRONO_NO_LIB)
@@ -35,7 +35,7 @@ add_definitions(-DBOOST_CHRONO_NO_LIB)
 include (CheckCXXSourceCompiles)
 
 set(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR})
-set(CMAKE_REQUIRED_LIBRARIES ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
+set(CMAKE_REQUIRED_LIBRARIES ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${Boost_IOSTREAMS_LIBRARY})
 set(CMAKE_REQUIRED_FLAGS "-std=c++11")
 unset(boost_filesystem_copy_links_without_NO_SCOPED_ENUM CACHE)
 check_cxx_source_compiles("

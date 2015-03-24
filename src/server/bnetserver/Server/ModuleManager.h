@@ -54,9 +54,10 @@ namespace Battlenet
                 memcpy(Data, right.Data, DataSize);
             }
         }
+
         ~ModuleInfo()
         {
-            delete Data;
+            delete[] Data;
         }
 
         std::string Type;
