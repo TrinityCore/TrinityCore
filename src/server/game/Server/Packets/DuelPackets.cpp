@@ -68,8 +68,8 @@ WorldPacket const* WorldPackets::Duel::DuelWinner:Write()
 	_worldPacket.WriteBit(Fled);
 	_worldPacket << BeatenVirtualRealmAddress;
 	_worldPacket << WinnerVirtualRealmAddress;
-	_worldPacket << BeatenName;
-	_worldPacket << WinnerName;
+	_worldPacket.WriteString(BeatenName);
+	_worldPacket.WriteString(WinnerName);
 
 	return &_worldPacket;
 }
