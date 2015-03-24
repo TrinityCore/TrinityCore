@@ -1203,13 +1203,16 @@ Updates.ArchivedRedundancy = 0
 Updates.AllowRehash = 1
 
 #
-#    Updates.CleanDeadRef
-#        Description: Cleans dead/ orphaned references that occure if a update was deleted or renamed and edited.
+#    Updates.CleanDeadRefMaxCount
+#        Description: Cleans dead/ orphaned references that occur if an update was removed or renamed and edited in one step.
+#                     It only starts the clean up if the count of the missing updates is below or equal the Updates.CleanDeadRefMaxCount value.
+#                     This way prevents erasing of the update history due to wrong source directory state (maybe wrong branch or bad revision).
 #                     Disable this if you want to know if the database is in a possible "dirty state".
-#        Default:     1 - (Enabled)
+#        Default:     3 - (Enabled)
 #                     0 - (Disabled)
+#                    -1 - (Enabled - unlimited)
 
-Updates.CleanDeadRef = 1
+Updates.CleanDeadRefMaxCount = 3
 
 #
 ###################################################################################################
