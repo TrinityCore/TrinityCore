@@ -23,6 +23,7 @@
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
 #include "ObjectGuid.h"
+#include "AuctionHousePackets.h"
 
 class Item;
 class Player;
@@ -84,7 +85,7 @@ struct AuctionEntry
     uint32 GetHouseFaction() const { return auctionHouseEntry->FactionID; }
     uint32 GetAuctionCut() const;
     uint32 GetAuctionOutBid() const;
-    bool BuildAuctionInfo(WorldPacket & data) const;
+    void BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::AuctionItem>& items, bool listAuctionItems) const;
     void DeleteFromDB(SQLTransaction& trans) const;
     void SaveToDB(SQLTransaction& trans) const;
     bool LoadFromDB(Field* fields);
@@ -122,12 +123,11 @@ class AuctionHouseObject
 
     void Update();
 
-    void BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
-    void BuildListOwnerItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
-    void BuildListAuctionItems(WorldPacket& data, Player* player,
+    void BuildListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItemsResult& packet, Player* player, uint32& totalcount);
+    void BuildListOwnerItems(WorldPackets::AuctionHouse::AuctionListOwnerItemsResult& packet, Player* player, uint32& totalcount);
+    void BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& packet, Player* player,
         std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable,
-        uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
-        uint32& count, uint32& totalcount);
+        uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32& totalcount);
 
   private:
     AuctionEntryMap AuctionsMap;
@@ -166,7 +166,7 @@ class AuctionHouseMgr
         void SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransaction& trans);
         void SendAuctionExpiredMail(AuctionEntry* auction, SQLTransaction& trans);
         void SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans);
-        void SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans, Item* item);
+        void SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans);
 
         static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count);
         static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
