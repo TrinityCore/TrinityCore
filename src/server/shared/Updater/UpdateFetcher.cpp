@@ -294,7 +294,7 @@ uint32 UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash
     // Cleanup up orphaned entries if enabled
     if (!applied.empty())
     {
-        bool const doCleanup = (cleanDeadReferencesMaxCount == -1) || (applied.size() <= cleanDeadReferencesMaxCount);
+        bool const doCleanup = (cleanDeadReferencesMaxCount < 0) || (applied.size() <= static_cast<size_t>(cleanDeadReferencesMaxCount));
 
         for (auto const& entry : applied)
         {
@@ -309,7 +309,7 @@ uint32 UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash
             CleanUp(applied);
         else
         {
-            TC_LOG_ERROR("sql.updates", "Cleanup is disabled! There are %u dirty files that were applied to your database " \
+            TC_LOG_ERROR("sql.updates", "Cleanup is disabled! There are %zu dirty files that were applied to your database " \
                 "but are now missing in your source directory!", applied.size());
         }
     }
