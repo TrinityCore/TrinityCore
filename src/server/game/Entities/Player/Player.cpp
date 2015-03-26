@@ -22154,7 +22154,7 @@ void Player::UpdateTriggerVisibility()
     WorldPacket packet;
     for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
     {
-        if (itr->IsCreature())
+        if (itr->IsCreatureOrVehicle())
         {
             Creature* creature = GetMap()->GetCreature(*itr);
             // Update fields of triggers, transformed units or unselectable units (values dependent on GM state)
