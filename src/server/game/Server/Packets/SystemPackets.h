@@ -70,11 +70,16 @@ namespace WorldPackets
             uint8 ComplaintStatus                        = 0;
             int32 CfgRealmRecID                          = 0;
             int32 UnkInt27                               = 0;
-            int32 UnkInt29                               = 0;
+            int32 TwitterMsTillCanPost                   = 0;
+            int32 TokenPollTimeSeconds                   = 0;
+            int32 TokenRedeemIndex                       = 0;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
             bool TwitterEnabled                      = false;
+            bool CommerceSystemEnabled               = false;
+            bool Unk67                               = false;
+            bool WillKickFromWorld                   = false;
 
             bool RestrictedAccount                   = false;
             bool TutorialsEnabled                    = false;
@@ -93,6 +98,11 @@ namespace WorldPackets
             bool BpayStoreDisabledByParentalControls = false; // NYI
             bool CharUndeleteEnabled                 = false;
             bool BpayStoreEnabled                    = false; // NYI
+            bool CommerceSystemEnabled               = false; // NYI
+            bool Unk14                               = false; // NYI
+            bool WillKickFromWorld                   = false; // NYI
+            int32 TokenPollTimeSeconds               = 0;     // NYI
+            int32 TokenRedeemIndex                   = 0;     // NYI
         };
 
         class MOTD final : public ServerPacket

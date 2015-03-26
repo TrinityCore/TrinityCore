@@ -1089,7 +1089,7 @@ void WorldSession::SendFeatureSystemStatus()
     features.ScrollOfResurrectionRequestsRemaining = 1;
     features.ScrollOfResurrectionMaxRequestsPerDay = 1;
     features.UnkInt27 = 60;
-    features.UnkInt29 = 20;
+    features.TwitterMsTillCanPost = 20;
     features.CfgRealmID = 2;
     features.CfgRealmRecID = 0;
     features.VoiceEnabled = false;
