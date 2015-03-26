@@ -26,7 +26,9 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket << uint32(CfgRealmID);
     _worldPacket << int32(CfgRealmRecID);
     _worldPacket << uint32(UnkInt27);
-    _worldPacket << uint32(UnkInt29);
+    _worldPacket << uint32(TwitterMsTillCanPost);
+    _worldPacket << uint32(TokenPollTimeSeconds);
+    _worldPacket << uint32(TokenRedeemIndex);
 
     _worldPacket.WriteBit(VoiceEnabled);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.HasValue);
@@ -43,6 +45,9 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(TutorialsEnabled);
     _worldPacket.WriteBit(UnkBit90);
     _worldPacket.WriteBit(TwitterEnabled);
+    _worldPacket.WriteBit(CommerceSystemEnabled);
+    _worldPacket.WriteBit(Unk67);
+    _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(UnkBit61);
 
     _worldPacket.FlushBits();
@@ -85,7 +90,13 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(BpayStoreAvailable);
     _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
     _worldPacket.WriteBit(CharUndeleteEnabled);
+    _worldPacket.WriteBit(CommerceSystemEnabled);
+    _worldPacket.WriteBit(Unk14);
+    _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.FlushBits();
+
+    _worldPacket << int32(TokenPollTimeSeconds);
+    _worldPacket << int32(TokenRedeemIndex);
 
     return &_worldPacket;
 }
