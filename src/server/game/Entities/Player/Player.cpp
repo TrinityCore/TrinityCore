@@ -8235,6 +8235,10 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     // item spells cast at use
     for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
+        // item can be deleted in Spell::TakeCastItem
+        if (!item)
+            break;
+
         ItemEffectEntry const* effectData = proto->Effects[i];
 
         // wrong triggering type
@@ -8254,12 +8258,19 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         spell->m_misc.Data = misc;
         spell->prepare(&targets);
 
+        if (!spell->m_CastItem)
+            item = nullptr;
+
         ++count;
     }
 
     // Item enchantments spells cast at use
     for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
     {
+        // item can be deleted in Spell::TakeCastItem
+        if (!item)
+            break;
+
         uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
         SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if (!pEnchant)
@@ -8281,6 +8292,9 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
             spell->m_cast_count = castCount;                // set count of casts
             spell->m_misc.Data = misc;                     // glyph index
             spell->prepare(&targets);
+
+            if (!spell->m_CastItem)
+                item = nullptr;
 
             ++count;
         }
