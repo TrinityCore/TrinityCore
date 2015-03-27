@@ -99,7 +99,34 @@ void WorldSocket::HandleSendAuthSession()
     SendPacket(*challenge.Write());
 }
 
+bool WorldSocket::LockSession()
+{
+    if (_worldSession)
+    {
+        _worldSession->Lock();
+        return true;
+    }
+
+    return false;
+}
+
+void WorldSocket::UnlockSession(bool HasLock)
+{
+    if (!HasLock)
+        return;
+
+    ASSERT(_worldSession && "WorldSocket::UnlockSession session doesn't exist!");
+    _worldSession->Unlock();
+}
+
 void WorldSocket::ReadHandler()
+{
+    bool l = LockSession();
+    _ReadHandler();
+    UnlockSession(l);
+}
+
+void WorldSocket::_ReadHandler()
 {
     if (!IsOpen())
         return;

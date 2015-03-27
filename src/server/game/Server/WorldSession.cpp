@@ -133,6 +133,8 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
     forceExit(false),
     m_currentBankerGUID()
 {
+    Lock();
+
     memset(_tutorials, 0, sizeof(_tutorials));
 
     if (sock)
@@ -145,11 +147,15 @@ WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr
     m_Socket[CONNECTION_TYPE_REALM] = sock;
 
     InitializeQueryCallbackParameters();
+
+    Unlock();
 }
 
 /// WorldSession destructor
 WorldSession::~WorldSession()
 {
+    Lock();
+
     ///- unload player if not unloaded
     if (_player)
         LogoutPlayer (true);
@@ -173,6 +179,8 @@ WorldSession::~WorldSession()
         delete packet;
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
+
+    Unlock();
 }
 
 std::string const & WorldSession::GetPlayerName() const

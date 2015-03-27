@@ -87,8 +87,12 @@ public:
 
 protected:
     void ReadHandler() override;
+    void _ReadHandler();
     bool ReadHeaderHandler();
     bool ReadDataHandler();
+
+    bool LockSession();
+    void UnlockSession(bool HasLock);
 
 private:
     void WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer);

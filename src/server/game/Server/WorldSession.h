@@ -565,6 +565,18 @@ class WorldSession
         WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
+        // Prevents deleting the session while a socket is running
+        // Example:
+        //   Player sends packet X, socket receives packet X
+        //   WorldSession is deleted, thus invalidating any references to WorldSession
+        //   Socket is still handling packet X, and sends the packet to the worldsession packet queue
+        //   However worldsession data has been deleted -> crash
+        //   Also prevents receiving packets before a worldsession has been fully created
+        // NOTE: because this is std::mutex and not boost::mutex it is very easy to use wrongly
+        //   only use if you know what you are doing
+        void Lock() { m_sessionMutex.lock(); }
+        void Unlock() { m_sessionMutex.unlock(); }
+
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }
@@ -1470,6 +1482,8 @@ class WorldSession
         uint32 expireTime;
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
+
+        std::mutex m_sessionMutex;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;
