@@ -64,7 +64,7 @@ namespace WorldPackets
         class QueryCreatureResponse final : public ServerPacket
         {
         public:
-            QueryCreatureResponse() : ServerPacket(SMSG_CREATURE_QUERY_RESPONSE, 76) { }
+            QueryCreatureResponse() : ServerPacket(SMSG_QUERY_CREATURE_RESPONSE, 76) { }
 
             WorldPacket const* Write() override;
 
@@ -109,7 +109,7 @@ namespace WorldPackets
         class QueryPlayerNameResponse final : public ServerPacket
         {
         public:
-            QueryPlayerNameResponse() : ServerPacket(SMSG_NAME_QUERY_RESPONSE, 60) { }
+            QueryPlayerNameResponse() : ServerPacket(SMSG_QUERY_PLAYER_NAME_RESPONSE, 60) { }
 
             WorldPacket const* Write() override;
 
@@ -139,7 +139,7 @@ namespace WorldPackets
         class QueryPageTextResponse final : public ServerPacket
         {
         public:
-            QueryPageTextResponse() : ServerPacket(SMSG_PAGE_TEXT_QUERY_RESPONSE, 15) { }
+            QueryPageTextResponse() : ServerPacket(SMSG_QUERY_PAGE_TEXT_RESPONSE, 15) { }
 
             WorldPacket const* Write() override;
 
@@ -162,7 +162,7 @@ namespace WorldPackets
         class QueryNPCTextResponse final : public ServerPacket
         {
         public:
-            QueryNPCTextResponse() : ServerPacket(SMSG_NPC_TEXT_UPDATE, 73) { }
+            QueryNPCTextResponse() : ServerPacket(SMSG_QUERY_NPC_TEXT_RESPONSE, 73) { }
 
             WorldPacket const* Write() override;
 
@@ -246,7 +246,7 @@ namespace WorldPackets
         class QueryGameObjectResponse final : public ServerPacket
         {
         public:
-            QueryGameObjectResponse() : ServerPacket(SMSG_GAMEOBJECT_QUERY_RESPONSE, 165) { }
+            QueryGameObjectResponse() : ServerPacket(SMSG_QUERY_GAME_OBJECT_RESPONSE, 165) { }
 
             WorldPacket const* Write() override;
 

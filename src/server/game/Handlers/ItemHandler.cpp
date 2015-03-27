@@ -332,7 +332,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         }
         else
         {
-            data.Initialize(SMSG_READ_ITEM_FAILED, 8);
+            data.Initialize(SMSG_READ_ITEM_RESULT_FAILED, 8);
             TC_LOG_INFO("network", "STORAGE: Unable to read item");
             _player->SendEquipError(msg, pItem, NULL);
         }

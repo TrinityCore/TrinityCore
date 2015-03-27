@@ -115,7 +115,7 @@ namespace WorldPackets
         class VendorInventory final : public ServerPacket
         {
         public:
-            VendorInventory() : ServerPacket(SMSG_LIST_INVENTORY, 600) { }
+            VendorInventory() : ServerPacket(SMSG_VENDOR_INVENTORY, 600) { }
 
             WorldPacket const* Write() override;
 
@@ -162,7 +162,7 @@ namespace WorldPackets
         class PlayerTabardVendorActivate final : public ServerPacket
         {
         public:
-            PlayerTabardVendorActivate() : ServerPacket(SMSG_TABARD_VENDOR_ACTIVATE, 16) { }
+            PlayerTabardVendorActivate() : ServerPacket(SMSG_PLAYER_TABARD_VENDOR_ACTIVATE, 16) { }
 
             WorldPacket const* Write() override;
 
