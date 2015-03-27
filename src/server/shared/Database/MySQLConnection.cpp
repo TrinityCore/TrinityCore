@@ -137,7 +137,9 @@ uint32 MySQLConnection::Open()
         // set connection properties to UTF8 to properly handle locales for different
         // server configs - core sends data in UTF8, so MySQL must expect UTF8 too
         mysql_set_character_set(m_Mysql, "utf8");
-        return 0;
+
+        // Prepare statements only at reconnect
+        return m_reconnecting ? static_cast<uint32>(PrepareStatements()) : 0;
     }
     else
     {
