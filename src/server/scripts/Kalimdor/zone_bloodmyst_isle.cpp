@@ -238,11 +238,6 @@ class npc_sironas : public CreatureScript
 public:
     npc_sironas() : CreatureScript("npc_sironas") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_sironasAI(creature);
-    }
-
     struct npc_sironasAI : public ScriptedAI
     {
         npc_sironasAI(Creature* creature) : ScriptedAI(creature) { }
@@ -314,14 +309,11 @@ public:
                 {
                     DoCast(me, SPELL_SIRONAS_CHANNELING);
                     std::list<Creature*> BeamList;
-                    _beamGuidList.clear();
                     me->GetCreatureListWithEntryInGrid(BeamList, NPC_BLOODMYST_TESLA_COIL, SIZE_OF_GRIDS);
-                    for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
-                    {
-                        _beamGuidList.push_back((*itr)->GetGUID());
-                        (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
-                    }
-                    break;                
+                    if (!BeamList.empty())
+                        for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
+                            (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
+                    break;
                 }
                 case ACTION_SIRONAS_CHANNEL_STOP:
                 {
@@ -338,9 +330,13 @@ public:
         }
 
     private:
-        GuidList _beamGuidList;
         EventMap _events;
     };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_sironasAI(creature);
+    }
 };
 
 /*######
@@ -352,14 +348,18 @@ class npc_demolitionist_legoso : public CreatureScript
 public:
     npc_demolitionist_legoso() : CreatureScript("npc_demolitionist_legoso") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_demolitionist_legosoAI(creature);
-    }
-
     struct npc_demolitionist_legosoAI : public npc_escortAI
     {
-        npc_demolitionist_legosoAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_demolitionist_legosoAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _phase = PHASE_NONE;
+            _moveTimer = 0;
+        }
 
         void sQuestAccept(Player* player, Quest const* quest) override
         {
@@ -392,10 +392,8 @@ public:
 
         void Reset() override
         {
-            _phase = PHASE_NONE;
-            _moveTimer = 0;
             me->SetCanDualWield(true);
-
+            Initialize();
             _events.Reset();
             _events.ScheduleEvent(EVENT_FROST_SHOCK, 1 * IN_MILLISECONDS);
             _events.ScheduleEvent(EVENT_HEALING_SURGE, 5 * IN_MILLISECONDS);
@@ -624,7 +622,7 @@ public:
                         case PHASE_PLANT_SECOND_DETONATE: // second explosives detonate finish
                             for (GuidList::iterator itr = _explosivesGuids.begin(); itr != _explosivesGuids.end(); ++itr)
                             {
-                                if (GameObject* explosive = sObjectAccessor->GetGameObject(*me, *itr))                                
+                                if (GameObject* explosive = sObjectAccessor->GetGameObject(*me, *itr))
                                     me->RemoveGameObject(explosive, true);
                             }
                             _explosivesGuids.clear();
@@ -657,7 +655,7 @@ public:
                             break;
                         case PHASE_FIGHT_SIRONAS_START: // legoso exclamation at aggro
                             if (Creature* sironas = me->FindNearestCreature(NPC_SIRONAS, SIZE_OF_GRIDS))
-                            {                                
+                            {
                                 Unit* target = GetPlayerForEscort();
                                 if (!target)
                                     target = me;
@@ -730,7 +728,7 @@ public:
                     _moveTimer = 1 * IN_MILLISECONDS;
                     _phase = PHASE_PLANT_FIRST_TIMER_1;
                     break;
-                case WP_DEBUG_1:                
+                case WP_DEBUG_1:
                     SetEscortPaused(true);
                     _moveTimer = 0.5 * IN_MILLISECONDS; 
                     _phase = PHASE_WP_26;
@@ -798,6 +796,11 @@ public:
         GuidList _explosivesGuids;
         EventMap _events;
     };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_demolitionist_legosoAI(creature);
+    }
 };
 
 void AddSC_bloodmyst_isle()
