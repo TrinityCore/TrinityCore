@@ -750,7 +750,7 @@ enum OpcodeClient : uint32
     CMSG_UNLEARN_SKILL                                = 0xBADD,
     CMSG_UNLEARN_SPECIALIZATION                       = 0xBADD,
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0xBADD,
-    CMSG_UPDATE_ACCOUNT_DATA                          = 0xBADD,
+    CMSG_UPDATE_ACCOUNT_DATA                          = 0x1637,
     CMSG_UPDATE_CLIENT_SETTINGS                       = 0xBADD,
     CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0xBADD,
     CMSG_UPDATE_PROJECTILE_POSITION                   = 0xBADD,
