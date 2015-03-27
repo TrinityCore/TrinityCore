@@ -2782,9 +2782,6 @@ class Player : public Unit, public GridObject<Player>
          */
         uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
 
-        /// Updates weekly conquest point cap (dynamic cap)
-        void UpdateConquestCurrencyCap(uint32 currency);
-
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
 
         std::vector<Item*> m_itemUpdateQueue;

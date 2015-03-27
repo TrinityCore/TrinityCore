@@ -33,6 +33,7 @@ EndScriptData */
 #include "GossipDef.h"
 #include "Transport.h"
 #include "Language.h"
+#include "MovementPackets.h"
 
 #include <fstream>
 
@@ -1343,9 +1344,9 @@ public:
                 target->DestroyForNearbyPlayers();  // Force new SMSG_UPDATE_OBJECT:CreateObject
             else
             {
-                WorldPacket data(SMSG_MOVE_UPDATE);
-                target->WriteMovementInfo(data);
-                target->SendMessageToSet(&data, true);
+                WorldPackets::Movement::MoveUpdate moveUpdate;
+                moveUpdate.movementInfo = &target->m_movementInfo;
+                target->SendMessageToSet(moveUpdate.Write(), true);
             }
 
             handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());

@@ -751,11 +751,7 @@ void WorldSession::HandleGroupRequestJoinUpdates(WorldPacket& /*recvData*/)
     if (!group)
         return;
 
-    WorldPacket data(SMSG_REAL_GROUP_UPDATE, 1 + 4 + 8);
-    data << uint8(group->GetGroupType());
-    data << uint32(group->GetMembersCount() - 1);
-    data << group->GetLeaderGUID();
-    SendPacket(&data);
+    // does some stuff. dunno what.
 }
 
 void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
@@ -909,7 +905,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)            // same for pets
         mask |= (GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER);
 
-    data->Initialize(SMSG_PARTY_MEMBER_STATS, 80);          // average value
+    data->Initialize(SMSG_PARTY_MEMBER_STATE, 80);          // average value
     *data << player->GetPackGUID();
     *data << uint32(mask);
 
@@ -1142,7 +1138,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     Player* player = ObjectAccessor::FindConnectedPlayer(Guid);
     if (!player)
     {
-        WorldPacket data(SMSG_PARTY_MEMBER_STATS_FULL, 3+4+2);
+        WorldPacket data(SMSG_PARTY_MEMBER_STATE, 3 + 4 + 2);
         data << uint8(0);                                   // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
         data << Guid.WriteAsPacked();
         data << uint32(GROUP_UPDATE_FLAG_STATUS);
@@ -1155,7 +1151,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     Powers powerType = player->getPowerType();
     std::set<uint32> const& phases = player->GetPhases();
 
-    WorldPacket data(SMSG_PARTY_MEMBER_STATS_FULL, 4+2+2+2+1+2*6+8+1+8);
+    WorldPacket data(SMSG_PARTY_MEMBER_STATE, 4 + 2 + 2 + 2 + 1 + 2 * 6 + 8 + 1 + 8);
     data << uint8(0);                                       // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
     data << player->GetPackGUID();
 

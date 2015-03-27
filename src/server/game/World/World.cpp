@@ -442,7 +442,7 @@ void World::LoadConfigSettings(bool reload)
         sSupportMgr->SetSuggestionSystemStatus(m_bool_configs[CONFIG_SUPPORT_SUGGESTIONS_ENABLED]);
     }
     m_float_configs[CONFIG_CHANCE_OF_GM_SURVEY] = sConfigMgr->GetFloatDefault("Support.ChanceOfGMSurvey", 50.0f);
-    
+
 
     ///- Get string for new logins (newly created characters)
     SetNewCharString(sConfigMgr->GetStringDefault("PlayerStart.String", ""));
@@ -2746,7 +2746,7 @@ void World::ShutdownCancel()
 /// Send a server message to the user(s)
 void World::SendServerMessage(ServerMessageType type, const char *text, Player* player)
 {
-    WorldPacket data(SMSG_SERVER_MESSAGE, 50);              // guess size
+    WorldPacket data(SMSG_CHAT_SERVER_MESSAGE, 50);              // guess size
     data << uint32(type);
     if (type <= SERVER_MSG_STRING)
         data << text;

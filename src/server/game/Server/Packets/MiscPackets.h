@@ -33,7 +33,7 @@ namespace WorldPackets
         class BindPointUpdate final : public ServerPacket
         {
         public:
-            BindPointUpdate() : ServerPacket(SMSG_BINDPOINTUPDATE, 20) { }
+            BindPointUpdate() : ServerPacket(SMSG_BIND_POINT_UPDATE, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -78,7 +78,7 @@ namespace WorldPackets
         class LoginSetTimeSpeed final : public ServerPacket
         {
         public:
-            LoginSetTimeSpeed() : ServerPacket(SMSG_LOGIN_SETTIMESPEED, 20) { }
+            LoginSetTimeSpeed() : ServerPacket(SMSG_LOGIN_SET_TIME_SPEED, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -147,7 +147,7 @@ namespace WorldPackets
         class TimeSyncRequest final : public ServerPacket
         {
         public:
-            TimeSyncRequest() : ServerPacket(SMSG_TIME_SYNC_REQ, 4) { }
+            TimeSyncRequest() : ServerPacket(SMSG_TIME_SYNC_REQUEST, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -289,7 +289,7 @@ namespace WorldPackets
         class RaidDifficultySet final : public ServerPacket
         {
         public:
-            RaidDifficultySet() : ServerPacket(SMSG_SET_RAID_DIFFICULTY, 4 + 1) { }
+            RaidDifficultySet() : ServerPacket(SMSG_RAID_DIFFICULTY_SET, 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -483,7 +483,7 @@ namespace WorldPackets
         class LevelUpInfo final : public ServerPacket
         {
         public:
-            LevelUpInfo() : ServerPacket(SMSG_LEVELUP_INFO, 56) { }
+            LevelUpInfo() : ServerPacket(SMSG_LEVEL_UP_INFO, 56) { }
 
             WorldPacket const* Write() override;
 

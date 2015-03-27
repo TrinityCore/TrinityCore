@@ -273,7 +273,7 @@ uint8 const WherePacketHmac[] =
     0x83, 0x95, 0x81, 0x69, 0xB0, 0x5A, 0xB4, 0x9D, 0xA8, 0x55, 0xFF, 0xFC, 0xEE, 0x58, 0x0A, 0x2F
 };
 
-WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_REDIRECT_CLIENT, 8 + 4 + 256 + 1)
+WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 8 + 4 + 256 + 1)
 {
     HexStrToByteArray("F41DCB2D728CF3337A4FF338FA89DB01BBBE9C3B65E9DA96268687353E48B94C", Payload.PanamaKey);
     Payload.Adler32 = 0xA0A66C10;

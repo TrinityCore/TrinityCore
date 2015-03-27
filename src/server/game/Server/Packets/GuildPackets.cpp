@@ -24,7 +24,7 @@ void WorldPackets::Guild::QueryGuildInfo::Read()
 }
 
 WorldPackets::Guild::QueryGuildInfoResponse::QueryGuildInfoResponse()
-    : ServerPacket(SMSG_GUILD_QUERY_RESPONSE) { }
+    : ServerPacket(SMSG_QUERY_GUILD_INFO_RESPONSE) { }
 
 WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
 {

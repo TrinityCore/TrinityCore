@@ -59,7 +59,7 @@ namespace WorldPackets
         class QuestGiverStatus final : public ServerPacket
         {
         public:
-            QuestGiverStatus() : ServerPacket(SMSG_QUESTGIVER_STATUS, 22) { }
+            QuestGiverStatus() : ServerPacket(SMSG_QUEST_GIVER_STATUS, 22) { }
 
             WorldPacket const* Write() override;
 
@@ -69,7 +69,7 @@ namespace WorldPackets
         class QuestGiverStatusMultiple final : public ServerPacket
         {
         public:
-            QuestGiverStatusMultiple() : ServerPacket(SMSG_QUESTGIVER_STATUS_MULTIPLE, 24) { }
+            QuestGiverStatusMultiple() : ServerPacket(SMSG_QUEST_GIVER_STATUS_MULTIPLE, 24) { }
 
             WorldPacket const* Write() override;
 
@@ -172,7 +172,7 @@ namespace WorldPackets
         class QueryQuestInfoResponse final : public ServerPacket
         {
         public:
-            QueryQuestInfoResponse() : ServerPacket(SMSG_QUEST_QUERY_RESPONSE, 1200) { }
+            QueryQuestInfoResponse() : ServerPacket(SMSG_QUERY_QUEST_INFO_RESPONSE, 1200) { }
 
             WorldPacket const* Write() override;
 
@@ -247,7 +247,7 @@ namespace WorldPackets
         class QuestGiverOfferRewardMessage final : public ServerPacket
         {
         public:
-            QuestGiverOfferRewardMessage() : ServerPacket(SMSG_QUESTGIVER_OFFER_REWARD, 600) { }
+            QuestGiverOfferRewardMessage() : ServerPacket(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE, 600) { }
 
             WorldPacket const* Write() override;
 
@@ -278,7 +278,7 @@ namespace WorldPackets
         class QuestGiverQuestComplete final : public ServerPacket
         {
         public:
-            QuestGiverQuestComplete() : ServerPacket(SMSG_QUESTGIVER_QUEST_COMPLETE, 40) { }
+            QuestGiverQuestComplete() : ServerPacket(SMSG_QUEST_GIVER_QUEST_COMPLETE, 40) { }
 
             WorldPacket const* Write() override;
 
@@ -318,7 +318,7 @@ namespace WorldPackets
         class QuestGiverQuestDetails final : public ServerPacket
         {
         public:
-            QuestGiverQuestDetails() : ServerPacket(SMSG_QUESTGIVER_QUEST_DETAILS, 1000) { }
+            QuestGiverQuestDetails() : ServerPacket(SMSG_QUEST_GIVER_QUEST_DETAILS, 1000) { }
 
             WorldPacket const* Write() override;
 
@@ -363,7 +363,7 @@ namespace WorldPackets
         class QuestGiverRequestItems final : public ServerPacket
         {
         public:
-            QuestGiverRequestItems() : ServerPacket(SMSG_QUESTGIVER_REQUEST_ITEMS, 300) { }
+            QuestGiverRequestItems() : ServerPacket(SMSG_QUEST_GIVER_REQUEST_ITEMS, 300) { }
 
             WorldPacket const* Write() override;
 

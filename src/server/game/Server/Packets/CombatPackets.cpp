@@ -31,7 +31,7 @@ WorldPacket const* WorldPackets::Combat::AttackStart::Write()
     return &_worldPacket;
 }
 
-WorldPackets::Combat::SAttackStop::SAttackStop(Unit const* attacker, Unit const* victim) : ServerPacket(SMSG_ATTACKSTOP, 16 + 16 + 1)
+WorldPackets::Combat::SAttackStop::SAttackStop(Unit const* attacker, Unit const* victim) : ServerPacket(SMSG_ATTACK_STOP, 16 + 16 + 1)
 {
     Attacker = attacker->GetGUID();
     if (victim)

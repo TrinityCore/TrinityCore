@@ -581,7 +581,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 
 void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_UPDATE_PROJECTILE_POSITION");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_MISSILE_TRAJECTORY_COLLISION");
 
     ObjectGuid casterGuid;
     uint32 spellId;
@@ -607,7 +607,7 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
     pos.Relocate(x, y, z);
     spell->m_targets.ModDst(pos);
 
-    WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 21);
+    WorldPacket data(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 21);
     data << casterGuid;
     data << uint8(castCount);
     data << float(x);

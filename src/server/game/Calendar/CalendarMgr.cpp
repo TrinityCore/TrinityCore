@@ -473,7 +473,7 @@ void CalendarMgr::SendCalendarEventUpdateAlert(CalendarEvent const& calendarEven
 
 void CalendarMgr::SendCalendarEventStatus(CalendarEvent const& calendarEvent, CalendarInvite const& invite)
 {
-    WorldPacket data(SMSG_CALENDAR_EVENT_STATUS, 8 + 8 + 4 + 4 + 1 + 1 + 4);
+    WorldPacket data(SMSG_CALENDAR_EVENT_INVITE_STATUS, 8 + 8 + 4 + 4 + 1 + 1 + 4);
     data << invite.GetInviteeGUID().WriteAsPacked();
     data << uint64(calendarEvent.GetEventId());
     data.AppendPackedTime(calendarEvent.GetEventTime());

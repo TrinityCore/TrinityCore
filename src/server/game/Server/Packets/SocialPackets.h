@@ -69,7 +69,7 @@ namespace WorldPackets
         class FriendStatus final : public ServerPacket
         {
         public:
-            FriendStatus() : ServerPacket(SMSG_CONTACT_STATUS, 38) { }
+            FriendStatus() : ServerPacket(SMSG_FRIEND_STATUS, 38) { }
 
             void Initialize(ObjectGuid const& guid, FriendsResult result, FriendInfo const& friendInfo);
 

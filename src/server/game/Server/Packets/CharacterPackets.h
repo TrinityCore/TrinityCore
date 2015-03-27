@@ -162,7 +162,7 @@ namespace WorldPackets
                 uint8 Race = 0;
             };
 
-            EnumCharactersResult() : ServerPacket(SMSG_CHAR_ENUM) { }
+            EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT) { }
 
             WorldPacket const* Write() override;
 
@@ -199,7 +199,7 @@ namespace WorldPackets
         class CharacterCreateResponse final : public ServerPacket
         {
         public:
-            CharacterCreateResponse() : ServerPacket(SMSG_CHAR_CREATE, 1) { }
+            CharacterCreateResponse() : ServerPacket(SMSG_CREATE_CHAR, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -219,7 +219,7 @@ namespace WorldPackets
         class CharacterDeleteResponse final : public ServerPacket
         {
         public:
-            CharacterDeleteResponse(): ServerPacket(SMSG_CHAR_DELETE, 1) { }
+            CharacterDeleteResponse(): ServerPacket(SMSG_DELETE_CHAR, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -243,7 +243,7 @@ namespace WorldPackets
         class CharacterRenameResult final : public ServerPacket
         {
         public:
-            CharacterRenameResult() : ServerPacket(SMSG_CHAR_RENAME, 20) { }
+            CharacterRenameResult() : ServerPacket(SMSG_CHARACTER_RENAME_RESULT, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -311,7 +311,7 @@ namespace WorldPackets
                 uint8 RaceID            = RACE_NONE;
             };
 
-            CharFactionChangeResult() : ServerPacket(SMSG_CHAR_FACTION_CHANGE, 20 + sizeof(CharFactionChangeDisplayInfo)) { }
+            CharFactionChangeResult() : ServerPacket(SMSG_CHAR_FACTION_CHANGE_RESULT, 20 + sizeof(CharFactionChangeDisplayInfo)) { }
 
             WorldPacket const* Write() override;
 
@@ -334,7 +334,7 @@ namespace WorldPackets
         class GenerateRandomCharacterNameResult final : public ServerPacket
         {
         public:
-            GenerateRandomCharacterNameResult() : ServerPacket(SMSG_RANDOMIZE_CHAR_NAME, 20) { }
+            GenerateRandomCharacterNameResult() : ServerPacket(SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT, 20) { }
 
             WorldPacket const* Write() override;
 

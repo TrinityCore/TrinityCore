@@ -78,23 +78,23 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
 }
 
 //this function sends notification, if bidder is online
-void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auctionId, ObjectGuid bidder, uint32 bidSum, uint32 diff, uint32 itemEntry)
+void WorldSession::SendAuctionBidderNotification(uint32 /*location*/, uint32 /*auctionId*/, ObjectGuid /*bidder*/, uint32 /*bidSum*/, uint32 /*diff*/, uint32 /*itemEntry*/)
 {
-    WorldPacket data(SMSG_AUCTION_BIDDER_NOTIFICATION, (8*4));
-    data << uint32(location);
-    data << uint32(auctionId);
-    data << bidder;
-    data << uint64(bidSum);
-    data << uint64(diff);
-    data << uint32(itemEntry);
-    data << uint32(0);
-    SendPacket(&data);
+    //WorldPacket data(SMSG_AUCTION_BIDDER_NOTIFICATION, (8*4));
+    //data << uint32(location);
+    //data << uint32(auctionId);
+    //data << bidder;
+    //data << uint64(bidSum);
+    //data << uint64(diff);
+    //data << uint32(itemEntry);
+    //data << uint32(0);
+    //SendPacket(&data);
 }
 
 // this void causes on client to display: "Your auction sold"
 void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
 {
-    WorldPacket data(SMSG_AUCTION_OWNER_NOTIFICATION, 40);
+    WorldPacket data(SMSG_AUCTION_CLOSED_NOTIFICATION, 40);
     data << uint32(auction->Id);
     data << uint64(auction->bid);
     data << uint64(0);                                     //unk
@@ -105,13 +105,13 @@ void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
     SendPacket(&data);
 }
 
-void WorldSession::SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId)
+void WorldSession::SendAuctionRemovedNotification(uint32 /*auctionId*/, uint32 /*itemEntry*/, int32 /*randomPropertyId*/)
 {
-    WorldPacket data(SMSG_AUCTION_REMOVED_NOTIFICATION, (4+4+4));
-    data << uint32(auctionId);
-    data << uint32(itemEntry);
-    data << uint32(randomPropertyId);
-    SendPacket(&data);
+    //WorldPacket data(SMSG_AUCTION_REMOVED_NOTIFICATION, (4+4+4));
+    //data << uint32(auctionId);
+    //data << uint32(itemEntry);
+    //data << uint32(randomPropertyId);
+    //SendPacket(&data);
 }
 
 //this void creates new auction and adds auction to some auctionhouse
