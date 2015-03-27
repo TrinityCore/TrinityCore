@@ -20,6 +20,7 @@
 #include "Group.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 #include "WorldPacket.h"
@@ -128,7 +129,7 @@ void Totem::UnSummon(uint32 msTime)
         owner->SendAutoRepeatCancel(this);
 
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL)))
-            owner->SendCooldownEvent(spell, 0, NULL, false);
+            GetSpellHistory()->SendCooldownEvent(spell, 0, nullptr, false);
 
         if (Group* group = owner->GetGroup())
         {

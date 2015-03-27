@@ -34,6 +34,7 @@
 #include "Pet.h"
 #include "ReputationMgr.h"
 #include "SkillDiscovery.h"
+#include "SpellHistory.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Vehicle.h"
@@ -1293,8 +1294,8 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Player* caster = GetCaster()->ToPlayer();
-                if (caster->HasSpellCooldown(SPELL_DIVINE_STORM))
-                    caster->RemoveSpellCooldown(SPELL_DIVINE_STORM, true);
+                if (caster->GetSpellHistory()->HasCooldown(SPELL_DIVINE_STORM))
+                    caster->GetSpellHistory()->ResetCooldown(SPELL_DIVINE_STORM, true);
             }
 
             void Register() override
@@ -3330,7 +3331,7 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
             {
                 // This is only needed because spells cast from spell_linked_spell are triggered by default
                 // Spell::SendSpellCooldown() skips all spells with TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD
-                GetCaster()->ToPlayer()->AddSpellAndCategoryCooldowns(GetSpellInfo(), GetCastItem() ? GetCastItem()->GetEntry() : 0, GetSpell());
+                GetCaster()->GetSpellHistory()->StartCooldown(GetSpellInfo(), 0, GetSpell());
             }
 
             void Register() override
