@@ -110,6 +110,7 @@ namespace WorldPackets
         struct CharRaceOrFactionChangeInfo;
         struct CharacterUndeleteInfo;
 
+        class AlterApperance;
         class EnumCharacters;
         class CreateChar;
         class DeleteChar;
@@ -789,7 +790,7 @@ class WorldSession
         void HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request);
         void HandleCharRenameCallBack(PreparedQueryResult result, WorldPackets::Character::CharacterRenameInfo* renameInfo);
         void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
-        void HandleAlterAppearance(WorldPacket& recvData);
+        void HandleAlterAppearance(WorldPackets::Character::AlterApperance& packet);
         void HandleCharCustomizeOpcode(WorldPackets::Character::CharCustomize& packet);
         void HandleCharCustomizeCallback(PreparedQueryResult result, WorldPackets::Character::CharCustomizeInfo* customizeInfo);
         void HandleCharRaceOrFactionChangeOpcode(WorldPackets::Character::CharRaceOrFactionChange& packet);
