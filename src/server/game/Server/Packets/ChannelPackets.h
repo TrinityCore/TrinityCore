@@ -104,28 +104,28 @@ namespace WorldPackets
                 {
                     default:
                         ASSERT(false);
-                    //case CMSG_CHANNEL_ANNOUNCEMENTS:
+                    case CMSG_CHANNEL_ANNOUNCEMENTS:
                     case CMSG_CHANNEL_BAN:
-                    //case CMSG_CHANNEL_DECLINE_INVITE:
-                    //case CMSG_CHANNEL_DISPLAY_LIST:
+                    case CMSG_CHANNEL_DECLINE_INVITE:
+                    case CMSG_CHANNEL_DISPLAY_LIST:
                     case CMSG_CHANNEL_INVITE:
                     case CMSG_CHANNEL_KICK:
-                    //case CMSG_CHANNEL_LIST:
+                    case CMSG_CHANNEL_LIST:
                     //case CMSG_CHANNEL_MODERATE:
                     case CMSG_CHANNEL_MODERATOR:
                     case CMSG_CHANNEL_MUTE:
-                    //case CMSG_CHANNEL_OWNER:
+                    case CMSG_CHANNEL_OWNER:
                     case CMSG_CHANNEL_PASSWORD:
                     case CMSG_CHANNEL_SET_OWNER:
-                    //case CMSG_CHANNEL_SILENCE_ALL:
-                    //case CMSG_CHANNEL_SILENCE_VOICE:
+                    case CMSG_CHANNEL_SILENCE_ALL:
+                    case CMSG_CHANNEL_SILENCE_VOICE:
                     case CMSG_CHANNEL_UNBAN:
                     case CMSG_CHANNEL_UNMODERATOR:
                     case CMSG_CHANNEL_UNMUTE:
-                    //case CMSG_CHANNEL_UNSILENCE_ALL:
-                    //case CMSG_CHANNEL_UNSILENCE_VOICE:
-                    //case CMSG_CHANNEL_VOICE_OFF:
-                    //case CMSG_CHANNEL_VOICE_ON:
+                    case CMSG_CHANNEL_UNSILENCE_ALL:
+                    case CMSG_CHANNEL_UNSILENCE_VOICE:
+                    case CMSG_CHANNEL_VOICE_OFF:
+                    case CMSG_CHANNEL_VOICE_ON:
                         break;
                 }
             }
