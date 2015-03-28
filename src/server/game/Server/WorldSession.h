@@ -1355,8 +1355,6 @@ class WorldSession
 
         void SendSpellCategoryCooldowns();
 
-        int32 HandleEnableNagleAlgorithm();
-
         // Compact Unit Frames (4.x)
         void HandleSaveCUFProfiles(WorldPacket& recvPacket);
         void SendLoadCUFProfiles();

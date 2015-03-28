@@ -169,6 +169,15 @@ protected:
         return false;
     }
 
+    void SetNoDelay(bool enable)
+    {
+        boost::system::error_code err;
+        _socket.set_option(boost::asio::ip::tcp::no_delay(enable), err);
+        if (err)
+            TC_LOG_DEBUG("network", "Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for %s - %d (%s)",
+                GetRemoteIpAddress().to_string().c_str(), err.value(), err.message().c_str());
+    }
+
     std::mutex _writeLock;
     std::queue<MessageBuffer> _writeQueue;
 #ifndef TC_SOCKET_USE_IOCP
