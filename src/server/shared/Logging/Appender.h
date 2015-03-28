@@ -62,6 +62,9 @@ struct LogMessage
         : level(_level), type(_type), text(std::forward<std::string>(_text)), mtime(time(NULL))
     { }
 
+    LogMessage(LogMessage const& /*other*/) = delete;
+    LogMessage& operator=(LogMessage const& /*other*/) = delete;
+
     static std::string getTimeStr(time_t time);
     std::string getTimeStr();
 
