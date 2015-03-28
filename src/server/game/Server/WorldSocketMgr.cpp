@@ -51,13 +51,12 @@ WorldSocketMgr::~WorldSocketMgr()
     delete _instanceAcceptor;
 }
 
-int const boost::asio::socket_base::max_connections;
-
 bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port)
 {
     _tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
 
-    TC_LOG_DEBUG("misc", "Max allowed socket connections %d", boost::asio::socket_base::max_connections);
+    int const max_connections = boost::asio::socket_base::max_connections;
+    TC_LOG_DEBUG("misc", "Max allowed socket connections %d", max_connections);
 
     // -1 means use default
     _socketSendBufferSize = sConfigMgr->GetIntDefault("Network.OutKBuff", -1);
