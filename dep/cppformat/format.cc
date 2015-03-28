@@ -67,25 +67,7 @@ using fmt::internal::Arg;
 # if FMT_EXCEPTIONS
 #  define FMT_THROW(x) throw x
 # else
-#  ifndef NDEBUG
-#   define FMT_THROW(x) assert(false && #x)
-#  elif defined _MSC_VER
-#   define FMT_THROW(x) __assume(0)
-#  elif defined __clang__ || FMT_GCC_VERSION >= 405
-#   define FMT_THROW(x) __builtin_unreachable()
-#  else
-#   define FMT_THROW(x) std::abort()
-#  endif
-# endif
-#endif
-
-#ifndef FMT_NORETURN
-# if defined __GNUC__ || defined __clang__
-#  define FMT_NORETURN __attribute__((__noreturn__))
-# elif defined _MSC_VER
-#  define FMT_NORETURN __declspec(noreturn)
-# else
-#  define FMT_NORETURN
+#  define FMT_THROW(x) assert(false)
 # endif
 #endif
 
@@ -176,6 +158,9 @@ int safe_strerror(
     char *&buffer_;
     std::size_t buffer_size_;
 
+    // A noop assignment operator to avoid bogus warnings.
+    void operator=(const StrError &) {}
+
     // Handle the result of XSI-compliant version of strerror_r.
     int handle(int result) {
       // glibc versions before 2.13 return result in errno.
@@ -226,14 +211,14 @@ void format_error_code(fmt::Writer &out, int error_code,
   // bad_alloc.
   out.clear();
   static const char SEP[] = ": ";
-  static const char _ERR[] = "error ";
+  static const char ERROR_STR[] = "error ";
   fmt::internal::IntTraits<int>::MainType ec_value = error_code;
-  // Subtract 2 to account for terminating null characters in SEP and _ERR.
-  std::size_t error_code_size =
-      sizeof(SEP) + sizeof(_ERR) + fmt::internal::count_digits(ec_value) - 2;
+  // Subtract 2 to account for terminating null characters in SEP and ERROR_STR.
+  std::size_t error_code_size = sizeof(SEP) + sizeof(ERROR_STR) - 2;
+  error_code_size += fmt::internal::count_digits(ec_value);
   if (message.size() <= fmt::internal::INLINE_BUFFER_SIZE - error_code_size)
     out << message << SEP;
-  out << _ERR << error_code;
+  out << ERROR_STR << error_code;
   assert(out.size() <= fmt::internal::INLINE_BUFFER_SIZE);
 }
 
@@ -304,8 +289,7 @@ class WidthHandler : public fmt::internal::ArgVisitor<WidthHandler, unsigned> {
  public:
   explicit WidthHandler(fmt::FormatSpec &spec) : spec_(spec) {}
 
-  FMT_NORETURN
-  unsigned visit_unhandled_arg() {
+  void report_unhandled_arg() {
     FMT_THROW(fmt::FormatError("width is not integer"));
   }
 
@@ -326,8 +310,7 @@ class WidthHandler : public fmt::internal::ArgVisitor<WidthHandler, unsigned> {
 class PrecisionHandler :
     public fmt::internal::ArgVisitor<PrecisionHandler, int> {
  public:
-  FMT_NORETURN
-  unsigned visit_unhandled_arg() {
+  void report_unhandled_arg() {
     FMT_THROW(fmt::FormatError("precision is not integer"));
   }
 
