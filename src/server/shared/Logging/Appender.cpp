@@ -80,26 +80,13 @@ void Appender::write(LogMessage* message)
     std::ostringstream ss;
 
     if (flags & APPENDER_FLAGS_PREFIX_TIMESTAMP)
-        ss << message->getTimeStr();
+        ss << message->getTimeStr() << ' ';
 
     if (flags & APPENDER_FLAGS_PREFIX_LOGLEVEL)
-    {
-        if (ss.rdbuf()->in_avail() == 0)
-            ss << ' ';
-
-        ss << Trinity::StringFormat("%-5s", Appender::getLogLevelString(message->level));
-    }
+        ss << Trinity::StringFormat("%-5s ", Appender::getLogLevelString(message->level));
 
     if (flags & APPENDER_FLAGS_PREFIX_LOGFILTERTYPE)
-    {
-        if (ss.rdbuf()->in_avail() == 0)
-            ss << ' ';
-
-        ss << '[' << message->type << ']';
-    }
-
-    if (ss.rdbuf()->in_avail() == 0)
-        ss << ' ';
+        ss << '[' << message->type << "] ";
 
     message->prefix = std::move(ss.str());
     _write(message);
