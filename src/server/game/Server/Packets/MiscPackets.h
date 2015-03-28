@@ -530,6 +530,14 @@ namespace WorldPackets
             int32 Max = 0;
             int32 Result = 0;
         };
+
+        class EnableBarberShop final : public ServerPacket
+        {
+        public:
+            EnableBarberShop() : ServerPacket(SMSG_ENABLE_BARBER_SHOP, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 

@@ -428,3 +428,18 @@ void WorldPackets::Character::SetTitle::Read()
 {
     _worldPacket >> TitleID;
 }
+
+void WorldPackets::Character::AlterApperance::Read()
+{
+    _worldPacket >> NewHairStyle;
+    _worldPacket >> NewHairColor;
+    _worldPacket >> NewFacialHair;
+    _worldPacket >> NewSkinColor;
+    _worldPacket >> Unk;
+}
+
+WorldPacket const* WorldPackets::Character::BarberShopResultServer::Write()
+{
+    _worldPacket << int32(Result);
+    return &_worldPacket;
+}
