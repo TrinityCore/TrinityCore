@@ -2358,7 +2358,7 @@ void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skippe
 
 void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8);
+    WorldPacket data(SMSG_GAME_OBJECT_DESPAWN, 8);
     data << guid;
     SendMessageToSet(&data, true);
 }

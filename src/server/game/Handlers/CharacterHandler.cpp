@@ -921,9 +921,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SetGuildLevel(0);
     }
 
-    WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4+4);
-    data << uint64(0);
-    SendPacket(&data);
+    //WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4+4);
+    //data << uint64(0);
+    //SendPacket(&data);
 
     WorldPackets::Query::HotfixNotifyBlob hotfixInfo;
     hotfixInfo.Hotfixes = sDB2Manager.GetHotfixData();

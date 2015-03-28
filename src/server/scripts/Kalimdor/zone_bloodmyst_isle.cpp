@@ -27,12 +27,13 @@ EndScriptData */
 npc_webbed_creature
 EndContentData */
 
+#include "Player.h"
 #include "Group.h"
-#include "ScriptedEscortAI.h"
+#include "GridNotifiers.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
 #include "PassiveAI.h"
-#include "Player.h"
 
 /*######
 ## npc_webbed_creature
@@ -96,29 +97,29 @@ public:
 
 enum EndingTheirWorldMisc
 {
-    SAY_SIRONAS_1                   = 0, 
+    SAY_SIRONAS_1                   = 0,
 
-    SAY_LEGOSO_1                    = 0,  
-    SAY_LEGOSO_2                    = 1, 
-    SAY_LEGOSO_3                    = 2,  
-    SAY_LEGOSO_4                    = 3,  
+    SAY_LEGOSO_1                    = 0,
+    SAY_LEGOSO_2                    = 1,
+    SAY_LEGOSO_3                    = 2,
+    SAY_LEGOSO_4                    = 3,
     SAY_LEGOSO_5                    = 4,
-    SAY_LEGOSO_6                    = 5, 
-    SAY_LEGOSO_7                    = 6, 
-    SAY_LEGOSO_8                    = 7,  
-    SAY_LEGOSO_9                    = 8, 
-    SAY_LEGOSO_10                   = 9, 
+    SAY_LEGOSO_6                    = 5,
+    SAY_LEGOSO_7                    = 6,
+    SAY_LEGOSO_8                    = 7,
+    SAY_LEGOSO_9                    = 8,
+    SAY_LEGOSO_10                   = 9,
     SAY_LEGOSO_11                   = 10,
-    SAY_LEGOSO_12                   = 11, 
-    SAY_LEGOSO_13                   = 12, 
+    SAY_LEGOSO_12                   = 11,
+    SAY_LEGOSO_13                   = 12,
     SAY_LEGOSO_14                   = 13,
-    SAY_LEGOSO_15                   = 14, 
-    SAY_LEGOSO_16                   = 15, 
-    SAY_LEGOSO_17                   = 16, 
-    SAY_LEGOSO_18                   = 17, 
-    SAY_LEGOSO_19                   = 18, 
-    SAY_LEGOSO_20                   = 19, 
-    SAY_LEGOSO_21                   = 20, 
+    SAY_LEGOSO_15                   = 14,
+    SAY_LEGOSO_16                   = 15,
+    SAY_LEGOSO_17                   = 16,
+    SAY_LEGOSO_18                   = 17,
+    SAY_LEGOSO_19                   = 18,
+    SAY_LEGOSO_20                   = 19,
+    SAY_LEGOSO_21                   = 20,
 
     SPELL_BLOODMYST_TESLA           = 31611,
     SPELL_SIRONAS_CHANNELING        = 31612,
@@ -128,7 +129,7 @@ enum EndingTheirWorldMisc
     SPELL_CURSE_OF_BLOOD            = 8282,
 
     SPELL_FROST_SHOCK               = 8056,
-    SPELL_HEALING_SURGE             = 8004, 
+    SPELL_HEALING_SURGE             = 8004,
     SPELL_SEARING_TOTEM             = 38116,
     SPELL_STRENGTH_OF_EARTH_TOTEM   = 31633,
 
@@ -730,7 +731,7 @@ public:
                     break;
                 case WP_DEBUG_1:
                     SetEscortPaused(true);
-                    _moveTimer = 0.5 * IN_MILLISECONDS; 
+                    _moveTimer = 0.5 * IN_MILLISECONDS;
                     _phase = PHASE_WP_26;
                     break;
                 case WP_SIRONAS_HILL:

@@ -1361,7 +1361,7 @@ void GameObject::Use(Unit* user)
             {
                 if (info->goober.pageID)                    // show page...
                 {
-                    WorldPacket data(SMSG_GAMEOBJECT_PAGETEXT, 8);
+                    WorldPacket data(SMSG_PAGE_TEXT, 8);
                     data << GetGUID();
                     player->SendDirectMessage(&data);
                 }
@@ -1848,7 +1848,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true
 
 void GameObject::SendCustomAnim(uint32 anim)
 {
-    WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
+    WorldPacket data(SMSG_GAME_OBJECT_CUSTOM_ANIM, 8 + 4);
     data << GetGUID();
     data << uint32(anim);
     SendMessageToSet(&data, true);

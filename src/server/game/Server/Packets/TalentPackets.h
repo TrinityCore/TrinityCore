@@ -41,7 +41,7 @@ namespace WorldPackets
         class UpdateTalentData final : public ServerPacket
         {
         public:
-            UpdateTalentData() : ServerPacket(SMSG_TALENTS_INFO, 2+4+4+4+12) { }
+            UpdateTalentData() : ServerPacket(SMSG_UPDATE_TALENT_DATA, 2+4+4+4+12) { }
 
             WorldPacket const* Write() override;
 

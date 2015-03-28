@@ -54,7 +54,7 @@ namespace WorldPackets
         class ClientCacheVersion final : public ServerPacket
         {
         public:
-            ClientCacheVersion() : ServerPacket(SMSG_CLIENTCACHE_VERSION, 4) { }
+            ClientCacheVersion() : ServerPacket(SMSG_CACHE_VERSION, 4) { }
 
             WorldPacket const* Write() override;
 

@@ -242,7 +242,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         }
         case STATUS_WAIT_JOIN:
         {
-            data->Initialize(SMSG_BATTLEFIELD_STATUS_NEEDCONFIRMATION);
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION);
 
             *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
             *data << uint32(Time1);                     // Time until closed

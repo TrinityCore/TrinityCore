@@ -2520,7 +2520,7 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
 {
     uint32 count = 0;
 
-    WorldPacket data(SMSG_CALENDAR_FILTER_GUILD);
+    WorldPacket data(SMSG_CALENDAR_EVENT_INITIAL_INVITES);
     data << uint32(count); // count placeholder
 
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
@@ -2539,7 +2539,7 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
         if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
         {
             data << member->GetGUID().WriteAsPacked();
-            data << uint8(0); // unk
+            data << uint8(level);
             ++count;
         }
     }

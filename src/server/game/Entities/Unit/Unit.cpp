@@ -4755,7 +4755,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 {
     AuraEffect const* aura = pInfo->auraEff;
 
-    WorldPacket data(SMSG_PERIODICAURALOG, 30);
+    WorldPacket data(SMSG_SPELL_PERIODIC_AURA_LOG, 30);
     data << GetPackGUID();
     data << aura->GetCasterGUID().WriteAsPacked();
     data << uint32(aura->GetId());                          // spellId
@@ -9548,7 +9548,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             if (CreateVehicleKit(VehicleId, creatureEntry))
             {
                 // Send others that we now have a vehicle
-                WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
+                WorldPacket data(SMSG_SET_VEHICLE_REC_ID, GetPackGUID().size() + 4);
                 data << GetPackGUID();
                 data << uint32(VehicleId);
                 SendMessageToSet(&data, true);
@@ -9597,7 +9597,7 @@ void Unit::Dismount()
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
     {
         // Send other players that we are no longer a vehicle
-        data.Initialize(SMSG_PLAYER_VEHICLE_DATA, 8+4);
+        data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 4);
         data << GetPackGUID();
         data << uint32(0);
         ToPlayer()->SendMessageToSet(&data, true);
@@ -13326,7 +13326,7 @@ void Unit::SetMovementAnimKitId(uint16 animKitId)
 
     _movementAnimKitId = animKitId;
 
-    WorldPacket data(SMSG_MOVE_SET_ANIM_KIT, 8 + 2);
+    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
     data << GetPackGUID();
     data << uint16(animKitId);
     SendMessageToSet(&data, true);
@@ -16138,8 +16138,8 @@ bool Unit::SetHover(bool enable, bool packetOnly /*= false*/)
 
     static OpcodeServer const hoverOpcodeTable[2][2] =
     {
-        { SMSG_MOVE_SPLINE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER },
-        { SMSG_MOVE_SPLINE_SET_HOVER,   SMSG_MOVE_SET_HOVER   }
+        { SMSG_MOVE_SPLINE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVERING },
+        { SMSG_MOVE_SPLINE_SET_HOVER,   SMSG_MOVE_SET_HOVERING   }
     };
 
     bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
@@ -16185,14 +16185,6 @@ void Unit::SendSetPlayHoverAnim(bool enable)
     data.WriteByteSeq(guid[6]);
 
     SendMessageToSet(&data, true);
-}
-
-void Unit::SendMovementSetSplineAnim(Movement::AnimType anim)
-{
-    WorldPacket data(SMSG_MOVE_SPLINE_SET_ANIM, 8 + 4);
-    data << GetPackGUID();
-    data << uint32(anim);
-    SendMessageToSet(&data, false);
 }
 
 bool Unit::IsSplineEnabled() const

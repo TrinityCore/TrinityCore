@@ -39,7 +39,7 @@ namespace WorldPackets
         class WhoIsResponse final : public ServerPacket
         {
         public:
-            WhoIsResponse() : ServerPacket(SMSG_WHOIS, 2) { }
+            WhoIsResponse() : ServerPacket(SMSG_WHO_IS, 2) { }
 
             WorldPacket const* Write() override;
 
