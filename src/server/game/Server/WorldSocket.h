@@ -94,7 +94,7 @@ protected:
 private:
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
-    void LogOpcodeText(OpcodeServer opcode, std::unique_lock<std::mutex> const& guard) const;
+    void LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex> const& guard) const;
     /// sends and logs network.opcode without accessing WorldSession
     void SendPacketAndLogOpcode(WorldPacket const& packet);
     void WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer);
