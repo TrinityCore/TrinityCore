@@ -406,6 +406,7 @@ void ComplaintTicket::DeleteFromDB()
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GM_COMPLAINT_CHATLOG);
     stmt->setUInt32(0, _id);
+    CharacterDatabase.Execute(stmt);
 }
 
 std::string ComplaintTicket::FormatViewMessageString(ChatHandler& handler, bool detailed) const
