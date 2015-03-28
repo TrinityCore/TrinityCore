@@ -7145,6 +7145,26 @@ uint32 Player::GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const
     return cap;
 }
 
+void Player::UpdateConquestCurrencyCap(uint32 currency)
+{
+    uint32 currenciesToUpdate[2] = { currency, CURRENCY_TYPE_CONQUEST_POINTS };
+
+    for (uint32 i = 0; i < 2; ++i)
+    {
+        CurrencyTypesEntry const* currencyEntry = sCurrencyTypesStore.LookupEntry(currenciesToUpdate[i]);
+        if (!currencyEntry)
+            continue;
+
+        uint32 precision = (currencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
+        uint32 cap = GetCurrencyWeekCap(currencyEntry);
+
+        WorldPacket packet(SMSG_SET_MAX_WEEKLY_QUANTITY, 8);
+        packet << uint32(cap / precision);
+        packet << uint32(currenciesToUpdate[i]);
+        GetSession()->SendPacket(&packet);
+    }
+}
+
 void Player::SetInGuild(ObjectGuid::LowType guildId)
 {
     if (guildId)
@@ -7180,7 +7200,10 @@ void Player::SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 va
 {
     SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + type, value);
     if (type == ARENA_TEAM_PERSONAL_RATING && value > _maxPersonalArenaRate)
+    {
         _maxPersonalArenaRate = value;
+        UpdateConquestCurrencyCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
+    }
 }
 
 void Player::SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)
