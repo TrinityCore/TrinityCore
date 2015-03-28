@@ -28,6 +28,9 @@
 
 const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
 
+const int32 ReputationMgr::Reputation_Cap = 42999;
+const int32 ReputationMgr::Reputation_Bottom = -42000;
+
 ReputationRank ReputationMgr::ReputationToRank(int32 standing)
 {
     int32 limit = Reputation_Cap + 1;
