@@ -137,9 +137,7 @@ uint32 MySQLConnection::Open()
         // set connection properties to UTF8 to properly handle locales for different
         // server configs - core sends data in UTF8, so MySQL must expect UTF8 too
         mysql_set_character_set(m_Mysql, "utf8");
-
-        // Prepare statements only at reconnect
-        return m_reconnecting ? static_cast<uint32>(PrepareStatements()) : 0;
+        return 0;
     }
     else
     {
@@ -493,7 +491,9 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             m_reconnecting = true;
             uint64 oldThreadId = mysql_thread_id(GetHandle());
             mysql_close(GetHandle());
-            if (this->Open())                           // Don't remove 'this' pointer unless you want to skip loading all prepared statements....
+
+            // Don't remove 'this' pointer unless you want to skip loading all prepared statements....
+            if (this->Open() && this->PrepareStatements())
             {
                 TC_LOG_INFO("sql.sql", "Connection to the MySQL server is active.");
                 if (oldThreadId != mysql_thread_id(GetHandle()))
