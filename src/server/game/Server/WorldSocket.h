@@ -86,11 +86,17 @@ public:
     ConnectionType GetConnectionType() const { return _type; }
 
 protected:
+    void OnClose() override;
     void ReadHandler() override;
     bool ReadHeaderHandler();
     bool ReadDataHandler();
 
 private:
+    /// writes network.opcode log
+    /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
+    void LogOpcodeText(OpcodeServer opcode, std::unique_lock<std::mutex> const& guard) const;
+    /// sends and logs network.opcode without accessing WorldSession
+    void SendPacketAndLogOpcode(WorldPacket const& packet);
     void WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer);
     uint32 CompressPacket(uint8* buffer, WorldPacket const& packet);
 
@@ -114,7 +120,9 @@ private:
     std::chrono::steady_clock::time_point _LastPingTime;
     uint32 _OverSpeedPings;
 
+    std::mutex _worldSessionLock;
     WorldSession* _worldSession;
+    bool _authed;
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
