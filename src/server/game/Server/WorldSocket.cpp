@@ -261,10 +261,9 @@ bool WorldSocket::ReadDataHandler()
                 return true;
             case CMSG_ENABLE_NAGLE:
             {
-                TC_LOG_DEBUG("network", "%s", GetOpcodeNameForLogging(opcode).c_str());
+                TC_LOG_DEBUG("network", "Client %s requested enabling nagle algorithm", GetRemoteIpAddress().to_string().c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
-                if (_worldSession)
-                    _worldSession->HandleEnableNagleAlgorithm();
+                SetNoDelay(false);
                 break;
             }
             case CMSG_CONNECT_TO_FAILED:
