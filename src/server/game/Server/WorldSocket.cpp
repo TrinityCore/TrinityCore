@@ -240,7 +240,7 @@ bool WorldSocket::ReadDataHandler()
                         }
                     }
                     CloseSocket();
-                    return;
+                    return false;
                 }
 
                 WorldPackets::Auth::AuthSession authSession(std::move(packet));
@@ -262,7 +262,7 @@ bool WorldSocket::ReadDataHandler()
                         }
                     }
                     CloseSocket();
-                    return;
+                    return false;
                 }
 
                 WorldPackets::Auth::AuthContinuedSession authSession(std::move(packet));
@@ -353,7 +353,7 @@ bool WorldSocket::ReadDataHandler()
     return true;
 }
 
-void WorldSocket::LogOpcodeText(OpcodeServer opcode, std::unique_lock<std::mutex> const& guard) const
+void WorldSocket::LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex> const& guard) const
 {
     if (!guard)
     {
