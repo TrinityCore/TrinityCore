@@ -538,6 +538,21 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        class PhaseShift final : public ServerPacket
+        {
+        public:
+            PhaseShift() : ServerPacket(SMSG_PHASE_SHIFT_CHANGE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ClientGUID;
+            ObjectGuid PersonalGUID;
+            std::set<uint32> PhaseShifts;
+            std::set<uint32> PreloadMapIDs;
+            std::set<uint32> UiWorldMapAreaIDSwaps;
+            std::set<uint32> VisibleMapIDs;
+        };
     }
 }
 
