@@ -773,7 +773,7 @@ enum OpcodeClient : uint32
     CMSG_VOID_SWAP_ITEM                               = 0x0B02,
     CMSG_WARDEN_DATA                                  = 0x02B8,
     CMSG_WHO                                          = 0x079E,
-    CMSG_WHOIS                                        = 0xBADD,
+    CMSG_WHO_IS                                       = 0x17BF,
     CMSG_WORLD_TELEPORT                               = 0xBADD,
     CMSG_WRAP_ITEM                                    = 0xBADD,
     CMSG_ZONEUPDATE                                   = 0xBADD,
