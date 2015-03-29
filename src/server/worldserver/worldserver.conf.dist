@@ -3263,6 +3263,7 @@ Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
 
 #Logger.achievement=3,Console Server
+#Logger.addon=3,Console Server
 #Logger.ahbot=3,Console Server
 #Logger.auctionHouse=3,Console Server
 #Logger.bg.arena=3,Console Server
