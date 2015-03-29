@@ -3213,7 +3213,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
             {
                 uint32 enchants = 0;
                 for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
-                    if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
+                    if (tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
                         ++enchants;
 
                 itemInfo.SocketEnchant.reserve(enchants);
@@ -3301,7 +3301,7 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
 
                     uint32 enchants = 0;
                     for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
-                        if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
+                        if (tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
                             ++enchants;
 
                     itemInfo.SocketEnchant.reserve(enchants);

@@ -244,7 +244,7 @@ bool SpellHistory::IsReady(SpellInfo const* spellInfo) const
 }
 
 template<class PacketType>
-void SpellHistory::WritePacket(PacketType* packet) const
+void SpellHistory::WritePacket(PacketType* /*packet*/) const
 {
     static_assert(!std::is_same<PacketType, PacketType>::value /*static_assert(false)*/, "This packet is not supported.");
 }
@@ -590,7 +590,7 @@ void SpellHistory::ResetCooldown(CooldownStorageType::iterator& itr, bool update
 
 void SpellHistory::ResetAllCooldowns()
 {
-    if (Player* playerOwner = GetPlayerOwner())
+    if (GetPlayerOwner())
     {
         std::vector<int32> cooldowns;
         cooldowns.reserve(_spellCooldowns.size());
