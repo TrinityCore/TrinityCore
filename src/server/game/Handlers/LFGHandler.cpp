@@ -269,7 +269,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
     sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
 }
 
-void WorldSession::HandleLfgGetLockInfoOpcode(WorldPacket& recvData)
+void WorldSession::HandleDFGetSystemInfo(WorldPacket& recvData)
 {
     bool forPlayer = recvData.ReadBit();
     TC_LOG_DEBUG("lfg", "CMSG_DF_GET_SYSTEM_INFO %s for %s", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
@@ -402,7 +402,7 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recvData)
     //sLFGMgr->LeaveLfr(GetPlayer(), dungeonId);
 }
 
-void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
+void WorldSession::HandleDFGetJoinStatus(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("lfg", "CMSG_DF_GET_JOIN_STATUS %s", GetPlayerInfo().c_str());
 
