@@ -658,8 +658,8 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_QUERY_INSPECT_ACHIEVEMENTS,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Inspect::QueryInspectAchievements, &WorldSession::HandleQueryInspectAchievements);
     DEFINE_HANDLER(CMSG_QUERY_NEXT_MAIL_TIME,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Mail::MailQueryNextMailTime, &WorldSession::HandleQueryNextMailTime);
     DEFINE_HANDLER(CMSG_QUERY_PETITION,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Petition::QueryPetition, &WorldSession::HandleQueryPetition);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_SCENARIO_POI,                      STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_QUERY_TIME,                                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Query::QueryTime, &WorldSession::HandleQueryTimeOpcode);
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_SCENARIO_POI,                      STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_HANDLER(CMSG_QUERY_TIME,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryTime, &WorldSession::HandleQueryTimeOpcode);
     DEFINE_HANDLER(CMSG_QUESTGIVER_ACCEPT_QUEST,                            STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Quest::QuestGiverAcceptQuest, &WorldSession::HandleQuestgiverAcceptQuestOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUESTGIVER_CANCEL,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_QUESTGIVER_CHOOSE_REWARD,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Quest::QuestGiverChooseReward, &WorldSession::HandleQuestgiverChooseRewardOpcode);
@@ -1559,7 +1559,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUERY_PET_NAME_RESPONSE,                 STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUERY_PLAYER_NAME_RESPONSE,              STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUERY_QUEST_INFO_RESPONSE,               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUERY_TIME_RESPONSE,                     STATUS_UNHANDLED,    CONNECTION_TYPE_INSTANCE);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUERY_TIME_RESPONSE,                     STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUEST_COMPLETION_NPC_RESPONSE,           STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUEST_CONFIRM_ACCEPT,                    STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUEST_FORCE_REMOVED,                     STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
