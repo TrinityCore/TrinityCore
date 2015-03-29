@@ -50,7 +50,7 @@ namespace WorldPackets
                 int32 ModCooldown = 0; ///< Reduced Cooldown in ms
             };
 
-            CategoryCooldown() : ServerPacket(SMSG_SPELL_CATEGORY_COOLDOWN, 4) { }
+            CategoryCooldown() : ServerPacket(SMSG_CATEGORY_COOLDOWN, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -60,7 +60,7 @@ namespace WorldPackets
         class SendKnownSpells final : public ServerPacket
         {
         public:
-            SendKnownSpells() : ServerPacket(SMSG_INITIAL_SPELLS, 5) { }
+            SendKnownSpells() : ServerPacket(SMSG_SEND_KNOWN_SPELLS, 5) { }
 
             WorldPacket const* Write() override;
 
@@ -71,7 +71,7 @@ namespace WorldPackets
         class UpdateActionButtons final : public ServerPacket
         {
         public:
-            UpdateActionButtons() : ServerPacket(SMSG_ACTION_BUTTONS, MAX_ACTION_BUTTONS * 8 + 1)
+            UpdateActionButtons() : ServerPacket(SMSG_UPDATE_ACTION_BUTTONS, MAX_ACTION_BUTTONS * 8 + 1)
             {
                 std::memset(ActionButtons, 0, sizeof(ActionButtons));
             }

@@ -1428,7 +1428,7 @@ bool Pet::learnSpell(uint32 spell_id)
 
     if (!m_loading)
     {
-        WorldPacket data(SMSG_PET_LEARNED_SPELL, 4);
+        WorldPacket data(SMSG_PET_LEARNED_SPELLS, 4);
         data << uint32(spell_id);
         GetOwner()->GetSession()->SendPacket(&data);
         GetOwner()->PetSpellInitialize();
@@ -1481,7 +1481,7 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     {
         if (!m_loading)
         {
-            WorldPacket data(SMSG_PET_REMOVED_SPELL, 4);
+            WorldPacket data(SMSG_PET_UNLEARNED_SPELLS, 4);
             data << uint32(spell_id);
             GetOwner()->GetSession()->SendPacket(&data);
         }

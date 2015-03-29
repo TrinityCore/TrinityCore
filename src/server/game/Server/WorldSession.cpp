@@ -283,6 +283,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     sScriptMgr->OnPacketSend(this, *packet);
 
+    TC_LOG_TRACE("network.opcode", "S->C: %s %s", GetPlayerInfo().c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet->GetOpcode())).c_str());
     m_Socket[conIdx]->SendPacket(*packet);
 }
 
@@ -1204,12 +1205,12 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 {
     uint32 maxPacketCounterAllowed;
     switch (opcode)
-    {/*
+    {
         // CPU usage sending 2000 packets/second on a 3.70 GHz 4 cores on Win x64
         //                                              [% CPU mysqld]   [%CPU worldserver RelWithDebInfo]
         case CMSG_PLAYER_LOGIN:                         //   0               0.5
         case CMSG_NAME_QUERY:                           //   0               1
-        case CMSG_PET_NAME_QUERY:                       //   0               1
+        //case CMSG_PET_NAME_QUERY:                       //   0               1
         case CMSG_NPC_TEXT_QUERY:                       //   0               1
         case CMSG_ATTACKSTOP:                           //   0               1
         //case CMSG_QUERY_TIME:                           //   0               1
@@ -1243,12 +1244,12 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         //case CMSG_REQUEST_PARTY_MEMBER_STATS:           //   0               1.5
         case CMSG_QUESTGIVER_COMPLETE_QUEST:            //   0               1.5
         case CMSG_SET_ACTION_BUTTON:                    //   0               1.5
-        case CMSG_RESET_INSTANCES:                      //   0               1.5
-        case CMSG_HEARTH_AND_RESURRECT:                 //   0               1.5
+        //case CMSG_RESET_INSTANCES:                      //   0               1.5
+        //case CMSG_HEARTH_AND_RESURRECT:                 //   0               1.5
         case CMSG_TOGGLE_PVP:                           //   0               1.5
         case CMSG_PET_ABANDON:                          //   0               1.5
-        case CMSG_ACTIVATE_TAXI_EXPRESS:                //   0               1.5
-        case CMSG_ACTIVATE_TAXI:                        //   0               1.5
+        //case CMSG_ACTIVATE_TAXI_EXPRESS:                //   0               1.5
+        //case CMSG_ACTIVATE_TAXI:                        //   0               1.5
         case CMSG_SELF_RES:                             //   0               1.5
         case CMSG_UNLEARN_SKILL:                        //   0               1.5
         case CMSG_EQUIPMENT_SET_SAVE:                   //   0               1.5
@@ -1259,13 +1260,13 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         //case CMSG_GROUP_INVITE_RESPONSE:                //   0               1.5
         //case CMSG_GROUP_UNINVITE_GUID:                  //   0               1.5
         //case CMSG_LEAVE_GROUP:                          //   0               1.5
-        case CMSG_BATTLEMASTER_JOIN_ARENA:              //   0               1.5
+        //case CMSG_BATTLEMASTER_JOIN_ARENA:              //   0               1.5
         case CMSG_BATTLEFIELD_LEAVE:                    //   0               1.5
-        case CMSG_GUILD_BANK_LOG_QUERY:                 //   0               2
+        //case CMSG_GUILD_BANK_LOG_QUERY:                 //   0               2
         case CMSG_LOGOUT_CANCEL:                        //   0               2
         case CMSG_ALTER_APPEARANCE:                     //   0               2
         //case CMSG_QUEST_CONFIRM_ACCEPT:                 //   0               2
-        case CMSG_GUILD_EVENT_LOG_QUERY:                //   0               2.5
+        //case CMSG_GUILD_EVENT_LOG_QUERY:                //   0               2.5
         case CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY:     //   0               2.5
         //case CMSG_BEGIN_TRADE:                          //   0               2.5
         //case CMSG_INITIATE_TRADE:                       //   0               3
@@ -1303,8 +1304,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         //case CMSG_QUESTLOG_REMOVE_QUEST:                //   0               4
         case CMSG_QUESTGIVER_CHOOSE_REWARD:             //   0               4
         //case CMSG_SEND_CONTACT_LIST:                    //   0               5
-        case CMSG_AUTOBANK_ITEM:                        //   0               6
-        case CMSG_AUTOSTORE_BANK_ITEM:                  //   0               6
+        //case CMSG_AUTOBANK_ITEM:                        //   0               6
+        //case CMSG_AUTOSTORE_BANK_ITEM:                  //   0               6
         case CMSG_WHO:                                  //   0               7
         //case CMSG_RIDE_VEHICLE_INTERACT:                //   0               8
         case CMSG_MOVE_HEARTBEAT:
@@ -1395,16 +1396,16 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         //case CMSG_ARENA_TEAM_LEADER:                    // not profiled
         case CMSG_LOOT_METHOD:                          // not profiled
         case CMSG_GUILD_INVITE_BY_NAME:                 // not profiled
-        case CMSG_ACCEPT_GUILD_INVITE:                  // not profiled
-        case CMSG_GUILD_DECLINE_INVITATION:             // not profiled
+        //case CMSG_ACCEPT_GUILD_INVITE:                  // not profiled
+        //case CMSG_GUILD_DECLINE_INVITATION:             // not profiled
         case CMSG_GUILD_LEAVE:                          // not profiled
-        case CMSG_GUILD_DELETE:                         // not profiled
-        case CMSG_GUILD_SET_GUILD_MASTER:               // not profiled
-        case CMSG_GUILD_UPDATE_MOTD_TEXT:               // not profiled
+        //case CMSG_GUILD_DELETE:                         // not profiled
+        //case CMSG_GUILD_SET_GUILD_MASTER:               // not profiled
+        //case CMSG_GUILD_UPDATE_MOTD_TEXT:               // not profiled
         case CMSG_GUILD_SET_RANK_PERMISSIONS:           // not profiled
-        case CMSG_GUILD_ADD_RANK:                       // not profiled
-        case CMSG_GUILD_DELETE_RANK:                    // not profiled
-        case CMSG_GUILD_UPDATE_INFO_TEXT:               // not profiled
+        //case CMSG_GUILD_ADD_RANK:                       // not profiled
+        //case CMSG_GUILD_DELETE_RANK:                    // not profiled
+        //case CMSG_GUILD_UPDATE_INFO_TEXT:               // not profiled
         case CMSG_GUILD_BANK_DEPOSIT_MONEY:             // not profiled
         case CMSG_GUILD_BANK_WITHDRAW_MONEY:            // not profiled
         case CMSG_GUILD_BANK_BUY_TAB:                   // not profiled
@@ -1426,7 +1427,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         {
             maxPacketCounterAllowed = PLAYER_SLOTS_COUNT;
             break;
-        }*/
+        }
         default:
         {
             maxPacketCounterAllowed = 100;

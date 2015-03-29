@@ -62,7 +62,7 @@ public:
             return false;
 
 #ifndef TC_SOCKET_USE_IOCP
-        std::unique_lock<std::mutex> guard(_writeLock, std::try_to_lock);
+        std::unique_lock<std::mutex> guard(_writeLock);
         if (!guard)
             return true;
 
@@ -140,6 +140,8 @@ public:
         if (shutdownError)
             TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
                 shutdownError.value(), shutdownError.message().c_str());
+
+        OnClose();
     }
 
     /// Marks the socket for closing after write buffer becomes empty
@@ -148,6 +150,8 @@ public:
     MessageBuffer& GetReadBuffer() { return _readBuffer; }
 
 protected:
+    virtual void OnClose() { }
+
     virtual void ReadHandler() = 0;
 
     bool AsyncProcessQueue(std::unique_lock<std::mutex>&)
@@ -167,6 +171,15 @@ protected:
 #endif
 
         return false;
+    }
+
+    void SetNoDelay(bool enable)
+    {
+        boost::system::error_code err;
+        _socket.set_option(boost::asio::ip::tcp::no_delay(enable), err);
+        if (err)
+            TC_LOG_DEBUG("network", "Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for %s - %d (%s)",
+                GetRemoteIpAddress().to_string().c_str(), err.value(), err.message().c_str());
     }
 
     std::mutex _writeLock;

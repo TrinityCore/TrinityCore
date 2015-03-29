@@ -130,11 +130,11 @@ namespace WorldPackets
             std::string Text;
         };
 
-        // SMSG_MESSAGECHAT
+        // SMSG_CHAT
         class Chat final : public ServerPacket
         {
         public:
-            Chat() : ServerPacket(SMSG_MESSAGECHAT, 100) { }
+            Chat() : ServerPacket(SMSG_CHAT, 100) { }
 
             void Initalize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0, std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
             WorldPacket const* Write() override;
@@ -200,7 +200,7 @@ namespace WorldPackets
         class PrintNotification final : public ServerPacket
         {
         public:
-            PrintNotification(std::string const& notifyText) : ServerPacket(SMSG_NOTIFICATION, 2 + notifyText.size()), NotifyText(notifyText) { }
+            PrintNotification(std::string const& notifyText) : ServerPacket(SMSG_PRINT_NOTIFICATION, 2 + notifyText.size()), NotifyText(notifyText) { }
 
             WorldPacket const* Write() override;
 

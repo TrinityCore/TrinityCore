@@ -85,6 +85,7 @@ enum MageSpells
 
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
     SPELL_MAGE_TEMPORAL_DISPLACEMENT             = 80354,
+    SPELL_PET_NETHERWINDS_FATIGUED               = 160455,
 };
 
 enum MageIcons
@@ -1434,7 +1435,8 @@ class spell_mage_time_warp : public SpellScriptLoader
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_DISPLACEMENT)
                     || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_INSANITY)
                     || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EXHAUSTION)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SATED))
+                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SATED)
+                    || !sSpellMgr->GetSpellInfo(SPELL_PET_NETHERWINDS_FATIGUED))
                     return false;
                 return true;
             }

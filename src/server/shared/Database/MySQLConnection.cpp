@@ -491,7 +491,9 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             m_reconnecting = true;
             uint64 oldThreadId = mysql_thread_id(GetHandle());
             mysql_close(GetHandle());
-            if (this->Open())                           // Don't remove 'this' pointer unless you want to skip loading all prepared statements....
+
+            // Don't remove 'this' pointer unless you want to skip loading all prepared statements....
+            if (this->Open() && this->PrepareStatements())
             {
                 TC_LOG_INFO("sql.sql", "Connection to the MySQL server is active.");
                 if (oldThreadId != mysql_thread_id(GetHandle()))
