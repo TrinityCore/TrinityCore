@@ -3140,10 +3140,10 @@ bool WorldObject::IsInPhase(WorldObject const* obj) const
     if (_phases.empty() && obj->GetPhases().empty())
         return true;
 
-    if (_phases.empty() && obj->IsInPhase(169))
+    if (_phases.empty() && obj->IsInPhase(DEFAULT_PHASE))
         return true;
 
-    if (obj->GetPhases().empty() && IsInPhase(169))
+    if (obj->GetPhases().empty() && IsInPhase(DEFAULT_PHASE))
         return true;
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsGameMaster())
