@@ -29,7 +29,7 @@ namespace WorldPackets
         class WhoIsRequest final : public ClientPacket
         {
         public:
-            WhoIsRequest(WorldPacket&& packet) : ClientPacket(CMSG_WHOIS, std::move(packet)) { }
+            WhoIsRequest(WorldPacket&& packet) : ClientPacket(CMSG_WHO_IS, std::move(packet)) { }
 
             void Read() override;
 
