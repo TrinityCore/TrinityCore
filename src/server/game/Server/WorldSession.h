@@ -110,6 +110,7 @@ namespace WorldPackets
         struct CharRaceOrFactionChangeInfo;
         struct CharacterUndeleteInfo;
 
+        class AlterApperance;
         class EnumCharacters;
         class CreateChar;
         class DeleteChar;
@@ -421,9 +422,9 @@ enum AccountDataType
 
 enum TutorialAction
 {
-    TUTORIAL_ACTION_CLEAR   = 1,
-    TUTORIAL_ACTION_UPDATE  = 2,
-    TUTORIAL_ACTION_RESET   = 3
+    TUTORIAL_ACTION_RESET   = 0,
+    TUTORIAL_ACTION_UPDATE  = 1,
+    TUTORIAL_ACTION_CLEAR   = 2
 };
 
 /*
@@ -789,7 +790,7 @@ class WorldSession
         void HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request);
         void HandleCharRenameCallBack(PreparedQueryResult result, WorldPackets::Character::CharacterRenameInfo* renameInfo);
         void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
-        void HandleAlterAppearance(WorldPacket& recvData);
+        void HandleAlterAppearance(WorldPackets::Character::AlterApperance& packet);
         void HandleCharCustomizeOpcode(WorldPackets::Character::CharCustomize& packet);
         void HandleCharCustomizeCallback(PreparedQueryResult result, WorldPackets::Character::CharCustomizeInfo* customizeInfo);
         void HandleCharRaceOrFactionChangeOpcode(WorldPackets::Character::CharRaceOrFactionChange& packet);
@@ -1353,8 +1354,6 @@ class WorldSession
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);
 
         void SendSpellCategoryCooldowns();
-
-        int32 HandleEnableNagleAlgorithm();
 
         // Compact Unit Frames (4.x)
         void HandleSaveCUFProfiles(WorldPacket& recvPacket);

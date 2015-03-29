@@ -586,6 +586,30 @@ namespace WorldPackets
 
             int32 TitleID = 0;
         };
+
+        class AlterApperance final : public ClientPacket
+        {
+        public:
+            AlterApperance(WorldPacket&& packet) : ClientPacket(CMSG_ALTER_APPEARANCE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 NewHairStyle = 0;
+            uint32 NewHairColor = 0;
+            uint32 NewFacialHair = 0;
+            uint32 NewSkinColor = 0;
+            uint32 Unk = 0;
+        };
+
+        class BarberShopResultServer final : public ServerPacket
+        {
+        public:
+            BarberShopResultServer() : ServerPacket(SMSG_BARBER_SHOP_RESULT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            BarberShopResult Result;
+        };
     }
 }
 

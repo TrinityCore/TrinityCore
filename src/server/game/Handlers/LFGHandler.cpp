@@ -272,7 +272,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
 void WorldSession::HandleLfgGetLockInfoOpcode(WorldPacket& recvData)
 {
     bool forPlayer = recvData.ReadBit();
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_LOCK_INFO_REQUEST %s for %s", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
+    TC_LOG_DEBUG("lfg", "CMSG_DF_GET_SYSTEM_INFO %s for %s", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
 
     if (forPlayer)
         SendLfgPlayerLockInfo();
@@ -404,7 +404,7 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_GET_STATUS %s", GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("lfg", "CMSG_DF_GET_JOIN_STATUS %s", GetPlayerInfo().c_str());
 
     if (!GetPlayer()->isUsingLfg())
         return;

@@ -130,7 +130,7 @@ namespace WorldPackets
             std::string Text;
         };
 
-        // SMSG_MESSAGECHAT
+        // SMSG_CHAT
         class Chat final : public ServerPacket
         {
         public:

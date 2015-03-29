@@ -805,13 +805,6 @@ void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestA
     SendPacket(data.Write());
 }
 
-int32 WorldSession::HandleEnableNagleAlgorithm()
-{
-    // Instructs the server we wish to receive few amounts of large packets (SMSG_MULTIPLE_PACKETS?)
-    // instead of large amount of small packets
-    return 0;
-}
-
 void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet)
 {
     uint32 action = ACTION_BUTTON_ACTION(packet.Action);
@@ -1132,7 +1125,7 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
 void WorldSession::HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_SET_TITLE");
-    
+
     // -1 at none
     if (packet.TitleID > 0 && packet.TitleID < MAX_TITLE_INDEX)
     {
