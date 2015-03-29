@@ -151,6 +151,8 @@ include_directories(
   ${VALGRIND_INCLUDE_DIR}
 )
 
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
+
 add_library(scripts STATIC
   ${scripts_STAT_SRCS}
   ${scripts_STAT_PCH_SRC}
