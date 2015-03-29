@@ -492,9 +492,17 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             uint64 oldThreadId = mysql_thread_id(GetHandle());
             mysql_close(GetHandle());
 
-            // Don't remove 'this' pointer unless you want to skip loading all prepared statements....
-            if (this->Open() && this->PrepareStatements())
+            uint32 const lErrno = Open();
+            if (!lErrno)
             {
+                // Don't remove 'this' pointer unless you want to skip loading all prepared statements...
+                if (!this->PrepareStatements())
+                {
+                    TC_LOG_ERROR("sql.sql", "Could not re-prepare statements!");
+                    Close();
+                    return false;
+                }
+
                 TC_LOG_INFO("sql.sql", "Connection to the MySQL server is active.");
                 if (oldThreadId != mysql_thread_id(GetHandle()))
                     TC_LOG_INFO("sql.sql", "Successfully reconnected to %s @%s:%s (%s).",
@@ -505,7 +513,7 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
                 return true;
             }
 
-            uint32 lErrno = mysql_errno(GetHandle());   // It's possible this attempted reconnect throws 2006 at us. To prevent crazy recursive calls, sleep here.
+            // It's possible this attempted reconnect throws 2006 at us. To prevent crazy recursive calls, sleep here.
             std::this_thread::sleep_for(std::chrono::seconds(3)); // Sleep 3 seconds
             return _HandleMySQLErrno(lErrno);                     // Call self (recursive)
         }
