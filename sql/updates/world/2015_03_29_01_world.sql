@@ -51,3 +51,7 @@ INSERT INTO `terrain_swap_defaults` (MapId, TerrainSwapMap, Comment) VALUES
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=25 AND `SourceEntry`=719;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (25, 0, 719, 0, 0, 8, 0, 25372, 0, 0, 1, 0, 0, '', 'Hyjal terrain swap if Aessina''s Miracle quest is not rewarded');
+
+ALTER TABLE `creature` DROP `phaseMask`;
+ALTER TABLE `gameobject` DROP `phaseMask`;
+
