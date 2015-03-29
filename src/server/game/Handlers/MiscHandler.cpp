@@ -1399,32 +1399,13 @@ void WorldSession::HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*requ
 
 void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaSwaps)
 {
-    WorldPacket data(SMSG_PHASE_SHIFT_CHANGE, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
-    
-    data << _player->GetGUID();                 // Client
-    data << uint32(phaseIds.size() ? 0 : 8);    // PhaseShiftFlags
-    
-    data << uint32(phaseIds.size());            // PhaseShiftCount
-    data << _player->GetGUID();                 // PersonalGUID
-    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
-    {
-        data << uint16(1);                      // PhaseFlags
-        data << uint16(*itr);                   // Id
-    }
-
-    data << uint32(terrainswaps.size()) * 2;    // Active terrain swaps
-    for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
-        data << uint16(*itr);
-
-    data << uint32(0);                          // Inactive terrain swaps
-    //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
-    //    data << uint16(0);
-
-    data << uint32(worldMapAreaSwaps.size()) * 2;
-    for (auto mapSwap : worldMapAreaSwaps)
-        data << uint16(mapSwap);                // WorldMapArea.dbc id (controls map display)
-
-    SendPacket(&data);
+    WorldPackets::Misc::PhaseShift phaseShift;
+    phaseShift.ClientGUID = _player->GetGUID();
+    phaseShift.PersonalGUID = _player->GetGUID();
+    phaseShift.PhaseShifts = phaseIds;
+    phaseShift.VisibleMapIDs = terrainswaps;
+    phaseShift.UiWorldMapAreaIDSwaps = worldMapAreaSwaps;
+    SendPacket(phaseShift.Write());
 }
 
 // Battlefield and Battleground
