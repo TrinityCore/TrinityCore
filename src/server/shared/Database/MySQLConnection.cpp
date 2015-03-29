@@ -79,7 +79,7 @@ uint32 MySQLConnection::Open()
     if (!mysqlInit)
     {
         TC_LOG_ERROR("sql.sql", "Could not initialize Mysql connection to database `%s`", m_connectionInfo.database.c_str());
-        return false;
+        return CR_UNKNOWN_ERROR;
     }
 
     int port;
