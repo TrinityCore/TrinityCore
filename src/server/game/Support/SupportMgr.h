@@ -404,11 +404,11 @@ private:
     uint32 _lastBugId;
     uint32 _lastComplaintId;
     uint32 _lastSuggestionId;
+    uint64 _lastChange;
     uint32 _openGmTicketCount;
     uint32 _openBugTicketCount;
     uint32 _openComplaintTicketCount;
     uint32 _openSuggestionTicketCount;
-    uint64 _lastChange;
 };
 
 #define sSupportMgr SupportMgr::instance()

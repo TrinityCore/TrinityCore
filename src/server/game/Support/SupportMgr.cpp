@@ -518,9 +518,9 @@ std::string SuggestionTicket::FormatViewMessageString(ChatHandler& handler, bool
     return ss.str();
 }
 
-SupportMgr::SupportMgr() : _lastGmTicketId(0), _lastBugId(0), _lastComplaintId(0), _lastSuggestionId(0), _openGmTicketCount(0),
-_openBugTicketCount(0), _openComplaintTicketCount(0), _openSuggestionTicketCount(0), _lastChange(0), _supportSystemStatus(false),
-_bugSystemStatus(false), _complaintSystemStatus(false), _suggestionSystemStatus(false) { }
+SupportMgr::SupportMgr() : _supportSystemStatus(false), _ticketSystemStatus(false), _bugSystemStatus(false), _complaintSystemStatus(false), _suggestionSystemStatus(false),
+_lastGmTicketId(0), _lastBugId(0), _lastComplaintId(0), _lastSuggestionId(0), _lastChange(0),
+_openGmTicketCount(0), _openBugTicketCount(0), _openComplaintTicketCount(0), _openSuggestionTicketCount(0) { }
 
 SupportMgr::~SupportMgr()
 {
