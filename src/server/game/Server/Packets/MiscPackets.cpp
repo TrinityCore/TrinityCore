@@ -379,3 +379,30 @@ WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::PhaseShift::Write()
+{
+    _worldPacket << ClientGUID;                                 // CLientGUID
+    _worldPacket << uint32(PhaseShifts.size() ? 0 : 8);         // PhaseShiftFlags
+    _worldPacket << uint32(PhaseShifts.size());                 // PhaseShiftCount
+    _worldPacket << PersonalGUID;                               // PersonalGUID
+    for (uint32 phase : PhaseShifts)
+    {
+        _worldPacket << uint16(1);                              // PhaseFlags
+        _worldPacket << uint16(phase);                          // PhaseID
+    }
+
+    _worldPacket << uint32(VisibleMapIDs.size() * 2);           // Active terrain swaps size
+    for (uint32 map : VisibleMapIDs)
+        _worldPacket << uint16(map);                            // Active terrain swap map id
+
+    _worldPacket << uint32(PreloadMapIDs.size() * 2);           // Inactive terrain swaps size
+    for (uint32 map : PreloadMapIDs)
+        _worldPacket << uint16(map);                            // Inactive terrain swap map id
+
+    _worldPacket << uint32(UiWorldMapAreaIDSwaps.size() * 2);   // UI map swaps size
+    for (uint32 map : UiWorldMapAreaIDSwaps)
+        _worldPacket << uint16(map);                            // UI map id, WorldMapArea.dbc, controls map display
+
+    return &_worldPacket;
+}

@@ -682,8 +682,7 @@ public:
                         return false;
                     }
 
-                    for (auto phase : chr->GetPhases())
-                        wpCreature2->SetInPhase(phase, false, true);
+                    wpCreature2->CopyPhaseFrom(chr);
 
                     wpCreature2->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
                     // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
@@ -902,8 +901,7 @@ public:
                     return false;
                 }
 
-                for (auto phase : chr->GetPhases())
-                    wpCreature->SetInPhase(phase, false, true);
+                wpCreature->CopyPhaseFrom(chr);
 
                 // Set "wpguid" column to the visual waypoint
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
@@ -967,8 +965,7 @@ public:
                 return false;
             }
 
-            for (auto phase : chr->GetPhases())
-                creature->SetInPhase(phase, false, true);
+            creature->CopyPhaseFrom(chr);
 
             creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
             if (!creature->LoadCreatureFromDB(creature->GetDBTableGUIDLow(), map))
@@ -1019,8 +1016,7 @@ public:
                 return false;
             }
 
-            for (auto phase : chr->GetPhases())
-                creature->SetInPhase(phase, false, true);
+            creature->CopyPhaseFrom(chr);
 
             creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
             if (!creature->LoadCreatureFromDB(creature->GetDBTableGUIDLow(), map))

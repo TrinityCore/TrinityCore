@@ -55,10 +55,10 @@ class Pet : public Guardian
 
         bool IsPermanentPetFor(Player* owner) const;        // pet have tab in character windows and set UNIT_FIELD_PETNUMBER
 
-        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry);
+        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 Entry);
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
-        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
+        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map);
         bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
         bool IsLoading() const override { return m_loading;}
         void SavePetToDB(PetSaveMode mode);
