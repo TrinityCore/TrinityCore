@@ -62,6 +62,29 @@ else()
   message("* Use coreside debug     : No  (default)")
 endif()
 
+if( WITH_SOURCE_TREE STREQUAL "flat" OR WITH_SOURCE_TREE STREQUAL "hierarchical" )
+  # TODO: Remove this after Debian 8 is released and set general required version to 2.8.12
+  #       Debian 7 is shipped with CMake 2.8.9 . But DIRECTORY flag of get_filename_component requires 2.8.12 .
+  if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
+    message("* Show source tree       : Yes - ${WITH_SOURCE_TREE}")
+    set(_WITH_SOURCE_TREE ${WITH_SOURCE_TREE} CACHE INTERNAL "WITH_SOURCE_TREE support enabled.")
+  else()
+    message("* Show source tree       : No  (default)")
+
+    message("")
+    message(" *** WITH_SOURCE_TREE - WARNING!")
+    message(" *** This functionality is ONLY supported on CMake 2.8.12 or higher.")
+    message(" *** You are running ${CMAKE_VERSION}, which does not have the functions needed")
+    message(" *** to create a sourcetree - this option is thus forced to disabled!")
+    message("")
+
+    set(_WITH_SOURCE_TREE "" CACHE INTERNAL "WITH_SOURCE_TREE support disabled.")
+  endif()
+else()
+  message("* Show source tree       : No  (default)")
+  set(_WITH_SOURCE_TREE "" CACHE INTERNAL "WITH_SOURCE_TREE support disabled.")
+endif()
+
 if ( WITHOUT_GIT )
   message("* Use GIT revision hash  : No")
   message("")

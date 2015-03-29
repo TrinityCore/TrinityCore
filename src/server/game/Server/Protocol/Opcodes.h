@@ -1419,7 +1419,7 @@ enum OpcodeServer : uint32
     SMSG_PET_CLEAR_SPELLS                             = 0x193A,
     SMSG_PET_DISMISS_SOUND                            = 0x0237,
     SMSG_PET_GOD_MODE                                 = 0x1C66,
-    SMSG_PET_GUI_DS                                   = 0x0245,
+    SMSG_PET_GUIDS                                    = 0x0245,
     SMSG_PET_LEARNED_SPELLS                           = 0x1099,
     SMSG_PET_MODE                                     = 0x1F0B,
     SMSG_PET_NAME_INVALID                             = 0x0975,

@@ -34,6 +34,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "PassiveAI.h"
+#include "CellImpl.h"
 
 /*######
 ## npc_webbed_creature
