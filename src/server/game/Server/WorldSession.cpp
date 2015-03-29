@@ -1346,11 +1346,11 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         //case CMSG_CHANGE_SUB_GROUP:               //   6               5         1 sync 1 async db queries
         //case CMSG_PETITION_QUERY:                       //   4               3.5       1 sync db query
         case CMSG_CHAR_CUSTOMIZE:                       //   5               5         1 sync db query
-        //case CMSG_CHAR_RACE_OR_FACTION_CHANGE:          //   5               5         1 sync db query
+        case CMSG_CHAR_RACE_OR_FACTION_CHANGE:          //   5               5         1 sync db query
         case CMSG_CHAR_DELETE:                          //   4               4         1 sync db query
         case CMSG_DEL_FRIEND:                           //   7               5         1 async db query
         case CMSG_ADD_FRIEND:                           //   6               4         1 async db query
-        //case CMSG_CHAR_RENAME:                          //   5               3         1 async db query
+        case CMSG_CHAR_RENAME:                          //   5               3         1 async db query
         //case CMSG_GMSURVEY_SUBMIT:                      //   2               3         1 async db query
         //case CMSG_BUG:                                  //   1               1         1 async db query
         //case CMSG_SET_PARTY_LEADER:                     //   1               2         1 async db query
