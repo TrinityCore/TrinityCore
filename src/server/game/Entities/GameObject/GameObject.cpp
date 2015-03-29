@@ -25,6 +25,7 @@
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
+#include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "PoolMgr.h"
@@ -1361,7 +1362,7 @@ void GameObject::Use(Unit* user)
             {
                 if (info->goober.pageID)                    // show page...
                 {
-                    WorldPacket data(SMSG_GAMEOBJECT_PAGETEXT, 8);
+                    WorldPacket data(SMSG_PAGE_TEXT, 8);
                     data << GetGUID();
                     player->SendDirectMessage(&data);
                 }
@@ -1770,8 +1771,8 @@ void GameObject::Use(Unit* user)
             // fallback, will always work
             player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
 
-            WorldPacket data(SMSG_ENABLE_BARBER_SHOP, 0);
-            player->SendDirectMessage(&data);
+            WorldPackets::Misc::EnableBarberShop packet;
+            player->SendDirectMessage(packet.Write());
 
             player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight));
             return;
@@ -1848,7 +1849,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true
 
 void GameObject::SendCustomAnim(uint32 anim)
 {
-    WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
+    WorldPacket data(SMSG_GAME_OBJECT_CUSTOM_ANIM, 8 + 4);
     data << GetGUID();
     data << uint32(anim);
     SendMessageToSet(&data, true);

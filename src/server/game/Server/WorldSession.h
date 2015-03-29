@@ -110,6 +110,7 @@ namespace WorldPackets
         struct CharRaceOrFactionChangeInfo;
         struct CharacterUndeleteInfo;
 
+        class AlterApperance;
         class EnumCharacters;
         class CreateChar;
         class DeleteChar;
@@ -421,9 +422,9 @@ enum AccountDataType
 
 enum TutorialAction
 {
-    TUTORIAL_ACTION_CLEAR   = 1,
-    TUTORIAL_ACTION_UPDATE  = 2,
-    TUTORIAL_ACTION_RESET   = 3
+    TUTORIAL_ACTION_RESET   = 0,
+    TUTORIAL_ACTION_UPDATE  = 1,
+    TUTORIAL_ACTION_CLEAR   = 2
 };
 
 /*
@@ -581,7 +582,6 @@ class WorldSession
         void SendNotification(uint32 stringId, ...);
         void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName *declinedName);
         void SendPartyResult(PartyOperation operation, std::string const& member, PartyResult res, uint32 val = 0);
-        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
         void SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaSwaps);
         void SendQueryTimeResponse();
 
@@ -790,7 +790,7 @@ class WorldSession
         void HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request);
         void HandleCharRenameCallBack(PreparedQueryResult result, WorldPackets::Character::CharacterRenameInfo* renameInfo);
         void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
-        void HandleAlterAppearance(WorldPacket& recvData);
+        void HandleAlterAppearance(WorldPackets::Character::AlterApperance& packet);
         void HandleCharCustomizeOpcode(WorldPackets::Character::CharCustomize& packet);
         void HandleCharCustomizeCallback(PreparedQueryResult result, WorldPackets::Character::CharCustomizeInfo* customizeInfo);
         void HandleCharRaceOrFactionChangeOpcode(WorldPackets::Character::CharRaceOrFactionChange& packet);
@@ -1135,7 +1135,6 @@ class WorldSession
         void HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& packet);
         void SendPlayerNotFoundNotice(std::string const& name);
         void SendPlayerAmbiguousNotice(std::string const& name);
-        void SendWrongFactionNotice();
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
@@ -1221,7 +1220,7 @@ class WorldSession
         void HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packet);
         void HandleRealmSplitOpcode(WorldPacket& recvData);
         void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet);
-        void HandleWhoisOpcode(WorldPackets::Who::WhoIsRequest& packet);
+        void HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet);
         void HandleResetInstancesOpcode(WorldPacket& recvData);
         void HandleHearthAndResurrect(WorldPacket& recvData);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
@@ -1355,8 +1354,6 @@ class WorldSession
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);
 
         void SendSpellCategoryCooldowns();
-
-        int32 HandleEnableNagleAlgorithm();
 
         // Compact Unit Frames (4.x)
         void HandleSaveCUFProfiles(WorldPacket& recvPacket);

@@ -272,7 +272,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
 void WorldSession::HandleLfgGetLockInfoOpcode(WorldPacket& recvData)
 {
     bool forPlayer = recvData.ReadBit();
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_LOCK_INFO_REQUEST %s for %s", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
+    TC_LOG_DEBUG("lfg", "CMSG_DF_GET_SYSTEM_INFO %s for %s", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
 
     if (forPlayer)
         SendLfgPlayerLockInfo();
@@ -404,7 +404,7 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_GET_STATUS %s", GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("lfg", "CMSG_DF_GET_JOIN_STATUS %s", GetPlayerInfo().c_str());
 
     if (!GetPlayer()->isUsingLfg())
         return;
@@ -502,7 +502,7 @@ void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
     TC_LOG_DEBUG("lfg", "SMSG_LFG_ROLE_CHOSEN %s guid: %s roles: %u",
         GetPlayerInfo().c_str(), guid.ToString().c_str(), roles);
 
-    WorldPacket data(SMSG_LFG_ROLE_CHOSEN, 8 + 1 + 4);
+    WorldPacket data(SMSG_ROLE_CHOSEN, 8 + 1 + 4);
     data << guid;                                           // Guid
     data << uint8(roles > 0);                              // Ready
     data << uint32(roles);                                 // Roles
@@ -716,7 +716,7 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
         GetPlayerInfo().c_str(), uint8(boot.inProgress), uint8(playerVote != lfg::LFG_ANSWER_PENDING),
         uint8(playerVote == lfg::LFG_ANSWER_AGREE), boot.victim.ToString().c_str(), votesNum, agreeNum,
         secsleft, lfg::LFG_GROUP_KICK_VOTES_NEEDED, boot.reason.c_str());
-    WorldPacket data(SMSG_LFG_BOOT_PROPOSAL_UPDATE, 1 + 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + boot.reason.length());
+    WorldPacket data(SMSG_LFG_BOOT_PLAYER, 1 + 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + boot.reason.length());
     data << uint8(boot.inProgress);                                 // Vote in progress
     data << uint8(agreeNum >= lfg::LFG_GROUP_KICK_VOTES_NEEDED);    // Did succeed
     data << uint8(playerVote != lfg::LFG_ANSWER_PENDING);           // Did Vote
@@ -831,13 +831,13 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgLfrList(bool update)
+void WorldSession::SendLfgLfrList(bool /*update*/)
 {
-    TC_LOG_DEBUG("lfg", "SMSG_LFG_LFR_LIST %s update: %u",
-        GetPlayerInfo().c_str(), update ? 1 : 0);
-    WorldPacket data(SMSG_LFG_UPDATE_SEARCH, 1);
-    data << uint8(update);                                 // In Lfg Queue?
-    SendPacket(&data);
+    //TC_LOG_DEBUG("lfg", "SMSG_LFG_LFR_LIST %s update: %u",
+    //    GetPlayerInfo().c_str(), update ? 1 : 0);
+    //WorldPacket data(SMSG_LFG_UPDATE_SEARCH, 1);
+    //data << uint8(update);                                 // In Lfg Queue?
+    //SendPacket(&data);
 }
 
 void WorldSession::SendLfgDisabled()

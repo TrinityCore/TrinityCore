@@ -648,7 +648,7 @@ namespace WorldPackets
         class GuildPartyState final : public ServerPacket
         {
         public:
-            GuildPartyState() : ServerPacket(SMSG_GUILD_PARTY_STATE_RESPONSE, 15) { }
+            GuildPartyState() : ServerPacket(SMSG_GUILD_PARTY_STATE, 15) { }
 
             WorldPacket const* Write() override;
 
@@ -682,7 +682,7 @@ namespace WorldPackets
         class GuildRewardList final : public ServerPacket
         {
         public:
-            GuildRewardList() : ServerPacket(SMSG_GUILD_REWARDS_LIST, 8) { }
+            GuildRewardList() : ServerPacket(SMSG_GUILD_REWARD_LIST, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -866,7 +866,7 @@ namespace WorldPackets
         class GuildBankLogQueryResults final : public ServerPacket
         {
         public:
-            GuildBankLogQueryResults() : ServerPacket(SMSG_GUILD_BANK_LOG_QUERY_RESULT, 25) { }
+            GuildBankLogQueryResults() : ServerPacket(SMSG_GUILD_BANK_LOG_QUERY_RESULTS, 25) { }
 
             WorldPacket const* Write() override;
 
@@ -1000,7 +1000,7 @@ namespace WorldPackets
         class PlayerSaveGuildEmblem final : public ServerPacket
         {
         public:
-            PlayerSaveGuildEmblem() : ServerPacket(SMSG_SAVE_GUILD_EMBLEM, 4) { }
+            PlayerSaveGuildEmblem() : ServerPacket(SMSG_PLAYER_SAVE_GUILD_EMBLEM, 4) { }
 
             WorldPacket const* Write() override;
 

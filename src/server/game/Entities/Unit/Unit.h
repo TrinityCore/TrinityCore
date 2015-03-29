@@ -1650,7 +1650,6 @@ class Unit : public WorldObject
 
 
         void SendSetPlayHoverAnim(bool enable);
-        void SendMovementSetSplineAnim(Movement::AnimType anim);
 
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
