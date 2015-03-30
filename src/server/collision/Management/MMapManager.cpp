@@ -153,7 +153,7 @@ namespace MMAP
         dtTileRef tileRef = 0;
 
         // memory allocated for data is now managed by detour, and will be deallocated when the tile is removed
-        if (dtStatusSucceed(mmap->navMesh->addTile(data, fileHeader.size, NULL/*DT_TILE_FREE_DATA*/, 0, &tileRef)))
+        if (dtStatusSucceed(mmap->navMesh->addTile(data, fileHeader.size, 0/*DT_TILE_FREE_DATA*/, 0, &tileRef)))
         {
             mmap->loadedTileRefs.insert(std::pair<uint32, dtTileRef>(packedGridPos, tileRef));
             ++loadedTiles;
@@ -443,7 +443,7 @@ namespace MMAP
             TC_LOG_DEBUG("phase", "MMapData::RemoveSwap: Unloaded phased %03u%02i%02i.mmtile from navmesh", swap, x, y);
 
             // restore base tile
-            if (dtStatusSucceed(navMesh->addTile(_baseTiles[packedXY]->data, _baseTiles[packedXY]->dataSize, NULL, 0, &loadedTileRefs[packedXY])))
+            if (dtStatusSucceed(navMesh->addTile(_baseTiles[packedXY]->data, _baseTiles[packedXY]->dataSize, 0, 0, &loadedTileRefs[packedXY])))
             {
                 TC_LOG_DEBUG("phase", "MMapData::RemoveSwap: Loaded base mmtile %03u[%02i, %02i] into %03i[%02i, %02i]", _mapId, x, y, _mapId, header->x, header->y);
             }
@@ -512,7 +512,7 @@ namespace MMAP
             loadedPhasedTiles[swap].insert(packedXY);
 
             // add new swapped tile
-            if (dtStatusSucceed(navMesh->addTile(ptile->data, ptile->fileHeader.size, NULL, 0, &loadedTileRefs[packedXY])))
+            if (dtStatusSucceed(navMesh->addTile(ptile->data, ptile->fileHeader.size, 0, 0, &loadedTileRefs[packedXY])))
             {
                 TC_LOG_DEBUG("phase", "MMapData::AddSwap: Loaded phased mmtile %03u[%02i, %02i] into %03i[%02i, %02i]", swap, x, y, _mapId, header->x, header->y);
             }
