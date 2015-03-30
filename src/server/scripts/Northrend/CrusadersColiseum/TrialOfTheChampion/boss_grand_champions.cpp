@@ -39,26 +39,20 @@ enum Spells
 
     // Marshal Jacob Alerius && Mokra the Skullcrusher || Warrior
     SPELL_MORTAL_STRIKE             = 68783,
-    SPELL_MORTAL_STRIKE_H           = 68784,
     SPELL_BLADESTORM                = 63784,
     SPELL_INTERCEPT                 = 67540,
     SPELL_ROLLING_THROW             = 47115, //not implemented in the AI yet...
 
     // Ambrose Boltspark && Eressea Dawnsinger || Mage
     SPELL_FIREBALL                  = 66042,
-    SPELL_FIREBALL_H                = 68310,
     SPELL_BLAST_WAVE                = 66044,
-    SPELL_BLAST_WAVE_H              = 68312,
     SPELL_HASTE                     = 66045,
     SPELL_POLYMORPH                 = 66043,
-    SPELL_POLYMORPH_H               = 68311,
 
     // Colosos && Runok Wildmane || Shaman
     SPELL_CHAIN_LIGHTNING           = 67529,
-    SPELL_CHAIN_LIGHTNING_H         = 68319,
     SPELL_EARTH_SHIELD              = 67530,
     SPELL_HEALING_WAVE              = 67528,
-    SPELL_HEALING_WAVE_H            = 68318,
     SPELL_HEX_OF_MENDING            = 67534,
 
     // Jaelyne Evensong && Zul'tore || Hunter
@@ -66,11 +60,9 @@ enum Spells
     SPELL_LIGHTNING_ARROWS          = 66083,
     SPELL_MULTI_SHOT                = 66081,
     SPELL_SHOOT                     = 65868,
-    SPELL_SHOOT_H                   = 67988,
 
     // Lana Stouthammer Evensong && Deathstalker Visceri || Rouge
     SPELL_EVISCERATE                = 67709,
-    SPELL_EVISCERATE_H              = 68317,
     SPELL_FAN_OF_KNIVES             = 67706,
     SPELL_POISON_BOTTLE             = 67701
 };
@@ -109,7 +101,7 @@ void AggroAllPlayers(Creature* temp)
 
             if (player->IsAlive())
             {
-                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 temp->SetReactState(REACT_AGGRESSIVE);
                 temp->SetInCombatWith(player);
                 player->SetInCombatWith(temp);
@@ -119,26 +111,21 @@ void AggroAllPlayers(Creature* temp)
     }
 }
 
-bool GrandChampionsOutVehicle(Creature* me)
+void GuidDataAdder(Creature* creature)
 {
-    InstanceScript* instance = me->GetInstanceScript();
-
+    InstanceScript* instance = creature->GetInstanceScript();
+    
     if (!instance)
-        return false;
+        return;
 
-    Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1));
-    Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_2));
-    Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_3));
-
-    if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
-    {
-        if (!pGrandChampion1->m_movementInfo.transport.guid &&
-            !pGrandChampion2->m_movementInfo.transport.guid &&
-            !pGrandChampion3->m_movementInfo.transport.guid)
-            return true;
-    }
-
-    return false;
+    if (instance->GetGuidData(DATA_GRAND_CHAMPION_1).IsEmpty())
+        instance->SetGuidData(DATA_GRAND_CHAMPION_1, creature->GetGUID());
+    else if (!instance->GetGuidData(DATA_GRAND_CHAMPION_1).IsEmpty())
+        if (instance->GetGuidData(DATA_GRAND_CHAMPION_2).IsEmpty())
+            instance->SetGuidData(DATA_GRAND_CHAMPION_2, creature->GetGUID());
+        else if (!instance->GetGuidData(DATA_GRAND_CHAMPION_2).IsEmpty())
+            if (instance->GetGuidData(DATA_GRAND_CHAMPION_3).IsEmpty())
+                instance->SetGuidData(DATA_GRAND_CHAMPION_3, creature->GetGUID());
 }
 
 /*
@@ -158,7 +145,7 @@ public:
             Initialize();
             SetDespawnAtEnd(false);
             uiWaypointPath = 0;
-
+            creature->SetReactState(REACT_PASSIVE);
             instance = creature->GetInstanceScript();
         }
 
@@ -180,6 +167,11 @@ public:
         void Reset() override
         {
             Initialize();
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            me->DespawnOrUnsummon(10000);
         }
 
         void SetData(uint32 uiType, uint32 /*uiData*/) override
@@ -217,10 +209,10 @@ public:
             {
                 case 2:
                     if (uiWaypointPath == 3 || uiWaypointPath == 2)
-                        instance->SetData(DATA_MOVEMENT_DONE, instance->GetData(DATA_MOVEMENT_DONE)+1);
+                        instance->SetData(DATA_MOVEMENT_DONE, instance->GetData(DATA_MOVEMENT_DONE) + 1);
                     break;
                 case 3:
-                    instance->SetData(DATA_MOVEMENT_DONE, instance->GetData(DATA_MOVEMENT_DONE)+1);
+                    instance->SetData(DATA_MOVEMENT_DONE, instance->GetData(DATA_MOVEMENT_DONE) + 1);
                     break;
             }
         }
@@ -319,16 +311,14 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
+            GuidDataAdder(me);
 
             bDone = false;
             bHome = false;
 
             uiPhase = 0;
             uiPhaseTimer = 0;
-
             me->SetReactState(REACT_PASSIVE);
-            // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void Initialize()
@@ -357,8 +347,6 @@ public:
 
         void JustReachedHome() override
         {
-            ScriptedAI::JustReachedHome();
-
             if (!bHome)
                 return;
 
@@ -368,12 +356,10 @@ public:
             bHome = false;
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void DoAction(int32 actionId) override
         {
-            if (!bDone && GrandChampionsOutVehicle(me))
+            if (actionId == 1)
             {
-                bDone = true;
-
                 if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
@@ -381,10 +367,15 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                EnterEvadeMode();
-                bHome = true;
-            }
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
+                bHome = true;
+                me->GetMotionMaster()->MoveTargetedHome();
+            }
+        }
+
+        void UpdateAI(uint32 uiDiff) override
+        {
             if (uiPhaseTimer <= uiDiff)
             {
                 if (uiPhase == 1)
@@ -434,7 +425,8 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -456,6 +448,7 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
+            GuidDataAdder(me);
 
             bDone = false;
             bHome = false;
@@ -464,8 +457,6 @@ public:
             uiPhaseTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
-            // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void Initialize()
@@ -496,8 +487,6 @@ public:
 
         void JustReachedHome() override
         {
-            ScriptedAI::JustReachedHome();
-
             if (!bHome)
                 return;
 
@@ -507,12 +496,10 @@ public:
             bHome = false;
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void DoAction(int32 actionId) override
         {
-            if (!bDone && GrandChampionsOutVehicle(me))
+            if (actionId == 1)
             {
-                bDone = true;
-
                 if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
@@ -520,12 +507,15 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
-                EnterEvadeMode();
                 bHome = true;
+                me->GetMotionMaster()->MoveTargetedHome();
             }
+        }
 
+        void UpdateAI(uint32 uiDiff) override
+        {
             if (uiPhaseTimer <= uiDiff)
             {
                 if (uiPhase == 1)
@@ -577,7 +567,8 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -599,6 +590,7 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
+            GuidDataAdder(me);
 
             bDone = false;
             bHome = false;
@@ -607,8 +599,6 @@ public:
             uiPhaseTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
-            // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void Initialize()
@@ -645,8 +635,6 @@ public:
 
         void JustReachedHome() override
         {
-            ScriptedAI::JustReachedHome();
-
             if (!bHome)
                 return;
 
@@ -656,12 +644,10 @@ public:
             bHome = false;
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void DoAction(int32 actionId) override
         {
-            if (!bDone && GrandChampionsOutVehicle(me))
+            if (actionId == 1)
             {
-                bDone = true;
-
                 if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
@@ -669,12 +655,15 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
-                EnterEvadeMode();
                 bHome = true;
+                me->GetMotionMaster()->MoveTargetedHome();
             }
+        }
 
+        void UpdateAI(uint32 uiDiff) override
+        {
             if (uiPhaseTimer <= uiDiff)
             {
                 if (uiPhase == 1)
@@ -728,7 +717,8 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -750,6 +740,7 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
+            GuidDataAdder(me);
 
             bDone = false;
             bHome = false;
@@ -758,8 +749,6 @@ public:
             uiPhaseTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
-            // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void Initialize()
@@ -806,12 +795,10 @@ public:
             bHome = false;
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void DoAction(int32 actionId) override
         {
-            if (!bDone && GrandChampionsOutVehicle(me))
+            if (actionId == 1)
             {
-                bDone = true;
-
                 if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
@@ -819,12 +806,15 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
-                EnterEvadeMode();
                 bHome = true;
+                me->GetMotionMaster()->MoveTargetedHome();
             }
-
+        }
+        
+        void UpdateAI(uint32 uiDiff) override
+        {
             if (uiPhaseTimer <= uiDiff)
             {
                 if (uiPhase == 1)
@@ -888,7 +878,8 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -910,6 +901,7 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
+            GuidDataAdder(me);
 
             bDone = false;
             bHome = false;
@@ -918,8 +910,6 @@ public:
             uiPhaseTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
-            // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void Initialize()
@@ -958,12 +948,10 @@ public:
             bHome = false;
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void DoAction(int32 actionId) override
         {
-            if (!bDone && GrandChampionsOutVehicle(me))
+            if (actionId == 1)
             {
-                bDone = true;
-
                 if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
@@ -971,12 +959,15 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
-                EnterEvadeMode();
                 bHome = true;
+                me->GetMotionMaster()->MoveTargetedHome();
             }
+        }
 
+        void UpdateAI(uint32 uiDiff) override
+        {
             if (uiPhaseTimer <= uiDiff)
             {
                 if (uiPhase == 1)
@@ -1013,7 +1004,8 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
