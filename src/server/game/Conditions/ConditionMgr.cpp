@@ -424,6 +424,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                 condMeets = true;
             break;
         }
+        case CONDITION_TERRAIN_SWAP:
+        {
+            condMeets = object->IsInTerrainSwap(ConditionValue1);
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -594,6 +599,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             mask |= GRID_MAP_TYPE_MASK_CREATURE;
             break;
         case CONDITION_REALM_ACHIEVEMENT:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_TERRAIN_SWAP:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         default:
@@ -795,7 +803,6 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET ||
             sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT ||
-            sourceType == CONDITION_SOURCE_TYPE_PHASE_DEFINITION ||
             sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR);
 }
 
@@ -869,22 +876,6 @@ ConditionList ConditionMgr::GetConditionsForSmartEvent(int64 entryOrGuid, uint32
         }
     }
     return cond;
-}
-
-ConditionList const* ConditionMgr::GetConditionsForPhaseDefinition(uint32 zone, uint32 entry)
-{
-    PhaseDefinitionConditionContainer::const_iterator itr = PhaseDefinitionsConditionStore.find(zone);
-    if (itr != PhaseDefinitionsConditionStore.end())
-    {
-        ConditionTypeContainer::const_iterator i = itr->second.find(entry);
-        if (i != itr->second.end())
-        {
-            TC_LOG_DEBUG("condition", "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u", zone, entry);
-            return &i->second;
-        }
-    }
-
-    return NULL;
 }
 
 ConditionList ConditionMgr::GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId)
@@ -1122,13 +1113,6 @@ void ConditionMgr::LoadConditions(bool isReload)
                     //! TODO: PAIR_32 ?
                     std::pair<int32, uint32> key = std::make_pair(cond->SourceEntry, cond->SourceId);
                     SmartEventConditionStore[key][cond->SourceGroup].push_back(cond);
-                    valid = true;
-                    ++count;
-                    continue;
-                }
-                case CONDITION_SOURCE_TYPE_PHASE_DEFINITION:
-                {
-                    PhaseDefinitionsConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
                     valid = true;
                     ++count;
                     continue;
@@ -1661,13 +1645,6 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 return false;
             }
             break;
-        case CONDITION_SOURCE_TYPE_PHASE_DEFINITION:
-            /*if (!PhaseMgr::IsConditionTypeSupported(cond->ConditionType))
-            {
-                TC_LOG_ERROR("sql.sql", "Condition source type `CONDITION_SOURCE_TYPE_PHASE_DEFINITION` does not support condition type %u, ignoring.", cond->ConditionType);
-                return false;
-            }*/
-            break;
         case CONDITION_SOURCE_TYPE_NPC_VENDOR:
         {
             if (!sObjectMgr->GetCreatureTemplate(cond->SourceGroup))
@@ -1687,6 +1664,8 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NONE:
+        case CONDITION_SOURCE_TYPE_TERRAIN_SWAP:
+        case CONDITION_SOURCE_TYPE_PHASE:
         default:
             break;
     }
@@ -2086,6 +2065,14 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
             break;
         }
+        case CONDITION_TERRAIN_SWAP:
+        {
+            if (cond->ConditionValue2)
+                TC_LOG_ERROR("sql.sql", "Terrain swap condition has useless data in value2 (%u)!", cond->ConditionValue2);
+            if (cond->ConditionValue3)
+                TC_LOG_ERROR("sql.sql", "Terrain swap condition has useless data in value3 (%u)!", cond->ConditionValue3);
+            break;
+        }
         case CONDITION_TITLE:
         {
             CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(cond->ConditionValue1);
@@ -2218,19 +2205,6 @@ void ConditionMgr::Clean()
     }
 
     SpellClickEventConditionStore.clear();
-
-    for (PhaseDefinitionConditionContainer::iterator itr = PhaseDefinitionsConditionStore.begin(); itr != PhaseDefinitionsConditionStore.end(); ++itr)
-    {
-        for (ConditionTypeContainer::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-        {
-            for (ConditionList::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
-                delete *i;
-            it->second.clear();
-        }
-        itr->second.clear();
-    }
-
-    PhaseDefinitionsConditionStore.clear();
 
     for (NpcVendorConditionContainer::iterator itr = NpcVendorConditionContainerStore.begin(); itr != NpcVendorConditionContainerStore.end(); ++itr)
     {

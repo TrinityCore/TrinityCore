@@ -29,11 +29,12 @@ EndContentData */
 
 #include "Player.h"
 #include "Group.h"
-#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "PassiveAI.h"
+#include "CellImpl.h"
 
 /*######
 ## npc_webbed_creature

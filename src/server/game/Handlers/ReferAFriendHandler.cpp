@@ -32,7 +32,7 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 
     // check cheating
     /* TODO: 6.x update lfg system
-    /*uint8 levels = _player->GetGrantableLevels();
+    uint8 levels = _player->GetGrantableLevels();
     uint8 error = 0;
     if (!target)
         error = ERR_REFER_A_FRIEND_NO_TARGET;

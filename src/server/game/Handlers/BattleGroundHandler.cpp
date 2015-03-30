@@ -822,9 +822,9 @@ void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleRequestPvpOptions(WorldPacket& /*recvData*/)
+void WorldSession::HandleGetPVPOptionsEnabled(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_PVP_OPTIONS_ENABLED");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_GET_PVP_OPTIONS_ENABLED");
 
     /// @Todo: perfome research in this case
     WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
