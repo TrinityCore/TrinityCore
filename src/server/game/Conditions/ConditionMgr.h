@@ -31,6 +31,23 @@ class WorldObject;
 class LootTemplate;
 struct Condition;
 
+/*! Documentation on implementing a new ConditionType:
+    Step 1: Check for the lowest free ID. Look for CONDITION_UNUSED_XX in the enum.
+            Then define the new condition type.
+
+    Step 2: Determine and map the parameters for the new condition type.
+
+    Step 3: Add a case block to ConditionMgr::isConditionTypeValid with the new condition type
+            and validate the parameters.
+
+    Step 4: Define the maximum available condition targets in ConditionMgr::GetMaxAvailableConditionTargets.
+
+    Step 5: Define the grid searcher mask in Condition::GetSearcherTypeMaskForCondition.
+
+    Step 6: Add a case block to ConditionMgr::Meets with the new condition type.
+
+    Step 7: Define condition name and expected condition values in ConditionMgr::StaticConditionTypeData.
+*/
 enum ConditionTypes
 {                                                           // value1           value2         value3
     CONDITION_NONE                  = 0,                    // 0                0              0                  always true
@@ -81,7 +98,7 @@ enum ConditionTypes
     Step 1: Check for the lowest free ID. Look for CONDITION_SOURCE_TYPE_UNUSED_XX in the enum.
             Then define the new source type.
 
-    Step 2: Determine and map the parameters for the new condition type.
+    Step 2: Determine and map the parameters for the new condition source type.
 
     Step 3: Add a case block to ConditionMgr::isSourceTypeValid with the new condition type
             and validate the parameters.
@@ -91,18 +108,20 @@ enum ConditionTypes
 
     Step 5: Define the maximum available condition targets in ConditionMgr::GetMaxAvailableConditionTargets.
 
+    Step 6: Define ConditionSourceType Name in ConditionMgr::StaticSourceTypeData.
+
     The following steps only apply if your condition can be grouped:
 
-    Step 6: Determine how you are going to store your conditions. You need to add a new storage container
+    Step 7: Determine how you are going to store your conditions. You need to add a new storage container
             for it in ConditionMgr class, along with a function like:
             ConditionList GetConditionsForXXXYourNewSourceTypeXXX(parameters...)
 
             The above function should be placed in upper level (practical) code that actually
             checks the conditions.
 
-    Step 7: Implement loading for your source type in ConditionMgr::LoadConditions.
+    Step 8: Implement loading for your source type in ConditionMgr::LoadConditions.
 
-    Step 8: Implement memory cleaning for your source type in ConditionMgr::Clean.
+    Step 9: Implement memory cleaning for your source type in ConditionMgr::Clean.
 */
 enum ConditionSourceType
 {
