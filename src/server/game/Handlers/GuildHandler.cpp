@@ -23,10 +23,7 @@
 #include "ObjectMgr.h"
 #include "GuildMgr.h"
 #include "Log.h"
-#include "Opcodes.h"
 #include "Guild.h"
-#include "GossipDef.h"
-#include "SocialMgr.h"
 
 void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 {

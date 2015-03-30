@@ -20,7 +20,6 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Map.h"
-#include "MapManager.h"
 #include "Group.h"
 #include "WorldPacket.h"
 #include "GridNotifiers.h"

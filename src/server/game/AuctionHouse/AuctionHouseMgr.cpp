@@ -30,7 +30,6 @@
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
-#include <vector>
 
 enum eAuctionHouse
 {

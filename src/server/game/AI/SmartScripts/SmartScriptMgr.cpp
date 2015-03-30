@@ -17,18 +17,12 @@
 
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
-#include "ObjectDefines.h"
 #include "GridDefines.h"
 #include "GridNotifiers.h"
 #include "SpellMgr.h"
-#include "GridNotifiersImpl.h"
 #include "Cell.h"
-#include "CellImpl.h"
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "GameEventMgr.h"
 #include "CreatureTextMgr.h"
-#include "SpellMgr.h"
 #include "SpellInfo.h"
 
 #include "SmartScriptMgr.h"

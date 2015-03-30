@@ -26,7 +26,6 @@
 #include "Formulas.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-#include "CreatureAI.h"
 #include "Unit.h"
 #include "Util.h"
 #include "Group.h"
