@@ -35,7 +35,6 @@
 #include "SmartScript.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
-#include "MoveSplineInit.h"
 #include "GameEventMgr.h"
 
 SmartScript::SmartScript()

@@ -25,7 +25,6 @@
 #include "InstanceSaveMgr.h"
 #include "Language.h"
 #include "MovementGenerator.h"
-#include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"

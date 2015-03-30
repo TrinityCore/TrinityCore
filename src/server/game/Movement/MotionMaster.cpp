@@ -30,7 +30,6 @@
 #include "RandomMovementGenerator.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
-#include <cassert>
 
 inline bool isStatic(MovementGenerator *mv)
 {
