@@ -219,7 +219,7 @@ namespace WorldPackets
         class TutorialSetFlag final : public ClientPacket
         {
         public:
-            TutorialSetFlag(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_FLAG, std::move(packet)) { }
+            TutorialSetFlag(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL, std::move(packet)) { }
 
             void Read() override;
 
@@ -246,7 +246,7 @@ namespace WorldPackets
         class AreaTrigger final : public ClientPacket
         {
         public:
-            AreaTrigger(WorldPacket&& packet) : ClientPacket(CMSG_AREATRIGGER, std::move(packet)) { }
+            AreaTrigger(WorldPacket&& packet) : ClientPacket(CMSG_AREA_TRIGGER, std::move(packet)) { }
 
             void Read() override;
 
@@ -321,7 +321,7 @@ namespace WorldPackets
         class PortGraveyard final : public ClientPacket
         {
         public:
-            PortGraveyard(WorldPacket&& packet) : ClientPacket(CMSG_PORT_GRAVEYARD, std::move(packet)) { }
+            PortGraveyard(WorldPacket&& packet) : ClientPacket(CMSG_CLIENT_PORT_GRAVEYARD, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -504,7 +504,7 @@ namespace WorldPackets
 
             uint32 SoundKitID = 0;
         };
-        
+
         class RandomRollClient final : public ClientPacket
         {
         public:

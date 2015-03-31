@@ -30,7 +30,7 @@ namespace WorldPackets
         class QueryGuildInfo final : public ClientPacket
         {
         public:
-            QueryGuildInfo(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_QUERY, std::move(packet)) { }
+            QueryGuildInfo(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_GUILD_INFO, std::move(packet)) { }
 
             void Read() override;
 
@@ -638,7 +638,7 @@ namespace WorldPackets
         class RequestGuildPartyState final : public ClientPacket
         {
         public:
-            RequestGuildPartyState(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_REQUEST_PARTY_STATE, std::move(packet)) { }
+            RequestGuildPartyState(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_GUILD_PARTY_STATE, std::move(packet)) { }
 
             void Read() override;
 

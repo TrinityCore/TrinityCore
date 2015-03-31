@@ -218,7 +218,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
         player->SendLoot(item->GetGUID(), LOOT_CORPSE);
 }
 
-void WorldSession::HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjectUse& packet)
+void WorldSession::HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjUse& packet)
 {
     if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(packet.Guid))
     {
@@ -234,7 +234,7 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjec
     }
 }
 
-void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjectReportUse& packet)
+void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjReportUse& packet)
 {
     // ignore for remote control state
     if (_player->m_mover != _player)

@@ -33,7 +33,7 @@
 #include "LootPackets.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLootItem& packet)
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();

@@ -917,7 +917,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                         // item shall not be displayed.
                         continue;
 
-                    WorldPackets::Loot::LootItem lootItem;
+                    WorldPackets::Loot::LootItemData lootItem;
                     lootItem.LootListID = packet.Items.size()+1;
                     lootItem.LootItemType = slot_type;
                     lootItem.Quantity = items[i].count;
@@ -937,7 +937,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                         // item shall not be displayed.
                         continue;
 
-                    WorldPackets::Loot::LootItem lootItem;
+                    WorldPackets::Loot::LootItemData lootItem;
                     lootItem.LootListID = packet.Items.size()+1;
                     lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                     lootItem.Quantity = items[i].count;
@@ -954,7 +954,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             {
                 if (!items[i].is_looted && !items[i].freeforall && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
                 {
-                    WorldPackets::Loot::LootItem lootItem;
+                    WorldPackets::Loot::LootItemData lootItem;
                     lootItem.LootListID = packet.Items.size()+1;
                     lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                     lootItem.Quantity = items[i].count;
@@ -978,7 +978,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             LootItem const& item = quest_items[qi->index];
             if (!qi->is_looted && !item.is_looted)
             {
-                WorldPackets::Loot::LootItem lootItem;
+                WorldPackets::Loot::LootItemData lootItem;
                 lootItem.LootListID = packet.Items.size()+1;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initalize(item);
@@ -1023,7 +1023,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             LootItem const& item = items[fi->index];
             if (!fi->is_looted && !item.is_looted)
             {
-                WorldPackets::Loot::LootItem lootItem;
+                WorldPackets::Loot::LootItemData lootItem;
                 lootItem.LootListID = packet.Items.size()+1;
                 lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                 lootItem.Quantity = item.count;
@@ -1043,7 +1043,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             LootItem const& item = items[ci->index];
             if (!ci->is_looted && !item.is_looted)
             {
-                WorldPackets::Loot::LootItem lootItem;
+                WorldPackets::Loot::LootItemData lootItem;
                 lootItem.LootListID = packet.Items.size()+1;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initalize(item);
@@ -1282,7 +1282,7 @@ void LootTemplate::CopyConditions(const ConditionList& conditions)
 
 void LootTemplate::CopyConditions(LootItem* li) const
 {
-    // Copies the conditions list from a template item to a LootItem
+    // Copies the conditions list from a template item to a LootItemData
     for (LootStoreItemList::const_iterator _iter = Entries.begin(); _iter != Entries.end(); ++_iter)
     {
         LootStoreItem* item = *_iter;

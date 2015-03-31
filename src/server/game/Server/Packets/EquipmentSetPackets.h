@@ -48,7 +48,7 @@ namespace WorldPackets
         class SaveEquipmentSet final : public ClientPacket
         {
         public:
-            SaveEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_EQUIPMENT_SET_SAVE, std::move(packet)) { }
+            SaveEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_SAVE_EQUIPMENT_SET, std::move(packet)) { }
 
             void Read() override;
 

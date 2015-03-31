@@ -29,7 +29,7 @@ namespace WorldPackets
         class AttackSwing final : public ClientPacket
         {
         public:
-            AttackSwing(WorldPacket&& packet) : ClientPacket(CMSG_ATTACKSWING, std::move(packet)) { }
+            AttackSwing(WorldPacket&& packet) : ClientPacket(CMSG_ATTACK_SWING, std::move(packet)) { }
 
             void Read() override;
 
@@ -50,7 +50,7 @@ namespace WorldPackets
         class AttackStop final : public ClientPacket
         {
         public:
-            AttackStop(WorldPacket&& packet) : ClientPacket(CMSG_ATTACKSTOP, std::move(packet)) { }
+            AttackStop(WorldPacket&& packet) : ClientPacket(CMSG_ATTACK_STOP, std::move(packet)) { }
 
             void Read() override { }
         };
