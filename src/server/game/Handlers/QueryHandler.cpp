@@ -203,19 +203,23 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
     WorldPackets::Query::QueryNPCTextResponse response;
     response.TextID = packet.TextID;
 
+    bool hasText = false;
     if (gossip)
     {
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
             response.Probabilities[i] = gossip->Options[i].Probability;
             response.BroadcastTextID[i] = gossip->Options[i].BroadcastTextID;
+            if (!hasText && gossip->Options[i].BroadcastTextID)
+                hasText = true;
         }
 
         response.Allow = true;
     }
-
-    SendPacket(response.Write());
-
+    if (hasText)
+        SendPacket(response.Write());
+    else
+        TC_LOG_ERROR("sql.sql", "HandleNpcTextQueryOpcode: no BroadcastTextID found for text %u in `npc_text table`", packet.TextID);
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 }
 
