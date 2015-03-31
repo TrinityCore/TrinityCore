@@ -208,17 +208,6 @@ void WorldSession::HandleCalendarGuildFilter(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_GUILD_FILTER: Min level [%d], Max level [%d], Min rank [%d]", minLevel, maxLevel, minRank);
 }
 
-void WorldSession::HandleCalendarArenaTeam(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_ARENA_TEAM [%s]", _player->GetGUID().ToString().c_str());
-
-    uint32 arenaTeamId;
-    recvData >> arenaTeamId;
-
-    if (ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(arenaTeamId))
-        team->MassInviteToEvent(this);
-}
-
 void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
 {
     ObjectGuid guid = _player->GetGUID();

@@ -166,7 +166,7 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Character::CreateChar::Read()
+void WorldPackets::Character::CreateCharacter::Read()
 {
     CreateInfo.reset(new CharacterCreateInfo());
     uint32 nameLength = _worldPacket.ReadBits(6);
@@ -185,18 +185,18 @@ void WorldPackets::Character::CreateChar::Read()
         _worldPacket >> CreateInfo->TemplateSet.Value;
 }
 
-WorldPacket const* WorldPackets::Character::CharacterCreateResponse::Write()
+WorldPacket const* WorldPackets::Character::CreateChar::Write()
 {
     _worldPacket << uint8(Code);
     return &_worldPacket;
 }
 
-void WorldPackets::Character::DeleteChar::Read()
+void WorldPackets::Character::CharDelete::Read()
 {
     _worldPacket >> Guid;
 }
 
-WorldPacket const* WorldPackets::Character::CharacterDeleteResponse::Write()
+WorldPacket const* WorldPackets::Character::DeleteChar::Write()
 {
     _worldPacket << uint8(Code);
     return &_worldPacket;
@@ -399,7 +399,7 @@ void WorldPackets::Character::SetActionBarToggles::Read()
     _worldPacket >> Mask;
 }
 
-void WorldPackets::Character::PlayedTimeClient::Read()
+void WorldPackets::Character::RequestPlayedTime::Read()
 {
     TriggerScriptEvent = _worldPacket.ReadBit();
 }

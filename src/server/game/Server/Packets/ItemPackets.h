@@ -224,7 +224,7 @@ namespace WorldPackets
         class AutoEquipItem final : public ClientPacket
         {
         public:
-            AutoEquipItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOEQUIP_ITEM, std::move(packet)) { }
+            AutoEquipItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_EQUIP_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -236,7 +236,7 @@ namespace WorldPackets
         class AutoStoreBagItem final : public ClientPacket
         {
         public:
-            AutoStoreBagItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BAG_ITEM, std::move(packet)) { }
+            AutoStoreBagItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_STORE_BAG_ITEM, std::move(packet)) { }
 
             void Read() override;
 

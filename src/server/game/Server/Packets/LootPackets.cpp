@@ -34,7 +34,7 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
     _worldPacket << uint32(Items.size());
     _worldPacket << uint32(Currencies.size());
 
-    for (LootItem const& item : Items)
+    for (LootItemData const& item : Items)
     {
         _worldPacket.WriteBits(item.Type, 2);
         _worldPacket.WriteBits(item.UIType, 3);
@@ -64,7 +64,7 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Loot::AutoStoreLootItem::Read()
+void WorldPackets::Loot::LootItem::Read()
 {
     uint32 Count;
     _worldPacket >> Count;

@@ -17,12 +17,12 @@
 
 #include "GameObjectPackets.h"
 
-void WorldPackets::GameObject::GameObjectUse::Read()
+void WorldPackets::GameObject::GameObjUse::Read()
 {
     _worldPacket >> Guid;
 }
 
-void WorldPackets::GameObject::GameObjectReportUse::Read()
+void WorldPackets::GameObject::GameObjReportUse::Read()
 {
     _worldPacket >> Guid;
 }

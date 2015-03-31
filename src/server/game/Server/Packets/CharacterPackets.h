@@ -30,7 +30,7 @@ namespace WorldPackets
         public:
             EnumCharacters(WorldPacket&& packet) : ClientPacket(std::move(packet))
             {
-                ASSERT(GetOpcode() == CMSG_CHAR_ENUM || GetOpcode() == CMSG_CHAR_UNDELETE_ENUM);
+                ASSERT(GetOpcode() == CMSG_ENUM_CHARACTERS || GetOpcode() == CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT);
             }
 
             void Read() override { }
@@ -173,10 +173,10 @@ namespace WorldPackets
             std::list<RestrictedFactionChangeRuleInfo> FactionChangeRestrictions; ///< @todo: research
         };
 
-        class CreateChar final : public ClientPacket
+        class CreateCharacter final : public ClientPacket
         {
         public:
-            CreateChar(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_CREATE, std::move(packet)) { }
+            CreateCharacter(WorldPacket&& packet) : ClientPacket(CMSG_CREATE_CHARACTER, std::move(packet)) { }
 
             void Read() override;
 
@@ -196,30 +196,30 @@ namespace WorldPackets
             std::shared_ptr<CharacterCreateInfo> CreateInfo;
         };
 
-        class CharacterCreateResponse final : public ServerPacket
+        class CreateChar final : public ServerPacket
         {
         public:
-            CharacterCreateResponse() : ServerPacket(SMSG_CREATE_CHAR, 1) { }
+            CreateChar() : ServerPacket(SMSG_CREATE_CHAR, 1) { }
 
             WorldPacket const* Write() override;
 
             uint8 Code = 0; ///< Result code @see enum ResponseCodes
         };
 
-        class DeleteChar final : public ClientPacket
+        class CharDelete final : public ClientPacket
         {
         public:
-            DeleteChar(WorldPacket&& packet): ClientPacket(CMSG_CHAR_DELETE, std::move(packet)) { }
+            CharDelete(WorldPacket&& packet): ClientPacket(CMSG_CHAR_DELETE, std::move(packet)) { }
 
             void Read() override;
 
             ObjectGuid Guid; ///< Guid of the character to delete
         };
 
-        class CharacterDeleteResponse final : public ServerPacket
+        class DeleteChar final : public ServerPacket
         {
         public:
-            CharacterDeleteResponse(): ServerPacket(SMSG_DELETE_CHAR, 1) { }
+            DeleteChar(): ServerPacket(SMSG_DELETE_CHAR, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -229,7 +229,7 @@ namespace WorldPackets
         class CharacterRenameRequest final : public ClientPacket
         {
         public:
-            CharacterRenameRequest(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_RENAME, std::move(packet)) { }
+            CharacterRenameRequest(WorldPacket&& packet) : ClientPacket(CMSG_CHARACTER_RENAME_REQUEST, std::move(packet)) { }
 
             void Read() override;
 
@@ -323,7 +323,7 @@ namespace WorldPackets
         class GenerateRandomCharacterName final : public ClientPacket
         {
         public:
-            GenerateRandomCharacterName(WorldPacket&& packet) : ClientPacket(CMSG_RANDOMIZE_CHAR_NAME, std::move(packet)) { }
+            GenerateRandomCharacterName(WorldPacket&& packet) : ClientPacket(CMSG_GENERATE_RANDOM_CHARACTER_NAME, std::move(packet)) { }
 
             void Read() override;
 
@@ -387,10 +387,10 @@ namespace WorldPackets
             uint32 Result = 0; ///< @see enum CharacterUndeleteResult
         };
 
-        class GetUndeleteCooldownStatus final : public ClientPacket
+        class GetUndeleteCharacterCooldownStatus final : public ClientPacket
         {
         public:
-            GetUndeleteCooldownStatus(WorldPacket&& packet) : ClientPacket(CMSG_GET_UNDELETE_COOLDOWN_STATUS, std::move(packet)) { }
+            GetUndeleteCharacterCooldownStatus(WorldPacket&& packet) : ClientPacket(CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -504,7 +504,7 @@ namespace WorldPackets
         class LoadingScreenNotify final : public ClientPacket
         {
         public:
-            LoadingScreenNotify(WorldPacket&& packet) : ClientPacket(CMSG_LOAD_SCREEN, std::move(packet)) { }
+            LoadingScreenNotify(WorldPacket&& packet) : ClientPacket(CMSG_LOADING_SCREEN_NOTIFY, std::move(packet)) { }
 
             void Read() override;
 
@@ -528,17 +528,17 @@ namespace WorldPackets
         class SetActionBarToggles final : public ClientPacket
         {
         public:
-            SetActionBarToggles(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIONBAR_TOGGLES, std::move(packet)) { }
+            SetActionBarToggles(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTION_BAR_TOGGLES, std::move(packet)) { }
 
             void Read() override;
 
             uint8 Mask = 0;
         };
 
-        class PlayedTimeClient final : public ClientPacket
+        class RequestPlayedTime final : public ClientPacket
         {
         public:
-            PlayedTimeClient(WorldPacket&& packet) : ClientPacket(CMSG_PLAYED_TIME, std::move(packet)) { }
+            RequestPlayedTime(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PLAYED_TIME, std::move(packet)) { }
 
             void Read() override;
 

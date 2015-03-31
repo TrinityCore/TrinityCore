@@ -334,7 +334,7 @@ void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCha
     _charEnumCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateChar& charCreate)
+void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharacter& charCreate)
 {
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_TEAMMASK))
     {
@@ -702,7 +702,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
     }
 }
 
-void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& charDelete)
+void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& charDelete)
 {
     // Initiating
     uint32 initAccountId = GetAccountId();
@@ -2313,7 +2313,7 @@ void WorldSession::HandleOpeningCinematic(WorldPacket& /*recvData*/)
     }
 }
 
-void WorldSession::HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCooldownStatus& /*getCooldown*/)
+void WorldSession::HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus& /*getCooldown*/)
 {
     /// empty result to force wait
     PreparedQueryResultPromise result;
@@ -2489,7 +2489,7 @@ void WorldSession::HandleCharUndeleteCallback(PreparedQueryResult result, WorldP
 
 void WorldSession::SendCharCreate(ResponseCodes result)
 {
-    WorldPackets::Character::CharacterCreateResponse response;
+    WorldPackets::Character::CreateChar response;
     response.Code = result;
 
     SendPacket(response.Write());
@@ -2497,7 +2497,7 @@ void WorldSession::SendCharCreate(ResponseCodes result)
 
 void WorldSession::SendCharDelete(ResponseCodes result)
 {
-    WorldPackets::Character::CharacterDeleteResponse response;
+    WorldPackets::Character::DeleteChar response;
     response.Code = result;
 
     SendPacket(response.Write());
