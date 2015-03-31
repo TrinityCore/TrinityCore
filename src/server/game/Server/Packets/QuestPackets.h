@@ -427,6 +427,33 @@ namespace WorldPackets
 
             uint8 Entry = 0;
         };
+        
+        struct GossipTextData
+        {
+            GossipTextData(uint32 questID, uint32 questType, uint32 questLevel, uint32 questFlags, uint32 questFlagsEx, bool repeatable, std::string questTitle) : 
+                QuestID(questID), QuestType(questType), QuestLevel(questLevel), QuestFlags(questFlags), QuestFlagsEx(questFlagsEx), Repeatable(repeatable), QuestTitle(questTitle) { }
+            uint32 QuestID;
+            uint32 QuestType;
+            uint32 QuestLevel;
+            uint32 QuestFlags;
+            uint32 QuestFlagsEx;
+            bool Repeatable;
+            std::string QuestTitle;
+        };
+
+        class QuestGiverQuestList final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestList() : ServerPacket(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid QuestGiverGUID;
+            uint32 GreetEmoteDelay      = 0;
+            uint32 GreetEmoteType       = 0;
+            std::vector<GossipTextData> GossipTexts;
+            std::string Greeting;
+        };
     }
 }
 
