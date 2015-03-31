@@ -13797,19 +13797,9 @@ void Player::SendPreparedGossip(WorldObject* source)
     if (!source)
         return;
 
-    if (source->GetTypeId() == TYPEID_UNIT)
+    if (source->GetTypeId() == TYPEID_UNIT || source->GetTypeId() == TYPEID_GAMEOBJECT)
     {
-        // in case no gossip flag and quest menu not empty, open quest menu (client expect gossip menu with this flag)
-        if (!source->ToCreature()->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP) && !PlayerTalkClass->GetQuestMenu().Empty())
-        {
-            SendPreparedQuest(source->GetGUID());
-            return;
-        }
-    }
-    else if (source->GetTypeId() == TYPEID_GAMEOBJECT)
-    {
-        // probably need to find a better way here
-        if (!PlayerTalkClass->GetGossipMenu().GetMenuId() && !PlayerTalkClass->GetQuestMenu().Empty())
+        if (PlayerTalkClass->GetGossipMenu().Empty() && !PlayerTalkClass->GetQuestMenu().Empty())
         {
             SendPreparedQuest(source->GetGUID());
             return;
@@ -14072,18 +14062,21 @@ void Player::SendPreparedQuest(ObjectGuid guid)
     QuestMenu& questMenu = PlayerTalkClass->GetQuestMenu();
     if (questMenu.Empty())
         return;
-
+    
     // single element case
     if (questMenu.GetMenuItemCount() == 1)
     {
         QuestMenuItem const& qmi0 = questMenu.GetItem(0);
         uint32 questId = qmi0.QuestId;
 
-        // Auto open -- maybe also should verify there is no greeting
+        // Auto open
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
         {
             if (qmi0.QuestIcon == 4)
+            {
                 PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanRewardQuest(quest, false), true);
+                return;
+            }
             // Send completable on repeatable and autoCompletable quest if player don't have quest
             /// @todo verify if check for !quest->IsDaily() is really correct (possibly not)
             else
@@ -14095,62 +14088,63 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                     return;
                 }
 
-                if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
-                    AddQuestAndCheckCompletion(quest, object);
+                if (object->GetTypeId() != TYPEID_UNIT || object->ToCreature()->GetUInt32Value(UNIT_NPC_FLAGS) & UNIT_NPC_FLAG_GOSSIP)
+                {
+                    if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
+                        AddQuestAndCheckCompletion(quest, object);
 
-                if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
-                    PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
-                else
-                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true);
+                    if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
+                        PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
+                    else
+                        PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true);
+                    return;
+                }
             }
         }
     }
-    // multiple entries
-    else
-    {
-        QEmote qe;
-        qe._Delay = 0;
-        qe._Emote = 0;
-        std::string title = "";
 
-        // need pet case for some quests
-        Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
-        if (creature)
+    QEmote qe;
+    qe._Delay = 0;
+    qe._Emote = 0;
+    std::string title = "";
+
+    // need pet case for some quests
+    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
+    if (creature)
+    {
+        uint32 textid = GetGossipTextId(creature);
+        GossipText const* gossiptext = sObjectMgr->GetGossipText(textid);
+        if (!gossiptext)
         {
-            uint32 textid = GetGossipTextId(creature);
-            GossipText const* gossiptext = sObjectMgr->GetGossipText(textid);
-            if (!gossiptext)
+            qe._Delay = 0;                              //TEXTEMOTE_MESSAGE;              //zyg: player emote
+            qe._Emote = 0;                              //TEXTEMOTE_HELLO;                //zyg: NPC emote
+            title.clear();
+        }
+        else
+        {
+            qe = gossiptext->Options[0].Emotes[0];
+
+            if (!gossiptext->Options[0].Text_0.empty())
             {
-                qe._Delay = 0;                              //TEXTEMOTE_MESSAGE;              //zyg: player emote
-                qe._Emote = 0;                              //TEXTEMOTE_HELLO;                //zyg: NPC emote
-                title.clear();
+                title = gossiptext->Options[0].Text_0;
+
+                int loc_idx = GetSession()->GetSessionDbLocaleIndex();
+                if (loc_idx >= 0)
+                    if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
+                        ObjectMgr::GetLocaleString(nl->Text_0[0], loc_idx, title);
             }
             else
             {
-                qe = gossiptext->Options[0].Emotes[0];
+                title = gossiptext->Options[0].Text_1;
 
-                if (!gossiptext->Options[0].Text_0.empty())
-                {
-                    title = gossiptext->Options[0].Text_0;
-
-                    int loc_idx = GetSession()->GetSessionDbLocaleIndex();
-                    if (loc_idx >= 0)
-                        if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
-                            ObjectMgr::GetLocaleString(nl->Text_0[0], loc_idx, title);
-                }
-                else
-                {
-                    title = gossiptext->Options[0].Text_1;
-
-                    int loc_idx = GetSession()->GetSessionDbLocaleIndex();
-                    if (loc_idx >= 0)
-                        if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
-                            ObjectMgr::GetLocaleString(nl->Text_1[0], loc_idx, title);
-                }
+                int loc_idx = GetSession()->GetSessionDbLocaleIndex();
+                if (loc_idx >= 0)
+                    if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
+                        ObjectMgr::GetLocaleString(nl->Text_1[0], loc_idx, title);
             }
         }
-        PlayerTalkClass->SendQuestGiverQuestList(qe, title, guid);
     }
+    PlayerTalkClass->SendQuestGiverQuestList(qe, title, guid);
 }
 
 bool Player::IsActiveQuest(uint32 quest_id) const
