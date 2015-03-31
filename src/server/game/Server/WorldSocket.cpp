@@ -832,13 +832,15 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
 
             if (maxAllowed && _OverSpeedPings > maxAllowed)
             {
-                std::lock_guard<std::mutex> sessionGuard(_worldSessionLock);
+                std::unique_lock<std::mutex> sessionGuard(_worldSessionLock);
 
                 if (_worldSession && !_worldSession->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_OVERSPEED_PING))
                 {
                     TC_LOG_ERROR("network", "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
                         _worldSession->GetPlayerInfo().c_str(), GetRemoteIpAddress().to_string().c_str());
 
+                    // this is bad but we will pretend this code isn't here - it only happens once per socket in worst case
+                    sessionGuard.unlock();
                     CloseSocket();
                     return;
                 }
