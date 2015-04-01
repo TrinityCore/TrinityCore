@@ -2344,7 +2344,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteria const* achieve
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
-            return false
+            return false;
         default:
             break;
     }
