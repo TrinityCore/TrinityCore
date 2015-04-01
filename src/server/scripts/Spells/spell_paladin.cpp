@@ -1112,7 +1112,7 @@ class spell_pal_templar_s_verdict : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_templar_s_verdict_SpellScript);
 
-            bool Validate (SpellInfo const* /*spellEntry*/)
+            bool Validate (SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
                     return false;

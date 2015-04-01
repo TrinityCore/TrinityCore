@@ -78,7 +78,7 @@ public:
             frenzy = false;
         }
 
-        void Reset()
+        void Reset() override
         {
             BossAI::Reset();
             Initialize();
