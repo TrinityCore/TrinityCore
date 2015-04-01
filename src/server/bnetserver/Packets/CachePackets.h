@@ -49,7 +49,7 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
-            void CallHandler(Session* session);
+            void CallHandler(Session* session) override;
 
             std::string Channel;
             std::string ItemName;
