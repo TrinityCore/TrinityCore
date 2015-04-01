@@ -1215,36 +1215,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 else
                     SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
-            {
-                uint32 reqTeamType = achievementCriteria->Entry->Asset.TeamType;
-
-                if (miscValue1)
-                {
-                    if (miscValue2 != reqTeamType)
-                        continue;
-
-                    SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
-                }
-                else // login case
-                {
-                    for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
-                    {
-                        uint32 teamId = referencePlayer->GetArenaTeamId(arena_slot);
-                        if (!teamId)
-                            continue;
-
-                        ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(teamId);
-                        if (!team || team->GetType() != reqTeamType)
-                            continue;
-
-                        SetCriteriaProgress(achievementCriteria, team->GetStats().Rating, referencePlayer, PROGRESS_HIGHEST);
-                        break;
-                    }
-                }
-
-                break;
-            }
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING:
             {
                 uint32 reqTeamType = achievementCriteria->Entry->Asset.TeamType;
@@ -1283,6 +1253,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             // FIXME: not triggered in code as result, need to implement
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
             case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
             case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
@@ -2143,7 +2114,6 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteria const* achieve
         case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING:
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
         case ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
         case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
@@ -2373,6 +2343,8 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteria const* achieve
             if (miscValue1 != achievementCriteria->Entry->Asset.MapID)
                 return false;
             break;
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
+            return false
         default:
             break;
     }

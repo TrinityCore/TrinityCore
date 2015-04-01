@@ -137,11 +137,11 @@ void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* na
 /// Correspondence between opcodes and their names
 void OpcodeTable::Initialize()
 {
-#define DEFINE_OPCODE_HANDLER_OLD(opcode, status, processing, handler) \
-    ValidateAndSetClientOpcode<WorldPacket, handler>(opcode, #opcode, status, processing);
-
 #define DEFINE_HANDLER(opcode, status, processing, packetclass, handler) \
     ValidateAndSetClientOpcode<packetclass, handler>(opcode, #opcode, status, processing);
+
+#define DEFINE_OPCODE_HANDLER_OLD(opcode, status, processing, handler) \
+    DEFINE_HANDLER(opcode, status, processing, WorldPacket, handler);
 
     DEFINE_HANDLER(CMSG_ACCEPT_GUILD_INVITE,                                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Guild::AcceptGuildInvite, &WorldSession::HandleGuildAcceptInvite);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ACCEPT_LEVEL_GRANT,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptGrantLevel          );
