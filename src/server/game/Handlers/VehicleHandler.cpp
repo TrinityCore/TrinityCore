@@ -66,7 +66,6 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
 
     switch (recvData.GetOpcode())
     {
-        /*
         case CMSG_REQUEST_VEHICLE_PREV_SEAT:
             GetPlayer()->ChangeSeat(-1, false);
             break;
@@ -133,7 +132,6 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
                         vehUnit->HandleSpellClick(GetPlayer(), seatId);
             break;
         }
-        */
         default:
             break;
     }
