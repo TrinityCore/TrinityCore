@@ -2238,7 +2238,7 @@ class Player : public Unit, public GridObject<Player>
         int32 CalculateCorpseReclaimDelay(bool load = false);
         void SendCorpseReclaimDelay(uint32 delay);
 
-        uint32 GetBlockPercent() const { return GetUInt32Value(PLAYER_SHIELD_BLOCK); }
+        uint32 GetBlockPercent() const override { return GetUInt32Value(PLAYER_SHIELD_BLOCK); }
         bool CanParry() const { return m_canParry; }
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
@@ -2603,7 +2603,7 @@ class Player : public Unit, public GridObject<Player>
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
         void SendMovementSetCollisionHeight(float height);
 
-        bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
+        bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
         //! Return collision height sent to client
         float GetCollisionHeight(bool mounted) const;
