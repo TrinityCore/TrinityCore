@@ -71,8 +71,6 @@ WorldPackets::Mail::MailListEntry::MailListEntry(::Mail const* mail, ::Player* p
     {
         case MAIL_NORMAL:
             SenderCharacter.Set(ObjectGuid::Create<HighGuid::Player>(mail->sender));
-            SenderHint.NativeRealmAddress.Set(GetVirtualRealmAddress());
-            SenderHint.VirtualRealmAddress.Set(GetVirtualRealmAddress());
             break;
         case MAIL_CREATURE:
         case MAIL_GAMEOBJECT:
@@ -103,8 +101,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
 {
     data << int32(entry.MailID);
     data << int8(entry.SenderType);
-
-    data << entry.SenderHint;
 
     data << int64(entry.Cod);
     data << int32(entry.PackageID);

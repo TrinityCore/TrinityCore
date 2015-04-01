@@ -43,7 +43,7 @@ enum OpcodeMisc : uint32
     NULL_OPCODE                                       = 0xBADD
 };
 
-// CMSGs 6.0.3.19342
+// CMSGs 6.1.2.19802
 enum OpcodeClient : uint32
 {
     CMSG_ACCEPT_GUILD_INVITE                          = 0x0B36,
@@ -726,7 +726,7 @@ enum OpcodeClient : uint32
     CMSG_WRAP_ITEM                                    = 0x0528,
 };
 
-// SMSGs 6.0.3.19342
+// SMSGs 6.1.2.19802
 enum OpcodeServer : uint32
 {
     SMSG_ABORT_NEW_WORLD                              = 0x0740,
