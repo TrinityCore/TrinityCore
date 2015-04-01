@@ -845,8 +845,3 @@ void WorldSession::HandleRequestPvpReward(WorldPacket& /*recvData*/)
 
     _player->SendPvpRewards();
 }
-
-void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
-{
-    // deleted opcode
-}

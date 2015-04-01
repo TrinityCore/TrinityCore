@@ -457,19 +457,6 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
     //    pvp->HandlePlayerActivityChanged(_player);
 }
 
-void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)
-{
-    uint32 newZone;
-    recvData >> newZone;
-
-    TC_LOG_DEBUG("network", "WORLD: Recvd ZONE_UPDATE: %u", newZone);
-
-    // use server side data, but only after update the player position. See Player::UpdatePosition().
-    GetPlayer()->SetNeedsZoneUpdate(true);
-
-    //GetPlayer()->SendInitWorldStates(true, newZone);
-}
-
 void WorldSession::HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& /*packet*/)
 {
     if (GetPlayer()->IsAlive() || !GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
@@ -941,7 +928,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPackets::Character::SetActionB
     GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, packet.Mask);
 }
 
-void WorldSession::HandlePlayedTime(WorldPackets::Character::PlayedTimeClient& packet)
+void WorldSession::HandlePlayedTime(WorldPackets::Character::RequestPlayedTime& packet)
 {
     WorldPackets::Character::PlayedTime playedTime;
     playedTime.TotalTime = _player->GetTotalPlayedTime();

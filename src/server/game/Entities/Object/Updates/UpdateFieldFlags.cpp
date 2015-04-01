@@ -461,6 +461,9 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_LOOKS_LIKE_CREATURE_ID
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_LOOK_AT_CONTROLLER_ID
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET
+    UF_FLAG_PUBLIC,                                         // UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET+1
+    UF_FLAG_PUBLIC,                                         // UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET+2
+    UF_FLAG_PUBLIC,                                         // UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET+3
     UF_FLAG_PUBLIC,                                         // PLAYER_DUEL_ARBITER
     UF_FLAG_PUBLIC,                                         // PLAYER_DUEL_ARBITER+1
     UF_FLAG_PUBLIC,                                         // PLAYER_DUEL_ARBITER+2

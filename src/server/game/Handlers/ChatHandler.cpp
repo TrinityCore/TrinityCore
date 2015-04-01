@@ -47,25 +47,25 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& pack
 
     switch (packet.GetOpcode())
     {
-        case CMSG_MESSAGECHAT_SAY:
+        case CMSG_CHAT_MESSAGE_SAY:
             type = CHAT_MSG_SAY;
             break;
-        case CMSG_MESSAGECHAT_YELL:
+        case CMSG_CHAT_MESSAGE_YELL:
             type = CHAT_MSG_YELL;
             break;
-        case CMSG_MESSAGECHAT_GUILD:
+        case CMSG_CHAT_MESSAGE_GUILD:
             type = CHAT_MSG_GUILD;
             break;
-        case CMSG_MESSAGECHAT_OFFICER:
+        case CMSG_CHAT_MESSAGE_OFFICER:
             type = CHAT_MSG_OFFICER;
             break;
-        case CMSG_MESSAGECHAT_PARTY:
+        case CMSG_CHAT_MESSAGE_PARTY:
             type = CHAT_MSG_PARTY;
             break;
-        case CMSG_MESSAGECHAT_RAID:
+        case CMSG_CHAT_MESSAGE_RAID:
             type = CHAT_MSG_RAID;
             break;
-        case CMSG_MESSAGECHAT_RAID_WARNING:
+        case CMSG_CHAT_MESSAGE_RAID_WARNING:
             type = CHAT_MSG_RAID_WARNING;
             break;
         default:
@@ -378,16 +378,16 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
 
     switch (packet.GetOpcode())
     {
-        case CMSG_MESSAGECHAT_ADDON_GUILD:
+        case CMSG_CHAT_ADDON_MESSAGE_GUILD:
             type = CHAT_MSG_GUILD;
             break;
-        case CMSG_MESSAGECHAT_ADDON_OFFICER:
+        case CMSG_CHAT_ADDON_MESSAGE_OFFICER:
             type = CHAT_MSG_OFFICER;
             break;
-        case CMSG_MESSAGECHAT_ADDON_PARTY:
+        case CMSG_CHAT_ADDON_MESSAGE_PARTY:
             type = CHAT_MSG_PARTY;
             break;
-        case CMSG_MESSAGECHAT_ADDON_RAID:
+        case CMSG_CHAT_ADDON_MESSAGE_RAID:
             type = CHAT_MSG_RAID;
             break;
         default:

@@ -215,10 +215,10 @@ namespace WorldPackets
             Position Pos;
         };
 
-        class WorldPortAck final : public ClientPacket
+        class WorldPortResponse final : public ClientPacket
         {
         public:
-            WorldPortAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_WORLDPORT_ACK, std::move(packet)) { }
+            WorldPortResponse(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_PORT_RESPONSE, std::move(packet)) { }
 
             void Read() override { }
         };

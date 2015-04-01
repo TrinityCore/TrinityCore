@@ -33,7 +33,7 @@ namespace WorldPackets
         class QueryCreature final : public ClientPacket
         {
         public:
-            QueryCreature(WorldPacket&& packet) : ClientPacket(CMSG_CREATURE_QUERY, std::move(packet)) { }
+            QueryCreature(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_CREATURE, std::move(packet)) { }
 
             void Read() override;
 
@@ -82,7 +82,7 @@ namespace WorldPackets
         class QueryPlayerName final : public ClientPacket
         {
         public:
-            QueryPlayerName(WorldPacket&& packet) : ClientPacket(CMSG_NAME_QUERY, std::move(packet)) { }
+            QueryPlayerName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PLAYER_NAME, std::move(packet)) { }
 
             void Read() override;
 
@@ -121,7 +121,7 @@ namespace WorldPackets
         class QueryPageText final : public ClientPacket
         {
         public:
-            QueryPageText(WorldPacket&& packet) : ClientPacket(CMSG_PAGE_TEXT_QUERY, std::move(packet)) { }
+            QueryPageText(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PAGE_TEXT, std::move(packet)) { }
 
             void Read() override;
 
@@ -151,7 +151,7 @@ namespace WorldPackets
         class QueryNPCText final : public ClientPacket
         {
         public:
-            QueryNPCText(WorldPacket&& packet) : ClientPacket(CMSG_NPC_TEXT_QUERY, std::move(packet)) { }
+            QueryNPCText(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_NPC_TEXT, std::move(packet)) { }
 
             void Read() override;
 
@@ -215,7 +215,7 @@ namespace WorldPackets
         class QueryGameObject final : public ClientPacket
         {
         public:
-            QueryGameObject(WorldPacket&& packet) : ClientPacket(CMSG_GAMEOBJECT_QUERY, std::move(packet)) { }
+            QueryGameObject(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_GAME_OBJECT, std::move(packet)) { }
 
             void Read() override;
 

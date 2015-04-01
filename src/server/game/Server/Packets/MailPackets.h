@@ -75,7 +75,7 @@ namespace WorldPackets
         class MailGetList final : public ClientPacket
         {
         public:
-            MailGetList(WorldPacket&& packet) : ClientPacket(CMSG_GET_MAIL_LIST, std::move(packet)) { }
+            MailGetList(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_GET_LIST, std::move(packet)) { }
 
             void Read() override;
 

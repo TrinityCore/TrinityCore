@@ -56,7 +56,8 @@ char const* ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
     "SmartScript",
     "Npc Vendor",
     "Spell Proc",
-    "Phase Def"
+    "Terrain Swap",
+    "Phase"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -99,8 +100,9 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Distance",             true, true,  true  },
     { "Alive",               false, false, false },
     { "Health Value",         true, true,  false },
-    { "Health Pct",           true, true, false  },
-    { "Realm Achievement",    true, false, false }
+    { "Health Pct",           true, true,  false },
+    { "Realm Achievement",    true, false, false },
+    { "Terrain Swap",         true, false, false }
 };
 
 // Checks if object meets the condition
@@ -2063,14 +2065,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 TC_LOG_ERROR("sql.sql", "%s has nonexistent phaseid in value1 (%u), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
-            break;
-        }
-        case CONDITION_TERRAIN_SWAP:
-        {
-            if (cond->ConditionValue2)
-                TC_LOG_ERROR("sql.sql", "Terrain swap condition has useless data in value2 (%u)!", cond->ConditionValue2);
-            if (cond->ConditionValue3)
-                TC_LOG_ERROR("sql.sql", "Terrain swap condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
         case CONDITION_TITLE:

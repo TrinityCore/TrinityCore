@@ -1408,6 +1408,14 @@ public:
             return false;
         }
 
+        if (target->GetTypeId() == TYPEID_UNIT)
+        {
+            if (target->ToCreature()->GetDBPhase() > 0)
+                handler->PSendSysMessage("Target creature's PhaseId in DB: %d", target->ToCreature()->GetDBPhase());
+            else if (target->ToCreature()->GetDBPhase() < 0)
+                handler->PSendSysMessage("Target creature's PhaseGroup in DB: %d", abs(target->ToCreature()->GetDBPhase()));
+        }
+
         std::stringstream phases;
 
         for (uint32 phase : target->GetPhases())
