@@ -387,59 +387,6 @@ void ArenaTeam::Disband()
     sArenaTeamMgr->RemoveArenaTeam(TeamId);
 }
 
-void ArenaTeam::Roster(WorldSession* session)
-{
-    Player* player = NULL;
-
-    uint8 unk308 = 0;
-
-    WorldPacket data(SMSG_ARENA_TEAM_ROSTER, 100);
-    data << uint32(GetId());                                    // team id
-    data << uint8(unk308);                                      // 3.0.8 unknown value but affect packet structure
-    data << uint32(GetMembersSize());                           // members count
-    data << uint32(GetType());                                  // arena team type?
-
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-    {
-        player = ObjectAccessor::FindConnectedPlayer(itr->Guid);
-
-        data << itr->Guid;                                      // guid
-        data << uint8((player ? 1 : 0));                        // online flag
-        data << itr->Name;                                      // member name
-        data << uint32((itr->Guid == GetCaptain() ? 0 : 1));    // captain flag 0 captain 1 member
-        data << uint8((player ? player->getLevel() : 0));       // unknown, level?
-        data << uint8(itr->Class);                              // class
-        data << uint32(itr->WeekGames);                         // played this week
-        data << uint32(itr->WeekWins);                          // wins this week
-        data << uint32(itr->SeasonGames);                       // played this season
-        data << uint32(itr->SeasonWins);                        // wins this season
-        data << uint32(itr->PersonalRating);                    // personal rating
-        //if (unk308)
-        //{
-        //    data << float(0.0f);                              // 308 unk
-        //    data << float(0.0f);                              // 308 unk
-        //}
-    }
-
-    session->SendPacket(&data);
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_ARENA_TEAM_ROSTER");
-}
-
-void ArenaTeam::Query(WorldSession* session)
-{
-    WorldPacket data(SMSG_ARENA_TEAM_QUERY_RESPONSE, 4*7+GetName().size()+1);
-    data << uint32(GetId());                                // team id
-    data << GetName();                                      // team name
-    data << uint32(GetType());                              // arena team type (2=2x2, 3=3x3 or 5=5x5)
-    data << uint32(BackgroundColor);                        // background color
-    data << uint32(EmblemStyle);                            // emblem style
-    data << uint32(EmblemColor);                            // emblem color
-    data << uint32(BorderStyle);                            // border style
-    data << uint32(BorderColor);                            // border color
-    session->SendPacket(&data);
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_ARENA_TEAM_QUERY_RESPONSE");
-}
-
 void ArenaTeam::SendStats(WorldSession* session)
 {
     WorldPacket data(SMSG_ARENA_TEAM_STATS, 4*7);
@@ -507,54 +454,6 @@ void ArenaTeam::BroadcastPacket(WorldPacket* packet)
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
         if (Player* player = ObjectAccessor::FindConnectedPlayer(itr->Guid))
             player->GetSession()->SendPacket(packet);
-}
-
-void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, ObjectGuid guid, uint8 strCount, std::string const& str1, std::string const& str2, std::string const& str3)
-{
-    WorldPacket data(SMSG_ARENA_TEAM_EVENT, 1+1+1);
-    data << uint8(event);
-    data << uint8(strCount);
-    switch (strCount)
-    {
-        case 0:
-            break;
-        case 1:
-            data << str1;
-            break;
-        case 2:
-            data << str1 << str2;
-            break;
-        case 3:
-            data << str1 << str2 << str3;
-            break;
-        default:
-            TC_LOG_ERROR("bg.arena", "Unhandled strCount %u in ArenaTeam::BroadcastEvent", strCount);
-            return;
-    }
-
-    if (!guid.IsEmpty())
-        data << guid;
-
-    BroadcastPacket(&data);
-
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_ARENA_TEAM_EVENT");
-}
-
-void ArenaTeam::MassInviteToEvent(WorldSession* session)
-{
-    WorldPacket data(SMSG_CALENDAR_ARENA_TEAM, (Members.size() - 1) * (4 + 8 + 1));
-    data << uint32(Members.size() - 1);
-
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-    {
-        if (itr->Guid != session->GetPlayer()->GetGUID())
-        {
-            data << itr->Guid.WriteAsPacked();
-            data << uint8(0); // unk
-        }
-    }
-
-    session->SendPacket(&data);
 }
 
 uint8 ArenaTeam::GetSlotByType(uint32 type)

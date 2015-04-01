@@ -1635,14 +1635,8 @@ enum OpcodeServer : uint32
     SMSG_ZONE_UNDER_ATTACK                            = 0x14CF,
 
     // Deleted opcodes, here only to allow compile
-    SMSG_ARENA_TEAM_COMMAND_RESULT                    = 0xBADD,
-    SMSG_ARENA_TEAM_EVENT                             = 0xBADD,
-    SMSG_ARENA_TEAM_INVITE                            = 0xBADD,
-    SMSG_ARENA_TEAM_QUERY_RESPONSE                    = 0xBADD,
-    SMSG_ARENA_TEAM_ROSTER                            = 0xBADD,
     SMSG_ARENA_TEAM_STATS                             = 0xBADD,
     SMSG_BUY_BANK_SLOT_RESULT                         = 0xBADD,
-    SMSG_CALENDAR_ARENA_TEAM                          = 0xBADD,
 };
 
 inline bool IsInstanceOnlyOpcode(uint32 opcode)
