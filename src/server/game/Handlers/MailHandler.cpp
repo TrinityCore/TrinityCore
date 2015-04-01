@@ -575,21 +575,19 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
         player->_LoadMail();
 
     WorldPackets::Mail::MailListResult response;
-    response.TotalNumRecords = player->GetMailSize();
-
-    time_t cur_time = time(nullptr);
+    time_t curTime = time(nullptr);
 
     for (Mail* m : player->GetMails())
     {
         // skip deleted or not delivered (deliver delay not expired) mails
-        if (m->state == MAIL_STATE_DELETED || cur_time < m->deliver_time)
+        if (m->state == MAIL_STATE_DELETED || curTime < m->deliver_time)
             continue;
 
-        response.Mails.emplace_back(m, player);
-
         // max. 50 mails can be sent
-        if (response.Mails.size() >= 50)
-            break;
+        if (response.Mails.size() < 50)
+            response.Mails.emplace_back(m, player);
+
+        ++response.TotalNumRecords;
     }
 
     SendPacket(response.Write());
