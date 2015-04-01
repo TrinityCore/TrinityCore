@@ -91,7 +91,7 @@ namespace
     class SelectionStore : public RWLockable
     {
     public:
-        struct Selection { uint8 slot; uint32 offset; uint32 quality; };
+        struct Selection { uint32 item; uint8 slot; uint32 offset; uint32 quality; };
         typedef UNORDERED_MAP<uint32, Selection> PlayerLowToSelection;
 
         void SetSelection(uint32 playerLow, const Selection& selection)
@@ -473,10 +473,42 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
             }
         }
 
-        optionDataList oM = optionMap[(itemTransmogrified->GetTemplate()->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTransmogrified->GetTemplate()->SubClass][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
-        optionDataList::iterator it = oM.begin();
-        std::advance(it, selection.offset + vendorslot);
-        if (it == oM.end() || (*it) != itemEntry)
+        // {{entry}, {entry}, ...}
+        std::list<uint32> L;
+        uint32 counter = 0;
+        if (itemTransmogrified->GetTemplate()->Class != ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedArmorTypes)
+        {
+            for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_ARMOR; ++i)
+            {
+                const optionDataList& oM = optionMap[MAX_ITEM_SUBCLASS_WEAPON + i][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
+                if (counter + oM.size() < selection.offset)
+                    counter += oM.size();
+                else
+                    L.insert(L.end(), oM.begin(), oM.end());
+            }
+        }
+        else if (itemTransmogrified->GetTemplate()->Class == ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedWeaponTypes)
+        {
+            for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_WEAPON; ++i)
+            {
+                const optionDataList& oM = optionMap[i][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
+                if (counter + oM.size() < selection.offset)
+                    counter += oM.size();
+                else
+                    L.insert(L.end(), oM.begin(), oM.end());
+            }
+        }
+        else
+        {
+            const optionDataList& oM = optionMap[(itemTransmogrified->GetTemplate()->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTransmogrified->GetTemplate()->SubClass][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
+            if (counter + oM.size() < selection.offset)
+                counter += oM.size();
+            else
+                L.insert(L.end(), oM.begin(), oM.end());
+        }
+        std::list<uint32>::const_iterator it = L.begin();
+        std::advance(it, (selection.offset - counter) + vendorslot);
+        if (it == L.end() || (*it) != itemEntry)
         {
             player->GetSession()->SendNotification("Equipped item is not suitable for selected transmogrification");
             return; // either cheat or changed items (not found in correct place in transmog vendor view)
@@ -544,6 +576,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
+        player->PlayerTalkClass->ClearMenus();
         selectionStore.RemoveSelection(player->GetGUIDLow());
         WorldSession* session = player->GetSession();
         for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; slot++)
@@ -574,20 +607,41 @@ public:
                     return true;
                 }
                 const ItemTemplate * itemTemplate = item->GetTemplate();
-                optionData* oM = &optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)];
-                if (!oM->size())
-                {
-                    if (const char* slotname = TransmogDisplayVendorMgr::getSlotName(action, player->GetSession()))
-                        session->SendNotification("No transmogrifications available for %s", slotname);
-                    OnGossipHello(player, creature);
-                    return true;
-                }
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, (std::string)"Update selected; " + getItemName(itemTemplate, session), sender, action);
-                for (optionData::iterator it = oM->begin(); it != oM->end(); ++it)
+
+                // [quality] = {size}
+                std::map<uint32, uint32> L;
+                if (itemTemplate->Class != ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedArmorTypes)
                 {
-                    if (!TransmogDisplayVendorMgr::IsAllowedQuality(it->first)) // skip not allowed qualities
-                        continue;
-                    for (uint32 count = 0; count*MAX_VENDOR_ITEMS < it->second.size(); ++count)
+                    for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_ARMOR; ++i)
+                    {
+                        const optionData& oM = optionMap[MAX_ITEM_SUBCLASS_WEAPON + i][getCorrectInvType(itemTemplate->InventoryType)];
+                        for (optionData::const_iterator it = oM.begin(); it != oM.end(); ++it)
+                            if (TransmogDisplayVendorMgr::IsAllowedQuality(it->first)) // skip not allowed qualities
+                                L[it->first] += it->second.size();
+                    }
+                }
+                else if (itemTemplate->Class == ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedWeaponTypes)
+                {
+                    for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_WEAPON; ++i)
+                    {
+                        const optionData& oM = optionMap[i][getCorrectInvType(itemTemplate->InventoryType)];
+                        for (optionData::const_iterator it = oM.begin(); it != oM.end(); ++it)
+                            if (TransmogDisplayVendorMgr::IsAllowedQuality(it->first)) // skip not allowed qualities
+                                L[it->first] += it->second.size();
+                    }
+                }
+                else
+                {
+                    const optionData& oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)];
+                    for (optionData::const_iterator it = oM.begin(); it != oM.end(); ++it)
+                        if (TransmogDisplayVendorMgr::IsAllowedQuality(it->first)) // skip not allowed qualities
+                            L[it->first] += it->second.size();
+                }
+
+                for (std::map<uint32, uint32>::const_iterator it = L.begin(); it != L.end(); ++it)
+                {
+                    for (uint32 count = 0; count*MAX_VENDOR_ITEMS < it->second; ++count)
                     {
                         std::ostringstream ss;
                         ss << getQualityName(it->first);
@@ -596,15 +650,16 @@ public:
                         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, ss.str().c_str(), it->first, count*MAX_VENDOR_ITEMS);
                     }
                 }
+
                 if (player->PlayerTalkClass->GetGossipMenu().GetMenuItemCount() <= 1)
                 {
                     if (const char* slotname = TransmogDisplayVendorMgr::getSlotName(action, player->GetSession()))
                         session->SendNotification("No transmogrifications available for %s", slotname);
-                    player->PlayerTalkClass->ClearMenus();
                     OnGossipHello(player, creature);
                     return true;
                 }
-                SelectionStore::Selection temp = { action, 0, 0 }; // slot, offset, quality
+
+                SelectionStore::Selection temp = { item->GetEntry(), action, 0, 0 }; // entry, slot, offset, quality
                 selectionStore.SetSelection(player->GetGUIDLow(), temp);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Back..", SENDER_BACK, 0);
                 player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
@@ -673,28 +728,66 @@ public:
             {
                 if (sender >= MAX_ITEM_QUALITY) // sender = quality, action = iterator
                     return false; // cheat
+
                 SelectionStore::Selection selection;
                 if (!selectionStore.GetSelection(player->GetGUIDLow(), selection))
                     return false; // cheat
                 if (selection.offset != 0 || selection.quality != 0)
                     return false; // cheat (something is off)
+
                 selection.offset = action;
                 selection.quality = sender;
                 uint32 slot = selection.slot; // slot
                 selectionStore.SetSelection(player->GetGUIDLow(), selection);
-                if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+
+                if (const ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(selection.item))
                 {
-                    if (!TransmogDisplayVendorMgr::SuitableForTransmogrification(player, item->GetTemplate()))
+                    if (!TransmogDisplayVendorMgr::SuitableForTransmogrification(player, itemTemplate))
                     {
                         player->GetSession()->SendNotification("Equipped item is not suitable for transmogrification");
                         OnGossipSelect(player, creature, SENDER_SELECT_VENDOR, slot);
                         return true;
                     }
 
-                    optionDataList oM = optionMap[(item->GetTemplate()->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + item->GetTemplate()->SubClass][getCorrectInvType(item->GetTemplate()->InventoryType)][selection.quality];
-                    uint32 itemCount = (oM.size() - selection.offset);
+                    // {{entry}, {entry}, ...}
+                    std::list<uint32> L;
+                    uint32 counter = 0;
+                    if (itemTemplate->Class != ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedArmorTypes)
+                    {
+                        for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_ARMOR; ++i)
+                        {
+                            const optionDataList& oM = optionMap[MAX_ITEM_SUBCLASS_WEAPON + i][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
+                            if (counter + oM.size() < selection.offset)
+                                counter += oM.size();
+                            else
+                                L.insert(L.end(), oM.begin(), oM.end());
+                        }
+                    }
+                    else if (itemTemplate->Class == ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedWeaponTypes)
+                    {
+                        for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_WEAPON; ++i)
+                        {
+                            const optionDataList& oM = optionMap[i][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
+                            if (counter + oM.size() < selection.offset)
+                                counter += oM.size();
+                            else
+                                L.insert(L.end(), oM.begin(), oM.end());
+                        }
+                    }
+                    else
+                    {
+                        const optionDataList& oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
+                        if (counter + oM.size() < selection.offset)
+                            counter += oM.size();
+                        else
+                            L.insert(L.end(), oM.begin(), oM.end());
+                    }
+
+                    // optionDataList oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
+                    uint32 itemCount = L.size() - (selection.offset - counter);
                     if (itemCount > MAX_VENDOR_ITEMS)
                         itemCount = MAX_VENDOR_ITEMS;
+
                     if (!itemCount)
                     {
                         session->SendAreaTriggerMessage("No items found");
@@ -718,6 +811,7 @@ public:
 
                     if (vendor->HasUnitState(UNIT_STATE_MOVING))
                         vendor->StopMoving();
+
                     uint8 count = 0;
 
                     WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
@@ -727,22 +821,22 @@ public:
                     data << uint8(count);
 
                     uint32 item_amount = 0;
-                    optionDataList::iterator it = oM.begin();
-                    std::advance(it, selection.offset);
-                    for (; it != oM.end() && count < itemCount; ++it, ++count)
+                    std::list<uint32>::const_iterator it = L.begin();
+                    std::advance(it, (selection.offset - counter));
+                    for (; it != L.end() && count < itemCount; ++it, ++count)
                     {
-                        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(*it))
+                        if (ItemTemplate const* curtemp = sObjectMgr->GetItemTemplate(*it))
                         {
-                            if (!TransmogDisplayVendorMgr::CanTransmogrifyItemWithItem(player, item->GetTemplate(), itemTemplate))
+                            if (!TransmogDisplayVendorMgr::CanTransmogrifyItemWithItem(player, itemTemplate, curtemp))
                                 continue;
 
                             data << uint32(count + 1);
-                            data << uint32(itemTemplate->ItemId);
-                            data << uint32(itemTemplate->DisplayInfoID);
+                            data << uint32(curtemp->ItemId);
+                            data << uint32(curtemp->DisplayInfoID);
                             data << int32(0xFFFFFFFF);
                             data << uint32(0);
-                            data << uint32(itemTemplate->MaxDurability);
-                            data << uint32(itemTemplate->BuyCount);
+                            data << uint32(curtemp->MaxDurability);
+                            data << uint32(curtemp->BuyCount);
                             data << uint32(0);
                             ++item_amount;
                         }
@@ -762,7 +856,7 @@ public:
                 }
                 else
                 {
-                    session->SendNotification("No item equipped");
+                    session->SendNotification("Invalid item equipped");
                     OnGossipSelect(player, creature, SENDER_SELECT_VENDOR, slot);
                     return true;
                 }
@@ -917,10 +1011,10 @@ public:
                     continue;
                 if (displays.find(itr->second.DisplayInfoID) != displays.end()) // skip duplicate item displays
                     continue;
-                optionDataList* oM = &optionMap[(itr->second.Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itr->second.SubClass][getCorrectInvType(itr->second.InventoryType)][itr->second.Quality];
-                if (oM->size() < MAX_VENDOR_ITEMS * 3)
+                optionDataList& oM = optionMap[(itr->second.Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itr->second.SubClass][getCorrectInvType(itr->second.InventoryType)][itr->second.Quality];
+                if (oM.size() < MAX_VENDOR_ITEMS * 3)
                 {
-                    oM->push_back(itr->second.ItemId);
+                    oM.push_back(itr->second.ItemId);
                     displays.insert(itr->second.DisplayInfoID);
                 }
                 else
