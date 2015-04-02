@@ -256,6 +256,7 @@ namespace WorldPackets
         class LootItem;
         class LootRelease;
         class LootMoney;
+        class LootRoll;
     }
 
     namespace Mail
@@ -939,7 +940,7 @@ class WorldSession
         void HandleGroupDisbandOpcode(WorldPacket& recvPacket);
         void HandleOptOutOfLootOpcode(WorldPacket& recvData);
         void HandleLootMethodOpcode(WorldPacket& recvPacket);
-        void HandleLootRoll(WorldPacket& recvData);
+        void HandleLootRoll(WorldPackets::Loot::LootRoll& packet);
         void HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData);
         void HandleRaidTargetUpdateOpcode(WorldPacket& recvData);
         void HandleRaidReadyCheckOpcode(WorldPacket& recvData);
