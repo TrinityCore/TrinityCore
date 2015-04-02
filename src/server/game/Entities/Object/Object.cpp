@@ -2861,10 +2861,10 @@ bool WorldObject::IsInPhase(WorldObject const* obj) const
     if (_phases.empty() && obj->GetPhases().empty())
         return true;
 
-    if (_phases.empty() && obj->IsInPhase(169))
+    if (_phases.empty() && obj->IsInPhase(DEFAULT_PHASE))
         return true;
 
-    if (obj->GetPhases().empty() && IsInPhase(169))
+    if (obj->GetPhases().empty() && IsInPhase(DEFAULT_PHASE))
         return true;
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsGameMaster())
@@ -3075,6 +3075,25 @@ void WorldObject::RebuildWorldMapAreaSwaps()
         for (uint32 swap : itr->second)
         {
             ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+            if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+            {
+                for (uint32 map : sObjectMgr->GetTerrainWorldMaps(swap))
+                    _worldMapAreaSwaps.insert(map);
+            }
+        }
+    }
+
+    // Check all applied phases for world map area swaps
+    for (uint32 phaseId : _phases)
+    {
+        std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
+
+        for (uint32 swap : swaps)
+        {
+            // add world map swaps for ANY map
+
+            ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+
             if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
             {
                 for (uint32 map : sObjectMgr->GetTerrainWorldMaps(swap))
