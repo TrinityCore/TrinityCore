@@ -7472,11 +7472,12 @@ void Player::DuelComplete(DuelCompleteType type)
     TC_LOG_DEBUG("entities.unit", "Duel Complete %s %s", GetName().c_str(), duel->opponent->GetName().c_str());
 
     WorldPackets::Duel::DuelComplete duelCompleted;
-    duelCompleted.Started = type != DUEL_INTERRUPTED ? true : false;
-    GetSession()->SendPacket(duelCompleted.Write());
+    duelCompleted.Started = type != DUEL_INTERRUPTED;
+    WorldPacket const* duelCompletedPacket = duelCompleted.Write();
+    GetSession()->SendPacket(duelCompletedPacket);
 
     if (duel->opponent->GetSession())
-        duel->opponent->GetSession()->SendPacket(duelCompleted.Write());
+        duel->opponent->GetSession()->SendPacket(duelCompletedPacket);
 
     if (type != DUEL_INTERRUPTED)
     {
