@@ -175,7 +175,8 @@ class SmartScript
             return 0;
         }
 
-        GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const        {
+        GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
+        {
             GameObject* gameObject = NULL;
 
             CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
