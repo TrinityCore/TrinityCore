@@ -170,6 +170,7 @@ namespace WorldPackets
 
     namespace Duel
     {
+        class CanDuel;
         class DuelResponse;
     }
 
@@ -1027,6 +1028,7 @@ class WorldSession
         void HandleStableSwapPetCallback(PreparedQueryResult result, uint32 petId);
         void SendTrainerBuyFailed(ObjectGuid guid, uint32 spellId, uint32 reason);
 
+        void HandleCanDuel(WorldPackets::Duel::CanDuel& packet);
         void HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse);
         void HandleDuelAccepted();
         void HandleDuelCancelled();
