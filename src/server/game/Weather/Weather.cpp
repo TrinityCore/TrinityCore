@@ -192,8 +192,10 @@ bool Weather::ReGenerate()
 
 void Weather::SendWeatherUpdateToPlayer(Player* player)
 {
-    WorldPacket data(SMSG_WEATHER, (4+4+4));
-    data << uint32(GetWeatherState()) << (float)m_grade << uint8(0);
+    WorldPacket data(SMSG_WEATHER, (4 + 4 + 1));
+    data << uint32(GetWeatherState());
+    data << (float)m_grade;
+    data << uint8(0);
     player->GetSession()->SendPacket(&data);
 }
 
@@ -208,7 +210,7 @@ bool Weather::UpdateWeather()
 
     WeatherState state = GetWeatherState();
 
-    WorldPacket data(SMSG_WEATHER, (4+4+4));
+    WorldPacket data(SMSG_WEATHER, (4 + 4 + 1));
     data << uint32(state);
     data << (float)m_grade;
     data << uint8(0);
