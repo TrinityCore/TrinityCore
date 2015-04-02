@@ -75,8 +75,9 @@ void WorldSession::HandleDuelAccepted()
     plTarget->duel->startTimer = now;
 
     WorldPackets::Duel::DuelCountdown packet(3000); // milliseconds
-    player->GetSession()->SendPacket(packet.Write());
-    plTarget->GetSession()->SendPacket(packet.Write());
+    WorldPacket const* worldPacket = packet.Write();
+    player->GetSession()->SendPacket(worldPacket);
+    plTarget->GetSession()->SendPacket(worldPacket);
 }
 
 void WorldSession::HandleDuelCancelled()
