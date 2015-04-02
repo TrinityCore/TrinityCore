@@ -10094,6 +10094,19 @@ int32 Unit::ModifyHealth(int32 dVal)
         gain = maxHealth - curHealth;
     }
 
+    if (dVal < 0)
+    {
+        WorldPackets::Combat::HealthUpdate packet;
+        packet.Guid = GetGUID();
+        packet.Health = GetHealth();
+        
+        if (GetTypeId() == TYPEID_PLAYER)
+            ToPlayer()->GetSession()->SendPacket(packet.Write());
+        else
+            if (Player* player = GetOwner()->ToPlayer())
+                player->GetSession()->SendPacket(packet.Write());
+    }
+
     return gain;
 }
 
