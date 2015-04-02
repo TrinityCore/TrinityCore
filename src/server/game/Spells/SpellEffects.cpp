@@ -3896,8 +3896,9 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     packet.RequestedByGUID = caster->GetGUID();
     packet.RequestedByWowAccount = caster->GetSession()->GetAccountGUID();
 
-    caster->GetSession()->SendPacket(packet.Write());
-    target->GetSession()->SendPacket(packet.Write());
+    WorldPacket const* worldPacket = packet.Write();
+    caster->GetSession()->SendPacket(worldPacket);
+    target->GetSession()->SendPacket(worldPacket);
 
     // create duel-info
     DuelInfo* duel   = new DuelInfo;
