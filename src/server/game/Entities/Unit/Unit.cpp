@@ -10100,11 +10100,9 @@ int32 Unit::ModifyHealth(int32 dVal)
         packet.Guid = GetGUID();
         packet.Health = GetHealth();
         
-        if (GetTypeId() == TYPEID_PLAYER)
-            ToPlayer()->GetSession()->SendPacket(packet.Write());
-        else
-            if (Player* player = GetOwner()->ToPlayer())
-                player->GetSession()->SendPacket(packet.Write());
+        if (Player* player = GetCharmerOrOwnerPlayerOrPlayerItself())
+            player->GetSession()->SendPacket(packet.Write());
+
     }
 
     return gain;
