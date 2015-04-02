@@ -92,6 +92,7 @@
 #include "WorldStatePackets.h"
 #include "MiscPackets.h"
 #include "ChatPackets.h"
+#include "DuelPackets.h"
 #include "MovementPackets.h"
 #include "ItemPackets.h"
 #include "QuestPackets.h"
@@ -7441,8 +7442,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = currTime;
 
-            WorldPacket data(SMSG_DUEL_OUT_OF_BOUNDS, 0);
-            GetSession()->SendPacket(&data);
+            GetSession()->SendPacket(WorldPackets::Duel::DuelOutOfBounds().Write());
         }
     }
     else
@@ -7451,8 +7451,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = 0;
 
-            WorldPacket data(SMSG_DUEL_IN_BOUNDS, 0);
-            GetSession()->SendPacket(&data);
+            GetSession()->SendPacket(WorldPackets::Duel::DuelInBounds().Write());
         }
         else if (currTime >= (duel->outOfBound+10))
             DuelComplete(DUEL_FLED);
@@ -7472,20 +7471,23 @@ void Player::DuelComplete(DuelCompleteType type)
 
     TC_LOG_DEBUG("entities.unit", "Duel Complete %s %s", GetName().c_str(), duel->opponent->GetName().c_str());
 
-    WorldPacket data(SMSG_DUEL_COMPLETE, (1));
-    data << (uint8)((type != DUEL_INTERRUPTED) ? 1 : 0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Duel::DuelComplete duelCompleted;
+    duelCompleted.Started = type != DUEL_INTERRUPTED ? true : false;
+    GetSession()->SendPacket(duelCompleted.Write());
 
     if (duel->opponent->GetSession())
-        duel->opponent->GetSession()->SendPacket(&data);
+        duel->opponent->GetSession()->SendPacket(duelCompleted.Write());
 
     if (type != DUEL_INTERRUPTED)
     {
-        data.Initialize(SMSG_DUEL_WINNER, (1+20));          // we guess size
-        data << uint8(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
-        data << duel->opponent->GetName();
-        data << GetName();
-        SendMessageToSet(&data, true);
+        WorldPackets::Duel::DuelWinner duelWinner;
+        duelWinner.BeatenName = (type == DUEL_WON ? duel->opponent->GetName() : GetName());
+        duelWinner.WinnerName = (type == DUEL_WON ? GetName() : duel->opponent->GetName());
+        duelWinner.BeatenVirtualRealmAddress = GetVirtualRealmAddress();
+        duelWinner.WinnerVirtualRealmAddress = GetVirtualRealmAddress();
+        duelWinner.Fled = type != DUEL_WON;
+
+        SendMessageToSet(duelWinner.Write(), true);
     }
 
     sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);
@@ -25583,13 +25585,6 @@ uint32 Player::GetReputation(uint32 factionentry) const
 std::string Player::GetGuildName()
 {
     return GetGuildId() ? sGuildMgr->GetGuildById(GetGuildId())->GetName() : "";
-}
-
-void Player::SendDuelCountdown(uint32 counter)
-{
-    WorldPacket data(SMSG_DUEL_COUNTDOWN, 4);
-    data << uint32(counter);                                // seconds
-    GetSession()->SendPacket(&data);
 }
 
 void Player::AddRefundReference(ObjectGuid it)
