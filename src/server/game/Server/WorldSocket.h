@@ -106,7 +106,7 @@ private:
     void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
     void SendAuthResponseError(uint8 code);
 
-    void HandlePing(WorldPacket& recvPacket);
+    bool HandlePing(WorldPacket& recvPacket);
 
     void ExtractOpcodeAndSize(ClientPktHeader const* header, uint32& opcode, uint32& size) const;
 
