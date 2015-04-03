@@ -426,11 +426,37 @@ class boss_vazruden_the_herald : public CreatureScript
                         if ((Nazan && Nazan->IsAlive()) || (Vazruden && Vazruden->IsAlive()))
                         {
                             if ((Nazan && Nazan->GetVictim()) || (Vazruden && Vazruden->GetVictim()))
-                                return;
-                            else
                             {
-                                UnsummonAdds();
-                                EnterEvadeMode();
+                                if (Nazan->IsInCombat())
+                                    return;
+                                else
+                                {
+                                    const Position Nazan_FlyAggro = { -1380.425f, 1721.026f, 90.40f, 2.426f };
+                                    if (Nazan)
+                                        Nazan->GetMotionMaster()->MoveTakeoff(0, Nazan_FlyAggro);
+                                }
+                            }
+                            else
+                            { //reset, if by chance the party wipes (1st boss)
+                                if (Vazruden && Vazruden->IsAlive())
+                                {
+                                    if (phase != 1)
+                                        phase = 1;
+                                }
+                                else
+                                {
+                                    if (phase != 2) //reset just Nazan, Vazruden is dead
+                                        phase = 2;
+                                }
+
+                                me->GetMotionMaster()->Clear(); // reset and move back into pos...
+                                me->GetMotionMaster()->MovePoint(0, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2]);
+
+                                if (phase > 2)
+                                {
+                                    EnterEvadeMode();
+                                    Reset();
+                                }
                                 return;
                             }
                         }
