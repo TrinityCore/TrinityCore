@@ -97,6 +97,7 @@
 #include "ItemPackets.h"
 #include "QuestPackets.h"
 #include "LootPackets.h"
+#include "TradePackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -315,6 +316,8 @@ void TradeData::SetItem(TradeSlots slot, Item* item)
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
 
+    UpdateServerStateIndex();
+
     Update();
 
     // need remove possible trader spell applied to changed item
@@ -338,6 +341,8 @@ void TradeData::SetSpell(uint32 spell_id, Item* castItem /*= NULL*/)
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
 
+    UpdateServerStateIndex();
+
     Update(true);                                           // send spell info to item owner
     Update(false);                                          // send spell info to caster self
 }
@@ -349,9 +354,9 @@ void TradeData::SetMoney(uint64 money)
 
     if (!m_player->HasEnoughMoney(money))
     {
-        TradeStatusInfo info;
-        info.Status = TRADE_STATUS_CLOSE_WINDOW;
-        info.Result = EQUIP_ERR_NOT_ENOUGH_MONEY;
+        WorldPackets::Trade::TradeStatus info;
+        info.Status = TRADE_STATUS_FAILED;
+        info.BagResult = EQUIP_ERR_NOT_ENOUGH_MONEY;
         m_player->GetSession()->SendTradeStatus(info);
         return;
     }
@@ -360,6 +365,8 @@ void TradeData::SetMoney(uint64 money)
 
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
+
+    UpdateServerStateIndex();
 
     Update(true);
 }
@@ -378,8 +385,8 @@ void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
 
     if (!state)
     {
-        TradeStatusInfo info;
-        info.Status = TRADE_STATUS_BACK_TO_TRADE;
+        WorldPackets::Trade::TradeStatus info;
+        info.Status = TRADE_STATUS_UNACCEPTED;
         if (crosssend)
             m_trader->GetSession()->SendTradeStatus(info);
         else
@@ -10157,7 +10164,7 @@ bool Player::HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 
     return false;
 }
 
-InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count /*= NULL*/, uint32* itemLimitCategory /*= NULL*/) const
+InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count /*= nullptr*/, uint32* offendingItemId /*= nullptr*/) const
 {
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(entry);
     if (!pProto)
@@ -10203,8 +10210,8 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
             {
                 if (no_space_count)
                     *no_space_count = count + curcount - limitEntry->Quantity;
-                if (itemLimitCategory)
-                    *itemLimitCategory = pProto->GetItemLimitCategory();
+                if (offendingItemId)
+                    *offendingItemId = pProto->GetId();
                 return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS;
             }
         }
@@ -10735,7 +10742,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
 }
 
 //////////////////////////////////////////////////////////////////////////
-InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimitCategory) const
+InventoryResult Player::CanStoreItems(Item** items, int count, uint32* offendingItemId) const
 {
     Item* item2;
 
@@ -10789,7 +10796,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
         ItemTemplate const* pBagProto;
 
         // item is 'one item only'
-        InventoryResult res = CanTakeMoreSimilarItems(item, itemLimitCategory);
+        InventoryResult res = CanTakeMoreSimilarItems(item, offendingItemId);
         if (res != EQUIP_ERR_OK)
             return res;
 

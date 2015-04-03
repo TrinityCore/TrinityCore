@@ -1148,19 +1148,6 @@ struct BGData
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
 };
 
-struct TradeStatusInfo
-{
-    TradeStatusInfo() : Status(TRADE_STATUS_BUSY), TraderGuid(), Result(EQUIP_ERR_OK),
-        IsTargetResult(false), ItemLimitCategoryId(0), Slot(0) { }
-
-    TradeStatus Status;
-    ObjectGuid TraderGuid;
-    InventoryResult Result;
-    bool IsTargetResult;
-    uint32 ItemLimitCategoryId;
-    uint8 Slot;
-};
-
 struct VoidStorageItem
 {
     VoidStorageItem()
@@ -1192,7 +1179,7 @@ class TradeData
     public:                                                 // constructors
         TradeData(Player* player, Player* trader) :
             m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
-            m_money(0), m_spell(0), m_spellCastItem() { }
+            m_money(0), m_spell(0), m_spellCastItem(), m_clientStateIndex(1), m_serverStateIndex(1) { }
 
         Player* GetTrader() const { return m_trader; }
         TradeData* GetTraderData() const;
@@ -1217,6 +1204,12 @@ class TradeData
         bool IsInAcceptProcess() const { return m_acceptProccess; }
         void SetInAcceptProcess(bool state) { m_acceptProccess = state; }
 
+        uint32 GetClientStateIndex() const { return m_clientStateIndex; }
+        void UpdateClientStateIndex() { ++m_clientStateIndex; }
+
+        uint32 GetServerStateIndex() const { return m_serverStateIndex; }
+        void UpdateServerStateIndex() { m_serverStateIndex = rand32(); }
+
     private:                                                // internal functions
 
         void Update(bool for_trader = true);
@@ -1235,6 +1228,9 @@ class TradeData
         ObjectGuid m_spellCastItem;                         // applied spell cast by item use
 
         ObjectGuid m_items[TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
+
+        uint32     m_clientStateIndex;
+        uint32     m_serverStateIndex;
 };
 
 struct ResurrectionData
@@ -1480,11 +1476,11 @@ class Player : public Unit, public GridObject<Player>
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
         bool HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
-        InventoryResult CanTakeMoreSimilarItems(Item* pItem, uint32* itemLimitCategory = NULL) const { return CanTakeMoreSimilarItems(pItem->GetEntry(), pItem->GetCount(), pItem, NULL, itemLimitCategory); }
-        InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, uint32* itemLimitCategory = NULL) const { return CanTakeMoreSimilarItems(entry, count, NULL, NULL, itemLimitCategory); }
+        InventoryResult CanTakeMoreSimilarItems(Item* pItem, uint32* offendingItemId = nullptr) const { return CanTakeMoreSimilarItems(pItem->GetEntry(), pItem->GetCount(), pItem, nullptr, offendingItemId); }
+        InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, uint32* offendingItemId = nullptr) const { return CanTakeMoreSimilarItems(entry, count, nullptr, nullptr, offendingItemId); }
         InventoryResult CanStoreNewItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 item, uint32 count, uint32* no_space_count = NULL) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap = false) const;
-        InventoryResult CanStoreItems(Item** items, int count, uint32* itemLimitCategory) const;
+        InventoryResult CanStoreItems(Item** items, int count, uint32* offendingItemId) const;
         InventoryResult CanEquipNewItem(uint8 slot, uint16& dest, uint32 item, bool swap) const;
         InventoryResult CanEquipItem(uint8 slot, uint16& dest, Item* pItem, bool swap, bool not_loading = true) const;
 
@@ -1508,7 +1504,7 @@ class Player : public Unit, public GridObject<Player>
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
         void StoreLootItem(uint8 lootSlot, Loot* loot);
 
-        InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL, uint32* itemLimitCategory = NULL) const;
+        InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = nullptr, uint32* offendingItemId = nullptr) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item* pItem = NULL, bool swap = false, uint32* no_space_count = NULL) const;
 
         void AddRefundReference(ObjectGuid it);
