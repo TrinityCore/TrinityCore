@@ -155,6 +155,17 @@ namespace WorldPackets
             uint8 LootListID = 0;
             uint8 RollType = 0;
         };
+
+        class LootReleaseResponse final : public ServerPacket
+        {
+        public:
+            LootReleaseResponse() : ServerPacket(SMSG_LOOT_RELEASE, 32) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            ObjectGuid Owner;
+        };
     }
 }
 
