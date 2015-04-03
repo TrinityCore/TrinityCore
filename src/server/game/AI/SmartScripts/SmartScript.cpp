@@ -859,45 +859,52 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             break;
         }
         case SMART_ACTION_CALL_KILLEDMONSTER:
-        {
-            if (e.target.type == SMART_TARGET_NONE || e.target.type == SMART_TARGET_SELF) // Loot recipient and his group members
-            {
-                if (!me)
-                    break;
+		{
+			if (e.target.type == SMART_TARGET_NONE || e.target.type == SMART_TARGET_SELF) // Loot recipient and his group member
+			{
+				if (!me)
+					break;
 
-                if (Player* player = me->GetLootRecipient())
-                {
-                    player->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, player);
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player %u, Killcredit: %u",
-                        player->GetGUIDLow(), e.action.killedMonster.creature);
-                }
-            }
-            else // Specific target type
-            {
-                ObjectList* targets = GetTargets(e, unit);
-                if (!targets)
-                    break;
-
-                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-                {
-                    if (IsPlayer(*itr))
-                    {
-                        (*itr)->ToPlayer()->KilledMonsterCredit(e.action.killedMonster.creature);
-                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player %u, Killcredit: %u",
-                            (*itr)->GetGUIDLow(), e.action.killedMonster.creature);
-                    }
-                    else if (IsUnit(*itr)) // Special handling for vehicles
-                        if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
-                            for (SeatMap::iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end(); ++itr)
-                                if (Player* player = ObjectAccessor::FindPlayer(itr->second.Passenger.Guid))
-                                    player->KilledMonsterCredit(e.action.killedMonster.creature);
-                }
-
-                delete targets;
-            }
-            break;
-        }
-        case SMART_ACTION_SET_INST_DATA:
+				if (Player* player = me->GetLootRecipient())
+				{
+					player->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, player);
+					TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player %u, Killcredit: %u",
+						player->GetGUIDLow(), e.action.killedMonster.creature);
+				}
+			}
+			else // Specific target type
+			{
+				ObjectList* targets = GetTargets(e, unit);
+				if (!targets)
+					break;
+				for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+				{
+					if (IsPlayer(*itr))
+					{
+						(*itr)->ToPlayer()->KilledMonsterCredit(e.action.killedMonster.creature);
+						TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player %u, Killcredit: %u",
+							(*itr)->GetGUIDLow(), e.action.killedMonster.creature);
+					}
+					else if (IsUnit(*itr)) // Special handling for vehicles
+					{
+						if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
+						{
+							for (SeatMap::iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end(); ++itr)
+								if (Player* player = ObjectAccessor::FindPlayer(itr->second.Passenger.Guid))
+									player->KilledMonsterCredit(e.action.killedMonster.creature);
+						}
+						else if (Unit* owner = (*itr)->ToPlayer()->GetOwner()) {
+							if (Player* player = owner->ToPlayer())
+								if (player->GetGroup())
+									player->KilledMonsterCredit(e.action.killedMonster.creature);
+						}
+					}
+					}
+					delete targets;
+				}
+				break;
+			}
+		case SMART_ACTION_SET_INST_DATA:
         {
             WorldObject* obj = GetBaseObject();
             if (!obj)
