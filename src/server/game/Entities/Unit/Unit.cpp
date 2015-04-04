@@ -15656,8 +15656,8 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 void Unit::SendClearThreatListOpcode()
 {
     TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_CLEAR Message");
-    WorldPackets::Combat::ClearThreatList packet;
-    packet.GUID = GetGUID();
+    WorldPackets::Combat::ThreatClear packet;
+    packet.UnitGUID = GetGUID();
     SendMessageToSet(packet.Write(), false);
 }
 

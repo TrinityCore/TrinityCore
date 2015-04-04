@@ -2147,7 +2147,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
 void Creature::SendZoneUnderAttackMessage(Player* attacker)
 {
     uint32 enemy_team = attacker->GetTeam();
-    WorldPackets::Misc::ZoneUpdate packet;
+    WorldPackets::Misc::ZoneUnderAttack packet;
     packet.AreaID = GetAreaId();
     sWorld->SendGlobalMessage(packet.Write(), NULL, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
 }

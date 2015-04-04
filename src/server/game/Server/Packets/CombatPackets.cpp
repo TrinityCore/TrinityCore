@@ -192,8 +192,8 @@ WorldPacket const* WorldPackets::Combat::HealthUpdate::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Combat::ClearThreatList::Write()
+WorldPacket const* WorldPackets::Combat::ThreatClear::Write()
 {
-    _worldPacket << GUID;
+    _worldPacket << UnitGUID;
     return &_worldPacket;
 }
