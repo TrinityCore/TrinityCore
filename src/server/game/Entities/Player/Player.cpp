@@ -21997,9 +21997,9 @@ void Player::SetPvP(bool state)
         (*itr)->SetPvP(state);
 }
 
-void Player::UpdatePvP(bool state, bool override)
+void Player::UpdatePvP(bool state, bool _override)
 {
-    if (!state || override)
+    if (!state || _override)
     {
         SetPvP(state);
         pvpInfo.EndTimer = 0;
