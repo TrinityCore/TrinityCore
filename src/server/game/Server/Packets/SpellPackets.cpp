@@ -482,18 +482,21 @@ WorldPacket const* WorldPackets::Spells::UnlearnedSpells::Write()
 
 WorldPacket const* WorldPackets::Spells::CooldownEvent::Write()
 {
-    _worldPacket << CasterGUID;
     _worldPacket << int32(SpellID);
+    _worldPacket.WriteBit(IsPet);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Spells::ClearCooldowns::Write()
 {
-    _worldPacket << Guid;
     _worldPacket << uint32(SpellID.size());
     if (!SpellID.empty())
         _worldPacket.append(SpellID.data(), SpellID.size());
+
+    _worldPacket.WriteBit(IsPet);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -502,7 +505,7 @@ WorldPacket const* WorldPackets::Spells::ClearCooldown::Write()
 {
     _worldPacket << uint32(SpellID);
     _worldPacket.WriteBit(ClearOnHold);
-    _worldPacket.WriteBit(Unk20);
+    _worldPacket.WriteBit(IsPet);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -511,8 +514,9 @@ WorldPacket const* WorldPackets::Spells::ClearCooldown::Write()
 WorldPacket const* WorldPackets::Spells::ModifyCooldown::Write()
 {
     _worldPacket << int32(SpellID);
-    _worldPacket << UnitGUID;
     _worldPacket << int32(DeltaTime);
+    _worldPacket.WriteBit(IsPet);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -559,15 +563,17 @@ WorldPacket const* WorldPackets::Spells::SendSpellHistory::Write()
 
 WorldPacket const* WorldPackets::Spells::ClearAllSpellCharges::Write()
 {
-    _worldPacket << Unit;
+    _worldPacket.WriteBit(IsPet);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Spells::ClearSpellCharges::Write()
 {
-    _worldPacket << Unit;
     _worldPacket << int32(Category);
+    _worldPacket.WriteBit(IsPet);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

@@ -412,46 +412,46 @@ namespace WorldPackets
         class CooldownEvent final : public ServerPacket
         {
         public:
-            CooldownEvent() : ServerPacket(SMSG_COOLDOWN_EVENT, 16 + 4) { }
-            CooldownEvent(ObjectGuid casterGuid, int32 spellId) : ServerPacket(SMSG_COOLDOWN_EVENT, 16 + 4), CasterGUID(casterGuid), SpellID(spellId) { }
+            CooldownEvent() : ServerPacket(SMSG_COOLDOWN_EVENT, 1 + 4) { }
+            CooldownEvent(bool isPet, int32 spellId) : ServerPacket(SMSG_COOLDOWN_EVENT, 16 + 4), IsPet(isPet), SpellID(spellId) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid CasterGUID;
+            bool IsPet = false;
             int32 SpellID;
         };
 
         class ClearCooldowns final : public ServerPacket
         {
         public:
-            ClearCooldowns() : ServerPacket(SMSG_CLEAR_COOLDOWNS, 4 + 16) { }
+            ClearCooldowns() : ServerPacket(SMSG_CLEAR_COOLDOWNS, 4 + 1) { }
 
             WorldPacket const* Write() override;
 
             std::vector<int32> SpellID;
-            ObjectGuid Guid;
+            bool IsPet = false;
         };
 
         class ClearCooldown final : public ServerPacket
         {
         public:
-            ClearCooldown() : ServerPacket(SMSG_CLEAR_COOLDOWN, 16 + 4 + 1) { }
+            ClearCooldown() : ServerPacket(SMSG_CLEAR_COOLDOWN, 1 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
+            bool IsPet = false;
             int32 SpellID = 0;
             bool ClearOnHold = false;
-            bool Unk20 = false;
         };
 
         class ModifyCooldown final : public ServerPacket
         {
         public:
-            ModifyCooldown() : ServerPacket(SMSG_MODIFY_COOLDOWN, 16 + 4 + 4) { }
+            ModifyCooldown() : ServerPacket(SMSG_MODIFY_COOLDOWN, 1 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid UnitGUID;
+            bool IsPet = false;
             int32 DeltaTime = 0;
             int32 SpellID = 0;
         };
@@ -500,21 +500,21 @@ namespace WorldPackets
         class ClearAllSpellCharges final : public ServerPacket
         {
         public:
-            ClearAllSpellCharges() : ServerPacket(SMSG_CLEAR_ALL_SPELL_CHARGES, 16) { }
+            ClearAllSpellCharges() : ServerPacket(SMSG_CLEAR_ALL_SPELL_CHARGES, 1) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid Unit;
+            bool IsPet = false;
         };
 
         class ClearSpellCharges final : public ServerPacket
         {
         public:
-            ClearSpellCharges() : ServerPacket(SMSG_CLEAR_SPELL_CHARGES, 20) { }
+            ClearSpellCharges() : ServerPacket(SMSG_CLEAR_SPELL_CHARGES, 1 + 4) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid Unit;
+            bool IsPet = false;
             int32 Category = 0;
         };
 
