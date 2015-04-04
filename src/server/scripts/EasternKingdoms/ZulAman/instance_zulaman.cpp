@@ -230,7 +230,7 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            void Update(uint32 diff)
+            void Update(uint32 diff) override
             {
                 if (events.Empty())
                     return;
