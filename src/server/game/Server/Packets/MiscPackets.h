@@ -554,10 +554,10 @@ namespace WorldPackets
             std::set<uint32> VisibleMapIDs;
         };
 
-        class ZoneUpdate final : public ServerPacket
+        class ZoneUnderAttack final : public ServerPacket
         {
         public:
-            ZoneUpdate() : ServerPacket(SMSG_ZONE_UNDER_ATTACK, 4) { }
+            ZoneUnderAttack() : ServerPacket(SMSG_ZONE_UNDER_ATTACK, 4) { }
 
             WorldPacket const* Write() override;
 

@@ -237,14 +237,14 @@ namespace WorldPackets
             int32 Health = 0;
         };
 
-        class ClearThreatList final : public ServerPacket
+        class ThreatClear final : public ServerPacket
         {
         public:
-            ClearThreatList() : ServerPacket(SMSG_THREAT_CLEAR, 16) { }
+            ThreatClear() : ServerPacket(SMSG_THREAT_CLEAR, 16) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid GUID;
+            ObjectGuid UnitGUID;
         };
     }
 }
