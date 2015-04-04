@@ -347,6 +347,12 @@ namespace WorldPackets
         class QuestLogRemoveQuest;
     }
 
+    namespace RaF
+    {
+        class AcceptLevelGrant;
+        class GrantLevel;
+    }
+
     namespace Social
     {
         class AddFriend;
@@ -1296,8 +1302,8 @@ class WorldSession
         void HandleGuildBankSetTabText(WorldPackets::Guild::GuildBankSetTabText& packet);
 
         // Refer-a-Friend
-        void HandleGrantLevel(WorldPacket& recvData);
-        void HandleAcceptGrantLevel(WorldPacket& recvData);
+        void HandleGrantLevel(WorldPackets::RaF::GrantLevel& grantLevel);
+        void HandleAcceptGrantLevel(WorldPackets::RaF::AcceptLevelGrant& acceptLevelGrant);
 
         // Calendar
         void HandleCalendarGetCalendar(WorldPacket& recvData);

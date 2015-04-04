@@ -150,10 +150,6 @@ namespace WorldPackets
         class TradeUpdated final : public ServerPacket
         {
         public:
-            TradeUpdated() : ServerPacket(SMSG_TRADE_UPDATED) { }
-
-            WorldPacket const* Write() override;
-
             struct UnwrappedTradeItem
             {
                 WorldPackets::Item::ItemInstance Item;
@@ -175,6 +171,10 @@ namespace WorldPackets
                 ObjectGuid GiftCreator;
                 Optional<UnwrappedTradeItem> Unwrapped;
             };
+
+            TradeUpdated() : ServerPacket(SMSG_TRADE_UPDATED, 8 + 4 + 1 + 4 + 7 * sizeof(UnwrappedTradeItem) + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
 
             uint64 Gold = 0;
             uint32 CurrentStateIndex = 0;
