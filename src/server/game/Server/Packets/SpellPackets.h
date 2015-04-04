@@ -599,6 +599,43 @@ namespace WorldPackets
             uint8 Slot = 0;
             uint8 PackSlot = 0;
         };
+
+        struct SpellChannelStartInterruptImmunities
+        {
+            int32 SchoolImmunities = 0;
+            int32 Immunities = 0;
+        };
+
+        struct SpellTargetedHealPrediction
+        {
+            ObjectGuid TargetGUID;
+            SpellHealPrediction Predict;
+        };
+
+        class SpellChannelStart final : public ServerPacket
+        {
+        public:
+            SpellChannelStart() : ServerPacket(SMSG_SPELL_CHANNEL_START, 4 + 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            Optional<SpellChannelStartInterruptImmunities> InterruptImmunities;
+            ObjectGuid CasterGUID;
+            Optional<SpellTargetedHealPrediction> HealPrediction;
+            uint32 ChannelDuration = 0;
+        };
+
+        class SpellChannelUpdate final : public ServerPacket
+        {
+        public:
+            SpellChannelUpdate() : ServerPacket(SMSG_SPELL_CHANNEL_UPDATE, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterGUID;
+            int32 TimeRemaining = 0;
+        };
     }
 }
 
