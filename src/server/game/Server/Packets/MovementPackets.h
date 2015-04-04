@@ -328,6 +328,16 @@ namespace WorldPackets
 
             ObjectGuid MoverGUID;
         };
+
+        class MoveUpdateKnockBack final : public ServerPacket
+        {
+        public:
+            MoveUpdateKnockBack() : ServerPacket(SMSG_MOVE_UPDATE_KNOCK_BACK) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* movementInfo = nullptr;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);

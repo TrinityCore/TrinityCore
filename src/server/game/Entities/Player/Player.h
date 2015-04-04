@@ -2593,7 +2593,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsInWhisperWhiteList(ObjectGuid guid);
         void RemoveFromWhisperWhiteList(ObjectGuid guid) { WhisperList.remove(guid); }
 
-        void ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::ExtraMovementStatusElement* extras = NULL);
+        void ValidateMovementInfo(MovementInfo* mi);
 
         /*! These methods send different packets to the client in apply and unapply case.
             These methods are only sent to the current unit.
