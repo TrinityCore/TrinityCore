@@ -30,7 +30,6 @@
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
-#include "MovementStructures.h"
 #include "Vehicle.h"
 #include "MovementPackets.h"
 
@@ -392,15 +391,12 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet)
 {
-    OpcodeClient opcode = packet.GetOpcode();
 
-    GetPlayer()->ValidateMovementInfo(&packet.movementInfo);
+    GetPlayer()->ValidateMovementInfo(&packet.Ack.movementInfo);
 
     // now can skip not our packet
-    if (_player->GetGUID() != packet.movementInfo.guid)
-    {
+    if (_player->GetGUID() != packet.Ack.movementInfo.guid)
         return;
-    }
 
     /*----------------*/
 
@@ -421,6 +417,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpe
         "PitchRate"
     };
 
+    OpcodeClient opcode = packet.GetOpcode();
     switch (opcode)
     {
 
@@ -480,14 +477,14 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
     GetPlayer()->SendMessageToSet(&data, false);
 }
 
-void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAck& movementAck)
+void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& movementAck)
 {
-    GetPlayer()->ValidateMovementInfo(&movementAck.movementInfo);
+    GetPlayer()->ValidateMovementInfo(&movementAck.Ack.movementInfo);
 
-    if (_player->m_mover->GetGUID() != movementAck.movementInfo.guid)
+    if (_player->m_mover->GetGUID() != movementAck.Ack.movementInfo.guid)
         return;
 
-    _player->m_movementInfo = movementAck.movementInfo;
+    _player->m_movementInfo = movementAck.Ack.movementInfo;
 
     WorldPackets::Movement::MoveUpdateKnockBack updateKnockBack;
     updateKnockBack.movementInfo = &_player->m_movementInfo;
@@ -533,10 +530,7 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     _player->SummonIfPossible(agree);
 }
 
-void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvPacket)
+void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& setCollisionHeightAck)
 {
-    static MovementStatusElements const heightElement = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extra(&heightElement);
-    MovementInfo movementInfo;
-    GetPlayer()->ValidateMovementInfo(&movementInfo);
+    GetPlayer()->ValidateMovementInfo(&setCollisionHeightAck.Data.movementInfo);
 }

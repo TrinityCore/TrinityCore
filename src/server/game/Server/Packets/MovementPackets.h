@@ -286,15 +286,20 @@ namespace WorldPackets
             int32 MoveTime = 0;
         };
 
-        class MovementAck final : public ClientPacket
+        struct MovementAck
+        {
+            MovementInfo movementInfo;
+            int32 AckIndex = 0;
+        };
+
+        class MovementAckMessage final : public ClientPacket
         {
         public:
-            MovementAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            MovementAckMessage(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 
-            MovementInfo movementInfo;
-            int32 AckIndex = 0;
+            MovementAck Ack;
         };
 
         class MovementSpeedAck final : public ClientPacket
@@ -304,8 +309,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            MovementInfo movementInfo;
-            int32 AckIndex = 0;
+            MovementAck Ack;
             float Speed = 0.0f;
         };
 
@@ -337,6 +341,53 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             MovementInfo* movementInfo = nullptr;
+        };
+
+        enum UpdateCollisionHeightReason : uint8
+        {
+            UPDATE_COLLISION_HEIGHT_SCALE = 0,
+            UPDATE_COLLISION_HEIGHT_MOUNT = 1,
+            UPDATE_COLLISION_HEIGHT_FORCE = 2
+        };
+
+        class MoveSetCollisionHeight final : public ServerPacket
+        {
+        public:
+            MoveSetCollisionHeight() : ServerPacket(SMSG_MOVE_SET_COLLISION_HEIGHT, 4 + 16 + 4 + 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            float Scale = 1.0f;
+            ObjectGuid MoverGUID;
+            uint32 MountDisplayID = 0;
+            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
+            uint32 SequenceIndex = 0;
+            float Height = 1.0f;
+        };
+
+        class MoveUpdateCollisionHeight final : public ServerPacket
+        {
+        public:
+            MoveUpdateCollisionHeight() : ServerPacket(SMSG_MOVE_UPDATE_COLLISION_HEIGHT) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* movementInfo = nullptr;
+            float Scale = 1.0f;
+            float Height = 1.0f;
+        };
+
+        class MoveSetCollisionHeightAck final : public ClientPacket
+        {
+        public:
+            MoveSetCollisionHeightAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_SET_COLLISION_HEIGHT_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Data;
+            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
+            uint32 MountDisplayID = 0;
+            float Height = 1.0f;
         };
     }
 

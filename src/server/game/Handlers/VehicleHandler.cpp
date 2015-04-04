@@ -22,7 +22,6 @@
 #include "Player.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
-#include "MovementStructures.h"
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
@@ -74,34 +73,12 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
             break;
         case CMSG_MOVE_CHANGE_VEHICLE_SEATS:
         {
-            static MovementStatusElements const accessoryGuid[] =
-            {
-                MSEExtraInt8,
-                MSEHasGuidByte2,
-                MSEHasGuidByte4,
-                MSEHasGuidByte7,
-                MSEHasGuidByte6,
-                MSEHasGuidByte5,
-                MSEHasGuidByte0,
-                MSEHasGuidByte1,
-                MSEHasGuidByte3,
-                MSEGuidByte6,
-                MSEGuidByte1,
-                MSEGuidByte2,
-                MSEGuidByte5,
-                MSEGuidByte3,
-                MSEGuidByte0,
-                MSEGuidByte4,
-                MSEGuidByte7,
-            };
-
-            Movement::ExtraMovementStatusElement extra(accessoryGuid);
             MovementInfo movementInfo;
             GetPlayer()->ValidateMovementInfo(&movementInfo);
             vehicle_base->m_movementInfo = movementInfo;
 
-            ObjectGuid accessory = extra.Data.guid;
-            int8 seatId = extra.Data.byteData;
+            ObjectGuid accessory; // = extra.Data.guid;
+            int8 seatId = -1;//extra.Data.byteData;
 
             if (vehicle_base->GetGUID() != movementInfo.guid)
                 return;
