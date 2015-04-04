@@ -331,6 +331,8 @@ GameObject* Transport::CreateGOPassenger(uint32 guid, GameObjectData const* data
         return NULL;
     }
 
+    ASSERT(data);
+
     float x = data->posX;
     float y = data->posY;
     float z = data->posZ;
