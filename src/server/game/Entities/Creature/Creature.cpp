@@ -52,6 +52,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "CombatPackets.h"
+#include "MiscPackets.h"
 
 #include "Transport.h"
 
@@ -2146,10 +2147,9 @@ bool Creature::LoadCreaturesAddon(bool reload)
 void Creature::SendZoneUnderAttackMessage(Player* attacker)
 {
     uint32 enemy_team = attacker->GetTeam();
-
-    WorldPacket data(SMSG_ZONE_UNDER_ATTACK, 4);
-    data << (uint32)GetAreaId();
-    sWorld->SendGlobalMessage(&data, NULL, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
+    WorldPackets::Misc::ZoneUpdate packet;
+    packet.AreaID = GetAreaId();
+    sWorld->SendGlobalMessage(packet.Write(), NULL, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
 }
 
 void Creature::SetInCombatWithZone()

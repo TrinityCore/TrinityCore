@@ -406,3 +406,10 @@ WorldPacket const* WorldPackets::Misc::PhaseShift::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::ZoneUpdate::Write()
+{
+    _worldPacket << int32(AreaID);
+
+    return &_worldPacket;
+}
