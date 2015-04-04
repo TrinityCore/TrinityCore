@@ -948,8 +948,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 {
     //FIXME: outfitId not used in player creating
     /// @todo need more checks against packet modifications
-    // should check that skin, face, hair* are valid via DBC per race/class
-    // also do it in Player::BuildEnumData, Player::LoadFromDB
 
     Object::_Create(ObjectGuid::Create<HighGuid::Player>(guidlow));
 
@@ -973,6 +971,13 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     {
         TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid character class (%u) - refusing to do so (wrong DBC-files?)",
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Class);
+        return false;
+    }
+
+    if (!ValidateAppearance(createInfo->Race, createInfo->Class, createInfo->Sex, createInfo->HairStyle, createInfo->HairColor, createInfo->Face, createInfo->FacialHairStyle, createInfo->Skin, true))
+    {
+        TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with invalid appearance attributes - refusing to do so",
+            GetSession()->GetAccountId(), m_name.c_str());
         return false;
     }
 
@@ -16649,6 +16654,19 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetUInt32Value(PLAYER_FLAGS, fields[11].GetUInt32());
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[44].GetUInt32());
 
+    if (!ValidateAppearance(
+        fields[3].GetUInt8(), // race
+        fields[4].GetUInt8(), // class
+        gender, GetByteValue(PLAYER_BYTES, 2), // hair type
+        GetByteValue(PLAYER_BYTES, 3), //hair color
+        uint8(fields[9].GetUInt32() >> 8), // face
+        GetByteValue(PLAYER_BYTES_2, 0), // facial hair
+        GetByteValue(PLAYER_BYTES, 0))) // skin color
+    {
+        TC_LOG_ERROR("entities.player", "Player %s has wrong Appearance values (Hair/Skin/Color), can't be loaded.", guid.ToString().c_str());
+        return false;
+    }
+
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
     SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, fields[58].GetUInt8());
 
@@ -26524,4 +26542,59 @@ void Player::RemoveSocial()
 {
     sSocialMgr->RemovePlayerSocial(GetGUID());
     m_social = nullptr;
+}
+
+bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create /*=false*/)
+{
+    // Check skin color
+    // For Skin type is always 0
+    if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor))
+    {   // Skin Color defined as Face color, too, we check skin & face in one pass
+        if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor))
+        {
+            // Check DeathKnight exclusive
+            if (((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) || (entry2->Flags & SECTION_FLAG_DEATH_KNIGHT)) && class_ != CLASS_DEATH_KNIGHT)
+                return false;
+            if (create && !((entry->Flags & SECTION_FLAG_PLAYER) && (entry2->Flags & SECTION_FLAG_PLAYER)))
+                return false;
+        }
+        else
+            return false;
+    }
+    else
+        return false;
+
+    // These combinations don't have an entry of Type SECTION_TYPE_FACIAL_HAIR, exclude them from that check
+    bool excludeCheck = (race == RACE_TAUREN) || (race == RACE_DRAENEI) || (gender == GENDER_FEMALE && race != RACE_NIGHTELF && race != RACE_UNDEAD_PLAYER);
+
+    // Check Hair
+    if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor))
+    {
+        if ((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
+            return false;
+        if (create && !(entry->Flags & SECTION_FLAG_PLAYER))
+            return false;
+
+        if (!excludeCheck)
+        {
+            if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHair, hairColor))
+            {
+                if ((entry2->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
+                    return false;
+                if (create && !(entry2->Flags & SECTION_FLAG_PLAYER))
+                    return false;
+            }
+            else
+                return false;
+        }
+        else
+        {
+            // @TODO: Bound checking for facialHair ID (used clientside for markings, tauren beard, etc.)
+            // Not present in DBC
+        }
+    }
+    else
+        return false;
+
+    return true;
 }

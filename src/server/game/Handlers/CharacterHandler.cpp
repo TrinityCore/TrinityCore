@@ -257,6 +257,29 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
+            uint8 plrRace = fields[2].GetUInt8();
+            uint8 plrClass = fields[3].GetUInt8();
+            uint8 plrGender = fields[4].GetUInt8();
+            uint8 plrSkin = uint8(fields[5].GetUInt32() & 0xFF);
+            uint8 plrFace = uint8((fields[5].GetUInt32() >> 8) & 0xFF);
+            uint8 plrHairStyle = uint8((fields[5].GetUInt32() >> 16) & 0xFF);
+            uint8 plrHairColor = uint8((fields[5].GetUInt32() >> 24) & 0xFF);
+            uint8 plrFacialHair = uint8(fields[6].GetUInt32() & 0xFF);
+
+            if (!Player::ValidateAppearance(charInfo.Race, charInfo.Class, charInfo.Sex, charInfo.HairStyle, charInfo.HairColor, charInfo.Face, charInfo.FacialHair, charInfo.Skin))
+            {
+                TC_LOG_ERROR("entities.player.loading", "Player %s has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString().c_str());
+
+                if (!(charInfo.CustomizationFlag == CHAR_CUSTOMIZE_FLAG_CUSTOMIZE))
+                {
+                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+                    stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
+                    stmt->setUInt64(1, charInfo.Guid.GetCounter());
+                    CharacterDatabase.Execute(stmt);
+                    charInfo.CustomizationFlag = CHAR_CUSTOMIZE_FLAG_CUSTOMIZE;
+                }
+            }
+
             // Do not allow locked characters to login
             if (!(charInfo.Flags & (CHARACTER_FLAG_LOCKED_FOR_TRANSFER | CHARACTER_FLAG_LOCKED_BY_BILLING)))
                 _legitCharacters.insert(charInfo.Guid);
@@ -1385,6 +1408,9 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     if (bs_skinColor && (bs_skinColor->Type != 3 || bs_skinColor->Race != _player->getRace() || bs_skinColor->Sex != _player->getGender()))
         return;
 
+    if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->getGender(), bs_hair->ID, packet.NewHairColor, uint8(_player->GetUInt32Value(PLAYER_FLAGS) >> 8), bs_facialHair->ID, bs_skinColor ? bs_skinColor->ID : 0))
+        return;
+
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
     if (!go)
     {
@@ -1477,8 +1503,17 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
     Field* fields = result->Fetch();
 
     std::string oldName = fields[0].GetString();
-    uint16 atLoginFlags = fields[1].GetUInt16();
-    uint32 playerBytes2 = fields[2].GetUInt32();
+    uint8 plrRace = fields[1].GetUInt8();
+    uint8 plrClass = fields[2].GetUInt8();
+    uint8 plrGender = fields[3].GetUInt8();
+    uint16 atLoginFlags = fields[4].GetUInt16();
+    uint32 playerBytes2 = fields[5].GetUInt32();
+
+    if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo->HairStyleID, customizeInfo->HairColorID, customizeInfo->FaceID, customizeInfo->FacialHairStyleID, customizeInfo->SkinID, true))
+    {
+        SendCharCustomize(CHAR_CREATE_ERROR, customizeInfo);
+        return;
+    }
 
     if (!(atLoginFlags & AT_LOGIN_CUSTOMIZE))
     {
