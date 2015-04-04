@@ -761,6 +761,7 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
 
     uint32* flags = NULL;
     uint32 visibleFlag = GetUpdateFieldData(target, flags);
+    ASSERT(flags);
 
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
