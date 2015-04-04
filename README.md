@@ -35,7 +35,7 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 + CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux)
 + OpenSSL ≥ 1.0.0
 + GCC ≥ 4.7.2 (Linux only)
-+ MS Visual Studio ≥ 12 (2013 Update 3) (Windows only)
++ MS Visual Studio ≥ 12 (2013 Update 4) (Windows only)
 
 
 ## Install
