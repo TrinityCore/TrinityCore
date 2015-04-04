@@ -20,18 +20,13 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Log.h"
+#include "ReferAFriendPackets.h"
 
-void WorldSession::HandleGrantLevel(WorldPacket& recvData)
+void WorldSession::HandleGrantLevel(WorldPackets::RaF::GrantLevel& grantLevel)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_GRANT_LEVEL");
-
-    ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
-
-    Player* target = ObjectAccessor::GetObjectInWorld(guid, _player);
+    Player* target = ObjectAccessor::GetObjectInWorld(grantLevel.Target, _player);
 
     // check cheating
-    /* TODO: 6.x update lfg system
     uint8 levels = _player->GetGrantableLevels();
     uint8 error = 0;
     if (!target)
@@ -48,31 +43,28 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
         error = ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I;
     else if (target->GetGroup() != _player->GetGroup())
         error = ERR_REFER_A_FRIEND_NOT_IN_GROUP;
+    else if (target->getLevel() >= GetMaxLevelForExpansion(target->GetSession()->GetExpansion()))
+        error = ERR_REFER_A_FRIEND_INSUF_EXPAN_LVL;
 
     if (error)
     {
-        WorldPacket data(SMSG_REFER_A_FRIEND_FAILURE, 24);
-        data << uint32(error);
+        WorldPackets::RaF::ReferAFriendFailure failure;
+        failure.Reason = error;
         if (error == ERR_REFER_A_FRIEND_NOT_IN_GROUP)
-            data << target->GetName();
+            failure.Str = target->GetName();
 
-        SendPacket(&data);
+        SendPacket(failure.Write());
         return;
-    }*/
+    }
 
-    WorldPacket data2(SMSG_PROPOSE_LEVEL_GRANT, 8);
-    data2 << _player->GetPackGUID();
-    target->GetSession()->SendPacket(&data2);
+    WorldPackets::RaF::ProposeLevelGrant proposeLevelGrant;
+    proposeLevelGrant.Sender = _player->GetGUID();
+    target->SendDirectMessage(proposeLevelGrant.Write());
 }
 
-void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
+void WorldSession::HandleAcceptGrantLevel(WorldPackets::RaF::AcceptLevelGrant& acceptLevelGrant)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
-
-    ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
-
-    Player* other = ObjectAccessor::GetObjectInWorld(guid, _player);
+    Player* other = ObjectAccessor::GetObjectInWorld(acceptLevelGrant.Granter, _player);
     if (!(other && other->GetSession()))
         return;
 
