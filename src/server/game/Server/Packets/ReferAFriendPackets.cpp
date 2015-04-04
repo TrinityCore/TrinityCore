@@ -36,7 +36,7 @@ WorldPacket const* WorldPackets::RaF::ProposeLevelGrant::Write()
 WorldPacket const* WorldPackets::RaF::ReferAFriendFailure::Write()
 {
     _worldPacket << int32(Reason);
-    // Client uses this sring only if Reason == ERR_REFER_A_FRIEND_NOT_IN_GROUP || Reason == ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S
+    // Client uses this string only if Reason == ERR_REFER_A_FRIEND_NOT_IN_GROUP || Reason == ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S
     // but always reads it from packet
     _worldPacket.WriteBits(Str.length(), 6);
     _worldPacket.WriteString(Str);

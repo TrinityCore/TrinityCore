@@ -18,7 +18,7 @@
 #ifndef ReferAFriendPackets_h__
 #define ReferAFriendPackets_h__
 
-#include "Packets.h"
+#include "Packet.h"
 #include "ObjectGuid.h"
 
 namespace WorldPackets
