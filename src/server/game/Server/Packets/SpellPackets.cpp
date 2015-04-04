@@ -632,3 +632,42 @@ void WorldPackets::Spells::OpenItem::Read()
     _worldPacket >> Slot
                  >> PackSlot;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellChannelStartInterruptImmunities const& interruptImmunities)
+{
+    data << int32(interruptImmunities.SchoolImmunities);
+    data << int32(interruptImmunities.Immunities);
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellTargetedHealPrediction const& targetedHealPrediction)
+{
+    data << targetedHealPrediction.TargetGUID;
+    data << targetedHealPrediction.Predict;
+    return data;
+}
+
+WorldPacket const* WorldPackets::Spells::SpellChannelStart::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << int32(SpellID);
+    _worldPacket << uint32(ChannelDuration);
+    _worldPacket.WriteBit(InterruptImmunities.HasValue);
+    _worldPacket.WriteBit(HealPrediction.HasValue);
+    _worldPacket.FlushBits();
+
+    if (InterruptImmunities.HasValue)
+        _worldPacket << InterruptImmunities.Value;
+
+    if (HealPrediction.HasValue)
+        _worldPacket << HealPrediction.Value;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::SpellChannelUpdate::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << int32(TimeRemaining);
+    return &_worldPacket;
+}
