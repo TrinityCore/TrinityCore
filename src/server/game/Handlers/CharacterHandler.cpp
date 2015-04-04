@@ -1253,6 +1253,9 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->getRace() || bs_skinColor->gender != _player->getGender()))
         return;
 
+    if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->getGender(), bs_hair->hair_id, Color, uint8(_player->GetUInt32Value(PLAYER_FLAGS) >> 8), bs_facialHair->hair_id, bs_skinColor ? bs_skinColor->hair_id : 0))
+        return;
+
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
     if (!go)
     {
@@ -1337,10 +1340,8 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
              >> customizeInfo.FacialHair
              >> customizeInfo.Face;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AT_LOGIN);
-
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
     stmt->setUInt32(0, customizeInfo.Guid.GetCounter());
-    // TODO: Make async with callback
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -1350,6 +1351,29 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     Field* fields = result->Fetch();
+    uint8 plrRace = fields[0].GetUInt8();
+    uint8 plrClass = fields[1].GetUInt8();
+    uint8 plrGender = fields[2].GetUInt8();
+
+    if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo.HairStyle, customizeInfo.HairColor, customizeInfo.Face, customizeInfo.FacialHair, customizeInfo.Skin, true))
+    {
+        SendCharCustomize(CHAR_CREATE_ERROR, customizeInfo);
+        return;
+    }
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AT_LOGIN);
+
+    stmt->setUInt32(0, customizeInfo.Guid.GetCounter());
+    // TODO: Make async with callback
+    result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+    {
+        SendCharCustomize(CHAR_CREATE_ERROR, customizeInfo);
+        return;
+    }
+
+    fields = result->Fetch();
     uint32 at_loginFlags = fields[0].GetUInt16();
 
     if (!(at_loginFlags & AT_LOGIN_CUSTOMIZE))
