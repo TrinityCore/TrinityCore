@@ -1523,7 +1523,7 @@ struct ScalingStatValuesEntry
 
     uint32 getFeralBonus(uint32 mask) const                 // removed in 3.2.x?
     {
-        if (mask & 0x00010000) return 0;                    // not used?
+        //if (mask & 0x00010000) return 0;                  // not used?
         return 0;
     }
 };
