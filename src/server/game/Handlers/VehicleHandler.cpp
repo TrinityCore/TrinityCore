@@ -37,7 +37,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
     }
 
     MovementInfo mi;
-    _player->ReadMovementInfo(recvData, &mi);
+    _player->ValidateMovementInfo(&mi);
 
     _player->m_movementInfo = mi;
 
@@ -97,7 +97,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
 
             Movement::ExtraMovementStatusElement extra(accessoryGuid);
             MovementInfo movementInfo;
-            GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extra);
+            GetPlayer()->ValidateMovementInfo(&movementInfo);
             vehicle_base->m_movementInfo = movementInfo;
 
             ObjectGuid accessory = extra.Data.guid;

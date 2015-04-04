@@ -887,7 +887,7 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recvData)
 
     MovementInfo movementInfo;
     movementInfo.guid = guid;
-    ReadMovementInfo(recvData, &movementInfo);
+    ValidateMovementInfo(recvData, &movementInfo);
     recvData.read_skip<float>();                           // unk2
 */
 }
@@ -912,7 +912,7 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                          // unk
 
     MovementInfo movementInfo;
-    ReadMovementInfo(recvData, &movementInfo);
+    ValidateMovementInfo(recvData, &movementInfo);
 */
 }
 
@@ -1346,7 +1346,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_SET_CAN_FLY_ACK");
 
     MovementInfo movementInfo;
-    _player->ReadMovementInfo(recvData, &movementInfo);
+    _player->ValidateMovementInfo(&movementInfo);
 
     _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }

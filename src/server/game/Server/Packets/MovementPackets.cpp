@@ -56,6 +56,8 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
     data.WriteBit(0); // HeightChangeFailed
     data.WriteBit(0); // RemoteTimeValid
 
+    data.FlushBits();
+
     if (hasTransportData)
         data << movementInfo.transport;
 
@@ -65,6 +67,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
         data << movementInfo.jump.zspeed;
 
         data.WriteBit(hasFallDirection);
+        data.FlushBits();
         if (hasFallDirection)
         {
             data << movementInfo.jump.sinAngle;
@@ -72,8 +75,6 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
             data << movementInfo.jump.xyspeed;
         }
     }
-
-    data.FlushBits();
 
     return data;
 }
@@ -167,13 +168,13 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo::TransportInfo const& tran
     data.WriteBit(hasPrevTime);
     data.WriteBit(hasVehicleId);
 
+    data.FlushBits();
+
     if (hasPrevTime)
         data << transportInfo.prevTime;         // PrevMoveTime
 
     if (hasVehicleId)
         data << transportInfo.vehicleId;        // VehicleRecID
-
-    data.FlushBits();
 
     return data;
 }
@@ -617,6 +618,13 @@ void WorldPackets::Movement::SetActiveMover::Read()
 WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
 {
     _worldPacket << MoverGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateKnockBack::Write()
+{
+    _worldPacket << *movementInfo;
 
     return &_worldPacket;
 }
