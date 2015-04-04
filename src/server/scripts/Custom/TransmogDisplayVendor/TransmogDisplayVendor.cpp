@@ -127,11 +127,9 @@ namespace
 static SelectionStore selectionStore; // selectionStore[lowGUID] = Selection
 
 // Vendor data store
-// optionMap[Class? + SubClass][invtype][Quality] = std::list<entry>
-typedef std::list<uint32> optionDataList;
-typedef std::map<uint32, optionDataList> optionData; // invtype, item entry list
-typedef std::map<uint32, optionData> optionDataMap; // Class? + SubClass -> data
-static std::map<uint32, optionDataMap> optionMap; // Class -> data
+// optionMap[Class? + SubClass][invtype][Quality] = EntryVector
+typedef std::vector<uint32> EntryVector;
+static EntryVector* optionMap[MAX_ITEM_SUBCLASS_WEAPON + MAX_ITEM_SUBCLASS_ARMOR][MAX_INVTYPE][MAX_ITEM_QUALITY];
 
 uint32 TransmogDisplayVendorMgr::GetFakeEntry(const Item* item)
 {
@@ -258,7 +256,7 @@ bool TransmogDisplayVendorMgr::SuitableForTransmogrification(Player* player, Ite
     TC_LOG_DEBUG("custom.transmog", "TransmogDisplayVendorMgr::SuitableForTransmogrification");
 
     // ItemTemplate const* proto = item->GetTemplate();
-    if (!player || !proto)
+    if (!proto)
         return false;
 
     if (proto->Class != ITEM_CLASS_ARMOR &&
@@ -278,31 +276,34 @@ bool TransmogDisplayVendorMgr::SuitableForTransmogrification(Player* player, Ite
     if (!IsAllowedQuality(proto->Quality)) // (proto->Quality == ITEM_QUALITY_LEGENDARY)
         return false;
 
-    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && player->GetTeam() != HORDE)
-        return false;
-
-    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && player->GetTeam() != ALLIANCE)
-        return false;
-
-    if (!IgnoreReqClass && (proto->AllowableClass & player->getClassMask()) == 0)
-        return false;
-
-    if (!IgnoreReqRace && (proto->AllowableRace & player->getRaceMask()) == 0)
-        return false;
-
-    if (!IgnoreReqSkill && proto->RequiredSkill != 0)
+    if (player)
     {
-        if (player->GetSkillValue(proto->RequiredSkill) == 0)
+        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && player->GetTeam() != HORDE)
             return false;
-        else if (player->GetSkillValue(proto->RequiredSkill) < proto->RequiredSkillRank)
+
+        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && player->GetTeam() != ALLIANCE)
+            return false;
+
+        if (!IgnoreReqClass && (proto->AllowableClass & player->getClassMask()) == 0)
+            return false;
+
+        if (!IgnoreReqRace && (proto->AllowableRace & player->getRaceMask()) == 0)
+            return false;
+
+        if (!IgnoreReqSkill && proto->RequiredSkill != 0)
+        {
+            if (player->GetSkillValue(proto->RequiredSkill) == 0)
+                return false;
+            else if (player->GetSkillValue(proto->RequiredSkill) < proto->RequiredSkillRank)
+                return false;
+        }
+
+        if (!IgnoreReqSpell && proto->RequiredSpell != 0 && !player->HasSpell(proto->RequiredSpell))
+            return false;
+
+        if (!IgnoreReqLevel && player->getLevel() < proto->RequiredLevel)
             return false;
     }
-
-    if (!IgnoreReqSpell && proto->RequiredSpell != 0 && !player->HasSpell(proto->RequiredSpell))
-        return false;
-
-    if (!IgnoreReqLevel && player->getLevel() < proto->RequiredLevel)
-        return false;
 
     // If World Event is not active, prevent using event dependant items
     if (!IgnoreReqEvent && proto->HolidayId && !IsHolidayActive((HolidayIds)proto->HolidayId))
@@ -328,6 +329,7 @@ bool TransmogDisplayVendorMgr::SuitableForTransmogrification(Player* player, Ite
 
     return true;
 }
+
 bool TransmogDisplayVendorMgr::IsRangedWeapon(uint32 Class, uint32 SubClass)
 {
     TC_LOG_DEBUG("custom.transmog", "TransmogDisplayVendorMgr::IsRangedWeapon");
@@ -367,7 +369,7 @@ bool TransmogDisplayVendorMgr::IsAllowedQuality(uint32 quality)
     }
 }
 
-const char* getQualityName(uint32 quality)
+static const char* getQualityName(uint32 quality)
 {
     switch (quality)
     {
@@ -383,7 +385,7 @@ const char* getQualityName(uint32 quality)
     }
 }
 
-std::string getItemName(const ItemTemplate* itemTemplate, WorldSession* session)
+static std::string getItemName(const ItemTemplate* itemTemplate, WorldSession* session)
 {
     std::string name = itemTemplate->Name1;
     int loc_idx = session->GetSessionDbLocaleIndex();
@@ -393,13 +395,15 @@ std::string getItemName(const ItemTemplate* itemTemplate, WorldSession* session)
     return name;
 }
 
-uint32 getCorrectInvType(uint32 inventorytype)
+static uint32 getCorrectInvType(uint32 inventorytype)
 {
     switch (inventorytype)
     {
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
             return INVTYPE_WEAPON;
+        case INVTYPE_RANGEDRIGHT:
+            return INVTYPE_RANGED;
         case INVTYPE_ROBE:
             return INVTYPE_CHEST;
         default:
@@ -476,35 +480,50 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
         // {{entry}, {entry}, ...}
         std::list<uint32> L;
         uint32 counter = 0;
+        bool over = false;
         if (itemTransmogrified->GetTemplate()->Class != ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedArmorTypes)
         {
             for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_ARMOR; ++i)
             {
-                const optionDataList& oM = optionMap[MAX_ITEM_SUBCLASS_WEAPON + i][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
-                if (counter + oM.size() < selection.offset)
-                    counter += oM.size();
+                const EntryVector* oM = optionMap[MAX_ITEM_SUBCLASS_WEAPON + i][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
+                if (!oM)
+                    continue;
+                if (!over && counter + oM->size() < selection.offset)
+                    counter += oM->size();
                 else
-                    L.insert(L.end(), oM.begin(), oM.end());
+                {
+                    over = true;
+                    L.insert(L.end(), oM->begin(), oM->end());
+                }
             }
         }
         else if (itemTransmogrified->GetTemplate()->Class == ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedWeaponTypes)
         {
             for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_WEAPON; ++i)
             {
-                const optionDataList& oM = optionMap[i][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
-                if (counter + oM.size() < selection.offset)
-                    counter += oM.size();
+                const EntryVector* oM = optionMap[i][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
+                if (!oM)
+                    continue;
+                if (!over && counter + oM->size() < selection.offset)
+                    counter += oM->size();
                 else
-                    L.insert(L.end(), oM.begin(), oM.end());
+                {
+                    over = true;
+                    L.insert(L.end(), oM->begin(), oM->end());
+                }
             }
         }
         else
         {
-            const optionDataList& oM = optionMap[(itemTransmogrified->GetTemplate()->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTransmogrified->GetTemplate()->SubClass][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
-            if (counter + oM.size() < selection.offset)
-                counter += oM.size();
-            else
-                L.insert(L.end(), oM.begin(), oM.end());
+            const EntryVector* oM = optionMap[(itemTransmogrified->GetTemplate()->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTransmogrified->GetTemplate()->SubClass][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
+            if (oM)
+                if (!over && counter + oM->size() < selection.offset)
+                    counter += oM->size();
+                else
+                {
+                    over = true;
+                    L.insert(L.end(), oM->begin(), oM->end());
+                }
         }
         std::list<uint32>::const_iterator it = L.begin();
         std::advance(it, (selection.offset - counter) + vendorslot);
@@ -615,28 +634,31 @@ public:
                 {
                     for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_ARMOR; ++i)
                     {
-                        const optionData& oM = optionMap[MAX_ITEM_SUBCLASS_WEAPON + i][getCorrectInvType(itemTemplate->InventoryType)];
-                        for (optionData::const_iterator it = oM.begin(); it != oM.end(); ++it)
-                            if (TransmogDisplayVendorMgr::IsAllowedQuality(it->first)) // skip not allowed qualities
-                                L[it->first] += it->second.size();
+                        EntryVector** oM = optionMap[MAX_ITEM_SUBCLASS_WEAPON + i][getCorrectInvType(itemTemplate->InventoryType)];
+                        for (uint32 i = 0; i < MAX_ITEM_QUALITY; ++i, ++oM)
+                            if (TransmogDisplayVendorMgr::IsAllowedQuality(i)) // skip not allowed qualities
+                                if (*oM)
+                                    L[i] += (*oM)->size();
                     }
                 }
                 else if (itemTemplate->Class == ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedWeaponTypes)
                 {
                     for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_WEAPON; ++i)
                     {
-                        const optionData& oM = optionMap[i][getCorrectInvType(itemTemplate->InventoryType)];
-                        for (optionData::const_iterator it = oM.begin(); it != oM.end(); ++it)
-                            if (TransmogDisplayVendorMgr::IsAllowedQuality(it->first)) // skip not allowed qualities
-                                L[it->first] += it->second.size();
+                        EntryVector** oM = optionMap[i][getCorrectInvType(itemTemplate->InventoryType)];
+                        for (uint32 i = 0; i < MAX_ITEM_QUALITY; ++i, ++oM)
+                            if (TransmogDisplayVendorMgr::IsAllowedQuality(i)) // skip not allowed qualities
+                                if (*oM)
+                                    L[i] += (*oM)->size();
                     }
                 }
                 else
                 {
-                    const optionData& oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)];
-                    for (optionData::const_iterator it = oM.begin(); it != oM.end(); ++it)
-                        if (TransmogDisplayVendorMgr::IsAllowedQuality(it->first)) // skip not allowed qualities
-                            L[it->first] += it->second.size();
+                    EntryVector** oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)];
+                    for (uint32 i = 0; i < MAX_ITEM_QUALITY; ++i, ++oM)
+                        if (TransmogDisplayVendorMgr::IsAllowedQuality(i)) // skip not allowed qualities
+                            if (*oM)
+                                L[i] += (*oM)->size();
                 }
 
                 for (std::map<uint32, uint32>::const_iterator it = L.begin(); it != L.end(); ++it)
@@ -752,38 +774,53 @@ public:
                     // {{entry}, {entry}, ...}
                     std::list<uint32> L;
                     uint32 counter = 0;
+                    bool over = false;
                     if (itemTemplate->Class != ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedArmorTypes)
                     {
                         for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_ARMOR; ++i)
                         {
-                            const optionDataList& oM = optionMap[MAX_ITEM_SUBCLASS_WEAPON + i][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
-                            if (counter + oM.size() < selection.offset)
-                                counter += oM.size();
+                            const EntryVector* oM = optionMap[MAX_ITEM_SUBCLASS_WEAPON + i][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
+                            if (!oM)
+                                continue;
+                            if (!over && counter + oM->size() < selection.offset)
+                                counter += oM->size();
                             else
-                                L.insert(L.end(), oM.begin(), oM.end());
+                            {
+                                over = true;
+                                L.insert(L.end(), oM->begin(), oM->end());
+                            }
                         }
                     }
                     else if (itemTemplate->Class == ITEM_CLASS_WEAPON && TransmogDisplayVendorMgr::AllowMixedWeaponTypes)
                     {
                         for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_WEAPON; ++i)
                         {
-                            const optionDataList& oM = optionMap[i][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
-                            if (counter + oM.size() < selection.offset)
-                                counter += oM.size();
+                            const EntryVector* oM = optionMap[i][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
+                            if (!oM)
+                                continue;
+                            if (!over && counter + oM->size() < selection.offset)
+                                counter += oM->size();
                             else
-                                L.insert(L.end(), oM.begin(), oM.end());
+                            {
+                                over = true;
+                                L.insert(L.end(), oM->begin(), oM->end());
+                            }
                         }
                     }
                     else
                     {
-                        const optionDataList& oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
-                        if (counter + oM.size() < selection.offset)
-                            counter += oM.size();
-                        else
-                            L.insert(L.end(), oM.begin(), oM.end());
+                        const EntryVector* oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
+                        if (oM)
+                            if (!over && counter + oM->size() < selection.offset)
+                                counter += oM->size();
+                            else
+                            {
+                                over = true;
+                                L.insert(L.end(), oM->begin(), oM->end());
+                            }
                     }
 
-                    // optionDataList oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
+                    // EntryVector oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
                     uint32 itemCount = L.size() - (selection.offset - counter);
                     if (itemCount > MAX_VENDOR_ITEMS)
                         itemCount = MAX_VENDOR_ITEMS;
@@ -981,17 +1018,6 @@ class PREP_TransmogDisplayVendor : public WorldScript
 public:
     PREP_TransmogDisplayVendor() : WorldScript("PREP_TransmogDisplayVendor") { }
 
-    bool CanTransmogrify(const ItemTemplate* proto)
-    {
-        if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-            return false;
-        /* What if reload config?
-        if (!sTransmogDisplayVendorMgr->AllowedQuality(proto->Quality)) // skip not allowed qualities
-        return false;
-        */
-        return true;
-    }
-
     void OnStartup() override
     {
         for (size_t i = 0; i < sizeof(AllowedItems) / sizeof(*AllowedItems); ++i)
@@ -1000,31 +1026,56 @@ public:
             TransmogDisplayVendorMgr::NotAllowed.insert(NotAllowedItems[i]);
 
         TC_LOG_INFO("server.loading", "Creating a list of usable transmogrification entries...");
-        optionMap.clear();
-        std::set<uint32> displays;
+        // initialize .. for reload in future?
+        for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_WEAPON + MAX_ITEM_SUBCLASS_ARMOR; ++i)
+            for (uint32 j = 0; j < MAX_INVTYPE; ++j)
+                for (uint32 k = 0; k < MAX_ITEM_QUALITY; ++k)
+                    delete optionMap[i][j][k], optionMap[i][j][k] = NULL;
+
+        std::unordered_set<uint32> displays;
         ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
         for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
         {
-            if (itr->second.Class == ITEM_CLASS_WEAPON || itr->second.Class == ITEM_CLASS_ARMOR)
+            if (itr->second.Class != ITEM_CLASS_WEAPON && itr->second.Class != ITEM_CLASS_ARMOR)
+                continue;
+            if (!TransmogDisplayVendorMgr::SuitableForTransmogrification(NULL, &itr->second))
+                continue;
+            if (displays.find(itr->second.DisplayInfoID) != displays.end()) // skip duplicate item displays
+                continue;
+            EntryVector* oM = optionMap[(itr->second.Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itr->second.SubClass][getCorrectInvType(itr->second.InventoryType)][itr->second.Quality];
+            if (!oM)
             {
-                if (!CanTransmogrify(&itr->second))
-                    continue;
-                if (displays.find(itr->second.DisplayInfoID) != displays.end()) // skip duplicate item displays
-                    continue;
-                optionDataList& oM = optionMap[(itr->second.Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itr->second.SubClass][getCorrectInvType(itr->second.InventoryType)][itr->second.Quality];
-                if (oM.size() < MAX_VENDOR_ITEMS * 3)
-                {
-                    oM.push_back(itr->second.ItemId);
-                    displays.insert(itr->second.DisplayInfoID);
-                }
-                else
-                    TC_LOG_INFO("server.loading", "Too many items for transmogrification: Class: %u SubClass: %u InventoryType: %u Quality: %u", itr->second.Class, itr->second.SubClass, getCorrectInvType(itr->second.InventoryType), itr->second.Quality);
+                oM = new EntryVector();
+                optionMap[(itr->second.Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itr->second.SubClass][getCorrectInvType(itr->second.InventoryType)][itr->second.Quality] = oM;
             }
+            if (oM->size() < MAX_VENDOR_ITEMS * 3)
+            {
+                oM->push_back(itr->second.ItemId);
+                displays.insert(itr->second.DisplayInfoID);
+            }
+            else
+                TC_LOG_INFO("server.loading", "Too many items for transmogrification: Class: %u SubClass: %u InventoryType: %u Quality: %u", itr->second.Class, itr->second.SubClass, getCorrectInvType(itr->second.InventoryType), itr->second.Quality);
         }
+
+        // resize entry lists
+        for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_WEAPON + MAX_ITEM_SUBCLASS_ARMOR; ++i)
+            for (uint32 j = 0; j < MAX_INVTYPE; ++j)
+                for (uint32 k = 0; k < MAX_ITEM_QUALITY; ++k)
+                    if (optionMap[i][j][k])
+                        optionMap[i][j][k]->resize(optionMap[i][j][k]->size());
+
 #if !TRANSMOGRIFICATION_ALREADY_INSTALLED
         TC_LOG_INFO("custom.transmog", "Deleting non-existing transmogrification entries...");
         CharacterDatabase.DirectExecute("DELETE FROM custom_transmogrification WHERE NOT EXISTS (SELECT 1 FROM item_instance WHERE item_instance.guid = custom_transmogrification.GUID)");
 #endif
+    }
+
+    void OnShutdown() override
+    {
+        for (uint32 i = 0; i < MAX_ITEM_SUBCLASS_WEAPON + MAX_ITEM_SUBCLASS_ARMOR; ++i)
+            for (uint32 j = 0; j < MAX_INVTYPE; ++j)
+                for (uint32 k = 0; k < MAX_ITEM_QUALITY; ++k)
+                    delete optionMap[i][j][k], optionMap[i][j][k] = NULL;
     }
 };
 
