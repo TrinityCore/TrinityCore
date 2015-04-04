@@ -296,9 +296,10 @@ namespace WorldPackets
         class ClientPlayerMovement;
         class WorldPortResponse;
         class MoveTeleportAck;
-        class MovementAck;
+        class MovementAckMessage;
         class MovementSpeedAck;
         class SetActiveMover;
+        class MoveSetCollisionHeightAck;
     }
 
     namespace NPC
@@ -863,11 +864,11 @@ class WorldSession
         void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);
 
         // Knockback
-        void HandleMoveKnockBackAck(WorldPackets::Movement::MovementAck& movementAck);
+        void HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& movementAck);
 
         void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
         void HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet);
-        void HandleSetCollisionHeightAck(WorldPacket& recvPacket);
+        void HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& setCollisionHeightAck);
 
         void HandlePingOpcode(WorldPacket& recvPacket);
         void HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet);

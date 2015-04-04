@@ -414,7 +414,6 @@ class TransportBase;
 class SpellCastTargets;
 namespace Movement
 {
-    class ExtraMovementStatusElement;
     class MoveSpline;
 }
 
@@ -2158,8 +2157,6 @@ class Unit : public WorldObject
         // Should only be called by AuraEffect::HandleAuraControlVehicle(AuraApplication const* auraApp, uint8 mode, bool apply) const;
         void _ExitVehicle(Position const* exitPosition = NULL);
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = NULL);
-
-        void WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusElement* extras = NULL);
 
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
