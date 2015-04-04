@@ -123,7 +123,7 @@ public:
             instance->SetBossState(DATA_MAULGAR, DONE);
         }
 
-        void DoAction(int32 actionId)
+        void DoAction(int32 actionId) override
         {
             if (actionId == ACTION_ADD_DEATH)
                 Talk(SAY_OGRE_DEATH);

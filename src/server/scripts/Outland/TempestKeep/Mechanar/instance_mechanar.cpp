@@ -42,7 +42,7 @@ class instance_mechanar : public InstanceMapScript
                 LoadDoorData(doorData);
             }
 
-            void OnGameObjectCreate(GameObject* gameObject)
+            void OnGameObjectCreate(GameObject* gameObject) override
             {
                 switch (gameObject->GetEntry())
                 {
