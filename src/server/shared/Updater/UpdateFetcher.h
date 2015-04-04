@@ -64,9 +64,6 @@ private:
 
         uint64 const timestamp;
 
-        AppliedFileEntry(std::string const& _name, std::string const& _hash, State const _state, uint64 const _timestamp) :
-            name(_name), hash(_hash), state(_state), timestamp(_timestamp) { }
-
         static inline State StateConvert(std::string const& state)
         {
             return (state == "RELEASED") ? RELEASED : ARCHIVED;
@@ -90,9 +87,6 @@ private:
         Path const path;
 
         State const state;
-
-        DirectoryEntry(Path const& _path, State const _state) :
-            path(_path), state(_state) { }
     };
 
     typedef std::pair<Path, State> LocaleFileEntry;
