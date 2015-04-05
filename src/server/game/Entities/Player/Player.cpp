@@ -97,6 +97,7 @@
 #include "QuestPackets.h"
 #include "LootPackets.h"
 #include "TradePackets.h"
+#include "VehiclePackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -20298,8 +20299,7 @@ bool Player::RemoveMItem(ObjectGuid::LowType id)
 
 void Player::SendOnCancelExpectedVehicleRideAura()
 {
-    WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Vehicle::OnCancelExpectedRideVehicleAura().Write());
 }
 
 void Player::PetSpellInitialize()

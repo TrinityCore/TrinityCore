@@ -1012,7 +1012,7 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     data.npcflag = npcflag;
     data.unit_flags = unit_flags;
     data.dynamicflags = dynamicflags;
-    
+
     data.phaseid = GetDBPhase() > 0 ? GetDBPhase() : 0;
     data.phaseGroup = GetDBPhase() < 0 ? abs(GetDBPhase()) : 0;
 
@@ -1220,7 +1220,7 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
     }
 
     if (vehId)
-        CreateVehicleKit(vehId, entry);
+        CreateVehicleKit(vehId, entry, true);
 
     return true;
 }
