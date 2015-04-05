@@ -422,6 +422,8 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
                 movementSpline.PackedDeltas.push_back(middle - realPath[i]);
         }
     }
+
+    movementSpline.Mode = spline.mode();
 }
 
 WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
@@ -597,7 +599,7 @@ void WorldPackets::Movement::MoveTeleportAck::Read()
     _worldPacket >> MoveTime;
 }
 
-ByteBuffer operator>>(ByteBuffer& data, WorldPackets::Movement::MovementAck& ack)
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MovementAck& ack)
 {
     data >> ack.movementInfo;
     data >> ack.AckIndex;
