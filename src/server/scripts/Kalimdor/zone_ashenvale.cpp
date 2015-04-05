@@ -42,6 +42,7 @@ enum RuulSnowhoof
     NPC_THISTLEFUR_TOTEMIC      = 3922,
     NPC_THISTLEFUR_PATHFINDER   = 3926,
     QUEST_FREEDOM_TO_RUUL       = 6482,
+    FACTION_QUEST               = 113,
     GO_CAGE                     = 178147
 };
 
