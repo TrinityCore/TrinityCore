@@ -1126,30 +1126,11 @@ class npc_ominous_cloud : public CreatureScript
                 DoCast(me, SPELL_OMINOUS_CLOUD_VISUAL);
             }
 
-            void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
-            {
-                float step = clockwise ? float(-M_PI) / 8.0f : float(M_PI) / 8.0f;
-                float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
-
-                for (uint8 i = 0; i < 16; angle += step, ++i)
-                {
-                    G3D::Vector3 point;
-                    point.x = centerPos.GetPositionX() + radius * cosf(angle);
-                    point.y = centerPos.GetPositionY() + radius * sinf(angle);
-                    point.z = me->GetMap()->GetHeight(me->GetPhaseMask(), point.x, point.y, z + 5.0f);
-                    path.push_back(point);
-                }
-            }
-
             void UpdateAI(uint32 /*diff*/) override { }
 
-            void DoAction(int32 action) override
+            void DoAction(int32 /*action*/) override
             {
-                Movement::MoveSplineInit init(me);
-                FillCirclePath(YoggSaronSpawnPos, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), me->GetPositionZ(), init.Path(), action != 0);
-                init.SetWalk(true);
-                init.SetCyclic();
-                init.Launch();
+                me->GetMotionMaster()->MoveCirclePath(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY(), me->GetPositionZ() + 5.0f, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), true, 16);
             }
         };
 

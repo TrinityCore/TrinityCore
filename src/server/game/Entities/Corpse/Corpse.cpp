@@ -22,9 +22,6 @@
 #include "UpdateMask.h"
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
-#include "Opcodes.h"
-#include "GossipDef.h"
-#include "World.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {
