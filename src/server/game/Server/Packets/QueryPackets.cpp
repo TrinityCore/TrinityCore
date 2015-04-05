@@ -357,3 +357,51 @@ WorldPacket const* WorldPackets::Query::QueryTimeResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Query::QuestPOIQuery::Read()
+{
+    _worldPacket >> MissingQuestCount;
+
+    for (uint8 i = 0; i < 50; ++i)
+        _worldPacket >> MissingQuestPOIs[i];
+}
+
+WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
+{
+    _worldPacket << int32(QuestPOIDataStats.size());
+    _worldPacket << int32(QuestPOIDataStats.size());
+
+    for (QuestPOIData const& questPOIData : QuestPOIDataStats)
+    {
+        _worldPacket << int32(questPOIData.QuestID);
+
+        _worldPacket << int32(questPOIData.QuestPOIBlobDataStats.size());
+        _worldPacket << int32(questPOIData.QuestPOIBlobDataStats.size());
+
+        for (QuestPOIBlobData const& questPOIBlobData : questPOIData.QuestPOIBlobDataStats)
+        {
+            _worldPacket << int32(questPOIBlobData.BlobIndex);
+            _worldPacket << int32(questPOIBlobData.ObjectiveIndex);
+            _worldPacket << int32(questPOIBlobData.QuestObjectiveID);
+            _worldPacket << int32(questPOIBlobData.QuestObjectID);
+            _worldPacket << int32(questPOIBlobData.MapID);
+            _worldPacket << int32(questPOIBlobData.WorldMapAreaID);
+            _worldPacket << int32(questPOIBlobData.Floor);
+            _worldPacket << int32(questPOIBlobData.Priority);
+            _worldPacket << int32(questPOIBlobData.Flags);
+            _worldPacket << int32(questPOIBlobData.WorldEffectID);
+            _worldPacket << int32(questPOIBlobData.PlayerConditionID);
+            _worldPacket << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
+            _worldPacket << int32(questPOIBlobData.UnkWoD1);
+            _worldPacket << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
+
+            for (QuestPOIBlobPoint const& questPOIBlobPoint : questPOIBlobData.QuestPOIBlobPointStats)
+            {
+                _worldPacket << int32(questPOIBlobPoint.X);
+                _worldPacket << int32(questPOIBlobPoint.Y);
+            }
+        }
+    }
+
+    return &_worldPacket;
+}

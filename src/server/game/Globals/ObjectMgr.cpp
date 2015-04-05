@@ -6802,45 +6802,45 @@ void ObjectMgr::LoadQuestPOI()
 {
     uint32 oldMSTime = getMSTime();
 
-    _questPOIStore.clear();                              // need for reload case
+    _questPOIStore.clear(); // need for reload case
 
     uint32 count = 0;
 
-    //                                               0        1   2         3      4               5        6     7
-    QueryResult result = WorldDatabase.Query("SELECT questId, id, objIndex, mapid, WorldMapAreaId, FloorId, unk3, unk4 FROM quest_poi order by questId");
-
+    //                                                   0        1        2            3           4                 5           6         7            8       9       10         11              12             13
+    QueryResult result = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1 FROM quest_poi order by QuestID, Idx1");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
         return;
     }
 
-    //                                                0       1   2  3
-    QueryResult points = WorldDatabase.Query("SELECT questId, id, x, y FROM quest_poi_points ORDER BY questId DESC, idx");
+    //                                                0           1       2    3  4
+    QueryResult points = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx1, Idx2");
 
-    std::vector<std::vector<std::vector<QuestPOIPoint> > > POIs;
+    std::vector<std::vector<std::vector<QuestPOIPoint>>> POIs;
 
     if (points)
     {
         // The first result should have the highest questId
         Field* fields = points->Fetch();
-        uint32 questIdMax = fields[0].GetUInt32();
+        uint32 questIdMax = fields[0].GetInt32();
         POIs.resize(questIdMax + 1);
 
         do
         {
             fields = points->Fetch();
 
-            uint32 questId            = fields[0].GetUInt32();
-            uint32 id                 = fields[1].GetUInt32();
-            int32  x                  = fields[2].GetInt32();
-            int32  y                  = fields[3].GetInt32();
+            int32 QuestID             = fields[0].GetInt32();
+            int32 BlobIndex           = fields[1].GetInt32();
+            int32 Idx1                = fields[2].GetInt32();
+            int32 X                   = fields[3].GetInt32();
+            int32 Y                   = fields[4].GetInt32();
 
-            if (POIs[questId].size() <= id + 1)
-                POIs[questId].resize(id + 10);
+            if (POIs[QuestID].size() <= Idx1 + 1)
+                POIs[QuestID].resize(Idx1 + 10);
 
-            QuestPOIPoint point(x, y);
-            POIs[questId][id].push_back(point);
+            QuestPOIPoint point(X, Y);
+            POIs[QuestID][Idx1].push_back(point);
         } while (points->NextRow());
     }
 
@@ -6848,23 +6848,29 @@ void ObjectMgr::LoadQuestPOI()
     {
         Field* fields = result->Fetch();
 
-        uint32 questId            = fields[0].GetUInt32();
-        uint32 id                 = fields[1].GetUInt32();
-        int32 objIndex            = fields[2].GetInt32();
-        uint32 mapId              = fields[3].GetUInt32();
-        uint32 WorldMapAreaId     = fields[4].GetUInt32();
-        uint32 FloorId            = fields[5].GetUInt32();
-        uint32 unk3               = fields[6].GetUInt32();
-        uint32 unk4               = fields[7].GetUInt32();
+        int32 QuestID               = fields[0].GetInt32();
+        int32 BlobIndex             = fields[1].GetInt32();
+        int32 Idx1                  = fields[2].GetInt32();
+        int32 ObjectiveIndex        = fields[3].GetInt32();
+        int32 QuestObjectiveID      = fields[4].GetInt32();
+        int32 QuestObjectID         = fields[5].GetInt32();
+        int32 MapID                 = fields[6].GetInt32();
+        int32 WorldMapAreaId        = fields[7].GetInt32();
+        int32 Floor                 = fields[8].GetInt32();
+        int32 Priority              = fields[8].GetInt32();
+        int32 Flags                 = fields[9].GetInt32();
+        int32 WorldEffectID         = fields[10].GetInt32();
+        int32 PlayerConditionID     = fields[12].GetInt32();
+        int32 WoDUnk1               = fields[13].GetInt32();
 
-        QuestPOI POI(id, objIndex, mapId, WorldMapAreaId, FloorId, unk3, unk4);
-        if (questId < POIs.size() && id < POIs[questId].size())
+        QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1);
+        if (QuestID < POIs.size() && Idx1 < POIs[QuestID].size())
         {
-            POI.points = POIs[questId][id];
-            _questPOIStore[questId].push_back(POI);
+            POI.points = POIs[QuestID][Idx1];
+            _questPOIStore[QuestID].push_back(POI);
         }
         else
-            TC_LOG_ERROR("server.loading", "Table quest_poi references unknown quest points for quest %u POI id %u", questId, id);
+            TC_LOG_ERROR("server.loading", "Table quest_poi references unknown quest points for quest %i POI id %i", QuestID, BlobIndex);
 
         ++count;
     } while (result->NextRow());
