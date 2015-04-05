@@ -642,6 +642,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()
     _worldPacket << float(Scale);
     _worldPacket << uint32(MountDisplayID);
     _worldPacket.WriteBits(Reason, 2);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
