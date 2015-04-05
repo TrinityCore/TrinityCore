@@ -35,6 +35,7 @@ if(SERVERS OR TOOLS)
 endif()
 
 if(SERVERS)
+  add_subdirectory(cppformat)
   add_subdirectory(gsoap)
 endif()
 

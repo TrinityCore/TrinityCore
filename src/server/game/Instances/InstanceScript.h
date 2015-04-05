@@ -254,11 +254,15 @@ class InstanceScript : public ZoneScript
         void AddObject(GameObject* obj, bool add);
         void AddObject(WorldObject* obj, uint32 type, bool add);
 
-        void AddDoor(GameObject* door, bool add);
+        virtual void AddDoor(GameObject* door, bool add);
         void AddMinion(Creature* minion, bool add);
 
-        void UpdateDoorState(GameObject* door);
+        virtual void UpdateDoorState(GameObject* door);
         void UpdateMinionState(Creature* minion, EncounterState state);
+
+        // Exposes private data that should never be modified unless exceptional cases.
+        // Pay very much attention at how the returned BossInfo data is modified to avoid issues.
+        BossInfo* GetBossInfo(uint32 id);
 
         // Instance Load and Save
         bool ReadSaveDataHeaders(std::istringstream& data);

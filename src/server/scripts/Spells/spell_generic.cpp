@@ -3629,6 +3629,43 @@ class spell_gen_eject_all_passengers : public SpellScriptLoader
         }
 };
 
+class spell_gen_eject_passenger : public SpellScriptLoader
+{
+    public:
+        spell_gen_eject_passenger() : SpellScriptLoader("spell_gen_eject_passenger") { }
+
+        class spell_gen_eject_passenger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_eject_passenger_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (spellInfo->Effects[EFFECT_0].CalcValue() < 1)
+                    return false;
+                return true;
+            }
+
+            void EjectPassenger(SpellEffIndex /*effIndex*/)
+            {
+                if (Vehicle* vehicle = GetHitUnit()->GetVehicleKit())
+                {
+                    if (Unit* passenger = vehicle->GetPassenger(GetEffectValue() - 1))
+                        passenger->ExitVehicle();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_eject_passenger_SpellScript::EjectPassenger, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_eject_passenger_SpellScript();
+        }
+};
+
 enum GMFreeze
 {
     SPELL_GM_FREEZE = 9454
@@ -4121,6 +4158,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_wg_water();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
     new spell_gen_eject_all_passengers();
+    new spell_gen_eject_passenger();
     new spell_gen_gm_freeze();
     new spell_gen_stand();
     new spell_gen_mixology_bonus();

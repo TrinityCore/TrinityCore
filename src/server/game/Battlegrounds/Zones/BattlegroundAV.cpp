@@ -26,7 +26,6 @@
 #include "Language.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellAuras.h"
 #include "WorldSession.h"
 
 BattlegroundAV::BattlegroundAV()

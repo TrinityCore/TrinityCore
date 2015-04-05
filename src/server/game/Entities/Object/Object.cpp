@@ -30,27 +30,19 @@
 #include "UpdateData.h"
 #include "UpdateMask.h"
 #include "Util.h"
-#include "MapManager.h"
 #include "ObjectAccessor.h"
-#include "Log.h"
 #include "Transport.h"
-#include "TargetedMovementGenerator.h"
-#include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "SpellAuraEffects.h"
 #include "UpdateFieldFlags.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "OutdoorPvPMgr.h"
 #include "MovementPacketBuilder.h"
-#include "DynamicTree.h"
-#include "Group.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
-#include "Chat.h"
 #ifdef ELUNA
 #include "LuaEngine.h"
 #include "ElunaEventMgr.h"
@@ -509,6 +501,7 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
 
     uint32* flags = NULL;
     uint32 visibleFlag = GetUpdateFieldData(target, flags);
+    ASSERT(flags);
 
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
