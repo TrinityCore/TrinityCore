@@ -32,7 +32,7 @@ class Logger
         std::string const& getName() const;
         LogLevel getLogLevel() const;
         void setLogLevel(LogLevel level);
-        void write(LogMessage& message) const;
+        void write(LogMessage* message) const;
 
     private:
         std::string name;

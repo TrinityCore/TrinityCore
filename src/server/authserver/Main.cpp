@@ -28,14 +28,13 @@
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "DatabaseLoader.h"
 #include "Log.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
 #include "SystemConfig.h"
 #include "Util.h"
-#include <cstdlib>
 #include <iostream>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/program_options.hpp>
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
@@ -58,7 +57,7 @@ boost::asio::deadline_timer _dbPingTimer(_ioService);
 uint32 _dbPingInterval;
 LoginDatabaseWorkerPool LoginDatabase;
 
-int mainImpl(int argc, char** argv)
+int main(int argc, char** argv)
 {
     std::string configFile = _TRINITY_REALM_CONFIG;
     auto vm = GetConsoleArguments(argc, argv, configFile);
@@ -144,57 +143,21 @@ int mainImpl(int argc, char** argv)
     return 0;
 }
 
-/// Launch the Trinity server
-extern int main(int argc, char** argv)
-{
-    try
-    {
-        return mainImpl(argc, argv);
-    }
-    catch (std::exception& ex)
-    {
-        std::cerr << "Top-level exception caught:" << ex.what() << "\n";
-
-#ifndef NDEBUG // rethrow exception for the debugger
-        throw;
-#else
-        return 1;
-#endif
-    }
-}
 
 /// Initialize connection to the database
 bool StartDB()
 {
     MySQL::Library_Init();
 
-    std::string dbstring = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "");
-    if (dbstring.empty())
-    {
-        TC_LOG_ERROR("server.authserver", "Database not specified");
+    // Load databases
+    // NOTE: While authserver is singlethreaded you should keep synch_threads == 1.
+    // Increasing it is just silly since only 1 will be used ever.
+    DatabaseLoader loader("server.authserver", DatabaseLoader::DATABASE_NONE);
+    loader
+        .AddDatabase(LoginDatabase, "Login");
+
+    if (!loader.Load())
         return false;
-    }
-
-    int32 worker_threads = sConfigMgr->GetIntDefault("LoginDatabase.WorkerThreads", 1);
-    if (worker_threads < 1 || worker_threads > 32)
-    {
-        TC_LOG_ERROR("server.authserver", "Improper value specified for LoginDatabase.WorkerThreads, defaulting to 1.");
-        worker_threads = 1;
-    }
-
-    int32 synch_threads = sConfigMgr->GetIntDefault("LoginDatabase.SynchThreads", 1);
-    if (synch_threads < 1 || synch_threads > 32)
-    {
-        TC_LOG_ERROR("server.authserver", "Improper value specified for LoginDatabase.SynchThreads, defaulting to 1.");
-        synch_threads = 1;
-    }
-
-    // NOTE: While authserver is singlethreaded you should keep synch_threads == 1. Increasing it is just silly since only 1 will be used ever.
-    if (!LoginDatabase.Open(dbstring, uint8(worker_threads), uint8(synch_threads)))
-    {
-        TC_LOG_ERROR("server.authserver", "Cannot connect to database");
-        return false;
-    }
 
     TC_LOG_INFO("server.authserver", "Started auth database connection pool.");
     sLog->SetRealmId(0); // Enables DB appenders when realm is set.
