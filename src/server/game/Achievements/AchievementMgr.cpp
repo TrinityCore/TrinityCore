@@ -1508,7 +1508,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
         return;
 
-    TC_LOG_INFO("achievement", "AchievementMgr::CompletedAchievement(%u). Player: %s (%u)",
+    TC_LOG_DEBUG("achievement", "AchievementMgr::CompletedAchievement(%u). Player: %s (%u)",
         achievement->ID, m_player->GetName().c_str(), m_player->GetGUIDLow());
 
     SendAchievementEarned(achievement);

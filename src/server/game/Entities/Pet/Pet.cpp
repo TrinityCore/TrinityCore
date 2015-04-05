@@ -26,7 +26,6 @@
 #include "Formulas.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-#include "CreatureAI.h"
 #include "Unit.h"
 #include "Util.h"
 #include "Group.h"
@@ -1314,7 +1313,7 @@ void Pet::_LoadAuras(uint32 timediff)
                 }
                 aura->SetLoadedState(maxduration, remaintime, remaincharges, stackcount, recalculatemask, &damage[0]);
                 aura->ApplyForTargets();
-                TC_LOG_INFO("entities.pet", "Added aura spellid %u, effectmask %u", spellInfo->Id, effmask);
+                TC_LOG_DEBUG("entities.pet", "Added aura spellid %u, effectmask %u", spellInfo->Id, effmask);
             }
         }
         while (result->NextRow());

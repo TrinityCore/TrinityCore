@@ -15,4 +15,6 @@ option(USE_SCRIPTPCH    "Use precompiled headers when compiling scripts"        
 option(USE_COREPCH      "Use precompiled headers when compiling servers"              1)
 option(WITH_WARNINGS    "Show all warnings during compile"                            0)
 option(WITH_COREDEBUG   "Include additional debug-code in core"                       0)
+set(WITH_SOURCE_TREE "no" CACHE STRING "Build the source tree for IDE's.")
+set_property(CACHE WITH_SOURCE_TREE PROPERTY STRINGS no flat hierarchical)
 option(WITHOUT_GIT      "Disable the GIT testing routines"                            0)

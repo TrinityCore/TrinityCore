@@ -191,6 +191,12 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
 }
 
+BossInfo* InstanceScript::GetBossInfo(uint32 id)
+{
+    ASSERT(id < bosses.size());
+    return &bosses[id];
+}
+
 void InstanceScript::AddObject(Creature* obj, bool add)
 {
     ObjectInfoMap::const_iterator j = _creatureInfo.find(obj->GetEntry());

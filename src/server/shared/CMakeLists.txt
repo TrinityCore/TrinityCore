@@ -21,6 +21,7 @@ file(GLOB_RECURSE sources_Logging Logging/*.cpp Logging/*.h)
 file(GLOB_RECURSE sources_Networking Networking/*.cpp Networking/*.h)
 file(GLOB_RECURSE sources_Packets Packets/*.cpp Packets/*.h)
 file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading/*.h)
+file(GLOB_RECURSE sources_Updater Updater/*.cpp Updater/*.h)
 file(GLOB_RECURSE sources_Utilities Utilities/*.cpp Utilities/*.h)
 
 file(GLOB sources_localdir *.cpp *.h)
@@ -51,6 +52,7 @@ set(shared_STAT_SRCS
   ${sources_Networking}
   ${sources_Packets}
   ${sources_Threading}
+  ${sources_Updater}
   ${sources_Utilities}
   ${sources_localdir}
 )
@@ -59,8 +61,9 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
   ${CMAKE_SOURCE_DIR}/dep/SFMT
-  ${CMAKE_SOURCE_DIR}/dep/sockets/include
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/utf8cpp
+  ${CMAKE_SOURCE_DIR}/dep/process
   ${CMAKE_SOURCE_DIR}/src/server
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Configuration
@@ -74,11 +77,14 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Packets
   ${CMAKE_CURRENT_SOURCE_DIR}/Threading
   ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
+  ${CMAKE_CURRENT_SOURCE_DIR}/Updater
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}
 )
+
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(shared STATIC
   ${shared_STAT_SRCS}

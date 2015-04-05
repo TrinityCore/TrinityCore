@@ -26,9 +26,6 @@
 #include "Opcodes.h"
 #include "Spell.h"
 #include "Totem.h"
-#include "TemporarySummon.h"
-#include "SpellAuras.h"
-#include "CreatureAI.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
 #include "SpellAuraEffects.h"
@@ -417,7 +414,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
         return;
 
     // not allow remove spells with attr SPELL_ATTR0_CANT_CANCEL
-    if (spellInfo->Attributes & SPELL_ATTR0_CANT_CANCEL)
+    if (spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL))
         return;
 
     // channeled spell case (it currently cast then)
