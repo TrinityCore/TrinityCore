@@ -6814,8 +6814,8 @@ void ObjectMgr::LoadQuestPOI()
         return;
     }
 
-    //                                                0           1       2    3  4
-    QueryResult points = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx1, Idx2");
+    //                                                0        1    2  3
+    QueryResult points = WorldDatabase.Query("SELECT QuestID, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx1, Idx2");
 
     std::vector<std::vector<std::vector<QuestPOIPoint>>> POIs;
 
@@ -6831,10 +6831,9 @@ void ObjectMgr::LoadQuestPOI()
             fields = points->Fetch();
 
             int32 QuestID             = fields[0].GetInt32();
-            int32 BlobIndex           = fields[1].GetInt32();
-            int32 Idx1                = fields[2].GetInt32();
-            int32 X                   = fields[3].GetInt32();
-            int32 Y                   = fields[4].GetInt32();
+            int32 Idx1                = fields[1].GetInt32();
+            int32 X                   = fields[2].GetInt32();
+            int32 Y                   = fields[3].GetInt32();
 
             if (POIs[QuestID].size() <= Idx1 + 1)
                 POIs[QuestID].resize(Idx1 + 10);
