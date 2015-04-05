@@ -25,7 +25,6 @@
 #include "ObjectMgr.h"
 #include "Vehicle.h"
 #include "Transport.h"
-#include "WorldSession.h"
 #include "ScriptedCreature.h"
 
 BattlegroundIC::BattlegroundIC()

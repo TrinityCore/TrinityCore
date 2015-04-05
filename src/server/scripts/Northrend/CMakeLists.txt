@@ -78,8 +78,7 @@ set(scripts_STAT_SRCS
   Northrend/Nexus/Oculus/boss_urom.cpp
   Northrend/Nexus/Oculus/oculus.cpp
   Northrend/Nexus/Oculus/instance_oculus.cpp
-  Northrend/Nexus/Nexus/boss_commander_kolurg.cpp
-  Northrend/Nexus/Nexus/boss_commander_stoutbeard.cpp
+  Northrend/Nexus/Nexus/boss_nexus_commanders.cpp
   Northrend/Nexus/Nexus/boss_ormorok.cpp
   Northrend/Nexus/Nexus/boss_magus_telestra.cpp
   Northrend/Nexus/Nexus/instance_nexus.cpp

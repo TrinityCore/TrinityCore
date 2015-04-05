@@ -89,7 +89,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
         SpellInfo const* spell = (flag == ACT_ENABLED || flag == ACT_PASSIVE) ? sSpellMgr->GetSpellInfo(spellid) : NULL;
         if (!spell)
             return;
-        if (!(spell->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
+        if (!spell->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_DEAD))
             return;
     }
 

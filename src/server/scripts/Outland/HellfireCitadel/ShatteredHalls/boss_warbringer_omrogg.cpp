@@ -416,7 +416,7 @@ class npc_omrogg_heads : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override { }
 
-            void SetData(uint32 data, uint32 value)
+            void SetData(uint32 data, uint32 value) override
             {
                 if (data == SETDATA_DATA && value == SETDATA_YELL)
                 {

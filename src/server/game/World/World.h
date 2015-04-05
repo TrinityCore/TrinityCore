@@ -741,7 +741,8 @@ class World
         void LoadDBVersion();
         char const* GetDBVersion() const { return m_DBVersion.c_str(); }
 
-        void RecordTimeDiff(const char * text, ...);
+        void ResetTimeDiffRecord();
+        void RecordTimeDiff(std::string const& text);
 
         void LoadAutobroadcasts();
 

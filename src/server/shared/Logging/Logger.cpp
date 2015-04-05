@@ -50,9 +50,9 @@ void Logger::setLogLevel(LogLevel _level)
     level = _level;
 }
 
-void Logger::write(LogMessage& message) const
+void Logger::write(LogMessage* message) const
 {
-    if (!level || level > message.level || message.text.empty())
+    if (!level || level > message->level || message->text.empty())
     {
         //fprintf(stderr, "Logger::write: Logger %s, Level %u. Msg %s Level %u WRONG LEVEL MASK OR EMPTY MSG\n", getName().c_str(), getLogLevel(), message.text.c_str(), message.level);
         return;

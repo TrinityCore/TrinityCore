@@ -1,0 +1,17 @@
+UPDATE `creature` SET `guid`=76001 WHERE  `guid`=214003;
+UPDATE `creature` SET `guid`=76002 WHERE  `guid`=214004;
+UPDATE `creature` SET `guid`=76003 WHERE  `guid`=214005;
+UPDATE `creature` SET `guid`=76004 WHERE  `guid`=214006;
+UPDATE `creature` SET `guid`=76005 WHERE  `guid`=214007;
+UPDATE `creature` SET `guid`=76006 WHERE  `guid`=214008;
+UPDATE `creature` SET `guid`=76007 WHERE  `guid`=214009;
+UPDATE `creature` SET `guid`=76008 WHERE  `guid`=214010;
+UPDATE `creature` SET `guid`=76009 WHERE  `guid`=214011;
+UPDATE `creature` SET `guid`=76010 WHERE  `guid`=214012;
+UPDATE `creature` SET `guid`=76011 WHERE  `guid`=214013;
+UPDATE `creature` SET `guid`=76012 WHERE  `guid`=214014;
+UPDATE `creature` SET `guid`=76013 WHERE  `guid`=214015;
+UPDATE `creature` SET `guid`=76014 WHERE  `guid`=214016;
+UPDATE `creature` SET `guid`=76015 WHERE  `guid`=214017;
+UPDATE `creature` SET `guid`=76016 WHERE  `guid`=214018;
+UPDATE `creature` SET `guid`=76017 WHERE  `guid`=214019;
