@@ -414,6 +414,11 @@ namespace WorldPackets
         class TradeStatus;
     }
 
+    namespace Vehicle
+    {
+        class MoveSetVehicleRecIdAck;
+    }
+
     namespace Who
     {
         class WhoIsRequest;
@@ -942,6 +947,7 @@ class WorldSession
         void HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet);
         void HandleDismissControlledVehicle(WorldPacket& recvData);
         void HandleRequestVehicleExit(WorldPacket& recvData);
+        void HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck);
         void HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData);
         void HandleMoveTimeSkippedOpcode(WorldPacket& recvData);
 

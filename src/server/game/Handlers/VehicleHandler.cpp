@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
+#include "VehiclePackets.h"
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
@@ -187,4 +188,9 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)
                     GetPlayer()->GetGUID().ToString().c_str(), seat->ID, seat->Flags);
         }
     }
+}
+
+void WorldSession::HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck)
+{
+    GetPlayer()->ValidateMovementInfo(&setVehicleRecIdAck.Data.movementInfo);
 }

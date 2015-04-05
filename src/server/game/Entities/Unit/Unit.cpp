@@ -67,6 +67,7 @@
 #include "MovementPackets.h"
 #include "CombatPackets.h"
 #include "CombatLogPackets.h"
+#include "VehiclePackets.h"
 
 #include <cmath>
 
@@ -9546,12 +9547,6 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         {
             if (CreateVehicleKit(VehicleId, creatureEntry))
             {
-                // Send others that we now have a vehicle
-                WorldPacket data(SMSG_SET_VEHICLE_REC_ID, GetPackGUID().size() + 4);
-                data << GetPackGUID();
-                data << uint32(VehicleId);
-                SendMessageToSet(&data, true);
-
                 player->SendOnCancelExpectedVehicleRideAura();
 
                 // mounts can also have accessories
@@ -9595,11 +9590,6 @@ void Unit::Dismount()
     // dismount as a vehicle
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
     {
-        // Send other players that we are no longer a vehicle
-        data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 4);
-        data << GetPackGUID();
-        data << uint32(0);
-        ToPlayer()->SendMessageToSet(&data, true);
         // Remove vehicle from player
         RemoveVehicleKit();
     }
@@ -11585,7 +11575,7 @@ void Unit::RemoveFromWorld()
     {
         m_duringRemoveFromWorld = true;
         if (IsVehicle())
-            RemoveVehicleKit();
+            RemoveVehicleKit(true);
 
         RemoveCharmAuras();
         RemoveBindSightAuras();
@@ -14163,7 +14153,7 @@ Unit* Unit::GetRedirectThreatTarget()
     return !_redirectThreadInfo.GetTargetGUID().IsEmpty() ? ObjectAccessor::GetUnit(*this, _redirectThreadInfo.GetTargetGUID()) : NULL;
 }
 
-bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
+bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, bool loading /*= false*/)
 {
     VehicleEntry const* vehInfo = sVehicleStore.LookupEntry(id);
     if (!vehInfo)
@@ -14172,13 +14162,20 @@ bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
     m_vehicleKit = new Vehicle(this, vehInfo, creatureEntry);
     m_updateFlag |= UPDATEFLAG_VEHICLE;
     m_unitTypeMask |= UNIT_MASK_VEHICLE;
+
+    if (!loading)
+        SendSetVehicleRecId(id);
+
     return true;
 }
 
-void Unit::RemoveVehicleKit()
+void Unit::RemoveVehicleKit(bool onRemoveFromWorld /*= false*/)
 {
     if (!m_vehicleKit)
         return;
+
+    if (!onRemoveFromWorld)
+        SendSetVehicleRecId(0);
 
     m_vehicleKit->Uninstall();
     delete m_vehicleKit;
@@ -15970,6 +15967,23 @@ bool Unit::SetHover(bool enable, bool packetOnly /*= false*/)
     }
 
     return true;
+}
+
+void Unit::SendSetVehicleRecId(uint32 vehicleId)
+{
+    if (Player* player = ToPlayer())
+    {
+        WorldPackets::Vehicle::MoveSetVehicleRecID moveSetVehicleRec;
+        moveSetVehicleRec.MoverGUID = GetGUID();
+        moveSetVehicleRec.SequenceIndex = m_movementCounter++;
+        moveSetVehicleRec.VehicleRecID = vehicleId;
+        player->SendDirectMessage(moveSetVehicleRec.Write());
+    }
+
+    WorldPackets::Vehicle::SetVehicleRecID setVehicleRec;
+    setVehicleRec.VehicleGUID = GetGUID();
+    setVehicleRec.VehicleRecID = vehicleId;
+    SendMessageToSet(setVehicleRec.Write(), true);
 }
 
 void Unit::SendSetPlayHoverAnim(bool enable)

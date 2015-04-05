@@ -745,12 +745,6 @@ class npc_gunship : public CreatureScript
                     if (isVictory)
                     {
                         cannon->CastSpell(cannon, SPELL_EJECT_ALL_PASSENGERS_BELOW_ZERO, TRIGGERED_FULL_MASK);
-
-                        WorldPacket data(SMSG_SET_VEHICLE_REC_ID, cannon->GetPackGUID().size() + 4);
-                        data << cannon->GetPackGUID();
-                        data << uint32(0);
-                        cannon->SendMessageToSet(&data, true);
-
                         cannon->RemoveVehicleKit();
                     }
                     else
