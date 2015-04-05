@@ -133,6 +133,7 @@ public:
             uiCyanigosaEventTimer = 3 * IN_MILLISECONDS;
 
             bActive = false;
+            bWiped = false;
             bIsDoorSpellCast = false;
             bCrystalActivated = false;
             defenseless = true;
@@ -801,7 +802,7 @@ public:
             }
         }
 
-        void ProcessEvent(WorldObject* /*go*/, uint32 uiEventId)
+        void ProcessEvent(WorldObject* /*go*/, uint32 uiEventId) override
         {
             switch (uiEventId)
             {

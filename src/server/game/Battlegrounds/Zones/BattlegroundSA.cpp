@@ -23,7 +23,6 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 BattlegroundSA::BattlegroundSA()
 {

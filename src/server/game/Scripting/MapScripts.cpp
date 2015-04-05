@@ -21,8 +21,6 @@
 #include "GridNotifiersImpl.h"
 #include "GossipDef.h"
 #include "Map.h"
-#include "MapManager.h"
-#include "MapRefManager.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "ScriptedCreature.h"
