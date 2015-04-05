@@ -257,15 +257,6 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
-            uint8 plrRace = fields[2].GetUInt8();
-            uint8 plrClass = fields[3].GetUInt8();
-            uint8 plrGender = fields[4].GetUInt8();
-            uint8 plrSkin = uint8(fields[5].GetUInt32() & 0xFF);
-            uint8 plrFace = uint8((fields[5].GetUInt32() >> 8) & 0xFF);
-            uint8 plrHairStyle = uint8((fields[5].GetUInt32() >> 16) & 0xFF);
-            uint8 plrHairColor = uint8((fields[5].GetUInt32() >> 24) & 0xFF);
-            uint8 plrFacialHair = uint8(fields[6].GetUInt32() & 0xFF);
-
             if (!Player::ValidateAppearance(charInfo.Race, charInfo.Class, charInfo.Sex, charInfo.HairStyle, charInfo.HairColor, charInfo.Face, charInfo.FacialHair, charInfo.Skin))
             {
                 TC_LOG_ERROR("entities.player.loading", "Player %s has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString().c_str());
