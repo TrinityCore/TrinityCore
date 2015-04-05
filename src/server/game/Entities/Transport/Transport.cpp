@@ -20,14 +20,10 @@
 #include "Transport.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
-#include "Path.h"
 #include "ScriptMgr.h"
-#include "WorldPacket.h"
 #include "DBCStores.h"
-#include "World.h"
 #include "GameObjectAI.h"
 #include "Vehicle.h"
-#include "MapReference.h"
 #include "Player.h"
 #include "Cell.h"
 #include "CellImpl.h"
@@ -334,6 +330,8 @@ GameObject* Transport::CreateGOPassenger(uint32 guid, GameObjectData const* data
         delete go;
         return NULL;
     }
+
+    ASSERT(data);
 
     float x = data->posX;
     float y = data->posY;

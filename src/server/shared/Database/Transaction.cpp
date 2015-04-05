@@ -30,17 +30,6 @@ void Transaction::Append(const char* sql)
     m_queries.push_back(data);
 }
 
-void Transaction::PAppend(const char* sql, ...)
-{
-    va_list ap;
-    char szQuery [MAX_QUERY_LEN];
-    va_start(ap, sql);
-    vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
-    va_end(ap);
-
-    Append(szQuery);
-}
-
 //- Append a prepared statement to the transaction
 void Transaction::Append(PreparedStatement* stmt)
 {

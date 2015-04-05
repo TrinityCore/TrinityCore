@@ -255,12 +255,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 if (GetBossState(BOSS_VALKIRIES) == SPECIAL)
                                     state = DONE;
                                 break;
-                            case DONE:
-                                if (instance->GetPlayers().getFirst()->GetSource()->GetTeam() == ALLIANCE)
-                                    EventStage = 4020;
-                                else
-                                    EventStage = 4030;
-                                break;
                             default:
                                 break;
                         }
@@ -336,7 +330,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (type < MAX_ENCOUNTERS)
                 {
-                    TC_LOG_INFO("scripts", "[ToCr] BossState(type %u) %u = state %u;", type, GetBossState(type), state);
+                    TC_LOG_DEBUG("scripts", "[ToCr] BossState(type %u) %u = state %u;", type, GetBossState(type), state);
                     if (state == FAIL)
                     {
                         if (instance->IsHeroic())

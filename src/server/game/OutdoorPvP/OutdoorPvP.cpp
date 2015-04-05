@@ -20,7 +20,6 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Map.h"
-#include "MapManager.h"
 #include "Group.h"
 #include "WorldPacket.h"
 #include "GridNotifiers.h"
@@ -509,7 +508,7 @@ bool OPvPCapturePoint::HandleCustomSpell(Player* player, uint32 /*spellId*/, Gam
 {
     if (!player->IsOutdoorPvPActive())
         return false;
-    return false;
+    return true;
 }
 
 bool OutdoorPvP::HandleOpenGo(Player* player, ObjectGuid guid)
