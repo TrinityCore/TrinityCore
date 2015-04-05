@@ -6856,9 +6856,9 @@ void ObjectMgr::LoadQuestPOI()
         int32 MapID                 = fields[6].GetInt32();
         int32 WorldMapAreaId        = fields[7].GetInt32();
         int32 Floor                 = fields[8].GetInt32();
-        int32 Priority              = fields[8].GetInt32();
-        int32 Flags                 = fields[9].GetInt32();
-        int32 WorldEffectID         = fields[10].GetInt32();
+        int32 Priority              = fields[9].GetInt32();
+        int32 Flags                 = fields[10].GetInt32();
+        int32 WorldEffectID         = fields[11].GetInt32();
         int32 PlayerConditionID     = fields[12].GetInt32();
         int32 WoDUnk1               = fields[13].GetInt32();
 
