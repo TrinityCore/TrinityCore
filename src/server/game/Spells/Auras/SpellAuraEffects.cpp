@@ -751,7 +751,7 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
             m_periodicTimer -= diff;
         else // tick also at m_periodicTimer == 0 to prevent lost last tick in case max m_duration == (max m_periodicTimer)*N
         {
-            ++m_tickNumber;
+            if ( ++m_tickNumber == 0 ) m_tickNumber = 2; // Only first go can be 1
 
             // update before tick (aura can be removed in TriggerSpell or PeriodicTick calls)
             m_periodicTimer += m_amplitude - diff;
@@ -5946,6 +5946,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellInfo());
 
     caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+
+    if ((target->IsAlive()) && (GetTickNumber()==1))
+      if (Creature* creature = target->ToCreature())
+        creature->SetCombatPosition();
 }
 
 void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const
@@ -5977,7 +5981,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     if (isAreaAura)
         damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount()) * caster->SpellDamagePctDone(target, m_spellInfo, DOT);
     else
-    	damage = std::max(int32(damage * GetDonePct()), 0);
+        damage = std::max(int32(damage * GetDonePct()), 0);
 
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
@@ -6040,6 +6044,10 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         int32 gain = caster->HealBySpell(caster, GetSpellInfo(), heal);
         caster->getHostileRefManager().threatAssist(caster, gain * 0.5f, GetSpellInfo());
     }
+
+    if ((target->IsAlive()) && (GetTickNumber()==1))
+      if (Creature* creature = target->ToCreature())
+        creature->SetCombatPosition();
 }
 
 void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const

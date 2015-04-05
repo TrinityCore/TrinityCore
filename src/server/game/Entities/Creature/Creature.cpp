@@ -246,6 +246,7 @@ void Creature::RemoveCorpse(bool setSpawnTime)
     float x, y, z, o;
     GetRespawnPosition(x, y, z, &o);
     SetHomePosition(x, y, z, o);
+    ClearCombatPosition();
     GetMap()->CreatureRelocation(this, x, y, z, o);
 }
 
@@ -1217,7 +1218,8 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
 
     //We should set first home position, because then AI calls home movement
     SetHomePosition(data->posX, data->posY, data->posZ, data->orientation);
-
+    ClearCombatPosition();
+    
     m_respawnradius = data->spawndist;
 
     m_respawnDelay = data->spawntimesecs;
@@ -1999,12 +2001,11 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
         return true;
 
     //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
-    float dist = std::max(GetAttackDistance(victim), sWorld->getFloatConfig(CONFIG_THREAT_RADIUS)) + m_CombatDistance;
-
-    if (Unit* unit = GetCharmerOrOwner())
-        return victim->IsWithinDist(unit, dist);
-    else
-        return victim->IsInDist(&m_homePosition, dist);
+    float    dist = m_CombatDistance + std::max(GetAttackDistance(victim),
+                                                sWorld->getFloatConfig(CONFIG_THREAT_RADIUS));
+    Position pos  = IsInCombat( ) ? GetCombatPosition() : m_homePosition;
+    
+    return victim->IsWithinDist3d(&pos,dist);
 }
 
 CreatureAddon const* Creature::GetCreatureAddon() const

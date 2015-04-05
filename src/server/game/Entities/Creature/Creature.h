@@ -678,6 +678,40 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         void ReleaseFocus(Spell const* focusSpell);
 
+        /**
+         * @brief Set the combat start position to the current mob map position.
+         * 
+         * World bosses are an exception to the rule, they are force-set to the
+         * home region to prohibit the players from abusing the mechanism and
+         * allowing city guards to kill the mob.
+         */
+        void SetCombatPosition() {
+          if (!isWorldBoss())
+            m_combatPosition.Relocate(GetPositionX(),GetPositionY(),GetPositionZ());
+          else
+            ClearCombatPosition();
+        }
+
+        /** 
+         * @brief Clear the modified last combat position
+         */
+        void ClearCombatPosition() {
+          /*
+           * Reuse the home position
+           */
+          m_combatPosition.Relocate(m_homePosition.GetPositionX(),
+                                    m_homePosition.GetPositionY(),
+                                    m_homePosition.GetPositionZ());
+        }
+
+        /**
+         * Get the last point where combat was started
+         * @return combat start position
+         */
+        Position GetCombatPosition() const {
+          return m_combatPosition;
+        }
+
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -718,6 +752,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         Position m_homePosition;
         Position m_transportHomePosition;
+        Position m_combatPosition;
 
         bool DisableReputationGain;
 
