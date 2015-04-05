@@ -103,6 +103,7 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                 }
 
                 delete[] gWmoInstansName;
+                gWmoInstansName = NULL;
             }
         }
         WDT.seek((int)nextpos);

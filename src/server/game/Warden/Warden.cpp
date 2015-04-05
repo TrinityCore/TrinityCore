@@ -22,10 +22,8 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
-#include <openssl/md5.h>
 #include <openssl/sha.h>
 #include "World.h"
-#include "Player.h"
 #include "Util.h"
 #include "Warden.h"
 #include "AccountMgr.h"

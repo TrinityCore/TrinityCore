@@ -458,7 +458,7 @@ class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
         {
             PrepareAuraScript(spell_general_vezax_mark_of_the_faceless_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FACELESS_DAMAGE))
                     return false;

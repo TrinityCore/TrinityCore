@@ -55,19 +55,25 @@ public:
 
     void Start() override;
 
-    void SendPacket(WorldPacket& packet);
+    void SendPacket(WorldPacket const& packet);
 
 protected:
+    void OnClose() override;
     void ReadHandler() override;
     bool ReadHeaderHandler();
     bool ReadDataHandler();
 
 private:
+    /// writes network.opcode log
+    /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
+    void LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> const& guard) const;
+    /// sends and logs network.opcode without accessing WorldSession
+    void SendPacketAndLogOpcode(WorldPacket const& packet);
     void HandleSendAuthSession();
     void HandleAuthSession(WorldPacket& recvPacket);
     void SendAuthResponseError(uint8 code);
 
-    void HandlePing(WorldPacket& recvPacket);
+    bool HandlePing(WorldPacket& recvPacket);
 
     uint32 _authSeed;
     AuthCrypt _authCrypt;
@@ -75,7 +81,9 @@ private:
     std::chrono::steady_clock::time_point _LastPingTime;
     uint32 _OverSpeedPings;
 
+    std::mutex _worldSessionLock;
     WorldSession* _worldSession;
+    bool _authed;
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;

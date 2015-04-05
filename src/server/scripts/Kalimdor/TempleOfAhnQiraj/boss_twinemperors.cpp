@@ -99,7 +99,7 @@ struct boss_twinemperorsAI : public ScriptedAI
     uint32 EnrageTimer;
 
     virtual bool IAmVeklor() = 0;
-    virtual void Reset() = 0;
+    virtual void Reset() override = 0;
     virtual void CastSpellOnBug(Creature* target) = 0;
 
     void TwinReset()
@@ -400,7 +400,7 @@ public:
 
     struct boss_veknilashAI : public boss_twinemperorsAI
     {
-        bool IAmVeklor() {return false;}
+        bool IAmVeklor() override {return false;}
         boss_veknilashAI(Creature* creature) : boss_twinemperorsAI(creature)
         {
             Initialize();
@@ -425,7 +425,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
-        void CastSpellOnBug(Creature* target)
+        void CastSpellOnBug(Creature* target) override
         {
             target->setFaction(14);
             target->AI()->AttackStart(me->getThreatManager().getHostilTarget());
@@ -488,7 +488,7 @@ public:
 
     struct boss_veklorAI : public boss_twinemperorsAI
     {
-        bool IAmVeklor() {return true;}
+        bool IAmVeklor() override {return true;}
         boss_veklorAI(Creature* creature) : boss_twinemperorsAI(creature)
         {
             Initialize();
@@ -516,7 +516,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
         }
 
-        void CastSpellOnBug(Creature* target)
+        void CastSpellOnBug(Creature* target) override
         {
             target->setFaction(14);
             target->AddAura(SPELL_EXPLODEBUG, target);

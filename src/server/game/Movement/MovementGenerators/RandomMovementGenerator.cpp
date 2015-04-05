@@ -17,9 +17,7 @@
  */
 
 #include "Creature.h"
-#include "MapManager.h"
 #include "RandomMovementGenerator.h"
-#include "ObjectAccessor.h"
 #include "Map.h"
 #include "Util.h"
 #include "CreatureGroups.h"

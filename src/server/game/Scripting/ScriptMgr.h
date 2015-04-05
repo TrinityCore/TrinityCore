@@ -1142,7 +1142,7 @@ class ScriptMgr
         uint32 _scriptCount;
 
         //atomic op counter for active scripts amount
-        std::atomic_long _scheduledScripts;
+        std::atomic<uint32> _scheduledScripts;
 };
 
 #endif
