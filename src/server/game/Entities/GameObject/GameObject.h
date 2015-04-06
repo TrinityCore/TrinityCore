@@ -801,7 +801,7 @@ struct GameObjectLocale
 // `gameobject_addon` table
 struct GameObjectAddon
 {
-    InvisibilityType InvisibilityType;
+    InvisibilityType invisibilityType;
     uint32 InvisibilityValue;
 };
 
