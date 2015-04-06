@@ -276,8 +276,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     {
         if (addon->InvisibilityValue)
         {
-            m_invisibility.AddFlag(addon->InvisibilityType);
-            m_invisibility.AddValue(addon->InvisibilityType, addon->InvisibilityValue);
+            m_invisibility.AddFlag(addon->invisibilityType);
+            m_invisibility.AddValue(addon->invisibilityType, addon->InvisibilityValue);
         }
     }
 
