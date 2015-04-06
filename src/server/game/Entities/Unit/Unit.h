@@ -270,7 +270,6 @@ enum UnitRename
 #define MAX_SPELL_POSSESS       8
 #define MAX_SPELL_CONTROL_BAR   10
 
-#define MAX_AGGRO_RESET_TIME 10 // in seconds
 #define MAX_AGGRO_RADIUS 45.0f  // yards
 
 enum Swing

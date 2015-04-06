@@ -741,9 +741,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         {
             victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE, spellProto ? spellProto->Id : 0);
             if (victim->GetTypeId() == TYPEID_UNIT && !victim->IsPet())
-            {
                 victim->ToCreature()->SetCombatPosition();
-            }
         }
 
         if (victim->GetTypeId() != TYPEID_PLAYER)
@@ -9036,9 +9034,9 @@ void Unit::CombatStop(bool includingCast)
     AttackStop();
     RemoveAllAttackers();
     if (GetTypeId() == TYPEID_PLAYER)
-      ToPlayer()->SendAttackSwingCancelAttack();     // melee and ranged forced attack cancel
+        ToPlayer()->SendAttackSwingCancelAttack();     // melee and ranged forced attack cancel
     else if (GetTypeId() == TYPEID_UNIT)
-      ToCreature()->ClearCombatPosition();
+        ToCreature()->ClearCombatPosition();
       
     ClearInCombat();
 }

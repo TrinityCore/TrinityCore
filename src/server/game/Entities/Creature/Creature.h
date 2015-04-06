@@ -686,22 +686,22 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
          * allowing city guards to kill the mob.
          */
         void SetCombatPosition() {
-          if (!isWorldBoss())
-            m_combatPosition.Relocate(GetPositionX(),GetPositionY(),GetPositionZ());
-          else
-            ClearCombatPosition();
+            if (!isWorldBoss())
+                m_combatPosition.Relocate(GetPositionX(),GetPositionY(),GetPositionZ());
+            else
+                ClearCombatPosition();
         }
 
         /** 
          * @brief Clear the modified last combat position
          */
         void ClearCombatPosition() {
-          /*
-           * Reuse the home position
-           */
-          m_combatPosition.Relocate(m_homePosition.GetPositionX(),
-                                    m_homePosition.GetPositionY(),
-                                    m_homePosition.GetPositionZ());
+            /*
+             * Reuse the home position
+             */
+            m_combatPosition.Relocate(m_homePosition.GetPositionX(),
+                                      m_homePosition.GetPositionY(),
+                                      m_homePosition.GetPositionZ());
         }
 
         /**
@@ -709,7 +709,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
          * @return combat start position
          */
         Position GetCombatPosition() const {
-          return m_combatPosition;
+            return m_combatPosition;
         }
 
     protected:

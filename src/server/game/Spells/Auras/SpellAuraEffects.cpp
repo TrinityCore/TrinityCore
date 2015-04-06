@@ -751,7 +751,7 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
             m_periodicTimer -= diff;
         else // tick also at m_periodicTimer == 0 to prevent lost last tick in case max m_duration == (max m_periodicTimer)*N
         {
-            if ( ++m_tickNumber == 0 ) m_tickNumber = 2; // Only first go can be 1
+            if (++m_tickNumber == 0) m_tickNumber = 2; // Only first go can be 1
 
             // update before tick (aura can be removed in TriggerSpell or PeriodicTick calls)
             m_periodicTimer += m_amplitude - diff;
