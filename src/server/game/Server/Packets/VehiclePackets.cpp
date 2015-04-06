@@ -39,3 +39,31 @@ WorldPacket const* WorldPackets::Vehicle::SetVehicleRecID::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Vehicle::MoveDismissVehicle::Read()
+{
+    _worldPacket >> Status;
+}
+
+void WorldPackets::Vehicle::MoveChangeVehicleSeats::Read()
+{
+    _worldPacket >> Status;
+    _worldPacket >> DstVehicle;
+    _worldPacket >> DstSeatIndex;
+}
+
+void WorldPackets::Vehicle::RequestVehicleSwitchSeat::Read()
+{
+    _worldPacket >> Vehicle;
+    _worldPacket >> SeatIndex;
+}
+
+void WorldPackets::Vehicle::RideVehicleInteract::Read()
+{
+    _worldPacket >> Vehicle;
+}
+
+void WorldPackets::Vehicle::EjectPassenger::Read()
+{
+    _worldPacket >> Passenger;
+}

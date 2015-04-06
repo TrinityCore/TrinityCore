@@ -24,104 +24,106 @@
 #include "ObjectAccessor.h"
 #include "VehiclePackets.h"
 
-void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
+void WorldSession::HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_MOVE_DISMISS_VEHICLE");
-
     ObjectGuid vehicleGUID = _player->GetCharmGUID();
-
-    if (!vehicleGUID)                                       // something wrong here...
-    {
-        recvData.rfinish();                                // prevent warnings spam
+    if (vehicleGUID.IsEmpty())
         return;
-    }
 
-    MovementInfo mi;
-    _player->ValidateMovementInfo(&mi);
-
-    _player->m_movementInfo = mi;
+    _player->ValidateMovementInfo(&moveDismissVehicle.Status);
+    _player->m_movementInfo = moveDismissVehicle.Status;
 
     _player->ExitVehicle();
 }
 
-void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
+void WorldSession::HandleRequestVehiclePrevSeat(WorldPackets::Vehicle::RequestVehiclePrevSeat& /*requestVehiclePrevSeat*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_MOVE_CHANGE_VEHICLE_SEATS");
-
     Unit* vehicle_base = GetPlayer()->GetVehicleBase();
     if (!vehicle_base)
-    {
-        recvData.rfinish();                                // prevent warnings spam
         return;
-    }
 
     VehicleSeatEntry const* seat = GetPlayer()->GetVehicle()->GetSeatForPassenger(GetPlayer());
     if (!seat->CanSwitchFromSeat())
     {
-        recvData.rfinish();                                // prevent warnings spam
-        TC_LOG_ERROR("network", "HandleChangeSeatsOnControlledVehicle, Opcode: %u, %s tried to switch seats but current seatflags %u don't permit that.",
-            recvData.GetOpcode(), GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
+        TC_LOG_ERROR("network", "HandleRequestVehiclePrevSeat: %s tried to switch seats but current seatflags %u don't permit that.",
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
-    switch (recvData.GetOpcode())
-    {
-        case CMSG_REQUEST_VEHICLE_PREV_SEAT:
-            GetPlayer()->ChangeSeat(-1, false);
-            break;
-        case CMSG_REQUEST_VEHICLE_NEXT_SEAT:
-            GetPlayer()->ChangeSeat(-1, true);
-            break;
-        case CMSG_MOVE_CHANGE_VEHICLE_SEATS:
-        {
-            MovementInfo movementInfo;
-            GetPlayer()->ValidateMovementInfo(&movementInfo);
-            vehicle_base->m_movementInfo = movementInfo;
-
-            ObjectGuid accessory; // = extra.Data.guid;
-            int8 seatId = -1;//extra.Data.byteData;
-
-            if (vehicle_base->GetGUID() != movementInfo.guid)
-                return;
-
-            if (!accessory)
-                GetPlayer()->ChangeSeat(-1, seatId > 0); // prev/next
-            else if (Unit* vehUnit = ObjectAccessor::GetUnit(*GetPlayer(), accessory))
-            {
-                if (Vehicle* vehicle = vehUnit->GetVehicleKit())
-                    if (vehicle->HasEmptySeat(seatId))
-                        vehUnit->HandleSpellClick(GetPlayer(), seatId);
-            }
-            break;
-        }
-        case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:
-        {
-            ObjectGuid guid;        // current vehicle guid
-            recvData >> guid.ReadAsPacked();
-
-            int8 seatId;
-            recvData >> seatId;
-
-            if (vehicle_base->GetGUID() == guid)
-                GetPlayer()->ChangeSeat(seatId);
-            else if (Unit* vehUnit = ObjectAccessor::GetUnit(*GetPlayer(), guid))
-                if (Vehicle* vehicle = vehUnit->GetVehicleKit())
-                    if (vehicle->HasEmptySeat(seatId))
-                        vehUnit->HandleSpellClick(GetPlayer(), seatId);
-            break;
-        }
-        default:
-            break;
-    }
+    GetPlayer()->ChangeSeat(-1, false);
 }
 
-void WorldSession::HandleEnterPlayerVehicle(WorldPacket& data)
+void WorldSession::HandleRequestVehicleNextSeat(WorldPackets::Vehicle::RequestVehicleNextSeat& /*requestVehicleNextSeat*/)
 {
-    // Read guid
-    ObjectGuid guid;
-    data >> guid;
+    Unit* vehicle_base = GetPlayer()->GetVehicleBase();
+    if (!vehicle_base)
+        return;
 
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    VehicleSeatEntry const* seat = GetPlayer()->GetVehicle()->GetSeatForPassenger(GetPlayer());
+    if (!seat->CanSwitchFromSeat())
+    {
+        TC_LOG_ERROR("network", "HandleRequestVehicleNextSeat: %s tried to switch seats but current seatflags %u don't permit that.",
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
+        return;
+    }
+
+    GetPlayer()->ChangeSeat(-1, true);
+}
+
+void WorldSession::HandleMoveChangeVehicleSeats(WorldPackets::Vehicle::MoveChangeVehicleSeats& moveChangeVehicleSeats)
+{
+    Unit* vehicle_base = GetPlayer()->GetVehicleBase();
+    if (!vehicle_base)
+        return;
+
+    VehicleSeatEntry const* seat = GetPlayer()->GetVehicle()->GetSeatForPassenger(GetPlayer());
+    if (!seat->CanSwitchFromSeat())
+    {
+        TC_LOG_ERROR("network", "HandleMoveChangeVehicleSeats: %s tried to switch seats but current seatflags %u don't permit that.",
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
+        return;
+    }
+
+    GetPlayer()->ValidateMovementInfo(&moveChangeVehicleSeats.Status);
+
+    if (vehicle_base->GetGUID() != moveChangeVehicleSeats.Status.guid)
+        return;
+
+    vehicle_base->m_movementInfo = moveChangeVehicleSeats.Status;
+
+    if (moveChangeVehicleSeats.DstVehicle.IsEmpty())
+        GetPlayer()->ChangeSeat(-1, moveChangeVehicleSeats.DstSeatIndex != 255);
+    else if (Unit* vehUnit = ObjectAccessor::GetUnit(*GetPlayer(), moveChangeVehicleSeats.DstVehicle))
+        if (Vehicle* vehicle = vehUnit->GetVehicleKit())
+            if (vehicle->HasEmptySeat(moveChangeVehicleSeats.DstSeatIndex))
+                vehUnit->HandleSpellClick(GetPlayer(), int8(moveChangeVehicleSeats.DstSeatIndex));
+}
+
+void WorldSession::HandleRequestVehicleSwitchSeat(WorldPackets::Vehicle::RequestVehicleSwitchSeat& requestVehicleSwitchSeat)
+{
+    Unit* vehicle_base = GetPlayer()->GetVehicleBase();
+    if (!vehicle_base)
+        return;
+
+    VehicleSeatEntry const* seat = GetPlayer()->GetVehicle()->GetSeatForPassenger(GetPlayer());
+    if (!seat->CanSwitchFromSeat())
+    {
+        TC_LOG_ERROR("network", "HandleRequestVehicleSwitchSeat: %s tried to switch seats but current seatflags %u don't permit that.",
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
+        return;
+    }
+
+    if (vehicle_base->GetGUID() == requestVehicleSwitchSeat.Vehicle)
+        GetPlayer()->ChangeSeat(int8(requestVehicleSwitchSeat.SeatIndex));
+    else if (Unit* vehUnit = ObjectAccessor::GetUnit(*GetPlayer(), requestVehicleSwitchSeat.Vehicle))
+        if (Vehicle* vehicle = vehUnit->GetVehicleKit())
+            if (vehicle->HasEmptySeat(int8(requestVehicleSwitchSeat.SeatIndex)))
+                vehUnit->HandleSpellClick(GetPlayer(), int8(requestVehicleSwitchSeat.SeatIndex));
+}
+
+void WorldSession::HandleRideVehicleInteract(WorldPackets::Vehicle::RideVehicleInteract& rideVehicleInteract)
+{
+    if (Player* player = ObjectAccessor::FindPlayer(rideVehicleInteract.Vehicle))
     {
         if (!player->GetVehicleKit())
             return;
@@ -134,31 +136,27 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket& data)
     }
 }
 
-void WorldSession::HandleEjectPassenger(WorldPacket& data)
+void WorldSession::HandleEjectPassenger(WorldPackets::Vehicle::EjectPassenger& ejectPassenger)
 {
     Vehicle* vehicle = _player->GetVehicleKit();
     if (!vehicle)
     {
-        data.rfinish();                                     // prevent warnings spam
         TC_LOG_ERROR("network", "HandleEjectPassenger: %s is not in a vehicle!", GetPlayer()->GetGUID().ToString().c_str());
         return;
     }
 
-    ObjectGuid guid;
-    data >> guid;
-
-    if (guid.IsUnit())
+    if (ejectPassenger.Passenger.IsUnit())
     {
-        Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
+        Unit* unit = ObjectAccessor::GetUnit(*_player, ejectPassenger.Passenger);
         if (!unit) // creatures can be ejected too from player mounts
         {
-            TC_LOG_ERROR("network", "%s tried to eject %s from vehicle, but the latter was not found in world!", GetPlayer()->GetGUID().ToString().c_str(), guid.ToString().c_str());
+            TC_LOG_ERROR("network", "%s tried to eject %s from vehicle, but the latter was not found in world!", GetPlayer()->GetGUID().ToString().c_str(), ejectPassenger.Passenger.ToString().c_str());
             return;
         }
 
         if (!unit->IsOnVehicle(vehicle->GetBase()))
         {
-            TC_LOG_ERROR("network", "%s tried to eject %s, but they are not in the same vehicle", GetPlayer()->GetGUID().ToString().c_str(), guid.ToString().c_str());
+            TC_LOG_ERROR("network", "%s tried to eject %s, but they are not in the same vehicle", GetPlayer()->GetGUID().ToString().c_str(), ejectPassenger.Passenger.ToString().c_str());
             return;
         }
 
@@ -167,16 +165,14 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
         if (seat->IsEjectable())
             unit->ExitVehicle();
         else
-            TC_LOG_ERROR("network", "%s attempted to eject %s from non-ejectable seat.", GetPlayer()->GetGUID().ToString().c_str(), guid.ToString().c_str());
+            TC_LOG_ERROR("network", "%s attempted to eject %s from non-ejectable seat.", GetPlayer()->GetGUID().ToString().c_str(), ejectPassenger.Passenger.ToString().c_str());
     }
     else
-        TC_LOG_ERROR("network", "HandleEjectPassenger: %s tried to eject invalid %s ", GetPlayer()->GetGUID().ToString().c_str(), guid.ToString().c_str());
+        TC_LOG_ERROR("network", "HandleEjectPassenger: %s tried to eject invalid %s ", GetPlayer()->GetGUID().ToString().c_str(), ejectPassenger.Passenger.ToString().c_str());
 }
 
-void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)
+void WorldSession::HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicleExit& /*requestVehicleExit*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
-
     if (Vehicle* vehicle = GetPlayer()->GetVehicle())
     {
         if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(GetPlayer()))
