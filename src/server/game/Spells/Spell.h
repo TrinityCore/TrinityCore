@@ -367,6 +367,7 @@ class Spell
         void EffectResurrectWithAura(SpellEffIndex effIndex);
         void EffectCreateAreaTrigger(SpellEffIndex effIndex);
         void EffectRemoveTalent(SpellEffIndex effIndex);
+        void EffectDestroyItem(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
@@ -524,7 +525,7 @@ class Spell
 
         void SetSpellValue(SpellValueMod mod, int32 value);
 
-        SpellEffectInfoVector GetEffects() const { return _effects; }
+        SpellEffectInfoVector const& GetEffects() const { return _effects; }
         SpellEffectInfo const* GetEffect(uint32 index) const
         {
             if (index >= _effects.size())

@@ -118,7 +118,7 @@ class boss_slabhide : public CreatureScript
                 instance->SetData(DATA_SLABHIDE_INTRO, NOT_STARTED);
             }
 
-            void Reset()
+            void Reset() override
             {
                 if (instance->GetData(DATA_SLABHIDE_INTRO) == NOT_STARTED)
                     return;

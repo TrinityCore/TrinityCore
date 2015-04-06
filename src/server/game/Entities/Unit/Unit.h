@@ -414,7 +414,6 @@ class TransportBase;
 class SpellCastTargets;
 namespace Movement
 {
-    class ExtraMovementStatusElement;
     class MoveSpline;
 }
 
@@ -1662,6 +1661,7 @@ class Unit : public WorldObject
         bool SetWaterWalking(bool enable, bool packetOnly = false);
         bool SetFeatherFall(bool enable, bool packetOnly = false);
         bool SetHover(bool enable, bool packetOnly = false);
+        void SendSetVehicleRecId(uint32 vehicleId);
 
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori);
@@ -1957,7 +1957,7 @@ class Unit : public WorldObject
         void SetVisible(bool x);
 
         // common function for visibility checks for player/creatures with detection code
-        bool SetInPhase(uint32 id, bool update, bool apply);
+        bool SetInPhase(uint32 id, bool update, bool apply) override;
         void UpdateObjectVisibility(bool forced = true) override;
 
         SpellImmuneList m_spellImmune[MAX_SPELL_IMMUNITY];
@@ -2136,8 +2136,8 @@ class Unit : public WorldObject
         friend class VehicleJoinEvent;
         bool IsAIEnabled, NeedChangeAI;
         ObjectGuid LastCharmerGUID;
-        bool CreateVehicleKit(uint32 id, uint32 creatureEntry);
-        void RemoveVehicleKit();
+        bool CreateVehicleKit(uint32 id, uint32 creatureEntry, bool loading = false);
+        void RemoveVehicleKit(bool onRemoveFromWorld = false);
         Vehicle* GetVehicleKit()const { return m_vehicleKit; }
         Vehicle* GetVehicle()   const { return m_vehicle; }
         void SetVehicle(Vehicle* vehicle) { m_vehicle = vehicle; }
@@ -2158,8 +2158,6 @@ class Unit : public WorldObject
         // Should only be called by AuraEffect::HandleAuraControlVehicle(AuraApplication const* auraApp, uint8 mode, bool apply) const;
         void _ExitVehicle(Position const* exitPosition = NULL);
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = NULL);
-
-        void WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusElement* extras = NULL);
 
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }

@@ -34,6 +34,7 @@
 #include "WorldSession.h"
 #include "SpellAuraEffects.h"
 #include "MiscPackets.h"
+#include "LootPackets.h"
 
 class Aura;
 
@@ -599,22 +600,15 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket& recvData)
     group->SendUpdate();
 }
 
-void WorldSession::HandleLootRoll(WorldPacket& recvData)
+void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
 {
-    ObjectGuid guid;
-    uint32 itemSlot;
-    uint8  rollType;
-    recvData >> guid;                  // guid of the item rolled
-    recvData >> itemSlot;
-    recvData >> rollType;              // 0: pass, 1: need, 2: greed
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
 
-    group->CountRollVote(GetPlayer()->GetGUID(), guid, rollType);
+    group->CountRollVote(GetPlayer()->GetGUID(), packet.LootObj, packet.RollType);
 
-    switch (rollType)
+    switch (packet.RollType)
     {
         case ROLL_NEED:
             GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED, 1);

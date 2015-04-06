@@ -47,12 +47,12 @@ class ObjectRegistry
         }
 
         /// Inserts a registry item
-        bool InsertItem(T *obj, Key key, bool override = false)
+        bool InsertItem(T *obj, Key key, bool _override = false)
         {
             typename RegistryMapType::iterator iter = i_registeredObjects.find(key);
             if ( iter != i_registeredObjects.end() )
             {
-                if ( !override )
+                if ( !_override )
                     return false;
                 delete iter->second;
                 i_registeredObjects.erase(iter);

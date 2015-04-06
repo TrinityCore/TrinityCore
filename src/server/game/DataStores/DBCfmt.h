@@ -34,6 +34,7 @@ char const BannedAddOnsfmt[] = "nxxxxxxxxxx";
 char const BarberShopStyleEntryfmt[] = "nixxxiii";
 char const BattlemasterListEntryfmt[] = "niiiiiiiiiiiiiiiiixsiiiixxxxxxx";
 char const CharStartOutfitEntryfmt[] = "dbbbXiiiiiiiiiiiiiiiiiiiiiiiiii";
+char const CharSectionsEntryfmt[] = "diiixxxiii";
 char const CharTitlesEntryfmt[] = "nxssix";
 char const ChatChannelsEntryfmt[] = "nixsx";
 char const ChrClassesEntryfmt[] = "nixsxxxixiiiixxxxxx";

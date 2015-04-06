@@ -56,6 +56,8 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
     data.WriteBit(0); // HeightChangeFailed
     data.WriteBit(0); // RemoteTimeValid
 
+    data.FlushBits();
+
     if (hasTransportData)
         data << movementInfo.transport;
 
@@ -65,6 +67,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
         data << movementInfo.jump.zspeed;
 
         data.WriteBit(hasFallDirection);
+        data.FlushBits();
         if (hasFallDirection)
         {
             data << movementInfo.jump.sinAngle;
@@ -72,8 +75,6 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
             data << movementInfo.jump.xyspeed;
         }
     }
-
-    data.FlushBits();
 
     return data;
 }
@@ -167,13 +168,13 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo::TransportInfo const& tran
     data.WriteBit(hasPrevTime);
     data.WriteBit(hasVehicleId);
 
+    data.FlushBits();
+
     if (hasPrevTime)
         data << transportInfo.prevTime;         // PrevMoveTime
 
     if (hasVehicleId)
         data << transportInfo.vehicleId;        // VehicleRecID
-
-    data.FlushBits();
 
     return data;
 }
@@ -421,6 +422,8 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
                 movementSpline.PackedDeltas.push_back(middle - realPath[i]);
         }
     }
+
+    movementSpline.Mode = spline.mode();
 }
 
 WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
@@ -596,16 +599,21 @@ void WorldPackets::Movement::MoveTeleportAck::Read()
     _worldPacket >> MoveTime;
 }
 
-void WorldPackets::Movement::MovementAck::Read()
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MovementAck& ack)
 {
-    _worldPacket >> movementInfo;
-    _worldPacket >> AckIndex;
+    data >> ack.movementInfo;
+    data >> ack.AckIndex;
+    return data;
+}
+
+void WorldPackets::Movement::MovementAckMessage::Read()
+{
+    _worldPacket >> Ack;
 }
 
 void WorldPackets::Movement::MovementSpeedAck::Read()
 {
-    _worldPacket >> movementInfo;
-    _worldPacket >> AckIndex;
+    _worldPacket >> Ack;
     _worldPacket >> Speed;
 }
 
@@ -619,4 +627,41 @@ WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
     _worldPacket << MoverGUID;
 
     return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateKnockBack::Write()
+{
+    _worldPacket << *movementInfo;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << float(Height);
+    _worldPacket << float(Scale);
+    _worldPacket << uint32(MountDisplayID);
+    _worldPacket.WriteBits(Reason, 2);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
+{
+    _worldPacket << *movementInfo;
+    _worldPacket << float(Scale);
+    _worldPacket << float(Height);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Movement::MoveSetCollisionHeightAck::Read()
+{
+    _worldPacket >> Data;
+    _worldPacket >> Height;
+    _worldPacket >> MountDisplayID;
+    Reason = UpdateCollisionHeightReason(_worldPacket.ReadBits(2));
 }

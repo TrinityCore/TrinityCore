@@ -553,6 +553,16 @@ namespace WorldPackets
             std::set<uint32> UiWorldMapAreaIDSwaps;
             std::set<uint32> VisibleMapIDs;
         };
+
+        class ZoneUnderAttack final : public ServerPacket
+        {
+        public:
+            ZoneUnderAttack() : ServerPacket(SMSG_ZONE_UNDER_ATTACK, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 AreaID = 0;
+        };
     }
 }
 

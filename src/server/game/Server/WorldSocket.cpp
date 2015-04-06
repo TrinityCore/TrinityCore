@@ -131,7 +131,10 @@ void WorldSocket::ReadHandler()
 
             // We just received nice new header
             if (!ReadHeaderHandler())
+            {
+                CloseSocket();
                 return;
+            }
         }
 
         // We have full read header, now check the data payload
@@ -152,7 +155,10 @@ void WorldSocket::ReadHandler()
 
         // just received fresh new payload
         if (!ReadDataHandler())
+        {
+            CloseSocket();
             return;
+        }
 
         _headerBuffer.Reset();
     }
@@ -192,8 +198,6 @@ bool WorldSocket::ReadHeaderHandler()
     {
         TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %u, cmd: %u)",
             GetRemoteIpAddress().to_string().c_str(), size, opcode);
-
-        CloseSocket();
         return false;
     }
 
@@ -224,22 +228,15 @@ bool WorldSocket::ReadDataHandler()
         {
             case CMSG_PING:
                 LogOpcodeText(opcode, sessionGuard);
-                HandlePing(packet);
-                break;
+                return HandlePing(packet);
             case CMSG_AUTH_SESSION:
             {
                 LogOpcodeText(opcode, sessionGuard);
                 if (_authed)
                 {
                     // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
-                    {
-                        if (sessionGuard.try_lock())
-                        {
-                            TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
-                            sessionGuard.unlock();  // unlock session guard to prevent deadlocking in CloseSocket
-                        }
-                    }
-                    CloseSocket();
+                    if (sessionGuard.try_lock())
+                        TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
                     return false;
                 }
 
@@ -254,14 +251,8 @@ bool WorldSocket::ReadDataHandler()
                 if (_authed)
                 {
                     // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
-                    {
-                        if (sessionGuard.try_lock())
-                        {
-                            TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_CONTINUED_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
-                            sessionGuard.unlock();  // unlock session guard to prevent deadlocking in CloseSocket
-                        }
-                    }
-                    CloseSocket();
+                    if (sessionGuard.try_lock())
+                        TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_CONTINUED_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
                     return false;
                 }
 
@@ -300,7 +291,6 @@ bool WorldSocket::ReadDataHandler()
                 if (!_worldSession)
                 {
                     TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-                    CloseSocket();
                     return false;
                 }
 
@@ -325,10 +315,7 @@ bool WorldSocket::ReadDataHandler()
     {
         std::string initializer(reinterpret_cast<char const*>(_packetBuffer.GetReadPointer()), std::min(_packetBuffer.GetActiveSize(), ClientConnectionInitialize.length()));
         if (initializer != ClientConnectionInitialize)
-        {
-            CloseSocket();
             return false;
-        }
 
         _compressionStream = new z_stream();
         _compressionStream->zalloc = (alloc_func)NULL;
@@ -340,7 +327,6 @@ bool WorldSocket::ReadDataHandler()
         if (z_res != Z_OK)
         {
             TC_LOG_ERROR("network", "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
-            CloseSocket();
             return false;
         }
 
@@ -803,7 +789,7 @@ void WorldSocket::SendAuthResponseError(uint8 code)
     SendPacketAndLogOpcode(*response.Write());
 }
 
-void WorldSocket::HandlePing(WorldPacket& recvPacket)
+bool WorldSocket::HandlePing(WorldPacket& recvPacket)
 {
     uint32 ping;
     uint32 latency;
@@ -839,10 +825,7 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
                     TC_LOG_ERROR("network", "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
                         _worldSession->GetPlayerInfo().c_str(), GetRemoteIpAddress().to_string().c_str());
 
-                    // this is bad but we will pretend this code isn't here - it only happens once per socket in worst case
-                    sessionGuard.unlock();
-                    CloseSocket();
-                    return;
+                    return false;
                 }
             }
         }
@@ -861,13 +844,12 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
         else
         {
             TC_LOG_ERROR("network", "WorldSocket::HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = %s", GetRemoteIpAddress().to_string().c_str());
-
-            CloseSocket();
-            return;
+            return false;
         }
     }
 
     WorldPacket packet(SMSG_PONG, 4);
     packet << ping;
-    return SendPacketAndLogOpcode(packet);
+    SendPacketAndLogOpcode(packet);
+    return true;
 }

@@ -106,3 +106,18 @@ WorldPacket const* WorldPackets::Loot::CoinRemoved::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Loot::LootRoll::Read()
+{
+    _worldPacket >> LootObj;
+    _worldPacket >> LootListID;
+    _worldPacket >> RollType;
+}
+
+WorldPacket const* WorldPackets::Loot::LootReleaseResponse::Write()
+{
+    _worldPacket << LootObj;
+    _worldPacket << Owner;
+
+    return &_worldPacket;
+}

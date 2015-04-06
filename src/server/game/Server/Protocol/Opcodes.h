@@ -43,7 +43,7 @@ enum OpcodeMisc : uint32
     NULL_OPCODE                                       = 0xBADD
 };
 
-// CMSGs 6.0.3.19342
+// CMSGs 6.1.2.19802
 enum OpcodeClient : uint32
 {
     CMSG_ACCEPT_GUILD_INVITE                          = 0x0B36,
@@ -726,7 +726,7 @@ enum OpcodeClient : uint32
     CMSG_WRAP_ITEM                                    = 0x0528,
 };
 
-// SMSGs 6.0.3.19342
+// SMSGs 6.1.2.19802
 enum OpcodeServer : uint32
 {
     SMSG_ABORT_NEW_WORLD                              = 0x0740,
@@ -1635,14 +1635,8 @@ enum OpcodeServer : uint32
     SMSG_ZONE_UNDER_ATTACK                            = 0x14CF,
 
     // Deleted opcodes, here only to allow compile
-    SMSG_ARENA_TEAM_COMMAND_RESULT                    = 0xBADD,
-    SMSG_ARENA_TEAM_EVENT                             = 0xBADD,
-    SMSG_ARENA_TEAM_INVITE                            = 0xBADD,
-    SMSG_ARENA_TEAM_QUERY_RESPONSE                    = 0xBADD,
-    SMSG_ARENA_TEAM_ROSTER                            = 0xBADD,
     SMSG_ARENA_TEAM_STATS                             = 0xBADD,
     SMSG_BUY_BANK_SLOT_RESULT                         = 0xBADD,
-    SMSG_CALENDAR_ARENA_TEAM                          = 0xBADD,
 };
 
 inline bool IsInstanceOnlyOpcode(uint32 opcode)

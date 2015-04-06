@@ -915,12 +915,12 @@ void World::LoadConfigSettings(bool reload)
     }
     m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD] *= 100;     //precision mod
 
-    m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("RecruitAFriend.MaxLevel", 60);
+    m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("RecruitAFriend.MaxLevel", 85);
     if (m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
         TC_LOG_ERROR("server.loading", "RecruitAFriend.MaxLevel (%i) must be in the range 0..MaxLevel(%u). Set to %u.",
-            m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], 60);
-        m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = 60;
+            m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], 85);
+        m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = 85;
     }
 
     m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE] = sConfigMgr->GetIntDefault("RecruitAFriend.MaxDifference", 4);
@@ -1619,6 +1619,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Gameobject Data...");
     sObjectMgr->LoadGameobjects();
+    
+    TC_LOG_INFO("server.loading", "Loading GameObject Addon Data...");
+    sObjectMgr->LoadGameObjectAddons();                          // must be after LoadGameObjectTemplate() and LoadGameobjects()
 
     TC_LOG_INFO("server.loading", "Loading Creature Linked Respawn...");
     sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
@@ -2008,28 +2011,24 @@ void World::SetInitialWorldSettings()
         sLog->SetRealmId(realmId);
 }
 
-void World::RecordTimeDiff(const char *text, ...)
+void World::ResetTimeDiffRecord()
 {
     if (m_updateTimeCount != 1)
         return;
-    if (!text)
-    {
-        m_currentTime = getMSTime();
+
+    m_currentTime = getMSTime();
+}
+
+void World::RecordTimeDiff(std::string const& text)
+{
+    if (m_updateTimeCount != 1)
         return;
-    }
 
     uint32 thisTime = getMSTime();
     uint32 diff = getMSTimeDiff(m_currentTime, thisTime);
 
     if (diff > m_int_configs[CONFIG_MIN_LOG_UPDATE])
-    {
-        va_list ap;
-        char str[256];
-        va_start(ap, text);
-        vsnprintf(str, 256, text, ap);
-        va_end(ap);
-        TC_LOG_INFO("misc", "Difftime %s: %u.", str, diff);
-    }
+        TC_LOG_INFO("misc", "Difftime %s: %u.", text.c_str(), diff);
 
     m_currentTime = thisTime;
 }
@@ -2149,7 +2148,7 @@ void World::Update(uint32 diff)
     }
 
     /// <li> Handle session updates when the timer has passed
-    RecordTimeDiff(NULL);
+    ResetTimeDiffRecord();
     UpdateSessions(diff);
     RecordTimeDiff("UpdateSessions");
 
@@ -2196,7 +2195,7 @@ void World::Update(uint32 diff)
 
     /// <li> Handle all other objects
     ///- Update objects when the timer has passed (maps, transport, creatures, ...)
-    RecordTimeDiff(NULL);
+    ResetTimeDiffRecord();
     sMapMgr->Update(diff);
     RecordTimeDiff("UpdateMapMgr");
 

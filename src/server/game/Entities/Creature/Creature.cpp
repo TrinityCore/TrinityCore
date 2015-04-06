@@ -52,6 +52,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "CombatPackets.h"
+#include "MiscPackets.h"
 
 #include "Transport.h"
 
@@ -1011,7 +1012,7 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     data.npcflag = npcflag;
     data.unit_flags = unit_flags;
     data.dynamicflags = dynamicflags;
-    
+
     data.phaseid = GetDBPhase() > 0 ? GetDBPhase() : 0;
     data.phaseGroup = GetDBPhase() < 0 ? abs(GetDBPhase()) : 0;
 
@@ -1219,7 +1220,7 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
     }
 
     if (vehId)
-        CreateVehicleKit(vehId, entry);
+        CreateVehicleKit(vehId, entry, true);
 
     return true;
 }
@@ -2146,10 +2147,9 @@ bool Creature::LoadCreaturesAddon(bool reload)
 void Creature::SendZoneUnderAttackMessage(Player* attacker)
 {
     uint32 enemy_team = attacker->GetTeam();
-
-    WorldPacket data(SMSG_ZONE_UNDER_ATTACK, 4);
-    data << (uint32)GetAreaId();
-    sWorld->SendGlobalMessage(&data, NULL, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
+    WorldPackets::Misc::ZoneUnderAttack packet;
+    packet.AreaID = GetAreaId();
+    sWorld->SendGlobalMessage(packet.Write(), NULL, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
 }
 
 void Creature::SetInCombatWithZone()

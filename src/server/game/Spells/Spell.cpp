@@ -365,7 +365,7 @@ void SpellCastTargets::SetItemTarget(Item* item)
 
 void SpellCastTargets::SetTradeItemTarget(Player* caster)
 {
-    m_itemTargetGUID.SetRawValue({ uint8(TRADE_SLOT_NONTRADED), 0, 0, 0, 0, 0, 0, 0 });
+    m_itemTargetGUID = ObjectGuid::TradeItem;
     m_itemTargetEntry = 0;
     m_targetMask |= TARGET_FLAG_TRADE_ITEM;
 
@@ -489,9 +489,7 @@ void SpellCastTargets::Update(Unit* caster)
             m_itemTarget = player->GetItemByGuid(m_itemTargetGUID);
         else if (m_targetMask & TARGET_FLAG_TRADE_ITEM)
         {
-            ObjectGuid nonTradedGuid;
-            nonTradedGuid.SetRawValue(uint64(0), uint64(TRADE_SLOT_NONTRADED));
-            if (m_itemTargetGUID == nonTradedGuid) // here it is not guid but slot. Also prevents hacking slots
+            if (m_itemTargetGUID == ObjectGuid::TradeItem)
                 if (TradeData* pTrade = player->GetTradeData())
                     m_itemTarget = pTrade->GetTraderData()->GetItem(TRADE_SLOT_NONTRADED);
         }
@@ -4247,11 +4245,10 @@ void Spell::SendChannelUpdate(uint32 time)
         m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, 0);
     }
 
-    WorldPacket data(SMSG_SPELL_CHANNEL_UPDATE, 8 + 4);
-    data << m_caster->GetPackGUID();
-    data << uint32(time);
-
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::SpellChannelUpdate spellChannelUpdate;
+    spellChannelUpdate.CasterGUID = m_caster->GetGUID();
+    spellChannelUpdate.TimeRemaining = time;
+    m_caster->SendMessageToSet(spellChannelUpdate.Write(), true);
 }
 
 void Spell::SendChannelStart(uint32 duration)
@@ -4261,30 +4258,11 @@ void Spell::SendChannelStart(uint32 duration)
         if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)   // this is for TARGET_SELECT_CATEGORY_NEARBY
             channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
 
-    WorldPacket data(SMSG_SPELL_CHANNEL_START, (8 + 4 + 4));
-    data << m_caster->GetPackGUID();
-    data << uint32(m_spellInfo->Id);
-    data << uint32(duration);
-    data << uint8(0);                           // immunity (castflag & 0x04000000)
-    /*
-    if (immunity)
-    {
-        data << uint32();                       // CastSchoolImmunities
-        data << uint32();                       // CastImmunities
-    }
-    */
-    data << uint8(0);                           // healPrediction (castflag & 0x40000000)
-    /*
-    if (healPrediction)
-    {
-        data.appendPackGUID(channelTarget);     // target packguid
-        data << uint32();                       // spellid
-        data << uint8(0);                       // unk3
-        if (unk3 == 2)
-            data.append();                      // unk packed guid (unused ?)
-    }
-    */
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::SpellChannelStart spellChannelStart;
+    spellChannelStart.CasterGUID = m_caster->GetGUID();
+    spellChannelStart.SpellID = m_spellInfo->Id;
+    spellChannelStart.ChannelDuration = duration;
+    m_caster->SendMessageToSet(spellChannelStart.Write(), true);
 
     m_timer = duration;
     if (!channelTarget.IsEmpty())
@@ -5543,9 +5521,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (!my_trade)
             return SPELL_FAILED_NOT_TRADING;
 
-        // Item target guid contains trade slot until m_targets.UpdateTradeSlotItem() is called
-        TradeSlots slot = TradeSlots(m_targets.GetItemTargetGUID().GetRawValue().at(0));
-        if (slot != TRADE_SLOT_NONTRADED)
+        if (m_targets.GetItemTargetGUID() != ObjectGuid::TradeItem)
             return SPELL_FAILED_BAD_TARGETS;
 
         if (!IsTriggered())

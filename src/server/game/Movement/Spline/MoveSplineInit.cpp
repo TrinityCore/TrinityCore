@@ -119,6 +119,12 @@ namespace Movement
         packet.MoverGUID = unit->GetGUID();
         packet.Pos = real_position;
         packet.InitializeSplineData(move_spline);
+        if (transport)
+        {
+            packet.SplineData.Move.TransportGUID = unit->GetTransGUID();
+            packet.SplineData.Move.VehicleSeat = unit->GetTransSeat();
+        }
+
         unit->SendMessageToSet(packet.Write(), true);
 
         return move_spline.Duration();

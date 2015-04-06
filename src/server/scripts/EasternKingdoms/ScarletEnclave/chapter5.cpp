@@ -1657,7 +1657,7 @@ public:
     {
         npc_the_lich_king_tirion_dawnAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
         void Reset() override { }
-        void AttackStart(Unit* /*who*/) { } // very sample, just don't make them aggreesive override
+        void AttackStart(Unit* /*who*/) override { } // very sample, just don't make them aggreesive
         void UpdateAI(uint32 /*diff*/) override { }
         void JustDied(Unit* /*killer*/) override { }
     };

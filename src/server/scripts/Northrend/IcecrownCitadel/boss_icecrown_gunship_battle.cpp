@@ -745,12 +745,6 @@ class npc_gunship : public CreatureScript
                     if (isVictory)
                     {
                         cannon->CastSpell(cannon, SPELL_EJECT_ALL_PASSENGERS_BELOW_ZERO, TRIGGERED_FULL_MASK);
-
-                        WorldPacket data(SMSG_SET_VEHICLE_REC_ID, cannon->GetPackGUID().size() + 4);
-                        data << cannon->GetPackGUID();
-                        data << uint32(0);
-                        cannon->SendMessageToSet(&data, true);
-
                         cannon->RemoveVehicleKit();
                     }
                     else
@@ -1874,7 +1868,7 @@ class spell_igb_rocket_pack_useable : public SpellScriptLoader
         {
             PrepareAuraScript(spell_igb_rocket_pack_useable_AuraScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetOwner()->GetInstanceScript() != nullptr;
             }
@@ -2002,7 +1996,7 @@ class spell_igb_cannon_blast : public SpellScriptLoader
         {
             PrepareSpellScript(spell_igb_cannon_blast_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -2344,7 +2338,7 @@ class spell_igb_gunship_fall_teleport : public SpellScriptLoader
         {
             PrepareSpellScript(spell_igb_gunship_fall_teleport_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetInstanceScript() != nullptr;
             }

@@ -316,6 +316,56 @@ namespace WorldPackets
             time_t CurrentTime = time_t(0);
             int32 TimeOutRequest = 0;
         };
+
+        class QuestPOIQuery final : public ClientPacket
+        {
+        public:
+            QuestPOIQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_POI_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 MissingQuestCount = 0;
+            int32 MissingQuestPOIs[50];
+        };
+
+        struct QuestPOIBlobPoint
+        {
+            int32 X = 0;
+            int32 Y = 0;
+        };
+
+        struct QuestPOIBlobData
+        {
+            int32 BlobIndex = 0;
+            int32 ObjectiveIndex = 0;
+            int32 QuestObjectiveID = 0;
+            int32 QuestObjectID = 0;
+            int32 MapID = 0;
+            int32 WorldMapAreaID = 0;
+            int32 Floor = 0;
+            int32 Priority = 0;
+            int32 Flags = 0;
+            int32 WorldEffectID = 0;
+            int32 PlayerConditionID = 0;
+            int32 UnkWoD1 = 0;
+            std::vector<QuestPOIBlobPoint> QuestPOIBlobPointStats;
+        };
+
+        struct QuestPOIData
+        {
+            int32 QuestID = 0;
+            std::vector<QuestPOIBlobData> QuestPOIBlobDataStats;
+        };
+
+        class QuestPOIQueryResponse final : public ServerPacket
+        {
+        public:
+            QuestPOIQueryResponse() : ServerPacket(SMSG_QUEST_POI_QUERY_RESPONSE, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<QuestPOIData> QuestPOIDataStats;
+        };
     }
 }
 

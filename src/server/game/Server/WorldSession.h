@@ -55,7 +55,6 @@ struct AuctionEntry;
 struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
-struct TradeStatusInfo;
 
 namespace lfg
 {
@@ -170,6 +169,7 @@ namespace WorldPackets
 
     namespace Duel
     {
+        class CanDuel;
         class DuelResponse;
     }
 
@@ -256,6 +256,7 @@ namespace WorldPackets
         class LootItem;
         class LootRelease;
         class LootMoney;
+        class LootRoll;
     }
 
     namespace Mail
@@ -295,9 +296,10 @@ namespace WorldPackets
         class ClientPlayerMovement;
         class WorldPortResponse;
         class MoveTeleportAck;
-        class MovementAck;
+        class MovementAckMessage;
         class MovementSpeedAck;
         class SetActiveMover;
+        class MoveSetCollisionHeightAck;
     }
 
     namespace NPC
@@ -330,6 +332,7 @@ namespace WorldPackets
         class QueryCorpseLocationFromClient;
         class QueryCorpseTransport;
         class QueryTime;
+        class QuestPOIQuery;
     }
 
     namespace Quest
@@ -344,6 +347,12 @@ namespace WorldPackets
         class QuestGiverQueryQuest;
         class QuestGiverAcceptQuest;
         class QuestLogRemoveQuest;
+    }
+
+    namespace RaF
+    {
+        class AcceptLevelGrant;
+        class GrantLevel;
     }
 
     namespace Social
@@ -391,7 +400,31 @@ namespace WorldPackets
 
     namespace Trade
     {
+        class AcceptTrade;
+        class BeginTrade;
+        class BusyTrade;
         class CancelTrade;
+        class ClearTradeItem;
+        class IgnoreTrade;
+        class InitiateTrade;
+        class SetTradeCurrency;
+        class SetTradeGold;
+        class SetTradeItem;
+        class UnacceptTrade;
+        class TradeStatus;
+    }
+
+    namespace Vehicle
+    {
+        class MoveDismissVehicle;
+        class RequestVehiclePrevSeat;
+        class RequestVehicleNextSeat;
+        class MoveChangeVehicleSeats;
+        class RequestVehicleSwitchSeat;
+        class RideVehicleInteract;
+        class EjectPassenger;
+        class RequestVehicleExit;
+        class MoveSetVehicleRecIdAck;
     }
 
     namespace Who
@@ -656,7 +689,7 @@ class WorldSession
 
         void SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTypeId = BATTLEGROUND_RB);
 
-        void SendTradeStatus(TradeStatusInfo const& status);
+        void SendTradeStatus(WorldPackets::Trade::TradeStatus& status);
         void SendUpdateTrade(bool trader_data = true);
         void SendCancelTrade();
 
@@ -726,7 +759,6 @@ class WorldSession
         void SendDiscoverNewTaxiNode(uint32 nodeid);
 
         // Guild/Arena Team
-        void SendArenaTeamCommandResult(uint32 team_action, std::string const& team, std::string const& player, uint32 error_id = 0);
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(ObjectGuid guid);
 
@@ -846,11 +878,11 @@ class WorldSession
         void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);
 
         // Knockback
-        void HandleMoveKnockBackAck(WorldPacket& recvPacket);
+        void HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& movementAck);
 
         void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
         void HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet);
-        void HandleSetCollisionHeightAck(WorldPacket& recvPacket);
+        void HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& setCollisionHeightAck);
 
         void HandlePingOpcode(WorldPacket& recvPacket);
         void HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet);
@@ -921,9 +953,15 @@ class WorldSession
 
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
         void HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet);
-        void HandleDismissControlledVehicle(WorldPacket& recvData);
-        void HandleRequestVehicleExit(WorldPacket& recvData);
-        void HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData);
+        void HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle);
+        void HandleRequestVehiclePrevSeat(WorldPackets::Vehicle::RequestVehiclePrevSeat& requestVehiclePrevSeat);
+        void HandleRequestVehicleNextSeat(WorldPackets::Vehicle::RequestVehicleNextSeat& requestVehicleNextSeat);
+        void HandleMoveChangeVehicleSeats(WorldPackets::Vehicle::MoveChangeVehicleSeats& moveChangeVehicleSeats);
+        void HandleRequestVehicleSwitchSeat(WorldPackets::Vehicle::RequestVehicleSwitchSeat& requestVehicleSwitchSeat);
+        void HandleRideVehicleInteract(WorldPackets::Vehicle::RideVehicleInteract& rideVehicleInteract);
+        void HandleEjectPassenger(WorldPackets::Vehicle::EjectPassenger& ejectPassenger);
+        void HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicleExit& requestVehicleExit);
+        void HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck);
         void HandleMoveTimeSkippedOpcode(WorldPacket& recvData);
 
         void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
@@ -940,7 +978,7 @@ class WorldSession
         void HandleGroupDisbandOpcode(WorldPacket& recvPacket);
         void HandleOptOutOfLootOpcode(WorldPacket& recvData);
         void HandleLootMethodOpcode(WorldPacket& recvPacket);
-        void HandleLootRoll(WorldPacket& recvData);
+        void HandleLootRoll(WorldPackets::Loot::LootRoll& packet);
         void HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData);
         void HandleRaidTargetUpdateOpcode(WorldPacket& recvData);
         void HandleRaidReadyCheckOpcode(WorldPacket& recvData);
@@ -1027,20 +1065,22 @@ class WorldSession
         void HandleStableSwapPetCallback(PreparedQueryResult result, uint32 petId);
         void SendTrainerBuyFailed(ObjectGuid guid, uint32 spellId, uint32 reason);
 
+        void HandleCanDuel(WorldPackets::Duel::CanDuel& packet);
         void HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse);
         void HandleDuelAccepted();
         void HandleDuelCancelled();
 
-        void HandleAcceptTradeOpcode(WorldPacket& recvPacket);
-        void HandleBeginTradeOpcode(WorldPacket& recvPacket);
-        void HandleBusyTradeOpcode(WorldPacket& recvPacket);
+        void HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acceptTrade);
+        void HandleBeginTradeOpcode(WorldPackets::Trade::BeginTrade& beginTrade);
+        void HandleBusyTradeOpcode(WorldPackets::Trade::BusyTrade& busyTrade);
         void HandleCancelTradeOpcode(WorldPackets::Trade::CancelTrade& cancelTrade);
-        void HandleClearTradeItemOpcode(WorldPacket& recvPacket);
-        void HandleIgnoreTradeOpcode(WorldPacket& recvPacket);
-        void HandleInitiateTradeOpcode(WorldPacket& recvPacket);
-        void HandleSetTradeGoldOpcode(WorldPacket& recvPacket);
-        void HandleSetTradeItemOpcode(WorldPacket& recvPacket);
-        void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
+        void HandleClearTradeItemOpcode(WorldPackets::Trade::ClearTradeItem& clearTradeItem);
+        void HandleIgnoreTradeOpcode(WorldPackets::Trade::IgnoreTrade& ignoreTrade);
+        void HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade& initiateTrade);
+        void HandleSetTradeCurrencyOpcode(WorldPackets::Trade::SetTradeCurrency& setTradeCurrency);
+        void HandleSetTradeGoldOpcode(WorldPackets::Trade::SetTradeGold& setTradeGold);
+        void HandleSetTradeItemOpcode(WorldPackets::Trade::SetTradeItem& setTradeItem);
+        void HandleUnacceptTradeOpcode(WorldPackets::Trade::UnacceptTrade& unacceptTrade);
 
         void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& packet);
         void HandleAuctionListItems(WorldPacket& recvData);
@@ -1250,19 +1290,6 @@ class WorldSession
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(uint8 err);
 
-        // Arena Team
-        void HandleInspectArenaTeamsOpcode(WorldPacket& recvData);
-        void HandleArenaTeamQueryOpcode(WorldPacket& recvData);
-        void HandleArenaTeamRosterOpcode(WorldPacket& recvData);
-        void HandleArenaTeamCreateOpcode(WorldPacket& recvData);
-        void HandleArenaTeamInviteOpcode(WorldPacket& recvData);
-        void HandleArenaTeamAcceptOpcode(WorldPacket& recvData);
-        void HandleArenaTeamDeclineOpcode(WorldPacket& recvData);
-        void HandleArenaTeamLeaveOpcode(WorldPacket& recvData);
-        void HandleArenaTeamRemoveOpcode(WorldPacket& recvData);
-        void HandleArenaTeamDisbandOpcode(WorldPacket& recvData);
-        void HandleArenaTeamLeaderOpcode(WorldPacket& recvData);
-
         void HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData);
         void HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData);
         void HandleCancelMountAuraOpcode(WorldPacket& recvData);
@@ -1296,8 +1323,8 @@ class WorldSession
         void HandleGuildBankSetTabText(WorldPackets::Guild::GuildBankSetTabText& packet);
 
         // Refer-a-Friend
-        void HandleGrantLevel(WorldPacket& recvData);
-        void HandleAcceptGrantLevel(WorldPacket& recvData);
+        void HandleGrantLevel(WorldPackets::RaF::GrantLevel& grantLevel);
+        void HandleAcceptGrantLevel(WorldPackets::RaF::AcceptLevelGrant& acceptLevelGrant);
 
         // Calendar
         void HandleCalendarGetCalendar(WorldPacket& recvData);
@@ -1340,9 +1367,7 @@ class WorldSession
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/);
         void HandleQuestNPCQuery(WorldPacket& recvData);
-        void HandleQuestPOIQuery(WorldPacket& recvData);
-        void HandleEjectPassenger(WorldPacket& data);
-        void HandleEnterPlayerVehicle(WorldPacket& data);
+        void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packet);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);

@@ -1033,20 +1033,22 @@ enum CharDeleteMethod
 
 enum ReferAFriendError
 {
-    ERR_REFER_A_FRIEND_NONE                          = 0x00,
-    ERR_REFER_A_FRIEND_NOT_REFERRED_BY               = 0x01,
-    ERR_REFER_A_FRIEND_TARGET_TOO_HIGH               = 0x02,
-    ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS = 0x03,
-    ERR_REFER_A_FRIEND_TOO_FAR                       = 0x04,
-    ERR_REFER_A_FRIEND_DIFFERENT_FACTION             = 0x05,
-    ERR_REFER_A_FRIEND_NOT_NOW                       = 0x06,
-    ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I             = 0x07,
-    ERR_REFER_A_FRIEND_SUMMON_LEVEL_MAX_I            = 0x08,
-    ERR_REFER_A_FRIEND_SUMMON_COOLDOWN               = 0x09,
-    ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S              = 0x0A,
-    ERR_REFER_A_FRIEND_INSUF_EXPAN_LVL               = 0x0B,
-    ERR_REFER_A_FRIEND_NOT_IN_LFG                    = 0x0C,
-    ERR_REFER_A_FRIEND_NO_XREALM                     = 0x0D
+    ERR_REFER_A_FRIEND_NONE                              = 0,
+    ERR_REFER_A_FRIEND_NOT_REFERRED_BY                   = 1,
+    ERR_REFER_A_FRIEND_TARGET_TOO_HIGH                   = 2,
+    ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS     = 3,
+    ERR_REFER_A_FRIEND_TOO_FAR                           = 4,
+    ERR_REFER_A_FRIEND_DIFFERENT_FACTION                 = 5,
+    ERR_REFER_A_FRIEND_NOT_NOW                           = 6,
+    ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I                 = 7,
+    ERR_REFER_A_FRIEND_NO_TARGET                         = 8,
+    ERR_REFER_A_FRIEND_NOT_IN_GROUP                      = 9,
+    ERR_REFER_A_FRIEND_SUMMON_LEVEL_MAX_I                = 10,
+    ERR_REFER_A_FRIEND_SUMMON_COOLDOWN                   = 11,
+    ERR_REFER_A_FRIEND_INSUF_EXPAN_LVL                   = 12,
+    ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S                  = 13,
+    ERR_REFER_A_FRIEND_NO_XREALM                         = 14,
+    ERR_REFER_A_FRIEND_MAP_INCOMING_TRANSFER_NOT_ALLOWED = 15
 };
 
 enum PlayerRestState
@@ -1148,19 +1150,6 @@ struct BGData
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
 };
 
-struct TradeStatusInfo
-{
-    TradeStatusInfo() : Status(TRADE_STATUS_BUSY), TraderGuid(), Result(EQUIP_ERR_OK),
-        IsTargetResult(false), ItemLimitCategoryId(0), Slot(0) { }
-
-    TradeStatus Status;
-    ObjectGuid TraderGuid;
-    InventoryResult Result;
-    bool IsTargetResult;
-    uint32 ItemLimitCategoryId;
-    uint8 Slot;
-};
-
 struct VoidStorageItem
 {
     VoidStorageItem()
@@ -1192,7 +1181,7 @@ class TradeData
     public:                                                 // constructors
         TradeData(Player* player, Player* trader) :
             m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
-            m_money(0), m_spell(0), m_spellCastItem() { }
+            m_money(0), m_spell(0), m_spellCastItem(), m_clientStateIndex(1), m_serverStateIndex(1) { }
 
         Player* GetTrader() const { return m_trader; }
         TradeData* GetTraderData() const;
@@ -1217,6 +1206,12 @@ class TradeData
         bool IsInAcceptProcess() const { return m_acceptProccess; }
         void SetInAcceptProcess(bool state) { m_acceptProccess = state; }
 
+        uint32 GetClientStateIndex() const { return m_clientStateIndex; }
+        void UpdateClientStateIndex() { ++m_clientStateIndex; }
+
+        uint32 GetServerStateIndex() const { return m_serverStateIndex; }
+        void UpdateServerStateIndex() { m_serverStateIndex = rand32(); }
+
     private:                                                // internal functions
 
         void Update(bool for_trader = true);
@@ -1235,6 +1230,9 @@ class TradeData
         ObjectGuid m_spellCastItem;                         // applied spell cast by item use
 
         ObjectGuid m_items[TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
+
+        uint32     m_clientStateIndex;
+        uint32     m_serverStateIndex;
 };
 
 struct ResurrectionData
@@ -1480,11 +1478,11 @@ class Player : public Unit, public GridObject<Player>
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
         bool HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
-        InventoryResult CanTakeMoreSimilarItems(Item* pItem, uint32* itemLimitCategory = NULL) const { return CanTakeMoreSimilarItems(pItem->GetEntry(), pItem->GetCount(), pItem, NULL, itemLimitCategory); }
-        InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, uint32* itemLimitCategory = NULL) const { return CanTakeMoreSimilarItems(entry, count, NULL, NULL, itemLimitCategory); }
+        InventoryResult CanTakeMoreSimilarItems(Item* pItem, uint32* offendingItemId = nullptr) const { return CanTakeMoreSimilarItems(pItem->GetEntry(), pItem->GetCount(), pItem, nullptr, offendingItemId); }
+        InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, uint32* offendingItemId = nullptr) const { return CanTakeMoreSimilarItems(entry, count, nullptr, nullptr, offendingItemId); }
         InventoryResult CanStoreNewItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 item, uint32 count, uint32* no_space_count = NULL) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap = false) const;
-        InventoryResult CanStoreItems(Item** items, int count, uint32* itemLimitCategory) const;
+        InventoryResult CanStoreItems(Item** items, int count, uint32* offendingItemId) const;
         InventoryResult CanEquipNewItem(uint8 slot, uint16& dest, uint32 item, bool swap) const;
         InventoryResult CanEquipItem(uint8 slot, uint16& dest, Item* pItem, bool swap, bool not_loading = true) const;
 
@@ -1508,7 +1506,7 @@ class Player : public Unit, public GridObject<Player>
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
         void StoreLootItem(uint8 lootSlot, Loot* loot);
 
-        InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL, uint32* itemLimitCategory = NULL) const;
+        InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = nullptr, uint32* offendingItemId = nullptr) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item* pItem = NULL, bool swap = false, uint32* no_space_count = NULL) const;
 
         void AddRefundReference(ObjectGuid it);
@@ -1759,6 +1757,7 @@ class Player : public Unit, public GridObject<Player>
         static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE; }
         static bool IsValidClass(uint8 Class) { return ((1 << (Class - 1)) & CLASSMASK_ALL_PLAYABLE) != 0; }
         static bool IsValidRace(uint8 Race) { return ((1 << (Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0; }
+        static bool ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create = false);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -1990,7 +1989,6 @@ class Player : public Unit, public GridObject<Player>
         void UpdateDuelFlag(time_t currTime);
         void CheckDuelDistance(time_t currTime);
         void DuelComplete(DuelCompleteType type);
-        void SendDuelCountdown(uint32 counter);
 
         bool IsGroupVisibleFor(Player const* p) const;
         bool IsInSameGroupWith(Player const* p) const;
@@ -2239,7 +2237,7 @@ class Player : public Unit, public GridObject<Player>
         int32 CalculateCorpseReclaimDelay(bool load = false);
         void SendCorpseReclaimDelay(uint32 delay);
 
-        uint32 GetBlockPercent() const { return GetUInt32Value(PLAYER_SHIELD_BLOCK); }
+        uint32 GetBlockPercent() const override { return GetUInt32Value(PLAYER_SHIELD_BLOCK); }
         bool CanParry() const { return m_canParry; }
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
@@ -2596,7 +2594,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsInWhisperWhiteList(ObjectGuid guid);
         void RemoveFromWhisperWhiteList(ObjectGuid guid) { WhisperList.remove(guid); }
 
-        void ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::ExtraMovementStatusElement* extras = NULL);
+        void ValidateMovementInfo(MovementInfo* mi);
 
         /*! These methods send different packets to the client in apply and unapply case.
             These methods are only sent to the current unit.
@@ -2604,7 +2602,7 @@ class Player : public Unit, public GridObject<Player>
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
         void SendMovementSetCollisionHeight(float height);
 
-        bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
+        bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
         //! Return collision height sent to client
         float GetCollisionHeight(bool mounted) const;

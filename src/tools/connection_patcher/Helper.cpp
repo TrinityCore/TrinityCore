@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
  * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *

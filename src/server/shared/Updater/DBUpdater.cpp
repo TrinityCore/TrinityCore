@@ -272,11 +272,19 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
         [&](Path const& file) { DBUpdater<T>::ApplyFile(pool, file); },
             [&](std::string const& query) -> QueryResult { return DBUpdater<T>::Retrieve(pool, query); });
 
-    uint32 const count = updateFetcher.Update(
-        sConfigMgr->GetBoolDefault("Updates.Redundancy", true),
-        sConfigMgr->GetBoolDefault("Updates.AllowRehash", true),
-        sConfigMgr->GetBoolDefault("Updates.ArchivedRedundancy", false),
-        sConfigMgr->GetIntDefault("Updates.CleanDeadRefMaxCount", 3));
+    uint32 count;
+    try
+    {
+        count = updateFetcher.Update(
+            sConfigMgr->GetBoolDefault("Updates.Redundancy", true),
+            sConfigMgr->GetBoolDefault("Updates.AllowRehash", true),
+            sConfigMgr->GetBoolDefault("Updates.ArchivedRedundancy", false),
+            sConfigMgr->GetIntDefault("Updates.CleanDeadRefMaxCount", 3));
+    }
+    catch (UpdateException&)
+    {
+        return false;
+    }
 
     if (!count)
         TC_LOG_INFO("sql.updates", ">> %s database is up-to-date!", DBUpdater<T>::GetTableName().c_str());
@@ -331,7 +339,14 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
 
     // Update database
     TC_LOG_INFO("sql.updates", ">> Applying \'%s\'...", base.generic_string().c_str());
-    ApplyFile(pool, base);
+    try
+    {
+        ApplyFile(pool, base);
+    }
+    catch (UpdateException&)
+    {
+        return false;
+    }
 
     TC_LOG_INFO("sql.updates", ">> Done!");
     return true;

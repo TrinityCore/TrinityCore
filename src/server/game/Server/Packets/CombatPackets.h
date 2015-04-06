@@ -236,6 +236,16 @@ namespace WorldPackets
             ObjectGuid Guid;
             int32 Health = 0;
         };
+
+        class ThreatClear final : public ServerPacket
+        {
+        public:
+            ThreatClear() : ServerPacket(SMSG_THREAT_CLEAR, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+        };
     }
 }
 

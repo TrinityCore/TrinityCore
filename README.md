@@ -1,6 +1,7 @@
 # ![logo](http://www.trinitycore.org/f/public/style_images/1_trinitycore.png) TrinityCore
 
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435) 
+`6.x`: [![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435) 
+`3.3.5`: [![Coverity Scan Build Status](https://scan.coverity.com/projects/4656/badge.svg)](https://scan.coverity.com/projects/4656) 
 [![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=1310)](https://www.bountysource.com/trackers/1310-trinity-core?utm_source=1310&utm_medium=shield&utm_campaign=TRACKER_BADGE)  
 [![Issue Stats](http://www.issuestats.com/github/TrinityCore/TrinityCore/badge/pr)](http://www.issuestats.com/github/TrinityCore/TrinityCore)
 [![Issue Stats](http://www.issuestats.com/github/TrinityCore/TrinityCore/badge/issue)](http://www.issuestats.com/github/TrinityCore/TrinityCore)  
@@ -34,7 +35,7 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 + CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux)
 + OpenSSL ≥ 1.0.0
 + GCC ≥ 4.7.2 (Linux only)
-+ MS Visual Studio ≥ 12 (2013 Update 3) (Windows only)
++ MS Visual Studio ≥ 12 (2013 Update 4) (Windows only)
 
 
 ## Install

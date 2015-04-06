@@ -60,7 +60,6 @@
 #include "MailPackets.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
-#include "MovementStructures.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -92,10 +91,13 @@
 #include "WorldStatePackets.h"
 #include "MiscPackets.h"
 #include "ChatPackets.h"
+#include "DuelPackets.h"
 #include "MovementPackets.h"
 #include "ItemPackets.h"
 #include "QuestPackets.h"
 #include "LootPackets.h"
+#include "TradePackets.h"
+#include "VehiclePackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -314,6 +316,8 @@ void TradeData::SetItem(TradeSlots slot, Item* item)
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
 
+    UpdateServerStateIndex();
+
     Update();
 
     // need remove possible trader spell applied to changed item
@@ -337,6 +341,8 @@ void TradeData::SetSpell(uint32 spell_id, Item* castItem /*= NULL*/)
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
 
+    UpdateServerStateIndex();
+
     Update(true);                                           // send spell info to item owner
     Update(false);                                          // send spell info to caster self
 }
@@ -348,9 +354,9 @@ void TradeData::SetMoney(uint64 money)
 
     if (!m_player->HasEnoughMoney(money))
     {
-        TradeStatusInfo info;
-        info.Status = TRADE_STATUS_CLOSE_WINDOW;
-        info.Result = EQUIP_ERR_NOT_ENOUGH_MONEY;
+        WorldPackets::Trade::TradeStatus info;
+        info.Status = TRADE_STATUS_FAILED;
+        info.BagResult = EQUIP_ERR_NOT_ENOUGH_MONEY;
         m_player->GetSession()->SendTradeStatus(info);
         return;
     }
@@ -359,6 +365,8 @@ void TradeData::SetMoney(uint64 money)
 
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
+
+    UpdateServerStateIndex();
 
     Update(true);
 }
@@ -377,8 +385,8 @@ void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
 
     if (!state)
     {
-        TradeStatusInfo info;
-        info.Status = TRADE_STATUS_BACK_TO_TRADE;
+        WorldPackets::Trade::TradeStatus info;
+        info.Status = TRADE_STATUS_UNACCEPTED;
         if (crosssend)
             m_trader->GetSession()->SendTradeStatus(info);
         else
@@ -941,8 +949,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 {
     //FIXME: outfitId not used in player creating
     /// @todo need more checks against packet modifications
-    // should check that skin, face, hair* are valid via DBC per race/class
-    // also do it in Player::BuildEnumData, Player::LoadFromDB
 
     Object::_Create(ObjectGuid::Create<HighGuid::Player>(guidlow));
 
@@ -966,6 +972,13 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     {
         TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid character class (%u) - refusing to do so (wrong DBC-files?)",
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Class);
+        return false;
+    }
+
+    if (!ValidateAppearance(createInfo->Race, createInfo->Class, createInfo->Sex, createInfo->HairStyle, createInfo->HairColor, createInfo->Face, createInfo->FacialHairStyle, createInfo->Skin, true))
+    {
+        TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with invalid appearance attributes - refusing to do so",
+            GetSession()->GetAccountId(), m_name.c_str());
         return false;
     }
 
@@ -7441,8 +7454,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = currTime;
 
-            WorldPacket data(SMSG_DUEL_OUT_OF_BOUNDS, 0);
-            GetSession()->SendPacket(&data);
+            GetSession()->SendPacket(WorldPackets::Duel::DuelOutOfBounds().Write());
         }
     }
     else
@@ -7451,8 +7463,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = 0;
 
-            WorldPacket data(SMSG_DUEL_IN_BOUNDS, 0);
-            GetSession()->SendPacket(&data);
+            GetSession()->SendPacket(WorldPackets::Duel::DuelInBounds().Write());
         }
         else if (currTime >= (duel->outOfBound+10))
             DuelComplete(DUEL_FLED);
@@ -7472,20 +7483,24 @@ void Player::DuelComplete(DuelCompleteType type)
 
     TC_LOG_DEBUG("entities.unit", "Duel Complete %s %s", GetName().c_str(), duel->opponent->GetName().c_str());
 
-    WorldPacket data(SMSG_DUEL_COMPLETE, (1));
-    data << (uint8)((type != DUEL_INTERRUPTED) ? 1 : 0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Duel::DuelComplete duelCompleted;
+    duelCompleted.Started = type != DUEL_INTERRUPTED;
+    WorldPacket const* duelCompletedPacket = duelCompleted.Write();
+    GetSession()->SendPacket(duelCompletedPacket);
 
     if (duel->opponent->GetSession())
-        duel->opponent->GetSession()->SendPacket(&data);
+        duel->opponent->GetSession()->SendPacket(duelCompletedPacket);
 
     if (type != DUEL_INTERRUPTED)
     {
-        data.Initialize(SMSG_DUEL_WINNER, (1+20));          // we guess size
-        data << uint8(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
-        data << duel->opponent->GetName();
-        data << GetName();
-        SendMessageToSet(&data, true);
+        WorldPackets::Duel::DuelWinner duelWinner;
+        duelWinner.BeatenName = (type == DUEL_WON ? duel->opponent->GetName() : GetName());
+        duelWinner.WinnerName = (type == DUEL_WON ? GetName() : duel->opponent->GetName());
+        duelWinner.BeatenVirtualRealmAddress = GetVirtualRealmAddress();
+        duelWinner.WinnerVirtualRealmAddress = GetVirtualRealmAddress();
+        duelWinner.Fled = type != DUEL_WON;
+
+        SendMessageToSet(duelWinner.Write(), true);
     }
 
     sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);
@@ -8409,9 +8424,10 @@ void Player::RemovedInsignia(Player* looterPlr)
 
 void Player::SendLootRelease(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_LOOT_RELEASE, (8+1));
-    data << guid << uint8(1);
-    SendDirectMessage(&data);
+    WorldPackets::Loot::LootReleaseResponse packet;
+    packet.LootObj = guid;
+    packet.Owner = GetGUID();
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendLoot(ObjectGuid guid, LootType loot_type)
@@ -10153,7 +10169,7 @@ bool Player::HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 
     return false;
 }
 
-InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count /*= NULL*/, uint32* itemLimitCategory /*= NULL*/) const
+InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count /*= nullptr*/, uint32* offendingItemId /*= nullptr*/) const
 {
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(entry);
     if (!pProto)
@@ -10199,8 +10215,8 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
             {
                 if (no_space_count)
                     *no_space_count = count + curcount - limitEntry->Quantity;
-                if (itemLimitCategory)
-                    *itemLimitCategory = pProto->GetItemLimitCategory();
+                if (offendingItemId)
+                    *offendingItemId = pProto->GetId();
                 return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS;
             }
         }
@@ -10731,7 +10747,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
 }
 
 //////////////////////////////////////////////////////////////////////////
-InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimitCategory) const
+InventoryResult Player::CanStoreItems(Item** items, int count, uint32* offendingItemId) const
 {
     Item* item2;
 
@@ -10785,7 +10801,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
         ItemTemplate const* pBagProto;
 
         // item is 'one item only'
-        InventoryResult res = CanTakeMoreSimilarItems(item, itemLimitCategory);
+        InventoryResult res = CanTakeMoreSimilarItems(item, offendingItemId);
         if (res != EQUIP_ERR_OK)
             return res;
 
@@ -14739,7 +14755,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (quest->GetRewSpell() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_CREATE_ITEM))
+        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_CREATE_ITEM) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_APPLY_AURA))
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpell(), true);
@@ -16638,6 +16654,19 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_INEBRIATION, fields[45].GetUInt8());
     SetUInt32Value(PLAYER_FLAGS, fields[11].GetUInt32());
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[44].GetUInt32());
+
+    if (!ValidateAppearance(
+        fields[3].GetUInt8(), // race
+        fields[4].GetUInt8(), // class
+        gender, GetByteValue(PLAYER_BYTES, 2), // hair type
+        GetByteValue(PLAYER_BYTES, 3), //hair color
+        uint8(fields[9].GetUInt32() >> 8), // face
+        GetByteValue(PLAYER_BYTES_2, 0), // facial hair
+        GetByteValue(PLAYER_BYTES, 0))) // skin color
+    {
+        TC_LOG_ERROR("entities.player", "Player %s has wrong Appearance values (Hair/Skin/Color), can't be loaded.", guid.ToString().c_str());
+        return false;
+    }
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
     SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, fields[58].GetUInt8());
@@ -20270,8 +20299,7 @@ bool Player::RemoveMItem(ObjectGuid::LowType id)
 
 void Player::SendOnCancelExpectedVehicleRideAura()
 {
-    WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Vehicle::OnCancelExpectedRideVehicleAura().Write());
 }
 
 void Player::PetSpellInitialize()
@@ -21645,9 +21673,9 @@ void Player::SetPvP(bool state)
         (*itr)->SetPvP(state);
 }
 
-void Player::UpdatePvP(bool state, bool override)
+void Player::UpdatePvP(bool state, bool _override)
 {
-    if (!state || override)
+    if (!state || _override)
     {
         SetPvP(state);
         pvpInfo.EndTimer = 0;
@@ -25585,13 +25613,6 @@ std::string Player::GetGuildName()
     return GetGuildId() ? sGuildMgr->GetGuildById(GetGuildId())->GetName() : "";
 }
 
-void Player::SendDuelCountdown(uint32 counter)
-{
-    WorldPacket data(SMSG_DUEL_COUNTDOWN, 4);
-    data << uint32(counter);                                // seconds
-    GetSession()->SendPacket(&data);
-}
-
 void Player::AddRefundReference(ObjectGuid it)
 {
     m_refundableItems.insert(it);
@@ -26063,17 +26084,28 @@ void Player::OnCombatExit()
 
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 {
-    Movement::PacketSender(this, static_cast<OpcodeServer>(NULL_OPCODE), apply ?
-        SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY :
-        SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
+    WorldPackets::Movement::MoveSetFlag packet(apply ? SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY : SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY);
+    packet.MoverGUID = GetGUID();
+    packet.SequenceIndex = m_movementCounter++;
+    SendMessageToSet(packet.Write(), true);
 }
 
 void Player::SendMovementSetCollisionHeight(float height)
 {
-    static MovementStatusElements const heightElement = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extra(&heightElement);
-    extra.Data.floatData = height;
-    Movement::PacketSender(this, static_cast<OpcodeServer>(NULL_OPCODE), SMSG_MOVE_SET_COLLISION_HEIGHT, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
+    WorldPackets::Movement::MoveSetCollisionHeight setCollisionHeight;
+    setCollisionHeight.MoverGUID = GetGUID();
+    setCollisionHeight.SequenceIndex = m_movementCounter++;
+    setCollisionHeight.Height = height;
+    setCollisionHeight.Scale = GetObjectScale();
+    setCollisionHeight.MountDisplayID = GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID);
+    setCollisionHeight.Reason = WorldPackets::Movement::UPDATE_COLLISION_HEIGHT_MOUNT;
+    SendDirectMessage(setCollisionHeight.Write());
+
+    WorldPackets::Movement::MoveUpdateCollisionHeight updateCollisionHeight;
+    updateCollisionHeight.movementInfo = &m_movementInfo;
+    updateCollisionHeight.Height = height;
+    updateCollisionHeight.Scale = GetObjectScale();
+    SendMessageToSet(updateCollisionHeight.Write(), false);
 }
 
 float Player::GetCollisionHeight(bool mounted) const
@@ -26266,221 +26298,8 @@ bool Player::CanUseMastery() const
     return HasSpell(MasterySpells[getClass()]);
 }
 
-void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::ExtraMovementStatusElement* extras /*= NULL*/)
+void Player::ValidateMovementInfo(MovementInfo* mi)
 {
-    MovementStatusElements const* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
-    if (!sequence)
-    {
-        TC_LOG_ERROR("network", "Player::ReadMovementInfo: No movement sequence found for opcode %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(data.GetOpcode())).c_str());
-        return;
-    }
-
-    bool hasMovementFlags = false;
-    bool hasMovementFlags2 = false;
-    bool hasTimestamp = false;
-    bool hasOrientation = false;
-    bool hasTransportData = false;
-    bool hasTransportPrevTime = false;
-    bool hasTransportVehicleId = false;
-    bool hasPitch = false;
-    bool hasFallData = false;
-    bool hasFallDirection = false;
-    bool hasSplineElevation = false;
-
-    ObjectGuid guid;
-    ObjectGuid tguid;
-
-    for (; *sequence != MSEEnd; ++sequence)
-    {
-        MovementStatusElements const& element = *sequence;
-
-        switch (element)
-        {
-            case MSEHasGuidByte0:
-            case MSEHasGuidByte1:
-            case MSEHasGuidByte2:
-            case MSEHasGuidByte3:
-            case MSEHasGuidByte4:
-            case MSEHasGuidByte5:
-            case MSEHasGuidByte6:
-            case MSEHasGuidByte7:
-                guid[element - MSEHasGuidByte0] = data.ReadBit();
-                break;
-            case MSEHasTransportGuidByte0:
-            case MSEHasTransportGuidByte1:
-            case MSEHasTransportGuidByte2:
-            case MSEHasTransportGuidByte3:
-            case MSEHasTransportGuidByte4:
-            case MSEHasTransportGuidByte5:
-            case MSEHasTransportGuidByte6:
-            case MSEHasTransportGuidByte7:
-                if (hasTransportData)
-                    tguid[element - MSEHasTransportGuidByte0] = data.ReadBit();
-                break;
-            case MSEGuidByte0:
-            case MSEGuidByte1:
-            case MSEGuidByte2:
-            case MSEGuidByte3:
-            case MSEGuidByte4:
-            case MSEGuidByte5:
-            case MSEGuidByte6:
-            case MSEGuidByte7:
-                data.ReadByteSeq(guid[element - MSEGuidByte0]);
-                break;
-            case MSETransportGuidByte0:
-            case MSETransportGuidByte1:
-            case MSETransportGuidByte2:
-            case MSETransportGuidByte3:
-            case MSETransportGuidByte4:
-            case MSETransportGuidByte5:
-            case MSETransportGuidByte6:
-            case MSETransportGuidByte7:
-                if (hasTransportData)
-                    data.ReadByteSeq(tguid[element - MSETransportGuidByte0]);
-                break;
-            case MSEHasMovementFlags:
-                hasMovementFlags = !data.ReadBit();
-                break;
-            case MSEHasMovementFlags2:
-                hasMovementFlags2 = !data.ReadBit();
-                break;
-            case MSEHasTimestamp:
-                hasTimestamp = !data.ReadBit();
-                break;
-            case MSEHasOrientation:
-                hasOrientation = !data.ReadBit();
-                break;
-            case MSEHasTransportData:
-                hasTransportData = data.ReadBit();
-                break;
-            case MSEHasTransportPrevTime:
-                if (hasTransportData)
-                    hasTransportPrevTime = data.ReadBit();
-                break;
-            case MSEHasTransportVehicleId:
-                if (hasTransportData)
-                    hasTransportVehicleId = data.ReadBit();
-                break;
-            case MSEHasPitch:
-                hasPitch = !data.ReadBit();
-                break;
-            case MSEHasFallData:
-                hasFallData = data.ReadBit();
-                break;
-            case MSEHasFallDirection:
-                if (hasFallData)
-                    hasFallDirection = data.ReadBit();
-                break;
-            case MSEHasSplineElevation:
-                hasSplineElevation = !data.ReadBit();
-                break;
-            case MSEHasSpline:
-                data.ReadBit();
-                break;
-            case MSEMovementFlags:
-                if (hasMovementFlags)
-                    mi->flags = data.ReadBits(30);
-                break;
-            case MSEMovementFlags2:
-                if (hasMovementFlags2)
-                    mi->flags2 = data.ReadBits(12);
-                break;
-            case MSETimestamp:
-                if (hasTimestamp)
-                    data >> mi->time;
-                break;
-            case MSEPositionX:
-                data >> mi->pos.m_positionX;
-                break;
-            case MSEPositionY:
-                data >> mi->pos.m_positionY;
-                break;
-            case MSEPositionZ:
-                data >> mi->pos.m_positionZ;
-                break;
-            case MSEOrientation:
-                if (hasOrientation)
-                    mi->pos.SetOrientation(data.read<float>());
-                break;
-            case MSETransportPositionX:
-                if (hasTransportData)
-                    data >> mi->transport.pos.m_positionX;
-                break;
-            case MSETransportPositionY:
-                if (hasTransportData)
-                    data >> mi->transport.pos.m_positionY;
-                break;
-            case MSETransportPositionZ:
-                if (hasTransportData)
-                    data >> mi->transport.pos.m_positionZ;
-                break;
-            case MSETransportOrientation:
-                if (hasTransportData)
-                    mi->transport.pos.SetOrientation(data.read<float>());
-                break;
-            case MSETransportSeat:
-                if (hasTransportData)
-                    data >> mi->transport.seat;
-                break;
-            case MSETransportTime:
-                if (hasTransportData)
-                    data >> mi->transport.time;
-                break;
-            case MSETransportPrevTime:
-                if (hasTransportData && hasTransportPrevTime)
-                    data >> mi->transport.prevTime;
-                break;
-            case MSETransportVehicleId:
-                if (hasTransportData && hasTransportVehicleId)
-                    data >> mi->transport.vehicleId;
-                break;
-            case MSEPitch:
-                if (hasPitch)
-                    mi->pitch = G3D::wrap(data.read<float>(), float(-M_PI), float(M_PI));
-                break;
-            case MSEFallTime:
-                if (hasFallData)
-                    data >> mi->jump.fallTime;
-                break;
-            case MSEFallVerticalSpeed:
-                if (hasFallData)
-                    data >> mi->jump.zspeed;
-                break;
-            case MSEFallCosAngle:
-                if (hasFallData && hasFallDirection)
-                    data >> mi->jump.cosAngle;
-                break;
-            case MSEFallSinAngle:
-                if (hasFallData && hasFallDirection)
-                    data >> mi->jump.sinAngle;
-                break;
-            case MSEFallHorizontalSpeed:
-                if (hasFallData && hasFallDirection)
-                    data >> mi->jump.xyspeed;
-                break;
-            case MSESplineElevation:
-                if (hasSplineElevation)
-                    data >> mi->splineElevation;
-                break;
-            case MSECounter:
-                data.read_skip<uint32>();   /// @TODO: Maybe compare it with m_movementCounter to verify that packets are sent & received in order?
-                break;
-            case MSEZeroBit:
-            case MSEOneBit:
-                data.ReadBit();
-                break;
-            case MSEExtraElement:
-                extras->ReadNextElement(data);
-                break;
-            default:
-                ASSERT(Movement::PrintInvalidSequenceElement(element, __FUNCTION__));
-                break;
-        }
-    }
-
-    mi->guid = guid;
-    mi->transport.guid = tguid;
-
     //! Anti-cheat checks. Please keep them in seperate if () blocks to maintain a clear overview.
     //! Might be subject to latency, so just remove improper flags.
     #ifdef TRINITY_DEBUG
@@ -26488,7 +26307,7 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
     { \
         if (check) \
         { \
-            TC_LOG_DEBUG("entities.unit", "Player::ReadMovementInfo: Violation of MovementFlags found (%s). " \
+            TC_LOG_DEBUG("entities.unit", "Player::ValidateMovementInfo: Violation of MovementFlags found (%s). " \
                 "MovementFlags: %u, MovementFlags2: %u for player %s. Mask %u will be removed.", \
                 STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetGUID().ToString().c_str(), maskToRemove); \
             mi->RemoveMovementFlag((maskToRemove)); \
@@ -26545,21 +26364,18 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
         e.g. aerial combat.
     */
 
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && ToPlayer()->GetSession()->GetSecurity() == SEC_PLAYER &&
-        !ToPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) &&
-        !ToPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSession()->GetSecurity() == SEC_PLAYER &&
+        !m_mover->HasAuraType(SPELL_AURA_FLY) &&
+        !m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
         MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
         MOVEMENTFLAG_FALLING);
 
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING) && (!hasFallData || !hasFallDirection), MOVEMENTFLAG_FALLING);
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION) &&
-        (!hasSplineElevation || G3D::fuzzyEq(mi->splineElevation, 0.0f)), MOVEMENTFLAG_SPLINE_ELEVATION);
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION) && G3D::fuzzyEq(mi->splineElevation, 0.0f), MOVEMENTFLAG_SPLINE_ELEVATION);
 
     // Client first checks if spline elevation != 0, then verifies flag presence
-    if (hasSplineElevation)
+    if (G3D::fuzzyNe(mi->splineElevation, 0.0f))
         mi->AddMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
 
     #undef REMOVE_VIOLATING_FLAGS
@@ -26726,4 +26542,59 @@ void Player::RemoveSocial()
 {
     sSocialMgr->RemovePlayerSocial(GetGUID());
     m_social = nullptr;
+}
+
+bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create /*=false*/)
+{
+    // Check skin color
+    // For Skin type is always 0
+    if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor))
+    {   // Skin Color defined as Face color, too, we check skin & face in one pass
+        if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor))
+        {
+            // Check DeathKnight exclusive
+            if (((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) || (entry2->Flags & SECTION_FLAG_DEATH_KNIGHT)) && class_ != CLASS_DEATH_KNIGHT)
+                return false;
+            if (create && !((entry->Flags & SECTION_FLAG_PLAYER) && (entry2->Flags & SECTION_FLAG_PLAYER)))
+                return false;
+        }
+        else
+            return false;
+    }
+    else
+        return false;
+
+    // These combinations don't have an entry of Type SECTION_TYPE_FACIAL_HAIR, exclude them from that check
+    bool excludeCheck = (race == RACE_TAUREN) || (race == RACE_DRAENEI) || (gender == GENDER_FEMALE && race != RACE_NIGHTELF && race != RACE_UNDEAD_PLAYER);
+
+    // Check Hair
+    if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor))
+    {
+        if ((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
+            return false;
+        if (create && !(entry->Flags & SECTION_FLAG_PLAYER))
+            return false;
+
+        if (!excludeCheck)
+        {
+            if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHair, hairColor))
+            {
+                if ((entry2->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
+                    return false;
+                if (create && !(entry2->Flags & SECTION_FLAG_PLAYER))
+                    return false;
+            }
+            else
+                return false;
+        }
+        else
+        {
+            // @TODO: Bound checking for facialHair ID (used clientside for markings, tauren beard, etc.)
+            // Not present in DBC
+        }
+    }
+    else
+        return false;
+
+    return true;
 }
