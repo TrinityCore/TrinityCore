@@ -533,6 +533,12 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.PortraitGiver = quest->GetQuestGiverPortrait();
     packet.Info.PortraitTurnIn = quest->GetQuestTurnInPortrait();
 
+    for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
+    {
+        packet.Info.ItemDrop[i] = quest->ItemDrop[i];
+        packet.Info.ItemDropQuantity[i] = quest->ItemDropQuantity[i];
+    }
+
     if (!quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
     {
         for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
