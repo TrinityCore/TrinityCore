@@ -1067,17 +1067,17 @@ void ObjectMgr::LoadGameObjectAddons()
         }
 
         GameObjectAddon& gameObjectAddon = _gameObjectAddonStore[guid];
-        gameObjectAddon.InvisibilityType = InvisibilityType(fields[1].GetUInt8());
+        gameObjectAddon.invisibilityType = InvisibilityType(fields[1].GetUInt8());
         gameObjectAddon.InvisibilityValue = fields[2].GetUInt32();
 
-        if (gameObjectAddon.InvisibilityType >= TOTAL_INVISIBILITY_TYPES)
+        if (gameObjectAddon.invisibilityType >= TOTAL_INVISIBILITY_TYPES)
         {
             TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid InvisibilityType in `gameobject_addon`", guid);
-            gameObjectAddon.InvisibilityType = INVISIBILITY_GENERAL;
+            gameObjectAddon.invisibilityType = INVISIBILITY_GENERAL;
             gameObjectAddon.InvisibilityValue = 0;
         }
 
-        if (gameObjectAddon.InvisibilityType && !gameObjectAddon.InvisibilityValue)
+        if (gameObjectAddon.invisibilityType && !gameObjectAddon.InvisibilityValue)
         {
             TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has InvisibilityType set but has no InvisibilityValue in `gameobject_addon`, set to 1", guid);
             gameObjectAddon.InvisibilityValue = 1;
