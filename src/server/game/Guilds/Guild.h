@@ -817,7 +817,7 @@ public:
     void SendEventBankMoneyChanged();
     void SendEventMOTD(WorldSession* session, bool broadcast = false);
     void SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelfPromoted = false);
-    void SendEventPlayerLeft(Player* leaver, Player* remover = nullptr, bool isRemoved = false);
+    void SendEventPlayerLeft(Member* leaver, Member* remover = nullptr, bool isRemoved = false);
     void SendEventPresenceChanged(WorldSession* session, bool loggedOn, bool broadcast = false);
 
     // Load from DB

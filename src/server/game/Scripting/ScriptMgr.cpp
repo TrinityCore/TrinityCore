@@ -1354,9 +1354,9 @@ void ScriptMgr::OnGuildAddMember(Guild* guild, Player* player, uint8& plRank)
     FOREACH_SCRIPT(GuildScript)->OnAddMember(guild, player, plRank);
 }
 
-void ScriptMgr::OnGuildRemoveMember(Guild* guild, Player* player, bool isDisbanding, bool isKicked)
+void ScriptMgr::OnGuildRemoveMember(Guild* guild, ObjectGuid guid, bool isDisbanding, bool isKicked)
 {
-    FOREACH_SCRIPT(GuildScript)->OnRemoveMember(guild, player, isDisbanding, isKicked);
+    FOREACH_SCRIPT(GuildScript)->OnRemoveMember(guild, guid, isDisbanding, isKicked);
 }
 
 void ScriptMgr::OnGuildMOTDChanged(Guild* guild, const std::string& newMotd)
