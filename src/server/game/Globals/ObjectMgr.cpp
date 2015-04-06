@@ -1111,7 +1111,7 @@ void ObjectMgr::LoadGameObjectAddons()
 
         GameObjectAddon& gameObjectAddon = _gameObjectAddonStore[guid];
         gameObjectAddon.InvisibilityType = InvisibilityType(fields[1].GetUInt8());
-        gameObjectAddon.InvisibilityValue = InvisibilityType(fields[2].GetUInt32());
+        gameObjectAddon.InvisibilityValue = fields[2].GetUInt32();
 
         if (gameObjectAddon.InvisibilityType >= TOTAL_INVISIBILITY_TYPES)
         {

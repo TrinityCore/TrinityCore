@@ -299,7 +299,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     if (GameObjectAddon const* addon = sObjectMgr->GetGameObjectAddon(guidlow))
     {
-        if (addon->InvisibilityType && addon->InvisibilityValue)
+        if (addon->InvisibilityValue)
         {
             m_invisibility.AddFlag(addon->InvisibilityType);
             m_invisibility.AddValue(addon->InvisibilityType, addon->InvisibilityValue);
