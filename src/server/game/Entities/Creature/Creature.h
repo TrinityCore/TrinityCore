@@ -685,32 +685,26 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
          * home region to prohibit the players from abusing the mechanism and
          * allowing city guards to kill the mob.
          */
-        void SetCombatPosition() {
+        void SetCombatPosition() 
+        {
             if (!isWorldBoss())
-                m_combatPosition.Relocate(GetPositionX(),GetPositionY(),GetPositionZ());
+                m_combatPosition.Relocate(GetPosition());
             else
                 ClearCombatPosition();
         }
 
         /** 
          * @brief Clear the modified last combat position
+         * 
+         * Reuses the home position t
          */
-        void ClearCombatPosition() {
-            /*
-             * Reuse the home position
-             */
-            m_combatPosition.Relocate(m_homePosition.GetPositionX(),
-                                      m_homePosition.GetPositionY(),
-                                      m_homePosition.GetPositionZ());
-        }
+        void ClearCombatPosition() { m_combatPosition.Relocate(m_homePosition); }
 
         /**
          * Get the last point where combat was started
          * @return combat start position
          */
-        Position GetCombatPosition() const {
-            return m_combatPosition;
-        }
+        Position GetCombatPosition() const { return m_combatPosition; }
 
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
