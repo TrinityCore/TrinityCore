@@ -30,8 +30,6 @@ class GameObjectAI;
 class Group;
 class Transport;
 
-#define MAX_GAMEOBJECT_QUEST_ITEMS 6
-
 // from `gameobject_template`
 struct GameObjectTemplate
 {
@@ -45,7 +43,6 @@ struct GameObjectTemplate
     uint32  faction;
     uint32  flags;
     float   size;
-    uint32  questItems[MAX_GAMEOBJECT_QUEST_ITEMS];
     int32   unkInt32;
     union
     {
@@ -846,6 +843,9 @@ struct GameObjectData
     uint32 phaseGroup;
     bool dbData;
 };
+
+typedef std::vector<uint32> GameObjectQuestItemList;
+typedef std::unordered_map<uint32, GameObjectQuestItemList> GameObjectQuestItemMap;
 
 // For containers:  [GO_NOT_READY]->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED->GO_READY        -> ...
 // For bobber:      GO_NOT_READY  ->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED-><deleted>
