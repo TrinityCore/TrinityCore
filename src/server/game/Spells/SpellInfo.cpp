@@ -1482,12 +1482,19 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             case SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED:
             case SPELL_AURA_FLY:
             {
-                if (player && !player->IsKnowHowFlyIn(map_id, zone_id))
-                    return SPELL_FAILED_INCORRECT_AREA;
+                if (player)
+                {
+                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
+                    for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
+                    {
+                        // spell 54197 (Cold Weather Flying) is a prereq for flying in Northrend
+                        if (skillIter->second->skillId == SKILL_MOUNTS && player->GetMapId() != 571 && !player->HasSpell(54197))
+                            return SPELL_FAILED_INCORRECT_AREA; // maybe: SPELL_CUSTOM_ERROR_CANT_USE_THAT_MOUNT
+                    }
+                }
             }
         }
     }
-
     return SPELL_CAST_OK;
 }
 
