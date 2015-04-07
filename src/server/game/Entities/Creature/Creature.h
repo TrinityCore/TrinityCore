@@ -69,7 +69,6 @@ enum CreatureFlagsExtra
 
 #define MAX_KILL_CREDIT 2
 #define MAX_CREATURE_MODELS 4
-#define MAX_CREATURE_QUEST_ITEMS 6
 #define MAX_CREATURE_NAMES 4
 #define CREATURE_MAX_SPELLS 8
 #define MAX_CREATURE_DIFFICULTIES 3
@@ -136,7 +135,6 @@ struct CreatureTemplate
     float   ModDamage;
     float   ModExperience;
     bool    RacialLeader;
-    uint32  questItems[MAX_CREATURE_QUEST_ITEMS];
     uint32  movementId;
     bool    RegenHealth;
     uint32  MechanicImmuneMask;
@@ -204,6 +202,9 @@ struct CreatureTemplate
         }
     }
 };
+
+typedef std::vector<uint32> CreatureQuestItemList;
+typedef std::unordered_map<uint32, CreatureQuestItemList> CreatureQuestItemMap;
 
 // Benchmarked: Faster than std::map (insert/find)
 typedef std::unordered_map<uint32, CreatureTemplate> CreatureTemplateContainer;

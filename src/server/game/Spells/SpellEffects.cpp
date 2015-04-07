@@ -5796,10 +5796,8 @@ void Spell::EffectDestroyItem(SpellEffIndex effIndex)
         return;
 
     Player* player = unitTarget->ToPlayer();
-    if (SpellEffectInfo const* effect = GetEffect(effIndex))
-    {
-        uint32 itemId = effect->ItemType;
-        if (Item* item = player->GetItemByEntry(itemId))
-            player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
-    }
+    SpellEffectInfo const* effect = GetEffect(effIndex);
+    uint32 itemId = effect->ItemType;
+    if (Item* item = player->GetItemByEntry(itemId))
+        player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }

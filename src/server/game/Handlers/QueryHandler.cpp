@@ -89,9 +89,12 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.HpMulti = creatureInfo->ModHealth;
         stats.EnergyMulti = creatureInfo->ModMana;
         stats.Leader = creatureInfo->RacialLeader;
-        for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            if (creatureInfo->questItems[i])
-                stats.QuestItems.push_back(creatureInfo->questItems[i]);
+
+        CreatureQuestItemList* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID);
+        if (items)
+            for (uint32 item : *items)
+                stats.QuestItems.push_back(item);
+
         stats.CreatureMovementInfoID = creatureInfo->movementId;
         stats.RequiredExpansion = creatureInfo->expansionUnknown;
         stats.Flags[0] = creatureInfo->type_flags;
@@ -128,9 +131,11 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         stats.IconName = gameObjectInfo->IconName;
         stats.Name[0] = gameObjectInfo->name;
 
-        for (uint8 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; i++)
-            if (gameObjectInfo->questItems[i])
-                stats.QuestItems.push_back(gameObjectInfo->questItems[i]);
+        GameObjectQuestItemList* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID);
+        if (items)
+            for (uint32 item : *items)
+                stats.QuestItems.push_back(item);
+
         for (uint32 i = 0; i < MAX_GAMEOBJECT_DATA; i++)
             stats.Data[i] = gameObjectInfo->raw.data[i];
 

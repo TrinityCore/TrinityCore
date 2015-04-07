@@ -151,6 +151,7 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellLearnSpellStore,          db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellMiscStore,                db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellPowerStore,               db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellPowerDifficultyStore,     db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellReagentsStore,            db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellRuneCostStore,            db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellTotemsStore,              db2Path);
