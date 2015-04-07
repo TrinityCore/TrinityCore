@@ -25085,6 +25085,13 @@ uint32 Player::CalculateTalentsPoints() const
     return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
 }
 
+bool Player::canFlyInZone(uint32 mapid, uint32 zone) const
+{
+    // continent checked in SpellInfo::CheckLocation at cast and area update
+    uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
+    return v_map != 571 || HasSpell(54197); // 54197 = Cold Weather Flying
+}
+
 void Player::LearnSpellHighestRank(uint32 spellid)
 {
     LearnSpell(spellid, false);
