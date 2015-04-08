@@ -408,7 +408,7 @@ void ArenaTeam::NotifyStatsChanged()
             SendStats(player->GetSession());
 }
 
-void ArenaTeam::Inspect(WorldSession* session, ObjectGuid guid)
+void ArenaTeam::Inspect(WorldSession* /*session*/, ObjectGuid guid)
 {
     ArenaTeamMember* member = GetMember(guid);
     if (!member)
