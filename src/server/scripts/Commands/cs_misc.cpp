@@ -248,7 +248,7 @@ public:
 
         if (status)
             handler->PSendSysMessage(LANG_LIQUID_STATUS, liquidStatus.level, liquidStatus.depth_level, liquidStatus.entry, liquidStatus.type_flags, status);
-        
+
         if (!object->GetTerrainSwaps().empty())
         {
             std::stringstream ss;

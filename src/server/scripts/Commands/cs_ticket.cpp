@@ -126,7 +126,7 @@ public:
 
     static bool HandleTicketResetAllCommand(ChatHandler* handler, char const* /*args*/)
     {
-        if (sSupportMgr->GetOpenTicketCount<GmTicket>() || sSupportMgr->GetOpenTicketCount<BugTicket>() 
+        if (sSupportMgr->GetOpenTicketCount<GmTicket>() || sSupportMgr->GetOpenTicketCount<BugTicket>()
             || sSupportMgr->GetOpenTicketCount<ComplaintTicket>() || sSupportMgr->GetOpenTicketCount<SuggestionTicket>())
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETPENDING);

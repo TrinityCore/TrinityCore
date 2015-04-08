@@ -27,8 +27,8 @@ void WorldPackets::Bank::AutoBankItem::Read()
 
 void WorldPackets::Bank::AutoStoreBankItem::Read()
 {
-    _worldPacket >> Inv 
-                 >> Bag 
+    _worldPacket >> Inv
+                 >> Bag
                  >> Slot;
 }
 

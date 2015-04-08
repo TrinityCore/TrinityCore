@@ -1281,7 +1281,7 @@ public:
         Unit* target = handler->getSelectedUnit();
         if (!target)
             target = handler->GetSession()->GetPlayer();
-        
+
         target->SetInPhase(phase, true, !target->IsInPhase(phase));
 
         if (target->GetTypeId() == TYPEID_PLAYER)

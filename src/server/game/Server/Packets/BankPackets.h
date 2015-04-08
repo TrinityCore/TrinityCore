@@ -50,7 +50,7 @@ namespace WorldPackets
             uint8 Bag = 0;
             uint8 Slot = 0;
         };
-        
+
         class BuyBankSlot final : public ClientPacket
         {
         public:

@@ -334,7 +334,7 @@ void QuestMenu::ClearMenu()
 void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string& Title, ObjectGuid npcGUID)
 {
     WorldPackets::Quest::QuestGiverQuestList questList;
-    
+
     questList.QuestGiverGUID = npcGUID;
     questList.Greeting = Title;
     questList.GreetEmoteDelay = eEmote._Delay;
