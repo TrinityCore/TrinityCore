@@ -34,6 +34,34 @@ namespace WorldPackets
             uint32 PreviousSeason = 0;
             uint32 CurrentSeason = 0;
         };
+
+        class AreaSpiritHealerQuery final : public ClientPacket
+        {
+        public:
+            AreaSpiritHealerQuery(WorldPacket&& packet) : ClientPacket(CMSG_AREA_SPIRIT_HEALER_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid HealerGuid;
+        };
+
+        class AreaSpiritHealerQueue final : public ClientPacket
+        {
+        public:
+            AreaSpiritHealerQueue(WorldPacket&& packet) : ClientPacket(CMSG_AREA_SPIRIT_HEALER_QUEUE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid HealerGuid;
+        };
+
+        class HearthAndResurrect final : public ClientPacket
+        {
+        public:
+            HearthAndResurrect(WorldPacket&& packet) : ClientPacket(CMSG_HEARTH_AND_RESURRECT, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 
