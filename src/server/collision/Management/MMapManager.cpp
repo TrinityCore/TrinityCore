@@ -534,7 +534,7 @@ namespace MMAP
                 }
             }
         }
-        
+
         if (!swaps.empty())
         {
             // for each of the calling unit's terrain swaps
