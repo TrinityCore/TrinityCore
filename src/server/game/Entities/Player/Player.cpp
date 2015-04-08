@@ -22442,9 +22442,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
 
-    /// SMSG_SPELL_CATEGORY_COOLDOWN
-    GetSession()->SendSpellCategoryCooldowns();
-
     /// SMSG_BINDPOINTUPDATE
     SendBindPointUpdate();
 

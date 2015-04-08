@@ -616,7 +616,7 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
     caster->SendMessageToSet(&data, true);
 }
 
-void WorldSession::HandleRequestCategoryCooldowns(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& /*requestCategoryCooldowns*/)
 {
     SendSpellCategoryCooldowns();
 }
