@@ -113,7 +113,7 @@ void WorldPackets::Ticket::GMTicketCreate::Read()
         _worldPacket >> ChatHistoryData.TextCount;
         for (uint8 i = 0; i < ChatHistoryData.TextCount; ++i)
             ChatHistoryData.Sent.push_back(_worldPacket.read<uint32>());
-        
+
         _worldPacket >> ChatHistoryData.DecompressedSize;
 
         //Note: don't ask why, but it works...
@@ -184,7 +184,7 @@ void WorldPackets::Ticket::GMSurveySubmit::Read()
 }
 
 void WorldPackets::Ticket::SupportTicketSubmitBug::Read()
-{  
+{
     _worldPacket >> Header;
     Note = _worldPacket.ReadString(_worldPacket.ReadBits(10));
 }
@@ -313,7 +313,7 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
     _worldPacket >> ChatLog;
     _worldPacket >> TargetCharacterGUID;
     ComplaintType = _worldPacket.ReadBits(5);
-    
+
     uint16 noteLength = _worldPacket.ReadBits(10);
     bool hasMailInfo = _worldPacket.ReadBit();
     bool hasCalendarInfo = _worldPacket.ReadBit();

@@ -812,7 +812,7 @@ void BattlefieldWG::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
     packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_ATTACKER), int32(GetAttackerTeam()));
     packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_DEFENDER), int32(GetDefenderTeam()));
     // Note: cleanup these two, their names look awkward
-    packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_ACTIVE), int32(IsWarTime() ? 0 : 1)); 
+    packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_ACTIVE), int32(IsWarTime() ? 0 : 1));
     packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE), int32(IsWarTime() ? 1 : 0));
 
     for (uint32 i = 0; i < 2; ++i)

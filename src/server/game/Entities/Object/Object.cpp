@@ -3346,7 +3346,7 @@ void WorldObject::RebuildWorldMapAreaSwaps()
     // Clear all world map area swaps, will be rebuilt below
     _worldMapAreaSwaps.clear();
 
-    // get ALL default terrain swaps, if we are using it (condition is true) 
+    // get ALL default terrain swaps, if we are using it (condition is true)
     // send the worldmaparea for it, to see swapped worldmaparea in client from other maps too, not just from our current
     TerrainPhaseInfo defaults = sObjectMgr->GetDefaultTerrainSwapStore();
     for (TerrainPhaseInfo::const_iterator itr = defaults.begin(); itr != defaults.end(); ++itr)
