@@ -32,3 +32,21 @@ WorldPacket const* WorldPackets::Reputation::InitializeFactions::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Reputation::ForcedReaction const& forcedReaction)
+{
+    data << int32(forcedReaction.Faction);
+    data << int32(forcedReaction.Reaction);
+    return data;
+}
+
+WorldPacket const* WorldPackets::Reputation::SetForcedReactions::Write()
+{
+    _worldPacket.WriteBits(Reactions.size(), 6);
+    for (ForcedReaction const& reaction : Reactions)
+        _worldPacket << reaction;
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

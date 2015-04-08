@@ -22472,8 +22472,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_INITIALIZE_FACTIONS
     m_reputationMgr->SendInitialReputations();
-    /// SMSG_SET_FORCED_REACTIONS
-    m_reputationMgr->SendForceReactions();
     /// SMSG_SETUP_CURRENCY
     SendCurrencies();
     /// SMSG_EQUIPMENT_SET_LIST

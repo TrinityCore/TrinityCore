@@ -362,6 +362,11 @@ namespace WorldPackets
         class GrantLevel;
     }
 
+    namespace Reputation
+    {
+        class RequestForcedReactions;
+    }
+
     namespace Social
     {
         class AddFriend;
@@ -940,6 +945,7 @@ class WorldSession
         void HandleSetFactionCheat(WorldPacket& recvData);
         void HandleSetWatchedFactionOpcode(WorldPacket& recvData);
         void HandleSetFactionInactiveOpcode(WorldPacket& recvData);
+        void HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& requestForcedReactions);
 
         void HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet);
         void HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request);
