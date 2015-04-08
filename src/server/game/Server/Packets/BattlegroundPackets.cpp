@@ -24,3 +24,13 @@ WorldPacket const* WorldPackets::Battleground::PVPSeason::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Battleground::AreaSpiritHealerQuery::Read()
+{
+    _worldPacket >> HealerGuid;
+}
+
+void WorldPackets::Battleground::AreaSpiritHealerQueue::Read()
+{
+    _worldPacket >> HealerGuid;
+}
