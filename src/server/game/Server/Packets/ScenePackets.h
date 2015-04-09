@@ -19,6 +19,7 @@
 #define ScenePackets_h__
 
 #include "Packet.h"
+#include "Object.h"
 
 namespace WorldPackets
 {
