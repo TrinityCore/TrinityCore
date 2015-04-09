@@ -1267,7 +1267,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
             player->TeleportToBGEntryPoint();
 
         // in the case were we are the last in lfggroup then we must disband when porting out of the instance
-        if (group->GetMembersCount() == 1)
+        if (group && group->GetMembersCount() == 1)
         {
             group->Disband();
             TC_LOG_DEBUG("lfg.teleport", "Player %s is last in lfggroup so we disband the group.",
