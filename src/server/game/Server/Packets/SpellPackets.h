@@ -38,6 +38,22 @@ namespace WorldPackets
             int32 SpellID = 0;
         };
 
+        class CancelGrowthAura final : public ClientPacket
+        {
+        public:
+            CancelGrowthAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_GROWTH_AURA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CancelMountAura final : public ClientPacket
+        {
+        public:
+            CancelMountAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_MOUNT_AURA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class RequestCategoryCooldowns final : public ClientPacket
         {
         public:
