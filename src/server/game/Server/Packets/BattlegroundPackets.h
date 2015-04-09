@@ -18,6 +18,7 @@
 #ifndef BattlegroundPackets_h__
 #define BattlegroundPackets_h__
 
+#include "ObjectGuid.h"
 #include "Packet.h"
 
 namespace WorldPackets
