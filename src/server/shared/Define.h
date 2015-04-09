@@ -78,9 +78,9 @@
 #endif //!COREDEBUG
 
 #if COMPILER == COMPILER_GNU
-#  define ATTR_NORETURN __attribute__((noreturn))
-#  define ATTR_PRINTF(F, V) __attribute__ ((format (printf, F, V)))
-#  define ATTR_DEPRECATED __attribute__((deprecated))
+#  define ATTR_NORETURN __attribute__((__noreturn__))
+#  define ATTR_PRINTF(F, V) __attribute__ ((__format__ (__printf__, F, V)))
+#  define ATTR_DEPRECATED __attribute__((__deprecated__))
 #else //COMPILER != COMPILER_GNU
 #  define ATTR_NORETURN
 #  define ATTR_PRINTF(F, V)
