@@ -408,7 +408,23 @@ void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
     pet->RemoveOwnedAura(spellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
 }
 
-void WorldSession::HandleCancelGrowthAuraOpcode(WorldPacket& /*recvPacket*/) { }
+void WorldSession::HandleCancelGrowthAuraOpcode(WorldPackets::Spells::CancelGrowthAura& /*cancelGrowthAura*/)
+{
+    _player->RemoveAurasByType(SPELL_AURA_MOD_SCALE, [](AuraApplication const* aurApp)
+    {
+        SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
+        return !spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive();
+    });
+}
+
+void WorldSession::HandleCancelMountAuraOpcode(WorldPackets::Spells::CancelMountAura& /*cancelMountAura*/)
+{
+    _player->RemoveAurasByType(SPELL_AURA_MOUNTED, [](AuraApplication const* aurApp)
+    {
+        SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
+        return !spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive();
+    });
+}
 
 void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPacket& /*recvPacket*/)
 {

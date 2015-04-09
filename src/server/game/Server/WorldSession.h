@@ -380,6 +380,8 @@ namespace WorldPackets
     namespace Spells
     {
         class CancelAura;
+        class CancelGrowthAura;
+        class CancelMountAura;
         class RequestCategoryCooldowns;
         class CancelCast;
         class CastSpell;
@@ -1150,7 +1152,8 @@ class WorldSession
         void HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest);
         void HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& packet);
         void HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& cancelAura);
-        void HandleCancelGrowthAuraOpcode(WorldPacket& recvPacket);
+        void HandleCancelGrowthAuraOpcode(WorldPackets::Spells::CancelGrowthAura& cancelGrowthAura);
+        void HandleCancelMountAuraOpcode(WorldPackets::Spells::CancelMountAura& cancelMountAura);
         void HandleCancelAutoRepeatSpellOpcode(WorldPacket& recvPacket);
 
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
@@ -1306,7 +1309,6 @@ class WorldSession
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(uint8 err);
 
-        void HandleCancelMountAuraOpcode(WorldPacket& recvData);
         void HandleSelfResOpcode(WorldPacket& recvData);
         void HandleComplainOpcode(WorldPacket& recvData);
         void HandleRequestPetInfoOpcode(WorldPacket& recvData);
