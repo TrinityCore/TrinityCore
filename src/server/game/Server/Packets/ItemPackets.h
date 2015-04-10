@@ -233,6 +233,18 @@ namespace WorldPackets
             uint8 PackSlot = 0;
         };
 
+        class AutoEquipItemSlot final : public ClientPacket
+        {
+        public:
+            AutoEquipItemSlot(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_EQUIP_ITEM_SLOT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Item;
+            uint8 ItemDstSlot = 0;
+            InvUpdate Inv;
+        };
+
         class AutoStoreBagItem final : public ClientPacket
         {
         public:

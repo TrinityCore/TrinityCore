@@ -112,23 +112,20 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swap
     _player->SwapItem(src, dst);
 }
 
-void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
+void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPackets::Item::AutoEquipItemSlot& autoEquipItemSlot)
 {
-    ObjectGuid itemguid;
-    uint8 dstslot;
-    recvData >> itemguid >> dstslot;
-
     // cheating attempt, client should never send opcode in that case
-    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, dstslot))
+    if (autoEquipItemSlot.Inv.Items.size() != 1 || !Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, autoEquipItemSlot.ItemDstSlot))
         return;
 
-    Item* item = _player->GetItemByGuid(itemguid);
-    uint16 dstpos = dstslot | (INVENTORY_SLOT_BAG_0 << 8);
+    Item* item = _player->GetItemByGuid(autoEquipItemSlot.Item);
+    uint16 dstPos = autoEquipItemSlot.ItemDstSlot | (INVENTORY_SLOT_BAG_0 << 8);
+    uint16 srcPos = autoEquipItemSlot.Inv.Items[0].Slot | (uint32(autoEquipItemSlot.Inv.Items[0].ContainerSlot) << 8);
 
-    if (!item || item->GetPos() == dstpos)
+    if (!item || item->GetPos() != srcPos || srcPos == dstPos)
         return;
 
-    _player->SwapItem(item->GetPos(), dstpos);
+    _player->SwapItem(srcPos, dstPos);
 }
 
 void WorldSession::HandleSwapItem(WorldPackets::Item::SwapItem& swapItem)
