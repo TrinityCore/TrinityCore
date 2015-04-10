@@ -266,6 +266,13 @@ void WorldPackets::Item::AutoEquipItem::Read()
                  >> Slot;
 }
 
+void WorldPackets::Item::AutoEquipItemSlot::Read()
+{
+    _worldPacket >> Inv
+                 >> Item
+                 >> ItemDstSlot;
+}
+
 void WorldPackets::Item::AutoStoreBagItem::Read()
 {
     _worldPacket >> Inv

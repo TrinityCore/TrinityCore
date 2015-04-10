@@ -180,7 +180,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_AUTOSTORE_BANK_ITEM,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Bank::AutoStoreBankItem, &WorldSession::HandleAutoStoreBankItemOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUTOSTORE_BANK_REAGENT,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_AUTO_EQUIP_ITEM,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::AutoEquipItem, &WorldSession::HandleAutoEquipItemOpcode);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_AUTO_EQUIP_ITEM_SLOT,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAutoEquipItemSlotOpcode   );
+    DEFINE_HANDLER(CMSG_AUTO_EQUIP_ITEM_SLOT,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::AutoEquipItemSlot, &WorldSession::HandleAutoEquipItemSlotOpcode);
     DEFINE_HANDLER(CMSG_AUTO_STORE_BAG_ITEM,                                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::AutoStoreBagItem, &WorldSession::HandleAutoStoreBagItemOpcode);
     DEFINE_HANDLER(CMSG_BANKER_ACTIVATE,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleBankerActivateOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLEFIELD_LEAVE,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleBattlefieldLeaveOpcode    );
