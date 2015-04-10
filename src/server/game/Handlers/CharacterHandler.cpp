@@ -1107,6 +1107,8 @@ void WorldSession::SendFeatureSystemStatus()
     features.TwitterMsTillCanPost = 20;
     features.CfgRealmID = 2;
     features.CfgRealmRecID = 0;
+    features.TokenPollTimeSeconds = 300;
+    features.TokenRedeemIndex = 0;
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
 

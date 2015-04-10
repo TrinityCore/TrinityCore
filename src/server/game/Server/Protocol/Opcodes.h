@@ -1608,6 +1608,7 @@ enum OpcodeServer : uint32
     SMSG_UPDATE_TASK_PROGRESS                         = 0x1317,
     SMSG_UPDATE_WEEKLY_SPELL_USAGE                    = 0x103A,
     SMSG_UPDATE_WORLD_STATE                           = 0x1DF1,
+    SMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST_RESPONSE   = 0x1836,
     SMSG_USERLIST_ADD                                 = 0x15F0,
     SMSG_USERLIST_REMOVE                              = 0x10E4,
     SMSG_USERLIST_UPDATE                              = 0x18EF,

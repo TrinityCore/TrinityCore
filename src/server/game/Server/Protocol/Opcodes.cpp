@@ -47,6 +47,7 @@
 #include "Packets/ScenePackets.h"
 #include "Packets/SocialPackets.h"
 #include "Packets/TalentPackets.h"
+#include "Packets/TokenPackets.h"
 #include "Packets/TradePackets.h"
 #include "Packets/TicketPackets.h"
 #include "Packets/VehiclePackets.h"
@@ -806,7 +807,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UPDATE_CLIENT_SETTINGS,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UPDATE_MISSILE_TRAJECTORY,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateMissileTrajectory   );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UPDATE_RAID_TARGET,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleRaidTargetUpdateOpcode    );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST,       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_HANDLER(CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Token::UpdateListedAuctionableTokens, &WorldSession::HandleUpdateListedAuctionableTokens);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UPDATE_WOW_TOKEN_COUNT,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UPGRADE_GARRISON,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UPGRADE_ITEM,                            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -1713,6 +1714,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_TASK_PROGRESS,                    STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_WEEKLY_SPELL_USAGE,               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_WORLD_STATE,                      STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST_RESPONSE, STATUS_NEVER,     CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_USERLIST_ADD,                            STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_USERLIST_REMOVE,                         STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_USERLIST_UPDATE,                         STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
