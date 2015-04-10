@@ -52,6 +52,7 @@
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "Chat.h"
+#include "GameObjectPackets.h"
 
 Object::Object()
 {
@@ -2358,9 +2359,9 @@ void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skippe
 
 void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_GAME_OBJECT_DESPAWN, 8);
-    data << guid;
-    SendMessageToSet(&data, true);
+    WorldPackets::GameObject::GameObjectDespawn packet;
+    packet.ObjectGUID = guid;
+    SendMessageToSet(packet.Write(), true);
 }
 
 void WorldObject::SetMap(Map* map)

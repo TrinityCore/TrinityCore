@@ -46,6 +46,16 @@ namespace WorldPackets
 
             ObjectGuid Guid;
         };
+
+        class GameObjectDespawn final : public ServerPacket
+        {
+        public:
+            GameObjectDespawn() : ServerPacket(SMSG_GAME_OBJECT_DESPAWN, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+        };
     }
 }
 #endif // GOPackets_h__
