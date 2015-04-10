@@ -433,7 +433,8 @@ typedef std::unordered_map<ObjectGuid::LowType, GameObjectData> GameObjectDataCo
 typedef std::map<TempSummonGroupKey, std::vector<TempSummonData> > TempSummonDataContainer;
 typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef std::unordered_map<uint32, GameObjectLocale> GameObjectLocaleContainer;
-typedef std::unordered_map<uint32, QuestLocale> QuestLocaleContainer;
+typedef std::unordered_map<uint32, QuestTemplateLocale> QuestTemplateLocaleContainer;
+typedef std::unordered_map<uint32, QuestObjectivesLocale> QuestObjectivesLocaleContainer;
 typedef std::unordered_map<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef std::unordered_map<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
@@ -963,7 +964,8 @@ class ObjectMgr
         void LoadItemTemplates();
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
-        void LoadQuestLocales();
+        void LoadQuestTemplateLocale();
+        void LoadQuestObjectivesLocale();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
         void LoadGossipMenuItemsLocales();
@@ -1112,10 +1114,16 @@ class ObjectMgr
             if (itr == _gameObjectLocaleStore.end()) return NULL;
             return &itr->second;
         }
-        QuestLocale const* GetQuestLocale(uint32 entry) const
+        QuestTemplateLocale const* GetQuestLocale(uint32 entry) const
         {
-            QuestLocaleContainer::const_iterator itr = _questLocaleStore.find(entry);
-            if (itr == _questLocaleStore.end()) return NULL;
+            QuestTemplateLocaleContainer::const_iterator itr = _questTemplateLocaleStore.find(entry);
+            if (itr == _questTemplateLocaleStore.end()) return NULL;
+            return &itr->second;
+        }
+        QuestObjectivesLocale const* GetQuestObjectivesLocale(uint32 entry) const
+        {
+            QuestObjectivesLocaleContainer::const_iterator itr = _questObjectivesLocaleStore.find(entry);
+            if (itr == _questObjectivesLocaleStore.end()) return NULL;
             return &itr->second;
         }
         NpcTextLocale const* GetNpcTextLocale(uint32 entry) const
@@ -1434,7 +1442,8 @@ class ObjectMgr
         TempSummonDataContainer _tempSummonDataStore;
 
         ItemTemplateContainer _itemTemplateStore;
-        QuestLocaleContainer _questLocaleStore;
+        QuestTemplateLocaleContainer _questTemplateLocaleStore;
+        QuestObjectivesLocaleContainer _questObjectivesLocaleStore;
         NpcTextLocaleContainer _npcTextLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;

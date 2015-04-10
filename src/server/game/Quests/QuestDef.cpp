@@ -194,7 +194,7 @@ void Quest::LoadQuestObjective(Field* fields)
 
 void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
 {
-    uint8 objID = fields[1].GetUInt32();
+    uint32 objID = fields[1].GetUInt32();
 
     for (QuestObjective& obj : Objectives)
     {

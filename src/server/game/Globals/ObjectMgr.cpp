@@ -341,7 +341,7 @@ void ObjectMgr::LoadCreatureLocales()
 
         CreatureLocale& data = _creatureLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             AddLocaleString(fields[1 + 3 * (i - 1)].GetString(), locale, data.Name);
@@ -378,7 +378,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
 
         GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, id)];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             AddLocaleString(fields[2 + 2 * (i - 1)].GetString(), locale, data.OptionText);
@@ -409,7 +409,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
         PointOfInterestLocale& data = _pointOfInterestLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
             AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.IconName);
     } while (result->NextRow());
 
@@ -4223,23 +4223,16 @@ void ObjectMgr::LoadQuests()
     TC_LOG_INFO("server.loading", ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadQuestLocales()
+void ObjectMgr::LoadQuestTemplateLocale()
 {
     uint32 oldMSTime = getMSTime();
 
-    _questLocaleStore.clear();                                // need for reload case
-
-    QueryResult result = WorldDatabase.Query("SELECT Id, "
-        "Title_loc1, Details_loc1, Objectives_loc1, OfferRewardText_loc1, RequestItemsText_loc1, EndText_loc1, CompletedText_loc1, ObjectiveText1_loc1, ObjectiveText2_loc1, ObjectiveText3_loc1, ObjectiveText4_loc1, QuestGiverTextWindow_loc1, QuestGiverTargetName_loc1, QuestTurnTextWindow_loc1, QuestTurnTargetName_loc1,"
-        "Title_loc2, Details_loc2, Objectives_loc2, OfferRewardText_loc2, RequestItemsText_loc2, EndText_loc2, CompletedText_loc2, ObjectiveText1_loc2, ObjectiveText2_loc2, ObjectiveText3_loc2, ObjectiveText4_loc2, QuestGiverTextWindow_loc2, QuestGiverTargetName_loc2, QuestTurnTextWindow_loc2, QuestTurnTargetName_loc2,"
-        "Title_loc3, Details_loc3, Objectives_loc3, OfferRewardText_loc3, RequestItemsText_loc3, EndText_loc3, CompletedText_loc3, ObjectiveText1_loc3, ObjectiveText2_loc3, ObjectiveText3_loc3, ObjectiveText4_loc3, QuestGiverTextWindow_loc3, QuestGiverTargetName_loc3, QuestTurnTextWindow_loc3, QuestTurnTargetName_loc3,"
-        "Title_loc4, Details_loc4, Objectives_loc4, OfferRewardText_loc4, RequestItemsText_loc4, EndText_loc4, CompletedText_loc4, ObjectiveText1_loc4, ObjectiveText2_loc4, ObjectiveText3_loc4, ObjectiveText4_loc4, QuestGiverTextWindow_loc4, QuestGiverTargetName_loc4, QuestTurnTextWindow_loc4, QuestTurnTargetName_loc4,"
-        "Title_loc5, Details_loc5, Objectives_loc5, OfferRewardText_loc5, RequestItemsText_loc5, EndText_loc5, CompletedText_loc5, ObjectiveText1_loc5, ObjectiveText2_loc5, ObjectiveText3_loc5, ObjectiveText4_loc5, QuestGiverTextWindow_loc5, QuestGiverTargetName_loc5, QuestTurnTextWindow_loc5, QuestTurnTargetName_loc5,"
-        "Title_loc6, Details_loc6, Objectives_loc6, OfferRewardText_loc6, RequestItemsText_loc6, EndText_loc6, CompletedText_loc6, ObjectiveText1_loc6, ObjectiveText2_loc6, ObjectiveText3_loc6, ObjectiveText4_loc6, QuestGiverTextWindow_loc6, QuestGiverTargetName_loc6, QuestTurnTextWindow_loc6, QuestTurnTargetName_loc6,"
-        "Title_loc7, Details_loc7, Objectives_loc7, OfferRewardText_loc7, RequestItemsText_loc7, EndText_loc7, CompletedText_loc7, ObjectiveText1_loc7, ObjectiveText2_loc7, ObjectiveText3_loc7, ObjectiveText4_loc7, QuestGiverTextWindow_loc7, QuestGiverTargetName_loc7, QuestTurnTextWindow_loc7, QuestTurnTargetName_loc7,"
-        "Title_loc8, Details_loc8, Objectives_loc8, OfferRewardText_loc8, RequestItemsText_loc8, EndText_loc8, CompletedText_loc8, ObjectiveText1_loc8, ObjectiveText2_loc8, ObjectiveText3_loc8, ObjectiveText4_loc8, QuestGiverTextWindow_loc8, QuestGiverTargetName_loc8, QuestTurnTextWindow_loc8, QuestTurnTargetName_loc8"
-        " FROM locales_quest");
-
+    _questTemplateLocaleStore.clear(); // need for reload case
+    //                                               0     1
+    QueryResult result = WorldDatabase.Query("SELECT Id, locale, "
+    //      2           3                 4                5                 6                  7                   8                   9                  10
+        "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog"
+        " FROM quest_template_locale");
     if (!result)
         return;
 
@@ -4247,34 +4240,63 @@ void ObjectMgr::LoadQuestLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 id                       = fields[0].GetUInt32();
+        std::string localeName          = fields[1].GetString();
 
-        QuestLocale& data = _questLocaleStore[entry];
+        std::string logTitle            = fields[2].GetString();
+        std::string logDescription      = fields[3].GetString();
+        std::string questDescription    = fields[4].GetString();
+        std::string areaDescription     = fields[5].GetString();
+        std::string portraitGiverText   = fields[6].GetString();
+        std::string portraitGiverName   = fields[7].GetString();
+        std::string portraitTurnInText  = fields[8].GetString();
+        std::string portraitTurnInName  = fields[9].GetString();
+        std::string questCompletionLog  = fields[10].GetString();
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
+        QuestTemplateLocale& data = _questTemplateLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
 
-            AddLocaleString(fields[1 + 15 * (i - 1)].GetString(), locale, data.LogTitle);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 1].GetString(), locale, data.LogDescription);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 2].GetString(), locale, data.QuestDescription);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 3].GetString(), locale, data.OfferRewardText);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 4].GetString(), locale, data.RequestItemsText);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 5].GetString(), locale, data.AreaDescription);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 6].GetString(), locale, data.QuestCompletionLog);
-
-            data.ObjectiveDescription.resize(4);
-            for (uint8 k = 0; k < 4; ++k)
-                AddLocaleString(fields[1 + 15 * (i - 1) + 7 + k].GetString(), locale, data.ObjectiveDescription[k]);
-
-            AddLocaleString(fields[1 + 15 * (i - 1) + 11].GetString(), locale, data.PortraitGiverText);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 12].GetString(), locale, data.PortraitGiverName);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 13].GetString(), locale, data.PortraitTurnInText);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 14].GetString(), locale, data.PortraitTurnInName);
-        }
+        AddLocaleString(logTitle,               locale, data.LogTitle);
+        AddLocaleString(logDescription,         locale, data.LogDescription);
+        AddLocaleString(questDescription,       locale, data.QuestDescription);
+        AddLocaleString(areaDescription,        locale, data.AreaDescription);
+        AddLocaleString(portraitGiverText,      locale, data.PortraitGiverText);
+        AddLocaleString(portraitGiverName,      locale, data.PortraitGiverName);
+        AddLocaleString(portraitTurnInText,     locale, data.PortraitTurnInText);
+        AddLocaleString(portraitTurnInName,     locale, data.PortraitTurnInName);
+        AddLocaleString(questCompletionLog,     locale, data.QuestCompletionLog);
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Quest locale strings in %u ms", uint32(_questLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u Quest Tempalate locale strings in %u ms", uint32(_questTemplateLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadQuestObjectivesLocale()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _questObjectivesLocaleStore.clear(); // need for reload case
+    //                                               0     1          2
+    QueryResult result = WorldDatabase.Query("SELECT Id, locale, Description FROM quest_objectives_locale");
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id                           = fields[0].GetUInt32();
+        std::string localeName              = fields[1].GetString();
+
+        std::string Description             = fields[2].GetString();
+
+        QuestObjectivesLocale& data = _questObjectivesLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
+
+        AddLocaleString(Description, locale, data.Description);
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u Quest Objectives locale strings in %u ms", uint32(_questObjectivesLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadScripts(ScriptsType type)
@@ -4880,7 +4902,7 @@ void ObjectMgr::LoadPageTextLocales()
 
         PageTextLocale& data = _pageTextLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
             AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.Text);
     } while (result->NextRow());
 
@@ -5143,7 +5165,7 @@ void ObjectMgr::LoadNpcTextLocales()
 
         NpcTextLocale& data = _npcTextLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             for (uint8 j = 0; j < MAX_GOSSIP_TEXT_OPTIONS; ++j)
@@ -6115,10 +6137,10 @@ void ObjectMgr::LoadGameObjectLocales()
 
         GameObjectLocale& data = _gameObjectLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.Name);
-            AddLocaleString(fields[i + (TOTAL_LOCALES - 1)].GetString(), LocaleConstant(i), data.CastBarCaption);
+            AddLocaleString(fields[i + (OLD_TOTAL_LOCALES - 1)].GetString(), LocaleConstant(i), data.CastBarCaption);
         }
     } while (result->NextRow());
 
@@ -6503,7 +6525,7 @@ void ObjectMgr::LoadCorpses()
             Field* fields = phaseResult->Fetch();
             uint32 guid = fields[0].GetUInt32();
             uint32 phaseId = fields[1].GetUInt32();
-            
+
             phases[guid].push_back(phaseId);
 
         } while (phaseResult->NextRow());
@@ -7403,7 +7425,7 @@ bool ObjectMgr::LoadTrinityStrings()
 
         data.Content.resize(DEFAULT_LOCALE + 1);
 
-        for (int8 i = TOTAL_LOCALES - 1; i >= 0; --i)
+        for (int8 i = OLD_TOTAL_LOCALES - 1; i >= 0; --i)
             AddLocaleString(fields[i + 1].GetString(), LocaleConstant(i), data.Content);
     }
     while (result->NextRow());
