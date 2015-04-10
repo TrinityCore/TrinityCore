@@ -2412,14 +2412,14 @@ enum QuelDelarMisc
 Position const QuelDelarCenterPos = { 5309.259f, 2006.390f, 718.046f, 0.0f };
 Position const QuelDelarSummonPos = { 5298.473f, 1994.852f, 709.424f, 3.979351f };
 Position const QuelDelarMovement[] =
-{ 
+{
     { 5292.870f, 1998.950f, 718.046f, 0.0f },
     { 5295.819f, 1991.912f, 707.707f, 0.0f },
     { 5295.301f, 1989.782f, 708.696f, 0.0f }
 };
 
 Position const UtherQuelDelarMovement[] =
-{ 
+{
     { 5336.830f, 1981.700f, 709.319f, 0.0f },
     { 5314.350f, 1993.440f, 707.726f, 0.0f }
 };
