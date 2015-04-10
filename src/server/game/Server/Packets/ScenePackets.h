@@ -39,6 +39,37 @@ namespace WorldPackets
             ObjectGuid TransportGUID;
             Position Location;
         };
+        
+        class SceneTriggerEvent final : public ClientPacket
+        {
+        public:
+            SceneTriggerEvent(WorldPacket&& packet) : ClientPacket(CMSG_SCENE_TRIGGER_EVENT, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SceneInstanceID;
+            std::string _Event;
+        };
+        
+        class ScenePlaybackComplete final : public ClientPacket
+        {
+        public:
+            ScenePlaybackComplete(WorldPacket&& packet) : ClientPacket(CMSG_SCENE_PLAYBACK_COMPLETE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SceneInstanceID;
+        };
+        
+        class ScenePlaybackCanceled final : public ClientPacket
+        {
+        public:
+            ScenePlaybackCanceled(WorldPacket&& packet) : ClientPacket(CMSG_SCENE_PLAYBACK_CANCELED, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SceneInstanceID;
+        };
     }
 }
 
