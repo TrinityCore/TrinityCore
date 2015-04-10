@@ -40,7 +40,7 @@ namespace Battlenet
 
 #pragma pack(pop)
 
-    class SessionManager : SocketMgr<Session>
+    class SessionManager : public SocketMgr<Session>
     {
         typedef SocketMgr<Session> BaseSocketMgr;
         typedef std::map<SessionInfo, Session*> SessionMap;

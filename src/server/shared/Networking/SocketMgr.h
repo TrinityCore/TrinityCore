@@ -33,8 +33,7 @@ class SocketMgr
 public:
     virtual ~SocketMgr()
     {
-        delete _acceptor;
-        delete[] _threads;
+        ASSERT(!_threads && !_acceptor && !_threadCount, "StopNetwork must be called prior to SocketMgr destruction");
     }
 
     virtual bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port)
@@ -69,11 +68,19 @@ public:
 
     virtual void StopNetwork()
     {
+        _acceptor->Close();
+
         if (_threadCount != 0)
             for (int32 i = 0; i < _threadCount; ++i)
                 _threads[i].Stop();
 
         Wait();
+
+        delete _acceptor;
+        _acceptor = nullptr;
+        delete[] _threads;
+        _threads = nullptr;
+        _threadCount = 0;
     }
 
     void Wait()
