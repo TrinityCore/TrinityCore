@@ -26,3 +26,9 @@ void WorldPackets::GameObject::GameObjReportUse::Read()
 {
     _worldPacket >> Guid;
 }
+
+WorldPacket const* WorldPackets::GameObject::GameObjectDespawn::Write()
+{
+    _worldPacket << ObjectGUID;
+    return &_worldPacket;
+}
