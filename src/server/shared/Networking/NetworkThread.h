@@ -147,6 +147,8 @@ protected:
         }
 
         TC_LOG_DEBUG("misc", "Network Thread exits");
+        _newSockets.clear();
+        _Sockets.clear();
     }
 
 private:
