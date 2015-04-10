@@ -428,6 +428,11 @@ namespace WorldPackets
         class SupportTicketSubmitComplaint;
     }
 
+    namespace Token
+    {
+        class UpdateListedAuctionableTokens;
+    }
+
     namespace Trade
     {
         class AcceptTrade;
@@ -1410,6 +1415,9 @@ class WorldSession
         void HandleSceneTriggerEvent(WorldPackets::Scenes::SceneTriggerEvent& sceneTriggerEvent);
         void HandleScenePlaybackComplete(WorldPackets::Scenes::ScenePlaybackComplete& scenePlaybackComplete);
         void HandleScenePlaybackCanceled(WorldPackets::Scenes::ScenePlaybackCanceled& scenePlaybackCanceled);
+
+        // Token
+        void HandleUpdateListedAuctionableTokens(WorldPackets::Token::UpdateListedAuctionableTokens& updateListedAuctionableTokens);
 
         void SendSpellCategoryCooldowns();
 
