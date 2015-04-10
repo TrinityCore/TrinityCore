@@ -1486,7 +1486,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
                 for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                 {
                     if (skillIter->second->skillId == SKILL_MOUNTS)
-                        if (player && !player->canFlyInZone(map_id, zone_id))
+                        if (player && !player->CanFlyInZone(map_id, zone_id))
                             return SPELL_FAILED_INCORRECT_AREA;
                 }
             }
