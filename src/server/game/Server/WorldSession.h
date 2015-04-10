@@ -367,6 +367,13 @@ namespace WorldPackets
         class RequestForcedReactions;
     }
 
+    namespace Scenes
+    {
+        class SceneTriggerEvent;
+        class ScenePlaybackComplete;
+        class ScenePlaybackCanceled;
+    }
+
     namespace Social
     {
         class AddFriend;
@@ -1389,6 +1396,11 @@ class WorldSession
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
+
+        // Scenes
+        void HandleSceneTriggerEvent(WorldPackets::Scenes::SceneTriggerEvent& sceneTriggerEvent);
+        void HandleScenePlaybackComplete(WorldPackets::Scenes::ScenePlaybackComplete& scenePlaybackComplete);
+        void HandleScenePlaybackCanceled(WorldPackets::Scenes::ScenePlaybackCanceled& scenePlaybackCanceled);
 
         void SendSpellCategoryCooldowns();
 

@@ -28,3 +28,20 @@ WorldPacket const* WorldPackets::Scenes::PlayScene::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Scenes::SceneTriggerEvent::Read()
+{
+    uint32 len = _worldPacket.ReadBits(6);
+    _worldPacket >> SceneInstanceID;
+    _Event = _worldPacket.ReadString(len);
+}
+
+void WorldPackets::Scenes::ScenePlaybackComplete::Read()
+{
+    _worldPacket >> SceneInstanceID;
+}
+
+void WorldPackets::Scenes::ScenePlaybackCanceled::Read()
+{
+    _worldPacket >> SceneInstanceID;
+}

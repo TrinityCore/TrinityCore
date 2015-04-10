@@ -1437,10 +1437,10 @@ public:
         if (!*args)
             return false;
 
-        int32 SceneID = 0;
-        int32 PlaybackFlags = 0;
-        int32 SceneInstanceID = 0;
-        int32 SceneScriptPackageID = 0;
+        int32 sceneID = 0;
+        int32 playbackFlags = 0;
+        int32 sceneInstanceID = 0;
+        int32 sceneScriptPackageID = 0;
 
         char* a = strtok((char*)args, " ");
         char* b = strtok(NULL, " ");
@@ -1451,26 +1451,26 @@ public:
             return false;
 
         if (a)
-            SceneID = atoi(a);
+            sceneID = atoi(a);
         if (b)
-            PlaybackFlags = atoi(b);
+            playbackFlags = atoi(b);
         if (c)
-            SceneInstanceID = atoi(c);
+            sceneInstanceID = atoi(c);
         if (d)
-            SceneScriptPackageID = atoi(d);
+            sceneScriptPackageID = atoi(d);
         
         Player* me = handler->GetSession()->GetPlayer();
 
         WorldPackets::Scenes::PlayScene packet;
-        packet.SceneID = SceneID;
-        packet.PlaybackFlags = PlaybackFlags;
-        packet.SceneInstanceID = SceneInstanceID;
-        packet.SceneScriptPackageID = SceneScriptPackageID;
+        packet.SceneID = sceneID;
+        packet.PlaybackFlags = playbackFlags;
+        packet.SceneInstanceID = sceneInstanceID;
+        packet.SceneScriptPackageID = sceneScriptPackageID;
         packet.TransportGUID = me->GetTransGUID();
         packet.Location = me->GetPosition();
-        handler->GetSession()->SendPacket(packet.Write());
+        handler->GetSession()->SendPacket(packet.Write(), true);
 
-        TC_LOG_DEBUG("network", "Sent SMSG_PLAY_SCENE to %s, SceneID: %d, PlaybackFlags: %d, SceneInstanceID: %d, SceneScriptPackageID: %d", me->GetName().c_str(), SceneID, PlaybackFlags, SceneInstanceID, SceneScriptPackageID);
+        TC_LOG_DEBUG("network", "Sent SMSG_PLAY_SCENE to %s, SceneID: %d, PlaybackFlags: %d, SceneInstanceID: %d, SceneScriptPackageID: %d", me->GetName().c_str(), sceneID, playbackFlags, sceneInstanceID, sceneScriptPackageID);
 
         return true;
     }
