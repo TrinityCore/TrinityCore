@@ -350,7 +350,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packe
         uint16 questSlot = _player->FindQuestSlot(uint32(QuestID));
 
         if (questSlot != MAX_QUEST_LOG_SIZE)
-            questOk = _player->GetQuestSlotQuestId(questSlot) == QuestID;
+            questOk = _player->GetQuestSlotQuestId(questSlot) == uint32(QuestID);
 
         if (questOk)
         {

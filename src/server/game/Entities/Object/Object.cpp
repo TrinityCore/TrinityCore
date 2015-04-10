@@ -3316,7 +3316,7 @@ void WorldObject::RebuildTerrainSwaps()
         {
             // only add terrain swaps for current map
             MapEntry const* mapEntry = sMapStore.LookupEntry(swap);
-            if (!mapEntry || mapEntry->ParentMapID != GetMapId())
+            if (!mapEntry || mapEntry->ParentMapID != int32(GetMapId()))
                 continue;
 
             conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);

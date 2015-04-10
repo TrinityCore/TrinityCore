@@ -163,13 +163,9 @@ namespace MMAP
 
             return true;
         }
-        else
-        {
-            TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load %03u%02i%02i.mmtile into navmesh", mapId, x, y);
-            dtFree(data);
-            return false;
-        }
 
+        TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load %03u%02i%02i.mmtile into navmesh", mapId, x, y);
+        dtFree(data);
         return false;
     }
 
@@ -233,9 +229,9 @@ namespace MMAP
 
         for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         {
-            if (const MapEntry* const map = sMapStore.LookupEntry(i))
+            if (MapEntry const* map = sMapStore.LookupEntry(i))
             {
-                if (map->ParentMapID == mapId)
+                if (map->ParentMapID == int32(mapId))
                 {
                     PhasedTile* data = LoadTile(map->ID, x, y);
                     // only a few tiles have terrain swaps, do not write error for them
