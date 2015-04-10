@@ -202,21 +202,26 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_WINPVPPETBATTLES        = 13
 };
 
-struct QuestLocale
+struct QuestTemplateLocale
 {
     StringVector LogTitle;
     StringVector LogDescription;
     StringVector QuestDescription;
     StringVector AreaDescription;
-    StringVector OfferRewardText;
-    StringVector RequestItemsText;
-    StringVector QuestCompletionLog;
-    std::vector< StringVector > ObjectiveDescription;
-    // new on 4.x
     StringVector PortraitGiverText;
     StringVector PortraitGiverName;
     StringVector PortraitTurnInText;
     StringVector PortraitTurnInName;
+    StringVector QuestCompletionLog;
+
+    /// @todo: implemente this in new tables
+    StringVector OfferRewardText;
+    StringVector RequestItemsText;
+};
+
+struct QuestObjectivesLocale
+{
+    StringVector Description;
 };
 
 struct QuestObjective
