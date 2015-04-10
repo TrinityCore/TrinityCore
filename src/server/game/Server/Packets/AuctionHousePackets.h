@@ -23,6 +23,8 @@
 #include "ItemPackets.h"
 #include "MailPackets.h"
 
+struct AuctionEntry;
+
 namespace WorldPackets
 {
     namespace AuctionHouse
