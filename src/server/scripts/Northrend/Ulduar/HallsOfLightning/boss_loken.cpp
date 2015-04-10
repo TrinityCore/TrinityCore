@@ -197,7 +197,7 @@ public:
                 ++_healthAmountModifier;
             }
         }
-        
+
         private:
             uint32 _healthAmountModifier;
             bool _isIntroDone;

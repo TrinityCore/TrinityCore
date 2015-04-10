@@ -43,7 +43,7 @@ class go_main_chambers_access_panel : public GameObjectScript
         }
 };
 
-ObjectData const gameObjectData[] = 
+ObjectData const gameObjectData[] =
 {
     { GO_ACCESS_PANEL_HYDRO, DATA_ACCESS_PANEL_HYDRO },
     { GO_ACCESS_PANEL_MEK,   DATA_ACCESS_PANEL_MEK   },

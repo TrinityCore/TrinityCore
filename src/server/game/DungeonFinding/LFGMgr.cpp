@@ -780,10 +780,10 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& playe
                         }
                     }
                 }
-                
+
                 if (eraseDungeon)
                     dungeons.erase(itDungeon);
-                
+
                 lockMap[guid][dungeonId] = it2->second;
             }
         }
