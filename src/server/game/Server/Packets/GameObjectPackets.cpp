@@ -32,3 +32,9 @@ WorldPacket const* WorldPackets::GameObject::GameObjectDespawn::Write()
     _worldPacket << ObjectGUID;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::GameObject::PageText::Write()
+{
+    _worldPacket << GameObjectGUID;
+    return &_worldPacket;
+}

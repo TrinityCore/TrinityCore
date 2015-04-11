@@ -454,6 +454,16 @@ namespace WorldPackets
             std::vector<GossipTextData> GossipTexts;
             std::string Greeting;
         };
+
+        class QuestUpdateComplete final : public ServerPacket
+        {
+        public:
+            QuestUpdateComplete() : ServerPacket(SMSG_QUEST_UPDATE_COMPLETE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 QuestID = 0;
+        };
     }
 }
 
