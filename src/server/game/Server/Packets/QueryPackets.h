@@ -168,8 +168,8 @@ namespace WorldPackets
 
             uint32 TextID = 0;
             bool Allow = false;
-            float Probabilities[MAX_GOSSIP_TEXT_OPTIONS];
-            uint32 BroadcastTextID[MAX_GOSSIP_TEXT_OPTIONS];
+            float Probabilities[MAX_NPC_TEXT_OPTIONS];
+            uint32 BroadcastTextID[MAX_NPC_TEXT_OPTIONS];
         };
 
         class DBQueryBulk final : public ClientPacket
