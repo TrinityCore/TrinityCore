@@ -1274,11 +1274,11 @@ class ObjectMgr
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
 
-        static void AddLocaleString(std::string const& s, LocaleConstant locale, StringVector& data);
-        static inline void GetLocaleString(const StringVector& data, int loc_idx, std::string& value)
+        static void AddLocaleString(std::string const& value, LocaleConstant localeConstant, StringVector& data);
+        static inline void GetLocaleString(StringVector const& data, LocaleConstant localeConstant, std::string& value)
         {
-            if (data.size() > size_t(loc_idx) && !data[loc_idx].empty())
-                value = data[loc_idx];
+            if (data.size() > size_t(localeConstant) && !data[localeConstant].empty())
+                value = data[localeConstant];
         }
 
         CharacterConversionMap FactionChangeAchievements;

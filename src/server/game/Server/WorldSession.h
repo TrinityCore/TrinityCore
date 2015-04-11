@@ -1240,7 +1240,7 @@ class WorldSession
         void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
 
-        void HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet);
+        void HandleQueryPageText(WorldPackets::Query::QueryPageText& packet);
 
         void HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet);
 

@@ -628,7 +628,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_QUERY_INSPECT_ACHIEVEMENTS,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Inspect::QueryInspectAchievements, &WorldSession::HandleQueryInspectAchievements);
     DEFINE_HANDLER(CMSG_QUERY_NEXT_MAIL_TIME,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Mail::MailQueryNextMailTime, &WorldSession::HandleQueryNextMailTime);
     DEFINE_HANDLER(CMSG_QUERY_NPC_TEXT,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryNPCText, &WorldSession::HandleNpcTextQueryOpcode);
-    DEFINE_HANDLER(CMSG_QUERY_PAGE_TEXT,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryPageText, &WorldSession::HandlePageTextQueryOpcode);
+    DEFINE_HANDLER(CMSG_QUERY_PAGE_TEXT,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryPageText, &WorldSession::HandleQueryPageText);
     DEFINE_HANDLER(CMSG_QUERY_PETITION,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Petition::QueryPetition, &WorldSession::HandleQueryPetition);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_PET_NAME,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetNameQuery              );
     DEFINE_HANDLER(CMSG_QUERY_PLAYER_NAME,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryPlayerName, &WorldSession::HandleNameQueryOpcode);

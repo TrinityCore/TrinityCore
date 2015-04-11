@@ -228,9 +228,9 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet)
+void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PAGE_TEXT_QUERY");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_PAGE_TEXT");
 
     uint32 pageID = packet.PageTextID;
 
@@ -251,10 +251,10 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText&
             response.Allow = true;
             response.Info.ID = pageID;
 
-            int loc_idx = GetSessionDbLocaleIndex();
-            if (loc_idx >= 0)
-                if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(player->Text, loc_idx, response.Info.Text);
+            LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+            if (localeConstant >= LOCALE_enUS)
+                if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
+                    ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, response.Info.Text);
 
             response.Info.NextPageID = pageText->NextPageID;
             pageID = pageText->NextPageID;
@@ -262,7 +262,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText&
 
         SendPacket(response.Write());
 
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE");
+        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUERY_PAGE_TEXT_RESPONSE");
     }
 }
 

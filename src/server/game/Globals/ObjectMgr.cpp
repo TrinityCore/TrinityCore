@@ -302,14 +302,14 @@ ObjectMgr::~ObjectMgr()
         delete itr->second;
 }
 
-void ObjectMgr::AddLocaleString(std::string const& s, LocaleConstant locale, StringVector& data)
+void ObjectMgr::AddLocaleString(std::string const& value, LocaleConstant localeConstant, StringVector& data)
 {
-    if (!s.empty())
+    if (!value.empty())
     {
-        if (data.size() <= size_t(locale))
-            data.resize(locale + 1);
+        if (data.size() <= size_t(localeConstant))
+            data.resize(localeConstant + 1);
 
-        data[locale] = s;
+        data[localeConstant] = value;
     }
 }
 
@@ -4839,7 +4839,6 @@ void ObjectMgr::LoadPageTexts()
 
     //                                               0   1     2
     QueryResult result = WorldDatabase.Query("SELECT ID, Text, NextPageID FROM page_text");
-
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 page texts. DB table `page_text` is empty!");
@@ -4851,8 +4850,9 @@ void ObjectMgr::LoadPageTexts()
     {
         Field* fields = result->Fetch();
 
-        PageText& pageText = _pageTextStore[fields[0].GetUInt32()];
+        uint32 id           = fields[0].GetUInt32();
 
+        PageText& pageText = _pageTextStore[id];
         pageText.Text       = fields[1].GetString();
         pageText.NextPageID = fields[2].GetUInt32();
 
@@ -4889,8 +4889,8 @@ void ObjectMgr::LoadPageTextLocales()
 
     _pageTextLocaleStore.clear(); // needed for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Text_loc1, Text_loc2, Text_loc3, Text_loc4, Text_loc5, Text_loc6, Text_loc7, Text_loc8 FROM locales_page_text");
-
+    //                                               0      1     2
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Text FROM page_text_locale");
     if (!result)
         return;
 
@@ -4898,12 +4898,14 @@ void ObjectMgr::LoadPageTextLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 id                   = fields[0].GetUInt32();
+        std::string localeName      = fields[1].GetString();
+        std::string text            = fields[2].GetString();
 
-        PageTextLocale& data = _pageTextLocaleStore[entry];
+        PageTextLocale& data = _pageTextLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
 
-        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
-            AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.Text);
+        AddLocaleString(text, locale, data.Text);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u PageText locale strings in %u ms", uint32(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
