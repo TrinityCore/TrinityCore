@@ -95,17 +95,17 @@ class ChatLogScript : public PlayerScript
                         player->GetName().c_str(), msg.c_str());
                     break;
 
-                case CHAT_MSG_BATTLEGROUND:
+                case CHAT_MSG_INSTANCE_CHAT:
                     if (lang != LANG_ADDON)
-                        TC_LOG_DEBUG("chat.log.bg", "Player %s tells battleground with leader %s: %s",
+                        TC_LOG_DEBUG("chat.log.bg", "Player %s tells instance with leader %s: %s",
                             player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
                     else
-                        TC_LOG_DEBUG("chat.log.addon.bg", "Player %s tells battleground with leader %s: %s",
+                        TC_LOG_DEBUG("chat.log.addon.bg", "Player %s tells instance with leader %s: %s",
                             player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
                     break;
 
-                case CHAT_MSG_BATTLEGROUND_LEADER:
-                    TC_LOG_DEBUG("chat.log.bg", "Leader player %s tells battleground: %s",
+                case CHAT_MSG_INSTANCE_CHAT_LEADER:
+                    TC_LOG_DEBUG("chat.log.bg", "Leader player %s tells instance: %s",
                         player->GetName().c_str(), msg.c_str());
                     break;
             }

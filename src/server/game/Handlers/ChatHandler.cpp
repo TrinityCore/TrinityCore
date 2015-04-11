@@ -68,6 +68,9 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chat
         case CMSG_CHAT_MESSAGE_RAID_WARNING:
             type = CHAT_MSG_RAID_WARNING;
             break;
+        case CMSG_CHAT_MESSAGE_INSTANCE_CHAT:
+            type = CHAT_MSG_INSTANCE_CHAT;
+            break;
         default:
             TC_LOG_ERROR("network", "HandleMessagechatOpcode : Unknown chat opcode (%u)", chatMessage.GetOpcode());
             return;
@@ -366,6 +369,22 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             }
             break;
         }
+        case CHAT_MSG_INSTANCE_CHAT:
+        {
+            Group* group = GetPlayer()->GetGroup();
+            if (!group)
+                return;
+
+            if (group->IsLeader(GetPlayer()->GetGUID()))
+                type = CHAT_MSG_INSTANCE_CHAT_LEADER;
+
+            sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
+
+            WorldPackets::Chat::Chat packet;
+            packet.Initalize(ChatMsg(type), Language(lang), sender, nullptr, msg);
+            group->BroadcastPacket(packet.Write(), false);
+            break;
+        }
         default:
             TC_LOG_ERROR("network", "CHAT: unknown message type %u, lang: %u", type, lang);
             break;
@@ -390,6 +409,9 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
         case CMSG_CHAT_ADDON_MESSAGE_RAID:
             type = CHAT_MSG_RAID;
             break;
+        case CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT:
+            type = CHAT_MSG_INSTANCE_CHAT;
+            break;
         default:
             TC_LOG_ERROR("network", "HandleChatAddonMessageOpcode: Unknown addon chat opcode (%u)", chatAddonMessage.GetOpcode());
             return;
@@ -401,6 +423,11 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
 void WorldSession::HandleChatAddonMessageWhisperOpcode(WorldPackets::Chat::ChatAddonMessageWhisper& chatAddonMessageWhisper)
 {
     HandleChatAddonMessage(CHAT_MSG_WHISPER, chatAddonMessageWhisper.Prefix, chatAddonMessageWhisper.Text, chatAddonMessageWhisper.Target);
+}
+
+void WorldSession::HandleChatAddonMessageChannelOpcode(WorldPackets::Chat::ChatAddonMessageChannel& chatAddonMessageChannel)
+{
+    HandleChatAddonMessage(CHAT_MSG_CHANNEL, chatAddonMessageChannel.Prefix, chatAddonMessageChannel.Text, chatAddonMessageChannel.Target);
 }
 
 void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std::string text, std::string target /*= ""*/)
@@ -439,15 +466,33 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         // Messages sent to "RAID" while in a party will get delivered to "PARTY"
         case CHAT_MSG_PARTY:
         case CHAT_MSG_RAID:
+        case CHAT_MSG_INSTANCE_CHAT:
         {
+            Group* group = nullptr;
+            int32 subGroup = -1;
+            if (type != CHAT_MSG_INSTANCE_CHAT)
+                group = sender->GetOriginalGroup();
 
-            Group* group = sender->GetGroup();
             if (!group)
-                break;
+            {
+                group = sender->GetGroup();
+                if (!group)
+                    break;
+
+                if (type == CHAT_MSG_PARTY)
+                    subGroup = sender->GetSubGroup();
+            }
 
             WorldPackets::Chat::Chat packet;
             packet.Initalize(type, LANG_ADDON, sender, nullptr, text, 0, "", DEFAULT_LOCALE, prefix);
-            group->BroadcastAddonMessagePacket(packet.Write(), prefix, true, -1, sender->GetGUID());
+            group->BroadcastAddonMessagePacket(packet.Write(), prefix, true, subGroup, sender->GetGUID());
+            break;
+        }
+        case CHAT_MSG_CHANNEL:
+        {
+            if (ChannelMgr* cMgr = ChannelMgr::ForTeam(sender->GetTeam()))
+                if (Channel* chn = cMgr->GetChannel(target, sender, false))
+                    chn->Say(sender->GetGUID(), text.c_str(), LANG_ADDON);
             break;
         }
         default:
