@@ -10,4 +10,3 @@ CREATE TABLE IF NOT EXISTS `points_of_interest_locale` (
 
 ALTER TABLE `points_of_interest_locale`
  ADD PRIMARY KEY (`ID`,`locale`);
- 

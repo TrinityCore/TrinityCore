@@ -296,3 +296,32 @@ WorldPacket const* WorldPackets::Item::SellResponse::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
+{
+    _worldPacket << PlayerGUID;
+
+    _worldPacket << Slot;
+    _worldPacket << SlotInBag;
+
+    _worldPacket << Item;
+
+    _worldPacket << WodUnk;
+    _worldPacket << Quantity;
+    _worldPacket << QuantityInInventory;
+    _worldPacket << BattlePetBreedID;
+    _worldPacket << BattlePetBreedQuality;
+    _worldPacket << BattlePetSpeciesID;
+    _worldPacket << BattlePetLevel;
+
+    _worldPacket << ItemGUID;
+
+    _worldPacket.WriteBit(Pushed);
+    _worldPacket.WriteBit(Created);
+    _worldPacket.WriteBit(DisplayText);
+    _worldPacket.WriteBit(IsBonusRoll);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
