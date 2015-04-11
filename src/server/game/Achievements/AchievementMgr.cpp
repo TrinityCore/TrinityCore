@@ -1750,13 +1750,13 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
             std::string subject = reward->subject;
             std::string text = reward->text;
 
-            int locIdx = GetOwner()->GetSession()->GetSessionDbLocaleIndex();
-            if (locIdx >= 0)
+            LocaleConstant localeConstant = GetOwner()->GetSession()->GetSessionDbLocaleIndex();
+            if (localeConstant >= LOCALE_enUS)
             {
                 if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
                 {
-                    ObjectMgr::GetLocaleString(loc->subject, locIdx, subject);
-                    ObjectMgr::GetLocaleString(loc->text, locIdx, text);
+                    ObjectMgr::GetLocaleString(loc->subject, localeConstant, subject);
+                    ObjectMgr::GetLocaleString(loc->text, localeConstant, text);
                 }
             }
 
