@@ -238,8 +238,6 @@ void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packe
     {
         PageText const* pageText = sObjectMgr->GetPageText(pageID);
 
-        std::string text = pageText->Text;
-
         WorldPackets::Query::QueryPageTextResponse response;
         response.PageTextID = pageID;
 
@@ -250,15 +248,15 @@ void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packe
         }
         else
         {
-            LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-            if (localeConstant >= LOCALE_enUS)
-                if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, text);
-
             response.Allow = true;
             response.Info.ID = pageID;
             response.Info.NextPageID = pageText->NextPageID;
-            response.Info.Text = text;
+            response.Info.Text = pageText->Text;
+
+            LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+            if (localeConstant >= LOCALE_enUS)
+                if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
+                    ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, response.Info.Text);
 
             pageID = pageText->NextPageID;
         }
