@@ -13605,30 +13605,40 @@ void Player::SendItemDurations()
         (*itr)->SendTimeUpdate(this);
 }
 
-void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast)
+void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created, bool broadcast)
 {
-    if (!item)                                               // prevent crash
+    if (!item)  // prevent crash
         return;
 
-                                                            // last check 2.0.10
-    WorldPacket data(SMSG_ITEM_PUSH_RESULT, (8+4+4+4+1+4+4+4+4+4));
-    data << GetGUID();                                      // player GUID
-    data << uint32(received);                               // 0=looted, 1=from npc
-    data << uint32(created);                                // 0=received, 1=created
-    data << uint32(1);                                      // bool print error to chat
-    data << uint8(item->GetBagSlot());                      // bagslot
-                                                            // item slot, but when added to stack: 0xFFFFFFFF
-    data << uint32((item->GetCount() == count) ? item->GetSlot() : -1);
-    data << uint32(item->GetEntry());                       // item id
-    data << uint32(item->GetItemSuffixFactor());            // SuffixFactor
-    data << int32(item->GetItemRandomPropertyId());         // random item property id
-    data << uint32(count);                                  // count of items
-    data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory
+    /// @todo: fix 6.x implementation
+    WorldPackets::Item::ItemPushResult packet;
+
+    packet.PlayerGUID = GetGUID();
+
+    packet.Slot = item->GetBagSlot();
+    packet.SlotInBag = item->GetCount() == quantity ? item->GetSlot() : -1;
+
+    packet.Item.Initalize(item);
+
+    //packet.ReadUInt32("WodUnk");
+    packet.Quantity = quantity;
+    packet.QuantityInInventory = GetItemCount(item->GetEntry());
+    //packet.ReadUInt32("BattlePetBreedID");
+    //packet.ReadUInt32("BattlePetBreedQuality");
+    //packet.ReadUInt32("BattlePetSpeciesID");
+    //packet.ReadUInt32("BattlePetLevel");
+
+    packet.ItemGUID = item->GetGUID();
+
+    packet.Pushed = pushed;
+    packet.DisplayText = true;
+    packet.Created = created;
+    //packet.ReadBit("IsBonusRoll");
 
     if (broadcast && GetGroup())
-        GetGroup()->BroadcastPacket(&data, true);
+        GetGroup()->BroadcastPacket(packet.Write(), true);
     else
-        GetSession()->SendPacket(&data);
+        GetSession()->SendPacket(packet.Write());
 }
 
 /*********************************************************/

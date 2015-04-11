@@ -282,6 +282,31 @@ namespace WorldPackets
             SellResult Reason = SELL_ERR_UNK;
         };
 
+        class ItemPushResult final : public ServerPacket
+        {
+        public:
+            ItemPushResult() : ServerPacket(SMSG_ITEM_PUSH_RESULT, 16 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 1 + 1 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGUID;
+            uint8 Slot                      = 0;
+            int32 SlotInBag                 = 0;
+            ItemInstance Item;
+            uint32 WodUnk                   = 0;
+            int32 Quantity                  = 0;
+            int32 QuantityInInventory       = 0;
+            int32 BattlePetBreedID          = 0;
+            uint32 BattlePetBreedQuality    = 0;
+            int32 BattlePetSpeciesID        = 0;
+            int32 BattlePetLevel            = 0;
+            ObjectGuid ItemGUID;
+            bool Pushed                     = false;
+            bool DisplayText                = false;
+            bool Created                    = false;
+            bool IsBonusRoll                = false;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
     }
 }
