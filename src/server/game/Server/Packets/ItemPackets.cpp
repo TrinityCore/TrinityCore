@@ -325,3 +325,25 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Item::ReadItem::Read()
+{
+    _worldPacket >> PackSlot;
+    _worldPacket >> Slot;
+}
+
+WorldPacket const* WorldPackets::Item::ReadItemResultFailed::Write()
+{
+    _worldPacket << Item;
+    _worldPacket << Delay;
+    _worldPacket.WriteBits(Subcode, 3);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ReadItemResultOK::Write()
+{
+    _worldPacket << Item;
+
+    return &_worldPacket;
+}

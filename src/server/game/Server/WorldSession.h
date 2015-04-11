@@ -260,6 +260,7 @@ namespace WorldPackets
         class DestroyItem;
         class GetItemPurchaseData;
         class RepairItem;
+        class ReadItem;
         class SellItem;
         class SplitItem;
         class SwapInvItem;
@@ -1159,7 +1160,7 @@ class WorldSession
         void HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet);
         void HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet);
         void HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet);
-        void HandleReadItem(WorldPacket& recvPacket);
+        void HandleReadItem(WorldPackets::Item::ReadItem& readItem);
         void HandleAutoEquipItemSlotOpcode(WorldPackets::Item::AutoEquipItemSlot& autoEquipItemSlot);
         void HandleSwapItem(WorldPackets::Item::SwapItem& swapItem);
         void HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet);
