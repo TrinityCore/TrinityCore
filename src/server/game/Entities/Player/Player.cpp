@@ -16257,25 +16257,27 @@ void Player::SendCanTakeQuestResponse(QuestFailedReason msg) const
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_INVALID");
 }
 
-void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
+void Player::SendQuestConfirmAccept(Quest const* quest, Player* receiver)
 {
-    if (pReceiver)
-    {
-        std::string strTitle = quest->GetLogTitle();
+    if (!receiver)
+        return;
 
-        LocaleConstant localeConstant = pReceiver->GetSession()->GetSessionDbLocaleIndex();
-        if (localeConstant >= 0)
-            if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-                ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, strTitle);
+    std::string questTitle = quest->GetLogTitle();
+    uint32 questID = quest->GetQuestId();
 
-        WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
-        data << uint32(quest->GetQuestId());
-        data << strTitle;
-        data << GetGUID();
-        pReceiver->GetSession()->SendPacket(&data);
+    LocaleConstant localeConstant = receiver->GetSession()->GetSessionDbLocaleIndex();
+    if (localeConstant >= LOCALE_enUS)
+        if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(questID))
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, questTitle);
 
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
-    }
+    WorldPackets::Quest::QuestConfirmAccept packet;
+    packet.QuestID = questID;
+    packet.InitiatedBy = GetGUID();
+    packet.QuestTitle = questTitle;
+
+    receiver->GetSession()->SendPacket(packet.Write());
+
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
 }
 
 void Player::SendPushToPartyResponse(Player* player, uint8 msg)
