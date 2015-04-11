@@ -5117,7 +5117,7 @@ void ObjectMgr::LoadNPCText()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u npc texts in %u ms", _npcTextStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u npc texts in %u ms", uint32(_npcTextStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 //not very fast function but it is called only once a day, or on starting-up
@@ -5372,7 +5372,7 @@ void ObjectMgr::LoadQuestGreetings()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u quest_greeting in %u ms", _questGreetingStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u quest_greeting in %u ms", uint32(_questGreetingStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadTavernAreaTriggers()
@@ -6918,7 +6918,7 @@ void ObjectMgr::LoadQuestPOI()
             int32 X                   = fields[2].GetInt32();
             int32 Y                   = fields[3].GetInt32();
 
-            if (POIs[QuestID].size() <= Idx1 + 1)
+            if (int32(POIs[QuestID].size()) <= Idx1 + 1)
                 POIs[QuestID].resize(Idx1 + 10);
 
             QuestPOIPoint point(X, Y);
@@ -6946,7 +6946,7 @@ void ObjectMgr::LoadQuestPOI()
         int32 WoDUnk1               = fields[13].GetInt32();
 
         QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1);
-        if (QuestID < POIs.size() && Idx1 < POIs[QuestID].size())
+        if (QuestID < int32(POIs.size()) && Idx1 < int32(POIs[QuestID].size()))
         {
             POI.points = POIs[QuestID][Idx1];
             _questPOIStore[QuestID].push_back(POI);
