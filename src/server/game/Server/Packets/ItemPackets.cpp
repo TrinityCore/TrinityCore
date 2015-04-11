@@ -338,6 +338,8 @@ WorldPacket const* WorldPackets::Item::ReadItemResultFailed::Write()
     _worldPacket << Delay;
     _worldPacket.WriteBits(Subcode, 3);
 
+    _worldPacket.FlushBits();
+
     return &_worldPacket;
 }
 
