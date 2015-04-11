@@ -351,6 +351,7 @@ namespace WorldPackets
         class QueryCorpseTransport;
         class QueryTime;
         class QuestPOIQuery;
+        class QueryQuestCompletionNPCs;
     }
 
     namespace Quest
@@ -1407,7 +1408,7 @@ class WorldSession
         void HandleEquipmentSetDelete(WorldPacket& recvData);
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/);
-        void HandleQuestNPCQuery(WorldPacket& recvData);
+        void HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQuestCompletionNPCs& queryQuestCompletionNPCs);
         void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packet);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);

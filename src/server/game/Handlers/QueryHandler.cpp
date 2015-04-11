@@ -288,45 +288,34 @@ void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTr
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleQuestNPCQuery(WorldPacket& recvData)
+void WorldSession::HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQuestCompletionNPCs& queryQuestCompletionNPCs)
 {
-    uint32 count = recvData.ReadBits(24);
-    std::map<uint32, std::vector<uint32>> quests;
+    WorldPackets::Query::QuestCompletionNPCResponse response;
 
-    for (uint32 i = 0; i < count; ++i)
+    for (int32& QuestID : queryQuestCompletionNPCs.QuestCompletionNPCs)
     {
-        uint32 questId;
-        recvData >> questId;
+        WorldPackets::Query::QuestCompletionNPC questCompletionNPC;
 
-        if (!sObjectMgr->GetQuestTemplate(questId))
+        if (!sObjectMgr->GetQuestTemplate(QuestID))
         {
-            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUERY_QUEST_COMPLETION_NPCS by %s", questId, _player->GetGUID().ToString().c_str());
+            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUERY_QUEST_COMPLETION_NPCS by %s", QuestID, _player->GetGUID().ToString().c_str());
             continue;
         }
 
-        auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(questId);
+        questCompletionNPC.QuestID = QuestID;
+
+        auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(QuestID);
         for (auto it = creatures.first; it != creatures.second; ++it)
-            quests[questId].push_back(it->second);
+            questCompletionNPC.NPCs.push_back(it->second);
 
-        auto gos = sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(questId);
+        auto gos = sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(QuestID);
         for (auto it = gos.first; it != gos.second; ++it)
-            quests[questId].push_back(it->second | 0x80000000); // GO mask
+            questCompletionNPC.NPCs.push_back(it->second | 0x80000000); // GO mask
+
+        response.QuestCompletionNPCs.push_back(questCompletionNPC);
     }
 
-    WorldPacket data(SMSG_QUEST_COMPLETION_NPC_RESPONSE, 3 + quests.size() * 14);
-    data.WriteBits(quests.size(), 23);
-
-    for (auto it = quests.begin(); it != quests.end(); ++it)
-        data.WriteBits(it->second.size(), 24);
-
-    for (auto it = quests.begin(); it != quests.end(); ++it)
-    {
-        data << uint32(it->first);
-        for (const auto& entry : it->second)
-            data << uint32(entry);
-    }
-
-    SendPacket(&data);
+    SendPacket(response.Write());
 }
 
 void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packet)

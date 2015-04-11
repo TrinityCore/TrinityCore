@@ -366,6 +366,32 @@ namespace WorldPackets
 
             std::vector<QuestPOIData> QuestPOIDataStats;
         };
+
+        class QueryQuestCompletionNPCs final : public ClientPacket
+        {
+        public:
+            QueryQuestCompletionNPCs(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_QUEST_COMPLETION_NPCS, std::move(packet)) { }
+
+            void Read() override;
+
+            std::vector<int32> QuestCompletionNPCs;
+        };
+
+        struct QuestCompletionNPC
+        {
+            int32 QuestID = 0;
+            std::vector<int32> NPCs;
+        };
+
+        class QuestCompletionNPCResponse final : public ServerPacket
+        {
+        public:
+            QuestCompletionNPCResponse() : ServerPacket(SMSG_QUEST_COMPLETION_NPC_RESPONSE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<QuestCompletionNPC> QuestCompletionNPCs;
+        };
     }
 }
 
