@@ -805,7 +805,7 @@ class ObjectMgr
         }
 
         NpcText const* GetNpcText(uint32 textID) const;
-        QuestGreeting const* ObjectMgr::GetQuestGreeting(ObjectGuid guid) const;
+        QuestGreeting const* GetQuestGreeting(ObjectGuid guid) const;
 
         WorldSafeLocsEntry const* GetDefaultGraveYard(uint32 team);
         WorldSafeLocsEntry const* GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team);
