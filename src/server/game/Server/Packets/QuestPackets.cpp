@@ -475,7 +475,6 @@ WorldPacket const* WorldPackets::Quest::QuestConfirmAccept::Write()
     _worldPacket << uint32(QuestID);
     _worldPacket << InitiatedBy;
 
-    _worldPacket.FlushBits();
     _worldPacket.WriteBits(QuestTitle.size(), 10);
     _worldPacket.WriteString(QuestTitle);
 

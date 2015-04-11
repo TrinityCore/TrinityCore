@@ -394,10 +394,10 @@ void ObjectMgr::LoadPointOfInterestLocales()
 {
     uint32 oldMSTime = getMSTime();
 
-    _pointOfInterestLocaleStore.clear();                              // need for reload case
+    _pointOfInterestLocaleStore.clear(); // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Name_loc1, Name_loc2, Name_loc3, Name_loc4, Name_loc5, Name_loc6, Name_loc7, Name_loc8 FROM locales_points_of_interest");
-
+    //                                               0      1      2
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name FROM points_of_interest_locale");
     if (!result)
         return;
 
@@ -405,12 +405,14 @@ void ObjectMgr::LoadPointOfInterestLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 id               = fields[0].GetUInt32();
+        std::string localeName  = fields[1].GetString();
+        std::string name        = fields[2].GetString();
 
-        PointOfInterestLocale& data = _pointOfInterestLocaleStore[entry];
+        PointOfInterestLocale& data = _pointOfInterestLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
 
-        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
-            AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.IconName);
+        AddLocaleString(name, locale, data.Name);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u points_of_interest locale strings in %u ms", uint32(_pointOfInterestLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -6841,7 +6843,7 @@ void ObjectMgr::LoadPointsOfInterest()
 {
     uint32 oldMSTime = getMSTime();
 
-    _pointsOfInterestStore.clear();                              // need for reload case
+    _pointsOfInterestStore.clear(); // need for reload case
 
     uint32 count = 0;
 
@@ -6858,24 +6860,24 @@ void ObjectMgr::LoadPointsOfInterest()
     {
         Field* fields = result->Fetch();
 
-        uint32 point_id = fields[0].GetUInt32();
+        uint32 id = fields[0].GetUInt32();
 
-        PointOfInterest POI;
-        POI.ID         = point_id;
-        POI.PositionX  = fields[1].GetFloat();
-        POI.PositionY  = fields[2].GetFloat();
-        POI.Icon       = fields[3].GetUInt32();
-        POI.Flags      = fields[4].GetUInt32();
-        POI.Importance = fields[5].GetUInt32();
-        POI.Name       = fields[6].GetString();
+        PointOfInterest pointOfInterest;
+        pointOfInterest.ID              = id;
+        pointOfInterest.Pos.x           = fields[1].GetFloat();
+        pointOfInterest.Pos.y           = fields[2].GetFloat();
+        pointOfInterest.Icon            = fields[3].GetUInt32();
+        pointOfInterest.Flags           = fields[4].GetUInt32();
+        pointOfInterest.Importance      = fields[5].GetUInt32();
+        pointOfInterest.Name            = fields[6].GetString();
 
-        if (!Trinity::IsValidMapCoord(POI.PositionX, POI.PositionY))
+        if (!Trinity::IsValidMapCoord(pointOfInterest.Pos.x, pointOfInterest.Pos.y))
         {
-            TC_LOG_ERROR("sql.sql", "Table `points_of_interest` (ID: %u) have invalid coordinates (PositionX: %f PositionY: %f), ignored.", point_id, POI.PositionX, POI.PositionY);
+            TC_LOG_ERROR("sql.sql", "Table `points_of_interest` (ID: %u) have invalid coordinates (PositionX: %f PositionY: %f), ignored.", id, pointOfInterest.Pos.x, pointOfInterest.Pos.y);
             continue;
         }
 
-        _pointsOfInterestStore[point_id] = POI;
+        _pointsOfInterestStore[id] = pointOfInterest;
 
         ++count;
     } while (result->NextRow());
