@@ -1714,7 +1714,7 @@ class Player : public Unit, public GridObject<Player>
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
         void SendQuestTimerFailed(uint32 questId);
         void SendCanTakeQuestResponse(QuestFailedReason msg) const;
-        void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
+        void SendQuestConfirmAccept(Quest const* quest, Player* receiver);
         void SendPushToPartyResponse(Player* player, uint8 msg);
         void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count);
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount, uint32 required);

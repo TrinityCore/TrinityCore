@@ -464,6 +464,18 @@ namespace WorldPackets
 
             int32 QuestID = 0;
         };
+
+        class QuestConfirmAccept final : public ServerPacket
+        {
+        public:
+            QuestConfirmAccept() : ServerPacket(SMSG_QUEST_CONFIRM_ACCEPT, 21) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid InitiatedBy;
+            int32 QuestID = 0;
+            std::string QuestTitle;
+        };
     }
 }
 
