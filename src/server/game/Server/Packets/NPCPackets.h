@@ -22,6 +22,8 @@
 #include "ItemPackets.h"
 #include "Creature.h"
 
+#include "G3D/Vector2.h"
+
 namespace WorldPackets
 {
     namespace NPC
@@ -178,6 +180,20 @@ namespace WorldPackets
 
             ObjectGuid UnitGUID;
             bool SuppressNPCGreeting = false;
+        };
+
+        class GossipPOI final : public ServerPacket
+        {
+        public:
+            GossipPOI() : ServerPacket(SMSG_GOSSIP_POI, 2 + 2 * 4 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Flags        = 0;
+            G3D::Vector2 Pos;
+            int32 Icon          = 0;
+            int32 Importance    = 0;
+            std::string Name;
         };
     }
 }

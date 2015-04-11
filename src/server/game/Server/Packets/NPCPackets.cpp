@@ -150,3 +150,16 @@ WorldPacket const* WorldPackets::NPC::SuppressNPCGreetings::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::NPC::GossipPOI::Write()
+{
+    _worldPacket.WriteBits(Flags, 14);
+    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket << Pos.x;
+    _worldPacket << Pos.y;
+    _worldPacket << Icon;
+    _worldPacket << Importance;
+    _worldPacket.WriteString(Name);
+
+    return &_worldPacket;
+}

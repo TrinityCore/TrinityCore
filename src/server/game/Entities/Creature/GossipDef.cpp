@@ -262,30 +262,31 @@ void PlayerMenu::SendCloseGossip()
     _session->SendPacket(packet.Write());
 }
 
-void PlayerMenu::SendPointOfInterest(uint32 poiId) const
+void PlayerMenu::SendPointOfInterest(uint32 id) const
 {
-    PointOfInterest const* poi = sObjectMgr->GetPointOfInterest(poiId);
-    if (!poi)
+    PointOfInterest const* pointOfInterest = sObjectMgr->GetPointOfInterest(id);
+    if (!pointOfInterest)
     {
-        TC_LOG_ERROR("sql.sql", "Request to send non-existing POI (Id: %u), ignored.", poiId);
+        TC_LOG_ERROR("sql.sql", "Request to send non-existing PointOfInterest (Id: %u), ignored.", id);
         return;
     }
 
-    std::string iconText = poi->Name;
+    std::string name = pointOfInterest->Name;
+
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
     if (localeConstant >= LOCALE_enUS)
-        if (PointOfInterestLocale const* localeData = sObjectMgr->GetPointOfInterestLocale(poiId))
-            ObjectMgr::GetLocaleString(localeData->IconName, localeConstant, iconText);
+        if (PointOfInterestLocale const* localeData = sObjectMgr->GetPointOfInterestLocale(id))
+            ObjectMgr::GetLocaleString(localeData->Name, localeConstant, name);
 
-    WorldPacket data(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 10);  // guess size
-    data << uint32(poi->Flags);
-    data << float(poi->PositionX);
-    data << float(poi->PositionY);
-    data << uint32(poi->Icon);
-    data << uint32(poi->Importance);
-    data << iconText;
+    WorldPackets::NPC::GossipPOI packet;
 
-    _session->SendPacket(&data);
+    packet.Flags = pointOfInterest->Flags;
+    packet.Pos = pointOfInterest->Pos;
+    packet.Icon = pointOfInterest->Icon;
+    packet.Importance = pointOfInterest->Importance;
+    packet.Name = name;
+
+    _session->SendPacket(packet.Write());
 }
 
 /*********************************************************/
