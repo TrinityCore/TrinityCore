@@ -203,6 +203,8 @@ WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
     _worldPacket << PageTextID;
     _worldPacket.WriteBit(Allow);
 
+    _worldPacket.FlushBits();
+
     if (Allow)
     {
         _worldPacket << Info.ID;
