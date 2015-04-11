@@ -52,6 +52,32 @@ namespace Battlenet
         Read = 0x4000
     };
 
+    struct AccountInfo
+    {
+        void LoadResult(Field* fields);
+
+        uint32 Id;
+        std::string Login;
+        bool IsLockedToIP;
+        std::string LockCountry;
+        std::string LastIP;
+        uint32 FailedLogins;
+        bool IsBanned;
+        bool IsPermanenetlyBanned;
+    };
+
+    struct GameAccountInfo
+    {
+        void LoadResult(Field* fields);
+
+        uint32 Id;
+        std::string Name;
+        std::string DisplayName;
+        bool IsBanned;
+        bool IsPermanenetlyBanned;
+        AccountTypes SecurityLevel;
+    };
+
     class Session : public Socket<Session>
     {
         typedef Socket<Session> BattlenetSocket;
@@ -88,8 +114,8 @@ namespace Battlenet
 
         void UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms);
 
-        uint32 GetAccountId() const { return _accountId; }
-        uint32 GetGameAccountId() const { return _gameAccountId; }
+        uint32 GetAccountId() const { return _accountInfo->Id; }
+        uint32 GetGameAccountId() const { return _gameAccountInfo->Id; }
 
         bool IsToonOnline() const { return _toonOnline; }
         void SetToonOnline(bool online) { _toonOnline = online; }
@@ -107,6 +133,8 @@ namespace Battlenet
         typedef bool(Session::*ModuleHandler)(BitStream* dataStream, ServerPacket** response);
         static ModuleHandler const ModuleHandlers[MODULE_COUNT];
 
+        void LoadGameAccountData();
+
         bool HandlePasswordModule(BitStream* dataStream, ServerPacket** response);
         bool HandleSelectGameAccountModule(BitStream* dataStream, ServerPacket** response);
         bool HandleRiskFingerprintModule(BitStream* dataStream, ServerPacket** response);
@@ -116,14 +144,13 @@ namespace Battlenet
         WoWRealm::ListUpdate* BuildListUpdate(Realm const* realm) const;
         std::string GetClientInfo() const;
 
-        uint32 _accountId;
-        std::string _accountName;
+        AccountInfo* _accountInfo;
+        GameAccountInfo* _gameAccountInfo;          // Points at selected game account (inside _gameAccounts)
+        std::vector<GameAccountInfo> _gameAccounts;
+
         std::string _locale;
         std::string _os;
         uint32 _build;
-        uint32 _gameAccountId;
-        std::string _gameAccountName;
-        AccountTypes _accountSecurityLevel;
 
         BigNumber N;
         BigNumber g;
