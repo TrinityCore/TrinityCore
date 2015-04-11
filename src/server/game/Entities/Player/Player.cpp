@@ -16182,9 +16182,9 @@ void Player::SendQuestComplete(Quest const* quest)
 {
     if (quest)
     {
-        WorldPacket data(SMSG_QUEST_UPDATE_COMPLETE, 4);
-        data << uint32(quest->GetQuestId());
-        GetSession()->SendPacket(&data);
+        WorldPackets::Quest::QuestUpdateComplete data;
+        data.QuestID = quest->GetQuestId();
+        GetSession()->SendPacket(data.Write());
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest->GetQuestId());
     }
 }

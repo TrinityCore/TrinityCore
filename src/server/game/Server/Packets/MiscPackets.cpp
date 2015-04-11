@@ -413,3 +413,10 @@ WorldPacket const* WorldPackets::Misc::ZoneUnderAttack::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DurabilityDamageDeath::Write()
+{
+    _worldPacket << int32(Percent);
+
+    return &_worldPacket;
+}

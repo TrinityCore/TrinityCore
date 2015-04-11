@@ -563,6 +563,16 @@ namespace WorldPackets
 
             int32 AreaID = 0;
         };
+
+        class DurabilityDamageDeath final : public ServerPacket
+        {
+        public:
+            DurabilityDamageDeath() : ServerPacket(SMSG_DURABILITY_DAMAGE_DEATH, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Percent = 0;
+        };
     }
 }
 

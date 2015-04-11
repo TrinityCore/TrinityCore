@@ -22,6 +22,7 @@
 #include "CreatureAISelector.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
+#include "GameObjectPackets.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
@@ -1371,9 +1372,9 @@ void GameObject::Use(Unit* user)
             {
                 if (info->goober.pageID)                    // show page...
                 {
-                    WorldPacket data(SMSG_PAGE_TEXT, 8);
-                    data << GetGUID();
-                    player->SendDirectMessage(&data);
+                    WorldPackets::GameObject::PageText data;
+                    data.GameObjectGUID = GetGUID();
+                    player->SendDirectMessage(data.Write());
                 }
                 else if (info->goober.gossipID)
                 {

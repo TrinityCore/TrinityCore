@@ -56,6 +56,16 @@ namespace WorldPackets
 
             ObjectGuid ObjectGUID;
         };
+
+        class PageText final : public ServerPacket
+        {
+        public:
+            PageText() : ServerPacket(SMSG_PAGE_TEXT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GameObjectGUID;
+        };
     }
 }
 #endif // GOPackets_h__

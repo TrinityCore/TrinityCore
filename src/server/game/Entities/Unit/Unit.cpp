@@ -13375,9 +13375,9 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
 
 void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
 {
-    WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 4);
-    data << uint32(percent);
-    receiver->GetSession()->SendPacket(&data);
+    WorldPackets::Misc::DurabilityDamageDeath packet;
+    packet.Percent = percent;
+    receiver->GetSession()->SendPacket(packet.Write());
 }
 
 void Unit::SetAIAnimKitId(uint16 animKitId)
