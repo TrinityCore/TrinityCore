@@ -307,6 +307,39 @@ namespace WorldPackets
             bool IsBonusRoll                = false;
         };
 
+        class ReadItem final : public ClientPacket
+        {
+        public:
+            ReadItem(WorldPacket&& packet) : ClientPacket(CMSG_READ_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PackSlot = 0;
+            uint8 Slot = 0;
+        };
+
+        class ReadItemResultFailed final : public ServerPacket
+        {
+        public:
+            ReadItemResultFailed() : ServerPacket(SMSG_READ_ITEM_RESULT_FAILED, 16 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Item;
+            uint8 Subcode   = 0;
+            uint32 Delay    = 0;
+        };
+
+        class ReadItemResultOK final : public ServerPacket
+        {
+        public:
+            ReadItemResultOK() : ServerPacket(SMSG_READ_ITEM_RESULT_OK, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Item;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
     }
 }
