@@ -407,3 +407,29 @@ WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Query::QueryQuestCompletionNPCs::Read()
+{
+    uint32 questCount = 0;
+
+    _worldPacket >> questCount;
+    QuestCompletionNPCs.resize(questCount);
+
+    for (int32& QuestID : QuestCompletionNPCs)
+        _worldPacket >> QuestID;
+}
+
+WorldPacket const* WorldPackets::Query::QuestCompletionNPCResponse::Write()
+{
+    _worldPacket << uint32(QuestCompletionNPCs.size());
+    for (auto& quest : QuestCompletionNPCs)
+    {
+        _worldPacket << int32(quest.QuestID);
+
+        _worldPacket << uint32(quest.NPCs.size());
+        for (int32 const& npc : quest.NPCs)
+            _worldPacket << int32(npc);
+    }
+
+    return &_worldPacket;
+}
