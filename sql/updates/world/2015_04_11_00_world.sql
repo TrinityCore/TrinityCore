@@ -1,4 +1,6 @@
-SET @GUID          := 52283; -- 4 creature guid Set by TC
+DELETE FROM `creature` WHERE `guid` IN (52283, 52284, 52285, 52286, 69717, 69718, 69719, 69720);
+
+SET @GUID          := 69717; -- 4 creature guid Set by TC
 SET @OGUID         := 5510; -- 1 GOB guid set by TC
 DELETE FROM `creature` WHERE `id`=23142;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`curhealth`) VALUES
