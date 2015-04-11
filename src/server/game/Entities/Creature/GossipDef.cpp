@@ -461,7 +461,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 {
-    LocaleConstant LocaleConstant = _session->GetSessionDbLocaleIndex();
+    LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
 
     std::string questLogTitle       = quest->GetLogTitle();
     std::string questLogDescription = quest->GetLogDescription();
@@ -473,19 +473,19 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     std::string portraitTurnInText  = quest->GetPortraitTurnInText();
     std::string portraitTurnInName  = quest->GetPortraitTurnInName();
 
-    if (LocaleConstant >= LOCALE_enUS)
+    if (localeConstant >= LOCALE_enUS)
     {
         if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
         {
-            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle,           LocaleConstant, questLogTitle);
-            ObjectMgr::GetLocaleString(questTemplateLocale->LogDescription,     LocaleConstant, questLogDescription);
-            ObjectMgr::GetLocaleString(questTemplateLocale->QuestDescription,   LocaleConstant, questDescription);
-            ObjectMgr::GetLocaleString(questTemplateLocale->AreaDescription,    LocaleConstant, areaDescription);
-            ObjectMgr::GetLocaleString(questTemplateLocale->QuestCompletionLog, LocaleConstant, questCompletionLog);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverText,  LocaleConstant, portraitGiverText);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverName,  LocaleConstant, portraitGiverName);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInText, LocaleConstant, portraitTurnInText);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInName, LocaleConstant, portraitTurnInName);
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle,           localeConstant, questLogTitle);
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogDescription,     localeConstant, questLogDescription);
+            ObjectMgr::GetLocaleString(questTemplateLocale->QuestDescription,   localeConstant, questDescription);
+            ObjectMgr::GetLocaleString(questTemplateLocale->AreaDescription,    localeConstant, areaDescription);
+            ObjectMgr::GetLocaleString(questTemplateLocale->QuestCompletionLog, localeConstant, questCompletionLog);
+            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverText,  localeConstant, portraitGiverText);
+            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverName,  localeConstant, portraitGiverName);
+            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInText, localeConstant, portraitTurnInText);
+            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInName, localeConstant, portraitTurnInName);
         }
     }
 
@@ -576,10 +576,10 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     {
         packet.Info.Objectives.push_back(questObjective);
 
-        if (LocaleConstant >= LOCALE_enUS)
+        if (localeConstant >= LOCALE_enUS)
         {
             if (QuestObjectivesLocale const* questObjectivesLocale = sObjectMgr->GetQuestObjectivesLocale(questObjective.ID))
-                ObjectMgr::GetLocaleString(questObjectivesLocale->Description, LocaleConstant, packet.Info.Objectives.back().Description);
+                ObjectMgr::GetLocaleString(questObjectivesLocale->Description, localeConstant, packet.Info.Objectives.back().Description);
         }
     }
 
