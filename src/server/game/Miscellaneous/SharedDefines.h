@@ -4264,32 +4264,35 @@ enum ChatMsg
     CHAT_MSG_RAID_BOSS_EMOTE                    = 0x29,
     CHAT_MSG_RAID_BOSS_WHISPER                  = 0x2A,
     CHAT_MSG_FILTERED                           = 0x2B,
-    CHAT_MSG_BATTLEGROUND                       = 0x2C,
-    CHAT_MSG_BATTLEGROUND_LEADER                = 0x2D,
-    CHAT_MSG_RESTRICTED                         = 0x2E,
-    CHAT_MSG_BATTLENET                          = 0x2F,
-    CHAT_MSG_ACHIEVEMENT                        = 0x30,
-    CHAT_MSG_GUILD_ACHIEVEMENT                  = 0x31,
-    CHAT_MSG_ARENA_POINTS                       = 0x32,
-    CHAT_MSG_PARTY_LEADER                       = 0x33,
-    CHAT_MSG_TARGETICONS                        = 0x34,
-    CHAT_MSG_BN_WHISPER                         = 0x35,
-    CHAT_MSG_BN_WHISPER_INFORM                  = 0x36,
-    CHAT_MSG_BN_CONVERSATION                    = 0x37,
-    CHAT_MSG_BN_CONVERSATION_NOTICE             = 0x38,
-    CHAT_MSG_BN_CONVERSATION_LIST               = 0x39,
-    CHAT_MSG_BN_INLINE_TOAST_ALERT              = 0x3A,
-    CHAT_MSG_BN_INLINE_TOAST_BROADCAST          = 0x3B,
-    CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM   = 0x3C,
-    CHAT_MSG_BN_INLINE_TOAST_CONVERSATION       = 0x3D,
-    CHAT_MSG_BN_WHISPER_PLAYER_OFFLINE          = 0x3E,
-    CHAT_MSG_COMBAT_GUILD_XP_GAIN               = 0x3F,
-    CHAT_MSG_CURRENCY                           = 0x40
+    CHAT_MSG_RESTRICTED                         = 0x2C,
+    CHAT_MSG_BATTLENET                          = 0x2D,
+    CHAT_MSG_ACHIEVEMENT                        = 0x2E,
+    CHAT_MSG_GUILD_ACHIEVEMENT                  = 0x2F,
+    CHAT_MSG_ARENA_POINTS                       = 0x30,
+    CHAT_MSG_PARTY_LEADER                       = 0x31,
+    CHAT_MSG_TARGETICONS                        = 0x32,
+    CHAT_MSG_BN_WHISPER                         = 0x33,
+    CHAT_MSG_BN_WHISPER_INFORM                  = 0x34,
+    CHAT_MSG_BN_CONVERSATION                    = 0x35,
+    CHAT_MSG_BN_CONVERSATION_NOTICE             = 0x36,
+    CHAT_MSG_BN_CONVERSATION_LIST               = 0x37,
+    CHAT_MSG_BN_INLINE_TOAST_ALERT              = 0x38,
+    CHAT_MSG_BN_INLINE_TOAST_BROADCAST          = 0x39,
+    CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM   = 0x3A,
+    CHAT_MSG_BN_INLINE_TOAST_CONVERSATION       = 0x3B,
+    CHAT_MSG_BN_WHISPER_PLAYER_OFFLINE          = 0x3C,
+    CHAT_MSG_COMBAT_GUILD_XP_GAIN               = 0x3D,
+    CHAT_MSG_CURRENCY                           = 0x3E,
+    CHAT_MSG_QUEST_BOSS_EMOTE                   = 0x3F,
+    CHAT_MSG_PET_BATTLE_COMBAT_LOG              = 0x40,
+    CHAT_MSG_PET_BATTLE_INFO                    = 0x41,
+    CHAT_MSG_INSTANCE_CHAT                      = 0x42,
+    CHAT_MSG_INSTANCE_CHAT_LEADER               = 0x43,
+
+    MAX_CHAT_MSG_TYPE
 };
 
 #define GM_SILENCE_AURA 1852
-
-#define MAX_CHAT_MSG_TYPE 0x41
 
 enum ChatFlags
 {

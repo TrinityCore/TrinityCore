@@ -64,6 +64,16 @@ void WorldPackets::Chat::ChatAddonMessageWhisper::Read()
     Text = _worldPacket.ReadString(textLen);
 }
 
+void WorldPackets::Chat::ChatAddonMessageChannel::Read()
+{
+    uint32 targetLen = _worldPacket.ReadBits(9);
+    uint32 prefixLen = _worldPacket.ReadBits(5);
+    uint32 textLen = _worldPacket.ReadBits(8);
+    Target = _worldPacket.ReadString(targetLen);
+    Prefix = _worldPacket.ReadString(prefixLen);
+    Text = _worldPacket.ReadString(textLen);
+}
+
 void WorldPackets::Chat::ChatMessageDND::Read()
 {
     uint32 len = _worldPacket.ReadBits(8);

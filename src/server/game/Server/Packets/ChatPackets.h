@@ -35,6 +35,7 @@ namespace WorldPackets
         // CMSG_CHAT_MESSAGE_PARTY
         // CMSG_CHAT_MESSAGE_RAID
         // CMSG_CHAT_MESSAGE_RAID_WARNING
+        // CMSG_CHAT_MESSAGE_INSTANCE_CHAT
         class ChatMessage final : public ClientPacket
         {
         public:
@@ -76,6 +77,7 @@ namespace WorldPackets
         // CMSG_CHAT_ADDON_MESSAGE_OFFICER
         // CMSG_CHAT_ADDON_MESSAGE_PARTY
         // CMSG_CHAT_ADDON_MESSAGE_RAID
+        // CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT
         class ChatAddonMessage final : public ClientPacket
         {
         public:
@@ -91,13 +93,26 @@ namespace WorldPackets
         class ChatAddonMessageWhisper final : public ClientPacket
         {
         public:
-            ChatAddonMessageWhisper(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            ChatAddonMessageWhisper(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_WHISPER, std::move(packet)) { }
 
             void Read() override;
 
             std::string Prefix;
             std::string Target;
             std::string Text;
+        };
+
+        // CMSG_CHAT_ADDON_MESSAGE_CHANNEL
+        class ChatAddonMessageChannel final : public ClientPacket
+        {
+        public:
+            ChatAddonMessageChannel(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_CHANNEL, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string Text;
+            std::string Target;
+            std::string Prefix;
         };
 
         class ChatMessageDND final : public ClientPacket
