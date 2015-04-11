@@ -1201,16 +1201,16 @@ class WorldSession
         void HandlePushQuestToParty(WorldPacket& recvPacket);
         void HandleQuestPushResult(WorldPacket& recvPacket);
 
-        void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& packet);
-        void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& packet);
-        void HandleChatMessageChannelOpcode(WorldPackets::Chat::ChatMessageChannel& packet);
+        void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
+        void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& chatMessageWhisper);
+        void HandleChatMessageChannelOpcode(WorldPackets::Chat::ChatMessageChannel& chatMessageChannel);
         void HandleChatMessage(ChatMsg type, uint32 lang, std::string msg, std::string target = "");
-        void HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMessage& packet);
-        void HandleChatAddonMessageWhisperOpcode(WorldPackets::Chat::ChatAddonMessageWhisper& packet);
+        void HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMessage& chatAddonMessage);
+        void HandleChatAddonMessageWhisperOpcode(WorldPackets::Chat::ChatAddonMessageWhisper& chatAddonMessageWhisper);
         void HandleChatAddonMessage(ChatMsg type, std::string prefix, std::string text, std::string target = "");
-        void HandleChatMessageAFKOpcode(WorldPackets::Chat::ChatMessageAFK& packet);
-        void HandleChatMessageDNDOpcode(WorldPackets::Chat::ChatMessageDND& packet);
-        void HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& packet);
+        void HandleChatMessageAFKOpcode(WorldPackets::Chat::ChatMessageAFK& chatMessageAFK);
+        void HandleChatMessageDNDOpcode(WorldPackets::Chat::ChatMessageDND& chatMessageDND);
+        void HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& chatMessageEmote);
         void SendPlayerNotFoundNotice(std::string const& name);
         void SendPlayerAmbiguousNotice(std::string const& name);
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
