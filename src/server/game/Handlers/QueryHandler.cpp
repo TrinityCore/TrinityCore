@@ -203,29 +203,28 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY TextId: %u", packet.TextID);
 
-    GossipText const* gossip = sObjectMgr->GetGossipText(packet.TextID);
+    NpcText const* npcText = sObjectMgr->GetNpcText(packet.TextID);
 
     WorldPackets::Query::QueryNPCTextResponse response;
     response.TextID = packet.TextID;
 
-    bool hasText = false;
-    if (gossip)
+    if (npcText)
     {
-        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+        for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
         {
-            response.Probabilities[i] = gossip->Options[i].Probability;
-            response.BroadcastTextID[i] = gossip->Options[i].BroadcastTextID;
-            if (!hasText && gossip->Options[i].BroadcastTextID)
-                hasText = true;
+            response.Probabilities[i] = npcText->Data[i].Probability;
+            response.BroadcastTextID[i] = npcText->Data[i].BroadcastTextID;
+            if (!response.Allow && npcText->Data[i].BroadcastTextID)
+                response.Allow = true;
         }
-
-        response.Allow = true;
     }
-    if (hasText)
-        SendPacket(response.Write());
-    else
+
+    if (!response.Allow)
         TC_LOG_ERROR("sql.sql", "HandleNpcTextQueryOpcode: no BroadcastTextID found for text %u in `npc_text table`", packet.TextID);
+
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
+
+    SendPacket(response.Write());
 }
 
 /// Only _static_ data is sent in this packet !!!

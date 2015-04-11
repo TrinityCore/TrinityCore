@@ -227,10 +227,10 @@ WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
 
     if (Allow)
     {
-        _worldPacket << int32(MAX_GOSSIP_TEXT_OPTIONS * (4 + 4));
-        for (uint32 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+        _worldPacket << int32(MAX_NPC_TEXT_OPTIONS * (4 + 4));
+        for (uint32 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
             _worldPacket << Probabilities[i];
-        for (uint32 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+        for (uint32 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
             _worldPacket << BroadcastTextID[i];
     }
 

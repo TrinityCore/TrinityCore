@@ -5053,80 +5053,63 @@ void ObjectMgr::LoadInstanceEncounters()
     TC_LOG_INFO("server.loading", ">> Loaded %u instance encounters in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-GossipText const* ObjectMgr::GetGossipText(uint32 Text_ID) const
+NpcText const* ObjectMgr::GetNpcText(uint32 Text_ID) const
 {
-    GossipTextContainer::const_iterator itr = _gossipTextStore.find(Text_ID);
-    if (itr != _gossipTextStore.end())
+    NpcTextContainer::const_iterator itr = _npcTextStore.find(Text_ID);
+    if (itr != _npcTextStore.end())
         return &itr->second;
     return NULL;
 }
 
-void ObjectMgr::LoadGossipText()
+void ObjectMgr::LoadNPCText()
 {
     uint32 oldMSTime = getMSTime();
 
     QueryResult result = WorldDatabase.Query("SELECT ID, "
-        "text0_0, text0_1, BroadcastTextID0, lang0, prob0, em0_0, em0_1, em0_2, em0_3, em0_4, em0_5, "
-        "text1_0, text1_1, BroadcastTextID1, lang1, prob1, em1_0, em1_1, em1_2, em1_3, em1_4, em1_5, "
-        "text2_0, text2_1, BroadcastTextID2, lang2, prob2, em2_0, em2_1, em2_2, em2_3, em2_4, em2_5, "
-        "text3_0, text3_1, BroadcastTextID3, lang3, prob3, em3_0, em3_1, em3_2, em3_3, em3_4, em3_5, "
-        "text4_0, text4_1, BroadcastTextID4, lang4, prob4, em4_0, em4_1, em4_2, em4_3, em4_4, em4_5, "
-        "text5_0, text5_1, BroadcastTextID5, lang5, prob5, em5_0, em5_1, em5_2, em5_3, em5_4, em5_5, "
-        "text6_0, text6_1, BroadcastTextID6, lang6, prob6, em6_0, em6_1, em6_2, em6_3, em6_4, em6_5, "
-        "text7_0, text7_1, BroadcastTextID7, lang7, prob7, em7_0, em7_1, em7_2, em7_3, em7_4, em7_5 "
-        "FROM npc_text");
-
-
+        "BroadcastTextID0, Probability0, "
+        "BroadcastTextID1, Probability1, "
+        "BroadcastTextID2, Probability2, "
+        "BroadcastTextID3, Probability3, "
+        "BroadcastTextID4, Probability4, "
+        "BroadcastTextID5, Probability5, "
+        "BroadcastTextID6, Probability6, "
+        "BroadcastTextID7, Probability7"
+        " FROM npc_text");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 npc texts, table is empty!");
         return;
     }
 
-    _gossipTextStore.rehash(result->GetRowCount());
-
-    uint32 count = 0;
-    uint8 cic;
+    _npcTextStore.rehash(result->GetRowCount());
 
     do
     {
-        ++count;
-        cic = 0;
-
         Field* fields = result->Fetch();
 
-        uint32 id = fields[cic++].GetUInt32();
-        if (!id)
+        uint32 textID = fields[0].GetUInt32();
+        if (!textID)
         {
             TC_LOG_ERROR("sql.sql", "Table `npc_text` has record with reserved id 0, ignore.");
             continue;
         }
 
-        GossipText& gText = _gossipTextStore[id];
+        NpcText& npcText = _npcTextStore[textID];
 
-        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+        for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
         {
-            gText.Options[i].Text_0           = fields[cic++].GetString();
-            gText.Options[i].Text_1           = fields[cic++].GetString();
-            gText.Options[i].BroadcastTextID  = fields[cic++].GetUInt32();
-            gText.Options[i].Language         = fields[cic++].GetUInt8();
-            gText.Options[i].Probability      = fields[cic++].GetFloat();
-
-            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
-            {
-                gText.Options[i].Emotes[j]._Delay = fields[cic++].GetUInt16();
-                gText.Options[i].Emotes[j]._Emote = fields[cic++].GetUInt16();
-            }
+            npcText.Data[i].BroadcastTextID  = fields[1 + i].GetUInt32();
+            npcText.Data[i].Probability      = fields[1 + i * 2].GetFloat();
         }
 
-        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
+        for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; i++)
         {
-            if (gText.Options[i].BroadcastTextID)
+            if (npcText.Data[i].BroadcastTextID)
             {
-                if (!sBroadcastTextStore.LookupEntry(gText.Options[i].BroadcastTextID))
+                if (!sBroadcastTextStore.LookupEntry(npcText.Data[i].BroadcastTextID))
                 {
-                    TC_LOG_ERROR("sql.sql", "GossipText (Id: %u) in table `npc_text` has non-existing or incompatible BroadcastTextID%u %u.", id, i, gText.Options[i].BroadcastTextID);
-                    gText.Options[i].BroadcastTextID = 0;
+                    TC_LOG_ERROR("sql.sql", "NpcText (Id: %u) in table `npc_text` has non-existing or incompatible Index: %u BroadcastTextID %u.", textID, i, npcText.Data[i].BroadcastTextID);
+                    npcText.Data[i].BroadcastTextID = 0;
                 }
             }
         }
@@ -5134,49 +5117,7 @@ void ObjectMgr::LoadGossipText()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u npc texts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadNpcTextLocales()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _npcTextLocaleStore.clear();                              // need for reload case
-
-    QueryResult result = WorldDatabase.Query("SELECT ID, "
-        "Text0_0_loc1, Text0_1_loc1, Text1_0_loc1, Text1_1_loc1, Text2_0_loc1, Text2_1_loc1, Text3_0_loc1, Text3_1_loc1, Text4_0_loc1, Text4_1_loc1, Text5_0_loc1, Text5_1_loc1, Text6_0_loc1, Text6_1_loc1, Text7_0_loc1, Text7_1_loc1, "
-        "Text0_0_loc2, Text0_1_loc2, Text1_0_loc2, Text1_1_loc2, Text2_0_loc2, Text2_1_loc2, Text3_0_loc2, Text3_1_loc1, Text4_0_loc2, Text4_1_loc2, Text5_0_loc2, Text5_1_loc2, Text6_0_loc2, Text6_1_loc2, Text7_0_loc2, Text7_1_loc2, "
-        "Text0_0_loc3, Text0_1_loc3, Text1_0_loc3, Text1_1_loc3, Text2_0_loc3, Text2_1_loc3, Text3_0_loc3, Text3_1_loc1, Text4_0_loc3, Text4_1_loc3, Text5_0_loc3, Text5_1_loc3, Text6_0_loc3, Text6_1_loc3, Text7_0_loc3, Text7_1_loc3, "
-        "Text0_0_loc4, Text0_1_loc4, Text1_0_loc4, Text1_1_loc4, Text2_0_loc4, Text2_1_loc4, Text3_0_loc4, Text3_1_loc1, Text4_0_loc4, Text4_1_loc4, Text5_0_loc4, Text5_1_loc4, Text6_0_loc4, Text6_1_loc4, Text7_0_loc4, Text7_1_loc4, "
-        "Text0_0_loc5, Text0_1_loc5, Text1_0_loc5, Text1_1_loc5, Text2_0_loc5, Text2_1_loc5, Text3_0_loc5, Text3_1_loc1, Text4_0_loc5, Text4_1_loc5, Text5_0_loc5, Text5_1_loc5, Text6_0_loc5, Text6_1_loc5, Text7_0_loc5, Text7_1_loc5, "
-        "Text0_0_loc6, Text0_1_loc6, Text1_0_loc6, Text1_1_loc6, Text2_0_loc6, Text2_1_loc6, Text3_0_loc6, Text3_1_loc1, Text4_0_loc6, Text4_1_loc6, Text5_0_loc6, Text5_1_loc6, Text6_0_loc6, Text6_1_loc6, Text7_0_loc6, Text7_1_loc6, "
-        "Text0_0_loc7, Text0_1_loc7, Text1_0_loc7, Text1_1_loc7, Text2_0_loc7, Text2_1_loc7, Text3_0_loc7, Text3_1_loc1, Text4_0_loc7, Text4_1_loc7, Text5_0_loc7, Text5_1_loc7, Text6_0_loc7, Text6_1_loc7, Text7_0_loc7, Text7_1_loc7, "
-        "Text0_0_loc8, Text0_1_loc8, Text1_0_loc8, Text1_1_loc8, Text2_0_loc8, Text2_1_loc8, Text3_0_loc8, Text3_1_loc1, Text4_0_loc8, Text4_1_loc8, Text5_0_loc8, Text5_1_loc8, Text6_0_loc8, Text6_1_loc8, Text7_0_loc8, Text7_1_loc8 "
-        " FROM locales_npc_text");
-
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 entry = fields[0].GetUInt32();
-
-        NpcTextLocale& data = _npcTextLocaleStore[entry];
-
-        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_OPTIONS; ++j)
-            {
-                AddLocaleString(fields[1 + 8 * 2 * (i - 1) + 2 * j].GetString(), locale, data.Text_0[j]);
-                AddLocaleString(fields[1 + 8 * 2 * (i - 1) + 2 * j + 1].GetString(), locale, data.Text_1[j]);
-            }
-        }
-    } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u NpcText locale strings in %u ms", uint32(_npcTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u npc texts in %u ms", _npcTextStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 //not very fast function but it is called only once a day, or on starting-up
@@ -5363,6 +5304,75 @@ void ObjectMgr::LoadQuestAreaTriggers()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u quest trigger points in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+QuestGreeting const* ObjectMgr::GetQuestGreeting(ObjectGuid guid) const
+{
+    auto itr = _questGreetingStore.find(guid.GetTypeId());
+    if (itr == _questGreetingStore.end())
+        return nullptr;
+
+    auto questItr = itr->second.find(guid.GetEntry());
+    if (questItr == itr->second.end())
+        return nullptr;
+
+    return questItr->second;
+}
+
+void ObjectMgr::LoadQuestGreetings()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _questGreetingStore.clear(); // need for reload case
+
+    //                                                0   1          2                3     
+    QueryResult result = WorldDatabase.Query("SELECT ID, type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 npc texts, table is empty!");
+        return;
+    }
+
+    _questGreetingStore.rehash(result->GetRowCount());
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id                   = fields[0].GetUInt32();
+        uint8 type                  = fields[1].GetUInt8();
+        // overwrite
+        switch (type) 
+        {
+            case 0: // Creature
+                type = TYPEID_UNIT;
+                if (!sObjectMgr->GetCreatureTemplate(id))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `quest_greeting`: creature template entry %u does not exist.", id);
+                    continue;
+                }
+                break;
+            case 1: // GameObject
+                type = TYPEID_GAMEOBJECT;
+                if (!sObjectMgr->GetGameObjectTemplate(id))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `quest_greeting`: gameobject template entry %u does not exist.", id);
+                    continue;
+                }
+                break;
+            default:
+                continue;
+        }
+
+        uint16 greetEmoteType       = fields[2].GetUInt32();
+        uint32 greetEmoteDelay      = fields[3].GetUInt32();
+        std::string greeting        = fields[4].GetString();
+
+        _questGreetingStore[type][id] = new QuestGreeting(greetEmoteType, greetEmoteDelay, greeting);
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u quest_greeting in %u ms", _questGreetingStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadTavernAreaTriggers()
@@ -8012,7 +8022,7 @@ void ObjectMgr::LoadGossipMenu()
         gMenu.entry             = fields[0].GetUInt16();
         gMenu.text_id           = fields[1].GetUInt32();
 
-        if (!GetGossipText(gMenu.text_id))
+        if (!GetNpcText(gMenu.text_id))
         {
             TC_LOG_ERROR("sql.sql", "Table gossip_menu entry %u are using non-existing text_id %u", gMenu.entry, gMenu.text_id);
             continue;

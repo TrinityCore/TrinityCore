@@ -331,44 +331,49 @@ void QuestMenu::ClearMenu()
     _questMenuItems.clear();
 }
 
-void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string& Title, ObjectGuid npcGUID)
+void PlayerMenu::SendQuestGiverQuestList(ObjectGuid guid)
 {
     WorldPackets::Quest::QuestGiverQuestList questList;
+    questList.QuestGiverGUID = guid;
 
-    questList.QuestGiverGUID = npcGUID;
-    questList.Greeting = Title;
-    questList.GreetEmoteDelay = eEmote._Delay;
-    questList.GreetEmoteType = eEmote._Emote;
+    if  (QuestGreeting const* questGreeting = sObjectMgr->GetQuestGreeting(guid))
+    {
+        questList.GreetEmoteDelay = questGreeting->greetEmoteDelay;
+        questList.GreetEmoteType = questGreeting->greetEmoteType;
+        questList.Greeting = questGreeting->greeting;
+    }
+    else
+        TC_LOG_ERROR("misc", "Guid: %s - No quest greeting found.", guid.ToString().c_str());
 
     // Store this instead of checking the Singleton every loop iteration
     bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
 
     for (uint32 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
     {
-        QuestMenuItem const& qmi = _questMenu.GetItem(i);
+        QuestMenuItem const& questMenuItem = _questMenu.GetItem(i);
 
-        uint32 questID = qmi.QuestId;
+        uint32 questID = questMenuItem.QuestId;
 
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
             std::string title = quest->GetLogTitle();
 
-            int32 locale = _session->GetSessionDbLocaleIndex();
-            if (locale >= 0)
-                if (QuestTemplateLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(localeData->LogTitle, locale, title);
+            LocaleConstant locale = _session->GetSessionDbLocaleIndex();
+            if (locale >= LOCALE_enUS)
+                if (QuestTemplateLocale const* questTemplateLocaleData = sObjectMgr->GetQuestLocale(questID))
+                    ObjectMgr::GetLocaleString(questTemplateLocaleData->LogTitle, locale, title);
 
             if (questLevelInTitle)
                 AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
             bool repeatable = false; // NYI
 
-            questList.GossipTexts.push_back(WorldPackets::Quest::GossipTextData(questID, qmi.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, title));
+            questList.GossipTexts.push_back(WorldPackets::Quest::GossipTextData(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, title));
         }
     }
 
     _session->SendPacket(questList.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE NPC=%s", npcGUID.ToString().c_str());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE NPC=%s", guid.ToString().c_str());
 }
 
 void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const
@@ -451,7 +456,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
     _session->SendPacket(packet.Write());
 
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
+    TC_LOG_DEBUG(" etwork", "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
