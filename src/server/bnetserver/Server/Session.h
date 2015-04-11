@@ -111,6 +111,7 @@ namespace Battlenet
         void HandleGetStreamItemsRequest(Cache::GetStreamItemsRequest const& getStreamItemsRequest);
 
         void Start() override;
+        bool Update() override;
 
         void UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms);
 
@@ -133,7 +134,10 @@ namespace Battlenet
         typedef bool(Session::*ModuleHandler)(BitStream* dataStream, ServerPacket** response);
         static ModuleHandler const ModuleHandlers[MODULE_COUNT];
 
-        void LoadGameAccountData();
+        void CheckIpCallback(PreparedQueryResult result);
+        void HandleLogonRequestCallback(PreparedQueryResult result);
+        void HandleResumeRequestCallback(PreparedQueryResult result);
+        void HandleListSubscribeRequestCallback(PreparedQueryResult result);
 
         bool HandlePasswordModule(BitStream* dataStream, ServerPacket** response);
         bool HandleSelectGameAccountModule(BitStream* dataStream, ServerPacket** response);
@@ -151,6 +155,8 @@ namespace Battlenet
         std::string _locale;
         std::string _os;
         uint32 _build;
+
+        std::string _ipCountry;
 
         BigNumber N;
         BigNumber g;
@@ -172,6 +178,9 @@ namespace Battlenet
         bool _authed;
         bool _subscribedToRealmListUpdates;
         bool _toonOnline;
+
+        PreparedQueryResultFuture _queryFuture;
+        std::function<void(PreparedQueryResult)> _queryCallback;
     };
 
 }
