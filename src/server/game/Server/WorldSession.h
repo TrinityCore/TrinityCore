@@ -310,6 +310,8 @@ namespace WorldPackets
         class StandStateChange;
         class UITimeRequest;
         class RandomRollClient;
+        class ObjectUpdateFailed;
+        class ObjectUpdateRescued;
     }
 
     namespace Movement
@@ -1411,7 +1413,8 @@ class WorldSession
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
-        void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
+        void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
+        void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
 
         // Scenes
