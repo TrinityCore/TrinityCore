@@ -420,3 +420,13 @@ WorldPacket const* WorldPackets::Misc::DurabilityDamageDeath::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::ObjectUpdateFailed::Read()
+{
+    _worldPacket >> ObjectGUID;
+}
+
+void WorldPackets::Misc::ObjectUpdateRescued::Read()
+{
+    _worldPacket >> ObjectGUID;
+}

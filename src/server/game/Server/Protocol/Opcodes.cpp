@@ -579,8 +579,8 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_MOVE_WATER_WALK_ACK,                                STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Movement::MovementAckMessage, &WorldSession::HandleMovementAckMessage);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_NEUTRAL_PLAYER_SELECT_FACTION,           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_NEXT_CINEMATIC_CAMERA,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleNextCinematicCamera       );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_OBJECT_UPDATE_FAILED,                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleObjectUpdateFailedOpcode  );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_OBJECT_UPDATE_RESCUED,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_HANDLER(CMSG_OBJECT_UPDATE_FAILED,                               STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Misc::ObjectUpdateFailed, &WorldSession::HandleObjectUpdateFailedOpcode);
+    DEFINE_HANDLER(CMSG_OBJECT_UPDATE_RESCUED,                              STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Misc::ObjectUpdateRescued, &WorldSession::HandleObjectUpdateRescuedOpcode);
     DEFINE_HANDLER(CMSG_OFFER_PETITION,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::OfferPetition, &WorldSession::HandleOfferPetition);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPENING_CINEMATIC,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleOpeningCinematic          );
     DEFINE_HANDLER(CMSG_OPEN_ITEM,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::OpenItem, &WorldSession::HandleOpenItemOpcode);
