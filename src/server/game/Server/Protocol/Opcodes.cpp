@@ -150,7 +150,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(opcode, status, processing, WorldPacket, handler);
 
     DEFINE_HANDLER(CMSG_ACCEPT_GUILD_INVITE,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::AcceptGuildInvite, &WorldSession::HandleGuildAcceptInvite);
-    DEFINE_HANDLER(CMSG_ACCEPT_LEVEL_GRANT,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::RaF::AcceptLevelGrant, &WorldSession::HandleAcceptGrantLevel          );
+    DEFINE_HANDLER(CMSG_ACCEPT_LEVEL_GRANT,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::RaF::AcceptLevelGrant, &WorldSession::HandleAcceptGrantLevel);
     DEFINE_HANDLER(CMSG_ACCEPT_TRADE,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Trade::AcceptTrade, &WorldSession::HandleAcceptTradeOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ACCEPT_WARGAME_INVITE,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ACTIVATE_TAXI,                           STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleActivateTaxiOpcode        );
@@ -181,7 +181,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUTOSTORE_BANK_REAGENT,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_AUTO_EQUIP_ITEM,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::AutoEquipItem, &WorldSession::HandleAutoEquipItemOpcode);
     DEFINE_HANDLER(CMSG_AUTO_EQUIP_ITEM_SLOT,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::AutoEquipItemSlot, &WorldSession::HandleAutoEquipItemSlotOpcode);
-    DEFINE_HANDLER(CMSG_AUTO_STORE_BAG_ITEM,                                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::AutoStoreBagItem, &WorldSession::HandleAutoStoreBagItemOpcode);
+    DEFINE_HANDLER(CMSG_AUTO_STORE_BAG_ITEM,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::AutoStoreBagItem, &WorldSession::HandleAutoStoreBagItemOpcode);
     DEFINE_HANDLER(CMSG_BANKER_ACTIVATE,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleBankerActivateOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLEFIELD_LEAVE,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleBattlefieldLeaveOpcode    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLEFIELD_LIST,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBattlefieldListOpcode     );
@@ -206,14 +206,14 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_SET_FLAGS,                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_SUMMON,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_UPDATE_NOTIFY,                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_BEGIN_TRADE,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Trade::BeginTrade, &WorldSession::HandleBeginTradeOpcode          );
+    DEFINE_HANDLER(CMSG_BEGIN_TRADE,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Trade::BeginTrade, &WorldSession::HandleBeginTradeOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BF_MGR_ENTRY_INVITE_RESPONSE,            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleBfEntryInviteResponse     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BF_MGR_QUEUE_EXIT_REQUEST,               STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleBfExitRequest);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BF_MGR_QUEUE_INVITE_RESPONSE,            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleBfQueueInviteResponse     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BF_MGR_QUEUE_REQUEST,                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_BINDER_ACTIVATE,                                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleBinderActivateOpcode);
+    DEFINE_HANDLER(CMSG_BINDER_ACTIVATE,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleBinderActivateOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BLACK_MARKET_BID_ON_ITEM,                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_BLACK_MARKET_OPEN,                                  STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::BlackMarket::BlackMarketOpen, &WorldSession::HandleBlackMarketOpen);
+    DEFINE_HANDLER(CMSG_BLACK_MARKET_OPEN,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BlackMarket::BlackMarketOpen, &WorldSession::HandleBlackMarketOpen);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BLACK_MARKET_REQUEST_ITEMS,              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BUG_REPORT,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBugReportOpcode           );
     DEFINE_HANDLER(CMSG_BUSY_TRADE,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Trade::BusyTrade, &WorldSession::HandleBusyTradeOpcode);
@@ -389,14 +389,14 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GENERATE_RANDOM_CHARACTER_NAME,                     STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::GenerateRandomCharacterName, &WorldSession::HandleRandomizeCharNameOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_CHALLENGE_MODE_REWARDS,              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_GARRISON_INFO,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_GET_ITEM_PURCHASE_DATA,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::GetItemPurchaseData, &WorldSession::HandleGetItemPurchaseData);
+    DEFINE_HANDLER(CMSG_GET_ITEM_PURCHASE_DATA,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::GetItemPurchaseData, &WorldSession::HandleGetItemPurchaseData);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_MIRROR_IMAGE_DATA,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleMirrorImageDataRequest    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_PVP_OPTIONS_ENABLED,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleGetPVPOptionsEnabled      );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_REMAINING_GAME_TIME,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_TROPHY_LIST,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS,             STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::GetUndeleteCharacterCooldownStatus, &WorldSession::HandleGetUndeleteCooldownStatus);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_LAG_REPORT,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_GM_SURVEY_SUBMIT,                                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMSurveySubmit, &WorldSession::HandleGMSurveySubmit);
+    DEFINE_HANDLER(CMSG_GM_SURVEY_SUBMIT,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMSurveySubmit, &WorldSession::HandleGMSurveySubmit);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_TICKET_ACKNOWLEDGE_SURVEY,            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_GM_TICKET_CREATE,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketCreate, &WorldSession::HandleGMTicketCreateOpcode);
     DEFINE_HANDLER(CMSG_GM_TICKET_DELETE_TICKET,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketDelete, &WorldSession::HandleGMTicketDeleteOpcode);
@@ -406,7 +406,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GM_TICKET_RESPONSE_RESOLVE,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketResponseResolve, &WorldSession::HandleGMResponseResolve);
     DEFINE_HANDLER(CMSG_GM_TICKET_UPDATE_TEXT,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketUpdateText, &WorldSession::HandleGMTicketUpdateTextOpcode);
     DEFINE_HANDLER(CMSG_GOSSIP_SELECT_OPTION,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::GossipSelectOption, &WorldSession::HandleGossipSelectOptionOpcode);
-    DEFINE_HANDLER(CMSG_GRANT_LEVEL,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::RaF::GrantLevel, &WorldSession::HandleGrantLevel                );
+    DEFINE_HANDLER(CMSG_GRANT_LEVEL,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::RaF::GrantLevel, &WorldSession::HandleGrantLevel);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_ADD_BATTLENET_FRIEND,              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_GUILD_ADD_RANK,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildAddRank, &WorldSession::HandleGuildAddRank);
     DEFINE_HANDLER(CMSG_GUILD_ASSIGN_MEMBER_RANK,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildAssignMemberRank, &WorldSession::HandleGuildAssignRank);
@@ -452,7 +452,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SHIFT_RANK,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_GUILD_UPDATE_INFO_TEXT,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildUpdateInfoText, &WorldSession::HandleGuildUpdateInfoText);
     DEFINE_HANDLER(CMSG_GUILD_UPDATE_MOTD_TEXT,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildUpdateMotdText, &WorldSession::HandleGuildUpdateMotdText);
-    DEFINE_HANDLER(CMSG_HEARTH_AND_RESURRECT,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::HearthAndResurrect, &WorldSession::HandleHearthAndResurrect        );
+    DEFINE_HANDLER(CMSG_HEARTH_AND_RESURRECT,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::HearthAndResurrect, &WorldSession::HandleHearthAndResurrect);
     DEFINE_HANDLER(CMSG_IGNORE_TRADE,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Trade::IgnoreTrade, &WorldSession::HandleIgnoreTradeOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_INCREASE_CAST_TIME_FOR_SPELL,            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_INITIATE_ROLE_POLL,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleRolePollBeginOpcode);
@@ -581,9 +581,9 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_NEXT_CINEMATIC_CAMERA,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleNextCinematicCamera       );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OBJECT_UPDATE_FAILED,                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleObjectUpdateFailedOpcode  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OBJECT_UPDATE_RESCUED,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_OFFER_PETITION,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Petition::OfferPetition, &WorldSession::HandleOfferPetition);
+    DEFINE_HANDLER(CMSG_OFFER_PETITION,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::OfferPetition, &WorldSession::HandleOfferPetition);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPENING_CINEMATIC,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleOpeningCinematic          );
-    DEFINE_HANDLER(CMSG_OPEN_ITEM,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::OpenItem, &WorldSession::HandleOpenItemOpcode            );
+    DEFINE_HANDLER(CMSG_OPEN_ITEM,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::OpenItem, &WorldSession::HandleOpenItemOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPEN_MISSION_NPC,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPEN_SHIPMENT_NPC,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPEN_TRADESKILL_NPC,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -607,7 +607,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_BATTLE_REQUEST_WILD,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_BATTLE_SCRIPT_ERROR_NOTIFY,          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_CANCEL_AURA,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetCancelAuraOpcode       );
-    DEFINE_HANDLER(CMSG_PET_CAST_SPELL,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Spells::PetCastSpell, &WorldSession::HandlePetCastSpellOpcode);
+    DEFINE_HANDLER(CMSG_PET_CAST_SPELL,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::PetCastSpell, &WorldSession::HandlePetCastSpellOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_RENAME,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetRename                 );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_SET_ACTION,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetSetAction              );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_SPELL_AUTOCAST,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetSpellAutocastOpcode    );
@@ -618,8 +618,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PUSH_QUEST_TO_PARTY,                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePushQuestToParty          );
     DEFINE_HANDLER(CMSG_PVP_LOG_DATA,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::PVPLogDataRequest, &WorldSession::HandlePVPLogDataOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_BATTLE_PET_NAME,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT,                  STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Query::QueryCorpseLocationFromClient, &WorldSession::HandleQueryCorpseLocation);
-    DEFINE_HANDLER(CMSG_QUERY_CORPSE_TRANSPORT,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Query::QueryCorpseTransport, &WorldSession::HandleQueryCorpseTransport);
+    DEFINE_HANDLER(CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryCorpseLocationFromClient, &WorldSession::HandleQueryCorpseLocation);
+    DEFINE_HANDLER(CMSG_QUERY_CORPSE_TRANSPORT,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryCorpseTransport, &WorldSession::HandleQueryCorpseTransport);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_COUNTDOWN_TIMER,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_QUERY_CREATURE,                                     STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Query::QueryCreature, &WorldSession::HandleCreatureQuery);
     DEFINE_HANDLER(CMSG_QUERY_GAME_OBJECT,                                  STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Query::QueryGameObject, &WorldSession::HandleGameObjectQueryOpcode);
@@ -752,7 +752,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_SHOWING_CLOAK,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::ShowingCloak, &WorldSession::HandleShowingCloakOpcode);
     DEFINE_HANDLER(CMSG_SHOWING_HELM,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::ShowingHelm, &WorldSession::HandleShowingHelmOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SHOW_TRADE_SKILL,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_SIGN_PETITION,                                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Petition::SignPetition, &WorldSession::HandleSignPetition);
+    DEFINE_HANDLER(CMSG_SIGN_PETITION,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::SignPetition, &WorldSession::HandleSignPetition);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SILENCE_PARTY_TALKER,                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SOCKET_GEMS,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSocketOpcode              );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SORT_BAGS,                               STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -791,14 +791,14 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TRAINER_BUY_SPELL,                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleTrainerBuySpellOpcode     );
     DEFINE_HANDLER(CMSG_TRAINER_LIST,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleTrainerListOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TRANSMOGRIFY_ITEMS,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleTransmogrifyItems         );
-    DEFINE_HANDLER(CMSG_TURN_IN_PETITION,                                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Petition::TurnInPetition, &WorldSession::HandleTurnInPetition);
+    DEFINE_HANDLER(CMSG_TURN_IN_PETITION,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::TurnInPetition, &WorldSession::HandleTurnInPetition);
     DEFINE_HANDLER(CMSG_TUTORIAL,                                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::TutorialSetFlag, &WorldSession::HandleTutorialFlag);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TWITTER_CHECK_STATUS,                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TWITTER_CONNECT,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TWITTER_DISCONNECT,                      STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TWITTER_POST,                            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_UI_TIME_REQUEST,                                    STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Misc::UITimeRequest, &WorldSession::HandleUITimeRequest);
-    DEFINE_HANDLER(CMSG_UNACCEPT_TRADE,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Trade::UnacceptTrade, &WorldSession::HandleUnacceptTradeOpcode);
+    DEFINE_HANDLER(CMSG_UNACCEPT_TRADE,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Trade::UnacceptTrade, &WorldSession::HandleUnacceptTradeOpcode);
     DEFINE_HANDLER(CMSG_UNDELETE_CHARACTER,                                 STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::UndeleteCharacter, &WorldSession::HandleCharUndeleteOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UNLEARN_SKILL,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleUnlearnSkillOpcode        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UNLEARN_SPECIALIZATION,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
