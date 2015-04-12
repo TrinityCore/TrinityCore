@@ -109,6 +109,7 @@ namespace WorldPackets
         class AreaSpiritHealerQuery;
         class AreaSpiritHealerQueue;
         class HearthAndResurrect;
+        class PVPLogDataRequest;
     }
 
     namespace BlackMarket
@@ -1271,7 +1272,7 @@ class WorldSession
         void HandleBattlemasterHelloOpcode(WorldPacket& recvData);
         void HandleBattlemasterJoinOpcode(WorldPacket& recvData);
         void HandleBattlegroundPlayerPositionsOpcode(WorldPacket& recvData);
-        void HandlePVPLogDataOpcode(WorldPacket& recvData);
+        void HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogDataRequest& pvpLogDataRequest);
         void HandleBattleFieldPortOpcode(WorldPacket& recvData);
         void HandleBattlefieldListOpcode(WorldPacket& recvData);
         void HandleBattlefieldLeaveOpcode(WorldPacket& recvData);

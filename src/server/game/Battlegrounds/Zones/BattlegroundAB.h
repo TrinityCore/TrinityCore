@@ -260,11 +260,10 @@ struct BattlegroundABScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
         {
-            data.WriteBits(2, 24); // Objectives Count
-            content << uint32(BasesAssaulted);
-            content << uint32(BasesDefended);
+            stats.push_back(BasesAssaulted);
+            stats.push_back(BasesDefended);
         }
 
         uint32 GetAttr1() const final override { return BasesAssaulted; }
