@@ -292,23 +292,23 @@ void WorldSession::HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQues
 {
     WorldPackets::Query::QuestCompletionNPCResponse response;
 
-    for (int32& QuestID : queryQuestCompletionNPCs.QuestCompletionNPCs)
+    for (int32& questID : queryQuestCompletionNPCs.QuestCompletionNPCs)
     {
         WorldPackets::Query::QuestCompletionNPC questCompletionNPC;
 
-        if (!sObjectMgr->GetQuestTemplate(QuestID))
+        if (!sObjectMgr->GetQuestTemplate(questID))
         {
-            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUERY_QUEST_COMPLETION_NPCS by %s", QuestID, _player->GetGUID().ToString().c_str());
+            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUERY_QUEST_COMPLETION_NPCS by %s", questID, _player->GetGUID().ToString().c_str());
             continue;
         }
 
-        questCompletionNPC.QuestID = QuestID;
+        questCompletionNPC.QuestID = questID;
 
-        auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(QuestID);
+        auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(questID);
         for (auto it = creatures.first; it != creatures.second; ++it)
             questCompletionNPC.NPCs.push_back(it->second);
 
-        auto gos = sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(QuestID);
+        auto gos = sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(questID);
         for (auto it = gos.first; it != gos.second; ++it)
             questCompletionNPC.NPCs.push_back(it->second | 0x80000000); // GO mask
 
