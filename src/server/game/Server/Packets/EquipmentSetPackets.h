@@ -54,5 +54,15 @@ namespace WorldPackets
 
             EquipmentSetInfo::EquipmentSetData Set;
         };
+
+        class DeleteEquipmentSet final : public ClientPacket
+        {
+        public:
+            DeleteEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_DELETE_EQUIPMENT_SET, std::move(packet)) { }
+
+            void Read() override;
+
+            uint64 ID;
+        };
     }
 }

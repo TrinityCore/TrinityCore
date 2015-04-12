@@ -63,3 +63,8 @@ void WorldPackets::EquipmentSet::SaveEquipmentSet::Read()
     Set.SetName = _worldPacket.ReadString(setNameLength);
     Set.SetIcon = _worldPacket.ReadString(setIconLength);
 }
+
+void WorldPackets::EquipmentSet::DeleteEquipmentSet::Read()
+{
+    _worldPacket >> ID;
+}
