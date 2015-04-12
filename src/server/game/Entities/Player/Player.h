@@ -2281,7 +2281,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendEquipmentSetList();
         void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData&& newEqSet);
-        void DeleteEquipmentSet(uint64 setGuid);
+        void DeleteEquipmentSet(uint64 id);
 
         void SendInitWorldStates(uint32 zone, uint32 area);
         void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false);

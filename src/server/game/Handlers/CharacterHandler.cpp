@@ -1631,14 +1631,11 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
     _player->SetEquipmentSet(std::move(packet.Set));
 }
 
-void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
+void WorldSession::HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_DELETE");
+    TC_LOG_DEBUG("network", "CMSG_DELETE_EQUIPMENT_SET");
 
-    uint64 setGuid;
-    recvData.ReadPackedUInt64(setGuid);
-
-    _player->DeleteEquipmentSet(setGuid);
+    _player->DeleteEquipmentSet(packet.ID);
 }
 
 void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
