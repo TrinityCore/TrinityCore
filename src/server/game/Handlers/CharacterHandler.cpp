@@ -1638,33 +1638,28 @@ void WorldSession::HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEq
     _player->DeleteEquipmentSet(packet.ID);
 }
 
-void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
+void WorldSession::HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmentSet& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_USE");
+    TC_LOG_DEBUG("network", "CMSG_USE_EQUIPMENT_SET");
 
     ObjectGuid ignoredItemGuid;
     ignoredItemGuid.SetRawValue(0, 1);
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        ObjectGuid itemGuid;
-        recvData >> itemGuid.ReadAsPacked();
-
-        uint8 srcbag, srcslot;
-        recvData >> srcbag >> srcslot;
-
-        TC_LOG_DEBUG("entities.player.items", "%s: srcbag %u, srcslot %u", itemGuid.ToString().c_str(), srcbag, srcslot);
+        TC_LOG_DEBUG("entities.player.items", "%s: ContainerSlot: %u, Slot: %u", packet.Items[i].Item.ToString().c_str(), packet.Items[i].ContainerSlot, packet.Items[i].Slot);
 
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid == ignoredItemGuid)
+        if (packet.Items[i].Item == ignoredItemGuid)
             continue;
 
         // Only equip weapons in combat
         if (_player->IsInCombat() && i != EQUIPMENT_SLOT_MAINHAND && i != EQUIPMENT_SLOT_OFFHAND && i != EQUIPMENT_SLOT_RANGED)
             continue;
 
-        Item* item = _player->GetItemByGuid(itemGuid);
+        Item* item = _player->GetItemByGuid(packet.Items[i].Item);
 
-        uint16 dstpos = i | (INVENTORY_SLOT_BAG_0 << 8);
+        uint16 dstPos = i | (INVENTORY_SLOT_BAG_0 << 8);
 
         if (!item)
         {
@@ -1672,28 +1667,27 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
             if (!uItem)
                 continue;
 
-            ItemPosCountVec sDest;
-            InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, uItem, false);
-            if (msg == EQUIP_ERR_OK)
+            ItemPosCountVec itemPosCountVec;
+            InventoryResult inventoryResult = _player->CanStoreItem(NULL_BAG, NULL_SLOT, itemPosCountVec, uItem, false);
+            if (inventoryResult == EQUIP_ERR_OK)
             {
                 _player->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
-                _player->StoreItem(sDest, uItem, true);
+                _player->StoreItem(itemPosCountVec, uItem, true);
             }
             else
-                _player->SendEquipError(msg, uItem, NULL);
-
+                _player->SendEquipError(inventoryResult, uItem,  NULL);
             continue;
         }
 
-        if (item->GetPos() == dstpos)
+        if (item->GetPos() == dstPos)
             continue;
 
-        _player->SwapItem(item->GetPos(), dstpos);
+        _player->SwapItem(item->GetPos(), dstPos);
     }
 
-    WorldPacket data(SMSG_USE_EQUIPMENT_SET_RESULT, 1);
-    data << uint8(0);                                       // 4 - equipment swap failed - inventory is full
-    SendPacket(&data);
+    WorldPackets::EquipmentSet::UseEquipmentSetResult result;
+    result.Reason = 0; // 4 - equipment swap failed - inventory is full
+    SendPacket(result.Write());
 }
 
 void WorldSession::HandleCharRaceOrFactionChangeOpcode(WorldPackets::Character::CharRaceOrFactionChange& packet)
