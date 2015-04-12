@@ -665,3 +665,9 @@ void WorldPackets::Movement::MoveSetCollisionHeightAck::Read()
     _worldPacket >> MountDisplayID;
     Reason = UpdateCollisionHeightReason(_worldPacket.ReadBits(2));
 }
+
+void WorldPackets::Movement::MoveTimeSkipped::Read()
+{
+    _worldPacket >> MoverGUID;
+    _worldPacket >> TimeSkipped;
+}

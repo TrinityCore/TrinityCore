@@ -321,6 +321,7 @@ namespace WorldPackets
         class MovementSpeedAck;
         class SetActiveMover;
         class MoveSetCollisionHeightAck;
+        class MoveTimeSkipped;
     }
 
     namespace NPC
@@ -891,8 +892,6 @@ class WorldSession
         void HandlePlayedTime(WorldPackets::Character::RequestPlayedTime& packet);
 
         // new
-        void HandleMoveUnRootAck(WorldPacket& recvPacket);
-        void HandleMoveRootAck(WorldPacket& recvPacket);
         void HandleLookingForGroup(WorldPacket& recvPacket);
 
         // cemetery/graveyard related
@@ -904,11 +903,6 @@ class WorldSession
         void HandleRequestHonorStatsOpcode(WorldPackets::Inspect::RequestHonorStats& request);
         void HandleInspectPVP(WorldPackets::Inspect::InspectPVPRequest& request);
         void HandleQueryInspectAchievements(WorldPackets::Inspect::QueryInspectAchievements& inspect);
-
-        void HandleMoveWaterWalkAck(WorldPacket& recvPacket);
-        void HandleFeatherFallAck(WorldPacket& recvData);
-
-        void HandleMoveHoverAck(WorldPacket& recvData);
 
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
 
@@ -1005,7 +999,8 @@ class WorldSession
         void HandleEjectPassenger(WorldPackets::Vehicle::EjectPassenger& ejectPassenger);
         void HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicleExit& requestVehicleExit);
         void HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck);
-        void HandleMoveTimeSkippedOpcode(WorldPacket& recvData);
+        void HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& moveTimeSkipped);
+        void HandleMovementAckMessage(WorldPackets::Movement::MovementAckMessage& movementAck);
 
         void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
 

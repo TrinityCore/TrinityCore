@@ -389,6 +389,17 @@ namespace WorldPackets
             uint32 MountDisplayID = 0;
             float Height = 1.0f;
         };
+
+        class MoveTimeSkipped final : public ClientPacket
+        {
+        public:
+            MoveTimeSkipped(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_TIME_SKIPPED, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid MoverGUID;
+            uint32 TimeSkipped;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);
