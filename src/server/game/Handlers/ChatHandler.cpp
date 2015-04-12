@@ -492,7 +492,7 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         {
             if (ChannelMgr* cMgr = ChannelMgr::ForTeam(sender->GetTeam()))
                 if (Channel* chn = cMgr->GetChannel(target, sender, false))
-                    chn->Say(sender->GetGUID(), text.c_str(), LANG_ADDON);
+                    chn->Say(sender->GetGUID(), text.c_str(), uint32(LANG_ADDON));
             break;
         }
         default:

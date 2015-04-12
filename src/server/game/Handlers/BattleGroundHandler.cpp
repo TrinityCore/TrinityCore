@@ -271,8 +271,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEGROUND_PLAYER_POSITIONS Message");
-
     Battleground* bg = _player->GetBattleground();
     if (!bg)                                                 // can't be received if player not in battleground
         return;
@@ -361,10 +359,8 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
     SendPacket(&data);
 }
 
-void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogDataRequest& /*pvpLogDataRequest*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PVP_LOG_DATA Message");
-
     Battleground* bg = _player->GetBattleground();
     if (!bg)
         return;
@@ -373,17 +369,13 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
     if (bg->isArena())
         return;
 
-    WorldPacket data;
-    bg->BuildPvPLogDataPacket(data);
-    SendPacket(&data);
-
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_PVP_LOG_DATA Message");
+    WorldPackets::Battleground::PVPLogData pvpLogData;
+    bg->BuildPvPLogDataPacket(pvpLogData);
+    SendPacket(pvpLogData.Write());
 }
 
 void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
-
     uint32 bgTypeId;
     recvData >> bgTypeId;                                  // id from DBC
 
@@ -401,8 +393,6 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
-
     uint32 time;
     uint32 queueSlot;
     uint32 unk;
@@ -591,8 +581,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 
 void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_LEAVE Message");
-
     // not allow leave battleground in combat
     if (_player->IsInCombat())
         if (Battleground* bg = _player->GetBattleground())
@@ -604,9 +592,6 @@ void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 {
-    // empty opcode
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_STATUS Message");
-
     WorldPacket data;
     // we must update all queues here
     Battleground* bg = NULL;
@@ -669,8 +654,6 @@ void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPacket& /*recvData*
 
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
-
     uint8 arenaslot;                                        // 2v2, 3v3 or 5v5
 
     recvData >> arenaslot;
@@ -793,8 +776,6 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 
 void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_BATTLEFIELD_INFO");
-
     uint8 unk;
     recvData >> unk;
 
@@ -827,8 +808,6 @@ void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPacket& recvData)
 
 void WorldSession::HandleGetPVPOptionsEnabled(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_GET_PVP_OPTIONS_ENABLED");
-
     /// @Todo: perfome research in this case
     WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
     data.WriteBit(1);

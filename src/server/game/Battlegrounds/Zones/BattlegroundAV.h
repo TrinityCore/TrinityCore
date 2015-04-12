@@ -1581,14 +1581,13 @@ struct BattlegroundAVScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
         {
-            data.WriteBits(5, 24); // Objectives Count
-            content << uint32(GraveyardsAssaulted);
-            content << uint32(GraveyardsDefended);
-            content << uint32(TowersAssaulted);
-            content << uint32(TowersDefended);
-            content << uint32(MinesCaptured);
+            stats.push_back(GraveyardsAssaulted);
+            stats.push_back(GraveyardsDefended);
+            stats.push_back(TowersAssaulted);
+            stats.push_back(TowersDefended);
+            stats.push_back(MinesCaptured);
         }
 
         uint32 GetAttr1() const final override { return GraveyardsAssaulted; }

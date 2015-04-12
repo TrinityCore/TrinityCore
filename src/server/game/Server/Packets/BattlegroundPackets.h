@@ -63,6 +63,59 @@ namespace WorldPackets
 
             void Read() override { }
         };
+
+        class PVPLogDataRequest final : public ClientPacket
+        {
+        public:
+            PVPLogDataRequest(WorldPacket&& packet) : ClientPacket(CMSG_PVP_LOG_DATA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class PVPLogData final : public ServerPacket
+        {
+        public:
+            PVPLogData() : ServerPacket(SMSG_PVP_LOG_DATA, 0) { }
+
+            WorldPacket const* Write() override;
+
+            struct RatingData
+            {
+                int32 Prematch[2] = { };
+                int32 Postmatch[2] = { };
+                int32 PrematchMMR[2] = { };
+            };
+
+            struct HonorData
+            {
+                uint32 HonorKills = 0;
+                uint32 Deaths = 0;
+                uint32 ContributionPoints = 0;
+            };
+
+            struct PlayerData
+            {
+                ObjectGuid PlayerGUID;
+                uint32 Kills = 0;
+                uint8 Faction = 0;
+                bool IsInWorld = false;
+                Optional<HonorData> Honor;
+                uint32 DamageDone = 0;
+                uint32 HealingDone = 0;
+                Optional<uint32> PreMatchRating;
+                Optional<int32> RatingChange;
+                Optional<uint32> PreMatchMMR;
+                Optional<int32> MmrChange;
+                std::vector<int32> Stats;
+                int32 PrimaryTalentTree = 0;
+                uint32 PrimaryTalentTreeNameIndex = 0;  // controls which name field from ChrSpecialization.dbc will be sent to lua
+            };
+
+            Optional<uint8> Winner;
+            std::vector<PlayerData> Players;
+            Optional<RatingData> Ratings;
+            int8 PlayerCount[2] = { };
+        };
     }
 }
 
