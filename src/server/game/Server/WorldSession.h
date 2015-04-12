@@ -193,6 +193,7 @@ namespace WorldPackets
     {
         class SaveEquipmentSet;
         class DeleteEquipmentSet;
+        class UseEquipmentSet;
     }
 
     namespace GameObject
@@ -1407,7 +1408,7 @@ class WorldSession
         void HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& setFocusedAchievement);
         void HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet);
         void HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& packet);
-        void HandleEquipmentSetUse(WorldPacket& recvData);
+        void HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmentSet& packet);
         void HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/);
         void HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQuestCompletionNPCs& queryQuestCompletionNPCs);
         void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packet);

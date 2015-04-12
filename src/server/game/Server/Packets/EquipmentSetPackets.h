@@ -19,6 +19,7 @@
 
 #include "Packet.h"
 #include "Player.h"
+#include "ItemPackets.h"
 
 namespace WorldPackets
 {
@@ -63,6 +64,34 @@ namespace WorldPackets
             void Read() override;
 
             uint64 ID;
+        };
+
+        class UseEquipmentSet final : public ClientPacket
+        {
+        public:
+            UseEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_USE_EQUIPMENT_SET, std::move(packet)) { }
+
+            void Read() override;
+
+            struct EquipmentSetItem
+            {
+                ObjectGuid Item;
+                uint8 ContainerSlot     = 0;
+                uint8 Slot              = 0;
+            };
+
+            WorldPackets::Item::InvUpdate Inv;
+            EquipmentSetItem Items[EQUIPMENT_SLOT_END];
+        };
+
+        class UseEquipmentSetResult final : public ServerPacket
+        {
+        public:
+            UseEquipmentSetResult() : ServerPacket(SMSG_USE_EQUIPMENT_SET_RESULT, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Reason = 0;
         };
     }
 }
