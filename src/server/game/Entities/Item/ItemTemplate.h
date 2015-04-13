@@ -584,6 +584,8 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 #define MIN_ITEM_LEVEL 1
 #define MAX_ITEM_LEVEL 1000
 
+typedef std::set<uint32> UsableTalentSpecs;
+
 struct ItemTemplate
 {
     ItemEntry const* BasicData;
@@ -655,6 +657,7 @@ struct ItemTemplate
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
     float SpellPPMRate;
+    UsableTalentSpecs Specializations;
 
     // helpers
     bool CanChangeEquipStateInCombat() const
@@ -701,6 +704,7 @@ struct ItemTemplate
     char const* GetDefaultLocaleName() const;
     uint32 GetArmor(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
+    bool CanWinForPlayer(Player* plr) const;
 };
 
 // Benchmarked: Faster than std::map (insert/find)

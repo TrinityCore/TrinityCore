@@ -43,6 +43,7 @@ DB2Storage<KeyChainEntry>                   sKeyChainStore("KeyChain.db2", KeyCh
 DB2Storage<MountEntry>                      sMountStore("Mount.db2", MountFormat, HOTFIX_SEL_MOUNT);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore("OverrideSpellData.db2", OverrideSpellDataFormat, HOTFIX_SEL_OVERRIDE_SPELL_DATA);
 DB2Storage<PhaseXPhaseGroupEntry>           sPhaseXPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseXPhaseGroupFormat, HOTFIX_SEL_PHASE_GROUP);
+DB2Storage<QuestPackageItemEntry>           sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemfmt, HOTFIX_SEL_QUEST_PACKAGE_ITEM);
 DB2Storage<SoundEntriesEntry>               sSoundEntriesStore("SoundEntries.db2", SoundEntriesFormat, HOTFIX_SEL_SOUND_ENTRIES);
 DB2Storage<SpellAuraRestrictionsEntry>      sSpellAuraRestrictionsStore("SpellAuraRestrictions.db2", SpellAuraRestrictionsFormat, HOTFIX_SEL_SPELL_AURA_RESTRICTIONS);
 DB2Storage<SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore("SpellCastingRequirements.db2", SpellCastingRequirementsFormat, HOTFIX_SEL_SPELL_CASTING_REQUIREMENTS);
@@ -65,6 +66,7 @@ TaxiMask                                    sAllianceTaxiNodesMask;
 TaxiMask                                    sDeathKnightTaxiNodesMask;
 TaxiPathSetBySource                         sTaxiPathSetBySource;
 TaxiPathNodesByPath                         sTaxiPathNodesByPath;
+QuestPackageItemMap                         sQuestPackageItemStoreMap;
 
 typedef std::list<std::string> DB2StoreProblemList;
 
@@ -144,6 +146,7 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sMountStore,                    db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sOverrideSpellDataStore,        db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sPhaseXPhaseGroupStore,         db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sQuestPackageItemStore,         db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSoundEntriesStore,             db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellAuraRestrictionsStore,    db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellCastingRequirementsStore, db2Path);
@@ -299,6 +302,14 @@ void DB2Manager::LoadStores(std::string const& dataPath)
             // fix DK node at Ebon Hold and Shadow Vault flight master
             if (node->ID == 315 || node->ID == 333)
                 ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
+        }
+    }
+
+    for (uint32 i = 0; i < sQuestPackageItemStore.GetNumRows(); ++i)
+    {
+        if (QuestPackageItemEntry const* pack = sQuestPackageItemStore.LookupEntry(i))
+        {
+            sQuestPackageItemStoreMap[pack->QuestPackageID].push_back(pack);
         }
     }
 

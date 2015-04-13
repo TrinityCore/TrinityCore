@@ -296,6 +296,19 @@ struct PhaseXPhaseGroupEntry
     uint32      PhaseGroupID;
 };
 
+// QuestPackageItem.db2
+struct QuestPackageItemEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      QuestPackageID;                                     // 1
+    uint32      ItemID;                                             // 2
+    uint32      ItemCount;                                          // 3
+    uint32      Unk;                                                // 4
+};
+
+typedef std::vector<QuestPackageItemEntry const*> QuestPackageItemList;
+typedef std::unordered_map<uint32, QuestPackageItemList> QuestPackageItemMap;
+
 struct SoundEntriesEntry
 {
     uint32      ID;                                                 // 0
