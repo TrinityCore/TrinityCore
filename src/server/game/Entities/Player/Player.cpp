@@ -14442,23 +14442,25 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
             }
         }
     }
-    
+
     // QuestPackageItem.db2
     if (quest->GetQuestPackageID())
     {
-        if (sQuestPackageItemStoreMap.find(quest->GetQuestPackageID()) != sQuestPackageItemStoreMap.end())
+        if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
         {
-            QuestPackageItemList itemList = sQuestPackageItemStoreMap[quest->GetQuestPackageID()];
-            for (QuestPackageItemList::const_iterator itr = itemList.begin(); itr != itemList.end(); ++itr)
+            for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
             {
-                if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate((*itr)->ItemID))
+                if (questPackageItem->ItemID != reward)
+                    continue;
+
+                if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
                 {
                     if (rewardProto->CanWinForPlayer(this))
                     {
-                        InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, (*itr)->ItemID, (*itr)->ItemCount);
+                        InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount);
                         if (res != EQUIP_ERR_OK)
                         {
-                            SendEquipError(res, NULL, NULL, (*itr)->ItemID);
+                            SendEquipError(res, NULL, NULL, questPackageItem->ItemID);
                             return false;
                         }
                     }
@@ -14660,20 +14662,22 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // QuestPackageItem.db2
     if (quest->GetQuestPackageID())
     {
-        if (sQuestPackageItemStoreMap.find(quest->GetQuestPackageID()) != sQuestPackageItemStoreMap.end())
+        if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
         {
-            QuestPackageItemList itemList = sQuestPackageItemStoreMap[quest->GetQuestPackageID()];
-            for (QuestPackageItemList::const_iterator itr = itemList.begin(); itr != itemList.end(); ++itr)
+            for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
             {
-                if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate((*itr)->ItemID))
+                if (questPackageItem->ItemID != reward)
+                    continue;
+
+                if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
                 {
                     if (rewardProto->CanWinForPlayer(this))
                     {
                         ItemPosCountVec dest;
-                        if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, (*itr)->ItemID, (*itr)->ItemCount) == EQUIP_ERR_OK)
+                        if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
                         {
-                            Item* item = StoreNewItem(dest, (*itr)->ItemID, true, Item::GenerateItemRandomPropertyId((*itr)->ItemID));
-                            SendNewItem(item, (*itr)->ItemCount, true, false);
+                            Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, Item::GenerateItemRandomPropertyId(questPackageItem->ItemID));
+                            SendNewItem(item, questPackageItem->ItemCount, true, false);
                         }
                     }
                 }

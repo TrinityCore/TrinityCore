@@ -119,7 +119,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_PHASE_GROUP, "SELECT ID, PhaseID, PhaseGroupID FROM phase_group ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // QuestPackageItem.db2
-    PrepareStatement(HOTFIX_SEL_QUEST_PACKAGE_ITEM, "SELECT ID, QuestPackageID, ItemID, ItemCount, Unk FROM quest_package_item ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_QUEST_PACKAGE_ITEM, "SELECT ID, QuestPackageID, ItemID, ItemCount, FilterType FROM quest_package_item ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SoundEntries.db2
     PrepareStatement(HOTFIX_SEL_SOUND_ENTRIES, "SELECT ID, SoundType, Name, FileDataID1, FileDataID2, FileDataID3, FileDataID4, FileDataID5, "

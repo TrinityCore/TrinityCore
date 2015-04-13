@@ -491,6 +491,14 @@ enum MountFlags
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
 };
 
+enum QuestPackageFilter
+{
+    QUEST_PACKAGE_FILTER_LOOT_SPECIALIZATION    = 0,    // Players can select this quest reward if it matches their selected loot specialization
+    QUEST_PACKAGE_FILTER_CLASS                  = 1,    // Players can select this quest reward if it matches their class
+    QUEST_PACKAGE_FILTER_UNMATCHED              = 2,    // Players can select this quest reward if no class/loot_spec rewards are available
+    QUEST_PACKAGE_FILTER_EVERYONE               = 3     // Players can always select this quest reward
+};
+
 enum SkillRaceClassInfoFlags
 {
     SKILL_FLAG_NO_SKILLUP_MESSAGE       = 0x2,
