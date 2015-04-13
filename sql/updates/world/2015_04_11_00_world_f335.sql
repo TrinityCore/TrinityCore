@@ -15,9 +15,9 @@ INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`
 
 DELETE FROM `creature_equip_template` WHERE `entry`=23146;
 INSERT INTO `creature_equip_template` (`entry`, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`, `VerifiedBuild`) VALUES (23146, 1, 31603, 0, 0, 0);
-UPDATE `creature` SET `position_x`= -5158.237305, `position_y`= 584.302612, `position_z`= 81.074142, `orientation`= 5.954358 WHERE `guid`= 78136; 
-UPDATE `creature` SET `position_x`= -5156.172363, `position_y`= 590.695251, `position_z`= 80.769630, `orientation`= 5.502757 WHERE `guid`= 78135; 
-UPDATE `creature` SET `position_x`= -5152.365723, `position_y`= 592.303040, `position_z`= 81.361931, `orientation`= 4.705578 WHERE `guid`= 78137; 
-UPDATE `creature` SET `position_x`= -5113.345703, `position_y`= 623.850159, `position_z`= 86.736343, `orientation`= 1.033840 WHERE `guid`= 78160; 
-UPDATE `creature` SET `position_x`= -5123.593750, `position_y`= 626.638916, `position_z`= 86.629669, `orientation`= 1.395123 WHERE `guid`= 78159; 
+UPDATE `creature` SET `position_x`= -5158.237305, `position_y`= 584.302612, `position_z`= 81.074142, `orientation`= 5.954358 WHERE `guid`= 78136;
+UPDATE `creature` SET `position_x`= -5156.172363, `position_y`= 590.695251, `position_z`= 80.769630, `orientation`= 5.502757 WHERE `guid`= 78135;
+UPDATE `creature` SET `position_x`= -5152.365723, `position_y`= 592.303040, `position_z`= 81.361931, `orientation`= 4.705578 WHERE `guid`= 78137;
+UPDATE `creature` SET `position_x`= -5113.345703, `position_y`= 623.850159, `position_z`= 86.736343, `orientation`= 1.033840 WHERE `guid`= 78160;
+UPDATE `creature` SET `position_x`= -5123.593750, `position_y`= 626.638916, `position_z`= 86.629669, `orientation`= 1.395123 WHERE `guid`= 78159;
 UPDATE `creature` SET `position_x`= -5165.503418, `position_y`= 568.109131, `position_z`= 80.523895, `orientation`= 2.707489 WHERE `guid`= 52107;
