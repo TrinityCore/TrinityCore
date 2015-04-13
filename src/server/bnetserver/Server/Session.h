@@ -25,6 +25,7 @@
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 
+class Field;
 struct Realm;
 using boost::asio::ip::tcp;
 
