@@ -261,7 +261,7 @@ struct ChrClassesEntry
     uint32      AttackPowerPerStrength;                     // 10 Attack Power bonus per point of strength
     uint32      AttackPowerPerAgility;                      // 11 Attack Power bonus per point of agility
     uint32      RangedAttackPowerPerAgility;                // 12 Ranged Attack Power bonus per point of agility
-    //uint32    DefaultSpec;                                // 13
+    uint32      DefaultSpec;                                // 13
     //uint32    CreateScreenFileDataID;                     // 14
     //uint32    SelectScreenFileDataID;                     // 15
     //uint32    LowResScreenFileDataID;                     // 16
@@ -1107,6 +1107,27 @@ struct ItemSetSpellEntry
 
 typedef std::vector<ItemSetSpellEntry const*> ItemSetSpells;
 typedef std::unordered_map<uint32, ItemSetSpells> ItemSetSpellsStore;
+
+struct ItemSpecEntry
+{
+    uint32      ID;                                         // 0
+    uint32      MinLevel;                                   // 1
+    uint32      MaxLevel;                                   // 2
+    uint32      ItemType;                                   // 3
+    uint32      PrimaryStat;                                // 4
+    uint32      SecondaryStat;                              // 5
+    uint32      SpecID;                                     // 6
+};
+
+struct ItemSpecOverrideEntry
+{
+    uint32      ID;                                         // 0
+    uint32      ItemID;                                     // 1
+    uint32      SpecID;                                     // 2
+};
+
+typedef std::vector<ItemSpecOverrideEntry const*> ItemSpecOverrides;
+typedef std::unordered_map<uint32, ItemSpecOverrides> ItemSpecOverridesStore;
 
 struct LFGDungeonEntry
 {

@@ -1892,6 +1892,7 @@ class Player : public Unit, public GridObject<Player>
         void SetActiveTalentGroup(uint8 group){ _talentMgr->ActiveGroup = group; }
         uint8 GetTalentGroupsCount() const { return _talentMgr->GroupsCount; }
         void SetTalentGroupsCount(uint8 count) { _talentMgr->GroupsCount = count; }
+        uint32 GetDefaultSpecId() const;
 
         bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;

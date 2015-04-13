@@ -51,6 +51,7 @@ extern TaxiMask                                  sAllianceTaxiNodesMask;
 extern TaxiMask                                  sDeathKnightTaxiNodesMask;
 extern TaxiPathSetBySource                       sTaxiPathSetBySource;
 extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
+extern QuestPackageItemMap                       sQuestPackageItemStoreMap;
 
 struct HotfixNotify
 {

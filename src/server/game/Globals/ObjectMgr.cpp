@@ -2439,6 +2439,32 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.MaxMoneyLoot = 0;
         itemTemplate.FlagsCu = 0;
         itemTemplate.SpellPPMRate = 0.0f;
+
+        /*for (uint32 i = 0; i < sItemSpecStore.GetNumRows(); ++i)
+        {
+            if (ItemSpecEntry const* spec = sItemSpecStore.LookupEntry(i))
+            {
+                if (itemTemplate.GetBaseItemLevel() >= spec->MinLevel && itemTemplate.GetBaseItemLevel() <= spec->MaxLevel)
+                {
+                    // have to research what are these!
+                    if (spec->PrimaryStat && spec->SecondaryStat && spec->ItemType)
+                    {
+                        itemTemplate.Specializations.insert(spec->SpecID);
+                    }
+                }
+            }
+        }*/
+
+        ItemSpecOverridesStore::const_iterator spec = sItemSpecOverridesStore.find(itemTemplate.GetId());
+        if (spec != sItemSpecOverridesStore.end())
+        {
+            itemTemplate.Specializations.clear();
+            for (ItemSpecOverrideEntry const* over : (*spec).second)
+            {
+                itemTemplate.Specializations.insert(over->SpecID);
+            }
+        }
+
         ++sparseCount;
     }
 
