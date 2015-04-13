@@ -242,7 +242,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
     Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
     if (!quest)
         return;
-    
+
     // This is Real Item Entry, not slot id as pre 5.x
     if (packet.ItemChoiceID)
     {
@@ -260,6 +260,27 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
             {
                 itemValid = true;
                 break;
+            }
+        }
+
+        if (quest->GetQuestPackageID())
+        {
+            if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
+            {
+                for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
+                {
+                    if (questPackageItem->ItemID != packet.ItemChoiceID)
+                        continue;
+
+                    if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
+                    {
+                        if (rewardProto->CanWinForPlayer(_player))
+                        {
+                            itemValid = true;
+                            break;
+                        }
+                    }
+                }
             }
         }
 

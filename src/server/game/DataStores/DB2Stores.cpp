@@ -66,7 +66,6 @@ TaxiMask                                    sAllianceTaxiNodesMask;
 TaxiMask                                    sDeathKnightTaxiNodesMask;
 TaxiPathSetBySource                         sTaxiPathSetBySource;
 TaxiPathNodesByPath                         sTaxiPathNodesByPath;
-QuestPackageItemMap                         sQuestPackageItemStoreMap;
 
 typedef std::list<std::string> DB2StoreProblemList;
 
@@ -202,6 +201,9 @@ void DB2Manager::LoadStores(std::string const& dataPath)
         if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
             _phasesByGroup[group->PhaseGroupID].insert(phase->ID);
 
+    for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
+        _questPackages[questPackageItem->QuestPackageID].push_back(questPackageItem);
+
     for (SpellPowerEntry const* power : sSpellPowerStore)
     {
         if (SpellPowerDifficultyEntry const* powerDifficulty = sSpellPowerDifficultyStore.LookupEntry(power->ID))
@@ -302,14 +304,6 @@ void DB2Manager::LoadStores(std::string const& dataPath)
             // fix DK node at Ebon Hold and Shadow Vault flight master
             if (node->ID == 315 || node->ID == 333)
                 ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
-        }
-    }
-
-    for (uint32 i = 0; i < sQuestPackageItemStore.GetNumRows(); ++i)
-    {
-        if (QuestPackageItemEntry const* pack = sQuestPackageItemStore.LookupEntry(i))
-        {
-            sQuestPackageItemStoreMap[pack->QuestPackageID].push_back(pack);
         }
     }
 
@@ -495,6 +489,15 @@ MountEntry const* DB2Manager::GetMount(uint32 spellId) const
     auto itr = _mountsBySpellId.find(spellId);
     if (itr != _mountsBySpellId.end())
         return itr->second;
+
+    return nullptr;
+}
+
+std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItems(uint32 questPackageID) const
+{
+    auto itr = _questPackages.find(questPackageID);
+    if (itr != _questPackages.end())
+        return &itr->second;
 
     return nullptr;
 }

@@ -51,7 +51,6 @@ extern TaxiMask                                  sAllianceTaxiNodesMask;
 extern TaxiMask                                  sDeathKnightTaxiNodesMask;
 extern TaxiPathSetBySource                       sTaxiPathSetBySource;
 extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
-extern QuestPackageItemMap                       sQuestPackageItemStoreMap;
 
 struct HotfixNotify
 {
@@ -75,6 +74,7 @@ public:
     typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
     typedef std::unordered_map<uint32, MountEntry const*> MountContainer;
     typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
+    typedef std::unordered_map<uint32, std::vector<QuestPackageItemEntry const*>> QuestPackageItemContainer;
     typedef std::unordered_map<uint32, std::vector<SpellPowerEntry const*>> SpellPowerContainer;
     typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellPowerEntry const*>>> SpellPowerDifficultyContainer;
 
@@ -98,6 +98,7 @@ public:
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     MountEntry const* GetMount(uint32 spellId) const;
+    std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
 
@@ -113,6 +114,7 @@ private:
     ItemToBonusTreeContainer _itemToBonusTree;
     MountContainer _mountsBySpellId;
     PhaseGroupContainer _phasesByGroup;
+    QuestPackageItemContainer _questPackages;
     SpellPowerContainer _spellPowers;
     SpellPowerDifficultyContainer _spellPowerDifficulties;
 };
