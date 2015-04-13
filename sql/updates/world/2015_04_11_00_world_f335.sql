@@ -1,4 +1,6 @@
-SET @GUID          := 52283; -- 4 creature guid Set by TC
+DELETE FROM `creature` WHERE `guid` IN (52283, 52284, 52285, 52286, 69717, 69718, 69719, 69720);
+
+SET @GUID          := 69717; -- 4 creature guid Set by TC
 SET @OGUID         := 5510; -- 1 GOB guid set by TC
 DELETE FROM `creature` WHERE `id`=23142;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`curhealth`) VALUES
@@ -18,4 +20,4 @@ UPDATE `creature` SET `position_x`= -5156.172363, `position_y`= 590.695251, `pos
 UPDATE `creature` SET `position_x`= -5152.365723, `position_y`= 592.303040, `position_z`= 81.361931, `orientation`= 4.705578 WHERE `guid`= 78137; 
 UPDATE `creature` SET `position_x`= -5113.345703, `position_y`= 623.850159, `position_z`= 86.736343, `orientation`= 1.033840 WHERE `guid`= 78160; 
 UPDATE `creature` SET `position_x`= -5123.593750, `position_y`= 626.638916, `position_z`= 86.629669, `orientation`= 1.395123 WHERE `guid`= 78159; 
-UPDATE `creature` SET `position_x`= -5165.503418, `position_y`= 568.109131, `position_z`= 80.523895, `orientation`= 2.707489 WHERE `guid`= 52107; 
+UPDATE `creature` SET `position_x`= -5165.503418, `position_y`= 568.109131, `position_z`= 80.523895, `orientation`= 2.707489 WHERE `guid`= 52107;
