@@ -63,3 +63,27 @@ void WorldPackets::EquipmentSet::SaveEquipmentSet::Read()
     Set.SetName = _worldPacket.ReadString(setNameLength);
     Set.SetIcon = _worldPacket.ReadString(setIconLength);
 }
+
+void WorldPackets::EquipmentSet::DeleteEquipmentSet::Read()
+{
+    _worldPacket >> ID;
+}
+
+void WorldPackets::EquipmentSet::UseEquipmentSet::Read()
+{
+    _worldPacket >> Inv;
+
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        _worldPacket >> Items[i].Item;
+        _worldPacket >> Items[i].ContainerSlot;
+        _worldPacket >> Items[i].Slot;
+    }
+}
+
+WorldPacket const* WorldPackets::EquipmentSet::UseEquipmentSetResult::Write()
+{
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}

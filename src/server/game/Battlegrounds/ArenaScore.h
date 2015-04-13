@@ -30,68 +30,7 @@ struct ArenaScore : public BattlegroundScore
     protected:
         ArenaScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), TeamId(team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE) { }
 
-        void AppendToPacket(WorldPacket& data, ByteBuffer& content) final override
-        {
-            uint32 primaryTree = 0;
-            /* TODO: 6.x update to new talent system (and probably rewrite this packet)
-            if (Player* player = ObjectAccessor::FindPlayer(PlayerGuid))
-                primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());*/
-
-            data.WriteBit(0);                   // Unk 1
-            data.WriteBit(0);                   // Unk 2
-            data.WriteBit(PlayerGuid[2]);
-            data.WriteBit(/*!IsArena*/ 0);      // IsArena
-            data.WriteBit(0);                   // Unk 4
-            data.WriteBit(0);                   // Unk 5
-            data.WriteBit(0);                   // Unk 6
-            data.WriteBit(PlayerGuid[3]);
-            data.WriteBit(PlayerGuid[0]);
-            data.WriteBit(PlayerGuid[5]);
-            data.WriteBit(PlayerGuid[1]);
-            data.WriteBit(PlayerGuid[6]);
-            data.WriteBit(TeamId);
-            data.WriteBit(PlayerGuid[7]);
-
-            content << uint32(HealingDone);     // healing done
-            content << uint32(DamageDone);      // damage done
-
-            content.WriteByteSeq(PlayerGuid[4]);
-            content << uint32(KillingBlows);
-
-            //if (unk5)
-            //  content << int32(RatingChange); // RatingChange
-
-            content.WriteByteSeq(PlayerGuid[5]);
-
-            //if (unk 6)
-            //    content << uint32();
-
-            //if (unk 2)
-            //    content << uint32();
-
-            content.WriteByteSeq(PlayerGuid[1]);
-            content.WriteByteSeq(PlayerGuid[6]);
-
-            content << int32(primaryTree);
-
-            BuildObjectivesBlock(data, content);
-
-            data.WriteBit(PlayerGuid[4]);
-
-            content.WriteByteSeq(PlayerGuid[0]);
-            content.WriteByteSeq(PlayerGuid[3]);
-
-            //if (unk 4)
-            //    content << uint32() unk
-
-            content.WriteByteSeq(PlayerGuid[7]);
-            content.WriteByteSeq(PlayerGuid[2]);
-        }
-
-        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& /*content*/) final override
-        {
-            data.WriteBits(0, 24); // Objectives Count
-        }
+        void BuildObjectivesBlock(std::vector<int32>& /*stats*/) override { }
 
         // For Logging purpose
         std::string ToString() const override
@@ -110,48 +49,27 @@ struct ArenaTeamScore
     friend class Battleground;
 
     protected:
-        ArenaTeamScore() : RatingChange(0), MatchmakerRating(0) { }
+        ArenaTeamScore() : OldRating(0), NewRating(0), MatchmakerRating(0) { }
 
         virtual ~ArenaTeamScore() { }
 
         void Reset()
         {
-            RatingChange = 0;
+            OldRating = 0;
+            NewRating = 0;
             MatchmakerRating = 0;
-            TeamName.clear();
         }
 
-        void Assign(int32 ratingChange, uint32 matchMakerRating, std::string const& teamName)
+        void Assign(int32 oldRating, int32 newRating, uint32 matchMakerRating)
         {
-            RatingChange = ratingChange;
+            OldRating = oldRating;
+            NewRating = newRating;
             MatchmakerRating = matchMakerRating;
-            TeamName = teamName;
         }
 
-        void BuildRatingInfoBlock(WorldPacket& data)
-        {
-            uint32 ratingLost = std::abs(std::min(RatingChange, 0));
-            uint32 ratingWon = std::max(RatingChange, 0);
-
-            // should be old rating, new rating, and client will calculate rating change itself
-            data << uint32(MatchmakerRating);
-            data << uint32(ratingLost);
-            data << uint32(ratingWon);
-        }
-
-        void BuildTeamInfoLengthBlock(WorldPacket& data)
-        {
-            data.WriteBits(TeamName.length(), 8);
-        }
-
-        void BuildTeamInfoBlock(WorldPacket& data)
-        {
-            data.WriteString(TeamName);
-        }
-
-        int32 RatingChange;
+        int32 OldRating;
+        int32 NewRating;
         uint32 MatchmakerRating;
-        std::string TeamName;
 };
 
 #endif // TRINITY_ARENA_SCORE_H

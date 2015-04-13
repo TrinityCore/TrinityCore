@@ -30,7 +30,7 @@ public:
 
     AsyncAcceptor(boost::asio::io_service& ioService, std::string const& bindIp, uint16 port) :
         _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port)),
-        _socket(ioService)
+        _socket(ioService), _closed(false)
     {
     }
 
@@ -55,13 +55,24 @@ public:
                 }
             }
 
-            AsyncAcceptManaged(mgrHandler);
+            if (!_closed)
+                AsyncAcceptManaged(mgrHandler);
         });
+    }
+
+    void Close()
+    {
+        if (_closed.exchange(true))
+            return;
+
+        boost::system::error_code err;
+        _acceptor.close(err);
     }
 
 private:
     tcp::acceptor _acceptor;
     tcp::socket _socket;
+    std::atomic<bool> _closed;
 };
 
 template<class T>
@@ -83,7 +94,8 @@ void AsyncAcceptor::AsyncAccept()
         }
 
         // lets slap some more this-> on this so we can fix this bug with gcc 4.7.2 throwing internals in yo face
-        this->AsyncAccept<T>();
+        if (!_closed)
+            this->AsyncAccept<T>();
     });
 }
 

@@ -413,3 +413,20 @@ WorldPacket const* WorldPackets::Misc::ZoneUnderAttack::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DurabilityDamageDeath::Write()
+{
+    _worldPacket << int32(Percent);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::ObjectUpdateFailed::Read()
+{
+    _worldPacket >> ObjectGUID;
+}
+
+void WorldPackets::Misc::ObjectUpdateRescued::Read()
+{
+    _worldPacket >> ObjectGUID;
+}

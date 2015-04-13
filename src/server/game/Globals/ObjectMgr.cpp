@@ -302,14 +302,14 @@ ObjectMgr::~ObjectMgr()
         delete itr->second;
 }
 
-void ObjectMgr::AddLocaleString(std::string const& s, LocaleConstant locale, StringVector& data)
+void ObjectMgr::AddLocaleString(std::string const& value, LocaleConstant localeConstant, StringVector& data)
 {
-    if (!s.empty())
+    if (!value.empty())
     {
-        if (data.size() <= size_t(locale))
-            data.resize(locale + 1);
+        if (data.size() <= size_t(localeConstant))
+            data.resize(localeConstant + 1);
 
-        data[locale] = s;
+        data[localeConstant] = value;
     }
 }
 
@@ -341,7 +341,7 @@ void ObjectMgr::LoadCreatureLocales()
 
         CreatureLocale& data = _creatureLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             AddLocaleString(fields[1 + 3 * (i - 1)].GetString(), locale, data.Name);
@@ -378,7 +378,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
 
         GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, id)];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             AddLocaleString(fields[2 + 2 * (i - 1)].GetString(), locale, data.OptionText);
@@ -394,10 +394,10 @@ void ObjectMgr::LoadPointOfInterestLocales()
 {
     uint32 oldMSTime = getMSTime();
 
-    _pointOfInterestLocaleStore.clear();                              // need for reload case
+    _pointOfInterestLocaleStore.clear(); // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Name_loc1, Name_loc2, Name_loc3, Name_loc4, Name_loc5, Name_loc6, Name_loc7, Name_loc8 FROM locales_points_of_interest");
-
+    //                                               0      1      2
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name FROM points_of_interest_locale");
     if (!result)
         return;
 
@@ -405,12 +405,14 @@ void ObjectMgr::LoadPointOfInterestLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 id               = fields[0].GetUInt32();
+        std::string localeName  = fields[1].GetString();
+        std::string name        = fields[2].GetString();
 
-        PointOfInterestLocale& data = _pointOfInterestLocaleStore[entry];
+        PointOfInterestLocale& data = _pointOfInterestLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
-            AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.IconName);
+        AddLocaleString(name, locale, data.Name);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u points_of_interest locale strings in %u ms", uint32(_pointOfInterestLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -4223,23 +4225,16 @@ void ObjectMgr::LoadQuests()
     TC_LOG_INFO("server.loading", ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadQuestLocales()
+void ObjectMgr::LoadQuestTemplateLocale()
 {
     uint32 oldMSTime = getMSTime();
 
-    _questLocaleStore.clear();                                // need for reload case
-
-    QueryResult result = WorldDatabase.Query("SELECT Id, "
-        "Title_loc1, Details_loc1, Objectives_loc1, OfferRewardText_loc1, RequestItemsText_loc1, EndText_loc1, CompletedText_loc1, ObjectiveText1_loc1, ObjectiveText2_loc1, ObjectiveText3_loc1, ObjectiveText4_loc1, QuestGiverTextWindow_loc1, QuestGiverTargetName_loc1, QuestTurnTextWindow_loc1, QuestTurnTargetName_loc1,"
-        "Title_loc2, Details_loc2, Objectives_loc2, OfferRewardText_loc2, RequestItemsText_loc2, EndText_loc2, CompletedText_loc2, ObjectiveText1_loc2, ObjectiveText2_loc2, ObjectiveText3_loc2, ObjectiveText4_loc2, QuestGiverTextWindow_loc2, QuestGiverTargetName_loc2, QuestTurnTextWindow_loc2, QuestTurnTargetName_loc2,"
-        "Title_loc3, Details_loc3, Objectives_loc3, OfferRewardText_loc3, RequestItemsText_loc3, EndText_loc3, CompletedText_loc3, ObjectiveText1_loc3, ObjectiveText2_loc3, ObjectiveText3_loc3, ObjectiveText4_loc3, QuestGiverTextWindow_loc3, QuestGiverTargetName_loc3, QuestTurnTextWindow_loc3, QuestTurnTargetName_loc3,"
-        "Title_loc4, Details_loc4, Objectives_loc4, OfferRewardText_loc4, RequestItemsText_loc4, EndText_loc4, CompletedText_loc4, ObjectiveText1_loc4, ObjectiveText2_loc4, ObjectiveText3_loc4, ObjectiveText4_loc4, QuestGiverTextWindow_loc4, QuestGiverTargetName_loc4, QuestTurnTextWindow_loc4, QuestTurnTargetName_loc4,"
-        "Title_loc5, Details_loc5, Objectives_loc5, OfferRewardText_loc5, RequestItemsText_loc5, EndText_loc5, CompletedText_loc5, ObjectiveText1_loc5, ObjectiveText2_loc5, ObjectiveText3_loc5, ObjectiveText4_loc5, QuestGiverTextWindow_loc5, QuestGiverTargetName_loc5, QuestTurnTextWindow_loc5, QuestTurnTargetName_loc5,"
-        "Title_loc6, Details_loc6, Objectives_loc6, OfferRewardText_loc6, RequestItemsText_loc6, EndText_loc6, CompletedText_loc6, ObjectiveText1_loc6, ObjectiveText2_loc6, ObjectiveText3_loc6, ObjectiveText4_loc6, QuestGiverTextWindow_loc6, QuestGiverTargetName_loc6, QuestTurnTextWindow_loc6, QuestTurnTargetName_loc6,"
-        "Title_loc7, Details_loc7, Objectives_loc7, OfferRewardText_loc7, RequestItemsText_loc7, EndText_loc7, CompletedText_loc7, ObjectiveText1_loc7, ObjectiveText2_loc7, ObjectiveText3_loc7, ObjectiveText4_loc7, QuestGiverTextWindow_loc7, QuestGiverTargetName_loc7, QuestTurnTextWindow_loc7, QuestTurnTargetName_loc7,"
-        "Title_loc8, Details_loc8, Objectives_loc8, OfferRewardText_loc8, RequestItemsText_loc8, EndText_loc8, CompletedText_loc8, ObjectiveText1_loc8, ObjectiveText2_loc8, ObjectiveText3_loc8, ObjectiveText4_loc8, QuestGiverTextWindow_loc8, QuestGiverTargetName_loc8, QuestTurnTextWindow_loc8, QuestTurnTargetName_loc8"
-        " FROM locales_quest");
-
+    _questTemplateLocaleStore.clear(); // need for reload case
+    //                                               0     1
+    QueryResult result = WorldDatabase.Query("SELECT Id, locale, "
+    //      2           3                 4                5                 6                  7                   8                   9                  10
+        "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog"
+        " FROM quest_template_locale");
     if (!result)
         return;
 
@@ -4247,34 +4242,63 @@ void ObjectMgr::LoadQuestLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 id                       = fields[0].GetUInt32();
+        std::string localeName          = fields[1].GetString();
 
-        QuestLocale& data = _questLocaleStore[entry];
+        std::string logTitle            = fields[2].GetString();
+        std::string logDescription      = fields[3].GetString();
+        std::string questDescription    = fields[4].GetString();
+        std::string areaDescription     = fields[5].GetString();
+        std::string portraitGiverText   = fields[6].GetString();
+        std::string portraitGiverName   = fields[7].GetString();
+        std::string portraitTurnInText  = fields[8].GetString();
+        std::string portraitTurnInName  = fields[9].GetString();
+        std::string questCompletionLog  = fields[10].GetString();
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
+        QuestTemplateLocale& data = _questTemplateLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
 
-            AddLocaleString(fields[1 + 15 * (i - 1)].GetString(), locale, data.LogTitle);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 1].GetString(), locale, data.LogDescription);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 2].GetString(), locale, data.QuestDescription);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 3].GetString(), locale, data.OfferRewardText);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 4].GetString(), locale, data.RequestItemsText);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 5].GetString(), locale, data.AreaDescription);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 6].GetString(), locale, data.QuestCompletionLog);
-
-            data.ObjectiveDescription.resize(4);
-            for (uint8 k = 0; k < 4; ++k)
-                AddLocaleString(fields[1 + 15 * (i - 1) + 7 + k].GetString(), locale, data.ObjectiveDescription[k]);
-
-            AddLocaleString(fields[1 + 15 * (i - 1) + 11].GetString(), locale, data.PortraitGiverText);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 12].GetString(), locale, data.PortraitGiverName);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 13].GetString(), locale, data.PortraitTurnInText);
-            AddLocaleString(fields[1 + 15 * (i - 1) + 14].GetString(), locale, data.PortraitTurnInName);
-        }
+        AddLocaleString(logTitle,               locale, data.LogTitle);
+        AddLocaleString(logDescription,         locale, data.LogDescription);
+        AddLocaleString(questDescription,       locale, data.QuestDescription);
+        AddLocaleString(areaDescription,        locale, data.AreaDescription);
+        AddLocaleString(portraitGiverText,      locale, data.PortraitGiverText);
+        AddLocaleString(portraitGiverName,      locale, data.PortraitGiverName);
+        AddLocaleString(portraitTurnInText,     locale, data.PortraitTurnInText);
+        AddLocaleString(portraitTurnInName,     locale, data.PortraitTurnInName);
+        AddLocaleString(questCompletionLog,     locale, data.QuestCompletionLog);
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Quest locale strings in %u ms", uint32(_questLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u Quest Tempalate locale strings in %u ms", uint32(_questTemplateLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadQuestObjectivesLocale()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _questObjectivesLocaleStore.clear(); // need for reload case
+    //                                               0     1          2
+    QueryResult result = WorldDatabase.Query("SELECT Id, locale, Description FROM quest_objectives_locale");
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id                           = fields[0].GetUInt32();
+        std::string localeName              = fields[1].GetString();
+
+        std::string Description             = fields[2].GetString();
+
+        QuestObjectivesLocale& data = _questObjectivesLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
+
+        AddLocaleString(Description, locale, data.Description);
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u Quest Objectives locale strings in %u ms", uint32(_questObjectivesLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadScripts(ScriptsType type)
@@ -4817,7 +4841,6 @@ void ObjectMgr::LoadPageTexts()
 
     //                                               0   1     2
     QueryResult result = WorldDatabase.Query("SELECT ID, Text, NextPageID FROM page_text");
-
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 page texts. DB table `page_text` is empty!");
@@ -4829,8 +4852,9 @@ void ObjectMgr::LoadPageTexts()
     {
         Field* fields = result->Fetch();
 
-        PageText& pageText = _pageTextStore[fields[0].GetUInt32()];
+        uint32 id           = fields[0].GetUInt32();
 
+        PageText& pageText = _pageTextStore[id];
         pageText.Text       = fields[1].GetString();
         pageText.NextPageID = fields[2].GetUInt32();
 
@@ -4867,8 +4891,8 @@ void ObjectMgr::LoadPageTextLocales()
 
     _pageTextLocaleStore.clear(); // needed for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Text_loc1, Text_loc2, Text_loc3, Text_loc4, Text_loc5, Text_loc6, Text_loc7, Text_loc8 FROM locales_page_text");
-
+    //                                               0      1     2
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Text FROM page_text_locale");
     if (!result)
         return;
 
@@ -4876,12 +4900,14 @@ void ObjectMgr::LoadPageTextLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 id                   = fields[0].GetUInt32();
+        std::string localeName      = fields[1].GetString();
+        std::string text            = fields[2].GetString();
 
-        PageTextLocale& data = _pageTextLocaleStore[entry];
+        PageTextLocale& data = _pageTextLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
-            AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.Text);
+        AddLocaleString(text, locale, data.Text);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u PageText locale strings in %u ms", uint32(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -5031,80 +5057,63 @@ void ObjectMgr::LoadInstanceEncounters()
     TC_LOG_INFO("server.loading", ">> Loaded %u instance encounters in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-GossipText const* ObjectMgr::GetGossipText(uint32 Text_ID) const
+NpcText const* ObjectMgr::GetNpcText(uint32 Text_ID) const
 {
-    GossipTextContainer::const_iterator itr = _gossipTextStore.find(Text_ID);
-    if (itr != _gossipTextStore.end())
+    NpcTextContainer::const_iterator itr = _npcTextStore.find(Text_ID);
+    if (itr != _npcTextStore.end())
         return &itr->second;
     return NULL;
 }
 
-void ObjectMgr::LoadGossipText()
+void ObjectMgr::LoadNPCText()
 {
     uint32 oldMSTime = getMSTime();
 
     QueryResult result = WorldDatabase.Query("SELECT ID, "
-        "text0_0, text0_1, BroadcastTextID0, lang0, prob0, em0_0, em0_1, em0_2, em0_3, em0_4, em0_5, "
-        "text1_0, text1_1, BroadcastTextID1, lang1, prob1, em1_0, em1_1, em1_2, em1_3, em1_4, em1_5, "
-        "text2_0, text2_1, BroadcastTextID2, lang2, prob2, em2_0, em2_1, em2_2, em2_3, em2_4, em2_5, "
-        "text3_0, text3_1, BroadcastTextID3, lang3, prob3, em3_0, em3_1, em3_2, em3_3, em3_4, em3_5, "
-        "text4_0, text4_1, BroadcastTextID4, lang4, prob4, em4_0, em4_1, em4_2, em4_3, em4_4, em4_5, "
-        "text5_0, text5_1, BroadcastTextID5, lang5, prob5, em5_0, em5_1, em5_2, em5_3, em5_4, em5_5, "
-        "text6_0, text6_1, BroadcastTextID6, lang6, prob6, em6_0, em6_1, em6_2, em6_3, em6_4, em6_5, "
-        "text7_0, text7_1, BroadcastTextID7, lang7, prob7, em7_0, em7_1, em7_2, em7_3, em7_4, em7_5 "
-        "FROM npc_text");
-
-
+        "BroadcastTextID0, Probability0, "
+        "BroadcastTextID1, Probability1, "
+        "BroadcastTextID2, Probability2, "
+        "BroadcastTextID3, Probability3, "
+        "BroadcastTextID4, Probability4, "
+        "BroadcastTextID5, Probability5, "
+        "BroadcastTextID6, Probability6, "
+        "BroadcastTextID7, Probability7"
+        " FROM npc_text");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 npc texts, table is empty!");
         return;
     }
 
-    _gossipTextStore.rehash(result->GetRowCount());
-
-    uint32 count = 0;
-    uint8 cic;
+    _npcTextStore.rehash(result->GetRowCount());
 
     do
     {
-        ++count;
-        cic = 0;
-
         Field* fields = result->Fetch();
 
-        uint32 id = fields[cic++].GetUInt32();
-        if (!id)
+        uint32 textID = fields[0].GetUInt32();
+        if (!textID)
         {
             TC_LOG_ERROR("sql.sql", "Table `npc_text` has record with reserved id 0, ignore.");
             continue;
         }
 
-        GossipText& gText = _gossipTextStore[id];
+        NpcText& npcText = _npcTextStore[textID];
 
-        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+        for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
         {
-            gText.Options[i].Text_0           = fields[cic++].GetString();
-            gText.Options[i].Text_1           = fields[cic++].GetString();
-            gText.Options[i].BroadcastTextID  = fields[cic++].GetUInt32();
-            gText.Options[i].Language         = fields[cic++].GetUInt8();
-            gText.Options[i].Probability      = fields[cic++].GetFloat();
-
-            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
-            {
-                gText.Options[i].Emotes[j]._Delay = fields[cic++].GetUInt16();
-                gText.Options[i].Emotes[j]._Emote = fields[cic++].GetUInt16();
-            }
+            npcText.Data[i].BroadcastTextID  = fields[1 + i].GetUInt32();
+            npcText.Data[i].Probability      = fields[1 + i * 2].GetFloat();
         }
 
-        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
+        for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; i++)
         {
-            if (gText.Options[i].BroadcastTextID)
+            if (npcText.Data[i].BroadcastTextID)
             {
-                if (!sBroadcastTextStore.LookupEntry(gText.Options[i].BroadcastTextID))
+                if (!sBroadcastTextStore.LookupEntry(npcText.Data[i].BroadcastTextID))
                 {
-                    TC_LOG_ERROR("sql.sql", "GossipText (Id: %u) in table `npc_text` has non-existing or incompatible BroadcastTextID%u %u.", id, i, gText.Options[i].BroadcastTextID);
-                    gText.Options[i].BroadcastTextID = 0;
+                    TC_LOG_ERROR("sql.sql", "NpcText (Id: %u) in table `npc_text` has non-existing or incompatible Index: %u BroadcastTextID %u.", textID, i, npcText.Data[i].BroadcastTextID);
+                    npcText.Data[i].BroadcastTextID = 0;
                 }
             }
         }
@@ -5112,49 +5121,7 @@ void ObjectMgr::LoadGossipText()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u npc texts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadNpcTextLocales()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _npcTextLocaleStore.clear();                              // need for reload case
-
-    QueryResult result = WorldDatabase.Query("SELECT ID, "
-        "Text0_0_loc1, Text0_1_loc1, Text1_0_loc1, Text1_1_loc1, Text2_0_loc1, Text2_1_loc1, Text3_0_loc1, Text3_1_loc1, Text4_0_loc1, Text4_1_loc1, Text5_0_loc1, Text5_1_loc1, Text6_0_loc1, Text6_1_loc1, Text7_0_loc1, Text7_1_loc1, "
-        "Text0_0_loc2, Text0_1_loc2, Text1_0_loc2, Text1_1_loc2, Text2_0_loc2, Text2_1_loc2, Text3_0_loc2, Text3_1_loc1, Text4_0_loc2, Text4_1_loc2, Text5_0_loc2, Text5_1_loc2, Text6_0_loc2, Text6_1_loc2, Text7_0_loc2, Text7_1_loc2, "
-        "Text0_0_loc3, Text0_1_loc3, Text1_0_loc3, Text1_1_loc3, Text2_0_loc3, Text2_1_loc3, Text3_0_loc3, Text3_1_loc1, Text4_0_loc3, Text4_1_loc3, Text5_0_loc3, Text5_1_loc3, Text6_0_loc3, Text6_1_loc3, Text7_0_loc3, Text7_1_loc3, "
-        "Text0_0_loc4, Text0_1_loc4, Text1_0_loc4, Text1_1_loc4, Text2_0_loc4, Text2_1_loc4, Text3_0_loc4, Text3_1_loc1, Text4_0_loc4, Text4_1_loc4, Text5_0_loc4, Text5_1_loc4, Text6_0_loc4, Text6_1_loc4, Text7_0_loc4, Text7_1_loc4, "
-        "Text0_0_loc5, Text0_1_loc5, Text1_0_loc5, Text1_1_loc5, Text2_0_loc5, Text2_1_loc5, Text3_0_loc5, Text3_1_loc1, Text4_0_loc5, Text4_1_loc5, Text5_0_loc5, Text5_1_loc5, Text6_0_loc5, Text6_1_loc5, Text7_0_loc5, Text7_1_loc5, "
-        "Text0_0_loc6, Text0_1_loc6, Text1_0_loc6, Text1_1_loc6, Text2_0_loc6, Text2_1_loc6, Text3_0_loc6, Text3_1_loc1, Text4_0_loc6, Text4_1_loc6, Text5_0_loc6, Text5_1_loc6, Text6_0_loc6, Text6_1_loc6, Text7_0_loc6, Text7_1_loc6, "
-        "Text0_0_loc7, Text0_1_loc7, Text1_0_loc7, Text1_1_loc7, Text2_0_loc7, Text2_1_loc7, Text3_0_loc7, Text3_1_loc1, Text4_0_loc7, Text4_1_loc7, Text5_0_loc7, Text5_1_loc7, Text6_0_loc7, Text6_1_loc7, Text7_0_loc7, Text7_1_loc7, "
-        "Text0_0_loc8, Text0_1_loc8, Text1_0_loc8, Text1_1_loc8, Text2_0_loc8, Text2_1_loc8, Text3_0_loc8, Text3_1_loc1, Text4_0_loc8, Text4_1_loc8, Text5_0_loc8, Text5_1_loc8, Text6_0_loc8, Text6_1_loc8, Text7_0_loc8, Text7_1_loc8 "
-        " FROM locales_npc_text");
-
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 entry = fields[0].GetUInt32();
-
-        NpcTextLocale& data = _npcTextLocaleStore[entry];
-
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_OPTIONS; ++j)
-            {
-                AddLocaleString(fields[1 + 8 * 2 * (i - 1) + 2 * j].GetString(), locale, data.Text_0[j]);
-                AddLocaleString(fields[1 + 8 * 2 * (i - 1) + 2 * j + 1].GetString(), locale, data.Text_1[j]);
-            }
-        }
-    } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u NpcText locale strings in %u ms", uint32(_npcTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u npc texts in %u ms", uint32(_npcTextStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 //not very fast function but it is called only once a day, or on starting-up
@@ -5341,6 +5308,75 @@ void ObjectMgr::LoadQuestAreaTriggers()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u quest trigger points in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+QuestGreeting const* ObjectMgr::GetQuestGreeting(ObjectGuid guid) const
+{
+    auto itr = _questGreetingStore.find(guid.GetTypeId());
+    if (itr == _questGreetingStore.end())
+        return nullptr;
+
+    auto questItr = itr->second.find(guid.GetEntry());
+    if (questItr == itr->second.end())
+        return nullptr;
+
+    return questItr->second;
+}
+
+void ObjectMgr::LoadQuestGreetings()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _questGreetingStore.clear(); // need for reload case
+
+    //                                                0   1          2                3     
+    QueryResult result = WorldDatabase.Query("SELECT ID, type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 npc texts, table is empty!");
+        return;
+    }
+
+    _questGreetingStore.rehash(result->GetRowCount());
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id                   = fields[0].GetUInt32();
+        uint8 type                  = fields[1].GetUInt8();
+        // overwrite
+        switch (type) 
+        {
+            case 0: // Creature
+                type = TYPEID_UNIT;
+                if (!sObjectMgr->GetCreatureTemplate(id))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `quest_greeting`: creature template entry %u does not exist.", id);
+                    continue;
+                }
+                break;
+            case 1: // GameObject
+                type = TYPEID_GAMEOBJECT;
+                if (!sObjectMgr->GetGameObjectTemplate(id))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `quest_greeting`: gameobject template entry %u does not exist.", id);
+                    continue;
+                }
+                break;
+            default:
+                continue;
+        }
+
+        uint16 greetEmoteType       = fields[2].GetUInt32();
+        uint32 greetEmoteDelay      = fields[3].GetUInt32();
+        std::string greeting        = fields[4].GetString();
+
+        _questGreetingStore[type][id] = new QuestGreeting(greetEmoteType, greetEmoteDelay, greeting);
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u quest_greeting in %u ms", uint32(_questGreetingStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadTavernAreaTriggers()
@@ -6115,10 +6151,10 @@ void ObjectMgr::LoadGameObjectLocales()
 
         GameObjectLocale& data = _gameObjectLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.Name);
-            AddLocaleString(fields[i + (TOTAL_LOCALES - 1)].GetString(), LocaleConstant(i), data.CastBarCaption);
+            AddLocaleString(fields[i + (OLD_TOTAL_LOCALES - 1)].GetString(), LocaleConstant(i), data.CastBarCaption);
         }
     } while (result->NextRow());
 
@@ -6503,7 +6539,7 @@ void ObjectMgr::LoadCorpses()
             Field* fields = phaseResult->Fetch();
             uint32 guid = fields[0].GetUInt32();
             uint32 phaseId = fields[1].GetUInt32();
-            
+
             phases[guid].push_back(phaseId);
 
         } while (phaseResult->NextRow());
@@ -6807,7 +6843,7 @@ void ObjectMgr::LoadPointsOfInterest()
 {
     uint32 oldMSTime = getMSTime();
 
-    _pointsOfInterestStore.clear();                              // need for reload case
+    _pointsOfInterestStore.clear(); // need for reload case
 
     uint32 count = 0;
 
@@ -6824,24 +6860,24 @@ void ObjectMgr::LoadPointsOfInterest()
     {
         Field* fields = result->Fetch();
 
-        uint32 point_id = fields[0].GetUInt32();
+        uint32 id = fields[0].GetUInt32();
 
-        PointOfInterest POI;
-        POI.ID         = point_id;
-        POI.PositionX  = fields[1].GetFloat();
-        POI.PositionY  = fields[2].GetFloat();
-        POI.Icon       = fields[3].GetUInt32();
-        POI.Flags      = fields[4].GetUInt32();
-        POI.Importance = fields[5].GetUInt32();
-        POI.Name       = fields[6].GetString();
+        PointOfInterest pointOfInterest;
+        pointOfInterest.ID              = id;
+        pointOfInterest.Pos.x           = fields[1].GetFloat();
+        pointOfInterest.Pos.y           = fields[2].GetFloat();
+        pointOfInterest.Icon            = fields[3].GetUInt32();
+        pointOfInterest.Flags           = fields[4].GetUInt32();
+        pointOfInterest.Importance      = fields[5].GetUInt32();
+        pointOfInterest.Name            = fields[6].GetString();
 
-        if (!Trinity::IsValidMapCoord(POI.PositionX, POI.PositionY))
+        if (!Trinity::IsValidMapCoord(pointOfInterest.Pos.x, pointOfInterest.Pos.y))
         {
-            TC_LOG_ERROR("sql.sql", "Table `points_of_interest` (ID: %u) have invalid coordinates (PositionX: %f PositionY: %f), ignored.", point_id, POI.PositionX, POI.PositionY);
+            TC_LOG_ERROR("sql.sql", "Table `points_of_interest` (ID: %u) have invalid coordinates (PositionX: %f PositionY: %f), ignored.", id, pointOfInterest.Pos.x, pointOfInterest.Pos.y);
             continue;
         }
 
-        _pointsOfInterestStore[point_id] = POI;
+        _pointsOfInterestStore[id] = pointOfInterest;
 
         ++count;
     } while (result->NextRow());
@@ -6886,7 +6922,7 @@ void ObjectMgr::LoadQuestPOI()
             int32 X                   = fields[2].GetInt32();
             int32 Y                   = fields[3].GetInt32();
 
-            if (POIs[QuestID].size() <= Idx1 + 1)
+            if (int32(POIs[QuestID].size()) <= Idx1 + 1)
                 POIs[QuestID].resize(Idx1 + 10);
 
             QuestPOIPoint point(X, Y);
@@ -6914,7 +6950,7 @@ void ObjectMgr::LoadQuestPOI()
         int32 WoDUnk1               = fields[13].GetInt32();
 
         QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1);
-        if (QuestID < POIs.size() && Idx1 < POIs[QuestID].size())
+        if (QuestID < int32(POIs.size()) && Idx1 < int32(POIs[QuestID].size()))
         {
             POI.points = POIs[QuestID][Idx1];
             _questPOIStore[QuestID].push_back(POI);
@@ -7403,7 +7439,7 @@ bool ObjectMgr::LoadTrinityStrings()
 
         data.Content.resize(DEFAULT_LOCALE + 1);
 
-        for (int8 i = TOTAL_LOCALES - 1; i >= 0; --i)
+        for (int8 i = OLD_TOTAL_LOCALES - 1; i >= 0; --i)
             AddLocaleString(fields[i + 1].GetString(), LocaleConstant(i), data.Content);
     }
     while (result->NextRow());
@@ -7990,7 +8026,7 @@ void ObjectMgr::LoadGossipMenu()
         gMenu.entry             = fields[0].GetUInt16();
         gMenu.text_id           = fields[1].GetUInt32();
 
-        if (!GetGossipText(gMenu.text_id))
+        if (!GetNpcText(gMenu.text_id))
         {
             TC_LOG_ERROR("sql.sql", "Table gossip_menu entry %u are using non-existing text_id %u", gMenu.entry, gMenu.text_id);
             continue;

@@ -1506,8 +1506,9 @@ void World::SetInitialWorldSettings()
     uint32 oldMSTime = getMSTime();
     sObjectMgr->LoadCreatureLocales();
     sObjectMgr->LoadGameObjectLocales();
-    sObjectMgr->LoadQuestLocales();
-    sObjectMgr->LoadNpcTextLocales();
+    sObjectMgr->LoadQuestTemplateLocale();
+    sObjectMgr->LoadQuestObjectivesLocale();
+    sObjectMgr->LoadQuestGreetings();
     sObjectMgr->LoadPageTextLocales();
     sObjectMgr->LoadGossipMenuItemsLocales();
     sObjectMgr->LoadPointOfInterestLocales();
@@ -1555,7 +1556,7 @@ void World::SetInitialWorldSettings()
     sSpellMgr->LoadSpellGroupStackRules();
 
     TC_LOG_INFO("server.loading", "Loading NPC Texts...");
-    sObjectMgr->LoadGossipText();
+    sObjectMgr->LoadNPCText();
 
     TC_LOG_INFO("server.loading", "Loading Enchant Spells Proc datas...");
     sSpellMgr->LoadSpellEnchantProcData();

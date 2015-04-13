@@ -112,23 +112,20 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swap
     _player->SwapItem(src, dst);
 }
 
-void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
+void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPackets::Item::AutoEquipItemSlot& autoEquipItemSlot)
 {
-    ObjectGuid itemguid;
-    uint8 dstslot;
-    recvData >> itemguid >> dstslot;
-
     // cheating attempt, client should never send opcode in that case
-    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, dstslot))
+    if (autoEquipItemSlot.Inv.Items.size() != 1 || !Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, autoEquipItemSlot.ItemDstSlot))
         return;
 
-    Item* item = _player->GetItemByGuid(itemguid);
-    uint16 dstpos = dstslot | (INVENTORY_SLOT_BAG_0 << 8);
+    Item* item = _player->GetItemByGuid(autoEquipItemSlot.Item);
+    uint16 dstPos = autoEquipItemSlot.ItemDstSlot | (INVENTORY_SLOT_BAG_0 << 8);
+    uint16 srcPos = autoEquipItemSlot.Inv.Items[0].Slot | (uint32(autoEquipItemSlot.Inv.Items[0].ContainerSlot) << 8);
 
-    if (!item || item->GetPos() == dstpos)
+    if (!item || item->GetPos() != srcPos || srcPos == dstPos)
         return;
 
-    _player->SwapItem(item->GetPos(), dstpos);
+    _player->SwapItem(srcPos, dstPos);
 }
 
 void WorldSession::HandleSwapItem(WorldPackets::Item::SwapItem& swapItem)
@@ -313,31 +310,32 @@ void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& dest
         _player->DestroyItem(destroyItem.ContainerId, destroyItem.SlotNum, true);
 }
 
-void WorldSession::HandleReadItem(WorldPacket& recvData)
+void WorldSession::HandleReadItem(WorldPackets::Item::ReadItem& readItem)
 {
-    uint8 bag, slot;
-    recvData >> bag >> slot;
-
-    Item* pItem = _player->GetItemByPos(bag, slot);
-
-    if (pItem && pItem->GetTemplate()->GetPageText())
+    Item* item = _player->GetItemByPos(readItem.PackSlot, readItem.Slot);
+    if (item && item->GetTemplate()->GetPageText())
     {
-        WorldPacket data;
-
-        InventoryResult msg = _player->CanUseItem(pItem);
+        InventoryResult msg = _player->CanUseItem(item);
         if (msg == EQUIP_ERR_OK)
         {
-            data.Initialize(SMSG_READ_ITEM_RESULT_OK, 8);
+            WorldPackets::Item::ReadItemResultOK packet;
+            packet.Item = item->GetGUID();
+            SendPacket(packet.Write());
+
             TC_LOG_INFO("network", "STORAGE: Item page sent");
         }
         else
         {
-            data.Initialize(SMSG_READ_ITEM_RESULT_FAILED, 8);
+            /// @todo: 6.x research new values
+            /*WorldPackets::Item::ReadItemResultFailed packet;
+            packet.Item = item->GetGUID();
+            packet.Subcode = ??;
+            packet.Delay = ??;
+            SendPacket(packet.Write());*/
+
             TC_LOG_INFO("network", "STORAGE: Unable to read item");
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, item, NULL);
         }
-        data << pItem->GetGUID();
-        SendPacket(&data);
     }
     else
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);

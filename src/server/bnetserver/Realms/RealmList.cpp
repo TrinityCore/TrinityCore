@@ -52,6 +52,7 @@ void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInte
 void RealmList::Close()
 {
     _worldListener->End();
+    _updateTimer->cancel();
 }
 
 template<typename FieldType>

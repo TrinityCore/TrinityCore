@@ -53,8 +53,6 @@
 #include "Spell.h"
 #include "SpellPackets.h"
 #include "BattlegroundMgr.h"
-#include "Battlefield.h"
-#include "BattlefieldMgr.h"
 #include "DB2Stores.h"
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
@@ -814,108 +812,6 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
 }
-
-void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
-
-    ObjectGuid guid;
-    uint32 time;
-    recvData >> time;
-
-    guid[5] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[5]);
-
-    //TODO!
-
-    /*
-        uint64 guid;
-        uint32 time_skipped;
-        recvData >> guid;
-        recvData >> time_skipped;
-        TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_TIME_SKIPPED");
-
-        //// @todo
-        must be need use in Trinity
-        We substract server Lags to move time (AntiLags)
-        for exmaple
-        GetPlayer()->ModifyLastMoveTime(-int32(time_skipped));
-    */
-}
-
-void WorldSession::HandleFeatherFallAck(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_FEATHER_FALL_ACK");
-
-    // no used
-    recvData.rfinish();                       // prevent warnings spam
-}
-
-void WorldSession::HandleMoveUnRootAck(WorldPacket& recvData)
-{
-    // no used
-    recvData.rfinish();                       // prevent warnings spam
-/*
-    uint64 guid;
-    recvData >> guid;
-
-    // now can skip not our packet
-    if (_player->GetGUID() != guid)
-    {
-        recvData.rfinish();                   // prevent warnings spam
-        return;
-    }
-
-    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_FORCE_UNROOT_ACK");
-
-    recvData.read_skip<uint32>();                          // unk
-
-    MovementInfo movementInfo;
-    movementInfo.guid = guid;
-    ValidateMovementInfo(recvData, &movementInfo);
-    recvData.read_skip<float>();                           // unk2
-*/
-}
-
-void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
-{
-    // no used
-    recvData.rfinish();                       // prevent warnings spam
-/*
-    uint64 guid;
-    recvData >> guid;
-
-    // now can skip not our packet
-    if (_player->GetGUID() != guid)
-    {
-        recvData.rfinish();                   // prevent warnings spam
-        return;
-    }
-
-    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_FORCE_ROOT_ACK");
-
-    recvData.read_skip<uint32>();                          // unk
-
-    MovementInfo movementInfo;
-    ValidateMovementInfo(recvData, &movementInfo);
-*/
-}
-
 void WorldSession::HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet)
 {
     if (!GetPlayer())                                        // ignore until not logged (check needed because STATUS_AUTHED)
@@ -1320,26 +1216,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDiff
     }
 }
 
-void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
-{
-    TC_LOG_DEBUG("network", "WORLD: CMSG_CANCEL_MOUNT_AURA");
-
-    //If player is not mounted, so go out :)
-    if (!_player->IsMounted())                              // not blizz like; no any messages on blizz
-    {
-        ChatHandler(this).SendSysMessage(LANG_CHAR_NON_MOUNTED);
-        return;
-    }
-
-    if (_player->IsInFlight())                               // not blizz like; no any messages on blizz
-    {
-        ChatHandler(this).SendSysMessage(LANG_YOU_IN_FLIGHT);
-        return;
-    }
-
-    _player->RemoveAurasByType(SPELL_AURA_MOUNTED); // Calls Dismount()
-}
-
 void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& /*recvData*/)
 {
     // fly mode on/off
@@ -1393,73 +1269,6 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     phaseShift.VisibleMapIDs = terrainswaps;
     phaseShift.UiWorldMapAreaIDSwaps = worldMapAreaSwaps;
     SendPacket(phaseShift.Write());
-}
-
-// Battlefield and Battleground
-void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "WORLD: CMSG_AREA_SPIRIT_HEALER_QUERY");
-
-    Battleground* bg = _player->GetBattleground();
-
-    ObjectGuid guid;
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
-    if (!unit)
-        return;
-
-    if (!unit->IsSpiritService())                            // it's not spirit service
-        return;
-
-    if (bg)
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
-
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
-        bf->SendAreaSpiritHealerQueryOpcode(_player, guid);
-}
-
-void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
-
-    Battleground* bg = _player->GetBattleground();
-
-    ObjectGuid guid;
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
-    if (!unit)
-        return;
-
-    if (!unit->IsSpiritService())                            // it's not spirit service
-        return;
-
-    if (bg)
-        bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
-
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
-        bf->AddPlayerToResurrectQueue(guid, _player->GetGUID());
-}
-
-void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
-{
-    if (_player->IsInFlight())
-        return;
-
-    if (/*Battlefield* bf = */sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
-    {
-        // bf->PlayerAskToLeave(_player); FIXME
-        return;
-    }
-
-    AreaTableEntry const* atEntry = GetAreaEntryByAreaID(_player->GetAreaId());
-    if (!atEntry || !(atEntry->Flags[0] & AREA_FLAG_WINTERGRASP_2))
-        return;
-
-    _player->BuildPlayerRepop();
-    _player->ResurrectPlayer(1.0f);
-    _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
 }
 
 void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
@@ -1531,39 +1340,28 @@ void WorldSession::HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& /*viol
     // do something?
 }
 
-void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed)
 {
-    ObjectGuid guid;
-    guid[6] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[5]);
-
-    WorldObject* obj = ObjectAccessor::GetWorldObject(*GetPlayer(), guid);
-    TC_LOG_ERROR("network", "Object update failed for %s (%s) for player %s (%s)", guid.ToString().c_str(), obj ? obj->GetName().c_str() : "object-not-found", GetPlayerName().c_str(), _player->GetGUID().ToString().c_str());
+    TC_LOG_ERROR("network", "Object update failed for %s for player %s (%s)", objectUpdateFailed.ObjectGUID.ToString().c_str(), GetPlayerName().c_str(), _player->GetGUID().ToString().c_str());
 
     // If create object failed for current player then client will be stuck on loading screen
-    if (_player->GetGUID() == guid)
+    if (_player->GetGUID() == objectUpdateFailed.ObjectGUID)
     {
         LogoutPlayer(true);
         return;
     }
 
     // Pretend we've never seen this object
-    _player->m_clientGUIDs.erase(guid);
+    _player->m_clientGUIDs.erase(objectUpdateFailed.ObjectGUID);
+}
+
+void WorldSession::HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued)
+{
+    TC_LOG_ERROR("network", "Object update rescued for %s for player %s (%s)", objectUpdateRescued.ObjectGUID.ToString().c_str(), GetPlayerName().c_str(), _player->GetGUID().ToString().c_str());
+
+    // Client received values update after destroying object
+    // re-register object in m_clientGUIDs to send DestroyObject on next visibility update
+    _player->m_clientGUIDs.insert(objectUpdateRescued.ObjectGUID);
 }
 
 void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)

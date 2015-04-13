@@ -18,7 +18,8 @@
 
 #include "Common.h"
 
-char const* localeNames[TOTAL_LOCALES] = {
+char const* localeNames[TOTAL_LOCALES] =
+{
   "enUS",
   "koKR",
   "frFR",
@@ -27,13 +28,16 @@ char const* localeNames[TOTAL_LOCALES] = {
   "zhTW",
   "esES",
   "esMX",
-  "ruRU"
+  "ruRU",
+  "none",
+  "ptBR",
+  "itIT"
 };
 
 LocaleConstant GetLocaleByName(const std::string& name)
 {
     for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-        if (name==localeNames[i])
+        if (name == localeNames[i])
             return LocaleConstant(i);
 
     return LOCALE_enUS;                                     // including enGB case

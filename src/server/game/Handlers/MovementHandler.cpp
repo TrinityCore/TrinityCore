@@ -491,30 +491,9 @@ void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMes
     _player->SendMessageToSet(updateKnockBack.Write(), false);
 }
 
-void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
+void WorldSession::HandleMovementAckMessage(WorldPackets::Movement::MovementAckMessage& movementAck)
 {
-    ObjectGuid guid;                                        // guid - unused
-    recvData >> guid.ReadAsPacked();
-
-    recvData.read_skip<uint32>();                           // unk
-
-    MovementInfo movementInfo;
-    GetPlayer()->ValidateMovementInfo(&movementInfo);
-
-    recvData.read_skip<uint32>();                           // unk2
-}
-
-void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
-{
-    ObjectGuid guid;                                        // guid - unused
-    recvData >> guid.ReadAsPacked();
-
-    recvData.read_skip<uint32>();                           // unk
-
-    MovementInfo movementInfo;
-    GetPlayer()->ValidateMovementInfo(&movementInfo);
-
-    recvData.read_skip<uint32>();                           // unk2
+    GetPlayer()->ValidateMovementInfo(&movementAck.Ack.movementInfo);
 }
 
 void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
@@ -533,4 +512,8 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
 void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& setCollisionHeightAck)
 {
     GetPlayer()->ValidateMovementInfo(&setCollisionHeightAck.Data.movementInfo);
+}
+
+void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& /*moveTimeSkipped*/)
+{
 }

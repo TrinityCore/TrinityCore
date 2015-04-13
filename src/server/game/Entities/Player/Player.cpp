@@ -13605,30 +13605,40 @@ void Player::SendItemDurations()
         (*itr)->SendTimeUpdate(this);
 }
 
-void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast)
+void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created, bool broadcast)
 {
-    if (!item)                                               // prevent crash
+    if (!item)  // prevent crash
         return;
 
-                                                            // last check 2.0.10
-    WorldPacket data(SMSG_ITEM_PUSH_RESULT, (8+4+4+4+1+4+4+4+4+4));
-    data << GetGUID();                                      // player GUID
-    data << uint32(received);                               // 0=looted, 1=from npc
-    data << uint32(created);                                // 0=received, 1=created
-    data << uint32(1);                                      // bool print error to chat
-    data << uint8(item->GetBagSlot());                      // bagslot
-                                                            // item slot, but when added to stack: 0xFFFFFFFF
-    data << uint32((item->GetCount() == count) ? item->GetSlot() : -1);
-    data << uint32(item->GetEntry());                       // item id
-    data << uint32(item->GetItemSuffixFactor());            // SuffixFactor
-    data << int32(item->GetItemRandomPropertyId());         // random item property id
-    data << uint32(count);                                  // count of items
-    data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory
+    /// @todo: fix 6.x implementation
+    WorldPackets::Item::ItemPushResult packet;
+
+    packet.PlayerGUID = GetGUID();
+
+    packet.Slot = item->GetBagSlot();
+    packet.SlotInBag = item->GetCount() == quantity ? item->GetSlot() : -1;
+
+    packet.Item.Initalize(item);
+
+    //packet.ReadUInt32("WodUnk");
+    packet.Quantity = quantity;
+    packet.QuantityInInventory = GetItemCount(item->GetEntry());
+    //packet.ReadUInt32("BattlePetBreedID");
+    //packet.ReadUInt32("BattlePetBreedQuality");
+    //packet.ReadUInt32("BattlePetSpeciesID");
+    //packet.ReadUInt32("BattlePetLevel");
+
+    packet.ItemGUID = item->GetGUID();
+
+    packet.Pushed = pushed;
+    packet.DisplayText = true;
+    packet.Created = created;
+    //packet.ReadBit("IsBonusRoll");
 
     if (broadcast && GetGroup())
-        GetGroup()->BroadcastPacket(&data, true);
+        GetGroup()->BroadcastPacket(packet.Write(), true);
     else
-        GetSession()->SendPacket(&data);
+        GetSession()->SendPacket(packet.Write());
 }
 
 /*********************************************************/
@@ -14108,48 +14118,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
         }
     }
 
-    QEmote qe;
-    qe._Delay = 0;
-    qe._Emote = 0;
-    std::string title = "";
-
-    // need pet case for some quests
-    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
-    if (creature)
-    {
-        uint32 textid = GetGossipTextId(creature);
-        GossipText const* gossiptext = sObjectMgr->GetGossipText(textid);
-        if (!gossiptext)
-        {
-            qe._Delay = 0;                              //TEXTEMOTE_MESSAGE;              //zyg: player emote
-            qe._Emote = 0;                              //TEXTEMOTE_HELLO;                //zyg: NPC emote
-            title.clear();
-        }
-        else
-        {
-            qe = gossiptext->Options[0].Emotes[0];
-
-            if (!gossiptext->Options[0].Text_0.empty())
-            {
-                title = gossiptext->Options[0].Text_0;
-
-                int loc_idx = GetSession()->GetSessionDbLocaleIndex();
-                if (loc_idx >= 0)
-                    if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
-                        ObjectMgr::GetLocaleString(nl->Text_0[0], loc_idx, title);
-            }
-            else
-            {
-                title = gossiptext->Options[0].Text_1;
-
-                int loc_idx = GetSession()->GetSessionDbLocaleIndex();
-                if (loc_idx >= 0)
-                    if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
-                        ObjectMgr::GetLocaleString(nl->Text_1[0], loc_idx, title);
-            }
-        }
-    }
-    PlayerTalkClass->SendQuestGiverQuestList(qe, title, guid);
+    PlayerTalkClass->SendQuestGiverQuestList(guid);
 }
 
 bool Player::IsActiveQuest(uint32 quest_id) const
@@ -16223,9 +16192,9 @@ void Player::SendQuestComplete(Quest const* quest)
 {
     if (quest)
     {
-        WorldPacket data(SMSG_QUEST_UPDATE_COMPLETE, 4);
-        data << uint32(quest->GetQuestId());
-        GetSession()->SendPacket(&data);
+        WorldPackets::Quest::QuestUpdateComplete data;
+        data.QuestID = quest->GetQuestId();
+        GetSession()->SendPacket(data.Write());
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest->GetQuestId());
     }
 }
@@ -16298,25 +16267,27 @@ void Player::SendCanTakeQuestResponse(QuestFailedReason msg) const
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_INVALID");
 }
 
-void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
+void Player::SendQuestConfirmAccept(Quest const* quest, Player* receiver)
 {
-    if (pReceiver)
-    {
-        std::string strTitle = quest->GetLogTitle();
+    if (!receiver)
+        return;
 
-        int loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
-            if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-                ObjectMgr::GetLocaleString(pLocale->LogTitle, loc_idx, strTitle);
+    std::string questTitle = quest->GetLogTitle();
+    uint32 questID = quest->GetQuestId();
 
-        WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
-        data << uint32(quest->GetQuestId());
-        data << strTitle;
-        data << GetGUID();
-        pReceiver->GetSession()->SendPacket(&data);
+    LocaleConstant localeConstant = receiver->GetSession()->GetSessionDbLocaleIndex();
+    if (localeConstant >= LOCALE_enUS)
+        if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(questID))
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, questTitle);
 
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
-    }
+    WorldPackets::Quest::QuestConfirmAccept packet;
+    packet.QuestID = questID;
+    packet.InitiatedBy = GetGUID();
+    packet.QuestTitle = questTitle;
+
+    receiver->GetSession()->SendPacket(packet.Write());
+
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
 }
 
 void Player::SendPushToPartyResponse(Player* player, uint8 msg)
@@ -22442,9 +22413,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
 
-    /// SMSG_SPELL_CATEGORY_COOLDOWN
-    GetSession()->SendSpellCategoryCooldowns();
-
     /// SMSG_BINDPOINTUPDATE
     SendBindPointUpdate();
 
@@ -22475,8 +22443,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_INITIALIZE_FACTIONS
     m_reputationMgr->SendInitialReputations();
-    /// SMSG_SET_FORCED_REACTIONS
-    m_reputationMgr->SendForceReactions();
     /// SMSG_SETUP_CURRENCY
     SendCurrencies();
     /// SMSG_EQUIPMENT_SET_LIST
@@ -25256,11 +25222,11 @@ void Player::_SaveBGData(SQLTransaction& trans)
     trans->Append(stmt);
 }
 
-void Player::DeleteEquipmentSet(uint64 setGuid)
+void Player::DeleteEquipmentSet(uint64 id)
 {
     for (EquipmentSetContainer::iterator itr = _equipmentSets.begin(); itr != _equipmentSets.end();)
     {
-        if (itr->second.Data.Guid == setGuid)
+        if (itr->second.Data.Guid == id)
         {
             if (itr->second.State == EQUIPMENT_SET_NEW)
                 itr = _equipmentSets.erase(itr);

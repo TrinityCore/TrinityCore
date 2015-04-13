@@ -783,7 +783,7 @@ bool SpellHistory::HasCharge(SpellCategoryEntry const* chargeCategoryEntry) cons
         return true;
 
     auto itr = _categoryCharges.find(chargeCategoryEntry->ID);
-    return itr == _categoryCharges.end() || itr->second.size() < maxCharges;
+    return itr == _categoryCharges.end() || int32(itr->second.size()) < maxCharges;
 }
 
 int32 SpellHistory::GetMaxCharges(SpellCategoryEntry const* chargeCategoryEntry) const

@@ -38,6 +38,7 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "Transport.h"
+#include "BattlegroundPackets.h"
 
 namespace Trinity
 {
@@ -786,7 +787,7 @@ void Battleground::EndBattleground(uint32 winner)
     //we must set it this way, because end time is sent in packet!
     SetRemainingTime(TIME_AUTOCLOSE_BATTLEGROUND);
 
-    WorldPacket pvpLogData;
+    WorldPackets::Battleground::PVPLogData pvpLogData;
     BuildPvPLogDataPacket(pvpLogData);
 
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
@@ -882,7 +883,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         BlockMovement(player);
 
-        player->SendDirectMessage(&pvpLogData);
+        player->SendDirectMessage(pvpLogData.Write());
 
         WorldPacket data;
         sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType());
@@ -1296,53 +1297,65 @@ bool Battleground::HasFreeSlots() const
     return GetPlayersSize() < GetMaxPlayers();
 }
 
-void Battleground::BuildPvPLogDataPacket(WorldPacket& data)
+void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData)
 {
-    ByteBuffer buff;
+    if (GetStatus() == STATUS_WAIT_LEAVE)
+        pvpLogData.Winner.Set(GetWinner());
 
-    data.Initialize(SMSG_PVP_LOG_DATA, (1 + 1 + 4 + 40 * GetPlayerScoresSize()));
-
-    data.WriteBit(isRated());
-    data.WriteBit(isArena());
-
-    if (isArena())
-    {
-        // it seems this must be according to BG_WINNER_A/H and _NOT_ TEAM_A/H
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
-            _arenaTeamScores[i].BuildTeamInfoLengthBlock(data);
-    }
-
-    size_t countPos = data.bitwpos();
-    data.WriteBits(0, 21);
+    pvpLogData.Players.reserve(GetPlayerScoresSize());
     for (auto const& score : PlayerScores)
-        score.second->AppendToPacket(data, buff);
+    {
+        WorldPackets::Battleground::PVPLogData::PlayerData playerData;
 
-    data.PutBits(countPos, GetPlayerScoresSize(), 21);
-    data.WriteBit(GetStatus() == STATUS_WAIT_LEAVE);    // If Ended
+        playerData.PlayerGUID = score.second->PlayerGuid;
+        playerData.Kills = score.second->KillingBlows;
+        playerData.Faction = score.second->TeamId;
+        if (score.second->HonorableKills || score.second->Deaths || score.second->BonusHonor)
+        {
+            WorldPackets::Battleground::PVPLogData::HonorData& honorData = playerData.Honor.Value;
+            honorData.HonorKills = score.second->HonorableKills;
+            honorData.Deaths = score.second->Deaths;
+            honorData.ContributionPoints = score.second->BonusHonor;
+
+            playerData.Honor.HasValue = true;
+        }
+
+        playerData.DamageDone = score.second->DamageDone;
+        playerData.HealingDone = score.second->HealingDone;
+        score.second->BuildObjectivesBlock(playerData.Stats);
+
+        if (Player* player = ObjectAccessor::GetObjectInMap(playerData.PlayerGUID, GetBgMap(), (Player*)nullptr))
+        {
+            playerData.IsInWorld = true;
+            playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+        }
+
+        //if (isRated())
+        //{
+        //    playerData.PreMatchRating;
+        //    playerData.RatingChange;
+        //    playerData.PreMatchMMR;
+        //    playerData.MmrChange;
+        //}
+
+        pvpLogData.Players.push_back(playerData);
+    }
 
     if (isRated())
     {
-        // it seems this must be according to BG_WINNER_A/H and _NOT_ BG_TEAM_A/H
+        WorldPackets::Battleground::PVPLogData::RatingData& ratingData = pvpLogData.Ratings.Value;
         for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
-            _arenaTeamScores[i].BuildRatingInfoBlock(data);
+        {
+            ratingData.Postmatch[i] = _arenaTeamScores[i].NewRating;
+            ratingData.Prematch[i] = _arenaTeamScores[i].OldRating;
+            ratingData.PrematchMMR[i] = _arenaTeamScores[i].MatchmakerRating;
+        }
+
+        pvpLogData.Ratings.HasValue = true;
     }
 
-    data.FlushBits();
-    data.append(buff);
-
-    if (isArena())
-    {
-        // it seems this must be according to BG_WINNER_A/H and _NOT_ TEAM_A/H
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
-            _arenaTeamScores[i].BuildTeamInfoBlock(data);
-    }
-
-    data << uint8(GetPlayersCountByTeam(HORDE));
-
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        data << uint8(GetWinner());
-
-    data << uint8(GetPlayersCountByTeam(ALLIANCE));
+    pvpLogData.PlayerCount[0] = int8(GetPlayersCountByTeam(HORDE));
+    pvpLogData.PlayerCount[1] = int8(GetPlayersCountByTeam(ALLIANCE));
 }
 
 bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
@@ -1811,14 +1824,15 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
     if (GetStatus() != STATUS_WAIT_LEAVE)
         return;
 
-    WorldPacket data;
+    WorldPackets::Battleground::PVPLogData pvpLogData;
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
 
     BlockMovement(player);
 
-    BuildPvPLogDataPacket(data);
-    player->SendDirectMessage(&data);
+    BuildPvPLogDataPacket(pvpLogData);
+    player->SendDirectMessage(pvpLogData.Write());
 
+    WorldPacket data;
     sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType());
     player->SendDirectMessage(&data);
 }

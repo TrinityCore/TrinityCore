@@ -233,6 +233,18 @@ namespace WorldPackets
             uint8 PackSlot = 0;
         };
 
+        class AutoEquipItemSlot final : public ClientPacket
+        {
+        public:
+            AutoEquipItemSlot(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_EQUIP_ITEM_SLOT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Item;
+            uint8 ItemDstSlot = 0;
+            InvUpdate Inv;
+        };
+
         class AutoStoreBagItem final : public ClientPacket
         {
         public:
@@ -268,6 +280,64 @@ namespace WorldPackets
             ObjectGuid VendorGUID;
             ObjectGuid ItemGUID;
             SellResult Reason = SELL_ERR_UNK;
+        };
+
+        class ItemPushResult final : public ServerPacket
+        {
+        public:
+            ItemPushResult() : ServerPacket(SMSG_ITEM_PUSH_RESULT, 16 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 1 + 1 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGUID;
+            uint8 Slot                      = 0;
+            int32 SlotInBag                 = 0;
+            ItemInstance Item;
+            uint32 WodUnk                   = 0;
+            int32 Quantity                  = 0;
+            int32 QuantityInInventory       = 0;
+            int32 BattlePetBreedID          = 0;
+            uint32 BattlePetBreedQuality    = 0;
+            int32 BattlePetSpeciesID        = 0;
+            int32 BattlePetLevel            = 0;
+            ObjectGuid ItemGUID;
+            bool Pushed                     = false;
+            bool DisplayText                = false;
+            bool Created                    = false;
+            bool IsBonusRoll                = false;
+        };
+
+        class ReadItem final : public ClientPacket
+        {
+        public:
+            ReadItem(WorldPacket&& packet) : ClientPacket(CMSG_READ_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PackSlot = 0;
+            uint8 Slot = 0;
+        };
+
+        class ReadItemResultFailed final : public ServerPacket
+        {
+        public:
+            ReadItemResultFailed() : ServerPacket(SMSG_READ_ITEM_RESULT_FAILED, 16 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Item;
+            uint8 Subcode   = 0;
+            uint32 Delay    = 0;
+        };
+
+        class ReadItemResultOK final : public ServerPacket
+        {
+        public:
+            ReadItemResultOK() : ServerPacket(SMSG_READ_ITEM_RESULT_OK, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Item;
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);

@@ -433,8 +433,8 @@ typedef std::unordered_map<ObjectGuid::LowType, GameObjectData> GameObjectDataCo
 typedef std::map<TempSummonGroupKey, std::vector<TempSummonData> > TempSummonDataContainer;
 typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef std::unordered_map<uint32, GameObjectLocale> GameObjectLocaleContainer;
-typedef std::unordered_map<uint32, QuestLocale> QuestLocaleContainer;
-typedef std::unordered_map<uint32, NpcTextLocale> NpcTextLocaleContainer;
+typedef std::unordered_map<uint32, QuestTemplateLocale> QuestTemplateLocaleContainer;
+typedef std::unordered_map<uint32, QuestObjectivesLocale> QuestObjectivesLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef std::unordered_map<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
@@ -504,8 +504,7 @@ struct RepSpilloverTemplate
 struct PointOfInterest
 {
     uint32 ID;
-    float PositionX;
-    float PositionY;
+    G3D::Vector2 Pos;
     uint32 Icon;
     uint32 Flags;
     uint32 Importance;
@@ -577,6 +576,19 @@ struct QuestPOI
 
 typedef std::vector<QuestPOI> QuestPOIVector;
 typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIContainer;
+
+struct QuestGreeting
+{
+    uint16 greetEmoteType;
+    uint32 greetEmoteDelay;
+    std::string greeting;
+
+    QuestGreeting() : greetEmoteType(0), greetEmoteDelay(0) { }
+    QuestGreeting(uint16 _greetEmoteType, uint32 _greetEmoteDelay, std::string _greeting)
+        : greetEmoteType(_greetEmoteType), greetEmoteDelay(_greetEmoteDelay), greeting(_greeting) { }
+};
+
+typedef std::unordered_map<uint8, std::unordered_map<uint32, QuestGreeting const*>> QuestGreetingContainer;
 
 struct GraveYardData
 {
@@ -791,7 +803,8 @@ class ObjectMgr
             return _gameObjectForQuestStore.find(entry) != _gameObjectForQuestStore.end();
         }
 
-        GossipText const* GetGossipText(uint32 Text_ID) const;
+        NpcText const* GetNpcText(uint32 textID) const;
+        QuestGreeting const* GetQuestGreeting(ObjectGuid guid) const;
 
         WorldSafeLocsEntry const* GetDefaultGraveYard(uint32 team);
         WorldSafeLocsEntry const* GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team);
@@ -963,8 +976,8 @@ class ObjectMgr
         void LoadItemTemplates();
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
-        void LoadQuestLocales();
-        void LoadNpcTextLocales();
+        void LoadQuestTemplateLocale();
+        void LoadQuestObjectivesLocale();
         void LoadPageTextLocales();
         void LoadGossipMenuItemsLocales();
         void LoadPointOfInterestLocales();
@@ -974,11 +987,12 @@ class ObjectMgr
         void LoadVehicleTemplateAccessories();
         void LoadVehicleAccessories();
 
-        void LoadGossipText();
+        void LoadNPCText();
 
         void LoadAreaTriggerTeleports();
         void LoadAccessRequirements();
         void LoadQuestAreaTriggers();
+        void LoadQuestGreetings();
         void LoadAreaTriggerScripts();
         void LoadTavernAreaTriggers();
         void LoadGameObjectForQuests();
@@ -1112,16 +1126,16 @@ class ObjectMgr
             if (itr == _gameObjectLocaleStore.end()) return NULL;
             return &itr->second;
         }
-        QuestLocale const* GetQuestLocale(uint32 entry) const
+        QuestTemplateLocale const* GetQuestLocale(uint32 entry) const
         {
-            QuestLocaleContainer::const_iterator itr = _questLocaleStore.find(entry);
-            if (itr == _questLocaleStore.end()) return NULL;
+            QuestTemplateLocaleContainer::const_iterator itr = _questTemplateLocaleStore.find(entry);
+            if (itr == _questTemplateLocaleStore.end()) return NULL;
             return &itr->second;
         }
-        NpcTextLocale const* GetNpcTextLocale(uint32 entry) const
+        QuestObjectivesLocale const* GetQuestObjectivesLocale(uint32 entry) const
         {
-            NpcTextLocaleContainer::const_iterator itr = _npcTextLocaleStore.find(entry);
-            if (itr == _npcTextLocaleStore.end()) return NULL;
+            QuestObjectivesLocaleContainer::const_iterator itr = _questObjectivesLocaleStore.find(entry);
+            if (itr == _questObjectivesLocaleStore.end()) return NULL;
             return &itr->second;
         }
         PageTextLocale const* GetPageTextLocale(uint32 entry) const
@@ -1136,9 +1150,9 @@ class ObjectMgr
             if (itr == _gossipMenuItemsLocaleStore.end()) return NULL;
             return &itr->second;
         }
-        PointOfInterestLocale const* GetPointOfInterestLocale(uint32 poi_id) const
+        PointOfInterestLocale const* GetPointOfInterestLocale(uint32 id) const
         {
-            PointOfInterestLocaleContainer::const_iterator itr = _pointOfInterestLocaleStore.find(poi_id);
+            PointOfInterestLocaleContainer::const_iterator itr = _pointOfInterestLocaleStore.find(id);
             if (itr == _pointOfInterestLocaleStore.end()) return NULL;
             return &itr->second;
         }
@@ -1259,11 +1273,11 @@ class ObjectMgr
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
 
-        static void AddLocaleString(std::string const& s, LocaleConstant locale, StringVector& data);
-        static inline void GetLocaleString(const StringVector& data, int loc_idx, std::string& value)
+        static void AddLocaleString(std::string const& value, LocaleConstant localeConstant, StringVector& data);
+        static inline void GetLocaleString(StringVector const& data, LocaleConstant localeConstant, std::string& value)
         {
-            if (data.size() > size_t(loc_idx) && !data[loc_idx].empty())
-                value = data[loc_idx];
+            if (data.size() > size_t(localeConstant) && !data[localeConstant].empty())
+                value = data[localeConstant];
         }
 
         CharacterConversionMap FactionChangeAchievements;
@@ -1329,7 +1343,7 @@ class ObjectMgr
 
         QuestMap _questTemplates;
 
-        typedef std::unordered_map<uint32, GossipText> GossipTextContainer;
+        typedef std::unordered_map<uint32, NpcText> NpcTextContainer;
         typedef std::unordered_map<uint32, uint32> QuestAreaTriggerContainer;
         typedef std::set<uint32> TavernAreaTriggerContainer;
         typedef std::set<uint32> GameObjectForQuestContainer;
@@ -1337,7 +1351,8 @@ class ObjectMgr
         QuestAreaTriggerContainer _questAreaTriggerStore;
         TavernAreaTriggerContainer _tavernAreaTriggerStore;
         GameObjectForQuestContainer _gameObjectForQuestStore;
-        GossipTextContainer _gossipTextStore;
+        NpcTextContainer _npcTextStore;
+        QuestGreetingContainer _questGreetingStore;
         AreaTriggerContainer _areaTriggerStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         AccessRequirementContainer _accessRequirementStore;
@@ -1434,8 +1449,8 @@ class ObjectMgr
         TempSummonDataContainer _tempSummonDataStore;
 
         ItemTemplateContainer _itemTemplateStore;
-        QuestLocaleContainer _questLocaleStore;
-        NpcTextLocaleContainer _npcTextLocaleStore;
+        QuestTemplateLocaleContainer _questTemplateLocaleStore;
+        QuestObjectivesLocaleContainer _questObjectivesLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;

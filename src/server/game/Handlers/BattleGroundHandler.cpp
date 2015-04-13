@@ -34,6 +34,9 @@
 #include "Opcodes.h"
 #include "DisableMgr.h"
 #include "Group.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
+#include "BattlegroundPackets.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
@@ -268,8 +271,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEGROUND_PLAYER_POSITIONS Message");
-
     Battleground* bg = _player->GetBattleground();
     if (!bg)                                                 // can't be received if player not in battleground
         return;
@@ -358,10 +359,8 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
     SendPacket(&data);
 }
 
-void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogDataRequest& /*pvpLogDataRequest*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PVP_LOG_DATA Message");
-
     Battleground* bg = _player->GetBattleground();
     if (!bg)
         return;
@@ -370,17 +369,13 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
     if (bg->isArena())
         return;
 
-    WorldPacket data;
-    bg->BuildPvPLogDataPacket(data);
-    SendPacket(&data);
-
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_PVP_LOG_DATA Message");
+    WorldPackets::Battleground::PVPLogData pvpLogData;
+    bg->BuildPvPLogDataPacket(pvpLogData);
+    SendPacket(pvpLogData.Write());
 }
 
 void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
-
     uint32 bgTypeId;
     recvData >> bgTypeId;                                  // id from DBC
 
@@ -398,8 +393,6 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
-
     uint32 time;
     uint32 queueSlot;
     uint32 unk;
@@ -588,8 +581,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 
 void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_LEAVE Message");
-
     // not allow leave battleground in combat
     if (_player->IsInCombat())
         if (Battleground* bg = _player->GetBattleground())
@@ -601,9 +592,6 @@ void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 {
-    // empty opcode
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_STATUS Message");
-
     WorldPacket data;
     // we must update all queues here
     Battleground* bg = NULL;
@@ -666,8 +654,6 @@ void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPacket& /*recvData*
 
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
-
     uint8 arenaslot;                                        // 2v2, 3v3 or 5v5
 
     recvData >> arenaslot;
@@ -790,8 +776,6 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 
 void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_BATTLEFIELD_INFO");
-
     uint8 unk;
     recvData >> unk;
 
@@ -824,8 +808,6 @@ void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPacket& recvData)
 
 void WorldSession::HandleGetPVPOptionsEnabled(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_GET_PVP_OPTIONS_ENABLED");
-
     /// @Todo: perfome research in this case
     WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
     data.WriteBit(1);
@@ -841,7 +823,57 @@ void WorldSession::HandleGetPVPOptionsEnabled(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleRequestPvpReward(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_PVP_REWARDS");
-
     _player->SendPvpRewards();
+}
+
+void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground::AreaSpiritHealerQuery& areaSpiritHealerQuery)
+{
+    Creature* unit = GetPlayer()->GetMap()->GetCreature(areaSpiritHealerQuery.HealerGuid);
+    if (!unit)
+        return;
+
+    if (!unit->IsSpiritService())                            // it's not spirit service
+        return;
+
+    if (Battleground* bg = _player->GetBattleground())
+        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, areaSpiritHealerQuery.HealerGuid);
+
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
+        bf->SendAreaSpiritHealerQueryOpcode(_player, areaSpiritHealerQuery.HealerGuid);
+}
+
+void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground::AreaSpiritHealerQueue& areaSpiritHealerQueue)
+{
+    Creature* unit = GetPlayer()->GetMap()->GetCreature(areaSpiritHealerQueue.HealerGuid);
+    if (!unit)
+        return;
+
+    if (!unit->IsSpiritService())                            // it's not spirit service
+        return;
+
+    if (Battleground* bg = _player->GetBattleground())
+        bg->AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, _player->GetGUID());
+
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
+        bf->AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, _player->GetGUID());
+}
+
+void WorldSession::HandleHearthAndResurrect(WorldPackets::Battleground::HearthAndResurrect& /*hearthAndResurrect*/)
+{
+    if (_player->IsInFlight())
+        return;
+
+    if (/*Battlefield* bf = */sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
+    {
+        // bf->PlayerAskToLeave(_player); FIXME
+        return;
+    }
+
+    AreaTableEntry const* atEntry = GetAreaEntryByAreaID(_player->GetAreaId());
+    if (!atEntry || !(atEntry->Flags[0] & AREA_FLAG_CAN_HEARTH_AND_RESURRECT))
+        return;
+
+    _player->BuildPlayerRepop();
+    _player->ResurrectPlayer(1.0f);
+    _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
 }

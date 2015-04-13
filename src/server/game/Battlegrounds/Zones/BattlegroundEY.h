@@ -343,10 +343,9 @@ struct BattlegroundEYScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
         {
-            data.WriteBits(1, 24); // Objectives Count
-            content << uint32(FlagCaptures);
+            stats.push_back(FlagCaptures);
         }
 
         uint32 GetAttr1() const final override { return FlagCaptures; }

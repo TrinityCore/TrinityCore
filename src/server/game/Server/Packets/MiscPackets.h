@@ -563,6 +563,36 @@ namespace WorldPackets
 
             int32 AreaID = 0;
         };
+
+        class DurabilityDamageDeath final : public ServerPacket
+        {
+        public:
+            DurabilityDamageDeath() : ServerPacket(SMSG_DURABILITY_DAMAGE_DEATH, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Percent = 0;
+        };
+
+        class ObjectUpdateFailed final : public ClientPacket
+        {
+        public:
+            ObjectUpdateFailed(WorldPacket&& packet) : ClientPacket(CMSG_OBJECT_UPDATE_FAILED, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ObjectGUID;
+        };
+
+        class ObjectUpdateRescued final : public ClientPacket
+        {
+        public:
+            ObjectUpdateRescued(WorldPacket&& packet) : ClientPacket(CMSG_OBJECT_UPDATE_RESCUED, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ObjectGUID;
+        };
     }
 }
 

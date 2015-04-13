@@ -42,11 +42,10 @@ class BattlegroundTPScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final
+        void BuildObjectivesBlock(std::vector<int32>& stats)
         {
-            data.WriteBits(2, 24); // Objectives Count
-            content << uint32(FlagCaptures);
-            content << uint32(FlagReturns);
+            stats.push_back(FlagCaptures);
+            stats.push_back(FlagReturns);
         }
 
         uint32 GetAttr1() const final override { return FlagCaptures; }

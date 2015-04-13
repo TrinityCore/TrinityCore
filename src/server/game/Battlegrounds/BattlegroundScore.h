@@ -90,72 +90,7 @@ struct BattlegroundScore
             }
         }
 
-        virtual void AppendToPacket(WorldPacket& data, ByteBuffer& content)
-        {
-            uint32 primaryTree = 0;
-            /* TODO: 6.x update to new talent system (and probably rewrite this packet)
-            if (Player* player = ObjectAccessor::FindPlayer(PlayerGuid))
-                primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());*/
-
-            data.WriteBit(0);                   // Unk 1
-            data.WriteBit(0);                   // Unk 2
-            data.WriteBit(PlayerGuid[2]);
-            data.WriteBit(/*!IsArena*/ 1);      // IsArena
-            data.WriteBit(0);                   // Unk 4
-            data.WriteBit(0);                   // Unk 5
-            data.WriteBit(0);                   // Unk 6
-            data.WriteBit(PlayerGuid[3]);
-            data.WriteBit(PlayerGuid[0]);
-            data.WriteBit(PlayerGuid[5]);
-            data.WriteBit(PlayerGuid[1]);
-            data.WriteBit(PlayerGuid[6]);
-            data.WriteBit(TeamId);
-            data.WriteBit(PlayerGuid[7]);
-
-            content << uint32(HealingDone);     // healing done
-            content << uint32(DamageDone);      // damage done
-
-            //if (!IsArena)
-            //{
-                content << uint32(BonusHonor / 100);
-                content << uint32(Deaths);
-                content << uint32(HonorableKills);
-            //}
-
-            content.WriteByteSeq(PlayerGuid[4]);
-            content << uint32(KillingBlows);
-
-            //if (unk 5)
-            //    data << uint32() unk
-
-            content.WriteByteSeq(PlayerGuid[5]);
-
-            //if (unk 6)
-            //    data << uint32() unk
-
-            //if (unk 2)
-            //    data << uint32() unk
-
-            content.WriteByteSeq(PlayerGuid[1]);
-            content.WriteByteSeq(PlayerGuid[6]);
-
-            content << int32(primaryTree);
-
-            BuildObjectivesBlock(data, content);
-
-            data.WriteBit(PlayerGuid[4]);
-
-            content.WriteByteSeq(PlayerGuid[0]);
-            content.WriteByteSeq(PlayerGuid[3]);
-
-            //if (unk 4)
-            //    data << uint32() unk
-
-            content.WriteByteSeq(PlayerGuid[7]);
-            content.WriteByteSeq(PlayerGuid[2]);
-        }
-
-        virtual void BuildObjectivesBlock(WorldPacket& /*data*/, ByteBuffer& /*content*/) = 0;
+        virtual void BuildObjectivesBlock(std::vector<int32>& /*stats*/) = 0;
 
         // For Logging purpose
         virtual std::string ToString() const { return ""; }

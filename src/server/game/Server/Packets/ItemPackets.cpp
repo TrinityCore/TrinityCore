@@ -266,6 +266,13 @@ void WorldPackets::Item::AutoEquipItem::Read()
                  >> Slot;
 }
 
+void WorldPackets::Item::AutoEquipItemSlot::Read()
+{
+    _worldPacket >> Inv
+                 >> Item
+                 >> ItemDstSlot;
+}
+
 void WorldPackets::Item::AutoStoreBagItem::Read()
 {
     _worldPacket >> Inv
@@ -286,6 +293,59 @@ WorldPacket const* WorldPackets::Item::SellResponse::Write()
     _worldPacket << VendorGUID
                  << ItemGUID
                  << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
+{
+    _worldPacket << PlayerGUID;
+
+    _worldPacket << Slot;
+    _worldPacket << SlotInBag;
+
+    _worldPacket << Item;
+
+    _worldPacket << WodUnk;
+    _worldPacket << Quantity;
+    _worldPacket << QuantityInInventory;
+    _worldPacket << BattlePetBreedID;
+    _worldPacket << BattlePetBreedQuality;
+    _worldPacket << BattlePetSpeciesID;
+    _worldPacket << BattlePetLevel;
+
+    _worldPacket << ItemGUID;
+
+    _worldPacket.WriteBit(Pushed);
+    _worldPacket.WriteBit(Created);
+    _worldPacket.WriteBit(DisplayText);
+    _worldPacket.WriteBit(IsBonusRoll);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Item::ReadItem::Read()
+{
+    _worldPacket >> PackSlot;
+    _worldPacket >> Slot;
+}
+
+WorldPacket const* WorldPackets::Item::ReadItemResultFailed::Write()
+{
+    _worldPacket << Item;
+    _worldPacket << Delay;
+    _worldPacket.WriteBits(Subcode, 3);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ReadItemResultOK::Write()
+{
+    _worldPacket << Item;
 
     return &_worldPacket;
 }
