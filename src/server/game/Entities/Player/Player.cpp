@@ -13618,7 +13618,7 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
     packet.Slot = item->GetBagSlot();
     packet.SlotInBag = item->GetCount() == quantity ? item->GetSlot() : -1;
 
-    packet.Item.Initalize(item);
+    packet.Item.Initialize(item);
 
     //packet.ReadUInt32("WodUnk");
     packet.Quantity = quantity;

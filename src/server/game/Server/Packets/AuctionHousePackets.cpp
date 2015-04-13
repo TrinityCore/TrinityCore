@@ -82,14 +82,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AuctionHouse::AuctionBidd
 void WorldPackets::AuctionHouse::AuctionOwnerNotification::Initialize(::AuctionEntry const* auction, ::Item const* item)
 {
     AuctionItemID = auction->Id;
-    Item.Initalize(item);
+    Item.Initialize(item);
     BidAmount = auction->bid;
 }
 
 void WorldPackets::AuctionHouse::AuctionBidderNotification::Initialize(::AuctionEntry const* auction, ::Item const* item)
 {
     AuctionItemID = auction->Id;
-    Item.Initalize(item);
+    Item.Initialize(item);
     Bidder = ObjectGuid::Create<HighGuid::Player>(auction->bidder);
 }
 

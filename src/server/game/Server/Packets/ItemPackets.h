@@ -22,6 +22,8 @@
 #include "Item.h"
 #include "PacketUtilities.h"
 
+struct VoidStorageItem;
+
 namespace WorldPackets
 {
     namespace Item
@@ -34,8 +36,9 @@ namespace WorldPackets
 
         struct ItemInstance
         {
-            void Initalize(::Item const* item);
-            void Initalize(::LootItem const& lootItem);
+            void Initialize(::Item const* item);
+            void Initialize(::LootItem const& lootItem);
+            void Initialize(::VoidStorageItem const* voidItem);
 
             uint32 ItemID = 0;
             uint32 RandomPropertiesSeed = 0;

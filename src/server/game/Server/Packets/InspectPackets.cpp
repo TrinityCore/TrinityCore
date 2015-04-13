@@ -60,7 +60,7 @@ WorldPackets::Inspect::InspectItemData::InspectItemData(::Item const* item, uint
 {
     CreatorGUID = item->GetGuidValue(ITEM_FIELD_CREATOR);
 
-    Item.Initalize(item);
+    Item.Initialize(item);
     Index = index;
     Usable = true; /// @todo
 
