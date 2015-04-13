@@ -472,6 +472,14 @@ namespace WorldPackets
         class MoveSetVehicleRecIdAck;
     }
 
+    namespace VoidStorage
+    {
+        class UnlockVoidStorage;
+        class QueryVoidStorage;
+        class VoidStorageTransfer;
+        class SwapVoidItem;
+    }
+
     namespace Who
     {
         class WhoIsRequest;
@@ -1390,10 +1398,10 @@ class WorldSession
         void HandleSetSavedInstanceExtend(WorldPacket& recvData);
 
         // Void Storage
-        void HandleVoidStorageUnlock(WorldPacket& recvData);
-        void HandleVoidStorageQuery(WorldPacket& recvData);
-        void HandleVoidStorageTransfer(WorldPacket& recvData);
-        void HandleVoidSwapItem(WorldPacket& recvData);
+        void HandleVoidStorageUnlock(WorldPackets::VoidStorage::UnlockVoidStorage& unlockVoidStorage);
+        void HandleVoidStorageQuery(WorldPackets::VoidStorage::QueryVoidStorage& queryVoidStorage);
+        void HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStorageTransfer& voidStorageTransfer);
+        void HandleVoidSwapItem(WorldPackets::VoidStorage::SwapVoidItem& swapVoidItem);
         void SendVoidStorageTransferResult(VoidTransferError result);
 
         // Transmogrification

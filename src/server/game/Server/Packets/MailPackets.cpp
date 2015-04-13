@@ -24,7 +24,7 @@ WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8
 {
     Position = pos;
     AttachID = item->GetGUID().GetCounter();
-    Item.Initalize(item);
+    Item.Initialize(item);
     Count = item->GetCount();
     Charges = item->GetSpellCharges();
     MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
