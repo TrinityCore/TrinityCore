@@ -59,6 +59,9 @@ enum ItemModType
     ITEM_MOD_EXPERTISE_RATING         = 37,
     ITEM_MOD_ATTACK_POWER             = 38,
     ITEM_MOD_RANGED_ATTACK_POWER      = 39,
+    ITEM_MOD_VERSATILITY              = 40,
+    ITEM_MOD_SPELL_HEALING_DONE       = 41,
+    ITEM_MOD_SPELL_DAMAGE_DONE        = 42,
     ITEM_MOD_MANA_REGENERATION        = 43,
     ITEM_MOD_ARMOR_PENETRATION_RATING = 44,
     ITEM_MOD_SPELL_POWER              = 45,
@@ -73,9 +76,25 @@ enum ItemModType
     ITEM_MOD_SHADOW_RESISTANCE        = 54,
     ITEM_MOD_NATURE_RESISTANCE        = 55,
     ITEM_MOD_ARCANE_RESISTANCE        = 56,
+    ITEM_MOD_PVP_POWER                = 57,
+    ITEM_MOD_CR_AMPLIFY               = 58,
+    ITEM_MOD_CR_MULTISTRIKE           = 59,
+    ITEM_MOD_CR_READINESS             = 60,
+    ITEM_MOD_CR_SPEED                 = 61,
+    ITEM_MOD_CR_LIFESTEAL             = 62,
+    ITEM_MOD_CR_AVOIDANCE             = 63,
+    ITEM_MOD_CR_STURDINESS            = 64,
+    ITEM_MOD_CR_UNUSED_7              = 65,
+    ITEM_MOD_CR_CLEAVE                = 66,
+    ITEM_MOD_CR_UNUSED_9              = 67,
+    ITEM_MOD_CR_UNUSED_10             = 68,
+    ITEM_MOD_CR_UNUSED_11             = 69,
+    ITEM_MOD_CR_UNUSED_12             = 70,
+    ITEM_MOD_AGI_STR_INT              = 71,
+    ITEM_MOD_AGI_STR                  = 72,
+    ITEM_MOD_AGI_INT                  = 73,
+    ITEM_MOD_STR_INT                  = 74
 };
-
-#define MAX_ITEM_MOD                    57
 
 enum ItemSpelltriggerType
 {
@@ -585,7 +604,6 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 #define MAX_ITEM_LEVEL 1000
 
 class Player;
-typedef std::set<uint32> UsableTalentSpecs;
 
 struct ItemTemplate
 {
@@ -658,7 +676,7 @@ struct ItemTemplate
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
     float SpellPPMRate;
-    UsableTalentSpecs Specializations;
+    std::unordered_set<uint32> Specializations[2];  // one set for 1-40 level range and another for 41-100
 
     // helpers
     bool CanChangeEquipStateInCombat() const

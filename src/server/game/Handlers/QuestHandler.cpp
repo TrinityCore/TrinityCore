@@ -263,7 +263,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
             }
         }
 
-        if (quest->GetQuestPackageID())
+        if (!itemValid && quest->GetQuestPackageID())
         {
             if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
             {

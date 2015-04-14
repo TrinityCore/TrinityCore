@@ -140,7 +140,8 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
 
 bool ItemTemplate::CanWinForPlayer(Player const* player) const
 {
-    if (!Specializations.size())
+    std::unordered_set<uint32> const& specs = Specializations[player->getLevel() > 40];
+    if (specs.empty())
         return true;
 
     uint32 spec = player->GetSpecId(player->GetActiveTalentGroup());
@@ -150,6 +151,6 @@ bool ItemTemplate::CanWinForPlayer(Player const* player) const
     if (!spec)
         return false;
 
-    UsableTalentSpecs::const_iterator itr = Specializations.find(spec);
-    return itr != Specializations.end();
+    auto itr = specs.find(spec);
+    return itr != specs.end();
 }
