@@ -420,11 +420,12 @@ namespace WorldPackets
         class StandStateUpdate final : public ServerPacket
         {
         public:
-            StandStateUpdate() : ServerPacket(SMSG_STAND_STATE_UPDATE, 1) { }
+            StandStateUpdate() : ServerPacket(SMSG_STAND_STATE_UPDATE, 4 + 1) { }
             StandStateUpdate(UnitStandStateType state) : ServerPacket(SMSG_STAND_STATE_UPDATE, 1), State(state) { }
 
             WorldPacket const* Write() override;
 
+            uint32 UnkWoD1 = 0; /// @todo 6.1.0 resarch new value
             UnitStandStateType State = UNIT_STAND_STATE_STAND;
         };
 
