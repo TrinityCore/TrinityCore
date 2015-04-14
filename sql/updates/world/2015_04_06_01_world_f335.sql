@@ -1,5 +1,5 @@
-DELETE FROM `page_text` WHERE `entry` IN (3587, 3588, 3589, 3590, 3591, 3592, 3593, 3581, 3582, 3584, 3585, 3586, 3583);
-INSERT INTO `page_text` (`entry`, `Text`, `next_page`, `VerifiedBuild`) VALUES
+DELETE FROM `page_text` WHERE `ID` IN (3587, 3588, 3589, 3590, 3591, 3592, 3593, 3581, 3582, 3584, 3585, 3586, 3583);
+INSERT INTO `page_text` (`ID`, `Text`, `NextPageID`, `VerifiedBuild`) VALUES
 (3587, 'How to date a Dwarven woman:
 
 1. Ask her to buy you a drink.', 0, 19831), -- 3587

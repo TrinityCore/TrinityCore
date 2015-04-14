@@ -9,8 +9,8 @@ SET @SPELL_3   := 49109; -- Drop Off Gnome
 SET @SPELL_4   := 49081; -- Drop Off Soldier
 
 DELETE FROM `gameobject` WHERE `guid` = @OGUID;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-(@OGUID+0, 189331, 571, 1, 1, 3707.753418, -1182.235840, 120.745689, 1.24532, 0, 0, 0, 1, 120, 0, 1);
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+(@OGUID+0, 189331, 571, 1, 1, 1, 3707.753418, -1182.235840, 120.745689, 1.24532, 0, 0, 0, 1, 120, 0, 1);
 
 UPDATE `creature_template` SET `npcflag`=16777216, `unit_flags`=32768, `spell1`=49315, `spell2`=49333, `spell3`=49109, `spell4`=49081 WHERE `entry`=@TANK;
 UPDATE `creature_template` SET `faction` = 1975 WHERE `entry`=27335;
