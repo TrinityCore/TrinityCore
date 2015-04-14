@@ -23,9 +23,6 @@
 #include "DBCStructure.h"
 #include "SharedDefines.h"
 
-typedef std::map<uint32, uint32> SpecializationOverrideSpellsList;
-typedef std::map<uint32, SpecializationOverrideSpellsList> SpecializationOverrideSpellsMap;
-
 typedef std::list<uint32> SimpleFactionsList;
 SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 
@@ -44,6 +41,8 @@ WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid
 uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
 
 std::string const& GetRandomCharacterName(uint8 race, uint8 gender);
+
+std::vector<ItemSpecOverrideEntry const*> const* GetItemSpecOverrides(uint32 itemId);
 
 enum ContentLevels
 {
@@ -212,7 +211,6 @@ extern DBCStorage <ItemSetEntry>                 sItemSetStore;
 extern DBCStorage <ItemSetSpellEntry>            sItemSetSpellStore;
 extern ItemSetSpellsStore                        sItemSetSpellsStore;
 extern DBCStorage <ItemSpecOverrideEntry>        sItemSpecOverrideStore;
-extern ItemSpecOverridesStore                    sItemSpecOverridesStore;
 extern DBCStorage <ItemSpecEntry>                sItemSpecStore;
 extern DBCStorage <LFGDungeonEntry>              sLFGDungeonStore;
 extern DBCStorage <LiquidTypeEntry>              sLiquidTypeStore;

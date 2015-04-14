@@ -159,7 +159,7 @@ DBCStorage <ItemSetEntry>                 sItemSetStore(ItemSetEntryfmt);
 DBCStorage <ItemSetSpellEntry>            sItemSetSpellStore(ItemSetSpellEntryfmt);
 ItemSetSpellsStore                        sItemSetSpellsStore;
 DBCStorage <ItemSpecOverrideEntry>        sItemSpecOverrideStore(ItemSpecOverrideEntryfmt);
-ItemSpecOverridesStore                    sItemSpecOverridesStore;
+std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> sItemSpecOverridesStore;
 DBCStorage <ItemSpecEntry>                sItemSpecStore(ItemSpecEntryfmt);
 
 DBCStorage <LFGDungeonEntry> sLFGDungeonStore(LFGDungeonEntryfmt);
@@ -476,15 +476,13 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemRandomSuffixStore,       dbcPath, "ItemRandomSuffix.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemSetStore,                dbcPath, "ItemSet.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemSetSpellStore,           dbcPath, "ItemSetSpell.dbc");//19116
-    for (uint32 i = 0; i < sItemSetSpellStore.GetNumRows(); ++i)
-        if (ItemSetSpellEntry const* entry = sItemSetSpellStore.LookupEntry(i))
-            sItemSetSpellsStore[entry->ItemSetID].push_back(entry);
+    for (ItemSetSpellEntry const* entry : sItemSetSpellStore)
+        sItemSetSpellsStore[entry->ItemSetID].push_back(entry);
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemSpecStore,               dbcPath, "ItemSpec.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemSpecOverrideStore,       dbcPath, "ItemSpecOverride.dbc");//19116
-    for (uint32 i = 0; i < sItemSpecOverrideStore.GetNumRows(); ++i)
-        if (ItemSpecOverrideEntry const* entry = sItemSpecOverrideStore.LookupEntry(i))
-            sItemSpecOverridesStore[entry->ItemID].push_back(entry);
+    for (ItemSpecOverrideEntry const* entry : sItemSpecOverrideStore)
+        sItemSpecOverridesStore[entry->ItemID].push_back(entry);
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorQualityStore,       dbcPath, "ItemArmorQuality.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorShieldStore,        dbcPath, "ItemArmorShield.dbc");//19116
@@ -1069,6 +1067,15 @@ std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uin
 {
     auto itr = sSpecializationSpellsBySpecStore.find(specId);
     if (itr != sSpecializationSpellsBySpecStore.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+std::vector<ItemSpecOverrideEntry const*> const* GetItemSpecOverrides(uint32 itemId)
+{
+    auto itr = sItemSpecOverridesStore.find(itemId);
+    if (itr != sItemSpecOverridesStore.end())
         return &itr->second;
 
     return nullptr;

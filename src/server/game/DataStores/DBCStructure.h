@@ -1126,9 +1126,6 @@ struct ItemSpecOverrideEntry
     uint32      SpecID;                                     // 2
 };
 
-typedef std::vector<ItemSpecOverrideEntry const*> ItemSpecOverrides;
-typedef std::unordered_map<uint32, ItemSpecOverrides> ItemSpecOverridesStore;
-
 struct LFGDungeonEntry
 {
     uint32      ID;                                         // 0
