@@ -2316,9 +2316,12 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                         break;
                     }
                     case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
-                    {
-                        float timer = float(m_goValue.Transport.PathProgress % GetUInt32Value(GAMEOBJECT_LEVEL));
-                        pathProgress = int16(timer / float(GetUInt32Value(GAMEOBJECT_LEVEL)) * 65535.0f);
+					{
+						if (GetUInt32Value(GAMEOBJECT_LEVEL) != 0)
+						{
+							float timer = float(m_goValue.Transport.PathProgress % GetUInt32Value(GAMEOBJECT_LEVEL));
+							pathProgress = int16(timer / float(GetUInt32Value(GAMEOBJECT_LEVEL)) * 65535.0f);
+						}
                         break;
                     }
                     default:
