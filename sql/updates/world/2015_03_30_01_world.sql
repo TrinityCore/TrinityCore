@@ -4,8 +4,8 @@ SET @Sinestra2:=23284;
 SET @GUID:=28796; -- 1 free creature guid set by TC
 SET @PATH := @Sinestra1*10;
 DELETE FROM `creature` WHERE `id` IN (@Sinestra1);
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`curhealth`) VALUES
-(@GUID+0, @Sinestra1, 530, 1, 1, -5240.304199, 682.020081, 157.604004, 5.723090, 900, 151760);
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`curhealth`) VALUES
+(@GUID+0, @Sinestra1, 530, 1, 1, 1, -5240.304199, 682.020081, 157.604004, 5.723090, 900, 151760);
 
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@GUID;
 UPDATE `creature_template` SET  `InhabitType`=4, `AIName`='SmartAI', `flags_extra`=0 WHERE  `entry`=@Sinestra1;

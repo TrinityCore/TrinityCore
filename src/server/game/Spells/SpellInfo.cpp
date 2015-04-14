@@ -1818,7 +1818,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
-                        if (skillIter->second->skillId == SKILL_MOUNTS)
+                        if (skillIter->second->SkillLine == SKILL_MOUNTS)
                             if (!player->CanFlyInZone(map_id, zone_id))
                                 return SPELL_FAILED_INCORRECT_AREA;
                     }

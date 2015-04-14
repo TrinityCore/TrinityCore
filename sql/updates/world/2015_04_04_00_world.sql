@@ -8,8 +8,8 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 
 -- White Kitten - missing added
 DELETE FROM `creature` WHERE `guid`=@GUID; 
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `curhealth`, `spawndist`, `MovementType`) VALUES
-(@GUID, 7386, 0, 1, 1, -8632.046875, 921.279480, 99.382813, 3.897803, 180, 42, 0, 0);
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `curhealth`, `spawndist`, `MovementType`) VALUES
+(@GUID, 7386, 0, 1, 1, 1, -8632.046875, 921.279480, 99.382813, 3.897803, 180, 42, 0, 0);
 
 UPDATE `creature` SET `position_x` =-8634.505859, `position_y` = 918.960571, `position_z` = 99.354980, `orientation` = 3.832987, `MovementType` = 2, `spawntimesecs` = 5400 WHERE `guid` = 45501;
 UPDATE `creature` SET `position_x` =-8583.879883 , `position_y` =633.127014 , `position_z` =96.338028 , `orientation` =4.989326  WHERE `guid` = 79816;

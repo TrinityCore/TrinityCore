@@ -1,7 +1,7 @@
 SET @CGUID		:= 76018;
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+31;
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `PhaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
 (@CGUID+0, 21664, 532, 3, 1, -11086.92, -1899.176, 220.7505, 0.7330383, 7200, 0, 0), -- 21664 (Area: 3457) (Auras: )
 (@CGUID+1, 21664, 532, 3, 1, -11104.63, -1877.507, 220.7505, 0.6806784, 7200, 0, 0), -- 21664 (Area: 3457) (Auras: )
 (@CGUID+2, 17469, 532, 3, 1, -11064.65, -1874.336, 220.7505, 3.839724, 7200, 0, 0), -- 17469 (Area: 3457) (Auras: )

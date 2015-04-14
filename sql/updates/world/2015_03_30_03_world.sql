@@ -16,11 +16,21 @@ UPDATE `creature_template` SET `npcflag`=2, `unit_class`=2, `unit_flags`=32832, 
 UPDATE `creature_template` SET `npcflag`=2, `speed_walk`=0.888888, `speed_run`=0.9920629, `unit_class`=2, `unit_flags`=33088, `unit_flags2`=2099200, `AIName`='SmartAI' WHERE `entry`=@SYLVANAS;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ALEXANDROS;
 
-UPDATE `quest_template` SET `OfferRewardText`='Impossible...$B$BFather, is it you?!$B$BYou have done me a great service, hero. I offer you the reins of my faithful steed. Do with it as you please, but do not forget those that assisted you in this monumental feat.', `RequestItemsText`='What is that you hold, $c?$B$BIt calls out to me, stirring feelings I thought to be long dead.' WHERE `Id`=@DARIONQUEST;
-UPDATE `quest_template` SET `OfferRewardText`='What... how did you manage to come by this!?$B$BYou have done me a great service, hero. My heart could not bear to keep this locket, but I will place an enchantment upon it that you may find useful. Do with it as you please, but do not forget those that assisted you in this monumental feat.', `RequestItemsText`='Yes, $c? How can I assist you?' WHERE `Id`=@JAINAQUEST;
-UPDATE `quest_template` SET `OfferRewardText`='Aye. I know this blade... and I will treasure it always - a moment of time that will be lost forever.$B$BYou have done me a great service, hero. I offer you a gift from the Frostborn dwarves. Do with it as you please, but do not forget those that assisted you in this monumental feat.', `RequestItemsText`='Whatdya got there, $r?' WHERE  `Id`=@MURADINQUEST;
-UPDATE `quest_template` SET `OfferRewardText`='<Sylvanas silently reflects for a moment before returning her gaze to you.>$B$BYou have done me a great service, hero. I offer you the boon of the Banshee Queen. Do with it as you please, but do not forget those that assisted you in this monumental feat.', `RequestItemsText`='What is it, $r?' WHERE `Id`=@SYLVANASQUEST;
-UPDATE `quest_template` SET `OfferRewardText`='<Uther stares at the medal, speechless for a moment.>$B$BArthas'' medal.$B$BI remember well the day I presented it to him...$B$BYou have done me a great service, hero. My soul may now rest in peace. I offer you a memory lost in time. Do with it as you please, but do not forget those that assisted you in this monumental feat.', `RequestItemsText`='How may I be of service, $r?' WHERE `Id`=@UTHERQUEST;
+DELETE FROM `quest_offer_reward` WHERE `ID` IN (@DARIONQUEST, @JAINAQUEST, @MURADINQUEST, @SYLVANASQUEST, @UTHERQUEST);
+INSERT INTO `quest_offer_reward` (`ID`, `RewardText`) VALUES
+(@DARIONQUEST, 'Impossible...$B$BFather, is it you?!$B$BYou have done me a great service, hero. I offer you the reins of my faithful steed. Do with it as you please, but do not forget those that assisted you in this monumental feat.'),
+(@JAINAQUEST, 'What... how did you manage to come by this!?$B$BYou have done me a great service, hero. My heart could not bear to keep this locket, but I will place an enchantment upon it that you may find useful. Do with it as you please, but do not forget those that assisted you in this monumental feat.'),
+(@MURADINQUEST, 'Aye. I know this blade... and I will treasure it always - a moment of time that will be lost forever.$B$BYou have done me a great service, hero. I offer you a gift from the Frostborn dwarves. Do with it as you please, but do not forget those that assisted you in this monumental feat.'),
+(@SYLVANASQUEST, '<Sylvanas silently reflects for a moment before returning her gaze to you.>$B$BYou have done me a great service, hero. I offer you the boon of the Banshee Queen. Do with it as you please, but do not forget those that assisted you in this monumental feat.'),
+(@UTHERQUEST, '<Uther stares at the medal, speechless for a moment.>$B$BArthas'' medal.$B$BI remember well the day I presented it to him...$B$BYou have done me a great service, hero. My soul may now rest in peace. I offer you a memory lost in time. Do with it as you please, but do not forget those that assisted you in this monumental feat.');
+
+DELETE FROM `quest_request_items` WHERE `ID` IN (@DARIONQUEST, @JAINAQUEST, @MURADINQUEST, @SYLVANASQUEST, @UTHERQUEST);
+INSERT INTO `quest_request_items` (`ID`, `CompletionText`) VALUES
+(@DARIONQUEST, 'What is that you hold, $c?$B$BIt calls out to me, stirring feelings I thought to be long dead.'),
+(@JAINAQUEST, 'Yes, $c? How can I assist you?'),
+(@MURADINQUEST, 'Whatdya got there, $r?'),
+(@SYLVANASQUEST, 'What is it, $r?'),
+(@UTHERQUEST, 'How may I be of service, $r?');
 
 UPDATE `creature_queststarter` SET `id`=@JAINA WHERE `id`=37120 AND `quest`=24916;
 UPDATE `creature_queststarter` SET `id`=@MURADIN WHERE `id`=37120 AND `quest`=24917;
@@ -33,16 +43,16 @@ UPDATE `creature_questender` SET `id`=@UTHER WHERE `id`=37120 AND `quest`=24919;
 UPDATE `creature_questender` SET `id`=@SYLVANAS WHERE `id`=37120 AND `quest`=24918;
 
 DELETE FROM `spell_target_position` WHERE `ID`=72468;
-INSERT INTO `spell_target_position` (`id`, `effIndex`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`, `VerifiedBuild`) VALUES 
-(72468, 0, 631, -66.8684, 2158.28, 30.73743, 3.893452, 17658);
+INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES 
+(72468, 0, 631, -66.8684, 2158.28, 30.73743, 17658);
 
 DELETE FROM `gossip_menu` WHERE `entry`=11065 AND `text_id`=15382;
 INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES 
 (11065, 15382);
 
 DELETE FROM `npc_text` WHERE `ID`=15382;
-INSERT INTO `npc_text` (`ID`, `text0_1`, `BroadcastTextID0`, `prob0`, `text1_1`, `BroadcastTextID1`, `prob1`, `VerifiedBuild`) VALUES 
-(15382, 'He''s truly gone, isn''t he?$b$bI... I can feel it.', 38510, 1, 'Was there truly no way to save him?$b$bI fear I shall always wonder.', 38511, 1, 19342);
+INSERT INTO `npc_text` (`ID`, `BroadcastTextID0`, `Probability0`, `BroadcastTextID1`, `Probability1`, `VerifiedBuild`) VALUES 
+(15382, 38510, 1, 38511, 1, 19342);
 
 DELETE FROM `creature_text` WHERE `entry` IN (@JAINA,@MURADIN,@UTHER,@SYLVANAS,@ALEXANDROS);
 DELETE FROM `creature_text` WHERE `entry`=@DARION AND `groupid` IN (4,5,6);
