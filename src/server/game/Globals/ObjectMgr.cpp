@@ -5322,6 +5322,7 @@ void ObjectMgr::LoadNPCText()
             npcText.Data[i].Probability      = fields[1 + i * 2].GetFloat();
         }
 
+        bool isValid = false;
         for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; i++)
         {
             if (npcText.Data[i].BroadcastTextID)
@@ -5331,9 +5332,13 @@ void ObjectMgr::LoadNPCText()
                     TC_LOG_ERROR("sql.sql", "NpcText (Id: %u) in table `npc_text` has non-existing or incompatible Index: %u BroadcastTextID %u.", textID, i, npcText.Data[i].BroadcastTextID);
                     npcText.Data[i].BroadcastTextID = 0;
                 }
+                else
+                    isValid = true;
             }
         }
 
+        if (!isValid)
+            TC_LOG_ERROR("sql.sql", "NpcText (Id: %u) in table `npc_text` is invalid", textID);
     }
     while (result->NextRow());
 
