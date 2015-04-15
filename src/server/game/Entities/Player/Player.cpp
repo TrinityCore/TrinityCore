@@ -9459,7 +9459,7 @@ uint32 Player::GetXPRestBonus(uint32 xp)
 
     SetRestBonus(GetRestBonus() - rested_bonus);
 
-    TC_LOG_DEBUG("entities.player", "GetXPRestBonus: Player %s (%u) gain %u xp (+%u Rested Bonus). Rested points=%f", GetName().c_str(), GetGUID().GetCounter(), xp + rested_bonus, rested_bonus, GetRestBonus());
+    TC_LOG_DEBUG("entities.player", "GetXPRestBonus: Player %s (%s) gain %u xp (+%u Rested Bonus). Rested points=%f", GetGUID().ToString().c_str(), GetName().c_str(), xp + rested_bonus, rested_bonus, GetRestBonus());
     return rested_bonus;
 }
 
@@ -26023,9 +26023,9 @@ uint8 Player::GetNumOfVoidStorageFreeSlots() const
     return count;
 }
 
-uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
+uint8 Player::AddVoidStorageItem(VoidStorageItem const& item)
 {
-    int8 slot = GetNextVoidStorageFreeSlot();
+    uint8 slot = GetNextVoidStorageFreeSlot();
 
     if (slot >= VOID_STORAGE_MAX_SLOT)
     {
