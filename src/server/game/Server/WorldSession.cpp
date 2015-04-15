@@ -693,12 +693,6 @@ void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
         , GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
 }
 
-void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
-{
-    TC_LOG_ERROR("network.opcode", "Received server-side opcode %s from %s"
-        , GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
-}
-
 void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial)
 {
     boost::system::error_code ignored_error;
