@@ -443,3 +443,17 @@ WorldPacket const* WorldPackets::Character::BarberShopResultServer::Write()
     _worldPacket << int32(Result);
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Character::LogXPGain::Write()
+{
+    _worldPacket << Victim;
+    _worldPacket << int32(Original);
+    _worldPacket << uint8(Reason);
+    _worldPacket << int32(Amount);
+    _worldPacket << float(GroupBonus);
+    _worldPacket.WriteBit(ReferAFriend);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

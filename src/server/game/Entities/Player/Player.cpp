@@ -2826,23 +2826,17 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
     group->RemoveMember(guid, method, kicker, reason);
 }
 
-void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
+void Player::SendLogXPGain(uint32 givenXP, Unit* victim, uint32 bonusXP, bool recruitAFriend, float groupBonus)
 {
-    WorldPacket data(SMSG_LOG_XP_GAIN, 21); // guess size?
-    data << (victim ? victim->GetGUID() : ObjectGuid::Empty);
-    data << uint32(GivenXP + BonusXP);                      // given experience
-    data << uint8(victim ? 0 : 1);                          // 00-kill_xp type, 01-non_kill_xp type
+    WorldPackets::Character::LogXPGain packet;
+    packet.Victim = victim ? victim->GetGUID() : ObjectGuid::Empty;
+    packet.Original = givenXP + bonusXP;
+    packet.Reason = victim ? LOG_XP_REASON_KILL: LOG_XP_REASON_NO_KILL;
+    packet.Amount = givenXP;
+    packet.GroupBonus = groupBonus;
+    packet.ReferAFriend = recruitAFriend;
 
-    if (victim)
-    {
-        data << uint32(GivenXP);                            // experience without bonus
-
-        // should use group_rate here but can't figure out how
-        data << float(1);                                   // 1 - none 0 - 100% group bonus output
-    }
-
-    data << uint8(recruitAFriend ? 1 : 0);                  // does the GivenXP include a RaF bonus?
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
