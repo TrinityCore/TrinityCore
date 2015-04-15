@@ -110,6 +110,9 @@ namespace WorldPackets
         class AreaSpiritHealerQueue;
         class HearthAndResurrect;
         class PVPLogDataRequest;
+        class BattlemasterJoin;
+        class BattlefieldLeave;
+        class BattlefieldPort;
     }
 
     namespace BlackMarket
@@ -856,7 +859,6 @@ class WorldSession
 
         void Handle_NULL(WorldPacket& recvPacket);          // not used
         void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
-        void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
 
         void HandleCharEnum(PreparedQueryResult result);
         void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
@@ -1275,12 +1277,12 @@ class WorldSession
 
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPacket& recvData);
-        void HandleBattlemasterJoinOpcode(WorldPacket& recvData);
+        void HandleBattlemasterJoinOpcode(WorldPackets::Battleground::BattlemasterJoin& battlemasterJoin);
         void HandleBattlegroundPlayerPositionsOpcode(WorldPacket& recvData);
         void HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogDataRequest& pvpLogDataRequest);
-        void HandleBattleFieldPortOpcode(WorldPacket& recvData);
+        void HandleBattleFieldPortOpcode(WorldPackets::Battleground::BattlefieldPort& battlefieldPort);
         void HandleBattlefieldListOpcode(WorldPacket& recvData);
-        void HandleBattlefieldLeaveOpcode(WorldPacket& recvData);
+        void HandleBattlefieldLeaveOpcode(WorldPackets::Battleground::BattlefieldLeave& battlefieldLeave);
         void HandleBattlemasterJoinArena(WorldPacket& recvData);
         void HandleReportPvPAFK(WorldPacket& recvData);
         void HandleRequestRatedBattlefieldInfo(WorldPacket& recvData);
