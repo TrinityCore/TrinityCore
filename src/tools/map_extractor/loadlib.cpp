@@ -21,7 +21,7 @@
 #include "loadlib.h"
 #include <cstdio>
 
-u_map_fcc MverMagic = { {'R','E','V','M'} };
+u_map_fcc MverMagic = { { 'R','E','V','M' } };
 
 ChunkedFile::ChunkedFile()
 {
@@ -89,14 +89,15 @@ void ChunkedFile::free()
     data_size = 0;
 }
 
-u_map_fcc InterestingChunks[] = {
-    { 'R', 'E', 'V', 'M' },
-    { 'N', 'I', 'A', 'M' },
-    { 'O', '2', 'H', 'M' },
-    { 'K', 'N', 'C', 'M' },
-    { 'T', 'V', 'C', 'M' },
-    { 'O', 'M', 'W', 'M' },
-    { 'Q', 'L', 'C', 'M' }
+u_map_fcc InterestingChunks[] =
+{
+    { { 'R', 'E', 'V', 'M' } },
+    { { 'N', 'I', 'A', 'M' } },
+    { { 'O', '2', 'H', 'M' } },
+    { { 'K', 'N', 'C', 'M' } },
+    { { 'T', 'V', 'C', 'M' } },
+    { { 'O', 'M', 'W', 'M' } },
+    { { 'Q', 'L', 'C', 'M' } }
 };
 
 bool IsInterestingChunk(u_map_fcc const& fcc)
@@ -123,7 +124,7 @@ void ChunkedFile::parseChunks()
                 std::swap(header.fcc_txt[0], header.fcc_txt[3]);
                 std::swap(header.fcc_txt[1], header.fcc_txt[2]);
 
-                FileChunk* chunk = new FileChunk{ ptr, size };
+                FileChunk* chunk = new FileChunk(ptr, size);
                 chunk->parseSubChunks();
                 chunks.insert({ std::string(header.fcc_txt, 4), chunk });
             }
@@ -167,7 +168,7 @@ void FileChunk::parseSubChunks()
                 std::swap(header.fcc_txt[0], header.fcc_txt[3]);
                 std::swap(header.fcc_txt[1], header.fcc_txt[2]);
 
-                FileChunk* chunk = new FileChunk{ ptr, subsize };
+                FileChunk* chunk = new FileChunk(ptr, subsize);
                 chunk->parseSubChunks();
                 subchunks.insert({ std::string(header.fcc_txt, 4), chunk });
             }
