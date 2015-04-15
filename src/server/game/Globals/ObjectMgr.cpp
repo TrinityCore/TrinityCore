@@ -5250,7 +5250,7 @@ void ObjectMgr::LoadInstanceEncounters()
                 continue;
         }
 
-        if (dungeonEncounter->DifficultyID == -1)
+        if (!dungeonEncounter->DifficultyID)
         {
             for (uint32 i = 0; i < MAX_DIFFICULTY; ++i)
             {

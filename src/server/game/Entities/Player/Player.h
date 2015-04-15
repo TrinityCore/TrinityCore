@@ -2617,7 +2617,7 @@ class Player : public Unit, public GridObject<Player>
         void LockVoidStorage() { RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_VOID_UNLOCKED); }
         uint8 GetNextVoidStorageFreeSlot() const;
         uint8 GetNumOfVoidStorageFreeSlots() const;
-        uint8 AddVoidStorageItem(const VoidStorageItem& item);
+        uint8 AddVoidStorageItem(VoidStorageItem const& item);
         void AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item);
         void DeleteVoidStorageItem(uint8 slot);
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
