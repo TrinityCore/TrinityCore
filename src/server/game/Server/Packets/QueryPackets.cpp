@@ -227,16 +227,17 @@ WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
     _worldPacket << TextID;
     _worldPacket.WriteBit(Allow);
 
+    _worldPacket.FlushBits();
+
+    _worldPacket << int32(Allow ? (MAX_NPC_TEXT_OPTIONS * (sizeof(float) + sizeof(uint32))) : 0);
+
     if (Allow)
     {
-        _worldPacket << int32(MAX_NPC_TEXT_OPTIONS * (4 + 4));
         for (uint32 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
             _worldPacket << Probabilities[i];
         for (uint32 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
             _worldPacket << BroadcastTextID[i];
     }
-
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
