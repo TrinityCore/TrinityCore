@@ -1266,13 +1266,13 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         if (player->GetMapId() == uint32(dungeon->map))
             player->TeleportToBGEntryPoint();
 
-        // in the case were we are the last in lfggroup then we must leave the queue and group when porting out of the instance
-        if (group && group->GetMembersCount() == 1)
+        // in the case were we are the last in the lfggroup then we must disband the lfggroup when porting out of the instance
+        // only when the player is not logging out.on logout, the core does it's own magic
+        if (!player->GetSession()->isLogingOut() && group->GetMembersCount() == 1)
         {
-            sLFGMgr->LeaveLfg(player->GetGUID());
-            group->RemoveMember(player->GetGUID());
-            TC_LOG_DEBUG("lfg.teleport", "Player %s is last in lfggroup so we leave the queue and the group.",
-                player->GetName().c_str());
+            group->Disband();
+            TC_LOG_DEBUG("lfg.teleport", "Player %s(%s) is last in the lfggroup so we disband the group.",
+                player->GetName().c_str(), player->GetGUID().ToString().c_str());
         }
 
         return;
