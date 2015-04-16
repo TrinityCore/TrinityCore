@@ -751,6 +751,7 @@ Player::Player(WorldSession* session): Unit(true)
     {
         m_bgBattlegroundQueueID[j].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
         m_bgBattlegroundQueueID[j].invitedToInstance = 0;
+        m_bgBattlegroundQueueID[j].joinTime = 0;
     }
 
     m_logintime = time(NULL);
@@ -13953,7 +13954,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
                 return;
             }
 
-            GetSession()->SendBattleGroundList(guid, bgTypeId);
+            sBattlegroundMgr->SendBattlegroundList(this, guid, bgTypeId);
             break;
         }
     }
@@ -23098,6 +23099,14 @@ Battleground* Player::GetBattleground() const
     return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
 }
 
+uint32 Player::GetBattlegroundQueueJoinTime(BattlegroundQueueTypeId bgQueueTypeId) const
+{
+    for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+        if (m_bgBattlegroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
+            return m_bgBattlegroundQueueID[i].joinTime;
+    return 0;
+}
+
 bool Player::InBattlegroundQueue() const
 {
     for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
@@ -23108,7 +23117,10 @@ bool Player::InBattlegroundQueue() const
 
 BattlegroundQueueTypeId Player::GetBattlegroundQueueTypeId(uint32 index) const
 {
-    return m_bgBattlegroundQueueID[index].bgQueueTypeId;
+    if (index < PLAYER_MAX_BATTLEGROUND_QUEUES)
+        return m_bgBattlegroundQueueID[index].bgQueueTypeId;
+
+    return BATTLEGROUND_QUEUE_NONE;
 }
 
 uint32 Player::GetBattlegroundQueueIndex(BattlegroundQueueTypeId bgQueueTypeId) const
@@ -23146,6 +23158,7 @@ uint32 Player::AddBattlegroundQueueId(BattlegroundQueueTypeId val)
         {
             m_bgBattlegroundQueueID[i].bgQueueTypeId = val;
             m_bgBattlegroundQueueID[i].invitedToInstance = 0;
+            m_bgBattlegroundQueueID[i].joinTime = getMSTime();
             return i;
         }
     }
@@ -23168,6 +23181,7 @@ void Player::RemoveBattlegroundQueueId(BattlegroundQueueTypeId val)
         {
             m_bgBattlegroundQueueID[i].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
             m_bgBattlegroundQueueID[i].invitedToInstance = 0;
+            m_bgBattlegroundQueueID[i].joinTime = 0;
             return;
         }
     }

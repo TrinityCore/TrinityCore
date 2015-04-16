@@ -34,6 +34,7 @@ namespace WorldPackets
         // CMSG_GOSSIP_HELLO
         // CMSG_LIST_INVENTORY
         // CMSG_TRAINER_LIST
+        // CMSG_BATTLEMASTER_HELLO
         class Hello final : public ClientPacket
         {
         public:

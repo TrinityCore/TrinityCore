@@ -20,6 +20,7 @@
 
 #include "ObjectGuid.h"
 #include "Packet.h"
+#include "LFGPackets.h"
 
 namespace WorldPackets
 {
@@ -115,6 +116,175 @@ namespace WorldPackets
             std::vector<PlayerData> Players;
             Optional<RatingData> Ratings;
             int8 PlayerCount[2] = { };
+        };
+
+        struct BattlefieldStatusHeader
+        {
+            WorldPackets::LFG::RideTicket Ticket;
+            uint64 QueueID = 0;
+            uint8 RangeMin = 0;
+            uint8 RangeMax = 0;
+            uint8 TeamSize = 0;
+            uint32 InstanceID = 0;
+            bool RegisteredMatch = false;
+            bool TournamentRules = false;
+        };
+
+        class BattlefieldStatusNone final : public ServerPacket
+        {
+        public:
+            BattlefieldStatusNone() : ServerPacket(SMSG_BATTLEFIELD_STATUS_NONE, 16 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            WorldPackets::LFG::RideTicket Ticket;
+        };
+
+        class BattlefieldStatusNeedConfirmation final : public ServerPacket
+        {
+        public:
+            BattlefieldStatusNeedConfirmation() : ServerPacket(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION, 4 + 4 + sizeof(BattlefieldStatusHeader) + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Timeout = 0;
+            uint32 Mapid = 0;
+            BattlefieldStatusHeader Hdr;
+            uint8 Role = 0;
+        };
+
+        class BattlefieldStatusActive final : public ServerPacket
+        {
+        public:
+            BattlefieldStatusActive() : ServerPacket(SMSG_BATTLEFIELD_STATUS_ACTIVE, sizeof(BattlefieldStatusHeader) + 4 + 1 + 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            BattlefieldStatusHeader Hdr;
+            uint32 ShutdownTimer = 0;
+            uint8 ArenaFaction = 0;
+            bool LeftEarly = false;
+            uint32 StartTimer = 0;
+            uint32 Mapid = 0;
+        };
+
+        class BattlefieldStatusQueued final : public ServerPacket
+        {
+        public:
+            BattlefieldStatusQueued() : ServerPacket(SMSG_BATTLEFIELD_STATUS_QUEUED, 4 + sizeof(BattlefieldStatusHeader) + 1 + 1 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 AverageWaitTime = 0;
+            BattlefieldStatusHeader Hdr;
+            bool AsGroup = false;
+            bool SuspendedQueue = false;
+            bool EligibleForMatchmaking = false;
+            uint32 WaitTime = 0;
+        };
+
+        class BattlefieldStatusFailed final : public ServerPacket
+        {
+        public:
+            BattlefieldStatusFailed() : ServerPacket(SMSG_BATTLEFIELD_STATUS_FAILED, 8 + 16 + 4 + 16 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 QueueID = 0;
+            ObjectGuid ClientID;
+            int32 Reason = 0;
+            WorldPackets::LFG::RideTicket Ticket;
+        };
+
+        class BattlemasterJoin final : public ClientPacket
+        {
+        public:
+            BattlemasterJoin(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN, std::move(packet)) { }
+
+            void Read() override;
+
+            bool JoinAsGroup = false;
+            uint8 Roles = 0;
+            uint64 QueueID = 0;
+            int32 BlacklistMap[2] = { };
+        };
+
+        class BattlefieldLeave final : public ClientPacket
+        {
+        public:
+            BattlefieldLeave(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_LEAVE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class BattlefieldPort final : public ClientPacket
+        {
+        public:
+            BattlefieldPort(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_PORT, std::move(packet)) { }
+
+            void Read() override;
+
+            WorldPackets::LFG::RideTicket Ticket;
+            bool AcceptedInvite = false;
+        };
+
+        class BattlefieldListRequest final : public ClientPacket
+        {
+        public:
+            BattlefieldListRequest(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_LIST, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 ListID = 0;
+        };
+
+        class BattlefieldList final : public ServerPacket
+        {
+        public:
+            BattlefieldList() : ServerPacket(SMSG_BATTLEFIELD_LIST, 1 + 1 + 16 + 1 + 1 + 1 + 4 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 MaxLevel = 0;
+            bool PvpAnywhere = false;
+            ObjectGuid BattlemasterGuid;
+            bool IsRandomBG = false;
+            uint8 MinLevel = 0;
+            bool HasHolidayWinToday = false;
+            int32 BattlemasterListID = 0;
+            bool HasRandomWinToday = false;
+            std::vector<int32> Battlefields;    // Players cannot join a specific battleground instance anymore - this is always empty
+        };
+
+        class GetPVPOptionsEnabled final : public ClientPacket
+        {
+        public:
+            GetPVPOptionsEnabled(WorldPacket&& packet) : ClientPacket(CMSG_GET_PVP_OPTIONS_ENABLED, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class PVPOptionsEnabled final : public ServerPacket
+        {
+        public:
+            PVPOptionsEnabled() : ServerPacket(SMSG_PVP_OPTIONS_ENABLED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool WargameArenas = false;
+            bool RatedArenas = false;
+            bool WargameBattlegrounds = false;
+            bool ArenaSkirmish = false;
+            bool PugBattlegrounds = false;
+            bool RatedBattlegrounds = false;
+        };
+
+        class RequestBattlefieldStatus  final : public ClientPacket
+        {
+        public:
+            RequestBattlefieldStatus(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_BATTLEFIELD_STATUS, std::move(packet)) { }
+
+            void Read() override { }
         };
     }
 }
