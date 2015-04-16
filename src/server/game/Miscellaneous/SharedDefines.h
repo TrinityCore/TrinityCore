@@ -4784,7 +4784,11 @@ enum GroupJoinBattlegroundResult
     ERR_REMOVE_FROM_PVP_QUEUE_GRANT_LEVEL           = 33,
     ERR_REMOVE_FROM_PVP_QUEUE_FACTION_CHANGE        = 34,
     ERR_BATTLEGROUND_JOIN_FAILED                    = 35,
-    ERR_BATTLEGROUND_DUPE_QUEUE                     = 43
+    ERR_BATTLEGROUND_DUPE_QUEUE                     = 43,
+    ERR_BATTLEGROUND_JOIN_NO_VALID_SPEC_FOR_ROLE    = 44,
+    ERR_BATTLEGROUND_JOIN_RESPEC                    = 45,
+    ERR_ALREADY_USING_LFG_LIST                      = 46,
+    ERR_BATTLEGROUND_JOIN_MUST_COMPLETE_QUEST       = 47
 };
 
 enum PetNameInvalidReason

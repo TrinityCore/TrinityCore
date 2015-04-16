@@ -35,5 +35,6 @@ namespace WorldPackets
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ticket);
 
 #endif // LFGPackets_h__
