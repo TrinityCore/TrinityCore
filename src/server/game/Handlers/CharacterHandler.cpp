@@ -1755,7 +1755,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         return;
     }
 
-    if (factionChangeInfo->FactionChange == (Player::TeamIdForRace(oldRace) != newTeamId))
+    if (factionChangeInfo->FactionChange == (Player::TeamIdForRace(oldRace) == newTeamId))
     {
         SendCharFactionChange(factionChangeInfo->FactionChange ? CHAR_CREATE_CHARACTER_SWAP_FACTION : CHAR_CREATE_CHARACTER_RACE_ONLY, factionChangeInfo);
         return;
