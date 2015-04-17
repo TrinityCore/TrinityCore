@@ -470,7 +470,7 @@ WorldPacket const* WorldPackets::Quest::QuestUpdateComplete::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Quest::QuestConfirmAccept::Write()
+WorldPacket const* WorldPackets::Quest::QuestConfirmAcceptResponse::Write()
 {
     _worldPacket << uint32(QuestID);
     _worldPacket << InitiatedBy;
@@ -479,4 +479,9 @@ WorldPacket const* WorldPackets::Quest::QuestConfirmAccept::Write()
     _worldPacket.WriteString(QuestTitle);
 
     return &_worldPacket;
+}
+
+void WorldPackets::Quest::QuestConfirmAccept::Read()
+{
+    _worldPacket >> QuestID;
 }
