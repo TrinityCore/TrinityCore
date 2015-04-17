@@ -29,6 +29,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
+#include "MiscPackets.h"
 
 Battlefield::Battlefield()
 {
@@ -344,14 +345,9 @@ void Battlefield::EndBattle(bool endByTimer)
     SendInitWorldStatesToAll();
 }
 
-void Battlefield::DoPlaySoundToAll(uint32 SoundID)
+void Battlefield::DoPlaySoundToAll(uint32 soundID)
 {
-    WorldPacket data;
-    data.Initialize(SMSG_PLAY_SOUND, 4 + 8);
-    data << uint32(SoundID);
-    data << uint64(0);
-
-    BroadcastPacketToWar(&data);
+    BroadcastPacketToWar(WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundID).Write());
 }
 
 bool Battlefield::HasPlayer(Player* player) const

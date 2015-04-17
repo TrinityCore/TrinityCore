@@ -37,6 +37,7 @@
 #include "MMapFactory.h"
 #include "DisableMgr.h"
 #include "SpellHistory.h"
+#include "MiscPackets.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -2567,10 +2568,7 @@ public:
             return false;
         }
 
-        WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
-        data << uint32(soundId);
-        data << handler->GetSession()->GetPlayer()->GetGUID();
-        sWorld->SendGlobalMessage(&data);
+        sWorld->SendGlobalMessage(WorldPackets::Misc::PlaySound(handler->GetSession()->GetPlayer()->GetGUID(), soundId).Write());
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
         return true;

@@ -25,6 +25,7 @@
 #include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "ChatPackets.h"
+#include "MiscPackets.h"
 
 class CreatureTextBuilder
 {
@@ -334,13 +335,10 @@ void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType,
     if (!sound || !source)
         return;
 
-    WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
-    data << uint32(sound);
-    data << source->GetGUID();
-    SendNonChatPacket(source, &data, msgType, whisperTarget, range, team, gmOnly);
+    SendNonChatPacket(source, WorldPackets::Misc::PlaySound(source->GetGUID(), sound).Write(), msgType, whisperTarget, range, team, gmOnly);
 }
 
-void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly)
+void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly)
 {
     switch (msgType)
     {

@@ -48,6 +48,7 @@
 #include "Formulas.h"
 #include "DisableMgr.h"
 #include "Opcodes.h"
+#include "MiscPackets.h"
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
@@ -210,13 +211,6 @@ void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::
     battlefieldStatus->Reason = result;
     if (errorGuid && (result == ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND || result == ERR_BATTLEGROUND_JOIN_TIMED_OUT))
         battlefieldStatus->ClientID = *errorGuid;
-}
-
-void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
-{
-    data->Initialize(SMSG_PLAY_SOUND, 4 + 8);
-    *data << uint32(soundid);
-    *data << uint64(0);
 }
 
 void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, ObjectGuid guid)
