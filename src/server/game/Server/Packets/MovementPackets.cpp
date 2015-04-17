@@ -562,6 +562,8 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     _worldPacket.WriteBit(TurnRate.HasValue);
     _worldPacket.WriteBit(PitchRate.HasValue);
 
+    _worldPacket.FlushBits();
+
     if (WalkSpeed.HasValue)
         _worldPacket << WalkSpeed.Value;
 
