@@ -70,6 +70,33 @@ namespace rbac
 class RBACData;
 }
 
+namespace WorldPackets
+{
+    namespace AuctionHouse
+    {
+        class AuctionHelloRequest;
+    }
+
+    namespace Movement
+    {
+        class ClientPlayerMovement;
+        class MovementAckMessage;
+        class MovementSpeedAck;
+        class NotActiveMover;
+        class MoveTimeSkipped;
+    }
+
+    namespace Spells
+    {
+        class UpdateProjectilePosition;
+    }
+
+    namespace Vehicle
+    {
+        class MoveDismissVehicle;
+    }
+}
+
 enum AccountDataType
 {
     GLOBAL_CONFIG_CACHE             = 0,                    // 0x01 g
@@ -260,10 +287,10 @@ class WorldSession
         void ReadAddonsInfo(WorldPacket& data);
         void SendAddonsInfo();
 
-        void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
+        void CleanMovementInfo(MovementInfo* mi);
         void WriteMovementInfo(WorldPacket* data, MovementInfo* mi);
 
-        void SendPacket(WorldPacket* packet);
+        void SendPacket(WorldPacket const* packet);
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName *declinedName);
@@ -437,7 +464,6 @@ class WorldSession
 
         void Handle_NULL(WorldPacket& recvPacket);          // not used
         void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
-        void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
         void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
         void HandleCharEnumOpcode(WorldPacket& recvPacket);
@@ -470,10 +496,10 @@ class WorldSession
         // new party stats
         void HandleInspectHonorStatsOpcode(WorldPacket& recvPacket);
 
-        void HandleMoveWaterWalkAck(WorldPacket& recvPacket);
+        void HandleMoveWaterWalkAck(WorldPackets::Movement::MovementAckMessage& ackMessage);
         void HandleFeatherFallAck(WorldPacket& recvData);
 
-        void HandleMoveHoverAck(WorldPacket& recvData);
+        void HandleMoveHoverAck(WorldPackets::Movement::MovementAckMessage& ackMessage);
 
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
 
@@ -485,10 +511,10 @@ class WorldSession
         void HandleRepairItemOpcode(WorldPacket& recvPacket);
 
         // Knockback
-        void HandleMoveKnockBackAck(WorldPacket& recvPacket);
+        void HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& ackMessage);
 
         void HandleMoveTeleportAck(WorldPacket& recvPacket);
-        void HandleForceSpeedChangeAck(WorldPacket& recvData);
+        void HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& movementSpeedAck);
 
         void HandlePingOpcode(WorldPacket& recvPacket);
         void HandleRepopRequestOpcode(WorldPacket& recvPacket);
@@ -556,13 +582,13 @@ class WorldSession
         void HandleMoveWorldportAckOpcode(WorldPacket& recvPacket);
         void HandleMoveWorldportAckOpcode();                // for server-side calls
 
-        void HandleMovementOpcodes(WorldPacket& recvPacket);
+        void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& playerMovement);
         void HandleSetActiveMoverOpcode(WorldPacket& recvData);
-        void HandleMoveNotActiveMover(WorldPacket& recvData);
-        void HandleDismissControlledVehicle(WorldPacket& recvData);
+        void HandleMoveNotActiveMover(WorldPackets::Movement::NotActiveMover& notActiveMover);
+        void HandleDismissControlledVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle);
         void HandleRequestVehicleExit(WorldPacket& recvData);
         void HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData);
-        void HandleMoveTimeSkippedOpcode(WorldPacket& recvData);
+        void HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& moveTimeSkipped);
 
         void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
 
@@ -663,7 +689,7 @@ class WorldSession
         void HandleSetTradeItemOpcode(WorldPacket& recvPacket);
         void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
 
-        void HandleAuctionHelloOpcode(WorldPacket& recvPacket);
+        void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& packet);
         void HandleAuctionListItems(WorldPacket& recvData);
         void HandleAuctionListBidderItems(WorldPacket& recvData);
         void HandleAuctionSellItem(WorldPacket& recvData);
@@ -832,7 +858,7 @@ class WorldSession
         void HandleFarSightOpcode(WorldPacket& recvData);
         void HandleSetDungeonDifficultyOpcode(WorldPacket& recvData);
         void HandleSetRaidDifficultyOpcode(WorldPacket& recvData);
-        void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
+        void HandleMoveSetCanFlyAckOpcode(WorldPackets::Movement::MovementAckMessage& movementAck);
         void HandleSetTitleOpcode(WorldPacket& recvData);
         void HandleRealmSplitOpcode(WorldPacket& recvData);
         void HandleTimeSyncResp(WorldPacket& recvData);
@@ -957,7 +983,7 @@ class WorldSession
         void HandleQuestPOIQuery(WorldPacket& recvData);
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);
-        void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
+        void HandleUpdateProjectilePosition(WorldPackets::Spells::UpdateProjectilePosition& updProjPos);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
 
     private:

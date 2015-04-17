@@ -31,6 +31,8 @@
 #include "SpellAuraEffects.h"
 #include "Player.h"
 #include "Config.h"
+#include "MovementPackets.h"
+#include "Packets/SpellPackets.h"
 
 void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
 {
@@ -50,7 +52,9 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
         if (hasMovementData)
         {
             recvPacket.SetOpcode(recvPacket.read<uint32>());
-            HandleMovementOpcodes(recvPacket);
+            WorldPackets::Movement::ClientPlayerMovement packet(std::move(recvPacket));
+            packet.Read();
+            HandleMovementOpcodes(packet);
         }
     }
 }
@@ -661,39 +665,25 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
+void WorldSession::HandleUpdateProjectilePosition(WorldPackets::Spells::UpdateProjectilePosition& updProjPos)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_UPDATE_PROJECTILE_POSITION");
 
-    ObjectGuid casterGuid;
-    uint32 spellId;
-    uint8 castCount;
-    float x, y, z;    // Position of missile hit
-
-    recvPacket >> casterGuid;
-    recvPacket >> spellId;
-    recvPacket >> castCount;
-    recvPacket >> x;
-    recvPacket >> y;
-    recvPacket >> z;
-
-    Unit* caster = ObjectAccessor::GetUnit(*_player, casterGuid);
+    Unit* caster = ObjectAccessor::GetUnit(*_player, updProjPos.Guid);
     if (!caster)
         return;
 
-    Spell* spell = caster->FindCurrentSpellBySpellId(spellId);
+    Spell* spell = caster->FindCurrentSpellBySpellId(updProjPos.Spell);
     if (!spell || !spell->m_targets.HasDst())
         return;
 
     Position pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(x, y, z);
+    pos.Relocate(updProjPos.Pos.GetPositionX(), updProjPos.Pos.GetPositionY(), updProjPos.Pos.GetPositionZ());
     spell->m_targets.ModDst(pos);
 
-    WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 21);
-    data << uint64(casterGuid);
-    data << uint8(castCount);
-    data << float(x);
-    data << float(y);
-    data << float(z);
-    caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::SetProjectilePosition packet;
+    packet.Guid = updProjPos.Guid;
+    packet.Count = updProjPos.Count;
+    packet.Pos = updProjPos.Pos;
+    caster->SendMessageToSet(packet.Write(), true);
 }

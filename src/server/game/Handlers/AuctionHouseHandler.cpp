@@ -30,16 +30,15 @@
 #include "Util.h"
 #include "AccountMgr.h"
 
-//void called when player click on auctioneer npc
-void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;                                            //NPC guid
-    recvData >> guid;
+#include "AuctionHousePackets.h"
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
+//void called when player click on auctioneer npc
+void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& packet)
+{
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleAuctionHelloOpcode - Unit (%s) not found or you can't interact with him.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleAuctionHelloOpcode - Unit (%s) not found or you can't interact with him.", packet.Guid.ToString().c_str());
         return;
     }
 
@@ -47,7 +46,7 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendAuctionHello(guid, unit);
+    SendAuctionHello(packet.Guid, unit);
 }
 
 //this void causes that auction window is opened
@@ -63,23 +62,22 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
     if (!ahEntry)
         return;
 
-    WorldPacket data(MSG_AUCTION_HELLO, 12);
-    data << uint64(guid);
-    data << uint32(ahEntry->houseId);
-    data << uint8(1);                                       // 3.3.3: 1 - AH enabled, 0 - AH disabled
-    SendPacket(&data);
+    WorldPackets::AuctionHouse::AuctionHelloResponse auctionHelloResponse;
+    auctionHelloResponse.Guid = guid;
+    auctionHelloResponse.Entry = ahEntry->houseId;
+    auctionHelloResponse.OpenForBusiness = true;
+    SendPacket(auctionHelloResponse.Write());
 }
 
 //call this method when player bids, creates, or deletes auction
 void WorldSession::SendAuctionCommandResult(uint32 auctionId, uint32 Action, uint32 ErrorCode, uint32 bidError)
 {
-    WorldPacket data(SMSG_AUCTION_COMMAND_RESULT, 16);
-    data << auctionId;
-    data << Action;
-    data << ErrorCode;
-    if (!ErrorCode && Action)
-        data << bidError;                                   //when bid, then send 0, once...
-    SendPacket(&data);
+    WorldPackets::AuctionHouse::AuctionCommandResult packet;
+    packet.AuctionId = auctionId;
+    packet.Action = Action;
+    packet.ErrorCode = ErrorCode;
+    packet.BidError = bidError;
+    SendPacket(packet.Write());
 }
 
 //this function sends notification, if bidder is online

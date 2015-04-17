@@ -1867,10 +1867,10 @@ class Player : public Unit, public GridObject<Player>
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
-        void SendMessageToSet(WorldPacket* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet
-        void SendMessageToSetInRange(WorldPacket* data, float fist, bool self) override;// overwrite Object::SendMessageToSetInRange
-        void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
-        void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr) override;
+        void SendMessageToSet(WorldPacket const* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet
+        void SendMessageToSetInRange(WorldPacket const* data, float fist, bool self) override;// overwrite Object::SendMessageToSetInRange
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only);
+        void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) override;
 
         void SendTeleportAckPacket();
 
@@ -2036,7 +2036,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendInitWorldStates(uint32 zone, uint32 area);
         void SendUpdateWorldState(uint32 Field, uint32 Value);
-        void SendDirectMessage(WorldPacket* data);
+        void SendDirectMessage(WorldPacket const* data);
         void SendBGWeekendWorldStates();
         void SendBattlefieldWorldStates();
 

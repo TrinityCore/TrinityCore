@@ -25,6 +25,8 @@
 #include "PacketLog.h"
 #include <memory>
 
+#include "AuthenticationPackets.h"
+
 using boost::asio::ip::tcp;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
@@ -41,19 +43,17 @@ void WorldSocket::Start()
 
 void WorldSocket::HandleSendAuthSession()
 {
-    WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
-    packet << uint32(1);                                    // 1...31
-    packet << uint32(_authSeed);
+    WorldPackets::Auth::AuthChallenge challenge;
+    challenge.DosZeroBits = 1;                                 // 1...31
+    challenge.Challenge = _authSeed;
 
-    BigNumber seed1;
+    BigNumber seed1, seed2;
     seed1.SetRand(16 * 8);
-    packet.append(seed1.AsByteArray(16).get(), 16);               // new encryption seeds
-
-    BigNumber seed2;
     seed2.SetRand(16 * 8);
-    packet.append(seed2.AsByteArray(16).get(), 16);               // new encryption seeds
+    memcpy(&challenge.DosChallenge[0], seed1.AsByteArray(16).get(), 16);
+    memcpy(&challenge.DosChallenge[4], seed1.AsByteArray(16).get(), 16);
 
-    SendPacketAndLogOpcode(packet);
+    SendPacketAndLogOpcode(*challenge.Write());
 }
 
 void WorldSocket::OnClose()
@@ -149,7 +149,7 @@ bool WorldSocket::ReadDataHandler()
 {
     ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
 
-    uint16 opcode = uint16(header->cmd);
+    OpcodeClient opcode = static_cast<OpcodeClient>(header->cmd);
 
     WorldPacket packet(opcode, std::move(_packetBuffer));
 
@@ -202,7 +202,7 @@ bool WorldSocket::ReadDataHandler()
     return true;
 }
 
-void WorldSocket::LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> const& guard) const
+void WorldSocket::LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex> const& guard) const
 {
     if (!guard)
     {
@@ -217,7 +217,7 @@ void WorldSocket::LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> cons
 
 void WorldSocket::SendPacketAndLogOpcode(WorldPacket const& packet)
 {
-    TC_LOG_TRACE("network.opcode", "S->C: %s %s", GetRemoteIpAddress().to_string().c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
+    TC_LOG_TRACE("network.opcode", "S->C: %s %s", GetRemoteIpAddress().to_string().c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
     SendPacket(packet);
 }
 

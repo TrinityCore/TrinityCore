@@ -18,23 +18,20 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "WorldPacket.h"
+#include "AuthenticationPackets.h"
 
 void WorldSession::SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos)
 {
-    WorldPacket packet(SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1 + (shortForm ? 0 : (4 + 1)));
-    packet << uint8(code);
-    packet << uint32(0);                                   // BillingTimeRemaining
-    packet << uint8(0);                                    // BillingPlanFlags
-    packet << uint32(0);                                   // BillingTimeRested
-    packet << uint8(Expansion());                          // 0 - normal, 1 - TBC, 2 - WOTLK, must be set in database manually for each account
+    WorldPackets::Auth::AuthResponse packet(shortForm);
+    packet.Result = code;
+    packet.SuccessInfo.TimeRemain = 0;
+    packet.SuccessInfo.TimeOptions = 0;
+    packet.SuccessInfo.TimeRested = 0;
+    packet.SuccessInfo.AccountExpansionLevel = Expansion();
 
-    if (!shortForm)
-    {
-        packet << uint32(queuePos);                             // Queue position
-        packet << uint8(0);                                     // Realm has a free character migration - bool
-    }
+    packet.WaitInfo.WaitCount = queuePos;
 
-    SendPacket(&packet);
+    SendPacket(packet.Write());
 }
 
 void WorldSession::SendClientCacheVersion(uint32 version)
