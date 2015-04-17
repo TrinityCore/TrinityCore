@@ -16337,7 +16337,7 @@ void Player::SendQuestConfirmAccept(Quest const* quest, Player* receiver)
         if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(questID))
             ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, questTitle);
 
-    WorldPackets::Quest::QuestConfirmAccept packet;
+    WorldPackets::Quest::QuestConfirmAcceptResponse packet;
     packet.QuestID = questID;
     packet.InitiatedBy = GetGUID();
     packet.QuestTitle = questTitle;
