@@ -431,3 +431,11 @@ void WorldPackets::Misc::ObjectUpdateRescued::Read()
 {
     _worldPacket >> ObjectGUID;
 }
+
+WorldPacket const* WorldPackets::Misc::PlaySound::Write()
+{
+    _worldPacket << int32(SoundKitID);
+    _worldPacket << SourceObjectGuid;
+
+    return &_worldPacket;
+}

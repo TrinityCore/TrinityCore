@@ -112,7 +112,7 @@ class CreatureTextMgr
         CreatureTextRepeatIds GetRepeatGroup(Creature* source, uint8 textGroup) const;
         void SetRepeatId(Creature* source, uint8 textGroup, uint8 id);
 
-        static void SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly);
+        static void SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly);
         static float GetRangeForChatType(ChatMsg msgType);
 
         CreatureTextMap mTextMap;
