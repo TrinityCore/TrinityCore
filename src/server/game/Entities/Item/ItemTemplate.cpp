@@ -20,6 +20,7 @@
 #include "DB2Stores.h"
 #include "World.h"
 #include "ItemTemplate.h"
+#include "Player.h"
 
 char const* ItemTemplate::GetName(LocaleConstant locale) const
 {
@@ -135,4 +136,21 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
     float avgDamage = dps * GetDelay() * 0.001f;
     minDamage = (GetStatScalingFactor() * -0.5f + 1.0f) * avgDamage;
     maxDamage = floor(float(avgDamage * (GetStatScalingFactor() * 0.5f + 1.0f) + 0.5f));
+}
+
+bool ItemTemplate::CanWinForPlayer(Player const* player) const
+{
+    std::unordered_set<uint32> const& specs = Specializations[player->getLevel() > 40];
+    if (specs.empty())
+        return true;
+
+    uint32 spec = player->GetSpecId(player->GetActiveTalentGroup());
+    if (!spec)
+        spec = player->GetDefaultSpecId();
+
+    if (!spec)
+        return false;
+
+    auto itr = specs.find(spec);
+    return itr != specs.end();
 }

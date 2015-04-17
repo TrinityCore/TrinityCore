@@ -53,6 +53,7 @@
 #include "Battleground.h"
 #include "Chat.h"
 #include "GameObjectPackets.h"
+#include "MiscPackets.h"
 
 Object::Object()
 {
@@ -761,6 +762,7 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
 
     uint32* flags = NULL;
     uint32 visibleFlag = GetUpdateFieldData(target, flags);
+    ASSERT(flags);
 
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
@@ -3166,13 +3168,10 @@ void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
 
 void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= NULL*/)
 {
-    WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
-    data << uint32(sound_id);
-    data << GetGUID();
     if (target)
-        target->SendDirectMessage(&data);
+        target->SendDirectMessage(WorldPackets::Misc::PlaySound(GetGUID(), sound_id).Write());
     else
-        SendMessageToSet(&data, true);
+        SendMessageToSet(WorldPackets::Misc::PlaySound(GetGUID(), sound_id).Write(), true);
 }
 
 void WorldObject::DestroyForNearbyPlayers()

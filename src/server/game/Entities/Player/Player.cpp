@@ -751,6 +751,7 @@ Player::Player(WorldSession* session): Unit(true)
     {
         m_bgBattlegroundQueueID[j].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
         m_bgBattlegroundQueueID[j].invitedToInstance = 0;
+        m_bgBattlegroundQueueID[j].joinTime = 0;
     }
 
     m_logintime = time(NULL);
@@ -2826,23 +2827,17 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
     group->RemoveMember(guid, method, kicker, reason);
 }
 
-void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
+void Player::SendLogXPGain(uint32 givenXP, Unit* victim, uint32 bonusXP, bool recruitAFriend, float groupBonus)
 {
-    WorldPacket data(SMSG_LOG_XP_GAIN, 21); // guess size?
-    data << (victim ? victim->GetGUID() : ObjectGuid::Empty);
-    data << uint32(GivenXP + BonusXP);                      // given experience
-    data << uint8(victim ? 0 : 1);                          // 00-kill_xp type, 01-non_kill_xp type
+    WorldPackets::Character::LogXPGain packet;
+    packet.Victim = victim ? victim->GetGUID() : ObjectGuid::Empty;
+    packet.Original = givenXP + bonusXP;
+    packet.Reason = victim ? LOG_XP_REASON_KILL: LOG_XP_REASON_NO_KILL;
+    packet.Amount = givenXP;
+    packet.GroupBonus = groupBonus;
+    packet.ReferAFriend = recruitAFriend;
 
-    if (victim)
-    {
-        data << uint32(GivenXP);                            // experience without bonus
-
-        // should use group_rate here but can't figure out how
-        data << float(1);                                   // 1 - none 0 - 100% group bonus output
-    }
-
-    data << uint8(recruitAFriend ? 1 : 0);                  // does the GivenXP include a RaF bonus?
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
@@ -9459,7 +9454,7 @@ uint32 Player::GetXPRestBonus(uint32 xp)
 
     SetRestBonus(GetRestBonus() - rested_bonus);
 
-    TC_LOG_DEBUG("entities.player", "Player gain %u xp (+ %u Rested Bonus). Rested points=%f", xp+rested_bonus, rested_bonus, GetRestBonus());
+    TC_LOG_DEBUG("entities.player", "GetXPRestBonus: Player %s (%s) gain %u xp (+%u Rested Bonus). Rested points=%f", GetGUID().ToString().c_str(), GetName().c_str(), xp + rested_bonus, rested_bonus, GetRestBonus());
     return rested_bonus;
 }
 
@@ -13618,7 +13613,7 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
     packet.Slot = item->GetBagSlot();
     packet.SlotInBag = item->GetCount() == quantity ? item->GetSlot() : -1;
 
-    packet.Item.Initalize(item);
+    packet.Item.Initialize(item);
 
     //packet.ReadUInt32("WodUnk");
     packet.Quantity = quantity;
@@ -13959,7 +13954,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
                 return;
             }
 
-            GetSession()->SendBattleGroundList(guid, bgTypeId);
+            sBattlegroundMgr->SendBattlegroundList(this, guid, bgTypeId);
             break;
         }
     }
@@ -14413,13 +14408,16 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
     ItemPosCountVec dest;
     if (quest->GetRewChoiceItemsCount() > 0)
     {
-        if (quest->RewardChoiceItemId[reward])
+        for (uint32 i = 0; i < quest->GetRewChoiceItemsCount(); ++i)
         {
-            InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardChoiceItemId[reward], quest->RewardChoiceItemCount[reward]);
-            if (res != EQUIP_ERR_OK)
+            if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemId[i] == reward)
             {
-                SendEquipError(res, NULL, NULL, quest->RewardChoiceItemId[reward]);
-                return false;
+                InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardChoiceItemId[i], quest->RewardChoiceItemCount[i]);
+                if (res != EQUIP_ERR_OK)
+                {
+                    SendEquipError(res, NULL, NULL, quest->RewardChoiceItemId[i]);
+                    return false;
+                }
             }
         }
     }
@@ -14435,6 +14433,32 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
                 {
                     SendEquipError(res, NULL, NULL, quest->RewardItemId[i]);
                     return false;
+                }
+            }
+        }
+    }
+
+    // QuestPackageItem.db2
+    if (quest->GetQuestPackageID())
+    {
+        if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
+        {
+            for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
+            {
+                if (questPackageItem->ItemID != reward)
+                    continue;
+
+                if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
+                {
+                    if (rewardProto->CanWinForPlayer(this))
+                    {
+                        InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount);
+                        if (res != EQUIP_ERR_OK)
+                        {
+                            SendEquipError(res, NULL, NULL, questPackageItem->ItemID);
+                            return false;
+                        }
+                    }
                 }
             }
         }
@@ -14591,7 +14615,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         switch (obj.Type)
         {
             case QUEST_OBJECTIVE_ITEM:
-                DestroyItemCount(obj.ObjectID, obj.Amount, true);
+                if (!(quest->GetFlagsEx() & QUEST_FLAGS_EX_KEEP_ADDITIONAL_ITEMS))
+                    DestroyItemCount(obj.ObjectID, obj.Amount, true);
                 break;
             case QUEST_OBJECTIVE_CURRENCY:
                 ModifyCurrency(obj.ObjectID, -int32(obj.Amount));
@@ -14599,12 +14624,15 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         }
     }
 
-    for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
+    if (!(quest->GetFlagsEx() & QUEST_FLAGS_EX_KEEP_ADDITIONAL_ITEMS))
     {
-        if (quest->ItemDrop[i])
+        for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
         {
-            uint32 count = quest->ItemDropQuantity[i];
-            DestroyItemCount(quest->ItemDrop[i], count ? count : 9999, true);
+            if (quest->ItemDrop[i])
+            {
+                uint32 count = quest->ItemDropQuantity[i];
+                DestroyItemCount(quest->ItemDrop[i], count ? count : 9999, true);
+            }
         }
     }
 
@@ -14612,13 +14640,42 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     if (quest->GetRewChoiceItemsCount() > 0)
     {
-        if (uint32 itemId = quest->RewardChoiceItemId[reward])
+        for (uint32 i = 0; i < quest->GetRewChoiceItemsCount(); ++i)
         {
-            ItemPosCountVec dest;
-            if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardChoiceItemCount[reward]) == EQUIP_ERR_OK)
+            if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemId[i] == reward)
             {
-                Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-                SendNewItem(item, quest->RewardChoiceItemCount[reward], true, false);
+                ItemPosCountVec dest;
+                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, reward, quest->RewardChoiceItemCount[i]) == EQUIP_ERR_OK)
+                {
+                    Item* item = StoreNewItem(dest, reward, true, Item::GenerateItemRandomPropertyId(reward));
+                    SendNewItem(item, quest->RewardChoiceItemCount[i], true, false);
+                }
+            }
+        }
+    }
+
+    // QuestPackageItem.db2
+    if (quest->GetQuestPackageID())
+    {
+        if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
+        {
+            for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
+            {
+                if (questPackageItem->ItemID != reward)
+                    continue;
+
+                if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
+                {
+                    if (rewardProto->CanWinForPlayer(this))
+                    {
+                        ItemPosCountVec dest;
+                        if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
+                        {
+                            Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, Item::GenerateItemRandomPropertyId(questPackageItem->ItemID));
+                            SendNewItem(item, questPackageItem->ItemCount, true, false);
+                        }
+                    }
+                }
             }
         }
     }
@@ -23042,6 +23099,14 @@ Battleground* Player::GetBattleground() const
     return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
 }
 
+uint32 Player::GetBattlegroundQueueJoinTime(BattlegroundQueueTypeId bgQueueTypeId) const
+{
+    for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+        if (m_bgBattlegroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
+            return m_bgBattlegroundQueueID[i].joinTime;
+    return 0;
+}
+
 bool Player::InBattlegroundQueue() const
 {
     for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
@@ -23052,7 +23117,10 @@ bool Player::InBattlegroundQueue() const
 
 BattlegroundQueueTypeId Player::GetBattlegroundQueueTypeId(uint32 index) const
 {
-    return m_bgBattlegroundQueueID[index].bgQueueTypeId;
+    if (index < PLAYER_MAX_BATTLEGROUND_QUEUES)
+        return m_bgBattlegroundQueueID[index].bgQueueTypeId;
+
+    return BATTLEGROUND_QUEUE_NONE;
 }
 
 uint32 Player::GetBattlegroundQueueIndex(BattlegroundQueueTypeId bgQueueTypeId) const
@@ -23090,6 +23158,7 @@ uint32 Player::AddBattlegroundQueueId(BattlegroundQueueTypeId val)
         {
             m_bgBattlegroundQueueID[i].bgQueueTypeId = val;
             m_bgBattlegroundQueueID[i].invitedToInstance = 0;
+            m_bgBattlegroundQueueID[i].joinTime = getMSTime();
             return i;
         }
     }
@@ -23112,6 +23181,7 @@ void Player::RemoveBattlegroundQueueId(BattlegroundQueueTypeId val)
         {
             m_bgBattlegroundQueueID[i].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
             m_bgBattlegroundQueueID[i].invitedToInstance = 0;
+            m_bgBattlegroundQueueID[i].joinTime = 0;
             return;
         }
     }
@@ -24568,11 +24638,11 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         SendEquipError(msg, NULL, NULL, item->itemid);
 }
 
-bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
+bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
     uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
-    return v_map != 571 || HasSpell(54197); // Cold Weather Flying
+    return v_map != 571 || HasSpell(54197); // 54197 = Cold Weather Flying
 }
 
 void Player::LearnSpellHighestRank(uint32 spellid)
@@ -25961,9 +26031,9 @@ uint8 Player::GetNumOfVoidStorageFreeSlots() const
     return count;
 }
 
-uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
+uint8 Player::AddVoidStorageItem(VoidStorageItem const& item)
 {
-    int8 slot = GetNextVoidStorageFreeSlot();
+    uint8 slot = GetNextVoidStorageFreeSlot();
 
     if (slot >= VOID_STORAGE_MAX_SLOT)
     {
@@ -26563,4 +26633,12 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
         return false;
 
     return true;
+}
+
+uint32 Player::GetDefaultSpecId() const
+{
+    ChrClassesEntry const* entry = sChrClassesStore.LookupEntry(getClass());
+    if (entry)
+        return entry->DefaultSpec;
+    return 0;
 }

@@ -38,6 +38,7 @@ char const KeyChainFormat[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 char const MountFormat[] = "niiisssiii";
 char const OverrideSpellDataFormat[] = "niiiiiiiiiiii";
 char const PhaseXPhaseGroupFormat[] = "nii";
+char const QuestPackageItemfmt[] = "niiii";
 char const SoundEntriesFormat[] = "nisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiififfiifffffii";
 char const SpellAuraRestrictionsFormat[] = "niiiiiiii";
 char const SpellCastingRequirementsFormat[] = "niiiiii";

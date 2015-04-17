@@ -610,6 +610,21 @@ namespace WorldPackets
 
             BarberShopResult Result;
         };
+
+        class LogXPGain final : public ServerPacket
+        {
+        public:
+            LogXPGain() : ServerPacket(SMSG_LOG_XP_GAIN, 30) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Victim;
+            int32 Original = 0;
+            uint8 Reason = 0;
+            int32 Amount = 0;
+            float GroupBonus = 0;
+            bool ReferAFriend = false;
+        };
     }
 }
 

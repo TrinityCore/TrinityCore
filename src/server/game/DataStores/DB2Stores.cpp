@@ -43,6 +43,7 @@ DB2Storage<KeyChainEntry>                   sKeyChainStore("KeyChain.db2", KeyCh
 DB2Storage<MountEntry>                      sMountStore("Mount.db2", MountFormat, HOTFIX_SEL_MOUNT);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore("OverrideSpellData.db2", OverrideSpellDataFormat, HOTFIX_SEL_OVERRIDE_SPELL_DATA);
 DB2Storage<PhaseXPhaseGroupEntry>           sPhaseXPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseXPhaseGroupFormat, HOTFIX_SEL_PHASE_GROUP);
+DB2Storage<QuestPackageItemEntry>           sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemfmt, HOTFIX_SEL_QUEST_PACKAGE_ITEM);
 DB2Storage<SoundEntriesEntry>               sSoundEntriesStore("SoundEntries.db2", SoundEntriesFormat, HOTFIX_SEL_SOUND_ENTRIES);
 DB2Storage<SpellAuraRestrictionsEntry>      sSpellAuraRestrictionsStore("SpellAuraRestrictions.db2", SpellAuraRestrictionsFormat, HOTFIX_SEL_SPELL_AURA_RESTRICTIONS);
 DB2Storage<SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore("SpellCastingRequirements.db2", SpellCastingRequirementsFormat, HOTFIX_SEL_SPELL_CASTING_REQUIREMENTS);
@@ -144,6 +145,7 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sMountStore,                    db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sOverrideSpellDataStore,        db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sPhaseXPhaseGroupStore,         db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sQuestPackageItemStore,         db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSoundEntriesStore,             db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellAuraRestrictionsStore,    db2Path);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sSpellCastingRequirementsStore, db2Path);
@@ -198,6 +200,9 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     for (PhaseXPhaseGroupEntry const* group : sPhaseXPhaseGroupStore)
         if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
             _phasesByGroup[group->PhaseGroupID].insert(phase->ID);
+
+    for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
+        _questPackages[questPackageItem->QuestPackageID].push_back(questPackageItem);
 
     for (SpellPowerEntry const* power : sSpellPowerStore)
     {
@@ -484,6 +489,15 @@ MountEntry const* DB2Manager::GetMount(uint32 spellId) const
     auto itr = _mountsBySpellId.find(spellId);
     if (itr != _mountsBySpellId.end())
         return itr->second;
+
+    return nullptr;
+}
+
+std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItems(uint32 questPackageID) const
+{
+    auto itr = _questPackages.find(questPackageID);
+    if (itr != _questPackages.end())
+        return &itr->second;
 
     return nullptr;
 }

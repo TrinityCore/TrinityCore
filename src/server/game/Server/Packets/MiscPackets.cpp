@@ -282,6 +282,7 @@ void WorldPackets::Misc::StandStateChange::Read()
 
 WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
 {
+    _worldPacket << uint32(UnkWoD1);
     _worldPacket << uint8(State);
 
     return &_worldPacket;
@@ -429,4 +430,12 @@ void WorldPackets::Misc::ObjectUpdateFailed::Read()
 void WorldPackets::Misc::ObjectUpdateRescued::Read()
 {
     _worldPacket >> ObjectGUID;
+}
+
+WorldPacket const* WorldPackets::Misc::PlaySound::Write()
+{
+    _worldPacket << int32(SoundKitID);
+    _worldPacket << SourceObjectGuid;
+
+    return &_worldPacket;
 }

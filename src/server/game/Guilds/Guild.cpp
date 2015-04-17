@@ -1688,10 +1688,10 @@ void Guild::HandleLeaveMember(WorldSession* session)
     }
     else
     {
-        DeleteMember(player->GetGUID(), false, false);
-
         _LogEvent(GUILD_EVENT_LOG_LEAVE_GUILD, player->GetGUID().GetCounter());
-        SendEventPlayerLeft(player);
+        SendEventPlayerLeft(GetMember(player->GetGUID()));
+
+        DeleteMember(player->GetGUID(), false, false);
 
         SendCommandResult(session, GUILD_COMMAND_LEAVE_GUILD, ERR_GUILD_COMMAND_SUCCESS, m_name);
     }
@@ -1724,12 +1724,11 @@ void Guild::HandleRemoveMember(WorldSession* session, ObjectGuid guid)
                 SendCommandResult(session, GUILD_COMMAND_REMOVE_PLAYER, ERR_GUILD_RANK_TOO_HIGH_S, name);
             else
             {
+                _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUID().GetCounter(), guid.GetCounter());
+                SendEventPlayerLeft(member, memberMe, true);
+
                 // After call to DeleteMember pointer to member becomes invalid
                 DeleteMember(guid, false, true);
-                _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUID().GetCounter(), guid.GetCounter());
-
-                Player* pMember = ObjectAccessor::FindConnectedPlayer(guid);
-                SendEventPlayerLeft(pMember, player, true);
 
                 SendCommandResult(session, GUILD_COMMAND_REMOVE_PLAYER, ERR_GUILD_COMMAND_SUCCESS, name);
             }
@@ -2204,7 +2203,7 @@ void Guild::SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelf
     BroadcastPacket(eventPacket.Write());
 }
 
-void Guild::SendEventPlayerLeft(Player* leaver, Player* remover, bool isRemoved)
+void Guild::SendEventPlayerLeft(Member* leaver, Member* remover, bool isRemoved)
 {
     WorldPackets::Guild::GuildEventPlayerLeft eventPacket;
     eventPacket.Removed = isRemoved;
@@ -2638,8 +2637,6 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
 
 void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool canDeleteGuild)
 {
-    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
-
     // Guild master can be deleted when loading guild and guid doesn't exist in characters table
     // or when he is removed from guild by gm command
     if (m_leaderGuid == guid && !isDisbanding)
@@ -2672,17 +2669,18 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
         if (oldLeader)
         {
             SendEventNewLeader(newLeader, oldLeader, true);
-            SendEventPlayerLeft(player);
+            SendEventPlayerLeft(oldLeader);
         }
     }
     // Call script on remove before member is actually removed from guild (and database)
-    sScriptMgr->OnGuildRemoveMember(this, player, isDisbanding, isKicked);
+    sScriptMgr->OnGuildRemoveMember(this, guid, isDisbanding, isKicked);
 
     if (Member* member = GetMember(guid))
         delete member;
     m_members.erase(guid);
 
     // If player not online data in data field will be loaded from guild tabs no need to update it !!
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     if (player)
     {
         player->SetInGuild(UI64LIT(0));

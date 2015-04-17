@@ -1068,6 +1068,12 @@ enum PlayerCommandStates
     CHEAT_WATERWALK = 0x10
 };
 
+enum PlayerLogXPReason
+{
+    LOG_XP_REASON_KILL    = 0,
+    LOG_XP_REASON_NO_KILL = 1
+};
+
 class PlayerTaxi
 {
     public:
@@ -1127,13 +1133,11 @@ class Player;
 struct BGData
 {
     BGData() : bgInstanceID(0), bgTypeID(BATTLEGROUND_TYPE_NONE), bgAfkReportedCount(0), bgAfkReportedTimer(0),
-        bgTeam(0), mountSpell(0) { bgQueuesJoinedTime.clear(); ClearTaxiPath(); }
+        bgTeam(0), mountSpell(0) { ClearTaxiPath(); }
 
     uint32 bgInstanceID;                    ///< This variable is set to bg->m_InstanceID,
                                             ///  when player is teleported to BG - (it is battleground's GUID)
     BattlegroundTypeId bgTypeID;
-
-    std::map<uint32, uint32> bgQueuesJoinedTime;
 
     GuidSet            bgAfkReporter;
     uint8              bgAfkReportedCount;
@@ -1892,6 +1896,7 @@ class Player : public Unit, public GridObject<Player>
         void SetActiveTalentGroup(uint8 group){ _talentMgr->ActiveGroup = group; }
         uint8 GetTalentGroupsCount() const { return _talentMgr->GroupsCount; }
         void SetTalentGroupsCount(uint8 count) { _talentMgr->GroupsCount = count; }
+        uint32 GetDefaultSpecId() const;
 
         bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;
@@ -2109,7 +2114,7 @@ class Player : public Unit, public GridObject<Player>
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
         void DestroyForPlayer(Player* target) const override;
-        void SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend = false, float group_rate=1.0f);
+        void SendLogXPGain(uint32 givenXP, Unit* victim, uint32 bonusXP, bool recruitAFriend = false, float groupBonus = 1.0f);
 
         // notifiers
         void SendAttackSwingCantAttack();
@@ -2310,18 +2315,8 @@ class Player : public Unit, public GridObject<Player>
         BattlegroundTypeId GetBattlegroundTypeId() const { return m_bgData.bgTypeID; }
         Battleground* GetBattleground() const;
 
-        uint32 GetBattlegroundQueueJoinTime(uint32 bgTypeId) const { return m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second; }
-        void AddBattlegroundQueueJoinTime(uint32 bgTypeId, uint32 joinTime)
-        {
-            m_bgData.bgQueuesJoinedTime[bgTypeId] = joinTime;
-        }
-        void RemoveBattlegroundQueueJoinTime(uint32 bgTypeId)
-        {
-            m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
-        }
-
+        uint32 GetBattlegroundQueueJoinTime(BattlegroundQueueTypeId bgQueueTypeId) const;
         bool InBattlegroundQueue() const;
-
         BattlegroundQueueTypeId GetBattlegroundQueueTypeId(uint32 index) const;
         uint32 GetBattlegroundQueueIndex(BattlegroundQueueTypeId bgQueueTypeId) const;
         bool IsInvitedForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;
@@ -2395,7 +2390,7 @@ class Player : public Unit, public GridObject<Player>
         void SetFallInformation(uint32 time, float z);
         void HandleFall(MovementInfo const& movementInfo);
 
-        bool IsKnowHowFlyIn(uint32 mapid, uint32 zone) const;
+        bool CanFlyInZone(uint32 mapid, uint32 zone) const;
 
         void SetClientControl(Unit* target, bool allowMove);
 
@@ -2616,7 +2611,7 @@ class Player : public Unit, public GridObject<Player>
         void LockVoidStorage() { RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_VOID_UNLOCKED); }
         uint8 GetNextVoidStorageFreeSlot() const;
         uint8 GetNumOfVoidStorageFreeSlots() const;
-        uint8 AddVoidStorageItem(const VoidStorageItem& item);
+        uint8 AddVoidStorageItem(VoidStorageItem const& item);
         void AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item);
         void DeleteVoidStorageItem(uint8 slot);
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
@@ -2645,6 +2640,7 @@ class Player : public Unit, public GridObject<Player>
         {
             BattlegroundQueueTypeId bgQueueTypeId;
             uint32 invitedToInstance;
+            uint32 joinTime;
         };
 
         BgBattlegroundQueueID_Rec m_bgBattlegroundQueueID[PLAYER_MAX_BATTLEGROUND_QUEUES];

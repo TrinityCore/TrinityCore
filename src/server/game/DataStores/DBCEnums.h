@@ -476,6 +476,40 @@ enum ItemLimitCategoryMode
     ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1                       // limit applied to amount equipped items (including used gems)
 };
 
+enum ItemSpecStat
+{
+    ITEM_SPEC_STAT_INTELLECT        = 0,
+    ITEM_SPEC_STAT_AGILITY          = 1,
+    ITEM_SPEC_STAT_STRENGTH         = 2,
+    ITEM_SPEC_STAT_SPIRIT           = 3,
+    ITEM_SPEC_STAT_HIT              = 4,
+    ITEM_SPEC_STAT_DODGE            = 5,
+    ITEM_SPEC_STAT_PARRY            = 6,
+    ITEM_SPEC_STAT_ONE_HANDED_AXE   = 7,
+    ITEM_SPEC_STAT_TWO_HANDED_AXE   = 8,
+    ITEM_SPEC_STAT_ONE_HANDED_SWORD = 9,
+    ITEM_SPEC_STAT_TWO_HANDED_SWORD = 10,
+    ITEM_SPEC_STAT_ONE_HANDED_MACE  = 11,
+    ITEM_SPEC_STAT_TWO_HANDED_MACE  = 12,
+    ITEM_SPEC_STAT_DAGGER           = 13,
+    ITEM_SPEC_STAT_FIST_WEAPON      = 14,
+    ITEM_SPEC_STAT_GUN              = 15,
+    ITEM_SPEC_STAT_BOW              = 16,
+    ITEM_SPEC_STAT_CROSSBOW         = 17,
+    ITEM_SPEC_STAT_STAFF            = 18,
+    ITEM_SPEC_STAT_POLEARM          = 19,
+    ITEM_SPEC_STAT_THROWN           = 20,
+    ITEM_SPEC_STAT_WAND             = 21,
+    ITEM_SPEC_STAT_SHIELD           = 22,
+    ITEM_SPEC_STAT_RELIC            = 23,
+    ITEM_SPEC_STAT_CRIT             = 24,
+    ITEM_SPEC_STAT_HASTE            = 25,
+    ITEM_SPEC_STAT_BONUS_ARMOR      = 26,
+    ITEM_SPEC_STAT_CLOAK            = 27,
+
+    ITEM_SPEC_STAT_NONE             = 28
+};
+
 enum MountCapabilityFlags
 {
     MOUNT_CAPABILITY_FLAG_CAN_PITCH     = 0x4,                    // client checks MOVEMENTFLAG2_FULL_SPEED_PITCHING
@@ -489,6 +523,14 @@ enum MountFlags
     MOUNT_FLAG_PREFERRED_SWIMMING       = 0x10,
     MOUNT_FLAG_PREFERRED_WATER_WALKING  = 0x20,
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
+};
+
+enum QuestPackageFilter
+{
+    QUEST_PACKAGE_FILTER_LOOT_SPECIALIZATION    = 0,    // Players can select this quest reward if it matches their selected loot specialization
+    QUEST_PACKAGE_FILTER_CLASS                  = 1,    // Players can select this quest reward if it matches their class
+    QUEST_PACKAGE_FILTER_UNMATCHED              = 2,    // Players can select this quest reward if no class/loot_spec rewards are available
+    QUEST_PACKAGE_FILTER_EVERYONE               = 3     // Players can always select this quest reward
 };
 
 enum SkillRaceClassInfoFlags

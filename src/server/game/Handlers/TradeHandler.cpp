@@ -70,7 +70,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
             {
                 WorldPackets::Trade::TradeUpdated::UnwrappedTradeItem* unwrappedItem = &tradeItem.Unwrapped.Value;
-                unwrappedItem->Item.Initalize(item);
+                unwrappedItem->Item.Initialize(item);
                 unwrappedItem->EnchantID = item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
                 unwrappedItem->OnUseEnchantmentID = item->GetEnchantmentId(USE_ENCHANTMENT_SLOT);
                 unwrappedItem->Creator = item->GetGuidValue(ITEM_FIELD_CREATOR);

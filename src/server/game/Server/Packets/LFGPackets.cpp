@@ -26,3 +26,13 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket)
 
     return data;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ticket)
+{
+    data << ticket.RequesterGuid;
+    data << int32(ticket.Id);
+    data << int32(ticket.Type);
+    data << uint32(ticket.Time);
+
+    return data;
+}

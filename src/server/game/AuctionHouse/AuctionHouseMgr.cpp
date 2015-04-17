@@ -628,7 +628,7 @@ void AuctionEntry::BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::Auct
     WorldPackets::AuctionHouse::AuctionItem auctionItem;
 
     auctionItem.AuctionItemID = Id;
-    auctionItem.Item.Initalize(item);
+    auctionItem.Item.Initialize(item);
     auctionItem.BuyoutPrice = buyout;
     auctionItem.CensorBidInfo = false;
     auctionItem.CensorServerSideInfo = listAuctionItems;

@@ -70,6 +70,7 @@ struct file_MWMO
 class FileChunk
 {
 public:
+    FileChunk(uint8* data_, uint32 size_) : data(data_), size(size_) { }
     ~FileChunk();
 
     uint8* data;

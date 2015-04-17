@@ -666,7 +666,7 @@ public:
         if (isAccountNameGiven)
         {
             targetAccountName = arg1;
-            if (!Utf8ToUpperOnlyLatin(targetAccountName))
+            if (!Utf8ToUpperOnlyLatin(targetAccountName) || !AccountMgr::GetId(targetAccountName))
             {
                 handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, targetAccountName.c_str());
                 handler->SetSentErrorMessage(true);

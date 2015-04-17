@@ -296,6 +296,15 @@ struct PhaseXPhaseGroupEntry
     uint32      PhaseGroupID;
 };
 
+struct QuestPackageItemEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      QuestPackageID;                                     // 1
+    uint32      ItemID;                                             // 2
+    uint32      ItemCount;                                          // 3
+    uint32      FilterType;                                         // 4
+};
+
 struct SoundEntriesEntry
 {
     uint32      ID;                                                 // 0

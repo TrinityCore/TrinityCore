@@ -16,6 +16,7 @@
  */
 
 #include "ItemPackets.h"
+#include "Player.h"
 
 void WorldPackets::Item::BuyBackItem::Read()
 {
@@ -165,7 +166,7 @@ ByteBuffer& WorldPackets::Item::operator>>(ByteBuffer& data, InvUpdate& invUpdat
     return data;
 }
 
-void WorldPackets::Item::ItemInstance::Initalize(::Item const* item)
+void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
 {
     ItemID               = item->GetEntry();
     RandomPropertiesSeed = item->GetItemSuffixFactor();
@@ -188,7 +189,7 @@ void WorldPackets::Item::ItemInstance::Initalize(::Item const* item)
     }
 }
 
-void WorldPackets::Item::ItemInstance::Initalize(::LootItem const& lootItem)
+void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
 {
     ItemID               = lootItem.itemid;
     RandomPropertiesSeed = lootItem.randomSuffix;
@@ -201,6 +202,13 @@ void WorldPackets::Item::ItemInstance::Initalize(::LootItem const& lootItem)
     }
 
     /// no Modifications
+}
+
+void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidItem)
+{
+    ItemID = voidItem->ItemEntry;
+    RandomPropertiesID = voidItem->ItemRandomPropertyId;
+    RandomPropertiesSeed = voidItem->ItemSuffixFactor;
 }
 
 WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()

@@ -2415,6 +2415,183 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
     }
 }
 
+struct ItemSpecStats
+{
+    uint32 ItemType;
+    uint32 ItemSpecStatTypes[MAX_ITEM_PROTO_STATS];
+    uint32 ItemSpecStatCount;
+
+    ItemSpecStats(ItemEntry const* item, ItemSparseEntry const* sparse) : ItemType(0), ItemSpecStatCount(0)
+    {
+        memset(ItemSpecStatTypes, -1, sizeof(ItemSpecStatTypes));
+
+        if (item->Class == ITEM_CLASS_WEAPON)
+        {
+            ItemType = 5;
+            switch (item->SubClass)
+            {
+                case ITEM_SUBCLASS_WEAPON_AXE:
+                    AddStat(ITEM_SPEC_STAT_ONE_HANDED_AXE);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_AXE2:
+                    AddStat(ITEM_SPEC_STAT_TWO_HANDED_AXE);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_BOW:
+                    AddStat(ITEM_SPEC_STAT_BOW);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_GUN:
+                    AddStat(ITEM_SPEC_STAT_GUN);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_MACE:
+                    AddStat(ITEM_SPEC_STAT_ONE_HANDED_MACE);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_MACE2:
+                    AddStat(ITEM_SPEC_STAT_TWO_HANDED_MACE);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_POLEARM:
+                    AddStat(ITEM_SPEC_STAT_POLEARM);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_SWORD:
+                    AddStat(ITEM_SPEC_STAT_ONE_HANDED_SWORD);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_SWORD2:
+                    AddStat(ITEM_SPEC_STAT_TWO_HANDED_SWORD);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_STAFF:
+                    AddStat(ITEM_SPEC_STAT_STAFF);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
+                    AddStat(ITEM_SPEC_STAT_FIST_WEAPON);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_DAGGER:
+                    AddStat(ITEM_SPEC_STAT_DAGGER);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_THROWN:
+                    AddStat(ITEM_SPEC_STAT_THROWN);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                    AddStat(ITEM_SPEC_STAT_CROSSBOW);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_WAND:
+                    AddStat(ITEM_SPEC_STAT_WAND);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (item->Class == ITEM_CLASS_ARMOR && item->SubClass > 5 && item->SubClass <= 11)
+        {
+            switch (item->SubClass)
+            {
+                case ITEM_SUBCLASS_ARMOR_CLOTH:
+                    if (sparse->InventoryType != INVTYPE_CLOAK)
+                    {
+                        ItemType = 1;
+                        break;
+                    }
+
+                    ItemType = 0;
+                    AddStat(ITEM_SPEC_STAT_CLOAK);
+                    break;
+                case ITEM_SUBCLASS_ARMOR_LEATHER:
+                    ItemType = 2;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_MAIL:
+                    ItemType = 3;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_PLATE:
+                    ItemType = 4;
+                    break;
+                default:
+                    ItemType = 6;
+                    if (item->SubClass == ITEM_SUBCLASS_ARMOR_SHIELD)
+                        AddStat(ITEM_SPEC_STAT_SHIELD);
+                    else if (item->SubClass > ITEM_SUBCLASS_ARMOR_SHIELD && item->SubClass <= ITEM_SUBCLASS_ARMOR_RELIC)
+                        AddStat(ITEM_SPEC_STAT_RELIC);
+                    break;
+            }
+        }
+        else
+            ItemType = 0;
+
+        for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+            if (sparse->ItemStatType[i] != -1)
+                AddModStat(sparse->ItemStatType[i]);
+    }
+
+    void AddStat(ItemSpecStat statType)
+    {
+        if (ItemSpecStatCount >= MAX_ITEM_PROTO_STATS)
+            return;
+
+        for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+            if (ItemSpecStatTypes[i] == uint32(statType))
+                return;
+
+        ItemSpecStatTypes[ItemSpecStatCount++] = statType;
+    }
+
+    void AddModStat(int32 itemStatType)
+    {
+        switch (itemStatType)
+        {
+            case ITEM_MOD_AGILITY:
+                AddStat(ITEM_SPEC_STAT_AGILITY);
+                break;
+            case ITEM_MOD_STRENGTH:
+                AddStat(ITEM_SPEC_STAT_STRENGTH);
+                break;
+            case ITEM_MOD_INTELLECT:
+                AddStat(ITEM_SPEC_STAT_INTELLECT);
+                break;
+            case ITEM_MOD_SPIRIT:
+                AddStat(ITEM_SPEC_STAT_SPIRIT);
+                break;
+            case ITEM_MOD_DODGE_RATING:
+                AddStat(ITEM_SPEC_STAT_DODGE);
+                break;
+            case ITEM_MOD_PARRY_RATING:
+                AddStat(ITEM_SPEC_STAT_PARRY);
+                break;
+            case ITEM_MOD_CRIT_MELEE_RATING:
+            case ITEM_MOD_CRIT_RANGED_RATING:
+            case ITEM_MOD_CRIT_SPELL_RATING:
+            case ITEM_MOD_CRIT_RATING:
+                AddStat(ITEM_SPEC_STAT_CRIT);
+                break;
+            case ITEM_MOD_HASTE_MELEE_RATING:
+            case ITEM_MOD_HASTE_RANGED_RATING:
+            case ITEM_MOD_HASTE_SPELL_RATING:
+            case ITEM_MOD_HASTE_RATING:
+                AddStat(ITEM_SPEC_STAT_HASTE);
+                break;
+            case ITEM_MOD_HIT_RATING:
+                AddStat(ITEM_SPEC_STAT_HIT);
+                break;
+            case ITEM_MOD_EXTRA_ARMOR:
+                AddStat(ITEM_SPEC_STAT_BONUS_ARMOR);
+                break;
+            case ITEM_MOD_AGI_STR_INT:
+                AddStat(ITEM_SPEC_STAT_AGILITY);
+                AddStat(ITEM_SPEC_STAT_STRENGTH);
+                AddStat(ITEM_SPEC_STAT_INTELLECT);
+                break;
+            case ITEM_MOD_AGI_STR:
+                AddStat(ITEM_SPEC_STAT_AGILITY);
+                AddStat(ITEM_SPEC_STAT_STRENGTH);
+                break;
+            case ITEM_MOD_AGI_INT:
+                AddStat(ITEM_SPEC_STAT_AGILITY);
+                AddStat(ITEM_SPEC_STAT_INTELLECT);
+                break;
+            case ITEM_MOD_STR_INT:
+                AddStat(ITEM_SPEC_STAT_STRENGTH);
+                AddStat(ITEM_SPEC_STAT_INTELLECT);
+                break;
+        }
+    }
+};
+
 void ObjectMgr::LoadItemTemplates()
 {
     uint32 oldMSTime = getMSTime();
@@ -2439,6 +2616,45 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.MaxMoneyLoot = 0;
         itemTemplate.FlagsCu = 0;
         itemTemplate.SpellPPMRate = 0.0f;
+
+        if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = GetItemSpecOverrides(sparse->ID))
+        {
+            for (ItemSpecOverrideEntry const* itemSpecOverride : *itemSpecOverrides)
+                itemTemplate.Specializations[0].insert(itemSpecOverride->SpecID);
+
+            itemTemplate.Specializations[1] = itemTemplate.Specializations[0];
+        }
+        else
+        {
+            ItemSpecStats itemSpecStats(db2Data, sparse);
+
+            if (itemSpecStats.ItemSpecStatCount)
+            {
+                for (ItemSpecEntry const* itemSpec : sItemSpecStore)
+                {
+                    if (itemSpecStats.ItemType != itemSpec->ItemType)
+                        continue;
+
+                    bool hasPrimary = false;
+                    bool hasSecondary = itemSpec->SecondaryStat == ITEM_SPEC_STAT_NONE;
+                    for (uint32 i = 0; i < itemSpecStats.ItemSpecStatCount; ++i)
+                    {
+                        if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->PrimaryStat)
+                            hasPrimary = true;
+                        if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->SecondaryStat)
+                            hasSecondary = true;
+                    }
+
+                    if (!hasPrimary || !hasSecondary)
+                        continue;
+
+                    if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpec->SpecID))
+                        if ((1 << (specialization->ClassID - 1)) & sparse->AllowableClass)
+                            itemTemplate.Specializations[itemSpec->MaxLevel > 40].insert(itemSpec->SpecID);
+                }
+            }
+        }
+
         ++sparseCount;
     }
 
@@ -5034,7 +5250,7 @@ void ObjectMgr::LoadInstanceEncounters()
                 continue;
         }
 
-        if (dungeonEncounter->DifficultyID == -1)
+        if (!dungeonEncounter->DifficultyID)
         {
             for (uint32 i = 0; i < MAX_DIFFICULTY; ++i)
             {
@@ -5106,6 +5322,7 @@ void ObjectMgr::LoadNPCText()
             npcText.Data[i].Probability      = fields[1 + i * 2].GetFloat();
         }
 
+        bool isValid = false;
         for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; i++)
         {
             if (npcText.Data[i].BroadcastTextID)
@@ -5115,9 +5332,13 @@ void ObjectMgr::LoadNPCText()
                     TC_LOG_ERROR("sql.sql", "NpcText (Id: %u) in table `npc_text` has non-existing or incompatible Index: %u BroadcastTextID %u.", textID, i, npcText.Data[i].BroadcastTextID);
                     npcText.Data[i].BroadcastTextID = 0;
                 }
+                else
+                    isValid = true;
             }
         }
 
+        if (!isValid)
+            TC_LOG_ERROR("sql.sql", "NpcText (Id: %u) in table `npc_text` is invalid", textID);
     }
     while (result->NextRow());
 
@@ -5329,7 +5550,7 @@ void ObjectMgr::LoadQuestGreetings()
 
     _questGreetingStore.clear(); // need for reload case
 
-    //                                                0   1          2                3     
+    //                                                0   1          2                3
     QueryResult result = WorldDatabase.Query("SELECT ID, type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
     if (!result)
     {
@@ -5346,7 +5567,7 @@ void ObjectMgr::LoadQuestGreetings()
         uint32 id                   = fields[0].GetUInt32();
         uint8 type                  = fields[1].GetUInt8();
         // overwrite
-        switch (type) 
+        switch (type)
         {
             case 0: // Creature
                 type = TYPEID_UNIT;
