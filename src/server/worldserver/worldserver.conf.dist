@@ -624,10 +624,11 @@ MaxWhoListReturns = 50
 #
 #    CharacterCreating.Disabled
 #        Description: Disable character creation for players based on faction.
+#        Example:     3 - (1 + 2, Alliance and Horde are disabled)
 #        Default:     0 - (Enabled, All factions are allowed)
 #                     1 - (Disabled, Alliance)
 #                     2 - (Disabled, Horde)
-#                     3 - (Disabled, Both factions)
+#                     4 - (Disabled, Neutral)
 
 CharacterCreating.Disabled = 0
 
