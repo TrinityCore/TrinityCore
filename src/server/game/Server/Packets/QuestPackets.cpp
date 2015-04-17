@@ -451,13 +451,14 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestList::Write()
         _worldPacket << gossip.QuestLevel;
         _worldPacket << gossip.QuestFlags;
         _worldPacket << gossip.QuestFlagsEx;
-        _worldPacket.FlushBits();
         _worldPacket.WriteBit(gossip.Repeatable);
         _worldPacket.WriteBits(gossip.QuestTitle.size(), 9);
+        _worldPacket.FlushBits();
         _worldPacket.WriteString(gossip.QuestTitle);
     }
-    _worldPacket.FlushBits();
+
     _worldPacket.WriteBits(Greeting.size(), 11);
+    _worldPacket.FlushBits();
     _worldPacket.WriteString(Greeting);
 
     return &_worldPacket;
