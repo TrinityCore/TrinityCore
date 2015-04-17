@@ -814,15 +814,4 @@ inline void ByteBuffer::read_skip<std::string>()
     read_skip<char*>();
 }
 
-namespace boost
-{
-    namespace asio
-    {
-        inline const_buffers_1 buffer(ByteBuffer const& packet)
-        {
-            return buffer(packet.contents(), packet.size());
-        }
-    }
-}
-
 #endif

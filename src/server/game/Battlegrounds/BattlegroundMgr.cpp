@@ -37,7 +37,6 @@
 #include "BattlegroundIC.h"
 #include "BattlegroundTP.h"
 #include "BattlegroundBFG.h"
-#include "BattlegroundPackets.h"
 #include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"

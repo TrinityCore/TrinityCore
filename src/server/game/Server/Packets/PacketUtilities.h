@@ -15,22 +15,39 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#ifndef PacketUtilities_h__
+#define PacketUtilities_h__
+
+#include "ByteBuffer.h"
+#include <G3D/Vector2.h>
+#include <G3D/Vector3.h>
+
+inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector2 const& v)
+{
+    data << v.x << v.y;
+    return data;
+}
+
+inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector2& v)
+{
+    data >> v.x >> v.y;
+    return data;
+}
+
+inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v)
+{
+    data << v.x << v.y << v.z;
+    return data;
+}
+
+inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
+{
+    data >> v.x >> v.y >> v.z;
+    return data;
+}
 
 namespace WorldPackets
 {
-    inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v)
-    {
-        data << v.x << v.y << v.z;
-        return data;
-    }
-
-    inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
-    {
-        data >> v.x >> v.y >> v.z;
-        return data;
-    }
-
     template <typename T>
     struct CompactArray
     {
@@ -93,3 +110,5 @@ namespace WorldPackets
         return data;
     }
 }
+
+#endif // PacketUtilities_h__

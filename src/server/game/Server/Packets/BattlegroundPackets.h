@@ -19,8 +19,9 @@
 #define BattlegroundPackets_h__
 
 #include "ObjectGuid.h"
-#include "Packet.h"
 #include "LFGPackets.h"
+#include "PacketUtilities.h"
+#include "Packet.h"
 
 namespace WorldPackets
 {
@@ -279,12 +280,61 @@ namespace WorldPackets
             bool RatedBattlegrounds = false;
         };
 
-        class RequestBattlefieldStatus  final : public ClientPacket
+        class RequestBattlefieldStatus final : public ClientPacket
         {
         public:
             RequestBattlefieldStatus(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_BATTLEFIELD_STATUS, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class ReportPvPPlayerAFK final : public ClientPacket
+        {
+        public:
+            ReportPvPPlayerAFK(WorldPacket&& packet) : ClientPacket(CMSG_REPORT_PVP_PLAYER_AFK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Offender;
+        };
+
+        class ReportPvPPlayerAFKResult final : public ServerPacket
+        {
+        public:
+            ReportPvPPlayerAFKResult() : ServerPacket(SMSG_REPORT_PVP_PLAYER_AFK_RESULT, 16 + 1 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            enum ResultCode : uint8
+            {
+                PVP_REPORT_AFK_SUCCESS = 0,
+                PVP_REPORT_AFK_GENERIC_FAILURE = 1, // there are more error codes but they are impossible to receive without modifying the client
+                PVP_REPORT_AFK_SYSTEM_ENABLED = 5,
+                PVP_REPORT_AFK_SYSTEM_DISABLED = 6
+            };
+
+            ObjectGuid Offender;
+            uint8 NumPlayersIHaveReported = 0;
+            uint8 NumBlackMarksOnOffender = 0;
+            uint8 Result = PVP_REPORT_AFK_GENERIC_FAILURE;
+        };
+
+        struct BattlegroundPlayerPosition
+        {
+            ObjectGuid Guid;
+            G3D::Vector2 Pos;
+            int8 IconID = 0;
+            int8 ArenaSlot = 0;
+        };
+
+        class BattlegroundPlayerPositions final : public ServerPacket
+        {
+        public:
+            BattlegroundPlayerPositions() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_POSITIONS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<BattlegroundPlayerPosition> FlagCarriers;
         };
     }
 }

@@ -27,6 +27,7 @@
 #include "Object.h"
 #include "GameObject.h"
 #include "Packets/WorldStatePackets.h"
+#include "Packets/BattlegroundPackets.h"
 
 class Creature;
 class GameObject;
@@ -39,14 +40,6 @@ class BattlegroundMap;
 
 struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
-
-namespace WorldPackets
-{
-    namespace Battleground
-    {
-        class PVPLogData;
-    }
-}
 
 enum BattlegroundCriteriaId
 {
@@ -135,7 +128,8 @@ enum BattlegroundTimeIntervals
     RESPAWN_IMMEDIATELY             = 0,                    // secs
     BUFF_RESPAWN_TIME               = 180,                  // secs
     BATTLEGROUND_COUNTDOWN_MAX      = 120,                  // secs
-    ARENA_COUNTDOWN_MAX             = 60                    // secs
+    ARENA_COUNTDOWN_MAX             = 60,                   // secs
+    PLAYER_POSITION_UPDATE_INTERVAL = 5                     // secs
 };
 
 enum BattlegroundStartTimeIntervals
@@ -215,6 +209,20 @@ enum BGHonorMode
 
 #define BG_AWARD_ARENA_POINTS_MIN_LEVEL 71
 #define ARENA_TIMELIMIT_POINTS_LOSS    -16
+
+enum BattlegroundPlayerPositionConstants
+{
+    PLAYER_POSITION_ICON_NONE           = 0,
+    PLAYER_POSITION_ICON_HORDE_FLAG     = 1,
+    PLAYER_POSITION_ICON_ALLIANCE_FLAG  = 2,
+
+    PLAYER_POSITION_ARENA_SLOT_NONE     = 1,
+    PLAYER_POSITION_ARENA_SLOT_1        = 2,
+    PLAYER_POSITION_ARENA_SLOT_2        = 3,
+    PLAYER_POSITION_ARENA_SLOT_3        = 4,
+    PLAYER_POSITION_ARENA_SLOT_4        = 5,
+    PLAYER_POSITION_ARENA_SLOT_5        = 6
+};
 
 /*
 This class is used to:
@@ -491,12 +499,44 @@ class Battleground
         Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
         Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const;
 
+        /* Pre- and post-update hooks */
+
+        /**
+         * @brief Pre-update hook.
+         *
+         * Will be called before battleground update is started. Depending on
+         * the result of this call actual update body may be skipped.
+         *
+         * @param diff a time difference between two worldserver update loops in
+         * milliseconds.
+         *
+         * @return @c true if update must be performed, @c false otherwise.
+         *
+         * @see Update(), PostUpdateImpl().
+         */
+        virtual bool PreUpdateImpl(uint32 /* diff */) { return true; }
+
+        /**
+         * @brief Post-update hook.
+         *
+         * Will be called after battleground update has passed. May be used to
+         * implement custom update effects in subclasses.
+         *
+         * @param diff a time difference between two worldserver update loops in
+         * milliseconds.
+         *
+         * @see Update(), PreUpdateImpl().
+         */
+        virtual void PostUpdateImpl(uint32 /* diff */) { }
+
         void _ProcessOfflineQueue();
         void _ProcessResurrect(uint32 diff);
         void _ProcessProgress(uint32 diff);
         void _ProcessLeave(uint32 diff);
         void _ProcessJoin(uint32 diff);
         void _CheckSafePositions(uint32 diff);
+        void _ProcessPlayerPositionBroadcast(uint32 diff);
+        virtual void GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* /*positions*/) const { }
 
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
@@ -547,36 +587,7 @@ class Battleground
         uint32 m_PrematureCountDownTimer;
         std::string m_Name;
         uint64 m_queueId;
-
-        /* Pre- and post-update hooks */
-
-        /**
-         * @brief Pre-update hook.
-         *
-         * Will be called before battleground update is started. Depending on
-         * the result of this call actual update body may be skipped.
-         *
-         * @param diff a time difference between two worldserver update loops in
-         * milliseconds.
-         *
-         * @return @c true if update must be performed, @c false otherwise.
-         *
-         * @see Update(), PostUpdateImpl().
-         */
-        virtual bool PreUpdateImpl(uint32 /* diff */) { return true; }
-
-        /**
-         * @brief Post-update hook.
-         *
-         * Will be called after battleground update has passed. May be used to
-         * implement custom update effects in subclasses.
-         *
-         * @param diff a time difference between two worldserver update loops in
-         * milliseconds.
-         *
-         * @see Update(), PreUpdateImpl().
-         */
-        virtual void PostUpdateImpl(uint32 /* diff */) { }
+        uint32 m_LastPlayerPositionBroadcast;
 
         // Player lists
         GuidVector m_ResurrectQueue;                        // Player GUID

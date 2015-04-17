@@ -246,6 +246,10 @@ class BattlegroundWS : public Battleground
         /* Achievements*/
         bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;
 
+    protected:
+        void PostUpdateImpl(uint32 diff) override;
+        void GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* positions) const override;
+
     private:
         ObjectGuid m_FlagKeepers[2];                            // 0 - alliance, 1 - horde
         ObjectGuid m_DroppedFlagGUID[2];
@@ -261,7 +265,5 @@ class BattlegroundWS : public Battleground
         bool _bothFlagsKept;
         uint8 _flagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
         uint8 _minutesElapsed;
-
-        void PostUpdateImpl(uint32 diff) override;
 };
 #endif

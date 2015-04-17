@@ -20,7 +20,6 @@
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundQueue.h"
-#include "BattlegroundPackets.h"
 #include "Chat.h"
 #include "Group.h"
 #include "Log.h"

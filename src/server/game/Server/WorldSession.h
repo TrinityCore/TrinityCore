@@ -116,6 +116,7 @@ namespace WorldPackets
         class BattlefieldListRequest;
         class GetPVPOptionsEnabled;
         class RequestBattlefieldStatus;
+        class ReportPvPPlayerAFK;
     }
 
     namespace BlackMarket
@@ -1277,13 +1278,12 @@ class WorldSession
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello);
         void HandleBattlemasterJoinOpcode(WorldPackets::Battleground::BattlemasterJoin& battlemasterJoin);
-        void HandleBattlegroundPlayerPositionsOpcode(WorldPacket& recvData);
         void HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogDataRequest& pvpLogDataRequest);
         void HandleBattleFieldPortOpcode(WorldPackets::Battleground::BattlefieldPort& battlefieldPort);
         void HandleBattlefieldListOpcode(WorldPackets::Battleground::BattlefieldListRequest& battlefieldList);
         void HandleBattlefieldLeaveOpcode(WorldPackets::Battleground::BattlefieldLeave& battlefieldLeave);
         void HandleBattlemasterJoinArena(WorldPacket& recvData);
-        void HandleReportPvPAFK(WorldPacket& recvData);
+        void HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlayerAFK& reportPvPPlayerAFK);
         void HandleRequestRatedBattlefieldInfo(WorldPacket& recvData);
         void HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVPOptionsEnabled& getPvPOptionsEnabled);
         void HandleRequestPvpReward(WorldPacket& recvData);
