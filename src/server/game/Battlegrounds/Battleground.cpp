@@ -38,7 +38,6 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "Transport.h"
-#include "BattlegroundPackets.h"
 #include "MiscPackets.h"
 
 namespace Trinity
@@ -180,6 +179,8 @@ Battleground::Battleground()
 
     m_queueId = 0;
 
+    m_LastPlayerPositionBroadcast = 0;
+
     m_HonorMode = BG_NORMAL;
 
     StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_2M;
@@ -254,6 +255,7 @@ void Battleground::Update(uint32 diff)
             break;
         case STATUS_IN_PROGRESS:
             _ProcessOfflineQueue();
+            _ProcessPlayerPositionBroadcast(diff);
             // after 47 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
@@ -312,6 +314,19 @@ inline void Battleground::_CheckSafePositions(uint32 diff)
                     player->TeleportTo(GetMapId(), startPos->GetPositionX(), startPos->GetPositionY(), startPos->GetPositionZ(), startPos->GetOrientation());
                 }
             }
+    }
+}
+
+void Battleground::_ProcessPlayerPositionBroadcast(uint32 diff)
+{
+    m_LastPlayerPositionBroadcast += diff;
+    if (m_LastPlayerPositionBroadcast >= PLAYER_POSITION_UPDATE_INTERVAL)
+    {
+        m_LastPlayerPositionBroadcast = 0;
+
+        WorldPackets::Battleground::BattlegroundPlayerPositions playerPositions;
+        GetPlayerPositionData(&playerPositions.FlagCarriers);
+        SendPacketToAll(playerPositions.Write());
     }
 }
 

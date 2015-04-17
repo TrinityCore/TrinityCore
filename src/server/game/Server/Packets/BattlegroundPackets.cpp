@@ -221,3 +221,35 @@ WorldPacket const* WorldPackets::Battleground::PVPOptionsEnabled::Write()
     _worldPacket.FlushBits();
     return &_worldPacket;
 }
+
+void WorldPackets::Battleground::ReportPvPPlayerAFK::Read()
+{
+    _worldPacket >> Offender;
+}
+
+WorldPacket const* WorldPackets::Battleground::ReportPvPPlayerAFKResult::Write()
+{
+    _worldPacket << Offender;
+    _worldPacket << uint8(Result);
+    _worldPacket << uint8(NumBlackMarksOnOffender);
+    _worldPacket << uint8(NumPlayersIHaveReported);
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlegroundPlayerPosition const& playerPosition)
+{
+    data << playerPosition.Guid;
+    data << playerPosition.Pos;
+    data << int8(playerPosition.IconID);
+    data << int8(playerPosition.ArenaSlot);
+    return data;
+}
+
+WorldPacket const* WorldPackets::Battleground::BattlegroundPlayerPositions::Write()
+{
+    _worldPacket << uint32(FlagCarriers.size());
+    for (BattlegroundPlayerPosition const& pos : FlagCarriers)
+        _worldPacket << pos;
+
+    return &_worldPacket;
+}

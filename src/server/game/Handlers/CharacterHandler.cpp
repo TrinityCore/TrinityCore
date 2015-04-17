@@ -21,7 +21,6 @@
 #include "ArenaTeamMgr.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
-#include "BattlegroundPackets.h"
 #include "BattlenetServerManager.h"
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
