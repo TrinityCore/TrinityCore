@@ -355,13 +355,16 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         {
             bool disabled = false;
 
-            switch (Player::TeamForRace(charCreate.CreateInfo->Race))
+            switch (Player::TeamIdForRace(charCreate.CreateInfo->Race))
             {
-                case ALLIANCE:
+                case TEAM_ALLIANCE:
                     disabled = (mask & (1 << 0)) != 0;
                     break;
-                case HORDE:
+                case TEAM_HORDE:
                     disabled = (mask & (1 << 1)) != 0;
+                    break;
+                case TEAM_NEUTRAL:
+                    disabled = (mask & (1 << 2)) != 0;
                     break;
             }
 
