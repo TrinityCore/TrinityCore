@@ -236,8 +236,8 @@ void WorldPackets::AuctionHouse::AuctionListItems::Read()
     _worldPacket >> Auctioneer;
     _worldPacket >> MinLevel;
     _worldPacket >> MaxLevel;
-    _worldPacket >> ItemClass;
     _worldPacket >> InvType;
+    _worldPacket >> ItemClass;
     _worldPacket >> ItemSubclass;
     _worldPacket >> Quality;
     _worldPacket >> SortCount;
