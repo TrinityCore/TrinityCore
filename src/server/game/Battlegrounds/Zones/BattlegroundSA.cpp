@@ -508,7 +508,7 @@ void BattlegroundSA::AddPlayer(Player* player)
 
 void BattlegroundSA::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) { }
 
-void BattlegroundSA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
+void BattlegroundSA::HandleAreaTrigger(Player* /*source*/, uint32 /*trigger*/, bool /*entered*/)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)

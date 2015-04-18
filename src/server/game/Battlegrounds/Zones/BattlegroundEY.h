@@ -373,7 +373,7 @@ class BattlegroundEY : public Battleground
         void RespawnFlagAfterDrop();
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
-        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
         bool SetupBattleground() override;

@@ -1922,7 +1922,7 @@ uint32 Battleground::GetTeamScore(uint32 teamId) const
     return 0;
 }
 
-void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
+void Battleground::HandleAreaTrigger(Player* player, uint32 trigger, bool /*entered*/)
 {
     TC_LOG_DEBUG("bg.battleground", "Unhandled AreaTrigger %u in Battleground %u. Player coords (x: %f, y: %f, z: %f)",
                    trigger, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());

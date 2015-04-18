@@ -2084,7 +2084,7 @@ class at_icc_saurfang_portal : public AreaTriggerScript
     public:
         at_icc_saurfang_portal() : AreaTriggerScript("at_icc_saurfang_portal") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
@@ -2118,7 +2118,7 @@ class at_icc_shutdown_traps : public AreaTriggerScript
     public:
         at_icc_shutdown_traps() : AreaTriggerScript("at_icc_shutdown_traps") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 instance->SetData(DATA_UPPERSPIRE_TELE_ACT, DONE);
@@ -2132,7 +2132,7 @@ class at_icc_start_blood_quickening : public AreaTriggerScript
     public:
         at_icc_start_blood_quickening() : AreaTriggerScript("at_icc_start_blood_quickening") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetData(DATA_BLOOD_QUICKENING_STATE) == NOT_STARTED)
@@ -2146,7 +2146,7 @@ class at_icc_start_frostwing_gauntlet : public AreaTriggerScript
     public:
         at_icc_start_frostwing_gauntlet() : AreaTriggerScript("at_icc_start_frostwing_gauntlet") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (Creature* crok = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))

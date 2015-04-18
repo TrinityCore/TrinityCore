@@ -2003,7 +2003,7 @@ class at_hor_intro_start : public AreaTriggerScript
     public:
         at_hor_intro_start() : AreaTriggerScript("at_hor_intro_start") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (player->IsGameMaster())
                 return true;
@@ -2029,7 +2029,7 @@ class at_hor_waves_restarter : public AreaTriggerScript
     public:
         at_hor_waves_restarter() : AreaTriggerScript("at_hor_waves_restarter") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (player->IsGameMaster())
                 return true;
@@ -2064,7 +2064,7 @@ class at_hor_impenetrable_door : public AreaTriggerScript
     public:
         at_hor_impenetrable_door() : AreaTriggerScript("at_hor_impenetrable_door") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (player->IsGameMaster())
                 return true;
@@ -2084,7 +2084,7 @@ class at_hor_shadow_throne : public AreaTriggerScript
     public:
         at_hor_shadow_throne() : AreaTriggerScript("at_hor_shadow_throne") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (player->IsGameMaster())
                 return true;
@@ -2705,7 +2705,7 @@ class at_hor_uther_quel_delar_start : public AreaTriggerScript
     public:
         at_hor_uther_quel_delar_start() : AreaTriggerScript("at_hor_uther_quel_delar_start") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (player->IsGameMaster())
                 return true;
