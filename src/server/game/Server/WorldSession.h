@@ -767,7 +767,7 @@ class WorldSession
         void HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets);
 
         // Pet
-        void SendPetNameQuery(ObjectGuid guid);
+        void SendQueryPetNameResponse(ObjectGuid guid);
         void SendStablePet(ObjectGuid guid);
         void SendStablePetCallback(PreparedQueryResult result, ObjectGuid guid);
         void SendPetStableResult(uint8 guid);
@@ -1233,7 +1233,7 @@ class WorldSession
         void HandleChatMessageAFKOpcode(WorldPackets::Chat::ChatMessageAFK& chatMessageAFK);
         void HandleChatMessageDNDOpcode(WorldPackets::Chat::ChatMessageDND& chatMessageDND);
         void HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& chatMessageEmote);
-        void SendPlayerNotFoundNotice(std::string const& name);
+        void SendChatPlayerNotfoundNotice(std::string const& name);
         void SendPlayerAmbiguousNotice(std::string const& name);
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);

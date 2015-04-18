@@ -418,10 +418,10 @@ void WorldSession::HandleQueryPetName(WorldPackets::Query::QueryPetName& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_PET_NAME");
 
-    SendPetNameQuery(packet.UnitGUID);
+    SendQueryPetNameResponse(packet.UnitGUID);
 }
 
-void WorldSession::SendPetNameQuery(ObjectGuid guid)
+void WorldSession::SendQueryPetNameResponse(ObjectGuid guid)
 {
     WorldPackets::Query::QueryPetNameResponse response;
 
