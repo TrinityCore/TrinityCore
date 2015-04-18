@@ -24319,10 +24319,9 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         SetFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
     }
 
-    WorldPacket data(SMSG_TITLE_EARNED, 4 + 4);
-    data << uint32(title->MaskID);
-    data << uint32(lost ? 0 : 1);                           // 1 - earned, 0 - lost
-    GetSession()->SendPacket(&data);
+    WorldPackets::Character::TitleEarned packet(lost ? SMSG_TITLE_LOST : SMSG_TITLE_EARNED);
+    packet.Index = title->MaskID;
+    GetSession()->SendPacket(packet.Write());
 }
 
 bool Player::isTotalImmunity()
