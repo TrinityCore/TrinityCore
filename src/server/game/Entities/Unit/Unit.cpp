@@ -8112,8 +8112,11 @@ void Unit::SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 
 {
     WorldPackets::CombatLog::SpellHealLog spellHealLog;
 
-    spellHealLog.CasterGUID = GetGUID();
+    TC_LOG_DEBUG("spells", "HealSpellLog -- SpellId: %u Caster: %s -- Target: %s Health: %u OverHeal: %u Absorbed: %u Crit: %u", spellID, GetGUID().ToString(), victim->GetGUID().ToString(),
+        health, overHeal, absorbed, crit);
+
     spellHealLog.TargetGUID = victim->GetGUID();
+    spellHealLog.CasterGUID = GetGUID();
 
     spellHealLog.SpellID = spellID;
     spellHealLog.Health = health;
