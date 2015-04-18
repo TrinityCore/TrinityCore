@@ -87,6 +87,27 @@ namespace WorldPackets
             std::vector<SpellLogEffect> Effects;
             Optional<Spells::SpellCastLogData> LogData; /// @todo: find the correct way where to use it, in sniff always false
         };
+
+        class SpellHealLog final : public ServerPacket
+        {
+        public:
+
+            SpellHealLog() : ServerPacket(SMSG_SPELL_HEAL_LOG, 16 + 16 + 4 * 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterGUID;
+            ObjectGuid TargetGUID;
+            int32 SpellID       = 0;
+            int32 Health        = 0;
+            int32 OverHeal      = 0;
+            int32 Absorbed      = 0;
+            bool Crit           = false;
+            bool Multistrike    = false;
+            Optional<float> CritRollMade;
+            Optional<float> CritRollNeeded;
+            Optional<Spells::SpellCastLogData> LogData; /// @todo: find the correct way where to use it, in sniff always false
+        };
     }
 }
 

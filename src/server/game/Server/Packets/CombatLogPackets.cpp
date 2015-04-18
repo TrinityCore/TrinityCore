@@ -117,3 +117,33 @@ WorldPacket const* WorldPackets::CombatLog::SpellExecuteLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << TargetGUID;
+
+    _worldPacket << SpellID;
+    _worldPacket << Health;
+    _worldPacket << OverHeal;
+    _worldPacket << Absorbed;
+
+    _worldPacket.WriteBit(Crit);
+    _worldPacket.WriteBit(Multistrike);
+
+    _worldPacket.WriteBit(CritRollMade.HasValue);
+    _worldPacket.WriteBit(CritRollNeeded.HasValue);
+    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.FlushBits();
+
+    if (CritRollMade.HasValue)
+        _worldPacket << CritRollMade.Value;
+
+    if (CritRollNeeded.HasValue)
+        _worldPacket << CritRollNeeded.Value;
+
+    if (LogData.HasValue)
+        _worldPacket << LogData.Value;
+
+    return &_worldPacket;
+}
