@@ -343,6 +343,16 @@ namespace WorldPackets
             ObjectGuid Item;
         };
 
+        class WrapItem final : public ClientPacket
+        {
+        public:
+            WrapItem(WorldPacket&& packet) : ClientPacket(CMSG_WRAP_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            InvUpdate Inv;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
     }
 }
