@@ -15,29 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ClientConfigPackets_h__
-#define ClientConfigPackets_h__
+#ifndef PacketUtilities_h__
+#define PacketUtilities_h__
 
-#include "Packet.h"
-#include "AddonMgr.h"
+#include "ByteBuffer.h"
+#include <G3D/Vector2.h>
+#include <G3D/Vector3.h>
 
-namespace WorldPackets
+inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector2 const& v)
 {
-    namespace ClientConfig
-    {
-        class AddonInfo final : public ServerPacket
-        {
-            static uint8 const PublicKey[256];
-
-            public:
-                AddonInfo() : ServerPacket(SMSG_ADDON_INFO) { }
-
-                WorldPacket const* Write() override;
-
-                std::list< ::AddonInfo> const* Addons = nullptr;
-                std::list<BannedAddon> const* BannedAddons = nullptr;
-        };
-    }
+    data << v.x << v.y;
+    return data;
 }
 
-#endif // ClientConfigPackets_h__
+inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector2& v)
+{
+    data >> v.x >> v.y;
+    return data;
+}
+
+inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v)
+{
+    data << v.x << v.y << v.z;
+    return data;
+}
+
+inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
+{
+    data >> v.x >> v.y >> v.z;
+    return data;
+}
+
+#endif // PacketUtilities_h__

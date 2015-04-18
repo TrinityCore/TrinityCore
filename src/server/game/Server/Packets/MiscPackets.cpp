@@ -16,3 +16,13 @@
  */
 
 #include "MiscPackets.h"
+
+void WorldPackets::Misc::WorldTeleport::Read()
+{
+    _worldPacket >> Time;                                      // time in m.sec.
+    _worldPacket >> MapID;
+    _worldPacket >> PositionX;
+    _worldPacket >> PositionY;
+    _worldPacket >> PositionZ;
+    _worldPacket >> Orientation;                               // o (3.141593 = 180 degrees)
+}

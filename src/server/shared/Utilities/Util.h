@@ -31,8 +31,24 @@
 template<typename T>
 struct Optional
 {
-    T value;
+    Optional() : Value(), HasValue(false) { }
+
+    T Value;
     bool HasValue;
+
+    inline void Set(T const& v)
+    {
+        HasValue = true;
+        Value = v;
+    }
+
+    inline void Clear()
+    {
+        HasValue = false;
+        Value = T();
+    }
+
+    inline operator bool() const { return HasValue; }
 };
 
 // Searcher for map of structs

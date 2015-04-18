@@ -45,6 +45,16 @@ struct ClientPktHeader
 
 #pragma pack(pop)
 
+namespace WorldPackets
+{
+    namespace Auth
+    {
+        class AuthSession;
+        class Ping;
+        class Pong;
+    }
+}
+
 class WorldSocket : public Socket<WorldSocket>
 {
 public:
@@ -70,10 +80,10 @@ private:
     /// sends and logs network.opcode without accessing WorldSession
     void SendPacketAndLogOpcode(WorldPacket const& packet);
     void HandleSendAuthSession();
-    void HandleAuthSession(WorldPacket& recvPacket);
+    void HandleAuthSession(WorldPackets::Auth::AuthSession& authSession);
     void SendAuthResponseError(uint8 code);
 
-    bool HandlePing(WorldPacket& recvPacket);
+    bool HandlePing(WorldPackets::Auth::Ping& ping);
 
     uint32 _authSeed;
     AuthCrypt _authCrypt;

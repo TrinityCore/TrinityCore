@@ -258,6 +258,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     if (plrMover && plrMover->IsBeingTeleported())
         return;
 
+    playerMovement.movementInfo.guid = playerMovement.Guid;
     CleanMovementInfo(&playerMovement.movementInfo);
 
     // prevent tampered movement data
@@ -386,6 +387,10 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& movementSpeedAck)
 {
+    // now can skip not our packet
+    if (_player->GetGUID() != movementSpeedAck.Guid)
+        return;
+
     CleanMovementInfo(&movementSpeedAck.Ack.movementInfo);
 
     // client ACK send one packet for mounted/run case and need skip all except last from its
@@ -452,6 +457,8 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recvData)
 void WorldSession::HandleMoveNotActiveMover(WorldPackets::Movement::NotActiveMover& notActiveMover)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
+
+    notActiveMover.movementInfo.guid = notActiveMover.Guid;
     CleanMovementInfo(&notActiveMover.movementInfo);
     _player->m_movementInfo = notActiveMover.movementInfo;
 }
@@ -468,7 +475,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMes
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_KNOCK_BACK_ACK");
 
-    if (_player->m_mover->GetGUID() != ackMessage.Ack.movementInfo.guid)
+    if (_player->m_mover->GetGUID() != ackMessage.Guid)
         return;
 
     CleanMovementInfo(&ackMessage.Ack.movementInfo);
@@ -476,7 +483,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMes
     _player->m_movementInfo = ackMessage.Ack.movementInfo;
 
     WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
-    data << ackMessage.Ack.movementInfo.guid.WriteAsPacked();
+    data << ackMessage.Guid.WriteAsPacked();
     _player->BuildMovementPacket(&data);
 
     // knockback specific info

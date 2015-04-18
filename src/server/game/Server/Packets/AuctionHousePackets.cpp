@@ -48,3 +48,51 @@ WorldPacket const* WorldPackets::AuctionHouse::AuctionCommandResult::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::AuctionHouse::AuctionBidderNotify::Write()
+{
+    _worldPacket << uint32(HouseID);
+    _worldPacket << uint32(AuctionID);
+    _worldPacket << BidderGuid;
+    _worldPacket << uint32(BidSum);
+    _worldPacket << uint32(OutBid);
+    _worldPacket << uint32(ItemID);
+    _worldPacket << uint32(0);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::AuctionHouse::AuctionOwnerNotify::Write()
+{
+    if (Entry)
+    {
+        _worldPacket << uint32(Entry->Id);
+        _worldPacket << uint32(Entry->bid);
+        _worldPacket << uint32(0);                                      //unk
+        _worldPacket << uint64(0);                                      //unk (bidder guid?)
+        _worldPacket << uint32(Entry->itemEntry);
+        _worldPacket << uint32(0);                                      //unk
+        _worldPacket << float(0);                                       //unk (time?)
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::AuctionHouse::AuctionSellItem::Read()
+{
+    _worldPacket >> Auctioneer;
+
+    uint32 ItemsCount = _worldPacket.read<uint32>();
+
+    for (uint32 i = 0; i < ItemsCount; ++i)
+    {
+        WorldPackets::AuctionHouse::AuctionSellItem::AuctionItemForSale item;
+        _worldPacket >> item.Guid;
+        _worldPacket >> item.UseCount;
+        Items.emplace_back(item);
+    }
+
+    _worldPacket >> MinBid;
+    _worldPacket >> BuyoutPrice;
+    _worldPacket >> RunTime;
+}

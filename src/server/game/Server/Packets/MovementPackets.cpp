@@ -64,50 +64,81 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MovementAck& ac
 
 void WorldPackets::Movement::ClientPlayerMovement::Read()
 {
-    ObjectGuid guid;
-    _worldPacket >> guid.ReadAsPacked();
+    _worldPacket >> Guid.ReadAsPacked();
     _worldPacket >> movementInfo;
-    movementInfo.guid = guid;
 
     _worldPacket.rfinish();
 }
 
 void WorldPackets::Movement::MovementAckMessage::Read()
 {
-    ObjectGuid guid;
-    _worldPacket >> guid.ReadAsPacked();
-
+    _worldPacket >> Guid.ReadAsPacked();
     _worldPacket >> Ack;
-    Ack.movementInfo.guid = guid;
 
     _worldPacket.rfinish();
 }
 
 void WorldPackets::Movement::MovementSpeedAck::Read()
 {
-    ObjectGuid guid;
-    _worldPacket >> guid.ReadAsPacked();
-
+    _worldPacket >> Guid.ReadAsPacked();
     _worldPacket >> Ack;
     _worldPacket >> Speed;
-
-    Ack.movementInfo.guid = guid;
 
     _worldPacket.rfinish();
 }
 
 void WorldPackets::Movement::NotActiveMover::Read()
 {
-    ObjectGuid guid;
-    _worldPacket >> guid.ReadAsPacked();
-
+    _worldPacket >> Guid.ReadAsPacked();
     _worldPacket >> movementInfo;
-
-    movementInfo.guid = guid;
 }
 
 void WorldPackets::Movement::MoveTimeSkipped::Read()
 {
     _worldPacket >> moverGUID.ReadAsPacked();
     _worldPacket >> timeSkipped;
+}
+
+WorldPackets::Movement::MoveForceRoot::MoveForceRoot()
+    : ServerPacket(SMSG_FORCE_MOVE_ROOT, sizeof(PackedGuid) + 4) { }
+
+WorldPacket const* WorldPackets::Movement::MoveForceRoot::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << uint32(RootTimes);
+
+    return &_worldPacket;
+}
+
+WorldPackets::Movement::MoveForceUnroot::MoveForceUnroot()
+    : ServerPacket(SMSG_FORCE_MOVE_UNROOT, sizeof(PackedGuid) + 4) { }
+
+WorldPacket const* WorldPackets::Movement::MoveForceUnroot::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << uint32(RootTimes);
+
+    return &_worldPacket;
+}
+
+WorldPackets::Movement::MoveForceWaterWalk::MoveForceWaterWalk()
+    : ServerPacket(SMSG_MOVE_WATER_WALK, sizeof(PackedGuid) + 4) { }
+
+WorldPacket const* WorldPackets::Movement::MoveForceWaterWalk::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << uint32(RootTimes);
+
+    return &_worldPacket;
+}
+
+WorldPackets::Movement::MoveForceLandWalk::MoveForceLandWalk()
+    : ServerPacket(SMSG_MOVE_LAND_WALK, sizeof(PackedGuid) + 4) { }
+
+WorldPacket const* WorldPackets::Movement::MoveForceLandWalk::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << uint32(RootTimes);
+
+    return &_worldPacket;
 }

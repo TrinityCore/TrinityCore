@@ -24,7 +24,20 @@ namespace WorldPackets
 {
     namespace Misc
     {
+        class WorldTeleport : public ClientPacket
+        {
+            public:
+                WorldTeleport(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_TELEPORT, std::move(packet)) { }
 
+                void Read() override;
+
+                uint32 Time;
+                uint32 MapID;
+                float PositionX;
+                float PositionY;
+                float PositionZ;
+                float Orientation;
+        };
     }
 }
 

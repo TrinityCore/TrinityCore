@@ -19,6 +19,7 @@
 #define AuctionHousePackets_h__
 
 #include "Packet.h"
+#include "AuctionHouseMgr.h"
 
 namespace WorldPackets
 {
@@ -57,6 +58,51 @@ namespace WorldPackets
                 uint32 Action        = 0; ///< the type of action that triggered this notification. Possible values are @ref AuctionAction
                 uint32 ErrorCode     = 0; ///< the error code that was generated when trying to perform the action. Possible values are @ref AuctionError
                 uint32 BidError      = 0; ///< the bid error. Possible values are @ref AuctionError
+        };
+
+        class AuctionBidderNotify final : public ServerPacket
+        {
+            public:
+                AuctionBidderNotify() : ServerPacket(SMSG_AUCTION_BIDDER_NOTIFICATION, 32) { }
+
+                WorldPacket const* Write() override;
+
+                uint32 AuctionID = 0;
+                uint32 HouseID = 0;
+                ObjectGuid BidderGuid;
+                uint32 BidSum = 0;
+                uint32 OutBid = 0;
+                uint32 ItemID = 0;
+        };
+
+        class AuctionOwnerNotify final : public ServerPacket
+        {
+            public:
+                AuctionOwnerNotify() : ServerPacket(SMSG_AUCTION_OWNER_NOTIFICATION, 32) { }
+
+                WorldPacket const* Write() override;
+
+                AuctionEntry const* Entry = nullptr;
+        };
+
+        class AuctionSellItem final : public ClientPacket
+        {
+            public:
+                struct AuctionItemForSale
+                {
+                    ObjectGuid Guid;
+                    uint32 UseCount = 0;
+                };
+
+                AuctionSellItem(WorldPacket&& packet) : ClientPacket(CMSG_AUCTION_SELL_ITEM, std::move(packet)) { }
+
+                void Read() override;
+
+                ObjectGuid Auctioneer;
+                uint32 BuyoutPrice = 0;
+                uint32 MinBid = 0;
+                uint32 RunTime = 0;
+                std::vector<AuctionItemForSale> Items;
         };
     }
 }

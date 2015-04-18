@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "Util.h"
+#include "SHA1.h"
 
 namespace WorldPackets
 {
@@ -35,6 +36,26 @@ namespace WorldPackets
                 uint32 Challenge = 0;
                 uint32 DosChallenge[8]; ///< Encryption seeds
                 uint32 DosZeroBits = 0;
+        };
+
+        class AuthSession final : public ClientPacket
+        {
+            public:
+                AuthSession(WorldPacket&& packet) : ClientPacket(CMSG_AUTH_SESSION, std::move(packet)) { }
+
+                void Read() override;
+
+                uint32 BattlegroupID = 0;
+                uint32 LoginServerType = 0;           ///< Auth type used - 0 GRUNT, 1 battle.net
+                uint32 RealmID = 0;
+                uint32 Build = 0;
+                uint32 LocalChallenge = 0;
+                uint32 LoginServerID = 0;
+                uint32 RegionID = 0;
+                uint64 DosResponse = 0;
+                uint8 Digest[SHA_DIGEST_LENGTH];
+                std::string Account;
+                ByteBuffer* AddonInfo;
         };
 
         class AuthResponse final : public ServerPacket
@@ -54,17 +75,34 @@ namespace WorldPackets
                     bool HasFCM = false; ///< true if the account has a forced character migration pending. @todo implement
                 };
 
-                AuthResponse() = delete;
-                AuthResponse(bool shortForm);
+                AuthResponse();
 
                 WorldPacket const* Write() override;
 
-                AuthSuccessInfo SuccessInfo; ///< contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
-                AuthWaitInfo WaitInfo; ///< contains the queue wait information in case the account is in the login queue.
+                Optional<AuthSuccessInfo> SuccessInfo; ///< contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
+                Optional<AuthWaitInfo> WaitInfo; ///< contains the queue wait information in case the account is in the login queue.
                 uint8 Result = 0; ///< the result of the authentication process, it is AUTH_OK if it succeeded and the account is ready to log in. It can also be AUTH_WAIT_QUEUE if the account entered the login queue (Queued, QueuePos), possible values are @ref ResponseCodes
+        };
 
-            private:
-                bool que;
+        class Ping final : public ClientPacket
+        {
+            public:
+                Ping(WorldPacket&& packet) : ClientPacket(CMSG_PING, std::move(packet)) { }
+
+                void Read() override;
+
+                uint32 PingID;
+                uint32 Latency;
+        };
+
+        class Pong final : public ServerPacket
+        {
+            public:
+                Pong();
+
+                WorldPacket const* Write() override;
+
+                uint32 PingID;
         };
     }
 }

@@ -22,14 +22,22 @@
 
 void WorldSession::SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos)
 {
-    WorldPackets::Auth::AuthResponse packet(shortForm);
+    WorldPackets::Auth::AuthResponse packet;
     packet.Result = code;
-    packet.SuccessInfo.TimeRemain = 0;
-    packet.SuccessInfo.TimeOptions = 0;
-    packet.SuccessInfo.TimeRested = 0;
-    packet.SuccessInfo.AccountExpansionLevel = Expansion();
+    WorldPackets::Auth::AuthResponse::AuthSuccessInfo successInfo;
+    successInfo.AccountExpansionLevel = Expansion();
+    successInfo.TimeOptions = 0;
+    successInfo.TimeRemain = 0;
+    successInfo.TimeRested = 0;
+    packet.SuccessInfo.Set(successInfo);
 
-    packet.WaitInfo.WaitCount = queuePos;
+    if (!shortForm)
+    {
+        WorldPackets::Auth::AuthResponse::AuthWaitInfo waitInfo;
+        waitInfo.HasFCM = false;
+        waitInfo.WaitCount = queuePos;
+        packet.WaitInfo.Set(waitInfo);
+    }
 
     SendPacket(packet.Write());
 }

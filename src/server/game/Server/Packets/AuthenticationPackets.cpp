@@ -25,22 +25,55 @@ WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
     return &_worldPacket;
 }
 
-WorldPackets::Auth::AuthResponse::AuthResponse(bool shortForm)
-    : ServerPacket(SMSG_AUTH_RESPONSE, shortForm ? 11 : 16), que(!shortForm) { }
+void WorldPackets::Auth::AuthSession::Read()
+{
+    _worldPacket >> Build;
+    _worldPacket >> LoginServerID;
+    _worldPacket >> Account;
+    _worldPacket >> LoginServerType;
+    _worldPacket >> LocalChallenge;
+    _worldPacket >> RegionID >> BattlegroupID;
+    _worldPacket >> RealmID;
+    _worldPacket >> DosResponse;
+    _worldPacket.read(Digest, SHA_DIGEST_LENGTH);
+    AddonInfo = &_worldPacket;
+}
+
+WorldPackets::Auth::AuthResponse::AuthResponse()
+    : ServerPacket(SMSG_AUTH_RESPONSE, 16) { }
 
 WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 {
     _worldPacket << uint8(Result);
-    _worldPacket << uint32(SuccessInfo.TimeRemain);
-    _worldPacket << uint8(SuccessInfo.TimeOptions);
-    _worldPacket << uint32(SuccessInfo.TimeRested);
-    _worldPacket << uint8(SuccessInfo.AccountExpansionLevel);
-
-    if (que)
+    
+    if (SuccessInfo.HasValue)
     {
-        _worldPacket << uint32(WaitInfo.WaitCount);
-        _worldPacket << uint8(WaitInfo.HasFCM);
+        _worldPacket << uint32(SuccessInfo.Value.TimeRemain);
+        _worldPacket << uint8(SuccessInfo.Value.TimeOptions);
+        _worldPacket << uint32(SuccessInfo.Value.TimeRested);
+        _worldPacket << uint8(SuccessInfo.Value.AccountExpansionLevel);
     }
 
+    if (WaitInfo.HasValue)
+    {
+        _worldPacket << uint32(WaitInfo.Value.WaitCount);
+        _worldPacket << uint8(WaitInfo.Value.HasFCM ? 1 : 0);
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Auth::Ping::Read()
+{
+    _worldPacket >> PingID;
+    _worldPacket >> Latency;
+}
+
+WorldPackets::Auth::Pong::Pong()
+    : ServerPacket(SMSG_PONG, 4) { }
+
+WorldPacket const* WorldPackets::Auth::Pong::Write()
+{
+    _worldPacket << uint32(PingID);
     return &_worldPacket;
 }

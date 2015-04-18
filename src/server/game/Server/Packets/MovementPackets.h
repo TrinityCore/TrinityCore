@@ -38,6 +38,7 @@ namespace WorldPackets
 
                 void Read() override;
 
+                ObjectGuid Guid;
                 MovementInfo movementInfo;
         };
 
@@ -48,6 +49,7 @@ namespace WorldPackets
 
                 void Read() override;
 
+                ObjectGuid Guid;
                 MovementAck Ack;
         };
 
@@ -58,6 +60,7 @@ namespace WorldPackets
 
                 void Read() override;
 
+                ObjectGuid Guid;
                 MovementAck Ack;
                 float Speed = 0.f;
         };
@@ -69,6 +72,7 @@ namespace WorldPackets
 
                 void Read() override;
 
+                ObjectGuid Guid;
                 MovementInfo movementInfo;
         };
 
@@ -81,6 +85,50 @@ namespace WorldPackets
 
                 ObjectGuid moverGUID;
                 uint32 timeSkipped;
+        };
+
+        class MoveForceRoot final : public ServerPacket
+        {
+            public:
+                MoveForceRoot();
+
+                WorldPacket const* Write() override;
+
+                PackedGuid Guid;
+                uint32 RootTimes = 0;
+        };
+
+        class MoveForceUnroot final : public ServerPacket
+        {
+            public:
+                MoveForceUnroot();
+
+                WorldPacket const* Write() override;
+
+                PackedGuid Guid;
+                uint32 RootTimes = 0;
+        };
+
+        class MoveForceWaterWalk final : public ServerPacket
+        {
+            public:
+                MoveForceWaterWalk();
+
+                WorldPacket const* Write() override;
+
+                PackedGuid Guid;
+                uint32 RootTimes = 0;
+        };
+
+        class MoveForceLandWalk final : public ServerPacket
+        {
+            public:
+                MoveForceLandWalk();
+
+                WorldPacket const* Write() override;
+
+                PackedGuid Guid;
+                uint32 RootTimes = 0;
         };
     }
 }

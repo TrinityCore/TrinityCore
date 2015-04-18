@@ -161,9 +161,14 @@ bool WorldSocket::ReadDataHandler()
     switch (opcode)
     {
         case CMSG_PING:
+        {
             LogOpcodeText(opcode, sessionGuard);
-            return HandlePing(packet);
+            WorldPackets::Auth::Ping ping(std::move(packet));
+            ping.Read();
+            return HandlePing(ping);
+        }
         case CMSG_AUTH_SESSION:
+        {
             LogOpcodeText(opcode, sessionGuard);
             if (_authed)
             {
@@ -172,9 +177,11 @@ bool WorldSocket::ReadDataHandler()
                     TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
                 return false;
             }
-
-            HandleAuthSession(packet);
+            WorldPackets::Auth::AuthSession authSession(std::move(packet));
+            authSession.Read();
+            HandleAuthSession(authSession);
             break;
+        }
         case CMSG_KEEP_ALIVE:
             LogOpcodeText(opcode, sessionGuard);
             break;
@@ -254,47 +261,22 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
     }
 }
 
-void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
+void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession)
 {
-    uint8 digest[SHA_DIGEST_LENGTH];
-    uint32 clientSeed;
     uint8 security;
     uint32 id;
     LocaleConstant locale;
-    std::string account;
     SHA1Hash sha;
-    uint32 clientBuild;
-    uint32 serverId, loginServerType, region, battlegroup, realmIndex;
-    uint64 unk4;
     WorldPacket packet, SendAddonPacked;
     BigNumber k;
     bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
-
-    // Read the content of the packet
-    recvPacket >> clientBuild;
-    recvPacket >> serverId;                 // Used for GRUNT only
-    recvPacket >> account;
-    recvPacket >> loginServerType;          // 0 GRUNT, 1 Battle.net
-    recvPacket >> clientSeed;
-    recvPacket >> region >> battlegroup;    // Used for Battle.net only
-    recvPacket >> realmIndex;               // realmId from auth_database.realmlist table
-    recvPacket >> unk4;
-    recvPacket.read(digest, 20);
-
-    TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: client %u, serverId %u, account %s, loginServerType %u, clientseed %u, realmIndex %u",
-        clientBuild,
-        serverId,
-        account.c_str(),
-        loginServerType,
-        clientSeed,
-        realmIndex);
 
     // Get the account information from the auth database
     //         0           1        2       3          4         5       6          7   8
     // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
 
-    stmt->setString(0, account);
+    stmt->setString(0, authSession.Account);
 
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -322,7 +304,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
 
     stmt->setString(0, address);
-    stmt->setString(1, account);
+    stmt->setString(1, authSession.Account);
 
     LoginDatabase.Execute(stmt);
     // This also allows to check for possible "hack" attempts on account
@@ -344,7 +326,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         return;
     }
 
-    if (realmIndex != realmID)
+    if (authSession.RealmID != realmID)
     {
         SendAuthResponseError(REALM_LIST_REALM_NOT_FOUND);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (bad realm).");
@@ -366,17 +348,17 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Check that Key and account name are the same on client and server
     uint32 t = 0;
 
-    sha.UpdateData(account);
+    sha.UpdateData(authSession.Account);
     sha.UpdateData((uint8*)&t, 4);
-    sha.UpdateData((uint8*)&clientSeed, 4);
+    sha.UpdateData((uint8*)&authSession.LocalChallenge, 4);
     sha.UpdateData((uint8*)&_authSeed, 4);
     sha.UpdateBigNumbers(&k, NULL);
     sha.Finalize();
 
-    if (memcmp(sha.GetDigest(), digest, SHA_DIGEST_LENGTH) != 0)
+    if (memcmp(sha.GetDigest(), authSession.Digest, SHA_DIGEST_LENGTH) != 0)
     {
         SendAuthResponseError(AUTH_FAILED);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, authSession.Account.c_str(), address.c_str());
         DelayedCloseSocket();
         return;
     }
@@ -460,7 +442,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     }
 
     TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.",
-        account.c_str(),
+        authSession.Account.c_str(),
         address.c_str());
 
     // Check if this user is by any chance a recruiter
@@ -478,7 +460,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
 
     stmt->setString(0, address);
-    stmt->setString(1, account);
+    stmt->setString(1, authSession.Account);
 
     LoginDatabase.Execute(stmt);
 
@@ -489,7 +471,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     _worldSession = new WorldSession(id, shared_from_this(), AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter);
     _worldSession->LoadGlobalAccountData();
     _worldSession->LoadTutorialsData();
-    _worldSession->ReadAddonsInfo(recvPacket);
+    _worldSession->ReadAddonsInfo(*authSession.AddonInfo);
     _worldSession->LoadPermissions();
 
     // Initialize Warden system only if it is enabled by config
@@ -501,21 +483,14 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
 void WorldSocket::SendAuthResponseError(uint8 code)
 {
-    WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-    packet << uint8(code);
+    WorldPackets::Auth::AuthResponse packet;
+    packet.Result = code;
 
-    SendPacketAndLogOpcode(packet);
+    SendPacketAndLogOpcode(*packet.Write());
 }
 
-bool WorldSocket::HandlePing(WorldPacket& recvPacket)
+bool WorldSocket::HandlePing(WorldPackets::Auth::Ping& ping)
 {
-    uint32 ping;
-    uint32 latency;
-
-    // Get the ping packet content
-    recvPacket >> ping;
-    recvPacket >> latency;
-
     if (_LastPingTime == steady_clock::time_point())
     {
         _LastPingTime = steady_clock::now();
@@ -556,7 +531,7 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
 
         if (_worldSession)
         {
-            _worldSession->SetLatency(latency);
+            _worldSession->SetLatency(ping.Latency);
             _worldSession->ResetClientTimeDelay();
         }
         else
@@ -566,8 +541,8 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
         }
     }
 
-    WorldPacket packet(SMSG_PONG, 4);
-    packet << ping;
-    SendPacketAndLogOpcode(packet);
+    WorldPackets::Auth::Pong packet;
+    packet.PingID = ping.PingID;
+    SendPacketAndLogOpcode(*packet.Write());
     return true;
 }
