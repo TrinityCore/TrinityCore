@@ -585,8 +585,6 @@ void WorldSession::HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse
 
 void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_AREATRIGGER. Trigger ID: %u", packet.AreaTriggerID);
-
     Player* player = GetPlayer();
     if (player->IsInFlight())
     {
@@ -657,9 +655,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
     }
 
     if (player->isDebugAreaTriggers)
-        ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, packet.AreaTriggerID);
+        ChatHandler(player->GetSession()).PSendSysMessage(packet.Entered ? LANG_DEBUG_AREATRIGGER_ENTERED : LANG_DEBUG_AREATRIGGER_LEFT, packet.AreaTriggerID);
 
-    if (sScriptMgr->OnAreaTrigger(player, atEntry))
+    if (sScriptMgr->OnAreaTrigger(player, atEntry, packet.Entered))
         return;
 
     if (player->IsAlive())
@@ -699,10 +697,10 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
 
     if (Battleground* bg = player->GetBattleground())
         if (bg->GetStatus() == STATUS_IN_PROGRESS)
-            bg->HandleAreaTrigger(player, packet.AreaTriggerID);
+            bg->HandleAreaTrigger(player, packet.AreaTriggerID, packet.Entered);
 
     if (OutdoorPvP* pvp = player->GetOutdoorPvP())
-        if (pvp->HandleAreaTrigger(_player, packet.AreaTriggerID))
+        if (pvp->HandleAreaTrigger(_player, packet.AreaTriggerID, packet.Entered))
             return;
 
     AreaTriggerStruct const* at = sObjectMgr->GetAreaTrigger(packet.AreaTriggerID);
