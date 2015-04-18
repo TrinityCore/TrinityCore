@@ -206,3 +206,11 @@ WorldPacket const* WorldPackets::Chat::PrintNotification::Write()
     _worldPacket.WriteString(NotifyText);
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Chat::ChatPlayerNotfound::Write()
+{
+    _worldPacket.WriteBits(Name.length(), 9);
+    _worldPacket.WriteString(Name);
+
+    return &_worldPacket;
+}

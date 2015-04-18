@@ -234,14 +234,14 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
 
             if (!normalizePlayerName(extName.Name))
             {
-                SendPlayerNotFoundNotice(target);
+                SendChatPlayerNotfoundNotice(target);
                 break;
             }
 
             Player* receiver = ObjectAccessor::FindConnectedPlayerByName(extName.Name);
             if (!receiver || (lang != LANG_ADDON && !receiver->isAcceptWhispers() && receiver->GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS) && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
             {
-                SendPlayerNotFoundNotice(target);
+                SendChatPlayerNotfoundNotice(target);
                 return;
             }
             if (!sender->IsGameMaster() && sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ) && !receiver->IsInWhisperWhiteList(sender->GetGUID()))
@@ -252,7 +252,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
 
             if (GetPlayer()->GetTeam() != receiver->GetTeam() && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT) && !receiver->IsInWhisperWhiteList(sender->GetGUID()))
             {
-                SendPlayerNotFoundNotice(target);
+                SendChatPlayerNotfoundNotice(target);
                 return;
             }
 
@@ -671,11 +671,9 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
     player->SendDirectMessage(packet.Write());
 }
 
-void WorldSession::SendPlayerNotFoundNotice(std::string const& name)
+void WorldSession::SendChatPlayerNotfoundNotice(std::string const& name)
 {
-    WorldPacket data(SMSG_CHAT_PLAYER_NOTFOUND, name.size()+1);
-    data << name;
-    SendPacket(&data);
+    SendPacket(WorldPackets::Chat::ChatPlayerNotfound(name).Write());
 }
 
 void WorldSession::SendPlayerAmbiguousNotice(std::string const& name)
