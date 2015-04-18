@@ -29,7 +29,7 @@
 #include "DatabaseEnv.h"
 #include "World.h"
 #include "Opcodes.h"
-#include "WorldPacket.h"
+#include "Packet.h"
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
 #include "AccountMgr.h"
@@ -493,6 +493,14 @@ namespace WorldPackets
         class WhoIsRequest;
         class WhoRequestPkt;
     }
+
+    class Null final : public ClientPacket
+    {
+    public:
+        Null(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+        void Read() override { _worldPacket.rfinish(); }
+    };
 }
 
 enum AccountDataType
@@ -860,7 +868,7 @@ class WorldSession
 
     public:                                                 // opcodes handlers
 
-        void Handle_NULL(WorldPacket& recvPacket);          // not used
+        void Handle_NULL(WorldPackets::Null& null);          // not used
         void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
 
         void HandleCharEnum(PreparedQueryResult result);
