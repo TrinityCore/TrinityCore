@@ -654,8 +654,8 @@ WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()
 WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
 {
     _worldPacket << *movementInfo;
-    _worldPacket << float(Scale);
     _worldPacket << float(Height);
+    _worldPacket << float(Scale);
 
     return &_worldPacket;
 }
