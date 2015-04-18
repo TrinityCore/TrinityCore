@@ -53,7 +53,7 @@ class AreaTrigger_at_coilfang_waterfall : public AreaTriggerScript
     public:
         AreaTrigger_at_coilfang_waterfall() : AreaTriggerScript("at_coilfang_waterfall") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (GameObject* go = GetClosestGameObjectWithEntry(player, GO_COILFANG_WATERFALL, 35.0f))
                 if (go->getLootState() == GO_READY)
@@ -81,7 +81,7 @@ class AreaTrigger_at_legion_teleporter : public AreaTriggerScript
     public:
         AreaTrigger_at_legion_teleporter() : AreaTriggerScript("at_legion_teleporter") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (player->IsAlive() && !player->IsInCombat())
             {
@@ -119,7 +119,7 @@ class AreaTrigger_at_stormwright_shelf : public AreaTriggerScript
     public:
         AreaTrigger_at_stormwright_shelf() : AreaTriggerScript("at_stormwright_shelf") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (!player->isDead() && player->GetQuestStatus(QUEST_STRENGTH_OF_THE_TEMPEST) == QUEST_STATUS_INCOMPLETE)
                 player->CastSpell(player, SPELL_CREATE_TRUE_POWER_OF_THE_TEMPEST, false);
@@ -143,7 +143,7 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
     public:
         AreaTrigger_at_scent_larkorwi() : AreaTriggerScript("at_scent_larkorwi") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (!player->isDead() && player->GetQuestStatus(QUEST_SCENT_OF_LARKORWI) == QUEST_STATUS_INCOMPLETE)
             {
@@ -170,7 +170,7 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
     public:
         AreaTrigger_at_last_rites() : AreaTriggerScript("at_last_rites") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger, bool /*entered*/) override
         {
             if (!(player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE ||
                 player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_COMPLETE ||
@@ -180,7 +180,7 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
 
             WorldLocation pPosition;
 
-            switch (trigger->ID)
+            switch (areaTrigger->ID)
             {
                 case 5332:
                 case 5338:
@@ -228,12 +228,12 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
     public:
         AreaTrigger_at_sholazar_waygate() : AreaTriggerScript("at_sholazar_waygate") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger, bool /*entered*/) override
         {
             if (!player->isDead() && (player->GetQuestStatus(QUEST_MEETING_A_GREAT_ONE) != QUEST_STATUS_NONE ||
                 (player->GetQuestStatus(QUEST_THE_MAKERS_OVERLOOK) == QUEST_STATUS_REWARDED && player->GetQuestStatus(QUEST_THE_MAKERS_PERCH) == QUEST_STATUS_REWARDED)))
             {
-                switch (trigger->ID)
+                switch (areaTrigger->ID)
                 {
                     case AT_SHOLAZAR:
                         player->CastSpell(player, SPELL_SHOLAZAR_TO_UNGORO_TELEPORT, true);
@@ -265,7 +265,7 @@ class AreaTrigger_at_nats_landing : public AreaTriggerScript
     public:
         AreaTrigger_at_nats_landing() : AreaTriggerScript("at_nats_landing") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (!player->IsAlive() || !player->HasAura(SPELL_FISH_PASTE))
                 return false;
@@ -310,9 +310,9 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
             _triggerTimes[AT_BREWFEST_DUROTAR] = _triggerTimes[AT_BREWFEST_DUN_MOROGH] = 0;
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger, bool /*entered*/) override
         {
-            uint32 triggerId = trigger->ID;
+            uint32 triggerId = areaTrigger->ID;
             // Second trigger happened too early after first, skip for now
             if (sWorld->GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
                 return false;
@@ -363,18 +363,17 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
             _triggerTimes[AT_AREA_52_SOUTH] = _triggerTimes[AT_AREA_52_NORTH] = _triggerTimes[AT_AREA_52_WEST] = _triggerTimes[AT_AREA_52_EAST] = 0;
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger, bool /*entered*/) override
         {
             float x = 0.0f, y = 0.0f, z = 0.0f;
 
             if (!player->IsAlive())
                 return false;
 
-            uint32 triggerId = trigger->ID;
-            if (sWorld->GetGameTime() - _triggerTimes[trigger->ID] < SUMMON_COOLDOWN)
+            if (sWorld->GetGameTime() - _triggerTimes[areaTrigger->ID] < SUMMON_COOLDOWN)
                 return false;
 
-            switch (triggerId)
+            switch (areaTrigger->ID)
             {
                 case AT_AREA_52_EAST:
                     x = 3044.176f;
@@ -400,7 +399,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
 
             player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
             player->AddAura(SPELL_A52_NEURALYZER, player);
-            _triggerTimes[trigger->ID] = sWorld->GetGameTime();
+            _triggerTimes[areaTrigger->ID] = sWorld->GetGameTime();
             return false;
         }
 
@@ -435,7 +434,7 @@ public:
         stormforgedEradictorGUID.Clear();
     }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /* trigger */) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         if (player->GetQuestStatus(QUEST_THE_LONESOME_WATCHER) != QUEST_STATUS_INCOMPLETE)
             return false;

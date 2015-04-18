@@ -513,7 +513,7 @@ class AreaTriggerScript : public ScriptObject
         bool IsDatabaseBound() const final override { return true; }
 
         // Called when the area trigger is activated by a player.
-        virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
+        virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) { return false; }
 };
 
 class BattlegroundScript : public ScriptObject
@@ -1001,7 +1001,7 @@ class ScriptMgr
 
     public: /* AreaTriggerScript */
 
-        bool OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger);
+        bool OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered);
 
     public: /* BattlegroundScript */
 
