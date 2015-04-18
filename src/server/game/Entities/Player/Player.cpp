@@ -6174,6 +6174,22 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
                 return false;
             }
             break;
+        case ACTION_BUTTON_MOUNT:
+        {
+            auto mount = sDB2Manager.GetMountById(action);
+            if (!mount)
+            {
+                TC_LOG_ERROR("entities.player", "Mount action %u not added into button %u for player %s (%s): mount does not exist", action, button, GetName().c_str(), GetGUID().ToString().c_str());
+                return false;
+            }
+
+            if (!HasSpell(mount->SpellId))
+            {
+                TC_LOG_ERROR("entities.player", "Mount action %u not added into button %u for player %s (%s): Player does not know this mount", action, button, GetName().c_str(), GetGUID().ToString().c_str());
+                return false;
+            }
+            break;
+        }
         case ACTION_BUTTON_C:
         case ACTION_BUTTON_CMACRO:
         case ACTION_BUTTON_MACRO:

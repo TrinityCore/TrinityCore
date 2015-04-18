@@ -493,6 +493,11 @@ MountEntry const* DB2Manager::GetMount(uint32 spellId) const
     return nullptr;
 }
 
+MountEntry const* DB2Manager::GetMountById(uint32 id) const
+{
+    return sMountStore.LookupEntry(id);
+}
+
 std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItems(uint32 questPackageID) const
 {
     auto itr = _questPackages.find(questPackageID);

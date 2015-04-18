@@ -98,6 +98,7 @@ public:
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     MountEntry const* GetMount(uint32 spellId) const;
+    MountEntry const* GetMountById(uint32 id) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
