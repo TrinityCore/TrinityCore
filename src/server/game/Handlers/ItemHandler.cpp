@@ -760,18 +760,27 @@ void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid I
     SendPacket(&data);
 }
 
-void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_WRAP_ITEM");
 
-    uint8 gift_bag, gift_slot, item_bag, item_slot;
+    if (packet.Inv.Items.size() != 2)
+    {
+        TC_LOG_ERROR("network", "HandleWrapItem - Invalid itemCount (" SZFMTD ")", packet.Inv.Items.size());
+        return;
+    }
 
-    recvData >> gift_bag >> gift_slot;                     // paper
-    recvData >> item_bag >> item_slot;                     // item
+    /// @todo: 6.x find better way for read
+    // Gift
+    uint8 giftContainerSlot = packet.Inv.Items[0].ContainerSlot;
+    uint8 giftSlot          = packet.Inv.Items[0].Slot;
+    // Item
+    uint8 itemContainerSlot = packet.Inv.Items[1].ContainerSlot;
+    uint8 itemSlot          = packet.Inv.Items[1].Slot;
 
-    TC_LOG_DEBUG("network", "WRAP: receive gift_bag = %u, gift_slot = %u, item_bag = %u, item_slot = %u", gift_bag, gift_slot, item_bag, item_slot);
+    TC_LOG_DEBUG("network", "HandleWrapItem - Receive giftContainerSlot = %u, giftSlot = %u, itemContainerSlot = %u, itemSlot = %u", giftContainerSlot, giftSlot, itemContainerSlot, itemSlot);
 
-    Item* gift = _player->GetItemByPos(gift_bag, gift_slot);
+    Item* gift = _player->GetItemByPos(giftContainerSlot, giftSlot);
     if (!gift)
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, NULL);
@@ -784,15 +793,14 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         return;
     }
 
-    Item* item = _player->GetItemByPos(item_bag, item_slot);
-
+    Item* item = _player->GetItemByPos(itemContainerSlot, itemSlot);
     if (!item)
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, NULL);
         return;
     }
 
-    if (item == gift)                                          // not possable with pacjket from real client
+    if (item == gift) // not possable with pacjket from real client
     {
         _player->SendEquipError(EQUIP_ERR_CANT_WRAP_WRAPPED, item, NULL);
         return;
@@ -804,7 +812,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (!item->GetGuidValue(ITEM_FIELD_GIFTCREATOR).IsEmpty())      // HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED);
+    if (!item->GetGuidValue(ITEM_FIELD_GIFTCREATOR).IsEmpty()) // HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED);
     {
         _player->SendEquipError(EQUIP_ERR_CANT_WRAP_WRAPPED, item, NULL);
         return;
@@ -848,22 +856,35 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 
     switch (item->GetEntry())
     {
-        case 5042:  item->SetEntry(5043); break;
-        case 5048:  item->SetEntry(5044); break;
-        case 17303: item->SetEntry(17302); break;
-        case 17304: item->SetEntry(17305); break;
-        case 17307: item->SetEntry(17308); break;
-        case 21830: item->SetEntry(21831); break;
+        case 5042:
+            item->SetEntry(5043);
+            break;
+        case 5048:
+            item->SetEntry(5044);
+            break;
+        case 17303:
+            item->SetEntry(17302);
+            break;
+        case 17304:
+            item->SetEntry(17305);
+            break;
+        case 17307:
+            item->SetEntry(17308);
+            break;
+        case 21830:
+            item->SetEntry(21831);
+            break;
     }
+
     item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
     item->SetUInt32Value(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, _player);
 
-    if (item->GetState() == ITEM_NEW)                          // save new item, to have alway for `character_gifts` record in `item_instance`
+    if (item->GetState() == ITEM_NEW) // save new item, to have alway for `character_gifts` record in `item_instance`
     {
         // after save it will be impossible to remove the item from the queue
         item->RemoveFromUpdateQueueOf(_player);
-        item->SaveToDB(trans);                                   // item gave inventory record unchanged and can be save standalone
+        item->SaveToDB(trans); // item gave inventory record unchanged and can be save standalone
     }
     CharacterDatabase.CommitTransaction(trans);
 

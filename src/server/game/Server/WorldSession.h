@@ -276,6 +276,7 @@ namespace WorldPackets
         class SplitItem;
         class SwapInvItem;
         class SwapItem;
+        class WrapItem;
     }
 
     namespace Loot
@@ -1185,7 +1186,7 @@ class WorldSession
         void HandleAutoEquipItemSlotOpcode(WorldPackets::Item::AutoEquipItemSlot& autoEquipItemSlot);
         void HandleSwapItem(WorldPackets::Item::SwapItem& swapItem);
         void HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet);
-        void HandleWrapItemOpcode(WorldPacket& recvPacket);
+        void HandleWrapItem(WorldPackets::Item::WrapItem& packet);
 
         void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
         void HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& packet);

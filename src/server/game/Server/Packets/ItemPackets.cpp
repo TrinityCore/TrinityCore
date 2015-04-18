@@ -357,3 +357,8 @@ WorldPacket const* WorldPackets::Item::ReadItemResultOK::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Item::WrapItem::Read()
+{
+    _worldPacket >> Inv;
+}
