@@ -163,3 +163,15 @@ WorldPacket const* WorldPackets::NPC::GossipPOI::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::NPC::SpiritHealerActivate::Read()
+{
+    _worldPacket >> Healer;
+}
+
+WorldPacket const* WorldPackets::NPC::SpiritHealerConfirm::Write()
+{
+    _worldPacket << Unit;
+
+    return &_worldPacket;
+}

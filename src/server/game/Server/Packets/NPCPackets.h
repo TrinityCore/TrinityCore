@@ -196,6 +196,26 @@ namespace WorldPackets
             int32 Importance    = 0;
             std::string Name;
         };
+
+        class SpiritHealerActivate final : public ClientPacket
+        {
+        public:
+            SpiritHealerActivate(WorldPacket&& packet) : ClientPacket(CMSG_SPIRIT_HEALER_ACTIVATE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Healer;
+        };
+
+        class SpiritHealerConfirm final : public ServerPacket
+        {
+        public:
+            SpiritHealerConfirm() : ServerPacket(SMSG_SPIRIT_HEALER_CONFIRM, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+        };
     }
 }
 
