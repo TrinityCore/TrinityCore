@@ -8108,19 +8108,38 @@ void Unit::UnsummonAllTotems()
     }
 }
 
-void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical)
+void Unit::SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 overHeal, uint32 absorbed, bool crit)
 {
-    // we guess size
-    WorldPacket data(SMSG_SPELL_HEAL_LOG, 8 + 8 + 4 + 4 + 4 + 4 + 1 + 1);
-    data << victim->GetPackGUID();
-    data << GetPackGUID();
-    data << uint32(SpellID);
-    data << uint32(Damage);
-    data << uint32(OverHeal);
-    data << uint32(Absorb); // Absorb amount
-    data << uint8(critical ? 1 : 0);
-    data << uint8(0); // unused
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::SpellHealLog spellHealLog;
+
+    spellHealLog.CasterGUID = GetGUID();
+    spellHealLog.TargetGUID = victim->GetGUID();
+
+    spellHealLog.SpellID = spellID;
+    spellHealLog.Health = health;
+    spellHealLog.OverHeal = overHeal;
+    spellHealLog.Absorbed = absorbed;
+
+    spellHealLog.Crit = crit;
+
+    /// @todo: 6.x Has to be implemented
+    /*
+    packet.ReadBit("Multistrike");
+
+    var hasCritRollMade = packet.ReadBit("HasCritRollMade");
+    var hasCritRollNeeded = packet.ReadBit("HasCritRollNeeded");
+    var hasLogData = packet.ReadBit("HasLogData");
+
+    if (hasCritRollMade)
+        packet.ReadSingle("CritRollMade");
+
+    if (hasCritRollNeeded)
+        packet.ReadSingle("CritRollNeeded");
+
+    if (hasLogData)
+        SpellParsers.ReadSpellCastLogData(packet);
+    */
+    SendMessageToSet(spellHealLog.Write(), true);
 }
 
 int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical)
