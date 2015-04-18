@@ -457,3 +457,10 @@ WorldPacket const* WorldPackets::Character::LogXPGain::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Character::TitleEarned::Write()
+{
+    _worldPacket << uint32(Index);
+
+    return &_worldPacket;
+}

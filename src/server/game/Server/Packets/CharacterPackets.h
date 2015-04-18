@@ -625,6 +625,16 @@ namespace WorldPackets
             float GroupBonus = 0;
             bool ReferAFriend = false;
         };
+
+        class TitleEarned final : public ServerPacket
+        {
+        public:
+            TitleEarned(OpcodeServer opcode) : ServerPacket(opcode, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Index = 0;
+        };
     }
 }
 
