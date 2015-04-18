@@ -58,3 +58,62 @@ WorldPacket const* WorldPackets::CombatLog::EnvironmentalDamageLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellExecuteLog::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << SpellID;
+
+    _worldPacket << uint32(Effects.size());
+
+    for (SpellLogEffect const& effect : Effects)
+    {
+        _worldPacket << effect.Effect;
+
+        _worldPacket << uint32(effect.PowerDrainTargets.size());
+        _worldPacket << uint32(effect.ExtraAttacksTargets.size());
+        _worldPacket << uint32(effect.DurabilityDamageTargets.size());
+        _worldPacket << uint32(effect.GenericVictimTargets.size());
+        _worldPacket << uint32(effect.TradeSkillTargets.size());
+        _worldPacket << uint32(effect.FeedPetTargets.size());
+
+        for (SpellLogEffectPowerDrainParams const& powerDrainTarget : effect.PowerDrainTargets)
+        {
+            _worldPacket << powerDrainTarget.Victim;
+            _worldPacket << powerDrainTarget.Points;
+            _worldPacket << powerDrainTarget.PowerType;
+            _worldPacket << powerDrainTarget.Amplitude;
+        }
+
+        for (SpellLogEffectExtraAttacksParams const& extraAttacksTarget : effect.ExtraAttacksTargets)
+        {
+            _worldPacket << extraAttacksTarget.Victim;
+            _worldPacket << extraAttacksTarget.NumAttacks;
+        }
+
+        for (SpellLogEffectDurabilityDamageParams const& durabilityDamageTarget : effect.DurabilityDamageTargets)
+        {
+            _worldPacket << durabilityDamageTarget.Victim;
+            _worldPacket << durabilityDamageTarget.ItemID;
+            _worldPacket << durabilityDamageTarget.Amount;
+        }
+
+        for (SpellLogEffectGenericVictimParams const& genericVictimTarget : effect.GenericVictimTargets)
+            _worldPacket << genericVictimTarget.Victim;
+
+        for (SpellLogEffectTradeSkillItemParams const& tradeSkillTarget : effect.TradeSkillTargets)
+            _worldPacket << tradeSkillTarget.ItemID;
+
+
+        for (SpellLogEffectFeedPetParams const& feedPetTarget : effect.FeedPetTargets)
+            _worldPacket << feedPetTarget.ItemID;
+    }
+
+    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.FlushBits();
+
+    if (LogData.HasValue)
+        _worldPacket << LogData.Value;
+
+    return &_worldPacket;
+}
