@@ -92,9 +92,10 @@ Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket)), _
 
 Battlenet::Session::~Session()
 {
-    delete _accountInfo;
     if (_authed)
         sSessionMgr.RemoveSession(this);
+
+    delete _accountInfo;
 }
 
 void Battlenet::Session::_SetVSFields(std::string const& pstr)
