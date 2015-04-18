@@ -392,6 +392,32 @@ namespace WorldPackets
 
             std::vector<QuestCompletionNPC> QuestCompletionNPCs;
         };
+
+        class QueryPetName final : public ClientPacket
+        {
+        public:
+            QueryPetName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PET_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid UnitGUID;
+        };
+
+        class QueryPetNameResponse final : public ServerPacket
+        {
+        public:
+            QueryPetNameResponse() : ServerPacket(SMSG_QUERY_PET_NAME_RESPONSE, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            bool Allow = false;
+
+            bool HasDeclined = false;
+            DeclinedName DeclinedNames;
+            uint32 Timestamp = 0;
+            std::string Name;
+        };
     }
 }
 

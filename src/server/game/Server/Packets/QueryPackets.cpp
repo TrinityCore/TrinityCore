@@ -434,3 +434,33 @@ WorldPacket const* WorldPackets::Query::QuestCompletionNPCResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Query::QueryPetName::Read()
+{
+    _worldPacket >> UnitGUID;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPetNameResponse::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket.WriteBit(Allow);
+
+    if (Allow)
+    {
+        _worldPacket.WriteBits(Name.length(), 8);
+        _worldPacket.WriteBit(HasDeclined);
+
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteBits(DeclinedNames.name[i].length(), 7);
+
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteString(DeclinedNames.name[i]);
+
+        _worldPacket << Timestamp;
+        _worldPacket.WriteString(Name);
+    }
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
