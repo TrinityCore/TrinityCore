@@ -212,52 +212,6 @@ void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::
         battlefieldStatus->ClientID = *errorGuid;
 }
 
-void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, ObjectGuid guid)
-{
-    data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 8);
-
-    data->WriteBit(guid[7]);
-    data->WriteBit(guid[6]);
-    data->WriteBit(guid[2]);
-    data->WriteBit(guid[4]);
-    data->WriteBit(guid[5]);
-    data->WriteBit(guid[1]);
-    data->WriteBit(guid[3]);
-    data->WriteBit(guid[0]);
-
-    data->WriteByteSeq(guid[4]);
-    data->WriteByteSeq(guid[2]);
-    data->WriteByteSeq(guid[5]);
-    data->WriteByteSeq(guid[7]);
-    data->WriteByteSeq(guid[0]);
-    data->WriteByteSeq(guid[6]);
-    data->WriteByteSeq(guid[1]);
-    data->WriteByteSeq(guid[3]);
-}
-
-void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, ObjectGuid guid)
-{
-    data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 8);
-
-    data->WriteBit(guid[0]);
-    data->WriteBit(guid[4]);
-    data->WriteBit(guid[3]);
-    data->WriteBit(guid[5]);
-    data->WriteBit(guid[7]);
-    data->WriteBit(guid[6]);
-    data->WriteBit(guid[2]);
-    data->WriteBit(guid[1]);
-
-    data->WriteByteSeq(guid[1]);
-    data->WriteByteSeq(guid[5]);
-    data->WriteByteSeq(guid[3]);
-    data->WriteByteSeq(guid[2]);
-    data->WriteByteSeq(guid[0]);
-    data->WriteByteSeq(guid[7]);
-    data->WriteByteSeq(guid[4]);
-    data->WriteByteSeq(guid[6]);
-}
-
 Battleground* BattlegroundMgr::GetBattleground(uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
     if (!instanceId)

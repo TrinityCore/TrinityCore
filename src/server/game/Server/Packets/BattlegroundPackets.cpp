@@ -253,3 +253,15 @@ WorldPacket const* WorldPackets::Battleground::BattlegroundPlayerPositions::Writ
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Battleground::BattlegroundPlayerJoined::Write()
+{
+    _worldPacket << Guid;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Battleground::BattlegroundPlayerLeft::Write()
+{
+    _worldPacket << Guid;
+    return &_worldPacket;
+}
