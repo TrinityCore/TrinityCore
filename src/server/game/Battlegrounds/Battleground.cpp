@@ -1008,10 +1008,11 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             AddToBGFreeSlotQueue();
             sBattlegroundMgr->ScheduleQueueUpdate(0, 0, bgQueueTypeId, bgTypeId, GetBracketId());
         }
+
         // Let others know
-        WorldPacket data;
-        sBattlegroundMgr->BuildPlayerLeftBattlegroundPacket(&data, guid);
-        SendPacketToTeam(team, &data, player, false);
+        WorldPackets::Battleground::BattlegroundPlayerLeft playerLeft;
+        playerLeft.Guid = guid;
+        SendPacketToTeam(team, playerLeft.Write(), player, false);
     }
 
     if (player)
@@ -1096,9 +1097,9 @@ void Battleground::AddPlayer(Player* player)
 
     UpdatePlayersCountByTeam(team, false);                  // +1 player
 
-    WorldPacket data;
-    sBattlegroundMgr->BuildPlayerJoinedBattlegroundPacket(&data, player->GetGUID());
-    SendPacketToTeam(team, &data, player, false);
+    WorldPackets::Battleground::BattlegroundPlayerJoined playerJoined;
+    playerJoined.Guid = player->GetGUID();
+    SendPacketToTeam(team, playerJoined.Write(), player, false);
 
     // BG Status packet
     BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());

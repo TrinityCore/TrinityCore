@@ -336,6 +336,26 @@ namespace WorldPackets
 
             std::vector<BattlegroundPlayerPosition> FlagCarriers;
         };
+
+        class BattlegroundPlayerJoined final : public ServerPacket
+        {
+        public:
+            BattlegroundPlayerJoined() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_JOINED, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class BattlegroundPlayerLeft final : public ServerPacket
+        {
+        public:
+            BattlegroundPlayerLeft() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_LEFT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
     }
 }
 
