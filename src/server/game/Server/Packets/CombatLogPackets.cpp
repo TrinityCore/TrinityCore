@@ -120,8 +120,8 @@ WorldPacket const* WorldPackets::CombatLog::SpellExecuteLog::Write()
 
 WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
 {
-    _worldPacket << CasterGUID;
     _worldPacket << TargetGUID;
+    _worldPacket << CasterGUID;
 
     _worldPacket << SpellID;
     _worldPacket << Health;
