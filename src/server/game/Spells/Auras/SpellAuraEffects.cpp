@@ -6640,6 +6640,6 @@ void AuraEffect::HandleModSpellCategoryCooldown(AuraApplication const* aurApp, u
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (aurApp->GetTarget()->GetTypeId() == TYPEID_PLAYER)
-        aurApp->GetTarget()->ToPlayer()->GetSession()->SendSpellCategoryCooldowns();
+    if (Player* player = aurApp->GetTarget()->ToPlayer())
+        player->SendSpellCategoryCooldowns();
 }
