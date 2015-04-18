@@ -19,6 +19,7 @@
 #define CombatLogPackets_h__
 
 #include "Packet.h"
+#include "Spell.h"
 #include "SpellPackets.h"
 
 namespace WorldPackets
@@ -59,6 +60,31 @@ namespace WorldPackets
             int32 Amount = 0;
             int32 Resisted = 0;
             int32 Absorbed = 0;
+            Optional<Spells::SpellCastLogData> LogData; /// @todo: find the correct way where to use it, in sniff always false
+        };
+
+        class SpellExecuteLog final : public ServerPacket
+        {
+        public:
+            struct SpellLogEffect
+            {
+                int32 Effect = 0;
+
+                std::vector<SpellLogEffectPowerDrainParams> PowerDrainTargets;
+                std::vector<SpellLogEffectExtraAttacksParams> ExtraAttacksTargets;
+                std::vector<SpellLogEffectDurabilityDamageParams> DurabilityDamageTargets;
+                std::vector<SpellLogEffectGenericVictimParams> GenericVictimTargets;
+                std::vector<SpellLogEffectTradeSkillItemParams> TradeSkillTargets;
+                std::vector<SpellLogEffectFeedPetParams> FeedPetTargets;
+            };
+
+            SpellExecuteLog() : ServerPacket(SMSG_SPELL_EXECUTE_LOG, 16 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Caster;
+            int32 SpellID = 0;
+            std::vector<SpellLogEffect> Effects;
             Optional<Spells::SpellCastLogData> LogData; /// @todo: find the correct way where to use it, in sniff always false
         };
     }
