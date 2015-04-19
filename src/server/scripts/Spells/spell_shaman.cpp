@@ -54,13 +54,29 @@ enum ShamanSpells
     SPELL_SHAMAN_LIGHTNING_SHIELD               = 324,
     SPELL_SHAMAN_NATURE_GUARDIAN                = 31616,
     SPELL_SHAMAN_SATED                          = 57724,
+    SPELL_SHAMAN_SPIRIT_LINK                    = 98021,
     SPELL_SHAMAN_STORM_EARTH_AND_FIRE           = 51483,
     SPELL_SHAMAN_TELLURIC_CURRENTS              = 82987,
     SPELL_SHAMAN_TOTEM_EARTHBIND_EARTHGRAB      = 64695,
     SPELL_SHAMAN_TOTEM_EARTHBIND_TOTEM          = 6474,
     SPELL_SHAMAN_TOTEM_EARTHEN_POWER            = 59566,
     SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL      = 52042,
-    SPELL_SHAMAN_TIDAL_WAVES                    = 53390
+    SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
+    SPELL_SHAMAN_UNLEASH_EARTH                  = 73684,
+    SPELL_SHAMAN_UNLEASH_ELEMENTS               = 73680,
+    SPELL_SHAMAN_UNLEASH_LIFE                   = 73685,
+    SPELL_SHAMAN_UNLEASH_FLAME                  = 73683,
+    SPELL_SHAMAN_UNLEASH_FROST                  = 73682,
+    SPELL_SHAMAN_UNLEASH_WIND                   = 73681,
+};
+
+enum ShamanWeaponEnchantments
+{
+    ENCHANTMENT_EARTHLIVING                     = 3345,
+    ENCHANTMENT_FLAMETONGUE                     = 5,
+    ENCHANTMENT_FROSTBRAND                      = 2,
+    ENCHANTMENT_ROCKBITER                       = 3021,
+    ENCHANTMENT_WINDFURY                        = 283
 };
 
 enum ShamanSpellIcons
@@ -158,6 +174,58 @@ class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
         {
             return new spell_sha_ancestral_awakening_proc_SpellScript();
         }
+};
+
+// 77829 Ancestral Resolve
+class spell_sha_ancestral_resolve : public SpellScriptLoader
+{
+public:
+    spell_sha_ancestral_resolve() : SpellScriptLoader("spell_sha_ancestral_resolve")
+    {}
+
+    class spell_sha_ancestral_resolve_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_ancestral_resolve_AuraScript);
+
+        public:
+            spell_sha_ancestral_resolve_AuraScript()
+            {
+                absorbPct = 0;
+            }
+        
+        private:
+            bool Load()
+            {
+                absorbPct = GetSpellInfo()->Effects[0].CalcValue();
+                return true;
+            }
+
+            void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                amount = -1; // Set absorbtion amount to unlimited
+            }
+
+            void Absorb(AuraEffect * /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            {
+                if (GetTarget())
+                    if (GetTarget()->ToPlayer())
+                        if ((GetTarget()->ToPlayer()->HasUnitState(UNIT_STATE_CASTING)))
+                            absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_ancestral_resolve_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_sha_ancestral_resolve_AuraScript::Absorb, EFFECT_0);
+            }
+
+            uint32 absorbPct;
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_sha_ancestral_resolve_AuraScript();
+    }
 };
 
 // 2825 - Bloodlust
@@ -1088,6 +1156,65 @@ class spell_sha_nature_guardian : public SpellScriptLoader
         }
 };
 
+class spell_sha_spirit_link : public SpellScriptLoader
+{
+public:
+    spell_sha_spirit_link() : SpellScriptLoader("spell_sha_spirit_link") { }
+
+    class spell_sha_spirit_link_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_spirit_link_SpellScript);
+
+        public:
+            spell_sha_spirit_link_SpellScript()
+            {
+                mediumPct = 0;
+            }
+
+        private:
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                float pctSum = 0;
+
+                for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    if ((*itr)->ToUnit())
+                        pctSum += (*itr)->ToUnit()->GetHealthPct();
+
+                mediumPct = pctSum / targets.size();
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                int32 bp0 = 0;
+                int32 bp1 = 0;
+
+                uint32 targetHealt = GetHitUnit()->GetMaxHealth() * mediumPct / 100;
+
+                if (GetHitUnit()->GetHealthPct() > mediumPct)
+                    bp0 = GetHitUnit()->GetHealth() - targetHealt;
+                else
+                    bp1 = targetHealt - GetHitUnit()->GetHealth();
+
+                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_SHAMAN_SPIRIT_LINK, &bp0, &bp1, NULL, true, 0, 0, GetCaster()->GetOwnerGUID());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_spirit_link_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_spirit_link_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+
+            float mediumPct;
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_spirit_link_SpellScript();
+    }
+};
+
 // 88756 - Rolling Thunder
 class spell_sha_rolling_thunder : public SpellScriptLoader
 {
@@ -1230,10 +1357,99 @@ class spell_sha_tidal_waves : public SpellScriptLoader
         }
 };
 
+// 73680 Unleash Elements
+class spell_sha_unleash_elements : public SpellScriptLoader
+{
+public:
+    spell_sha_unleash_elements() : SpellScriptLoader("spell_sha_unleash_elements")
+    { }
+
+    class spell_sha_unleash_elements_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_unleash_elements_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_UNLEASH_ELEMENTS))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+
+            Player* plr = caster->ToPlayer();
+            if (!plr)
+                return;
+
+            if (!GetHitUnit())
+                return;
+
+            Item *weapons[2];
+            weapons[0] = plr->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            weapons[1] = plr->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+            for (int i = 0; i < 2; i++)
+            {
+                if (!weapons[i])
+                    continue;
+
+                uint32 unleashSpell = 0;
+
+                Unit *target = GetHitUnit();
+                
+                bool hostileTarget = plr->IsHostileTo(target);
+                bool hostileSpell = true;
+
+                switch (weapons[i]->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT))
+                {
+                    case ENCHANTMENT_EARTHLIVING: // Earthliving Weapon
+                        unleashSpell = SPELL_SHAMAN_UNLEASH_LIFE; //Unleash Life
+                        hostileSpell = false;
+                        break;
+                    case ENCHANTMENT_FLAMETONGUE: // Flametongue Weapon
+                        unleashSpell = SPELL_SHAMAN_UNLEASH_FLAME; // Unleash Flame
+                        break;
+                    case ENCHANTMENT_FROSTBRAND: // Frostbrand Weapon
+                        unleashSpell = SPELL_SHAMAN_UNLEASH_FROST; // Unleash Frost
+                        break;
+                    case ENCHANTMENT_ROCKBITER: // Rockbiter Weapon
+                        unleashSpell = SPELL_SHAMAN_UNLEASH_EARTH; // Unleash Earth
+                        break;
+                    case ENCHANTMENT_WINDFURY: // Windfury Weapon
+                        unleashSpell = SPELL_SHAMAN_UNLEASH_WIND; // Unleash Wind
+                        break;
+                }
+
+                if (hostileSpell && !hostileTarget)
+                    return; // don't allow to attack non-hostile targets. TODO: check this before cast
+
+                if (!hostileSpell && hostileTarget)
+                    target = plr; // heal ourselves instead of the enemy
+
+                if (unleashSpell)
+                    plr->CastSpell(target, unleashSpell, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_sha_unleash_elements_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_unleash_elements_SpellScript();
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
     new spell_sha_ancestral_awakening_proc();
+    new spell_sha_ancestral_resolve();
     new spell_sha_bloodlust();
     new spell_sha_chain_heal();
     new spell_sha_earth_shield();
@@ -1255,8 +1471,10 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_surge_proc();
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
+    new spell_sha_spirit_link();
     new spell_sha_rolling_thunder();
     new spell_sha_telluric_currents();
     new spell_sha_thunderstorm();
     new spell_sha_tidal_waves();
+    new spell_sha_unleash_elements();
 }
