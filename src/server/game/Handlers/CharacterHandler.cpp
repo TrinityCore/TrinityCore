@@ -829,6 +829,8 @@ void WorldSession::HandleContinuePlayerLogin()
         return;
     }
 
+    SendPacket(WorldPackets::Auth::ResumeComms(CONNECTION_TYPE_INSTANCE).Write());
+
     _charLoginCallback = CharacterDatabase.DelayQueryHolder(holder);
 }
 

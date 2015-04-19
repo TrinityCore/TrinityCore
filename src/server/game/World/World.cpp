@@ -66,6 +66,7 @@
 #include "WeatherMgr.h"
 #include "WorldSession.h"
 #include "ChatPackets.h"
+#include "WorldSocket.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -223,6 +224,11 @@ void World::AddSession(WorldSession* s)
     addSessQueue.add(s);
 }
 
+void World::AddInstanceSocket(std::shared_ptr<WorldSocket> sock, uint32 sessionAccountId)
+{
+    _linkSocketQueue.add(std::make_pair(sock, sessionAccountId));
+}
+
 void World::AddSession_(WorldSession* s)
 {
     ASSERT(s);
@@ -294,6 +300,21 @@ void World::AddSession_(WorldSession* s)
         popu *= 2;
         TC_LOG_INFO("misc", "Server Population (%f).", popu);
     }
+}
+
+void World::ProcessLinkInstanceSocket(std::pair<std::shared_ptr<WorldSocket>, uint32> linkInfo)
+{
+    WorldSession* session = FindSession(linkInfo.second);
+    if (!session)
+    {
+        linkInfo.first->SendAuthResponseError(AUTH_SESSION_EXPIRED);
+        linkInfo.first->DelayedCloseSocket();
+        return;
+    }
+
+    linkInfo.first->SetWorldSession(session);
+    session->AddInstanceConnection(linkInfo.first);
+    session->HandleContinuePlayerLogin();
 }
 
 bool World::HasRecentlyDisconnected(WorldSession* session)
@@ -2775,6 +2796,10 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
 
 void World::UpdateSessions(uint32 diff)
 {
+    std::pair<std::shared_ptr<WorldSocket>, uint32> linkInfo;
+    while (_linkSocketQueue.next(linkInfo))
+        ProcessLinkInstanceSocket(std::move(linkInfo));
+
     ///- Add new sessions
     WorldSession* sess = NULL;
     while (addSessQueue.next(sess))

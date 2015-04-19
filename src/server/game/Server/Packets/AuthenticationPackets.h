@@ -198,7 +198,7 @@ namespace WorldPackets
         class ResumeComms final : public ServerPacket
         {
         public:
-            ResumeComms() : ServerPacket(SMSG_RESUME_COMMS, 0) { }
+            ResumeComms(ConnectionType connection) : ServerPacket(SMSG_RESUME_COMMS, 0, connection) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
