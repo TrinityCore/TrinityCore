@@ -49,12 +49,7 @@ struct PlayerClassLevelInfo;
 struct PlayerInfo;
 struct PlayerLevelInfo;
 
-// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
 struct PageText
 {
@@ -82,12 +77,7 @@ private:
     uint8 _summonGroup;         ///< Summon's group id
 };
 
-// GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 // DB scripting commands
 enum ScriptCommands
