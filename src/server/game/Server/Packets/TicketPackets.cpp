@@ -104,8 +104,8 @@ void WorldPackets::Ticket::GMTicketCreate::Read()
     Description = _worldPacket.ReadString(descLength);
     _worldPacket.ResetBitPos();
 
-    NeedMoreHelp = _worldPacket.ReadBit();
     NeedResponse = _worldPacket.ReadBit();
+    NeedMoreHelp = _worldPacket.ReadBit();
     _worldPacket >> DataLength;
 
     if (DataLength > 0)
