@@ -4315,21 +4315,26 @@ void Spell::SendResurrectRequest(Player* target)
     // get resurrector name for creature resurrections, otherwise packet will be not accepted
     // for player resurrections the name is looked up by guid
     std::string const sentName(m_caster->GetTypeId() == TYPEID_PLAYER
-                               ? ""
-                               : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex()));
+        ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex()));
+    
+    WorldPackets::Spells::ResurrectRequest resurrectRequest;
+    resurrectRequest.ResurrectOffererGUID =  m_caster->GetGUID();
+    resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
 
-    WorldPacket data(SMSG_RESURRECT_REQUEST, (8+4+sentName.size()+1+1+1+4));
-    data << m_caster->GetGUID();
-    data << uint32(sentName.size() + 1);
+    if (Pet* pet = target->GetPet())
+    {
+        if (CharmInfo* charmInfo = pet->GetCharmInfo())
+            resurrectRequest.PetNumber = charmInfo->GetPetNumber();
+    }
 
-    data << sentName;
-    data << uint8(0); // null terminator
+    resurrectRequest.SpellID = m_spellInfo->Id;
 
-    data << uint8(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1); // "you'll be afflicted with resurrection sickness"
-    // override delay sent with SMSG_CORPSE_RECLAIM_DELAY, set instant resurrection for spells with this attribute
-    // 4.2.2 edit : id of the spell used to resurect. (used client-side for Mass Resurect)
-    data << uint32(m_spellInfo->Id);
-    target->GetSession()->SendPacket(&data);
+    //packet.ReadBit("UseTimer"); /// @todo: 6.x Has to be implemented
+    resurrectRequest.Sickness = m_caster->GetTypeId() != TYPEID_PLAYER; // "you'll be afflicted with resurrection sickness"
+
+    resurrectRequest.Name = sentName;
+
+    target->GetSession()->SendPacket(resurrectRequest.Write());
 }
 
 void Spell::TakeCastItem()
