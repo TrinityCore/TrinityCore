@@ -31,9 +31,9 @@ WorldPacket const* WorldPackets::Token::UpdateListedAuctionableTokensResponse::W
     {
         _worldPacket << auctionableTokenAuctionable.UnkInt1;
         _worldPacket << auctionableTokenAuctionable.UnkInt2;
-        _worldPacket << auctionableTokenAuctionable.UnkInt3;
-        _worldPacket << auctionableTokenAuctionable.UnkInt4;
-        _worldPacket << auctionableTokenAuctionable.UnkInt5;
+        _worldPacket << auctionableTokenAuctionable.Owner;
+        _worldPacket << auctionableTokenAuctionable.BuyoutPrice;
+        _worldPacket << auctionableTokenAuctionable.RunTime;
     }
 
     return &_worldPacket;
