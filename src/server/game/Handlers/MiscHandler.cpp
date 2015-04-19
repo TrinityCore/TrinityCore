@@ -571,7 +571,7 @@ void WorldSession::HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse
     if (GetPlayer()->IsAlive())
         return;
 
-    if (packet.Response == 0)
+    if (packet.Response != 0) // Accept = 0 Decline = 1 Timeout = 2
     {
         GetPlayer()->ClearResurrectRequestData();           // reject
         return;
