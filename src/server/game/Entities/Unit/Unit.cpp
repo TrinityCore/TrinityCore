@@ -9902,7 +9902,7 @@ void Unit::ClearInCombat()
         if (HasFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
             SetUInt32Value(OBJECT_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
 
-        if (creature->IsPet())
+        if (creature->IsPet() || creature->IsGuardian())
         {
             if (Unit* owner = GetOwner())
                 for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
