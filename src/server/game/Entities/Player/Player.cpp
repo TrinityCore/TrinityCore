@@ -16337,7 +16337,7 @@ void Player::SendQuestConfirmAccept(Quest const* quest, Player* receiver)
         if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(questID))
             ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, questTitle);
 
-    WorldPackets::Quest::QuestConfirmAccept packet;
+    WorldPackets::Quest::QuestConfirmAcceptResponse packet;
     packet.QuestID = questID;
     packet.InitiatedBy = GetGUID();
     packet.QuestTitle = questTitle;
@@ -22016,10 +22016,15 @@ bool Player::CanReportAfkDueToLimit()
 ///This player has been blamed to be inactive in a battleground
 void Player::ReportedAfkBy(Player* reporter)
 {
+    WorldPackets::Battleground::ReportPvPPlayerAFKResult reportAfkResult;
+    reportAfkResult.Offender = GetGUID();
     Battleground* bg = GetBattleground();
     // Battleground also must be in progress!
     if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam() || bg->GetStatus() != STATUS_IN_PROGRESS)
+    {
+        reporter->SendDirectMessage(reportAfkResult.Write());
         return;
+    }
 
     // check if player has 'Idle' or 'Inactive' debuff
     if (m_bgData.bgAfkReporter.find(reporter->GetGUID()) == m_bgData.bgAfkReporter.end() && !HasAura(43680) && !HasAura(43681) && reporter->CanReportAfkDueToLimit())
@@ -22031,8 +22036,13 @@ void Player::ReportedAfkBy(Player* reporter)
             // cast 'Idle' spell
             CastSpell(this, 43680, true);
             m_bgData.bgAfkReporter.clear();
+            reportAfkResult.NumBlackMarksOnOffender = m_bgData.bgAfkReporter.size();
+            reportAfkResult.NumPlayersIHaveReported = reporter->m_bgData.bgAfkReportedCount;
+            reportAfkResult.Result = WorldPackets::Battleground::ReportPvPPlayerAFKResult::PVP_REPORT_AFK_SUCCESS;
         }
     }
+
+    reporter->SendDirectMessage(reportAfkResult.Write());
 }
 
 WorldLocation Player::GetStartPosition() const
@@ -24309,10 +24319,9 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         SetFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
     }
 
-    WorldPacket data(SMSG_TITLE_EARNED, 4 + 4);
-    data << uint32(title->MaskID);
-    data << uint32(lost ? 0 : 1);                           // 1 - earned, 0 - lost
-    GetSession()->SendPacket(&data);
+    WorldPackets::Character::TitleEarned packet(lost ? SMSG_TITLE_LOST : SMSG_TITLE_EARNED);
+    packet.Index = title->MaskID;
+    GetSession()->SendPacket(packet.Write());
 }
 
 bool Player::isTotalImmunity()
@@ -26641,4 +26650,27 @@ uint32 Player::GetDefaultSpecId() const
     if (entry)
         return entry->DefaultSpec;
     return 0;
+}
+
+void Player::SendSpellCategoryCooldowns()
+{
+    WorldPackets::Spells::CategoryCooldown cooldowns;
+
+    Unit::AuraEffectList const& categoryCooldownAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
+    for (AuraEffect* aurEff : categoryCooldownAuras)
+    {
+        uint32 categoryId = aurEff->GetMiscValue();
+        auto cItr = std::find_if(cooldowns.CategoryCooldowns.begin(), cooldowns.CategoryCooldowns.end(),
+            [categoryId](WorldPackets::Spells::CategoryCooldown::CategoryCooldownInfo const& cooldown)
+        {
+            return cooldown.Category == categoryId;
+        });
+
+        if (cItr == cooldowns.CategoryCooldowns.end())
+            cooldowns.CategoryCooldowns.emplace_back(categoryId, -aurEff->GetAmount());
+        else
+            cItr->ModCooldown -= aurEff->GetAmount();
+    }
+
+    SendDirectMessage(cooldowns.Write());
 }

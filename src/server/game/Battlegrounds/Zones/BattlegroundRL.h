@@ -47,7 +47,7 @@ class BattlegroundRL : public Arena
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
-        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
 };
 #endif

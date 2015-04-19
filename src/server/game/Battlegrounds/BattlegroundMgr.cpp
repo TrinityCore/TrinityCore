@@ -37,7 +37,6 @@
 #include "BattlegroundIC.h"
 #include "BattlegroundTP.h"
 #include "BattlegroundBFG.h"
-#include "BattlegroundPackets.h"
 #include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -211,52 +210,6 @@ void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::
     battlefieldStatus->Reason = result;
     if (errorGuid && (result == ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND || result == ERR_BATTLEGROUND_JOIN_TIMED_OUT))
         battlefieldStatus->ClientID = *errorGuid;
-}
-
-void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, ObjectGuid guid)
-{
-    data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 8);
-
-    data->WriteBit(guid[7]);
-    data->WriteBit(guid[6]);
-    data->WriteBit(guid[2]);
-    data->WriteBit(guid[4]);
-    data->WriteBit(guid[5]);
-    data->WriteBit(guid[1]);
-    data->WriteBit(guid[3]);
-    data->WriteBit(guid[0]);
-
-    data->WriteByteSeq(guid[4]);
-    data->WriteByteSeq(guid[2]);
-    data->WriteByteSeq(guid[5]);
-    data->WriteByteSeq(guid[7]);
-    data->WriteByteSeq(guid[0]);
-    data->WriteByteSeq(guid[6]);
-    data->WriteByteSeq(guid[1]);
-    data->WriteByteSeq(guid[3]);
-}
-
-void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, ObjectGuid guid)
-{
-    data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 8);
-
-    data->WriteBit(guid[0]);
-    data->WriteBit(guid[4]);
-    data->WriteBit(guid[3]);
-    data->WriteBit(guid[5]);
-    data->WriteBit(guid[7]);
-    data->WriteBit(guid[6]);
-    data->WriteBit(guid[2]);
-    data->WriteBit(guid[1]);
-
-    data->WriteByteSeq(guid[1]);
-    data->WriteByteSeq(guid[5]);
-    data->WriteByteSeq(guid[3]);
-    data->WriteByteSeq(guid[2]);
-    data->WriteByteSeq(guid[0]);
-    data->WriteByteSeq(guid[7]);
-    data->WriteByteSeq(guid[4]);
-    data->WriteByteSeq(guid[6]);
 }
 
 Battleground* BattlegroundMgr::GetBattleground(uint32 instanceId, BattlegroundTypeId bgTypeId)

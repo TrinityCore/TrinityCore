@@ -451,13 +451,14 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestList::Write()
         _worldPacket << gossip.QuestLevel;
         _worldPacket << gossip.QuestFlags;
         _worldPacket << gossip.QuestFlagsEx;
-        _worldPacket.FlushBits();
         _worldPacket.WriteBit(gossip.Repeatable);
         _worldPacket.WriteBits(gossip.QuestTitle.size(), 9);
+        _worldPacket.FlushBits();
         _worldPacket.WriteString(gossip.QuestTitle);
     }
-    _worldPacket.FlushBits();
+
     _worldPacket.WriteBits(Greeting.size(), 11);
+    _worldPacket.FlushBits();
     _worldPacket.WriteString(Greeting);
 
     return &_worldPacket;
@@ -470,7 +471,7 @@ WorldPacket const* WorldPackets::Quest::QuestUpdateComplete::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Quest::QuestConfirmAccept::Write()
+WorldPacket const* WorldPackets::Quest::QuestConfirmAcceptResponse::Write()
 {
     _worldPacket << uint32(QuestID);
     _worldPacket << InitiatedBy;
@@ -479,4 +480,9 @@ WorldPacket const* WorldPackets::Quest::QuestConfirmAccept::Write()
     _worldPacket.WriteString(QuestTitle);
 
     return &_worldPacket;
+}
+
+void WorldPackets::Quest::QuestConfirmAccept::Read()
+{
+    _worldPacket >> QuestID;
 }

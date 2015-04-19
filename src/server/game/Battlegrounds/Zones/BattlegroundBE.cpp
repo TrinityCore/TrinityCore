@@ -43,7 +43,7 @@ void BattlegroundBE::StartingEventOpenDoors()
         SpawnBGObject(i, 60);
 }
 
-void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -54,7 +54,7 @@ void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger)
         case 4539:                                          // buff trigger?
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }

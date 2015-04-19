@@ -400,7 +400,7 @@ class at_sc_corborus_intro : public AreaTriggerScript
 public:
     at_sc_corborus_intro() : AreaTriggerScript("at_sc_corborus_intro") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
             if (Creature* corborus = instance->GetCreature(DATA_CORBORUS))
@@ -414,7 +414,7 @@ class at_sc_slabhide_intro : public AreaTriggerScript
 public:
     at_sc_slabhide_intro() : AreaTriggerScript("at_sc_slabhide_intro") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
             if (Creature* slabhide = instance->GetCreature(DATA_SLABHIDE))

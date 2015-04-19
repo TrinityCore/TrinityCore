@@ -117,6 +117,20 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
     }
 }
 
+void BattlegroundEY::GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* positions) const
+{
+    if (Player* player = ObjectAccessor::GetObjectInMap(m_FlagKeeper, GetBgMap(), (Player*)nullptr))
+    {
+        WorldPackets::Battleground::BattlegroundPlayerPosition position;
+        position.Guid = player->GetGUID();
+        position.Pos.x = player->GetPositionX();
+        position.Pos.y = player->GetPositionY();
+        position.IconID = player->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
+        position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
+        positions->push_back(position);
+    }
+}
+
 void BattlegroundEY::StartingEventCloseDoors()
 {
     SpawnBGObject(BG_EY_OBJECT_DOOR_A, RESPAWN_IMMEDIATELY);
@@ -392,7 +406,7 @@ void BattlegroundEY::RemovePlayer(Player* player, ObjectGuid guid, uint32 /*team
     }
 }
 
-void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -435,7 +449,7 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger)
         case 5866:
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }

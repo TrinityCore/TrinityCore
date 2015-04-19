@@ -21,7 +21,6 @@
 #include "ArenaTeamMgr.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
-#include "BattlegroundPackets.h"
 #include "BattlenetServerManager.h"
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
@@ -356,13 +355,16 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         {
             bool disabled = false;
 
-            switch (Player::TeamForRace(charCreate.CreateInfo->Race))
+            switch (Player::TeamIdForRace(charCreate.CreateInfo->Race))
             {
-                case ALLIANCE:
+                case TEAM_ALLIANCE:
                     disabled = (mask & (1 << 0)) != 0;
                     break;
-                case HORDE:
+                case TEAM_HORDE:
                     disabled = (mask & (1 << 1)) != 0;
+                    break;
+                case TEAM_NEUTRAL:
+                    disabled = (mask & (1 << 2)) != 0;
                     break;
             }
 
@@ -1755,7 +1757,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         return;
     }
 
-    if (factionChangeInfo->FactionChange == (Player::TeamIdForRace(oldRace) != newTeamId))
+    if (factionChangeInfo->FactionChange == (Player::TeamIdForRace(oldRace) == newTeamId))
     {
         SendCharFactionChange(factionChangeInfo->FactionChange ? CHAR_CREATE_CHARACTER_SWAP_FACTION : CHAR_CREATE_CHARACTER_RACE_ONLY, factionChangeInfo);
         return;

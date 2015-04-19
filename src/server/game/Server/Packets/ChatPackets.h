@@ -229,6 +229,16 @@ namespace WorldPackets
 
             void Read() override { }
         };
+
+        class ChatPlayerNotfound final : public ServerPacket
+        {
+        public:
+            ChatPlayerNotfound(std::string const& name) : ServerPacket(SMSG_CHAT_PLAYER_NOTFOUND, 2 + name.size()), Name(name) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+        };
     }
 }
 

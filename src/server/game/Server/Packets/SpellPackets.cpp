@@ -677,3 +677,22 @@ WorldPacket const* WorldPackets::Spells::SpellChannelUpdate::Write()
     _worldPacket << int32(TimeRemaining);
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::ResurrectRequest::Write()
+{
+    _worldPacket << ResurrectOffererGUID;
+    _worldPacket << ResurrectOffererVirtualRealmAddress;
+
+    _worldPacket << PetNumber;
+    _worldPacket << SpellID;
+
+    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.WriteBit(UseTimer);
+    _worldPacket.WriteBit(Sickness);
+
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(Name);
+
+    return &_worldPacket;
+}

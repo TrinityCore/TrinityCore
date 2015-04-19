@@ -660,6 +660,22 @@ namespace WorldPackets
             ObjectGuid CasterGUID;
             int32 TimeRemaining = 0;
         };
+
+        class ResurrectRequest final : public ServerPacket
+        {
+        public:
+            ResurrectRequest() : ServerPacket(SMSG_RESURRECT_REQUEST, 16 + 4 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ResurrectOffererGUID;
+            uint32 ResurrectOffererVirtualRealmAddress  = 0;
+            uint32 PetNumber                            = 0;
+            int32 SpellID                               = 0;
+            bool UseTimer                               = false;
+            bool Sickness                               = false;
+            std::string Name;
+        };
     }
 }
 

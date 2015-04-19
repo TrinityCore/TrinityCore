@@ -38,6 +38,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "Vehicle.h"
+#include "NPCPackets.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {
@@ -3052,9 +3053,9 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
                 Player* originalCaster = GetOriginalCaster()->ToPlayer();
                 if (Unit* target = GetHitUnit())
                 {
-                    WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
-                    data << target->GetGUID();
-                    originalCaster->GetSession()->SendPacket(&data);
+                    WorldPackets::NPC::SpiritHealerConfirm spiritHealerConfirm;
+                    spiritHealerConfirm.Unit = target->GetGUID();
+                    originalCaster->GetSession()->SendPacket(spiritHealerConfirm.Write());
                 }
             }
 
