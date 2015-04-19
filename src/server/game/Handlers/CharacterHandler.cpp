@@ -705,6 +705,25 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
 
             LoginDatabase.CommitTransaction(trans);
 
+            if (createInfo->TemplateSet.HasValue)
+            {
+                if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
+                {
+                    if (CharacterTemplate const* charTemplate = sObjectMgr->GetCharacterTemplate(createInfo->TemplateSet.Value))
+                    {
+                        if (charTemplate->Level != 1)
+                        {
+                            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
+                            stmt->setUInt8(0, uint8(charTemplate->Level));
+                            stmt->setUInt64(1, newChar.GetGUID().GetCounter());
+                            CharacterDatabase.Execute(stmt);
+                        }
+                    }
+                }
+                else
+                    TC_LOG_WARN("cheat", "Account: %u (IP: %s) tried to use a character template without given permission. Possible cheating attempt.", GetAccountId(), GetRemoteAddress().c_str());
+            }
+
             SendCharCreate(CHAR_CREATE_SUCCESS);
 
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Create Character: %s %s", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUID().ToString().c_str());

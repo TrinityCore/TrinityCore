@@ -83,20 +83,6 @@ namespace WorldPackets
                 std::string RealmNameNormalized; ///< the name of the realm without spaces
             };
 
-            struct CharacterTemplate
-            {
-                struct TemplateClass
-                {
-                    uint8 Class;
-                    uint8 FactionGroup; ///< @todo research
-                };
-
-                uint32 TemplateSetId;   ///< @todo research
-                std::list<TemplateClass> TemplateClasses;
-                std::string Name;
-                std::string Description;
-            };
-
             struct AuthSuccessInfo
             {
                 uint32 TimeRemain = 0; ///< the remaining game time that the account has in seconds. It is not currently implemented and probably won't ever be.
@@ -111,7 +97,7 @@ namespace WorldPackets
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
 
                 std::list<RealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
-                std::list<CharacterTemplate> Templates; ///< list of pre-made character templates. @todo implement
+                std::list<CharacterTemplate> Templates; ///< list of pre-made character templates.
 
                 ExpansionRequirementContainer const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select the classes
                 ExpansionRequirementContainer const* AvailableRaces = nullptr; ///< the minimum AccountExpansion required to select the races
