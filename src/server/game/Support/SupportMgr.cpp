@@ -50,36 +50,29 @@ std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* cl
     return ss.str();
 }
 
-GmTicket::GmTicket() : _lastModifiedTime(0), _completed(false), _escalatedStatus(TICKET_UNASSIGNED), _viewed(false), _needResponse(false), _needMoreHelp(false) { }
+GmTicket::GmTicket() : _lastModifiedTime(0), _completed(false), _assignedToStatus(GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED),
+_openedByGmStatus(GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED), _needResponse(false), _needMoreHelp(false) { }
 
-GmTicket::GmTicket(Player* player) : Ticket(player), _lastModifiedTime(time(nullptr)), _completed(false), _escalatedStatus(TICKET_UNASSIGNED),
-_viewed(false), _needResponse(false), _needMoreHelp(false)
+GmTicket::GmTicket(Player* player) : Ticket(player), _lastModifiedTime(time(nullptr)), _completed(false), _assignedToStatus(GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED),
+_openedByGmStatus(GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED), _needResponse(false), _needMoreHelp(false)
 {
     _id = sSupportMgr->GenerateGmTicketId();
 }
 
 GmTicket::~GmTicket() { }
 
-void GmTicket::SetGmAction(uint32 needResponse, bool needMoreHelp)
+void GmTicket::SetGmAction(bool needResponse, bool needMoreHelp)
 {
-    _needResponse = (needResponse == 17);   // Requires GM response. 17 = true, 1 = false (17 is default)
+    _needResponse = needResponse;   // Requires GM response. 17 = true, 1 = false (17 is default)
     _needMoreHelp = needMoreHelp;           // Requests further GM interaction on a ticket to which a GM has already responded. Basically means "has a new ticket"
 }
 
 void GmTicket::SetUnassigned()
 {
+    if (_assignedToStatus != GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED)
+        _assignedToStatus = GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED;
+
     _assignedTo.Clear();
-    switch (_escalatedStatus)
-    {
-        case TICKET_ASSIGNED: _escalatedStatus = TICKET_UNASSIGNED;
-            break;
-        case TICKET_ESCALATED_ASSIGNED: _escalatedStatus = TICKET_IN_ESCALATION_QUEUE;
-            break;
-        case TICKET_UNASSIGNED:
-        case TICKET_IN_ESCALATION_QUEUE:
-        default:
-            break;
-    }
 }
 
 void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
@@ -137,8 +130,8 @@ void GmTicket::LoadFromDB(Field* fields)
     _comment            = fields[++idx].GetString();
     _response           = fields[++idx].GetString();
     _completed          = fields[++idx].GetBool();
-    _escalatedStatus    = GMTicketEscalationStatus(fields[++idx].GetUInt8());
-    _viewed             = fields[++idx].GetBool();
+    _assignedToStatus   = GMTicketAssignedToGMStatus(fields[++idx].GetUInt8());
+    _openedByGmStatus   = GMTicketOpenedByGMStatus(fields[++idx].GetUInt8());
     _needMoreHelp       = fields[++idx].GetBool();
 }
 
@@ -160,8 +153,8 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setString(++idx, _comment);
     stmt->setString(++idx, _response);
     stmt->setBool(++idx, _completed);
-    stmt->setUInt8(++idx, uint8(_escalatedStatus));
-    stmt->setBool(++idx, _viewed);
+    stmt->setUInt8(++idx, uint8(_assignedToStatus));
+    stmt->setUInt8(++idx, _openedByGmStatus);
     stmt->setBool(++idx, _needMoreHelp);
 
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
@@ -1052,7 +1045,7 @@ void SupportMgr::ShowGmEscalatedList(ChatHandler& handler) const
 {
     handler.SendSysMessage(LANG_COMMAND_TICKETSHOWESCALATEDLIST);
     for (GmTicketList::const_iterator itr = _gmTicketList.begin(); itr != _gmTicketList.end(); ++itr)
-        if (!itr->second->IsClosed() && itr->second->GetEscalatedStatus() == TICKET_IN_ESCALATION_QUEUE)
+        if (!itr->second->IsClosed() && itr->second->GetAssigendToStatus() == GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED)
             handler.SendSysMessage(itr->second->FormatViewMessageString(handler).c_str());
 }
 
@@ -1067,12 +1060,12 @@ void SupportMgr::SendGmTicket(WorldSession* session, GmTicket* ticket) const
 
         response.Info.Value.TicketID = ticket->GetId();
         response.Info.Value.TicketDescription = ticket->GetDescription();
-        response.Info.Value.Category = ticket->GetEscalatedStatus();
+        response.Info.Value.Category = 1;
         response.Info.Value.TicketOpenTime = GetAge(ticket->GetLastModifiedTime());
         response.Info.Value.OldestTicketTime = sSupportMgr->GetOldestOpenTicket() ? GetAge(sSupportMgr->GetOldestOpenTicket()->GetLastModifiedTime()) : float(0);
         response.Info.Value.UpdateTime = GetAge(sSupportMgr->GetLastChange());
-        response.Info.Value.AssignedToGM = ticket->IsAssigned();
-        response.Info.Value.OpenedByGM = ticket->IsViewed();
+        response.Info.Value.AssignedToGM = ticket->GetAssigendToStatus();
+        response.Info.Value.OpenedByGM = ticket->GetOpenedByGmStatus();
         response.Info.Value.WaitTimeOverrideMessage = "";
         response.Info.Value.WaitTimeOverrideMinutes = 0;
     }
