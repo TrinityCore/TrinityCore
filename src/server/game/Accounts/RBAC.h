@@ -59,7 +59,7 @@ enum RBACPermissions
     //  7 - reuse
     //  8 - reuse
     //  9 - reuse
-    // 10 - reuse
+    RBAC_PERM_USE_CHARACTER_TEMPLATES                        = 10,
     RBAC_PERM_LOG_GM_TRADE                                   = 11,
     // 12 - reuse
     RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES            = 13,
@@ -566,7 +566,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE_TEXT            = 659,
     RBAC_PERM_COMMAND_RELOAD_LOCALES_GAMEOBJECT              = 660,
     RBAC_PERM_COMMAND_RELOAD_LOCALES_GOSSIP_MENU_OPTION      = 661,
-    // UNUSED
+    RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 662,
     RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM_SET_NAME           = 663,
     RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 664,
     RBAC_PERM_COMMAND_RELOAD_LOCALES_PAGE_TEXT               = 665,
