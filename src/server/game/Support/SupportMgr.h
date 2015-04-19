@@ -107,8 +107,7 @@ public:
     }
     std::string const& GetComment() { return _comment; }
 
-    virtual void SetAssignedTo(ObjectGuid guid) { _assignedTo = guid; }
-    virtual void SetAssignedTo(ObjectGuid /*guid*/, bool /*isAdmin*/) { }
+    virtual void SetAssignedTo(ObjectGuid guid, bool /*isAdmin*/ = false) { _assignedTo = guid; }
     virtual void SetUnassigned() { _assignedTo.Clear(); }
     void SetClosedBy(ObjectGuid value) { _closedBy = value; }
     void SetComment(std::string const& comment) { _comment = comment; }
@@ -155,7 +154,7 @@ public:
     GMTicketEscalationStatus GetEscalatedStatus() const { return _escalatedStatus; }
     std::string const& GetResponse() const { return _response; }
 
-    void SetAssignedTo(ObjectGuid guid, bool isAdmin) override
+    void SetAssignedTo(ObjectGuid guid, bool isAdmin = false) override
     {
         _assignedTo = guid;
         if (isAdmin && _escalatedStatus == TICKET_IN_ESCALATION_QUEUE)
