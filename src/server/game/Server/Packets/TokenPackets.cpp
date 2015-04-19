@@ -33,7 +33,7 @@ WorldPacket const* WorldPackets::Token::UpdateListedAuctionableTokensResponse::W
         _worldPacket << auctionableTokenAuctionable.UnkInt2;
         _worldPacket << auctionableTokenAuctionable.Owner;
         _worldPacket << auctionableTokenAuctionable.BuyoutPrice;
-        _worldPacket << auctionableTokenAuctionable.RunTime;
+        _worldPacket << auctionableTokenAuctionable.EndTime;
     }
 
     return &_worldPacket;
