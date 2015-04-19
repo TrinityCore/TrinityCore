@@ -23,9 +23,22 @@ void WorldSession::HandleUpdateListedAuctionableTokens(WorldPackets::Token::Upda
 {
     WorldPackets::Token::UpdateListedAuctionableTokensResponse response;
 
-    /// @todo: fix 6.x implementation
+    /// @todo: 6.x fix implementation
     response.UnkInt = updateListedAuctionableTokens.UnkInt;
-    response.Result = TOKEN_RESULT_ERROR_DISABLED;
+    response.Result = TOKEN_RESULT_SUCCESS;
+
+    SendPacket(response.Write());
+}
+
+void WorldSession::HandleRequestWowTokenMarketPrice(WorldPackets::Token::RequestWowTokenMarketPrice& requestWowTokenMarketPrice)
+{
+    WorldPackets::Token::RequestWowTokenMarketPriceResponse response;
+
+    /// @todo: 6.x fix implementation
+    response.CurrentMarketPrice = 300000000;
+    response.UnkInt = requestWowTokenMarketPrice.UnkInt;
+    response.Result = TOKEN_RESULT_SUCCESS;
+    //packet.ReadUInt32("UnkInt32");
 
     SendPacket(response.Write());
 }

@@ -38,3 +38,18 @@ WorldPacket const* WorldPackets::Token::UpdateListedAuctionableTokensResponse::W
 
     return &_worldPacket;
 }
+
+void WorldPackets::Token::RequestWowTokenMarketPrice::Read()
+{
+    _worldPacket >> UnkInt;
+}
+
+WorldPacket const* WorldPackets::Token::RequestWowTokenMarketPriceResponse::Write()
+{
+    _worldPacket << CurrentMarketPrice;
+    _worldPacket << UnkInt;
+    _worldPacket << Result;
+    _worldPacket << UnkInt2;
+
+    return &_worldPacket;
+}
