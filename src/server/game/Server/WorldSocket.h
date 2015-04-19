@@ -85,12 +85,14 @@ public:
 
     ConnectionType GetConnectionType() const { return _type; }
 
+    void SendAuthResponseError(uint8 code);
+    void SetWorldSession(WorldSession* session);
+
 protected:
     void OnClose() override;
     void ReadHandler() override;
     bool ReadHeaderHandler();
     bool ReadDataHandler();
-
 private:
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
@@ -104,7 +106,6 @@ private:
     void HandleAuthSession(WorldPackets::Auth::AuthSession& authSession);
     void HandleAuthContinuedSession(WorldPackets::Auth::AuthContinuedSession& authSession);
     void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
-    void SendAuthResponseError(uint8 code);
 
     bool HandlePing(WorldPacket& recvPacket);
 
