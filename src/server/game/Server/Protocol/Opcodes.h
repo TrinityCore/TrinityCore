@@ -1685,11 +1685,7 @@ enum PacketProcessing
 class WorldPacket;
 class WorldSession;
 
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
 class OpcodeHandler
 {
@@ -1766,11 +1762,7 @@ class OpcodeTable
 
 extern OpcodeTable opcodeTable;
 
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 void InitOpcodes();
 

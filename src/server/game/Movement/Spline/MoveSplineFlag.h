@@ -23,11 +23,7 @@
 
 namespace Movement
 {
-#if defined( __GNUC__ )
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
     class MoveSplineFlag
     {
@@ -143,11 +139,7 @@ namespace Movement
         bool unknown8            : 1;
         bool unknown9            : 1;
     };
-#if defined( __GNUC__ )
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 }
 
 #endif // TRINITYSERVER_MOVESPLINEFLAG_H
