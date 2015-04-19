@@ -338,7 +338,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q11396_11399_scourging_crystal_controller_SpellScript();
-        };
+        }
 };
 
 // 43882 Scourging Crystal Controller Dummy
@@ -374,7 +374,7 @@ class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
         SpellScript* GetSpellScript() const override
         {
             return new spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript();
-        };
+        }
 };
 
 // http://www.wowhead.com/quest=11515 Blood for Blood
@@ -855,7 +855,7 @@ class spell_symbol_of_life_dummy : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_symbol_of_life_dummy_SpellScript();
-        };
+        }
 };
 
 // http://www.wowhead.com/quest=12659 Scalps!
@@ -898,7 +898,7 @@ class spell_q12659_ahunaes_knife : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q12659_ahunaes_knife_SpellScript();
-        };
+        }
 };
 
 enum StoppingTheSpread
@@ -944,7 +944,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q9874_liquid_fire_SpellScript();
-        };
+        }
 };
 
 enum SalvagingLifesStength
@@ -988,7 +988,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q12805_lifeblood_dummy_SpellScript();
-        };
+        }
 };
 
 /*
