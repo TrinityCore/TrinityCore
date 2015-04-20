@@ -598,7 +598,7 @@ namespace WorldPackets
             uint32 NewHairColor = 0;
             uint32 NewFacialHair = 0;
             uint32 NewSkinColor = 0;
-            uint32 Unk = 0;
+            uint32 NewFace = 0;
         };
 
         class BarberShopResultServer final : public ServerPacket
