@@ -1396,21 +1396,27 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     TC_LOG_DEBUG("network", "CMSG_ALTER_APPEARANCE");
 
     BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(packet.NewHairStyle);
-
     if (!bs_hair || bs_hair->Type != 0 || bs_hair->Race != _player->getRace() || bs_hair->Sex != _player->getGender())
         return;
 
     BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(packet.NewFacialHair);
-
     if (!bs_facialHair || bs_facialHair->Type != 2 || bs_facialHair->Race != _player->getRace() || bs_facialHair->Sex != _player->getGender())
         return;
 
     BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(packet.NewSkinColor);
-
     if (bs_skinColor && (bs_skinColor->Type != 3 || bs_skinColor->Race != _player->getRace() || bs_skinColor->Sex != _player->getGender()))
         return;
 
-    if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->getGender(), bs_hair->Data, packet.NewHairColor, uint8(_player->GetUInt32Value(PLAYER_FLAGS) >> 8), bs_facialHair->Data, bs_skinColor ? bs_skinColor->Data : 0))
+    BarberShopStyleEntry const* bs_face = sBarberShopStyleStore.LookupEntry(packet.NewFace);
+    if (bs_face && (bs_face->Type != 4 || bs_face->Race != _player->getRace() || bs_face->Sex != _player->getGender()))
+        return;
+
+    if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->getGender(),
+        bs_hair->Data,
+        packet.NewHairColor,
+        bs_face ? bs_face->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID),
+        bs_facialHair->Data,
+        bs_skinColor ? bs_skinColor->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID)))
         return;
 
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
@@ -1426,7 +1432,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
         return;
     }
 
-    uint32 cost = _player->GetBarberShopCost(bs_hair->Data, packet.NewHairColor, bs_facialHair->Data, bs_skinColor);
+    uint32 cost = _player->GetBarberShopCost(bs_hair, packet.NewHairColor, bs_facialHair, bs_skinColor, bs_face);
 
     // 0 - ok
     // 1, 3 - not enough money
@@ -1447,6 +1453,8 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     _player->SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, uint8(bs_facialHair->Data));
     if (bs_skinColor)
         _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID, uint8(bs_skinColor->Data));
+    if (bs_face)
+        _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID, uint8(bs_face->Data));
 
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
