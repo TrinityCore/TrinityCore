@@ -26,7 +26,6 @@
 #include <iostream>
 #include <unordered_map>
 #include <boost/process.hpp>
-#include <boost/process/mitigate.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/system/system_error.hpp>
 
