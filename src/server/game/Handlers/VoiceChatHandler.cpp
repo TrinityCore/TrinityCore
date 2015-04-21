@@ -24,7 +24,6 @@
 
 void WorldSession::HandleVoiceSessionEnableOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_VOICE_SESSION_ENABLE");
     // uint8 isVoiceEnabled, uint8 isMicrophoneEnabled
     recvData.read_skip<uint8>();
     recvData.read_skip<uint8>();
@@ -32,7 +31,6 @@ void WorldSession::HandleVoiceSessionEnableOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSetActiveVoiceChannel(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_SET_ACTIVE_VOICE_CHANNEL");
     recvData.read_skip<uint32>();
     recvData.read_skip<char*>();
 }
