@@ -66,8 +66,6 @@ void WorldSession::HandleGuildOfficerRemoveMember(WorldPackets::Guild::GuildOffi
 
 void WorldSession::HandleGuildAcceptInvite(WorldPackets::Guild::AcceptGuildInvite& /*invite*/)
 {
-    TC_LOG_DEBUG("guild", "CMSG_ACCEPT_GUILD_INVITE [%s]", GetPlayerInfo().c_str());
-
     if (!GetPlayer()->GetGuildId())
         if (Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildIdInvited()))
             guild->HandleAcceptMember(this);
@@ -75,16 +73,12 @@ void WorldSession::HandleGuildAcceptInvite(WorldPackets::Guild::AcceptGuildInvit
 
 void WorldSession::HandleGuildDeclineInvitation(WorldPackets::Guild::GuildDeclineInvitation& /*decline*/)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_DECLINE_INVITATION [%s]", GetPlayerInfo().c_str());
-
     GetPlayer()->SetGuildIdInvited(UI64LIT(0));
     GetPlayer()->SetInGuild(UI64LIT(0));
 }
 
 void WorldSession::HandleGuildGetRoster(WorldPackets::Guild::GuildGetRoster& /*packet*/)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_ROSTER [%s]", GetPlayerInfo().c_str());
-
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRoster(this);
     else
@@ -120,16 +114,12 @@ void WorldSession::HandleGuildAssignRank(WorldPackets::Guild::GuildAssignMemberR
 
 void WorldSession::HandleGuildLeave(WorldPackets::Guild::GuildLeave& /*leave*/)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_LEAVE [%s]", GetPlayerInfo().c_str());
-
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleLeaveMember(this);
 }
 
 void WorldSession::HandleGuildDelete(WorldPackets::Guild::GuildDelete& /*packet*/)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_DELETE [%s]", GetPlayerInfo().c_str());
-
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleDelete(this);
 }
@@ -220,16 +210,12 @@ void WorldSession::HandleGuildEventLogQuery(WorldPackets::Guild::GuildEventLogQu
 
 void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPackets::Guild::GuildBankRemainingWithdrawMoneyQuery& /*packet*/)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_MONEY_WITHDRAWN [%s]", GetPlayerInfo().c_str());
-
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendMoneyInfo(this);
 }
 
 void WorldSession::HandleGuildPermissionsQuery(WorldPackets::Guild::GuildPermissionsQuery& /* packet */)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_PERMISSIONS_QUERY [%s]", GetPlayerInfo().c_str());
-
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendPermissions(this);
 }
@@ -288,8 +274,6 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWi
 
 void WorldSession::HandleGuildBankSwapItems(WorldPackets::Guild::GuildBankSwapItems& packet)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_SWAP_ITEMS [%s]", GetPlayerInfo().c_str());
-
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         return;
 
@@ -373,8 +357,6 @@ void WorldSession::HandleGuildSetRankPermissions(WorldPackets::Guild::GuildSetRa
 
 void WorldSession::HandleGuildRequestPartyState(WorldPackets::Guild::RequestGuildPartyState& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_GUILD_REQUEST_PARTY_STATE");
-
     if (Guild* guild = sGuildMgr->GetGuildByGuid(packet.GuildGUID))
         guild->HandleGuildPartyRequest(this);
 }
@@ -418,7 +400,6 @@ void WorldSession::HandleRequestGuildRewardsList(WorldPackets::Guild::RequestGui
 
 void WorldSession::HandleGuildQueryNews(WorldPackets::Guild::GuildQueryNews& newsQuery)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_QUERY_NEWS [%s]", GetPlayerInfo().c_str());
     if (Guild* guild = GetPlayer()->GetGuild())
         if (guild->GetGUID() == newsQuery.GuildGUID)
             guild->SendNewsUpdate(this);

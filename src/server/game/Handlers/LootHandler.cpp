@@ -35,7 +35,6 @@
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
     ObjectGuid lguid = player->GetLootGUID();
 
@@ -105,8 +104,6 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
 
 void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_MONEY");
-
     Player* player = GetPlayer();
     ObjectGuid guid = player->GetLootGUID();
     if (!guid)
@@ -231,8 +228,6 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
 
 void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT");
-
     // Check possible cheat
     if (!GetPlayer()->IsAlive() || !packet.Unit.IsCreatureOrVehicle())
         return;
@@ -246,8 +241,6 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 
 void WorldSession::HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_RELEASE");
-
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
     ObjectGuid lguid = GetPlayer()->GetLootGUID();
