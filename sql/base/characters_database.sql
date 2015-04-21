@@ -1356,6 +1356,55 @@ LOCK TABLES `character_talent` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_template`
+--
+
+DROP TABLE IF EXISTS `character_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_template` (
+  `id` int(10) unsigned NOT NULL,
+  `name` varchar(70) NOT NULL,
+  `description` varchar(100) NOT NULL,
+  `level` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_template`
+--
+
+LOCK TABLES `character_template` WRITE;
+/*!40000 ALTER TABLE `character_template` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_template` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_template_class`
+--
+
+DROP TABLE IF EXISTS `character_template_class`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_template_class` (
+  `templateId` int(10) unsigned NOT NULL,
+  `factionGroup` tinyint(3) unsigned NOT NULL COMMENT '3 - Alliance, 5 - Horde',
+  `class` tinyint(3) unsigned NOT NULL,
+  PRIMARY KEY (`templateId`,`factionGroup`,`class`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_template_class`
+--
+
+LOCK TABLES `character_template_class` WRITE;
+/*!40000 ALTER TABLE `character_template_class` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_template_class` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_void_storage`
 --
 

@@ -96,8 +96,8 @@ namespace WorldPackets
                 uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
 
-                std::list<RealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
-                std::list<CharacterTemplate> Templates; ///< list of pre-made character templates.
+                std::vector<RealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
+                std::vector<CharacterTemplate> Templates; ///< list of pre-made character templates.
 
                 ExpansionRequirementContainer const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select the classes
                 ExpansionRequirementContainer const* AvailableRaces = nullptr; ///< the minimum AccountExpansion required to select the races
