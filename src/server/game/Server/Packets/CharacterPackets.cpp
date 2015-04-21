@@ -435,7 +435,7 @@ void WorldPackets::Character::AlterApperance::Read()
     _worldPacket >> NewHairColor;
     _worldPacket >> NewFacialHair;
     _worldPacket >> NewSkinColor;
-    _worldPacket >> Unk;
+    _worldPacket >> NewFace;
 }
 
 WorldPacket const* WorldPackets::Character::BarberShopResultServer::Write()

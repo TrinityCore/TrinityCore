@@ -596,6 +596,26 @@ typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellContainer;
 typedef std::unordered_map<uint8, uint8> ExpansionRequirementContainer;
 typedef std::unordered_map<uint32, std::string> RealmNameContainer;
 
+struct CharcterTemplateClass
+{
+    CharcterTemplateClass(uint8 factionGroup, uint8 classID) :
+        FactionGroup(factionGroup), ClassID(classID) { }
+
+    uint8 FactionGroup;
+    uint8 ClassID;
+};
+
+struct CharacterTemplate
+{
+    uint32 TemplateSetId;
+    std::list<CharcterTemplateClass> Classes;
+    std::string Name;
+    std::string Description;
+    uint8 Level;
+};
+
+typedef std::unordered_map<uint32, CharacterTemplate> CharacterTemplateContainer;
+
 enum SkillRangeType
 {
     SKILL_RANGE_LANGUAGE,                                   // 300..300
@@ -1287,6 +1307,7 @@ class ObjectMgr
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
 
         void LoadRaceAndClassExpansionRequirements();
+        void LoadCharacterTemplates();
         void LoadRealmNames();
 
         std::string GetRealmName(uint32 realm) const;
@@ -1307,6 +1328,16 @@ class ObjectMgr
             if (itr != _classExpansionRequirementStore.end())
                 return itr->second;
             return EXPANSION_CLASSIC;
+        }
+
+        CharacterTemplateContainer const& GetCharacterTemplates() const { return _characterTemplateStore; }
+        CharacterTemplate const* GetCharacterTemplate(uint32 id) const 
+        {
+            auto itr = _characterTemplateStore.find(id);
+            if (itr != _characterTemplateStore.end())
+                return &itr->second;
+
+            return nullptr;
         }
 
     private:
@@ -1456,6 +1487,8 @@ class ObjectMgr
         ExpansionRequirementContainer _raceExpansionRequirementStore;
         ExpansionRequirementContainer _classExpansionRequirementStore;
         RealmNameContainer _realmNameStore;
+
+        CharacterTemplateContainer _characterTemplateStore;
 
         enum CreatureLinkedRespawnType
         {

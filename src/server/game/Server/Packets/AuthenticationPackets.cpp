@@ -104,11 +104,11 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         for (auto& templat : SuccessInfo.Value.Templates)
         {
             _worldPacket << uint32(templat.TemplateSetId);
-            _worldPacket << uint32(templat.TemplateClasses.size());
-            for (auto& templatClass : templat.TemplateClasses)
+            _worldPacket << uint32(templat.Classes.size());
+            for (auto& templateClass : templat.Classes)
             {
-                _worldPacket << uint8(templatClass.Class);
-                _worldPacket << uint8(templatClass.FactionGroup);
+                _worldPacket << uint8(templateClass.ClassID);
+                _worldPacket << uint8(templateClass.FactionGroup);
             }
 
             _worldPacket.WriteBits(templat.Name.length(), 7);

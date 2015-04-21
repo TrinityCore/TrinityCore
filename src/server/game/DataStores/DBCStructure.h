@@ -153,7 +153,7 @@ struct BarberShopStyleEntry
     uint32      Type;                                       // 1 value 0 -> hair, value 2 -> facialhair
     //char*     DisplayName_lang;                           // 2
     //char*     Description_lang                            // 3
-    //float     CostModifier;                               // 4
+    float       CostModifier;                               // 4
     uint32      Race;                                       // 5
     uint32      Sex;                                        // 6
     uint32      Data;                                       // 7 (real ID to hair/facial hair)
