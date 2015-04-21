@@ -160,12 +160,13 @@ int main(int argc, char** argv)
     // Close the Database Pool and library
     StopDB();
 
-    _ioService.reset();
-
     TC_LOG_INFO("server.bnetserver", "Halting process...");
+
+    signals.clear();
+
+    _ioService.reset();
     return 0;
 }
-
 
 /// Initialize connection to the database
 bool StartDB()
