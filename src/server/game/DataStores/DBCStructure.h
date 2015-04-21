@@ -29,13 +29,7 @@
 #include <vector>
 
 // Structures using to access raw DBC data and required packing to portability
-
-// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
 struct AchievementEntry
 {
@@ -159,7 +153,7 @@ struct BarberShopStyleEntry
     uint32      Type;                                       // 1 value 0 -> hair, value 2 -> facialhair
     //char*     DisplayName_lang;                           // 2
     //char*     Description_lang                            // 3
-    //float     CostModifier;                               // 4
+    float       CostModifier;                               // 4
     uint32      Race;                                       // 5
     uint32      Sex;                                        // 6
     uint32      Data;                                       // 7 (real ID to hair/facial hair)
@@ -2058,12 +2052,7 @@ struct WorldStateUI
 };
 */
 
-// GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 struct VectorArray
 {

@@ -1451,6 +1451,7 @@ enum OpcodeServer : uint32
     SMSG_REPORT_PVP_PLAYER_AFK_RESULT                 = 0x12B2,
     SMSG_REQUEST_CEMETERY_LIST_RESPONSE               = 0x1398,
     SMSG_REQUEST_PVP_REWARDS_RESPONSE                 = 0x0218,
+    SMSG_REQUEST_WOW_TOKEN_MARKET_PRICE_RESPONSE      = 0x1215,
     SMSG_RESEARCH_COMPLETE                            = 0x1335,
     SMSG_RESET_COMPRESSION_CONTEXT                    = 0x0059,
     SMSG_RESET_FAILED_NOTIFY                          = 0x040D,
@@ -1684,11 +1685,7 @@ enum PacketProcessing
 class WorldPacket;
 class WorldSession;
 
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
 class OpcodeHandler
 {
@@ -1765,11 +1762,7 @@ class OpcodeTable
 
 extern OpcodeTable opcodeTable;
 
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 void InitOpcodes();
 

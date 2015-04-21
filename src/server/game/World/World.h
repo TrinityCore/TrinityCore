@@ -575,6 +575,7 @@ class World
 
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession* s);
+        void AddInstanceSocket(std::shared_ptr<WorldSocket> sock, uint32 sessionAccountId);
         void SendAutoBroadcast();
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions
@@ -882,6 +883,9 @@ class World
         // sessions that are added async
         void AddSession_(WorldSession* s);
         LockedQueue<WorldSession*> addSessQueue;
+
+        void ProcessLinkInstanceSocket(std::pair<std::shared_ptr<WorldSocket>, uint32> linkInfo);
+        LockedQueue<std::pair<std::shared_ptr<WorldSocket>, uint32>> _linkSocketQueue;
 
         // used versions
         std::string m_DBVersion;

@@ -452,6 +452,7 @@ namespace WorldPackets
     namespace Token
     {
         class UpdateListedAuctionableTokens;
+        class RequestWowTokenMarketPrice;
     }
 
     namespace Trade
@@ -1445,6 +1446,7 @@ class WorldSession
 
         // Token
         void HandleUpdateListedAuctionableTokens(WorldPackets::Token::UpdateListedAuctionableTokens& updateListedAuctionableTokens);
+        void HandleRequestWowTokenMarketPrice(WorldPackets::Token::RequestWowTokenMarketPrice& requestWowTokenMarketPrice);
 
         // Compact Unit Frames (4.x)
         void HandleSaveCUFProfiles(WorldPacket& recvPacket);

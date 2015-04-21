@@ -57,11 +57,7 @@ enum WardenCheckType
     MODULE_CHECK            = 0xD9  // 217: uint Seed + byte[20] SHA1 (check to ensure module isn't injected)
 };
 
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
 struct WardenModuleUse
 {
@@ -84,11 +80,7 @@ struct WardenHashRequest
     uint8 Seed[16];
 };
 
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 struct ClientWardenModule
 {

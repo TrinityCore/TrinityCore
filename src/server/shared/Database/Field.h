@@ -267,11 +267,7 @@ class Field
         Field();
         ~Field();
 
-        #if defined(__GNUC__)
-        #pragma pack(1)
-        #else
         #pragma pack(push, 1)
-        #endif
         struct
         {
             uint32 length;          // Length (prepared strings only)
@@ -279,11 +275,7 @@ class Field
             enum_field_types type;  // Field type
             bool raw;               // Raw bytes? (Prepared statement or ad hoc)
          } data;
-        #if defined(__GNUC__)
-        #pragma pack()
-        #else
         #pragma pack(pop)
-        #endif
 
         void SetByteValue(void const* newValue, size_t const newSize, enum_field_types newType, uint32 length);
         void SetStructuredValue(char* newValue, enum_field_types newType, uint32 length);

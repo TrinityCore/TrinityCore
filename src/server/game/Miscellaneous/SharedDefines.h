@@ -2124,11 +2124,12 @@ enum GameObjectFlags
 
 enum GameObjectDynamicLowFlags
 {
-    GO_DYNFLAG_LO_ACTIVATE          = 0x01,                 // enables interaction with GO
-    GO_DYNFLAG_LO_ANIMATE           = 0x02,                 // possibly more distinct animation of GO
-    GO_DYNFLAG_LO_NO_INTERACT       = 0x04,                 // appears to disable interaction (not fully verified)
-    GO_DYNFLAG_LO_SPARKLE           = 0x08,                 // makes GO sparkle
-    GO_DYNFLAG_LO_STOPPED           = 0x10                  // Transport is stopped
+    GO_DYNFLAG_LO_HIDE_MODEL        = 0x01,                 // Object model is not shown with this flag
+    GO_DYNFLAG_LO_ACTIVATE          = 0x02,                 // enables interaction with GO
+    GO_DYNFLAG_LO_ANIMATE           = 0x04,                 // possibly more distinct animation of GO
+    GO_DYNFLAG_LO_NO_INTERACT       = 0x08,                 // appears to disable interaction (not fully verified)
+    GO_DYNFLAG_LO_SPARKLE           = 0x10,                 // makes GO sparkle
+    GO_DYNFLAG_LO_STOPPED           = 0x20                  // Transport is stopped
 };
 
 enum GameObjectDestructibleState
@@ -4921,15 +4922,15 @@ enum DiminishingLevels
 
 enum TokenResult
 {
-    TOKEN_RESULT_SUCCESS                        = 1,
-    TOKEN_RESULT_ERROR_DISABLED                 = 2,
-    TOKEN_RESULT_ERROR_OTHER                    = 3,
-    TOKEN_RESULT_ERROR_NONE_FOR_SALE            = 4,
-    TOKEN_RESULT_ERROR_TOO_MANY_TOKENS          = 5,
-    TOKEN_RESULT_SUCCESS_NO                     = 6,
-    TOKEN_RESULT_ERROR_TRANSACTION_IN_PROGRESS  = 7,
-    TOKEN_RESULT_ERROR_AUCTIONABLE_TOKEN_OWNED  = 8,
-    TOKEN_RESULT_ERROR_TRIAL_RESTRICTED         = 9
+    TOKEN_RESULT_SUCCESS                        = 0,
+    TOKEN_RESULT_ERROR_DISABLED                 = 1,
+    TOKEN_RESULT_ERROR_OTHER                    = 2,
+    TOKEN_RESULT_ERROR_NONE_FOR_SALE            = 3,
+    TOKEN_RESULT_ERROR_TOO_MANY_TOKENS          = 4,
+    TOKEN_RESULT_SUCCESS_NO                     = 5,
+    TOKEN_RESULT_ERROR_TRANSACTION_IN_PROGRESS  = 6,
+    TOKEN_RESULT_ERROR_AUCTIONABLE_TOKEN_OWNED  = 7,
+    TOKEN_RESULT_ERROR_TRIAL_RESTRICTED         = 8
 };
 
 #endif

@@ -45,7 +45,7 @@ namespace WorldPackets
     class ServerPacket : public Packet
     {
     public:
-        ServerPacket(OpcodeServer opcode, size_t initialSize = 200) : Packet(WorldPacket(opcode, initialSize)) { }
+        ServerPacket(OpcodeServer opcode, size_t initialSize = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : Packet(WorldPacket(opcode, initialSize, connection)) { }
 
         void Read() override final { ASSERT(!"Read not implemented for server packets."); }
 

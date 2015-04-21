@@ -182,6 +182,13 @@ void WorldSocket::ExtractOpcodeAndSize(ClientPktHeader const* header, uint32& op
     }
 }
 
+void WorldSocket::SetWorldSession(WorldSession* session)
+{
+    std::lock_guard<std::mutex> sessionGuard(_worldSessionLock);
+    _worldSession = session;
+    _authed = true;
+}
+
 bool WorldSocket::ReadHeaderHandler()
 {
     ASSERT(_headerBuffer.GetActiveSize() == SizeOfClientHeader[_initialized][_authCrypt.IsInitialized()], "Header size " SZFMTD " different than expected %u", _headerBuffer.GetActiveSize(), SizeOfClientHeader[_initialized][_authCrypt.IsInitialized()]);
@@ -724,22 +731,7 @@ void WorldSocket::HandleAuthContinuedSession(WorldPackets::Auth::AuthContinuedSe
         return;
     }
 
-    _worldSession = sWorld->FindSession(accountId);
-    if (!_worldSession)
-    {
-        SendAuthResponseError(AUTH_SESSION_EXPIRED);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthContinuedSession: No active session found for account: %u ('%s') address: %s", accountId, login.c_str(), GetRemoteIpAddress().to_string().c_str());
-        DelayedCloseSocket();
-        return;
-    }
-
-    _authed = true;
-
-    WorldPackets::Auth::ResumeComms resumeComms;
-    SendPacketAndLogOpcode(*resumeComms.Write());
-
-    _worldSession->AddInstanceConnection(shared_from_this());
-    _worldSession->HandleContinuePlayerLogin();
+    sWorld->AddInstanceSocket(shared_from_this(), accountId);
 }
 
 void WorldSocket::HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed)
