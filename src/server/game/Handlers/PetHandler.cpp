@@ -416,8 +416,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
 
 void WorldSession::HandleQueryPetName(WorldPackets::Query::QueryPetName& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_PET_NAME");
-
     SendQueryPetNameResponse(packet.UnitGUID);
 }
 
@@ -471,8 +469,6 @@ bool WorldSession::CheckStableMaster(ObjectGuid guid)
 
 void WorldSession::HandlePetSetAction(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_SET_ACTION");
-
     ObjectGuid petguid;
     uint8  count;
 
@@ -588,8 +584,6 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
 
 void WorldSession::HandlePetRename(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_RENAME");
-
     ObjectGuid petguid;
     uint8 isdeclined;
 
@@ -695,7 +689,6 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 
 void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_SPELL_AUTOCAST");
     ObjectGuid guid;
     uint32 spellid;
     uint8  state;                                           //1 for on, 0 for off

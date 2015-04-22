@@ -496,7 +496,6 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
 
 void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUY_ITEM_IN_SLOT");
     ObjectGuid vendorguid, bagguid;
     uint32 item, slot, count;
     uint8 bagslot;
@@ -566,8 +565,6 @@ void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 
 void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LIST_INVENTORY");
-
     if (!GetPlayer()->IsAlive())
         return;
 
@@ -762,8 +759,6 @@ void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid I
 
 void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
 {
-    TC_LOG_DEBUG("network", "Received opcode CMSG_WRAP_ITEM");
-
     if (packet.Inv.Items.size() != 2)
     {
         TC_LOG_ERROR("network", "HandleWrapItem - Invalid itemCount (" SZFMTD ")", packet.Inv.Items.size());
@@ -894,8 +889,6 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
 
 void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_SOCKET_GEMS");
-
     ObjectGuid item_guid;
     ObjectGuid gem_guids[MAX_GEM_SOCKETS];
 
@@ -1103,8 +1096,6 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_CANCEL_TEMP_ENCHANTMENT");
-
     uint32 slot;
 
     recvData >> slot;
@@ -1141,7 +1132,6 @@ void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchase
 
 void WorldSession::HandleItemRefund(WorldPacket &recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_PURCHASE_REFUND");
     ObjectGuid guid;
     recvData >> guid;                                      // item guid
 
@@ -1189,7 +1179,6 @@ void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
 
 void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");
     Player* player = GetPlayer();
 
     // Read data

@@ -36,6 +36,7 @@
 #include "Battleground.h"
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
+#include "GameObjectAI.h"
 #include "SpellInfo.h"
 #include "NPCPackets.h"
 #include "MailPackets.h"
@@ -264,8 +265,6 @@ void WorldSession::SendTrainerBuyFailed(ObjectGuid guid, uint32 spellId, uint32 
 
 void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_GOSSIP_HELLO");
-
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_NONE);
     if (!unit)
     {
@@ -306,28 +305,41 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
     unit->AI()->sGossipHello(_player);
 }
 
-/*void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
+
+void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_GOSSIP_SELECT_OPTION");
+    if (!_player->PlayerTalkClass->GetGossipMenu().GetItem(packet.GossipIndex))
+        return;
 
-    uint32 option;
-    uint32 unk;
-    uint64 guid;
-    std::string code = "";
+    // Prevent cheating on C++ scripted menus
+    if (_player->PlayerTalkClass->GetGossipMenu().GetSenderGUID() != packet.GossipUnit)
+        return;
 
-    recvData >> guid >> unk >> option;
-
-    if (_player->PlayerTalkClass->GossipOptionCoded(option))
+    Creature* unit = nullptr;
+    GameObject* go = nullptr;
+    if (packet.GossipUnit.IsCreatureOrVehicle())
     {
-        TC_LOG_DEBUG("network", "reading string");
-        recvData >> code;
-        TC_LOG_DEBUG("network", "string read: %s", code.c_str());
+        unit = GetPlayer()->GetNPCIfCanInteractWith(packet.GossipUnit, UNIT_NPC_FLAG_NONE);
+        if (!unit)
+        {
+
+            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found or you can't interact with him.", packet.GossipUnit.ToString().c_str());
+            return;
+        }
     }
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
-    if (!unit)
+    else if (packet.GossipUnit.IsGameObject())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        go = _player->GetMap()->GetGameObject(packet.GossipUnit);
+        if (!go)
+        {
+            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", packet.GossipUnit.ToString().c_str());
+            return;
+        }
+    }
+    else
+    {
+
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - unsupported %s.", packet.GossipUnit.ToString().c_str());
         return;
     }
 
@@ -335,22 +347,52 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (!code.empty())
+    if ((unit && unit->GetCreatureTemplate()->ScriptID != unit->LastUsedScriptID) || (go && go->GetGOInfo()->ScriptId != go->LastUsedScriptID))
     {
-        if (!Script->GossipSelectWithCode(_player, unit, _player->PlayerTalkClass->GossipOptionSender (option), _player->PlayerTalkClass->GossipOptionAction(option), code.c_str()))
-            unit->OnGossipSelect (_player, option);
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Script reloaded while in use, ignoring and set new scipt id");
+        if (unit)
+            unit->LastUsedScriptID = unit->GetCreatureTemplate()->ScriptID;
+
+        if (go)
+            go->LastUsedScriptID = go->GetGOInfo()->ScriptId;
+        _player->PlayerTalkClass->SendCloseGossip();
+        return;
+    }
+
+    if (!packet.PromotionCode.empty())
+    {
+        if (unit)
+        {
+            unit->AI()->sGossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str());
+            if (!sScriptMgr->OnGossipSelectCode(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex), packet.PromotionCode.c_str()))
+                _player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
+        }
+        else
+        {
+            go->AI()->GossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str());
+            if (!sScriptMgr->OnGossipSelectCode(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex), packet.PromotionCode.c_str()))
+                _player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
+        }
     }
     else
     {
-        if (!Script->OnGossipSelect (_player, unit, _player->PlayerTalkClass->GossipOptionSender (option), _player->PlayerTalkClass->GossipOptionAction (option)))
-           unit->OnGossipSelect (_player, option);
+        if (unit)
+        {
+            unit->AI()->sGossipSelect(_player, packet.GossipID, packet.GossipIndex);
+            if (!sScriptMgr->OnGossipSelect(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex)))
+                _player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
+        }
+        else
+        {
+            go->AI()->GossipSelect(_player, packet.GossipID, packet.GossipIndex);
+            if (!sScriptMgr->OnGossipSelect(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex)))
+                _player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
+        }
     }
-}*/
+}
 
 void WorldSession::HandleSpiritHealerActivate(WorldPackets::NPC::SpiritHealerActivate& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
-
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Healer, UNIT_NPC_FLAG_SPIRITHEALER);
     if (!unit)
     {
@@ -468,8 +510,6 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
     if (!GetPlayer())
         return;
 
-    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_REQUEST_STABLED_PETS Send.");
-
     WorldPacket data(SMSG_PET_STABLE_LIST, 200);           // guess size
 
     data << guid;
@@ -527,7 +567,6 @@ void WorldSession::SendPetStableResult(uint8 res)
 
 void WorldSession::HandleStablePet(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_STABLE_PET");
     ObjectGuid npcGUID;
 
     recvData >> npcGUID;
@@ -601,7 +640,6 @@ void WorldSession::HandleStablePetCallback(PreparedQueryResult result)
 
 void WorldSession::HandleUnstablePet(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_UNSTABLE_PET.");
     ObjectGuid npcGUID;
     uint32 petnumber;
 
@@ -682,7 +720,6 @@ void WorldSession::HandleUnstablePetCallback(PreparedQueryResult result, uint32 
 
 void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_BUY_STABLE_SLOT.");
     ObjectGuid npcGUID;
 
     recvData >> npcGUID;
@@ -720,7 +757,6 @@ void WorldSession::HandleStableRevivePet(WorldPacket &/* recvData */)
 
 void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_STABLE_SWAP_PET.");
     ObjectGuid npcGUID;
     uint32 petId;
 

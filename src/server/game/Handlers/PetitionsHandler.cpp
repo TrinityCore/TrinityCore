@@ -35,8 +35,6 @@
 
 void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet)
 {
-    TC_LOG_DEBUG("network", "Received CMSG_PETITION_BUY");
-
     TC_LOG_DEBUG("network", "Petitioner %s tried sell petition: title %s", packet.Unit.ToString().c_str(), packet.Title.c_str());
 
     // prevent cheating
@@ -140,8 +138,6 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
 
 void WorldSession::HandlePetitionShowSignatures(WorldPackets::Petition::PetitionShowSignatures& packet)
 {
-    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
-
     uint8 signs = 0;
 
     // if has guild => error, return;
@@ -238,9 +234,6 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionGUID)
 
 void WorldSession::HandlePetitionRenameGuild(WorldPackets::Petition::PetitionRenameGuild& packet)
 {
-    TC_LOG_DEBUG("network", "Received CMSG_PETITION_RENAME_GUILD");
-    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_RENAME_GUILD");
-
     Item* item = _player->GetItemByGuid(packet.PetitionGuid);
     if (!item)
         return;
@@ -274,8 +267,6 @@ void WorldSession::HandlePetitionRenameGuild(WorldPackets::Petition::PetitionRen
 
 void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition& packet)
 {
-    TC_LOG_DEBUG("network", "Received CMSG_SIGN_PETITION");
-
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURES);
 
     stmt->setUInt64(0, packet.PetitionGUID.GetCounter());
@@ -368,8 +359,6 @@ void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition& pack
 
 void WorldSession::HandleDeclinePetition(WorldPackets::Petition::DeclinePetition& packet)
 {
-    TC_LOG_DEBUG("network", "Received CMSG_DECLINE_PETITION");
-
     TC_LOG_DEBUG("network", "Petition %s declined by %s", packet.PetitionGUID.ToString().c_str(), _player->GetGUID().ToString().c_str());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_OWNER_BY_GUID);
@@ -396,8 +385,6 @@ void WorldSession::HandleDeclinePetition(WorldPackets::Petition::DeclinePetition
 
 void WorldSession::HandleOfferPetition(WorldPackets::Petition::OfferPetition& packet)
 {
-    TC_LOG_DEBUG("network", "Received opcode CMSG_OFFER_PETITION");
-
     Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetPlayer);
     if (!player)
         return;
@@ -458,8 +445,6 @@ void WorldSession::HandleOfferPetition(WorldPackets::Petition::OfferPetition& pa
 
 void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& packet)
 {
-    TC_LOG_DEBUG("network", "Received CMSG_TURN_IN_PETITION");
-
     // Check if player really has the required petition charter
     Item* item = _player->GetItemByGuid(packet.Item);
     if (!item)
@@ -582,8 +567,6 @@ void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& 
 
 void WorldSession::HandlePetitionShowList(WorldPackets::Petition::PetitionShowList& packet)
 {
-    TC_LOG_DEBUG("network", "Received CMSG_PETITION_SHOW_LIST");
-
     SendPetitionShowList(packet.PetitionUnit);
 }
 

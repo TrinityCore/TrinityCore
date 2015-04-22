@@ -63,8 +63,6 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
 
 void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_GROUP_INVITE");
-
     ObjectGuid crossRealmGuid; // unused
 
     recvData.read_skip<uint32>(); // Non-zero in cross realm invites
@@ -326,8 +324,6 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_GROUP_INVITE_RESPONSE");
-
     recvData.ReadBit(); // unk always 0
     bool accept = recvData.ReadBit();
 
@@ -403,8 +399,6 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PARTY_UNINVITE");
-
     ObjectGuid guid;
     std::string reason;
     recvData >> guid;
@@ -446,8 +440,6 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_ROLE");
-
     ObjectGuid guid;
     recvData >> guid;
 
@@ -467,8 +459,6 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_GROUP_SET_ROLES");
-
     uint32 newRole;
     ObjectGuid guid1;                   // Assigner GUID
     ObjectGuid guid2;                   // Target GUID
@@ -545,8 +535,6 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGroupDisbandOpcode(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_LEAVE_GROUP");
-
     Group* grp = GetPlayer()->GetGroup();
     if (!grp)
         return;
@@ -568,8 +556,6 @@ void WorldSession::HandleGroupDisbandOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleLootMethodOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_LOOT_METHOD");
-
     uint32 lootMethod;
     ObjectGuid lootMaster;
     uint32 lootThreshold;
@@ -645,8 +631,6 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_RANDOM_ROLL");
-
     uint32 minimum, maximum, roll;
     minimum = packet.Min;
     maximum = packet.Max;
@@ -712,8 +696,6 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_CONVERT_RAID");
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -750,8 +732,6 @@ void WorldSession::HandleGroupRequestJoinUpdates(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_CHANGE_SUB_GROUP");
-
     // we will get correct pointer for group here, so we don't have to check if group is BG raid
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -788,7 +768,6 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SWAP_SUB_GROUPS");
     std::string unk1;
     std::string unk2;
 
@@ -798,8 +777,6 @@ void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_ASSISTANT_LEADER");
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -851,8 +828,6 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_DO_READY_CHECK");
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -1125,7 +1100,6 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
 /*this procedure handles clients CMSG_REQUEST_PARTY_MEMBER_STATS request*/
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_REQUEST_PARTY_MEMBER_STATS");
     ObjectGuid Guid;
     recvData >> Guid;
 
@@ -1310,8 +1284,6 @@ void WorldSession::HandleRequestRaidInfoOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_OPT_OUT_OF_LOOT");
-
     bool passOnLoot;
     recvData >> passOnLoot; // 1 always pass, 0 do not pass
 
@@ -1328,8 +1300,6 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRolePollBeginOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ROLE_POLL_BEGIN");
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;

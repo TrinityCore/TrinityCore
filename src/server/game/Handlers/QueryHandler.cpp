@@ -152,8 +152,6 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 
 void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT");
-
     Corpse* corpse = GetPlayer()->GetCorpse();
 
     if (!corpse)
@@ -230,8 +228,6 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_PAGE_TEXT");
-
     uint32 pageID = packet.PageTextID;
 
     while (pageID)
@@ -269,8 +265,6 @@ void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packe
 
 void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_QUERY_CORPSE_TRANSPORT");
-
     Corpse* corpse = _player->GetCorpse();
 
     WorldPackets::Query::CorpseTransportQuery response;

@@ -911,14 +911,11 @@ bool WorldSession::IsAddonRegistered(const std::string& prefix) const
 
 void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/) // empty packet
 {
-
     _registeredAddonPrefixes.clear();
 }
 
 void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ADDON_REGISTERED_PREFIXES");
-
     // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
 
     uint32 count = recvPacket.ReadBits(25);

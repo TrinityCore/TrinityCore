@@ -608,7 +608,7 @@ struct CharcterTemplateClass
 struct CharacterTemplate
 {
     uint32 TemplateSetId;
-    std::list<CharcterTemplateClass> Classes;
+    std::vector<CharcterTemplateClass> Classes;
     std::string Name;
     std::string Description;
     uint8 Level;

@@ -59,12 +59,11 @@ enum GMTicketOpenedByGMStatus
 // GMTICKET_ASSIGNEDTOGM_STATUS_ASSIGNED = 1;        -- ticket is assigned to a normal gm
 // GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED = 2;        -- ticket is in the escalation queue
 // 3 is a custom value and should never actually be sent
-enum GMTicketEscalationStatus
+enum GMTicketAssignedToGMStatus
 {
-    TICKET_UNASSIGNED           = 0,
-    TICKET_ASSIGNED             = 1,
-    TICKET_IN_ESCALATION_QUEUE  = 2,
-    TICKET_ESCALATED_ASSIGNED   = 3
+    GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED = 0,
+    GMTICKET_ASSIGNEDTOGM_STATUS_ASSIGNED = 1,
+    GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED = 2
 };
 
 enum GMSupportComplaintType
@@ -146,31 +145,32 @@ public:
     ~GmTicket();
 
     bool IsCompleted() const { return _completed; }
-    bool IsViewed() const { return _viewed; }
+    GMTicketOpenedByGMStatus GetOpenedByGmStatus() const { return _openedByGmStatus; }
 
     bool GetNeedMoreHelp() const { return _needMoreHelp; }
     std::string const& GetDescription() const { return _description; }
     uint64 GetLastModifiedTime() const { return _lastModifiedTime; }
-    GMTicketEscalationStatus GetEscalatedStatus() const { return _escalatedStatus; }
+    uint8 GetCategory() const { return _category; }
+    GMTicketAssignedToGMStatus GetAssigendToStatus() const { return _assignedToStatus; }
     std::string const& GetResponse() const { return _response; }
 
     void SetAssignedTo(ObjectGuid guid, bool isAdmin = false) override
     {
         _assignedTo = guid;
-        if (isAdmin && _escalatedStatus == TICKET_IN_ESCALATION_QUEUE)
-            _escalatedStatus = TICKET_ESCALATED_ASSIGNED;
-        else if (_escalatedStatus == TICKET_UNASSIGNED)
-            _escalatedStatus = TICKET_ASSIGNED;
+        if (isAdmin)
+            _assignedToStatus = GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED;
+        else if (_assignedToStatus == GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED)
+            _assignedToStatus = GMTICKET_ASSIGNEDTOGM_STATUS_ASSIGNED;
     }
-    void SetEscalatedStatus(GMTicketEscalationStatus escalatedStatus) { _escalatedStatus = escalatedStatus; }
+    void SetAssignedToStatus(GMTicketAssignedToGMStatus assignedToStatus) { _assignedToStatus = assignedToStatus; }
     void SetCompleted() { _completed = true; }
     void SetDescription(std::string const& description)
     {
         _description = description;
         _lastModifiedTime = uint64(time(NULL));
     }
-    void SetViewed() { _viewed = true; }
-    void SetGmAction(uint32 needResponse, bool needMoreHelp);
+    void SetViewed() { _openedByGmStatus = GMTICKET_OPENEDBYGM_STATUS_OPENED; }
+    void SetGmAction(bool needResponse, bool needMoreHelp);
     void SetUnassigned() override;
 
     void AppendResponse(std::string const& response) { _response += response; }
@@ -191,9 +191,10 @@ private:
     std::string _description;
     uint64 _lastModifiedTime;
     bool _completed;
-    GMTicketEscalationStatus _escalatedStatus;
-    bool _viewed;
-    bool _needResponse; /// @todo find out the use of this, and then store it in DB
+    uint8 _category;
+    GMTicketAssignedToGMStatus _assignedToStatus;
+    GMTicketOpenedByGMStatus _openedByGmStatus;
+    bool _needResponse; ///< true if we want a GM to contact us when we open a new ticket (Note:  This flag is always true right now)
     bool _needMoreHelp;
     std::string _response;
     std::string _chatLog; // No need to store in db, will be refreshed every session client side
