@@ -635,6 +635,57 @@ namespace WorldPackets
 
             uint32 Index = 0;
         };
+
+        class SetFactionAtWar final : public ClientPacket
+        {
+        public:
+            SetFactionAtWar(WorldPacket&& packet) : ClientPacket(CMSG_SET_FACTION_AT_WAR, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 FactionIndex = 0;
+        };
+
+        class SetFactionNotAtWar final : public ClientPacket
+        {
+        public:
+            SetFactionNotAtWar(WorldPacket&& packet) : ClientPacket(CMSG_SET_FACTION_NOT_AT_WAR, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 FactionIndex = 0;
+        };
+
+        class SetFactionInactive final : public ClientPacket
+        {
+        public:
+            SetFactionInactive(WorldPacket&& packet) : ClientPacket(CMSG_SET_FACTION_INACTIVE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Index = 0;
+            bool State = false;
+        };
+
+        class SetWatchedFaction final : public ClientPacket
+        {
+        public:
+            SetWatchedFaction(WorldPacket&& packet) : ClientPacket(CMSG_SET_WATCHED_FACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 FactionIndex = 0;
+        };
+
+        class SetFactionVisible : public ServerPacket
+        {
+        public:
+            SetFactionVisible(bool visible) : ServerPacket(visible ? SMSG_SET_FACTION_VISIBLE : SMSG_SET_FACTION_NOT_VISIBLE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 FactionIndex = 0;
+        };
     }
 }
 
