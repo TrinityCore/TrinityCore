@@ -723,9 +723,9 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_SET_DIFFICULTY_ID,                                  STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_SET_DUNGEON_DIFFICULTY,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::SetDungeonDifficulty, &WorldSession::HandleSetDungeonDifficultyOpcode);
     DEFINE_HANDLER(CMSG_SET_EVERYONE_IS_ASSISTANT,                          STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_FACTION_AT_WAR,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionAtWar           );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_FACTION_INACTIVE,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionInactiveOpcode  );
-    DEFINE_HANDLER(CMSG_SET_FACTION_NOT_AT_WAR,                             STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_SET_FACTION_AT_WAR,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::SetFactionAtWar, &WorldSession::HandleSetFactionAtWar);
+    DEFINE_HANDLER(CMSG_SET_FACTION_INACTIVE,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::SetFactionInactive, &WorldSession::HandleSetFactionInactiveOpcode);
+    DEFINE_HANDLER(CMSG_SET_FACTION_NOT_AT_WAR,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::SetFactionNotAtWar, &WorldSession::HandleSetFactionNotAtWar);
     DEFINE_HANDLER(CMSG_SET_INSERT_ITEMS_LEFT_TO_RIGHT,                     STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_SET_LFG_BONUS_FACTION_ID,                           STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_LOOT_METHOD,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLootMethodOpcode          );
@@ -749,7 +749,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_SET_TRADE_GOLD,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Trade::SetTradeGold, &WorldSession::HandleSetTradeGoldOpcode);
     DEFINE_HANDLER(CMSG_SET_TRADE_ITEM,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Trade::SetTradeItem, &WorldSession::HandleSetTradeItemOpcode);
     DEFINE_HANDLER(CMSG_SET_USING_PARTY_GARRISON,                           STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_WATCHED_FACTION,                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetWatchedFactionOpcode   );
+    DEFINE_HANDLER(CMSG_SET_WATCHED_FACTION,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::SetWatchedFaction, &WorldSession::HandleSetWatchedFactionOpcode);
     DEFINE_HANDLER(CMSG_SHOWING_CLOAK,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::ShowingCloak, &WorldSession::HandleShowingCloakOpcode);
     DEFINE_HANDLER(CMSG_SHOWING_HELM,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::ShowingHelm, &WorldSession::HandleShowingHelmOpcode);
     DEFINE_HANDLER(CMSG_SHOW_TRADE_SKILL,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
@@ -1609,9 +1609,9 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_DF_FAST_LAUNCH_RESULT,               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_DUNGEON_DIFFICULTY,                  STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_FACTION_AT_WAR,                      STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_FACTION_NOT_VISIBLE,                 STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_FACTION_NOT_VISIBLE,                 STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_FACTION_STANDING,                    STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_FACTION_VISIBLE,                     STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_FACTION_VISIBLE,                     STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_FLAT_SPELL_MODIFIER,                 STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_FORCED_REACTIONS,                    STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_ITEM_PURCHASE_DATA,                  STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);

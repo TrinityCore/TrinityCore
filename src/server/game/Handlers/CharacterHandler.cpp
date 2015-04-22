@@ -1156,15 +1156,14 @@ void WorldSession::SendFeatureSystemStatus()
     SendPacket(features.Write());
 }
 
-void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
+void WorldSession::HandleSetFactionAtWar(WorldPackets::Character::SetFactionAtWar& packet)
 {
-    uint32 repListID;
-    uint8  flag;
+    GetPlayer()->GetReputationMgr().SetAtWar(packet.FactionIndex, true);
+}
 
-    recvData >> repListID;
-    recvData >> flag;
-
-    GetPlayer()->GetReputationMgr().SetAtWar(repListID, flag != 0);
+void WorldSession::HandleSetFactionNotAtWar(WorldPackets::Character::SetFactionNotAtWar& packet)
+{
+    GetPlayer()->GetReputationMgr().SetAtWar(packet.FactionIndex, false);
 }
 
 //I think this function is never used :/ I dunno, but i guess this opcode not exists
@@ -1205,20 +1204,14 @@ void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packe
     }
 }
 
-void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet)
 {
-    uint32 fact;
-    recvData >> fact;
-    GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fact);
+    GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, packet.FactionIndex);
 }
 
-void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet)
 {
-    uint32 replistid;
-    uint8 inactive;
-    recvData >> replistid >> inactive;
-
-    _player->GetReputationMgr().SetInactive(replistid, inactive != 0);
+    _player->GetReputationMgr().SetInactive(packet.Index, packet.State);
 }
 
 void WorldSession::HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& /*requestForcedReactions*/)
