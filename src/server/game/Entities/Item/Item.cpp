@@ -1837,11 +1837,14 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
         {
             uint32 statIndex = 0;
             for (statIndex = 0; statIndex < MAX_ITEM_PROTO_STATS; ++statIndex)
-                if (ItemStatType[statIndex] == values[0])
+                if (ItemStatType[statIndex] == values[0] || ItemStatType[statIndex] == -1)
                     break;
 
             if (statIndex < MAX_ITEM_PROTO_STATS)
+            {
+                ItemStatType[statIndex] = values[0];
                 ItemStatAllocation[statIndex] += values[1];
+            }
             break;
         }
         case ITEM_BONUS_QUALITY:
