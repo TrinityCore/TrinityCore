@@ -777,8 +777,8 @@ class instance_ulduar : public InstanceMapScript
                                 if (Player* player = itr->GetSource())
                                     for (uint8 slot = EQUIPMENT_SLOT_MAINHAND; slot <= EQUIPMENT_SLOT_RANGED; ++slot)
                                         if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                                            if (item->GetItemLevel() > _maxWeaponItemLevel)
-                                                _maxWeaponItemLevel = item->GetItemLevel();
+                                            if (item->GetItemLevel(player) > _maxWeaponItemLevel)
+                                                _maxWeaponItemLevel = item->GetItemLevel(player);
                         }
                         else if (state == IN_PROGRESS)
                         {
@@ -797,11 +797,11 @@ class instance_ulduar : public InstanceMapScript
                                         {
                                             if (slot >= EQUIPMENT_SLOT_MAINHAND && slot <= EQUIPMENT_SLOT_RANGED)
                                             {
-                                                if (item->GetItemLevel() > _maxWeaponItemLevel)
-                                                    _maxWeaponItemLevel = item->GetItemLevel();
+                                                if (item->GetItemLevel(player) > _maxWeaponItemLevel)
+                                                    _maxWeaponItemLevel = item->GetItemLevel(player);
                                             }
-                                            else if (item->GetItemLevel() > _maxArmorItemLevel)
-                                                _maxArmorItemLevel = item->GetItemLevel();
+                                            else if (item->GetItemLevel(player) > _maxArmorItemLevel)
+                                                _maxArmorItemLevel = item->GetItemLevel(player);
                                         }
                                     }
                                 }
