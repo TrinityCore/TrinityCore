@@ -696,3 +696,8 @@ WorldPacket const* WorldPackets::Spells::ResurrectRequest::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Spells::UnlearnSkill::Read()
+{
+    _worldPacket >> SkillLine;
+}
