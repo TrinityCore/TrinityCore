@@ -429,6 +429,8 @@ namespace WorldPackets
         class UseItem;
         class OpenItem;
         class SetActionButton;
+        class UnlearnSkill;
+        class SelfRes;
     }
 
     namespace Talent
@@ -1210,7 +1212,7 @@ class WorldSession
 
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
         void HandleConfirmRespecWipeOpcode(WorldPacket& recvPacket);
-        void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
+        void HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet);
         void HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet);
@@ -1362,7 +1364,7 @@ class WorldSession
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(uint8 err);
 
-        void HandleSelfResOpcode(WorldPacket& recvData);
+        void HandleSelfResOpcode(WorldPackets::Spells::SelfRes& packet);
         void HandleComplainOpcode(WorldPacket& recvData);
         void HandleRequestPetInfoOpcode(WorldPacket& recvData);
 

@@ -676,6 +676,24 @@ namespace WorldPackets
             bool Sickness                               = false;
             std::string Name;
         };
+
+        class UnlearnSkill final : public ClientPacket
+        {
+        public:
+            UnlearnSkill(WorldPacket&& packet) : ClientPacket(CMSG_UNLEARN_SKILL, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SkillLine = 0;
+        };
+
+        class SelfRes final : public ClientPacket
+        {
+        public:
+            SelfRes(WorldPacket&& packet) : ClientPacket(CMSG_SELF_RES, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 
