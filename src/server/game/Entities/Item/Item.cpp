@@ -1735,28 +1735,28 @@ void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
     ItemContainerDeleteLootItemsFromDB();
 }
 
-uint32 Item::GetItemLevel() const
+uint32 Item::GetItemLevel(Player const* owner) const
 {
     ItemTemplate const* stats = GetTemplate();
     if (!stats)
         return MIN_ITEM_LEVEL;
 
     uint32 itemLevel = stats->GetBaseItemLevel();
-    if (Player const* owner = GetOwner())
-        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(stats->GetScalingStatDistribution()))
-            if (uint32 heirloomIlvl = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
-                itemLevel = heirloomIlvl;
+    if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(stats->GetScalingStatDistribution()))
+        if (uint32 heirloomIlvl = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
+            itemLevel = heirloomIlvl;
 
     return std::min(std::max(itemLevel + _bonusData.ItemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }
 
-int32 Item::GetItemStatValue(uint32 index) const
+int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
 {
     ASSERT(index < MAX_ITEM_PROTO_STATS);
-    if (uint32 randomPropPoints = GetRandomPropertyPoints(GetItemLevel(), GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass()))
+    uint32 itemLevel = GetItemLevel(owner);
+    if (uint32 randomPropPoints = GetRandomPropertyPoints(itemLevel, GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass()))
     {
         float statValue = float(_bonusData.ItemStatAllocation[index] * randomPropPoints) * 0.0001f;
-        if (GtItemSocketCostPerLevelEntry const* gtCost = sGtItemSocketCostPerLevelStore.EvaluateTable(GetItemLevel() - 1, 0))
+        if (GtItemSocketCostPerLevelEntry const* gtCost = sGtItemSocketCostPerLevelStore.EvaluateTable(itemLevel - 1, 0))
             statValue -= float(int32(_bonusData.ItemStatSocketCostMultiplier[index] * gtCost->ratio));
 
         return int32(std::floor(statValue + 0.5f));

@@ -464,3 +464,30 @@ WorldPacket const* WorldPackets::Character::TitleEarned::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Character::SetFactionAtWar::Read()
+{
+    _worldPacket >> FactionIndex;
+}
+
+void WorldPackets::Character::SetFactionNotAtWar::Read()
+{
+    _worldPacket >> FactionIndex;
+}
+
+void WorldPackets::Character::SetFactionInactive::Read()
+{
+    _worldPacket >> Index;
+    State = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Character::SetWatchedFaction::Read()
+{
+    _worldPacket >> FactionIndex;
+}
+
+WorldPacket const* WorldPackets::Character::SetFactionVisible::Write()
+{
+    _worldPacket << FactionIndex;
+    return &_worldPacket;
+}

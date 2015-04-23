@@ -152,6 +152,10 @@ namespace WorldPackets
         class ShowingCloak;
         class ShowingHelm;
         class SetTitle;
+        class SetFactionAtWar;
+        class SetFactionNotAtWar;
+        class SetFactionInactive;
+        class SetWatchedFaction;
 
         enum class LoginFailureReason : uint8;
     }
@@ -991,10 +995,11 @@ class WorldSession
 
         void HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet);
 
-        void HandleSetFactionAtWar(WorldPacket& recvData);
+        void HandleSetFactionAtWar(WorldPackets::Character::SetFactionAtWar& packet);
+        void HandleSetFactionNotAtWar(WorldPackets::Character::SetFactionNotAtWar& packet);
         void HandleSetFactionCheat(WorldPacket& recvData);
-        void HandleSetWatchedFactionOpcode(WorldPacket& recvData);
-        void HandleSetFactionInactiveOpcode(WorldPacket& recvData);
+        void HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet);
+        void HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet);
         void HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& requestForcedReactions);
 
         void HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet);
