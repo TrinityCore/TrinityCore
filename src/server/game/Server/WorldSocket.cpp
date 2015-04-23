@@ -81,8 +81,8 @@ void WorldSocket::Start()
     initializer.Write(&header, sizeof(header.Setup.Size));
     initializer.Write(ServerConnectionInitialize.c_str(), ServerConnectionInitialize.length());
 
-    std::unique_lock<std::mutex> dummy(_writeLock, std::defer_lock);
-    QueuePacket(std::move(initializer), dummy);
+    std::unique_lock<std::mutex> guard(_writeLock);
+    QueuePacket(std::move(initializer), guard);
 }
 
 void WorldSocket::HandleSendAuthSession()
