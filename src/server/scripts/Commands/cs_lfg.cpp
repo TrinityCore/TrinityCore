@@ -19,6 +19,7 @@
 #include "Chat.h"
 #include "Language.h"
 #include "LFGMgr.h"
+#include "ObjectMgr.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Player.h"
