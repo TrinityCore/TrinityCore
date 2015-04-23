@@ -6583,7 +6583,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                 {
                     if (got.moTransport.taxiPathID >= sTaxiPathNodesByPath.size() || sTaxiPathNodesByPath[got.moTransport.taxiPathID].empty())
                         TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u GoType: %u) have data0=%u but TaxiPath (Id: %u) not exist.",
-                        entry, got.type, got.moTransport.taxiPathID, got.moTransport.taxiPathID);
+                            entry, got.type, got.moTransport.taxiPathID, got.moTransport.taxiPathID);
                 }
                 if (uint32 transportMap = got.moTransport.mapID)
                     _transportMaps.insert(transportMap);
@@ -9175,7 +9175,7 @@ void ObjectMgr::LoadCharacterTemplates()
                 uint8 factionGroup = fields[0].GetUInt8();
                 uint8 classID = fields[1].GetUInt8();
 
-                if (!((factionGroup & (FACTION_MASK_PLAYER | FACTION_MASK_ALLIANCE)) == (FACTION_MASK_PLAYER | FACTION_MASK_ALLIANCE)) && 
+                if (!((factionGroup & (FACTION_MASK_PLAYER | FACTION_MASK_ALLIANCE)) == (FACTION_MASK_PLAYER | FACTION_MASK_ALLIANCE)) &&
                     !((factionGroup & (FACTION_MASK_PLAYER | FACTION_MASK_HORDE)) == (FACTION_MASK_PLAYER | FACTION_MASK_HORDE)))
                 {
                     TC_LOG_ERROR("sql.sql", "Faction group %u defined for character template %u in `character_template_class` is invalid. Skipped.", factionGroup, templateSetId);
