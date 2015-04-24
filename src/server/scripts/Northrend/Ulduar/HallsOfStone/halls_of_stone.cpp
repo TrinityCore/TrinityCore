@@ -423,7 +423,7 @@ public:
 
         void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/) override
         {
-            if (brannSparklinNews)
+            if (instance->GetBossState(DATA_BRANN_EVENT) == IN_PROGRESS)
                 brannSparklinNews = false;
         }
 
@@ -715,9 +715,7 @@ public:
 class achievement_brann_spankin_new : public AchievementCriteriaScript
 {
     public:
-        achievement_brann_spankin_new() : AchievementCriteriaScript("achievement_brann_spankin_new")
-        {
-        }
+        achievement_brann_spankin_new() : AchievementCriteriaScript("achievement_brann_spankin_new") { }
 
         bool OnCheck(Player* /*player*/, Unit* target) override
         {
