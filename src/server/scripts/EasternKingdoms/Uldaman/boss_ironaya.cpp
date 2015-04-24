@@ -66,10 +66,7 @@ class boss_ironaya : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
-            {
-                Talk(SAY_AGGRO);
-            }
+            void EnterCombat(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 uiDiff) override
             {
