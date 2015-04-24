@@ -330,7 +330,7 @@ public:
 
                 DespawnDwarf();
 
-                instance->SetBossState(DATA_BRANN_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_TRIBUNAL_OF_AGES, NOT_STARTED);
             }
         }
 
@@ -362,8 +362,10 @@ public:
                     break;
                 case 13:
                     Talk(SAY_EVENT_INTRO_1);
+                    instance->SetBossState(DATA_TRIBUNAL_OF_AGES, IN_PROGRESS);
                     SetEscortPaused(true);
                     JumpToNextStep(20000);
+                    // @todo: There should be a pause here and a gossip should start the next step.
                     break;
                 case 17:
                     Talk(SAY_EVENT_INTRO_2);
@@ -421,9 +423,9 @@ public:
             Start();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/) override
+        void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/) override
         {
-            if (instance->GetBossState(DATA_BRANN_EVENT) == IN_PROGRESS)
+            if (instance->GetBossState(DATA_TRIBUNAL_OF_AGES) == IN_PROGRESS)
                 brannSparklinNews = false;
         }
 
@@ -442,9 +444,8 @@ public:
                 switch (uiStep)
                 {
                     case 1:
-                        if (instance->GetBossState(DATA_BRANN_EVENT) != NOT_STARTED)
+                        if (instance->GetBossState(DATA_TRIBUNAL_OF_AGES) != NOT_STARTED)
                             return;
-                        instance->SetBossState(DATA_BRANN_EVENT, IN_PROGRESS);
                         bIsBattle = false;
                         Talk(SAY_ESCORT_START);
                         SetRun(true);
@@ -582,7 +583,7 @@ public:
                         break;
                     case 29:
                         Talk(SAY_EVENT_END_02);
-                        instance->SetBossState(DATA_BRANN_EVENT, DONE);
+                        instance->SetBossState(DATA_TRIBUNAL_OF_AGES, DONE);
                         me->CastSpell(me, SPELL_REWARD_ACHIEVEMENT, true);
                         JumpToNextStep(5500);
                         break;
