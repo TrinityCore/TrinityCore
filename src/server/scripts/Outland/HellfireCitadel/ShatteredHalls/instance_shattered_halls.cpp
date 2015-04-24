@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Player.h"
 #include "shattered_halls.h"
 
 enum Spells
