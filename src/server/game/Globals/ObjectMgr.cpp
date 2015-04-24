@@ -5813,7 +5813,7 @@ void ObjectMgr::LoadGraveyardZones()
             continue;
         }
 
-        if (areaEntry->ParentAreaID != 0)
+        if (areaEntry->ParentAreaID != 0 || areaEntry->ParentAreaID !=6170)
         {
             TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for SubZone (ID: %u) instead of zone, skipped.", zoneId);
             continue;

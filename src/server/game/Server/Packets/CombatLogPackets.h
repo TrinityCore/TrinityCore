@@ -108,6 +108,23 @@ namespace WorldPackets
             Optional<float> CritRollNeeded;
             Optional<Spells::SpellCastLogData> LogData; /// @todo: find the correct way where to use it, in sniff always false
         };
+
+        class SpellEnergizeLog final : public ServerPacket
+        {
+        public:
+
+            SpellEnergizeLog() : ServerPacket(SMSG_SPELL_ENERGIZE_LOG, 16 + 16 + 3 * 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterGUID;
+            ObjectGuid TargetGUID;
+            int32 SpellID     = 0;
+            int32 PowerTypeID = 0;
+            int32 Amount      = 0;
+            Optional<Spells::SpellCastLogData> LogData; /// @todo: find the correct way where to use it, in sniff always false
+            
+        };
     }
 }
 
