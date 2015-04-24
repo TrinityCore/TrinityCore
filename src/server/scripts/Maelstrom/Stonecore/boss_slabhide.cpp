@@ -116,6 +116,7 @@ class boss_slabhide : public CreatureScript
                 me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetReactState(REACT_PASSIVE);
                 instance->SetData(DATA_SLABHIDE_INTRO, NOT_STARTED);
+                _isFlying = false;
             }
 
             void Reset() override
@@ -130,6 +131,7 @@ class boss_slabhide : public CreatureScript
                 me->SetDisableGravity(false);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetReactState(REACT_AGGRESSIVE);
+                _isFlying = false;
             }
 
             void EnterCombat(Unit* /*victim*/) override
@@ -140,6 +142,12 @@ class boss_slabhide : public CreatureScript
                 events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
                 events.ScheduleEvent(EVENT_SAND_BLAST, urand(8000, 10000));
                 events.ScheduleEvent(EVENT_AIR_PHASE, 10000);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (_isFlying && damage >= me->GetHealth())
+                    damage = me->GetHealth() - 1; // Let creature health fall to 1 hp but prevent it from dying during air phase.
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -196,9 +204,11 @@ class boss_slabhide : public CreatureScript
                         events.ScheduleEvent(EVENT_TAKEOFF, 100);
                         break;
                     case POINT_SLABHIDE_IN_AIR:
+                        _isFlying = true;
                         events.ScheduleEvent(EVENT_STALACTITE, 400);
                         break;
                     case POINT_SLABHIDE_LAND:
+                        _isFlying = false;
                         //DoCast(me, SPELL_COOLDOWN_5S); // unknown purpose
                         events.ScheduleEvent(EVENT_ATTACK, 1200);
                         break;
@@ -297,7 +307,7 @@ class boss_slabhide : public CreatureScript
                         (*itr)->Delete();
             }
 
-            EventMap events;
+            bool _isFlying;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
