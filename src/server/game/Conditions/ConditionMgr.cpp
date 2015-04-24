@@ -100,7 +100,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Alive",               false, false, false },
     { "Health Value",         true, true,  false },
     { "Health Pct",           true, true, false  },
-    { "Realm Achievement",    true, false, false }
+    { "Realm Achievement",    true, false, false },
+    { "In Water",            false, false, false }
 };
 
 // Checks if object meets the condition
@@ -424,6 +425,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                 condMeets = true;
             break;
         }
+        case CONDITION_IN_WATER:
+        {
+            if (Unit* unit = object->ToUnit())
+                condMeets = unit->IsInWater();
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -590,6 +597,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             break;
         case CONDITION_REALM_ACHIEVEMENT:
             mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_IN_WATER:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2077,6 +2087,8 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
             break;
         }
+        case CONDITION_IN_WATER:
+            break;
         default:
             break;
     }
