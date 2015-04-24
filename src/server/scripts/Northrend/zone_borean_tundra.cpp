@@ -1706,7 +1706,7 @@ public:
                 break;
             }
             creature->SetStandState(UNIT_STAND_STATE_STAND);
-            creature->AI()->Talk(SAY_1);
+            creature->AI()->Talk(SAY_1, player);
             ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
         return true;
