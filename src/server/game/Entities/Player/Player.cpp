@@ -1985,13 +1985,13 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
 
     uint32 playerBytes = fields[5].GetUInt32();
     uint32 playerBytes2 = fields[6].GetUInt32();
-    
+
     uint16 atLoginFlags = fields[15].GetUInt16();
 
     if (!ValidateAppearance(uint8(plrRace), uint8(plrClass), gender, uint8(playerBytes >> 16), uint8(playerBytes >> 24), uint8(playerBytes >> 8), uint8(playerBytes2), uint8(playerBytes)))
     {
         TC_LOG_ERROR("entities.player.loading", "Player %u has wrong Appearance values (Hair/Skin/Color), forcing recustomize", guid);
-        
+
         if (!(atLoginFlags & AT_LOGIN_CUSTOMIZE))
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
@@ -25089,11 +25089,11 @@ uint32 Player::CalculateTalentsPoints() const
     return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
 }
 
-bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
+bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
     uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
-    return v_map != 571 || HasSpell(54197); // Cold Weather Flying
+    return v_map != 571 || HasSpell(54197); // 54197 = Cold Weather Flying
 }
 
 void Player::LearnSpellHighestRank(uint32 spellid)

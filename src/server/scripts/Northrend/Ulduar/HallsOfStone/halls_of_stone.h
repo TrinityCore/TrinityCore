@@ -28,7 +28,7 @@ enum DataTypes
     // Encounter States/Boss GUIDs
     DATA_KRYSTALLUS             = 0,
     DATA_MAIDEN_OF_GRIEF        = 1,
-    DATA_BRANN_EVENT            = 2,
+    DATA_TRIBUNAL_OF_AGES       = 2,
     DATA_SJONNIR                = 3,
 
     // Additional data
