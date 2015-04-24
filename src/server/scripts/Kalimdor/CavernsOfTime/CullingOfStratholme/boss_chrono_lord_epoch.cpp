@@ -32,8 +32,7 @@ enum Spells
     SPELL_CURSE_OF_EXERTION                     = 52772,
     SPELL_TIME_WARP                             = 52766, //Time slows down, reducing attack, casting and movement speed by 70% for 6 sec.
     SPELL_TIME_STOP                             = 58848, //Stops time in a 50 yard sphere for 2 sec.
-    SPELL_WOUNDING_STRIKE                       = 52771, //Used only on the tank
-    H_SPELL_WOUNDING_STRIKE                     = 58830
+    SPELL_WOUNDING_STRIKE                       = 52771  //Used only on the tank
 };
 
 enum Yells
@@ -45,109 +44,78 @@ enum Yells
     SAY_DEATH                                   = 4
 };
 
+enum Events
+{
+    EVENT_CURSE_OF_EXERTION                     = 1,
+    EVENT_TIME_WARP,
+    EVENT_TIME_STOP,
+    EVENT_WOUNDING_STRIKE
+};
+
 class boss_epoch : public CreatureScript
 {
-public:
-    boss_epoch() : CreatureScript("boss_epoch") { }
+    public:
+        boss_epoch() : CreatureScript("boss_epoch") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_epochAI>(creature);
-    }
-
-    struct boss_epochAI : public ScriptedAI
-    {
-        boss_epochAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_epochAI : public BossAI
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
+            boss_epochAI(Creature* creature) : BossAI(creature, DATA_EPOCH) { }
 
-        void Initialize()
-        {
-            uiStep = 1;
-            uiStepTimer = 26000;
-            uiCurseOfExertionTimer = 9300;
-            uiTimeWarpTimer = 25300;
-            uiTimeStopTimer = 21300;
-            uiWoundingStrikeTimer = 5300;
-        }
-
-        uint8 uiStep;
-
-        uint32 uiStepTimer;
-        uint32 uiWoundingStrikeTimer;
-        uint32 uiTimeWarpTimer;
-        uint32 uiTimeStopTimer;
-        uint32 uiCurseOfExertionTimer;
-
-        InstanceScript* instance;
-
-        void Reset() override
-        {
-            Initialize();
-
-            instance->SetBossState(DATA_EPOCH, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-
-            instance->SetBossState(DATA_EPOCH, IN_PROGRESS);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (uiCurseOfExertionTimer < diff)
+            void EnterCombat(Unit* /*who*/) override
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_CURSE_OF_EXERTION);
-                uiCurseOfExertionTimer = 9300;
-            } else uiCurseOfExertionTimer -= diff;
+                Talk(SAY_AGGRO);
+                _EnterCombat();
 
-            if (uiWoundingStrikeTimer < diff)
+                events.ScheduleEvent(EVENT_CURSE_OF_EXERTION, 9300);
+                events.ScheduleEvent(EVENT_TIME_WARP, 25300);
+                events.ScheduleEvent(EVENT_TIME_STOP, 21300);
+                events.ScheduleEvent(EVENT_WOUNDING_STRIKE, 5300);
+            }
+
+            void ExecuteEvent(uint32 eventId) override
             {
-                DoCastVictim(SPELL_WOUNDING_STRIKE);
-                uiWoundingStrikeTimer = 5300;
-            } else uiWoundingStrikeTimer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_CURSE_OF_EXERTION:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            DoCast(target, SPELL_CURSE_OF_EXERTION);
+                        events.ScheduleEvent(EVENT_CURSE_OF_EXERTION, 9300);
+                        break;
+                    case EVENT_TIME_WARP:
+                        Talk(SAY_TIME_WARP);
+                        DoCastAOE(SPELL_TIME_WARP);
+                        events.ScheduleEvent(EVENT_TIME_WARP, 25300);
+                        break;
+                    case EVENT_TIME_STOP:
+                        DoCastAOE(SPELL_TIME_STOP);
+                        events.ScheduleEvent(EVENT_TIME_STOP, 21300);
+                        break;
+                    case EVENT_WOUNDING_STRIKE:
+                        DoCastVictim(SPELL_WOUNDING_STRIKE);
+                        events.ScheduleEvent(EVENT_WOUNDING_STRIKE, 5300);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-            if (uiTimeStopTimer < diff)
+            void JustDied(Unit* /*killer*/) override
             {
-                DoCastAOE(SPELL_TIME_STOP);
-                uiTimeStopTimer = 21300;
-            } else uiTimeStopTimer -= diff;
+                Talk(SAY_DEATH);
+                _JustDied();
+            }
 
-            if (uiTimeWarpTimer < diff)
+            void KilledUnit(Unit* victim) override
             {
-                Talk(SAY_TIME_WARP);
-                DoCastAOE(SPELL_TIME_WARP);
-                uiTimeWarpTimer = 25300;
-            } else uiTimeWarpTimer -= diff;
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+        };
 
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* /*killer*/) override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            Talk(SAY_DEATH);
-
-            instance->SetBossState(DATA_EPOCH, DONE);
+            return GetInstanceAI<boss_epochAI>(creature);
         }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Talk(SAY_SLAY);
-        }
-    };
-
 };
 
 void AddSC_boss_epoch()

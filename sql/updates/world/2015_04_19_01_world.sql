@@ -1,0 +1,1 @@
+UPDATE `smart_scripts` SET `action_type`=85, `action_param1`=36569, `action_param2`=2, `comment`='Triggger - LOS -Cast Vision Guide: Quest Complete' WHERE  `entryorguid`=21321 AND `source_type`=0 AND `id`=0 AND `link`=1;
