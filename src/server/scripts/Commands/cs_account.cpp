@@ -667,7 +667,7 @@ public:
         if (isAccountNameGiven)
         {
             targetAccountName = arg1;
-            if (!AccountMgr::normalizeString(targetAccountName))
+            if (!AccountMgr::normalizeString(targetAccountName) || !AccountMgr::GetId(targetAccountName))
             {
                 handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, targetAccountName.c_str());
                 handler->SetSentErrorMessage(true);

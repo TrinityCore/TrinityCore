@@ -89,7 +89,7 @@ class boss_volkhan : public CreatureScript
 {
 public:
     boss_volkhan() : CreatureScript("boss_volkhan") { }
-   
+
     struct boss_volkhanAI : public BossAI
     {
         boss_volkhanAI(Creature* creature) : BossAI(creature, DATA_VOLKHAN)
@@ -104,7 +104,7 @@ public:
             m_bCanShatterGolem = false;
             m_uiDelay_Timer    = 1000;
             m_uiSummonPhase    = 0;
-            GolemsShattered    = 0;            
+            GolemsShattered    = 0;
 
             m_uiHealthAmountModifier = 1;
         }
