@@ -18,7 +18,7 @@
 
 /* ScriptData
 SDName: instance_uldaman
-SD%Complete: 99
+SD%Complete: 80%
 SDComment: Need some cosmetics updates when archeadas door are closing (Guardians Waypoints).
 SDCategory: Uldaman
 EndScriptData */
@@ -31,11 +31,22 @@ enum Spells
 {
     SPELL_ARCHAEDAS_AWAKEN      = 10347,
     SPELL_AWAKEN_VAULT_WALKER   = 10258,
+    SPELL_FREEZE_ANIM           = 16245,
+    SPELL_MINION_FREEZE_ANIM    = 10255
 };
 
 enum Events
 {
     EVENT_SUB_BOSS_AGGRO        = 2228
+};
+
+const float IronayaPoint[4] = { -231.228f, 246.6135f, -49.01617f, 0.0f };
+
+enum StoneKeepers
+{
+    GUID_STONEKEEPER_1 = 27554,
+    GUID_STONEKEEPER_2 = 27794,
+    GUID_STONEKEEPER_3 = 28368
 };
 
 class instance_uldaman : public InstanceMapScript
@@ -136,9 +147,9 @@ class instance_uldaman : public InstanceMapScript
             {
                 creature->setFaction(35);
                 creature->RemoveAllAuras();
-                //creature->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_ANIMATION_FROZEN);
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                creature->AddAura(SPELL_MINION_FREEZE_ANIM, creature);
             }
 
             void SetDoor(ObjectGuid guid, bool open)
@@ -171,6 +182,8 @@ class instance_uldaman : public InstanceMapScript
                         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                         target->setFaction(14);
                         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
+
                         return;        // only want the first one we find
                     }
                     // if we get this far than all four are dead so open the door
@@ -190,11 +203,13 @@ class instance_uldaman : public InstanceMapScript
                     Creature* target = instance->GetCreature(*i);
                     if (!target || !target->IsAlive() || target->getFaction() == 14)
                         continue;
-                    archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
-                    target->CastSpell(target, SPELL_ARCHAEDAS_AWAKEN, true);
                     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     target->setFaction(14);
+                    target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
+                    archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
+                    target->CastSpell(target, SPELL_ARCHAEDAS_AWAKEN, true);
+
                     return;        // only want the first one we find
                 }
             }
@@ -241,6 +256,7 @@ class instance_uldaman : public InstanceMapScript
 
                 if (ObjectAccessor::GetUnit(*archaedas, target))
                 {
+                    archaedas->RemoveAura(SPELL_FREEZE_ANIM);
                     archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN, false);
                     whoWokeuiArchaedasGUID = target;
                 }
@@ -255,6 +271,12 @@ class instance_uldaman : public InstanceMapScript
                 ironaya->setFaction(415);
                 ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+                ironaya->GetMotionMaster()->Clear();
+                ironaya->GetMotionMaster()->MovePoint(0, IronayaPoint[0], IronayaPoint[1], IronayaPoint[2]);
+                ironaya->SetHomePosition(IronayaPoint[0], IronayaPoint[1], IronayaPoint[2], IronayaPoint[3]);
+
+                ironaya->AI()->Talk(SAY_AGGRO);
             }
 
             void RespawnMinions()
