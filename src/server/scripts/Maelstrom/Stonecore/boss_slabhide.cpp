@@ -116,6 +116,7 @@ class boss_slabhide : public CreatureScript
                 me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetReactState(REACT_PASSIVE);
                 instance->SetData(DATA_SLABHIDE_INTRO, NOT_STARTED);
+                _isFlying = false;
             }
 
             void Reset()
@@ -130,6 +131,13 @@ class boss_slabhide : public CreatureScript
                 me->SetDisableGravity(false);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetReactState(REACT_AGGRESSIVE);
+                _isFlying = false;
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (_isFlying && damage >= me->GetHealth())
+                    damage = me->GetHealth() - 1; // Let creature health fall to 1 hp but prevent it from dying during air phase.
             }
 
             void EnterCombat(Unit* /*victim*/) override
@@ -193,12 +201,14 @@ class boss_slabhide : public CreatureScript
                         instance->SetData(DATA_SLABHIDE_INTRO, DONE);
                         break;
                     case POINT_SLABHIDE_MIDDLE:
+                        _isFlying = true;
                         events.ScheduleEvent(EVENT_TAKEOFF, 100);
                         break;
                     case POINT_SLABHIDE_IN_AIR:
                         events.ScheduleEvent(EVENT_STALACTITE, 400);
                         break;
                     case POINT_SLABHIDE_LAND:
+                        _isFlying = false;
                         //DoCast(me, SPELL_COOLDOWN_5S); // unknown purpose
                         events.ScheduleEvent(EVENT_ATTACK, 1200);
                         break;
@@ -296,8 +306,8 @@ class boss_slabhide : public CreatureScript
                     for (std::list<GameObject*>::const_iterator itr = listStalactite.begin(); itr != listStalactite.end(); ++itr)
                         (*itr)->Delete();
             }
-        
-            EventMap events;
+
+            bool _isFlying;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
