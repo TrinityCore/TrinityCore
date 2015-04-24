@@ -201,10 +201,10 @@ class boss_slabhide : public CreatureScript
                         instance->SetData(DATA_SLABHIDE_INTRO, DONE);
                         break;
                     case POINT_SLABHIDE_MIDDLE:
+                        _isFlying = true;
                         events.ScheduleEvent(EVENT_TAKEOFF, 100);
                         break;
                     case POINT_SLABHIDE_IN_AIR:
-                        _isFlying = true;
                         events.ScheduleEvent(EVENT_STALACTITE, 400);
                         break;
                     case POINT_SLABHIDE_LAND:
