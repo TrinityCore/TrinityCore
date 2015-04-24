@@ -468,7 +468,7 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
         totem->ToTotem()->UnSummon();
 }
 
-void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& /*packet*/)
 {
     if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode

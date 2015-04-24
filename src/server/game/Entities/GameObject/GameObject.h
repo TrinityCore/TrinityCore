@@ -953,7 +953,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
         GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_BYTES_1, 0)); }
         void SetGoState(GOState state);
-        uint32 GetTransportPeriod() const;
+        virtual uint32 GetTransportPeriod() const;
         void SetTransportState(GOState state, uint32 stopFrame = 0);
         uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_BYTES_1, 2); }
         void SetGoArtKit(uint8 artkit);

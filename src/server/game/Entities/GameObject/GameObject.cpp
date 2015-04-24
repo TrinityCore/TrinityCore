@@ -193,6 +193,12 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
         return false;
     }
 
+    if (goinfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
+    {
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: " UI64FMTD " Entry: %u) not created: gameobject type GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT cannot be manually created.", guidlow, name_id);
+        return false;
+    }
+
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         m_updateFlag |= UPDATEFLAG_TRANSPORT;
 
@@ -2140,8 +2146,7 @@ uint32 GameObject::GetTransportPeriod() const
     if (m_goValue.Transport.AnimationInfo)
         return m_goValue.Transport.AnimationInfo->TotalTime;
 
-    // return something that will nicely divide for GAMEOBJECT_DYNAMIC value calculation
-    return m_goValue.Transport.PathProgress;
+    return 0;
 }
 
 void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
@@ -2310,15 +2315,13 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                             dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                         break;
                     case GAMEOBJECT_TYPE_TRANSPORT:
-                    {
-                        float timer = float(m_goValue.Transport.PathProgress % GetTransportPeriod());
-                        pathProgress = int16(timer / float(GetTransportPeriod()) * 65535.0f);
-                        break;
-                    }
                     case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
                     {
-                        float timer = float(m_goValue.Transport.PathProgress % GetUInt32Value(GAMEOBJECT_LEVEL));
-                        pathProgress = int16(timer / float(GetUInt32Value(GAMEOBJECT_LEVEL)) * 65535.0f);
+                        if (uint32 transportPeriod = GetTransportPeriod())
+                        {
+                            float timer = float(m_goValue.Transport.PathProgress % transportPeriod);
+                            pathProgress = int16(timer / float(transportPeriod) * 65535.0f);
+                        }
                         break;
                     }
                     default:
