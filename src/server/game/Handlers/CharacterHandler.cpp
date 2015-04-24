@@ -1253,7 +1253,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->getRace() || bs_skinColor->gender != _player->getGender()))
         return;
 
-    if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->getGender(), bs_hair->hair_id, Color, uint8(_player->GetUInt32Value(PLAYER_FLAGS) >> 8), bs_facialHair->hair_id, bs_skinColor ? bs_skinColor->hair_id : 0))
+    if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->getGender(), bs_hair->hair_id, Color, _player->GetByteValue(PLAYER_BYTES, 1), bs_facialHair->hair_id, bs_skinColor ? bs_skinColor->hair_id : _player->GetByteValue(PLAYER_BYTES, 0)))
         return;
 
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
