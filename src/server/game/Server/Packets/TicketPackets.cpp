@@ -370,3 +370,12 @@ WorldPacket const* WorldPackets::Ticket::ComplaintResult::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Ticket::BugReport::Read()
+{
+    Type = _worldPacket.ReadBit();
+    uint32 diagLen = _worldPacket.ReadBits(12);
+    uint32 textLen = _worldPacket.ReadBits(10);
+    DiagInfo = _worldPacket.ReadString(diagLen);
+    Text = _worldPacket.ReadString(textLen);
+}

@@ -410,28 +410,6 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateCh
     _player->SetStandState(packet.StandState);
 }
 
-void WorldSession::HandleBugReportOpcode(WorldPacket& recvData)
-{
-    uint32 suggestion, contentlen, typelen;
-    std::string content, type;
-
-    recvData >> suggestion >> contentlen;
-    content = recvData.ReadString(contentlen);
-
-    recvData >> typelen;
-    type = recvData.ReadString(typelen);
-
-    TC_LOG_DEBUG("network", "%s", type.c_str());
-    TC_LOG_DEBUG("network", "%s", content.c_str());
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-
-    stmt->setString(0, type);
-    stmt->setString(1, content);
-
-    CharacterDatabase.Execute(stmt);
-}
-
 void WorldSession::HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& /*packet*/)
 {
     if (_player->IsAlive())
