@@ -216,7 +216,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_BLACK_MARKET_BID_ON_ITEM,                           STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_BLACK_MARKET_OPEN,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BlackMarket::BlackMarketOpen, &WorldSession::HandleBlackMarketOpen);
     DEFINE_HANDLER(CMSG_BLACK_MARKET_REQUEST_ITEMS,                         STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_BUG_REPORT,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBugReportOpcode           );
+    DEFINE_HANDLER(CMSG_BUG_REPORT,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Ticket::BugReport, &WorldSession::HandleBugReportOpcode);
     DEFINE_HANDLER(CMSG_BUSY_TRADE,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Trade::BusyTrade, &WorldSession::HandleBusyTradeOpcode);
     DEFINE_HANDLER(CMSG_BUY_BACK_ITEM,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::BuyBackItem, &WorldSession::HandleBuybackItem);
     DEFINE_HANDLER(CMSG_BUY_BANK_SLOT,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Bank::BuyBankSlot, &WorldSession::HandleBuyBankSlotOpcode);

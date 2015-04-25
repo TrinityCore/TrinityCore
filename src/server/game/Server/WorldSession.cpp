@@ -1365,6 +1365,9 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GM_TICKET_UPDATE_TEXT:                //   0              15         1 async db query
         case CMSG_GM_TICKET_DELETE_TICKET:              //   1              25         1 async db query
         case CMSG_GM_TICKET_RESPONSE_RESOLVE:           //   1              25         1 async db query
+        case CMSG_SUPPORT_TICKET_SUBMIT_BUG:            // not profiled                1 async db query
+        case CMSG_SUPPORT_TICKET_SUBMIT_SUGGESTION:     // not profiled                1 async db query
+        case CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT:      // not profiled                1 async db query
         case CMSG_CALENDAR_UPDATE_EVENT:                // not profiled
         case CMSG_CALENDAR_REMOVE_EVENT:                // not profiled
         case CMSG_CALENDAR_COPY_EVENT:                  // not profiled

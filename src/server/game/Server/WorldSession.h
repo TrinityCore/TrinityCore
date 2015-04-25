@@ -456,6 +456,7 @@ namespace WorldPackets
         class SupportTicketSubmitBug;
         class SupportTicketSubmitSuggestion;
         class SupportTicketSubmitComplaint;
+        class BugReport;
     }
 
     namespace Token
@@ -979,6 +980,7 @@ class WorldSession
         void HandleSupportTicketSubmitBug(WorldPackets::Ticket::SupportTicketSubmitBug& packet);
         void HandleSupportTicketSubmitSuggestion(WorldPackets::Ticket::SupportTicketSubmitSuggestion& packet);
         void HandleSupportTicketSubmitComplaint(WorldPackets::Ticket::SupportTicketSubmitComplaint& packet);
+        void HandleBugReportOpcode(WorldPackets::Ticket::BugReport& bugReport);
 
         void HandleTogglePvP(WorldPacket& recvPacket);
 
@@ -995,8 +997,6 @@ class WorldSession
         void HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result);
         void HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet);
         void HandleSetContactNotesOpcode(WorldPackets::Social::SetContactNotes& packet);
-
-        void HandleBugReportOpcode(WorldPacket& recvPacket);
 
         void HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet);
 
