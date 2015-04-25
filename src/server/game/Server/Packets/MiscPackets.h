@@ -606,6 +606,22 @@ namespace WorldPackets
             ObjectGuid SourceObjectGuid;
             int32 SoundKitID = 0;
         };
+
+        class CompleteCinematic final : public ClientPacket
+        {
+        public:
+            CompleteCinematic(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_CINEMATIC, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class NextCinematicCamera final : public ClientPacket
+        {
+        public:
+            NextCinematicCamera(WorldPacket&& packet) : ClientPacket(CMSG_NEXT_CINEMATIC_CAMERA, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 

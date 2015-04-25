@@ -699,11 +699,11 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionBu
         GetPlayer()->AddActionButton(packet.Index, action, type);
 }
 
-void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
+void WorldSession::HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& /*packet*/)
 {
 }
 
-void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
+void WorldSession::HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& /*packet*/)
 {
 }
 

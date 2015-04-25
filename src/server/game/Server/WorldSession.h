@@ -325,6 +325,8 @@ namespace WorldPackets
         class RandomRollClient;
         class ObjectUpdateFailed;
         class ObjectUpdateRescued;
+        class CompleteCinematic;
+        class NextCinematicCamera;
     }
 
     namespace Movement
@@ -1271,8 +1273,8 @@ class WorldSession
         void HandleVoiceSessionEnableOpcode(WorldPacket& recvData);
         void HandleSetActiveVoiceChannel(WorldPacket& recvData);
 
-        void HandleCompleteCinematic(WorldPacket& recvPacket);
-        void HandleNextCinematicCamera(WorldPacket& recvPacket);
+        void HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& packet);
+        void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
 
         void HandleQueryPageText(WorldPackets::Query::QueryPageText& packet);
 
