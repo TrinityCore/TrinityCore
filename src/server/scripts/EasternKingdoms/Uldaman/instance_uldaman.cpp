@@ -40,14 +40,12 @@ enum Events
     EVENT_SUB_BOSS_AGGRO        = 2228
 };
 
-const float IronayaPoint[4] = { -231.228f, 246.6135f, -49.01617f, 0.0f };
-
-enum StoneKeepers
+enum IronayaTalk
 {
-    GUID_STONEKEEPER_1 = 27554,
-    GUID_STONEKEEPER_2 = 27794,
-    GUID_STONEKEEPER_3 = 28368
+    SAY_AGGRO = 0
 };
+
+const Position IronayaPoint = { -231.228f, 246.6135f, -49.01617f, 0.0f };
 
 class instance_uldaman : public InstanceMapScript
 {
@@ -273,8 +271,8 @@ class instance_uldaman : public InstanceMapScript
                 ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 ironaya->GetMotionMaster()->Clear();
-                ironaya->GetMotionMaster()->MovePoint(0, IronayaPoint[0], IronayaPoint[1], IronayaPoint[2]);
-                ironaya->SetHomePosition(IronayaPoint[0], IronayaPoint[1], IronayaPoint[2], IronayaPoint[3]);
+                ironaya->GetMotionMaster()->MovePoint(0, IronayaPoint);
+                ironaya->SetHomePosition(IronayaPoint);
 
                 ironaya->AI()->Talk(SAY_AGGRO);
             }
