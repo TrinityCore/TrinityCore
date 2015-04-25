@@ -31,9 +31,9 @@ class Unit;
 
 struct ItemSetEffect
 {
-    uint32 setid;
-    uint32 item_count;
-    SpellInfo const* spells[8];
+    uint32 ItemSetID;
+    uint32 EquippedItemCount;
+    std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
 };
 
 enum InventoryResult
