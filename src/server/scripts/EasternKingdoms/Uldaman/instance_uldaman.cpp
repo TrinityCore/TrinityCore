@@ -24,6 +24,7 @@ SDCategory: Uldaman
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "uldaman.h"
 
