@@ -705,11 +705,11 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
 
             LoginDatabase.CommitTransaction(trans);
 
-            if (createInfo->TemplateSet.HasValue)
+            if (createInfo->TemplateSet)
             {
                 if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
                 {
-                    if (CharacterTemplate const* charTemplate = sObjectMgr->GetCharacterTemplate(createInfo->TemplateSet.Value))
+                    if (CharacterTemplate const* charTemplate = sObjectMgr->GetCharacterTemplate(*createInfo->TemplateSet))
                     {
                         if (charTemplate->Level != 1)
                         {
@@ -1135,20 +1135,20 @@ void WorldSession::SendFeatureSystemStatus()
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
 
-    features.EuropaTicketSystemStatus.HasValue = true;
-    features.EuropaTicketSystemStatus.Value.ThrottleState.MaxTries = 10;
-    features.EuropaTicketSystemStatus.Value.ThrottleState.PerMilliseconds = 60000;
-    features.EuropaTicketSystemStatus.Value.ThrottleState.TryCount = 1;
-    features.EuropaTicketSystemStatus.Value.ThrottleState.LastResetTimeBeforeNow = 111111;
+    features.EuropaTicketSystemStatus = WorldPackets::System::FeatureSystemStatus::EuropaTicketConfig();
+    features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
+    features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;
+    features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
+    features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
     features.ComplaintStatus = 0;
     features.TutorialsEnabled = true;
     features.UnkBit90 = true;
     /// END OF DUMMY VALUES
 
-    features.EuropaTicketSystemStatus.Value.TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
-    features.EuropaTicketSystemStatus.Value.BugsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED);
-    features.EuropaTicketSystemStatus.Value.ComplaintsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED);
-    features.EuropaTicketSystemStatus.Value.SuggestionsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED);
+    features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
+    features.EuropaTicketSystemStatus->BugsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED);
+    features.EuropaTicketSystemStatus->ComplaintsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED);
+    features.EuropaTicketSystemStatus->SuggestionsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED);
 
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
@@ -1852,45 +1852,45 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
 
     /// Customize
     {
-        if (factionChangeInfo->SkinID.HasValue)
+        if (factionChangeInfo->SkinID)
         {
             playerBytes &= ~uint32(0xFF);
-            playerBytes |= factionChangeInfo->SkinID.Value;
+            playerBytes |= *factionChangeInfo->SkinID;
         }
         else
-            factionChangeInfo->SkinID.Set(uint8(playerBytes & 0xFF));
+            factionChangeInfo->SkinID = uint8(playerBytes & 0xFF);
 
-        if (factionChangeInfo->FaceID.HasValue)
+        if (factionChangeInfo->FaceID)
         {
             playerBytes &= ~(uint32(0xFF) << 8);
-            playerBytes |= uint32(factionChangeInfo->FaceID.Value) << 8;
+            playerBytes |= uint32(*factionChangeInfo->FaceID) << 8;
         }
         else
-            factionChangeInfo->FaceID.Set(uint8((playerBytes2 >> 8) & 0xFF));
+            factionChangeInfo->FaceID = uint8((playerBytes2 >> 8) & 0xFF);
 
-        if (factionChangeInfo->HairStyleID.HasValue)
+        if (factionChangeInfo->HairStyleID)
         {
             playerBytes &= ~(uint32(0xFF) << 16);
-            playerBytes |= uint32(factionChangeInfo->HairStyleID.Value) << 16;
+            playerBytes |= uint32(*factionChangeInfo->HairStyleID) << 16;
         }
         else
-            factionChangeInfo->HairStyleID.Set(uint8((playerBytes2 >> 16) & 0xFF));
+            factionChangeInfo->HairStyleID = uint8((playerBytes2 >> 16) & 0xFF);
 
-        if (factionChangeInfo->HairColorID.HasValue)
+        if (factionChangeInfo->HairColorID)
         {
             playerBytes &= ~(uint32(0xFF) << 24);
-            playerBytes |= uint32(factionChangeInfo->HairColorID.Value) << 24;
+            playerBytes |= uint32(*factionChangeInfo->HairColorID) << 24;
         }
         else
-            factionChangeInfo->HairColorID.Set(uint8((playerBytes2 >> 24) & 0xFF));
+            factionChangeInfo->HairColorID = uint8((playerBytes2 >> 24) & 0xFF);
 
-        if (factionChangeInfo->FacialHairStyleID.HasValue)
+        if (factionChangeInfo->FacialHairStyleID)
         {
             playerBytes2 &= ~0xFF;
-            playerBytes2 |= factionChangeInfo->FacialHairStyleID.Value;
+            playerBytes2 |= *factionChangeInfo->FacialHairStyleID;
         }
         else
-            factionChangeInfo->FacialHairStyleID.Set(uint8(playerBytes2 & 0xFF));
+            factionChangeInfo->FacialHairStyleID = int8(playerBytes2 & 0xFF);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_PLAYERBYTES);
         stmt->setUInt8(0, factionChangeInfo->SexID);
@@ -2547,7 +2547,7 @@ void WorldSession::SendCharRename(ResponseCodes result, WorldPackets::Character:
     packet.Result = result;
     packet.Name = renameInfo->NewName;
     if (result == RESPONSE_SUCCESS)
-        packet.Guid.Set(renameInfo->Guid);
+        packet.Guid = renameInfo->Guid;
 
     SendPacket(packet.Write());
 }
@@ -2583,15 +2583,15 @@ void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Cha
 
     if (result == RESPONSE_SUCCESS)
     {
-        packet.Display.HasValue = true;
-        packet.Display.Value.Name = factionChangeInfo->Name;
-        packet.Display.Value.SexID = factionChangeInfo->SexID;
-        packet.Display.Value.SkinID = factionChangeInfo->SkinID.Value;
-        packet.Display.Value.HairColorID = factionChangeInfo->HairColorID.Value;
-        packet.Display.Value.HairStyleID = factionChangeInfo->HairStyleID.Value;
-        packet.Display.Value.FacialHairStyleID = factionChangeInfo->FacialHairStyleID.Value;
-        packet.Display.Value.FaceID = factionChangeInfo->FaceID.Value;
-        packet.Display.Value.RaceID = factionChangeInfo->RaceID;
+        packet.Display = WorldPackets::Character::CharFactionChangeResult::CharFactionChangeDisplayInfo();
+        packet.Display->Name = factionChangeInfo->Name;
+        packet.Display->SexID = factionChangeInfo->SexID;
+        packet.Display->SkinID = *factionChangeInfo->SkinID;
+        packet.Display->HairColorID = *factionChangeInfo->HairColorID;
+        packet.Display->HairStyleID = *factionChangeInfo->HairStyleID;
+        packet.Display->FacialHairStyleID = *factionChangeInfo->FacialHairStyleID;
+        packet.Display->FaceID = *factionChangeInfo->FaceID;
+        packet.Display->RaceID = factionChangeInfo->RaceID;
     }
 
     SendPacket(packet.Write());

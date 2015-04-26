@@ -39,6 +39,8 @@
 #include <sstream>
 #include <algorithm>
 
+#include <boost/optional.hpp>
+
 #include "Debugging/Errors.h"
 
 #include "Threading/LockedQueue.h"
@@ -156,5 +158,9 @@ struct LocalizedString
 #endif
 
 #define MAX_QUERY_LEN 32*1024
+
+//! Optional helper class to wrap optional values within.
+template <typename T>
+using Optional = boost::optional<T>;
 
 #endif

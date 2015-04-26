@@ -1313,7 +1313,7 @@ bool Battleground::HasFreeSlots() const
 void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
-        pvpLogData.Winner.Set(GetWinner());
+        pvpLogData.Winner = GetWinner();
 
     pvpLogData.Players.reserve(GetPlayerScoresSize());
     for (auto const& score : PlayerScores)
@@ -1325,12 +1325,10 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
         playerData.Faction = score.second->TeamId;
         if (score.second->HonorableKills || score.second->Deaths || score.second->BonusHonor)
         {
-            WorldPackets::Battleground::PVPLogData::HonorData& honorData = playerData.Honor.Value;
-            honorData.HonorKills = score.second->HonorableKills;
-            honorData.Deaths = score.second->Deaths;
-            honorData.ContributionPoints = score.second->BonusHonor;
-
-            playerData.Honor.HasValue = true;
+            playerData.Honor = WorldPackets::Battleground::PVPLogData::HonorData();
+            playerData.Honor->HonorKills = score.second->HonorableKills;
+            playerData.Honor->Deaths = score.second->Deaths;
+            playerData.Honor->ContributionPoints = score.second->BonusHonor;
         }
 
         playerData.DamageDone = score.second->DamageDone;
@@ -1356,15 +1354,14 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
 
     if (isRated())
     {
-        WorldPackets::Battleground::PVPLogData::RatingData& ratingData = pvpLogData.Ratings.Value;
+        pvpLogData.Ratings = WorldPackets::Battleground::PVPLogData::RatingData();
+
         for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
         {
-            ratingData.Postmatch[i] = _arenaTeamScores[i].NewRating;
-            ratingData.Prematch[i] = _arenaTeamScores[i].OldRating;
-            ratingData.PrematchMMR[i] = _arenaTeamScores[i].MatchmakerRating;
+            pvpLogData.Ratings->Postmatch[i] = _arenaTeamScores[i].NewRating;
+            pvpLogData.Ratings->Prematch[i] = _arenaTeamScores[i].OldRating;
+            pvpLogData.Ratings->PrematchMMR[i] = _arenaTeamScores[i].MatchmakerRating;
         }
-
-        pvpLogData.Ratings.HasValue = true;
     }
 
     pvpLogData.PlayerCount[0] = int8(GetPlayersCountByTeam(HORDE));

@@ -121,32 +121,32 @@ SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCast
     m_objectTargetGUID(spellCastRequest.Target.Unit), m_itemTargetGUID(spellCastRequest.Target.Item),
     m_itemTargetEntry(0), m_pitch(0.0f), m_speed(0.0f), m_strTarget(spellCastRequest.Target.Name)
 {
-    if (spellCastRequest.Target.SrcLocation.HasValue)
+    if (spellCastRequest.Target.SrcLocation)
     {
-        m_src._transportGUID = spellCastRequest.Target.SrcLocation.Value.Transport;
+        m_src._transportGUID = spellCastRequest.Target.SrcLocation->Transport;
         Position* pos;
         if (!m_src._transportGUID.IsEmpty())
             pos = &m_src._transportOffset;
         else
             pos = &m_src._position;
 
-        pos->Relocate(spellCastRequest.Target.SrcLocation.Value.Location);
-        if (spellCastRequest.Target.Orientation.HasValue)
-            pos->SetOrientation(spellCastRequest.Target.Orientation.Value);
+        pos->Relocate(spellCastRequest.Target.SrcLocation->Location);
+        if (spellCastRequest.Target.Orientation)
+            pos->SetOrientation(*spellCastRequest.Target.Orientation);
     }
 
-    if (spellCastRequest.Target.DstLocation.HasValue)
+    if (spellCastRequest.Target.DstLocation)
     {
-        m_dst._transportGUID = spellCastRequest.Target.DstLocation.Value.Transport;
+        m_dst._transportGUID = spellCastRequest.Target.DstLocation->Transport;
         Position* pos;
         if (!m_dst._transportGUID.IsEmpty())
             pos = &m_dst._transportOffset;
         else
             pos = &m_dst._position;
 
-        pos->Relocate(spellCastRequest.Target.DstLocation.Value.Location);
-        if (spellCastRequest.Target.Orientation.HasValue)
-            pos->SetOrientation(spellCastRequest.Target.Orientation.Value);
+        pos->Relocate(spellCastRequest.Target.DstLocation->Location);
+        if (spellCastRequest.Target.Orientation)
+            pos->SetOrientation(*spellCastRequest.Target.Orientation);
     }
 
     SetPitch(spellCastRequest.MissileTrajectory.Pitch);
@@ -222,24 +222,22 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
 
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
     {
-        WorldPackets::Spells::TargetLocation& target = data.SrcLocation.Value;
-        target.Transport = m_src._transportGUID; // relative position guid here - transport for example
+        data.SrcLocation = WorldPackets::Spells::TargetLocation();
+        data.SrcLocation->Transport = m_src._transportGUID; // relative position guid here - transport for example
         if (!m_src._transportGUID.IsEmpty())
-            target.Location = m_src._transportOffset;
+            data.SrcLocation->Location = m_src._transportOffset;
         else
-            target.Location = m_src._position;
-        data.SrcLocation.HasValue = true;
+            data.SrcLocation->Location = m_src._position;
     }
 
     if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
-        WorldPackets::Spells::TargetLocation& target = data.DstLocation.Value;
-        target.Transport = m_dst._transportGUID; // relative position guid here - transport for example
+        data.DstLocation = WorldPackets::Spells::TargetLocation();
+        data.DstLocation->Transport = m_dst._transportGUID; // relative position guid here - transport for example
         if (!m_dst._transportGUID.IsEmpty())
-            target.Location = m_dst._transportOffset;
+            data.DstLocation->Location = m_dst._transportOffset;
         else
-            target.Location = m_dst._position;
-        data.DstLocation.HasValue = true;
+            data.DstLocation->Location = m_dst._position;
     }
 
     if (m_targetMask & TARGET_FLAG_STRING)
@@ -3890,29 +3888,28 @@ void Spell::SendSpellStart()
 
     if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
     {
-        WorldPackets::Spells::RuneData& runeData = castData.RemainingRunes.Value;
+        castData.RemainingRunes = WorldPackets::Spells::RuneData();
+
         //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
-            runeData.Start = m_runesState; // runes state before
-            runeData.Count = player->GetRunesState(); // runes state after
+            castData.RemainingRunes->Start = m_runesState; // runes state before
+            castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
                 float baseCd = float(player->GetRuneBaseCooldown(i));
-                runeData.Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+                castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
         else
         {
-            runeData.Start = 0;
-            runeData.Count = 0;
+            castData.RemainingRunes->Start = 0;
+            castData.RemainingRunes->Count = 0;
             for (uint8 i = 0; i < MAX_RUNES; ++i)
-                runeData.Cooldowns.push_back(0);
+                castData.RemainingRunes->Cooldowns.push_back(0);
         }
-
-        castData.RemainingRunes.HasValue = true;
     }
 
     /** @todo implement spell ammo packet data
@@ -4009,29 +4006,28 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
     {
-        WorldPackets::Spells::RuneData& runeData = castData.RemainingRunes.Value;
+        castData.RemainingRunes = WorldPackets::Spells::RuneData();
+
         //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
-            runeData.Start = m_runesState; // runes state before
-            runeData.Count = player->GetRunesState(); // runes state after
+            castData.RemainingRunes->Start = m_runesState; // runes state before
+            castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
                 float baseCd = float(player->GetRuneBaseCooldown(i));
-                runeData.Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+                castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
         else
         {
-            runeData.Start = 0;
-            runeData.Count = 0;
+            castData.RemainingRunes->Start = 0;
+            castData.RemainingRunes->Count = 0;
             for (uint8 i = 0; i < MAX_RUNES; ++i)
-                runeData.Cooldowns.push_back(0);
+                castData.RemainingRunes->Cooldowns.push_back(0);
         }
-
-        castData.RemainingRunes.HasValue = true;
     }
 
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)

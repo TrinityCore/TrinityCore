@@ -65,27 +65,27 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
 
     data.WriteBit(playerData.Faction);
     data.WriteBit(playerData.IsInWorld);
-    data.WriteBit(playerData.Honor.HasValue);
-    data.WriteBit(playerData.PreMatchRating.HasValue);
-    data.WriteBit(playerData.RatingChange.HasValue);
-    data.WriteBit(playerData.PreMatchMMR.HasValue);
-    data.WriteBit(playerData.MmrChange.HasValue);
+    data.WriteBit(playerData.Honor.is_initialized());
+    data.WriteBit(playerData.PreMatchRating.is_initialized());
+    data.WriteBit(playerData.RatingChange.is_initialized());
+    data.WriteBit(playerData.PreMatchMMR.is_initialized());
+    data.WriteBit(playerData.MmrChange.is_initialized());
     data.FlushBits();
 
-    if (playerData.Honor.HasValue)
-        data << playerData.Honor.Value;
+    if (playerData.Honor)
+        data << *playerData.Honor;
 
-    if (playerData.PreMatchRating.HasValue)
-        data << uint32(playerData.PreMatchRating.Value);
+    if (playerData.PreMatchRating)
+        data << uint32(*playerData.PreMatchRating);
 
-    if (playerData.RatingChange.HasValue)
-        data << uint32(playerData.RatingChange.Value);
+    if (playerData.RatingChange)
+        data << uint32(*playerData.RatingChange);
 
-    if (playerData.PreMatchMMR.HasValue)
-        data << uint32(playerData.PreMatchMMR.Value);
+    if (playerData.PreMatchMMR)
+        data << uint32(*playerData.PreMatchMMR);
 
-    if (playerData.MmrChange.HasValue)
-        data << uint32(playerData.MmrChange.Value);
+    if (playerData.MmrChange)
+        data << uint32(*playerData.MmrChange);
 
     return data;
 }
@@ -94,16 +94,16 @@ WorldPacket const* WorldPackets::Battleground::PVPLogData::Write()
 {
     _worldPacket.reserve(Players.size() * sizeof(PlayerData) + sizeof(PVPLogData));
 
-    _worldPacket.WriteBit(Ratings.HasValue);
-    _worldPacket.WriteBit(Winner.HasValue);
+    _worldPacket.WriteBit(Ratings.is_initialized());
+    _worldPacket.WriteBit(Winner.is_initialized());
     _worldPacket << uint32(Players.size());
     _worldPacket.append(PlayerCount, 2);
 
-    if (Ratings.HasValue)
-        _worldPacket << Ratings.Value;
+    if (Ratings.is_initialized())
+        _worldPacket << *Ratings;
 
-    if (Winner.HasValue)
-        _worldPacket << uint8(Winner.Value);
+    if (Winner)
+        _worldPacket << uint8(*Winner);
 
     for (PlayerData const& player : Players)
         _worldPacket << player;

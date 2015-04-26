@@ -213,12 +213,12 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     // stack amount has priority over charges (checked on retail with spell 50262)
     auraData.Applications = aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges();
     if (!(auraData.Flags & AFLAG_NOCASTER))
-        auraData.CastUnit.Set(aura->GetCasterGUID());
+        auraData.CastUnit = aura->GetCasterGUID();
 
     if (auraData.Flags & AFLAG_DURATION)
     {
-        auraData.Duration.Set(aura->GetMaxDuration());
-        auraData.Remaining.Set(aura->GetDuration());
+        auraData.Duration = aura->GetMaxDuration();
+        auraData.Remaining = aura->GetDuration();
     }
 
     if (auraData.Flags & AFLAG_SCALABLE)
@@ -229,7 +229,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
                 auraData.Points[effect->GetEffIndex()] = float(effect->GetAmount());
     }
 
-    auraInfo.AuraData.Set(auraData);
+    auraInfo.AuraData = auraData;
 }
 
 void AuraApplication::ClientUpdate(bool remove)
