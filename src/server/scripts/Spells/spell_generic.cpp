@@ -118,7 +118,7 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
                     return false;
 
                 // find Mage Armor
-                if (!GetTarget()->GetAuraEffect(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT, SPELLFAMILY_MAGE, 0x10000000, 0x0, 0x0))
+                if (!GetTarget()->GetAuraEffect(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT, SPELLFAMILY_MAGE, flag128(0x10000000, 0x0, 0x0)))
                     return false;
 
                 switch (GetFirstSchoolInMask(eventInfo.GetSchoolMask()))
