@@ -280,7 +280,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                     // Deadly Poison
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x10000, 0x80000, 0, GetCaster()->GetGUID()))
+                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, flag128(0x10000, 0x80000, 0), GetCaster()->GetGUID()))
                         _stackAmount = aurEff->GetBase()->GetStackAmount();
             }
 
@@ -326,7 +326,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                                 continue;
 
                             // Do not reproc deadly
-                            if (spellInfo->SpellFamilyFlags == flag96(0x10000, 0x80000, 0))
+                            if (spellInfo->SpellFamilyFlags == flag128(0x10000, 0x80000, 0, 0))
                                 continue;
 
                             if (spellInfo->IsPositive())

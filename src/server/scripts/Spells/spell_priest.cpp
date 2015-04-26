@@ -748,7 +748,7 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 // Refresh Shadow Word: Pain on target
                 if (Unit* target = GetHitUnit())
-                    if (AuraEffect* aur = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, caster->GetGUID()))
+                    if (AuraEffect* aur = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, flag128(0x8000, 0, 0), caster->GetGUID()))
                     {
                         uint32 damage = std::max(aur->GetAmount(), 0);
                         sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);

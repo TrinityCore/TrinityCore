@@ -154,7 +154,7 @@ class spell_warl_banish : public SpellScriptLoader
                 /// Check if the target already has Banish, if so, do nothing.
                 if (Unit* target = GetHitUnit())
                 {
-                    if (target->GetAuraEffect(SPELL_AURA_SCHOOL_IMMUNITY, SPELLFAMILY_WARLOCK, 0, 0x08000000, 0))
+                    if (target->GetAuraEffect(SPELL_AURA_SCHOOL_IMMUNITY, SPELLFAMILY_WARLOCK, flag128(0, 0x08000000, 0)))
                     {
                         // No need to remove old aura since its removed due to not stack by current Banish aura
                         PreventHitDefaultEffect(EFFECT_0);
@@ -590,7 +590,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
                     // Refresh corruption on target
-                    if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, caster->GetGUID()))
+                    if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, flag128(0x2, 0, 0), caster->GetGUID()))
                     {
                         uint32 damage = std::max(aurEff->GetAmount(), 0);
                         sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
