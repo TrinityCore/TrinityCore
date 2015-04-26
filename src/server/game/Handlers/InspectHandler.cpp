@@ -65,12 +65,10 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
 
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
     {
-        inspectResult.GuildData.HasValue = true;
-
-        WorldPackets::Inspect::InspectGuildData& guildData = inspectResult.GuildData.Value;
-        guildData.GuildGUID = guild->GetGUID();
-        guildData.NumGuildMembers = guild->GetMembersCount();
-        guildData.AchievementPoints = guild->GetAchievementMgr().GetAchievementPoints();
+        inspectResult.GuildData = WorldPackets::Inspect::InspectGuildData();
+        inspectResult.GuildData->GuildGUID = guild->GetGUID();
+        inspectResult.GuildData->NumGuildMembers = guild->GetMembersCount();
+        inspectResult.GuildData->AchievementPoints = guild->GetAchievementMgr().GetAchievementPoints();
     }
 
     inspectResult.InspecteeGUID = inspect.Target;

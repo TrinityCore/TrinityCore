@@ -4914,13 +4914,12 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
     packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
-    WorldPackets::Combat::SubDamage& subDmg = packet.SubDmg.Value;
-    subDmg.SchoolMask = damageInfo->damageSchoolMask;   // School of sub damage
-    subDmg.FDamage = damageInfo->damage;                // sub damage
-    subDmg.Damage = damageInfo->damage;                 // Sub Damage
-    subDmg.Absorbed = damageInfo->absorb;
-    subDmg.Resisted = damageInfo->resist;
-    packet.SubDmg.HasValue = true;
+    packet.SubDmg = WorldPackets::Combat::SubDamage();
+    packet.SubDmg->SchoolMask = damageInfo->damageSchoolMask;   // School of sub damage
+    packet.SubDmg->FDamage = damageInfo->damage;                // sub damage
+    packet.SubDmg->Damage = damageInfo->damage;                 // Sub Damage
+    packet.SubDmg->Absorbed = damageInfo->absorb;
+    packet.SubDmg->Resisted = damageInfo->resist;
 
     packet.VictimState = damageInfo->TargetState;
     packet.BlockAmount = damageInfo->blocked_amount;
@@ -15422,7 +15421,7 @@ void Unit::SendTeleportPacket(Position& pos)
 
         ObjectGuid transGuid = GetTransGUID();
         if (!transGuid.IsEmpty())
-            selfPacket.TransportGUID.Set(transGuid);
+            selfPacket.TransportGUID = transGuid;
 
         selfPacket.Pos.Relocate(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
         selfPacket.Facing = GetOrientation();

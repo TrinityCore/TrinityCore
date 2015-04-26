@@ -69,24 +69,24 @@ void WorldPackets::Ticket::GMTicketAcknowledgeSurvey::Read()
 WorldPacket const* WorldPackets::Ticket::GMTicketGetTicketResponse::Write()
 {
     _worldPacket << Result;
-    _worldPacket.WriteBit(Info.HasValue);
+    _worldPacket.WriteBit(Info.is_initialized());
 
-    if (Info.HasValue)
+    if (Info)
     {
-        _worldPacket << int32(Info.Value.TicketID);
-        _worldPacket << uint8(Info.Value.Category);
-        _worldPacket.AppendPackedTime(Info.Value.TicketOpenTime);
-        _worldPacket.AppendPackedTime(Info.Value.OldestTicketTime);
-        _worldPacket.AppendPackedTime(Info.Value.UpdateTime);
-        _worldPacket << uint8(Info.Value.AssignedToGM);
-        _worldPacket << uint8(Info.Value.OpenedByGM);
-        _worldPacket << int32(Info.Value.WaitTimeOverrideMinutes);
+        _worldPacket << int32(Info->TicketID);
+        _worldPacket << uint8(Info->Category);
+        _worldPacket.AppendPackedTime(Info->TicketOpenTime);
+        _worldPacket.AppendPackedTime(Info->OldestTicketTime);
+        _worldPacket.AppendPackedTime(Info->UpdateTime);
+        _worldPacket << uint8(Info->AssignedToGM);
+        _worldPacket << uint8(Info->OpenedByGM);
+        _worldPacket << int32(Info->WaitTimeOverrideMinutes);
 
-        _worldPacket.WriteBits(Info.Value.TicketDescription.size(), 11);
-        _worldPacket.WriteBits(Info.Value.WaitTimeOverrideMessage.size(), 10);
+        _worldPacket.WriteBits(Info->TicketDescription.size(), 11);
+        _worldPacket.WriteBits(Info->WaitTimeOverrideMessage.size(), 10);
 
-        _worldPacket.WriteString(Info.Value.TicketDescription);
-        _worldPacket.WriteString(Info.Value.WaitTimeOverrideMessage);
+        _worldPacket.WriteString(Info->TicketDescription);
+        _worldPacket.WriteString(Info->WaitTimeOverrideMessage);
     }
 
     _worldPacket.FlushBits();
@@ -227,82 +227,88 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubm
 
     bool hasReportLineIndex = data.ReadBit();
     if (hasReportLineIndex)
-        chatlog.ReportLineIndex.Set(data.read<uint32>());
+        chatlog.ReportLineIndex = data.read<uint32>();
 
     data.ResetBitPos();
 
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketMailInfo& mail)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketMailInfo>& mail)
 {
-    data >> mail.MailID;
+    mail = WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketMailInfo();
+
+    data >> mail->MailID;
     uint16 bodyLength = data.ReadBits(13);
     uint16 subjectLength = data.ReadBits(9);
 
-    mail.MailBody = data.ReadString(bodyLength);
-    mail.MailSubject = data.ReadString(subjectLength);
+    mail->MailBody = data.ReadString(bodyLength);
+    mail->MailSubject = data.ReadString(subjectLength);
 
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketCalendarEventInfo& event)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketCalendarEventInfo>& event)
 {
-    data >> event.EventID;
-    data >> event.InviteID;
+    event = WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketCalendarEventInfo();
+    data >> event->EventID;
+    data >> event->InviteID;
     uint8 titleLength = data.ReadBits(8);
 
-    event.EventTitle = data.ReadString(titleLength);
+    event->EventTitle = data.ReadString(titleLength);
 
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketPetInfo& pet)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketPetInfo>& pet)
 {
-    data >> pet.PetID;
+    pet = WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketPetInfo();
+    data >> pet->PetID;
     uint8 nameLength = data.ReadBits(8);
 
-    pet.PetName = data.ReadString(nameLength);
+    pet->PetName = data.ReadString(nameLength);
 
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketGuildInfo& guild)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketGuildInfo>& guild)
 {
-    data >> guild.GuildID;
+    guild = WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketGuildInfo();
+    data >> guild->GuildID;
     uint8 nameLength = data.ReadBits(8);
 
-    guild.GuildName = data.ReadString(nameLength);
+    guild->GuildName = data.ReadString(nameLength);
 
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubmitComplaint::Struct5E4383& str)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::Struct5E4383>& str)
 {
-    data >> str.RideTicket;
-    data >> str._40;
-    data >> str._56;
-    data >> str._72;
+    str = WorldPackets::Ticket::SupportTicketSubmitComplaint::Struct5E4383();
+    data >> str->RideTicket;
+    data >> str->_40;
+    data >> str->_56;
+    data >> str->_72;
 
     uint8 _88Length = data.ReadBits(8);
     uint8 _217Length = data.ReadBits(8);
     uint8 _1242Length = data.ReadBits(8);
 
-    str._88 = data.ReadString(_88Length);
-    str._217 = data.ReadString(_217Length);
-    str._1242 = data.ReadString(_1242Length);
+    str->_88 = data.ReadString(_88Length);
+    str->_217 = data.ReadString(_217Length);
+    str->_1242 = data.ReadString(_1242Length);
 
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubmitComplaint::Struct5E3DFB& str)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::Struct5E3DFB>& str)
 {
-    data >> str.RideTicket;
+    data >> str->RideTicket;
 
     uint16 _32Length = data.ReadBits(9);
     data.ResetBitPos();
 
-    str._32 = data.ReadString(_32Length);
+    str->_32 = data.ReadString(_32Length);
 
     return data;
 }
@@ -327,40 +333,22 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
     Note = _worldPacket.ReadString(noteLength);
 
     if (hasMailInfo)
-    {
-        _worldPacket >> MailInfo.Value;
-        MailInfo.HasValue = true;
-    }
+        _worldPacket >> MailInfo;
 
     if (hasCalendarInfo)
-    {
-        _worldPacket >> CalenderInfo.Value;
-        CalenderInfo.HasValue = true;
-    }
+        _worldPacket >> CalenderInfo;
 
     if (hasPetInfo)
-    {
-        _worldPacket >> PetInfo.Value;
-        PetInfo.HasValue = true;
-    }
+        _worldPacket >> PetInfo;
 
     if (hasGuildInfo)
-    {
-        _worldPacket >> GuildInfo.Value;
-        GuildInfo.HasValue = true;
-    }
+        _worldPacket >> GuildInfo;
 
     if (has5E4383)
-    {
-        _worldPacket >> _5E4383.Value;
-        _5E4383.HasValue = true;
-    }
+        _worldPacket >> _5E4383;
 
     if (has5E3DFB)
-    {
-        _worldPacket >> _5E3DFB.Value;
-        _5E3DFB.HasValue = true;
-    }
+        _worldPacket >> _5E3DFB;
 }
 
 WorldPacket const* WorldPackets::Ticket::ComplaintResult::Write()

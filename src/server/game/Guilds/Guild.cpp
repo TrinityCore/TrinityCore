@@ -190,16 +190,16 @@ void Guild::BankEventLogEntry::WritePacket(WorldPackets::Guild:: GuildBankLogQue
     bankLogEntry.EntryType = int8(m_eventType);
 
     if (hasStack)
-        bankLogEntry.Count.Set(int32(m_itemStackCount));
+        bankLogEntry.Count = int32(m_itemStackCount);
 
     if (IsMoneyEvent())
-        bankLogEntry.Money.Set(uint64(m_itemOrMoney));
+        bankLogEntry.Money = uint64(m_itemOrMoney);
 
     if (hasItem)
-        bankLogEntry.ItemID.Set(int32(m_itemOrMoney));
+        bankLogEntry.ItemID = int32(m_itemOrMoney);
 
     if (itemMoved)
-        bankLogEntry.OtherTab.Set(int8(m_destTabId));
+        bankLogEntry.OtherTab = int8(m_destTabId);
 
     packet.Entry.push_back(bankLogEntry);
 }
@@ -236,7 +236,7 @@ void Guild::NewsLogEntry::WritePacket(WorldPackets::Guild::GuildNews& newsPacket
     {
         WorldPackets::Item::ItemInstance itemInstance;
         itemInstance.ItemID = GetValue();
-        newsEvent.Item.Set(itemInstance);
+        newsEvent.Item = itemInstance;
     }
 
     newsPacket.NewsEvents.push_back(newsEvent);
@@ -1313,25 +1313,25 @@ void Guild::SendQueryResponse(WorldSession* session)
 {
     WorldPackets::Guild::QueryGuildInfoResponse response;
     response.GuildGuid = GetGUID();
-    response.Info.HasValue = true;
+    response.Info = WorldPackets::Guild::QueryGuildInfoResponse::GuildInfo();
 
-    response.Info.Value.GuildGUID = GetGUID();
-    response.Info.Value.VirtualRealmAddress = GetVirtualRealmAddress();
+    response.Info->GuildGUID = GetGUID();
+    response.Info->VirtualRealmAddress = GetVirtualRealmAddress();
 
-    response.Info.Value.EmblemStyle = m_emblemInfo.GetStyle();
-    response.Info.Value.EmblemColor = m_emblemInfo.GetColor();
-    response.Info.Value.BorderStyle = m_emblemInfo.GetBorderStyle();
-    response.Info.Value.BorderColor = m_emblemInfo.GetBorderColor();
-    response.Info.Value.BackgroundColor = m_emblemInfo.GetBackgroundColor();
+    response.Info->EmblemStyle = m_emblemInfo.GetStyle();
+    response.Info->EmblemColor = m_emblemInfo.GetColor();
+    response.Info->BorderStyle = m_emblemInfo.GetBorderStyle();
+    response.Info->BorderColor = m_emblemInfo.GetBorderColor();
+    response.Info->BackgroundColor = m_emblemInfo.GetBackgroundColor();
 
     for (uint8 i = 0; i < _GetRanksSize(); ++i)
     {
         WorldPackets::Guild::QueryGuildInfoResponse::GuildInfo::GuildInfoRank info
             (m_ranks[i].GetId(), i, m_ranks[i].GetName());
-        response.Info.Value.Ranks.insert(info);
+        response.Info->Ranks.insert(info);
     }
 
-    response.Info.Value.GuildName = m_name;
+    response.Info->GuildName = m_name;
 
     session->SendPacket(response.Write());
     TC_LOG_DEBUG("guild", "SMSG_GUILD_QUERY_RESPONSE [%s]", session->GetPlayerInfo().c_str());

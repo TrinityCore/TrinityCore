@@ -29,20 +29,20 @@ WorldPackets::Guild::QueryGuildInfoResponse::QueryGuildInfoResponse()
 WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
 {
     _worldPacket << GuildGuid;
-    _worldPacket.WriteBit(Info.HasValue);
+    _worldPacket.WriteBit(Info.is_initialized());
 
-    if (Info.HasValue)
+    if (Info)
     {
-        _worldPacket << Info.Value.GuildGUID;
-        _worldPacket << uint32(Info.Value.VirtualRealmAddress);
-        _worldPacket << uint32(Info.Value.Ranks.size());
-        _worldPacket << uint32(Info.Value.EmblemStyle);
-        _worldPacket << uint32(Info.Value.EmblemColor);
-        _worldPacket << uint32(Info.Value.BorderStyle);
-        _worldPacket << uint32(Info.Value.BorderColor);
-        _worldPacket << uint32(Info.Value.BackgroundColor);
+        _worldPacket << Info->GuildGUID;
+        _worldPacket << uint32(Info->VirtualRealmAddress);
+        _worldPacket << uint32(Info->Ranks.size());
+        _worldPacket << uint32(Info->EmblemStyle);
+        _worldPacket << uint32(Info->EmblemColor);
+        _worldPacket << uint32(Info->BorderStyle);
+        _worldPacket << uint32(Info->BorderColor);
+        _worldPacket << uint32(Info->BackgroundColor);
 
-        for (GuildInfo::GuildInfoRank const& rank : Info.Value.Ranks)
+        for (GuildInfo::GuildInfoRank const& rank : Info->Ranks)
         {
             _worldPacket << uint32(rank.RankID);
             _worldPacket << uint32(rank.RankOrder);
@@ -51,8 +51,8 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
             _worldPacket.WriteString(rank.RankName);
         }
 
-        _worldPacket.WriteBits(Info.Value.GuildName.size(), 7);
-        _worldPacket.WriteString(Info.Value.GuildName);
+        _worldPacket.WriteBits(Info->GuildName.size(), 7);
+        _worldPacket.WriteString(Info->GuildName);
     }
     _worldPacket.FlushBits();
 
@@ -672,30 +672,30 @@ WorldPacket const* WorldPackets::Guild::GuildBankLogQueryResults::Write()
         _worldPacket << logEntry.TimeOffset;
         _worldPacket << logEntry.EntryType;
 
-        _worldPacket.WriteBit(logEntry.Money.HasValue);
-        _worldPacket.WriteBit(logEntry.ItemID.HasValue);
-        _worldPacket.WriteBit(logEntry.Count.HasValue);
-        _worldPacket.WriteBit(logEntry.OtherTab.HasValue);
+        _worldPacket.WriteBit(logEntry.Money.is_initialized());
+        _worldPacket.WriteBit(logEntry.ItemID.is_initialized());
+        _worldPacket.WriteBit(logEntry.Count.is_initialized());
+        _worldPacket.WriteBit(logEntry.OtherTab.is_initialized());
         _worldPacket.FlushBits();
 
-        if (logEntry.Money.HasValue)
-            _worldPacket << logEntry.Money.Value;
+        if (logEntry.Money.is_initialized())
+            _worldPacket << *logEntry.Money;
 
-        if (logEntry.ItemID.HasValue)
-            _worldPacket << logEntry.ItemID.Value;
+        if (logEntry.ItemID.is_initialized())
+            _worldPacket << *logEntry.ItemID;
 
-        if (logEntry.Count.HasValue)
-            _worldPacket << logEntry.Count.Value;
+        if (logEntry.Count.is_initialized())
+            _worldPacket << *logEntry.Count;
 
-        if (logEntry.OtherTab.HasValue)
-            _worldPacket << logEntry.OtherTab.Value;
+        if (logEntry.OtherTab.is_initialized())
+            _worldPacket << *logEntry.OtherTab;
     }
 
-    _worldPacket.WriteBit(WeeklyBonusMoney.HasValue);
+    _worldPacket.WriteBit(WeeklyBonusMoney.is_initialized());
     _worldPacket.FlushBits();
 
-    if (WeeklyBonusMoney.HasValue)
-        _worldPacket << WeeklyBonusMoney.Value;
+    if (WeeklyBonusMoney)
+        _worldPacket << *WeeklyBonusMoney;
 
     return &_worldPacket;
 }
@@ -748,11 +748,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildNewsEvent con
     for (ObjectGuid memberGuid : newsEvent.MemberList)
         data << memberGuid;
 
-    data.WriteBit(newsEvent.Item.HasValue);
+    data.WriteBit(newsEvent.Item.is_initialized());
     data.FlushBits();
 
-    if (newsEvent.Item.HasValue)
-        data << newsEvent.Item.Value;  // WorldPackets::Item::ItemInstance
+    if (newsEvent.Item)
+        data << *newsEvent.Item;  // WorldPackets::Item::ItemInstance
 
     return data;
 }
