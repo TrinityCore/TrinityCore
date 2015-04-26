@@ -24,27 +24,33 @@
 void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 {
     WorldPackets::Auth::AuthResponse response;
-    response.SuccessInfo.HasValue = code == AUTH_OK;
     response.Result = code;
-    response.WaitInfo.HasValue = queued;
-    response.WaitInfo.Value.WaitCount = queuePos;
+
+    if (queued)
+    {
+        response.WaitInfo = WorldPackets::Auth::AuthResponse::AuthWaitInfo();
+        response.WaitInfo->WaitCount = queuePos;
+    }
+
     if (code == AUTH_OK)
     {
-        response.SuccessInfo.Value.AccountExpansionLevel = GetExpansion();
-        response.SuccessInfo.Value.ActiveExpansionLevel = GetExpansion();
-        response.SuccessInfo.Value.VirtualRealmAddress = GetVirtualRealmAddress();
+        response.SuccessInfo = WorldPackets::Auth::AuthResponse::AuthSuccessInfo();
+
+        response.SuccessInfo->AccountExpansionLevel = GetExpansion();
+        response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
+        response.SuccessInfo->VirtualRealmAddress = GetVirtualRealmAddress();
 
         std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);
 
         // Send current home realm. Also there is no need to send it later in realm queries.
-        response.SuccessInfo.Value.VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
+        response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
 
         if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
             for (auto& templ : sObjectMgr->GetCharacterTemplates())
-                response.SuccessInfo.Value.Templates.emplace_back(templ.second);
+                response.SuccessInfo->Templates.emplace_back(templ.second);
 
-        response.SuccessInfo.Value.AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
-        response.SuccessInfo.Value.AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
+        response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
+        response.SuccessInfo->AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
     }
 
     SendPacket(response.Write());
@@ -55,16 +61,11 @@ void WorldSession::SendAuthWaitQue(uint32 position)
     WorldPackets::Auth::AuthResponse response;
 
     if (position == 0)
-    {
         response.Result = AUTH_OK;
-        response.SuccessInfo.HasValue = false;
-        response.WaitInfo.HasValue = false;
-    }
     else
     {
-        response.WaitInfo.HasValue = true;
-        response.SuccessInfo.HasValue = false;
-        response.WaitInfo.Value.WaitCount = position;
+        response.WaitInfo = WorldPackets::Auth::AuthResponse::AuthWaitInfo();
+        response.WaitInfo->WaitCount = position;
         response.Result = AUTH_WAIT_QUEUE;
     }
 

@@ -92,11 +92,11 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
     for (size_t i = 0; i < Talents.size(); ++i)
         _worldPacket << uint16(Talents[i]);
 
-    _worldPacket.WriteBit(GuildData.HasValue);
+    _worldPacket.WriteBit(GuildData.is_initialized());
     _worldPacket.FlushBits();
 
-    if (GuildData.HasValue)
-        _worldPacket << GuildData.Value;
+    if (GuildData)
+        _worldPacket << *GuildData;
 
     return &_worldPacket;
 }

@@ -70,13 +70,13 @@ WorldPackets::Mail::MailListEntry::MailListEntry(::Mail const* mail, ::Player* p
     switch (mail->messageType)
     {
         case MAIL_NORMAL:
-            SenderCharacter.Set(ObjectGuid::Create<HighGuid::Player>(mail->sender));
+            SenderCharacter = ObjectGuid::Create<HighGuid::Player>(mail->sender);
             break;
         case MAIL_CREATURE:
         case MAIL_GAMEOBJECT:
         case MAIL_AUCTION:
         case MAIL_CALENDAR:
-            AltSenderID.Set(mail->sender);
+            AltSenderID = mail->sender;
             break;
     }
 
@@ -115,18 +115,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
     for (auto const& att : entry.Attachments)
         data << att;
 
-    data.WriteBit(entry.SenderCharacter.HasValue);
-    data.WriteBit(entry.AltSenderID.HasValue);
+    data.WriteBit(entry.SenderCharacter.is_initialized());
+    data.WriteBit(entry.AltSenderID.is_initialized());
 
     data.WriteBits(entry.Subject.size(), 8);
     data.WriteBits(entry.Body.size(), 13);
     data.FlushBits();
 
-    if (entry.SenderCharacter.HasValue)
-        data << entry.SenderCharacter.Value;
+    if (entry.SenderCharacter)
+        data << *entry.SenderCharacter;
 
-    if (entry.AltSenderID.HasValue)
-        data << int32(entry.AltSenderID.Value);
+    if (entry.AltSenderID)
+        data << int32(*entry.AltSenderID);
 
     data.WriteString(entry.Subject);
     data.WriteString(entry.Body);

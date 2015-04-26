@@ -69,19 +69,19 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             tradeItem.GiftCreator = item->GetGuidValue(ITEM_FIELD_GIFTCREATOR);
             if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
             {
-                WorldPackets::Trade::TradeUpdated::UnwrappedTradeItem* unwrappedItem = &tradeItem.Unwrapped.Value;
-                unwrappedItem->Item.Initialize(item);
-                unwrappedItem->EnchantID = item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
-                unwrappedItem->OnUseEnchantmentID = item->GetEnchantmentId(USE_ENCHANTMENT_SLOT);
-                unwrappedItem->Creator = item->GetGuidValue(ITEM_FIELD_CREATOR);
-                unwrappedItem->Charges = item->GetSpellCharges();
-                unwrappedItem->Lock = item->GetTemplate()->GetLockID() && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_UNLOCKED);
-                unwrappedItem->MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
-                unwrappedItem->Durability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
-                for (uint32 s = SOCK_ENCHANTMENT_SLOT; s < MAX_GEM_SOCKETS; ++s)
-                    unwrappedItem->SocketEnchant[s] = item->GetEnchantmentId(EnchantmentSlot(s + SOCK_ENCHANTMENT_SLOT));
+                tradeItem.Unwrapped = WorldPackets::Trade::TradeUpdated::UnwrappedTradeItem();
 
-                tradeItem.Unwrapped.HasValue = true;
+                tradeItem.Unwrapped->Item.Initialize(item);
+                tradeItem.Unwrapped->EnchantID = item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
+                tradeItem.Unwrapped->OnUseEnchantmentID = item->GetEnchantmentId(USE_ENCHANTMENT_SLOT);
+                tradeItem.Unwrapped->Creator = item->GetGuidValue(ITEM_FIELD_CREATOR);
+                tradeItem.Unwrapped->Charges = item->GetSpellCharges();
+                tradeItem.Unwrapped->Lock = item->GetTemplate()->GetLockID() && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_UNLOCKED);
+                tradeItem.Unwrapped->MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
+                tradeItem.Unwrapped->Durability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
+
+                for (uint32 s = SOCK_ENCHANTMENT_SLOT; s < MAX_GEM_SOCKETS; ++s)
+                    tradeItem.Unwrapped->SocketEnchant[s] = item->GetEnchantmentId(EnchantmentSlot(s + SOCK_ENCHANTMENT_SLOT));
             }
 
             tradeUpdated.Items.push_back(tradeItem);

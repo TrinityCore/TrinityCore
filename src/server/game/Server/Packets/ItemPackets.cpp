@@ -100,18 +100,20 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceDa
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData& itemBonusInstanceData)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Item::ItemBonusInstanceData>& itemBonusInstanceData)
 {
     uint32 bonusListIdSize;
 
-    data >> itemBonusInstanceData.Context;
+    itemBonusInstanceData = WorldPackets::Item::ItemBonusInstanceData();
+
+    data >> itemBonusInstanceData->Context;
     data >> bonusListIdSize;
 
     for (uint32 i = 0u; i < bonusListIdSize; ++i)
     {
         uint32 bonusId;
         data >> bonusId;
-        itemBonusInstanceData.BonusListIDs.push_back(bonusId);
+        itemBonusInstanceData->BonusListIDs.push_back(bonusId);
     }
 
     return data;
@@ -123,15 +125,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
     data << int32(itemInstance.RandomPropertiesSeed);
     data << int32(itemInstance.RandomPropertiesID);
 
-    data.WriteBit(itemInstance.ItemBonus.HasValue);
-    data.WriteBit(itemInstance.Modifications.HasValue);
+    data.WriteBit(itemInstance.ItemBonus.is_initialized());
+    data.WriteBit(itemInstance.Modifications.is_initialized());
     data.FlushBits();
 
-    if (itemInstance.ItemBonus.HasValue)
-        data << itemInstance.ItemBonus.Value;
+    if (itemInstance.ItemBonus)
+        data << *itemInstance.ItemBonus;
 
-    if (itemInstance.Modifications.HasValue)
-        data << itemInstance.Modifications.Value;
+    if (itemInstance.Modifications)
+        data << *itemInstance.Modifications;
 
     return data;
 }
@@ -142,14 +144,18 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemI
     data >> itemInstance.RandomPropertiesSeed;
     data >> itemInstance.RandomPropertiesID;
 
-    itemInstance.ItemBonus.HasValue = data.ReadBit();
-    itemInstance.Modifications.HasValue = data.ReadBit();
+    bool const hasItemBonus = data.ReadBit();
+    bool const hasModifications = data.ReadBit();
 
-    if (itemInstance.ItemBonus.HasValue)
-        data >> itemInstance.ItemBonus.Value;
+    if (hasItemBonus)
+        data >> itemInstance.ItemBonus;
 
-    if (itemInstance.Modifications.HasValue)
-        data >> itemInstance.Modifications.Value;
+    if (hasModifications)
+    {
+        WorldPackets::CompactArray<int32> modifications;
+        data >> modifications;
+        itemInstance.Modifications = std::move(modifications);
+    }
 
     return data;
 }
@@ -174,18 +180,19 @@ void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
     std::vector<uint32> const& bonusListIds = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
     if (!bonusListIds.empty())
     {
-        ItemBonus.HasValue = true;
-        ItemBonus.Value.BonusListIDs.insert(ItemBonus.Value.BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
-        ItemBonus.Value.Context = item->GetUInt32Value(ITEM_FIELD_CONTEXT);
+        ItemBonus = WorldPackets::Item::ItemBonusInstanceData();
+        ItemBonus->BonusListIDs.insert(ItemBonus->BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
+        ItemBonus->Context = item->GetUInt32Value(ITEM_FIELD_CONTEXT);
     }
 
     uint32 mask = item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK);
-    Modifications.HasValue = mask != 0;
+    if (mask != 0)
+        Modifications = WorldPackets::CompactArray<int32>();
 
     for (size_t i = 0; mask != 0; mask >>= 1, ++i)
     {
         if ((mask & 1) != 0)
-            Modifications.Value.Insert(i, item->GetModifier(ItemModifier(i)));
+            Modifications->Insert(i, item->GetModifier(ItemModifier(i)));
     }
 }
 
@@ -196,9 +203,9 @@ void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
     RandomPropertiesID   = lootItem.randomPropertyId;
     if (!lootItem.BonusListIDs.empty())
     {
-        ItemBonus.HasValue = true;
-        ItemBonus.Value.BonusListIDs = lootItem.BonusListIDs;
-        ItemBonus.Value.Context = 0; /// @todo
+        ItemBonus = ItemBonusInstanceData();
+        ItemBonus->BonusListIDs = lootItem.BonusListIDs;
+        ItemBonus->Context = 0; /// @todo
     }
 
     /// no Modifications

@@ -227,7 +227,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     for (G3D::Vector3 const& pos : movementSpline.PackedDeltas)
         data.appendPackXYZ(pos.x, pos.y, pos.z);
     data.WriteBits(movementSpline.Face, 2);
-    data.WriteBit(movementSpline.SplineFilter.HasValue);
+    data.WriteBit(movementSpline.SplineFilter.is_initialized());
     data.FlushBits();
 
     switch (movementSpline.Face)
@@ -244,8 +244,8 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
             break;
     }
 
-    if (movementSpline.SplineFilter.HasValue)
-        data << movementSpline.SplineFilter.Value;
+    if (movementSpline.SplineFilter)
+        data << *movementSpline.SplineFilter;
 
     return data;
 }
@@ -479,16 +479,16 @@ WorldPacket const* WorldPackets::Movement::MoveUpdate::Write()
 WorldPacket const* WorldPackets::Movement::TransferPending::Write()
 {
     _worldPacket << int32(MapID);
-    _worldPacket.WriteBit(Ship.HasValue);
-    _worldPacket.WriteBit(TransferSpellID.HasValue);
-    if (Ship.HasValue)
+    _worldPacket.WriteBit(Ship.is_initialized());
+    _worldPacket.WriteBit(TransferSpellID.is_initialized());
+    if (Ship)
     {
-        _worldPacket << uint32(Ship.Value.ID);
-        _worldPacket << int32(Ship.Value.OriginMapID);
+        _worldPacket << uint32(Ship->ID);
+        _worldPacket << int32(Ship->OriginMapID);
     }
 
-    if (TransferSpellID.HasValue)
-        _worldPacket << int32(TransferSpellID.Value);
+    if (TransferSpellID)
+        _worldPacket << int32(*TransferSpellID);
 
     _worldPacket.FlushBits();
 
@@ -519,18 +519,18 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
     _worldPacket << Pos.PositionXYZStream();
     _worldPacket << Facing;
 
-    _worldPacket.WriteBit(TransportGUID.HasValue);
-    _worldPacket.WriteBit(Vehicle.HasValue);
+    _worldPacket.WriteBit(TransportGUID.is_initialized());
+    _worldPacket.WriteBit(Vehicle.is_initialized());
     _worldPacket.FlushBits();
 
-    if (TransportGUID.HasValue)
-        _worldPacket << TransportGUID.Value;
+    if (TransportGUID)
+        _worldPacket << *TransportGUID;
 
-    if (Vehicle.HasValue)
+    if (Vehicle)
     {
-        _worldPacket << Vehicle.Value.VehicleSeatIndex;
-        _worldPacket.WriteBit(Vehicle.Value.VehicleExitVoluntary);
-        _worldPacket.WriteBit(Vehicle.Value.VehicleExitTeleport);
+        _worldPacket << Vehicle->VehicleSeatIndex;
+        _worldPacket.WriteBit(Vehicle->VehicleExitVoluntary);
+        _worldPacket.WriteBit(Vehicle->VehicleExitTeleport);
         _worldPacket.FlushBits();
     }
 
@@ -552,44 +552,44 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
         _worldPacket.FlushBits();
     }
 
-    _worldPacket.WriteBit(WalkSpeed.HasValue);
-    _worldPacket.WriteBit(RunSpeed.HasValue);
-    _worldPacket.WriteBit(RunBackSpeed.HasValue);
-    _worldPacket.WriteBit(SwimSpeed.HasValue);
-    _worldPacket.WriteBit(SwimBackSpeed.HasValue);
-    _worldPacket.WriteBit(FlightSpeed.HasValue);
-    _worldPacket.WriteBit(FlightBackSpeed.HasValue);
-    _worldPacket.WriteBit(TurnRate.HasValue);
-    _worldPacket.WriteBit(PitchRate.HasValue);
+    _worldPacket.WriteBit(WalkSpeed.is_initialized());
+    _worldPacket.WriteBit(RunSpeed.is_initialized());
+    _worldPacket.WriteBit(RunBackSpeed.is_initialized());
+    _worldPacket.WriteBit(SwimSpeed.is_initialized());
+    _worldPacket.WriteBit(SwimBackSpeed.is_initialized());
+    _worldPacket.WriteBit(FlightSpeed.is_initialized());
+    _worldPacket.WriteBit(FlightBackSpeed.is_initialized());
+    _worldPacket.WriteBit(TurnRate.is_initialized());
+    _worldPacket.WriteBit(PitchRate.is_initialized());
 
     _worldPacket.FlushBits();
 
-    if (WalkSpeed.HasValue)
-        _worldPacket << WalkSpeed.Value;
+    if (WalkSpeed)
+        _worldPacket << *WalkSpeed;
 
-    if (RunSpeed.HasValue)
-        _worldPacket << RunSpeed.Value;
+    if (RunSpeed)
+        _worldPacket << *RunSpeed;
 
-    if (RunBackSpeed.HasValue)
-        _worldPacket << RunBackSpeed.Value;
+    if (RunBackSpeed)
+        _worldPacket << *RunBackSpeed;
 
-    if (SwimSpeed.HasValue)
-        _worldPacket << SwimSpeed.Value;
+    if (SwimSpeed)
+        _worldPacket << *SwimSpeed;
 
-    if (SwimBackSpeed.HasValue)
-        _worldPacket << SwimBackSpeed.Value;
+    if (SwimBackSpeed)
+        _worldPacket << *SwimBackSpeed;
 
-    if (FlightSpeed.HasValue)
-        _worldPacket << FlightSpeed.Value;
+    if (FlightSpeed)
+        _worldPacket << *FlightSpeed;
 
-    if (FlightBackSpeed.HasValue)
-        _worldPacket << FlightBackSpeed.Value;
+    if (FlightBackSpeed)
+        _worldPacket << *FlightBackSpeed;
 
-    if (TurnRate.HasValue)
-        _worldPacket << TurnRate.Value;
+    if (TurnRate)
+        _worldPacket << *TurnRate;
 
-    if (PitchRate.HasValue)
-        _worldPacket << PitchRate.Value;
+    if (PitchRate)
+        _worldPacket << *PitchRate;
 
     return &_worldPacket;
 }

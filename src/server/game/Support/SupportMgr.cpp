@@ -322,7 +322,7 @@ void ComplaintTicket::LoadFromDB(Field* fields)
     _complaintType          = GMSupportComplaintType(fields[++idx].GetUInt8());
     int32 reportLineIndex = fields[++idx].GetInt32();
     if (reportLineIndex != -1)
-        _chatLog.ReportLineIndex.Set(reportLineIndex);
+        _chatLog.ReportLineIndex = reportLineIndex;
 
     int64 closedBy = fields[++idx].GetInt64();
     if (closedBy == 0)
@@ -364,8 +364,8 @@ void ComplaintTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setFloat(++idx, _facing);
     stmt->setUInt64(++idx, _targetCharacterGuid.GetCounter());
     stmt->setUInt8(++idx, _complaintType);
-    if (_chatLog.ReportLineIndex.HasValue)
-        stmt->setInt32(++idx, _chatLog.ReportLineIndex.Value);
+    if (_chatLog.ReportLineIndex)
+        stmt->setInt32(++idx, *_chatLog.ReportLineIndex);
     else
         stmt->setInt32(++idx, -1); // empty ReportLineIndex
     stmt->setInt64(++idx, _closedBy.GetCounter());
@@ -1056,18 +1056,18 @@ void SupportMgr::SendGmTicket(WorldSession* session, GmTicket* ticket) const
     if (ticket)
     {
         response.Result = GMTICKET_STATUS_HASTEXT;
-        response.Info.HasValue = true;
+        response.Info = WorldPackets::Ticket::GMTicketGetTicketResponse::GMTicketInfo();
 
-        response.Info.Value.TicketID = ticket->GetId();
-        response.Info.Value.TicketDescription = ticket->GetDescription();
-        response.Info.Value.Category = 1;
-        response.Info.Value.TicketOpenTime = GetAge(ticket->GetLastModifiedTime());
-        response.Info.Value.OldestTicketTime = sSupportMgr->GetOldestOpenTicket() ? GetAge(sSupportMgr->GetOldestOpenTicket()->GetLastModifiedTime()) : float(0);
-        response.Info.Value.UpdateTime = GetAge(sSupportMgr->GetLastChange());
-        response.Info.Value.AssignedToGM = ticket->GetAssigendToStatus();
-        response.Info.Value.OpenedByGM = ticket->GetOpenedByGmStatus();
-        response.Info.Value.WaitTimeOverrideMessage = "";
-        response.Info.Value.WaitTimeOverrideMinutes = 0;
+        response.Info->TicketID = ticket->GetId();
+        response.Info->TicketDescription = ticket->GetDescription();
+        response.Info->Category = 1;
+        response.Info->TicketOpenTime = GetAge(ticket->GetLastModifiedTime());
+        response.Info->OldestTicketTime = sSupportMgr->GetOldestOpenTicket() ? GetAge(sSupportMgr->GetOldestOpenTicket()->GetLastModifiedTime()) : float(0);
+        response.Info->UpdateTime = GetAge(sSupportMgr->GetLastChange());
+        response.Info->AssignedToGM = ticket->GetAssigendToStatus();
+        response.Info->OpenedByGM = ticket->GetOpenedByGmStatus();
+        response.Info->WaitTimeOverrideMessage = "";
+        response.Info->WaitTimeOverrideMinutes = 0;
     }
     else
         response.Result = GMTICKET_STATUS_DEFAULT;

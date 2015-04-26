@@ -2155,9 +2155,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 transferPending.MapID = mapid;
                 if (Transport* transport = GetTransport())
                 {
-                    transferPending.Ship.HasValue = true;
-                    transferPending.Ship.Value.ID = transport->GetEntry();
-                    transferPending.Ship.Value.OriginMapID = GetMapId();
+                    transferPending.Ship = WorldPackets::Movement::TransferPending::ShipTransferPending();
+                    transferPending.Ship->ID = transport->GetEntry();
+                    transferPending.Ship->OriginMapID = GetMapId();
                 }
 
                 GetSession()->SendPacket(transferPending.Write());
@@ -6859,9 +6859,9 @@ void Player::SendNewCurrency(uint32 id) const
     WorldPackets::Misc::SetupCurrency::Record record;
     record.Type = entry->ID;
     record.Quantity = itr->second.Quantity;
-    record.WeeklyQuantity.Set(itr->second.WeeklyQuantity);
-    record.MaxWeeklyQuantity.Set(GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1));
-    record.TrackedQuantity.Set(itr->second.TrackedQuantity);
+    record.WeeklyQuantity = itr->second.WeeklyQuantity;
+    record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1);
+    record.TrackedQuantity = itr->second.TrackedQuantity;
     record.Flags = itr->second.Flags;
 
     packet.Data.push_back(record);
@@ -6885,9 +6885,9 @@ void Player::SendCurrencies() const
         WorldPackets::Misc::SetupCurrency::Record record;
         record.Type = entry->ID;
         record.Quantity = itr->second.Quantity;
-        record.WeeklyQuantity.Set(itr->second.WeeklyQuantity);
-        record.MaxWeeklyQuantity.Set(GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1));
-        record.TrackedQuantity.Set(itr->second.TrackedQuantity);
+        record.WeeklyQuantity = itr->second.WeeklyQuantity;
+        record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1);
+        record.TrackedQuantity = itr->second.TrackedQuantity;
         record.Flags = itr->second.Flags;
 
         packet.Data.push_back(record);
@@ -7033,8 +7033,8 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         packet.Type = id;
         packet.Quantity = newTotalCount;
         packet.SuppressChatLog = !printLog;
-        packet.WeeklyQuantity.Set(newWeekCount);
-        packet.TrackedQuantity.Set(newTrackedCount);
+        packet.WeeklyQuantity = newWeekCount;
+        packet.TrackedQuantity = newTrackedCount;
         packet.Flags = itr->second.Flags;
 
         GetSession()->SendPacket(packet.Write());
@@ -22538,12 +22538,12 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_WORLD_SERVER_INFO
     WorldPackets::Misc::WorldServerInfo worldServerInfo;
-    worldServerInfo.IneligibleForLootMask.Clear();     /// @todo
+    // worldServerInfo.IneligibleForLootMask; /// @todo
     worldServerInfo.WeeklyReset = sWorld->GetNextWeeklyQuestsResetTime() - WEEK;
-    worldServerInfo.InstanceGroupSize.Set(GetMap()->GetMapDifficulty()->MaxPlayers);
-    worldServerInfo.IsTournamentRealm = 0;             /// @todo
-    worldServerInfo.RestrictedAccountMaxLevel.Clear(); /// @todo
-    worldServerInfo.RestrictedAccountMaxMoney.Clear(); /// @todo
+    worldServerInfo.InstanceGroupSize = GetMap()->GetMapDifficulty()->MaxPlayers;
+    worldServerInfo.IsTournamentRealm = 0; /// @todo
+    // worldServerInfo.RestrictedAccountMaxLevel; /// @todo
+    // worldServerInfo.RestrictedAccountMaxMoney; /// @todo
     worldServerInfo.DifficultyID = GetMap()->GetDifficultyID();
     SendDirectMessage(worldServerInfo.Write());
 
