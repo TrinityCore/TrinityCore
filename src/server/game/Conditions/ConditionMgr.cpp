@@ -1565,6 +1565,9 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 if (!effect)
                     continue;
 
+                if (effect->ChainTarget > 0)
+                    continue;
+
                 switch (effect->TargetA.GetSelectionCategory())
                 {
                     case TARGET_SELECT_CATEGORY_NEARBY:
@@ -1585,7 +1588,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                         break;
                 }
 
-                TC_LOG_ERROR("sql.sql", "SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_ for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(i));
+                TC_LOG_ERROR("sql.sql", "SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, __CHAIN__ for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(i));
                 cond->SourceGroup &= ~(1 << i);
             }
             // all effects were removed, no need to add the condition at all
