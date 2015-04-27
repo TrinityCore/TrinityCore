@@ -143,7 +143,7 @@ WorldPacket const* WorldPackets::Spells::AuraUpdate::Write()
 
 ByteBuffer& operator>>(ByteBuffer& buffer, Optional<WorldPackets::Spells::TargetLocation>& location)
 {
-    location = WorldPackets::Spells::TargetLocation();
+    location = boost::in_place();
     buffer >> location->Transport;
     buffer >> location->Location.m_positionX;
     buffer >> location->Location.m_positionY;

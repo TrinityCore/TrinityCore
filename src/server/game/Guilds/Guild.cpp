@@ -1313,7 +1313,7 @@ void Guild::SendQueryResponse(WorldSession* session)
 {
     WorldPackets::Guild::QueryGuildInfoResponse response;
     response.GuildGuid = GetGUID();
-    response.Info = WorldPackets::Guild::QueryGuildInfoResponse::GuildInfo();
+    response.Info = boost::in_place();
 
     response.Info->GuildGUID = GetGUID();
     response.Info->VirtualRealmAddress = GetVirtualRealmAddress();

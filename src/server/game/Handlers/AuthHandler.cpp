@@ -28,13 +28,13 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 
     if (queued)
     {
-        response.WaitInfo = WorldPackets::Auth::AuthResponse::AuthWaitInfo();
+        response.WaitInfo = boost::in_place();
         response.WaitInfo->WaitCount = queuePos;
     }
 
     if (code == AUTH_OK)
     {
-        response.SuccessInfo = WorldPackets::Auth::AuthResponse::AuthSuccessInfo();
+        response.SuccessInfo = boost::in_place();
 
         response.SuccessInfo->AccountExpansionLevel = GetExpansion();
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
@@ -64,7 +64,7 @@ void WorldSession::SendAuthWaitQue(uint32 position)
         response.Result = AUTH_OK;
     else
     {
-        response.WaitInfo = WorldPackets::Auth::AuthResponse::AuthWaitInfo();
+        response.WaitInfo = boost::in_place();
         response.WaitInfo->WaitCount = position;
         response.Result = AUTH_WAIT_QUEUE;
     }
