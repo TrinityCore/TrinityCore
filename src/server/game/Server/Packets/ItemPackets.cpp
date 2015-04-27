@@ -104,7 +104,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Item::ItemBonusI
 {
     uint32 bonusListIdSize;
 
-    itemBonusInstanceData = WorldPackets::Item::ItemBonusInstanceData();
+    itemBonusInstanceData = boost::in_place();
 
     data >> itemBonusInstanceData->Context;
     data >> bonusListIdSize;
@@ -180,7 +180,7 @@ void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
     std::vector<uint32> const& bonusListIds = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
     if (!bonusListIds.empty())
     {
-        ItemBonus = WorldPackets::Item::ItemBonusInstanceData();
+        ItemBonus = boost::in_place();
         ItemBonus->BonusListIDs.insert(ItemBonus->BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
         ItemBonus->Context = item->GetUInt32Value(ITEM_FIELD_CONTEXT);
     }
@@ -203,7 +203,7 @@ void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
     RandomPropertiesID   = lootItem.randomPropertyId;
     if (!lootItem.BonusListIDs.empty())
     {
-        ItemBonus = ItemBonusInstanceData();
+        ItemBonus = boost::in_place();
         ItemBonus->BonusListIDs = lootItem.BonusListIDs;
         ItemBonus->Context = 0; /// @todo
     }

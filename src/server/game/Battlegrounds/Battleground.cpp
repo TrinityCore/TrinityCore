@@ -1325,7 +1325,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
         playerData.Faction = score.second->TeamId;
         if (score.second->HonorableKills || score.second->Deaths || score.second->BonusHonor)
         {
-            playerData.Honor = WorldPackets::Battleground::PVPLogData::HonorData();
+            playerData.Honor = boost::in_place();
             playerData.Honor->HonorKills = score.second->HonorableKills;
             playerData.Honor->Deaths = score.second->Deaths;
             playerData.Honor->ContributionPoints = score.second->BonusHonor;
@@ -1354,7 +1354,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
 
     if (isRated())
     {
-        pvpLogData.Ratings = WorldPackets::Battleground::PVPLogData::RatingData();
+        pvpLogData.Ratings = boost::in_place();
 
         for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
         {

@@ -65,7 +65,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
 
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
     {
-        inspectResult.GuildData = WorldPackets::Inspect::InspectGuildData();
+        inspectResult.GuildData = boost::in_place();
         inspectResult.GuildData->GuildGUID = guild->GetGUID();
         inspectResult.GuildData->NumGuildMembers = guild->GetMembersCount();
         inspectResult.GuildData->AchievementPoints = guild->GetAchievementMgr().GetAchievementPoints();

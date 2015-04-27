@@ -1056,7 +1056,7 @@ void SupportMgr::SendGmTicket(WorldSession* session, GmTicket* ticket) const
     if (ticket)
     {
         response.Result = GMTICKET_STATUS_HASTEXT;
-        response.Info = WorldPackets::Ticket::GMTicketGetTicketResponse::GMTicketInfo();
+        response.Info = boost::in_place();
 
         response.Info->TicketID = ticket->GetId();
         response.Info->TicketDescription = ticket->GetDescription();

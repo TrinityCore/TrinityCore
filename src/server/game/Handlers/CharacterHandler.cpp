@@ -1135,7 +1135,7 @@ void WorldSession::SendFeatureSystemStatus()
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
 
-    features.EuropaTicketSystemStatus = WorldPackets::System::FeatureSystemStatus::EuropaTicketConfig();
+    features.EuropaTicketSystemStatus = boost::in_place();
     features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
     features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;
     features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
@@ -2583,7 +2583,7 @@ void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Cha
 
     if (result == RESPONSE_SUCCESS)
     {
-        packet.Display = WorldPackets::Character::CharFactionChangeResult::CharFactionChangeDisplayInfo();
+        packet.Display = boost::in_place();
         packet.Display->Name = factionChangeInfo->Name;
         packet.Display->SexID = factionChangeInfo->SexID;
         packet.Display->SkinID = *factionChangeInfo->SkinID;

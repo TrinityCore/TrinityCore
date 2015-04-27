@@ -236,7 +236,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubm
 
 ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketMailInfo>& mail)
 {
-    mail = WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketMailInfo();
+    mail = boost::in_place();
 
     data >> mail->MailID;
     uint16 bodyLength = data.ReadBits(13);
@@ -250,7 +250,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
 
 ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketCalendarEventInfo>& event)
 {
-    event = WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketCalendarEventInfo();
+    event = boost::in_place();
     data >> event->EventID;
     data >> event->InviteID;
     uint8 titleLength = data.ReadBits(8);
@@ -262,7 +262,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
 
 ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketPetInfo>& pet)
 {
-    pet = WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketPetInfo();
+    pet = boost::in_place();
     data >> pet->PetID;
     uint8 nameLength = data.ReadBits(8);
 
@@ -273,7 +273,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
 
 ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketGuildInfo>& guild)
 {
-    guild = WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketGuildInfo();
+    guild = boost::in_place();
     data >> guild->GuildID;
     uint8 nameLength = data.ReadBits(8);
 
@@ -284,7 +284,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
 
 ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::Struct5E4383>& str)
 {
-    str = WorldPackets::Ticket::SupportTicketSubmitComplaint::Struct5E4383();
+    str = boost::in_place();
     data >> str->RideTicket;
     data >> str->_40;
     data >> str->_56;
