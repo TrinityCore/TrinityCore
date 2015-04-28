@@ -51,7 +51,7 @@ void AddItemsSetItem(Player* player, Item* item)
 
     for (size_t x = 0; x < player->ItemSetEff.size(); ++x)
     {
-        if (player->ItemSetEff[x] && player->ItemSetEff[x]->setid == setid)
+        if (player->ItemSetEff[x] && player->ItemSetEff[x]->ItemSetID == setid)
         {
             eff = player->ItemSetEff[x];
             break;
@@ -61,7 +61,8 @@ void AddItemsSetItem(Player* player, Item* item)
     if (!eff)
     {
         eff = new ItemSetEffect();
-        eff->setid = setid;
+        eff->ItemSetID = setid;
+        eff->EquippedItemCount = 0;
 
         size_t x = 0;
         for (; x < player->ItemSetEff.size(); ++x)
@@ -69,51 +70,39 @@ void AddItemsSetItem(Player* player, Item* item)
                 break;
 
         if (x < player->ItemSetEff.size())
-            player->ItemSetEff[x]=eff;
+            player->ItemSetEff[x] = eff;
         else
             player->ItemSetEff.push_back(eff);
     }
 
-    ++eff->item_count;
+    ++eff->EquippedItemCount;
 
     ItemSetSpells& spells = sItemSetSpellsStore[setid];
 
-    for (uint32 x = 0; x < spells.size(); ++x)
+    for (ItemSetSpellEntry const* itemSetSpell : spells)
     {
         //not enough for  spell
-        if (spells[x]->Threshold > eff->item_count)
+        if (itemSetSpell->Threshold > eff->EquippedItemCount)
             continue;
 
-        uint32 z = 0;
-        for (; z < MAX_ITEM_SET_SPELLS; ++z)
-            if (eff->spells[z] && eff->spells[z]->Id == spells[x]->SpellID)
-                break;
-
-        if (z < MAX_ITEM_SET_SPELLS)
+        if (eff->SetBonuses.count(itemSetSpell))
             continue;
 
-        //new spell
-        for (uint32 y = 0; y < MAX_ITEM_SET_SPELLS; ++y)
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemSetSpell->SpellID);
+        if (!spellInfo)
         {
-            if (!eff->spells[y])                             // free slot
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spells[x]->SpellID);
-                if (!spellInfo)
-                {
-                    TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", spells[x]->SpellID, setid);
-                    break;
-                }
-
-                // spell cast only if fit form requirement, in other case will cast at form change
-                player->ApplyEquipSpell(spellInfo, NULL, true);
-                eff->spells[y] = spellInfo;
-                break;
-            }
+            TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", itemSetSpell->SpellID, setid);
+            continue;
         }
+
+        eff->SetBonuses.insert(itemSetSpell);
+        // spell cast only if fit form requirement, in other case will cast at form change
+        if (!itemSetSpell->ChrSpecID || itemSetSpell->ChrSpecID == player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
+            player->ApplyEquipSpell(spellInfo, NULL, true);
     }
 }
 
-void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
+void RemoveItemsSetItem(Player* player, ItemTemplate const* proto)
 {
     uint32 setid = proto->GetItemSet();
 
@@ -129,7 +118,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
     size_t setindex = 0;
     for (; setindex < player->ItemSetEff.size(); setindex++)
     {
-        if (player->ItemSetEff[setindex] && player->ItemSetEff[setindex]->setid == setid)
+        if (player->ItemSetEff[setindex] && player->ItemSetEff[setindex]->ItemSetID == setid)
         {
             eff = player->ItemSetEff[setindex];
             break;
@@ -140,29 +129,23 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
     if (!eff)
         return;
 
-    --eff->item_count;
+    --eff->EquippedItemCount;
 
-    ItemSetSpells& spells = sItemSetSpellsStore[setid];
-
-    for (uint32 x = 0; x < spells.size(); x++)
+    ItemSetSpells const& spells = sItemSetSpellsStore[setid];
+    for (ItemSetSpellEntry const* itemSetSpell : spells)
     {
         // enough for spell
-        if (spells[x]->Threshold <= eff->item_count)
+        if (itemSetSpell->Threshold <= eff->EquippedItemCount)
             continue;
 
-        for (uint32 z = 0; z < MAX_ITEM_SET_SPELLS; z++)
-        {
-            if (eff->spells[z] && eff->spells[z]->Id == spells[x]->SpellID)
-            {
-                // spell can be not active if not fit form requirement
-                player->ApplyEquipSpell(eff->spells[z], NULL, false);
-                eff->spells[z]=NULL;
-                break;
-            }
-        }
+        if (!eff->SetBonuses.count(itemSetSpell))
+            continue;
+
+        player->ApplyEquipSpell(sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID), nullptr, false);
+        eff->SetBonuses.erase(itemSetSpell);
     }
 
-    if (!eff->item_count)                                    //all items of a set were removed
+    if (!eff->EquippedItemCount)                                    //all items of a set were removed
     {
         ASSERT(eff == player->ItemSetEff[setindex]);
         delete eff;

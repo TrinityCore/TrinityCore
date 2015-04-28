@@ -100,15 +100,15 @@ void WorldPackets::Query::QueryPlayerName::Read()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint)
 {
-    data.WriteBit(lookupHint.VirtualRealmAddress.HasValue);
-    data.WriteBit(lookupHint.NativeRealmAddress.HasValue);
+    data.WriteBit(lookupHint.VirtualRealmAddress.is_initialized());
+    data.WriteBit(lookupHint.NativeRealmAddress.is_initialized());
     data.FlushBits();
 
-    if (lookupHint.VirtualRealmAddress.HasValue)
-        data << uint32(lookupHint.VirtualRealmAddress.Value);
+    if (lookupHint.VirtualRealmAddress)
+        data << uint32(*lookupHint.VirtualRealmAddress);
 
-    if (lookupHint.NativeRealmAddress.HasValue)
-        data << uint32(lookupHint.NativeRealmAddress.Value);
+    if (lookupHint.NativeRealmAddress)
+        data << uint32(*lookupHint.NativeRealmAddress);
 
     return data;
 }

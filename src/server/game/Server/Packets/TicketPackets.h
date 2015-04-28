@@ -359,6 +359,18 @@ namespace WorldPackets
             uint32 ComplaintType = 0;
             uint8 Result = 0;
         };
+
+        class BugReport final : public ClientPacket
+        {
+        public:
+            BugReport(WorldPacket&& packet) : ClientPacket(CMSG_BUG_REPORT, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Type = 0;
+            std::string Text;
+            std::string DiagInfo;
+        };
     }
 }
 

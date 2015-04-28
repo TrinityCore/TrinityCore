@@ -33,11 +33,11 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     _worldPacket.WriteBit(Periodic);
     _worldPacket.WriteBits(Flags, 9);
     _worldPacket.WriteBit(false); // Debug info
-    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.WriteBit(LogData.is_initialized());
     _worldPacket.FlushBits();
 
-    if (LogData.HasValue)
-        _worldPacket << LogData.Value;
+    if (LogData)
+        _worldPacket << *LogData;
 
     return &_worldPacket;
 }
@@ -50,11 +50,11 @@ WorldPacket const* WorldPackets::CombatLog::EnvironmentalDamageLog::Write()
     _worldPacket << Resisted;
     _worldPacket << Absorbed;
 
-    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.WriteBit(LogData.is_initialized());
     _worldPacket.FlushBits();
 
-    if (LogData.HasValue)
-        _worldPacket << LogData.Value;
+    if (LogData)
+        _worldPacket << *LogData;
 
     return &_worldPacket;
 }
@@ -109,11 +109,11 @@ WorldPacket const* WorldPackets::CombatLog::SpellExecuteLog::Write()
             _worldPacket << feedPetTarget.ItemID;
     }
 
-    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.WriteBit(LogData.is_initialized());
     _worldPacket.FlushBits();
 
-    if (LogData.HasValue)
-        _worldPacket << LogData.Value;
+    if (LogData)
+        _worldPacket << *LogData;
 
     return &_worldPacket;
 }
@@ -131,19 +131,19 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
     _worldPacket.WriteBit(Crit);
     _worldPacket.WriteBit(Multistrike);
 
-    _worldPacket.WriteBit(CritRollMade.HasValue);
-    _worldPacket.WriteBit(CritRollNeeded.HasValue);
-    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.WriteBit(CritRollMade.is_initialized());
+    _worldPacket.WriteBit(CritRollNeeded.is_initialized());
+    _worldPacket.WriteBit(LogData.is_initialized());
     _worldPacket.FlushBits();
 
-    if (CritRollMade.HasValue)
-        _worldPacket << CritRollMade.Value;
+    if (CritRollMade)
+        _worldPacket << *CritRollMade;
 
-    if (CritRollNeeded.HasValue)
-        _worldPacket << CritRollNeeded.Value;
+    if (CritRollNeeded)
+        _worldPacket << *CritRollNeeded;
 
-    if (LogData.HasValue)
-        _worldPacket << LogData.Value;
+    if (LogData)
+        _worldPacket << *LogData;
 
     return &_worldPacket;
 }

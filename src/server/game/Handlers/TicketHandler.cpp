@@ -203,6 +203,9 @@ void WorldSession::HandleGMResponseResolve(WorldPackets::Ticket::GMTicketRespons
 
 void WorldSession::HandleSupportTicketSubmitBug(WorldPackets::Ticket::SupportTicketSubmitBug& packet)
 {
+    if (!sSupportMgr->GetBugSystemStatus())
+        return;
+
     BugTicket* ticket = new BugTicket(GetPlayer());
     ticket->SetPosition(packet.Header.MapID, packet.Header.Position);
     ticket->SetFacing(packet.Header.Facing);
@@ -213,6 +216,9 @@ void WorldSession::HandleSupportTicketSubmitBug(WorldPackets::Ticket::SupportTic
 
 void WorldSession::HandleSupportTicketSubmitSuggestion(WorldPackets::Ticket::SupportTicketSubmitSuggestion& packet)
 {
+    if (!sSupportMgr->GetSuggestionSystemStatus())
+        return;
+
     SuggestionTicket* ticket = new SuggestionTicket(GetPlayer());
     ticket->SetPosition(packet.Header.MapID, packet.Header.Position);
     ticket->SetFacing(packet.Header.Facing);
@@ -223,6 +229,9 @@ void WorldSession::HandleSupportTicketSubmitSuggestion(WorldPackets::Ticket::Sup
 
 void WorldSession::HandleSupportTicketSubmitComplaint(WorldPackets::Ticket::SupportTicketSubmitComplaint& packet)
 {
+    if (!sSupportMgr->GetComplaintSystemStatus())
+        return;
+
     ComplaintTicket* comp = new ComplaintTicket(GetPlayer());
     comp->SetPosition(packet.Header.MapID, packet.Header.Position);
     comp->SetFacing(packet.Header.Facing);
@@ -232,5 +241,16 @@ void WorldSession::HandleSupportTicketSubmitComplaint(WorldPackets::Ticket::Supp
     comp->SetNote(packet.Note);
 
     sSupportMgr->AddTicket(comp);
+}
 
+void WorldSession::HandleBugReportOpcode(WorldPackets::Ticket::BugReport& bugReport)
+{
+    // Note: There is no way to trigger this with standard UI except /script ReportBug("text")
+    if (!sSupportMgr->GetBugSystemStatus())
+        return;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
+    stmt->setString(0, bugReport.Text);
+    stmt->setString(1, bugReport.DiagInfo);
+    CharacterDatabase.Execute(stmt);
 }

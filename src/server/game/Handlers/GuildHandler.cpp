@@ -417,18 +417,8 @@ void WorldSession::HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildM
         guild->HandleSetNewGuildMaster(this, packet.NewMasterName);
 }
 
-void WorldSession::HandleGuildSetAchievementTracking(WorldPacket& recvPacket)
+void WorldSession::HandleGuildSetAchievementTracking(WorldPackets::Guild::GuildSetAchievementTracking& packet)
 {
-    uint32 count = recvPacket.ReadBits(24);
-    std::set<uint32> achievementIds;
-
-    for (uint32 i = 0; i < count; ++i)
-    {
-        uint32 achievementId;
-        recvPacket >> achievementId;
-        achievementIds.insert(achievementId);
-    }
-
     if (Guild* guild = GetPlayer()->GetGuild())
-        guild->HandleSetAchievementTracking(this, achievementIds);
+        guild->HandleSetAchievementTracking(this, packet.AchievementIDs);
 }

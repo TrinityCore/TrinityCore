@@ -256,7 +256,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
         bool itemValid = false;
         for (uint32 i = 0; i < quest->GetRewChoiceItemsCount(); ++i)
         {
-            if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemId[i] == packet.ItemChoiceID)
+            if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemId[i] == uint32(packet.ItemChoiceID))
             {
                 itemValid = true;
                 break;
@@ -269,7 +269,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
             {
                 for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
                 {
-                    if (questPackageItem->ItemID != packet.ItemChoiceID)
+                    if (questPackageItem->ItemID != uint32(packet.ItemChoiceID))
                         continue;
 
                     if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))

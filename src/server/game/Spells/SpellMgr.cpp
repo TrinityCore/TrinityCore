@@ -3087,18 +3087,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENEMY);
                 break;
             case 63320: // Glyph of Life Tap
-            case 53228: // Rapid Killing (Rank 1)
-            case 53232: // Rapid Killing (Rank 2)
                 // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             case 5308: // Execute
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
-                break;
-            case 59725: // Improved Spell Reflection - aoe aura
-                // Target entry seems to be wrong for this spell :/
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS_2);
                 break;
             case 31347: // Doom
             case 36327: // Shoot Arcane Explosion Arrow
@@ -3140,8 +3133,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 41376: // Spite
             case 45248: // Shadow Blades
             case 46771: // Flame Sear
-            case 54171: // Divine Storm
-            case 54172: // Divine Storm (heal)
             case 66588: // Flaming Spear
                 spellInfo->MaxAffectedTargets = 3;
                 break;
@@ -3177,10 +3168,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 17941: // Shadow Trance
             case 22008: // Netherwind Focus
             case 34477: // Misdirection
-            case 34936: // Backlash
             case 48108: // Hot Streak
             case 51124: // Killing Machine
-            case 54741: // Firestarter
             case 57761: // Fireball!
             case 64823: // Item - Druid T8 Balance 4P Bonus
             case 88819: // Daybreak
@@ -3189,20 +3178,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 44544: // Fingers of Frost
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(685904631, 1151048, 0, 0);
                 break;
-            case 74396: // Fingers of Frost visual buff
-                spellInfo->ProcCharges = 2;
-                spellInfo->StackAmount = 0;
-                break;
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
-                break;
-            case 47201: // Everlasting Affliction (1)
-            case 47202: // Everlasting Affliction (2)
-            case 47203: // Everlasting Affliction (3)
-            case 47204: // Everlasting Affliction (4)
-            case 47205: // Everlasting Affliction (5)
-                // add corruption to affected spells
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->SpellClassMask[0] |= 2;
                 break;
             case 37408: // Oscillation Field
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
@@ -3212,32 +3189,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 51912: // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->ApplyAuraPeriod = 3000;
-                break;
-            // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
-            // To prevent aura staying on target after talent unlearned
-            case 48420: // Master Shapeshifter
-            case 24900: // Heart of the Wild - Cat Effect
-                spellInfo->Stances = 1 << (FORM_CAT - 1);
-                break;
-            case 24899: // Heart of the Wild - Bear Effect
-                spellInfo->Stances = 1 << (FORM_BEAR - 1);
-                break;
-            case 48421: // Master Shapeshifter
-                spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
-                break;
-            case 51466: // Elemental Oath (Rank 1)
-            case 51470: // Elemental Oath (Rank 2)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->Effect = SPELL_EFFECT_APPLY_AURA;
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->MiscValue = SPELLMOD_EFFECT2;
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->SpellClassMask = flag128(0x00000000, 0x00004000, 0x00000000, 0x00000000);
-                break;
-            case 47569: // Improved Shadowform (Rank 1)
-                // with this spell atrribute aura can be stacked several times
-                spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
-                break;
-            case 64904: // Hymn of Hope
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->ApplyAuraName = SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT;
                 break;
             case 30421: // Nether Portal - Perseverence
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->BasePoints += 30000;
@@ -3260,19 +3211,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
                 break;
-            case 63675: // Improved Devouring Plague
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-                break;
-            case 12721: // Deep Wounds shouldnt ignore resillience or damage taken auras because its damage is not based off a spell.
-                spellInfo->AttributesEx4 = 0;
-                break;
             case 8145: // Tremor Totem (instant pulse)
             case 6474: // Earthbind Totem (instant pulse)
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
-                break;
-            case 53241: // Marked for Death (Rank 1)
-            case 53243: // Marked for Death (Rank 2)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(0x00067801, 0x10820001, 0x00000801, 0x00000000);
                 break;
             case 5176:  // Wrath
             case 2912:  // Starfire
@@ -3285,32 +3226,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo(TARGET_UNIT_PET);
                 break;
-            case 70893: // Culling The Herd (needs target selection script)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo(TARGET_UNIT_MASTER);
-                break;
-            case 54800: // Sigil of the Frozen Conscience - change class mask to custom extended flags of Icy Touch
-                        // this is done because another spell also uses the same SpellFamilyFlags as Icy Touch
-                        // SpellFamilyFlags[0] & 0x00000040 in SPELLFAMILY_DEATHKNIGHT is currently unused (3.3.5a)
-                        // this needs research on modifier applying rules, does not seem to be in Attributes fields
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(0x00000040, 0x00000000, 0x00000000, 0x00000000);
-                break;
-            case 64949: // Idol of the Flourishing Life
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(0x00000000, 0x02000000, 0x00000000, 0x00000000);
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                break;
-            case 34231: // Libram of the Lightbringer
-            case 60792: // Libram of Tolerance
-            case 64956: // Libram of the Resolute
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(0x80000000, 0x00000000, 0x00000000, 0x00000000);
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                break;
-            case 28851: // Libram of Light
-            case 28853: // Libram of Divinity
-            case 32403: // Blessed Book of Nagrand
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(0x40000000, 0x00000000, 0x00000000, 0x00000000);
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                break;
             case 45602: // Ride Carpet
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->BasePoints = 0; // force seat 0, vehicle doesn't have the required seat flags for "no seat specified (-1)"
                 break;
@@ -3320,9 +3235,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 71838: // Drain Life - Bryntroll Normal
             case 71839: // Drain Life - Bryntroll Heroic
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
-                break;
-            case 34471: // The Beast Within
-                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED | SPELL_ATTR5_USABLE_WHILE_FEARED | SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
             case 56606: // Ride Jokkum
             case 61791: // Ride Vehicle (Yogg-Saron)
@@ -3348,7 +3260,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 63342: // Focused Eyebeam Summon Trigger (Kologarn)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
-            case 62716: // Growth of Nature (Freya)
             case 65584: // Growth of Nature (Freya)
             case 64381: // Strength of the Pack (Auriaya)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
@@ -3420,28 +3331,12 @@ void SpellMgr::LoadSpellInfoCorrections()
             //
             // TRIAL OF THE CRUSADER SPELLS
             //
-            case 66258: // Infernal Eruption (10N)
-            case 67901: // Infernal Eruption (25N)
+            case 66258: // Infernal Eruption
                 // increase duration from 15 to 18 seconds because caster is already
                 // unsummoned when spell missile hits the ground so nothing happen in result
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(85);
                 break;
             // ENDOF TRIAL OF THE CRUSADER SPELLS
-            //
-            // HALLS OF REFLECTION SPELLS
-            //
-            case 72435: // Defiling Horror
-            case 72452: // Defiling Horror
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_60_YARDS); // 60yd
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_60_YARDS); // 60yd
-                break;
-            case 72830: // Achievement Check
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                break;
-            case 72900: // Start Halls of Reflection Quest AE
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-                break;
-            // ENDOF HALLS OF REFLECTION SPELLS
             //
             // ICECROWN CITADEL SPELLS
             //
@@ -3457,38 +3352,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 70861: // Sindragosa's Lair Teleport
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
-            case 69075: // Bone Storm (Lord Marrowgar)
-            case 70834: // Bone Storm (Lord Marrowgar)
-            case 70835: // Bone Storm (Lord Marrowgar)
-            case 70836: // Bone Storm (Lord Marrowgar)
-            case 72864: // Death Plague (Rotting Frost Giant)
-            case 71160: // Plague Stench (Stinky)
-            case 71161: // Plague Stench (Stinky)
-            case 71123: // Decimate (Stinky & Precious)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yd
-                break;
             case 71169: // Shadow's Fate
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 72347: // Lock Players and Tap Chest
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_NO_INITIAL_AGGRO;
-                break;
-            case 73843: // Award Reputation - Boss Kill
-            case 73844: // Award Reputation - Boss Kill
-            case 73845: // Award Reputation - Boss Kill
-            case 73846: // Award Reputation - Boss Kill
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                break;
-            case 72378: // Blood Nova (Deathbringer Saurfang)
-            case 73058: // Blood Nova (Deathbringer Saurfang)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
-                break;
-            case 72769: // Scent of Blood (Deathbringer Saurfang)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
-                // no break
-            case 72771: // Scent of Blood (Deathbringer Saurfang)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
                 break;
             case 72723: // Resistant Skin (Deathbringer Saurfang adds)
                 // this spell initially granted Shadow damage immunity, however it was removed but the data was left in client
@@ -3509,36 +3377,15 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // THIS IS HERE BECAUSE COOLDOWN ON CREATURE PROCS IS NOT IMPLEMENTED
             case 71604: // Mutated Strength (Professor Putricide)
-            case 72673: // Mutated Strength (Professor Putricide)
-            case 72674: // Mutated Strength (Professor Putricide)
-            case 72675: // Mutated Strength (Professor Putricide)
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->Effect = 0;
                 break;
-            case 72454: // Mutated Plague (Professor Putricide)
-            case 72464: // Mutated Plague (Professor Putricide)
-            case 72506: // Mutated Plague (Professor Putricide)
-            case 72507: // Mutated Plague (Professor Putricide)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                break;
             case 70911: // Unbound Plague (Professor Putricide) (needs target selection script)
-            case 72854: // Unbound Plague (Professor Putricide) (needs target selection script)
-            case 72855: // Unbound Plague (Professor Putricide) (needs target selection script)
-            case 72856: // Unbound Plague (Professor Putricide) (needs target selection script)
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
                 break;
-            case 71518: // Unholy Infusion Quest Credit (Professor Putricide)
-            case 72934: // Blood Infusion Quest Credit (Blood-Queen Lana'thel)
-            case 72289: // Frost Infusion Quest Credit (Sindragosa)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // another missing radius
-                break;
             case 71708: // Empowered Flare (Blood Prince Council)
-            case 72785: // Empowered Flare (Blood Prince Council)
-            case 72786: // Empowered Flare (Blood Prince Council)
-            case 72787: // Empowered Flare (Blood Prince Council)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 71266: // Swarming Shadows
-            case 72890: // Swarming Shadows
                 spellInfo->RequiredAreasID = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
                 break;
             case 70602: // Corruption
@@ -3551,17 +3398,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 71085: // Mana Void (periodic aura)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9); // 30 seconds (missing)
                 break;
-            case 72015: // Frostbolt Volley (only heroic)
-            case 72016: // Frostbolt Volley (only heroic)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
-                break;
             case 70936: // Summon Suppressor (needs target selection script)
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo();
-                break;
-            case 72706: // Achievement Check (Valithria Dreamwalker)
-            case 71357: // Order Whelp
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);   // 200yd
                 break;
             case 70598: // Sindragosa's Fury
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
@@ -3579,26 +3418,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(22); // 45 seconds
                 break;
             case 72754: // Defile
-            case 73708: // Defile
-            case 73709: // Defile
-            case 73710: // Defile
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-                break;
-            case 69030: // Val'kyr Target Search
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 break;
             case 69198: // Raging Spirit Visual
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
-                break;
-            case 73654: // Harvest Souls
-            case 74295: // Harvest Souls
-            case 74296: // Harvest Souls
-            case 74297: // Harvest Souls
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
                 break;
             case 73655: // Harvest Soul
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
@@ -3609,47 +3433,14 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 73530: // Shadow Trap (visual)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); // 5 seconds
                 break;
-            case 73529: // Shadow Trap
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS); // 10yd
-                break;
-            case 74282: // Shadow Trap (searcher)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS); // 3yd
-                break;
-            case 72595: // Restore Soul
-            case 73650: // Restore Soul
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-                break;
-            case 74086: // Destroy Soul
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-                break;
             case 74302: // Summon Spirit Bomb
-            case 74342: // Summon Spirit Bomb
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-                spellInfo->MaxAffectedTargets = 1;
-                break;
-            case 74341: // Summon Spirit Bomb
-            case 74343: // Summon Spirit Bomb
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-                spellInfo->MaxAffectedTargets = 3;
+                spellInfo->MaxAffectedTargets = 2;
                 break;
             case 73579: // Summon Spirit Bomb
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS); // 25yd
                 break;
-            case 72350: // Fury of Frostmourne
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                break;
-            case 75127: // Kill Frostmourne Players
-            case 72351: // Fury of Frostmourne
-            case 72431: // Jump (removes Fury of Frostmourne debuff)
-            case 72429: // Mass Resurrection
-            case 73159: // Play Movie
-            case 73582: // Trigger Vile Spirit (Inside, Heroic)
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                break;
             case 72376: // Raise Dead
                 spellInfo->MaxAffectedTargets = 3;
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
                 break;
             case 71809: // Jump
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(3); // 20yd
@@ -3665,18 +3456,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 74799: // Soul Consumption
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_12_YARDS);
                 break;
-            case 74769: // Twilight Cutter
-            case 77844: // Twilight Cutter
-            case 77845: // Twilight Cutter
-            case 77846: // Twilight Cutter
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yd
-                break;
             case 75509: // Twilight Mending
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             case 75888: // Awaken Flames
-            case 75889: // Awaken Flames
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
                 break;
             // ENDOF RUBY SANCTUM SPELLS
@@ -3737,7 +3521,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
                 break;
             case 96942:  // Gaze of Occu'thar
-            case 101009: // Gaze of Occu'thar
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
                 break;
             case 75610: // Evolution
@@ -3754,20 +3537,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             // ENDOF ISLE OF CONQUEST SPELLS
             //
             default:
-                break;
-        }
-
-        switch (spellInfo->SpellFamilyName)
-        {
-            case SPELLFAMILY_PALADIN:
-                // Seals of the Pure should affect Seal of Righteousness
-                if (spellInfo->SpellIconID == 25 && spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE))
-                    const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask[1] |= 0x20000000;
-                break;
-            case SPELLFAMILY_DEATHKNIGHT:
-                // Icy Touch - extend FamilyFlags (unused value) for Sigil of the Frozen Conscience to use
-                if (spellInfo->SpellIconID == 2721 && spellInfo->SpellFamilyFlags[0] & 0x2)
-                    spellInfo->SpellFamilyFlags[0] |= 0x40;
                 break;
         }
     }
