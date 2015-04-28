@@ -159,11 +159,11 @@ WorldPacket const* WorldPackets::CombatLog::SpellEnergizeLog::Write()
     _worldPacket << PowerTypeID;
     _worldPacket << Amount;
 
-    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.WriteBit(LogData.is_initialized());
     _worldPacket.FlushBits();
 
-    if (LogData.HasValue)
-        _worldPacket << LogData.Value;
+    if (LogData)
+        _worldPacket << *LogData;
 
     return &_worldPacket;
 }
