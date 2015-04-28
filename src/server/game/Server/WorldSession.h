@@ -255,6 +255,7 @@ namespace WorldPackets
         class GuildSetGuildMaster;
         class GuildChallengeUpdateRequest;
         class SaveGuildEmblem;
+        class GuildSetAchievementTracking;
     }
 
     namespace Inspect
@@ -324,6 +325,8 @@ namespace WorldPackets
         class RandomRollClient;
         class ObjectUpdateFailed;
         class ObjectUpdateRescued;
+        class CompleteCinematic;
+        class NextCinematicCamera;
     }
 
     namespace Movement
@@ -453,6 +456,7 @@ namespace WorldPackets
         class SupportTicketSubmitBug;
         class SupportTicketSubmitSuggestion;
         class SupportTicketSubmitComplaint;
+        class BugReport;
     }
 
     namespace Token
@@ -976,6 +980,7 @@ class WorldSession
         void HandleSupportTicketSubmitBug(WorldPackets::Ticket::SupportTicketSubmitBug& packet);
         void HandleSupportTicketSubmitSuggestion(WorldPackets::Ticket::SupportTicketSubmitSuggestion& packet);
         void HandleSupportTicketSubmitComplaint(WorldPackets::Ticket::SupportTicketSubmitComplaint& packet);
+        void HandleBugReportOpcode(WorldPackets::Ticket::BugReport& bugReport);
 
         void HandleTogglePvP(WorldPacket& recvPacket);
 
@@ -992,8 +997,6 @@ class WorldSession
         void HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result);
         void HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet);
         void HandleSetContactNotesOpcode(WorldPackets::Social::SetContactNotes& packet);
-
-        void HandleBugReportOpcode(WorldPacket& recvPacket);
 
         void HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet);
 
@@ -1081,7 +1084,7 @@ class WorldSession
         void HandleGuildAssignRank(WorldPackets::Guild::GuildAssignMemberRank& packet);
         void HandleGuildLeave(WorldPackets::Guild::GuildLeave& leave);
         void HandleGuildDelete(WorldPackets::Guild::GuildDelete& packet);
-        void HandleGuildSetAchievementTracking(WorldPacket& recvPacket);
+        void HandleGuildSetAchievementTracking(WorldPackets::Guild::GuildSetAchievementTracking& packet);
         void HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildMaster& packet);
         void HandleGuildUpdateMotdText(WorldPackets::Guild::GuildUpdateMotdText& packet);
         void HandleGuildNewsUpdateSticky(WorldPackets::Guild::GuildNewsUpdateSticky& packet);
@@ -1270,8 +1273,8 @@ class WorldSession
         void HandleVoiceSessionEnableOpcode(WorldPacket& recvData);
         void HandleSetActiveVoiceChannel(WorldPacket& recvData);
 
-        void HandleCompleteCinematic(WorldPacket& recvPacket);
-        void HandleNextCinematicCamera(WorldPacket& recvPacket);
+        void HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& packet);
+        void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
 
         void HandleQueryPageText(WorldPackets::Query::QueryPageText& packet);
 

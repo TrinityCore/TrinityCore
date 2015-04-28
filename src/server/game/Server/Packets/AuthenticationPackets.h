@@ -20,7 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectMgr.h"
-#include "Util.h"
+#include "Common.h"
 #include "BigNumber.h"
 #include "SHA1.h"
 #include <boost/asio/ip/tcp.hpp>

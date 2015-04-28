@@ -1006,6 +1006,16 @@ namespace WorldPackets
 
             int32 Error = 0;
         };
+
+        class GuildSetAchievementTracking final : public ClientPacket
+        {
+        public:
+            GuildSetAchievementTracking(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_SET_ACHIEVEMENT_TRACKING, std::move(packet)) { }
+
+            void Read() override;
+
+            std::set<uint32> AchievementIDs;
+        };
     }
 }
 

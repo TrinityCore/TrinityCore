@@ -31,14 +31,14 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket << uint32(TokenRedeemIndex);
 
     _worldPacket.WriteBit(VoiceEnabled);
-    _worldPacket.WriteBit(EuropaTicketSystemStatus.HasValue);
+    _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
     _worldPacket.WriteBit(ScrollOfResurrectionEnabled);
     _worldPacket.WriteBit(BpayStoreEnabled);
     _worldPacket.WriteBit(BpayStoreAvailable);
     _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
     _worldPacket.WriteBit(ItemRestorationButtonEnabled);
     _worldPacket.WriteBit(BrowserEnabled);
-    _worldPacket.WriteBit(SessionAlert.HasValue);
+    _worldPacket.WriteBit(SessionAlert.is_initialized());
     _worldPacket.WriteBit(RecruitAFriendSendingEnabled);
     _worldPacket.WriteBit(CharUndeleteEnabled);
     _worldPacket.WriteBit(RestrictedAccount);
@@ -52,24 +52,24 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
 
     _worldPacket.FlushBits();
 
-    if (EuropaTicketSystemStatus.HasValue)
+    if (EuropaTicketSystemStatus)
     {
-        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.TicketsEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.BugsEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.ComplaintsEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus.Value.SuggestionsEnabled);
+        _worldPacket.WriteBit(EuropaTicketSystemStatus->TicketsEnabled);
+        _worldPacket.WriteBit(EuropaTicketSystemStatus->BugsEnabled);
+        _worldPacket.WriteBit(EuropaTicketSystemStatus->ComplaintsEnabled);
+        _worldPacket.WriteBit(EuropaTicketSystemStatus->SuggestionsEnabled);
 
-        _worldPacket << uint32(EuropaTicketSystemStatus.Value.ThrottleState.MaxTries);
-        _worldPacket << uint32(EuropaTicketSystemStatus.Value.ThrottleState.PerMilliseconds);
-        _worldPacket << uint32(EuropaTicketSystemStatus.Value.ThrottleState.TryCount);
-        _worldPacket << uint32(EuropaTicketSystemStatus.Value.ThrottleState.LastResetTimeBeforeNow);
+        _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.MaxTries);
+        _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.PerMilliseconds);
+        _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.TryCount);
+        _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow);
     }
 
-    if (SessionAlert.HasValue)
+    if (SessionAlert)
     {
-        _worldPacket << int32(SessionAlert.Value.Delay);
-        _worldPacket << int32(SessionAlert.Value.Period);
-        _worldPacket << int32(SessionAlert.Value.DisplayTime);
+        _worldPacket << int32(SessionAlert->Delay);
+        _worldPacket << int32(SessionAlert->Period);
+        _worldPacket << int32(SessionAlert->DisplayTime);
     }
 
     /*if (bit61)

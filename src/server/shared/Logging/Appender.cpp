@@ -88,7 +88,7 @@ void Appender::write(LogMessage* message)
     if (flags & APPENDER_FLAGS_PREFIX_LOGFILTERTYPE)
         ss << '[' << message->type << "] ";
 
-    message->prefix = std::move(ss.str());
+    message->prefix = ss.str();
     _write(message);
 }
 
