@@ -250,6 +250,8 @@ typedef std::map<ObjectGuid::LowType/*leaderDBGUID*/, CreatureGroup*> CreatureGr
 
 typedef std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMap;
 
+typedef TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid> MapStoredObjectTypesContainer;
+
 class Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
