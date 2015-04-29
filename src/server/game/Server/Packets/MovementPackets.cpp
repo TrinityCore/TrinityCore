@@ -198,9 +198,9 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MonsterSplineFi
     data << monsterSplineFilter.BaseSpeed;
     data << monsterSplineFilter.StartOffset;
     data << monsterSplineFilter.DistToPrevFilterKey;
+    data << monsterSplineFilter.AddedToStart;
     for (WorldPackets::Movement::MonsterSplineFilterKey const& filterKey : monsterSplineFilter.FilterKeys)
         data << filterKey;
-    data << monsterSplineFilter.AddedToStart;
     data.WriteBits(monsterSplineFilter.FilterFlags, 2);
     data.FlushBits();
 
