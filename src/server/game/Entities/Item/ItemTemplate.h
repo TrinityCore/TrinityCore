@@ -168,7 +168,7 @@ enum ItemProtoFlags
 enum ItemFieldFlags
 {
     ITEM_FLAG_SOULBOUND     = 0x00000001, // Item is soulbound and cannot be traded <<--
-    ITEM_FLAG_UNK1          = 0x00000002, // ?
+    ITEM_FLAG_TRANSLATED    = 0x00000002, // Item text will not read as garbage when player does not know the language
     ITEM_FLAG_UNLOCKED      = 0x00000004, // Item had lock but can be opened now
     ITEM_FLAG_WRAPPED       = 0x00000008, // Item is wrapped and contains another item
     ITEM_FLAG_UNK2          = 0x00000010, // ?

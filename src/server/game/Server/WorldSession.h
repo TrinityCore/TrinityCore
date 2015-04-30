@@ -282,6 +282,7 @@ namespace WorldPackets
         class SwapInvItem;
         class SwapItem;
         class WrapItem;
+        class CancelTempEnchantment;
     }
 
     namespace Loot
@@ -375,6 +376,7 @@ namespace WorldPackets
         class QueryPetName;
         class QuestPOIQuery;
         class QueryQuestCompletionNPCs;
+        class ItemTextQuery;
     }
 
     namespace Quest
@@ -1179,7 +1181,7 @@ class WorldSession
         void HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead& packet);
         void HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& packet);
         void HandleMailDelete(WorldPackets::Mail::MailDelete& packet);
-        void HandleItemTextQuery(WorldPacket& recvData);
+        void HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& itemTextQuery);
         void HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextItem& packet);
         void HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& packet);
         void HandleCancelChanneling(WorldPacket& recvData);
@@ -1190,7 +1192,6 @@ class WorldSession
         void HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& destroyItem);
         void HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem);
         void HandleSellItemOpcode(WorldPackets::Item::SellItem& packet);
-        void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet);
         void HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet);
         void HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet);
@@ -1374,7 +1375,7 @@ class WorldSession
         // Socket gem
         void HandleSocketOpcode(WorldPacket& recvData);
 
-        void HandleCancelTempEnchantmentOpcode(WorldPacket& recvData);
+        void HandleCancelTempEnchantmentOpcode(WorldPackets::Item::CancelTempEnchantment& cancelTempEnchantment);
 
         void HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchaseData& packet);
         void HandleItemRefund(WorldPacket& recvData);

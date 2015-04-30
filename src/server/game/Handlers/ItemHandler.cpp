@@ -494,38 +494,6 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
         _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, 0, 0);
 }
 
-void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
-{
-    ObjectGuid vendorguid, bagguid;
-    uint32 item, slot, count;
-    uint8 bagslot;
-
-    recvData >> vendorguid >> item  >> slot >> bagguid >> bagslot >> count;
-
-    // client expects count starting at 1, and we send vendorslot+1 to client already
-    if (slot > 0)
-        --slot;
-    else
-        return;                                             // cheating
-
-    uint8 bag = NULL_BAG;                                   // init for case invalid bagGUID
-    Item* bagItem = NULL;
-    // find bag slot by bag guid
-    if (bagguid == _player->GetGUID())
-        bag = INVENTORY_SLOT_BAG_0;
-    else
-        bagItem = _player->GetItemByGuid(bagguid);
-
-    if (bagItem && bagItem->IsBag())
-        bag = bagItem->GetSlot();
-
-    // bag not found, cheating?
-    if (bag == NULL_BAG)
-        return;
-
-    GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
-}
-
 void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 {
     // client expects count starting at 1, and we send vendorslot+1 to client already
@@ -1094,17 +1062,13 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     itemTarget->SendUpdateSockets();
 }
 
-void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
+void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPackets::Item::CancelTempEnchantment& cancelTempEnchantment)
 {
-    uint32 slot;
-
-    recvData >> slot;
-
     // apply only to equipped item
-    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, slot))
+    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, cancelTempEnchantment.Slot))
         return;
 
-    Item* item = GetPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+    Item* item = GetPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, cancelTempEnchantment.Slot);
 
     if (!item)
         return;
@@ -1147,34 +1111,6 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
         return;
 
     GetPlayer()->RefundItem(item);
-}
-
-/**
- * Handles the packet sent by the client when requesting information about item text.
- *
- * This function is called when player clicks on item which has some flag set
- */
-void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
-{
-    ObjectGuid itemGuid;
-    recvData >> itemGuid;
-
-    TC_LOG_DEBUG("network", "CMSG_ITEM_TEXT_QUERY %s", itemGuid.ToString().c_str());
-
-    WorldPacket data(SMSG_QUERY_ITEM_TEXT_RESPONSE, 14);    // guess size
-
-    if (Item* item = _player->GetItemByGuid(itemGuid))
-    {
-        data << uint8(0);                                       // has text
-        data << itemGuid;                                       // item guid
-        data << item->GetText();
-    }
-    else
-    {
-        data << uint8(1);                                       // no text
-    }
-
-    SendPacket(&data);
 }
 
 void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
