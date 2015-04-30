@@ -30,6 +30,7 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
 {
     _worldPacket << GuildGuid;
     _worldPacket.WriteBit(Info.is_initialized());
+    _worldPacket.FlushBits();
 
     if (Info)
     {
@@ -48,13 +49,16 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
             _worldPacket << uint32(rank.RankOrder);
 
             _worldPacket.WriteBits(rank.RankName.size(), 7);
+            _worldPacket.FlushBits();
+
             _worldPacket.WriteString(rank.RankName);
         }
 
         _worldPacket.WriteBits(Info->GuildName.size(), 7);
+        _worldPacket.FlushBits();
+
         _worldPacket.WriteString(Info->GuildName);
     }
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -69,7 +73,6 @@ WorldPacket const* WorldPackets::Guild::GuildRoster::Write()
     for (GuildRosterMemberData const& member : MemberData)
         _worldPacket << member;
 
-    _worldPacket.ResetBitPos();
     _worldPacket.WriteBits(WelcomeText.length(), 10);
     _worldPacket.WriteBits(InfoText.length(), 10);
     _worldPacket.FlushBits();
