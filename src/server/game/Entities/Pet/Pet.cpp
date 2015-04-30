@@ -34,6 +34,7 @@
 #include "Group.h"
 #include "Opcodes.h"
 #include "WorldSession.h"
+#include "PetPackets.h"
 
 #define PET_XP_FACTOR 0.05f
 
@@ -84,6 +85,8 @@ void Pet::AddToWorld()
         GetCharmInfo()->SetIsFollowing(false);
         GetCharmInfo()->SetIsReturning(false);
     }
+
+
 }
 
 void Pet::RemoveFromWorld()
@@ -153,6 +156,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (!petEntry)
         return false;
 
+   
     uint32 summonSpellId = fields[14].GetUInt32();
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(summonSpellId);
 
@@ -223,7 +227,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, GENDER_NONE);
             SetSheath(SHEATH_STATE_MELEE);
             SetByteFlag(UNIT_FIELD_BYTES_2, 2, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
-            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE); // this enables popup window (pet abandon, cancel)
+            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE); // this enables pop up window (pet abandon, cancel)
             setPowerType(POWER_FOCUS);
             break;
         default:
@@ -293,6 +297,12 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         CharacterDatabase.CommitTransaction(trans);
     }
 
+    TC_LOG_DEBUG("entities.pet", "Pet Guilds Send");
+    WorldPackets::Pet::PetGuids response;
+    response.petCount = 1;
+    response.petGuids = this->GetGUID();
+    owner->GetSession()->SendPacket(response.Write());
+    
     // Send fake summon spell cast - this is needed for correct cooldown application for spells
     // Example: 46584 - without this cooldown (which should be set always when pet is loaded) isn't set clientside
     /// @todo pets should be summoned from real cast instead of just faking it?
@@ -309,6 +319,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         owner->SendMessageToSet(spellGo.Write(), true);
     }
+
+   
 
     owner->SetMinion(this, true);
     map->AddToMap(this->ToCreature());
@@ -334,7 +346,9 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     CleanupActionBar();                                     // remove unknown spells from action bar after load
 
     TC_LOG_DEBUG("entities.pet", "New Pet has %s", GetGUID().ToString().c_str());
-
+ 
+   
+    
     owner->PetSpellInitialize();
 
     if (owner->GetGroup())

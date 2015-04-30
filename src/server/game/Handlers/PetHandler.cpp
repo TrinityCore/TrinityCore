@@ -35,6 +35,7 @@
 #include "Player.h"
 #include "SpellPackets.h"
 #include "QueryPackets.h"
+#include "PetPackets.h"
 
 void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 {

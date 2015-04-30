@@ -348,6 +348,11 @@ namespace WorldPackets
         class SpiritHealerActivate;
     }
 
+    namespace Pet
+    {
+        class PetGuids;
+    }
+
     namespace Petition
     {
         class DeclinePetition;
@@ -696,7 +701,6 @@ class WorldSession
 
         void SendNotification(char const* format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 stringId, ...);
-        void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName *declinedName);
         void SendPartyResult(PartyOperation operation, std::string const& member, PartyResult res, uint32 val = 0);
         void SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaSwaps);
         void SendQueryTimeResponse();
@@ -785,7 +789,8 @@ class WorldSession
         void SendStablePetCallback(PreparedQueryResult result, ObjectGuid guid);
         void SendPetStableResult(uint8 guid);
         bool CheckStableMaster(ObjectGuid guid);
-
+        void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName *declinedName);
+        
         // Account Data
         AccountData const* GetAccountData(AccountDataType type) const { return &_accountData[type]; }
         void SetAccountData(AccountDataType type, uint32 time, std::string const& data);
