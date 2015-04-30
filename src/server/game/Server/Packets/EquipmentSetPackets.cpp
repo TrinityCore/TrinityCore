@@ -40,9 +40,10 @@ WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
 
         _worldPacket.WriteBits(equipSet->SetName.length(), 8);
         _worldPacket.WriteBits(equipSet->SetIcon.length(), 9);
+        _worldPacket.FlushBits();
+
         _worldPacket.WriteString(equipSet->SetName);
         _worldPacket.WriteString(equipSet->SetIcon);
-        _worldPacket.FlushBits();
     }
 
     return &_worldPacket;

@@ -165,6 +165,8 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteBits(_ChatFlags, 11);
     _worldPacket.WriteBit(HideChatLog);
     _worldPacket.WriteBit(FakeSenderName);
+    _worldPacket.FlushBits();
+
     _worldPacket.WriteString(SenderName);
     _worldPacket.WriteString(TargetName);
     _worldPacket.WriteString(Prefix);
@@ -203,13 +205,18 @@ WorldPacket const* WorldPackets::Chat::STextEmote::Write()
 WorldPacket const* WorldPackets::Chat::PrintNotification::Write()
 {
     _worldPacket.WriteBits(NotifyText.size(), 12);
+    _worldPacket.FlushBits();
+
     _worldPacket.WriteString(NotifyText);
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Chat::ChatPlayerNotfound::Write()
 {
     _worldPacket.WriteBits(Name.length(), 9);
+    _worldPacket.FlushBits();
+
     _worldPacket.WriteString(Name);
 
     return &_worldPacket;

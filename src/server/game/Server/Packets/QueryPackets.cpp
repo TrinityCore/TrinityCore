@@ -176,8 +176,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupDa
     data << uint8(lookupData.Level);
     data.WriteString(lookupData.Name);
 
-    data.FlushBits();
-
     return data;
 }
 
@@ -210,6 +208,8 @@ WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
         _worldPacket << Info.ID;
         _worldPacket << Info.NextPageID;
         _worldPacket.WriteBits(Info.Text.length(), 12);
+        _worldPacket.FlushBits();
+
         _worldPacket.WriteString(Info.Text);
     }
 
@@ -290,6 +290,7 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
 {
     _worldPacket << GameObjectID;
     _worldPacket.WriteBit(Allow);
+    _worldPacket.FlushBits();
 
     if (Allow)
     {

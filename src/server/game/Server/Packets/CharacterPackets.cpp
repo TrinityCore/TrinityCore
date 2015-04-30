@@ -154,6 +154,8 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
         _worldPacket.WriteBit(charInfo.FirstLogin);
         _worldPacket.WriteBit(charInfo.BoostInProgress);
         _worldPacket.WriteBits(charInfo.unkWod61x, 5);
+        _worldPacket.FlushBits();
+
         _worldPacket.WriteString(charInfo.Name);
     }
 
@@ -215,11 +217,13 @@ WorldPacket const* WorldPackets::Character::CharacterRenameResult::Write()
     _worldPacket << uint8(Result);
     _worldPacket.WriteBit(Guid.is_initialized());
     _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.FlushBits();
 
     if (Guid)
         _worldPacket << *Guid;
 
     _worldPacket.WriteString(Name);
+
     return &_worldPacket;
 }
 
@@ -305,19 +309,21 @@ WorldPacket const* WorldPackets::Character::GenerateRandomCharacterNameResult::W
 {
     _worldPacket.WriteBit(Success);
     _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.FlushBits();
+
     _worldPacket.WriteString(Name);
+
     return &_worldPacket;
 }
 
 void WorldPackets::Character::ReorderCharacters::Read()
 {
     uint32 count = std::min<uint32>(_worldPacket.ReadBits(9), sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM));
-    while (count--)
+    Entries.resize(count);
+    for (ReorderInfo& reorderInfo : Entries)
     {
-        ReorderInfo reorderInfo;
         _worldPacket >> reorderInfo.PlayerGUID;
         _worldPacket >> reorderInfo.NewPosition;
-        Entries.emplace_back(reorderInfo);
     }
 }
 
