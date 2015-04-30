@@ -517,7 +517,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
     Pet* pet = _player->GetPet();
 
     size_t wpos = data.wpos();
-    data << uint8(0);                                       // place holder for slot show number
+    data << uint32(0);                                     // place holder for slot show number
 
     data << uint8(GetPlayer()->m_stableSlots);
 
@@ -553,7 +553,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
         while (result->NextRow());
     }
 
-    data.put<uint8>(wpos, num);                             // set real data to placeholder
+    data.put<uint32>(wpos, num);                             // set real data to placeholder
     SendPacket(&data);
 
 }
