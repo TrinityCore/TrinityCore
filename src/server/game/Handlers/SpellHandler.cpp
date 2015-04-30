@@ -508,7 +508,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     recvData.read_skip<uint32>(); // DisplayId ?
 
     // Get unit for which data is needed by client
-    Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
+    Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
     if (!unit)
         return;
 

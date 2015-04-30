@@ -417,19 +417,19 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
-    if (guid && guid < sObjectMgr->GetGenerator<HighGuid::Player>()->GetNextAfterMaxUsed())
+    if (guid && guid < sObjectMgr->GetGenerator<HighGuid::Player>().GetNextAfterMaxUsed())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
         stmt->setUInt64(0, guid);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         if (result)
-            guid = sObjectMgr->GetGenerator<HighGuid::Player>()->GetNextAfterMaxUsed();                     // use first free if exists
+            guid = sObjectMgr->GetGenerator<HighGuid::Player>().GetNextAfterMaxUsed();                     // use first free if exists
         else
             incHighest = false;
     }
     else
-        guid = sObjectMgr->GetGenerator<HighGuid::Player>()->GetNextAfterMaxUsed();
+        guid = sObjectMgr->GetGenerator<HighGuid::Player>().GetNextAfterMaxUsed();
 
     // normalize the name if specified and check if it exists
     if (!normalizePlayerName(name))
@@ -464,7 +464,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     uint8 playerClass = 0;
     uint8 level = 1;
 
-    ObjectGuid::LowType itemLowGuidOffset = sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed();
+    ObjectGuid::LowType itemLowGuidOffset = sObjectMgr->GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed();
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     while (!feof(fin))
@@ -683,11 +683,11 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     // in case of name conflict player has to rename at login anyway
     sWorld->AddCharacterInfo(ObjectGuid::Create<HighGuid::Player>(guid), name, gender, race, playerClass, level, false);
 
-    sObjectMgr->GetGenerator<HighGuid::Item>()->Set(sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed() + items.size());
+    sObjectMgr->GetGenerator<HighGuid::Item>().Set(sObjectMgr->GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed() + items.size());
     sObjectMgr->_mailId     += mails.size();
 
     if (incHighest)
-        sObjectMgr->GetGenerator<HighGuid::Player>()->Generate();
+        sObjectMgr->GetGenerator<HighGuid::Player>().Generate();
 
     fclose(fin);
 

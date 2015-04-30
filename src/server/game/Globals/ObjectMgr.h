@@ -36,12 +36,13 @@
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "VehicleDefines.h"
+#include "ConditionMgr.h"
+#include "DB2Stores.h"
 #include <string>
 #include <map>
 #include <limits>
-#include "ConditionMgr.h"
 #include <functional>
-#include "DB2Stores.h"
+#include <memory>
 
 class Item;
 struct AccessRequirement;
@@ -1015,7 +1016,6 @@ class ObjectMgr
         void LoadExplorationBaseXP();
         void LoadPetNames();
         void LoadPetNumber();
-        void LoadCorpses();
         void LoadFishingBaseSkillLevel();
 
         void LoadReputationRewardRate();
@@ -1056,13 +1056,21 @@ class ObjectMgr
         CreatureBaseStats const* GetCreatureBaseStats(uint8 level, uint8 unitClass);
 
         void SetHighestGuids();
+
         template<HighGuid type>
-        ObjectGuidGenerator<type>* GetGenerator();
+        inline ObjectGuidGeneratorBase& GetGenerator()
+        {
+            static_assert(ObjectGuidTraits<type>::Global || ObjectGuidTraits<type>::RealmSpecific, "Only global guid can be generated in ObjectMgr context");
+            return GetGuidSequenceGenerator<type>();
+        }
+
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
         uint32 GenerateMailID();
         uint32 GeneratePetNumber();
         uint64 GenerateVoidStorageItemId();
+        uint64 GenerateCreatureSpawnId();
+        uint64 GenerateGameObjectSpawnId();
 
         typedef std::multimap<int32, uint32> ExclusiveQuestGroups;
         typedef std::pair<ExclusiveQuestGroups::const_iterator, ExclusiveQuestGroups::const_iterator> ExclusiveQuestGroupsBounds;
@@ -1198,7 +1206,6 @@ class ObjectMgr
         void RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data);
         ObjectGuid::LowType AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
         ObjectGuid::LowType AddCreData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
-        bool MoveCreData(ObjectGuid::LowType guid, uint32 map, const Position& pos);
 
         // reserved names
         void LoadReservedPlayersNames();
@@ -1331,7 +1338,7 @@ class ObjectMgr
         }
 
         CharacterTemplateContainer const& GetCharacterTemplates() const { return _characterTemplateStore; }
-        CharacterTemplate const* GetCharacterTemplate(uint32 id) const 
+        CharacterTemplate const* GetCharacterTemplate(uint32 id) const
         {
             auto itr = _characterTemplateStore.find(id);
             if (itr != _characterTemplateStore.end())
@@ -1348,19 +1355,21 @@ class ObjectMgr
         uint32 _mailId;
         uint32 _hiPetNumber;
         uint64 _voidItemId;
+        uint64 _creatureSpawnId;
+        uint64 _gameObjectSpawnId;
 
         // first free low guid for selected guid type
-        ObjectGuidGenerator<HighGuid::Player> _playerGuidGenerator;
-        ObjectGuidGenerator<HighGuid::Creature> _creatureGuidGenerator;
-        ObjectGuidGenerator<HighGuid::Pet> _petGuidGenerator;
-        ObjectGuidGenerator<HighGuid::Vehicle> _vehicleGuidGenerator;
-        ObjectGuidGenerator<HighGuid::Item> _itemGuidGenerator;
-        ObjectGuidGenerator<HighGuid::GameObject> _gameObjectGuidGenerator;
-        ObjectGuidGenerator<HighGuid::DynamicObject> _dynamicObjectGuidGenerator;
-        ObjectGuidGenerator<HighGuid::Corpse> _corpseGuidGenerator;
-        ObjectGuidGenerator<HighGuid::LootObject> _lootObjectGuidGenerator;
-        ObjectGuidGenerator<HighGuid::AreaTrigger> _areaTriggerGuidGenerator;
-        ObjectGuidGenerator<HighGuid::Transport> _moTransportGuidGenerator;
+        template<HighGuid high>
+        inline ObjectGuidGeneratorBase& GetGuidSequenceGenerator()
+        {
+            auto itr = _guidGenerators.find(high);
+            if (itr == _guidGenerators.end())
+                itr = _guidGenerators.insert(std::make_pair(high, std::unique_ptr<ObjectGuidGenerator<high>>(new ObjectGuidGenerator<high>()))).first;
+
+            return *itr->second;
+        }
+
+        std::map<HighGuid, std::unique_ptr<ObjectGuidGeneratorBase>> _guidGenerators;
 
         QuestMap _questTemplates;
 

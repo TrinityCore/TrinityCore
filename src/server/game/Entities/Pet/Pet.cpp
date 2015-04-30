@@ -69,7 +69,7 @@ void Pet::AddToWorld()
     if (!IsInWorld())
     {
         ///- Register the pet for guid lookup
-        sObjectAccessor->AddObject(this);
+        GetMap()->GetObjectsStore().Insert<Pet>(GetGUID(), this);
         Unit::AddToWorld();
         AIM_Initialize();
     }
@@ -93,7 +93,7 @@ void Pet::RemoveFromWorld()
     {
         ///- Don't call the function for Creature, normal mobs + totems go in a different storage
         Unit::RemoveFromWorld();
-        sObjectAccessor->RemoveObject(this);
+        GetMap()->GetObjectsStore().Remove<Pet>(GetGUID());
     }
 }
 
@@ -177,7 +177,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     }
 
     Map* map = owner->GetMap();
-    if (!Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, petEntry))
+    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, petEntry))
         return false;
 
     CopyPhaseFrom(owner);
@@ -778,7 +778,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
 {
     TC_LOG_DEBUG("entities.pet", "Pet::CreateBaseForTamed");
-    if (!Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, cinfo->Entry))
+    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, cinfo->Entry))
         return false;
 
     setPowerType(POWER_FOCUS);
@@ -1808,7 +1808,7 @@ bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 Entry)
 
     Object::_Create(ObjectGuid::Create<HighGuid::Pet>(map->GetId(), Entry, guidlow));
 
-    m_DBTableGuid = guidlow;
+    m_spawnId = guidlow;
     m_originalEntry = Entry;
 
     if (!InitEntry(Entry))
