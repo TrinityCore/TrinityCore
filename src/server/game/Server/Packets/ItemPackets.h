@@ -353,6 +353,16 @@ namespace WorldPackets
             InvUpdate Inv;
         };
 
+        class CancelTempEnchantment final : public ClientPacket
+        {
+        public:
+            CancelTempEnchantment(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_TEMP_ENCHANTMENT, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 Slot = 0;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
     }
 }

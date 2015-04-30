@@ -465,3 +465,27 @@ WorldPacket const* WorldPackets::Query::QueryPetNameResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Query::ItemTextQuery::Read()
+{
+    _worldPacket >> Id;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::ItemTextCache const& itemTextCache)
+{
+    data.WriteBits(itemTextCache.Text.length(), 13);
+    data.FlushBits();
+
+    data.WriteString(itemTextCache.Text);
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Query::QueryItemTextResponse::Write()
+{
+    _worldPacket.WriteBit(Valid);
+    _worldPacket << Id;
+    _worldPacket << Item;
+
+    return &_worldPacket;
+}
