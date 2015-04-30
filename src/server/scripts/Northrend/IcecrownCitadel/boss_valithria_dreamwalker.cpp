@@ -156,7 +156,7 @@ class RisenArchmageCheck
         bool operator()(Creature* creature)
         {
             return creature->IsAlive() && creature->GetEntry() == NPC_RISEN_ARCHMAGE &&
-                creature->GetDBTableGUIDLow() && !creature->IsInCombat();
+                creature->GetSpawnId() && !creature->IsInCombat();
         }
 };
 
@@ -244,7 +244,7 @@ class ValithriaDespawner : public BasicEvent
                     creature->DespawnOrUnsummon();
                     return;
                 case NPC_RISEN_ARCHMAGE:
-                    if (!creature->GetDBTableGUIDLow())
+                    if (!creature->GetSpawnId())
                     {
                         creature->DespawnOrUnsummon();
                         return;
@@ -297,7 +297,7 @@ class boss_valithria_dreamwalker : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetDBTableGUIDLow()))
+                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
@@ -712,7 +712,7 @@ class npc_risen_archmage : public CreatureScript
             void EnterCombat(Unit* /*target*/) override
             {
                 me->FinishSpell(CURRENT_CHANNELED_SPELL, false);
-                if (me->GetDBTableGUIDLow() && _canCallEnterCombat)
+                if (me->GetSpawnId() && _canCallEnterCombat)
                 {
                     std::list<Creature*> archmages;
                     RisenArchmageCheck check;
@@ -750,7 +750,7 @@ class npc_risen_archmage : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 if (!me->IsInCombat())
-                    if (me->GetDBTableGUIDLow())
+                    if (me->GetSpawnId())
                         if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                             DoCast(me, SPELL_CORRUPTION);
 

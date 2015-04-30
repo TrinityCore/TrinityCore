@@ -272,10 +272,10 @@ extern int main(int argc, char** argv)
     sWorldSocketMgr.StopNetwork();
 
     sInstanceSaveMgr->Unload();
+    sOutdoorPvPMgr->Die();                    // unload it before MapManager
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
     sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
     sScriptMgr->Unload();
-    sOutdoorPvPMgr->Die();
 
     // set server offline
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmHandle.Index);

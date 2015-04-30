@@ -3470,14 +3470,14 @@ void SmartScript::GetScript()
     SmartAIEventList e;
     if (me)
     {
-        e = sSmartScriptMgr->GetScript(-((int32)me->GetDBTableGUIDLow()), mScriptType);
+        e = sSmartScriptMgr->GetScript(-((int32)me->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)me->GetEntry(), mScriptType);
         FillScript(e, me, NULL);
     }
     else if (go)
     {
-        e = sSmartScriptMgr->GetScript(-((int32)go->GetDBTableGUIDLow()), mScriptType);
+        e = sSmartScriptMgr->GetScript(-((int32)go->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)go->GetEntry(), mScriptType);
         FillScript(e, go, NULL);
@@ -3667,5 +3667,12 @@ void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
 
 Unit* SmartScript::GetLastInvoker()
 {
-    return ObjectAccessor::FindUnit(mLastInvoker);
+    WorldObject* lookupRoot = me;
+    if (!lookupRoot)
+        lookupRoot = go;
+
+    if (lookupRoot)
+        return ObjectAccessor::GetUnit(*lookupRoot, mLastInvoker);
+
+    return ObjectAccessor::FindPlayer(mLastInvoker);
 }

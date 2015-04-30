@@ -504,7 +504,7 @@ public:
             return false;
 
         handler->PSendSysMessage("Loot recipient for creature %s (%s, DB GUID " UI64FMTD ") is %s",
-            target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetDBTableGUIDLow(),
+            target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetSpawnId(),
             target->hasLootRecipient() ? (target->GetLootRecipient() ? target->GetLootRecipient()->GetName().c_str() : "offline") : "no loot recipient");
         return true;
     }
@@ -931,7 +931,7 @@ public:
 
         Map* map = handler->GetSession()->GetPlayer()->GetMap();
 
-        if (!v->Create(sObjectMgr->GetGenerator<HighGuid::Vehicle>()->Generate(), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, x, y, z, o, nullptr, id))
+        if (!v->Create(map->GenerateLowGuid<HighGuid::Vehicle>(), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, x, y, z, o, nullptr, id))
         {
             delete v;
             return false;

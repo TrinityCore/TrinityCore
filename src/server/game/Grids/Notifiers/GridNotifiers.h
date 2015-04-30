@@ -742,7 +742,7 @@ namespace Trinity
             GameObjectWithDbGUIDCheck(WorldObject const& /*obj*/, ObjectGuid::LowType db_guid) : i_db_guid(db_guid) { }
             bool operator()(GameObject const* go) const
             {
-                return go->GetDBTableGUIDLow() == i_db_guid;
+                return go->GetSpawnId() == i_db_guid;
             }
         private:
             ObjectGuid::LowType i_db_guid;
@@ -855,7 +855,7 @@ namespace Trinity
             CreatureWithDbGUIDCheck(WorldObject const* /*obj*/, ObjectGuid::LowType lowguid) : i_lowguid(lowguid) { }
             bool operator()(Creature* u)
             {
-                return u->GetDBTableGUIDLow() == i_lowguid;
+                return u->GetSpawnId() == i_lowguid;
             }
         private:
             ObjectGuid::LowType i_lowguid;

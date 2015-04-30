@@ -158,7 +158,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         Item* item = _player->GetItemByGuid(voidStorageTransfer.Deposits[i]);
         if (!item)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - %s %s wants to deposit an invalid item (%s).", _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), item->GetGUID().ToString().c_str());
+            TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - %s %s wants to deposit an invalid item (%s).", _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), voidStorageTransfer.Deposits[i].ToString().c_str());
             continue;
         }
 

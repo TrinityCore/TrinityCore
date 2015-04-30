@@ -195,7 +195,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
 
 void BattlegroundWS::GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* positions) const
 {
-    if (Player* player = ObjectAccessor::GetObjectInMap(m_FlagKeepers[TEAM_ALLIANCE], GetBgMap(), (Player*)nullptr))
+    if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), m_FlagKeepers[TEAM_ALLIANCE]))
     {
         WorldPackets::Battleground::BattlegroundPlayerPosition position;
         position.Guid = player->GetGUID();
@@ -206,7 +206,7 @@ void BattlegroundWS::GetPlayerPositionData(std::vector<WorldPackets::Battlegroun
         positions->push_back(position);
     }
 
-    if (Player* player = ObjectAccessor::GetObjectInMap(m_FlagKeepers[TEAM_HORDE], GetBgMap(), (Player*)nullptr))
+    if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), m_FlagKeepers[TEAM_HORDE]))
     {
         WorldPackets::Battleground::BattlegroundPlayerPosition position;
         position.Guid = player->GetGUID();

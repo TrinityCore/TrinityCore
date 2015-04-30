@@ -647,7 +647,7 @@ class npc_spinestalker : public CreatureScript
                 // Increase add count
                 if (!me->isDead())
                 {
-                    _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetDBTableGUIDLow()));  // this cannot be in Reset because reset also happens on evade
+                    _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -670,7 +670,7 @@ class npc_spinestalker : public CreatureScript
             void JustRespawned() override
             {
                 ScriptedAI::JustRespawned();
-                _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetDBTableGUIDLow()));  // this cannot be in Reset because reset also happens on evade
+                _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -783,7 +783,7 @@ class npc_rimefang : public CreatureScript
                 // Increase add count
                 if (!me->isDead())
                 {
-                    _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetDBTableGUIDLow()));  // this cannot be in Reset because reset also happens on evade
+                    _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -806,7 +806,7 @@ class npc_rimefang : public CreatureScript
             void JustRespawned() override
             {
                 ScriptedAI::JustRespawned();
-                _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetDBTableGUIDLow()));  // this cannot be in Reset because reset also happens on evade
+                _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -950,7 +950,7 @@ class npc_sindragosa_trash : public CreatureScript
                 if (!me->isDead())
                 {
                     if (me->GetEntry() == NPC_FROSTWING_WHELP)
-                        _instance->SetGuidData(_frostwyrmId, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetDBTableGUIDLow()));  // this cannot be in Reset because reset also happens on evade
+                        _instance->SetGuidData(_frostwyrmId, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -973,7 +973,7 @@ class npc_sindragosa_trash : public CreatureScript
 
                 // Increase add count
                 if (me->GetEntry() == NPC_FROSTWING_WHELP)
-                    _instance->SetGuidData(_frostwyrmId, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetDBTableGUIDLow()));  // this cannot be in Reset because reset also happens on evade
+                    _instance->SetGuidData(_frostwyrmId, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
             }
 
             void SetData(uint32 type, uint32 data) override

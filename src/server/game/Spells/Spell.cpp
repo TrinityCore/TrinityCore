@@ -2301,7 +2301,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     uint8 mask = target->effectMask;
 
     Unit* unit = m_caster->GetGUID() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target->targetGUID);
-    if (!unit)
+    if (!unit && target->targetGUID.IsPlayer()) // only players may be targeted across maps
     {
         uint8 farMask = 0;
         // create far target mask
@@ -2312,14 +2312,15 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         if (!farMask)
             return;
+
         // find unit in world
-        unit = ObjectAccessor::FindUnit(target->targetGUID);
+        unit = ObjectAccessor::FindPlayer(target->targetGUID);
         if (!unit)
             return;
 
         // do far effects on the unit
         // can't use default call because of threading, do stuff as fast as possible
-        for(SpellEffectInfo const* effect : GetEffects())
+        for (SpellEffectInfo const* effect : GetEffects())
             if (effect && (farMask & (1 << effect->EffectIndex)))
                 HandleEffects(unit, NULL, NULL, effect->EffectIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
         return;
@@ -3507,7 +3508,7 @@ void Spell::_handle_finish_phase()
 
     if (m_caster->m_extraAttacks && HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
     {
-        if (Unit* victim = ObjectAccessor::FindUnit(m_targets.GetOrigUnitTargetGUID()))
+        if (Unit* victim = ObjectAccessor::GetUnit(*m_caster, m_targets.GetOrigUnitTargetGUID()))
             m_caster->HandleProcExtraAttackFor(victim);
         else
             m_caster->m_extraAttacks = 0;

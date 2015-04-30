@@ -246,6 +246,10 @@ class Object
 
         uint16 _fieldNotifyFlags;
 
+        virtual void AddToObjectUpdate() = 0;
+        virtual void RemoveFromObjectUpdate() = 0;
+        void AddToObjectUpdateIfNeeded();
+
         bool m_objectUpdated;
 
     private:
@@ -730,6 +734,8 @@ class WorldObject : public Object, public WorldLocation
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
         void BuildUpdate(UpdateDataMapType&) override;
+        void AddToObjectUpdate() override;
+        void RemoveFromObjectUpdate() override;
 
         //relocation and visibility system functions
         void AddToNotify(uint16 f) { m_notifyflags |= f;}

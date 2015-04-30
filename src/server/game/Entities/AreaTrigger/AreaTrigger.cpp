@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectAccessor.h"
 #include "Unit.h"
 #include "SpellInfo.h"
 #include "Log.h"
@@ -41,7 +40,7 @@ void AreaTrigger::AddToWorld()
     ///- Register the AreaTrigger for guid lookup and for caster
     if (!IsInWorld())
     {
-        sObjectAccessor->AddObject(this);
+        GetMap()->GetObjectsStore().Insert<AreaTrigger>(GetGUID(), this);
         WorldObject::AddToWorld();
     }
 }
@@ -52,7 +51,7 @@ void AreaTrigger::RemoveFromWorld()
     if (IsInWorld())
     {
         WorldObject::RemoveFromWorld();
-        sObjectAccessor->RemoveObject(this);
+        GetMap()->GetObjectsStore().Remove<AreaTrigger>(GetGUID());
     }
 }
 

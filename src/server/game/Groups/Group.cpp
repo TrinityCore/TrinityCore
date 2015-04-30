@@ -960,7 +960,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         //roll for over-threshold item if it's one-player loot
         if (item->GetQuality() >= uint32(m_lootThreshold))
         {
-            ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate());
+            ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
             Roll* r = new Roll(newitemGUID, *i);
 
             //a vector is filled with only near party members
@@ -1044,7 +1044,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
             continue;
         }
 
-        ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate());
+        ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
         Roll* r = new Roll(newitemGUID, *i);
 
         //a vector is filled with only near party members
@@ -1105,7 +1105,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
         //roll for over-threshold item if it's one-player loot
         if (item->GetQuality() >= uint32(m_lootThreshold))
         {
-            ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate());
+            ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
             Roll* r = new Roll(newitemGUID, *i);
 
             for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
@@ -1180,7 +1180,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
             continue;
 
         item = sObjectMgr->GetItemTemplate(i->itemid);
-        ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate());
+        ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
         Roll* r = new Roll(newitemGUID, *i);
 
         for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())

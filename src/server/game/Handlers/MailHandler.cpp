@@ -612,7 +612,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
     }
 
     Item* bodyItem = new Item;                              // This is not bag and then can be used new Item.
-    if (!bodyItem->Create(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), MAIL_BODY_ITEM_TEMPLATE, player))
+    if (!bodyItem->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), MAIL_BODY_ITEM_TEMPLATE, player))
     {
         delete bodyItem;
         return;
