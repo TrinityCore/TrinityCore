@@ -2090,8 +2090,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // Seamless teleport can happen only if cosmetic maps match
         if (!oldmap ||
-            (oldmap->GetEntry()->CosmeticParentMapID != mapid && GetMapId() != mEntry->CosmeticParentMapID &&
-            !(oldmap->GetEntry()->CosmeticParentMapID != -1 ^ oldmap->GetEntry()->CosmeticParentMapID != mEntry->CosmeticParentMapID)))
+            (oldmap->GetEntry()->CosmeticParentMapID != int32(mapid) && int32(GetMapId()) != mEntry->CosmeticParentMapID &&
+            !((oldmap->GetEntry()->CosmeticParentMapID != -1) ^ (oldmap->GetEntry()->CosmeticParentMapID != mEntry->CosmeticParentMapID))))
             options &= ~TELE_TO_SEAMLESS;
 
         //I think this always returns true. Correct me if I am wrong.
