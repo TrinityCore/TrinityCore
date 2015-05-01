@@ -4313,7 +4313,7 @@ void Spell::SendResurrectRequest(Player* target)
     // for player resurrections the name is looked up by guid
     std::string const sentName(m_caster->GetTypeId() == TYPEID_PLAYER
         ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex()));
-    
+
     WorldPackets::Spells::ResurrectRequest resurrectRequest;
     resurrectRequest.ResurrectOffererGUID =  m_caster->GetGUID();
     resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
@@ -7502,7 +7502,7 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
     }
     else if (_spellInfo->HasAttribute(SPELL_ATTR0_CU_CONE_LINE))
     {
-        if (!_caster->HasInLine(target, _caster->GetObjectSize()))
+        if (!_caster->HasInLine(target, _caster->GetObjectSize() + target->GetObjectSize()))
             return false;
     }
     else
@@ -7519,7 +7519,7 @@ WorldObjectSpellTrajTargetCheck::WorldObjectSpellTrajTargetCheck(float range, Po
 bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target)
 {
     // return all targets on missile trajectory (0 - size of a missile)
-    if (!_caster->HasInLine(target, 0))
+    if (!_caster->HasInLine(target, target->GetObjectSize()))
         return false;
     return WorldObjectSpellAreaTargetCheck::operator ()(target);
 }
