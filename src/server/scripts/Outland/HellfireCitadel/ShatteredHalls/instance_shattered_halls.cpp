@@ -365,8 +365,6 @@ class boss_shattered_executioner : public CreatureScript
                         me->AddLootMode(LOOT_MODE_HARD_MODE_2);
                     case 2:
                         me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                    default:
-                        break;
                 }
             }
 
