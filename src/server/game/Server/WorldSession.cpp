@@ -322,6 +322,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     if (IsConnectionIdle())
         m_Socket[CONNECTION_TYPE_REALM]->CloseSocket();
 
+    if (updater.ProcessUnsafe())
+        while (_player && _player->IsBeingTeleportedSeamlessly())
+            HandleMoveWorldportAckOpcode();
+
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
     WorldPacket* packet = NULL;
@@ -453,7 +457,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
-    if (updater.ProcessLogout())
+    if (updater.ProcessUnsafe())
     {
         time_t currTime = time(NULL);
         ///- If necessary, log the player out
