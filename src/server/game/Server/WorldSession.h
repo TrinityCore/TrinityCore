@@ -328,6 +328,7 @@ namespace WorldPackets
         class ObjectUpdateRescued;
         class CompleteCinematic;
         class NextCinematicCamera;
+        class FarSight;
     }
 
     namespace Movement
@@ -1329,7 +1330,7 @@ class WorldSession
         void HandleWorldTeleportOpcode(WorldPacket& recvData);
         void HandleMinimapPingOpcode(WorldPacket& recvData);
         void HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet);
-        void HandleFarSightOpcode(WorldPacket& recvData);
+        void HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet);
         void HandleSetDungeonDifficultyOpcode(WorldPackets::Misc::SetDungeonDifficulty& setDungeonDifficulty);
         void HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDifficulty& setRaidDifficulty);
         void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
