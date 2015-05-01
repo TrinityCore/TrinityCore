@@ -638,8 +638,8 @@ public:
     explicit PacketFilter(WorldSession* pSession) : m_pSession(pSession) { }
     virtual ~PacketFilter() { }
 
-    virtual bool Process(WorldPacket* /*packet*/) { return true; }
-    virtual bool ProcessLogout() const { return true; }
+    virtual bool Process(WorldPacket* /*packet*/) = 0;
+    virtual bool ProcessUnsafe() const { return false; }
 
 protected:
     WorldSession* const m_pSession;
@@ -656,9 +656,7 @@ public:
     explicit MapSessionFilter(WorldSession* pSession) : PacketFilter(pSession) { }
     ~MapSessionFilter() { }
 
-    virtual bool Process(WorldPacket* packet) override;
-    //in Map::Update() we do not process player logout!
-    virtual bool ProcessLogout() const override { return false; }
+    bool Process(WorldPacket* packet) override;
 };
 
 //class used to filer only thread-unsafe packets from queue
@@ -669,7 +667,8 @@ public:
     explicit WorldSessionFilter(WorldSession* pSession) : PacketFilter(pSession) { }
     ~WorldSessionFilter() { }
 
-    virtual bool Process(WorldPacket* packet) override;
+    bool Process(WorldPacket* packet) override;
+    bool ProcessUnsafe() const override { return true; }
 };
 
 struct PacketCounter

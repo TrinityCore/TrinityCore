@@ -46,6 +46,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (!GetPlayer()->IsBeingTeleportedFar())
         return;
 
+    bool seamlessTeleport = GetPlayer()->IsBeingTeleportedSeamlessly();
     GetPlayer()->SetSemaphoreTeleportFar(false);
 
     // get the teleport destination
@@ -88,13 +89,16 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     float z = loc.GetPositionZ();
     if (GetPlayer()->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         z += GetPlayer()->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+
     GetPlayer()->Relocate(loc.GetPositionX(), loc.GetPositionY(), z, loc.GetOrientation());
 
     GetPlayer()->ResetMap();
     GetPlayer()->SetMap(newMap);
 
-    GetPlayer()->SendInitialPacketsBeforeAddToMap();
-    if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
+    if (!seamlessTeleport)
+        GetPlayer()->SendInitialPacketsBeforeAddToMap();
+
+    if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer(), !seamlessTeleport))
     {
         TC_LOG_ERROR("network", "WORLD: failed to teleport player %s (%s) to map %d (%s) because of unknown reason!",
             GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str(), loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown");
@@ -124,16 +128,22 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         }
     }
 
-    GetPlayer()->SendInitialPacketsAfterAddToMap();
+    if (!seamlessTeleport)
+        GetPlayer()->SendInitialPacketsAfterAddToMap();
+    else
+        GetPlayer()->UpdateVisibilityForPlayer();
 
     // flight fast teleport case
     if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
     {
         if (!_player->InBattleground())
         {
-            // short preparations to continue flight
-            FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
-            flight->Initialize(GetPlayer());
+            if (!seamlessTeleport)
+            {
+                // short preparations to continue flight
+                FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
+                flight->Initialize(GetPlayer());
+            }
             return;
         }
 

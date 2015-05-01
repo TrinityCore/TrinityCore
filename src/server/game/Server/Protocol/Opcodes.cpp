@@ -23,8 +23,8 @@
 #include "Packets/BankPackets.h"
 #include "Packets/BattlegroundPackets.h"
 #include "Packets/BlackMarketPackets.h"
-#include "Packets/CharacterPackets.h"
 #include "Packets/ChannelPackets.h"
+#include "Packets/CharacterPackets.h"
 #include "Packets/ChatPackets.h"
 #include "Packets/ClientConfigPackets.h"
 #include "Packets/CombatPackets.h"
@@ -33,6 +33,7 @@
 #include "Packets/GameObjectPackets.h"
 #include "Packets/GuildPackets.h"
 #include "Packets/InspectPackets.h"
+#include "Packets/InstancePackets.h"
 #include "Packets/ItemPackets.h"
 #include "Packets/LootPackets.h"
 #include "Packets/MailPackets.h"
@@ -47,9 +48,9 @@
 #include "Packets/ScenePackets.h"
 #include "Packets/SocialPackets.h"
 #include "Packets/TalentPackets.h"
+#include "Packets/TicketPackets.h"
 #include "Packets/TokenPackets.h"
 #include "Packets/TradePackets.h"
-#include "Packets/TicketPackets.h"
 #include "Packets/VehiclePackets.h"
 #include "Packets/VoidStoragePackets.h"
 #include "Packets/WhoPackets.h"
@@ -1709,8 +1710,8 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_CHARACTER_FLAGS,                  STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT,       STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_EXPANSION_LEVEL,                  STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_INSTANCE_OWNERSHIP,               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_LAST_INSTANCE,                    STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_INSTANCE_OWNERSHIP,               STATUS_NEVER,        CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_LAST_INSTANCE,                    STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_OBJECT,                           STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_TALENT_DATA,                      STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_TASK_PROGRESS,                    STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
