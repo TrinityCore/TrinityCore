@@ -221,3 +221,15 @@ WorldPacket const* WorldPackets::Chat::ChatPlayerNotfound::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Chat::ChatServerMessage::Write()
+{
+    _worldPacket << MessageID;
+
+    _worldPacket.WriteBits(StringParam.length(), 11);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(StringParam);
+
+    return &_worldPacket;
+}
