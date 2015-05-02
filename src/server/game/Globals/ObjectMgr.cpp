@@ -7075,6 +7075,9 @@ void ObjectMgr::LoadQuestPOI()
         int32 PlayerConditionID     = fields[12].GetInt32();
         int32 WoDUnk1               = fields[13].GetInt32();
 
+        if (!sObjectMgr->GetQuestTemplate(QuestID))
+            TC_LOG_ERROR("sql.sql", "`quest_poi` quest id (%u) Idx1 (%u) does not exist in `quest_template`", QuestID, Idx1);
+
         QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1);
         if (QuestID < int32(POIs.size()) && Idx1 < int32(POIs[QuestID].size()))
         {
