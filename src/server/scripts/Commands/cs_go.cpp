@@ -347,10 +347,8 @@ public:
 
             mapId = data.MapID;
 
-            Map const* map = sMapMgr->CreateBaseMap(mapId);
             x = data.points.front().X;
             y = data.points.front().Y;
-            z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
         }
         else
         {
@@ -359,7 +357,7 @@ public:
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(mapId, x, y, z) || sObjectMgr->IsTransportMap(mapId))
+        if (!MapManager::IsValidMapCoord(mapId, x, y) || sObjectMgr->IsTransportMap(mapId))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
             handler->SetSentErrorMessage(true);
@@ -375,6 +373,9 @@ public:
         // save only in non-flight case
         else
             player->SaveRecallPosition();
+
+        Map const* map = sMapMgr->CreateBaseMap(mapId);
+        z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
 
         player->TeleportTo(mapId, x, y, z, 0.0f);
         return true;
