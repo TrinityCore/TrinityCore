@@ -130,7 +130,7 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
 
         bool valid = true;
         bool primary_prof_first_rank = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
         {
             if (!tSpell->ReqAbility[i])
                 continue;
@@ -173,7 +173,7 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
                 break;
 
             SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->ReqAbility[i]);
-            for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < 3; ++itr2)
+            for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < MAX_TRAINERSPELL_ABILITY_REQS; ++itr2)
             {
                 spell.ReqAbility[maxReq] = itr2->second;
                 ++maxReq;
