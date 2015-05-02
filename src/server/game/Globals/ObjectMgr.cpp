@@ -1171,7 +1171,7 @@ void ObjectMgr::LoadEquipmentTemplates()
     uint32 oldMSTime = getMSTime();
 
     //                                                 0     1       2           3           4
-    QueryResult result = WorldDatabase.Query("SELECT entry, id, itemEntry1, itemEntry2, itemEntry3 FROM creature_equip_template");
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, ID, ItemID1, ItemID2, ItemID3 FROM creature_equip_template");
 
     if (!result)
     {
@@ -1188,7 +1188,7 @@ void ObjectMgr::LoadEquipmentTemplates()
 
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
-            TC_LOG_ERROR("sql.sql", "Creature template (Entry: %u) does not exist but has a record in `creature_equip_template`", entry);
+            TC_LOG_ERROR("sql.sql", "Creature template (CreatureID: %u) does not exist but has a record in `creature_equip_template`", entry);
             continue;
         }
 
@@ -1214,7 +1214,7 @@ void ObjectMgr::LoadEquipmentTemplates()
 
             if (!dbcItem)
             {
-                TC_LOG_ERROR("sql.sql", "Unknown item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id=%u, forced to 0.",
+                TC_LOG_ERROR("sql.sql", "Unknown item (ID=%u) in creature_equip_template.ItemID%u for CreatureID = %u and ID=%u, forced to 0.",
                     equipmentInfo.ItemEntry[i], i+1, entry, id);
                 equipmentInfo.ItemEntry[i] = 0;
                 continue;
@@ -1230,7 +1230,7 @@ void ObjectMgr::LoadEquipmentTemplates()
                 dbcItem->InventoryType != INVTYPE_THROWN &&
                 dbcItem->InventoryType != INVTYPE_RANGEDRIGHT)
             {
-                TC_LOG_ERROR("sql.sql", "Item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id = %u is not equipable in a hand, forced to 0.",
+                TC_LOG_ERROR("sql.sql", "Item (ID=%u) in creature_equip_template.ItemID%u for CreatureID = %u and ID = %u is not equipable in a hand, forced to 0.",
                     equipmentInfo.ItemEntry[i], i+1, entry, id);
                 equipmentInfo.ItemEntry[i] = 0;
             }
