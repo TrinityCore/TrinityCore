@@ -1746,8 +1746,8 @@ void ObjectMgr::LoadCreatures()
         data.npcflag        = fields[18].GetUInt32();
         data.unit_flags     = fields[19].GetUInt32();
         data.dynamicflags   = fields[20].GetUInt32();
-        data.phaseid = fields[21].GetUInt32();
-        data.phaseGroup = fields[22].GetUInt32();
+        data.phaseid        = fields[21].GetUInt32();
+        data.phaseGroup     = fields[22].GetUInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -1823,6 +1823,25 @@ void ObjectMgr::LoadCreatures()
         {
             TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.id);
             data.phaseGroup = 0;
+        }
+
+        if (data.phaseid)
+        {
+            PhaseEntry const* phase = sPhaseStore.LookupEntry(data.phaseid);
+            if (!phase)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, data.id, data.phaseid);
+                data.phaseid = 0;
+            }
+        }
+
+        if (data.phaseGroup)
+        {
+            if (sDB2Manager.GetPhasesForGroup(data.phaseGroup).empty())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phasegroup` %u does not exist, set to 0", guid, data.id, data.phaseGroup);
+                data.phaseGroup = 0;
+            }
         }
 
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
@@ -2084,13 +2103,32 @@ void ObjectMgr::LoadGameobjects()
 
         int16 gameEvent     = fields[15].GetInt8();
         uint32 PoolId       = fields[16].GetUInt32();
-        data.phaseid = fields[17].GetUInt32();
-        data.phaseGroup = fields[18].GetUInt32();
+        data.phaseid        = fields[17].GetUInt32();
+        data.phaseGroup     = fields[18].GetUInt32();
 
         if (data.phaseGroup && data.phaseid)
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.id);
             data.phaseGroup = 0;
+        }
+
+        if (data.phaseid)
+        {
+            PhaseEntry const* phase = sPhaseStore.LookupEntry(data.phaseid);
+            if (!phase)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, data.id, data.phaseid);
+                data.phaseid = 0;
+            }
+        }
+
+        if (data.phaseGroup)
+        {
+            if (sDB2Manager.GetPhasesForGroup(data.phaseGroup).empty())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, data.id, data.phaseGroup);
+                data.phaseGroup = 0;
+            }
         }
 
         if (std::abs(data.orientation) > 2 * float(M_PI))
