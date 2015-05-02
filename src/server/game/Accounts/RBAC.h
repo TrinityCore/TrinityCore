@@ -61,7 +61,7 @@ enum RBACPermissions
     //  9 - reuse
     RBAC_PERM_USE_CHARACTER_TEMPLATES                        = 10,
     RBAC_PERM_LOG_GM_TRADE                                   = 11,
-    RBAC_PERM_COMMAND_GO_QUEST                               = 12,
+    //  12 - reuse
     RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES            = 13,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_TEAMMASK         = 14,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_CLASSMASK        = 15,
@@ -738,6 +738,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_TICKET_RESET_BUG                       = 831,
     RBAC_PERM_COMMAND_TICKET_RESET_COMPLAINT                 = 832,
     RBAC_PERM_COMMAND_TICKET_RESET_SUGGESTION                = 833,
+    RBAC_PERM_COMMAND_GO_QUEST                               = 834,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
