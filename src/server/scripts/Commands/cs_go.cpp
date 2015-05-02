@@ -343,19 +343,14 @@ public:
 
         if (QuestPOIVector const* poiData = sObjectMgr->GetQuestPOIVector(questID))
         {
-            for (auto data = poiData->begin(); data != poiData->end(); ++data)
-            {
-                mapId = data->MapID;
+            auto data = poiData->front();
 
-                for (auto points = data->points.begin(); points != data->points.end(); ++points)
-                {
-                    x = points->X;
-                    y = points->Y;
-                    if (Map const* map = sMapMgr->CreateBaseMap(mapId))
-                        z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
-                    break;
-                }
-            }
+            mapId = data.MapID;
+
+            Map const* map = sMapMgr->CreateBaseMap(mapId);
+            x = data.points.front().X;
+            y = data.points.front().Y;
+            z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
         }
         else
         {
