@@ -130,7 +130,7 @@ enum ItemBondingType
     ITEM_FLAG_USABLE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms */
 
 // ITEM_FIELD_FLAGS
-enum ItemFieldFlags
+enum ItemFieldFlags : uint32
 {
     ITEM_FIELD_FLAG_SOULBOUND     = 0x00000001, // Item is soulbound and cannot be traded <<--
     ITEM_FIELD_FLAG_TRANSLATED    = 0x00000002, // Item text will not read as garbage when player does not know the language
@@ -168,7 +168,7 @@ enum ItemFieldFlags
     ITEM_FIELD_FLAG_MAIL_TEXT_MASK = ITEM_FIELD_FLAG_READABLE | ITEM_FIELD_FLAG_UNK13 | ITEM_FIELD_FLAG_UNK14
 };
 
-enum ItemFlags
+enum ItemFlags : uint32
 {
     ITEM_FLAG_UNK1                     = 0x00000001,
     ITEM_FLAG_CONJURED                 = 0x00000002, // Conjured item
@@ -204,7 +204,7 @@ enum ItemFlags
     ITEM_FLAG_BOP_TRADEABLE            = 0x80000000  // bound item that can be traded
 };
 
-enum ItemFlags2
+enum ItemFlags2 : uint32
 {
     ITEM_FLAG2_HORDE_ONLY             = 0x00000001,
     ITEM_FLAG2_ALLIANCE_ONLY          = 0x00000002,
