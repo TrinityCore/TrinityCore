@@ -189,19 +189,14 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
     SendPacket(packet.Write());
 }
 
-void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
+void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet)
 {
-    ObjectGuid guid;
-    uint32 spellId;
-    uint32 trainerId;
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL %s, learn spell id is: %i", packet.TrainerGUID.ToString().c_str(), packet.SpellID);
 
-    recvData >> guid >> trainerId >> spellId;
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL %s, learn spell id is: %u", guid.ToString().c_str(), spellId);
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - %s not found or you can not interact with him.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - %s not found or you can not interact with him.", packet.TrainerGUID.ToString().c_str());
         return;
     }
 
@@ -213,32 +208,32 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
     if (!trainer_spells)
     {
-        SendTrainerBuyFailed(guid, spellId, 0);
+        SendTrainerBuyFailed(packet.TrainerGUID, packet.SpellID, 0);
         return;
     }
 
     // not found, cheat?
-    TrainerSpell const* trainer_spell = trainer_spells->Find(spellId);
-    if (!trainer_spell)
+    TrainerSpell const* trainerSpell = trainer_spells->Find(packet.SpellID);
+    if (!trainerSpell)
     {
-        SendTrainerBuyFailed(guid, spellId, 0);
+        SendTrainerBuyFailed(packet.TrainerGUID, packet.SpellID, 0);
         return;
     }
 
     // can't be learn, cheat? Or double learn with lags...
-    if (_player->GetTrainerSpellState(trainer_spell) != TRAINER_SPELL_GREEN)
+    if (_player->GetTrainerSpellState(trainerSpell) != TRAINER_SPELL_GREEN)
     {
-        SendTrainerBuyFailed(guid, spellId, 0);
+        SendTrainerBuyFailed(packet.TrainerGUID, packet.SpellID, 0);
         return;
     }
 
     // apply reputation discount
-    uint32 nSpellCost = uint32(floor(trainer_spell->MoneyCost * _player->GetReputationPriceDiscount(unit)));
+    uint32 nSpellCost = uint32(floor(trainerSpell->MoneyCost * _player->GetReputationPriceDiscount(unit)));
 
     // check money requirement
     if (!_player->HasEnoughMoney(uint64(nSpellCost)))
     {
-        SendTrainerBuyFailed(guid, spellId, 1);
+        SendTrainerBuyFailed(packet.TrainerGUID, packet.SpellID, 1);
         return;
     }
 
@@ -248,19 +243,19 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     _player->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
 
     // learn explicitly or cast explicitly
-    if (trainer_spell->IsCastable())
-        _player->CastSpell(_player, trainer_spell->SpellID, true);
+    if (trainerSpell->IsCastable())
+        _player->CastSpell(_player, trainerSpell->SpellID, true);
     else
-        _player->LearnSpell(spellId, false);
+        _player->LearnSpell(packet.SpellID, false);
 }
 
-void WorldSession::SendTrainerBuyFailed(ObjectGuid guid, uint32 spellId, uint32 reason)
+void WorldSession::SendTrainerBuyFailed(ObjectGuid trainerGUID, uint32 spellID, int32 trainerFailedReason)
 {
-    WorldPacket data(SMSG_TRAINER_BUY_FAILED, 16);
-    data << guid;
-    data << uint32(spellId);        // should be same as in packet from client
-    data << uint32(reason);         // 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
-    SendPacket(&data);
+    WorldPackets::NPC::TrainerBuyFailed trainerBuyFailed;
+    trainerBuyFailed.TrainerGUID = trainerGUID;
+    trainerBuyFailed.SpellID = spellID;                             // should be same as in packet from client
+    trainerBuyFailed.TrainerFailedReason = trainerFailedReason;     // 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
+    SendPacket(trainerBuyFailed.Write());
 }
 
 void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
