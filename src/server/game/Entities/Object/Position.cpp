@@ -17,6 +17,8 @@
 
 #include "Position.h"
 #include "ByteBuffer.h"
+#include "G3D/g3dmath.h"
+#include "GridDefines.h"
 
 bool Position::operator==(Position const &a)
 {
