@@ -12,6 +12,7 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+Teleporter.cpp
 #  ${sources_Custom}
 )
 
