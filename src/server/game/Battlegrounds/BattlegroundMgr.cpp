@@ -471,8 +471,8 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
     _battlegroundMapTemplates.clear();
     _battlegroundTemplates.clear();
 
-    //                                               0   1                  2                  3       4       5                 6               7              8            9             10      11
-    QueryResult result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, StartMaxDist, Weight, ScriptName FROM battleground_template");
+    //                                               0   1                  2                  3       4       5                 6              7             8       9
+    QueryResult result = WorldDatabase.Query("SELECT ID, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, HordeStartLoc, StartMaxDist, Weight, ScriptName FROM battleground_template");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 battlegrounds. DB table `battleground_template` is empty.");
@@ -504,22 +504,22 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         bgTemplate.MaxPlayersPerTeam = fields[2].GetUInt16();
         bgTemplate.MinLevel          = fields[3].GetUInt8();
         bgTemplate.MaxLevel          = fields[4].GetUInt8();
-        float dist                   = fields[9].GetFloat();
+        float dist                   = fields[7].GetFloat();
         bgTemplate.MaxStartDistSq    = dist * dist;
-        bgTemplate.Weight            = fields[10].GetUInt8();
-        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[11].GetCString());
+        bgTemplate.Weight            = fields[8].GetUInt8();
+        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[9].GetCString());
         bgTemplate.BattlemasterEntry = bl;
 
         if (bgTemplate.MaxPlayersPerTeam == 0 || bgTemplate.MinPlayersPerTeam > bgTemplate.MaxPlayersPerTeam)
         {
-            TC_LOG_ERROR("sql.sql", "Table `battleground_template` for id %u has bad values for MinPlayersPerTeam (%u) and MaxPlayersPerTeam(%u)",
+            TC_LOG_ERROR("sql.sql", "Table `battleground_template` for ID %u has bad values for MinPlayersPerTeam (%u) and MaxPlayersPerTeam(%u)",
                 bgTemplate.Id, bgTemplate.MinPlayersPerTeam, bgTemplate.MaxPlayersPerTeam);
             continue;
         }
 
         if (bgTemplate.MinLevel == 0 || bgTemplate.MaxLevel == 0 || bgTemplate.MinLevel > bgTemplate.MaxLevel)
         {
-            TC_LOG_ERROR("sql.sql", "Table `battleground_template` for id %u has bad values for MinLevel (%u) and MaxLevel (%u)",
+            TC_LOG_ERROR("sql.sql", "Table `battleground_template` for ID %u has bad values for MinLevel (%u) and MaxLevel (%u)",
                 bgTemplate.Id, bgTemplate.MinLevel, bgTemplate.MaxLevel);
             continue;
         }
@@ -529,22 +529,22 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             uint32 startId = fields[5].GetUInt32();
             if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
             {
-                bgTemplate.StartLocation[TEAM_ALLIANCE].Relocate(start->Loc.X, start->Loc.Y, start->Loc.Z, fields[6].GetFloat());
+                bgTemplate.StartLocation[TEAM_ALLIANCE].Relocate(start->Loc.X, start->Loc.Y, start->Loc.Z, (start->Facing * M_PI) / 180);
             }
             else
             {
-                TC_LOG_ERROR("sql.sql", "Table `battleground_template` for id %u has non-existed WorldSafeLocs.dbc id %u in field `AllianceStartLoc`. BG not created.", bgTemplate.Id, startId);
+                TC_LOG_ERROR("sql.sql", "Table `battleground_template` for ID %u a non-existant WorldSafeLoc (ID: %u) in field `AllianceStartLoc`. BG not created.", bgTemplate.Id, startId);
                 continue;
             }
 
-            startId = fields[7].GetUInt32();
+            startId = fields[6].GetUInt32();
             if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
             {
-                bgTemplate.StartLocation[TEAM_HORDE].Relocate(start->Loc.X, start->Loc.Y, start->Loc.Z, fields[8].GetFloat());
+                bgTemplate.StartLocation[TEAM_HORDE].Relocate(start->Loc.X, start->Loc.Y, start->Loc.Z, (start->Facing * M_PI) / 180);
             }
             else
             {
-                TC_LOG_ERROR("sql.sql", "Table `battleground_template` for id %u has non-existed WorldSafeLocs.dbc id %u in field `HordeStartLoc`. BG not created.", bgTemplate.Id, startId);
+                TC_LOG_ERROR("sql.sql", "Table `battleground_template` for ID %u has a non-existant WorldSafeLoc (ID: %u) in field `HordeStartLoc`. BG not created.", bgTemplate.Id, startId);
                 continue;
             }
         }
