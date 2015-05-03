@@ -20,7 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
-
+#include "Pet.h"
 class WorldObject;
 
 namespace WorldPackets
@@ -126,6 +126,28 @@ namespace WorldPackets
             int8 petNameLenght = petName.length();
             std::string petName = "Pet";
 
+        };
+
+        //SMSG_PET_LEARNED_SPELLS
+        class PetLearnedSpells final : public ServerPacket
+        {
+        public:
+            PetLearnedSpells(PetSpellMap petSp) : ServerPacket(SMSG_PET_LEARNED_SPELLS, 4 + petSp.size() * 4), PetSp(petSp) { }
+
+            WorldPacket const* Write() override;
+                        
+            PetSpellMap PetSp;
+        };
+
+        //SMSG_PET_UNLEARNED_SPELLS
+        class PetUnlearnedSpells final : public ServerPacket
+        {
+        public:
+            PetUnlearnedSpells(PetSpellMap petSp) : ServerPacket(SMSG_PET_UNLEARNED_SPELLS, 4 + petSp.size() * 4), PetSp(petSp) { }
+
+            WorldPacket const* Write() override;
+
+            PetSpellMap PetSp;
         };
     }
 }

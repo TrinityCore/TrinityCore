@@ -62,3 +62,23 @@ WorldPacket const* WorldPackets::Pet::PetAdded::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Pet::PetLearnedSpells::Write()
+{
+    _worldPacket << uint32(PetSp.size());
+    for(auto& spellMap : PetSp)
+    {
+        _worldPacket << uint32(spellMap.first);
+    }
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetUnlearnedSpells::Write()
+{
+    _worldPacket << uint32(PetSp.size());
+    for (auto& spellMap : PetSp)
+    {
+        _worldPacket << uint32(spellMap.first);
+    }
+    return &_worldPacket;
+}

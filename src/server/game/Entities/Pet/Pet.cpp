@@ -1450,16 +1450,12 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
 
 bool Pet::learnSpell(uint32 spell_id)
 {
-    // prevent duplicated entires in spell book
-    if (!addSpell(spell_id))
+    if(!addSpell(spell_id))
         return false;
-
+    
     if (!m_loading)
     {
-        WorldPacket data(SMSG_PET_LEARNED_SPELLS, 8);
-        data << uint32(1);
-        data << uint32(spell_id);
-        GetOwner()->GetSession()->SendPacket(&data);
+        GetOwner()->GetSession()->SendPacket(WorldPackets::Pet::PetLearnedSpells(m_spells).Write());
         GetOwner()->PetSpellInitialize();
     }
     return true;
@@ -1510,10 +1506,7 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     {
         if (!m_loading)
         {
-            WorldPacket data(SMSG_PET_UNLEARNED_SPELLS, 8);
-            data << uint32(1);
-            data << uint32(spell_id);
-            GetOwner()->GetSession()->SendPacket(&data);
+            GetOwner()->GetSession()->SendPacket(WorldPackets::Pet::PetUnlearnedSpells(m_spells).Write());
         }
         return true;
     }
