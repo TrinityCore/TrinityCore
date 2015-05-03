@@ -418,6 +418,33 @@ namespace WorldPackets
             uint32 Timestamp = 0;
             std::string Name;
         };
+
+        class ItemTextQuery final : public ClientPacket
+        {
+        public:
+            ItemTextQuery(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_TEXT_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Id;
+        };
+
+        struct ItemTextCache
+        {
+            std::string Text;
+        };
+
+        class QueryItemTextResponse final : public ServerPacket
+        {
+        public:
+            QueryItemTextResponse() : ServerPacket(SMSG_QUERY_ITEM_TEXT_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Id;
+            bool Valid = false;
+            ItemTextCache Item;
+        };
     }
 }
 

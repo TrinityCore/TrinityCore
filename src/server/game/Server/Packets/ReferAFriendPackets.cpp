@@ -30,6 +30,7 @@ void WorldPackets::RaF::GrantLevel::Read()
 WorldPacket const* WorldPackets::RaF::ProposeLevelGrant::Write()
 {
     _worldPacket << Sender;
+
     return &_worldPacket;
 }
 
@@ -39,6 +40,8 @@ WorldPacket const* WorldPackets::RaF::ReferAFriendFailure::Write()
     // Client uses this string only if Reason == ERR_REFER_A_FRIEND_NOT_IN_GROUP || Reason == ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S
     // but always reads it from packet
     _worldPacket.WriteBits(Str.length(), 6);
+    _worldPacket.FlushBits();
     _worldPacket.WriteString(Str);
+
     return &_worldPacket;
 }

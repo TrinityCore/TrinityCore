@@ -1171,7 +1171,7 @@ void ObjectMgr::LoadEquipmentTemplates()
     uint32 oldMSTime = getMSTime();
 
     //                                                 0     1       2           3           4
-    QueryResult result = WorldDatabase.Query("SELECT entry, id, itemEntry1, itemEntry2, itemEntry3 FROM creature_equip_template");
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, ID, ItemID1, ItemID2, ItemID3 FROM creature_equip_template");
 
     if (!result)
     {
@@ -1188,7 +1188,7 @@ void ObjectMgr::LoadEquipmentTemplates()
 
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
-            TC_LOG_ERROR("sql.sql", "Creature template (Entry: %u) does not exist but has a record in `creature_equip_template`", entry);
+            TC_LOG_ERROR("sql.sql", "Creature template (CreatureID: %u) does not exist but has a record in `creature_equip_template`", entry);
             continue;
         }
 
@@ -1214,7 +1214,7 @@ void ObjectMgr::LoadEquipmentTemplates()
 
             if (!dbcItem)
             {
-                TC_LOG_ERROR("sql.sql", "Unknown item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id=%u, forced to 0.",
+                TC_LOG_ERROR("sql.sql", "Unknown item (ID=%u) in creature_equip_template.ItemID%u for CreatureID = %u and ID=%u, forced to 0.",
                     equipmentInfo.ItemEntry[i], i+1, entry, id);
                 equipmentInfo.ItemEntry[i] = 0;
                 continue;
@@ -1230,7 +1230,7 @@ void ObjectMgr::LoadEquipmentTemplates()
                 dbcItem->InventoryType != INVTYPE_THROWN &&
                 dbcItem->InventoryType != INVTYPE_RANGEDRIGHT)
             {
-                TC_LOG_ERROR("sql.sql", "Item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id = %u is not equipable in a hand, forced to 0.",
+                TC_LOG_ERROR("sql.sql", "Item (ID=%u) in creature_equip_template.ItemID%u for CreatureID = %u and ID = %u is not equipable in a hand, forced to 0.",
                     equipmentInfo.ItemEntry[i], i+1, entry, id);
                 equipmentInfo.ItemEntry[i] = 0;
             }
@@ -1746,8 +1746,8 @@ void ObjectMgr::LoadCreatures()
         data.npcflag        = fields[18].GetUInt32();
         data.unit_flags     = fields[19].GetUInt32();
         data.dynamicflags   = fields[20].GetUInt32();
-        data.phaseid = fields[21].GetUInt32();
-        data.phaseGroup = fields[22].GetUInt32();
+        data.phaseid        = fields[21].GetUInt32();
+        data.phaseGroup     = fields[22].GetUInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -1823,6 +1823,25 @@ void ObjectMgr::LoadCreatures()
         {
             TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.id);
             data.phaseGroup = 0;
+        }
+
+        if (data.phaseid)
+        {
+            PhaseEntry const* phase = sPhaseStore.LookupEntry(data.phaseid);
+            if (!phase)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, data.id, data.phaseid);
+                data.phaseid = 0;
+            }
+        }
+
+        if (data.phaseGroup)
+        {
+            if (sDB2Manager.GetPhasesForGroup(data.phaseGroup).empty())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phasegroup` %u does not exist, set to 0", guid, data.id, data.phaseGroup);
+                data.phaseGroup = 0;
+            }
         }
 
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
@@ -2084,13 +2103,32 @@ void ObjectMgr::LoadGameobjects()
 
         int16 gameEvent     = fields[15].GetInt8();
         uint32 PoolId       = fields[16].GetUInt32();
-        data.phaseid = fields[17].GetUInt32();
-        data.phaseGroup = fields[18].GetUInt32();
+        data.phaseid        = fields[17].GetUInt32();
+        data.phaseGroup     = fields[18].GetUInt32();
 
         if (data.phaseGroup && data.phaseid)
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.id);
             data.phaseGroup = 0;
+        }
+
+        if (data.phaseid)
+        {
+            PhaseEntry const* phase = sPhaseStore.LookupEntry(data.phaseid);
+            if (!phase)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, data.id, data.phaseid);
+                data.phaseid = 0;
+            }
+        }
+
+        if (data.phaseGroup)
+        {
+            if (sDB2Manager.GetPhasesForGroup(data.phaseGroup).empty())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, data.id, data.phaseGroup);
+                data.phaseGroup = 0;
+            }
         }
 
         if (std::abs(data.orientation) > 2 * float(M_PI))
@@ -2328,7 +2366,7 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
 {
     *disenchantID = 0;
     *(int32*)requiredDisenchantSkill = -1;
-    if ((itemTemplate.GetFlags() & (ITEM_PROTO_FLAG_CONJURED | ITEM_PROTO_FLAG_UNK6)) ||
+    if ((itemTemplate.GetFlags() & (ITEM_FLAG_CONJURED | ITEM_FLAG_UNK6)) ||
         itemTemplate.GetBonding() == BIND_QUEST_ITEM || itemTemplate.GetArea() || itemTemplate.GetMap() ||
         itemTemplate.GetMaxStackSize() > 1 ||
         itemTemplate.GetQuality() < ITEM_QUALITY_UNCOMMON || itemTemplate.GetQuality() > ITEM_QUALITY_EPIC ||
@@ -7074,6 +7112,9 @@ void ObjectMgr::LoadQuestPOI()
         int32 WorldEffectID         = fields[11].GetInt32();
         int32 PlayerConditionID     = fields[12].GetInt32();
         int32 WoDUnk1               = fields[13].GetInt32();
+
+        if (!sObjectMgr->GetQuestTemplate(QuestID))
+            TC_LOG_ERROR("sql.sql", "`quest_poi` quest id (%u) Idx1 (%u) does not exist in `quest_template`", QuestID, Idx1);
 
         QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1);
         if (QuestID < int32(POIs.size()) && Idx1 < int32(POIs[QuestID].size()))

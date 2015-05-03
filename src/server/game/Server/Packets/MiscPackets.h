@@ -622,6 +622,26 @@ namespace WorldPackets
 
             void Read() override { }
         };
+
+        class FarSight final : public ClientPacket
+        {
+        public:
+            FarSight(WorldPacket&& packet) : ClientPacket(CMSG_FAR_SIGHT, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Enable = false;
+        };
+
+        class Dismount final : public ServerPacket
+        {
+        public:
+            Dismount() : ServerPacket(SMSG_DISMOUNT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
     }
 }
 

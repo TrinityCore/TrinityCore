@@ -439,3 +439,15 @@ WorldPacket const* WorldPackets::Misc::PlaySound::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::FarSight::Read()
+{
+    Enable = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Misc::Dismount::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}

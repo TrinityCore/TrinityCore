@@ -414,3 +414,22 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
         SendPacket(response.Write());
     }
 }
+
+/**
+* Handles the packet sent by the client when requesting information about item text.
+*
+* This function is called when player clicks on item which has some flag set
+*/
+void WorldSession::HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& itemTextQuery)
+{
+    WorldPackets::Query::QueryItemTextResponse queryItemTextResponse;
+    queryItemTextResponse.Id = itemTextQuery.Id;
+
+    if (Item* item = _player->GetItemByGuid(itemTextQuery.Id))
+    {
+        queryItemTextResponse.Valid = true;
+        queryItemTextResponse.Item.Text = item->GetText();
+    }
+
+    SendPacket(queryItemTextResponse.Write());
+}

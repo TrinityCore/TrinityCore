@@ -4313,7 +4313,7 @@ void Spell::SendResurrectRequest(Player* target)
     // for player resurrections the name is looked up by guid
     std::string const sentName(m_caster->GetTypeId() == TYPEID_PLAYER
         ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex()));
-    
+
     WorldPackets::Spells::ResurrectRequest resurrectRequest;
     resurrectRequest.ResurrectOffererGUID =  m_caster->GetGUID();
     resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
@@ -4585,7 +4585,7 @@ void Spell::TakeReagents()
     ItemTemplate const* castItemTemplate = m_CastItem ? m_CastItem->GetTemplate() : NULL;
 
     // do not take reagents for these item casts
-    if (castItemTemplate && castItemTemplate->GetFlags() & ITEM_PROTO_FLAG_TRIGGERED_CAST)
+    if (castItemTemplate && castItemTemplate->GetFlags() & ITEM_FLAG_TRIGGERED_CAST)
         return;
 
     Player* p_caster = m_caster->ToPlayer();
@@ -6016,7 +6016,7 @@ SpellCastResult Spell::CheckItems()
     }
 
     // do not take reagents for these item casts
-    if (!(m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_TRIGGERED_CAST))
+    if (!(m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_TRIGGERED_CAST))
     {
         bool checkReagents = !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST) && !player->CanNoReagentCast(m_spellInfo);
         // Not own traded item (in trader trade slot) requires reagents even if triggered spell
@@ -6143,7 +6143,7 @@ SpellCastResult Spell::CheckItems()
                     if (m_targets.GetItemTarget()->GetOwner() != m_caster)
                         return SPELL_FAILED_NOT_TRADEABLE;
                     // do not allow to enchant vellum from scroll made by vellum-prevent exploit
-                    if (m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_TRIGGERED_CAST)
+                    if (m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_TRIGGERED_CAST)
                         return SPELL_FAILED_TOTEM_CATEGORY;
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, effect->ItemType, 1);
@@ -6266,7 +6266,7 @@ SpellCastResult Spell::CheckItems()
                 if (!m_targets.GetItemTarget())
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //ensure item is a prospectable ore
-                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_PROSPECTABLE))
+                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_FLAG_PROSPECTABLE))
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //prevent prospecting in trade slot
                 if (m_targets.GetItemTarget()->GetOwnerGUID() != m_caster->GetGUID())
@@ -6289,7 +6289,7 @@ SpellCastResult Spell::CheckItems()
                 if (!m_targets.GetItemTarget())
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //ensure item is a millable herb
-                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_MILLABLE))
+                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_FLAG_MILLABLE))
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //prevent milling in trade slot
                 if (m_targets.GetItemTarget()->GetOwnerGUID() != m_caster->GetGUID())
@@ -7502,7 +7502,7 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
     }
     else if (_spellInfo->HasAttribute(SPELL_ATTR0_CU_CONE_LINE))
     {
-        if (!_caster->HasInLine(target, _caster->GetObjectSize()))
+        if (!_caster->HasInLine(target, _caster->GetObjectSize() + target->GetObjectSize()))
             return false;
     }
     else
@@ -7519,7 +7519,7 @@ WorldObjectSpellTrajTargetCheck::WorldObjectSpellTrajTargetCheck(float range, Po
 bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target)
 {
     // return all targets on missile trajectory (0 - size of a missile)
-    if (!_caster->HasInLine(target, 0))
+    if (!_caster->HasInLine(target, target->GetObjectSize()))
         return false;
     return WorldObjectSpellAreaTargetCheck::operator ()(target);
 }

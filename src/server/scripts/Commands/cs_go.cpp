@@ -44,6 +44,7 @@ public:
             { "graveyard",          rbac::RBAC_PERM_COMMAND_GO_GRAVEYARD,           false, &HandleGoGraveyardCommand,                   "", NULL },
             { "grid",               rbac::RBAC_PERM_COMMAND_GO_GRID,                false, &HandleGoGridCommand,                        "", NULL },
             { "object",             rbac::RBAC_PERM_COMMAND_GO_OBJECT,              false, &HandleGoObjectCommand,                      "", NULL },
+            { "quest",              rbac::RBAC_PERM_COMMAND_GO_QUEST,               false, &HandleGoQuestCommand,                       "", NULL },
             { "taxinode",           rbac::RBAC_PERM_COMMAND_GO_TAXINODE,            false, &HandleGoTaxinodeCommand,                    "", NULL },
             { "trigger",            rbac::RBAC_PERM_COMMAND_GO_TRIGGER,             false, &HandleGoTriggerCommand,                     "", NULL },
             { "zonexy",             rbac::RBAC_PERM_COMMAND_GO_ZONEXY,              false, &HandleGoZoneXYCommand,                      "", NULL },
@@ -312,6 +313,71 @@ public:
             player->SaveRecallPosition();
 
         player->TeleportTo(mapId, x, y, z, o);
+        return true;
+    }
+
+    static bool HandleGoQuestCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        char* id = handler->extractKeyFromLink((char*)args, "Hquest");
+        if (!id)
+            return false;
+
+        uint32 questID = atoi(id);
+        if (!questID)
+            return false;
+
+        if (!sObjectMgr->GetQuestTemplate(questID))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, questID);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        float x, y, z;
+        uint32 mapId;
+
+        if (QuestPOIVector const* poiData = sObjectMgr->GetQuestPOIVector(questID))
+        {
+            auto data = poiData->front();
+
+            mapId = data.MapID;
+
+            x = data.points.front().X;
+            y = data.points.front().Y;
+        }
+        else
+        {
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, questID);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!MapManager::IsValidMapCoord(mapId, x, y) || sObjectMgr->IsTransportMap(mapId))
+        {
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // stop flight if need
+        if (player->IsInFlight())
+        {
+            player->GetMotionMaster()->MovementExpired();
+            player->CleanupAfterTaxiFlight();
+        }
+        // save only in non-flight case
+        else
+            player->SaveRecallPosition();
+
+        Map const* map = sMapMgr->CreateBaseMap(mapId);
+        z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+
+        player->TeleportTo(mapId, x, y, z, 0.0f);
         return true;
     }
 

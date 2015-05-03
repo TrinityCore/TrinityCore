@@ -25,8 +25,9 @@ void WorldPackets::Who::WhoIsRequest::Read()
 WorldPacket const* WorldPackets::Who::WhoIsResponse::Write()
 {
     _worldPacket.WriteBits(AccountName.length(), 11);
-    _worldPacket.WriteString(AccountName);
     _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(AccountName);
 
     return &_worldPacket;
 }
@@ -102,9 +103,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Who::WhoEntry const& entr
 
     data.WriteBits(entry.GuildName.length(), 7);
     data.WriteBit(entry.IsGM);
-    data.WriteString(entry.GuildName);
-
     data.FlushBits();
+
+    data.WriteString(entry.GuildName);
 
     return data;
 }

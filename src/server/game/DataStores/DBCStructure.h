@@ -1235,7 +1235,7 @@ struct MapEntry
     uint32          RaidOffset;                             // 17
     uint32          MaxPlayers;                             // 18
     int32           ParentMapID;                            // 19 related to phasing
-    //uint32        CosmeticParentMapID                     // 20
+    int32           CosmeticParentMapID;                    // 20
     //uint32        TimeOffset                              // 21
 
     // Helpers

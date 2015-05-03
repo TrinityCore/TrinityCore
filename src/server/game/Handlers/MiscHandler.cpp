@@ -848,12 +848,9 @@ void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
     //TC_LOG_DEBUG("response sent %u", unk);
 }
 
-void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
+void WorldSession::HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet)
 {
-    bool apply;
-    recvData >> apply;
-
-    if (apply)
+    if (packet.Enable)
     {
         TC_LOG_DEBUG("network", "Added FarSight %s to %s", _player->GetGuidValue(PLAYER_FARSIGHT).ToString().c_str(), _player->GetGUID().ToString().c_str());
         if (WorldObject* target = _player->GetViewpoint())

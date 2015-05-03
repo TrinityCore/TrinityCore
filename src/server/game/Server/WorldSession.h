@@ -282,6 +282,7 @@ namespace WorldPackets
         class SwapInvItem;
         class SwapItem;
         class WrapItem;
+        class CancelTempEnchantment;
     }
 
     namespace Loot
@@ -327,6 +328,7 @@ namespace WorldPackets
         class ObjectUpdateRescued;
         class CompleteCinematic;
         class NextCinematicCamera;
+        class FarSight;
     }
 
     namespace Movement
@@ -346,6 +348,7 @@ namespace WorldPackets
         class Hello;
         class GossipSelectOption;
         class SpiritHealerActivate;
+        class TrainerBuySpell;
     }
 
     namespace Petition
@@ -375,6 +378,7 @@ namespace WorldPackets
         class QueryPetName;
         class QuestPOIQuery;
         class QueryQuestCompletionNPCs;
+        class ItemTextQuery;
     }
 
     namespace Quest
@@ -635,8 +639,8 @@ public:
     explicit PacketFilter(WorldSession* pSession) : m_pSession(pSession) { }
     virtual ~PacketFilter() { }
 
-    virtual bool Process(WorldPacket* /*packet*/) { return true; }
-    virtual bool ProcessLogout() const { return true; }
+    virtual bool Process(WorldPacket* /*packet*/) = 0;
+    virtual bool ProcessUnsafe() const { return false; }
 
 protected:
     WorldSession* const m_pSession;
@@ -653,9 +657,7 @@ public:
     explicit MapSessionFilter(WorldSession* pSession) : PacketFilter(pSession) { }
     ~MapSessionFilter() { }
 
-    virtual bool Process(WorldPacket* packet) override;
-    //in Map::Update() we do not process player logout!
-    virtual bool ProcessLogout() const override { return false; }
+    bool Process(WorldPacket* packet) override;
 };
 
 //class used to filer only thread-unsafe packets from queue
@@ -666,7 +668,8 @@ public:
     explicit WorldSessionFilter(WorldSession* pSession) : PacketFilter(pSession) { }
     ~WorldSessionFilter() { }
 
-    virtual bool Process(WorldPacket* packet) override;
+    bool Process(WorldPacket* packet) override;
+    bool ProcessUnsafe() const override { return true; }
 };
 
 struct PacketCounter
@@ -1119,7 +1122,7 @@ class WorldSession
         void HandleTabardVendorActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet);
-        void HandleTrainerBuySpellOpcode(WorldPacket& recvPacket);
+        void HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet);
         void HandlePetitionShowList(WorldPackets::Petition::PetitionShowList& packet);
         void HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet);
         void HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet);
@@ -1135,7 +1138,7 @@ class WorldSession
         void HandleStableRevivePet(WorldPacket& recvPacket);
         void HandleStableSwapPet(WorldPacket& recvPacket);
         void HandleStableSwapPetCallback(PreparedQueryResult result, uint32 petId);
-        void SendTrainerBuyFailed(ObjectGuid guid, uint32 spellId, uint32 reason);
+        void SendTrainerBuyFailed(ObjectGuid trainerGUID, uint32 spellID, int32 trainerFailedReason);
 
         void HandleCanDuel(WorldPackets::Duel::CanDuel& packet);
         void HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse);
@@ -1179,7 +1182,7 @@ class WorldSession
         void HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead& packet);
         void HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& packet);
         void HandleMailDelete(WorldPackets::Mail::MailDelete& packet);
-        void HandleItemTextQuery(WorldPacket& recvData);
+        void HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& itemTextQuery);
         void HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextItem& packet);
         void HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& packet);
         void HandleCancelChanneling(WorldPacket& recvData);
@@ -1190,7 +1193,6 @@ class WorldSession
         void HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& destroyItem);
         void HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem);
         void HandleSellItemOpcode(WorldPackets::Item::SellItem& packet);
-        void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet);
         void HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet);
         void HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet);
@@ -1328,7 +1330,7 @@ class WorldSession
         void HandleWorldTeleportOpcode(WorldPacket& recvData);
         void HandleMinimapPingOpcode(WorldPacket& recvData);
         void HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet);
-        void HandleFarSightOpcode(WorldPacket& recvData);
+        void HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet);
         void HandleSetDungeonDifficultyOpcode(WorldPackets::Misc::SetDungeonDifficulty& setDungeonDifficulty);
         void HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDifficulty& setRaidDifficulty);
         void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
@@ -1374,7 +1376,7 @@ class WorldSession
         // Socket gem
         void HandleSocketOpcode(WorldPacket& recvData);
 
-        void HandleCancelTempEnchantmentOpcode(WorldPacket& recvData);
+        void HandleCancelTempEnchantmentOpcode(WorldPackets::Item::CancelTempEnchantment& cancelTempEnchantment);
 
         void HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchaseData& packet);
         void HandleItemRefund(WorldPacket& recvData);

@@ -216,6 +216,30 @@ namespace WorldPackets
 
             ObjectGuid Unit;
         };
+
+        class TrainerBuySpell final : public ClientPacket
+        {
+        public:
+            TrainerBuySpell(WorldPacket&& packet) : ClientPacket(CMSG_TRAINER_BUY_SPELL, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid TrainerGUID;
+            int32 TrainerID     = 0;
+            int32 SpellID       = 0;
+        };
+
+        class TrainerBuyFailed final : public ServerPacket
+        {
+        public:
+            TrainerBuyFailed() : ServerPacket(SMSG_TRAINER_BUY_FAILED, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid TrainerGUID;
+            int32 SpellID               = 0;
+            int32 TrainerFailedReason   = 0;
+        };
     }
 }
 

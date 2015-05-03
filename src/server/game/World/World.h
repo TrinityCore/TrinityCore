@@ -671,7 +671,7 @@ class World
         void SendWorldText(uint32 string_id, ...);
         void SendGlobalText(const char* text, WorldSession* self);
         void SendGMText(uint32 string_id, ...);
-        void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
+        void SendServerMessage(ServerMessageType messageID, std::string stringParam = "", Player* player = NULL);
         void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
         void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
         bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
