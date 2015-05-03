@@ -1,4 +1,4 @@
-SET @GUID          := 16937; -- 1 creature guid Set by TC
+SET @GUID          := 16397; -- 1 creature guid Set by TC
 DELETE FROM `creature` WHERE `id`=16123;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`curhealth`) VALUES
 (@GUID, 16123, 0, 1, 1, -14457.221680, 448.084534, 20.406971, 6.115618, 600, 0);
