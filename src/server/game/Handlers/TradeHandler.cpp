@@ -67,7 +67,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             tradeItem.EntryID = item->GetEntry();
             tradeItem.StackCount = item->GetCount();
             tradeItem.GiftCreator = item->GetGuidValue(ITEM_FIELD_GIFTCREATOR);
-            if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
+            if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
             {
                 tradeItem.Unwrapped = boost::in_place();
 
@@ -76,7 +76,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
                 tradeItem.Unwrapped->OnUseEnchantmentID = item->GetEnchantmentId(USE_ENCHANTMENT_SLOT);
                 tradeItem.Unwrapped->Creator = item->GetGuidValue(ITEM_FIELD_CREATOR);
                 tradeItem.Unwrapped->Charges = item->GetSpellCharges();
-                tradeItem.Unwrapped->Lock = item->GetTemplate()->GetLockID() && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_UNLOCKED);
+                tradeItem.Unwrapped->Lock = item->GetTemplate()->GetLockID() && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_UNLOCKED);
                 tradeItem.Unwrapped->MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
                 tradeItem.Unwrapped->Durability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
 
@@ -124,7 +124,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                 }
 
                 // adjust time (depends on /played)
-                if (myItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+                if (myItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
                     myItems[i]->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, trader->GetTotalPlayedTime()-(_player->GetTotalPlayedTime()-myItems[i]->GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME)));
                 // store
                 trader->MoveItemToInventory(traderDst, myItems[i], true, true);
@@ -142,7 +142,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                 }
 
                 // adjust time (depends on /played)
-                if (hisItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+                if (hisItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
                     hisItems[i]->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, _player->GetTotalPlayedTime()-(trader->GetTotalPlayedTime()-hisItems[i]->GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME)));
                 // store
                 _player->MoveItemToInventory(playerDst, hisItems[i], true, true);

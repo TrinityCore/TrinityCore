@@ -369,3 +369,8 @@ void WorldPackets::Item::WrapItem::Read()
 {
     _worldPacket >> Inv;
 }
+
+void WorldPackets::Item::CancelTempEnchantment::Read()
+{
+    _worldPacket >> Slot;
+}

@@ -63,7 +63,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint64 ID;
+            uint64 ID = 0;
         };
 
         class UseEquipmentSet final : public ClientPacket

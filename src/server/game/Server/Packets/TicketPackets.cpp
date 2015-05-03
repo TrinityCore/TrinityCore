@@ -70,6 +70,7 @@ WorldPacket const* WorldPackets::Ticket::GMTicketGetTicketResponse::Write()
 {
     _worldPacket << Result;
     _worldPacket.WriteBit(Info.is_initialized());
+    _worldPacket.FlushBits();
 
     if (Info)
     {
@@ -84,12 +85,12 @@ WorldPacket const* WorldPackets::Ticket::GMTicketGetTicketResponse::Write()
 
         _worldPacket.WriteBits(Info->TicketDescription.size(), 11);
         _worldPacket.WriteBits(Info->WaitTimeOverrideMessage.size(), 10);
+        _worldPacket.FlushBits();
 
         _worldPacket.WriteString(Info->TicketDescription);
         _worldPacket.WriteString(Info->WaitTimeOverrideMessage);
     }
 
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
