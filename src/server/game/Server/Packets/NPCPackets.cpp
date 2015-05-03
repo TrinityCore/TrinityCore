@@ -175,3 +175,19 @@ WorldPacket const* WorldPackets::NPC::SpiritHealerConfirm::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::NPC::TrainerBuySpell::Read()
+{
+    _worldPacket >> TrainerGUID;
+    _worldPacket >> TrainerID;
+    _worldPacket >> SpellID;
+}
+
+WorldPacket const* WorldPackets::NPC::TrainerBuyFailed::Write()
+{
+    _worldPacket << TrainerGUID;
+    _worldPacket << SpellID;
+    _worldPacket << TrainerFailedReason;
+
+    return &_worldPacket;
+}

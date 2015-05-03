@@ -18,6 +18,7 @@
 #include "Unit.h"
 #include "SpellInfo.h"
 #include "Log.h"
+#include "UpdateData.h"
 #include "AreaTrigger.h"
 
 AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0)

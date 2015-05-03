@@ -89,7 +89,7 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
             store = &sItemDamageAmmoStore;
             break;
         case INVTYPE_2HWEAPON:
-            if (GetFlags2() & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
+            if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
                 store = &sItemDamageTwoHandCasterStore;
             else
                 store = &sItemDamageTwoHandStore;
@@ -117,7 +117,7 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
         case INVTYPE_WEAPON:
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
-            if (GetFlags2() & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
+            if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
                 store = &sItemDamageOneHandCasterStore;
             else
                 store = &sItemDamageOneHandStore;

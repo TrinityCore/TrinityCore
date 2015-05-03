@@ -149,10 +149,12 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
             _worldPacket << questObjective.UnkFloat;
 
             _worldPacket << int32(questObjective.VisualEffects.size());
-            for (auto& visualEffect : questObjective.VisualEffects)
+            for (int32 visualEffect : questObjective.VisualEffects)
                 _worldPacket << visualEffect;
 
             _worldPacket.WriteBits(questObjective.Description.size(), 8);
+            _worldPacket.FlushBits();
+
             _worldPacket.WriteString(questObjective.Description);
         }
 
@@ -165,6 +167,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket.WriteBits(Info.PortraitTurnInText.size(), 10);
         _worldPacket.WriteBits(Info.PortraitTurnInName.size(), 8);
         _worldPacket.WriteBits(Info.QuestCompletionLog.size(), 11);
+        _worldPacket.FlushBits();
 
         _worldPacket.WriteString(Info.LogTitle);
         _worldPacket.WriteString(Info.LogDescription);
@@ -277,6 +280,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
     _worldPacket.WriteBits(PortraitGiverName.size(), 8);
     _worldPacket.WriteBits(PortraitGiverText.size(), 10);
     _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
+    _worldPacket.FlushBits();
 
     _worldPacket.WriteString(QuestTitle);
     _worldPacket.WriteString(RewardText);
@@ -362,6 +366,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket.WriteBit(DisplayPopup);
     _worldPacket.WriteBit(StartCheat);
     _worldPacket.WriteBit(AutoLaunched);
+    _worldPacket.FlushBits();
 
     _worldPacket.WriteString(QuestTitle);
     _worldPacket.WriteString(DescriptionText);
@@ -406,6 +411,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverRequestItems::Write()
 
     _worldPacket.WriteBits(QuestTitle.size(), 9);
     _worldPacket.WriteBits(CompletionText.size(), 12);
+    _worldPacket.FlushBits();
 
     _worldPacket.WriteString(QuestTitle);
     _worldPacket.WriteString(CompletionText);
@@ -477,6 +483,8 @@ WorldPacket const* WorldPackets::Quest::QuestConfirmAcceptResponse::Write()
     _worldPacket << InitiatedBy;
 
     _worldPacket.WriteBits(QuestTitle.size(), 10);
+    _worldPacket.FlushBits();
+
     _worldPacket.WriteString(QuestTitle);
 
     return &_worldPacket;

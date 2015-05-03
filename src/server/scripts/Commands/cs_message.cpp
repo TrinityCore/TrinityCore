@@ -134,9 +134,9 @@ public:
         if (!*args)
             return false;
 
-        char buff[2048];
-        sprintf(buff, handler->GetTrinityString(LANG_SYSTEMMESSAGE), args);
-        sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
+        std::string str = handler->PGetParseString(LANG_SYSTEMMESSAGE, args);
+
+        sWorld->SendServerMessage(SERVER_MSG_STRING, str);
         return true;
     }
     // announce to logged in GMs
