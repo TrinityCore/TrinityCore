@@ -820,7 +820,7 @@ void Map::ScriptsProcess()
                 }
                 else //check hashmap holders
                 {
-                    if (CreatureData const* data = sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
+                    if (sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
                     {
                         auto creatureBounds = _creatureBySpawnIdStore.equal_range(step.script->CallScript.CreatureEntry);
                         if (creatureBounds.first != creatureBounds.second)
