@@ -27,6 +27,37 @@ namespace WorldPackets
 {
     namespace Pet
     {
+         //CMSG_PET_ACTION
+        class PetAction final : public ClientPacket
+        {
+        public:
+            PetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_ACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid petGuid;
+            ObjectGuid targetGuid;
+            uint32 petdata;
+            uint32 spellid = 0;
+            uint32 actionsFlag = 0;
+            uint8 actionSlot = 0;
+            float position_x, position_y, position_z;
+        };
+
+
+        //CMSG_LEARN_PET_SPECIALIZATION_GROUP
+        class LearnPetSpecializationGroup final : public ClientPacket
+        {
+        public:
+            LearnPetSpecializationGroup(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_PET_SPECIALIZATION_GROUP, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid petGuid;
+            int32 specGroupIndex = 0;
+        };
+
+
         // SMSG_PET_GUIDS
         class PetGuids final : public ServerPacket
         {
@@ -73,6 +104,27 @@ namespace WorldPackets
             // PetSpellCooldown
 
             // PetSpellHistory
+
+        };
+
+        // SMSG_PET_ADDED
+        class PetAdded final : public ServerPacket
+        {
+        public:
+            PetAdded() : ServerPacket(SMSG_PET_ADDED, 5 * 4 + 1 + 1 + 10) { }
+
+            WorldPacket const* Write() override;
+
+            int32 petSlot = 0;
+            int32 petNumber = 0; //lowGuid (42129178)
+            int32 petCreatureID = 42717; //default Wolf PEt Hunter
+            int32 petDisplayID = 903;
+            int32 petExperienceLevel = 1;
+            int8  petFlags = 0;
+
+            //reset bit
+            int8 petNameLenght = petName.length();
+            std::string petName = "Pet";
 
         };
     }

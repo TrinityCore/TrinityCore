@@ -20359,22 +20359,23 @@ void Player::PetSpellInitialize()
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
 
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 16 + 2 + 4 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 1 + 1);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 16 + 2 + 2 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 4 + 10 * 4 + 4 + 4);
     data << pet->GetGUID();
-    data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
-    data << uint32(pet->GetDuration());
-    data << uint8(pet->GetReactState());
-    data << uint8(charmInfo->GetCommandState());
-    data << uint16(0); // Flags, mostly unknown
+    data << int16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
+    data << int16(0);   //Specialization                                               
+    //data << uint8(pet->GetReactState());
+    data << int32(pet->GetDuration());                        // TimeLimit
+    data << int32(259);                                       // PetModeAndOrders
+    //data << uint8(charmInfo->GetCommandState());
+    //data << uint16(0); // Flags, mostly unknown
 
     // action bar loop
     charmInfo->BuildActionBar(&data);
 
-    size_t spellsCountPos = data.wpos();
-
     // spells count
-    uint8 addlist = 0;
-    data << uint8(addlist);                                 // placeholder
+    int32 addlist = 0;
+    data << int32(addlist);  
+    size_t spellsCountPos = data.wpos();                            // placeholder
 
     if (pet->IsPermanentPetFor(this))
     {
@@ -20384,15 +20385,20 @@ void Player::PetSpellInitialize()
             if (itr->second.state == PETSPELL_REMOVED)
                 continue;
 
-            data << uint32(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
+            data << int32(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
             ++addlist;
         }
     }
 
-    data.put<uint8>(spellsCountPos, addlist);
-
+   
+    data.put<int32>(spellsCountPos, addlist);
+    
     // Cooldowns
     //pet->GetSpellHistory()->WritePacket(&petSpells);
+
+    
+    data << uint32(0); //CooldownsCount
+    data << uint32(0); //SpellHistoryCount
 
     GetSession()->SendPacket(&data);
 }

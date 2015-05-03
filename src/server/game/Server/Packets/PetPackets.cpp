@@ -17,6 +17,27 @@
 
 #include "PetPackets.h"
 
+void WorldPackets::Pet::PetAction::Read()
+{
+    _worldPacket >> petGuid;
+    _worldPacket >> petdata;
+
+     spellid =  UNIT_ACTION_BUTTON_ACTION(petdata);
+     //actionsFlag =  UNIT_ACTION_BUTTON_ACTION(petdata);
+     _worldPacket >> actionSlot;
+     _worldPacket >> targetGuid;
+     _worldPacket >> position_x;
+     _worldPacket >> position_y;
+     _worldPacket >> position_z;
+ 
+}
+
+void WorldPackets::Pet::LearnPetSpecializationGroup::Read()
+{
+    _worldPacket >> petGuid;
+    _worldPacket >> specGroupIndex;
+}
+
 WorldPacket const* WorldPackets::Pet::PetGuids::Write()
 {
     _worldPacket << petCount;
@@ -25,5 +46,19 @@ WorldPacket const* WorldPackets::Pet::PetGuids::Write()
         _worldPacket << petGuids;
     }
          
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetAdded::Write()
+{
+    _worldPacket << petSlot
+                 << petNumber
+                 << petCreatureID
+                 << petDisplayID
+                 << petExperienceLevel
+                 << petFlags
+                 << petNameLenght
+                 << petName; 
+
     return &_worldPacket;
 }

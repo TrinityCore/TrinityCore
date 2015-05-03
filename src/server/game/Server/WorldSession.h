@@ -350,7 +350,8 @@ namespace WorldPackets
 
     namespace Pet
     {
-        class PetGuids;
+        class PetAction;
+        class LearnPetSpecializationGroup;
     }
 
     namespace Petition
@@ -1286,7 +1287,7 @@ class WorldSession
         void HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet);
 
         //Pet
-        void HandlePetAction(WorldPacket& recvData);
+        void HandlePetAction(WorldPackets::Pet::PetAction &packet);
         void HandlePetStopAttack(WorldPacket& recvData);
         void HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z);
         void HandleQueryPetName(WorldPackets::Query::QueryPetName& packet);
@@ -1296,7 +1297,7 @@ class WorldSession
         void HandlePetCancelAuraOpcode(WorldPacket& recvPacket);
         void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
         void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell);
-
+        void HandleLearnPetSpecializationOpcode(WorldPackets::Pet::LearnPetSpecializationGroup& packet);
         void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 
         void HandleTotemDestroyed(WorldPacket& recvData);

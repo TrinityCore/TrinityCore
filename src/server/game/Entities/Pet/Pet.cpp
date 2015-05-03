@@ -84,7 +84,7 @@ void Pet::AddToWorld()
         GetCharmInfo()->SetIsAtStay(false);
         GetCharmInfo()->SetIsFollowing(false);
         GetCharmInfo()->SetIsReturning(false);
-    }
+    } 
 
 
 }
@@ -325,6 +325,18 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     owner->SetMinion(this, true);
     map->AddToMap(this->ToCreature());
 
+    TC_LOG_DEBUG("entities.pet", "Pet Added Send");
+    WorldPackets::Pet::PetAdded addedpacket;
+
+    addedpacket.petSlot = uint32(fields[7].GetUInt8());
+    addedpacket.petNumber = petId;
+    addedpacket.petCreatureID = fields[1].GetInt32();
+    addedpacket.petDisplayID = fields[3].GetInt32();
+    addedpacket.petExperienceLevel = fields[5].GetInt32();
+    addedpacket.petNameLenght =uint8(fields[8].GetString().length());
+    addedpacket.petName = fields[8].GetString();
+    owner->GetSession()->SendPacket(addedpacket.Write());
+    
     InitTalentForLevel();                                   // set original talents points before spell loading
 
     uint32 timediff = uint32(time(NULL) - fields[13].GetUInt32());
@@ -1444,7 +1456,8 @@ bool Pet::learnSpell(uint32 spell_id)
 
     if (!m_loading)
     {
-        WorldPacket data(SMSG_PET_LEARNED_SPELLS, 4);
+        WorldPacket data(SMSG_PET_LEARNED_SPELLS, 8);
+        data << uint32(1);
         data << uint32(spell_id);
         GetOwner()->GetSession()->SendPacket(&data);
         GetOwner()->PetSpellInitialize();
@@ -1497,7 +1510,8 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     {
         if (!m_loading)
         {
-            WorldPacket data(SMSG_PET_UNLEARNED_SPELLS, 4);
+            WorldPacket data(SMSG_PET_UNLEARNED_SPELLS, 8);
+            data << uint32(1);
             data << uint32(spell_id);
             GetOwner()->GetSession()->SendPacket(&data);
         }
