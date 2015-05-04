@@ -474,7 +474,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.expansion         = fields[17].GetInt16();
     creatureTemplate.expansionUnknown  = fields[18].GetUInt16();
     creatureTemplate.faction           = fields[19].GetUInt16();
-    creatureTemplate.npcflag           = fields[20].GetUInt32();
+    creatureTemplate.npcflag           = fields[20].GetUInt64();
     creatureTemplate.speed_walk        = fields[21].GetFloat();
     creatureTemplate.speed_run         = fields[22].GetFloat();
     creatureTemplate.scale             = fields[23].GetFloat();
@@ -678,9 +678,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
         if (cInfo->npcflag != difficultyInfo->npcflag)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, `npcflag`: %u) has different `npcflag` in difficulty %u mode (Entry: %u, `npcflag`: %u).",
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, `npcflag`: " UI64FMTD ") has different `npcflag` in difficulty %u mode (Entry: %u, `npcflag`: " UI64FMTD ").",
                 cInfo->Entry, cInfo->npcflag, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->npcflag);
-            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `npcflag`=%u WHERE `entry`=%u;",
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `npcflag`=" UI64FMTD " WHERE `entry`=%u;",
                 cInfo->npcflag, cInfo->DifficultyEntry[diff]);
             continue;
         }
@@ -1261,7 +1261,7 @@ uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData co
     return cinfo->GetRandomValidModelId();
 }
 
-void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data /*= NULL*/)
+void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cinfo, uint64& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data /*= NULL*/)
 {
     npcflag = cinfo->npcflag;
     unit_flags = cinfo->unit_flags;
@@ -1743,7 +1743,7 @@ void ObjectMgr::LoadCreatures()
         data.spawnMask      = fields[15].GetUInt32();
         int16 gameEvent     = fields[16].GetInt8();
         uint32 PoolId       = fields[17].GetUInt32();
-        data.npcflag        = fields[18].GetUInt32();
+        data.npcflag        = fields[18].GetUInt64();
         data.unit_flags     = fields[19].GetUInt32();
         data.dynamicflags   = fields[20].GetUInt32();
         data.phaseid        = fields[21].GetUInt32();
@@ -8239,7 +8239,7 @@ void ObjectMgr::LoadGossipMenuItems()
         gMenuItem.OptionText            = fields[3].GetString();
         gMenuItem.OptionBroadcastTextId = fields[4].GetUInt32();
         gMenuItem.OptionType            = fields[5].GetUInt8();
-        gMenuItem.OptionNpcflag         = fields[6].GetUInt32();
+        gMenuItem.OptionNpcflag         = fields[6].GetUInt64();
         gMenuItem.ActionMenuId          = fields[7].GetUInt32();
         gMenuItem.ActionPoiId           = fields[8].GetUInt32();
         gMenuItem.BoxCoded              = fields[9].GetBool();
