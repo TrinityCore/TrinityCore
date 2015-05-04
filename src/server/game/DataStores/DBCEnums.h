@@ -21,6 +21,8 @@
 
 #include "Define.h"
 
+#pragma pack(push, 1)
+
 struct DBCPosition2D
 {
     float X;
@@ -33,6 +35,8 @@ struct DBCPosition3D
     float Y;
     float Z;
 };
+
+#pragma pack(pop)
 
 enum LevelLimit
 {
