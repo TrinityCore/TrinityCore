@@ -1463,6 +1463,7 @@ void AddBattlegroundScripts()
 }
 
 #ifdef SCRIPTS
+void ADDSC_Teleporter_NPC();
 /* This is where custom scripts' loading functions should be declared. */
 
 #endif
@@ -1470,6 +1471,7 @@ void AddBattlegroundScripts()
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
+	ADDSC_Teleporter_NPC();
     /* This is where custom scripts should be added. */
 
 #endif
