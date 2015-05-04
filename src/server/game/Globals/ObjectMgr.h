@@ -510,7 +510,7 @@ struct GossipMenuItems
     std::string     OptionText;
     uint32          OptionBroadcastTextId;
     uint32          OptionType;
-    uint32          OptionNpcflag;
+    uint64          OptionNpcflag;
     uint32          ActionMenuId;
     uint32          ActionPoiId;
     bool            BoxCoded;
@@ -728,7 +728,7 @@ class ObjectMgr
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID);
         static uint32 ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data = NULL);
-        static void ChooseCreatureFlags(CreatureTemplate const* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data = NULL);
+        static void ChooseCreatureFlags(CreatureTemplate const* cinfo, uint64& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data = NULL);
         EquipmentInfo const* GetEquipmentInfo(uint32 entry, int8& id);
         CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType lowguid);
         GameObjectAddon const* GetGameObjectAddon(ObjectGuid::LowType lowguid);
