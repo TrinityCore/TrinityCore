@@ -20331,7 +20331,7 @@ void Player::PetSpellInitialize()
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
 
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 16 + 2 + 2 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 4 + 10 * 4 + 4 + 4);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 16 + 2 + 2 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 4 +  4 + 4);
     data << pet->GetGUID();
     data << int16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
     data << int16(0);   //Specialization                                               
@@ -20345,11 +20345,11 @@ void Player::PetSpellInitialize()
     charmInfo->BuildActionBar(&data);
 
     // spells count
-    int32 addlist = 0;
-    data << int32(addlist);  
+    //int32 addlist = 0;
+    //data << int32(addlist);  
     size_t spellsCountPos = data.wpos();                            // placeholder
 
-    if (pet->IsPermanentPetFor(this))
+    /*if (pet->IsPermanentPetFor(this))
     {
         // spells loop
         for (PetSpellMap::iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
@@ -20362,13 +20362,13 @@ void Player::PetSpellInitialize()
         }
     }
 
-   
-    data.put<int32>(spellsCountPos, addlist);
+       */
+    //data.put<int32>(spellsCountPos, addlist);
     
     // Cooldowns
     //pet->GetSpellHistory()->WritePacket(&petSpells);
 
-    
+    data << uint32(0); //ActionsCount
     data << uint32(0); //CooldownsCount
     data << uint32(0); //SpellHistoryCount
 
@@ -26334,9 +26334,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     if (duration > 0)
         pet->SetDuration(duration);
-
-    //ObjectAccessor::UpdateObjectVisibility(pet);
-
     
 
     return pet;

@@ -7508,6 +7508,7 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
     RemoveFieldNotifyFlag(UF_FLAG_OWNER);
 }
 
+
 Unit* Unit::GetOwner() const
 {
     ObjectGuid ownerGUID = GetOwnerGUID();

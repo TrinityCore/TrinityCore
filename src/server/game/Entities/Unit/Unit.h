@@ -1678,7 +1678,7 @@ class Unit : public WorldObject
         bool isDying() const { return (m_deathState == JUST_DIED); }
         bool isDead() const { return (m_deathState == DEAD || m_deathState == CORPSE); }
         DeathState getDeathState() const { return m_deathState; }
-        virtual void setDeathState(DeathState s);           // overwrited in Creature/Player/Pet
+        virtual void setDeathState(DeathState s);           // overwrites in Creature/Player/Pet
 
         ObjectGuid GetOwnerGUID() const { return  GetGuidValue(UNIT_FIELD_SUMMONEDBY); }
         void SetOwnerGUID(ObjectGuid owner);

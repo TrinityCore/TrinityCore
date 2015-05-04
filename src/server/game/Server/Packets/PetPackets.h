@@ -21,12 +21,30 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "Pet.h"
+
 class WorldObject;
 
 namespace WorldPackets
 {
     namespace Pet
     {
+        //CMSG_PET_RENAME
+        class PetRename final : public ClientPacket
+        {
+        public:
+            PetRename(WorldPacket&& packet) : ClientPacket(CMSG_PET_RENAME, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid petGuid;
+            uint32 petNumber = 0;
+            uint8 petNameLenght = 0;
+            std::string petName;
+            bool isdeclined = false;
+            DeclinedName declinedname;
+            
+        };
+
          //CMSG_PET_ACTION
         class PetAction final : public ClientPacket
         {
@@ -37,13 +55,28 @@ namespace WorldPackets
 
             ObjectGuid petGuid;
             ObjectGuid targetGuid;
-            uint32 petdata;
-            uint32 spellid = 0;
-            uint32 actionsFlag = 0;
-            uint8 actionSlot = 0;
+            uint16 spellid = 0;
+            uint8 commandStat = 0;
+            uint8 activeStat = 0;
             float position_x, position_y, position_z;
         };
 
+
+        //CMSG_PET_SET_ACTION
+        class PetSetAction final : public ClientPacket
+        {
+        public:
+            PetSetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_SET_ACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid petGuid;
+            uint32 petBarIndex = 0;
+            uint16 spellid = 0;
+            uint8 commandStat = 0;
+            uint8 activeStat = 0;
+          
+        };
 
         //CMSG_LEARN_PET_SPECIALIZATION_GROUP
         class LearnPetSpecializationGroup final : public ClientPacket

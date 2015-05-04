@@ -17,19 +17,50 @@
 
 #include "PetPackets.h"
 
+void WorldPackets::Pet::PetRename::Read()
+{
+    _worldPacket >> petGuid;
+    _worldPacket >> petNumber;
+    _worldPacket >> petNameLenght;
+    isdeclined = _worldPacket.ReadBit();
+    if (isdeclined)
+    {
+        uint8 count[5];
+        for (uint8 i = 0; i < 5; i++)
+        {
+            count[i] = _worldPacket.ReadBits(7);
+        }
+
+        for (uint8 i = 0; i < 5; i++)
+        {
+            declinedname.name[i] = _worldPacket.ReadString(count[i]);
+        }
+    }
+    petName = _worldPacket.ReadString(petNameLenght);
+
+    
+}
+
 void WorldPackets::Pet::PetAction::Read()
 {
     _worldPacket >> petGuid;
-    _worldPacket >> petdata;
-
-     spellid =  UNIT_ACTION_BUTTON_ACTION(petdata);
-     //actionsFlag =  UNIT_ACTION_BUTTON_ACTION(petdata);
-     _worldPacket >> actionSlot;
-     _worldPacket >> targetGuid;
-     _worldPacket >> position_x;
-     _worldPacket >> position_y;
-     _worldPacket >> position_z;
+    _worldPacket >> spellid;
+    _worldPacket >> commandStat;
+    _worldPacket >> activeStat;
+    _worldPacket >> targetGuid;
+    _worldPacket >> position_x;
+    _worldPacket >> position_y;
+    _worldPacket >> position_z;
  
+}
+
+void WorldPackets::Pet::PetSetAction::Read()
+{
+    _worldPacket >> petGuid;
+    _worldPacket >> petBarIndex;
+    _worldPacket >> spellid;
+    _worldPacket >> commandStat;
+    _worldPacket >> activeStat;
 }
 
 void WorldPackets::Pet::LearnPetSpecializationGroup::Read()
@@ -49,6 +80,7 @@ WorldPacket const* WorldPackets::Pet::PetGuids::Write()
     return &_worldPacket;
 }
 
+
 WorldPacket const* WorldPackets::Pet::PetAdded::Write()
 {
     _worldPacket << petSlot
@@ -62,6 +94,7 @@ WorldPacket const* WorldPackets::Pet::PetAdded::Write()
 
     return &_worldPacket;
 }
+
 
 WorldPacket const* WorldPackets::Pet::PetLearnedSpells::Write()
 {
