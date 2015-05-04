@@ -729,40 +729,45 @@ enum UnitFlags2
 };
 
 /// Non Player Character flags
-enum NPCFlags : uint32
+enum NPCFlags : uint64
 {
-    UNIT_NPC_FLAG_NONE                  = 0x00000000,
-    UNIT_NPC_FLAG_GOSSIP                = 0x00000001,       // 100%
-    UNIT_NPC_FLAG_QUESTGIVER            = 0x00000002,       // 100%
-    UNIT_NPC_FLAG_UNK1                  = 0x00000004,
-    UNIT_NPC_FLAG_UNK2                  = 0x00000008,
-    UNIT_NPC_FLAG_TRAINER               = 0x00000010,       // 100%
-    UNIT_NPC_FLAG_TRAINER_CLASS         = 0x00000020,       // 100%
-    UNIT_NPC_FLAG_TRAINER_PROFESSION    = 0x00000040,       // 100%
-    UNIT_NPC_FLAG_VENDOR                = 0x00000080,       // 100%
-    UNIT_NPC_FLAG_VENDOR_AMMO           = 0x00000100,       // 100%, general goods vendor
-    UNIT_NPC_FLAG_VENDOR_FOOD           = 0x00000200,       // 100%
-    UNIT_NPC_FLAG_VENDOR_POISON         = 0x00000400,       // guessed
-    UNIT_NPC_FLAG_VENDOR_REAGENT        = 0x00000800,       // 100%
-    UNIT_NPC_FLAG_REPAIR                = 0x00001000,       // 100%
-    UNIT_NPC_FLAG_FLIGHTMASTER          = 0x00002000,       // 100%
-    UNIT_NPC_FLAG_SPIRITHEALER          = 0x00004000,       // guessed
-    UNIT_NPC_FLAG_SPIRITGUIDE           = 0x00008000,       // guessed
-    UNIT_NPC_FLAG_INNKEEPER             = 0x00010000,       // 100%
-    UNIT_NPC_FLAG_BANKER                = 0x00020000,       // 100%
-    UNIT_NPC_FLAG_PETITIONER            = 0x00040000,       // 100% 0xC0000 = guild petitions, 0x40000 = arena team petitions
-    UNIT_NPC_FLAG_TABARDDESIGNER        = 0x00080000,       // 100%
-    UNIT_NPC_FLAG_BATTLEMASTER          = 0x00100000,       // 100%
-    UNIT_NPC_FLAG_AUCTIONEER            = 0x00200000,       // 100%
-    UNIT_NPC_FLAG_STABLEMASTER          = 0x00400000,       // 100%
-    UNIT_NPC_FLAG_GUILD_BANKER          = 0x00800000,       // cause client to send 997 opcode
-    UNIT_NPC_FLAG_SPELLCLICK            = 0x01000000,       // cause client to send 1015 opcode (spell click)
-    UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x02000000,       // players with mounts that have vehicle data should have it set
-    UNIT_NPC_FLAG_MAILBOX               = 0x04000000,       // mailbox
-    UNIT_NPC_FLAG_REFORGER              = 0x08000000,       // reforging
-    UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x10000000,       // transmogrification
-    UNIT_NPC_FLAG_VAULTKEEPER           = 0x20000000,       // void storage
-    UNIT_NPC_FLAG_BLACK_MARKET          = 0x80000000        // black market
+    UNIT_NPC_FLAG_NONE                  = 0x0000000000,
+    UNIT_NPC_FLAG_GOSSIP                = 0x0000000001,     // 100%
+    UNIT_NPC_FLAG_QUESTGIVER            = 0x0000000002,     // 100%
+    UNIT_NPC_FLAG_UNK1                  = 0x0000000004,
+    UNIT_NPC_FLAG_UNK2                  = 0x0000000008,
+    UNIT_NPC_FLAG_TRAINER               = 0x0000000010,     // 100%
+    UNIT_NPC_FLAG_TRAINER_CLASS         = 0x0000000020,     // 100%
+    UNIT_NPC_FLAG_TRAINER_PROFESSION    = 0x0000000040,     // 100%
+    UNIT_NPC_FLAG_VENDOR                = 0x0000000080,     // 100%
+    UNIT_NPC_FLAG_VENDOR_AMMO           = 0x0000000100,     // 100%, general goods vendor
+    UNIT_NPC_FLAG_VENDOR_FOOD           = 0x0000000200,     // 100%
+    UNIT_NPC_FLAG_VENDOR_POISON         = 0x0000000400,     // guessed
+    UNIT_NPC_FLAG_VENDOR_REAGENT        = 0x0000000800,     // 100%
+    UNIT_NPC_FLAG_REPAIR                = 0x0000001000,     // 100%
+    UNIT_NPC_FLAG_FLIGHTMASTER          = 0x0000002000,     // 100%
+    UNIT_NPC_FLAG_SPIRITHEALER          = 0x0000004000,     // guessed
+    UNIT_NPC_FLAG_SPIRITGUIDE           = 0x0000008000,     // guessed
+    UNIT_NPC_FLAG_INNKEEPER             = 0x0000010000,     // 100%
+    UNIT_NPC_FLAG_BANKER                = 0x0000020000,     // 100%
+    UNIT_NPC_FLAG_PETITIONER            = 0x0000040000,     // 100% 0xC0000 = guild petitions, 0x40000 = arena team petitions
+    UNIT_NPC_FLAG_TABARDDESIGNER        = 0x0000080000,     // 100%
+    UNIT_NPC_FLAG_BATTLEMASTER          = 0x0000100000,     // 100%
+    UNIT_NPC_FLAG_AUCTIONEER            = 0x0000200000,     // 100%
+    UNIT_NPC_FLAG_STABLEMASTER          = 0x0000400000,     // 100%
+    UNIT_NPC_FLAG_GUILD_BANKER          = 0x0000800000,     // cause client to send 997 opcode
+    UNIT_NPC_FLAG_SPELLCLICK            = 0x0001000000,     // cause client to send 1015 opcode (spell click)
+    UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x0002000000,     // players with mounts that have vehicle data should have it set
+    UNIT_NPC_FLAG_MAILBOX               = 0x0004000000,     // mailbox
+    UNIT_NPC_FLAG_REFORGER              = 0x0008000000,     // reforging
+    UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x0010000000,     // transmogrification
+    UNIT_NPC_FLAG_VAULTKEEPER           = 0x0020000000,     // void storage
+    UNIT_NPC_FLAG_BLACK_MARKET          = 0x0080000000,     // black market
+    UNIT_NPC_FLAG_ITEM_UPGRADE_MASTER   = 0x0100000000,
+    UNIT_NPC_FLAG_GARRISON_ARCHITECT    = 0x0200000000,
+    UNIT_NPC_FLAG_SHIPMENT_CRAFTER      = 0x2000000000,
+    UNIT_NPC_FLAG_GARRISON_MISSION_NPC  = 0x4000000000,
+    UNIT_NPC_FLAG_TRADESKILL_NPC        = 0x8000000000
 };
 
 enum MovementFlags
@@ -1547,22 +1552,22 @@ class Unit : public WorldObject
         MeleeHitOutcome RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackType attType) const;
         MeleeHitOutcome RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackType attType, int32 crit_chance, int32 miss_chance, int32 dodge_chance, int32 parry_chance, int32 block_chance) const;
 
-        bool IsVendor()       const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR); }
-        bool IsTrainer()      const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_TRAINER); }
-        bool IsQuestGiver()   const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER); }
-        bool IsGossip()       const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP); }
-        bool IsTaxi()         const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_FLIGHTMASTER); }
-        bool IsGuildMaster()  const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PETITIONER); }
-        bool IsBattleMaster() const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BATTLEMASTER); }
-        bool IsBanker()       const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER); }
-        bool IsInnkeeper()    const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_INNKEEPER); }
-        bool IsSpiritHealer() const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPIRITHEALER); }
-        bool IsSpiritGuide()  const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPIRITGUIDE); }
-        bool IsTabardDesigner()const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_TABARDDESIGNER); }
-        bool IsAuctioner()    const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_AUCTIONEER); }
-        bool IsArmorer()      const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_REPAIR); }
+        bool IsVendor()       const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR); }
+        bool IsTrainer()      const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_TRAINER); }
+        bool IsQuestGiver()   const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER); }
+        bool IsGossip()       const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP); }
+        bool IsTaxi()         const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_FLIGHTMASTER); }
+        bool IsGuildMaster()  const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PETITIONER); }
+        bool IsBattleMaster() const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BATTLEMASTER); }
+        bool IsBanker()       const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER); }
+        bool IsInnkeeper()    const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_INNKEEPER); }
+        bool IsSpiritHealer() const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPIRITHEALER); }
+        bool IsSpiritGuide()  const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPIRITGUIDE); }
+        bool IsTabardDesigner()const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_TABARDDESIGNER); }
+        bool IsAuctioner()    const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_AUCTIONEER); }
+        bool IsArmorer()      const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_REPAIR); }
         bool IsServiceProvider() const;
-        bool IsSpiritService() const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPIRITHEALER | UNIT_NPC_FLAG_SPIRITGUIDE); }
+        bool IsSpiritService() const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPIRITHEALER | UNIT_NPC_FLAG_SPIRITGUIDE); }
         bool IsCritter() const { return GetCreatureType() == CREATURE_TYPE_CRITTER; }
 
         bool IsInFlight()  const { return HasUnitState(UNIT_STATE_IN_FLIGHT); }

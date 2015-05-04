@@ -431,7 +431,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     // Consumption
                     case 28865:
-                        damage = (((InstanceMap*)m_caster->GetMap())->GetDifficultyID() == DIFFICULTY_NONE ? 2750 : 4250);
+                        damage = (m_caster->GetMap()->GetDifficultyID() == DIFFICULTY_NONE ? 2750 : 4250);
                         break;
                     // percent from health with min
                     case 25599:                             // Thundercrash
@@ -2166,7 +2166,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         return;
 
                     summon->SelectLevel();       // some summoned creaters have different from 1 DB data for level/hp
-                    summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
+                    summon->SetUInt64Value(UNIT_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
 
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
 
