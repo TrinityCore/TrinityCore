@@ -530,6 +530,7 @@ public:
     //bool HasAnyEffectMechanic() const;
     uint32 GetDispelMask() const;
     static uint32 GetDispelMask(DispelType type);
+	SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 GetExplicitTargetMask() const;
 
     AuraStateType GetAuraState(uint32 difficulty) const;

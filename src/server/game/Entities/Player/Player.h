@@ -746,7 +746,7 @@ enum EquipmentSlots                                         // 19 slots
     EQUIPMENT_SLOT_BACK         = 14,
     EQUIPMENT_SLOT_MAINHAND     = 15,
     EQUIPMENT_SLOT_OFFHAND      = 16,
-    EQUIPMENT_SLOT_RANGED       = 17,
+    //EQUIPMENT_SLOT_RANGED       = 17,
     EQUIPMENT_SLOT_TABARD       = 18,
     EQUIPMENT_SLOT_END          = 19
 };
