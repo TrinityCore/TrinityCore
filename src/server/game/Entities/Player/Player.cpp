@@ -14650,7 +14650,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                     DestroyItemCount(obj.ObjectID, obj.Amount, true);
                 break;
             case QUEST_OBJECTIVE_CURRENCY:
-                ModifyCurrency(obj.ObjectID, -int32(obj.Amount));
+                ModifyCurrency(obj.ObjectID, -int32(obj.Amount), false, true);
                 break;
         }
     }
@@ -25907,7 +25907,7 @@ void Player::RefundItem(Item* item)
         uint32 count = iece->RequiredCurrencyCount[i];
         uint32 currencyid = iece->RequiredCurrency[i];
         if (count && currencyid)
-            ModifyCurrency(currencyid, count);
+            ModifyCurrency(currencyid, count, true, true);
     }
 
     // Grant back money
