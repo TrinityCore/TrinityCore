@@ -5513,7 +5513,7 @@ void Player::UpdateRating(CombatRating cr)
 
     switch (cr)
     {
-        case CR_WEAPON_SKILL:
+        //case CR_WEAPON_SKILL:
         case CR_DEFENSE_SKILL:
             break;
         case CR_DODGE:
@@ -5549,19 +5549,19 @@ void Player::UpdateRating(CombatRating cr)
             if (affectStats)
                 UpdateAllSpellCritChances();
             break;
-        case CR_HIT_TAKEN_MELEE:                            // Deprecated since Cataclysm
-        case CR_HIT_TAKEN_RANGED:                           // Deprecated since Cataclysm
-        case CR_HIT_TAKEN_SPELL:                            // Deprecated since Cataclysm
+        //case CR_HIT_TAKEN_MELEE:                            // Deprecated since Cataclysm
+        //case CR_HIT_TAKEN_RANGED:                           // Deprecated since Cataclysm
+        //case CR_HIT_TAKEN_SPELL:                            // Deprecated since Cataclysm
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
         case CR_RESILIENCE_CRIT_TAKEN:
-        case CR_CRIT_TAKEN_SPELL:                           // Deprecated since Cataclysm
+        //case CR_CRIT_TAKEN_SPELL:                           // Deprecated since Cataclysm
             break;
         case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
         case CR_HASTE_RANGED:
         case CR_HASTE_SPELL:
             break;
-        case CR_WEAPON_SKILL_MAINHAND:                      // Implemented in Unit::RollMeleeOutcomeAgainst
-        case CR_WEAPON_SKILL_OFFHAND:
+        //case CR_WEAPON_SKILL_MAINHAND:                      // Implemented in Unit::RollMeleeOutcomeAgainst
+        //case CR_WEAPON_SKILL_OFFHAND:
         case CR_WEAPON_SKILL_RANGED:
             break;
         case CR_EXPERTISE:
@@ -5577,8 +5577,10 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_MASTERY:
             UpdateMastery();
-			UpdateMultistrike();
             break;
+		case CR_MULTISTRIKE:
+			UpdateMultistrike();
+			break;
     }
 }
 
