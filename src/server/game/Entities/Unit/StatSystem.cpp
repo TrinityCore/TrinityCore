@@ -512,6 +512,12 @@ void Player::UpdateAllCritPercentages()
     UpdateCritPercentage(RANGED_ATTACK);
 }
 
+void Player::UpdateMultistrike()
+{
+	SetFloatValue(PLAYER_MULTISTRIKE, 30.0f);
+	return;
+}
+
 void Player::UpdateMastery()
 {
 	/*if (!CanUseMastery())

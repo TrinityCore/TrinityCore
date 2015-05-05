@@ -2067,6 +2067,7 @@ class Player : public Unit, public GridObject<Player>
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
         void UpdateRating(CombatRating cr);
         void UpdateAllRatings();
+		void UpdateMultistrike();
         void UpdateMastery();
         bool CanUseMastery() const;
 

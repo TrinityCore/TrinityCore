@@ -5445,6 +5445,20 @@ void AuraEffect::HandleMastery(AuraApplication const* aurApp, uint8 mode, bool /
     target->UpdateMastery();
 }
 
+
+void AuraEffect::HandleMultistrike(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Player* target = aurApp->GetTarget()->ToPlayer();
+	if (!target)
+		return;
+
+	target->UpdateMultistrike();
+}
+
+
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
 {
     switch (GetSpellInfo()->SpellFamilyName)

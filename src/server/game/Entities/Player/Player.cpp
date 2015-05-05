@@ -5577,6 +5577,7 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_MASTERY:
             UpdateMastery();
+			UpdateMultistrike();
             break;
     }
 }
