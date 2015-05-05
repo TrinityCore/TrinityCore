@@ -236,7 +236,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
                 if (firstHeal)
                 {
                     // Check if the target has Riptide
-                    if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0, 0x10, GetCaster()->GetGUID()))
+                    if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, flag128(0, 0, 0x10), GetCaster()->GetGUID()))
                     {
                         riptide = true;
                         amount = aurEff->GetSpellInfo()->GetEffect(DIFFICULTY_NONE, EFFECT_2)->CalcValue();
@@ -880,7 +880,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
                     if (caster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
                     {
                         // Damage is increased by 25% if your off-hand weapon is enchanted with Flametongue.
-                        if (caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0x200000, 0, 0))
+                        if (caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, flag128(0x200000, 0, 0)))
                             AddPct(hitDamage, damage);
                         SetHitDamage(hitDamage);
                     }

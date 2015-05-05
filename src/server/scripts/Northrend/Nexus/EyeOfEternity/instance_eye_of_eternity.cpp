@@ -39,6 +39,12 @@ public:
             SetBossNumber(MAX_ENCOUNTER);
         }
 
+        void OnPlayerEnter(Player* player) override
+        {
+            if (GetBossState(DATA_MALYGOS_EVENT) == DONE)
+                player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON_BUDDY, true);
+        }
+
         bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
@@ -74,7 +80,7 @@ public:
         void SpawnGameObject(uint32 entry, Position& pos)
         {
             GameObject* go = new GameObject;
-            if (!go->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), entry, instance,
+            if (!go->Create(instance->GenerateLowGuid<HighGuid::GameObject>(), entry, instance,
                 PHASEMASK_NORMAL, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
                 0, 0, 0, 0, 120, GO_STATE_READY))
             {

@@ -152,8 +152,6 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 
 void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT");
-
     Corpse* corpse = GetPlayer()->GetCorpse();
 
     if (!corpse)
@@ -230,8 +228,6 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_PAGE_TEXT");
-
     uint32 pageID = packet.PageTextID;
 
     while (pageID)
@@ -269,8 +265,6 @@ void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packe
 
 void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_QUERY_CORPSE_TRANSPORT");
-
     Corpse* corpse = _player->GetCorpse();
 
     WorldPackets::Query::CorpseTransportQuery response;
@@ -419,4 +413,23 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
 
         SendPacket(response.Write());
     }
+}
+
+/**
+* Handles the packet sent by the client when requesting information about item text.
+*
+* This function is called when player clicks on item which has some flag set
+*/
+void WorldSession::HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& itemTextQuery)
+{
+    WorldPackets::Query::QueryItemTextResponse queryItemTextResponse;
+    queryItemTextResponse.Id = itemTextQuery.Id;
+
+    if (Item* item = _player->GetItemByGuid(itemTextQuery.Id))
+    {
+        queryItemTextResponse.Valid = true;
+        queryItemTextResponse.Item.Text = item->GetText();
+    }
+
+    SendPacket(queryItemTextResponse.Write());
 }

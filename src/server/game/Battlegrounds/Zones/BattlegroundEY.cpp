@@ -119,7 +119,7 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
 
 void BattlegroundEY::GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* positions) const
 {
-    if (Player* player = ObjectAccessor::GetObjectInMap(m_FlagKeeper, GetBgMap(), (Player*)nullptr))
+    if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), m_FlagKeeper))
     {
         WorldPackets::Battleground::BattlegroundPlayerPosition position;
         position.Guid = player->GetGUID();
@@ -176,7 +176,7 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
     GameObject* obj = NULL;
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
-        obj = HashMapHolder<GameObject>::Find(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
+        obj = GetBgMap()->GetGameObject(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
         if (obj)
         {
             uint8 j = 0;
@@ -216,7 +216,7 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
     GameObject* obj = NULL;
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
-        obj = HashMapHolder<GameObject>::Find(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
+        obj = GetBgMap()->GetGameObject(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
         if (obj)
         {
             uint8 j = 0;
@@ -603,7 +603,7 @@ void BattlegroundEY::RespawnFlagAfterDrop()
 {
     RespawnFlag(true);
 
-    GameObject* obj = HashMapHolder<GameObject>::Find(GetDroppedFlagGUID());
+    GameObject* obj = GetBgMap()->GetGameObject(GetDroppedFlagGUID());
     if (obj)
         obj->Delete();
     else

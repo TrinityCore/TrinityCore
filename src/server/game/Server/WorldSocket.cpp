@@ -81,8 +81,8 @@ void WorldSocket::Start()
     initializer.Write(&header, sizeof(header.Setup.Size));
     initializer.Write(ServerConnectionInitialize.c_str(), ServerConnectionInitialize.length());
 
-    std::unique_lock<std::mutex> dummy(_writeLock, std::defer_lock);
-    QueuePacket(std::move(initializer), dummy);
+    std::unique_lock<std::mutex> guard(_writeLock);
+    QueuePacket(std::move(initializer), guard);
 }
 
 void WorldSocket::HandleSendAuthSession()
@@ -775,8 +775,6 @@ void WorldSocket::HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& con
 void WorldSocket::SendAuthResponseError(uint8 code)
 {
     WorldPackets::Auth::AuthResponse response;
-    response.SuccessInfo.HasValue = false;
-    response.WaitInfo.HasValue = false;
     response.Result = code;
     SendPacketAndLogOpcode(*response.Write());
 }

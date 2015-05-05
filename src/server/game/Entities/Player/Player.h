@@ -918,7 +918,8 @@ enum TeleportToOptions
     TELE_TO_NOT_LEAVE_TRANSPORT = 0x02,
     TELE_TO_NOT_LEAVE_COMBAT    = 0x04,
     TELE_TO_NOT_UNSUMMON_PET    = 0x08,
-    TELE_TO_SPELL               = 0x10
+    TELE_TO_SPELL               = 0x10,
+    TELE_TO_SEAMLESS            = 0x20
 };
 
 /// Type of environmental damages
@@ -1364,7 +1365,7 @@ class Player : public Unit, public GridObject<Player>
         void SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time);
 
         bool CanInteractWithQuestGiver(Object* questGiver);
-        Creature* GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask);
+        Creature* GetNPCIfCanInteractWith(ObjectGuid guid, uint64 npcflagmask);
         GameObject* GetGameObjectIfCanInteractWith(ObjectGuid guid, GameobjectTypes type) const;
 
         void ToggleAFK();
@@ -2188,6 +2189,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsBeingTeleported() const { return mSemaphoreTeleport_Near || mSemaphoreTeleport_Far; }
         bool IsBeingTeleportedNear() const { return mSemaphoreTeleport_Near; }
         bool IsBeingTeleportedFar() const { return mSemaphoreTeleport_Far; }
+        bool IsBeingTeleportedSeamlessly() const { return IsBeingTeleportedFar() && m_teleport_options & TELE_TO_SEAMLESS; }
         void SetSemaphoreTeleportNear(bool semphsetting) { mSemaphoreTeleport_Near = semphsetting; }
         void SetSemaphoreTeleportFar(bool semphsetting) { mSemaphoreTeleport_Far = semphsetting; }
         void ProcessDelayedOperations();
@@ -2279,9 +2281,11 @@ class Player : public Unit, public GridObject<Player>
         void CorrectMetaGemEnchants(uint8 slot, bool apply);
         void InitDataForForm(bool reapplyMods = false);
 
-        void ApplyItemEquipSpell(Item* item, bool apply, bool form_change = false);
-        void ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply, bool form_change = false);
+        void ApplyItemEquipSpell(Item* item, bool apply, bool formChange = false);
+        void ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply, bool formChange = false);
         void UpdateEquipSpellsAtFormChange();
+        void UpdateItemSetAuras(bool formChange = false);
+
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx);
         void CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 castCount, uint32 misc);
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item* item, ItemTemplate const* proto);
@@ -2491,7 +2495,6 @@ class Player : public Unit, public GridObject<Player>
         void SetPendingBind(uint32 instanceId, uint32 bindTimer);
         bool HasPendingBind() const { return _pendingBindId > 0; }
         void SendRaidInfo();
-        void SendSavedInstances();
         static void ConvertInstancesToGroup(Player* player, Group* group, bool switchLeader);
         bool Satisfy(AccessRequirement const* ar, uint32 target_map, bool report = false);
         bool CheckInstanceLoginValid();

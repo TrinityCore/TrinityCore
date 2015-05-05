@@ -322,6 +322,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     if (IsConnectionIdle())
         m_Socket[CONNECTION_TYPE_REALM]->CloseSocket();
 
+    if (updater.ProcessUnsafe())
+        while (_player && _player->IsBeingTeleportedSeamlessly())
+            HandleMoveWorldportAckOpcode();
+
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
     WorldPacket* packet = NULL;
@@ -453,7 +457,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
-    if (updater.ProcessLogout())
+    if (updater.ProcessUnsafe())
     {
         time_t currTime = time(NULL);
         ///- If necessary, log the player out
@@ -911,14 +915,11 @@ bool WorldSession::IsAddonRegistered(const std::string& prefix) const
 
 void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/) // empty packet
 {
-
     _registeredAddonPrefixes.clear();
 }
 
 void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ADDON_REGISTERED_PREFIXES");
-
     // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
 
     uint32 count = recvPacket.ReadBits(25);
@@ -1368,6 +1369,9 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GM_TICKET_UPDATE_TEXT:                //   0              15         1 async db query
         case CMSG_GM_TICKET_DELETE_TICKET:              //   1              25         1 async db query
         case CMSG_GM_TICKET_RESPONSE_RESOLVE:           //   1              25         1 async db query
+        case CMSG_SUPPORT_TICKET_SUBMIT_BUG:            // not profiled                1 async db query
+        case CMSG_SUPPORT_TICKET_SUBMIT_SUGGESTION:     // not profiled                1 async db query
+        case CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT:      // not profiled                1 async db query
         case CMSG_CALENDAR_UPDATE_EVENT:                // not profiled
         case CMSG_CALENDAR_REMOVE_EVENT:                // not profiled
         case CMSG_CALENDAR_COPY_EVENT:                  // not profiled

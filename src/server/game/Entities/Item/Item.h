@@ -31,9 +31,9 @@ class Unit;
 
 struct ItemSetEffect
 {
-    uint32 setid;
-    uint32 item_count;
-    SpellInfo const* spells[8];
+    uint32 ItemSetID;
+    uint32 EquippedItemCount;
+    std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
 };
 
 enum InventoryResult
@@ -261,10 +261,10 @@ class Item : public Object
         void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
 
-        void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND, val); }
-        bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND); }
-        bool IsBoundAccountWide() const { return (GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT) != 0; }
-        bool IsBattlenetAccountBound() const { return (GetTemplate()->GetFlags2() & ITEM_FLAGS_EXTRA_BNET_ACCOUNT_BOUND) != 0; }
+        void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }
+        bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND); }
+        bool IsBoundAccountWide() const { return (GetTemplate()->GetFlags() & ITEM_FLAG_BIND_TO_ACCOUNT) != 0; }
+        bool IsBattlenetAccountBound() const { return (GetTemplate()->GetFlags2() & ITEM_FLAG2_BNET_ACCOUNT_BOUND) != 0; }
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
@@ -291,7 +291,7 @@ class Item : public Object
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return NULL; }
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
 
-        bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_UNLOCKED); }
+        bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_UNLOCKED); }
         bool IsBag() const { return GetTemplate()->GetInventoryType() == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
@@ -375,14 +375,14 @@ class Item : public Object
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
         uint32 GetQuality() const { return _bonusData.Quality; }
-        uint32 GetItemLevel() const;
+        uint32 GetItemLevel(Player const* owner) const;
         int32 GetRequiredLevel() const { return _bonusData.RequiredLevel; }
         int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return _bonusData.ItemStatType[index]; }
-        int32 GetItemStatValue(uint32 index) const;
+        int32 GetItemStatValue(uint32 index, Player const* owner) const;
         SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(_bonusData.SocketColor[index]); }
         uint32 GetAppearanceModId() const { return _bonusData.AppearanceModID; }
-        uint32 GetArmor() const { return GetTemplate()->GetArmor(GetItemLevel()); }
-        void GetDamage(float& minDamage, float& maxDamage) const { GetTemplate()->GetDamage(GetItemLevel(), minDamage, maxDamage); }
+        uint32 GetArmor(Player const* owner) const { return GetTemplate()->GetArmor(GetItemLevel(owner)); }
+        void GetDamage(Player const* owner, float& minDamage, float& maxDamage) const { GetTemplate()->GetDamage(GetItemLevel(owner), minDamage, maxDamage); }
         uint32 GetDisplayId() const;
 
         // Item Refund system
@@ -406,6 +406,8 @@ class Item : public Object
 
         void BuildUpdate(UpdateDataMapType&) override;
         void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const override;
+        void AddToObjectUpdate() override;
+        void RemoveFromObjectUpdate() override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 

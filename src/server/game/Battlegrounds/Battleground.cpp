@@ -1313,7 +1313,7 @@ bool Battleground::HasFreeSlots() const
 void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
-        pvpLogData.Winner.Set(GetWinner());
+        pvpLogData.Winner = GetWinner();
 
     pvpLogData.Players.reserve(GetPlayerScoresSize());
     for (auto const& score : PlayerScores)
@@ -1325,19 +1325,17 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
         playerData.Faction = score.second->TeamId;
         if (score.second->HonorableKills || score.second->Deaths || score.second->BonusHonor)
         {
-            WorldPackets::Battleground::PVPLogData::HonorData& honorData = playerData.Honor.Value;
-            honorData.HonorKills = score.second->HonorableKills;
-            honorData.Deaths = score.second->Deaths;
-            honorData.ContributionPoints = score.second->BonusHonor;
-
-            playerData.Honor.HasValue = true;
+            playerData.Honor = boost::in_place();
+            playerData.Honor->HonorKills = score.second->HonorableKills;
+            playerData.Honor->Deaths = score.second->Deaths;
+            playerData.Honor->ContributionPoints = score.second->BonusHonor;
         }
 
         playerData.DamageDone = score.second->DamageDone;
         playerData.HealingDone = score.second->HealingDone;
         score.second->BuildObjectivesBlock(playerData.Stats);
 
-        if (Player* player = ObjectAccessor::GetObjectInMap(playerData.PlayerGUID, GetBgMap(), (Player*)nullptr))
+        if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerData.PlayerGUID))
         {
             playerData.IsInWorld = true;
             playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
@@ -1356,15 +1354,14 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
 
     if (isRated())
     {
-        WorldPackets::Battleground::PVPLogData::RatingData& ratingData = pvpLogData.Ratings.Value;
+        pvpLogData.Ratings = boost::in_place();
+
         for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
         {
-            ratingData.Postmatch[i] = _arenaTeamScores[i].NewRating;
-            ratingData.Prematch[i] = _arenaTeamScores[i].OldRating;
-            ratingData.PrematchMMR[i] = _arenaTeamScores[i].MatchmakerRating;
+            pvpLogData.Ratings->Postmatch[i] = _arenaTeamScores[i].NewRating;
+            pvpLogData.Ratings->Prematch[i] = _arenaTeamScores[i].OldRating;
+            pvpLogData.Ratings->PrematchMMR[i] = _arenaTeamScores[i].MatchmakerRating;
         }
-
-        pvpLogData.Ratings.HasValue = true;
     }
 
     pvpLogData.PlayerCount[0] = int8(GetPlayersCountByTeam(HORDE));
@@ -1448,7 +1445,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     // and when loading it (in go::LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
     // So we must create it specific for this instance
     GameObject* go = new GameObject;
-    if (!go->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), entry, GetBgMap(),
+    if (!go->Create(GetBgMap()->GenerateLowGuid<HighGuid::GameObject>(), entry, GetBgMap(),
         PHASEMASK_NORMAL, x, y, z, o, rotation0, rotation1, rotation2, rotation3, 100, goState))
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddObject: cannot create gameobject (entry: %u) for BG (map: %u, instance id: %u)!",
@@ -1592,7 +1589,7 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, float x, float y,
 
     Creature* creature = new Creature();
 
-    if (!creature->Create(sObjectMgr->GetGenerator<HighGuid::Creature>()->Generate(), map, PHASEMASK_NORMAL, entry, x, y, z, o))
+    if (!creature->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, PHASEMASK_NORMAL, entry, x, y, z, o))
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddCreature: cannot create creature (entry: %u) for BG (map: %u, instance id: %u)!",
             entry, m_MapId, m_InstanceID);

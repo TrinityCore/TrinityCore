@@ -121,32 +121,32 @@ SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCast
     m_objectTargetGUID(spellCastRequest.Target.Unit), m_itemTargetGUID(spellCastRequest.Target.Item),
     m_itemTargetEntry(0), m_pitch(0.0f), m_speed(0.0f), m_strTarget(spellCastRequest.Target.Name)
 {
-    if (spellCastRequest.Target.SrcLocation.HasValue)
+    if (spellCastRequest.Target.SrcLocation)
     {
-        m_src._transportGUID = spellCastRequest.Target.SrcLocation.Value.Transport;
+        m_src._transportGUID = spellCastRequest.Target.SrcLocation->Transport;
         Position* pos;
         if (!m_src._transportGUID.IsEmpty())
             pos = &m_src._transportOffset;
         else
             pos = &m_src._position;
 
-        pos->Relocate(spellCastRequest.Target.SrcLocation.Value.Location);
-        if (spellCastRequest.Target.Orientation.HasValue)
-            pos->SetOrientation(spellCastRequest.Target.Orientation.Value);
+        pos->Relocate(spellCastRequest.Target.SrcLocation->Location);
+        if (spellCastRequest.Target.Orientation)
+            pos->SetOrientation(*spellCastRequest.Target.Orientation);
     }
 
-    if (spellCastRequest.Target.DstLocation.HasValue)
+    if (spellCastRequest.Target.DstLocation)
     {
-        m_dst._transportGUID = spellCastRequest.Target.DstLocation.Value.Transport;
+        m_dst._transportGUID = spellCastRequest.Target.DstLocation->Transport;
         Position* pos;
         if (!m_dst._transportGUID.IsEmpty())
             pos = &m_dst._transportOffset;
         else
             pos = &m_dst._position;
 
-        pos->Relocate(spellCastRequest.Target.DstLocation.Value.Location);
-        if (spellCastRequest.Target.Orientation.HasValue)
-            pos->SetOrientation(spellCastRequest.Target.Orientation.Value);
+        pos->Relocate(spellCastRequest.Target.DstLocation->Location);
+        if (spellCastRequest.Target.Orientation)
+            pos->SetOrientation(*spellCastRequest.Target.Orientation);
     }
 
     SetPitch(spellCastRequest.MissileTrajectory.Pitch);
@@ -222,24 +222,22 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
 
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
     {
-        WorldPackets::Spells::TargetLocation& target = data.SrcLocation.Value;
-        target.Transport = m_src._transportGUID; // relative position guid here - transport for example
+        data.SrcLocation = boost::in_place();
+        data.SrcLocation->Transport = m_src._transportGUID; // relative position guid here - transport for example
         if (!m_src._transportGUID.IsEmpty())
-            target.Location = m_src._transportOffset;
+            data.SrcLocation->Location = m_src._transportOffset;
         else
-            target.Location = m_src._position;
-        data.SrcLocation.HasValue = true;
+            data.SrcLocation->Location = m_src._position;
     }
 
     if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
-        WorldPackets::Spells::TargetLocation& target = data.DstLocation.Value;
-        target.Transport = m_dst._transportGUID; // relative position guid here - transport for example
+        data.DstLocation = boost::in_place();
+        data.DstLocation->Transport = m_dst._transportGUID; // relative position guid here - transport for example
         if (!m_dst._transportGUID.IsEmpty())
-            target.Location = m_dst._transportOffset;
+            data.DstLocation->Location = m_dst._transportOffset;
         else
-            target.Location = m_dst._position;
-        data.DstLocation.HasValue = true;
+            data.DstLocation->Location = m_dst._position;
     }
 
     if (m_targetMask & TARGET_FLAG_STRING)
@@ -2303,7 +2301,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     uint8 mask = target->effectMask;
 
     Unit* unit = m_caster->GetGUID() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target->targetGUID);
-    if (!unit)
+    if (!unit && target->targetGUID.IsPlayer()) // only players may be targeted across maps
     {
         uint8 farMask = 0;
         // create far target mask
@@ -2314,14 +2312,15 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         if (!farMask)
             return;
+
         // find unit in world
-        unit = ObjectAccessor::FindUnit(target->targetGUID);
+        unit = ObjectAccessor::FindPlayer(target->targetGUID);
         if (!unit)
             return;
 
         // do far effects on the unit
         // can't use default call because of threading, do stuff as fast as possible
-        for(SpellEffectInfo const* effect : GetEffects())
+        for (SpellEffectInfo const* effect : GetEffects())
             if (effect && (farMask & (1 << effect->EffectIndex)))
                 HandleEffects(unit, NULL, NULL, effect->EffectIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
         return;
@@ -3509,7 +3508,7 @@ void Spell::_handle_finish_phase()
 
     if (m_caster->m_extraAttacks && HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
     {
-        if (Unit* victim = ObjectAccessor::FindUnit(m_targets.GetOrigUnitTargetGUID()))
+        if (Unit* victim = ObjectAccessor::GetUnit(*m_caster, m_targets.GetOrigUnitTargetGUID()))
             m_caster->HandleProcExtraAttackFor(victim);
         else
             m_caster->m_extraAttacks = 0;
@@ -3890,29 +3889,28 @@ void Spell::SendSpellStart()
 
     if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
     {
-        WorldPackets::Spells::RuneData& runeData = castData.RemainingRunes.Value;
+        castData.RemainingRunes = boost::in_place();
+
         //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
-            runeData.Start = m_runesState; // runes state before
-            runeData.Count = player->GetRunesState(); // runes state after
+            castData.RemainingRunes->Start = m_runesState; // runes state before
+            castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
                 float baseCd = float(player->GetRuneBaseCooldown(i));
-                runeData.Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+                castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
         else
         {
-            runeData.Start = 0;
-            runeData.Count = 0;
+            castData.RemainingRunes->Start = 0;
+            castData.RemainingRunes->Count = 0;
             for (uint8 i = 0; i < MAX_RUNES; ++i)
-                runeData.Cooldowns.push_back(0);
+                castData.RemainingRunes->Cooldowns.push_back(0);
         }
-
-        castData.RemainingRunes.HasValue = true;
     }
 
     /** @todo implement spell ammo packet data
@@ -4009,29 +4007,28 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
     {
-        WorldPackets::Spells::RuneData& runeData = castData.RemainingRunes.Value;
+        castData.RemainingRunes = boost::in_place();
+
         //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
-            runeData.Start = m_runesState; // runes state before
-            runeData.Count = player->GetRunesState(); // runes state after
+            castData.RemainingRunes->Start = m_runesState; // runes state before
+            castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
                 float baseCd = float(player->GetRuneBaseCooldown(i));
-                runeData.Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+                castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
         else
         {
-            runeData.Start = 0;
-            runeData.Count = 0;
+            castData.RemainingRunes->Start = 0;
+            castData.RemainingRunes->Count = 0;
             for (uint8 i = 0; i < MAX_RUNES; ++i)
-                runeData.Cooldowns.push_back(0);
+                castData.RemainingRunes->Cooldowns.push_back(0);
         }
-
-        castData.RemainingRunes.HasValue = true;
     }
 
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
@@ -4316,7 +4313,7 @@ void Spell::SendResurrectRequest(Player* target)
     // for player resurrections the name is looked up by guid
     std::string const sentName(m_caster->GetTypeId() == TYPEID_PLAYER
         ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex()));
-    
+
     WorldPackets::Spells::ResurrectRequest resurrectRequest;
     resurrectRequest.ResurrectOffererGUID =  m_caster->GetGUID();
     resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
@@ -4588,7 +4585,7 @@ void Spell::TakeReagents()
     ItemTemplate const* castItemTemplate = m_CastItem ? m_CastItem->GetTemplate() : NULL;
 
     // do not take reagents for these item casts
-    if (castItemTemplate && castItemTemplate->GetFlags() & ITEM_PROTO_FLAG_TRIGGERED_CAST)
+    if (castItemTemplate && castItemTemplate->GetFlags() & ITEM_FLAG_TRIGGERED_CAST)
         return;
 
     Player* p_caster = m_caster->ToPlayer();
@@ -6019,7 +6016,7 @@ SpellCastResult Spell::CheckItems()
     }
 
     // do not take reagents for these item casts
-    if (!(m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_TRIGGERED_CAST))
+    if (!(m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_TRIGGERED_CAST))
     {
         bool checkReagents = !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST) && !player->CanNoReagentCast(m_spellInfo);
         // Not own traded item (in trader trade slot) requires reagents even if triggered spell
@@ -6146,7 +6143,7 @@ SpellCastResult Spell::CheckItems()
                     if (m_targets.GetItemTarget()->GetOwner() != m_caster)
                         return SPELL_FAILED_NOT_TRADEABLE;
                     // do not allow to enchant vellum from scroll made by vellum-prevent exploit
-                    if (m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_TRIGGERED_CAST)
+                    if (m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_TRIGGERED_CAST)
                         return SPELL_FAILED_TOTEM_CATEGORY;
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, effect->ItemType, 1);
@@ -6269,7 +6266,7 @@ SpellCastResult Spell::CheckItems()
                 if (!m_targets.GetItemTarget())
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //ensure item is a prospectable ore
-                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_PROSPECTABLE))
+                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_FLAG_PROSPECTABLE))
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //prevent prospecting in trade slot
                 if (m_targets.GetItemTarget()->GetOwnerGUID() != m_caster->GetGUID())
@@ -6292,7 +6289,7 @@ SpellCastResult Spell::CheckItems()
                 if (!m_targets.GetItemTarget())
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //ensure item is a millable herb
-                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_MILLABLE))
+                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_FLAG_MILLABLE))
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //prevent milling in trade slot
                 if (m_targets.GetItemTarget()->GetOwnerGUID() != m_caster->GetGUID())
@@ -7505,7 +7502,7 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
     }
     else if (_spellInfo->HasAttribute(SPELL_ATTR0_CU_CONE_LINE))
     {
-        if (!_caster->HasInLine(target, _caster->GetObjectSize()))
+        if (!_caster->HasInLine(target, _caster->GetObjectSize() + target->GetObjectSize()))
             return false;
     }
     else
@@ -7522,7 +7519,7 @@ WorldObjectSpellTrajTargetCheck::WorldObjectSpellTrajTargetCheck(float range, Po
 bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target)
 {
     // return all targets on missile trajectory (0 - size of a missile)
-    if (!_caster->HasInLine(target, 0))
+    if (!_caster->HasInLine(target, target->GetObjectSize()))
         return false;
     return WorldObjectSpellAreaTargetCheck::operator ()(target);
 }

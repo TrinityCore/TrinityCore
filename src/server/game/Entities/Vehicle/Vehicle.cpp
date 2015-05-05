@@ -50,9 +50,9 @@ UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry
 
     // Set or remove correct flags based on available seats. Will overwrite db data (if wrong).
     if (UsableSeatNum)
-        _me->SetFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
+        _me->SetFlag64(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
     else
-        _me->RemoveFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
+        _me->RemoveFlag64(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 
     InitMovementInfoForBase();
 }
@@ -147,7 +147,7 @@ void Vehicle::Reset(bool evading /*= false*/)
     if (GetBase()->GetTypeId() != TYPEID_UNIT)
         return;
 
-    TC_LOG_DEBUG("entities.vehicle", "Vehicle::Reset (Entry: %u, %s, DBGuid: " UI64FMTD ")", GetCreatureEntry(), _me->GetGUID().ToString().c_str(), _me->ToCreature()->GetDBTableGUIDLow());
+    TC_LOG_DEBUG("entities.vehicle", "Vehicle::Reset (Entry: %u, %s, DBGuid: " UI64FMTD ")", GetCreatureEntry(), _me->GetGUID().ToString().c_str(), _me->ToCreature()->GetSpawnId());
 
     ApplyAllImmunities();
     InstallAllAccessories(evading);
@@ -407,7 +407,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
 
     TC_LOG_DEBUG("entities.vehicle", "Unit %s scheduling enter vehicle (entry: %u, vehicleId: %u, %s (dbguid: " UI64FMTD ") on seat %d",
         unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->ID, _me->GetGUID().ToString().c_str(),
-        uint64(_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetDBTableGUIDLow() : UI64LIT(0)), (int32)seatId);
+        uint64(_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetSpawnId() : UI64LIT(0)), (int32)seatId);
 
     // The seat selection code may kick other passengers off the vehicle.
     // While the validity of the following may be arguable, it is possible that when such a passenger
@@ -479,7 +479,7 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
         unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->ID, _me->GetGUID().ToString().c_str(), (int32)seat->first);
 
     if (seat->second.SeatInfo->CanEnterOrExit() && ++UsableSeatNum)
-        _me->SetFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
+        _me->SetFlag64(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 
     // Remove UNIT_FLAG_NOT_SELECTABLE if passenger did not have it before entering vehicle
     if (seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUnselectable)
@@ -768,9 +768,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         if (!Target->UsableSeatNum)
         {
             if (Target->GetBase()->GetTypeId() == TYPEID_PLAYER)
-                Target->GetBase()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+                Target->GetBase()->RemoveFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
             else
-                Target->GetBase()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                Target->GetBase()->RemoveFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
     }
 

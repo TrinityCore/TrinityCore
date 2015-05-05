@@ -97,13 +97,15 @@ public:
 
         uint32 ticketId = atoi(args);
         GmTicket* ticket = sSupportMgr->GetTicket<GmTicket>(ticketId);
-        if (!ticket || ticket->IsClosed() || ticket->IsCompleted() || ticket->GetEscalatedStatus() != TICKET_UNASSIGNED)
+        if (!ticket || ticket->IsClosed() || ticket->IsCompleted() || ticket->GetAssigendToStatus() != GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED)
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
             return true;
         }
 
-        ticket->SetEscalatedStatus(TICKET_IN_ESCALATION_QUEUE);
+        SQLTransaction trans = SQLTransaction(NULL);
+        ticket->SetAssignedToStatus(GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED);
+        ticket->SaveToDB(trans);
 
         if (Player* player = ticket->GetPlayer())
             sSupportMgr->SendGmTicket(player->GetSession(), ticket);
@@ -191,6 +193,9 @@ public:
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetViewed();
         ticket->SaveToDB(trans);
+
+        if (Player* player = ticket->GetPlayer())
+            sSupportMgr->SendGmTicket(player->GetSession(), ticket);
 
         handler->SendSysMessage(ticket->FormatViewMessageString(*handler, true).c_str());
         return true;
@@ -677,6 +682,9 @@ bool ticket_commandscript::HandleTicketUnAssignCommand<GmTicket>(ChatHandler* ha
     ticket->SaveToDB(trans);
     sSupportMgr->UpdateLastChange();
 
+    if (Player* player = ticket->GetPlayer())
+        sSupportMgr->SendGmTicket(player->GetSession(), ticket);
+
     std::string msg = ticket->FormatViewMessageString(*handler, NULL, assignedTo.c_str(), handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL, NULL);
     handler->SendGlobalGMSysMessage(msg.c_str());
 
@@ -718,6 +726,9 @@ bool ticket_commandscript::HandleTicketGetByIdCommand<GmTicket>(ChatHandler* han
     SQLTransaction trans = SQLTransaction(NULL);
     ticket->SetViewed();
     ticket->SaveToDB(trans);
+
+    if (Player* player = ticket->GetPlayer())
+        sSupportMgr->SendGmTicket(player->GetSession(), ticket);
 
     handler->SendSysMessage(ticket->FormatViewMessageString(*handler, true).c_str());
     return true;

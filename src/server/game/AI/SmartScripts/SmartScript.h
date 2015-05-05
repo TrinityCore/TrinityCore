@@ -118,7 +118,7 @@ class SmartScript
                 smart = false;
 
             if (!smart)
-                TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: " UI64FMTD " Entry: %u) is not using SmartAI, action called by Creature (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", uint64(c ? c->GetDBTableGUIDLow() : UI64LIT(0)), c ? c->GetEntry() : 0, uint64(me ? me->GetDBTableGUIDLow() : UI64LIT(0)), me ? me->GetEntry() : 0);
+                TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: " UI64FMTD " Entry: %u) is not using SmartAI, action called by Creature (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", uint64(c ? c->GetSpawnId() : UI64LIT(0)), c ? c->GetEntry() : 0, uint64(me ? me->GetSpawnId() : UI64LIT(0)), me ? me->GetEntry() : 0);
 
             return smart;
         }
@@ -132,7 +132,7 @@ class SmartScript
             if (!go || go->GetAIName() != "SmartGameObjectAI")
                 smart = false;
             if (!smart)
-                TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: " UI64FMTD " Entry: %u) is not using SmartGameObjectAI, action called by GameObject (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", uint64(g ? g->GetDBTableGUIDLow() : UI64LIT(0)), g ? g->GetEntry() : 0, uint64(go ? go->GetDBTableGUIDLow() : UI64LIT(0)), go ? go->GetEntry() : 0);
+                TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: " UI64FMTD " Entry: %u) is not using SmartGameObjectAI, action called by GameObject (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", uint64(g ? g->GetSpawnId() : UI64LIT(0)), g ? g->GetEntry() : 0, uint64(go ? go->GetSpawnId() : UI64LIT(0)), go ? go->GetEntry() : 0);
 
             return smart;
         }
@@ -211,20 +211,27 @@ class SmartScript
         void OnReset();
         void ResetBaseObject()
         {
-            if (!meOrigGUID.IsEmpty())
+            WorldObject* lookupRoot = me;
+            if (!lookupRoot)
+                lookupRoot = go;
+
+            if (lookupRoot)
             {
-                if (Creature* m = HashMapHolder<Creature>::Find(meOrigGUID))
+                if (!meOrigGUID.IsEmpty())
                 {
-                    me = m;
-                    go = NULL;
+                    if (Creature* m = ObjectAccessor::GetCreature(*lookupRoot, meOrigGUID))
+                    {
+                        me = m;
+                        go = NULL;
+                    }
                 }
-            }
-            if (!goOrigGUID.IsEmpty())
-            {
-                if (GameObject* o = HashMapHolder<GameObject>::Find(goOrigGUID))
+                if (!goOrigGUID.IsEmpty())
                 {
-                    me = NULL;
-                    go = o;
+                    if (GameObject* o = ObjectAccessor::GetGameObject(*lookupRoot, goOrigGUID))
+                    {
+                        me = NULL;
+                        go = o;
+                    }
                 }
             }
             goOrigGUID.Clear();

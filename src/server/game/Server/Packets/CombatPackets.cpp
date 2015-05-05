@@ -96,8 +96,8 @@ WorldPacket const* WorldPackets::Combat::AIReaction::Write()
 
 WorldPacket const* WorldPackets::Combat::AttackerStateUpdate::Write()
 {
-    if (_worldPacket.WriteBit(LogData.HasValue))
-        _worldPacket << LogData.Value;
+    if (_worldPacket.WriteBit(LogData.is_initialized()))
+        _worldPacket << *LogData;
 
     // Placeholder for size which will be calculated at the end based on packet size
     // Client uses this size to copy remaining packet to another CDataStore
@@ -109,15 +109,16 @@ WorldPacket const* WorldPackets::Combat::AttackerStateUpdate::Write()
     _worldPacket << VictimGUID;
     _worldPacket << Damage;
     _worldPacket << OverDamage;
-    if (_worldPacket.WriteBit(SubDmg.HasValue))
+
+    if (_worldPacket.WriteBit(SubDmg.is_initialized()))
     {
-        _worldPacket << SubDmg.Value.SchoolMask;
-        _worldPacket << SubDmg.Value.FDamage;
-        _worldPacket << SubDmg.Value.Damage;
+        _worldPacket << SubDmg->SchoolMask;
+        _worldPacket << SubDmg->FDamage;
+        _worldPacket << SubDmg->Damage;
         if (HitInfo & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
-            _worldPacket << SubDmg.Value.Absorbed;
+            _worldPacket << SubDmg->Absorbed;
         if (HitInfo & (HITINFO_FULL_RESIST | HITINFO_PARTIAL_RESIST))
-            _worldPacket << SubDmg.Value.Resisted;
+            _worldPacket << SubDmg->Resisted;
     }
 
     _worldPacket << VictimState;

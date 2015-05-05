@@ -47,7 +47,6 @@
 #include "ScriptMgr.h"
 #include "MapManager.h"
 #include "InstanceScript.h"
-#include "GameObjectAI.h"
 #include "Group.h"
 #include "AccountMgr.h"
 #include "Spell.h"
@@ -57,14 +56,11 @@
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
-#include "NPCPackets.h"
 #include "AchievementPackets.h"
 #include "WhoPackets.h"
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_REPOP_REQUEST Message");
-
     if (GetPlayer()->IsAlive() || GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
 
@@ -87,91 +83,6 @@ void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet
     GetPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
     GetPlayer()->BuildPlayerRepop();
     GetPlayer()->RepopAtGraveyard();
-}
-
-void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet)
-{
-    if (!_player->PlayerTalkClass->GetGossipMenu().GetItem(packet.GossipIndex))
-        return;
-
-    // Prevent cheating on C++ scripted menus
-    if (_player->PlayerTalkClass->GetGossipMenu().GetSenderGUID() != packet.GossipUnit)
-        return;
-
-    Creature* unit = nullptr;
-    GameObject* go = nullptr;
-    if (packet.GossipUnit.IsCreatureOrVehicle())
-    {
-        unit = GetPlayer()->GetNPCIfCanInteractWith(packet.GossipUnit, UNIT_NPC_FLAG_NONE);
-        if (!unit)
-        {
-
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found or you can't interact with him.", packet.GossipUnit.ToString().c_str());
-            return;
-        }
-    }
-    else if (packet.GossipUnit.IsGameObject())
-    {
-        go = _player->GetMap()->GetGameObject(packet.GossipUnit);
-        if (!go)
-        {
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", packet.GossipUnit.ToString().c_str());
-            return;
-        }
-    }
-    else
-    {
-
-        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - unsupported %s.", packet.GossipUnit.ToString().c_str());
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    if ((unit && unit->GetCreatureTemplate()->ScriptID != unit->LastUsedScriptID) || (go && go->GetGOInfo()->ScriptId != go->LastUsedScriptID))
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Script reloaded while in use, ignoring and set new scipt id");
-        if (unit)
-            unit->LastUsedScriptID = unit->GetCreatureTemplate()->ScriptID;
-
-        if (go)
-            go->LastUsedScriptID = go->GetGOInfo()->ScriptId;
-        _player->PlayerTalkClass->SendCloseGossip();
-        return;
-    }
-
-    if (!packet.PromotionCode.empty())
-    {
-        if (unit)
-        {
-            unit->AI()->sGossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str());
-            if (!sScriptMgr->OnGossipSelectCode(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex), packet.PromotionCode.c_str()))
-                _player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
-        }
-        else
-        {
-            go->AI()->GossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str());
-            if (!sScriptMgr->OnGossipSelectCode(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex), packet.PromotionCode.c_str()))
-                _player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
-        }
-    }
-    else
-    {
-        if (unit)
-        {
-            unit->AI()->sGossipSelect(_player, packet.GossipID, packet.GossipIndex);
-            if (!sScriptMgr->OnGossipSelect(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex)))
-                _player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
-        }
-        else
-        {
-            go->AI()->GossipSelect(_player, packet.GossipID, packet.GossipIndex);
-            if (!sScriptMgr->OnGossipSelect(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex)))
-                _player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
-        }
-    }
 }
 
 void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
@@ -346,8 +257,6 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 
 void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& /*logoutRequest*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_REQUEST Message, security - %u", GetSecurity());
-
     ObjectGuid lguid = GetPlayer()->GetLootGUID();
     if (!lguid.IsEmpty())
         DoLootRelease(lguid);
@@ -398,8 +307,6 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequ
 
 void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCancel& /*logoutCancel*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_CANCEL Message");
-
     // Player have already logged out serverside, too late to cancel
     if (!GetPlayer())
         return;
@@ -503,37 +410,8 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateCh
     _player->SetStandState(packet.StandState);
 }
 
-void WorldSession::HandleBugReportOpcode(WorldPacket& recvData)
-{
-    uint32 suggestion, contentlen, typelen;
-    std::string content, type;
-
-    recvData >> suggestion >> contentlen;
-    content = recvData.ReadString(contentlen);
-
-    recvData >> typelen;
-    type = recvData.ReadString(typelen);
-
-    if (suggestion == 0)
-        TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUG_REPORT [Bug Report]");
-    else
-        TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUG_REPORT [Suggestion]");
-
-    TC_LOG_DEBUG("network", "%s", type.c_str());
-    TC_LOG_DEBUG("network", "%s", content.c_str());
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-
-    stmt->setString(0, type);
-    stmt->setString(1, content);
-
-    CharacterDatabase.Execute(stmt);
-}
-
 void WorldSession::HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_RECLAIM_CORPSE");
-
     if (_player->IsAlive())
         return;
 
@@ -566,8 +444,6 @@ void WorldSession::HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& /*pack
 
 void WorldSession::HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_RESURRECT_RESPONSE");
-
     if (GetPlayer()->IsAlive())
         return;
 
@@ -801,15 +677,14 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionBu
         GetPlayer()->AddActionButton(packet.Index, action, type);
 }
 
-void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
+void WorldSession::HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_COMPLETE_CINEMATIC");
 }
 
-void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
+void WorldSession::HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
 }
+
 void WorldSession::HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet)
 {
     if (!GetPlayer())                                        // ignore until not logged (check needed because STATUS_AUTHED)
@@ -846,8 +721,6 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
     recvData >> PositionY;
     recvData >> PositionZ;
     recvData >> Orientation;                               // o (3.141593 = 180 degrees)
-
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_WORLD_TELEPORT");
 
     if (GetPlayer()->IsInFlight())
     {
@@ -919,8 +792,6 @@ void WorldSession::HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet)
 
 void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_COMPLAIN");
-
     uint8 spam_type;                                        // 0 - mail, 1 - chat
     ObjectGuid spammer_guid;
     uint32 unk1 = 0;
@@ -961,8 +832,6 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_REALM_SPLIT");
-
     uint32 unk;
     std::string split_date = "01/01/01";
     recvData >> unk;
@@ -979,14 +848,9 @@ void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
     //TC_LOG_DEBUG("response sent %u", unk);
 }
 
-void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
+void WorldSession::HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_FAR_SIGHT");
-
-    bool apply;
-    recvData >> apply;
-
-    if (apply)
+    if (packet.Enable)
     {
         TC_LOG_DEBUG("network", "Added FarSight %s to %s", _player->GetGuidValue(PLAYER_FARSIGHT).ToString().c_str(), _player->GetGUID().ToString().c_str());
         if (WorldObject* target = _player->GetViewpoint())
@@ -1005,8 +869,6 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_SET_TITLE");
-
     // -1 at none
     if (packet.TitleID > 0 && packet.TitleID < MAX_TITLE_INDEX)
     {
@@ -1021,8 +883,6 @@ void WorldSession::HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packe
 
 void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_TIME_SYNC_RESPONSE");
-
     // Prevent crashing server if queue is empty
     if (_player->m_timeSyncQueue.empty())
     {
@@ -1046,8 +906,6 @@ void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& 
 
 void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_RESET_INSTANCES");
-
     if (Group* group = _player->GetGroup())
     {
         if (group->IsLeader(_player->GetGUID()))
@@ -1217,8 +1075,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDiff
 void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& /*recvData*/)
 {
     // fly mode on/off
-    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_SET_CAN_FLY_ACK");
-
     MovementInfo movementInfo;
     _player->ValidateMovementInfo(&movementInfo);
 
@@ -1228,15 +1084,12 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& /*recvData*/)
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 {
     /*
-        TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_PET_INFO");
         recvData.hexlike();
     */
 }
 
 void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_SET_TAXI_BENCHMARK_MODE");
-
     uint8 mode;
     recvData >> mode;
 
@@ -1291,8 +1144,6 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
 
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_UPDATE_MISSILE_TRAJECTORY");
-
     ObjectGuid guid;
     uint32 spellId;
     float pitch, speed;
@@ -1364,8 +1215,6 @@ void WorldSession::HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpd
 
 void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_SAVE_CUF_PROFILES");
-
     uint8 count = (uint8)recvPacket.ReadBits(20);
 
     if (count > MAX_CUF_PROFILES)

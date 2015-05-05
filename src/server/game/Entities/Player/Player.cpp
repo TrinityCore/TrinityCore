@@ -31,16 +31,17 @@
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "CharacterPackets.h"
-#include "TalentPackets.h"
 #include "Chat.h"
+#include "ChatPackets.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
+#include "DuelPackets.h"
 #include "EquipmentSetPackets.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
@@ -52,14 +53,19 @@
 #include "GroupMgr.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "InstancePackets.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
+#include "ItemPackets.h"
 #include "LFGMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "LootPackets.h"
 #include "MailPackets.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
+#include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -67,6 +73,7 @@
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "QuestDef.h"
+#include "QuestPackets.h"
 #include "ReputationMgr.h"
 #include "revision.h"
 #include "SkillDiscovery.h"
@@ -77,27 +84,21 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
+#include "TalentPackets.h"
+#include "TradePackets.h"
 #include "Transport.h"
 #include "UpdateData.h"
 #include "UpdateFieldFlags.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "Vehicle.h"
+#include "VehiclePackets.h"
 #include "Weather.h"
 #include "WeatherMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
-#include "MiscPackets.h"
-#include "ChatPackets.h"
-#include "DuelPackets.h"
-#include "MovementPackets.h"
-#include "ItemPackets.h"
-#include "QuestPackets.h"
-#include "LootPackets.h"
-#include "TradePackets.h"
-#include "VehiclePackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -2057,6 +2058,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // this will be used instead of the current location in SaveToDB
         m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
+        m_teleport_options = options;
         SetFallInformation(0, z);
 
         // code for finish transfer called in WorldSession::HandleMovementOpcodes()
@@ -2085,6 +2087,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         // this check not dependent from map instance copy and same for all instance copies of selected map
         if (!sMapMgr->CanPlayerEnter(mapid, this, false))
             return false;
+
+        // Seamless teleport can happen only if cosmetic maps match
+        if (!oldmap ||
+            (oldmap->GetEntry()->CosmeticParentMapID != int32(mapid) && int32(GetMapId()) != mEntry->CosmeticParentMapID &&
+            !((oldmap->GetEntry()->CosmeticParentMapID != -1) ^ (oldmap->GetEntry()->CosmeticParentMapID != mEntry->CosmeticParentMapID))))
+            options &= ~TELE_TO_SEAMLESS;
 
         //I think this always returns true. Correct me if I am wrong.
         // If the map is not created, assume it is possible to enter it.
@@ -2148,16 +2156,16 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             //remove auras before removing from map...
             RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
 
-            if (!GetSession()->PlayerLogout())
+            if (!GetSession()->PlayerLogout() && !(options & TELE_TO_SEAMLESS))
             {
                 // send transfer packets
                 WorldPackets::Movement::TransferPending transferPending;
                 transferPending.MapID = mapid;
                 if (Transport* transport = GetTransport())
                 {
-                    transferPending.Ship.HasValue = true;
-                    transferPending.Ship.Value.ID = transport->GetEntry();
-                    transferPending.Ship.Value.OriginMapID = GetMapId();
+                    transferPending.Ship = boost::in_place();
+                    transferPending.Ship->ID = transport->GetEntry();
+                    transferPending.Ship->OriginMapID = GetMapId();
                 }
 
                 GetSession()->SendPacket(transferPending.Write());
@@ -2168,19 +2176,25 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 oldmap->RemovePlayerFromMap(this, false);
 
             m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
+            m_teleport_options = options;
             SetFallInformation(0, z);
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
             if (!GetSession()->PlayerLogout())
             {
+                if (mEntry->IsDungeon())
+                {
+                    WorldPackets::Instance::UpdateLastInstance updateLastInstance;
+                    updateLastInstance.MapID = mapid;
+                    SendDirectMessage(updateLastInstance.Write());
+                }
+
                 WorldPackets::Movement::NewWorld packet;
                 packet.MapID = mapid;
                 packet.Pos = m_teleport_dest;
-                packet.Reason = NEW_WORLD_NORMAL;
-
+                packet.Reason = !(options & TELE_TO_SEAMLESS) ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
                 SendDirectMessage(packet.Write());
-                SendSavedInstances();
             }
 
             // move packet sent by client always after far teleport
@@ -2620,7 +2634,7 @@ bool Player::CanInteractWithQuestGiver(Object* questGiver)
     return false;
 }
 
-Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask)
+Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint64 npcflagmask)
 {
     // unit checks
     if (!guid)
@@ -2646,7 +2660,7 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask)
         return NULL;
 
     // appropriate npc type
-    if (npcflagmask && !creature->HasFlag(UNIT_NPC_FLAGS, npcflagmask))
+    if (npcflagmask && !creature->HasFlag64(UNIT_NPC_FLAGS, npcflagmask))
         return NULL;
 
     // not allow interaction under control, but allow with own pets
@@ -4186,7 +4200,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
 
     // check primary prof. limit
     // first rank of primary profession spell when there are no proffesions avalible is disabled
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
     {
         if (!trainer_spell->ReqAbility[i])
             continue;
@@ -4560,6 +4574,14 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_PHASES);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
             CharacterDatabase.CommitTransaction(trans);
 
             sWorld->DeleteCharacterInfo(playerguid);
@@ -4805,7 +4827,7 @@ void Player::CreateCorpse()
     Corpse* corpse = new Corpse((m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) ? CORPSE_RESURRECTABLE_PVP : CORPSE_RESURRECTABLE_PVE);
     SetPvPDeath(false);
 
-    if (!corpse->Create(sObjectMgr->GetGenerator<HighGuid::Corpse>()->Generate(), this))
+    if (!corpse->Create(GetMap()->GenerateLowGuid<HighGuid::Corpse>(), this))
     {
         delete corpse;
         return;
@@ -6859,9 +6881,9 @@ void Player::SendNewCurrency(uint32 id) const
     WorldPackets::Misc::SetupCurrency::Record record;
     record.Type = entry->ID;
     record.Quantity = itr->second.Quantity;
-    record.WeeklyQuantity.Set(itr->second.WeeklyQuantity);
-    record.MaxWeeklyQuantity.Set(GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1));
-    record.TrackedQuantity.Set(itr->second.TrackedQuantity);
+    record.WeeklyQuantity = itr->second.WeeklyQuantity;
+    record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1);
+    record.TrackedQuantity = itr->second.TrackedQuantity;
     record.Flags = itr->second.Flags;
 
     packet.Data.push_back(record);
@@ -6885,9 +6907,9 @@ void Player::SendCurrencies() const
         WorldPackets::Misc::SetupCurrency::Record record;
         record.Type = entry->ID;
         record.Quantity = itr->second.Quantity;
-        record.WeeklyQuantity.Set(itr->second.WeeklyQuantity);
-        record.MaxWeeklyQuantity.Set(GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1));
-        record.TrackedQuantity.Set(itr->second.TrackedQuantity);
+        record.WeeklyQuantity = itr->second.WeeklyQuantity;
+        record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1);
+        record.TrackedQuantity = itr->second.TrackedQuantity;
         record.Flags = itr->second.Flags;
 
         packet.Data.push_back(record);
@@ -7033,8 +7055,8 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         packet.Type = id;
         packet.Quantity = newTotalCount;
         packet.SuppressChatLog = !printLog;
-        packet.WeeklyQuantity.Set(newWeekCount);
-        packet.TrackedQuantity.Set(newTrackedCount);
+        packet.WeeklyQuantity = newWeekCount;
+        packet.TrackedQuantity = newTrackedCount;
         packet.Flags = itr->second.Flags;
 
         GetSession()->SendPacket(packet.Write());
@@ -7634,7 +7656,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         if (statType == -1)
             continue;
 
-        int32 val = item->GetItemStatValue(i);
+        int32 val = item->GetItemStatValue(i, this);
         if (val == 0)
             continue;
 
@@ -7800,7 +7822,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         }
     }
 
-    if (uint32 armor = item->GetArmor())
+    if (uint32 armor = item->GetArmor(this))
     {
         UnitModifierType modType = TOTAL_VALUE;
         if (proto->GetClass() == ITEM_CLASS_ARMOR)
@@ -7860,7 +7882,7 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
     }
 
     float minDamage, maxDamage;
-    item->GetDamage(minDamage, maxDamage);
+    item->GetDamage(this, minDamage, maxDamage);
 
     if (minDamage > 0)
     {
@@ -7970,7 +7992,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType att
     }
 }
 
-void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
+void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= false*/)
 {
     if (!item)
         return;
@@ -7992,11 +8014,11 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
         if (!spellproto)
             continue;
 
-        ApplyEquipSpell(spellproto, item, apply, form_change);
+        ApplyEquipSpell(spellproto, item, apply, formChange);
     }
 }
 
-void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply, bool form_change)
+void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply, bool formChange /*= false*/)
 {
     if (apply)
     {
@@ -8004,7 +8026,7 @@ void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply,
         if (spellInfo->CheckShapeshift(GetShapeshiftForm()) != SPELL_CAST_OK)
             return;
 
-        if (form_change)                                    // check aura active state from other form
+        if (formChange)                                    // check aura active state from other form
         {
             AuraApplicationMapBounds range = GetAppliedAuras().equal_range(spellInfo->Id);
             for (AuraApplicationMap::const_iterator itr = range.first; itr != range.second; ++itr)
@@ -8018,7 +8040,7 @@ void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply,
     }
     else
     {
-        if (form_change)                                     // check aura compatibility
+        if (formChange)                                     // check aura compatibility
         {
             // Cannot be used in this stance/form
             if (spellInfo->CheckShapeshift(GetShapeshiftForm()) == SPELL_CAST_OK)
@@ -8043,6 +8065,11 @@ void Player::UpdateEquipSpellsAtFormChange()
         }
     }
 
+    UpdateItemSetAuras(true);
+}
+
+void Player::UpdateItemSetAuras(bool formChange /*= false*/)
+{
     // item set bonuses not dependent from item broken state
     for (size_t setindex = 0; setindex < ItemSetEff.size(); ++setindex)
     {
@@ -8050,17 +8077,21 @@ void Player::UpdateEquipSpellsAtFormChange()
         if (!eff)
             continue;
 
-        for (uint32 y = 0; y < MAX_ITEM_SET_SPELLS; ++y)
+        for (ItemSetSpellEntry const* itemSetSpell : eff->SetBonuses)
         {
-            SpellInfo const* spellInfo = eff->spells[y];
-            if (!spellInfo)
-                continue;
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID);
 
-            ApplyEquipSpell(spellInfo, NULL, false, true);       // remove spells that not fit to form
-            ApplyEquipSpell(spellInfo, NULL, true, true);        // add spells that fit form but not active
+            if (itemSetSpell->ChrSpecID && itemSetSpell->ChrSpecID != GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
+                ApplyEquipSpell(spellInfo, nullptr, false, false);  // item set aura is not for current spec
+            else
+            {
+                ApplyEquipSpell(spellInfo, nullptr, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied
+                ApplyEquipSpell(spellInfo, nullptr, true, formChange);  // add spells that fit form but not active
+            }
         }
     }
 }
+
 void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx)
 {
     if (!target || !target->IsAlive() || target == this)
@@ -11386,10 +11417,10 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     if (!proto)
         return EQUIP_ERR_ITEM_NOT_FOUND;
 
-    if ((proto->GetFlags2() & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetTeam() != HORDE)
+    if ((proto->GetFlags2() & ITEM_FLAG2_HORDE_ONLY) && GetTeam() != HORDE)
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
-    if ((proto->GetFlags2() & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
+    if ((proto->GetFlags2() & ITEM_FLAG2_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
     if ((proto->GetAllowableClass() & getClassMask()) == 0 || (proto->GetAllowableRace() & getRaceMask()) == 0)
@@ -11979,7 +12010,7 @@ void Player::MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool 
         // in case trade we already have item in other player inventory
         pLastItem->SetState(in_characterInventoryDB ? ITEM_CHANGED : ITEM_NEW, this);
 
-        if (pLastItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+        if (pLastItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
             AddTradeableItem(pLastItem);
     }
 }
@@ -11996,7 +12027,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
             for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
                 DestroyItem(slot, i, update);
 
-        if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
+        if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
 
@@ -12069,7 +12100,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         // Delete rolled money / loot from db.
         // MUST be done before RemoveFromWorld() or GetTemplate() fails
         if (ItemTemplate const* pTmp = pItem->GetTemplate())
-            if (pTmp->GetFlags() & ITEM_PROTO_FLAG_OPENABLE)
+            if (pTmp->GetFlags() & ITEM_FLAG_OPENABLE)
                 pItem->ItemContainerDeleteLootMoneyAndLootItemsFromDB();
 
         if (IsInWorld() && update)
@@ -13653,11 +13684,11 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
     if (menuItemBounds.first == menuItemBounds.second && menuId == GetDefaultGossipMenuForSource(source))
         menuItemBounds = sObjectMgr->GetGossipMenuItemsMapBounds(0);
 
-    uint32 npcflags = 0;
+    uint64 npcflags = 0;
 
     if (source->GetTypeId() == TYPEID_UNIT)
     {
-        npcflags = source->GetUInt32Value(UNIT_NPC_FLAGS);
+        npcflags = source->GetUInt64Value(UNIT_NPC_FLAGS);
         if (showQuests && npcflags & UNIT_NPC_FLAG_QUESTGIVER)
             PrepareQuestMenu(source->GetGUID());
     }
@@ -13690,7 +13721,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     VendorItemData const* vendorItems = creature->GetVendorItems();
                     if (!vendorItems || vendorItems->Empty())
                     {
-                        TC_LOG_ERROR("sql.sql", "Creature %s (%s DB GUID: " UI64FMTD ") has UNIT_NPC_FLAG_VENDOR set but has an empty trading item list.", creature->GetName().c_str(), creature->GetGUID().ToString().c_str(), creature->GetDBTableGUIDLow());
+                        TC_LOG_ERROR("sql.sql", "Creature %s (%s DB GUID: " UI64FMTD ") has UNIT_NPC_FLAG_VENDOR set but has an empty trading item list.", creature->GetName().c_str(), creature->GetGUID().ToString().c_str(), creature->GetSpawnId());
                         canTalk = false;
                     }
                     break;
@@ -13879,7 +13910,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         }
         case GOSSIP_OPTION_OUTDOORPVP:
-            sOutdoorPvPMgr->HandleGossipOption(this, source->GetGUID(), gossipListId);
+            sOutdoorPvPMgr->HandleGossipOption(this, source->ToCreature(), gossipListId);
             break;
         case GOSSIP_OPTION_SPIRITHEALER:
             if (isDead())
@@ -14098,7 +14129,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                     return;
                 }
 
-                if (object->GetTypeId() != TYPEID_UNIT || object->ToCreature()->GetUInt32Value(UNIT_NPC_FLAGS) & UNIT_NPC_FLAG_GOSSIP)
+                if (object->GetTypeId() != TYPEID_UNIT || object->GetUInt64Value(UNIT_NPC_FLAGS) & UNIT_NPC_FLAG_GOSSIP)
                 {
                     if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
                         AddQuestAndCheckCompletion(quest, object);
@@ -16831,8 +16862,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         ObjectGuid transGUID = ObjectGuid::Create<HighGuid::Transport>(transLowGUID);
 
         Transport* transport = NULL;
-        if (GameObject* go = HashMapHolder<GameObject>::Find(transGUID))
-            transport = go->ToTransport();
+        if (Transport* go = HashMapHolder<Transport>::Find(transGUID))
+            transport = go;
 
         if (transport)
         {
@@ -17742,13 +17773,13 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 remove = true;
             }
             // "Conjured items disappear if you are logged out for more than 15 minutes"
-            else if (timeDiff > 15 * MINUTE && proto->GetFlags() & ITEM_PROTO_FLAG_CONJURED)
+            else if (timeDiff > 15 * MINUTE && proto->GetFlags() & ITEM_FLAG_CONJURED)
             {
                 TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (%s, name: '%s', diff: %u) has conjured item (%s, entry: %u) with expired lifetime (15 minutes). Deleting item.",
                     GetGUID().ToString().c_str(), GetName().c_str(), timeDiff, item->GetGUID().ToString().c_str(), item->GetEntry());
                 remove = true;
             }
-            else if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
+            else if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
             {
                 if (item->GetPlayedTime() > (2 * HOUR))
                 {
@@ -17759,7 +17790,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     stmt->setUInt64(0, item->GetGUID().GetCounter());
                     trans->Append(stmt);
 
-                    item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE);
+                    item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
                 }
                 else
                 {
@@ -17777,11 +17808,11 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     {
                         TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (%s, name: '%s') has item (%s, entry: %u) with refundable flags, but without data in item_refund_instance. Removing flag.",
                             GetGUID().ToString().c_str(), GetName().c_str(), item->GetGUID().ToString().c_str(), item->GetEntry());
-                        item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE);
+                        item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
                     }
                 }
             }
-            else if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+            else if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_BOP_TRADE);
                 stmt->setUInt64(0, item->GetGUID().GetCounter());
@@ -17803,9 +17834,9 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 }
                 else
                 {
-                    TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (%s, name: '%s') has item (%s, entry: %u) with ITEM_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
+                    TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (%s, name: '%s') has item (%s, entry: %u) with ITEM_FIELD_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
                         GetGUID().ToString().c_str(), GetName().c_str(), item->GetGUID().ToString().c_str(), item->GetEntry());
-                    item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
+                    item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
                 }
             }
             else if (proto->GetHolidayID())
@@ -18529,48 +18560,6 @@ void Player::SendRaidInfo()
 
     data.put<uint32>(p_counter, counter);
     GetSession()->SendPacket(&data);
-}
-
-/*
-- called on every successful teleportation to a map
-*/
-void Player::SendSavedInstances()
-{
-    bool hasBeenSaved = false;
-    WorldPacket data;
-
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-    {
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-        {
-            if (itr->second.perm)                               // only permanent binds are sent
-            {
-                hasBeenSaved = true;
-                break;
-            }
-        }
-    }
-
-    //Send opcode SMSG_UPDATE_INSTANCE_OWNERSHIP. true or false means, whether you have current raid/heroic instances
-    data.Initialize(SMSG_UPDATE_INSTANCE_OWNERSHIP, 4);
-    data << uint32(hasBeenSaved);
-    GetSession()->SendPacket(&data);
-
-    if (!hasBeenSaved)
-        return;
-
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-    {
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-        {
-            if (itr->second.perm)
-            {
-                data.Initialize(SMSG_UPDATE_LAST_INSTANCE, 4);
-                data << uint32(itr->second.save->GetMapId());
-                GetSession()->SendPacket(&data);
-            }
-        }
-    }
 }
 
 /// convert the player's binds to the group
@@ -21218,9 +21207,9 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         if (!bStore)
             AutoUnequipOffhandIfNeed();
 
-        if (pProto->GetFlags() & ITEM_PROTO_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
+        if (pProto->GetFlags() & ITEM_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {
-            it->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE);
+            it->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
             it->SetRefundRecipient(GetGUID());
             it->SetPaidMoney(price);
             it->SetPaidExtendedCost(crItem->ExtendedCost);
@@ -21410,7 +21399,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
     }
 
-    if (!IsGameMaster() && ((pProto->GetFlags2() & ITEM_FLAGS_EXTRA_HORDE_ONLY && GetTeam() == ALLIANCE) || (pProto->GetFlags2() == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && GetTeam() == HORDE)))
+    if (!IsGameMaster() && ((pProto->GetFlags2() & ITEM_FLAG2_HORDE_ONLY && GetTeam() == ALLIANCE) || (pProto->GetFlags2() == ITEM_FLAG2_ALLIANCE_ONLY && GetTeam() == HORDE)))
         return false;
 
     Creature* creature = GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
@@ -22529,12 +22518,12 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_WORLD_SERVER_INFO
     WorldPackets::Misc::WorldServerInfo worldServerInfo;
-    worldServerInfo.IneligibleForLootMask.Clear();     /// @todo
+    // worldServerInfo.IneligibleForLootMask; /// @todo
     worldServerInfo.WeeklyReset = sWorld->GetNextWeeklyQuestsResetTime() - WEEK;
-    worldServerInfo.InstanceGroupSize.Set(GetMap()->GetMapDifficulty()->MaxPlayers);
-    worldServerInfo.IsTournamentRealm = 0;             /// @todo
-    worldServerInfo.RestrictedAccountMaxLevel.Clear(); /// @todo
-    worldServerInfo.RestrictedAccountMaxMoney.Clear(); /// @todo
+    worldServerInfo.InstanceGroupSize = GetMap()->GetMapDifficulty()->MaxPlayers;
+    worldServerInfo.IsTournamentRealm = 0; /// @todo
+    // worldServerInfo.RestrictedAccountMaxLevel; /// @todo
+    // worldServerInfo.RestrictedAccountMaxMoney; /// @todo
     worldServerInfo.DifficultyID = GetMap()->GetDifficultyID();
     SendDirectMessage(worldServerInfo.Write());
 
@@ -22650,7 +22639,7 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
 
 void Player::ApplyEquipCooldown(Item* pItem)
 {
-    if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN))
+    if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_NO_EQUIP_COOLDOWN))
         return;
 
     ItemTemplate const* proto = pItem->GetTemplate();
@@ -23324,7 +23313,7 @@ void Player::UpdateForQuestWorldObjects()
     {
         if (itr->IsGameObject())
         {
-            if (GameObject* obj = HashMapHolder<GameObject>::Find(*itr))
+            if (GameObject* obj = ObjectAccessor::GetGameObject(*this, *itr))
                 obj->BuildValuesUpdateBlockForPlayer(&udata, this);
         }
         else if (itr->IsCreatureOrVehicle())
@@ -23334,7 +23323,7 @@ void Player::UpdateForQuestWorldObjects()
                 continue;
 
             // check if this unit requires quest specific flags
-            if (!obj->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
+            if (!obj->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
                 continue;
 
             SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
@@ -23514,10 +23503,11 @@ bool Player::CanNoReagentCast(SpellInfo const* spellInfo) const
         return true;
 
     // Check no reagent use mask
-    flag96 noReagentMask;
+    flag128 noReagentMask;
     noReagentMask[0] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1);
-    noReagentMask[1] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1+1);
-    noReagentMask[2] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1+2);
+    noReagentMask[1] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1 + 1);
+    noReagentMask[2] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1 + 2);
+    noReagentMask[3] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1 + 3);
     if (spellInfo->SpellFamilyFlags  & noReagentMask)
         return true;
 
@@ -24633,7 +24623,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         --loot->unlootedCount;
 
         if (sObjectMgr->GetItemTemplate(item->itemid))
-            if (newitem->GetQuality() > ITEM_QUALITY_EPIC || (newitem->GetQuality() == ITEM_QUALITY_EPIC && newitem->GetItemLevel() >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
+            if (newitem->GetQuality() > ITEM_QUALITY_EPIC || (newitem->GetQuality() == ITEM_QUALITY_EPIC && newitem->GetItemLevel(this) >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
                 if (Guild* guild = GetGuild())
                     guild->AddGuildNews(GUILD_NEWS_ITEM_LOOTED, GetGUID(), 0, item->itemid);
 
@@ -24819,7 +24809,7 @@ InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limi
 InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot, uint32 limit_count) const
 {
     // check unique-equipped on item
-    if (itemProto->GetFlags() & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
+    if (itemProto->GetFlags() & ITEM_FLAG_UNIQUE_EQUIPPED)
     {
         // there is an equip limit on this item
         if (HasItemOrGemWithIdEquipped(itemProto->GetId(), 1, except_slot))
@@ -25043,6 +25033,7 @@ void Player::LearnTalentSpecialization(uint32 talentSpec)
 
     LearnSpecializationSpells();
     SendTalentsInfoData();
+    UpdateItemSetAuras(false);
 }
 
 void Player::ResetTalentSpecialization()
@@ -25063,6 +25054,7 @@ void Player::ResetTalentSpecialization()
 
     RemoveSpecializationSpells();
     SendTalentsInfoData();
+    UpdateItemSetAuras(false);
 }
 
 void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
@@ -25112,7 +25104,7 @@ bool Player::IsPetNeedBeTemporaryUnsummoned() const
 
 bool Player::CanSeeSpellClickOn(Creature const* c) const
 {
-    if (!c->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
+    if (!c->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
         return false;
 
     SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(c->GetEntry());
@@ -25619,6 +25611,7 @@ void Player::ActivateTalentGroup(uint8 spec)
         SetPower(POWER_MANA, 0); // Mana must be 0 even if it isn't the active power type.
 
     SetPower(pw, 0);
+    UpdateItemSetAuras(false);
 
     if (!sChrSpecializationStore.LookupEntry(GetSpecId(GetActiveTalentGroup())))
         ResetTalents(true);
@@ -25675,10 +25668,10 @@ void Player::DeleteRefundReference(ObjectGuid it)
 
 void Player::SendRefundInfo(Item* item)
 {
-    // This function call unsets ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
+    // This function call unsets ITEM_FIELD_FLAG_REFUNDABLE if played time is over 2 hours.
     item->UpdatePlayedTime(this);
 
-    if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
     {
         TC_LOG_DEBUG("entities.player.items", "Item refund: item not refundable!");
         return;
@@ -25826,7 +25819,7 @@ void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece,
 
 void Player::RefundItem(Item* item)
 {
-    if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
     {
         TC_LOG_DEBUG("entities.player.items", "Item refund: item not refundable!");
         return;
@@ -25975,7 +25968,7 @@ float Player::GetAverageItemLevel()
             continue;
 
         if (m_items[i] && m_items[i]->GetTemplate())
-            sum += m_items[i]->GetItemLevel();
+            sum += m_items[i]->GetItemLevel(this);
 
         ++count;
     }
@@ -26267,8 +26260,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     Map* map = GetMap();
     uint32 pet_number = sObjectMgr->GeneratePetNumber();
-
-    if (!pet->Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, entry))
+    if (!pet->Create(map->GenerateLowGuid<HighGuid::Pet>(), map, entry))
     {
         TC_LOG_ERROR("misc", "no such creature entry %u", entry);
         delete pet;
@@ -26281,7 +26273,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
 
     pet->setPowerType(POWER_MANA);
-    pet->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+    pet->SetUInt64Value(UNIT_NPC_FLAGS, 0);
     pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
     pet->InitStatsForLevel(getLevel());
 

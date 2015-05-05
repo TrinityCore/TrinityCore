@@ -239,24 +239,6 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
     return true;
 }
 
-template<> ObjectGuidGenerator<HighGuid::Player>* ObjectMgr::GetGenerator() { return &_playerGuidGenerator; }
-template<> ObjectGuidGenerator<HighGuid::Creature>* ObjectMgr::GetGenerator() { return &_creatureGuidGenerator; }
-template<> ObjectGuidGenerator<HighGuid::Pet>* ObjectMgr::GetGenerator() { return &_petGuidGenerator; }
-template<> ObjectGuidGenerator<HighGuid::Vehicle>* ObjectMgr::GetGenerator() { return &_vehicleGuidGenerator; }
-template<> ObjectGuidGenerator<HighGuid::Item>* ObjectMgr::GetGenerator() { return &_itemGuidGenerator; }
-template<> ObjectGuidGenerator<HighGuid::GameObject>* ObjectMgr::GetGenerator() { return &_gameObjectGuidGenerator; }
-template<> ObjectGuidGenerator<HighGuid::DynamicObject>* ObjectMgr::GetGenerator() { return &_dynamicObjectGuidGenerator; }
-template<> ObjectGuidGenerator<HighGuid::Corpse>* ObjectMgr::GetGenerator() { return &_corpseGuidGenerator; }
-template<> ObjectGuidGenerator<HighGuid::LootObject>* ObjectMgr::GetGenerator() { return &_lootObjectGuidGenerator; }
-template<> ObjectGuidGenerator<HighGuid::AreaTrigger>* ObjectMgr::GetGenerator() { return &_areaTriggerGuidGenerator; }
-template<> ObjectGuidGenerator<HighGuid::Transport>* ObjectMgr::GetGenerator() { return &_moTransportGuidGenerator; }
-
-template<HighGuid type>
-ObjectGuidGenerator<type>* ObjectMgr::GetGenerator()
-{
-    return nullptr;
-}
-
 ObjectMgr::ObjectMgr():
     _auctionId(1),
     _equipmentSetGuid(1),
@@ -264,6 +246,8 @@ ObjectMgr::ObjectMgr():
     _mailId(1),
     _hiPetNumber(1),
     _voidItemId(1),
+    _creatureSpawnId(1),
+    _gameObjectSpawnId(1),
     DBCLocaleIndex(LOCALE_enUS)
 {
     for (uint8 i = 0; i < MAX_CLASSES; ++i)
@@ -490,7 +474,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.expansion         = fields[17].GetInt16();
     creatureTemplate.expansionUnknown  = fields[18].GetUInt16();
     creatureTemplate.faction           = fields[19].GetUInt16();
-    creatureTemplate.npcflag           = fields[20].GetUInt32();
+    creatureTemplate.npcflag           = fields[20].GetUInt64();
     creatureTemplate.speed_walk        = fields[21].GetFloat();
     creatureTemplate.speed_run         = fields[22].GetFloat();
     creatureTemplate.scale             = fields[23].GetFloat();
@@ -694,9 +678,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
         if (cInfo->npcflag != difficultyInfo->npcflag)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, `npcflag`: %u) has different `npcflag` in difficulty %u mode (Entry: %u, `npcflag`: %u).",
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, `npcflag`: " UI64FMTD ") has different `npcflag` in difficulty %u mode (Entry: %u, `npcflag`: " UI64FMTD ").",
                 cInfo->Entry, cInfo->npcflag, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->npcflag);
-            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `npcflag`=%u WHERE `entry`=%u;",
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `npcflag`=" UI64FMTD " WHERE `entry`=%u;",
                 cInfo->npcflag, cInfo->DifficultyEntry[diff]);
             continue;
         }
@@ -1187,7 +1171,7 @@ void ObjectMgr::LoadEquipmentTemplates()
     uint32 oldMSTime = getMSTime();
 
     //                                                 0     1       2           3           4
-    QueryResult result = WorldDatabase.Query("SELECT entry, id, itemEntry1, itemEntry2, itemEntry3 FROM creature_equip_template");
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, ID, ItemID1, ItemID2, ItemID3 FROM creature_equip_template");
 
     if (!result)
     {
@@ -1204,7 +1188,7 @@ void ObjectMgr::LoadEquipmentTemplates()
 
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
-            TC_LOG_ERROR("sql.sql", "Creature template (Entry: %u) does not exist but has a record in `creature_equip_template`", entry);
+            TC_LOG_ERROR("sql.sql", "Creature template (CreatureID: %u) does not exist but has a record in `creature_equip_template`", entry);
             continue;
         }
 
@@ -1230,7 +1214,7 @@ void ObjectMgr::LoadEquipmentTemplates()
 
             if (!dbcItem)
             {
-                TC_LOG_ERROR("sql.sql", "Unknown item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id=%u, forced to 0.",
+                TC_LOG_ERROR("sql.sql", "Unknown item (ID=%u) in creature_equip_template.ItemID%u for CreatureID = %u and ID=%u, forced to 0.",
                     equipmentInfo.ItemEntry[i], i+1, entry, id);
                 equipmentInfo.ItemEntry[i] = 0;
                 continue;
@@ -1246,7 +1230,7 @@ void ObjectMgr::LoadEquipmentTemplates()
                 dbcItem->InventoryType != INVTYPE_THROWN &&
                 dbcItem->InventoryType != INVTYPE_RANGEDRIGHT)
             {
-                TC_LOG_ERROR("sql.sql", "Item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id = %u is not equipable in a hand, forced to 0.",
+                TC_LOG_ERROR("sql.sql", "Item (ID=%u) in creature_equip_template.ItemID%u for CreatureID = %u and ID = %u is not equipable in a hand, forced to 0.",
                     equipmentInfo.ItemEntry[i], i+1, entry, id);
                 equipmentInfo.ItemEntry[i] = 0;
             }
@@ -1277,7 +1261,7 @@ uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData co
     return cinfo->GetRandomValidModelId();
 }
 
-void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data /*= NULL*/)
+void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cinfo, uint64& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data /*= NULL*/)
 {
     npcflag = cinfo->npcflag;
     unit_flags = cinfo->unit_flags;
@@ -1759,11 +1743,11 @@ void ObjectMgr::LoadCreatures()
         data.spawnMask      = fields[15].GetUInt32();
         int16 gameEvent     = fields[16].GetInt8();
         uint32 PoolId       = fields[17].GetUInt32();
-        data.npcflag        = fields[18].GetUInt32();
+        data.npcflag        = fields[18].GetUInt64();
         data.unit_flags     = fields[19].GetUInt32();
         data.dynamicflags   = fields[20].GetUInt32();
-        data.phaseid = fields[21].GetUInt32();
-        data.phaseGroup = fields[22].GetUInt32();
+        data.phaseid        = fields[21].GetUInt32();
+        data.phaseGroup     = fields[22].GetUInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -1841,6 +1825,25 @@ void ObjectMgr::LoadCreatures()
             data.phaseGroup = 0;
         }
 
+        if (data.phaseid)
+        {
+            PhaseEntry const* phase = sPhaseStore.LookupEntry(data.phaseid);
+            if (!phase)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, data.id, data.phaseid);
+                data.phaseid = 0;
+            }
+        }
+
+        if (data.phaseGroup)
+        {
+            if (sDB2Manager.GetPhasesForGroup(data.phaseGroup).empty())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phasegroup` %u does not exist, set to 0", guid, data.id, data.phaseGroup);
+                data.phaseGroup = 0;
+            }
+        }
+
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
         {
             uint32 zoneId = 0;
@@ -1903,7 +1906,7 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
     if (!map)
         return UI64LIT(0);
 
-    ObjectGuid::LowType guid = GetGenerator<HighGuid::GameObject>()->Generate();
+    ObjectGuid::LowType guid = GenerateGameObjectSpawnId();
     GameObjectData& data = NewGOData(guid);
     data.id             = entry;
     data.mapid          = mapId;
@@ -1943,39 +1946,6 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
     return guid;
 }
 
-bool ObjectMgr::MoveCreData(ObjectGuid::LowType guid, uint32 mapId, const Position& pos)
-{
-    CreatureData& data = NewOrExistCreatureData(guid);
-    if (!data.id)
-        return false;
-
-    RemoveCreatureFromGrid(guid, &data);
-    if (data.posX == pos.GetPositionX() && data.posY == pos.GetPositionY() && data.posZ == pos.GetPositionZ())
-        return true;
-    data.posX = pos.GetPositionX();
-    data.posY = pos.GetPositionY();
-    data.posZ = pos.GetPositionZ();
-    data.orientation = pos.GetOrientation();
-    AddCreatureToGrid(guid, &data);
-
-    // Spawn if necessary (loaded grids only)
-    if (Map* map = sMapMgr->CreateBaseMap(mapId))
-    {
-        // We use spawn coords to spawn
-        if (!map->Instanceable() && map->IsGridLoaded(data.posX, data.posY))
-        {
-            Creature* creature = new Creature();
-            if (!creature->LoadCreatureFromDB(guid, map))
-            {
-                TC_LOG_ERROR("misc", "MoveCreData: Cannot add creature guid " UI64FMTD " to map", guid);
-                delete creature;
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
 ObjectGuid::LowType ObjectMgr::AddCreData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay /*= 0*/)
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
@@ -1984,8 +1954,11 @@ ObjectGuid::LowType ObjectMgr::AddCreData(uint32 entry, uint32 mapId, float x, f
 
     uint32 level = cInfo->minlevel == cInfo->maxlevel ? cInfo->minlevel : urand(cInfo->minlevel, cInfo->maxlevel); // Only used for extracting creature base stats
     CreatureBaseStats const* stats = GetCreatureBaseStats(level, cInfo->unit_class);
+    Map* map = sMapMgr->CreateBaseMap(mapId);
+    if (!map)
+        return UI64LIT(0);
 
-    ObjectGuid::LowType guid = GetGenerator<HighGuid::Creature>()->Generate();
+    ObjectGuid::LowType guid = GenerateCreatureSpawnId();
     CreatureData& data = NewOrExistCreatureData(guid);
     data.id = entry;
     data.mapid = mapId;
@@ -2010,19 +1983,15 @@ ObjectGuid::LowType ObjectMgr::AddCreData(uint32 entry, uint32 mapId, float x, f
 
     AddCreatureToGrid(guid, &data);
 
-    // Spawn if necessary (loaded grids only)
-    if (Map* map = sMapMgr->CreateBaseMap(mapId))
+    // We use spawn coords to spawn
+    if (!map->Instanceable() && !map->IsRemovalGrid(x, y))
     {
-        // We use spawn coords to spawn
-        if (!map->Instanceable() && !map->IsRemovalGrid(x, y))
+        Creature* creature = new Creature();
+        if (!creature->LoadCreatureFromDB(guid, map))
         {
-            Creature* creature = new Creature();
-            if (!creature->LoadCreatureFromDB(guid, map))
-            {
-                TC_LOG_ERROR("misc", "AddCreature: Cannot add creature entry %u to map", entry);
-                delete creature;
-                return UI64LIT(0);
-            }
+            TC_LOG_ERROR("misc", "AddCreature: Cannot add creature entry %u to map", entry);
+            delete creature;
+            return UI64LIT(0);
         }
     }
 
@@ -2134,13 +2103,32 @@ void ObjectMgr::LoadGameobjects()
 
         int16 gameEvent     = fields[15].GetInt8();
         uint32 PoolId       = fields[16].GetUInt32();
-        data.phaseid = fields[17].GetUInt32();
-        data.phaseGroup = fields[18].GetUInt32();
+        data.phaseid        = fields[17].GetUInt32();
+        data.phaseGroup     = fields[18].GetUInt32();
 
         if (data.phaseGroup && data.phaseid)
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.id);
             data.phaseGroup = 0;
+        }
+
+        if (data.phaseid)
+        {
+            PhaseEntry const* phase = sPhaseStore.LookupEntry(data.phaseid);
+            if (!phase)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, data.id, data.phaseid);
+                data.phaseid = 0;
+            }
+        }
+
+        if (data.phaseGroup)
+        {
+            if (sDB2Manager.GetPhasesForGroup(data.phaseGroup).empty())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, data.id, data.phaseGroup);
+                data.phaseGroup = 0;
+            }
         }
 
         if (std::abs(data.orientation) > 2 * float(M_PI))
@@ -2378,7 +2366,7 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
 {
     *disenchantID = 0;
     *(int32*)requiredDisenchantSkill = -1;
-    if ((itemTemplate.GetFlags() & (ITEM_PROTO_FLAG_CONJURED | ITEM_PROTO_FLAG_UNK6)) ||
+    if ((itemTemplate.GetFlags() & (ITEM_FLAG_CONJURED | ITEM_FLAG_UNK6)) ||
         itemTemplate.GetBonding() == BIND_QUEST_ITEM || itemTemplate.GetArea() || itemTemplate.GetMap() ||
         itemTemplate.GetMaxStackSize() > 1 ||
         itemTemplate.GetQuality() < ITEM_QUALITY_UNCOMMON || itemTemplate.GetQuality() > ITEM_QUALITY_EPIC ||
@@ -6263,29 +6251,21 @@ void ObjectMgr::SetHighestGuids()
 {
     QueryResult result = CharacterDatabase.Query("SELECT MAX(guid) FROM characters");
     if (result)
-        _playerGuidGenerator.Set((*result)[0].GetUInt64() + 1);
-
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
-    if (result)
-        _creatureGuidGenerator.Set((*result)[0].GetUInt64() + 1);
+        GetGuidSequenceGenerator<HighGuid::Player>().Set((*result)[0].GetUInt64() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
-        _itemGuidGenerator.Set((*result)[0].GetUInt64() + 1);
+        GetGuidSequenceGenerator<HighGuid::Item>().Set((*result)[0].GetUInt64() + 1);
 
     // Cleanup other tables from nonexistent guids ( >= _hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _itemGuidGenerator.GetNextAfterMaxUsed());    // One-time query
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _itemGuidGenerator.GetNextAfterMaxUsed());        // One-time query
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _itemGuidGenerator.GetNextAfterMaxUsed());       // One-time query
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", _itemGuidGenerator.GetNextAfterMaxUsed());   // One-time query
-
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
-    if (result)
-        _gameObjectGuidGenerator.Set((*result)[0].GetUInt64() + 1);
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());    // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());        // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());       // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());   // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
     if (result)
-        _moTransportGuidGenerator.Set((*result)[0].GetUInt64() + 1);
+        GetGuidSequenceGenerator<HighGuid::Transport>().Set((*result)[0].GetUInt64() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
@@ -6294,10 +6274,6 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(id) FROM mail");
     if (result)
         _mailId = (*result)[0].GetUInt32()+1;
-
-    result = CharacterDatabase.Query("SELECT MAX(corpseGuid) FROM corpse");
-    if (result)
-        _corpseGuidGenerator.Set((*result)[0].GetUInt64() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
     if (result)
@@ -6318,6 +6294,14 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
     if (result)
         _voidItemId = (*result)[0].GetUInt64()+1;
+
+    result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
+    if (result)
+        _creatureSpawnId = (*result)[0].GetUInt64() + 1;
+
+    result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
+    if (result)
+        _gameObjectSpawnId = (*result)[0].GetUInt64() + 1;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -6348,6 +6332,36 @@ uint32 ObjectMgr::GenerateMailID()
         World::StopNow(ERROR_EXIT_CODE);
     }
     return _mailId++;
+}
+
+uint32 ObjectMgr::GeneratePetNumber()
+{
+    return ++_hiPetNumber;
+}
+
+uint64 ObjectMgr::GenerateVoidStorageItemId()
+{
+    return ++_voidItemId;
+}
+
+uint64 ObjectMgr::GenerateCreatureSpawnId()
+{
+    if (_creatureSpawnId >= uint64(0xFFFFFFFFFFFFFFFELL))
+    {
+        TC_LOG_ERROR("misc", "Creature spawn id overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return _creatureSpawnId++;
+}
+
+uint64 ObjectMgr::GenerateGameObjectSpawnId()
+{
+    if (_gameObjectSpawnId >= uint64(0xFFFFFFFFFFFFFFFELL))
+    {
+        TC_LOG_ERROR("misc", "Creature spawn id overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return _gameObjectSpawnId++;
 }
 
 void ObjectMgr::LoadGameObjectLocales()
@@ -6583,7 +6597,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                 {
                     if (got.moTransport.taxiPathID >= sTaxiPathNodesByPath.size() || sTaxiPathNodesByPath[got.moTransport.taxiPathID].empty())
                         TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u GoType: %u) have data0=%u but TaxiPath (Id: %u) not exist.",
-                        entry, got.type, got.moTransport.taxiPathID, got.moTransport.taxiPathID);
+                            entry, got.type, got.moTransport.taxiPathID, got.moTransport.taxiPathID);
                 }
                 if (uint32 transportMap = got.moTransport.mapID)
                     _transportMaps.insert(transportMap);
@@ -6732,77 +6746,6 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
     }
 
     return *(list0.begin()+urand(0, list0.size()-1)) + *(list1.begin()+urand(0, list1.size()-1));
-}
-
-uint32 ObjectMgr::GeneratePetNumber()
-{
-    return ++_hiPetNumber;
-}
-
-uint64 ObjectMgr::GenerateVoidStorageItemId()
-{
-    return ++_voidItemId;
-}
-
-void ObjectMgr::LoadCorpses()
-{
-    uint32 oldMSTime = getMSTime();
-
-    std::unordered_map<uint32, std::list<uint32>> phases;
-
-    //        0       1
-    // SELECT Guid, PhaseId FROM corpse_phases
-    PreparedQueryResult phaseResult = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_PHASES));
-    if (phaseResult)
-    {
-        do
-        {
-            Field* fields = phaseResult->Fetch();
-            uint32 guid = fields[0].GetUInt32();
-            uint32 phaseId = fields[1].GetUInt32();
-
-            phases[guid].push_back(phaseId);
-
-        } while (phaseResult->NextRow());
-    }
-
-    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, corpseGuid, guid FROM corpse WHERE corpseType <> 0
-    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES));
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 corpses. DB table `corpse` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-        uint32 guid = fields[14].GetUInt32();
-        CorpseType type = CorpseType(fields[12].GetUInt8());
-        if (type >= MAX_CORPSE_TYPE)
-        {
-            TC_LOG_ERROR("misc", "Corpse (guid: %u) have wrong corpse type (%u), not loading.", guid, type);
-            continue;
-        }
-
-        Corpse* corpse = new Corpse(type);
-        if (!corpse->LoadCorpseFromDB(guid, fields))
-        {
-            delete corpse;
-            continue;
-        }
-
-        for (auto phaseId : phases[guid])
-            corpse->SetInPhase(phaseId, false, true);
-
-        sObjectAccessor->AddCorpse(corpse);
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u corpses in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadReputationRewardRate()
@@ -7169,6 +7112,9 @@ void ObjectMgr::LoadQuestPOI()
         int32 WorldEffectID         = fields[11].GetInt32();
         int32 PlayerConditionID     = fields[12].GetInt32();
         int32 WoDUnk1               = fields[13].GetInt32();
+
+        if (!sObjectMgr->GetQuestTemplate(QuestID))
+            TC_LOG_ERROR("sql.sql", "`quest_poi` quest id (%u) Idx1 (%u) does not exist in `quest_template`", QuestID, Idx1);
 
         QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1);
         if (QuestID < int32(POIs.size()) && Idx1 < int32(POIs[QuestID].size()))
@@ -8293,7 +8239,7 @@ void ObjectMgr::LoadGossipMenuItems()
         gMenuItem.OptionText            = fields[3].GetString();
         gMenuItem.OptionBroadcastTextId = fields[4].GetUInt32();
         gMenuItem.OptionType            = fields[5].GetUInt8();
-        gMenuItem.OptionNpcflag         = fields[6].GetUInt32();
+        gMenuItem.OptionNpcflag         = fields[6].GetUInt64();
         gMenuItem.ActionMenuId          = fields[7].GetUInt32();
         gMenuItem.ActionPoiId           = fields[8].GetUInt32();
         gMenuItem.BoxCoded              = fields[9].GetBool();
@@ -9028,7 +8974,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     if (Creature* cre = veh->GetBase()->ToCreature())
     {
         // Give preference to GUID-based accessories
-        VehicleAccessoryContainer::const_iterator itr = _vehicleAccessoryStore.find(cre->GetDBTableGUIDLow());
+        VehicleAccessoryContainer::const_iterator itr = _vehicleAccessoryStore.find(cre->GetSpawnId());
         if (itr != _vehicleAccessoryStore.end())
             return &itr->second;
     }
@@ -9175,7 +9121,7 @@ void ObjectMgr::LoadCharacterTemplates()
                 uint8 factionGroup = fields[0].GetUInt8();
                 uint8 classID = fields[1].GetUInt8();
 
-                if (!((factionGroup & (FACTION_MASK_PLAYER | FACTION_MASK_ALLIANCE)) == (FACTION_MASK_PLAYER | FACTION_MASK_ALLIANCE)) && 
+                if (!((factionGroup & (FACTION_MASK_PLAYER | FACTION_MASK_ALLIANCE)) == (FACTION_MASK_PLAYER | FACTION_MASK_ALLIANCE)) &&
                     !((factionGroup & (FACTION_MASK_PLAYER | FACTION_MASK_HORDE)) == (FACTION_MASK_PLAYER | FACTION_MASK_HORDE)))
                 {
                     TC_LOG_ERROR("sql.sql", "Faction group %u defined for character template %u in `character_template_class` is invalid. Skipped.", factionGroup, templateSetId);

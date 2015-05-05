@@ -295,7 +295,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& dest
         return;
     }
 
-    if (item->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
+    if (item->GetTemplate()->GetFlags() & ITEM_FLAG_INDESTRUCTIBLE)
     {
         _player->SendEquipError(EQUIP_ERR_DROP_BOUND_ITEM, NULL, NULL);
         return;
@@ -388,7 +388,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
         // prevent selling item for sellprice when the item is still refundable
         // this probably happens when right clicking a refundable item, the client sends both
         // CMSG_SELL_ITEM and CMSG_REFUND_ITEM (unverified)
-        if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
+        if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
             return; // Therefore, no feedback to client
 
         // special case at auto sell (sell all)
@@ -494,39 +494,6 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
         _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, 0, 0);
 }
 
-void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUY_ITEM_IN_SLOT");
-    ObjectGuid vendorguid, bagguid;
-    uint32 item, slot, count;
-    uint8 bagslot;
-
-    recvData >> vendorguid >> item  >> slot >> bagguid >> bagslot >> count;
-
-    // client expects count starting at 1, and we send vendorslot+1 to client already
-    if (slot > 0)
-        --slot;
-    else
-        return;                                             // cheating
-
-    uint8 bag = NULL_BAG;                                   // init for case invalid bagGUID
-    Item* bagItem = NULL;
-    // find bag slot by bag guid
-    if (bagguid == _player->GetGUID())
-        bag = INVENTORY_SLOT_BAG_0;
-    else
-        bagItem = _player->GetItemByGuid(bagguid);
-
-    if (bagItem && bagItem->IsBag())
-        bag = bagItem->GetSlot();
-
-    // bag not found, cheating?
-    if (bag == NULL_BAG)
-        return;
-
-    GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
-}
-
 void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 {
     // client expects count starting at 1, and we send vendorslot+1 to client already
@@ -566,8 +533,6 @@ void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 
 void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LIST_INVENTORY");
-
     if (!GetPlayer()->IsAlive())
         return;
 
@@ -626,8 +591,8 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                     continue;
 
                 // Only display items in vendor lists for the team the player is on
-                if ((itemTemplate->GetFlags2() & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
-                    (itemTemplate->GetFlags2() & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
+                if ((itemTemplate->GetFlags2() & ITEM_FLAG2_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
+                    (itemTemplate->GetFlags2() & ITEM_FLAG2_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
                     continue;
 
                 // Items sold out are not displayed in list
@@ -762,8 +727,6 @@ void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid I
 
 void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
 {
-    TC_LOG_DEBUG("network", "Received opcode CMSG_WRAP_ITEM");
-
     if (packet.Inv.Items.size() != 2)
     {
         TC_LOG_ERROR("network", "HandleWrapItem - Invalid itemCount (" SZFMTD ")", packet.Inv.Items.size());
@@ -787,7 +750,7 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
         return;
     }
 
-    if (!(gift->GetTemplate()->GetFlags() & ITEM_PROTO_FLAG_WRAPPER)) // cheating: non-wrapper wrapper
+    if (!(gift->GetTemplate()->GetFlags() & ITEM_FLAG_WRAPPER)) // cheating: non-wrapper wrapper
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, NULL);
         return;
@@ -877,7 +840,7 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
     }
 
     item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
-    item->SetUInt32Value(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED);
+    item->SetUInt32Value(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, _player);
 
     if (item->GetState() == ITEM_NEW) // save new item, to have alway for `character_gifts` record in `item_instance`
@@ -894,8 +857,6 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
 
 void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_SOCKET_GEMS");
-
     ObjectGuid item_guid;
     ObjectGuid gem_guids[MAX_GEM_SOCKETS];
 
@@ -986,7 +947,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
         ItemTemplate const* iGemProto = Gems[i]->GetTemplate();
 
         // unique item (for new and already placed bit removed enchantments
-        if (iGemProto->GetFlags() & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
+        if (iGemProto->GetFlags() & ITEM_FLAG_UNIQUE_EQUIPPED)
         {
             for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
             {
@@ -1101,19 +1062,13 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     itemTarget->SendUpdateSockets();
 }
 
-void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
+void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPackets::Item::CancelTempEnchantment& cancelTempEnchantment)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_CANCEL_TEMP_ENCHANTMENT");
-
-    uint32 slot;
-
-    recvData >> slot;
-
     // apply only to equipped item
-    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, slot))
+    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, cancelTempEnchantment.Slot))
         return;
 
-    Item* item = GetPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+    Item* item = GetPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, cancelTempEnchantment.Slot);
 
     if (!item)
         return;
@@ -1141,7 +1096,6 @@ void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchase
 
 void WorldSession::HandleItemRefund(WorldPacket &recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_PURCHASE_REFUND");
     ObjectGuid guid;
     recvData >> guid;                                      // item guid
 
@@ -1159,37 +1113,8 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
     GetPlayer()->RefundItem(item);
 }
 
-/**
- * Handles the packet sent by the client when requesting information about item text.
- *
- * This function is called when player clicks on item which has some flag set
- */
-void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
-{
-    ObjectGuid itemGuid;
-    recvData >> itemGuid;
-
-    TC_LOG_DEBUG("network", "CMSG_ITEM_TEXT_QUERY %s", itemGuid.ToString().c_str());
-
-    WorldPacket data(SMSG_QUERY_ITEM_TEXT_RESPONSE, 14);    // guess size
-
-    if (Item* item = _player->GetItemByGuid(itemGuid))
-    {
-        data << uint8(0);                                       // has text
-        data << itemGuid;                                       // item guid
-        data << item->GetText();
-    }
-    else
-    {
-        data << uint8(1);                                       // no text
-    }
-
-    SendPacket(&data);
-}
-
 void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");
     Player* player = GetPlayer();
 
     // Read data

@@ -104,6 +104,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
 
 void Transport::CleanupsBeforeDelete(bool finalCleanup /*= true*/)
 {
+    HashMapHolder<Transport>::Remove(this);
     UnloadStaticPassengers();
     while (!_passengers.empty())
     {
@@ -129,7 +130,7 @@ void Transport::Update(uint32 diff)
     if (IsMoving() || !_pendingStop)
         m_goValue.Transport.PathProgress += diff;
 
-    uint32 timer = m_goValue.Transport.PathProgress % GetPeriod();
+    uint32 timer = m_goValue.Transport.PathProgress % GetTransportPeriod();
 
     // Set current waypoint
     // Desired outcome: _currentFrame->DepartureTime < timer < _nextFrame->ArriveTime
@@ -151,8 +152,8 @@ void Transport::Update(uint32 diff)
                 if (_pendingStop && GetGoState() != GO_STATE_READY)
                 {
                     SetGoState(GO_STATE_READY);
-                    m_goValue.Transport.PathProgress = (m_goValue.Transport.PathProgress / GetPeriod());
-                    m_goValue.Transport.PathProgress *= GetPeriod();
+                    m_goValue.Transport.PathProgress = (m_goValue.Transport.PathProgress / GetTransportPeriod());
+                    m_goValue.Transport.PathProgress *= GetTransportPeriod();
                     m_goValue.Transport.PathProgress += _currentFrame->ArriveTime;
                 }
                 break;  // its a stop frame and we are waiting
@@ -456,7 +457,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     pos.GetPosition(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
 
-    if (!summon->Create(sObjectMgr->GetGenerator<HighGuid::Creature>()->Generate(), map, 0, entry, x, y, z, o, nullptr, vehId))
+    if (!summon->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, 0, entry, x, y, z, o, nullptr, vehId))
     {
         delete summon;
         return NULL;

@@ -641,7 +641,6 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
     uint8 unk;
-    //TC_LOG_DEBUG("network", "WORLD: Received CMSG_CHAT_IGNORED");
 
     recvData >> unk;                                       // probably related to spam reporting
     guid[5] = recvData.ReadBit();

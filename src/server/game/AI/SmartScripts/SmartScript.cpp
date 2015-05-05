@@ -1355,7 +1355,31 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SET_COUNTER:
         {
-            StoreCounter(e.action.setCounter.counterId, e.action.setCounter.value, e.action.setCounter.reset);
+            if (ObjectList* targets = GetTargets(e, unit))
+            {
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                {
+                    if (IsCreature(*itr))
+                    {
+                        if (SmartAI* ai = CAST_AI(SmartAI, (*itr)->ToCreature()->AI()))
+                            ai->GetScript()->StoreCounter(e.action.setCounter.counterId, e.action.setCounter.value, e.action.setCounter.reset);
+                        else
+                            TC_LOG_ERROR("sql.sql", "SmartScript: Action target for SMART_ACTION_SET_COUNTER is not using SmartAI, skipping");
+                    }
+                    else if (IsGameObject(*itr))
+                    {
+                        if (SmartGameObjectAI* ai = CAST_AI(SmartGameObjectAI, (*itr)->ToGameObject()->AI()))
+                            ai->GetScript()->StoreCounter(e.action.setCounter.counterId, e.action.setCounter.value, e.action.setCounter.reset);
+                        else
+                            TC_LOG_ERROR("sql.sql", "SmartScript: Action target for SMART_ACTION_SET_COUNTER is not using SmartGameObjectAI, skipping");
+                    }
+                }
+
+                delete targets;
+            }
+            else
+                StoreCounter(e.action.setCounter.counterId, e.action.setCounter.value, e.action.setCounter.reset);
+
             break;
         }
         case SMART_ACTION_WP_START:
@@ -1681,7 +1705,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsCreature(*itr))
-                    (*itr)->ToUnit()->SetUInt32Value(UNIT_NPC_FLAGS, e.action.unitFlag.flag);
+                    (*itr)->ToUnit()->SetUInt64Value(UNIT_NPC_FLAGS, e.action.unitFlag.flag);
 
             delete targets;
             break;
@@ -1694,7 +1718,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsCreature(*itr))
-                    (*itr)->ToUnit()->SetFlag(UNIT_NPC_FLAGS, e.action.unitFlag.flag);
+                    (*itr)->ToUnit()->SetFlag64(UNIT_NPC_FLAGS, e.action.unitFlag.flag);
 
             delete targets;
             break;
@@ -1707,7 +1731,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsCreature(*itr))
-                    (*itr)->ToUnit()->RemoveFlag(UNIT_NPC_FLAGS, e.action.unitFlag.flag);
+                    (*itr)->ToUnit()->RemoveFlag64(UNIT_NPC_FLAGS, e.action.unitFlag.flag);
 
             delete targets;
             break;
@@ -3470,14 +3494,14 @@ void SmartScript::GetScript()
     SmartAIEventList e;
     if (me)
     {
-        e = sSmartScriptMgr->GetScript(-((int32)me->GetDBTableGUIDLow()), mScriptType);
+        e = sSmartScriptMgr->GetScript(-((int32)me->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)me->GetEntry(), mScriptType);
         FillScript(e, me, NULL);
     }
     else if (go)
     {
-        e = sSmartScriptMgr->GetScript(-((int32)go->GetDBTableGUIDLow()), mScriptType);
+        e = sSmartScriptMgr->GetScript(-((int32)go->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)go->GetEntry(), mScriptType);
         FillScript(e, go, NULL);
@@ -3667,5 +3691,12 @@ void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
 
 Unit* SmartScript::GetLastInvoker()
 {
-    return ObjectAccessor::FindUnit(mLastInvoker);
+    WorldObject* lookupRoot = me;
+    if (!lookupRoot)
+        lookupRoot = go;
+
+    if (lookupRoot)
+        return ObjectAccessor::GetUnit(*lookupRoot, mLastInvoker);
+
+    return ObjectAccessor::FindPlayer(mLastInvoker);
 }
