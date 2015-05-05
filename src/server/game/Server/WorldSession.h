@@ -100,6 +100,8 @@ namespace WorldPackets
     namespace Misc
     {
         class WorldTeleport;
+        class Unhandled;
+        class EarlyProcessing;
     }
 
     namespace Movement
@@ -445,9 +447,8 @@ class WorldSession
 
     public:                                                 // opcodes handlers
 
-        void Handle_NULL(WorldPacket& recvPacket);          // not used
-        void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
-        void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
+        void Handle_NULL(WorldPackets::Misc::Unhandled& recvPacket);                // not used
+        void Handle_EarlyProccess(WorldPackets::Misc::EarlyProcessing& recvPacket); // just mark packets processed in WorldSocket::OnRead
 
         void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& enumCharacters);
         void HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& deleteChar);

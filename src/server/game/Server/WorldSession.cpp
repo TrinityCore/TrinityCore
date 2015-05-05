@@ -46,6 +46,7 @@
 
 #include "Packets/AuthenticationPackets.h"
 #include "Packets/ClientConfigPackets.h"
+#include "Packets/MiscPackets.h"
 
 namespace {
 
@@ -625,22 +626,16 @@ char const* WorldSession::GetTrinityString(uint32 entry) const
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
 }
 
-void WorldSession::Handle_NULL(WorldPacket& recvPacket)
+void WorldSession::Handle_NULL(WorldPackets::Misc::Unhandled& recvPacket)
 {
     TC_LOG_ERROR("network.opcode", "Received unhandled opcode %s from %s"
-        , GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
+        , GetOpcodeNameForLogging(recvPacket.GetOpcode()).c_str(), GetPlayerInfo().c_str());
 }
 
-void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
+void WorldSession::Handle_EarlyProccess(WorldPackets::Misc::EarlyProcessing& recvPacket)
 {
     TC_LOG_ERROR("network.opcode", "Received opcode %s that must be processed in WorldSocket::OnRead from %s"
-        , GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
-}
-
-void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
-{
-    TC_LOG_ERROR("network.opcode", "Received deprecated opcode %s from %s"
-        , GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
+        , GetOpcodeNameForLogging(recvPacket.GetOpcode()).c_str(), GetPlayerInfo().c_str());
 }
 
 void WorldSession::SendAuthWaitQue(uint32 position)

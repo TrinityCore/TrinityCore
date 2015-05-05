@@ -4867,6 +4867,7 @@ void Player::SetMovement(PlayerMovementType pType)
     }
     
     GetSession()->SendPacket(packet->Write());
+    delete packet;
 }
 
 /* Preconditions:

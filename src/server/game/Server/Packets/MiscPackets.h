@@ -24,7 +24,7 @@ namespace WorldPackets
 {
     namespace Misc
     {
-        class WorldTeleport : public ClientPacket
+        class WorldTeleport final : public ClientPacket
         {
             public:
                 WorldTeleport(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_TELEPORT, std::move(packet)) { }
@@ -37,6 +37,22 @@ namespace WorldPackets
                 float PositionY;
                 float PositionZ;
                 float Orientation;
+        };
+
+        class Unhandled final : public ClientPacket
+        {
+            public:
+                Unhandled(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+                void Read() override { }
+        };
+
+        class EarlyProcessing final : public ClientPacket
+        {
+            public:
+                EarlyProcessing(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+                void Read() override { }
         };
     }
 }
