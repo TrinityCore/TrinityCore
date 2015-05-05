@@ -2068,7 +2068,11 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRating(CombatRating cr);
         void UpdateAllRatings();
 		void UpdateMultistrike();
+		void UpdateReadiness();
         void UpdateMastery();
+		void UpdateAvoidance();
+		void UpdateLifesteal();
+		void UpdateVersatility();
         bool CanUseMastery() const;
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;

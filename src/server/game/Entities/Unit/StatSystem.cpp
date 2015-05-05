@@ -514,9 +514,42 @@ void Player::UpdateAllCritPercentages()
 
 void Player::UpdateMultistrike()
 {
-	SetFloatValue(PLAYER_MULTISTRIKE, 30.0f);
+	float value =  GetRatingBonusValue(CR_MULTISTRIKE);
+	SetFloatValue(PLAYER_MULTISTRIKE, value);
+	//SetFloatValue(PLAYER_MULTISTRIKE, 30.0f);
 	return;
 }
+
+void Player::UpdateReadiness()
+{
+	float value = GetRatingBonusValue(CR_READINESS);
+	SetFloatValue(PLAYER_READINESS, value);
+	return;
+}
+
+void Player::UpdateLifesteal()
+{
+	float value = GetRatingBonusValue(CR_LIFESTEAL);
+	SetFloatValue(PLAYER_LIFESTEAL, value);
+	return;
+}
+
+void Player::UpdateVersatility()
+{
+	float value = GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
+	SetFloatValue(PLAYER_VERSATILITY, value);
+	return;
+}
+
+
+
+void Player::UpdateAvoidance()
+{
+	float value = GetRatingBonusValue(CR_AVOIDANCE);
+	SetFloatValue(PLAYER_AVOIDANCE, value);
+	return;
+}
+
 
 void Player::UpdateMastery()
 {
