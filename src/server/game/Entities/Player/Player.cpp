@@ -9670,7 +9670,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
 
             // suggest offhand slot only if know dual wielding
             // (this will be replace mainhand weapon at auto equip instead unwonted "you don't known dual wielding" ...
-            if (CanDualWield())
+			if (CanDualWield() && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_STAFF && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_BOW && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_GUN && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_CROSSBOW)
                 slots[1] = EQUIPMENT_SLOT_OFFHAND;
             break;
         }
@@ -9680,25 +9680,27 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
         case INVTYPE_RANGED:
 			slots[0] = EQUIPMENT_SLOT_MAINHAND;
 			if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-				 {
+			{
 				if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
-					 {
-					if (mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_STAFF)
-						 {
+				{
+					if (mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW)
+					{
 						const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
 						break;
-						}
 					}
 				}
-			
+			}
+
 			if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
 			{
-				if (proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_STAFF)
+				if (proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW)
 				{
 					const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
 					break;
 				}
 			}
+			if (CanDualWield() && CanTitanGrip() && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_POLEARM && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_STAFF && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_BOW && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_GUN && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_CROSSBOW)
+				slots[1] = EQUIPMENT_SLOT_OFFHAND;
 			break;
         case INVTYPE_2HWEAPON:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
@@ -9722,15 +9724,37 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     break;
                 }
             }
-            if (CanDualWield() && CanTitanGrip() && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_POLEARM && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_STAFF)
+			if (CanDualWield() && CanTitanGrip() && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_POLEARM && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_STAFF && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_STAFF && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_BOW && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_GUN && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_CROSSBOW)
                 slots[1] = EQUIPMENT_SLOT_OFFHAND;
             break;
         case INVTYPE_TABARD:
             slots[0] = EQUIPMENT_SLOT_TABARD;
             break;
         case INVTYPE_WEAPONMAINHAND:
-            slots[0] = EQUIPMENT_SLOT_MAINHAND;
-            break;
+			slots[0] = EQUIPMENT_SLOT_MAINHAND;
+			if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+			{
+				if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
+				{
+					if (mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW)
+					{
+						const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
+						break;
+					}
+				}
+			}
+
+			if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+			{
+				if (proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW)
+				{
+					const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
+					break;
+				}
+			}
+			if (CanDualWield() && CanTitanGrip() && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_POLEARM && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_STAFF && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_BOW && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_GUN && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_CROSSBOW)
+				slots[1] = EQUIPMENT_SLOT_OFFHAND;
+			break;
         case INVTYPE_WEAPONOFFHAND:
             slots[0] = EQUIPMENT_SLOT_OFFHAND;
             break;
@@ -9740,49 +9764,53 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
         case INVTYPE_THROWN:
 			slots[0] = EQUIPMENT_SLOT_MAINHAND;
 			if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-				{
+			{
 				if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
+				{
+					if (mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW)
 					{
-					if (mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_STAFF)
-						 {
 						const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
 						break;
-						}
 					}
 				}
-			
-				if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-				 {
-				if (proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_STAFF)
-					 {
+			}
+
+			if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+			{
+				if (proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW)
+				{
 					const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
 					break;
-					}
 				}
-            break;
+			}
+			if (CanDualWield() && CanTitanGrip() && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_POLEARM && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_STAFF && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_BOW && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_GUN && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_CROSSBOW)
+				slots[1] = EQUIPMENT_SLOT_OFFHAND;
+			break;
         case INVTYPE_RANGEDRIGHT:
 			slots[0] = EQUIPMENT_SLOT_MAINHAND;
 			if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-				 {
+			{
 				if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
-					 {
-					if (mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_STAFF)
-						 {
+				{
+					if (mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW)
+					{
 						const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
 						break;
-						}
 					}
 				}
-			
-				if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-				 {
-				if (proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_STAFF)
-					 {
+			}
+
+			if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+			{
+				if (proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW)
+				{
 					const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
 					break;
-					}
 				}
-            break;
+			}
+			if (CanDualWield() && CanTitanGrip() && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_POLEARM && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_STAFF && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_BOW && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_GUN && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_CROSSBOW)
+				slots[1] = EQUIPMENT_SLOT_OFFHAND;
+			break;
         case INVTYPE_BAG:
             slots[0] = INVENTORY_SLOT_BAG_START + 0;
             slots[1] = INVENTORY_SLOT_BAG_START + 1;
@@ -11165,19 +11193,19 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             if (eslot == EQUIPMENT_SLOT_OFFHAND)
             {
                 // Do not allow polearm to be equipped in the offhand (rare case for the only 1h polearm 41750)
-                if (type == INVTYPE_WEAPON && pProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM)
+				if (type == INVTYPE_WEAPON && pProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM)
                     return EQUIP_ERR_2HSKILLNOTFOUND;
                 else if (type == INVTYPE_WEAPON || type == INVTYPE_WEAPONOFFHAND)
                 {
                     if (!CanDualWield())
                         return EQUIP_ERR_2HSKILLNOTFOUND;
                 }
-                else if (type == INVTYPE_2HWEAPON)
+				else if (type == INVTYPE_2HWEAPON)
                 {
                     if (!CanDualWield() || !CanTitanGrip())
                         return EQUIP_ERR_2HSKILLNOTFOUND;
                 }
-
+				
                 if (IsTwoHandUsed())
                     return EQUIP_ERR_2HANDED_EQUIPPED;
             }
@@ -13084,7 +13112,7 @@ bool Player::IsUseEquipedWeapon(bool mainhand) const
 bool Player::IsTwoHandUsed() const
 {
     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    return mainItem && mainItem->GetTemplate()->GetInventoryType() == INVTYPE_2HWEAPON && !CanTitanGrip();
+	return mainItem && (mainItem->GetTemplate()->GetInventoryType() == INVTYPE_2HWEAPON || mainItem->GetTemplate()->GetInventoryType() == INVTYPE_RANGED || mainItem->GetTemplate()->GetInventoryType() == INVTYPE_RANGEDRIGHT || mainItem->GetTemplate()->GetInventoryType() == INVTYPE_THROWN) && !CanTitanGrip();
 }
 
 void Player::TradeCancel(bool sendback)

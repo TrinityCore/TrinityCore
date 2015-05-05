@@ -551,6 +551,7 @@ void Player::UpdateAvoidance()
 }
 
 
+
 void Player::UpdateMastery()
 {
 	/*if (!CanUseMastery())
@@ -929,11 +930,15 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     // automatically update weapon damage after attack power modification
     if (ranged)
         UpdateDamagePhysical(RANGED_ATTACK);
-    else
+	else if (CanDualWield() && haveOffhandWeapon())
     {
         UpdateDamagePhysical(BASE_ATTACK);
         UpdateDamagePhysical(OFF_ATTACK);
     }
+	else
+	{
+		UpdateDamagePhysical(BASE_ATTACK);
+	}
 }
 
 void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage)
