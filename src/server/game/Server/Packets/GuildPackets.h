@@ -19,12 +19,38 @@
 #define GuildPackets_h__
 
 #include "Packet.h"
+#include "Guild.h"
 
 namespace WorldPackets
 {
     namespace Guild
     {
+        class QueryGuildInfo final : public ClientPacket
+        {
+            public:
+                QueryGuildInfo(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_QUERY, std::move(packet)) { }
 
+                void Read() override;
+
+                uint32 GuildID;
+        };
+
+        class QueryGuildInfoResponse final : public ServerPacket
+        {
+            public:
+                QueryGuildInfoResponse();
+
+                WorldPacket const* Write() override;
+
+                uint32 GuildID;
+                std::string GuildName;
+                std::string RankName[GUILD_RANKS_MAX_COUNT];
+                uint32 EmblemStyle = 0;
+                uint32 EmblemColor = 0;
+                uint32 BorderStyle = 0;
+                uint32 BorderColor = 0;
+                uint32 BackgroundColor = 0;
+        };
     }
 }
 

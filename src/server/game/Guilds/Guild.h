@@ -231,7 +231,6 @@ public:
     void LoadFromDB(Field* fields);
     void SaveToDB(uint32 guildId) const;
     void ReadPacket(WorldPacket& recv);
-    void WritePacket(WorldPacket& data) const;
 
     uint32 GetStyle() const { return m_style; }
     uint32 GetColor() const { return m_color; }

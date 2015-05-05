@@ -22,6 +22,7 @@
 #include "PacketUtilities.h"
 #include "Creature.h"
 #include "GameObject.h"
+#include "ItemPrototype.h"
 #include "NPCHandler.h"
 #include "ObjectMgr.h"
 #include "QuestDef.h"
@@ -146,6 +147,27 @@ namespace WorldPackets
 
                 uint32 CreatureID;
                 Optional<CreatureStats> Stats;
+        };
+
+        class QueryItem final : public ClientPacket
+        {
+            public:
+                QueryItem(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_QUERY_SINGLE, std::move(packet)) { }
+
+                void Read() override;
+
+                uint32 ItemID;
+        };
+
+        class QueryItemResponse final : public ServerPacket
+        {
+            public:
+                QueryItemResponse() : ServerPacket(SMSG_ITEM_QUERY_SINGLE_RESPONSE) { }
+
+                WorldPacket const* Write() override;
+
+                uint32 ItemID;
+                Optional<ItemTemplate> Info;
         };
 
         class QueryGameObject final : public ClientPacket

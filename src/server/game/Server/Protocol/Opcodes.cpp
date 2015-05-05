@@ -24,6 +24,7 @@
 #include "WorldSession.h"
 #include "Packets/AuctionHousePackets.h"
 #include "Packets/CharacterPackets.h"
+#include "Packets/GuildPackets.h"
 #include "Packets/MiscPackets.h"
 #include "Packets/MovementPackets.h"
 #include "Packets/SpellPackets.h"
@@ -164,8 +165,8 @@ void OpcodeTable::Initialize()
     /*0x04E*/ DEFINE_HANDLER(CMSG_LOGOUT_CANCEL,                                    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT, PROCESS_THREADUNSAFE, WorldPackets::Character::PlayerLogoutCancel,      &WorldSession::HandleLogoutCancelOpcode                );
     /*0x050*/ DEFINE_HANDLER(CMSG_NAME_QUERY,                                       STATUS_LOGGEDIN,                     PROCESS_THREADUNSAFE, WorldPackets::Query::QueryPlayerName,             &WorldSession::HandleNameQueryOpcode                   );
     /*0x052*/ DEFINE_HANDLER(CMSG_PET_NAME_QUERY,                                   STATUS_LOGGEDIN,                     PROCESS_THREADUNSAFE, WorldPackets::Query::QueryPetName,                &WorldSession::HandlePetNameQuery                      );
-    /*0x054*/ DEFINE_HANDLER(CMSG_GUILD_QUERY,                                      STATUS_AUTHED,                       PROCESS_THREADUNSAFE, WorldPacket,                                      &WorldSession::HandleGuildQueryOpcode                  );
-    /*0x056*/ DEFINE_HANDLER(CMSG_ITEM_QUERY_SINGLE,                                STATUS_LOGGEDIN,                     PROCESS_INPLACE,      WorldPacket,                                      &WorldSession::HandleItemQuerySingleOpcode             );
+    /*0x054*/ DEFINE_HANDLER(CMSG_GUILD_QUERY,                                      STATUS_AUTHED,                       PROCESS_THREADUNSAFE, WorldPackets::Guild::QueryGuildInfo,              &WorldSession::HandleGuildQueryOpcode                  );
+    /*0x056*/ DEFINE_HANDLER(CMSG_ITEM_QUERY_SINGLE,                                STATUS_LOGGEDIN,                     PROCESS_INPLACE,      WorldPackets::Query::QueryItem,                   &WorldSession::HandleItemQuerySingleOpcode             );
     /*0x057*/ DEFINE_HANDLER(CMSG_ITEM_QUERY_MULTIPLE,                              STATUS_NEVER,                        PROCESS_INPLACE,      WorldPackets::Misc::Unhandled,                    &WorldSession::Handle_NULL                             );
     /*0x05A*/ DEFINE_HANDLER(CMSG_PAGE_TEXT_QUERY,                                  STATUS_LOGGEDIN,                     PROCESS_THREADUNSAFE, WorldPackets::Query::QueryPageText,               &WorldSession::HandlePageTextQueryOpcode               );
     /*0x05C*/ DEFINE_HANDLER(CMSG_QUEST_QUERY,                                      STATUS_LOGGEDIN,                     PROCESS_THREADUNSAFE, WorldPacket,                                      &WorldSession::HandleQuestQueryOpcode                  );

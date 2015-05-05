@@ -97,6 +97,11 @@ namespace WorldPackets
         class CharDelete;
     }
 
+    namespace Guild
+    {
+        class QueryGuildInfo;
+    }
+
     namespace Misc
     {
         class WorldTeleport;
@@ -124,6 +129,7 @@ namespace WorldPackets
         class QueryPetName;
         class QueryTime;
         class QueryCreature;
+        class QueryItem;
         class QueryGameObject;
         class QueryCorpseLocation;
         class QueryCorpseMapPosition;
@@ -610,7 +616,7 @@ class WorldSession
         void HandleOfferPetitionOpcode(WorldPacket& recvData);
         void HandleTurnInPetitionOpcode(WorldPacket& recvData);
 
-        void HandleGuildQueryOpcode(WorldPacket& recvPacket);
+        void HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& query);
         void HandleGuildCreateOpcode(WorldPacket& recvPacket);
         void HandleGuildInviteOpcode(WorldPacket& recvPacket);
         void HandleGuildRemoveOpcode(WorldPacket& recvPacket);
@@ -701,7 +707,7 @@ class WorldSession
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
         void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
-        void HandleItemQuerySingleOpcode(WorldPacket& recvPacket);
+        void HandleItemQuerySingleOpcode(WorldPackets::Query::QueryItem& query);
         void HandleSellItemOpcode(WorldPacket& recvPacket);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPacket& recvPacket);

@@ -24,17 +24,15 @@
 #include "GuildMgr.h"
 #include "Log.h"
 #include "Guild.h"
+#include "GuildPackets.h"
 
-void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& query)
 {
-    uint32 guildId;
-    recvPacket >> guildId;
-
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_QUERY [%s]: Guild: %u", GetPlayerInfo().c_str(), guildId);
-    if (!guildId)
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_QUERY [%s]: Guild: %u", GetPlayerInfo().c_str(), query.GuildID);
+    if (!query.GuildID)
         return;
 
-    if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+    if (Guild* guild = sGuildMgr->GetGuildById(query.GuildID))
         guild->HandleQuery(this);
 }
 

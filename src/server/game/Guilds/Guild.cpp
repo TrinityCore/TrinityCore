@@ -28,6 +28,7 @@
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
 #include "Opcodes.h"
+#include "GuildPackets.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -775,15 +776,6 @@ void EmblemInfo::LoadFromDB(Field* fields)
     m_backgroundColor   = fields[7].GetUInt8();
 }
 
-void EmblemInfo::WritePacket(WorldPacket& data) const
-{
-    data << uint32(m_style);
-    data << uint32(m_color);
-    data << uint32(m_borderStyle);
-    data << uint32(m_borderColor);
-    data << uint32(m_backgroundColor);
-}
-
 void EmblemInfo::SaveToDB(uint32 guildId) const
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_EMBLEM_INFO);
@@ -1325,23 +1317,23 @@ void Guild::HandleRoster(WorldSession* session)
 
 void Guild::HandleQuery(WorldSession* session)
 {
-    WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 * 32 + 200);      // Guess size
-    data << uint32(m_id);
-    data << m_name;
+    WorldPackets::Guild::QueryGuildInfoResponse response;
+    response.GuildID = m_id;
 
     // Rank name
     for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)               // Always show 10 ranks
-    {
         if (i < _GetRanksSize())
-            data << m_ranks[i].GetName();
-        else
-            data << uint8(0);                                       // Empty string
-    }
+            response.RankName[i] = m_ranks[i].GetName();
 
-    m_emblemInfo.WritePacket(data);
-    data << uint32(_GetRanksSize());                                // Number of ranks used
+    response.BorderStyle = m_emblemInfo.GetBorderStyle();
+    response.BorderColor = m_emblemInfo.GetBorderColor();
+    response.EmblemStyle = m_emblemInfo.GetStyle();
+    response.EmblemColor = m_emblemInfo.GetColor();
+    response.BackgroundColor = m_emblemInfo.GetBackgroundColor();
 
-    session->SendPacket(&data);
+    response.GuildName = m_name;
+
+    session->SendPacket(response.Write());
     TC_LOG_DEBUG("guild", "SMSG_GUILD_QUERY_RESPONSE [%s]", session->GetPlayerInfo().c_str());
 }
 

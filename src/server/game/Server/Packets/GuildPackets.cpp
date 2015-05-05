@@ -16,3 +16,37 @@
  */
 
 #include "GuildPackets.h"
+
+void WorldPackets::Guild::QueryGuildInfo::Read()
+{
+    _worldPacket >> GuildID;
+}
+
+WorldPackets::Guild::QueryGuildInfoResponse::QueryGuildInfoResponse()
+    : ServerPacket(SMSG_GUILD_QUERY_RESPONSE) { }
+
+WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
+{
+    uint8 usedRanks = 0;
+
+    _worldPacket << uint32(GuildID);
+
+    _worldPacket << GuildName;
+
+    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
+    {
+        _worldPacket << RankName[i];
+        if (!RankName[i].empty())
+            ++usedRanks;
+    }
+
+    _worldPacket << uint32(EmblemStyle);
+    _worldPacket << uint32(EmblemColor);
+    _worldPacket << uint32(BorderStyle);
+    _worldPacket << uint32(BorderColor);
+    _worldPacket << uint32(BackgroundColor);
+
+    _worldPacket << uint32(usedRanks);
+
+    return &_worldPacket;
+}
