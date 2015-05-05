@@ -514,11 +514,11 @@ void Player::UpdateAllCritPercentages()
 
 void Player::UpdateMastery()
 {
-    if (!CanUseMastery())
+	/*if (!CanUseMastery())
     {
         SetFloatValue(PLAYER_MASTERY, 0.0f);
         return;
-    }
+    }*/
 
     float value = GetTotalAuraModifier(SPELL_AURA_MASTERY);
     value += GetRatingBonusValue(CR_MASTERY);
