@@ -5576,10 +5576,23 @@ void Player::UpdateRating(CombatRating cr)
                 UpdateArmorPenetration(amount);
             break;
         case CR_MASTERY:
-            UpdateMastery();
-            break;
+			UpdateMastery();
+			break;
 		case CR_MULTISTRIKE:
 			UpdateMultistrike();
+			break;
+		case CR_VERSATILITY_DAMAGE_DONE:
+		case CR_VERSATILITY_DAMAGE_TAKEN:
+			UpdateVersatility();
+			break;
+		case CR_LIFESTEAL:
+			UpdateLifesteal();
+			break;
+		case CR_AVOIDANCE:
+			UpdateAvoidance();
+			break;
+		case CR_READINESS:
+			UpdateReadiness();
 			break;
     }
 }
@@ -7804,6 +7817,22 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             case ITEM_MOD_MASTERY_RATING:
                 ApplyRatingMod(CR_MASTERY, int32(val), apply);
                 break;
+			case ITEM_MOD_CR_MULTISTRIKE:
+				ApplyRatingMod(CR_MULTISTRIKE, int32(val), apply);
+				break;
+			case ITEM_MOD_VERSATILITY:
+				ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(val), apply);
+				ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(val), apply);
+				break;
+			case ITEM_MOD_CR_AVOIDANCE:
+				ApplyRatingMod(CR_AVOIDANCE, int32(val), apply);
+				break;
+			case ITEM_MOD_CR_READINESS:
+				ApplyRatingMod(CR_READINESS, int32(val), apply);
+				break;
+			case ITEM_MOD_CR_LIFESTEAL:
+				ApplyRatingMod(CR_LIFESTEAL, int32(val), apply);
+				break;
             case ITEM_MOD_FIRE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), apply);
                 break;
@@ -13566,10 +13595,31 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(enchant_amount), apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u BLOCK_VALUE", enchant_amount);
                             break;
-                        case ITEM_MOD_MASTERY_RATING:
-                            ApplyRatingMod(CR_MASTERY, enchant_amount, apply);
-                            TC_LOG_DEBUG("entities.player.items", "+ %u MASTERY", enchant_amount);
+                        case ITEM_MOD_CR_LIFESTEAL:
+                            ApplyRatingMod(CR_LIFESTEAL, enchant_amount, apply);
+                            TC_LOG_DEBUG("entities.player.items", "+ %u LIFESTEAL", enchant_amount);
                             break;
+						case ITEM_MOD_CR_READINESS:
+							ApplyRatingMod(CR_READINESS, enchant_amount, apply);
+							TC_LOG_DEBUG("entities.player.items", "+ %u READINESS", enchant_amount);
+							break;
+						case ITEM_MOD_VERSATILITY:
+							ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, enchant_amount, apply);
+							ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, enchant_amount, apply);
+							TC_LOG_DEBUG("entities.player.items", "+ %u VERSATILITY", enchant_amount);
+							break;
+						case ITEM_MOD_CR_AVOIDANCE:
+							ApplyRatingMod(CR_AVOIDANCE, enchant_amount, apply);
+							TC_LOG_DEBUG("entities.player.items", "+ %u AVOIDANCE", enchant_amount);
+							break;
+						case ITEM_MOD_CR_MULTISTRIKE:
+							ApplyRatingMod(CR_MULTISTRIKE, enchant_amount, apply);
+							TC_LOG_DEBUG("entities.player.items", "+ %u MULTISTRIKE", enchant_amount);
+							break;
+						case ITEM_MOD_MASTERY_RATING:
+							ApplyRatingMod(CR_MASTERY, enchant_amount, apply);
+							TC_LOG_DEBUG("entities.player.items", "+ %u MASTERY", enchant_amount);
+							break;
                         default:
                             break;
                     }

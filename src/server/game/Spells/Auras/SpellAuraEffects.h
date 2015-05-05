@@ -299,7 +299,11 @@ class AuraEffect
         void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 		void HandleMastery(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 		void HandleMultistrike(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+		void HandleReadiness(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+		void HandleAvoidance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+		void HandleLifesteal(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+		void HandleVersatility(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+		void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 

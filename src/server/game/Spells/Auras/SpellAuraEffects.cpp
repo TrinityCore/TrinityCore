@@ -5458,6 +5458,54 @@ void AuraEffect::HandleMultistrike(AuraApplication const* aurApp, uint8 mode, bo
 	target->UpdateMultistrike();
 }
 
+void AuraEffect::HandleReadiness(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Player* target = aurApp->GetTarget()->ToPlayer();
+	if (!target)
+		return;
+
+	target->UpdateReadiness();
+}
+
+void AuraEffect::HandleVersatility(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Player* target = aurApp->GetTarget()->ToPlayer();
+	if (!target)
+		return;
+
+	target->UpdateVersatility();
+}
+
+void AuraEffect::HandleAvoidance(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Player* target = aurApp->GetTarget()->ToPlayer();
+	if (!target)
+		return;
+
+	target->UpdateAvoidance();
+}
+
+void AuraEffect::HandleLifesteal(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Player* target = aurApp->GetTarget()->ToPlayer();
+	if (!target)
+		return;
+
+	target->UpdateLifesteal();
+}
+
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
 {
