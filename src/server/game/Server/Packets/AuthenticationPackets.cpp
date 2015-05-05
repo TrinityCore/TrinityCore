@@ -46,18 +46,18 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 {
     _worldPacket << uint8(Result);
     
-    if (SuccessInfo.HasValue)
+    if (SuccessInfo)
     {
-        _worldPacket << uint32(SuccessInfo.Value.TimeRemain);
-        _worldPacket << uint8(SuccessInfo.Value.TimeOptions);
-        _worldPacket << uint32(SuccessInfo.Value.TimeRested);
-        _worldPacket << uint8(SuccessInfo.Value.AccountExpansionLevel);
+        _worldPacket << uint32(SuccessInfo->TimeRemain);
+        _worldPacket << uint8(SuccessInfo->TimeOptions);
+        _worldPacket << uint32(SuccessInfo->TimeRested);
+        _worldPacket << uint8(SuccessInfo->AccountExpansionLevel);
     }
 
-    if (WaitInfo.HasValue)
+    if (WaitInfo)
     {
-        _worldPacket << uint32(WaitInfo.Value.WaitCount);
-        _worldPacket << uint8(WaitInfo.Value.HasFCM ? 1 : 0);
+        _worldPacket << uint32(WaitInfo->WaitCount);
+        _worldPacket << uint8(WaitInfo->HasFCM ? 1 : 0);
     }
 
     return &_worldPacket;

@@ -415,8 +415,13 @@ void WorldSession::SendPetNameQuery(ObjectGuid petguid, uint32 petnumber)
         response.Timestamp = creature->GetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP);
         response.Name = creature->GetName();
         if (Pet* pet = creature->ToPet())
+        {
             if (DeclinedName const* names = pet->GetDeclinedNames())
-                response.DeclinedNames.Set(*names);
+            {
+                response.DeclinedNames = boost::in_place();
+                response.DeclinedNames.get() = *names;
+            }
+        }
     }
 
     _player->GetSession()->SendPacket(response.Write());

@@ -99,11 +99,11 @@ WorldPacket const* WorldPackets::Query::QueryPetNameResponse::Write()
     _worldPacket << Name;
     _worldPacket << uint32(Timestamp);
 
-    if (DeclinedNames.HasValue)
+    if (DeclinedNames)
     {
         _worldPacket << uint8(1);
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            _worldPacket << DeclinedNames.Value.name[i];
+            _worldPacket << DeclinedNames->name[i];
     }
     else
         _worldPacket << uint8(0);
@@ -131,21 +131,21 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
 
     if (Stats)
     {
-        _worldPacket << Stats.Value.Name;
-        _worldPacket << uint8(0) << uint8(0) << uint8(0);                        // name2, name3, name4, always empty
-        _worldPacket << Stats.Value.NameAlt;
-        _worldPacket << Stats.Value.CursorName;                                  // "Directions" for guard, string for Icons 2.3.0
-        _worldPacket << uint32(Stats.Value.Flags);                               // flags
-        _worldPacket << uint32(Stats.Value.CreatureType);                        // CreatureType.dbc
-        _worldPacket << uint32(Stats.Value.CreatureFamily);                      // CreatureFamily.dbc
-        _worldPacket << uint32(Stats.Value.Classification);                      // Creature Rank (elite, boss, etc)
-        _worldPacket.append(Stats.Value.ProxyCreatureID, MAX_KILL_CREDIT);       // new in 3.1, kill credit
-        _worldPacket.append(Stats.Value.CreatureDisplayID, MAX_CREATURE_MODELS); // Modelid
-        _worldPacket << float(Stats.Value.HpMulti);                              // dmg/hp modifier
-        _worldPacket << float(Stats.Value.EnergyMulti);                          // dmg/mana modifier
-        _worldPacket << uint8(Stats.Value.Leader);
-        _worldPacket.append(Stats.Value.QuestItems, MAX_CREATURE_QUEST_ITEMS);   // itemId[6], quest drop
-        _worldPacket << uint32(Stats.Value.CreatureMovementInfoID);              // CreatureMovementInfo.dbc
+        _worldPacket << Stats->Name;
+        _worldPacket << uint8(0) << uint8(0) << uint8(0);                   // name2, name3, name4, always empty
+        _worldPacket << Stats->NameAlt;
+        _worldPacket << Stats->CursorName;                                  // "Directions" for guard, string for Icons 2.3.0
+        _worldPacket << uint32(Stats->Flags);                               // flags
+        _worldPacket << uint32(Stats->CreatureType);                        // CreatureType.dbc
+        _worldPacket << uint32(Stats->CreatureFamily);                      // CreatureFamily.dbc
+        _worldPacket << uint32(Stats->Classification);                      // Creature Rank (elite, boss, etc)
+        _worldPacket.append(Stats->ProxyCreatureID, MAX_KILL_CREDIT);       // new in 3.1, kill credit
+        _worldPacket.append(Stats->CreatureDisplayID, MAX_CREATURE_MODELS); // Modelid
+        _worldPacket << float(Stats->HpMulti);                              // dmg/hp modifier
+        _worldPacket << float(Stats->EnergyMulti);                          // dmg/mana modifier
+        _worldPacket << uint8(Stats->Leader);
+        _worldPacket.append(Stats->QuestItems, MAX_CREATURE_QUEST_ITEMS);   // itemId[6], quest drop
+        _worldPacket << uint32(Stats->CreatureMovementInfoID);              // CreatureMovementInfo.dbc
     }
 
     return &_worldPacket;
@@ -163,16 +163,16 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
 
     if (Stats)
     {
-        _worldPacket << uint32(Stats.Value.Type);
-        _worldPacket << uint32(Stats.Value.DisplayID);
-        _worldPacket << Stats.Value.Name;
-        _worldPacket << uint8(0) << uint8(0) << uint8(0);                        // name2, name3, name4
-        _worldPacket << Stats.Value.IconName;                                    // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
-        _worldPacket << Stats.Value.CastBarCaption;                              // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
-        _worldPacket << Stats.Value.UnkString;                                   // 2.0.3, string
-        _worldPacket.append(Stats.Value.Data, MAX_GAMEOBJECT_DATA);
-        _worldPacket << float(Stats.Value.Size);                                 // go size
-        _worldPacket.append(Stats.Value.QuestItems, MAX_GAMEOBJECT_QUEST_ITEMS); // itemId[6], quest drop
+        _worldPacket << uint32(Stats->Type);
+        _worldPacket << uint32(Stats->DisplayID);
+        _worldPacket << Stats->Name;
+        _worldPacket << uint8(0) << uint8(0) << uint8(0);                   // name2, name3, name4
+        _worldPacket << Stats->IconName;                                    // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
+        _worldPacket << Stats->CastBarCaption;                              // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
+        _worldPacket << Stats->UnkString;                                   // 2.0.3, string
+        _worldPacket.append(Stats->Data, MAX_GAMEOBJECT_DATA);
+        _worldPacket << float(Stats->Size);                                 // go size
+        _worldPacket.append(Stats->QuestItems, MAX_GAMEOBJECT_QUEST_ITEMS); // itemId[6], quest drop
     }
 
     return &_worldPacket;
@@ -184,9 +184,9 @@ WorldPacket const* WorldPackets::Query::QueryCorpseLocationResponse::Write()
 
     if (Location)
     {
-        _worldPacket << int32(Location.Value.MapID);
-        _worldPacket << Location.Value.Position;
-        _worldPacket << int32(Location.Value.ActualMapID);
+        _worldPacket << int32(Location->MapID);
+        _worldPacket << Location->Position;
+        _worldPacket << int32(Location->ActualMapID);
         _worldPacket << uint32(0);                                      // unknown
     }
 

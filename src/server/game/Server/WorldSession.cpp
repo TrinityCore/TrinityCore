@@ -650,9 +650,9 @@ void WorldSession::SendAuthWaitQue(uint32 position)
     {
         WorldPackets::Auth::AuthResponse packet;
         packet.Result = AUTH_WAIT_QUEUE;
-        packet.WaitInfo.HasValue = true;
-        packet.WaitInfo.Value.HasFCM = false;
-        packet.WaitInfo.Value.WaitCount = position;
+        packet.WaitInfo = boost::in_place();
+        packet.WaitInfo->HasFCM = false;
+        packet.WaitInfo->WaitCount = position;
         SendPacket(packet.Write());
     }
 }

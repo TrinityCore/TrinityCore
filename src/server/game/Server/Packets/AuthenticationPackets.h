@@ -19,7 +19,7 @@
 #define AuthenticationPackets_h__
 
 #include "Packet.h"
-#include "Util.h"
+#include "Common.h"
 #include "SHA1.h"
 
 namespace WorldPackets

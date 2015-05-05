@@ -73,8 +73,8 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPackets::Query::QueryCreature&
     response.CreatureID = query.CreatureID;
     if (ci)
     {
-        response.Stats.HasValue = true;
-        WorldPackets::Query::QueryCreatureResponse::CreatureStats& stats = response.Stats.Value;
+        response.Stats = boost::in_place();
+        WorldPackets::Query::QueryCreatureResponse::CreatureStats& stats = response.Stats.get();
 
         stats.Name = ci->Name;
         stats.NameAlt = ci->SubName;
@@ -122,8 +122,8 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
     response.GameObjectID = packet.GameObjectID;
     if (info)
     {
-        response.Stats.HasValue = true;
-        WorldPackets::Query::QueryGameObjectResponse::GameObjectStats& stats = response.Stats.Value;
+        response.Stats = boost::in_place();
+        WorldPackets::Query::QueryGameObjectResponse::GameObjectStats& stats = response.Stats.get();
 
         stats.Name = info->name;
         stats.IconName = info->IconName;
@@ -166,8 +166,8 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPackets::Query::QueryCorpseLocat
         return;
     }
 
-    response.Location.HasValue = true;
-    WorldPackets::Query::QueryCorpseLocationResponse::CorpseLoc& loc = response.Location.Value;
+    response.Location = boost::in_place();
+    WorldPackets::Query::QueryCorpseLocationResponse::CorpseLoc& loc = response.Location.get();
     loc.MapID = corpse->GetMapId();
     loc.Position.x = corpse->GetPositionX();
     loc.Position.y = corpse->GetPositionY();

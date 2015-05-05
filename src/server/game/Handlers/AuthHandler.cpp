@@ -24,19 +24,18 @@ void WorldSession::SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos)
 {
     WorldPackets::Auth::AuthResponse packet;
     packet.Result = code;
-    WorldPackets::Auth::AuthResponse::AuthSuccessInfo successInfo;
-    successInfo.AccountExpansionLevel = Expansion();
-    successInfo.TimeOptions = 0;
-    successInfo.TimeRemain = 0;
-    successInfo.TimeRested = 0;
-    packet.SuccessInfo.Set(successInfo);
+    
+    packet.SuccessInfo = boost::in_place();
+    packet.SuccessInfo->AccountExpansionLevel = Expansion();
+    packet.SuccessInfo->TimeOptions = 0;
+    packet.SuccessInfo->TimeRemain = 0;
+    packet.SuccessInfo->TimeRested = 0;
 
     if (!shortForm)
     {
-        WorldPackets::Auth::AuthResponse::AuthWaitInfo waitInfo;
-        waitInfo.HasFCM = false;
-        waitInfo.WaitCount = queuePos;
-        packet.WaitInfo.Set(waitInfo);
+        packet.WaitInfo = boost::in_place();
+        packet.WaitInfo->HasFCM = false;
+        packet.WaitInfo->WaitCount = queuePos;
     }
 
     SendPacket(packet.Write());
