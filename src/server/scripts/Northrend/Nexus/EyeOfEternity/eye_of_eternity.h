@@ -80,7 +80,8 @@ enum InstanceSpells
     SPELL_VORTEX_5                        = 56263, // damage | used to enter to the vehicle
     SPELL_PORTAL_OPENED                   = 61236,
     SPELL_RIDE_RED_DRAGON_TRIGGERED       = 56072,
-    SPELL_IRIS_OPENED                     = 61012  // visual when starting encounter
+    SPELL_IRIS_OPENED                     = 61012, // visual when starting encounter
+    SPELL_SUMMOM_RED_DRAGON_BUDDY         = 56070
 };
 
 #endif
