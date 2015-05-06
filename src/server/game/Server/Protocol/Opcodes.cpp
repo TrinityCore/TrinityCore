@@ -40,6 +40,7 @@
 #include "Packets/MiscPackets.h"
 #include "Packets/MovementPackets.h"
 #include "Packets/NPCPackets.h"
+#include "Packets/PartyPackets.h"
 #include "Packets/PetitionPackets.h"
 #include "Packets/QueryPackets.h"
 #include "Packets/QuestPackets.h"
@@ -590,7 +591,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_OPEN_SHIPMENT_NPC,                                  STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_OPEN_TRADESKILL_NPC,                                STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPT_OUT_OF_LOOT,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleOptOutOfLootOpcode        );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PARTY_INVITE,                            STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteOpcode         );
+	DEFINE_HANDLE(CMSG_PARTY_INVITE,										STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Party::PartyInvite, &WorldSession::HandleGroupInviteOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PARTY_INVITE_RESPONSE,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteResponseOpcode );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PARTY_UNINVITE,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupUninviteOpcode       );
     DEFINE_HANDLER(CMSG_PETITION_BUY,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::PetitionBuy, &WorldSession::HandlePetitionBuy);
@@ -732,7 +733,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_LOOT_METHOD,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLootMethodOpcode          );
     DEFINE_HANDLER(CMSG_SET_LOOT_SPECIALIZATION,                            STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_PARTY_ASSIGNMENT,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePartyAssignmentOpcode     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_PARTY_LEADER,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleGroupSetLeaderOpcode      );
+	DEFINE_HANDLER(CMSG_SET_PARTY_LEADER,									STATUS_UNHANDLED, PROCESS_INPLACE,		WorldPackets::Party::SetPartyLeader, &WorldSession::HandleGroupSetLeaderOpcode);
     DEFINE_HANDLER(CMSG_SET_PET_SLOT,                                       STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_PLAYER_DECLINED_NAMES,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetPlayerDeclinedNames    );
     DEFINE_HANDLER(CMSG_SET_PREFERRED_CEMETERY,                             STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);

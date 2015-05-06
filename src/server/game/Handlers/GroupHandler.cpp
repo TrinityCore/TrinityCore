@@ -35,6 +35,7 @@
 #include "SpellAuraEffects.h"
 #include "MiscPackets.h"
 #include "LootPackets.h"
+#include "PartyPackets.h"
 
 class Aura;
 
@@ -61,88 +62,54 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
     SendPacket(&data);
 }
 
-void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::PartyInvite& partyInvite)
 {
-    ObjectGuid crossRealmGuid; // unused
-
-    recvData.read_skip<uint32>(); // Non-zero in cross realm invites
-    recvData.read_skip<uint32>(); // Always 0
-
-    crossRealmGuid[2] = recvData.ReadBit();
-    crossRealmGuid[7] = recvData.ReadBit();
-
-    uint8 realmLen = recvData.ReadBits(9);
-
-    crossRealmGuid[3] = recvData.ReadBit();
-
-    uint8 nameLen = recvData.ReadBits(10);
-
-    crossRealmGuid[5] = recvData.ReadBit();
-    crossRealmGuid[4] = recvData.ReadBit();
-    crossRealmGuid[6] = recvData.ReadBit();
-    crossRealmGuid[0] = recvData.ReadBit();
-    crossRealmGuid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(crossRealmGuid[4]);
-    recvData.ReadByteSeq(crossRealmGuid[7]);
-    recvData.ReadByteSeq(crossRealmGuid[6]);
-
-    std::string memberName, realmName;
-    memberName = recvData.ReadString(nameLen);
-    realmName = recvData.ReadString(realmLen); // unused
-
-    recvData.ReadByteSeq(crossRealmGuid[1]);
-    recvData.ReadByteSeq(crossRealmGuid[0]);
-    recvData.ReadByteSeq(crossRealmGuid[5]);
-    recvData.ReadByteSeq(crossRealmGuid[3]);
-    recvData.ReadByteSeq(crossRealmGuid[2]);
-
     // attempt add selected player
 
     // cheating
-    if (!normalizePlayerName(memberName))
+    if (!normalizePlayerName(partyInvite.TargetName))
     {
-        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_BAD_PLAYER_NAME_S);
+        SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_BAD_PLAYER_NAME_S);
         return;
     }
 
-    Player* player = ObjectAccessor::FindPlayerByName(memberName);
+    Player* player = ObjectAccessor::FindPlayerByName(partyInvite.TargetName);
 
     // no player
     if (!player)
     {
-        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_BAD_PLAYER_NAME_S);
+        SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_BAD_PLAYER_NAME_S);
         return;
     }
 
     // restrict invite to GMs
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_GM_GROUP) && !GetPlayer()->IsGameMaster() && player->IsGameMaster())
     {
-        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_BAD_PLAYER_NAME_S);
+        SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_BAD_PLAYER_NAME_S);
         return;
     }
 
     // can't group with
     if (!GetPlayer()->IsGameMaster() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && GetPlayer()->GetTeam() != player->GetTeam())
     {
-        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PLAYER_WRONG_FACTION);
+		SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_PLAYER_WRONG_FACTION);
         return;
     }
     if (GetPlayer()->GetInstanceId() != 0 && player->GetInstanceId() != 0 && GetPlayer()->GetInstanceId() != player->GetInstanceId() && GetPlayer()->GetMapId() == player->GetMapId())
     {
-        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_TARGET_NOT_IN_INSTANCE_S);
+		SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_TARGET_NOT_IN_INSTANCE_S);
         return;
     }
     // just ignore us
     if (player->GetInstanceId() != 0 && player->GetDungeonDifficultyID() != GetPlayer()->GetDungeonDifficultyID())
     {
-        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_IGNORING_YOU_S);
+		SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_IGNORING_YOU_S);
         return;
     }
 
     if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
     {
-        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_IGNORING_YOU_S);
+		SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_IGNORING_YOU_S);
         return;
     }
 
@@ -158,7 +125,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     // player already in another group or invited
     if (group2 || player->GetGroupInvite())
     {
-        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_ALREADY_IN_GROUP_S);
+		SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_ALREADY_IN_GROUP_S);
 
         if (group2)
         {
@@ -438,12 +405,10 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
     SendPartyResult(PARTY_OP_UNINVITE, "", ERR_TARGET_NOT_IN_GROUP_S);
 }
 
-void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupSetLeaderOpcode(WorldPackets::Party::SetPartyLeader& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
 
-    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+    Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetGUID);
     Group* group = GetPlayer()->GetGroup();
 
     if (!group || !player)
@@ -453,7 +418,7 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
         return;
 
     // Everything's fine, accepted.
-    group->ChangeLeader(guid);
+    group->ChangeLeader(packet.TargetGUID);
     group->SendUpdate();
 }
 
