@@ -489,9 +489,10 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     SendInitTransports(player);
     SendZoneDynamicInfo(player);
 
-    player->m_clientGUIDs.clear();
-    player->UpdateObjectVisibility(false);
+    if (initPlayer)
+        player->m_clientGUIDs.clear();
 
+    player->UpdateObjectVisibility(false);
     player->SendUpdatePhasing();
 
     sScriptMgr->OnPlayerEnterMap(this, player);
