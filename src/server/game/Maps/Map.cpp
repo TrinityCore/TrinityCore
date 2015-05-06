@@ -40,7 +40,7 @@
 #include "Weather.h"
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','4'} };
+u_map_magic MapVersionMagic = { {'v','1','.','5'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
 u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
 u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
@@ -78,33 +78,29 @@ Map::~Map()
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
 {
-    int len = sWorld->GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
-    char* fileName = new char[len];
-    snprintf(fileName, len, (char *)(sWorld->GetDataPath() + "maps/%03u%02u%02u.map").c_str(), mapid, gx, gy);
+    std::string fileName = Trinity::StringFormat("maps/%04u_%02u_%02u.map", mapid, gx, gy);
 
     bool ret = false;
-    FILE* pf = fopen(fileName, "rb");
-
-    if (!pf)
+    FILE* file = fopen(fileName.c_str(), "rb");
+    if (!file)
     {
-        TC_LOG_ERROR("maps", "Map file '%s' does not exist!", fileName);
+        TC_LOG_ERROR("maps", "Map file '%s' does not exist!", fileName.c_str());
         TC_LOG_ERROR("maps", "Please place MAP-files (*.map) in the appropriate directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath()+"maps/").c_str());
     }
     else
     {
         map_fileheader header;
-        if (fread(&header, sizeof(header), 1, pf) == 1)
+        if (fread(&header, sizeof(header), 1, file) == 1)
         {
             if (header.mapMagic.asUInt != MapMagic.asUInt || header.versionMagic.asUInt != MapVersionMagic.asUInt)
                 TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s %.*s), %.*s %.*s is expected. Please recreate using the mapextractor.",
-                    fileName, 4, header.mapMagic.asChar, 4, header.versionMagic.asChar, 4, MapMagic.asChar, 4, MapVersionMagic.asChar);
+                    fileName.c_str(), 4, header.mapMagic.asChar, 4, header.versionMagic.asChar, 4, MapMagic.asChar, 4, MapVersionMagic.asChar);
             else
                 ret = true;
         }
-        fclose(pf);
+        fclose(file);
     }
 
-    delete[] fileName;
     return ret;
 }
 
@@ -191,16 +187,12 @@ void Map::LoadMap(int gx, int gy, bool reload)
     }
 
     // map file name
-    char* tmp = NULL;
-    int len = sWorld->GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
-    tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld->GetDataPath() + "maps/%03u%02u%02u.map").c_str(), GetId(), gx, gy);
-    TC_LOG_DEBUG("maps", "Loading map %s", tmp);
+    std::string fileName = Trinity::StringFormat("maps/%04u_%02u_%02u.map", GetId(), gx, gy);
+    TC_LOG_DEBUG("maps", "Loading map %s", fileName.c_str());
     // loading data
     GridMaps[gx][gy] = new GridMap();
-    if (!GridMaps[gx][gy]->loadData(tmp))
-        TC_LOG_ERROR("maps", "Error loading map file: \n %s\n", tmp);
-    delete[] tmp;
+    if (!GridMaps[gx][gy]->loadData(fileName.c_str()))
+        TC_LOG_ERROR("maps", "Error loading map file: %s", fileName.c_str());
 
     sScriptMgr->OnLoadGridMap(this, GridMaps[gx][gy], gx, gy);
 }

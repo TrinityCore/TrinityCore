@@ -66,7 +66,7 @@ namespace VMAP
     std::string VMapManager2::getMapFileName(unsigned int mapId)
     {
         std::stringstream fname;
-        fname.width(3);
+        fname.width(4);
         fname << std::setfill('0') << mapId << std::string(MAP_FILENAME_EXTENSION2);
 
         return fname.str();
