@@ -52,17 +52,17 @@ class Aura;
 
 void WorldSession::SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val /* = 0 */)
 {
-    WorldPacket data(SMSG_PARTY_COMMAND_RESULT, 4 + member.size() + 1 + 4 + 4 + 8);
-    data << uint32(operation);
-    data << member;
-    data << uint32(res);
-    data << uint32(val);                                    // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)
-    data << uint64(0); // player who caused error (in some cases).
+	WorldPackets::Party::PartyCommandResult data;
+	data.Name = member;
+	data.Command = operation;
+	data.Result = res;
+	data.ResultData = val; // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)                                  
+    data.ResultGUID = ?//Todo: What goes here?
 
-    SendPacket(&data);
+    SendPacket(data.Write());
 }
 
-void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::PartyInvite& partyInvite)
+void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvite& partyInvite)
 {
     // attempt add selected player
 
@@ -130,9 +130,9 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::PartyInvite& par
         if (group2)
         {
             // tell the player that they were invited but it failed as they were already in a group
-            WorldPacket data(SMSG_PARTY_INVITE, 45);
+			WorldPackets::Party::PartyInvite data;
 
-            data.WriteBit(0);
+            data.CanAccept = false;
 
             data.WriteBit(invitedGuid[0]);
             data.WriteBit(invitedGuid[3]);
@@ -182,7 +182,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::PartyInvite& par
 
             data << int32(0);
 
-            player->GetSession()->SendPacket(&data);
+            player->GetSession()->SendPacket(data.Write());
         }
 
         return;
@@ -232,9 +232,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::PartyInvite& par
     }
 
     // ok, we do it
-    WorldPacket data(SMSG_PARTY_INVITE, 45);
-
-    data.WriteBit(0);
+	WorldPackets::Party::PartyInvite data;
 
     data.WriteBit(invitedGuid[0]);
     data.WriteBit(invitedGuid[3]);
@@ -284,9 +282,9 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::PartyInvite& par
 
     data << int32(0);
 
-    player->GetSession()->SendPacket(&data);
+    player->GetSession()->SendPacket(data.Write());
 
-    SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PARTY_RESULT_OK);
+    SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_PARTY_RESULT_OK);
 }
 
 void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)

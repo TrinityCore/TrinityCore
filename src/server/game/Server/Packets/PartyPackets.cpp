@@ -16,6 +16,8 @@
  */
 
 #include "PartyPackets.h"
+#include "ObjectMgr.h"
+#include "PacketUtilities.h"
 
 void WorldPackets::Party::SetPartyLeader::Read()
 {
@@ -23,7 +25,7 @@ void WorldPackets::Party::SetPartyLeader::Read()
     _worldPacket >> TargetGUID; 
 }
 
-void WorldPackets::Party::PartyInvite::Read()
+void WorldPackets::Party::ClientPartyInvite::Read()
 {
     _worldPacket >> PartyIndex; 
     _worldPacket >> ProposedRoles;
@@ -41,6 +43,53 @@ void WorldPackets::Party::PartyInvite::Read()
 void WorldPackets::Party::ConvertRaid::Read()
 {
     Raid = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Party:PartyInvite::Write()
+{
+	_worldPacket.writeBit(CanAccept);
+	_worldPacket.writeBit(MightCRZYou);
+	_worldPacket.writeBit(MustBeBNetFriend);
+	_worldPacket.writeBit(AllowMultipleRoles);
+	_worldPacket.writeBit(IsXRealm);
+
+	_worldPacket.writeBits(InviterName.size(), 6);
+
+	_worldPacket << InviterGuid;
+	_worldPacket << InviterBNetAccountID;
+
+	_worldPacket << uint32(InviterCfgRealmID);
+	_worldPacket << uint16(Unk1);
+
+	_worldPacket.FlushBits();
+
+	_worldPacket.writeBit(IsLocal);
+	_worldPacket.writeBit(Unk2);
+
+	_worldPacket.WriteString(InviterRealmNameActual);
+	_worldPacket.WriteString(InviterRealmNameNormalized);
+
+	_worldPacket << uint32(ProposedRoles);
+	_worldPacket << uint32(LfgSlotCount);
+	_worldPacket << uint32(LfgCompletedMask);
+
+	_worldPacket.WriteString(InviterName);
+
+	for (uint slot : LfgSlotCount)
+		_worldPacket << LfgSlots[i]; //This doesn't seem right
+	return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
+{
+	_worldPacket.writeBits(Name.size(), 9);
+	_worldPacket << uint32(Command);
+	_worldPacket << uint32(Result);
+	_worldPacket << uint32(ResultData);
+	_worldPacket << ResultGUID;
+	_worldPacket.WriteString(Name);
+
+	return &_worldPacket;
 }
 
 

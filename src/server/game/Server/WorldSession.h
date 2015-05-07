@@ -354,6 +354,7 @@ namespace WorldPackets
 	namespace Party
 	{
 		class SetPartyLeader;
+		class ClientPartyInvite;
 		class PartyInvite;
 		class ConvertRaid;
 	}
@@ -1051,7 +1052,7 @@ class WorldSession
 
         void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
 
-        void HandleGroupInviteOpcode(WorldPacket& recvPacket);
+		void HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvite& partyInvite);
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
         void HandleGroupInviteResponseOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
