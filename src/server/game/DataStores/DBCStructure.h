@@ -1241,7 +1241,7 @@ struct MapEntry
     // Helpers
     uint32 Expansion() const { return ExpansionID; }
 
-    bool IsDungeon() const { return InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID; }
+    bool IsDungeon() const { return (InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID) && !IsGarrison(); }
     bool IsNonRaidDungeon() const { return InstanceType == MAP_INSTANCE; }
     bool Instanceable() const { return InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID || InstanceType == MAP_BATTLEGROUND || InstanceType == MAP_ARENA; }
     bool IsRaid() const { return InstanceType == MAP_RAID; }
@@ -1266,6 +1266,7 @@ struct MapEntry
     }
 
     bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
+    bool IsGarrison() const { return (Flags & MAP_FLAG_GARRISON) != 0; }
 };
 
 struct MapDifficultyEntry

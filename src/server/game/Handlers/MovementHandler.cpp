@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "Corpse.h"
 #include "Player.h"
+#include "Garrison.h"
 #include "SpellAuras.h"
 #include "MapManager.h"
 #include "Transport.h"
@@ -131,7 +132,11 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (!seamlessTeleport)
         GetPlayer()->SendInitialPacketsAfterAddToMap();
     else
+    {
         GetPlayer()->UpdateVisibilityForPlayer();
+        if (Garrison* garrison = GetPlayer()->GetGarrison())
+            garrison->SendRemoteInfo();
+    }
 
     // flight fast teleport case
     if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)

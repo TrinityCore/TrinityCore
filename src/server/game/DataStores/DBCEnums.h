@@ -431,6 +431,7 @@ enum MapFlags
     MAP_FLAG_CAN_TOGGLE_DIFFICULTY  = 0x0100,
     MAP_FLAG_FLEX_LOCKING           = 0x8000, // All difficulties share completed encounters lock, not bound to a single instance id
                                               // heroic difficulty flag overrides it and uses instance id bind
+    MAP_FLAG_GARRISON               = 0x4000000
 };
 
 enum AbilytyLearnType

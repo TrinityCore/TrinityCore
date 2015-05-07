@@ -47,6 +47,7 @@ class ReputationMgr;
 class Channel;
 class Creature;
 class DynamicObject;
+class Garrison;
 class Group;
 class Guild;
 class OutdoorPvP;
@@ -984,6 +985,9 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_VOID_STORAGE,
     PLAYER_LOGIN_QUERY_LOAD_CURRENCY,
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES,
+    PLAYER_LOGIN_QUERY_LOAD_GARRISON,
+    PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS,
+    PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1677,7 +1681,7 @@ class Player : public Unit, public GridObject<Player>
         void SetWeeklyQuestStatus(uint32 quest_id);
         void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
-        void ResetDailyQuestStatus();
+        void DailyReset();
         void ResetWeeklyQuestStatus();
         void ResetMonthlyQuestStatus();
         void ResetSeasonalQuestStatus(uint16 event_id);
@@ -2625,6 +2629,9 @@ class Player : public Unit, public GridObject<Player>
 
         void OnCombatExit();
 
+        void CreateGarrison(uint32 garrSiteId);
+        Garrison* GetGarrison() { return _garrison.get(); }
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2974,6 +2981,8 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 _activeCheats;
         uint32 _maxPersonalArenaRate;
+
+        std::unique_ptr<Garrison> _garrison;
 };
 
 void AddItemsSetItem(Player* player, Item* item);

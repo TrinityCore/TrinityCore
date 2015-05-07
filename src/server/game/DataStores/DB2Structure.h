@@ -81,6 +81,112 @@ struct CurvePointEntry
     float Y;                                                        // 4
 };
 
+struct GameObjectsEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 MapID;                                                   // 1
+    uint32 DisplayID;                                               // 2
+    DBCPosition3D Position;                                         // 3-5
+    float RotationX;                                                // 6
+    float RotationY;                                                // 7
+    float RotationZ;                                                // 8
+    float RotationW;                                                // 9
+    float Size;                                                     // 10
+    uint32 PhaseUseFlags;                                           // 11
+    uint32 PhaseID;                                                 // 12
+    uint32 PhaseGroupID;                                            // 13
+    uint32 Type;                                                    // 14
+    uint32 Data[8];                                                 // 15-22
+    LocalizedString* Name;                                          // 23
+};
+
+struct GarrBuildingEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 HordeGameObjectID;                                       // 1
+    uint32 AllianceGameObjectID;                                    // 2
+    uint32 Unknown;                                                 // 3
+    uint32 Type;                                                    // 4
+    uint32 Level;                                                   // 5
+    LocalizedString* NameAlliance;                                  // 6
+    LocalizedString* NameHorde;                                     // 7
+    LocalizedString* Description;                                   // 8
+    LocalizedString* Tooltip;                                       // 9
+    uint32 BuildDuration;                                           // 10
+    uint32 CostCurrencyID;                                          // 11
+    int32  CostCurrencyAmount;                                      // 12
+    uint32 HordeTexPrefixKitID;                                     // 13
+    uint32 AllianceTexPrefixKitID;                                  // 14
+    uint32 IconFileDataID;                                          // 15
+    uint32 BonusAmount;                                             // 16
+    uint32 Flags;                                                   // 17
+    uint32 AllianceActivationScenePackageID;                        // 18
+    uint32 HordeActivationScenePackageID;                           // 19
+    uint32 MaxShipments;                                            // 20
+    uint32 FollowerRequiredGarrAbilityID;                           // 21
+    uint32 FollowerGarrAbilityEffectID;                             // 22
+    int32  CostMoney;                                               // 23
+};
+
+struct GarrBuildingPlotInstEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 GarrBuildingID;                                          // 1
+    uint32 UiTextureAtlasMemberID;                                  // 2
+    uint32 GarrSiteLevelPlotInstID;                                 // 3
+    DBCPosition2D LandmarkOffset;                                   // 4-5
+};
+
+struct GarrPlotEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 GarrPlotUICategoryID;                                    // 1
+    uint32 PlotType;                                                // 2
+    uint32 Flags;                                                   // 3
+    LocalizedString* Name;                                          // 4
+    uint32 MinCount;                                                // 5
+    uint32 MaxCount;                                                // 6
+    uint32 AllianceConstructionGameObjectID;                        // 7
+    uint32 HordeConstructionGameObjectID;                           // 8
+};
+
+struct GarrPlotBuildingEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 GarrPlotID;                                              // 1
+    uint32 GarrBuildingID;                                          // 2
+};
+
+struct GarrPlotInstanceEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 GarrPlotID;                                              // 1
+    LocalizedString* Name;                                          // 2
+};
+
+struct GarrSiteLevelEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 Level;                                                   // 1
+    uint32 MapID;                                                   // 2
+    uint32 SiteID;                                                  // 3
+    uint32 UITextureKitID;                                          // 4
+    DBCPosition2D TownHall;                                         // 5-6
+    uint32 MovieID;                                                 // 7
+    uint32 Level2;                                                  // 8
+    uint32 UpgradeResourceCost;                                     // 9
+    uint32 UpgradeMoneyCost;                                        // 10
+};
+
+struct GarrSiteLevelPlotInstEntry
+{
+    uint32 ID;                                                       // 0
+    uint32 GarrSiteLevelID;                                          // 1
+    uint32 GarrPlotInstanceID;                                       // 2
+    DBCPosition2D Landmark;                                          // 3-4
+    uint32 Unknown;                                                  // 5
+};
+
 struct HolidaysEntry
 {
     uint32      ID;                                                 // 0
