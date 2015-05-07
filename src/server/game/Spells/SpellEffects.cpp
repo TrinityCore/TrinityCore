@@ -67,6 +67,7 @@
 #include "GuildMgr.h"
 #include "ReputationMgr.h"
 #include "AreaTrigger.h"
+#include "Garrison.h"
 #include "DuelPackets.h"
 #include "MiscPackets.h"
 #include "SpellPackets.h"
@@ -283,11 +284,11 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //207 SPELL_EFFECT_LAUNCH_QUEST_TASK
     &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208
     &Spell::EffectNULL,                                     //209 SPELL_EFFECT_209
-    &Spell::EffectNULL,                                     //210 SPELL_EFFECT_LEARN_GARRISON_BUILDING
+    &Spell::EffectLearnGarrisonBuilding,                    //210 SPELL_EFFECT_LEARN_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212
     &Spell::EffectNULL,                                     //213 SPELL_EFFECT_213
-    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_CREATE_GARRISON
+    &Spell::EffectCreateGarrison,                           //214 SPELL_EFFECT_CREATE_GARRISON
     &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON
@@ -5800,4 +5801,27 @@ void Spell::EffectDestroyItem(SpellEffIndex effIndex)
     uint32 itemId = effect->ItemType;
     if (Item* item = player->GetItemByEntry(itemId))
         player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+}
+
+void Spell::EffectLearnGarrisonBuilding(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
+        garrison->LearnBlueprint(GetEffect(effIndex)->MiscValue);
+}
+
+void Spell::EffectCreateGarrison(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    unitTarget->ToPlayer()->CreateGarrison(GetEffect(effIndex)->MiscValue);
 }

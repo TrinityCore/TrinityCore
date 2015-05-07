@@ -6459,6 +6459,22 @@ void ObjectMgr::LoadGameObjectTemplate()
 {
     uint32 oldMSTime = getMSTime();
 
+    for (GameObjectsEntry const* db2go : sGameObjectsStore)
+    {
+        GameObjectTemplate& go = _gameObjectTemplateStore[db2go->ID];
+        go.entry = db2go->ID;
+        go.type = db2go->Type;
+        go.displayId = db2go->DisplayID;
+        go.name = db2go->Name->Str[sWorld->GetDefaultDbcLocale()];
+        go.faction = 0;
+        go.flags = 0;
+        go.size = db2go->Size;
+        memset(go.raw.data, 0, sizeof(go.raw.data));
+        memcpy(go.raw.data, db2go->Data, std::min(sizeof(db2go->Data), sizeof(go.raw.data)));
+        go.unkInt32 = 0;
+        go.ScriptId = 0;
+    }
+
     //                                               0      1     2          3     4         5               6     7        8      9
     QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, faction, flags, size, "
     //                                        10     11     12     13     14     15     16     17     18     19     20      21      22

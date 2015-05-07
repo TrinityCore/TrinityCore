@@ -23,6 +23,8 @@
 #include "InstanceSaveMgr.h"
 #include "DBCEnums.h"
 
+class GarrisonMap;
+
 class MapInstanced : public Map
 {
     friend class MapManager;
@@ -66,6 +68,7 @@ class MapInstanced : public Map
     private:
         InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty);
         BattlegroundMap* CreateBattleground(uint32 InstanceId, Battleground* bg);
+        GarrisonMap* CreateGarrison(uint32 instanceId, Player* owner);
 
         InstancedMaps m_InstancedMaps;
 
