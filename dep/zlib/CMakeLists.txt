@@ -28,3 +28,6 @@ include_directories(
 )
 
 add_library(zlib STATIC ${zlib_STAT_SRCS})
+if(WITH_VS_FOLDERS)
+    set_target_properties(zlib PROPERTIES FOLDER Dep)
+endif()

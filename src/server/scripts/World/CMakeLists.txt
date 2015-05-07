@@ -14,5 +14,7 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   ${sources_World}
 )
-
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\World" FILES  ${sources_World})
+endif()
 message("  -> Prepared: World")

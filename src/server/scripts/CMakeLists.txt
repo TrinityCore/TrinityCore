@@ -20,12 +20,19 @@ include(Spells/CMakeLists.txt)
 
 include(Commands/CMakeLists.txt)
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(sources_AI
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
   ../game/AI/ScriptedAI/ScriptedCreature.cpp
   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
 )
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${sources_AI})
+
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\ScriptedAI" FILES  ${sources_AI})
+endif()
 
 if(SCRIPTS)
   include(Custom/CMakeLists.txt)

@@ -25,5 +25,7 @@ if(WIN32)
 endif()
 
 add_library(Detour STATIC ${Detour_STAT_SRCS})
-
+if(WITH_VS_FOLDERS)
+    set_target_properties(Detour PROPERTIES FOLDER Dep)
+endif()
 target_link_libraries(Detour ${ZLIB_LIBRARIES})

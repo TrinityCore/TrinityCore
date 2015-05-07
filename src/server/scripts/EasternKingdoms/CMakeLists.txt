@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(source_EK
   EasternKingdoms/zone_ghostlands.cpp
   EasternKingdoms/AlteracValley/boss_galvangar.cpp
   EasternKingdoms/AlteracValley/boss_balinda.cpp
@@ -211,5 +210,16 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Karazhan/karazhan.h
   EasternKingdoms/TheStockade/instance_the_stockade.cpp
 )
+
+
+  
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${source_EK}
+)
+
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\EasternKingdoms" FILES  ${source_EK})
+endif()
 
 message("  -> Prepared: Eastern Kingdoms")

@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(sources_Outland
   Outland/zone_nagrand.cpp
   Outland/HellfireCitadel/MagtheridonsLair/magtheridons_lair.h
   Outland/HellfireCitadel/MagtheridonsLair/instance_magtheridons_lair.cpp
@@ -123,5 +122,13 @@ set(scripts_STAT_SRCS
   Outland/zone_netherstorm.cpp
   Outland/zone_zangarmarsh.cpp
 )
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+    ${sources_Outland}
+)
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\Outland" FILES  ${sources_Outland})
+endif()
 
 message("  -> Prepared: Outland")

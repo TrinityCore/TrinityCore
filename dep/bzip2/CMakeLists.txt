@@ -20,3 +20,6 @@ include_directories(
 )
 
 add_library(bzip2 STATIC ${bzip2_STAT_SRCS})
+if(WITH_VS_FOLDERS)
+    set_target_properties(bzip2 PROPERTIES FOLDER Dep)
+endif()

@@ -22,3 +22,6 @@ include_directories(
 )
 
 add_library(ipc STATIC ${ipc_SRCS})
+if(WITH_VS_FOLDERS)
+    set_target_properties(ipc PROPERTIES FOLDER Dep)
+endif()

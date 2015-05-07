@@ -8,14 +8,15 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+
+file(GLOB_RECURSE sources_Pet Pet/*.cpp Pet/*.h)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Pet/pet_dk.cpp
-  Pet/pet_generic.cpp
-  Pet/pet_hunter.cpp
-  Pet/pet_mage.cpp
-  Pet/pet_priest.cpp
-  Pet/pet_shaman.cpp
+  ${sources_Pet}
 )
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\Pet" FILES  ${sources_Pet})
+endif()
 
 message("  -> Prepared: Pet")

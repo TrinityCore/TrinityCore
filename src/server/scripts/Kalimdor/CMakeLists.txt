@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(source_Kalimdor
   Kalimdor/zone_stonetalon_mountains.cpp
   Kalimdor/zone_silithus.cpp
   Kalimdor/zone_moonglade.cpp
@@ -126,5 +125,15 @@ set(scripts_STAT_SRCS
   Kalimdor/Firelands/firelands.h
   Kalimdor/Firelands/boss_alysrazor.cpp
 )
+
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${source_Kalimdor}
+)
+
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\Kalimdor" FILES  ${source_Kalimdor})
+endif()
 
 message("  -> Prepared: Kalimdor")

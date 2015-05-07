@@ -23,7 +23,9 @@ include_directories(${include_Dirs})
 add_executable(mapextractor
   ${sources}
 )
-
+if(WITH_VS_FOLDERS)
+    set_target_properties(mapextractor PROPERTIES FOLDER Tools)
+endif()
 target_link_libraries(mapextractor
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}

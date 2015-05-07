@@ -20,6 +20,10 @@ add_library(zmqpp STATIC
   ${zmqpp_STAT_SRCS}
 )
 
+if(WITH_VS_FOLDERS)
+    set_target_properties(zmqpp PROPERTIES FOLDER Dep)
+endif()
+
 if (WIN32)
   add_definitions(-DBUILD_VERSION=\\"3.2.0\\")
 else()

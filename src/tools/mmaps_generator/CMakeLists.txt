@@ -41,6 +41,10 @@ include_directories(${mmap_gen_Includes})
 
 add_executable(mmaps_generator ${mmap_gen_sources})
 
+if(WITH_VS_FOLDERS)
+    set_target_properties(mmaps_generator PROPERTIES FOLDER Tools)
+endif()
+
 target_link_libraries(mmaps_generator
   collision
   g3dlib
