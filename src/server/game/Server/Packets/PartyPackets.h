@@ -66,50 +66,50 @@ namespace WorldPackets
 
         };
 
-		class PartyInvite final : public ServerPacket
-		{
-		public:
-			PartyInvite() : ServerPacket(SMSG_PARTY_INVITE, 100) { } //TODO: Fix Size
+        class PartyInvite final : public ServerPacket
+        {
+        public:
+            PartyInvite() : ServerPacket(SMSG_PARTY_INVITE, 100) { } //TODO: Fix Size
 
-			WorldPacket const* Write() override;
-			
-			bool CanAccept = false;
-			bool MightCRZYou = false;
-			bool MustBeBNetFriend = false;
-			bool AllowMultipleRoles = false;
-			bool IsXRealm = false;
+            WorldPacket const* Write() override;
+            
+            bool CanAccept = false;
+            bool MightCRZYou = false;
+            bool MustBeBNetFriend = false;
+            bool AllowMultipleRoles = false;
+            bool IsXRealm = false;
 
-			ObjectGuid InviterGuid;
-			ObjectGuid InviterBNetAccountID;
-			uint32 InviterCfgRealmID = 0;
-			uint16 Unk1 = 0;
+            ObjectGuid InviterGuid;
+            ObjectGuid InviterBNetAccountID;
+            uint32 InviterCfgRealmID = 0;
+            uint16 Unk1 = 0;
 
-			bool IsLocal = false;
-			bool Unk2 = false;
+            bool IsLocal = false;
+            bool Unk2 = false;
 
-			std::string InviterRealmNameActual;
-			std::string InviterRealmNameNormalized;
-			uint32 ProposedRoles = 0;
-			uint32 LfgSlotsCount = 0;
-			uint32 LfgCompletedMask = 0;
-			std::string InviterName;
-			uint32 LfgSlots = 0; //Seems like there's normnally more than one of these, so should it be an array?
-		};
+            std::string InviterRealmNameActual;
+            std::string InviterRealmNameNormalized;
+            uint32 ProposedRoles = 0;
+            uint32 LfgSlotsCount = 0;
+            uint32 LfgCompletedMask = 0;
+            std::string InviterName;
+            uint32 LfgSlots = 0; //Seems like there's normnally more than one of these, so should it be an array?
+        };
 
-		class PartyCommandResult final : public ServerPacket
-		{
-		public:
-			PartyCommandResult() : ServerPacket(SMSG_PARTY_COMMAND_RESULT, 100) { } //TODO: Fix Size
+        class PartyCommandResult final : public ServerPacket
+        {
+        public:
+            PartyCommandResult() : ServerPacket(SMSG_PARTY_COMMAND_RESULT, 100) { } //TODO: Fix Size
 
-			WorldPacket const* Write() override;
+            WorldPacket const* Write() override;
 
-			PartyOperation Command;
-			PartyResult Result;
-			uint32 ResultData = 0;
-			ObjectGuid ResultGUID;
-			std::string Name;
+            PartyOperation Command;
+            PartyResult Result;
+            uint32 ResultData = 0;
+            ObjectGuid ResultGUID;
+            std::string Name;
 
-		};
+        };
 
     }
 }

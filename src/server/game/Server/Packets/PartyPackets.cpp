@@ -32,7 +32,7 @@ void WorldPackets::Party::ClientPartyInvite::Read()
     _worldPacket >> TargetGUID;
     _worldPacket >> TargetCfgRealmID;
     
-	_worldPacket.ResetBitPos(); //packet.ResetBitReader(); in WPP
+    _worldPacket.ResetBitPos(); //packet.ResetBitReader(); in WPP
     
     uint32 lenTargetName = _worldPacket.ReadBits(9);
     TargetName = _worldPacket.ReadString(lenTargetName);
@@ -47,49 +47,49 @@ void WorldPackets::Party::ConvertRaid::Read()
 
 WorldPacket const* WorldPackets::Party:PartyInvite::Write()
 {
-	_worldPacket.writeBit(CanAccept);
-	_worldPacket.writeBit(MightCRZYou);
-	_worldPacket.writeBit(MustBeBNetFriend);
-	_worldPacket.writeBit(AllowMultipleRoles);
-	_worldPacket.writeBit(IsXRealm);
+    _worldPacket.writeBit(CanAccept);
+    _worldPacket.writeBit(MightCRZYou);
+    _worldPacket.writeBit(MustBeBNetFriend);
+    _worldPacket.writeBit(AllowMultipleRoles);
+    _worldPacket.writeBit(IsXRealm);
 
-	_worldPacket.writeBits(InviterName.size(), 6);
+    _worldPacket.writeBits(InviterName.size(), 6);
 
-	_worldPacket << InviterGuid;
-	_worldPacket << InviterBNetAccountID;
+    _worldPacket << InviterGuid;
+    _worldPacket << InviterBNetAccountID;
 
-	_worldPacket << uint32(InviterCfgRealmID);
-	_worldPacket << uint16(Unk1);
+    _worldPacket << uint32(InviterCfgRealmID);
+    _worldPacket << uint16(Unk1);
 
-	_worldPacket.FlushBits();
+    _worldPacket.FlushBits();
 
-	_worldPacket.writeBit(IsLocal);
-	_worldPacket.writeBit(Unk2);
+    _worldPacket.writeBit(IsLocal);
+    _worldPacket.writeBit(Unk2);
 
-	_worldPacket.WriteString(InviterRealmNameActual);
-	_worldPacket.WriteString(InviterRealmNameNormalized);
+    _worldPacket.WriteString(InviterRealmNameActual);
+    _worldPacket.WriteString(InviterRealmNameNormalized);
 
-	_worldPacket << uint32(ProposedRoles);
-	_worldPacket << uint32(LfgSlotCount);
-	_worldPacket << uint32(LfgCompletedMask);
+    _worldPacket << uint32(ProposedRoles);
+    _worldPacket << uint32(LfgSlotCount);
+    _worldPacket << uint32(LfgCompletedMask);
 
-	_worldPacket.WriteString(InviterName);
+    _worldPacket.WriteString(InviterName);
 
-	for (uint slot : LfgSlotCount)
-		_worldPacket << LfgSlots[i]; //This doesn't seem right
-	return &_worldPacket;
+    for (uint slot : LfgSlotCount)
+        _worldPacket << LfgSlots[i]; //This doesn't seem right
+    return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
 {
-	_worldPacket.writeBits(Name.size(), 9);
-	_worldPacket << uint32(Command);
-	_worldPacket << uint32(Result);
-	_worldPacket << uint32(ResultData);
-	_worldPacket << ResultGUID;
-	_worldPacket.WriteString(Name);
+    _worldPacket.writeBits(Name.size(), 9);
+    _worldPacket << uint32(Command);
+    _worldPacket << uint32(Result);
+    _worldPacket << uint32(ResultData);
+    _worldPacket << ResultGUID;
+    _worldPacket.WriteString(Name);
 
-	return &_worldPacket;
+    return &_worldPacket;
 }
 
 

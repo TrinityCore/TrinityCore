@@ -351,13 +351,13 @@ namespace WorldPackets
         class TrainerBuySpell;
     }
 
-	namespace Party
-	{
-		class SetPartyLeader;
-		class ClientPartyInvite;
-		class PartyInvite;
-		class ConvertRaid;
-	}
+    namespace Party
+    {
+        class SetPartyLeader;
+        class ClientPartyInvite;
+        class PartyInvite;
+        class ConvertRaid;
+    }
 
     namespace Petition
     {

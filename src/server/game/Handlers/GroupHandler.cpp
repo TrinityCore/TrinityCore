@@ -52,11 +52,11 @@ class Aura;
 
 void WorldSession::SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val /* = 0 */)
 {
-	WorldPackets::Party::PartyCommandResult data;
-	data.Name = member;
-	data.Command = operation;
-	data.Result = res;
-	data.ResultData = val; // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)                                  
+    WorldPackets::Party::PartyCommandResult data;
+    data.Name = member;
+    data.Command = operation;
+    data.Result = res;
+    data.ResultData = val; // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)                                  
     data.ResultGUID = ?//Todo: What goes here?
 
     SendPacket(data.Write());
@@ -92,24 +92,24 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvit
     // can't group with
     if (!GetPlayer()->IsGameMaster() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && GetPlayer()->GetTeam() != player->GetTeam())
     {
-		SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_PLAYER_WRONG_FACTION);
+        SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_PLAYER_WRONG_FACTION);
         return;
     }
     if (GetPlayer()->GetInstanceId() != 0 && player->GetInstanceId() != 0 && GetPlayer()->GetInstanceId() != player->GetInstanceId() && GetPlayer()->GetMapId() == player->GetMapId())
     {
-		SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_TARGET_NOT_IN_INSTANCE_S);
+        SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_TARGET_NOT_IN_INSTANCE_S);
         return;
     }
     // just ignore us
     if (player->GetInstanceId() != 0 && player->GetDungeonDifficultyID() != GetPlayer()->GetDungeonDifficultyID())
     {
-		SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_IGNORING_YOU_S);
+        SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_IGNORING_YOU_S);
         return;
     }
 
     if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
     {
-		SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_IGNORING_YOU_S);
+        SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_IGNORING_YOU_S);
         return;
     }
 
@@ -125,15 +125,15 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvit
     // player already in another group or invited
     if (group2 || player->GetGroupInvite())
     {
-		SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_ALREADY_IN_GROUP_S);
+        SendPartyResult(PARTY_OP_INVITE, partyInvite.TargetName, ERR_ALREADY_IN_GROUP_S);
 
         if (group2)
         {
             // tell the player that they were invited but it failed as they were already in a group
-			WorldPackets::Party::PartyInvite data;
+            WorldPackets::Party::PartyInvite data;
 
             data.CanAccept = false;
-
+            
             data.WriteBit(invitedGuid[0]);
             data.WriteBit(invitedGuid[3]);
             data.WriteBit(invitedGuid[2]);
@@ -232,7 +232,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvit
     }
 
     // ok, we do it
-	WorldPackets::Party::PartyInvite data;
+    WorldPackets::Party::PartyInvite data;
 
     data.WriteBit(invitedGuid[0]);
     data.WriteBit(invitedGuid[3]);
