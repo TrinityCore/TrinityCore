@@ -1052,7 +1052,7 @@ class WorldSession
 
         void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
 
-		void HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvite& partyInvite);
+        void HandleGroupInviteOpcode(WorldPacket& recvPacket);
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
         void HandleGroupInviteResponseOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
