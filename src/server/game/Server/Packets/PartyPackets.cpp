@@ -45,15 +45,15 @@ void WorldPackets::Party::ConvertRaid::Read()
     Raid = _worldPacket.ReadBit();
 }
 
-WorldPacket const* WorldPackets::Party:PartyInvite::Write()
+WorldPacket const* WorldPackets::Party::PartyInvite::Write()
 {
-    _worldPacket.writeBit(CanAccept);
-    _worldPacket.writeBit(MightCRZYou);
-    _worldPacket.writeBit(MustBeBNetFriend);
-    _worldPacket.writeBit(AllowMultipleRoles);
-    _worldPacket.writeBit(IsXRealm);
+    _worldPacket.WriteBit(CanAccept);
+    _worldPacket.WriteBit(MightCRZYou);
+    _worldPacket.WriteBit(MustBeBNetFriend);
+    _worldPacket.WriteBit(AllowMultipleRoles);
+    _worldPacket.WriteBit(IsXRealm);
 
-    _worldPacket.writeBits(InviterName.size(), 6);
+    _worldPacket.WriteBits(InviterName.size(), 6);
 
     _worldPacket << InviterGuid;
     _worldPacket << InviterBNetAccountID;
@@ -63,26 +63,26 @@ WorldPacket const* WorldPackets::Party:PartyInvite::Write()
 
     _worldPacket.FlushBits();
 
-    _worldPacket.writeBit(IsLocal);
-    _worldPacket.writeBit(Unk2);
+    _worldPacket.WriteBit(IsLocal);
+    _worldPacket.WriteBit(Unk2);
 
     _worldPacket.WriteString(InviterRealmNameActual);
     _worldPacket.WriteString(InviterRealmNameNormalized);
 
     _worldPacket << uint32(ProposedRoles);
-    _worldPacket << uint32(LfgSlotCount);
+    _worldPacket << uint32(LfgSlotsCount);
     _worldPacket << uint32(LfgCompletedMask);
 
     _worldPacket.WriteString(InviterName);
 
-    for (uint slot : LfgSlotCount)
-        _worldPacket << LfgSlots[i]; //This doesn't seem right
+    /*for (uint32 i = 0; i < LfgSlotsCount; i++)
+        _worldPacket << LfgSlots[i];*/
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
 {
-    _worldPacket.writeBits(Name.size(), 9);
+    _worldPacket.WriteBits(Name.size(), 9);
     _worldPacket << uint32(Command);
     _worldPacket << uint32(Result);
     _worldPacket << uint32(ResultData);

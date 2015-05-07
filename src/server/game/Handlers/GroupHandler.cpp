@@ -57,7 +57,7 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
     data.Command = operation;
     data.Result = res;
     data.ResultData = val; // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)                                  
-    data.ResultGUID = ?//Todo: What goes here?
+    data.ResultGUID = 0;//Todo: What goes here?
 
     SendPacket(data.Write());
 }
