@@ -26,6 +26,7 @@
 #include "World.h"
 #include "Group.h"
 #include "Player.h"
+#include "GarrisonMap.h"
 
 MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFICULTY_NORMAL)
 {
@@ -138,7 +139,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             }
         }
     }
-    else
+    else if (!IsGarrison())
     {
         InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficultyID(GetEntry()));
         InstanceSave* pSave = pBind ? pBind->save : NULL;
@@ -179,6 +180,13 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             if (!map)
                 map = CreateInstance(newInstanceId, NULL, diff);
         }
+    }
+    else
+    {
+        newInstanceId = player->GetGUID().GetCounter();
+        map = FindInstanceMap(newInstanceId);
+        if (!map)
+            map = CreateGarrison(newInstanceId, player);
     }
 
     return map;
@@ -234,6 +242,17 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     bg->SetBgMap(map);
 
     m_InstancedMaps[InstanceId] = map;
+    return map;
+}
+
+GarrisonMap* MapInstanced::CreateGarrison(uint32 instanceId, Player* owner)
+{
+    std::lock_guard<std::mutex> lock(_mapLock);
+
+    GarrisonMap* map = new GarrisonMap(GetId(), GetGridExpiry(), instanceId, this, owner->GetGUID());
+    ASSERT(map->IsGarrison());
+
+    m_InstancedMaps[instanceId] = map;
     return map;
 }
 

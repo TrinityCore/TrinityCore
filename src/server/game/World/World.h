@@ -805,7 +805,7 @@ class World
         void InitRandomBGResetTime();
         void InitGuildResetTime();
         void InitCurrencyResetTime();
-        void ResetDailyQuests();
+        void DailyReset();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
         void ResetRandomBG();
