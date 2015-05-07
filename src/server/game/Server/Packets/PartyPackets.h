@@ -103,8 +103,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            PartyOperation Command;
-            PartyResult Result;
+            PartyOperation Command = PARTY_OP_INVITE;
+            PartyResult Result = ERR_PARTY_RESULT_OK;
             uint32 ResultData = 0;
             ObjectGuid ResultGUID;
             std::string Name;

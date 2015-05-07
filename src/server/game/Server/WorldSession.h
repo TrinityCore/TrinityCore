@@ -1064,7 +1064,7 @@ class WorldSession
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
         void HandleGroupInviteResponseOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
-		void HandleGroupSetLeaderOpcode(WorldPackets::Party::SetPartyLeader& setPartyLeader);
+	    void HandleGroupSetLeaderOpcode(WorldPackets::Party::SetPartyLeader& setPartyLeader);
         void HandleGroupSetRolesOpcode(WorldPacket& recvData);
         void HandleGroupDisbandOpcode(WorldPacket& recvPacket);
         void HandleOptOutOfLootOpcode(WorldPacket& recvData);

@@ -32,8 +32,6 @@ void WorldPackets::Party::ClientPartyInvite::Read()
     _worldPacket >> TargetGUID;
     _worldPacket >> TargetCfgRealmID;
     
-    _worldPacket.ResetBitPos(); //packet.ResetBitReader(); in WPP
-    
     uint32 lenTargetName = _worldPacket.ReadBits(9);
     TargetName = _worldPacket.ReadString(lenTargetName);
     uint32 lenTargetRealm = _worldPacket.ReadBits(9);
