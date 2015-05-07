@@ -8,23 +8,15 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+
+file(GLOB_RECURSE sources_Spells Spells/*.cpp Spells/*.h)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Spells/spell_shaman.cpp
-  Spells/spell_hunter.cpp
-  Spells/spell_rogue.cpp
-  Spells/spell_druid.cpp
-  Spells/spell_dk.cpp
-  Spells/spell_quest.cpp
-  Spells/spell_warrior.cpp
-  Spells/spell_generic.cpp
-  Spells/spell_warlock.cpp
-  Spells/spell_priest.cpp
-  Spells/spell_mage.cpp
-  Spells/spell_paladin.cpp
-  Spells/spell_item.cpp
-  Spells/spell_holiday.cpp
-  Spells/spell_pet.cpp
+  ${sources_Spells}
 )
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\Spells" FILES  ${sources_Spells})
+endif()
 
 message("  -> Prepared: Spells")

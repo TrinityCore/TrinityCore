@@ -42,6 +42,11 @@ include(CheckIncludeFiles)
 # set default buildoptions and print them
 include(cmake/options.cmake)
 
+if(WITH_VS_FOLDERS)
+    set_property(GLOBAL PROPERTY USE_FOLDERS On)
+endif()
+
+
 # turn off PCH totally if enabled (hidden setting, mainly for devs)
 if( NOPCH )
   set(USE_COREPCH 0)

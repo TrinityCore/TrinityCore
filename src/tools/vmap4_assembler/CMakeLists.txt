@@ -22,6 +22,9 @@ include_directories(
 
 add_executable(vmap4assembler VMapAssembler.cpp)
 add_dependencies(vmap4assembler storm)
+if(WITH_VS_FOLDERS)
+    set_target_properties(vmap4assembler PROPERTIES FOLDER Tools)
+endif()
 
 target_link_libraries(vmap4assembler
   collision

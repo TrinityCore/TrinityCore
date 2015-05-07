@@ -6,8 +6,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(source_Maelstrom
   Maelstrom/kezan.cpp
   Maelstrom/Stonecore/instance_stonecore.cpp
   Maelstrom/Stonecore/stonecore.cpp
@@ -17,5 +16,15 @@ set(scripts_STAT_SRCS
   Maelstrom/Stonecore/boss_ozruk.cpp
   Maelstrom/Stonecore/boss_high_priestess_azil.cpp
 )
+
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${source_Maelstrom}
+)
+
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\Maelstrom" FILES  ${source_Maelstrom})
+endif()
 
 message("  -> Prepared: The Maelstrom")

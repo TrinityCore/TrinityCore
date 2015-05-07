@@ -15,4 +15,9 @@ set(scripts_STAT_SRCS
   ${sources_Events}
 )
 
+
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\Events" FILES  ${sources_Events})
+endif()
+
 message("  -> Prepared: Events")

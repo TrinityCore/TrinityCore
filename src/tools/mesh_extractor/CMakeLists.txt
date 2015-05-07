@@ -32,6 +32,9 @@ endif()
 include_directories(${include_Base})
 
 add_executable(MeshExtractor ${meshExtract_Sources})
+if(WITH_VS_FOLDERS)
+    set_target_properties(MeshExtractor PROPERTIES FOLDER Tools)
+endif()
 
 target_link_libraries(MeshExtractor
   g3dlib

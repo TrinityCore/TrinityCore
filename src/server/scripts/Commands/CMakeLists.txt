@@ -14,5 +14,8 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   ${sources_Commands}
 )
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\Commands" FILES  ${sources_Commands})
+endif()
 
 message("  -> Prepared: Commands")

@@ -260,6 +260,11 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 endif()
 
 add_library(storm STATIC ${SRC_FILES} ${SRC_ADDITIONAL_FILES})
+if(WITH_VS_FOLDERS)
+    set_target_properties(storm PROPERTIES FOLDER Dep)
+endif()
+
+
 target_link_libraries(storm ${LINK_LIBS})
 
 if(UNIX)

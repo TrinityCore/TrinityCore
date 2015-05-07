@@ -8,18 +8,17 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+
+
+file(GLOB_RECURSE source_OutdoorPvP OutdoorPvP/*.cpp OutdoorPvP/*.h)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  OutdoorPvP/OutdoorPvPTF.cpp
-  OutdoorPvP/OutdoorPvPSI.cpp
-  OutdoorPvP/OutdoorPvPSI.h
-  OutdoorPvP/OutdoorPvPZM.cpp
-  OutdoorPvP/OutdoorPvPNA.cpp
-  OutdoorPvP/OutdoorPvPHP.cpp
-  OutdoorPvP/OutdoorPvPTF.h
-  OutdoorPvP/OutdoorPvPHP.h
-  OutdoorPvP/OutdoorPvPZM.h
-  OutdoorPvP/OutdoorPvPNA.h
+  ${source_OutdoorPvP}
 )
+
+if(WITH_VS_FOLDERS)
+	source_group("Source Files\\OutdoorPvP" FILES  ${source_OutdoorPvP})
+endif()
 
 message("  -> Prepared: Outdoor PVP Zones")

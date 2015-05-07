@@ -30,5 +30,7 @@ if(WIN32)
 endif()
 
 add_library(Recast STATIC ${Recast_STAT_SRCS})
-
+if(WITH_VS_FOLDERS)
+    set_target_properties(Recast PROPERTIES FOLDER Dep)
+endif()
 target_link_libraries(Recast ${ZLIB_LIBRARIES})
