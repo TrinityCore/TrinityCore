@@ -169,6 +169,7 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
 
     Object::_Create(guid, 0, HIGHGUID_CORPSE);
 
+    SetObjectScale(1.0f);
     SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].GetUInt32());
     _LoadIntoDataField(fields[6].GetCString(), CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END);
     SetUInt32Value(CORPSE_FIELD_BYTES_1, fields[7].GetUInt32());
