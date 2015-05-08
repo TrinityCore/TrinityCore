@@ -365,6 +365,10 @@ namespace WorldPackets
         class ClientPartyInvite;
         class PartyInvite;
         class ConvertRaid;
+        class SetRole;
+        class PartyUninvite;
+        class PartyInviteResponse;
+        class RoleChangedInform;
     }
 
     namespace Petition
@@ -1062,10 +1066,10 @@ class WorldSession
 
         void HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvite& packet);
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
-        void HandleGroupInviteResponseOpcode(WorldPacket& recvPacket);
-        void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
+        void HandleGroupInviteResponseOpcode(WorldPackets::Party::PartyInviteResponse& partyInviteResponse);
+        void HandleGroupUninviteOpcode(WorldPackets::Party::PartyUninvite& partyUninvite);
 	    void HandleGroupSetLeaderOpcode(WorldPackets::Party::SetPartyLeader& setPartyLeader);
-        void HandleGroupSetRolesOpcode(WorldPacket& recvData);
+        void HandleGroupSetRolesOpcode(WorldPackets::Party::SetRole& setRole);
         void HandleGroupDisbandOpcode(WorldPacket& recvPacket);
         void HandleOptOutOfLootOpcode(WorldPacket& recvData);
         void HandleLootMethodOpcode(WorldPacket& recvPacket);

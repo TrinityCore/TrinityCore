@@ -25,6 +25,21 @@ void WorldPackets::Party::SetPartyLeader::Read()
     _worldPacket >> TargetGUID; 
 }
 
+void WorldPackets::Party::SetRole::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> ChangedUnit;
+    _worldPacket >> Role;
+}
+
+void WorldPackets::Party::PartyUninvite::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> TargetGUID;
+    uint32 lenReason = _worldPacket.ReadBits(8);
+    Reason = _worldPacket.ReadString(lenReason);
+}
+
 void WorldPackets::Party::ClientPartyInvite::Read()
 {
     _worldPacket >> PartyIndex; 
@@ -36,6 +51,16 @@ void WorldPackets::Party::ClientPartyInvite::Read()
     uint32 lenTargetRealm = _worldPacket.ReadBits(9);
     TargetName = _worldPacket.ReadString(lenTargetName);
     TargetRealm = _worldPacket.ReadString(lenTargetRealm);
+}
+
+void WorldPackets::Party::PartyInviteResponse::Read()
+{
+    _worldPacket >> PartyIndex;
+
+    Accept = _worldPacket.ReadBit();
+    HasRolesDesired = _worldPacket.ReadBit();
+    if (HasRolesDesired)
+        _worldPacket >> RolesDesired;
 }
 
 void WorldPackets::Party::ConvertRaid::Read()
@@ -51,7 +76,7 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket.WriteBit(AllowMultipleRoles);
     _worldPacket.WriteBit(IsXRealm);
 
-    _worldPacket.WriteBits(InviterName.size(), 6);
+    _worldPacket.WriteBits(InviterName.length(), 6);
 
     _worldPacket << InviterGuid;
     _worldPacket << InviterBNetAccountID;
@@ -64,6 +89,8 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket.WriteBit(IsLocal);
     _worldPacket.WriteBit(Unk2);
 
+    _worldPacket.WriteBits(InviterRealmNameActual.length(), 8);
+    _worldPacket.WriteBits(InviterRealmNameNormalized.length(), 8);
     _worldPacket.WriteString(InviterRealmNameActual);
     _worldPacket.WriteString(InviterRealmNameNormalized);
 
@@ -90,4 +117,14 @@ WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Party::RoleChangedInform::Write()
+{
+    _worldPacket << PartyIndex;
+    _worldPacket << From;
+    _worldPacket << ChangedUnit;
+    _worldPacket << uint32(OldRole);
+    _worldPacket << uint32(NewRole);
+
+    return &_worldPacket;
+}
 

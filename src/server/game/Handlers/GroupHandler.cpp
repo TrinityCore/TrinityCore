@@ -135,59 +135,22 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvit
         if (group2)
         {
             // tell the player that they were invited but it failed as they were already in a group
-            WorldPacket data(SMSG_PARTY_INVITE, 45);
+            WorldPackets::Party::PartyInvite partyInvite;
 
-            data.WriteBit(0);
+            partyInvite.CanAccept = false;
 
-            data.WriteBit(invitedGuid[0]);
-            data.WriteBit(invitedGuid[3]);
-            data.WriteBit(invitedGuid[2]);
+            partyInvite.InviterGuid = GetPlayer()->GetGUID();
+            partyInvite.InviterBNetAccountID = GetPlayer()->GetSession()->GetBattlenetAccountGUID();
 
-            data.WriteBit(0); // Inverse already in group
+            partyInvite.InviterRealmNameActual = realmName; // No crossrealm support
+            partyInvite.InviterRealmNameNormalized = realmName;
 
-            data.WriteBit(invitedGuid[6]);
-            data.WriteBit(invitedGuid[5]);
+            partyInvite.ProposedRoles = packet.ProposedRoles;
 
-            data.WriteBits(0, 9); // Realm name
 
-            data.WriteBit(invitedGuid[4]);
+            partyInvite.InviterName = GetPlayer()->GetName();
 
-            data.WriteBits(GetPlayer()->GetName().size(), 7); // Inviter name length
-
-            data.WriteBits(0, 24); // Count 2
-
-            data.WriteBit(0);
-
-            data.WriteBit(invitedGuid[1]);
-            data.WriteBit(invitedGuid[7]);
-
-            data.FlushBits();
-
-            data.WriteByteSeq(invitedGuid[1]);
-            data.WriteByteSeq(invitedGuid[4]);
-
-            data << int32(getMSTime());
-            data << int32(0);
-            data << int32(0);
-
-            data.WriteByteSeq(invitedGuid[6]);
-            data.WriteByteSeq(invitedGuid[0]);
-            data.WriteByteSeq(invitedGuid[2]);
-            data.WriteByteSeq(invitedGuid[3]);
-
-            // for count2 { int32(0) }
-
-            data.WriteByteSeq(invitedGuid[5]);
-
-            // data.append(realm name);
-
-            data.WriteByteSeq(invitedGuid[7]);
-
-            data.WriteString(GetPlayer()->GetName()); // inviter name
-
-            data << int32(0);
-
-            player->GetSession()->SendPacket(&data);
+            player->GetSession()->SendPacket(partyInvite.Write());
         }
 
         return;
@@ -256,10 +219,9 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvit
     SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PARTY_RESULT_OK);
 }
 
-void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupInviteResponseOpcode(WorldPackets::Party::PartyInviteResponse& partyInviteResponse)
 {
-    recvData.ReadBit(); // unk always 0
-    bool accept = recvData.ReadBit();
+    bool accept = partyInviteResponse.Accept;
 
     // Never actually received?
     /*if (accept)
@@ -331,12 +293,12 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupUninviteOpcode(WorldPackets::Party::PartyUninvite& partyUninvite)
 {
     ObjectGuid guid;
     std::string reason;
-    recvData >> guid;
-    recvData >> reason;
+    guid = partyUninvite.TargetGUID;
+    reason = partyUninvite.Reason;
 
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
@@ -372,10 +334,10 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
     SendPartyResult(PARTY_OP_UNINVITE, "", ERR_TARGET_NOT_IN_GROUP_S);
 }
 
-void WorldSession::HandleGroupSetLeaderOpcode(WorldPackets::Party::SetPartyLeader& packet)
+void WorldSession::HandleGroupSetLeaderOpcode(WorldPackets::Party::SetPartyLeader& setPartyLeader)
 {
 
-    Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetGUID);
+    Player* player = ObjectAccessor::FindConnectedPlayer(setPartyLeader.TargetGUID);
     Group* group = GetPlayer()->GetGroup();
 
     if (!group || !player)
@@ -385,84 +347,36 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPackets::Party::SetPartyLeade
         return;
 
     // Everything's fine, accepted.
-    group->ChangeLeader(packet.TargetGUID);
+    group->ChangeLeader(setPartyLeader.TargetGUID);
     group->SendUpdate();
 }
 
-void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupSetRolesOpcode(WorldPackets::Party::SetRole& setRole)
 {
-    uint32 newRole;
     ObjectGuid guid1;                   // Assigner GUID
     ObjectGuid guid2;                   // Target GUID
 
     guid1 = GetPlayer()->GetGUID();
 
-    recvData >> newRole;
+    guid2 = setRole.ChangedUnit;
 
-    guid2[2] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
-    guid2[7] = recvData.ReadBit();
-    guid2[5] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid2[4] = recvData.ReadBit();
+    WorldPackets::Party::RoleChangedInform data;
 
-    recvData.ReadByteSeq(guid2[6]);
-    recvData.ReadByteSeq(guid2[4]);
-    recvData.ReadByteSeq(guid2[1]);
-    recvData.ReadByteSeq(guid2[3]);
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid2[5]);
-    recvData.ReadByteSeq(guid2[2]);
-    recvData.ReadByteSeq(guid2[7]);
+    data.PartyIndex = setRole.PartyIndex;
+    data.From = guid1;
+    data.ChangedUnit = guid2;
+    data.OldRole = lfg::PLAYER_ROLE_NONE;
+    data.NewRole = setRole.Role;
 
-    WorldPacket data(SMSG_ROLE_CHANGED_INFORM, 24);
-
-    data.WriteBit(guid1[1]);
-    data.WriteBit(guid2[0]);
-    data.WriteBit(guid2[2]);
-    data.WriteBit(guid2[4]);
-    data.WriteBit(guid2[7]);
-    data.WriteBit(guid2[3]);
-    data.WriteBit(guid1[7]);
-    data.WriteBit(guid2[5]);
-    data.WriteBit(guid1[5]);
-    data.WriteBit(guid1[4]);
-    data.WriteBit(guid1[3]);
-    data.WriteBit(guid2[6]);
-    data.WriteBit(guid1[2]);
-    data.WriteBit(guid1[6]);
-    data.WriteBit(guid2[1]);
-    data.WriteBit(guid1[0]);
-
-    data.WriteByteSeq(guid1[7]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid1[6]);
-    data.WriteByteSeq(guid2[4]);
-    data.WriteByteSeq(guid2[0]);
-    data << uint32(newRole);            // New Role
-    data.WriteByteSeq(guid2[6]);
-    data.WriteByteSeq(guid2[2]);
-    data.WriteByteSeq(guid1[0]);
-    data.WriteByteSeq(guid1[4]);
-    data.WriteByteSeq(guid2[1]);
-    data.WriteByteSeq(guid1[3]);
-    data.WriteByteSeq(guid1[5]);
-    data.WriteByteSeq(guid1[2]);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid2[7]);
-    data.WriteByteSeq(guid1[1]);
-    data << uint32(0);                  // Old Role
 
     if (Group* group = GetPlayer()->GetGroup())
     {
         /// @todo probably should be sent only if (oldRole != newRole)
-        group->BroadcastPacket(&data, false);
-        group->SetLfgRoles(guid2, newRole);
+        group->BroadcastPacket(data.Write(), false);
+        group->SetLfgRoles(guid2, setRole.Role);
     }
     else
-        SendPacket(&data);
+        SendPacket(data.Write());
 }
 
 void WorldSession::HandleGroupDisbandOpcode(WorldPacket& /*recvData*/)

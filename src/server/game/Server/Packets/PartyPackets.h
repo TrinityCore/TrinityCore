@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "WorldSession.h"
+#include "LFG.h"
 
 namespace WorldPackets
 {
@@ -37,7 +38,33 @@ namespace WorldPackets
             ObjectGuid TargetGUID;
 
         };
+
+        class SetRole final : public ClientPacket
+        {
+        public:
+            SetRole(WorldPacket&& packet) : ClientPacket(CMSG_SET_ROLE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PartyIndex = 0;
+            ObjectGuid ChangedUnit;
+            uint32 Role = 0;
+
+        };
         
+        class PartyUninvite final : public ClientPacket
+        {
+        public:
+            PartyUninvite(WorldPacket&& packet) : ClientPacket(CMSG_PARTY_UNINVITE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PartyIndex = 0;
+            ObjectGuid TargetGUID;
+            std::string Reason;
+
+        };
+
         class ClientPartyInvite final : public ClientPacket
         {
         public:
@@ -55,6 +82,21 @@ namespace WorldPackets
             
         };
         
+        class PartyInviteResponse final : public ClientPacket
+        {
+        public:
+            PartyInviteResponse(WorldPacket&& packet) : ClientPacket(CMSG_PARTY_INVITE_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PartyIndex = 0;
+
+            bool Accept = false;
+            bool HasRolesDesired = false;
+            uint32 RolesDesired = 0;
+
+        };
+
         class ConvertRaid final : public ClientPacket
         {
         public:
@@ -93,13 +135,13 @@ namespace WorldPackets
             uint32 LfgSlotsCount = 0;
             uint32 LfgCompletedMask = 0;
             std::string InviterName;
-            uint32 LfgSlots = 0; //Seems like there's normnally more than one of these, so should it be an array?
+            uint32 LfgSlots = 0; //Seems like there's normally more than one of these, so should it be an array?
         };
 
         class PartyCommandResult final : public ServerPacket
         {
         public:
-            PartyCommandResult() : ServerPacket(SMSG_PARTY_COMMAND_RESULT, 50) { } //TODO: Fix Size
+            PartyCommandResult() : ServerPacket(SMSG_PARTY_COMMAND_RESULT, 50) { }
 
             WorldPacket const* Write() override;
 
@@ -108,6 +150,21 @@ namespace WorldPackets
             uint32 ResultData = 0;
             ObjectGuid ResultGUID;
             std::string Name;
+
+        };
+
+        class RoleChangedInform final : public ServerPacket
+        {
+        public:
+            RoleChangedInform() : ServerPacket(SMSG_ROLE_CHANGED_INFORM, 50) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 PartyIndex = 0;
+            ObjectGuid From;
+            ObjectGuid ChangedUnit;
+            uint32 OldRole = 0;
+            uint32 NewRole = 0;
 
         };
 
