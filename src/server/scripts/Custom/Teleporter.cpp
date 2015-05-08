@@ -42,7 +42,7 @@ public:
 		{
 			plr->ADD_GOSSIP_ITEM(3, "Choose Faction...", GOSSIP_SENDER_MAIN, 32);
 		}
-		plr->ADD_GOSSIP_ITEM(3, "Language Fix", GOSSIP_SENDER_MAIN, 43);
+		plr->ADD_GOSSIP_ITEM(3, "Add Garrison", GOSSIP_SENDER_MAIN, 43);
 		plr->ADD_GOSSIP_ITEM(3, "Nevermind...", GOSSIP_SENDER_MAIN, 31);
 		plr->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
 		
@@ -350,10 +350,7 @@ public:
 
 		case 43:
 		{
-				   plr->LearnSpell(668, 0);
-				   plr->LearnSpell(669, 0);
-				   plr->LearnSpell(668, 1);
-				   plr->LearnSpell(669, 1);
+			plr->GetGarrison();
 				   plr->CLOSE_GOSSIP_MENU();
 				   break;
 		}

@@ -359,6 +359,11 @@ namespace WorldPackets
         class TrainerBuySpell;
     }
 
+	namespace Party
+	{
+		class PartyCommandResult;
+	}
+
     namespace Petition
     {
         class DeclinePetition;
