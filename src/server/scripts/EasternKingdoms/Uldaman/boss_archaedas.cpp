@@ -41,14 +41,17 @@ enum Says
 
 enum Spells
 {
-    SPELL_GROUND_TREMOR              = 6524,
-    SPELL_ARCHAEDAS_AWAKEN           = 10347,
-    SPELL_BOSS_OBJECT_VISUAL         = 11206,
-    SPELL_BOSS_AGGRO                 = 10340,
-    SPELL_SUB_BOSS_AGGRO             = 11568,
-    SPELL_AWAKEN_VAULT_WALKER        = 10258,
-    SPELL_AWAKEN_EARTHEN_GUARDIAN    = 10252,
-    SPELL_SELF_DESTRUCT              = 9874
+    SPELL_GROUND_TREMOR                = 6524,
+    SPELL_ARCHAEDAS_AWAKEN             = 10347,
+    SPELL_BOSS_OBJECT_VISUAL           = 11206,
+    SPELL_BOSS_AGGRO                   = 10340,
+    SPELL_SUB_BOSS_AGGRO               = 11568,
+    SPELL_AWAKEN_VAULT_WALKER          = 10258,
+    SPELL_AWAKEN_EARTHEN_GUARDIAN      = 10252,
+    SPELL_SELF_DESTRUCT                = 9874,
+    SPELL_FREEZE_ANIM                  = 16245,
+    SPELL_MINION_FREEZE_ANIM           = 10255
+
 };
 
 class boss_archaedas : public CreatureScript
@@ -96,6 +99,7 @@ class boss_archaedas : public CreatureScript
                 me->setFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->AddAura(SPELL_FREEZE_ANIM, me);
             }
 
             void ActivateMinion(ObjectGuid uiGuid, bool flag)
@@ -109,6 +113,7 @@ class boss_archaedas : public CreatureScript
                     minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                     minion->setFaction(14);
+                    minion->RemoveAura(SPELL_MINION_FREEZE_ANIM);
                 }
             }
 
@@ -258,6 +263,7 @@ class npc_archaedas_minions : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->RemoveAllAuras();
+                me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -297,7 +303,7 @@ class npc_archaedas_minions : public CreatureScript
                 {
                     bWakingUp = false;
                     bAmIAwake = true;
-                    // AttackStart(ObjectAccessor::GetUnit(*me, instance->GetGuidData(0))); // whoWokeArchaedasGUID
+                    AttackStart(ObjectAccessor::GetUnit(*me, instance->GetGuidData(0))); // whoWokeArchaedasGUID
                     return;     // dont want to continue until we finish the AttackStart method
                 }
 
@@ -346,6 +352,7 @@ class npc_stonekeepers : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->RemoveAllAuras();
+                me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
             }
 
             void EnterCombat(Unit* /*who*/) override

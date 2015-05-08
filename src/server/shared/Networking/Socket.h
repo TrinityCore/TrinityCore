@@ -50,6 +50,7 @@ public:
 
     virtual ~Socket()
     {
+        _closed = true;
         boost::system::error_code error;
         _socket.close(error);
     }
@@ -95,26 +96,6 @@ public:
         _readBuffer.EnsureFreeSpace();
         _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
             std::bind(&Socket<T>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
-    }
-
-    void ReadData(std::size_t size)
-    {
-        if (!IsOpen())
-            return;
-
-        boost::system::error_code error;
-
-        std::size_t bytesRead = boost::asio::read(_socket, boost::asio::buffer(_readBuffer.GetWritePointer(), size), error);
-
-        _readBuffer.WriteCompleted(bytesRead);
-
-        if (error || bytesRead != size)
-        {
-            TC_LOG_DEBUG("network", "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(),
-                error.message().c_str());
-
-            CloseSocket();
-        }
     }
 
     void QueuePacket(MessageBuffer&& buffer, std::unique_lock<std::mutex>& guard)
