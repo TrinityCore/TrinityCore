@@ -78,7 +78,7 @@ Map::~Map()
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
 {
-    std::string fileName = Trinity::StringFormat("maps/%04u_%02u_%02u.map", mapid, gx, gy);
+    std::string fileName = Trinity::StringFormat("%smaps/%04u_%02u_%02u.map", sWorld->GetDataPath().c_str(), mapid, gx, gy);
 
     bool ret = false;
     FILE* file = fopen(fileName.c_str(), "rb");
@@ -187,7 +187,7 @@ void Map::LoadMap(int gx, int gy, bool reload)
     }
 
     // map file name
-    std::string fileName = Trinity::StringFormat("maps/%04u_%02u_%02u.map", GetId(), gx, gy);
+    std::string fileName = Trinity::StringFormat("%smaps/%04u_%02u_%02u.map", sWorld->GetDataPath().c_str(), GetId(), gx, gy);
     TC_LOG_DEBUG("maps", "Loading map %s", fileName.c_str());
     // loading data
     GridMaps[gx][gy] = new GridMap();
