@@ -128,3 +128,66 @@ WorldPacket const* WorldPackets::Party::RoleChangedInform::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
+{
+    _worldPacket << PartyFlags;
+    _worldPacket << PartyIndex;
+    _worldPacket << PartyType;
+
+    _worldPacket << MyIndex;
+    _worldPacket << LeaderGUID;
+    _worldPacket << SequenceNum;
+    _worldPacket << PartyGUID;
+
+    _worldPacket << PlayerListCount;
+    for (PlayerList const& list : _PlayerLists)
+    {
+        _worldPacket.WriteBits(list.Name.length(), 6);
+
+        _worldPacket << list.Guid;
+
+        _worldPacket << list.Connected;
+        _worldPacket << list.Subgroup;
+        _worldPacket << list.Flags;
+        _worldPacket << list.RolesAssigned;
+        _worldPacket << list.UnkByte;
+
+        _worldPacket.WriteString(list.Name);
+    }
+
+    _worldPacket.WriteBit(HasLfgInfo);
+    _worldPacket.WriteBit(HasLootSettings);
+    _worldPacket.WriteBit(HasDifficultySettings);
+
+    if (HasLfgInfo)
+    {
+        _worldPacket << MyLfgFlags;
+        _worldPacket << LfgSlot;
+        _worldPacket << MyLfgRandomSlot;
+        _worldPacket << MyLfgPartialClear;
+        _worldPacket << float(MyLfgGearDiff);
+        _worldPacket << MyLfgStrangerCount;
+        _worldPacket << MyLfgKickVoteCount;
+        _worldPacket << LfgBootCount;
+
+        _worldPacket.WriteBit(LfgAborted);
+        _worldPacket.WriteBit(MyLfgFirstReward);
+    }
+
+    if (HasLootSettings)
+    {
+        _worldPacket << LootMethod;
+        _worldPacket << LootMaster;
+        _worldPacket << LootThreshold;
+    }
+
+    if (HasDifficultySettings)
+    {
+        _worldPacket << UnkInt4;
+        _worldPacket << DungeonDifficultyID;
+        _worldPacket << RaidDifficultyID;
+    }
+
+    return &_worldPacket;
+}
+

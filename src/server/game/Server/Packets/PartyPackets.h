@@ -168,6 +168,64 @@ namespace WorldPackets
 
         };
 
+        class PartyUpdate final : public ServerPacket
+        {
+        public:
+            struct PlayerList
+            {
+                PlayerList(ObjectGuid const& guid, uint8 connected, uint8 subgroup, uint8 flags, uint8 roles, uint8 unk, std::string name) :
+                    Guid(guid), Connected(connected), Subgroup(subgroup), Flags(flags), RolesAssigned(flags), UnkByte(unk), Name(name) { }
+
+                ObjectGuid Guid;
+                uint8 Connected;
+                uint8 Subgroup;
+                uint8 Flags;
+                uint8 RolesAssigned;
+                uint8 UnkByte;
+                std::string Name;
+            };
+
+            PartyUpdate() : ServerPacket(SMSG_PARTY_UPDATE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 PartyFlags = 0;
+            uint8 PartyIndex = 0;
+            uint8 PartyType = 0;
+
+            uint32 MyIndex = 0;
+            ObjectGuid LeaderGUID;
+            uint32 SequenceNum = 0;
+            ObjectGuid PartyGUID;
+
+            uint32 PlayerListCount = 0;
+            std::vector<PlayerList> _PlayerLists;
+
+            bool HasLfgInfo = false;
+            bool HasLootSettings = false;
+            bool HasDifficultySettings = false;
+
+            uint8 MyLfgFlags = 0;
+            uint32 LfgSlot = 0;
+            uint32 MyLfgRandomSlot = 0;
+            uint8 MyLfgPartialClear = 0;
+            float MyLfgGearDiff = 0.0;
+            uint8 MyLfgStrangerCount = 0;
+            uint8 MyLfgKickVoteCount = 0;
+            uint8 LfgBootCount = 0;
+
+            bool LfgAborted = false;
+            bool MyLfgFirstReward = false;
+
+            uint8 LootMethod = 0;
+            ObjectGuid LootMaster;
+            uint8 LootThreshold;
+
+            uint32 UnkInt4 = 0;
+            uint32 DungeonDifficultyID = 0;
+            uint32 RaidDifficultyID = 0;
+        };
+
     }
 }
 #endif // PartyPackets_h__

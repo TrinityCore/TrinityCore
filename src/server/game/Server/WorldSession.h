@@ -369,6 +369,7 @@ namespace WorldPackets
         class PartyUninvite;
         class PartyInviteResponse;
         class RoleChangedInform;
+        class PartyUpdate;
     }
 
     namespace Petition

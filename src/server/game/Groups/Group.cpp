@@ -1556,11 +1556,15 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         slot = &(*witr);
     }
 
-    WorldPacket data(SMSG_PARTY_UPDATE, (1+1+1+1+1+4+8+4+4+(GetMembersCount()-1)*(13+8+1+1+1+1)+8+1+8+1+1+1+1));
-    data << uint8(m_groupType);                         // group type (flags in 3.3)
+    WorldPackets::Party::PartyUpdate partyUpdate;
+    partyUpdate.Flags = uint8(slot->flags);
+    partyUpdate.PartyType = m_groupType;                         // group type (flags in 3.3)
     data << uint8(slot->group);
-    data << uint8(slot->flags);
     data << uint8(slot->roles);
+    partyUpdate.LeaderGuid = m_leaderGuid;
+    partyUpdate.SequenceNum = m_counter++;
+    partyUpdate.PartyGUId = m_guid;
+
     if (isLFGGroup())
     {
         data << uint8(sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
@@ -1568,9 +1572,6 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         data << uint8(0); // 4.x new
     }
 
-    data << m_guid;
-    data << uint32(m_counter++);                        // 3.3, value increases every time this packet gets sent
-    data << uint32(GetMembersCount()-1);
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         if (slot->guid == citr->guid)
@@ -1589,23 +1590,26 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         data << uint8(citr->roles);                     // Lfg Roles
     }
 
-    data << m_leaderGuid;                               // leader guid
+    partyUpdate.HasLootSettings = GetMembersCount() - 1;
+    partyUpdate.HasDifficultySettings = false; //todo: figure out how to define this
 
-    if (GetMembersCount() - 1)
+    if (partyUpdate.HasLootSettings)
     {
-        data << uint8(m_lootMethod);                    // loot method
+        partyUpdate.LootMethod = m_lootMethod;                 // loot method
 
         if (m_lootMethod == MASTER_LOOT)
-            data << m_masterLooterGuid;                 // master looter guid
-        else
-            data << uint64(0);
+            partyUpdate.LootMaster = m_masterLooterGuid;                 // master looter guid
 
-        data << uint8(m_lootThreshold);                 // loot threshold
-        data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty
-        data << uint8(m_raidDifficulty);                // Raid Difficulty
+        partyUpdate.LootThreshold = m_lootThreshold;               // loot threshold
     }
 
-    player->GetSession()->SendPacket(&data);
+    if (partyUpdate.HasDifficultySettings)
+    {
+        partyUpdate.DungeonDifficultyID = m_dungeonDifficulty;             // Dungeon Difficulty
+        partyUpdate.RaidDifficultyID = m_raidDifficulty;            // Raid Difficulty
+    }
+
+    player->GetSession()->SendPacket(partyUpdate.write());
 }
 
 void Group::UpdatePlayerOutOfRange(Player* player)
