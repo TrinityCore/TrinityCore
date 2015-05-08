@@ -1115,8 +1115,6 @@ public:
 		//Field* fields = result->Fetch();
 		//std::string name = fields[1].GetCString();
 		//UINT32 triggerid = fields[0].GetInt32();
-		handler->PSendSysMessage("%s", namePart);
-		handler->SetSentErrorMessage(true);
 		if (result)
 		{
 			do
