@@ -24,8 +24,12 @@ SDCategory: Hellfire Citadel, Shattered Halls
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "InstanceScript.h"
 #include "Player.h"
+#include "SpellAuras.h"
 #include "shattered_halls.h"
 
 enum Spells
@@ -361,8 +365,6 @@ class boss_shattered_executioner : public CreatureScript
                         me->AddLootMode(LOOT_MODE_HARD_MODE_2);
                     case 2:
                         me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                    default:
-                        break;
                 }
             }
 
