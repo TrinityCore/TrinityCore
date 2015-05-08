@@ -23,8 +23,16 @@
 #include "SharedDefines.h"
 
 extern DB2Storage<BroadcastTextEntry>            sBroadcastTextStore;
-extern DB2Storage<HolidaysEntry>                 sHolidaysStore;
 extern DB2Storage<CurrencyTypesEntry>            sCurrencyTypesStore;
+extern DB2Storage<GameObjectsEntry>              sGameObjectsStore;
+extern DB2Storage<GarrBuildingEntry>             sGarrBuildingStore;
+extern DB2Storage<GarrBuildingPlotInstEntry>     sGarrBuildingPlotInstStore;
+extern DB2Storage<GarrPlotBuildingEntry>         sGarrPlotBuildingStore;
+extern DB2Storage<GarrPlotEntry>                 sGarrPlotStore;
+extern DB2Storage<GarrPlotInstanceEntry>         sGarrPlotInstanceStore;
+extern DB2Storage<GarrSiteLevelEntry>            sGarrSiteLevelStore;
+extern DB2Storage<GarrSiteLevelPlotInstEntry>    sGarrSiteLevelPlotInstStore;
+extern DB2Storage<HolidaysEntry>                 sHolidaysStore;
 extern DB2Storage<ItemCurrencyCostEntry>         sItemCurrencyCostStore;
 extern DB2Storage<ItemEffectEntry>               sItemEffectStore;
 extern DB2Storage<ItemEntry>                     sItemStore;

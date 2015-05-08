@@ -46,6 +46,7 @@
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
+#include "Garrison.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -4579,6 +4580,18 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_PHASES);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BLUEPRINTS);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BLUEPRINTS);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
@@ -17456,6 +17469,12 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 
+    std::unique_ptr<Garrison> garrison(new Garrison(this));
+    if (garrison->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON),
+                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS),
+                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS)))
+        _garrison = std::move(garrison);
+
     return true;
 }
 
@@ -19213,6 +19232,8 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
+    if (_garrison)
+        _garrison->SaveToDB(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -22721,6 +22742,9 @@ void Player::SendInitialPacketsAfterAddToMap()
     }
     else if (GetMap()->IsNonRaidDungeon())
         SendDungeonDifficulty();
+
+    if (_garrison)
+        _garrison->SendRemoteInfo();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -23163,7 +23187,7 @@ void Player::SetMonthlyQuestStatus(uint32 quest_id)
     m_MonthlyQuestChanged = true;
 }
 
-void Player::ResetDailyQuestStatus()
+void Player::DailyReset()
 {
     for (uint32 questId : GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS))
         if (uint32 questBit = GetQuestUniqueBitFlag(questId))
@@ -23176,6 +23200,9 @@ void Player::ResetDailyQuestStatus()
     // DB data deleted in caller
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
+
+    if (_garrison)
+        _garrison->ResetFollowerActivationLimit();
 }
 
 void Player::ResetWeeklyQuestStatus()
@@ -26249,6 +26276,13 @@ void Player::OnCombatExit()
     UpdatePotionCooldown();
     if (getClass() == CLASS_PALADIN)
         m_holyPowerRegenTimerCount = 20000; // first charge of holy power decays 20 seconds after leaving combat
+}
+
+void Player::CreateGarrison(uint32 garrSiteId)
+{
+    std::unique_ptr<Garrison> garrison(new Garrison(this));
+    if (garrison->Create(garrSiteId))
+        _garrison = std::move(garrison);
 }
 
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)

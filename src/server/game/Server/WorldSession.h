@@ -214,6 +214,14 @@ namespace WorldPackets
         class GameObjUse;
     }
 
+    namespace Garrison
+    {
+        class GetGarrisonInfo;
+        class GarrisonPurchaseBuilding;
+        class GarrisonRequestBlueprintAndSpecializationData;
+        class GarrisonGetBuildingLandmarks;
+    }
+
     namespace Guild
     {
         class QueryGuildInfo;
@@ -1463,6 +1471,12 @@ class WorldSession
         // Compact Unit Frames (4.x)
         void HandleSaveCUFProfiles(WorldPacket& recvPacket);
         void SendLoadCUFProfiles();
+
+        // Garrison
+        void HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo& getGarrisonInfo);
+        void HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::GarrisonPurchaseBuilding& garrisonPurchaseBuilding);
+        void HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& garrisonRequestBlueprintAndSpecializationData);
+        void HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& garrisonGetBuildingLandmarks);
 
     private:
         void InitializeQueryCallbackParameters();
