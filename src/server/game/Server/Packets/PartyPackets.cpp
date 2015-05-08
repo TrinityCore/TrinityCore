@@ -140,19 +140,19 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
     _worldPacket << PartyGUID;
 
     _worldPacket << PlayerListCount;
-    for (PlayerList const& list : _PlayerLists)
+    for (PlayerList const& player : Players)
     {
-        _worldPacket.WriteBits(list.Name.length(), 6);
+        _worldPacket.WriteBits(player.Name.length(), 6);
 
-        _worldPacket << list.Guid;
+        _worldPacket << player.Guid;
 
-        _worldPacket << list.Connected;
-        _worldPacket << list.Subgroup;
-        _worldPacket << list.Flags;
-        _worldPacket << list.RolesAssigned;
-        _worldPacket << list.UnkByte;
+        _worldPacket << player.Connected;
+        _worldPacket << player.Subgroup;
+        _worldPacket << player.Flags;
+        _worldPacket << player.RolesAssigned;
+        _worldPacket << player.UnkByte;
 
-        _worldPacket.WriteString(list.Name);
+        _worldPacket.WriteString(player.Name);
     }
 
     _worldPacket.WriteBit(HasLfgInfo);

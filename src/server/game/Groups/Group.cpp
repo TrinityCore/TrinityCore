@@ -35,6 +35,7 @@
 #include "Util.h"
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
+#include "PartyPackets.h"
 
 Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -1557,20 +1558,13 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     }
 
     WorldPackets::Party::PartyUpdate partyUpdate;
-    partyUpdate.Flags = uint8(slot->flags);
-    partyUpdate.PartyType = m_groupType;                         // group type (flags in 3.3)
-    data << uint8(slot->group);
-    data << uint8(slot->roles);
-    partyUpdate.LeaderGuid = m_leaderGuid;
+    partyUpdate.PartyFlags = uint8(slot->flags);
+    partyUpdate.PartyType = uint8(m_groupType);                         // group type (flags in 3.3)
+    //data << uint8(slot->group);
+    //data << uint8(slot->roles);
+    partyUpdate.LeaderGUID = m_leaderGuid;
     partyUpdate.SequenceNum = m_counter++;
-    partyUpdate.PartyGUId = m_guid;
-
-    if (isLFGGroup())
-    {
-        data << uint8(sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
-        data << uint32(sLFGMgr->GetDungeon(m_guid));
-        data << uint8(0); // 4.x new
-    }
+    partyUpdate.PartyGUID = m_guid;
 
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
@@ -1582,17 +1576,28 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         uint8 onlineState = (member && !member->GetSession()->PlayerLogout()) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
         onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
 
-        data << citr->name;
-        data << citr->guid;                             // guid
-        data << uint8(onlineState);                     // online-state
-        data << uint8(citr->group);                     // groupid
-        data << uint8(citr->flags);                     // See enum GroupMemberFlags
-        data << uint8(citr->roles);                     // Lfg Roles
+        WorldPackets::Party::PlayerList playerList;
+        
+        playerList.Name = citr->name;
+        playerList.Guid = citr->guid;                             // guid
+        playerList.Connected = uint8(onlineState);                     // online-state
+        playerList.Subgroup = uint8(citr->group);                     // groupid
+        playerList.Flags = uint8(citr->flags);                     // See enum GroupMemberFlags
+        playerList.RolesAssigned = uint8(citr->roles);                     // Lfg Roles
+
+        partyUpdate.Players.push_back(playerList);
     }
 
+    partyUpdate.HasLfgInfo = isLFGGroup();
     partyUpdate.HasLootSettings = GetMembersCount() - 1;
-    partyUpdate.HasDifficultySettings = false; //todo: figure out how to define this
+    partyUpdate.HasDifficultySettings = (m_dungeonDifficulty != DIFFICULTY_NONE) || (m_raidDifficulty != DIFFICULTY_NONE);
 
+    if (partyUpdate.HasLfgInfo)
+    {
+        partyUpdate.MyLfgFlags =  uint8(sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
+        partyUpdate.LfgSlot =  uint32(sLFGMgr->GetDungeon(m_guid));
+    }
+    
     if (partyUpdate.HasLootSettings)
     {
         partyUpdate.LootMethod = m_lootMethod;                 // loot method

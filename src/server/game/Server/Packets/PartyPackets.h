@@ -168,23 +168,20 @@ namespace WorldPackets
 
         };
 
+        struct PlayerList
+        {
+            ObjectGuid Guid;
+            uint8 Connected = 0;
+            uint8 Subgroup = 0;
+            uint8 Flags = 0;
+            uint8 RolesAssigned = 0;
+            uint8 UnkByte = 0;
+            std::string Name;
+        };
+        
         class PartyUpdate final : public ServerPacket
         {
         public:
-            struct PlayerList
-            {
-                PlayerList(ObjectGuid const& guid, uint8 connected, uint8 subgroup, uint8 flags, uint8 roles, uint8 unk, std::string name) :
-                    Guid(guid), Connected(connected), Subgroup(subgroup), Flags(flags), RolesAssigned(flags), UnkByte(unk), Name(name) { }
-
-                ObjectGuid Guid;
-                uint8 Connected;
-                uint8 Subgroup;
-                uint8 Flags;
-                uint8 RolesAssigned;
-                uint8 UnkByte;
-                std::string Name;
-            };
-
             PartyUpdate() : ServerPacket(SMSG_PARTY_UPDATE, 100) { }
 
             WorldPacket const* Write() override;
@@ -199,7 +196,7 @@ namespace WorldPackets
             ObjectGuid PartyGUID;
 
             uint32 PlayerListCount = 0;
-            std::vector<PlayerList> _PlayerLists;
+            std::vector<PlayerList> Players;
 
             bool HasLfgInfo = false;
             bool HasLootSettings = false;
