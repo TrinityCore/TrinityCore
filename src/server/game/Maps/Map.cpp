@@ -180,7 +180,7 @@ void Map::LoadMap(int gx, int gy, bool reload)
     }
 
     // map file name
-    std::string fileName = Trinity::StringFormat("maps/%03u%02u%02u.map", GetId(), gx, gy);
+    std::string fileName = Trinity::StringFormat("%smaps/%03u%02u%02u.map", sWorld->GetDataPath().c_str(), GetId(), gx, gy);
     TC_LOG_DEBUG("maps", "Loading map %s", fileName.c_str());
     // loading data
     GridMaps[gx][gy] = new GridMap();
