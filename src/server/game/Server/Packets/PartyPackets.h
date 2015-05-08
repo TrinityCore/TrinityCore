@@ -99,7 +99,7 @@ namespace WorldPackets
         class PartyCommandResult final : public ServerPacket
         {
         public:
-            PartyCommandResult() : ServerPacket(SMSG_PARTY_COMMAND_RESULT, 100) { } //TODO: Fix Size
+            PartyCommandResult() : ServerPacket(SMSG_PARTY_COMMAND_RESULT, 50) { } //TODO: Fix Size
 
             WorldPacket const* Write() override;
 

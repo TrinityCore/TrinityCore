@@ -1060,7 +1060,7 @@ class WorldSession
 
         void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
 
-        void HandleGroupInviteOpcode(WorldPacket& recvPacket);
+        void HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvite& packet);
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
         void HandleGroupInviteResponseOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteOpcode(WorldPacket& recvPacket);

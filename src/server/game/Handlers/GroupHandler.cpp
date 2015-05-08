@@ -56,47 +56,18 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
     data.Name = member;
     data.Command = operation;
     data.Result = res;
-    data.ResultData = val; // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)                                  
-    data.ResultGUID = 0;//Todo: What goes here?
+    data.ResultData = val; // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)
 
     SendPacket(data.Write());
 }
 
-void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvite& packet)
 {
     ObjectGuid crossRealmGuid; // unused
 
-    recvData.read_skip<uint32>(); // Non-zero in cross realm invites
-    recvData.read_skip<uint32>(); // Always 0
-
-    crossRealmGuid[2] = recvData.ReadBit();
-    crossRealmGuid[7] = recvData.ReadBit();
-
-    uint8 realmLen = recvData.ReadBits(9);
-
-    crossRealmGuid[3] = recvData.ReadBit();
-
-    uint8 nameLen = recvData.ReadBits(10);
-
-    crossRealmGuid[5] = recvData.ReadBit();
-    crossRealmGuid[4] = recvData.ReadBit();
-    crossRealmGuid[6] = recvData.ReadBit();
-    crossRealmGuid[0] = recvData.ReadBit();
-    crossRealmGuid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(crossRealmGuid[4]);
-    recvData.ReadByteSeq(crossRealmGuid[7]);
-    recvData.ReadByteSeq(crossRealmGuid[6]);
-
     std::string memberName, realmName;
-    memberName = recvData.ReadString(nameLen);
-    realmName = recvData.ReadString(realmLen); // unused
-
-    recvData.ReadByteSeq(crossRealmGuid[1]);
-    recvData.ReadByteSeq(crossRealmGuid[0]);
-    recvData.ReadByteSeq(crossRealmGuid[5]);
-    recvData.ReadByteSeq(crossRealmGuid[3]);
-    recvData.ReadByteSeq(crossRealmGuid[2]);
+    memberName = packet.TargetName;
+    realmName = packet.TargetRealm; // unused
 
     // attempt add selected player
 
@@ -266,60 +237,22 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     }
 
     // ok, we do it
-    WorldPacket data(SMSG_PARTY_INVITE, 45);
+    WorldPackets::Party::PartyInvite partyInvite;
 
-    data.WriteBit(0);
+    partyInvite.CanAccept = true;
 
-    data.WriteBit(invitedGuid[0]);
-    data.WriteBit(invitedGuid[3]);
-    data.WriteBit(invitedGuid[2]);
+    partyInvite.InviterGuid = GetPlayer()->GetGUID();
+    partyInvite.InviterBNetAccountID = GetPlayer()->GetSession()->GetBattlenetAccountGUID();
 
-    data.WriteBit(1); // Inverse already in group
+    partyInvite.InviterRealmNameActual = realmName; // No crossrealm support
+    partyInvite.InviterRealmNameNormalized = realmName;
 
-    data.WriteBit(invitedGuid[6]);
-    data.WriteBit(invitedGuid[5]);
+    partyInvite.ProposedRoles = packet.ProposedRoles;
 
-    data.WriteBits(0, 9); // Realm name
 
-    data.WriteBit(invitedGuid[4]);
+    partyInvite.InviterName = GetPlayer()->GetName();
 
-    data.WriteBits(GetPlayer()->GetName().size(), 7); // Inviter name length
-
-    data.WriteBits(0, 24); // Count 2
-
-    data.WriteBit(0);
-
-    data.WriteBit(invitedGuid[1]);
-    data.WriteBit(invitedGuid[7]);
-
-    data.FlushBits();
-
-    data.WriteByteSeq(invitedGuid[1]);
-    data.WriteByteSeq(invitedGuid[4]);
-
-    data << int32(getMSTime());
-    data << int32(0);
-    data << int32(0);
-
-    data.WriteByteSeq(invitedGuid[6]);
-    data.WriteByteSeq(invitedGuid[0]);
-    data.WriteByteSeq(invitedGuid[2]);
-    data.WriteByteSeq(invitedGuid[3]);
-
-    // for count2 { int32(0) }
-
-    data.WriteByteSeq(invitedGuid[5]);
-
-    // data.append(realm name);
-
-    data.WriteByteSeq(invitedGuid[7]);
-
-    data.WriteString(GetPlayer()->GetName());
-
-    data << int32(0);
-
-    player->GetSession()->SendPacket(&data);
-
+    player->GetSession()->SendPacket(partyInvite.Write());
     SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PARTY_RESULT_OK);
 }
 

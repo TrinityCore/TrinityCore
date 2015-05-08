@@ -33,8 +33,8 @@ void WorldPackets::Party::ClientPartyInvite::Read()
     _worldPacket >> TargetCfgRealmID;
     
     uint32 lenTargetName = _worldPacket.ReadBits(9);
-    TargetName = _worldPacket.ReadString(lenTargetName);
     uint32 lenTargetRealm = _worldPacket.ReadBits(9);
+    TargetName = _worldPacket.ReadString(lenTargetName);
     TargetRealm = _worldPacket.ReadString(lenTargetRealm);
 }
 
@@ -80,9 +80,9 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
 {
-    _worldPacket.WriteBits(Name.size(), 9);
-    _worldPacket << uint32(Command);
-    _worldPacket << uint32(Result);
+    _worldPacket.WriteBits(Name.length(), 9);
+    _worldPacket.WriteBits(Command, 4);
+    _worldPacket.WriteBits(Result, 6);
     _worldPacket << uint32(ResultData);
     _worldPacket << ResultGUID;
     _worldPacket.WriteString(Name);
