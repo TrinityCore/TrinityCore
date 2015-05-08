@@ -39,6 +39,12 @@ public:
             SetBossNumber(MAX_ENCOUNTER);
         }
 
+        void OnPlayerEnter(Player* player) override
+        {
+            if (GetBossState(DATA_MALYGOS_EVENT) == DONE)
+                player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON_BUDDY, true);
+        }
+
         bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))

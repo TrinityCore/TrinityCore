@@ -128,7 +128,6 @@ enum Spells
     SPELL_ARCANE_BARRAGE_DAMAGE              = 63934, // the actual damage - cast by affected player by script spell
 
     // Transition /II-III/
-    SPELL_SUMMOM_RED_DRAGON_BUDYY            = 56070,
     SPELL_RIDE_RED_DRAGON_BUDDY              = 56071,
     SPELL_SUMMON_RED_DRAGON_BUDDY_F_CAST     = 58846, // After implicitly hit player targets they will force cast 56070 on self
     SPELL_DESTROY_PLATFORM_CHANNEL           = 58842,
