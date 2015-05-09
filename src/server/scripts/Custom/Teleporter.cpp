@@ -44,7 +44,7 @@ public:
 		}
 		plr->ADD_GOSSIP_ITEM(3, "Add Garrison", GOSSIP_SENDER_MAIN, 43);
 		plr->ADD_GOSSIP_ITEM(3, "Nevermind...", GOSSIP_SENDER_MAIN, 31);
-		plr->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
+		plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
 		
 		return true;
 	}
@@ -81,7 +81,7 @@ public:
 				  plr->ADD_GOSSIP_ITEM(3, "Undercity", GOSSIP_SENDER_MAIN, 11);
 				  plr->ADD_GOSSIP_ITEM(3, "Silvermoon City", GOSSIP_SENDER_MAIN, 12);
 				  plr->ADD_GOSSIP_ITEM(3, "Thunderbluff", GOSSIP_SENDER_MAIN, 13);
-				  plr->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
+				  plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
 				  break;
 		}
 		case 4:
@@ -90,7 +90,7 @@ public:
 				  plr->ADD_GOSSIP_ITEM(3, "Darnassus", GOSSIP_SENDER_MAIN, 15);
 				  plr->ADD_GOSSIP_ITEM(3, "Exodar", GOSSIP_SENDER_MAIN, 16);
 				  plr->ADD_GOSSIP_ITEM(3, "Ironforge", GOSSIP_SENDER_MAIN, 17);
-				  plr->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
+				  plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
 				  break;
 		}
 		case 5:
@@ -99,7 +99,7 @@ public:
 				  plr->ADD_GOSSIP_ITEM(3, "Netherstorm", GOSSIP_SENDER_MAIN, 19);
 				  plr->ADD_GOSSIP_ITEM(3, "Dark Portal", GOSSIP_SENDER_MAIN, 20);
 				  plr->ADD_GOSSIP_ITEM(3, "Zangarmarsh", GOSSIP_SENDER_MAIN, 21);
-				  plr->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
+				  plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
 				  break;
 		}
 		case 6:
@@ -108,7 +108,7 @@ public:
 				  plr->ADD_GOSSIP_ITEM(3, "Icecrown", GOSSIP_SENDER_MAIN, 36);
 				  plr->ADD_GOSSIP_ITEM(3, "Borean Tundra", GOSSIP_SENDER_MAIN, 37);
 				  plr->ADD_GOSSIP_ITEM(3, "Howling Fjord", GOSSIP_SENDER_MAIN, 38);
-				  plr->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
+				  plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
 				  break;
 		}
 		case 7:
@@ -117,7 +117,7 @@ public:
 				  plr->ADD_GOSSIP_ITEM(3, "Mount Hyjal", GOSSIP_SENDER_MAIN, 40);
 				  plr->ADD_GOSSIP_ITEM(3, "Uldum", GOSSIP_SENDER_MAIN, 41);
 				  plr->ADD_GOSSIP_ITEM(3, "Twilight Highlands", GOSSIP_SENDER_MAIN, 42);
-				  plr->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
+				  plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
 				  break;
 		}
 		case 8:
@@ -134,7 +134,7 @@ public:
 				  plr->ADD_GOSSIP_ITEM(3, "Kun-Lai Summit", GOSSIP_SENDER_MAIN, 24);
 				  plr->ADD_GOSSIP_ITEM(3, "Dread Wastes", GOSSIP_SENDER_MAIN, 25);
 				  plr->ADD_GOSSIP_ITEM(3, "Jade Forest", GOSSIP_SENDER_MAIN, 26);
-				  plr->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
+				  plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
 				  break;
 		}
 		case 9:
@@ -142,7 +142,7 @@ public:
 				  plr->ADD_GOSSIP_ITEM(3, "Timeless Isle", GOSSIP_SENDER_MAIN, 27);
 				  plr->ADD_GOSSIP_ITEM(3, "Isle of Thunder", GOSSIP_SENDER_MAIN, 28);
 				  plr->ADD_GOSSIP_ITEM(3, "Isle of Giants", GOSSIP_SENDER_MAIN, 29);
-				  plr->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
+				  plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
 				  break;
 		}
 		case 10:
@@ -279,7 +279,7 @@ public:
 		{
 				  plr->ADD_GOSSIP_ITEM(3, "Alliance", GOSSIP_SENDER_MAIN, 33);
 				  plr->ADD_GOSSIP_ITEM(3, "Horde", GOSSIP_SENDER_MAIN, 34);
-				  plr->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
+				  plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
 				  break;
 		}
 		case 33:
