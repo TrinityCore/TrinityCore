@@ -88,7 +88,7 @@ void Garrison::SaveToDB(SQLTransaction& trans)
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
     trans->Append(stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BLUEPRINTS);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BUILDINGS);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
     trans->Append(stmt);
 
@@ -111,7 +111,7 @@ void Garrison::SaveToDB(SQLTransaction& trans)
         Plot const& plot = p.second;
         if (plot.BuildingInfo.PacketInfo)
         {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_BLUEPRINTS);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_BUILDINGS);
             stmt->setUInt64(0, _owner->GetGUID().GetCounter());
             stmt->setUInt32(1, plot.BuildingInfo.PacketInfo->GarrPlotInstanceID);
             stmt->setUInt32(2, plot.BuildingInfo.PacketInfo->GarrBuildingID);
