@@ -671,7 +671,7 @@ class Spell
             uint64 timeDelay;
             SpellMissInfo missCondition:8;
             SpellMissInfo reflectResult:8;
-            uint32  effectMask:32;
+            uint32  effectMask;
             bool   processed:1;
             bool   alive:1;
             bool   crit:1;
@@ -685,8 +685,8 @@ class Spell
         {
             ObjectGuid targetGUID;
             uint64 timeDelay;
-            uint32  effectMask:32;
-            bool   processed:1;
+            uint32  effectMask;
+            bool   processed;
         };
         std::vector<GOTargetInfo> m_UniqueGOTargetInfo;
 
