@@ -107,7 +107,7 @@ public:
             AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(areaflag);
             if (areaEntry)
             {
-                std::string name = areaEntry->ZoneName;
+                std::string name = areaEntry->AreaName_lang;
                 if (name.empty())
                     continue;
 

@@ -321,9 +321,9 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
                 std::string zoneName = "Unknown";
                 if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
                 {
-                    areaName = area->ZoneName;
+                    areaName = area->AreaName_lang;
                     if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID))
-                        zoneName = zone->ZoneName;
+                        zoneName = zone->AreaName_lang;
                 }
 
                 sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (%s) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected: %s (%s)]",

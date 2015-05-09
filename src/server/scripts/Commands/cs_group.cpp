@@ -354,7 +354,7 @@ public:
                 {
                     AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID);
                     if (zone)
-                        zoneName = zone->ZoneName;
+                        zoneName = zone->AreaName_lang;
                 }
             }
             else

@@ -209,7 +209,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
         {
             std::string aName;
             if (AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(target->GetZoneId()))
-                aName = areaEntry->ZoneName;
+                aName = areaEntry->AreaName_lang;
 
             bool show = false;
             for (size_t i = 0; i < wWords.size(); ++i)
