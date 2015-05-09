@@ -72,10 +72,10 @@ struct AreaTableEntry
     //uint32    SoundProviderPrefUnderwater;                // 7,
     //uint32    AmbienceID;                                 // 8,
     //uint32    ZoneMusic;                                  // 9,
-    char*       ZoneName;                                   // 10
+    //char*     ZoneName;                                   // 10 - Internal name
     //uint32    IntroSound;                                 // 11
     uint32      ExplorationLevel;                           // 12
-    //char*     AreaName_lang                               // 13
+    char*       AreaName_lang;                              // 13 - In-game name
     uint32      FactionGroupMask;                           // 14
     uint32      LiquidTypeID[4];                            // 15-18
     //float     AmbientMultiplier;                          // 19
