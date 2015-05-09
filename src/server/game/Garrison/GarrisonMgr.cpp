@@ -16,6 +16,7 @@
  */
 
 #include "GarrisonMgr.h"
+#include "ObjectDefines.h"
 
 void GarrisonMgr::Initialize()
 {

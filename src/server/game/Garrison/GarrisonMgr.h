@@ -18,6 +18,8 @@
 #ifndef GarrisonMgr_h__
 #define GarrisonMgr_h__
 
+#include <unordered_set>
+
 #include "DB2Stores.h"
 
 class GarrisonMgr
