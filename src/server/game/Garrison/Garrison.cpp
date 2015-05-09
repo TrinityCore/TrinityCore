@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "GarrisonMgr.h"
 #include "MapManager.h"
+#include "ObjectMgr.h"
 
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
 {
