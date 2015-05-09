@@ -15,3 +15,6 @@
 # special files which must ignore whitespace
 *.patch      whitespace=-trailing-space eol=lf
 *.diff       whitespace=-trailing-space eol=lf
+
+# Ignore sql/* files
+sql/* linguist-documentation
