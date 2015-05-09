@@ -171,6 +171,9 @@ namespace WorldPackets
         class ChannelPlayerCommand;
         class JoinChannel;
         class LeaveChannel;
+        class UserlistAdd;
+        class UserlistRemove;
+        class UserlistUpdate;
     }
 
     namespace Chat
@@ -361,15 +364,17 @@ namespace WorldPackets
 
     namespace Party
     {
-        class SetPartyLeader;
         class ClientPartyInvite;
-        class PartyInvite;
         class ConvertRaid;
-        class SetRole;
-        class PartyUninvite;
+        class PartyInvite;
         class PartyInviteResponse;
-        class RoleChangedInform;
+        class PartyUninvite;
         class PartyUpdate;
+        class RequestPartyJoinUpdates;
+        class RequestPartyMemberStats;
+        class RoleChangedInform;
+        class SetPartyLeader;
+        class SetRole;  
     }
 
     namespace Petition
@@ -1075,11 +1080,11 @@ class WorldSession
         void HandleOptOutOfLootOpcode(WorldPacket& recvData);
         void HandleLootMethodOpcode(WorldPacket& recvPacket);
         void HandleLootRoll(WorldPackets::Loot::LootRoll& packet);
-        void HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData);
+        void HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats packet);
         void HandleRaidTargetUpdateOpcode(WorldPacket& recvData);
         void HandleRaidReadyCheckOpcode(WorldPacket& recvData);
         void HandleGroupRaidConvertOpcode(WorldPacket& recvData);
-        void HandleGroupRequestJoinUpdates(WorldPacket& recvData);
+        void HandleGroupRequestJoinUpdates(WorldPackets::Party::RequestPartyJoinUpdates packet);
         void HandleGroupChangeSubGroupOpcode(WorldPacket& recvData);
         void HandleGroupSwapSubGroupOpcode(WorldPacket& recvData);
         void HandleGroupAssistantLeaderOpcode(WorldPacket& recvData);

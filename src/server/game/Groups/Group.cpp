@@ -1566,6 +1566,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     partyUpdate.SequenceNum = m_counter++;
     partyUpdate.PartyGUID = m_guid;
 
+    partyUpdate.PlayerListCount = m_memberSlots.size();
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         if (slot->guid == citr->guid)
@@ -1589,7 +1590,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     }
 
     partyUpdate.HasLfgInfo = isLFGGroup();
-    partyUpdate.HasLootSettings = GetMembersCount() - 1;
+    partyUpdate.HasLootSettings = GetMembersCount() - 1 != 0;
     partyUpdate.HasDifficultySettings = (m_dungeonDifficulty != DIFFICULTY_NONE) || (m_raidDifficulty != DIFFICULTY_NONE);
 
     if (partyUpdate.HasLfgInfo)
@@ -1614,7 +1615,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         partyUpdate.RaidDifficultyID = m_raidDifficulty;            // Raid Difficulty
     }
 
-    player->GetSession()->SendPacket(partyUpdate.write());
+    player->GetSession()->SendPacket(partyUpdate.Write());
 }
 
 void Group::UpdatePlayerOutOfRange(Player* player)

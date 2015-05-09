@@ -108,6 +108,29 @@ namespace WorldPackets
 
         };
 
+        class RequestPartyMemberStats final : public ClientPacket
+        {
+        public:
+            RequestPartyMemberStats(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PARTY_MEMBER_STATS, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PartyIndex = 0;
+            ObjectGuid Target;
+
+        };
+
+        class RequestPartyJoinUpdates final : public ClientPacket
+        {
+        public:
+            RequestPartyJoinUpdates(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PARTY_JOIN_UPDATES, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PartyIndex = 0;
+
+        };
+
         class PartyInvite final : public ServerPacket
         {
         public:
@@ -221,6 +244,72 @@ namespace WorldPackets
             uint32 UnkInt4 = 0;
             uint32 DungeonDifficultyID = 0;
             uint32 RaidDifficultyID = 0;
+        };
+
+        struct Phase
+        {
+            uint16 PhaseFlags = 0;
+            uint16 Id = 0;
+        };
+
+        struct Aura
+        {
+            uint32 SpellId = 0;
+            uint8 Scalings = 0;
+            uint32 EffectMask = 0;
+            uint32 EffectCount = 0;
+            //float Scale  has to be some kind of array
+        };
+
+        class PartyMemberState final : public ServerPacket
+        {
+        public:
+            PartyMemberState() : ServerPacket(SMSG_PARTY_MEMBER_STATE, 50) { }
+
+            WorldPacket const* Write() override;
+
+            bool ForEnemy = false;
+            ObjectGuid MemberGuid;
+
+            uint8 Unk704 = 0; //2 of these. First is 1, Second is 0
+
+            GroupMemberStatus Status; //either define this or find where its defined
+
+            uint8 PowerType = 0;
+            uint16 Unk322 = 0;
+            uint32 CurrentHealth = 0;
+            uint32 MaxHealth = 0;
+            uint16 CurrentPower = 0;
+            uint16 MaxPower = 0;
+            uint16 Level = 0;
+            uint16 Unk200000 = 0;
+            uint16 ZoneId = 0;
+
+            uint16 Unk2000000 = 0;
+            uint32 Unk4000000 = 0;
+
+            uint16 PositionX = 0;
+            uint16 PositionY = 0;
+            uint16 PositionZ = 0;
+
+            uint32 VehicleSeat = 0;
+            uint32 AuraCount = 0;
+
+            uint32 PhaseShiftFlags = 0;
+            uint32 PhaseCount = 0;
+            ObjectGuid PersonalGUID;
+            std::vector<Phase> PhasesList;
+            std::vector<Aura> AuraList;
+
+            bool HasPet = false;
+            ObjectGuid PetGUID;
+            uint16 PetModelId = 0;
+            uint32 PetCurrentHealth = 0;
+            uint32 PetMaxHealth = 0;
+            uint32 PetAuraCount = 0;
+            std::vector<Aura> PetAuraList;
+            std::string PetName;
+
         };
 
     }

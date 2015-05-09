@@ -567,7 +567,7 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
         group->ConvertToGroup();
 }
 
-void WorldSession::HandleGroupRequestJoinUpdates(WorldPacket& /*recvData*/)
+void WorldSession::HandleGroupRequestJoinUpdates(WorldPackets::Party::RequestPartyJoinUpdates /*recvData*/)
 {
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -944,10 +944,10 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
 }
 
 /*this procedure handles clients CMSG_REQUEST_PARTY_MEMBER_STATS request*/
-void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
+void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats packet)
 {
     ObjectGuid Guid;
-    recvData >> Guid;
+    Guid = packet.Target;
 
     Player* player = ObjectAccessor::FindConnectedPlayer(Guid);
     if (!player)

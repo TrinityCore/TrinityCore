@@ -63,9 +63,15 @@ void WorldPackets::Party::PartyInviteResponse::Read()
         _worldPacket >> RolesDesired;
 }
 
-void WorldPackets::Party::ConvertRaid::Read()
+void WorldPackets::Party::RequestPartyJoinUpdates::Read()
 {
-    Raid = _worldPacket.ReadBit();
+    _worldPacket >> PartyIndex;
+}
+
+void WorldPackets::Party::RequestPartyMemberStats::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> Target;
 }
 
 WorldPacket const* WorldPackets::Party::PartyInvite::Write()
@@ -130,30 +136,32 @@ WorldPacket const* WorldPackets::Party::RoleChangedInform::Write()
 
 WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
 {
-    _worldPacket << PartyFlags;
-    _worldPacket << PartyIndex;
-    _worldPacket << PartyType;
+    _worldPacket << uint8(PartyFlags);
+    _worldPacket << uint8(PartyIndex);
+    _worldPacket << uint8(PartyType);
 
-    _worldPacket << MyIndex;
+    _worldPacket << uint32(MyIndex);
     _worldPacket << LeaderGUID;
-    _worldPacket << SequenceNum;
+    _worldPacket << uint32(SequenceNum);
     _worldPacket << PartyGUID;
 
-    _worldPacket << PlayerListCount;
+    _worldPacket << uint32(PlayerListCount);
     for (PlayerList const& player : Players)
     {
         _worldPacket.WriteBits(player.Name.length(), 6);
 
         _worldPacket << player.Guid;
 
-        _worldPacket << player.Connected;
-        _worldPacket << player.Subgroup;
-        _worldPacket << player.Flags;
-        _worldPacket << player.RolesAssigned;
-        _worldPacket << player.UnkByte;
+        _worldPacket << uint8(player.Connected);
+        _worldPacket << uint8(player.Subgroup);
+        _worldPacket << uint8(player.Flags);
+        _worldPacket << uint8(player.RolesAssigned);
+        _worldPacket << uint8(player.UnkByte);
 
         _worldPacket.WriteString(player.Name);
     }
+
+    _worldPacket.FlushBits();
 
     _worldPacket.WriteBit(HasLfgInfo);
     _worldPacket.WriteBit(HasLootSettings);
@@ -189,5 +197,84 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
     }
 
     return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
+{
+    _worldPacket.WriteBit(ForEnemy);
+    _worldPacket << MemberGuid;
+
+    _worldPacket << Unk704; //written twice. First is 1, 2nd time is 0
+    _worldPacket << Unk704;
+
+    _worldPacket << uint16(Status);
+
+    _worldPacket << PowerType;
+    _worldPacket << Unk322;
+    _worldPacket << CurrentHealth;
+    _worldPacket << MaxHealth;
+    _worldPacket << CurrentPower;
+    _worldPacket << MaxPower;
+    _worldPacket << Level;
+    _worldPacket << Unk200000;
+    _worldPacket << ZoneId;
+
+    _worldPacket << Unk2000000;
+    _worldPacket << Unk4000000;
+
+    _worldPacket << PositionX;
+    _worldPacket << PositionY;
+    _worldPacket << PositionZ;
+
+    _worldPacket << VehicleSeat;
+    _worldPacket << AuraCount;
+
+    _worldPacket << PhaseShiftFlags;
+    _worldPacket << PhaseCount;
+    _worldPacket << PersonalGUID;
+    for (Phase const& phase : PhasesList)
+    {
+        _worldPacket << phase.PhaseFlags;
+        _worldPacket << phase.Id;
+    }
+
+    for (Aura const& aura : AuraList)
+    {
+        _worldPacket << aura.SpellId;
+        _worldPacket << aura.Scalings;
+        _worldPacket << aura.EffectMask;
+        _worldPacket << aura.EffectCount;
+        for (int i = 0; i < aura.EffectCount; i++)
+        {
+            _worldPacket << Scale[i];
+        }
+    }
+
+    _worldPacket.WriteBit(HasPet);
+    if (HasPet)
+    {
+        _worldPacket << PetGUID;
+        _worldPacket << PetModelId;
+        _worldPacket << PetCurrentHealth;
+        _worldPacket << PetMaxHealth;
+
+        _worldPacket << PetAuraCount;
+        for (Aura const& aura : PetAuraList)
+        {
+            _worldPacket << aura.SpellId;
+            _worldPacket << aura.Scalings;
+            _worldPacket << aura.EffectMask;
+            _worldPacket << aura.EffectCount;
+            for (int i = 0; i < aura.EffectCount; i++)
+            {
+                _worldPacket << Scale[i];
+            }
+        }
+
+        _worldPacket.WriteBits(PetName.length(), 8);
+        _worldPacket.WriteString(PetName);
+
+    }
+
 }
 
