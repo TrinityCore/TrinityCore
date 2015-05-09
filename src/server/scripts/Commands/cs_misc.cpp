@@ -236,8 +236,8 @@ public:
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
             mapId, (mapEntry ? mapEntry->MapName_lang : unknown),
-            zoneId, (zoneEntry ? zoneEntry->ZoneName : unknown),
-            areaId, (areaEntry ? areaEntry->ZoneName : unknown),
+            zoneId, (zoneEntry ? zoneEntry->AreaName_lang : unknown),
+            areaId, (areaEntry ? areaEntry->AreaName_lang : unknown),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         handler->PSendSysMessage(LANG_GRID_POSITION,
@@ -1762,11 +1762,11 @@ public:
         AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);
         if (area)
         {
-            areaName = area->ZoneName;
+            areaName = area->AreaName_lang;
 
             AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID);
             if (zone)
-                zoneName = zone->ZoneName;
+                zoneName = zone->AreaName_lang;
         }
 
         if (target)
