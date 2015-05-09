@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "WorldSession.h"
 #include "LFG.h"
+#include "Group.h"
 
 namespace WorldPackets
 {
@@ -158,7 +159,7 @@ namespace WorldPackets
             uint32 LfgSlotsCount = 0;
             uint32 LfgCompletedMask = 0;
             std::string InviterName;
-            uint32 LfgSlots = 0; //Seems like there's normally more than one of these, so should it be an array?
+            std::vector<uint32> LfgSlots;
         };
 
         class PartyCommandResult final : public ServerPacket
@@ -246,24 +247,24 @@ namespace WorldPackets
             uint32 RaidDifficultyID = 0;
         };
 
-        struct Phase
-        {
-            uint16 PhaseFlags = 0;
-            uint16 Id = 0;
-        };
-
-        struct Aura
-        {
-            uint32 SpellId = 0;
-            uint8 Scalings = 0;
-            uint32 EffectMask = 0;
-            uint32 EffectCount = 0;
-            //float Scale  has to be some kind of array
-        };
-
         class PartyMemberState final : public ServerPacket
         {
         public:
+            struct Phase
+            {
+                uint16 PhaseFlags = 0;
+                uint16 Id = 0;
+            };
+
+            struct Aura
+            {
+                uint32 SpellId = 0;
+                uint8 Scalings = 0;
+                uint32 EffectMask = 0;
+                uint32 EffectCount = 0;
+                std::vector<float> Scales;
+            };
+
             PartyMemberState() : ServerPacket(SMSG_PARTY_MEMBER_STATE, 50) { }
 
             WorldPacket const* Write() override;
@@ -273,7 +274,7 @@ namespace WorldPackets
 
             uint8 Unk704 = 0; //2 of these. First is 1, Second is 0
 
-            GroupMemberStatus Status; //either define this or find where its defined
+            GroupMemberOnlineStatus Status; //either define this or find where its defined
 
             uint8 PowerType = 0;
             uint16 Unk322 = 0;

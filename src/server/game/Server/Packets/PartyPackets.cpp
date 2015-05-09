@@ -106,8 +106,9 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
 
     _worldPacket.WriteString(InviterName);
 
-    /*for (uint32 i = 0; i < LfgSlotsCount; i++)
-        _worldPacket << LfgSlots[i];*/
+    for (uint32 lfgSlot : LfgSlots)
+        _worldPacket << lfgSlot;
+
     return &_worldPacket;
 }
 
@@ -244,9 +245,9 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
         _worldPacket << aura.Scalings;
         _worldPacket << aura.EffectMask;
         _worldPacket << aura.EffectCount;
-        for (int i = 0; i < aura.EffectCount; i++)
+        for (float scale : aura.Scales)
         {
-            _worldPacket << Scale[i];
+            _worldPacket << scale;
         }
     }
 
@@ -265,9 +266,9 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
             _worldPacket << aura.Scalings;
             _worldPacket << aura.EffectMask;
             _worldPacket << aura.EffectCount;
-            for (int i = 0; i < aura.EffectCount; i++)
+            for (float scale : aura.Scales)
             {
-                _worldPacket << Scale[i];
+                _worldPacket << scale;
             }
         }
 
