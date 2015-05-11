@@ -155,8 +155,23 @@ WorldPacket const* WorldPackets::Garrison::GarrisonPlaceBuildingResult::Write()
 {
     _worldPacket << uint32(Result);
     _worldPacket << BuildingInfo;
-    _worldPacket.WriteBit(Active);
+    _worldPacket.WriteBit(PlayActivationCinematic);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Garrison::GarrisonCancelConstruction::Read()
+{
+    _worldPacket >> NpcGUID;
+    _worldPacket >> PlotInstanceID;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonBuildingRemoved::Write()
+{
+    _worldPacket << uint32(Result);
+    _worldPacket << uint32(GarrPlotInstanceID);
+    _worldPacket << uint32(GarrBuildingID);
 
     return &_worldPacket;
 }
@@ -205,6 +220,20 @@ WorldPacket const* WorldPackets::Garrison::GarrisonBuildingLandmarks::Write()
     _worldPacket << uint32(Landmarks.size());
     for (GarrisonBuildingLandmark& landmark : Landmarks)
         _worldPacket << landmark;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonPlotPlaced::Write()
+{
+    _worldPacket << *PlotInfo;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonPlotRemoved::Write()
+{
+    _worldPacket << uint32(GarrPlotInstanceID);
 
     return &_worldPacket;
 }

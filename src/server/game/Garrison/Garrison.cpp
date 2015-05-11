@@ -210,6 +210,15 @@ Garrison::Plot* Garrison::GetPlot(uint32 garrPlotInstanceId)
     return nullptr;
 }
 
+Garrison::Plot const* Garrison::GetPlot(uint32 garrPlotInstanceId) const
+{
+    auto itr = _plots.find(garrPlotInstanceId);
+    if (itr != _plots.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
 void Garrison::LearnBlueprint(uint32 garrBuildingId)
 {
     WorldPackets::Garrison::GarrisonLearnBlueprintResult learnBlueprintResult;
@@ -253,31 +262,86 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
         placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
 
         Plot* plot = GetPlot(garrPlotInstanceId);
+        uint32 oldBuildingId = 0;
+        Map* map = FindMap();
+        GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(garrBuildingId);
+        if (map)
+            plot->DeleteGameObject(map);
 
-        if (Map* map = FindMap())
+        if (plot->BuildingInfo.PacketInfo)
         {
-            if (!plot->BuildingInfo.Guid.IsEmpty())
-            {
-                if (GameObject* oldBuilding = map->GetGameObject(plot->BuildingInfo.Guid))
-                    oldBuilding->AddObjectToRemoveList();
+            oldBuildingId = plot->BuildingInfo.PacketInfo->GarrBuildingID;
+            if (sGarrBuildingStore.AssertEntry(oldBuildingId)->Type != building->Type)
+                plot->ClearBuildingInfo(_owner);
+        }
 
-                plot->BuildingInfo.Guid.Clear();
-            }
-
-            plot->BuildingInfo.PacketInfo = placeBuildingResult.BuildingInfo;
+        plot->SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
+        if (map)
             if (GameObject* go = plot->CreateGameObject(map, GetFaction()))
-            {
                 map->AddToMap(go);
-                GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(garrBuildingId);
-                _owner->ModifyCurrency(building->CostCurrencyID, -building->CostCurrencyAmount, false, true);
-                _owner->ModifyMoney(-building->CostMoney, false);
-            }
-            else
-                plot->BuildingInfo.PacketInfo = boost::none;
+
+        _owner->ModifyCurrency(building->CostCurrencyID, -building->CostCurrencyAmount, false, true);
+        _owner->ModifyMoney(-building->CostMoney * GOLD, false);
+
+        if (oldBuildingId)
+        {
+            WorldPackets::Garrison::GarrisonBuildingRemoved buildingRemoved;
+            buildingRemoved.Result = GARRISON_SUCCESS;
+            buildingRemoved.GarrPlotInstanceID = garrPlotInstanceId;
+            buildingRemoved.GarrBuildingID = oldBuildingId;
+            _owner->SendDirectMessage(buildingRemoved.Write());
         }
     }
 
     _owner->SendDirectMessage(placeBuildingResult.Write());
+}
+
+void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
+{
+    WorldPackets::Garrison::GarrisonBuildingRemoved buildingRemoved;
+    buildingRemoved.Result = CheckBuildingRemoval(garrPlotInstanceId);
+    if (buildingRemoved.Result == GARRISON_SUCCESS)
+    {
+        Plot* plot = GetPlot(garrPlotInstanceId);
+
+        buildingRemoved.GarrPlotInstanceID = garrPlotInstanceId;
+        buildingRemoved.GarrBuildingID = plot->BuildingInfo.PacketInfo->GarrBuildingID;
+
+        Map* map = FindMap();
+        if (map)
+            plot->DeleteGameObject(map);
+
+        plot->ClearBuildingInfo(_owner);
+        _owner->SendDirectMessage(buildingRemoved.Write());
+
+        GarrBuildingEntry const* constructing = sGarrBuildingStore.AssertEntry(buildingRemoved.GarrBuildingID);
+        // Refund construction/upgrade cost
+        _owner->ModifyCurrency(constructing->CostCurrencyID, constructing->CostCurrencyAmount, false, true);
+        _owner->ModifyMoney(constructing->CostMoney * GOLD, false);
+
+        if (constructing->Level > 1)
+        {
+            // Restore previous level building
+            GarrBuildingEntry const* restored = sGarrisonMgr.GetPreviousLevelBuilding(constructing->Type, constructing->Level);
+            ASSERT(restored);
+
+            WorldPackets::Garrison::GarrisonPlaceBuildingResult placeBuildingResult;
+            placeBuildingResult.Result = GARRISON_SUCCESS;
+            placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
+            placeBuildingResult.BuildingInfo.GarrBuildingID = restored->ID;
+            placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
+            placeBuildingResult.BuildingInfo.Active = true;
+
+            plot->SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
+            _owner->SendDirectMessage(placeBuildingResult.Write());
+        }
+
+        if (map)
+            if (GameObject* go = plot->CreateGameObject(map, GetFaction()))
+                map->AddToMap(go);
+    }
+    else
+        _owner->SendDirectMessage(buildingRemoved.Write());
 }
 
 void Garrison::SendInfo()
@@ -347,7 +411,8 @@ Map* Garrison::FindMap() const
 GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32 garrBuildingId) const
 {
     GarrPlotInstanceEntry const* plotInstance = sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId);
-    if (!plotInstance || !_plots.count(garrPlotInstanceId))
+    Plot const* plot = GetPlot(garrPlotInstanceId);
+    if (!plotInstance || !plot)
         return GARRISON_ERROR_INVALID_PLOT;
 
     GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(garrBuildingId);
@@ -357,9 +422,13 @@ GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32
     if (!sGarrisonMgr.IsPlotMatchingBuilding(plotInstance->GarrPlotID, garrBuildingId))
         return GARRISON_ERROR_INVALID_PLOT_BUILDING;
 
+    // Cannot place buldings of higher level than garrison level
+    if (building->Level > _siteLevel->Level)
+        return GARRISON_ERROR_INVALID_BUILDINGID;
+
     if (building->Flags & GARRISON_BUILDING_FLAG_NEEDS_PLAN)
     {
-        if (_knownBuildings.count(garrBuildingId))
+        if (!_knownBuildings.count(garrBuildingId))
             return GARRISON_ERROR_BLUEPRINT_NOT_KNOWN;
     }
     else // Building is built as a quest reward
@@ -373,7 +442,7 @@ GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32
         {
             existingBuilding = sGarrBuildingStore.AssertEntry(p.second.BuildingInfo.PacketInfo->GarrBuildingID);
             if (existingBuilding->Type == building->Type)
-                if (p.first != garrPlotInstanceId || existingBuilding->Level != building->Level + 1)    // check if its an upgrade in same plot
+                if (p.first != garrPlotInstanceId || existingBuilding->Level + 1 != building->Level)    // check if its an upgrade in same plot
                     return GARRISON_ERROR_BUILDING_EXISTS;
         }
     }
@@ -381,8 +450,28 @@ GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32
     if (!_owner->HasCurrency(building->CostCurrencyID, building->CostCurrencyAmount))
         return GARRISON_ERROR_NOT_ENOUGH_CURRENCY;
 
-    if (!_owner->HasEnoughMoney(uint64(building->CostMoney)))
+    if (!_owner->HasEnoughMoney(uint64(building->CostMoney * GOLD)))
         return GARRISON_ERROR_NOT_ENOUGH_GOLD;
+
+    // New building cannot replace another building currently under construction
+    if (plot->BuildingInfo.PacketInfo)
+        if (!plot->BuildingInfo.PacketInfo->Active)
+            return GARRISON_ERROR_NO_BUILDING;
+
+    return GARRISON_SUCCESS;
+}
+
+GarrisonError Garrison::CheckBuildingRemoval(uint32 garrPlotInstanceId) const
+{
+    Plot const* plot = GetPlot(garrPlotInstanceId);
+    if (!plot)
+        return GARRISON_ERROR_INVALID_PLOT;
+
+    if (!plot->BuildingInfo.PacketInfo)
+        return GARRISON_ERROR_NO_BUILDING;
+
+    if (plot->BuildingInfo.CanActivate())
+        return GARRISON_ERROR_BUILDING_EXISTS;
 
     return GARRISON_SUCCESS;
 }
@@ -395,7 +484,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         GarrPlotInstanceEntry const* plotInstance = sGarrPlotInstanceStore.AssertEntry(PacketInfo.GarrPlotInstanceID);
         GarrPlotEntry const* plot = sGarrPlotStore.AssertEntry(plotInstance->GarrPlotID);
         GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(BuildingInfo.PacketInfo->GarrBuildingID);
-        if (BuildingInfo.PacketInfo->TimeBuilt + building->BuildDuration <= time(nullptr) && BuildingInfo.PacketInfo->Active)
+        if (BuildingInfo.PacketInfo->Active)
             entry = faction == GARRISON_FACTION_INDEX_HORDE ? building->HordeGameObjectID : building->AllianceGameObjectID;
         else
             entry = faction == GARRISON_FACTION_INDEX_HORDE ? plot->HordeConstructionGameObjectID : plot->AllianceConstructionGameObjectID;
@@ -418,4 +507,48 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
 
     BuildingInfo.Guid = go->GetGUID();
     return go;
+}
+
+void Garrison::Plot::DeleteGameObject(Map* map)
+{
+    if (BuildingInfo.Guid.IsEmpty())
+        return;
+
+    if (GameObject* oldBuilding = map->GetGameObject(BuildingInfo.Guid))
+        oldBuilding->Delete();
+
+    BuildingInfo.Guid.Clear();
+}
+
+void Garrison::Plot::ClearBuildingInfo(Player* owner)
+{
+    WorldPackets::Garrison::GarrisonPlotPlaced plotPlaced;
+    plotPlaced.PlotInfo = &PacketInfo;
+    owner->SendDirectMessage(plotPlaced.Write());
+
+    BuildingInfo.PacketInfo = boost::none;
+}
+
+void Garrison::Plot::SetBuildingInfo(WorldPackets::Garrison::GarrisonBuildingInfo const& buildingInfo, Player* owner)
+{
+    if (!BuildingInfo.PacketInfo)
+    {
+        WorldPackets::Garrison::GarrisonPlotRemoved plotRemoved;
+        plotRemoved.GarrPlotInstanceID = PacketInfo.GarrPlotInstanceID;
+        owner->SendDirectMessage(plotRemoved.Write());
+    }
+
+    BuildingInfo.PacketInfo = buildingInfo;
+}
+
+bool Garrison::Building::CanActivate() const
+{
+    if (PacketInfo)
+    {
+        GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(PacketInfo->GarrBuildingID);
+        if (PacketInfo->TimeBuilt + building->BuildDuration <= time(nullptr))
+            return true;
+    }
+
+    return false;
 }
