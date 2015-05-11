@@ -154,7 +154,30 @@ namespace WorldPackets
 
             uint32 Result = 0;
             GarrisonBuildingInfo BuildingInfo;
-            bool Active = false;
+            bool PlayActivationCinematic = false;
+        };
+
+        class GarrisonCancelConstruction final : public ClientPacket
+        {
+        public:
+            GarrisonCancelConstruction(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_CANCEL_CONSTRUCTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+            uint32 PlotInstanceID = 0;
+        };
+
+        class GarrisonBuildingRemoved final : public ServerPacket
+        {
+        public:
+            GarrisonBuildingRemoved() : ServerPacket(SMSG_GARRISON_BUILDING_REMOVED, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+            uint32 GarrPlotInstanceID = 0;
+            uint32 GarrBuildingID = 0;
         };
 
         class GarrisonLearnBlueprintResult final : public ServerPacket
@@ -223,6 +246,26 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<GarrisonBuildingLandmark> Landmarks;
+        };
+
+        class GarrisonPlotPlaced final : public ServerPacket
+        {
+        public:
+            GarrisonPlotPlaced() : ServerPacket(SMSG_GARRISON_PLOT_PLACED) { }
+
+            WorldPacket const* Write() override;
+
+            GarrisonPlotInfo* PlotInfo = nullptr;
+        };
+
+        class GarrisonPlotRemoved final : public ServerPacket
+        {
+        public:
+            GarrisonPlotRemoved() : ServerPacket(SMSG_GARRISON_PLOT_REMOVED, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 GarrPlotInstanceID = 0;
         };
     }
 }

@@ -32,6 +32,9 @@ void GarrisonMgr::Initialize()
 
     for (GarrBuildingPlotInstEntry const* buildingPlotInst : sGarrBuildingPlotInstStore)
         _garrisonBuildingPlotInstances[MAKE_PAIR64(buildingPlotInst->GarrBuildingID, buildingPlotInst->GarrSiteLevelPlotInstID)] = buildingPlotInst->ID;
+
+    for (GarrBuildingEntry const* building : sGarrBuildingStore)
+        _garrisonBuildingsByType[building->Type].push_back(building);
 }
 
 GarrSiteLevelEntry const* GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
@@ -81,4 +84,15 @@ uint32 GarrisonMgr::GetGarrBuildingPlotInst(uint32 garrBuildingId, uint32 garrSi
         return itr->second;
 
     return 0;
+}
+
+GarrBuildingEntry const* GarrisonMgr::GetPreviousLevelBuilding(uint32 buildingType, uint32 currentLevel) const
+{
+    auto itr = _garrisonBuildingsByType.find(buildingType);
+    if (itr != _garrisonBuildingsByType.end())
+        for (GarrBuildingEntry const* building : itr->second)
+            if (building->Level == currentLevel - 1)
+                return building;
+
+    return nullptr;
 }

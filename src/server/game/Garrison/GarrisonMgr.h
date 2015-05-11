@@ -38,12 +38,14 @@ public:
     GameObjectsEntry const* GetPlotGameObject(uint32 mapId, uint32 garrPlotInstanceId) const;
     bool IsPlotMatchingBuilding(uint32 garrPlotId, uint32 garrBuildingId) const;
     uint32 GetGarrBuildingPlotInst(uint32 garrBuildingId, uint32 garrSiteLevelPlotInstId) const;
+    GarrBuildingEntry const* GetPreviousLevelBuilding(uint32 buildingType, uint32 currentLevel) const;
 
 private:
     std::unordered_map<uint32 /*garrSiteId*/, std::vector<GarrSiteLevelPlotInstEntry const*>> _garrisonPlotInstBySiteLevel;
     std::unordered_map<uint32 /*mapId*/, std::unordered_map<uint32 /*garrPlotId*/, GameObjectsEntry const*>> _garrisonPlots;
     std::unordered_map<uint32 /*garrPlotId*/, std::unordered_set<uint32/*garrBuildingId*/>> _garrisonBuildingsByPlot;
     std::unordered_map<uint64 /*garrBuildingId | garrSiteLevelPlotInstId << 32*/, uint32 /*garrBuildingPlotInstId*/> _garrisonBuildingPlotInstances;
+    std::unordered_map<uint32 /*buildingType*/, std::vector<GarrBuildingEntry const*>> _garrisonBuildingsByType;
 };
 
 #define sGarrisonMgr GarrisonMgr::Instance()
