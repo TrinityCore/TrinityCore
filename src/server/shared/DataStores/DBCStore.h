@@ -75,7 +75,11 @@ class DBCStorage
     typedef std::list<char*> StringPoolList;
     public:
         explicit DBCStorage(char const* f)
+#ifdef ELUNA
             : fmt(f), nCount(0), fieldCount(0), dataTable(NULL), maxdatacount(0), mindatacount(std::numeric_limits<uint32>::max())
+#else
+            : fmt(f), nCount(0), fieldCount(0), dataTable(NULL)
+#endif
         {
             indexTable.asT = NULL;
         }
