@@ -35,6 +35,29 @@ namespace WorldPackets
             uint32 MapID = 0;
         };
 
+        class InstanceInfo final : public ServerPacket
+        {
+        public:
+            struct ClientInstanceLock
+            {
+                uint32 MapID = 0;
+                uint32 DifficultyID = 0;
+                uint64 InstanceID = 0;
+                uint32 TimeRemaining = 0;
+                uint32 Completed_mask = 0;
+
+                bool Locked = false;
+                bool Extended = false;
+            };
+
+            InstanceInfo() : ServerPacket(SMSG_INSTANCE_INFO, 4) { }
+
+            WorldPacket const* Write() override;
+            
+            uint32 LocksCount = 0;
+            std::vector<ClientInstanceLock> Locks;
+        };
+
         // This packet is no longer sent - it is only here for documentation purposes
         class UpdateInstanceOwnership final : public ServerPacket
         {

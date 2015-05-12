@@ -123,7 +123,7 @@ namespace WorldPackets
 
             ChannelFlags ChannelFlags = CHANNEL_FLAG_NONE;
 
-            int32 ChannelID = 0;
+            uint32 ChannelID = 0;
 
             std::string ChannelName;
         };

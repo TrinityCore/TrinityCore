@@ -366,15 +366,21 @@ namespace WorldPackets
     {
         class ClientPartyInvite;
         class ConvertRaid;
+        class GroupDestroy;
+        class GroupNewLeader;
+        class GroupUninvite;
+        class LeaveGroup;
         class PartyInvite;
         class PartyInviteResponse;
         class PartyUninvite;
         class PartyUpdate;
         class RequestPartyJoinUpdates;
         class RequestPartyMemberStats;
+        class RequestRaidInfo;
         class RoleChangedInform;
         class SetPartyLeader;
         class SetRole;  
+        class UpdateRaidTarget;
     }
 
     namespace Petition
@@ -1068,7 +1074,7 @@ class WorldSession
         void HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& moveTimeSkipped);
         void HandleMovementAckMessage(WorldPackets::Movement::MovementAckMessage& movementAck);
 
-        void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
+        void HandleRequestRaidInfoOpcode(WorldPackets::Party::RequestRaidInfo& packet);
 
         void HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvite& packet);
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
@@ -1076,15 +1082,15 @@ class WorldSession
         void HandleGroupUninviteOpcode(WorldPackets::Party::PartyUninvite& partyUninvite);
 	    void HandleGroupSetLeaderOpcode(WorldPackets::Party::SetPartyLeader& setPartyLeader);
         void HandleGroupSetRolesOpcode(WorldPackets::Party::SetRole& setRole);
-        void HandleGroupDisbandOpcode(WorldPacket& recvPacket);
+        void HandleGroupDisbandOpcode(WorldPackets::Party::LeaveGroup& leaveGroup);
         void HandleOptOutOfLootOpcode(WorldPacket& recvData);
         void HandleLootMethodOpcode(WorldPacket& recvPacket);
         void HandleLootRoll(WorldPackets::Loot::LootRoll& packet);
-        void HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats packet);
-        void HandleRaidTargetUpdateOpcode(WorldPacket& recvData);
+        void HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats& packet);
+        void HandleRaidTargetUpdateOpcode(WorldPackets::Party::UpdateRaidTarget& packet);
         void HandleRaidReadyCheckOpcode(WorldPacket& recvData);
         void HandleGroupRaidConvertOpcode(WorldPacket& recvData);
-        void HandleGroupRequestJoinUpdates(WorldPackets::Party::RequestPartyJoinUpdates packet);
+        void HandleGroupRequestJoinUpdates(WorldPackets::Party::RequestPartyJoinUpdates& packet);
         void HandleGroupChangeSubGroupOpcode(WorldPacket& recvData);
         void HandleGroupSwapSubGroupOpcode(WorldPacket& recvData);
         void HandleGroupAssistantLeaderOpcode(WorldPacket& recvData);

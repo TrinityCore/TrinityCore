@@ -18544,10 +18544,7 @@ void Player::SendRaidInfo()
 {
     uint32 counter = 0;
 
-    WorldPacket data(SMSG_INSTANCE_INFO, 4);
-
-    size_t p_counter = data.wpos();
-    data << uint32(counter);                                // placeholder
+    WorldPackets::Instance::InstanceInfo instanceInfo;
 
     time_t now = time(NULL);
 
@@ -18557,6 +18554,8 @@ void Player::SendRaidInfo()
         {
             if (itr->second.perm)
             {
+                WorldPackets::Instance::InstanceInfo::ClientInstanceLock lock;
+                
                 InstanceSave* save = itr->second.save;
                 bool isHeroic = save->GetDifficultyID() == DIFFICULTY_10_HC || save->GetDifficultyID() == DIFFICULTY_25_HC;
                 uint32 completedEncounters = 0;
@@ -18564,21 +18563,20 @@ void Player::SendRaidInfo()
                     if (InstanceScript* instanceScript = ((InstanceMap*)map)->GetInstanceScript())
                         completedEncounters = instanceScript->GetCompletedEncounterMask();
 
-                data << uint32(save->GetMapId());           // map id
-                data << uint32(save->GetDifficultyID());      // difficulty
-                data << uint32(isHeroic);                   // heroic
-                data << uint64(save->GetInstanceId());      // instance id
-                data << uint8(1);                           // expired = 0
-                data << uint8(0);                           // extended = 1
-                data << uint32(save->GetResetTime() - now); // reset time
-                data << uint32(completedEncounters);        // completed encounters mask
-                ++counter;
+                lock.MapID = uint32(save->GetMapId());           // map id
+                lock.DifficultyID =  uint32(save->GetDifficultyID());      // difficulty
+                //data << uint32(isHeroic);                   // heroic
+                lock.InstanceID = uint64(save->GetInstanceId());      // instance id
+                //data << uint8(1);                           // expired = 0
+                //data << uint8(0);                           // extended = 1
+                lock.TimeRemaining = uint32(save->GetResetTime() - now); // reset time
+                lock.Completed_mask = uint32(completedEncounters);        // completed encounters mask
+
+                instanceInfo.Locks.push_back(lock);
             }
         }
     }
-
-    data.put<uint32>(p_counter, counter);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(instanceInfo.Write());
 }
 
 /// convert the player's binds to the group

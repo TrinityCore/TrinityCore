@@ -24,6 +24,24 @@ WorldPacket const* WorldPackets::Instance::UpdateLastInstance::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Instance::InstanceInfo::Write()
+{
+    _worldPacket << Locks.size();
+    for (ClientInstanceLock const& lock : Locks)
+    {
+        _worldPacket << lock.MapID;
+        _worldPacket << lock.DifficultyID;
+        _worldPacket << lock.InstanceID;
+        _worldPacket << lock.TimeRemaining;
+        _worldPacket << lock.Completed_mask;
+
+        _worldPacket.WriteBit(lock.Locked);
+        _worldPacket.WriteBit(lock.Extended);
+    }
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Instance::UpdateInstanceOwnership::Write()
 {
     _worldPacket << int32(IOwnInstance);

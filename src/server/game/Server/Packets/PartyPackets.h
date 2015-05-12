@@ -132,6 +132,39 @@ namespace WorldPackets
 
         };
 
+        class RequestRaidInfo final : public ClientPacket
+        {
+        public:
+            RequestRaidInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_RAID_INFO, std::move(packet)) { }
+
+            void Read() override;
+
+        };
+
+        class LeaveGroup final : public ClientPacket
+        {
+        public:
+            LeaveGroup(WorldPacket&& packet) : ClientPacket(CMSG_LEAVE_GROUP, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PartyIndex = 0;
+
+        };
+
+        class UpdateRaidTarget final : public ClientPacket
+        {
+        public:
+            UpdateRaidTarget(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_RAID_TARGET, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PartyIndex = 0;
+            ObjectGuid Target;
+            uint8 Symbol;
+
+        };
+
         class PartyInvite final : public ServerPacket
         {
         public:
@@ -192,7 +225,7 @@ namespace WorldPackets
 
         };
 
-        struct PlayerList
+        struct PlayerInfo
         {
             ObjectGuid Guid;
             uint8 Connected = 0;
@@ -220,7 +253,7 @@ namespace WorldPackets
             ObjectGuid PartyGUID;
 
             uint32 PlayerListCount = 0;
-            std::vector<PlayerList> Players;
+            std::vector<PlayerInfo> PlayerList;
 
             bool HasLfgInfo = false;
             bool HasLootSettings = false;
@@ -272,9 +305,9 @@ namespace WorldPackets
             bool ForEnemy = false;
             ObjectGuid MemberGuid;
 
-            uint8 Unk704 = 0; //2 of these. First is 1, Second is 0
+            uint8 Unk704 = 0; //Sent twice
 
-            GroupMemberOnlineStatus Status; //either define this or find where its defined
+            uint16 Status = MEMBER_STATUS_OFFLINE;
 
             uint8 PowerType = 0;
             uint16 Unk322 = 0;
@@ -313,6 +346,74 @@ namespace WorldPackets
 
         };
 
+        class GroupUninvite final : public ServerPacket
+        {
+        public:
+            GroupUninvite() : ServerPacket(SMSG_GROUP_UNINVITE, 50) { }
+
+            WorldPacket const* Write() override;
+
+        };
+
+        class GroupDestroyed final : public ServerPacket
+        {
+        public:
+            GroupDestroyed() : ServerPacket(SMSG_GROUP_DESTROYED, 50) { }
+
+            WorldPacket const* Write() override;
+
+        };
+
+        class GroupNewLeader final : public ServerPacket
+        {
+        public:
+            GroupNewLeader() : ServerPacket(SMSG_GROUP_NEW_LEADER, 50) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 PartyIndex = 0;
+            std::string Name;
+        };
+
+        class GroupDecline final : public ServerPacket
+        {
+        public:
+            GroupDecline() : ServerPacket(SMSG_GROUP_DECLINE, 50) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+        };
+
+        class SendRaidTargetInfoSingle final : public ServerPacket
+        {
+        public:
+            SendRaidTargetInfoSingle() : ServerPacket(SMSG_SEND_RAID_TARGET_UPDATE_SINGLE, 50) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 PartyIndex = 0;
+            uint8 Symbol = 0;
+            ObjectGuid Target;
+            ObjectGuid ChangedBy;
+        };
+
+        class SendRaidTargetInfoAll final : public ServerPacket
+        {
+        public:
+            struct RaidTargetSymbol
+            {
+                ObjectGuid Target;
+                uint8 Symbol = 0;
+            };
+
+            SendRaidTargetInfoAll() : ServerPacket(SMSG_SEND_RAID_TARGET_UPDATE_ALL, 50) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 PartyIndex = 0;
+            std::vector<RaidTargetSymbol> SymbolList;
+        };
     }
 }
 #endif // PartyPackets_h__

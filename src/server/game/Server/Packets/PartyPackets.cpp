@@ -74,6 +74,23 @@ void WorldPackets::Party::RequestPartyMemberStats::Read()
     _worldPacket >> Target;
 }
 
+void WorldPackets::Party::LeaveGroup::Read()
+{
+    _worldPacket >> PartyIndex;
+}
+
+void WorldPackets::Party::RequestRaidInfo::Read()
+{
+
+}
+
+void WorldPackets::Party::UpdateRaidTarget::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> Target;
+    _worldPacket >> Symbol;
+}
+
 WorldPacket const* WorldPackets::Party::PartyInvite::Write()
 {
     _worldPacket.WriteBit(CanAccept);
@@ -83,6 +100,7 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket.WriteBit(IsXRealm);
 
     _worldPacket.WriteBits(InviterName.length(), 6);
+    _worldPacket.FlushBits();
 
     _worldPacket << InviterGuid;
     _worldPacket << InviterBNetAccountID;
@@ -146,10 +164,11 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
     _worldPacket << uint32(SequenceNum);
     _worldPacket << PartyGUID;
 
-    _worldPacket << uint32(PlayerListCount);
-    for (PlayerList const& player : Players)
+    _worldPacket << uint32(PlayerList.size());
+    for (PlayerInfo const& player : PlayerList)
     {
         _worldPacket.WriteBits(player.Name.length(), 6);
+        _worldPacket.FlushBits();
 
         _worldPacket << player.Guid;
 
@@ -160,9 +179,10 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
         _worldPacket << uint8(player.UnkByte);
 
         _worldPacket.WriteString(player.Name);
+        _worldPacket.FlushBits();
     }
 
-    _worldPacket.FlushBits();
+    _worldPacket.FlushBits(); //needed?
 
     _worldPacket.WriteBit(HasLfgInfo);
     _worldPacket.WriteBit(HasLootSettings);
@@ -205,27 +225,27 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
     _worldPacket.WriteBit(ForEnemy);
     _worldPacket << MemberGuid;
 
-    _worldPacket << Unk704; //written twice. First is 1, 2nd time is 0
-    _worldPacket << Unk704;
+    _worldPacket << uint8(1);
+    _worldPacket << uint8(0);
 
     _worldPacket << uint16(Status);
 
-    _worldPacket << PowerType;
-    _worldPacket << Unk322;
+    _worldPacket << uint32(PowerType);
+    _worldPacket << uint16(Unk322);
     _worldPacket << CurrentHealth;
     _worldPacket << MaxHealth;
-    _worldPacket << CurrentPower;
-    _worldPacket << MaxPower;
-    _worldPacket << Level;
-    _worldPacket << Unk200000;
-    _worldPacket << ZoneId;
+    _worldPacket << uint16(CurrentPower);
+    _worldPacket << uint16(MaxPower);
+    _worldPacket << uint16(Level);
+    _worldPacket << uint16(Unk200000);
+    _worldPacket << uint16(ZoneId);
 
-    _worldPacket << Unk2000000;
+    _worldPacket << uint16(Unk2000000);
     _worldPacket << Unk4000000;
 
-    _worldPacket << PositionX;
-    _worldPacket << PositionY;
-    _worldPacket << PositionZ;
+    _worldPacket << uint16(PositionX);
+    _worldPacket << uint16(PositionY);
+    _worldPacket << uint16(PositionZ);
 
     _worldPacket << VehicleSeat;
     _worldPacket << AuraCount;
@@ -235,20 +255,23 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
     _worldPacket << PersonalGUID;
     for (Phase const& phase : PhasesList)
     {
-        _worldPacket << phase.PhaseFlags;
-        _worldPacket << phase.Id;
+        _worldPacket << uint16(phase.PhaseFlags);
+        _worldPacket << uint16(phase.Id);
+        _worldPacket.FlushBits();
     }
 
     for (Aura const& aura : AuraList)
     {
         _worldPacket << aura.SpellId;
-        _worldPacket << aura.Scalings;
+        _worldPacket << uint8(aura.Scalings);
         _worldPacket << aura.EffectMask;
         _worldPacket << aura.EffectCount;
         for (float scale : aura.Scales)
         {
-            _worldPacket << scale;
+            _worldPacket << float(scale);
+            _worldPacket.FlushBits();
         }
+        _worldPacket.FlushBits();
     }
 
     _worldPacket.WriteBit(HasPet);
@@ -268,8 +291,10 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
             _worldPacket << aura.EffectCount;
             for (float scale : aura.Scales)
             {
-                _worldPacket << scale;
+                _worldPacket << float(scale);
+                _worldPacket.FlushBits();
             }
+            _worldPacket.FlushBits();
         }
 
         _worldPacket.WriteBits(PetName.length(), 8);
@@ -277,5 +302,55 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
 
     }
 
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::GroupUninvite::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::GroupDestroyed::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::GroupNewLeader::Write()
+{
+    _worldPacket << PartyIndex;
+    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.WriteString(Name);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::GroupDecline::Write()
+{
+    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(Name);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::SendRaidTargetInfoSingle::Write()
+{
+    _worldPacket << PartyIndex;
+    _worldPacket << Symbol;
+    _worldPacket << Target;
+    _worldPacket << ChangedBy;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::SendRaidTargetInfoAll::Write()
+{
+    _worldPacket << PartyIndex;
+    _worldPacket << SymbolList.size();
+    for (RaidTargetSymbol const& symbol : SymbolList)
+    {
+        _worldPacket << symbol.Target;
+        _worldPacket << symbol.Symbol;
+    }
+
+    return &_worldPacket;
 }
 

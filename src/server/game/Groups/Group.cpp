@@ -545,19 +545,19 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
                 player->UpdateForQuestWorldObjects();
             }
 
-            WorldPacket data;
-
             if (method == GROUP_REMOVEMETHOD_KICK || method == GROUP_REMOVEMETHOD_KICK_LFG)
             {
-                data.Initialize(SMSG_GROUP_UNINVITE, 0);
-                player->GetSession()->SendPacket(&data);
+                WorldPackets::Party::GroupUninvite groupUninvite;
+                player->GetSession()->SendPacket(groupUninvite.Write());
             }
 
             // Do we really need to send this opcode?
-            data.Initialize(SMSG_PARTY_UPDATE, 1+1+1+1+8+4+4+8);
-            data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
-            data << m_guid << uint32(m_counter) << uint32(0) << uint64(0);
-            player->GetSession()->SendPacket(&data);
+            WorldPackets::Party::PartyUpdate partyUpdate;
+            partyUpdate.PartyFlags = 0x10;
+            partyUpdate.PartyGUID = m_guid;
+            partyUpdate.LeaderGUID = m_leaderGuid;
+            partyUpdate.SequenceNum = m_counter++;
+            player->GetSession()->SendPacket(partyUpdate.Write());
 
             _homebindIfInstance(player);
         }
@@ -708,9 +708,10 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid)
     m_leaderName = newLeader->GetName();
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
-    WorldPacket data(SMSG_GROUP_NEW_LEADER, m_leaderName.size()+1);
-    data << slot->name;
-    BroadcastPacket(&data, true);
+    WorldPackets::Party::GroupNewLeader groupNewLeader;
+    groupNewLeader.Name = slot->name;
+    groupNewLeader.PartyIndex = slot->group;
+    BroadcastPacket(groupNewLeader.Write(), true);
 }
 
 void Group::Disband(bool hideDestroy /* = false */)
@@ -744,11 +745,10 @@ void Group::Disband(bool hideDestroy /* = false */)
         if (!player->GetSession())
             continue;
 
-        WorldPacket data;
         if (!hideDestroy)
         {
-            data.Initialize(SMSG_GROUP_DESTROYED, 0);
-            player->GetSession()->SendPacket(&data);
+            WorldPackets::Party::GroupDestroyed groupDestroyed;
+            player->GetSession()->SendPacket(groupDestroyed.Write());
         }
 
         //we already removed player from group and in player->GetGroup() is his original group, send update
@@ -758,10 +758,12 @@ void Group::Disband(bool hideDestroy /* = false */)
         }
         else
         {
-            data.Initialize(SMSG_PARTY_UPDATE, 1+1+1+1+8+4+4+8);
-            data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
-            data << m_guid << uint32(m_counter) << uint32(0) << uint64(0);
-            player->GetSession()->SendPacket(&data);
+            WorldPackets::Party::PartyUpdate partyUpdate;
+            partyUpdate.PartyFlags = 0x10;
+            partyUpdate.PartyGUID = m_guid;
+            partyUpdate.LeaderGUID = m_leaderGuid;
+            partyUpdate.SequenceNum = m_counter++;
+            player->GetSession()->SendPacket(partyUpdate.Write());
         }
 
         _homebindIfInstance(player);
@@ -1505,12 +1507,11 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
 
     m_targetIcons[id] = targetGuid;
 
-    WorldPacket data(SMSG_SEND_RAID_TARGET_UPDATE_SINGLE, (1+8+1+8));
-    data << uint8(0);                                       // set targets
-    data << whoGuid;
-    data << uint8(id);
-    data << targetGuid;
-    BroadcastPacket(&data, true);
+    WorldPackets::Party::SendRaidTargetInfoSingle sendRaidTargetInfoSingle;
+    sendRaidTargetInfoSingle.ChangedBy =  whoGuid;
+    sendRaidTargetInfoSingle.Symbol =  uint8(id);
+    sendRaidTargetInfoSingle.Target =  targetGuid;
+    BroadcastPacket(sendRaidTargetInfoSingle.Write(), true);
 }
 
 void Group::SendTargetIconList(WorldSession* session)
@@ -1559,14 +1560,13 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
     WorldPackets::Party::PartyUpdate partyUpdate;
     partyUpdate.PartyFlags = uint8(slot->flags);
+    partyUpdate.PartyIndex = uint8(slot->group); //right?
     partyUpdate.PartyType = uint8(m_groupType);                         // group type (flags in 3.3)
-    //data << uint8(slot->group);
-    //data << uint8(slot->roles);
     partyUpdate.LeaderGUID = m_leaderGuid;
     partyUpdate.SequenceNum = m_counter++;
     partyUpdate.PartyGUID = m_guid;
 
-    partyUpdate.PlayerListCount = m_memberSlots.size();
+    //partyUpdate.PlayerListCount = m_memberSlots.size();
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         if (slot->guid == citr->guid)
@@ -1577,16 +1577,16 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         uint8 onlineState = (member && !member->GetSession()->PlayerLogout()) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
         onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
 
-        WorldPackets::Party::PlayerList playerList;
+        WorldPackets::Party::PlayerInfo player;
         
-        playerList.Name = citr->name;
-        playerList.Guid = citr->guid;                             // guid
-        playerList.Connected = uint8(onlineState);                     // online-state
-        playerList.Subgroup = uint8(citr->group);                     // groupid
-        playerList.Flags = uint8(citr->flags);                     // See enum GroupMemberFlags
-        playerList.RolesAssigned = uint8(citr->roles);                     // Lfg Roles
+        player.Name = citr->name;
+        player.Guid = citr->guid;                             // guid
+        player.Connected = uint8(onlineState);                     // online-state
+        player.Subgroup = uint8(citr->group);                     // groupid
+        player.Flags = uint8(citr->flags);                     // See enum GroupMemberFlags
+        player.RolesAssigned = uint8(citr->roles);                     // Lfg Roles
 
-        partyUpdate.Players.push_back(playerList);
+        partyUpdate.PlayerList.push_back(player);
     }
 
     partyUpdate.HasLfgInfo = isLFGGroup();
