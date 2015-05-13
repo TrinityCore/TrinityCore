@@ -162,12 +162,14 @@ bool OPvPCapturePoint::DelCreature(uint32 type)
     }
 
     auto bounds = m_PvP->GetMap()->GetCreatureBySpawnIdStore().equal_range(spawnId);
-    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+    for (auto itr = bounds.first; itr != bounds.second;)
     {
+        Creature* c = itr->second;
+        ++itr;
         // Don't save respawn time
-        itr->second->SetRespawnTime(0);
-        itr->second->RemoveCorpse();
-        itr->second->AddObjectToRemoveList();
+        c->SetRespawnTime(0);
+        c->RemoveCorpse();
+        c->AddObjectToRemoveList();
     }
 
     TC_LOG_DEBUG("outdoorpvp", "deleting opvp creature type %u", type);
@@ -196,11 +198,13 @@ bool OPvPCapturePoint::DelObject(uint32 type)
 
     ObjectGuid::LowType spawnId = m_Objects[type];
     auto bounds = m_PvP->GetMap()->GetGameObjectBySpawnIdStore().equal_range(spawnId);
-    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+    for (auto itr = bounds.first; itr != bounds.second;)
     {
+        GameObject* go = itr->second;
+        ++itr;
         // Don't save respawn time
-        itr->second->SetRespawnTime(0);
-        itr->second->Delete();
+        go->SetRespawnTime(0);
+        go->Delete();
     }
 
     sObjectMgr->DeleteGOData(spawnId);
