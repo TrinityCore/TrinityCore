@@ -205,6 +205,11 @@ Unit* ObjectAccessor::FindUnit(ObjectGuid guid)
     return GetObjectInWorld(guid, (Unit*)NULL);
 }
 
+Creature* ObjectAccessor::FindCreature(ObjectGuid guid)
+{
+    return GetObjectInWorld(guid, (Creature*)NULL);
+}
+
 Player* ObjectAccessor::FindPlayerByName(std::string const& name)
 {
     boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
