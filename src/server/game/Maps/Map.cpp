@@ -2616,6 +2616,17 @@ void Map::SendObjectUpdates()
 
 void Map::DelayedUpdate(const uint32 t_diff)
 {
+    for (_transportsUpdateIter = _transports.begin(); _transportsUpdateIter != _transports.end();)
+    {
+        Transport* transport = *_transportsUpdateIter;
+        ++_transportsUpdateIter;
+
+        if (!transport->IsInWorld())
+            continue;
+
+        transport->DelayedUpdate(t_diff);
+    }
+
     RemoveAllObjectsInRemoveList();
 
     // Don't unload grids if it's battleground, since we may have manually added GOs, creatures, those doesn't load from DB at grid re-load !
