@@ -32,7 +32,7 @@
 Transport::Transport() : GameObject(),
     _transportInfo(NULL), _isMoving(true), _pendingStop(false),
     _triggeredArrivalEvent(false), _triggeredDepartureEvent(false),
-    _passengerTeleportItr(_passengers.begin()), _delayedAddModel(false)
+    _passengerTeleportItr(_passengers.begin()), _delayedAddModel(false), _delayedTeleport(false)
 {
     m_updateFlag = UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
 }
@@ -224,6 +224,14 @@ void Transport::Update(uint32 diff)
     }
 
     sScriptMgr->OnTransportUpdate(this, diff);
+}
+
+void Transport::DelayedUpdate(uint32 diff)
+{
+    if (GetKeyFrames().size() <= 1)
+        return;
+
+    DelayedTeleportTransport();
 }
 
 void Transport::AddPassenger(WorldObject* passenger)
@@ -591,36 +599,8 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
 
     if (oldMap->GetId() != newMapid)
     {
-        Map* newMap = sMapMgr->CreateBaseMap(newMapid);
+        _delayedTeleport = true;
         UnloadStaticPassengers();
-        GetMap()->RemoveFromMap<Transport>(this, false);
-        SetMap(newMap);
-
-        for (_passengerTeleportItr = _passengers.begin(); _passengerTeleportItr != _passengers.end();)
-        {
-            WorldObject* obj = (*_passengerTeleportItr++);
-
-            float destX, destY, destZ, destO;
-            obj->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
-            TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
-
-            switch (obj->GetTypeId())
-            {
-                case TYPEID_PLAYER:
-                    if (!obj->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
-                        RemovePassenger(obj);
-                    break;
-                case TYPEID_DYNAMICOBJECT:
-                    obj->AddObjectToRemoveList();
-                    break;
-                default:
-                    RemovePassenger(obj);
-                    break;
-            }
-        }
-
-        Relocate(x, y, z, o);
-        GetMap()->AddToMap<Transport>(this);
         return true;
     }
     else
@@ -641,6 +621,48 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
         UpdatePosition(x, y, z, o);
         return false;
     }
+}
+
+void Transport::DelayedTeleportTransport()
+{
+    if (!_delayedTeleport)
+        return;
+
+    _delayedTeleport = false;
+    Map* newMap = sMapMgr->CreateBaseMap(_nextFrame->Node->MapID);
+    GetMap()->RemoveFromMap<Transport>(this, false);
+    SetMap(newMap);
+
+    float x = _nextFrame->Node->Loc.X,
+          y = _nextFrame->Node->Loc.Y,
+          z = _nextFrame->Node->Loc.Z,
+          o =_nextFrame->InitialOrientation;
+
+    for (_passengerTeleportItr = _passengers.begin(); _passengerTeleportItr != _passengers.end();)
+    {
+        WorldObject* obj = (*_passengerTeleportItr++);
+
+        float destX, destY, destZ, destO;
+        obj->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
+        TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
+
+        switch (obj->GetTypeId())
+        {
+            case TYPEID_PLAYER:
+                if (!obj->ToPlayer()->TeleportTo(_nextFrame->Node->MapID, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
+                    RemovePassenger(obj);
+                break;
+            case TYPEID_DYNAMICOBJECT:
+                obj->AddObjectToRemoveList();
+                break;
+            default:
+                RemovePassenger(obj);
+                break;
+        }
+    }
+
+    Relocate(x, y, z, o);
+    GetMap()->AddToMap<Transport>(this);
 }
 
 void Transport::UpdatePassengerPositions(PassengerSet& passengers)
