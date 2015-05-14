@@ -1325,7 +1325,6 @@ private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
 
-
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
