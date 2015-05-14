@@ -147,3 +147,23 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
 
     return &_worldPacket;
 }
+
+
+
+WorldPacket const* WorldPackets::CombatLog::SpellEnergizeLog::Write()
+{
+    _worldPacket << TargetGUID;
+    _worldPacket << CasterGUID;
+
+    _worldPacket << SpellID;
+    _worldPacket << PowerTypeID;
+    _worldPacket << Amount;
+
+    _worldPacket.WriteBit(LogData.is_initialized());
+    _worldPacket.FlushBits();
+
+    if (LogData)
+        _worldPacket << *LogData;
+
+    return &_worldPacket;
+}

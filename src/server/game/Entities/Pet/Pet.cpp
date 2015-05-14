@@ -34,6 +34,7 @@
 #include "Group.h"
 #include "Opcodes.h"
 #include "WorldSession.h"
+#include "PetPackets.h"
 
 #define PET_XP_FACTOR 0.05f
 
@@ -83,7 +84,9 @@ void Pet::AddToWorld()
         GetCharmInfo()->SetIsAtStay(false);
         GetCharmInfo()->SetIsFollowing(false);
         GetCharmInfo()->SetIsReturning(false);
-    }
+    } 
+
+
 }
 
 void Pet::RemoveFromWorld()
@@ -153,6 +156,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (!petEntry)
         return false;
 
+   
     uint32 summonSpellId = fields[14].GetUInt32();
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(summonSpellId);
 
@@ -223,7 +227,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, GENDER_NONE);
             SetSheath(SHEATH_STATE_MELEE);
             SetByteFlag(UNIT_FIELD_BYTES_2, 2, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
-            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE); // this enables popup window (pet abandon, cancel)
+            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE); // this enables pop up window (pet abandon, cancel)
             setPowerType(POWER_FOCUS);
             break;
         default:
@@ -293,6 +297,12 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         CharacterDatabase.CommitTransaction(trans);
     }
 
+    TC_LOG_DEBUG("entities.pet", "Pet Guilds Send");
+    WorldPackets::Pet::PetGuids response;
+    response.petCount = 1;
+    response.petGuids = this->GetGUID();
+    owner->GetSession()->SendPacket(response.Write());
+    
     // Send fake summon spell cast - this is needed for correct cooldown application for spells
     // Example: 46584 - without this cooldown (which should be set always when pet is loaded) isn't set clientside
     /// @todo pets should be summoned from real cast instead of just faking it?
@@ -310,9 +320,23 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         owner->SendMessageToSet(spellGo.Write(), true);
     }
 
+   
+
     owner->SetMinion(this, true);
     map->AddToMap(this->ToCreature());
 
+    TC_LOG_DEBUG("entities.pet", "Pet Added Send");
+    WorldPackets::Pet::PetAdded addedpacket;
+
+    addedpacket.petSlot = uint32(fields[7].GetUInt8());
+    addedpacket.petNumber = petId;
+    addedpacket.petCreatureID = fields[1].GetInt32();
+    addedpacket.petDisplayID = fields[3].GetInt32();
+    addedpacket.petExperienceLevel = fields[5].GetInt32();
+    addedpacket.petNameLenght =uint8(fields[8].GetString().length());
+    addedpacket.petName = fields[8].GetString();
+    owner->GetSession()->SendPacket(addedpacket.Write());
+    
     InitTalentForLevel();                                   // set original talents points before spell loading
 
     uint32 timediff = uint32(time(NULL) - fields[13].GetUInt32());
@@ -334,7 +358,9 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     CleanupActionBar();                                     // remove unknown spells from action bar after load
 
     TC_LOG_DEBUG("entities.pet", "New Pet has %s", GetGUID().ToString().c_str());
-
+ 
+   
+    
     owner->PetSpellInitialize();
 
     if (owner->GetGroup())
@@ -1424,15 +1450,12 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
 
 bool Pet::learnSpell(uint32 spell_id)
 {
-    // prevent duplicated entires in spell book
-    if (!addSpell(spell_id))
+    if(!addSpell(spell_id))
         return false;
-
+    
     if (!m_loading)
     {
-        WorldPacket data(SMSG_PET_LEARNED_SPELLS, 4);
-        data << uint32(spell_id);
-        GetOwner()->GetSession()->SendPacket(&data);
+        GetOwner()->GetSession()->SendPacket(WorldPackets::Pet::PetLearnedSpells(m_spells).Write());
         GetOwner()->PetSpellInitialize();
     }
     return true;
@@ -1483,9 +1506,7 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     {
         if (!m_loading)
         {
-            WorldPacket data(SMSG_PET_UNLEARNED_SPELLS, 4);
-            data << uint32(spell_id);
-            GetOwner()->GetSession()->SendPacket(&data);
+            GetOwner()->GetSession()->SendPacket(WorldPackets::Pet::PetUnlearnedSpells(m_spells).Write());
         }
         return true;
     }

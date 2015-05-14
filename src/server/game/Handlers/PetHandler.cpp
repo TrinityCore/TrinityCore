@@ -35,6 +35,7 @@
 #include "Player.h"
 #include "SpellPackets.h"
 #include "QueryPackets.h"
+#include "PetPackets.h"
 
 void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 {
@@ -59,42 +60,46 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandlePetAction(WorldPacket& recvData)
+void WorldSession::HandlePetAction(WorldPackets::Pet::PetAction& packet)
 {
-    ObjectGuid guid1;
+    /*ObjectGuid petGuid;
     uint32 data;
-    ObjectGuid guid2;
+    ObjectGuid targetGuid;
     float x, y, z;
-    recvData >> guid1;                                     //pet guid
+    
+    recvData >> petGuid;                                   //pet guid
     recvData >> data;
-    recvData >> guid2;                                     //tag guid
-    // Position
+    recvData >> targetGuid;                                //target guid
+    //Action Position
     recvData >> x;
     recvData >> y;
     recvData >> z;
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
-    uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
+    uint32 actionsFlag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
+     */
+
+    
 
     // used also for charmed creature
-    Unit* pet = ObjectAccessor::GetUnit(*_player, guid1);
-    TC_LOG_DEBUG("network", "HandlePetAction: %s - flag: %u, spellid: %u, target: %s.", guid1.ToString().c_str(), uint32(flag), spellid, guid2.ToString().c_str());
+    Unit* pet = ObjectAccessor::GetUnit(*_player, packet.petGuid);
+    TC_LOG_DEBUG("network", "HandlePetAction: %s - flag: %u, spellid: %u, target: %s.", packet.petGuid.ToString().c_str(), packet.activeStat, packet.spellid, packet.targetGuid.ToString().c_str());
 
     if (!pet)
     {
-        TC_LOG_DEBUG("network", "HandlePetAction: %s doesn't exist for %s %s", guid1.ToString().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str());
+        TC_LOG_DEBUG("network", "HandlePetAction: %s doesn't exist for %s %s", packet.petGuid.ToString().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str());
         return;
     }
 
     if (pet != GetPlayer()->GetFirstControlled())
     {
-        TC_LOG_DEBUG("network", "HandlePetAction: %s does not belong to %s %s", guid1.ToString().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str());
+        TC_LOG_DEBUG("network", "HandlePetAction: %s does not belong to %s %s", packet.petGuid.ToString().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str());
         return;
     }
 
     if (!pet->IsAlive())
     {
-        SpellInfo const* spell = (flag == ACT_ENABLED || flag == ACT_PASSIVE) ? sSpellMgr->GetSpellInfo(spellid) : NULL;
+        SpellInfo const* spell = (packet.activeStat == ACT_ENABLED || packet.activeStat == ACT_PASSIVE) ? sSpellMgr->GetSpellInfo(packet.spellid) : NULL;
         if (!spell)
             return;
         if (!spell->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_DEAD))
@@ -102,11 +107,11 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
     }
 
     /// @todo allow control charmed player?
-    if (pet->GetTypeId() == TYPEID_PLAYER && !(flag == ACT_COMMAND && spellid == COMMAND_ATTACK))
+    if (pet->GetTypeId() == TYPEID_PLAYER && !(packet.activeStat == ACT_COMMAND && packet.commandStat == COMMAND_ATTACK))
         return;
 
     if (GetPlayer()->m_Controlled.size() == 1)
-        HandlePetActionHelper(pet, guid1, spellid, flag, guid2, x, y, z);
+        HandlePetActionHelper(pet, packet.petGuid, packet.spellid, packet.activeStat, packet.targetGuid, packet.position_x, packet.position_y, packet.position_z);
     else
     {
         //If a pet is dismissed, m_Controlled will change
@@ -115,7 +120,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
             if ((*itr)->GetEntry() == pet->GetEntry() && (*itr)->IsAlive())
                 controlled.push_back(*itr);
         for (std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
-            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2, x, y, z);
+            HandlePetActionHelper(*itr, packet.petGuid, packet.spellid, packet.activeStat, packet.targetGuid, packet.position_x, packet.position_y, packet.position_z);
     }
 }
 
@@ -147,17 +152,17 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
     pet->AttackStop();
 }
 
-void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z)
+void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid petGuid, uint32 spellid, uint16 activeStat, ObjectGuid targetGuid, float x, float y, float z)
 {
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
         TC_LOG_DEBUG("network", "WorldSession::HandlePetAction(petGuid: %s, tagGuid: %s, spellId: %u, flag: %u): object (%s Entry: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!",
-            guid1.ToString().c_str(), guid2.ToString().c_str(), spellid, flag, pet->GetGUID().ToString().c_str(), pet->GetEntry(), pet->GetTypeId());
+            petGuid.ToString().c_str(), targetGuid.ToString().c_str(), spellid, activeStat, pet->GetGUID().ToString().c_str(), pet->GetEntry(), pet->GetTypeId());
         return;
     }
 
-    switch (flag)
+    switch (activeStat)
     {
         case ACT_COMMAND:                                   //0x07
             switch (spellid)
@@ -198,7 +203,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     }
 
                     // only place where pet can be player
-                    Unit* TargetUnit = ObjectAccessor::GetUnit(*_player, guid2);
+                    Unit* TargetUnit = ObjectAccessor::GetUnit(*_player, targetGuid);
                     if (!TargetUnit)
                         return;
 
@@ -229,7 +234,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                             else
                             {
                                 // 90% chance for pet and 100% chance for charmed creature
-                                pet->SendPetAIReaction(guid1);
+                                pet->SendPetAIReaction(petGuid);
                             }
                         }
                         else                                // charmed player
@@ -244,7 +249,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                             charmInfo->SetIsReturning(false);
 
                             pet->Attack(TargetUnit, true);
-                            pet->SendPetAIReaction(guid1);
+                            pet->SendPetAIReaction(petGuid);
                         }
                     }
                     break;
@@ -282,7 +287,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     charmInfo->SaveStayPosition();
                     break;
                 default:
-                    TC_LOG_ERROR("network", "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
+                    TC_LOG_ERROR("network", "WORLD: unknown PET flag Action %i and spellid %i.", activeStat, spellid);
             }
             break;
         case ACT_REACTION:                                  // 0x6
@@ -292,7 +297,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     pet->AttackStop();
                     // no break;
                 case REACT_DEFENSIVE:                       //recovery
-                case REACT_AGGRESSIVE:                      //activete
+                case REACT_AGGRESSIVE:                      //activate
                     if (pet->GetTypeId() == TYPEID_UNIT)
                         pet->ToCreature()->SetReactState(ReactStates(spellid));
                     break;
@@ -304,8 +309,8 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
         {
             Unit* unit_target = NULL;
 
-            if (!guid2.IsEmpty())
-                unit_target = ObjectAccessor::GetUnit(*_player, guid2);
+            if (!targetGuid.IsEmpty())
+                unit_target = ObjectAccessor::GetUnit(*_player, targetGuid);
 
             // do not cast unknown spells
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
@@ -367,12 +372,12 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 unit_target = spell->m_targets.GetUnitTarget();
 
                 //10% chance to play special pet attack talk, else growl
-                //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
+                //actually this only seems to happen on special spells, fire shield for imp, torment for void walker, but it's stupid to check every spell
                 if (pet->ToCreature()->IsPet() && (((Pet*)pet)->getPetType() == SUMMON_PET) && (pet != unit_target) && (urand(0, 100) < 10))
                     pet->SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
                 else
                 {
-                    pet->SendPetAIReaction(guid1);
+                    pet->SendPetAIReaction(petGuid);
                 }
 
                 if (unit_target && !GetPlayer()->IsFriendlyTo(unit_target) && !pet->isPossessed() && !pet->IsVehicle())
@@ -410,7 +415,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             break;
         }
         default:
-            TC_LOG_ERROR("network", "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
+            TC_LOG_ERROR("network", "WORLD: unknown PET flag Action %i and spellid %i.", activeStat, spellid);
     }
 }
 
@@ -467,18 +472,18 @@ bool WorldSession::CheckStableMaster(ObjectGuid guid)
     return true;
 }
 
-void WorldSession::HandlePetSetAction(WorldPacket& recvData)
+void WorldSession::HandlePetSetAction(WorldPackets::Pet::PetSetAction& packet)
 {
-    ObjectGuid petguid;
-    uint8  count;
+    //ObjectGuid petguid;
+    //uint8  count;
 
-    recvData >> petguid;
+    //recvData >> petguid;
 
-    Unit* pet = ObjectAccessor::GetUnit(*_player, petguid);
+    Unit* pet = ObjectAccessor::GetUnit(*_player, packet.petGuid);
 
     if (!pet || pet != _player->GetFirstControlled())
     {
-        TC_LOG_ERROR("network", "HandlePetSetAction: Unknown %s or owner (%s)", petguid.ToString().c_str(), _player->GetGUID().ToString().c_str());
+        TC_LOG_ERROR("network", "HandlePetSetAction: Unknown %s or owner (%s)", packet.petGuid.ToString().c_str(), _player->GetGUID().ToString().c_str());
         return;
     }
 
@@ -489,21 +494,21 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         return;
     }
 
-    count = (recvData.size() == 24) ? 2 : 1;
-
-    uint32 position[2];
-    uint32 data[2];
+    //count = (recvData.size() == 22) ? 2 : 1;
+    uint8 count = 1;
+    //uint32 position[2];
+    //uint32 data[2];
     bool move_command = false;
 
     for (uint8 i = 0; i < count; ++i)
     {
-        recvData >> position[i];
-        recvData >> data[i];
+        //recvData >> position[i];
+        //recvData >> data[i];
 
-        uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
-
+        //uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
+        uint8 act_state = packet.activeStat;
         //ignore invalid position
-        if (position[i] >= MAX_UNIT_ACTION_BAR_INDEX)
+        if (packet.petBarIndex >= MAX_UNIT_ACTION_BAR_INDEX)
             return;
 
         // in the normal case, command and reaction buttons can only be moved, not removed
@@ -521,17 +526,17 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
     // check swap (at command->spell swap client remove spell first in another packet, so check only command move correctness)
     if (move_command)
     {
-        uint8 act_state_0 = UNIT_ACTION_BUTTON_TYPE(data[0]);
+        uint8 act_state_0 = packet.activeStat;
         if (act_state_0 == ACT_COMMAND || act_state_0 == ACT_REACTION)
         {
-            uint32 spell_id_0 = UNIT_ACTION_BUTTON_ACTION(data[0]);
-            UnitActionBarEntry const* actionEntry_1 = charmInfo->GetActionBarEntry(position[1]);
+            uint32 spell_id_0 = packet.spellid;
+            UnitActionBarEntry const* actionEntry_1 = charmInfo->GetActionBarEntry(packet.petBarIndex);
             if (!actionEntry_1 || spell_id_0 != actionEntry_1->GetAction() ||
                 act_state_0 != actionEntry_1->GetType())
                 return;
         }
 
-        uint8 act_state_1 = UNIT_ACTION_BUTTON_TYPE(data[1]);
+       /* uint8 act_state_1 = UNIT_ACTION_BUTTON_TYPE(data[1]);
         if (act_state_1 == ACT_COMMAND || act_state_1 == ACT_REACTION)
         {
             uint32 spell_id_1 = UNIT_ACTION_BUTTON_ACTION(data[1]);
@@ -539,16 +544,19 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
             if (!actionEntry_0 || spell_id_1 != actionEntry_0->GetAction() ||
                 act_state_1 != actionEntry_0->GetType())
                 return;
-        }
+        }  */
     }
 
     for (uint8 i = 0; i < count; ++i)
     {
-        uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(data[i]);
-        uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
+        //uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(data[i]);
+        //uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
+        uint32 spell_id = packet.spellid;
+        uint8 act_state = packet.activeStat;
+
 
         TC_LOG_DEBUG("network", "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X",
-            _player->GetName().c_str(), position[i], spell_id, uint32(act_state));
+            _player->GetName().c_str(), packet.petBarIndex, spell_id, uint32(act_state));
 
         //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
         if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
@@ -577,70 +585,55 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
                 }
             }
 
-            charmInfo->SetActionBar(position[i], spell_id, ActiveStates(act_state));
+            charmInfo->SetActionBar(packet.petBarIndex, spell_id, ActiveStates(act_state));
         }
     }
 }
 
-void WorldSession::HandlePetRename(WorldPacket& recvData)
+void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 {
-    ObjectGuid petguid;
-    uint8 isdeclined;
-
-    std::string name;
-    DeclinedName declinedname;
-
-    recvData >> petguid;
-    recvData >> name;
-    recvData >> isdeclined;
-
-    Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
+    Pet* pet = ObjectAccessor::GetPet(*_player, packet.petGuid);
                                                             // check it!
     if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType()!= HUNTER_PET ||
         !pet->HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ||
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
         return;
 
-    PetNameInvalidReason res = ObjectMgr::CheckPetName(name);
+    PetNameInvalidReason res = ObjectMgr::CheckPetName(packet.petName);
     if (res != PET_NAME_SUCCESS)
     {
-        SendPetNameInvalid(res, name, NULL);
+        SendPetNameInvalid(res, packet.petName, NULL);
         return;
     }
 
-    if (sObjectMgr->IsReservedName(name))
+    if (sObjectMgr->IsReservedName(packet.petName))
     {
-        SendPetNameInvalid(PET_NAME_RESERVED, name, NULL);
+        SendPetNameInvalid(PET_NAME_RESERVED, packet.petName, NULL);
         return;
     }
 
-    pet->SetName(name);
+    pet->SetName(packet.petName);
 
     if (pet->GetOwner()->GetGroup())
         pet->GetOwner()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
 
     pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
 
-    if (isdeclined)
+    if (packet.isdeclined)
     {
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        {
-            recvData >> declinedname.name[i];
-        }
-
         std::wstring wname;
-        if (!Utf8toWStr(name, wname))
+        if (!Utf8toWStr(packet.petName, wname))
             return;
 
-        if (!ObjectMgr::CheckDeclinedNames(wname, declinedname))
+        if (!ObjectMgr::CheckDeclinedNames(wname, packet.declinedname))
         {
-            SendPetNameInvalid(PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, name, &declinedname);
+            SendPetNameInvalid(PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, packet.petName, &packet.declinedname);
             return;
         }
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    if (isdeclined)
+    if (packet.isdeclined)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
         stmt->setUInt32(0, pet->GetCharmInfo()->GetPetNumber());
@@ -651,13 +644,13 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
         stmt->setUInt64(1, _player->GetGUID().GetCounter());
 
         for (uint8 i = 0; i < 5; i++)
-            stmt->setString(i + 2, declinedname.name[i]);
+            stmt->setString(i + 2, packet.declinedname.name[i]);
 
         trans->Append(stmt);
     }
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
-    stmt->setString(0, name);
+    stmt->setString(0, packet.petName);
     stmt->setUInt64(1, _player->GetGUID().GetCounter());
     stmt->setUInt32(2, pet->GetCharmInfo()->GetPetNumber());
     trans->Append(stmt);
@@ -809,4 +802,37 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
             data << declinedName->name[i];
 
     SendPacket(&data);
+}
+
+void WorldSession::HandleLearnPetSpecializationOpcode(WorldPackets::Pet::LearnPetSpecializationGroup& packet)
+{
+    Unit* pet = ObjectAccessor::GetUnit(*_player, packet.petGuid);
+
+    if (packet.specGroupIndex >= MAX_SPECIALIZATIONS)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleLearnPetSpecializationOpcode - specialization index %u out of range", packet.specGroupIndex);
+        return;
+    }
+
+    ChrSpecializationEntry const* chrSpec = sChrSpecializationByIndexStore[_player->getClass()][packet.specGroupIndex];
+
+    if (!chrSpec)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleLearnPetSpecializationOpcode - specialization index %u not found", packet.specGroupIndex);
+        return;
+    }
+
+    if (chrSpec->ClassID != _player->getClass())
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleLearnPetSpecializationOpcode - specialization %u does not belong to class %u", chrSpec->ID, _player->getClass());
+        return;
+    }
+
+    if (_player->getLevel() < MIN_SPECIALIZATION_LEVEL)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleLearnPetSpecializationOpcode - player level too low for specializations");
+        return;
+    }
+
+    _player->LearnTalentSpecialization(chrSpec->ID);      
 }

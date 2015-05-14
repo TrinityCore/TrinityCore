@@ -7508,6 +7508,7 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
     RemoveFieldNotifyFlag(UF_FLAG_OWNER);
 }
 
+
 Unit* Unit::GetOwner() const
 {
     ObjectGuid ownerGUID = GetOwnerGUID();
@@ -8155,15 +8156,19 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
     return gain;
 }
 
-void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
+void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, Powers powerType)
 {
-    WorldPacket data(SMSG_SPELL_ENERGIZE_LOG, (8+8+4+4+4+1));
-    data << victim->GetPackGUID();
-    data << GetPackGUID();
-    data << uint32(spellId);
-    data << uint32(powerType);
-    data << int32(damage);
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::SpellEnergizeLog spellEnergizeLog;
+    
+    TC_LOG_DEBUG("spells", "SpellEnergizeLog -- SpellId: %u Caster: %s Target: %s (PowerType: %u Damage: %u )", spellID, GetGUID().ToString().c_str(), victim->GetGUID().ToString().c_str(),
+        int32(powerType), damage );
+    
+    spellEnergizeLog.TargetGUID = victim->GetGUID();
+    spellEnergizeLog.CasterGUID = GetGUID();
+    spellEnergizeLog.SpellID = spellID;
+    spellEnergizeLog.PowerTypeID = uint32(powerType);
+    spellEnergizeLog.Amount = damage;
+    SendMessageToSet(spellEnergizeLog.Write(), true);
 }
 
 void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
