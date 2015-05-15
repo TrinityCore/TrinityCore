@@ -225,8 +225,12 @@ void PoolGroup<Creature>::Despawn1Object(uint64 guid)
         if (!map->Instanceable())
         {
             auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(guid);
-            for (auto itr = creatureBounds.first; itr != creatureBounds.second; ++itr)
-                itr->second->AddObjectToRemoveList();
+            for (auto itr = creatureBounds.first; itr != creatureBounds.second;)
+            {
+                Creature* creature = itr->second;
+                ++itr;
+                creature->AddObjectToRemoveList();
+            }
         }
     }
 }
@@ -243,8 +247,12 @@ void PoolGroup<GameObject>::Despawn1Object(uint64 guid)
         if (!map->Instanceable())
         {
             auto gameobjectBounds = map->GetGameObjectBySpawnIdStore().equal_range(guid);
-            for (auto itr = gameobjectBounds.first; itr != gameobjectBounds.second; ++itr)
-                itr->second->AddObjectToRemoveList();
+            for (auto itr = gameobjectBounds.first; itr != gameobjectBounds.second;)
+            {
+                GameObject* go = itr->second;
+                ++itr;
+                go->AddObjectToRemoveList();
+            }
         }
     }
 }

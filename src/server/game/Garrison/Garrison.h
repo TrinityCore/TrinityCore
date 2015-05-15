@@ -62,6 +62,8 @@ class Garrison
 public:
     struct Building
     {
+        bool CanActivate() const;
+
         ObjectGuid Guid;
         Optional<WorldPackets::Garrison::GarrisonBuildingInfo> PacketInfo;
     };
@@ -69,6 +71,9 @@ public:
     struct Plot
     {
         GameObject* CreateGameObject(Map* map, GarrisonFactionIndex faction);
+        void DeleteGameObject(Map* map);
+        void ClearBuildingInfo(Player* owner);
+        void SetBuildingInfo(WorldPackets::Garrison::GarrisonBuildingInfo const& buildingInfo, Player* owner);
 
         WorldPackets::Garrison::GarrisonPlotInfo PacketInfo;
         uint32 EmptyGameObjectId = 0;
@@ -90,10 +95,12 @@ public:
     GarrisonFactionIndex GetFaction() const;
     std::vector<Plot*> GetPlots();
     Plot* GetPlot(uint32 garrPlotInstanceId);
+    Plot const* GetPlot(uint32 garrPlotInstanceId) const;
 
     void LearnBlueprint(uint32 garrBuildingId);
     void UnlearnBlueprint(uint32 garrBuildingId);
     void PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId);
+    void CancelBuildingConstruction(uint32 garrPlotInstanceId);
 
     void SendInfo();
     void SendRemoteInfo() const;
@@ -106,6 +113,7 @@ private:
     Map* FindMap() const;
     void InitializePlots();
     GarrisonError CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32 garrBuildingId) const;
+    GarrisonError CheckBuildingRemoval(uint32 garrPlotInstanceId) const;
     Player* _owner;
     GarrSiteLevelEntry const* _siteLevel;
     uint32 _followerActivationsRemainingToday;

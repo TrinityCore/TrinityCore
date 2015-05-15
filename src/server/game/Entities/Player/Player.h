@@ -311,6 +311,7 @@ enum ActionButtonType
     ACTION_BUTTON_DROPDOWN  = 0x30,
     ACTION_BUTTON_MACRO     = 0x40,
     ACTION_BUTTON_CMACRO    = ACTION_BUTTON_C | ACTION_BUTTON_MACRO,
+    ACTION_BUTTON_MOUNT     = 0x60,
     ACTION_BUTTON_ITEM      = 0x80
 };
 
@@ -1323,7 +1324,6 @@ struct PlayerTalentInfo
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
-
 
 class Player : public Unit, public GridObject<Player>
 {

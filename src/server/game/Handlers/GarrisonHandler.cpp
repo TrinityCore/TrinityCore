@@ -34,6 +34,15 @@ void WorldSession::HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::Garris
         garrison->PlaceBuilding(garrisonPurchaseBuilding.PlotInstanceID, garrisonPurchaseBuilding.BuildingID);
 }
 
+void WorldSession::HandleGarrisonCancelConstruction(WorldPackets::Garrison::GarrisonCancelConstruction& garrisonCancelConstruction)
+{
+    if (!_player->GetNPCIfCanInteractWith(garrisonCancelConstruction.NpcGUID, UNIT_NPC_FLAG_GARRISON_ARCHITECT))
+        return;
+
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->CancelBuildingConstruction(garrisonCancelConstruction.PlotInstanceID);
+}
+
 void WorldSession::HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& /*garrisonRequestBlueprintAndSpecializationData*/)
 {
     if (Garrison* garrison = _player->GetGarrison())

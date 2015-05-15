@@ -1266,8 +1266,12 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
             sMapMgr->DoForAllMapsWithMapId(data->mapid, [&itr](Map* map)
             {
                 auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(*itr);
-                for (auto itr = creatureBounds.first; itr != creatureBounds.second; ++itr)
-                    itr->second->AddObjectToRemoveList();
+                for (auto itr2 = creatureBounds.first; itr2 != creatureBounds.second;)
+                {
+                    Creature* creature = itr2->second;
+                    ++itr2;
+                    creature->AddObjectToRemoveList();
+                }
             });
         }
     }
@@ -1292,11 +1296,16 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
             sMapMgr->DoForAllMapsWithMapId(data->mapid, [&itr](Map* map)
             {
                 auto gameobjectBounds = map->GetGameObjectBySpawnIdStore().equal_range(*itr);
-                for (auto itr = gameobjectBounds.first; itr != gameobjectBounds.second; ++itr)
-                    itr->second->AddObjectToRemoveList();
+                for (auto itr2 = gameobjectBounds.first; itr2 != gameobjectBounds.second;)
+                {
+                    GameObject* go = itr2->second;
+                    ++itr2;
+                    go->AddObjectToRemoveList();
+                }
             });
         }
     }
+
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
     {
         TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventPoolIds element %u (size: %zu)", internal_event_id, mGameEventPoolIds.size());
