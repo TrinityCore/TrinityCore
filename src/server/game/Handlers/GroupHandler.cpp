@@ -16,12 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include "GroupPackets.h"
 #include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
@@ -35,6 +37,7 @@
 #include "SpellAuraEffects.h"
 #include "MiscPackets.h"
 #include "LootPackets.h"
+#include "Realm.h"
 
 class Aura;
 
@@ -61,9 +64,35 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
     SendPacket(&data);
 }
 
-void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::PartyInvite& packet)
 {
-    ObjectGuid crossRealmGuid; // unused
+     // unused
+	//std::string memberName = packet.Target.c_str();
+	ExtendedPlayerName extName = ExtractExtendedPlayerName(packet.Target);
+	std::string memberName = extName.Name;
+	uint8 memlength = packet.targetLen;
+	uint8 memlength1 = packet.targetLen1;
+	//uint8 memlength2 = packet.targetLen2;
+	/*uint8 memlength3 = packet.targetLen3;
+	uint8 memlength4 = packet.targetLen4;
+	uint8 memlength5 = packet.targetLen5;
+	uint8 memlength6 = packet.targetLen6;
+	uint8 memlength7 = packet.targetLen7;
+	uint8 memlength8 = packet.targetLen8;*/
+	
+
+	printf("0: %u \n", memlength);
+	printf("1: %u \n", memlength1);
+	//printf("2: %u \n", memlength2);
+	/*printf("3: %u \n", memlength3);
+	printf("4: %u \n", memlength4);
+	printf("5: %u \n", memlength5);
+	printf("6: %u \n", memlength6);
+	printf("7: %u \n", memlength7);
+	printf("8: %u \n", memlength8);*/
+	printf("user: %s \n", memberName);
+	
+	/*
 
     recvData.read_skip<uint32>(); // Non-zero in cross realm invites
     recvData.read_skip<uint32>(); // Always 0
@@ -75,7 +104,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
 
     crossRealmGuid[3] = recvData.ReadBit();
 
-    uint8 nameLen = recvData.ReadBits(10);
+    uint8 nameLen = recvData.ReadBits(16);
 
     crossRealmGuid[5] = recvData.ReadBit();
     crossRealmGuid[4] = recvData.ReadBit();
@@ -96,7 +125,8 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(crossRealmGuid[5]);
     recvData.ReadByteSeq(crossRealmGuid[3]);
     recvData.ReadByteSeq(crossRealmGuid[2]);
-
+	*/
+	
     // attempt add selected player
 
     // cheating
@@ -265,8 +295,25 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     }
 
     // ok, we do it
+	printf("here: %s end \n", memberName);
     WorldPacket data(SMSG_PARTY_INVITE, 45);
-
+	
+	
+	printf("guid: %u end \n", invitedGuid[0]);
+	printf("guid: %u end \n", invitedGuid[1]);
+	printf("guid: %u end \n", invitedGuid[2]);
+	printf("guid: %u end \n", invitedGuid[3]);
+	printf("guid: %u end \n", invitedGuid[4]);
+	printf("guid: %u end \n", invitedGuid[5]);
+	printf("guid: %u end \n", invitedGuid[6]);
+	printf("guid: %u end \n", invitedGuid[7]);
+	printf("playname1: %s end \n", player->GetName().c_str());
+	printf("playname: %s end \n", GetPlayer()->GetName().c_str());
+	
+	
+	std::string nameofrealm = "Infernos-WoW 6.x PTR";
+	std::string nameofrealmnospace = "Infernos-WoW6.xPTR";
+	/*
     data.WriteBit(0);
 
     data.WriteBit(invitedGuid[0]);
@@ -312,25 +359,59 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     // data.append(realm name);
 
     data.WriteByteSeq(invitedGuid[7]);
+	*/
+	data << int8(129); // 81 -Not in group OR 01- In group OR 80 - ? 
+	data << int8(0); //??
+	data << int8(7); // 03 OR 07
+	data << int8(160);
 
+	data << int8(18);//GUID PLACEHOLDER
+	/*
+	int8 n = 7;
+	while (invitedGuid[n] = 0)
+	{
+		n--;
+	}
+	while (n != 0)
+	{
+		data.WriteBit(invitedGuid[n]);
+	}
+	*/
+	data << int8(4);
+	data << int8(8);
+	data << int8(3);
+	data << int8(128);
+	data << int8(1); //bnetaccid
+	data << int8(116);
+	data << int8(202);
+	data << int8(3);
+	data << int8(1); //Realm Id
+	data << int8(0); 
+	data << int16(0); 
+	//data << int32(getMSTime());//filler to stop crash
+	data << int8(130); //82 all realms // 84 PTR
+	data << int16(0); // Realm data ?? ??
+	data.WriteString(nameofrealm);
+	data.WriteString(nameofrealmnospace);
+	data << int32(0);
+	data << int32(0);
+	data << int32(0);
     data.WriteString(GetPlayer()->GetName());
-
-    data << int32(0);
 
     player->GetSession()->SendPacket(&data);
 
     SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PARTY_RESULT_OK);
+	
 }
 
-void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupInviteResponseOpcode(WorldPackets::Party::PartyInviteResponse& packet)
 {
-    recvData.ReadBit(); // unk always 0
-    bool accept = recvData.ReadBit();
+     bool accept = packet.Accept;
 
     // Never actually received?
     /*if (accept)
         recvData.read_skip<uint32>(); // unk*/
-
+	 printf("test");
     Group* group = GetPlayer()->GetGroupInvite();
 
     if (!group)
@@ -339,6 +420,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
     if (accept)
     {
         // Remove player from invitees in any case
+		printf("accepted");
         group->RemoveInvite(GetPlayer());
 
         if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
@@ -381,7 +463,8 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
     }
     else
     {
-        // Remember leader if online (group pointer will be invalid if group gets disbanded)
+		printf("rejected");
+		// Remember leader if online (group pointer will be invalid if group gets disbanded)
         Player* leader = ObjectAccessor::FindConnectedPlayer(group->GetLeaderGUID());
 
         // uninvite, group can be deleted

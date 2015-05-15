@@ -28,12 +28,22 @@ public:
 		{
 			plr->ADD_GOSSIP_ITEM(4, "Horde Cities", GOSSIP_SENDER_MAIN, 3);
 		}
-		plr->ADD_GOSSIP_ITEM(3, "Outland", GOSSIP_SENDER_MAIN, 5);
-		
-		plr->ADD_GOSSIP_ITEM(3, "Nothrend", GOSSIP_SENDER_MAIN, 6);
-		plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 7);
-		plr->ADD_GOSSIP_ITEM(3, "Pandaria", GOSSIP_SENDER_MAIN, 8);
-		plr->ADD_GOSSIP_ITEM(3, "Isles", GOSSIP_SENDER_MAIN, 9);
+		if (plr->getLevel() > 57)
+			plr->ADD_GOSSIP_ITEM(3, "Outland", GOSSIP_SENDER_MAIN, 5);
+		if (plr->getLevel() > 67)
+			plr->ADD_GOSSIP_ITEM(3, "Northrend", GOSSIP_SENDER_MAIN, 6);
+		if (plr->getLevel() > 79)
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 7);
+		if (plr->getLevel() > 84)
+			plr->ADD_GOSSIP_ITEM(3, "Pandaria", GOSSIP_SENDER_MAIN, 8);
+		if (plr->getLevel() > 89)
+			plr->ADD_GOSSIP_ITEM(3, "Draenor", GOSSIP_SENDER_MAIN, 44);
+		if (plr->getLevel() > 89)
+			plr->ADD_GOSSIP_ITEM(3, "Isles", GOSSIP_SENDER_MAIN, 9);
+		if (plr->getLevel() > 59)
+			plr->ADD_GOSSIP_ITEM(3, "Raids", GOSSIP_SENDER_MAIN, 45);
+		plr->ADD_GOSSIP_ITEM(3, "Dungeons", GOSSIP_SENDER_MAIN, 46);
+
 		if (plr->IsGameMaster())
 		{
 			plr->ADD_GOSSIP_ITEM(3, "GMIsland", GOSSIP_SENDER_MAIN, 30);
@@ -255,6 +265,7 @@ public:
 		}
 		case 28:
 		{
+				   plr->TeleportTo(1064, 6549.56f, 5134.81f, 59.3f, 0.680899f);
 				   plr->CLOSE_GOSSIP_MENU();
 				   break;
 		}
@@ -350,11 +361,810 @@ public:
 
 		case 43:
 		{
-			plr->GetGarrison();
+			std::string memberName = "imba";
+			/*TC_LOG_ERROR("sql.sql", "%s", memberName);
+			TC_LOG_INFO("sql.sql", "%s", memberName);
+			TC_LOG_DEBUG("sql.sql", "%s", memberName);*/
+			TC_LOG_ERROR("server.worldserver", "%s", memberName);
+			TC_LOG_INFO("server.worldserver", "%s", memberName);
+			TC_LOG_DEBUG("server.worldserver", "%s", memberName);
 				   plr->CLOSE_GOSSIP_MENU();
 				   break;
 		}
-
+		case 44:
+		{
+			plr->ADD_GOSSIP_ITEM(3, "Ashran", GOSSIP_SENDER_MAIN, 47);
+			plr->ADD_GOSSIP_ITEM(3, "Frostfire Ridge", GOSSIP_SENDER_MAIN, 48);
+			plr->ADD_GOSSIP_ITEM(3, "Nagrand", GOSSIP_SENDER_MAIN, 49);
+			plr->ADD_GOSSIP_ITEM(3, "Shadowmoon Valley", GOSSIP_SENDER_MAIN, 50);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 45:
+		{
+			plr->ADD_GOSSIP_ITEM(3, "Classic", GOSSIP_SENDER_MAIN, 51);
+			if (plr->getLevel() > 69)
+				plr->ADD_GOSSIP_ITEM(3, "The Burning Crusade", GOSSIP_SENDER_MAIN, 52);
+			if (plr->getLevel() > 79)
+				plr->ADD_GOSSIP_ITEM(3, "Wrath of the Lich King", GOSSIP_SENDER_MAIN, 53);
+			if (plr->getLevel() > 84)
+				plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 54);
+			if (plr->getLevel() > 89)
+				plr->ADD_GOSSIP_ITEM(3, "Mists of Pandaria", GOSSIP_SENDER_MAIN, 55);
+			if (plr->getLevel() > 99)
+				plr->ADD_GOSSIP_ITEM(3, "Warlords of Draenor", GOSSIP_SENDER_MAIN, 56);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 46:
+		{
+			plr->ADD_GOSSIP_ITEM(3, "Classic", GOSSIP_SENDER_MAIN, 57);
+			if (plr->getLevel() > 59)
+				plr->ADD_GOSSIP_ITEM(3, "The Burning Crusade", GOSSIP_SENDER_MAIN, 58);
+			if (plr->getLevel() > 69)
+				plr->ADD_GOSSIP_ITEM(3, "Wrath of the Lich King", GOSSIP_SENDER_MAIN, 59);
+			if (plr->getLevel() > 79)
+				plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 60);
+			if (plr->getLevel() > 84)
+				plr->ADD_GOSSIP_ITEM(3, "Mists of Pandaria", GOSSIP_SENDER_MAIN, 61);
+			if (plr->getLevel() > 89)
+				plr->ADD_GOSSIP_ITEM(3, "Warlords of Draenor", GOSSIP_SENDER_MAIN, 62);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 47:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}
+		case 48:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}
+		case 49:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}
+		case 50:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}
+		case 51:
+		{
+			plr->ADD_GOSSIP_ITEM(3, "Blackwing Lair", GOSSIP_SENDER_MAIN, 63);
+			plr->ADD_GOSSIP_ITEM(3, "Molten Core", GOSSIP_SENDER_MAIN, 64);
+			plr->ADD_GOSSIP_ITEM(3, "Ruins of Ahn'Qiraj", GOSSIP_SENDER_MAIN, 65);
+			plr->ADD_GOSSIP_ITEM(3, "Temple of Ahn'Qiraj", GOSSIP_SENDER_MAIN, 66);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 52:
+		{
+			plr->ADD_GOSSIP_ITEM(3, "Black Temple", GOSSIP_SENDER_MAIN, 67);
+			plr->ADD_GOSSIP_ITEM(3, "Gruul's Lair", GOSSIP_SENDER_MAIN, 68);
+			plr->ADD_GOSSIP_ITEM(3, "Hyjal Summit", GOSSIP_SENDER_MAIN, 69);
+			plr->ADD_GOSSIP_ITEM(3, "Karazhan", GOSSIP_SENDER_MAIN, 70);
+			plr->ADD_GOSSIP_ITEM(3, "Magtheridon's Lair", GOSSIP_SENDER_MAIN, 71);
+			plr->ADD_GOSSIP_ITEM(3, "Serpentshrine Cavern", GOSSIP_SENDER_MAIN, 72);
+			plr->ADD_GOSSIP_ITEM(3, "Sunwell Plateau", GOSSIP_SENDER_MAIN, 73);
+			plr->ADD_GOSSIP_ITEM(3, "The Eye", GOSSIP_SENDER_MAIN, 74);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 53:
+		{
+			plr->ADD_GOSSIP_ITEM(3, "Icecrown Citadel", GOSSIP_SENDER_MAIN, 75);
+			plr->ADD_GOSSIP_ITEM(3, "Naxxramas", GOSSIP_SENDER_MAIN, 76);
+			plr->ADD_GOSSIP_ITEM(3, "Onyxia's Lair", GOSSIP_SENDER_MAIN, 77);
+			plr->ADD_GOSSIP_ITEM(3, "The Eye of Eternity", GOSSIP_SENDER_MAIN, 78);
+			plr->ADD_GOSSIP_ITEM(3, "The Obsidian Sanctum", GOSSIP_SENDER_MAIN, 79);
+			plr->ADD_GOSSIP_ITEM(3, "The Ruby Sanctum", GOSSIP_SENDER_MAIN, 80);
+			plr->ADD_GOSSIP_ITEM(3, "Trial of the Crusader", GOSSIP_SENDER_MAIN, 81);
+			plr->ADD_GOSSIP_ITEM(3, "Ulduar", GOSSIP_SENDER_MAIN, 82);
+			plr->ADD_GOSSIP_ITEM(3, "Vault of Archavon", GOSSIP_SENDER_MAIN, 83);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 54:
+		{
+			plr->ADD_GOSSIP_ITEM(3, "Baradin Hold", GOSSIP_SENDER_MAIN, 84);
+			plr->ADD_GOSSIP_ITEM(3, "Blackwing Descent", GOSSIP_SENDER_MAIN, 85);
+			plr->ADD_GOSSIP_ITEM(3, "Dragon Soul", GOSSIP_SENDER_MAIN, 86);
+			plr->ADD_GOSSIP_ITEM(3, "Firelands", GOSSIP_SENDER_MAIN, 87);
+			plr->ADD_GOSSIP_ITEM(3, "The Bastion of Twilight", GOSSIP_SENDER_MAIN, 88);
+			plr->ADD_GOSSIP_ITEM(3, "Throne of the Four Winds", GOSSIP_SENDER_MAIN, 89);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 55:
+		{
+			plr->ADD_GOSSIP_ITEM(3, "Mogu'shan Vaults", GOSSIP_SENDER_MAIN, 90);
+			plr->ADD_GOSSIP_ITEM(3, "Terrace of Endless Spring", GOSSIP_SENDER_MAIN, 91);
+			plr->ADD_GOSSIP_ITEM(3, "Heart of Fear", GOSSIP_SENDER_MAIN, 92);
+			plr->ADD_GOSSIP_ITEM(3, "Throne of Thunder", GOSSIP_SENDER_MAIN, 93);
+			plr->ADD_GOSSIP_ITEM(3, "Siege of Orgrimmar", GOSSIP_SENDER_MAIN, 94);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 56:
+		{
+			plr->ADD_GOSSIP_ITEM(3, "Highmaul", GOSSIP_SENDER_MAIN, 95);
+			plr->ADD_GOSSIP_ITEM(3, "Blackrock Foundry", GOSSIP_SENDER_MAIN, 96);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 57:
+		{
+			/* Classic Dungeons*/
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 97);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 98);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 99);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 100);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 101);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 102);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 103);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 104);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 105);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 106);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 107);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 108);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 109);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 110);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 111);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 112);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 113);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 114);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 115);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 58:
+		{
+			/* TBC Dungeons*/
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 116);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 117);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 118);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 119);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 120);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 121);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 122);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 123);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 124);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 125);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 126);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 127);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 128);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 129);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 130);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 131);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 59:
+		{
+			/* WOTLK Dungeons*/
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 132);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 133);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 134);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 135);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 136);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 137);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 138);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 139);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 140);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 141);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 142);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 143);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 144);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 145);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 146);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 147);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 60:
+		{
+			/* CATA Dungeons*/
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 148);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 149);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 150);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 151);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 152);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 153);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 154);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 155);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 156);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 157);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 158);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 159);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 61:
+		{
+			/* MOP Dungeons*/
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 160);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 161);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 162);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 163);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 164);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 165);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 62:
+		{
+			/* WOD Dungeons*/
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 166);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 167);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 168);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 169);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 170);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 171);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 172);
+			plr->ADD_GOSSIP_ITEM(3, "Cataclysm", GOSSIP_SENDER_MAIN, 173);
+			plr->SEND_GOSSIP_MENU(plr->GetGossipTextId(npc), npc->GetGUID());
+			break;
+		}
+		case 63:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 64:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 65:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 66:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 67:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 68:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 69:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 70:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 71:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 72:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 73:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 74:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 75:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 76:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 77:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 78:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 79:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 80:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 81:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 82:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 83:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 84:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 85:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 86:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 87:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 88:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 89:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 90:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 91:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 92:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 93:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 94:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 95:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 96:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 97:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 98:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 99:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 100:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 101:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 102:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 103:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 104:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 105:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 106:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 107:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 108:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 109:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 110:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 111:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 112:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 113:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 114:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 115:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 116:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 117:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 118:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 119:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 120:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 121:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 123:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 124:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 125:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 126:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 127:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 128:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 129:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 130:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 131:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 132:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 133:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 134:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 135:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 136:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 137:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 138:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 139:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 140:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 141:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 142:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 143:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 144:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 145:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 146:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 147:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 148:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 149:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 150:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 151:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 152:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 153:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 154:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 155:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 156:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 157:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 158:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 159:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 160:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 161:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 162:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 163:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 164:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 165:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 166:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 167:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 168:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 169:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 170:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 171:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 172:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}case 173:
+		{
+			//plr->TeleportTo(0, -3493.13f, -4912.95f, 77.1887f, 0.522433f);
+			plr->CLOSE_GOSSIP_MENU();
+			break;
+		}
 			return true;
 		}
 	}

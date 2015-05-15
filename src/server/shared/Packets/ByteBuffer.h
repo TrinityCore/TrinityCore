@@ -536,6 +536,17 @@ class ByteBuffer
             return str;
         }
 
+		std::string ReadCString(uint32 length)
+		{
+			if (!length)
+				return std::string();
+			char* buffer = new char[length + 1]();
+			read((uint8*)buffer, length);
+			std::string retval = buffer;
+			delete[] buffer;
+			return retval;
+		}
+
         //! Method for writing strings that have their length sent separately in packet
         //! without null-terminating the string
         void WriteString(std::string const& str)
@@ -550,6 +561,7 @@ class ByteBuffer
                 append(str, len);
         }
 
+		
         uint32 ReadPackedTime()
         {
             uint32 packedDate = read<uint32>();

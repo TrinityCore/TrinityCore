@@ -32,6 +32,7 @@
 #include "Packets/EquipmentSetPackets.h"
 #include "Packets/GameObjectPackets.h"
 #include "Packets/GarrisonPackets.h"
+#include "Packets/GroupPackets.h"
 #include "Packets/GuildPackets.h"
 #include "Packets/InspectPackets.h"
 #include "Packets/InstancePackets.h"
@@ -591,8 +592,8 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_OPEN_SHIPMENT_NPC,                                  STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_OPEN_TRADESKILL_NPC,                                STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_OPT_OUT_OF_LOOT,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleOptOutOfLootOpcode        );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PARTY_INVITE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PARTY_INVITE_RESPONSE,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteResponseOpcode );
+    DEFINE_HANDLER(CMSG_PARTY_INVITE,										STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::PartyInvite, &WorldSession::HandleGroupInviteOpcode);
+	DEFINE_HANDLER(CMSG_PARTY_INVITE_RESPONSE,								STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::PartyInviteResponse, &WorldSession::HandleGroupInviteResponseOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PARTY_UNINVITE,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupUninviteOpcode       );
     DEFINE_HANDLER(CMSG_PETITION_BUY,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::PetitionBuy, &WorldSession::HandlePetitionBuy);
     DEFINE_HANDLER(CMSG_PETITION_RENAME_GUILD,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::PetitionRenameGuild, &WorldSession::HandlePetitionRenameGuild);
@@ -1431,8 +1432,8 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_OPEN_SHIPMENT_NPC_RESULT,                STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_OVERRIDE_LIGHT,                          STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PAGE_TEXT,                               STATUS_NEVER,        CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PARTY_COMMAND_RESULT,                    STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PARTY_INVITE,                            STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PARTY_COMMAND_RESULT,                    STATUS_NEVER,		CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PARTY_INVITE,                            STATUS_NEVER,		CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PARTY_KILL_LOG,                          STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PARTY_MEMBER_STATE,                      STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PARTY_UPDATE,                            STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
