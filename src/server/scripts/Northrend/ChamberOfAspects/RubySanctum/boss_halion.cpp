@@ -1077,7 +1077,7 @@ class npc_meteor_strike : public CreatureScript
                     _spawnCount += dataCount;
             }
 
-            uint32 GetData(uint32 dataType) override
+            uint32 GetData(uint32 dataType) const override
             {
                 if (dataType == DATA_SPAWNED_FLAMES)
                     return _spawnCount;
@@ -1122,7 +1122,7 @@ class npc_meteor_strike_flame : public CreatureScript
 
         struct npc_meteor_strike_flameAI : public ScriptedAI
         {
-            npc_meteor_strikeAI(Creature* creature) : ScriptedAI(creature),
+            npc_meteor_strike_flameAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
                 SetCombatMovement(false);
