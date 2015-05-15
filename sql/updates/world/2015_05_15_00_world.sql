@@ -7,7 +7,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spelleffect_dbc` WHERE `EffectSpellId` IN (75880, 75881);
 INSERT INTO `spelleffect_dbc` (`Id`, `EffectSpellId`, `EffectIndex`, `Effect`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectMiscValue`, `EffectMiscValueB`) VALUES
 (155915, 75880, 0, 77, 22, 7, 12, 12, 0, 0),
-(155916, 75881, 0, 28, 18, 0, 12, 12, 40055, 64);
+(155916, 75881, 0, 28, 18, 0, 12, 12, 40683, 64);
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=75880;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES
