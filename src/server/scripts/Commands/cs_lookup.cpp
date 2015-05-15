@@ -1122,7 +1122,7 @@ public:
 			
 				Field* fields = result->Fetch();
 				std::string name = fields[1].GetCString();
-				UINT32 triggerid = fields[0].GetInt32();
+				uint32 triggerid = fields[0].GetInt32();
 				if (name.empty())
 					continue;
 

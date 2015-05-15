@@ -361,15 +361,8 @@ public:
 
 		case 43:
 		{
-			std::string memberName = "imba";
-			/*TC_LOG_ERROR("sql.sql", "%s", memberName);
-			TC_LOG_INFO("sql.sql", "%s", memberName);
-			TC_LOG_DEBUG("sql.sql", "%s", memberName);*/
-			TC_LOG_ERROR("server.worldserver", "%s", memberName);
-			TC_LOG_INFO("server.worldserver", "%s", memberName);
-			TC_LOG_DEBUG("server.worldserver", "%s", memberName);
-				   plr->CLOSE_GOSSIP_MENU();
-				   break;
+			plr->CLOSE_GOSSIP_MENU();
+			break;
 		}
 		case 44:
 		{

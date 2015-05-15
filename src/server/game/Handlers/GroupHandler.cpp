@@ -90,7 +90,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::PartyInvite& pac
 	printf("6: %u \n", memlength6);
 	printf("7: %u \n", memlength7);
 	printf("8: %u \n", memlength8);*/
-	printf("user: %s \n", memberName);
+	printf("user: %s \n", memberName.c_str());
 	
 	/*
 
@@ -295,7 +295,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::PartyInvite& pac
     }
 
     // ok, we do it
-	printf("here: %s end \n", memberName);
+	printf("here: %s end \n", memberName.c_str());
     WorldPacket data(SMSG_PARTY_INVITE, 45);
 	
 	
