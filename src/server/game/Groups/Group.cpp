@@ -1560,7 +1560,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
     WorldPackets::Party::PartyUpdate partyUpdate;
     partyUpdate.PartyFlags = uint8(slot->flags);
-    partyUpdate.PartyIndex = uint8(slot->group); //right?
+    partyUpdate.PartyIndex = uint8(slot->group);
     partyUpdate.PartyType = uint8(m_groupType);                         // group type (flags in 3.3)
     partyUpdate.LeaderGUID = m_leaderGuid;
     partyUpdate.SequenceNum = m_counter++;
@@ -1569,24 +1569,24 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     //partyUpdate.PlayerListCount = m_memberSlots.size();
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        if (slot->guid == citr->guid)
-            continue;
+        /*if (slot->guid == citr->guid)
+            continue;*/
 
         Player* member = ObjectAccessor::FindConnectedPlayer(citr->guid);
 
         uint8 onlineState = (member && !member->GetSession()->PlayerLogout()) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
         onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
 
-        WorldPackets::Party::PlayerInfo player;
+        WorldPackets::Party::PlayerInfo playerInfo;
         
-        player.Name = citr->name;
-        player.Guid = citr->guid;                             // guid
-        player.Connected = uint8(onlineState);                     // online-state
-        player.Subgroup = uint8(citr->group);                     // groupid
-        player.Flags = uint8(citr->flags);                     // See enum GroupMemberFlags
-        player.RolesAssigned = uint8(citr->roles);                     // Lfg Roles
+        playerInfo.Name = citr->name;
+        playerInfo.Guid = citr->guid;                             // guid
+        playerInfo.Connected = uint8(onlineState);                     // online-state
+        playerInfo.Subgroup = uint8(citr->group);                     // groupid
+        playerInfo.Flags = uint8(citr->flags);                     // See enum GroupMemberFlags
+        playerInfo.RolesAssigned = uint8(citr->roles);                     // Lfg Roles
 
-        partyUpdate.PlayerList.push_back(player);
+        partyUpdate.PlayerList.push_back(playerInfo);
     }
 
     partyUpdate.HasLfgInfo = isLFGGroup();

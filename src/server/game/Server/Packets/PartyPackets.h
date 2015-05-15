@@ -37,7 +37,6 @@ namespace WorldPackets
 
             uint8 PartyIndex = 0;
             ObjectGuid TargetGUID;
-
         };
 
         class SetRole final : public ClientPacket
@@ -50,7 +49,6 @@ namespace WorldPackets
             uint8 PartyIndex = 0;
             ObjectGuid ChangedUnit;
             uint32 Role = 0;
-
         };
         
         class PartyUninvite final : public ClientPacket
@@ -63,7 +61,6 @@ namespace WorldPackets
             uint8 PartyIndex = 0;
             ObjectGuid TargetGUID;
             std::string Reason;
-
         };
 
         class ClientPartyInvite final : public ClientPacket
@@ -79,8 +76,7 @@ namespace WorldPackets
             uint32 TargetCfgRealmID = 0;
             
             std::string TargetName;
-            std::string TargetRealm;
-            
+            std::string TargetRealm; 
         };
         
         class PartyInviteResponse final : public ClientPacket
@@ -95,7 +91,6 @@ namespace WorldPackets
             bool Accept = false;
             bool HasRolesDesired = false;
             uint32 RolesDesired = 0;
-
         };
 
         class ConvertRaid final : public ClientPacket
@@ -106,7 +101,6 @@ namespace WorldPackets
             void Read() override;
 
             bool Raid = false;
-
         };
 
         class RequestPartyMemberStats final : public ClientPacket
@@ -118,7 +112,6 @@ namespace WorldPackets
 
             uint8 PartyIndex = 0;
             ObjectGuid Target;
-
         };
 
         class RequestPartyJoinUpdates final : public ClientPacket
@@ -129,7 +122,6 @@ namespace WorldPackets
             void Read() override;
 
             uint8 PartyIndex = 0;
-
         };
 
         class RequestRaidInfo final : public ClientPacket
@@ -138,7 +130,6 @@ namespace WorldPackets
             RequestRaidInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_RAID_INFO, std::move(packet)) { }
 
             void Read() override;
-
         };
 
         class LeaveGroup final : public ClientPacket
@@ -149,7 +140,6 @@ namespace WorldPackets
             void Read() override;
 
             uint8 PartyIndex = 0;
-
         };
 
         class UpdateRaidTarget final : public ClientPacket
@@ -162,7 +152,6 @@ namespace WorldPackets
             uint8 PartyIndex = 0;
             ObjectGuid Target;
             uint8 Symbol;
-
         };
 
         class PartyInvite final : public ServerPacket
@@ -275,7 +264,7 @@ namespace WorldPackets
             ObjectGuid LootMaster;
             uint8 LootThreshold;
 
-            uint32 UnkInt4 = 0;
+            uint32 UnkInt4 = 1; //normally 1. Rarely 2
             uint32 DungeonDifficultyID = 0;
             uint32 RaidDifficultyID = 0;
         };
@@ -283,12 +272,6 @@ namespace WorldPackets
         class PartyMemberState final : public ServerPacket
         {
         public:
-            struct Phase
-            {
-                uint16 PhaseFlags = 0;
-                uint16 Id = 0;
-            };
-
             struct Aura
             {
                 uint32 SpellId = 0;
@@ -332,7 +315,7 @@ namespace WorldPackets
             uint32 PhaseShiftFlags = 0;
             uint32 PhaseCount = 0;
             ObjectGuid PersonalGUID;
-            std::vector<Phase> PhasesList;
+            std::vector<uint32> Phases;
             std::vector<Aura> AuraList;
 
             bool HasPet = false;

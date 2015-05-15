@@ -108,13 +108,12 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket << uint32(InviterCfgRealmID);
     _worldPacket << uint16(Unk1);
 
-    _worldPacket.FlushBits();
-
     _worldPacket.WriteBit(IsLocal);
     _worldPacket.WriteBit(Unk2);
 
     _worldPacket.WriteBits(InviterRealmNameActual.length(), 8);
     _worldPacket.WriteBits(InviterRealmNameNormalized.length(), 8);
+    _worldPacket.FlushBits();
     _worldPacket.WriteString(InviterRealmNameActual);
     _worldPacket.WriteString(InviterRealmNameNormalized);
 
@@ -135,6 +134,7 @@ WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
     _worldPacket.WriteBits(Name.length(), 9);
     _worldPacket.WriteBits(Command, 4);
     _worldPacket.WriteBits(Result, 6);
+    _worldPacket.FlushBits();
     _worldPacket << uint32(ResultData);
     _worldPacket << ResultGUID;
     _worldPacket.WriteString(Name);
@@ -164,7 +164,7 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
     _worldPacket << uint32(SequenceNum);
     _worldPacket << PartyGUID;
 
-    _worldPacket << uint32(PlayerList.size());
+    _worldPacket << uint32(PlayerList.size()); //PlayerListCount
     for (PlayerInfo const& player : PlayerList)
     {
         _worldPacket.WriteBits(player.Name.length(), 6);
@@ -179,14 +179,12 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
         _worldPacket << uint8(player.UnkByte);
 
         _worldPacket.WriteString(player.Name);
-        _worldPacket.FlushBits();
     }
-
-    _worldPacket.FlushBits(); //needed?
 
     _worldPacket.WriteBit(HasLfgInfo);
     _worldPacket.WriteBit(HasLootSettings);
     _worldPacket.WriteBit(HasDifficultySettings);
+    _worldPacket.FlushBits();
 
     if (HasLfgInfo)
     {
@@ -201,6 +199,7 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
 
         _worldPacket.WriteBit(LfgAborted);
         _worldPacket.WriteBit(MyLfgFirstReward);
+        _worldPacket.FlushBits();
     }
 
     if (HasLootSettings)
@@ -223,6 +222,7 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
 WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
 {
     _worldPacket.WriteBit(ForEnemy);
+    _worldPacket.FlushBits();
     _worldPacket << MemberGuid;
 
     _worldPacket << uint8(1);
@@ -250,13 +250,13 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
     _worldPacket << VehicleSeat;
     _worldPacket << AuraCount;
 
-    _worldPacket << PhaseShiftFlags;
-    _worldPacket << PhaseCount;
+    _worldPacket << uint32(Phases.size() ? 0 : 8);  //PhaseShiftFlags
+    _worldPacket << uint32(Phases.size());          //PhasesCount
     _worldPacket << PersonalGUID;
-    for (Phase const& phase : PhasesList)
+    for (uint16 const& phase : Phases)
     {
-        _worldPacket << uint16(phase.PhaseFlags);
-        _worldPacket << uint16(phase.Id);
+        _worldPacket << uint16(1);                  //PhaseFlags
+        _worldPacket << uint16(phase);
         _worldPacket.FlushBits();
     }
 
@@ -267,14 +267,12 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
         _worldPacket << aura.EffectMask;
         _worldPacket << aura.EffectCount;
         for (float scale : aura.Scales)
-        {
             _worldPacket << float(scale);
-            _worldPacket.FlushBits();
-        }
         _worldPacket.FlushBits();
     }
 
     _worldPacket.WriteBit(HasPet);
+    _worldPacket.FlushBits();
     if (HasPet)
     {
         _worldPacket << PetGUID;
@@ -290,14 +288,13 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
             _worldPacket << aura.EffectMask;
             _worldPacket << aura.EffectCount;
             for (float scale : aura.Scales)
-            {
                 _worldPacket << float(scale);
-                _worldPacket.FlushBits();
-            }
+
             _worldPacket.FlushBits();
         }
 
         _worldPacket.WriteBits(PetName.length(), 8);
+        _worldPacket.FlushBits();
         _worldPacket.WriteString(PetName);
 
     }
@@ -319,6 +316,7 @@ WorldPacket const* WorldPackets::Party::GroupNewLeader::Write()
 {
     _worldPacket << PartyIndex;
     _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.FlushBits();
     _worldPacket.WriteString(Name);
     return &_worldPacket;
 }
