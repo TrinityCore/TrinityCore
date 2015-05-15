@@ -1009,9 +1009,9 @@ class npc_meteor_strike_initial : public CreatureScript
                     float randomAdjustment = frand(static_cast<float>(M_PI / 14), static_cast<float>(13 * M_PI / 14));
                     float angle[4];
                     angle[0] = me->GetAngle(ownerPos);
-                    angle[1] = angle[0] - randomAdjustment;
-                    angle[2] = angle[0] + randomAdjustment;
-                    angle[3] = angle[0] - static_cast<float>(M_PI);
+                    angle[1] = angle[0] + randomAdjustment;
+                    angle[2] = angle[0] + static_cast<float>(M_PI);
+                    angle[3] = angle[2] + randomAdjustment;
 
                     _meteorList.clear();
                     for (uint8 i = 0; i < 4; i++)
