@@ -78,8 +78,7 @@ enum WarlockSpells
     SPELL_WARLOCK_UNSTABLE_AFFLICTION               = 30108,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117,
     SPELL_WARLOCK_CONFLAGRATE                       = 17962,
-    SPELL_WARLOCK_INCINERATE                        = 29722,
-    SPELL_WARLOCK_IMMOLATE                          = 348
+    SPELL_WARLOCK_INCINERATE                        = 29722
 
 };
 
