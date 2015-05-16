@@ -2315,16 +2315,15 @@ void Player::RemoveFromWorld()
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
     }
 
+    // Remove items from world before self - player must be found in Item::RemoveFromObjectUpdate
+    for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
+        if (m_items[i])
+            m_items[i]->RemoveFromWorld();
+
     ///- Do not add/remove the player from the object storage
     ///- It will crash when updating the ObjectAccessor
     ///- The player should only be removed when logging out
     Unit::RemoveFromWorld();
-
-    for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
-    {
-        if (m_items[i])
-            m_items[i]->RemoveFromWorld();
-    }
 
     for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
         iter->second->RemoveFromWorld();
@@ -4591,7 +4590,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BLUEPRINTS);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BUILDINGS);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
@@ -6209,6 +6208,22 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
                 return false;
             }
             break;
+        case ACTION_BUTTON_MOUNT:
+        {
+            auto mount = sDB2Manager.GetMountById(action);
+            if (!mount)
+            {
+                TC_LOG_ERROR("entities.player", "Mount action %u not added into button %u for player %s (%s): mount does not exist", action, button, GetName().c_str(), GetGUID().ToString().c_str());
+                return false;
+            }
+
+            if (!HasSpell(mount->SpellId))
+            {
+                TC_LOG_ERROR("entities.player", "Mount action %u not added into button %u for player %s (%s): Player does not know this mount", action, button, GetName().c_str(), GetGUID().ToString().c_str());
+                return false;
+            }
+            break;
+        }
         case ACTION_BUTTON_C:
         case ACTION_BUTTON_CMACRO:
         case ACTION_BUTTON_MACRO:
@@ -22267,7 +22282,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
             m_clientGUIDs.erase(target->GetGUID());
 
             #ifdef TRINITY_DEBUG
-            TC_LOG_DEBUG("maps", "Object %u (%s) is out of range for %s. Distance = %f", target->GetGUID().ToString().c_str(), target->GetEntry(), GetGUID().ToString().c_str(), GetDistance(target));
+            TC_LOG_DEBUG("maps", "Object %s (%u) is out of range for %s. Distance = %f", target->GetGUID().ToString().c_str(), target->GetEntry(), GetGUID().ToString().c_str(), GetDistance(target));
             #endif
         }
     }
@@ -22279,7 +22294,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
             UpdateVisibilityOf_helper(m_clientGUIDs, target, visibleNow);
 
             #ifdef TRINITY_DEBUG
-            TC_LOG_DEBUG("maps", "Object %u (%s) is visible now for %s. Distance = %f", target->GetGUID().ToString().c_str(), target->GetEntry(), GetGUID().ToString().c_str(), GetDistance(target));
+            TC_LOG_DEBUG("maps", "Object %s (%u) is visible now for %s. Distance = %f", target->GetGUID().ToString().c_str(), target->GetEntry(), GetGUID().ToString().c_str(), GetDistance(target));
             #endif
         }
     }

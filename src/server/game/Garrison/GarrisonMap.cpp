@@ -19,6 +19,7 @@
 #include "Garrison.h"
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
+#include "GameObject.h"
 
 class GarrisonGridLoader
 {
