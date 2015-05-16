@@ -878,7 +878,8 @@ class WorldSession
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(ObjectGuid guid);
 
-        void BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data);
+        //void BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data);
+        void SendPartyMemberState(Player* player);
 
         void DoLootRelease(ObjectGuid lguid);
 

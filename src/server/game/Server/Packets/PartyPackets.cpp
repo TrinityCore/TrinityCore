@@ -160,11 +160,11 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
     _worldPacket << uint8(PartyType);
 
     _worldPacket << uint32(MyIndex);
-    _worldPacket << LeaderGUID;
-    _worldPacket << uint32(SequenceNum);
     _worldPacket << PartyGUID;
+    _worldPacket << uint32(SequenceNum);
+    _worldPacket << LeaderGUID;
 
-    _worldPacket << uint32(PlayerList.size()); //PlayerListCount
+     _worldPacket << uint32(PlayerList.size()); //PlayerListCount
     for (PlayerInfo const& player : PlayerList)
     {
         _worldPacket.WriteBits(player.Name.length(), 6);
@@ -225,15 +225,15 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
     _worldPacket.FlushBits();
     _worldPacket << MemberGuid;
 
-    _worldPacket << uint8(1);
-    _worldPacket << uint8(0);
+    _worldPacket << uint8(1);                       //Unk704
+    _worldPacket << uint8(0);                       //Unk704
 
     _worldPacket << uint16(Status);
 
     _worldPacket << uint32(PowerType);
     _worldPacket << uint16(Unk322);
-    _worldPacket << CurrentHealth;
-    _worldPacket << MaxHealth;
+    _worldPacket << uint32(CurrentHealth);
+    _worldPacket << uint32(MaxHealth);
     _worldPacket << uint16(CurrentPower);
     _worldPacket << uint16(MaxPower);
     _worldPacket << uint16(Level);
@@ -241,14 +241,14 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
     _worldPacket << uint16(ZoneId);
 
     _worldPacket << uint16(Unk2000000);
-    _worldPacket << Unk4000000;
+    _worldPacket << uint32(Unk4000000);
 
     _worldPacket << uint16(PositionX);
     _worldPacket << uint16(PositionY);
     _worldPacket << uint16(PositionZ);
 
-    _worldPacket << VehicleSeat;
-    _worldPacket << AuraCount;
+    _worldPacket << uint32(VehicleSeat);
+    _worldPacket << uint32(AuraCount);
 
     _worldPacket << uint32(Phases.size() ? 0 : 8);  //PhaseShiftFlags
     _worldPacket << uint32(Phases.size());          //PhasesCount
@@ -263,7 +263,7 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
     for (Aura const& aura : AuraList)
     {
         _worldPacket << aura.SpellId;
-        _worldPacket << uint8(aura.Scalings);
+        _worldPacket << aura.Scalings;
         _worldPacket << aura.EffectMask;
         _worldPacket << aura.EffectCount;
         for (float scale : aura.Scales)

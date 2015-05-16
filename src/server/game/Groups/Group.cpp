@@ -1566,27 +1566,42 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     partyUpdate.SequenceNum = m_counter++;
     partyUpdate.PartyGUID = m_guid;
 
-    //partyUpdate.PlayerListCount = m_memberSlots.size();
+    //Player should always be first in the index
+    WorldPackets::Party::PlayerInfo playerInfo;
+    uint8 plrOnlineState = (player && !player->GetSession()->PlayerLogout()) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
+    plrOnlineState = plrOnlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
+
+    WorldPackets::Party::PlayerInfo firstPlayerInfo;
+
+    firstPlayerInfo.Name = player->GetName();
+    firstPlayerInfo.Guid = player->GetGUID();                             // guid
+    firstPlayerInfo.Connected = uint8(plrOnlineState);                    // online-state
+    firstPlayerInfo.Subgroup = uint8(player->GetSubGroup());                     // groupid
+    firstPlayerInfo.Flags = uint8(0);                                     // See enum GroupMemberFlags
+    firstPlayerInfo.RolesAssigned = uint8(0);                     // Lfg Roles
+
+    partyUpdate.PlayerList.push_back(firstPlayerInfo);
+
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        /*if (slot->guid == citr->guid)
-            continue;*/
+        if (playerGUID == citr->guid)
+            continue;
 
         Player* member = ObjectAccessor::FindConnectedPlayer(citr->guid);
 
         uint8 onlineState = (member && !member->GetSession()->PlayerLogout()) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
         onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
 
-        WorldPackets::Party::PlayerInfo playerInfo;
+        WorldPackets::Party::PlayerInfo memberInfo;
         
-        playerInfo.Name = citr->name;
-        playerInfo.Guid = citr->guid;                             // guid
-        playerInfo.Connected = uint8(onlineState);                     // online-state
-        playerInfo.Subgroup = uint8(citr->group);                     // groupid
-        playerInfo.Flags = uint8(citr->flags);                     // See enum GroupMemberFlags
-        playerInfo.RolesAssigned = uint8(citr->roles);                     // Lfg Roles
+        memberInfo.Name = citr->name;
+        memberInfo.Guid = citr->guid;                             // guid
+        memberInfo.Connected = uint8(onlineState);                     // online-state
+        memberInfo.Subgroup = uint8(citr->group);                     // groupid
+        memberInfo.Flags = uint8(citr->flags);                     // See enum GroupMemberFlags
+        memberInfo.RolesAssigned = uint8(citr->roles);                     // Lfg Roles
 
-        partyUpdate.PlayerList.push_back(playerInfo);
+        partyUpdate.PlayerList.push_back(memberInfo);
     }
 
     partyUpdate.HasLfgInfo = isLFGGroup();
@@ -1623,15 +1638,14 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     if (!player || !player->IsInWorld())
         return;
 
-    WorldPacket data;
-    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data);
+    player->GetSession()->SendPartyMemberState(player);
 
     Player* member;
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         member = itr->GetSource();
         if (member && member != player && (!member->IsInMap(player) || !member->IsWithinDist(player, member->GetSightRange(), false)))
-            member->GetSession()->SendPacket(&data);
+            member->GetSession()->SendPartyMemberState(player);
     }
 }
 
