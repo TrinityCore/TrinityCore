@@ -6200,7 +6200,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
 // Used in case when access to whole aura is needed
 // All procs should be handled like this...
-bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown, bool * handled)
+bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura, SpellInfo const* procSpell, uint32 /*procFlag*/, uint32 procEx, uint32 cooldown, bool * handled)
 {
     SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
 
@@ -6378,6 +6378,30 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
                     break;
             }
             break;
+        }
+        case SPELLFAMILY_WARLOCK:
+        {
+            switch (dummySpell->Id)
+            {
+                // Burning embers spell proc
+                case 108647:
+                {
+                    bool isCrit = (procEx & PROC_EX_CRITICAL_HIT);
+
+                    // Increase burning emberse
+                    if (procSpell->Id == 29722) // Incinerate
+                        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS)+(isCrit ? 2 : 1));
+                    else if (procSpell->Id == 17962) // Conflagrate
+                        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS)+(isCrit ? 2 : 1));
+                    else if (procSpell->Id == 348 && isCrit) // Immolate 
+                        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS)+1);
+                    else if (procSpell->Id == 77799) // Fel Flame
+                        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS)+(isCrit ? 2 : 1));
+                    else if (procSpell->Id == 5740 && roll_chance_i(30)) // Rain of fire
+                        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS)+1);
+                    break;
+                }
+            }
         }
     }
     return false;
@@ -11626,6 +11650,8 @@ int32 Unit::GetCreatePowers(Powers power) const
             return 0;
         case POWER_SOUL_SHARDS:
             return 400;
+        case POWER_BURNING_EMBERS:
+            return 40;
         case POWER_ECLIPSE:
             return 100;
         case POWER_HOLY_POWER:
@@ -11634,8 +11660,6 @@ int32 Unit::GetCreatePowers(Powers power) const
             return 4;
         case POWER_SHADOW_ORBS:
             return 3;
-        case POWER_BURNING_EMBERS:
-            return 40;
         case POWER_DEMONIC_FURY:
             return 1000;
         case POWER_ARCANE_CHARGES:
