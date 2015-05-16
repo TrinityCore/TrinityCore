@@ -76,7 +76,11 @@ enum WarlockSpells
     SPELL_WARLOCK_SOUL_SWAP_MOD_COST                = 92794,
     SPELL_WARLOCK_SOUL_SWAP_DOT_MARKER              = 92795,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION               = 30108,
-    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117,
+    SPELL_WARLOCK_CONFLAGRATE                       = 17962,
+    SPELL_WARLOCK_INCINERATE                        = 29722,
+    SPELL_WARLOCK_IMMOLATE                          = 348
+
 };
 
 enum WarlockSpellIcons
@@ -1472,13 +1476,13 @@ public:
 
             switch(spellId)
             {
-                case 17962:
-                case 29722:
+                case SPELL_WARLOCK_CONFLAGRATE:
+                case SPELL_WARLOCK_INCINERATE:
                     embers = 1;
                         if (crit)
                             embers *= 2;
                         break;
-                case 348:
+                case SPELL_WARLOCK_IMMOLATE:
                     embers = crit ? 2 : 0;
                     break;
                 default:
