@@ -37,6 +37,7 @@ WorldPacket const* WorldPackets::Instance::InstanceInfo::Write()
 
         _worldPacket.WriteBit(lock.Locked);
         _worldPacket.WriteBit(lock.Extended);
+        _worldPacket.FlushBits();
     }
 
     return &_worldPacket;

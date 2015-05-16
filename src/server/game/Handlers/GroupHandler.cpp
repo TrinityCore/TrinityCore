@@ -294,10 +294,8 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPackets::Party::PartyInv
 
 void WorldSession::HandleGroupUninviteOpcode(WorldPackets::Party::PartyUninvite& partyUninvite)
 {
-    ObjectGuid guid;
-    std::string reason;
-    guid = partyUninvite.TargetGUID;
-    reason = partyUninvite.Reason;
+    ObjectGuid guid = partyUninvite.TargetGUID;
+    std::string  reason = partyUninvite.Reason;
 
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
@@ -737,101 +735,93 @@ void WorldSession::SendPartyMemberState(Player* player)
     if (player->isDND())
         playerStatus |= MEMBER_STATUS_DND;
 
-    partyMemberState.PowerType = uint8(powerType);
+    partyMemberState.PowerType = powerType;
     partyMemberState.Status = playerStatus;                                 // GROUP_UPDATE_FLAG_STATUS
-    partyMemberState.CurrentHealth = uint32(player->GetHealth());           // GROUP_UPDATE_FLAG_CUR_HP
-    partyMemberState.MaxHealth = uint32(player->GetMaxHealth());           // GROUP_UPDATE_FLAG_MAX_HP
+    partyMemberState.CurrentHealth = player->GetHealth();           // GROUP_UPDATE_FLAG_CUR_HP
+    partyMemberState.MaxHealth = player->GetMaxHealth();           // GROUP_UPDATE_FLAG_MAX_HP
 
-    partyMemberState.CurrentPower = uint16(player->GetPower(powerType));            // GROUP_UPDATE_FLAG_CUR_POWER
-    partyMemberState.MaxPower = uint16(player->GetMaxPower(powerType));         // GROUP_UPDATE_FLAG_MAX_POWER
-    partyMemberState.Level = uint16(player->getLevel());                     // GROUP_UPDATE_FLAG_LEVEL
-    partyMemberState.ZoneId = uint16(player->GetZoneId());                    // GROUP_UPDATE_FLAG_ZONE
-    partyMemberState.PositionX = uint16(player->GetPositionX());                 // GROUP_UPDATE_FLAG_POSITION
-    partyMemberState.PositionY = uint16(player->GetPositionY());                 // GROUP_UPDATE_FLAG_POSITION
-    partyMemberState.PositionZ = uint16(player->GetPositionZ());               // GROUP_UPDATE_FLAG_POSITION
+    partyMemberState.CurrentPower = player->GetPower(powerType);            // GROUP_UPDATE_FLAG_CUR_POWER
+    partyMemberState.MaxPower = player->GetMaxPower(powerType);         // GROUP_UPDATE_FLAG_MAX_POWER
+    partyMemberState.Level = player->getLevel();                     // GROUP_UPDATE_FLAG_LEVEL
+    partyMemberState.ZoneId = player->GetZoneId();                    // GROUP_UPDATE_FLAG_ZONE
+    partyMemberState.PositionX = player->GetPositionX();                 // GROUP_UPDATE_FLAG_POSITION
+    partyMemberState.PositionY = player->GetPositionY();                 // GROUP_UPDATE_FLAG_POSITION
+    partyMemberState.PositionZ = player->GetPositionZ();               // GROUP_UPDATE_FLAG_POSITION
 
-    partyMemberState.VehicleSeat = player->GetVehicle() ? uint32(player->GetVehicle()->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat]) : 0;
+    partyMemberState.VehicleSeat = player->GetVehicle() ? player->GetVehicle()->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat] : 0;
 
-    partyMemberState.PhaseShiftFlags = uint32(phases.empty() ? 8 : 0);
-    partyMemberState.PhaseCount = uint32(phases.size());
+    partyMemberState.PhaseShiftFlags = phases.empty() ? 8 : 0;
     for (std::set<uint32>::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
         partyMemberState.Phases.push_back(uint16(*itr));
 
-    uint32 auraCounter = 0;
     for (uint8 i = 0; i < MAX_AURAS; ++i)
     {
         if (AuraApplication const* aurApp = player->GetVisibleAura(i))
         {
             WorldPackets::Party::PartyMemberState::Aura aura;
 
-            aura.SpellId = uint32(aurApp->GetBase()->GetId());
+            aura.SpellId = aurApp->GetBase()->GetId();
             //todo: Scalings
-            aura.EffectMask = uint32(aurApp->GetEffectMask());
+            aura.EffectMask = aurApp->GetEffectMask();
 
             if (aurApp->GetFlags() & AFLAG_SCALABLE)
             {
                 for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
                     if (AuraEffect const* eff = aurApp->GetBase()->GetEffect(i))
-                        aura.Scales.push_back(float(eff->GetAmount()));
+                        aura.Scales.push_back(eff->GetAmount());
                     else
-                        aura.Scales.push_back(float(0));
+                        aura.Scales.push_back(0);
                 }
             }
-            auraCounter++;
+            partyMemberState.AuraList.push_back(aura);
         }
     }
-    partyMemberState.AuraCount = auraCounter;                    // GROUP_UPDATE_FLAG_AURAS
 
     partyMemberState.HasPet = pet ? true : false;
     if (partyMemberState.HasPet)
     {
         partyMemberState.PetName = pet->GetName();                          // GROUP_UPDATE_FLAG_PET_NAME
-        partyMemberState.PetModelId = uint16(pet->GetDisplayId());          // GROUP_UPDATE_FLAG_PET_MODEL_ID
-        partyMemberState.PetCurrentHealth = uint32(pet->GetHealth());
-        partyMemberState.PetMaxHealth = uint32(pet->GetMaxHealth());
+        partyMemberState.PetModelId = pet->GetDisplayId();          // GROUP_UPDATE_FLAG_PET_MODEL_ID
+        partyMemberState.PetCurrentHealth = pet->GetHealth();
+        partyMemberState.PetMaxHealth = pet->GetMaxHealth();
 
-        uint32 petAuraCounter = 0;
         for (uint8 i = 0; i < MAX_AURAS; ++i)
         {
             if (AuraApplication const* aurApp = pet->GetVisibleAura(i))
             {
                 WorldPackets::Party::PartyMemberState::Aura aura;
-                aura.SpellId = uint32(aurApp->GetBase()->GetId());
+                aura.SpellId = aurApp->GetBase()->GetId();
                 //todo: Scalings
-                aura.EffectMask = uint32(aurApp->GetEffectMask());
+                aura.EffectMask = aurApp->GetEffectMask();
 
                 if (aurApp->GetFlags() & AFLAG_SCALABLE)
                 {
                     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
                         if (AuraEffect const* eff = aurApp->GetBase()->GetEffect(i))
-                            aura.Scales.push_back(float(eff->GetAmount()));
+                            aura.Scales.push_back(eff->GetAmount());
                         else
-                            aura.Scales.push_back(float(0));
+                            aura.Scales.push_back(0);
                     }
                 }
-                petAuraCounter++;
                 partyMemberState.PetAuraList.push_back(aura);
             }
         }
-        partyMemberState.PetAuraCount = petAuraCounter;
     }
 
     SendPacket(partyMemberState.Write());
 }
 
-/*this procedure handles clients CMSG_REQUEST_PARTY_MEMBER_STATS request*/
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats& requestPartyMemberStats)
 {
-    ObjectGuid Guid;
-    Guid = requestPartyMemberStats.Target;
+    ObjectGuid guid = requestPartyMemberStats.Target;
 
-    Player* player = ObjectAccessor::FindConnectedPlayer(Guid);
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     if (!player)
     {
         WorldPackets::Party::PartyMemberState partyMemberState;
-        partyMemberState.MemberGuid = Guid;
+        partyMemberState.MemberGuid = guid;
         partyMemberState.Status = MEMBER_STATUS_OFFLINE;
         SendPacket(partyMemberState.Write());
         return;

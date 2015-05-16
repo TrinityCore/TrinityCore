@@ -1559,9 +1559,9 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     }
 
     WorldPackets::Party::PartyUpdate partyUpdate;
-    partyUpdate.PartyFlags = uint8(slot->flags);
-    partyUpdate.PartyIndex = uint8(slot->group);
-    partyUpdate.PartyType = uint8(m_groupType);                         // group type (flags in 3.3)
+    partyUpdate.PartyFlags = slot->flags;
+    partyUpdate.PartyIndex = slot->group;
+    partyUpdate.PartyType = m_groupType;                         // group type (flags in 3.3)
     partyUpdate.LeaderGUID = m_leaderGuid;
     partyUpdate.SequenceNum = m_counter++;
     partyUpdate.PartyGUID = m_guid;
@@ -1574,11 +1574,12 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     WorldPackets::Party::PlayerInfo firstPlayerInfo;
 
     firstPlayerInfo.Name = player->GetName();
-    firstPlayerInfo.Guid = player->GetGUID();                             // guid
-    firstPlayerInfo.Connected = uint8(plrOnlineState);                    // online-state
-    firstPlayerInfo.Subgroup = uint8(player->GetSubGroup());                     // groupid
-    firstPlayerInfo.Flags = uint8(0);                                     // See enum GroupMemberFlags
-    firstPlayerInfo.RolesAssigned = uint8(0);                     // Lfg Roles
+    firstPlayerInfo.Guid = player->GetGUID();
+    firstPlayerInfo.Connected = plrOnlineState;
+    firstPlayerInfo.Subgroup = player->GetSubGroup();
+    firstPlayerInfo.Flags = 0;                          // See enum GroupMemberFlags
+    firstPlayerInfo.RolesAssigned = 0;                  // Lfg Roles
+    firstPlayerInfo.Class = player->getClass();
 
     partyUpdate.PlayerList.push_back(firstPlayerInfo);
 
@@ -1595,11 +1596,11 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         WorldPackets::Party::PlayerInfo memberInfo;
         
         memberInfo.Name = citr->name;
-        memberInfo.Guid = citr->guid;                             // guid
-        memberInfo.Connected = uint8(onlineState);                     // online-state
-        memberInfo.Subgroup = uint8(citr->group);                     // groupid
-        memberInfo.Flags = uint8(citr->flags);                     // See enum GroupMemberFlags
-        memberInfo.RolesAssigned = uint8(citr->roles);                     // Lfg Roles
+        memberInfo.Guid = citr->guid;
+        memberInfo.Connected = onlineState;
+        memberInfo.Subgroup = citr->group;
+        memberInfo.Flags = citr->flags;            // See enum GroupMemberFlags
+        memberInfo.RolesAssigned = citr->roles;    // Lfg Roles
 
         partyUpdate.PlayerList.push_back(memberInfo);
     }
@@ -1616,18 +1617,18 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     
     if (partyUpdate.HasLootSettings)
     {
-        partyUpdate.LootMethod = m_lootMethod;                 // loot method
+        partyUpdate.LootMethod = m_lootMethod;
 
         if (m_lootMethod == MASTER_LOOT)
-            partyUpdate.LootMaster = m_masterLooterGuid;                 // master looter guid
+            partyUpdate.LootMaster = m_masterLooterGuid;
 
-        partyUpdate.LootThreshold = m_lootThreshold;               // loot threshold
+        partyUpdate.LootThreshold = m_lootThreshold;
     }
 
     if (partyUpdate.HasDifficultySettings)
     {
-        partyUpdate.DungeonDifficultyID = m_dungeonDifficulty;             // Dungeon Difficulty
-        partyUpdate.RaidDifficultyID = m_raidDifficulty;            // Raid Difficulty
+        partyUpdate.DungeonDifficultyID = m_dungeonDifficulty;
+        partyUpdate.RaidDifficultyID = m_raidDifficulty;
     }
 
     player->GetSession()->SendPacket(partyUpdate.Write());

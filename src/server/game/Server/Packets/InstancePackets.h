@@ -54,7 +54,6 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
             
-            uint32 LocksCount = 0;
             std::vector<ClientInstanceLock> Locks;
         };
 

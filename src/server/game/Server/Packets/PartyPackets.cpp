@@ -100,7 +100,6 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket.WriteBit(IsXRealm);
 
     _worldPacket.WriteBits(InviterName.length(), 6);
-    _worldPacket.FlushBits();
 
     _worldPacket << InviterGuid;
     _worldPacket << InviterBNetAccountID;
@@ -113,12 +112,11 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
 
     _worldPacket.WriteBits(InviterRealmNameActual.length(), 8);
     _worldPacket.WriteBits(InviterRealmNameNormalized.length(), 8);
-    _worldPacket.FlushBits();
     _worldPacket.WriteString(InviterRealmNameActual);
     _worldPacket.WriteString(InviterRealmNameNormalized);
 
     _worldPacket << uint32(ProposedRoles);
-    _worldPacket << uint32(LfgSlotsCount);
+    _worldPacket << uint32(LfgSlots.size());
     _worldPacket << uint32(LfgCompletedMask);
 
     _worldPacket.WriteString(InviterName);
@@ -176,7 +174,7 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
         _worldPacket << uint8(player.Subgroup);
         _worldPacket << uint8(player.Flags);
         _worldPacket << uint8(player.RolesAssigned);
-        _worldPacket << uint8(player.UnkByte);
+        _worldPacket << uint8(player.Class);
 
         _worldPacket.WriteString(player.Name);
     }
@@ -222,7 +220,6 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
 WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
 {
     _worldPacket.WriteBit(ForEnemy);
-    _worldPacket.FlushBits();
     _worldPacket << MemberGuid;
 
     _worldPacket << uint8(1);                       //Unk704
@@ -248,7 +245,7 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
     _worldPacket << uint16(PositionZ);
 
     _worldPacket << uint32(VehicleSeat);
-    _worldPacket << uint32(AuraCount);
+    _worldPacket << uint32(AuraList.size());
 
     _worldPacket << uint32(Phases.size() ? 0 : 8);  //PhaseShiftFlags
     _worldPacket << uint32(Phases.size());          //PhasesCount
@@ -265,7 +262,7 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
         _worldPacket << aura.SpellId;
         _worldPacket << aura.Scalings;
         _worldPacket << aura.EffectMask;
-        _worldPacket << aura.EffectCount;
+        _worldPacket << aura.Scales.size();
         for (float scale : aura.Scales)
             _worldPacket << float(scale);
         _worldPacket.FlushBits();
@@ -280,13 +277,13 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
         _worldPacket << PetCurrentHealth;
         _worldPacket << PetMaxHealth;
 
-        _worldPacket << PetAuraCount;
+        _worldPacket << uint32(PetAuraList.size());
         for (Aura const& aura : PetAuraList)
         {
             _worldPacket << aura.SpellId;
             _worldPacket << aura.Scalings;
             _worldPacket << aura.EffectMask;
-            _worldPacket << aura.EffectCount;
+            _worldPacket << aura.Scales.size();
             for (float scale : aura.Scales)
                 _worldPacket << float(scale);
 

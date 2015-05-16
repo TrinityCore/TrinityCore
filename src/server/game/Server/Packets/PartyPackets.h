@@ -178,7 +178,6 @@ namespace WorldPackets
             std::string InviterRealmNameActual;
             std::string InviterRealmNameNormalized;
             uint32 ProposedRoles = 0;
-            uint32 LfgSlotsCount = 0;
             uint32 LfgCompletedMask = 0;
             std::string InviterName;
             std::vector<uint32> LfgSlots;
@@ -221,7 +220,7 @@ namespace WorldPackets
             uint8 Subgroup = 0;
             uint8 Flags = 0;
             uint8 RolesAssigned = 0;
-            uint8 UnkByte = 0;
+            uint8 Class = 0;
             std::string Name;
         };
         
@@ -241,7 +240,6 @@ namespace WorldPackets
             uint32 SequenceNum = 0;
             ObjectGuid PartyGUID;
 
-            uint32 PlayerListCount = 0;
             std::vector<PlayerInfo> PlayerList;
 
             bool HasLfgInfo = false;
@@ -277,7 +275,6 @@ namespace WorldPackets
                 uint32 SpellId = 0;
                 uint8 Scalings = 0;
                 uint32 EffectMask = 0;
-                uint32 EffectCount = 0;
                 std::vector<float> Scales;
             };
 
@@ -310,10 +307,8 @@ namespace WorldPackets
             uint16 PositionZ = 0;
 
             uint32 VehicleSeat = 0;
-            uint32 AuraCount = 0;
 
             uint32 PhaseShiftFlags = 0;
-            uint32 PhaseCount = 0;
             ObjectGuid PersonalGUID;
             std::vector<uint32> Phases;
             std::vector<Aura> AuraList;
@@ -332,7 +327,7 @@ namespace WorldPackets
         class GroupUninvite final : public ServerPacket
         {
         public:
-            GroupUninvite() : ServerPacket(SMSG_GROUP_UNINVITE, 50) { }
+            GroupUninvite() : ServerPacket(SMSG_GROUP_UNINVITE, 0) { }
 
             WorldPacket const* Write() override;
 
@@ -341,7 +336,7 @@ namespace WorldPackets
         class GroupDestroyed final : public ServerPacket
         {
         public:
-            GroupDestroyed() : ServerPacket(SMSG_GROUP_DESTROYED, 50) { }
+            GroupDestroyed() : ServerPacket(SMSG_GROUP_DESTROYED, 0) { }
 
             WorldPacket const* Write() override;
 
@@ -350,7 +345,7 @@ namespace WorldPackets
         class GroupNewLeader final : public ServerPacket
         {
         public:
-            GroupNewLeader() : ServerPacket(SMSG_GROUP_NEW_LEADER, 50) { }
+            GroupNewLeader() : ServerPacket(SMSG_GROUP_NEW_LEADER, 12) { }
 
             WorldPacket const* Write() override;
 
@@ -361,7 +356,7 @@ namespace WorldPackets
         class GroupDecline final : public ServerPacket
         {
         public:
-            GroupDecline() : ServerPacket(SMSG_GROUP_DECLINE, 50) { }
+            GroupDecline() : ServerPacket(SMSG_GROUP_DECLINE, 12) { }
 
             WorldPacket const* Write() override;
 
@@ -371,7 +366,7 @@ namespace WorldPackets
         class SendRaidTargetInfoSingle final : public ServerPacket
         {
         public:
-            SendRaidTargetInfoSingle() : ServerPacket(SMSG_SEND_RAID_TARGET_UPDATE_SINGLE, 50) { }
+            SendRaidTargetInfoSingle() : ServerPacket(SMSG_SEND_RAID_TARGET_UPDATE_SINGLE, 32) { }
 
             WorldPacket const* Write() override;
 
