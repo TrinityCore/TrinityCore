@@ -1449,6 +1449,60 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
         }
 };
 
+// Called By : Incinerate - 29722 and Incinerate (Fire and Brimstone) - 114654
+// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
+// Burning Embers generate
+class spell_warl_burning_embers : public SpellScriptLoader
+{
+public:
+    spell_warl_burning_embers() : SpellScriptLoader("spell_warl_burning_embers") { }
+
+    class spell_warl_burning_embers_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warl_burning_embers_AuraScript);
+
+        void OnProcHandler(ProcEventInfo& eventInfo)
+        {
+            if (!GetOwner())
+                return;
+
+            uint32 spellId = eventInfo.GetDamageInfo()->GetSpellInfo()->Id;
+            int32 embers = 0;
+            bool crit = (eventInfo.GetHitMask() & PROC_HIT_CRITICAL);
+
+            switch(spellId)
+            {
+                case 17962:
+                case 29722:
+                    embers = 1;
+                        if (crit)
+                            embers *= 2;
+                        break;
+                case 348:
+                    embers = crit ? 2 : 0;
+                    break;
+                default:
+                    return;
+            }
+
+            if (Player* _player = GetOwner()->ToPlayer())
+            {
+                _player->ModifyPower(POWER_BURNING_EMBERS, embers);
+            }
+        }
+
+        void Register()
+        {
+            OnProc += AuraProcFn(spell_warl_burning_embers_AuraScript::OnProcHandler);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warl_burning_embers_AuraScript();
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_aftermath();
@@ -1482,4 +1536,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_swap_override();
     new spell_warl_soulshatter();
     new spell_warl_unstable_affliction();
+    new spell_warl_burning_embers();
 }
