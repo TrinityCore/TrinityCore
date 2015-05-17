@@ -74,7 +74,7 @@ namespace WorldPackets
             uint32 Xp = 0;
             uint32 CurrentBuildingID = 0;
             uint32 CurrentMissionID = 0;
-            std::vector<uint32> AbilityID;
+            std::list<uint32> AbilityID;
             uint32 FollowerStatus;
         };
 
@@ -102,9 +102,9 @@ namespace WorldPackets
             uint32 FactionIndex = 0;
             uint32 NumFollowerActivationsRemaining = 0;
             std::vector<GarrisonPlotInfo*> Plots;
-            std::vector<GarrisonBuildingInfo*> Buildings;
-            std::vector<GarrisonFollower*> Followers;
-            std::vector<GarrisonMission*> Missions;
+            std::vector<GarrisonBuildingInfo const*> Buildings;
+            std::vector<GarrisonFollower const*> Followers;
+            std::vector<GarrisonMission const*> Missions;
             std::vector<int32> ArchivedMissions;
         };
 
@@ -266,6 +266,17 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 GarrPlotInstanceID = 0;
+        };
+
+        class GarrisonAddFollowerResult final : public ServerPacket
+        {
+        public:
+            GarrisonAddFollowerResult() : ServerPacket(SMSG_GARRISON_ADD_FOLLOWER_RESULT, 8 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 5 * 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            GarrisonFollower Follower;
+            uint32 Result = 0;
         };
     }
 }

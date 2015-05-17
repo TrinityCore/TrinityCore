@@ -18,9 +18,14 @@
 #ifndef GarrisonMgr_h__
 #define GarrisonMgr_h__
 
+#include "DB2Stores.h"
 #include <unordered_set>
 
-#include "DB2Stores.h"
+struct GarrAbilities
+{
+    std::unordered_set<GarrAbilityEntry const*> Counters;
+    std::unordered_set<GarrAbilityEntry const*> Traits;
+};
 
 class GarrisonMgr
 {
@@ -39,6 +44,8 @@ public:
     bool IsPlotMatchingBuilding(uint32 garrPlotId, uint32 garrBuildingId) const;
     uint32 GetGarrBuildingPlotInst(uint32 garrBuildingId, uint32 garrSiteLevelPlotInstId) const;
     GarrBuildingEntry const* GetPreviousLevelBuilding(uint32 buildingType, uint32 currentLevel) const;
+    uint64 GenerateFollowerDbId();
+    std::list<uint32> RollFollowerAbilities(GarrFollowerEntry const* follower, uint32 quality, uint32 faction, bool initial) const;
 
 private:
     std::unordered_map<uint32 /*garrSiteId*/, std::vector<GarrSiteLevelPlotInstEntry const*>> _garrisonPlotInstBySiteLevel;
@@ -46,6 +53,10 @@ private:
     std::unordered_map<uint32 /*garrPlotId*/, std::unordered_set<uint32/*garrBuildingId*/>> _garrisonBuildingsByPlot;
     std::unordered_map<uint64 /*garrBuildingId | garrSiteLevelPlotInstId << 32*/, uint32 /*garrBuildingPlotInstId*/> _garrisonBuildingPlotInstances;
     std::unordered_map<uint32 /*buildingType*/, std::vector<GarrBuildingEntry const*>> _garrisonBuildingsByType;
+    std::unordered_map<uint32 /*garrFollowerId*/, GarrAbilities> _garrisonFollowerAbilities[2];
+    std::unordered_set<GarrAbilityEntry const*> _garrisonFollowerRandomTraits;
+
+    uint64 _followerDbIdGenerator;
 };
 
 #define sGarrisonMgr GarrisonMgr::Instance()

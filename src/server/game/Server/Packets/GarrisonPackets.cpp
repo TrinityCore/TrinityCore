@@ -60,8 +60,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonFollowe
     data << uint32(follower.CurrentMissionID);
     data << uint32(follower.AbilityID.size());
     data << uint32(follower.FollowerStatus);
-    if (!follower.AbilityID.empty())
-        data.append(follower.AbilityID.data(), follower.AbilityID.size());
+    for (uint32 abilityId : follower.AbilityID)
+        data << uint32(abilityId);
 
     return data;
 }
@@ -234,6 +234,14 @@ WorldPacket const* WorldPackets::Garrison::GarrisonPlotPlaced::Write()
 WorldPacket const* WorldPackets::Garrison::GarrisonPlotRemoved::Write()
 {
     _worldPacket << uint32(GarrPlotInstanceID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonAddFollowerResult::Write()
+{
+    _worldPacket << uint32(Result);
+    _worldPacket << Follower;
 
     return &_worldPacket;
 }

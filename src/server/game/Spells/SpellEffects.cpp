@@ -294,7 +294,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218
     &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219
-    &Spell::EffectNULL,                                     //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
+    &Spell::EffectAddGarrisonFollower,                      //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
     &Spell::EffectNULL,                                     //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
     &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
@@ -5825,4 +5825,16 @@ void Spell::EffectCreateGarrison(SpellEffIndex effIndex)
         return;
 
     unitTarget->ToPlayer()->CreateGarrison(GetEffect(effIndex)->MiscValue);
+}
+
+void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
+        garrison->AddFollower(GetEffect(effIndex)->MiscValue);
 }
