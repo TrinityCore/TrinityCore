@@ -121,7 +121,7 @@ uint64 GarrisonMgr::GenerateFollowerDbId()
 {
     if (_followerDbIdGenerator >= std::numeric_limits<uint64>::max())
     {
-        TC_LOG_ERROR("misc", "Garrison follower db id oberflow! Can't continue, shutting down server. ");
+        TC_LOG_ERROR("misc", "Garrison follower db id overflow! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
 
