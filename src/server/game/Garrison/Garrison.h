@@ -32,6 +32,20 @@ enum GarrisonBuildingFlags
     GARRISON_BUILDING_FLAG_NEEDS_PLAN   = 0x1
 };
 
+enum GarrisonFollowerFlags
+{
+    GARRISON_FOLLOWER_FLAG_UNIQUE   = 0x1
+};
+
+enum GarrisonAbilityFlags
+{
+    GARRISON_ABILITY_FLAG_TRAIT         = 0x01,
+    GARRISON_ABILITY_CANNOT_ROLL        = 0x02,
+    GARRISON_ABILITY_HORDE_ONLY         = 0x04,
+    GARRISON_ABILITY_ALLIANCE_ONLY      = 0x08,
+    GARRISON_ABILITY_FLAG_CANNOT_REMOVE = 0x10
+};
+
 enum GarrisonError
 {
     GARRISON_SUCCESS                        = 0,
@@ -44,7 +58,9 @@ enum GarrisonError
     GARRISON_ERROR_BLUEPRINT_NOT_KNOWN      = 22,
     GARRISON_ERROR_BUILDING_EXISTS          = 24,
     GARRISON_ERROR_NOT_ENOUGH_CURRENCY      = 46,
-    GARRISON_ERROR_NOT_ENOUGH_GOLD          = 47
+    GARRISON_ERROR_NOT_ENOUGH_GOLD          = 47,
+
+    GARRISON_GENERIC_UNKNOWN_ERROR          = 255   // custom value for packets whose handlers only check if error != 0
 };
 
 enum GarrisonFollowerStatus
@@ -81,6 +97,11 @@ public:
         Building BuildingInfo;
     };
 
+    struct Follower
+    {
+        WorldPackets::Garrison::GarrisonFollower PacketInfo;
+    };
+
     explicit Garrison(Player* owner);
 
     bool LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings);
@@ -93,14 +114,20 @@ public:
     void Leave() const;
 
     GarrisonFactionIndex GetFaction() const;
+
+    // Plots
     std::vector<Plot*> GetPlots();
     Plot* GetPlot(uint32 garrPlotInstanceId);
     Plot const* GetPlot(uint32 garrPlotInstanceId) const;
 
+    // Buildings
     void LearnBlueprint(uint32 garrBuildingId);
     void UnlearnBlueprint(uint32 garrBuildingId);
     void PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId);
     void CancelBuildingConstruction(uint32 garrPlotInstanceId);
+
+    // Followers
+    void AddFollower(uint32 garrFollowerId);
 
     void SendInfo();
     void SendRemoteInfo() const;
@@ -120,6 +147,7 @@ private:
 
     std::unordered_map<uint32 /*garrPlotInstanceId*/, Plot> _plots;
     std::unordered_set<uint32 /*garrBuildingId*/> _knownBuildings;
+    std::unordered_map<uint64 /*dbId*/, Follower> _followers;
 };
 
 #endif // Garrison_h__

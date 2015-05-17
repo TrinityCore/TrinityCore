@@ -100,6 +100,17 @@ struct GameObjectsEntry
     LocalizedString* Name;                                          // 23
 };
 
+struct GarrAbilityEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 Flags;                                                   // 1
+    LocalizedString* Name;                                          // 2
+    LocalizedString* Description;                                   // 3
+    uint32 IconFileDataID;                                          // 4
+    uint32 OtherFactionGarrAbilityID;                               // 5
+    uint32 GarrAbilityCategoryID;                                   // 6
+};
+
 struct GarrBuildingEntry
 {
     uint32 ID;                                                      // 0
@@ -135,6 +146,49 @@ struct GarrBuildingPlotInstEntry
     uint32 UiTextureAtlasMemberID;                                  // 2
     uint32 GarrSiteLevelPlotInstID;                                 // 3
     DBCPosition2D LandmarkOffset;                                   // 4-5
+};
+
+struct GarrClassSpecEntry
+{
+    uint32 ID;                                                      // 0
+    LocalizedString* NameMale;                                      // 1
+    LocalizedString* NameFemale;                                    // 2
+    LocalizedString* NameGenderless;                                // 3
+    uint32 ClassAtlasID;                                            // 4 UiTextureAtlasMember.db2 ref
+    uint32 GarrFollItemSetID;                                       // 5
+};
+
+struct GarrFollowerEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 HordeCreatureID;                                         // 1
+    uint32 AllianceCreatureID;                                      // 2
+    uint32 HordeUiAnimRaceInfoID;                                   // 3
+    uint32 AllianceUiAnimRaceInfoID;                                // 4
+    uint32 Quality;                                                 // 5
+    uint32 HordeGarrClassSpecID;                                    // 6
+    uint32 AllianceGarrClassSpecID;                                 // 7
+    uint32 HordeGarrFollItemSetID;                                  // 8
+    uint32 AllianceGarrFollItemSetID;                               // 9
+    uint32 Level;                                                   // 10
+    uint32 ItemLevelWeapon;                                         // 11
+    uint32 ItemLevelArmor;                                          // 12
+    uint32 Unknown1;                                                // 13
+    uint32 Flags;                                                   // 14
+    LocalizedString* HordeSourceText;                               // 15
+    LocalizedString* AllianceSourceText;                            // 16
+    int32 Unknown2;                                                 // 17
+    int32 Unknown3;                                                 // 18
+    uint32 HordePortraitIconID;                                     // 19
+    uint32 AlliancePortraitIconID;                                  // 20
+};
+
+struct GarrFollowerXAbilityEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 GarrFollowerID;                                          // 1
+    uint32 GarrAbilityID;                                           // 2
+    uint32 FactionIndex;                                            // 3
 };
 
 struct GarrPlotEntry

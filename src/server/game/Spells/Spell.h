@@ -407,6 +407,7 @@ class Spell
         void EffectDestroyItem(SpellEffIndex effIndex);
         void EffectLearnGarrisonBuilding(SpellEffIndex effIndex);
         void EffectCreateGarrison(SpellEffIndex effIndex);
+        void EffectAddGarrisonFollower(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
