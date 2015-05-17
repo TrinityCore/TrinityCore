@@ -35,6 +35,7 @@
 #include "SpellAuraEffects.h"
 #include "MiscPackets.h"
 #include "LootPackets.h"
+#include "PartyPackets.h"
 
 class Aura;
 
@@ -51,51 +52,22 @@ class Aura;
 
 void WorldSession::SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val /* = 0 */)
 {
-    WorldPacket data(SMSG_PARTY_COMMAND_RESULT, 4 + member.size() + 1 + 4 + 4 + 8);
-    data << uint32(operation);
-    data << member;
-    data << uint32(res);
-    data << uint32(val);                                    // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)
-    data << uint64(0); // player who caused error (in some cases).
+    WorldPackets::Party::PartyCommandResult data;
+    data.Name = member;
+    data.Command = operation;
+    data.Result = res;
+    data.ResultData = val; // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)
 
-    SendPacket(&data);
+    SendPacket(data.Write());
 }
 
-void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::ClientPartyInvite& packet)
 {
     ObjectGuid crossRealmGuid; // unused
 
-    recvData.read_skip<uint32>(); // Non-zero in cross realm invites
-    recvData.read_skip<uint32>(); // Always 0
-
-    crossRealmGuid[2] = recvData.ReadBit();
-    crossRealmGuid[7] = recvData.ReadBit();
-
-    uint8 realmLen = recvData.ReadBits(9);
-
-    crossRealmGuid[3] = recvData.ReadBit();
-
-    uint8 nameLen = recvData.ReadBits(10);
-
-    crossRealmGuid[5] = recvData.ReadBit();
-    crossRealmGuid[4] = recvData.ReadBit();
-    crossRealmGuid[6] = recvData.ReadBit();
-    crossRealmGuid[0] = recvData.ReadBit();
-    crossRealmGuid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(crossRealmGuid[4]);
-    recvData.ReadByteSeq(crossRealmGuid[7]);
-    recvData.ReadByteSeq(crossRealmGuid[6]);
-
     std::string memberName, realmName;
-    memberName = recvData.ReadString(nameLen);
-    realmName = recvData.ReadString(realmLen); // unused
-
-    recvData.ReadByteSeq(crossRealmGuid[1]);
-    recvData.ReadByteSeq(crossRealmGuid[0]);
-    recvData.ReadByteSeq(crossRealmGuid[5]);
-    recvData.ReadByteSeq(crossRealmGuid[3]);
-    recvData.ReadByteSeq(crossRealmGuid[2]);
+    memberName = packet.TargetName;
+    realmName = packet.TargetRealm; // unused
 
     // attempt add selected player
 
@@ -163,59 +135,22 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
         if (group2)
         {
             // tell the player that they were invited but it failed as they were already in a group
-            WorldPacket data(SMSG_PARTY_INVITE, 45);
+            WorldPackets::Party::PartyInvite partyInvite;
 
-            data.WriteBit(0);
+            partyInvite.CanAccept = false;
 
-            data.WriteBit(invitedGuid[0]);
-            data.WriteBit(invitedGuid[3]);
-            data.WriteBit(invitedGuid[2]);
+            partyInvite.InviterGuid = GetPlayer()->GetGUID();
+            partyInvite.InviterBNetAccountID = GetPlayer()->GetSession()->GetBattlenetAccountGUID();
 
-            data.WriteBit(0); // Inverse already in group
+            partyInvite.InviterRealmNameActual = realmName; // No crossrealm support
+            partyInvite.InviterRealmNameNormalized = realmName;
 
-            data.WriteBit(invitedGuid[6]);
-            data.WriteBit(invitedGuid[5]);
+            partyInvite.ProposedRoles = packet.ProposedRoles;
 
-            data.WriteBits(0, 9); // Realm name
 
-            data.WriteBit(invitedGuid[4]);
+            partyInvite.InviterName = GetPlayer()->GetName();
 
-            data.WriteBits(GetPlayer()->GetName().size(), 7); // Inviter name length
-
-            data.WriteBits(0, 24); // Count 2
-
-            data.WriteBit(0);
-
-            data.WriteBit(invitedGuid[1]);
-            data.WriteBit(invitedGuid[7]);
-
-            data.FlushBits();
-
-            data.WriteByteSeq(invitedGuid[1]);
-            data.WriteByteSeq(invitedGuid[4]);
-
-            data << int32(getMSTime());
-            data << int32(0);
-            data << int32(0);
-
-            data.WriteByteSeq(invitedGuid[6]);
-            data.WriteByteSeq(invitedGuid[0]);
-            data.WriteByteSeq(invitedGuid[2]);
-            data.WriteByteSeq(invitedGuid[3]);
-
-            // for count2 { int32(0) }
-
-            data.WriteByteSeq(invitedGuid[5]);
-
-            // data.append(realm name);
-
-            data.WriteByteSeq(invitedGuid[7]);
-
-            data.WriteString(GetPlayer()->GetName()); // inviter name
-
-            data << int32(0);
-
-            player->GetSession()->SendPacket(&data);
+            player->GetSession()->SendPacket(partyInvite.Write());
         }
 
         return;
@@ -265,67 +200,27 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     }
 
     // ok, we do it
-    WorldPacket data(SMSG_PARTY_INVITE, 45);
+    WorldPackets::Party::PartyInvite partyInvite;
 
-    data.WriteBit(0);
+    partyInvite.CanAccept = true;
 
-    data.WriteBit(invitedGuid[0]);
-    data.WriteBit(invitedGuid[3]);
-    data.WriteBit(invitedGuid[2]);
+    partyInvite.InviterGuid = GetPlayer()->GetGUID();
+    partyInvite.InviterBNetAccountID = GetPlayer()->GetSession()->GetBattlenetAccountGUID();
 
-    data.WriteBit(1); // Inverse already in group
+    partyInvite.InviterRealmNameActual = realmName; // No crossrealm support
+    partyInvite.InviterRealmNameNormalized = realmName;
 
-    data.WriteBit(invitedGuid[6]);
-    data.WriteBit(invitedGuid[5]);
+    partyInvite.ProposedRoles = packet.ProposedRoles;
 
-    data.WriteBits(0, 9); // Realm name
+    partyInvite.InviterName = GetPlayer()->GetName();
 
-    data.WriteBit(invitedGuid[4]);
-
-    data.WriteBits(GetPlayer()->GetName().size(), 7); // Inviter name length
-
-    data.WriteBits(0, 24); // Count 2
-
-    data.WriteBit(0);
-
-    data.WriteBit(invitedGuid[1]);
-    data.WriteBit(invitedGuid[7]);
-
-    data.FlushBits();
-
-    data.WriteByteSeq(invitedGuid[1]);
-    data.WriteByteSeq(invitedGuid[4]);
-
-    data << int32(getMSTime());
-    data << int32(0);
-    data << int32(0);
-
-    data.WriteByteSeq(invitedGuid[6]);
-    data.WriteByteSeq(invitedGuid[0]);
-    data.WriteByteSeq(invitedGuid[2]);
-    data.WriteByteSeq(invitedGuid[3]);
-
-    // for count2 { int32(0) }
-
-    data.WriteByteSeq(invitedGuid[5]);
-
-    // data.append(realm name);
-
-    data.WriteByteSeq(invitedGuid[7]);
-
-    data.WriteString(GetPlayer()->GetName());
-
-    data << int32(0);
-
-    player->GetSession()->SendPacket(&data);
-
+    player->GetSession()->SendPacket(partyInvite.Write());
     SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PARTY_RESULT_OK);
 }
 
-void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupInviteResponseOpcode(WorldPackets::Party::PartyInviteResponse& partyInviteResponse)
 {
-    recvData.ReadBit(); // unk always 0
-    bool accept = recvData.ReadBit();
+    bool accept = partyInviteResponse.Accept;
 
     // Never actually received?
     /*if (accept)
@@ -391,18 +286,16 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
             return;
 
         // report
-        WorldPacket data(SMSG_GROUP_DECLINE, GetPlayer()->GetName().size());
-        data << GetPlayer()->GetName();
-        leader->GetSession()->SendPacket(&data);
+        WorldPackets::Party::GroupDecline groupDecline;
+        groupDecline.Name =  GetPlayer()->GetName();
+        leader->GetSession()->SendPacket(groupDecline.Write());
     }
 }
 
-void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupUninviteOpcode(WorldPackets::Party::PartyUninvite& partyUninvite)
 {
-    ObjectGuid guid;
-    std::string reason;
-    recvData >> guid;
-    recvData >> reason;
+    ObjectGuid guid = partyUninvite.TargetGUID;
+    std::string  reason = partyUninvite.Reason;
 
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
@@ -438,12 +331,10 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
     SendPartyResult(PARTY_OP_UNINVITE, "", ERR_TARGET_NOT_IN_GROUP_S);
 }
 
-void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupSetLeaderOpcode(WorldPackets::Party::SetPartyLeader& setPartyLeader)
 {
-    ObjectGuid guid;
-    recvData >> guid;
 
-    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+    Player* player = ObjectAccessor::FindConnectedPlayer(setPartyLeader.TargetGUID);
     Group* group = GetPlayer()->GetGroup();
 
     if (!group || !player)
@@ -453,87 +344,39 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
         return;
 
     // Everything's fine, accepted.
-    group->ChangeLeader(guid);
+    group->ChangeLeader(setPartyLeader.TargetGUID);
     group->SendUpdate();
 }
 
-void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupSetRolesOpcode(WorldPackets::Party::SetRole& setRole)
 {
-    uint32 newRole;
     ObjectGuid guid1;                   // Assigner GUID
     ObjectGuid guid2;                   // Target GUID
 
     guid1 = GetPlayer()->GetGUID();
 
-    recvData >> newRole;
+    guid2 = setRole.ChangedUnit;
 
-    guid2[2] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
-    guid2[7] = recvData.ReadBit();
-    guid2[5] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid2[4] = recvData.ReadBit();
+    WorldPackets::Party::RoleChangedInform data;
 
-    recvData.ReadByteSeq(guid2[6]);
-    recvData.ReadByteSeq(guid2[4]);
-    recvData.ReadByteSeq(guid2[1]);
-    recvData.ReadByteSeq(guid2[3]);
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid2[5]);
-    recvData.ReadByteSeq(guid2[2]);
-    recvData.ReadByteSeq(guid2[7]);
+    data.PartyIndex = setRole.PartyIndex;
+    data.From = guid1;
+    data.ChangedUnit = guid2;
+    data.OldRole = lfg::PLAYER_ROLE_NONE;
+    data.NewRole = setRole.Role;
 
-    WorldPacket data(SMSG_ROLE_CHANGED_INFORM, 24);
-
-    data.WriteBit(guid1[1]);
-    data.WriteBit(guid2[0]);
-    data.WriteBit(guid2[2]);
-    data.WriteBit(guid2[4]);
-    data.WriteBit(guid2[7]);
-    data.WriteBit(guid2[3]);
-    data.WriteBit(guid1[7]);
-    data.WriteBit(guid2[5]);
-    data.WriteBit(guid1[5]);
-    data.WriteBit(guid1[4]);
-    data.WriteBit(guid1[3]);
-    data.WriteBit(guid2[6]);
-    data.WriteBit(guid1[2]);
-    data.WriteBit(guid1[6]);
-    data.WriteBit(guid2[1]);
-    data.WriteBit(guid1[0]);
-
-    data.WriteByteSeq(guid1[7]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid1[6]);
-    data.WriteByteSeq(guid2[4]);
-    data.WriteByteSeq(guid2[0]);
-    data << uint32(newRole);            // New Role
-    data.WriteByteSeq(guid2[6]);
-    data.WriteByteSeq(guid2[2]);
-    data.WriteByteSeq(guid1[0]);
-    data.WriteByteSeq(guid1[4]);
-    data.WriteByteSeq(guid2[1]);
-    data.WriteByteSeq(guid1[3]);
-    data.WriteByteSeq(guid1[5]);
-    data.WriteByteSeq(guid1[2]);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid2[7]);
-    data.WriteByteSeq(guid1[1]);
-    data << uint32(0);                  // Old Role
 
     if (Group* group = GetPlayer()->GetGroup())
     {
         /// @todo probably should be sent only if (oldRole != newRole)
-        group->BroadcastPacket(&data, false);
-        group->SetLfgRoles(guid2, newRole);
+        group->BroadcastPacket(data.Write(), false);
+        group->SetLfgRoles(guid2, setRole.Role);
     }
     else
-        SendPacket(&data);
+        SendPacket(data.Write());
 }
 
-void WorldSession::HandleGroupDisbandOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleGroupDisbandOpcode(WorldPackets::Party::LeaveGroup& /*leaveGroup*/)
 {
     Group* grp = GetPlayer()->GetGroup();
     if (!grp)
@@ -657,7 +500,7 @@ void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& 
         SendPacket(randomRoll.Write());
 }
 
-void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
+void WorldSession::HandleRaidTargetUpdateOpcode(WorldPackets::Party::UpdateRaidTarget& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received MSG_RAID_TARGET_UPDATE");
 
@@ -665,14 +508,14 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
     if (!group)
         return;
 
-    uint8 x;
-    recvData >> x;
+    uint8 symbol;
+    symbol = packet.Symbol;
 
     /** error handling **/
     /********************/
 
     // everything's fine, do it
-    if (x == 0xFF)                                           // target icon request
+    if (symbol == 0xFF)                                           // target icon request
         group->SendTargetIconList(this);
     else                                                    // target icon update
     {
@@ -680,7 +523,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
             return;
 
         ObjectGuid guid;
-        recvData >> guid;
+        guid = packet.Target;
 
         if (guid.IsPlayer())
         {
@@ -690,7 +533,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
                 return;
         }
 
-        group->SetTargetIcon(x, _player->GetGUID(), guid);
+        group->SetTargetIcon(symbol, _player->GetGUID(), guid);
     }
 }
 
@@ -721,7 +564,7 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
         group->ConvertToGroup();
 }
 
-void WorldSession::HandleGroupRequestJoinUpdates(WorldPacket& /*recvData*/)
+void WorldSession::HandleGroupRequestJoinUpdates(WorldPackets::Party::RequestPartyJoinUpdates& requestPartyJoinUpdates)
 {
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -859,287 +702,17 @@ void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data)
+//void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data)
+void WorldSession::SendPartyMemberState(Player* player)
 {
-    uint32 mask = player->GetGroupUpdateFlag();
-
-    if (mask == GROUP_UPDATE_FLAG_NONE)
-        return;
-
-    std::set<uint32> const& phases = player->GetPhases();
-
-    if (mask & GROUP_UPDATE_FLAG_POWER_TYPE)                // if update power type, update current/max power also
-        mask |= (GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER);
-
-    if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)            // same for pets
-        mask |= (GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER);
-
-    data->Initialize(SMSG_PARTY_MEMBER_STATE, 80);          // average value
-    *data << player->GetPackGUID();
-    *data << uint32(mask);
-
-    if (mask & GROUP_UPDATE_FLAG_STATUS)
-    {
-        uint16 playerStatus = MEMBER_STATUS_ONLINE;
-        if (player->IsPvP())
-            playerStatus |= MEMBER_STATUS_PVP;
-
-        if (!player->IsAlive())
-        {
-            if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-                playerStatus |= MEMBER_STATUS_GHOST;
-            else
-                playerStatus |= MEMBER_STATUS_DEAD;
-        }
-
-        if (player->IsFFAPvP())
-            playerStatus |= MEMBER_STATUS_PVP_FFA;
-
-        if (player->isAFK())
-            playerStatus |= MEMBER_STATUS_AFK;
-
-        if (player->isDND())
-            playerStatus |= MEMBER_STATUS_DND;
-
-        *data << uint16(playerStatus);
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_CUR_HP)
-        *data << uint32(player->GetHealth());
-
-    if (mask & GROUP_UPDATE_FLAG_MAX_HP)
-        *data << uint32(player->GetMaxHealth());
-
-    Powers powerType = player->getPowerType();
-    if (mask & GROUP_UPDATE_FLAG_POWER_TYPE)
-        *data << uint8(powerType);
-
-    if (mask & GROUP_UPDATE_FLAG_CUR_POWER)
-        *data << uint16(player->GetPower(powerType));
-
-    if (mask & GROUP_UPDATE_FLAG_MAX_POWER)
-        *data << uint16(player->GetMaxPower(powerType));
-
-    if (mask & GROUP_UPDATE_FLAG_LEVEL)
-        *data << uint16(player->getLevel());
-
-    if (mask & GROUP_UPDATE_FLAG_ZONE)
-        *data << uint16(player->GetZoneId());
-
-    if (mask & GROUP_UPDATE_FLAG_UNK100)
-        *data << uint16(0);
-
-    if (mask & GROUP_UPDATE_FLAG_POSITION)
-    {
-        *data << uint16(player->GetPositionX());
-        *data << uint16(player->GetPositionY());
-        *data << uint16(player->GetPositionZ());
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_AURAS)
-    {
-        *data << uint8(0);
-        uint64 auramask = player->GetAuraUpdateMaskForRaid();
-        *data << uint64(auramask);
-        *data << uint32(MAX_AURAS); // count
-        for (uint32 i = 0; i < MAX_AURAS; ++i)
-        {
-            if (auramask & (uint64(1) << i))
-            {
-                AuraApplication const* aurApp = player->GetVisibleAura(i);
-                if (!aurApp)
-                {
-                    *data << uint32(0);
-                    *data << uint16(0);
-                    continue;
-                }
-
-                *data << uint32(aurApp->GetBase()->GetId());
-                *data << uint16(aurApp->GetFlags());
-
-                if (aurApp->GetFlags() & AFLAG_SCALABLE)
-                {
-                    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    {
-                        if (AuraEffect const* eff = aurApp->GetBase()->GetEffect(i))
-                            *data << int32(eff->GetAmount());
-                        else
-                            *data << int32(0);
-                    }
-                }
-            }
-        }
-    }
-
-    Pet* pet = player->GetPet();
-    if (mask & GROUP_UPDATE_FLAG_PET_GUID)
-    {
-        if (pet)
-            *data << pet->GetGUID();
-        else
-            *data << ObjectGuid::Empty;
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_PET_NAME)
-    {
-        if (pet)
-            *data << pet->GetName();
-        else
-            *data << uint8(0);
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_PET_MODEL_ID)
-    {
-        if (pet)
-            *data << uint16(pet->GetDisplayId());
-        else
-            *data << uint16(0);
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_PET_CUR_HP)
-    {
-        if (pet)
-            *data << uint32(pet->GetHealth());
-        else
-            *data << uint32(0);
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_PET_MAX_HP)
-    {
-        if (pet)
-            *data << uint32(pet->GetMaxHealth());
-        else
-            *data << uint32(0);
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)
-    {
-        if (pet)
-            *data << uint8(pet->getPowerType());
-        else
-            *data << uint8(0);
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_PET_CUR_POWER)
-    {
-        if (pet)
-            *data << uint16(pet->GetPower(pet->getPowerType()));
-        else
-            *data << uint16(0);
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_PET_MAX_POWER)
-    {
-        if (pet)
-            *data << uint16(pet->GetMaxPower(pet->getPowerType()));
-        else
-            *data << uint16(0);
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_PET_AURAS)
-    {
-        if (pet)
-        {
-            *data << uint8(0);
-            uint64 auramask = pet->GetAuraUpdateMaskForRaid();
-            *data << uint64(auramask);
-            *data << uint32(MAX_AURAS); // count
-            for (uint32 i = 0; i < MAX_AURAS; ++i)
-            {
-                if (auramask & (uint64(1) << i))
-                {
-                    AuraApplication const* aurApp = pet->GetVisibleAura(i);
-                    if (!aurApp)
-                    {
-                        *data << uint32(0);
-                        *data << uint16(0);
-                        continue;
-                    }
-
-                    *data << uint32(aurApp->GetBase()->GetId());
-                    *data << uint16(aurApp->GetFlags());
-
-                    if (aurApp->GetFlags() & AFLAG_SCALABLE)
-                    {
-                        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        {
-                            if (AuraEffect const* eff = aurApp->GetBase()->GetEffect(i))
-                                *data << int32(eff->GetAmount());
-                            else
-                                *data << int32(0);
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            *data << uint8(0);
-            *data << uint64(0);
-        }
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_VEHICLE_SEAT)
-    {
-        if (Vehicle* veh = player->GetVehicle())
-            *data << uint32(veh->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat]);
-        else
-            *data << uint32(0);
-
-    }
-
-    if (mask & GROUP_UPDATE_FLAG_PHASE)
-    {
-        *data << uint32(phases.empty() ? 8 : 0);
-        *data << uint32(phases.size());
-        for (std::set<uint32>::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
-            *data << uint16(*itr);
-    }
-}
-
-/*this procedure handles clients CMSG_REQUEST_PARTY_MEMBER_STATS request*/
-void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
-{
-    ObjectGuid Guid;
-    recvData >> Guid;
-
-    Player* player = ObjectAccessor::FindConnectedPlayer(Guid);
-    if (!player)
-    {
-        WorldPacket data(SMSG_PARTY_MEMBER_STATE, 3 + 4 + 2);
-        data << uint8(0);                                   // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
-        data << Guid.WriteAsPacked();
-        data << uint32(GROUP_UPDATE_FLAG_STATUS);
-        data << uint16(MEMBER_STATUS_OFFLINE);
-        SendPacket(&data);
-        return;
-    }
-
     Pet* pet = player->GetPet();
     Powers powerType = player->getPowerType();
     std::set<uint32> const& phases = player->GetPhases();
-
-    WorldPacket data(SMSG_PARTY_MEMBER_STATE, 4 + 2 + 2 + 2 + 1 + 2 * 6 + 8 + 1 + 8);
-    data << uint8(0);                                       // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
-    data << player->GetPackGUID();
-
-    uint32 updateFlags = GROUP_UPDATE_FLAG_STATUS | GROUP_UPDATE_FLAG_CUR_HP | GROUP_UPDATE_FLAG_MAX_HP
-                      | GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER | GROUP_UPDATE_FLAG_LEVEL
-                      | GROUP_UPDATE_FLAG_ZONE | GROUP_UPDATE_FLAG_POSITION | GROUP_UPDATE_FLAG_AURAS
-                      | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_MODEL_ID | GROUP_UPDATE_FLAG_PET_AURAS;
-
-    if (powerType != POWER_MANA)
-        updateFlags |= GROUP_UPDATE_FLAG_POWER_TYPE;
-
-    if (pet)
-        updateFlags |= GROUP_UPDATE_FLAG_PET_GUID | GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP
-                    | GROUP_UPDATE_FLAG_PET_POWER_TYPE | GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER;
-
-    if (player->GetVehicle())
-        updateFlags |= GROUP_UPDATE_FLAG_VEHICLE_SEAT;
-
-    if (!phases.empty())
-        updateFlags |= GROUP_UPDATE_FLAG_PHASE;
+    
+    //WorldPacket data(SMSG_PARTY_MEMBER_STATE, 4 + 2 + 2 + 2 + 1 + 2 * 6 + 8 + 1 + 8);
+    WorldPackets::Party::PartyMemberState partyMemberState;
+    partyMemberState.ForEnemy = false;
+    partyMemberState.MemberGuid = player->GetGUID();
 
     uint16 playerStatus = MEMBER_STATUS_ONLINE;
     if (player->IsPvP())
@@ -1162,121 +735,102 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     if (player->isDND())
         playerStatus |= MEMBER_STATUS_DND;
 
-    data << uint32(updateFlags);
-    data << uint16(playerStatus);                           // GROUP_UPDATE_FLAG_STATUS
-    data << uint32(player->GetHealth());                    // GROUP_UPDATE_FLAG_CUR_HP
-    data << uint32(player->GetMaxHealth());                 // GROUP_UPDATE_FLAG_MAX_HP
-    if (updateFlags & GROUP_UPDATE_FLAG_POWER_TYPE)
-        data << uint8(powerType);
+    partyMemberState.PowerType = powerType;
+    partyMemberState.Status = playerStatus;                                 // GROUP_UPDATE_FLAG_STATUS
+    partyMemberState.CurrentHealth = player->GetHealth();           // GROUP_UPDATE_FLAG_CUR_HP
+    partyMemberState.MaxHealth = player->GetMaxHealth();           // GROUP_UPDATE_FLAG_MAX_HP
 
-    data << uint16(player->GetPower(powerType));            // GROUP_UPDATE_FLAG_CUR_POWER
-    data << uint16(player->GetMaxPower(powerType));         // GROUP_UPDATE_FLAG_MAX_POWER
-    data << uint16(player->getLevel());                     // GROUP_UPDATE_FLAG_LEVEL
-    data << uint16(player->GetZoneId());                    // GROUP_UPDATE_FLAG_ZONE
-    data << uint16(player->GetPositionX());                 // GROUP_UPDATE_FLAG_POSITION
-    data << uint16(player->GetPositionY());                 // GROUP_UPDATE_FLAG_POSITION
-    data << uint16(player->GetPositionZ());               // GROUP_UPDATE_FLAG_POSITION
+    partyMemberState.CurrentPower = player->GetPower(powerType);            // GROUP_UPDATE_FLAG_CUR_POWER
+    partyMemberState.MaxPower = player->GetMaxPower(powerType);         // GROUP_UPDATE_FLAG_MAX_POWER
+    partyMemberState.Level = player->getLevel();                     // GROUP_UPDATE_FLAG_LEVEL
+    partyMemberState.ZoneId = player->GetZoneId();                    // GROUP_UPDATE_FLAG_ZONE
+    partyMemberState.PositionX = player->GetPositionX();                 // GROUP_UPDATE_FLAG_POSITION
+    partyMemberState.PositionY = player->GetPositionY();                 // GROUP_UPDATE_FLAG_POSITION
+    partyMemberState.PositionZ = player->GetPositionZ();               // GROUP_UPDATE_FLAG_POSITION
 
-    // GROUP_UPDATE_FLAG_AURAS
-    data << uint8(1);
-    uint64 auramask = 0;
-    size_t maskPos = data.wpos();
-    data << uint64(auramask);                          // placeholder
-    data << uint32(MAX_AURAS);                         // count
+    partyMemberState.VehicleSeat = player->GetVehicle() ? player->GetVehicle()->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat] : 0;
+
+    partyMemberState.PhaseShiftFlags = phases.empty() ? 8 : 0;
+    for (std::set<uint32>::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+        partyMemberState.Phases.push_back(uint16(*itr));
 
     for (uint8 i = 0; i < MAX_AURAS; ++i)
     {
         if (AuraApplication const* aurApp = player->GetVisibleAura(i))
         {
-            auramask |= (uint64(1) << i);
+            WorldPackets::Party::PartyMemberState::Aura aura;
 
-            data << uint32(aurApp->GetBase()->GetId());
-            data << uint16(aurApp->GetFlags());
+            aura.SpellId = aurApp->GetBase()->GetId();
+            //todo: Scalings
+            aura.EffectMask = aurApp->GetEffectMask();
 
             if (aurApp->GetFlags() & AFLAG_SCALABLE)
             {
                 for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
                     if (AuraEffect const* eff = aurApp->GetBase()->GetEffect(i))
-                        data << int32(eff->GetAmount());
+                        aura.Scales.push_back(eff->GetAmount());
                     else
-                        data << int32(0);
+                        aura.Scales.push_back(0);
                 }
             }
+            partyMemberState.AuraList.push_back(aura);
         }
     }
 
-    data.put<uint64>(maskPos, auramask);                    // GROUP_UPDATE_FLAG_AURAS
-
-    if (updateFlags & GROUP_UPDATE_FLAG_PET_GUID)
-        data << pet->GetGUID();
-
-    data << std::string(pet ? pet->GetName() : "");         // GROUP_UPDATE_FLAG_PET_NAME
-    data << uint16(pet ? pet->GetDisplayId() : 0);          // GROUP_UPDATE_FLAG_PET_MODEL_ID
-
-    if (updateFlags & GROUP_UPDATE_FLAG_PET_CUR_HP)
-        data << uint32(pet->GetHealth());
-
-    if (updateFlags & GROUP_UPDATE_FLAG_PET_MAX_HP)
-        data << uint32(pet->GetMaxHealth());
-
-    if (updateFlags & GROUP_UPDATE_FLAG_PET_POWER_TYPE)
-        data << (uint8)pet->getPowerType();
-
-    if (updateFlags & GROUP_UPDATE_FLAG_PET_CUR_POWER)
-        data << uint16(pet->GetPower(pet->getPowerType()));
-
-    if (updateFlags & GROUP_UPDATE_FLAG_PET_MAX_POWER)
-        data << uint16(pet->GetMaxPower(pet->getPowerType()));
-
-    // GROUP_UPDATE_FLAG_PET_AURAS
-    uint64 petAuraMask = 0;
-    data << uint8(1);
-    maskPos = data.wpos();
-    data << uint64(petAuraMask);                            // placeholder
-    data << uint32(MAX_AURAS);                              // count
-    if (pet)
+    partyMemberState.HasPet = pet ? true : false;
+    if (partyMemberState.HasPet)
     {
+        partyMemberState.PetName = pet->GetName();                          // GROUP_UPDATE_FLAG_PET_NAME
+        partyMemberState.PetModelId = pet->GetDisplayId();          // GROUP_UPDATE_FLAG_PET_MODEL_ID
+        partyMemberState.PetCurrentHealth = pet->GetHealth();
+        partyMemberState.PetMaxHealth = pet->GetMaxHealth();
+
         for (uint8 i = 0; i < MAX_AURAS; ++i)
         {
             if (AuraApplication const* aurApp = pet->GetVisibleAura(i))
             {
-                petAuraMask |= (uint64(1) << i);
-
-                data << uint32(aurApp->GetBase()->GetId());
-                data << uint16(aurApp->GetFlags());
+                WorldPackets::Party::PartyMemberState::Aura aura;
+                aura.SpellId = aurApp->GetBase()->GetId();
+                //todo: Scalings
+                aura.EffectMask = aurApp->GetEffectMask();
 
                 if (aurApp->GetFlags() & AFLAG_SCALABLE)
                 {
                     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
                         if (AuraEffect const* eff = aurApp->GetBase()->GetEffect(i))
-                            data << int32(eff->GetAmount());
+                            aura.Scales.push_back(eff->GetAmount());
                         else
-                            data << int32(0);
+                            aura.Scales.push_back(0);
                     }
                 }
+                partyMemberState.PetAuraList.push_back(aura);
             }
         }
     }
 
-    data.put<uint64>(maskPos, petAuraMask);                 // GROUP_UPDATE_FLAG_PET_AURAS
-
-    if (updateFlags & GROUP_UPDATE_FLAG_VEHICLE_SEAT)
-        data << uint32(player->GetVehicle()->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat]);
-
-    if (updateFlags & GROUP_UPDATE_FLAG_PHASE)
-    {
-        data << uint32(phases.empty() ? 8 : 0);
-        data << uint32(phases.size());
-        for (std::set<uint32>::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
-            data << uint16(*itr);
-    }
-
-    SendPacket(&data);
+    SendPacket(partyMemberState.Write());
 }
 
-void WorldSession::HandleRequestRaidInfoOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats& requestPartyMemberStats)
+{
+    ObjectGuid guid = requestPartyMemberStats.Target;
+
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!player)
+    {
+        WorldPackets::Party::PartyMemberState partyMemberState;
+        partyMemberState.MemberGuid = guid;
+        partyMemberState.Status = MEMBER_STATUS_OFFLINE;
+        SendPacket(partyMemberState.Write());
+        return;
+    }
+
+    SendPartyMemberState(player);
+}
+
+void WorldSession::HandleRequestRaidInfoOpcode(WorldPackets::Party::RequestRaidInfo& packet)
 {
     // every time the player checks the character screen
     _player->SendRaidInfo();

@@ -1,0 +1,351 @@
+/*
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "PartyPackets.h"
+#include "ObjectMgr.h"
+#include "PacketUtilities.h"
+
+void WorldPackets::Party::SetPartyLeader::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> TargetGUID; 
+}
+
+void WorldPackets::Party::SetRole::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> ChangedUnit;
+    _worldPacket >> Role;
+}
+
+void WorldPackets::Party::PartyUninvite::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> TargetGUID;
+    uint32 lenReason = _worldPacket.ReadBits(8);
+    Reason = _worldPacket.ReadString(lenReason);
+}
+
+void WorldPackets::Party::ClientPartyInvite::Read()
+{
+    _worldPacket >> PartyIndex; 
+    _worldPacket >> ProposedRoles;
+    _worldPacket >> TargetGUID;
+    _worldPacket >> TargetCfgRealmID;
+    
+    uint32 lenTargetName = _worldPacket.ReadBits(9);
+    uint32 lenTargetRealm = _worldPacket.ReadBits(9);
+    TargetName = _worldPacket.ReadString(lenTargetName);
+    TargetRealm = _worldPacket.ReadString(lenTargetRealm);
+}
+
+void WorldPackets::Party::PartyInviteResponse::Read()
+{
+    _worldPacket >> PartyIndex;
+
+    Accept = _worldPacket.ReadBit();
+    HasRolesDesired = _worldPacket.ReadBit();
+    if (HasRolesDesired)
+        _worldPacket >> RolesDesired;
+}
+
+void WorldPackets::Party::RequestPartyJoinUpdates::Read()
+{
+    _worldPacket >> PartyIndex;
+}
+
+void WorldPackets::Party::RequestPartyMemberStats::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> Target;
+}
+
+void WorldPackets::Party::LeaveGroup::Read()
+{
+    _worldPacket >> PartyIndex;
+}
+
+void WorldPackets::Party::RequestRaidInfo::Read()
+{
+
+}
+
+void WorldPackets::Party::UpdateRaidTarget::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> Target;
+    _worldPacket >> Symbol;
+}
+
+WorldPacket const* WorldPackets::Party::PartyInvite::Write()
+{
+    _worldPacket.WriteBit(CanAccept);
+    _worldPacket.WriteBit(MightCRZYou);
+    _worldPacket.WriteBit(MustBeBNetFriend);
+    _worldPacket.WriteBit(AllowMultipleRoles);
+    _worldPacket.WriteBit(IsXRealm);
+
+    _worldPacket.WriteBits(InviterName.length(), 6);
+
+    _worldPacket << InviterGuid;
+    _worldPacket << InviterBNetAccountID;
+
+    _worldPacket << uint32(InviterCfgRealmID);
+    _worldPacket << uint16(Unk1);
+
+    _worldPacket.WriteBit(IsLocal);
+    _worldPacket.WriteBit(Unk2);
+
+    _worldPacket.WriteBits(InviterRealmNameActual.length(), 8);
+    _worldPacket.WriteBits(InviterRealmNameNormalized.length(), 8);
+    _worldPacket.WriteString(InviterRealmNameActual);
+    _worldPacket.WriteString(InviterRealmNameNormalized);
+
+    _worldPacket << uint32(ProposedRoles);
+    _worldPacket << uint32(LfgSlots.size());
+    _worldPacket << uint32(LfgCompletedMask);
+
+    _worldPacket.WriteString(InviterName);
+
+    for (uint32 lfgSlot : LfgSlots)
+        _worldPacket << lfgSlot;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
+{
+    _worldPacket.WriteBits(Name.length(), 9);
+    _worldPacket.WriteBits(Command, 4);
+    _worldPacket.WriteBits(Result, 6);
+    _worldPacket.FlushBits();
+    _worldPacket << uint32(ResultData);
+    _worldPacket << ResultGUID;
+    _worldPacket.WriteString(Name);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::RoleChangedInform::Write()
+{
+    _worldPacket << PartyIndex;
+    _worldPacket << From;
+    _worldPacket << ChangedUnit;
+    _worldPacket << uint32(OldRole);
+    _worldPacket << uint32(NewRole);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
+{
+    _worldPacket << uint8(PartyFlags);
+    _worldPacket << uint8(PartyIndex);
+    _worldPacket << uint8(PartyType);
+
+    _worldPacket << uint32(MyIndex);
+    _worldPacket << PartyGUID;
+    _worldPacket << uint32(SequenceNum);
+    _worldPacket << LeaderGUID;
+
+     _worldPacket << uint32(PlayerList.size()); //PlayerListCount
+    for (PlayerInfo const& player : PlayerList)
+    {
+        _worldPacket.WriteBits(player.Name.length(), 6);
+        _worldPacket.FlushBits();
+
+        _worldPacket << player.Guid;
+
+        _worldPacket << uint8(player.Connected);
+        _worldPacket << uint8(player.Subgroup);
+        _worldPacket << uint8(player.Flags);
+        _worldPacket << uint8(player.RolesAssigned);
+        _worldPacket << uint8(player.Class);
+
+        _worldPacket.WriteString(player.Name);
+    }
+
+    _worldPacket.WriteBit(HasLfgInfo);
+    _worldPacket.WriteBit(HasLootSettings);
+    _worldPacket.WriteBit(HasDifficultySettings);
+    _worldPacket.FlushBits();
+
+    if (HasLfgInfo)
+    {
+        _worldPacket << MyLfgFlags;
+        _worldPacket << LfgSlot;
+        _worldPacket << MyLfgRandomSlot;
+        _worldPacket << MyLfgPartialClear;
+        _worldPacket << float(MyLfgGearDiff);
+        _worldPacket << MyLfgStrangerCount;
+        _worldPacket << MyLfgKickVoteCount;
+        _worldPacket << LfgBootCount;
+
+        _worldPacket.WriteBit(LfgAborted);
+        _worldPacket.WriteBit(MyLfgFirstReward);
+        _worldPacket.FlushBits();
+    }
+
+    if (HasLootSettings)
+    {
+        _worldPacket << LootMethod;
+        _worldPacket << LootMaster;
+        _worldPacket << LootThreshold;
+    }
+
+    if (HasDifficultySettings)
+    {
+        _worldPacket << UnkInt4;
+        _worldPacket << DungeonDifficultyID;
+        _worldPacket << RaidDifficultyID;
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
+{
+    _worldPacket.WriteBit(ForEnemy);
+    _worldPacket << MemberGuid;
+
+    _worldPacket << uint8(1);                       //Unk704
+    _worldPacket << uint8(0);                       //Unk704
+
+    _worldPacket << uint16(Status);
+
+    _worldPacket << uint32(PowerType);
+    _worldPacket << uint16(Unk322);
+    _worldPacket << uint32(CurrentHealth);
+    _worldPacket << uint32(MaxHealth);
+    _worldPacket << uint16(CurrentPower);
+    _worldPacket << uint16(MaxPower);
+    _worldPacket << uint16(Level);
+    _worldPacket << uint16(Unk200000);
+    _worldPacket << uint16(ZoneId);
+
+    _worldPacket << uint16(Unk2000000);
+    _worldPacket << uint32(Unk4000000);
+
+    _worldPacket << uint16(PositionX);
+    _worldPacket << uint16(PositionY);
+    _worldPacket << uint16(PositionZ);
+
+    _worldPacket << uint32(VehicleSeat);
+    _worldPacket << uint32(AuraList.size());
+
+    _worldPacket << uint32(Phases.size() ? 0 : 8);  //PhaseShiftFlags
+    _worldPacket << uint32(Phases.size());          //PhasesCount
+    _worldPacket << PersonalGUID;
+    for (uint16 const& phase : Phases)
+    {
+        _worldPacket << uint16(1);                  //PhaseFlags
+        _worldPacket << uint16(phase);
+        _worldPacket.FlushBits();
+    }
+
+    for (Aura const& aura : AuraList)
+    {
+        _worldPacket << aura.SpellId;
+        _worldPacket << aura.Scalings;
+        _worldPacket << aura.EffectMask;
+        _worldPacket << aura.Scales.size();
+        for (float scale : aura.Scales)
+            _worldPacket << float(scale);
+        _worldPacket.FlushBits();
+    }
+
+    _worldPacket.WriteBit(HasPet);
+    _worldPacket.FlushBits();
+    if (HasPet)
+    {
+        _worldPacket << PetGUID;
+        _worldPacket << PetModelId;
+        _worldPacket << PetCurrentHealth;
+        _worldPacket << PetMaxHealth;
+
+        _worldPacket << uint32(PetAuraList.size());
+        for (Aura const& aura : PetAuraList)
+        {
+            _worldPacket << aura.SpellId;
+            _worldPacket << aura.Scalings;
+            _worldPacket << aura.EffectMask;
+            _worldPacket << aura.Scales.size();
+            for (float scale : aura.Scales)
+                _worldPacket << float(scale);
+
+            _worldPacket.FlushBits();
+        }
+
+        _worldPacket.WriteBits(PetName.length(), 8);
+        _worldPacket.FlushBits();
+        _worldPacket.WriteString(PetName);
+
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::GroupUninvite::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::GroupDestroyed::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::GroupNewLeader::Write()
+{
+    _worldPacket << PartyIndex;
+    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(Name);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::GroupDecline::Write()
+{
+    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(Name);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::SendRaidTargetInfoSingle::Write()
+{
+    _worldPacket << PartyIndex;
+    _worldPacket << Symbol;
+    _worldPacket << Target;
+    _worldPacket << ChangedBy;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::SendRaidTargetInfoAll::Write()
+{
+    _worldPacket << PartyIndex;
+    _worldPacket << SymbolList.size();
+    for (RaidTargetSymbol const& symbol : SymbolList)
+    {
+        _worldPacket << symbol.Target;
+        _worldPacket << symbol.Symbol;
+    }
+
+    return &_worldPacket;
+}
+
