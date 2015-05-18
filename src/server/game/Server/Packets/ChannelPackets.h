@@ -95,6 +95,56 @@ namespace WorldPackets
             bool Suspended = false; ///< User Leave - false, On Zone Change - true
         };
 
+        class UserlistAdd final : public ServerPacket
+        {
+        public:
+            UserlistAdd() : ServerPacket(SMSG_USERLIST_ADD, 30) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid AddedUserGUID;
+
+            ChannelFlags ChannelFlags = CHANNEL_FLAG_NONE;
+            ChannelMemberFlags UserFlags = MEMBER_FLAG_NONE;
+
+            int32 ChannelID = 0;
+
+            std::string ChannelName;
+        };
+
+        class UserlistRemove final : public ServerPacket
+        {
+        public:
+            UserlistRemove() : ServerPacket(SMSG_USERLIST_REMOVE, 30) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid RemovedUserGUID;
+
+            ChannelFlags ChannelFlags = CHANNEL_FLAG_NONE;
+
+            uint32 ChannelID = 0;
+
+            std::string ChannelName;
+        };
+
+        class UserlistUpdate final : public ServerPacket
+        {
+        public:
+            UserlistUpdate() : ServerPacket(SMSG_USERLIST_UPDATE, 30) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UpdatedUserGUID;
+
+            ChannelFlags ChannelFlags = CHANNEL_FLAG_NONE;
+            ChannelMemberFlags UserFlags = MEMBER_FLAG_NONE;
+
+            int32 ChannelID = 0;
+
+            std::string ChannelName;
+        };
+
         class ChannelPlayerCommand final : public ClientPacket
         {
         public:

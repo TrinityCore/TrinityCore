@@ -83,6 +83,49 @@ WorldPacket const* WorldPackets::Channel::ChannelNotifyLeft::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Channel::UserlistAdd::Write()
+{
+    _worldPacket << AddedUserGUID;
+    _worldPacket << uint8(ChannelFlags);
+    _worldPacket << uint8(UserFlags);
+
+    _worldPacket << uint32(ChannelID);
+
+    _worldPacket.WriteBits(ChannelName.length(), 7);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(ChannelName);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Channel::UserlistRemove::Write()
+{
+    _worldPacket << RemovedUserGUID;
+
+    _worldPacket << uint8(ChannelFlags);
+
+    _worldPacket << uint32(ChannelID);
+
+    _worldPacket.WriteBits(ChannelName.length(), 7);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(ChannelName);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Channel::UserlistUpdate::Write()
+{
+    _worldPacket << UpdatedUserGUID;
+
+    _worldPacket << uint8(ChannelFlags);
+    _worldPacket << uint8(UserFlags);
+
+    _worldPacket << uint32(ChannelID);
+
+    _worldPacket.WriteBits(ChannelName.length(), 7);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(ChannelName);
+    return &_worldPacket;
+}
+
 void WorldPackets::Channel::ChannelPlayerCommand::Read()
 {
     switch (GetOpcode())
