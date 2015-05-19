@@ -100,6 +100,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
+#include "InstancePackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -701,7 +702,6 @@ Player::Player(WorldSession* session): Unit(true)
     // group is initialized in the reference constructor
     SetGroupInvite(NULL);
     m_groupUpdateMask = 0;
-    m_auraRaidUpdateMask = 0;
     m_bPassOnGroupLoot = false;
 
     duel = NULL;
@@ -887,7 +887,6 @@ Player::Player(WorldSession* session): Unit(true)
     _maxPersonalArenaRate = 0;
 
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
-    memset(_CUFProfiles, 0, MAX_CUF_PROFILES * sizeof(CUFProfile*));
 
     m_achievementMgr = new AchievementMgr<Player>(this);
     m_reputationMgr = new ReputationMgr(this);
@@ -926,9 +925,6 @@ Player::~Player()
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
-
-    for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
-        delete _CUFProfiles[i];
 
     ClearResurrectRequestData();
 
@@ -7387,7 +7383,11 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     // group update
     if (GetGroup())
+    {
         SetGroupUpdateFlag(GROUP_UPDATE_FULL);
+        if (Pet* pet = GetPet())
+            pet->SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
+    }
 
     m_zoneUpdateId    = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
@@ -17350,7 +17350,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 
-    std::unique_ptr<Garrison> garrison(new Garrison(this));
+    std::unique_ptr<Garrison> garrison = Trinity::make_unique<Garrison>(this);
     if (garrison->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON),
                              holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS),
                              holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS)))
@@ -17369,19 +17369,19 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
         // SELECT id, name, frameHeight, frameWidth, sortBy, healthText, boolOptions, unk146, unk147, unk148, unk150, unk152, unk154 FROM character_cuf_profiles WHERE guid = ?
         Field* fields = result->Fetch();
 
-        uint8 id           = fields[0].GetUInt8();
-        std::string name   = fields[1].GetString();
-        uint16 frameHeight = fields[2].GetUInt16();
-        uint16 frameWidth  = fields[3].GetUInt16();
-        uint8 sortBy       = fields[4].GetUInt8();
-        uint8 healthText   = fields[5].GetUInt8();
-        uint32 boolOptions = fields[6].GetUInt32();
-        uint8 unk146       = fields[7].GetUInt8();
-        uint8 unk147       = fields[8].GetUInt8();
-        uint8 unk148       = fields[9].GetUInt8();
-        uint16 unk150      = fields[10].GetUInt16();
-        uint16 unk152      = fields[11].GetUInt16();
-        uint16 unk154      = fields[12].GetUInt16();
+        uint8 id            = fields[0].GetUInt8();
+        std::string name    = fields[1].GetString();
+        uint16 frameHeight  = fields[2].GetUInt16();
+        uint16 frameWidth   = fields[3].GetUInt16();
+        uint8 sortBy        = fields[4].GetUInt8();
+        uint8 healthText    = fields[5].GetUInt8();
+        uint32 boolOptions  = fields[6].GetUInt32();
+        uint8 topPoint      = fields[7].GetUInt8();
+        uint8 bottomPoint   = fields[8].GetUInt8();
+        uint8 leftPoint     = fields[9].GetUInt8();
+        uint16 topOffset    = fields[10].GetUInt16();
+        uint16 bottomOffset = fields[11].GetUInt16();
+        uint16 leftOffset   = fields[12].GetUInt16();
 
         if (id > MAX_CUF_PROFILES)
         {
@@ -17389,7 +17389,7 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
             continue;
         }
 
-        _CUFProfiles[id] = new CUFProfile(name, frameHeight, frameWidth, sortBy, healthText, boolOptions, unk146, unk147, unk148, unk150, unk152, unk154);
+        _CUFProfiles[id] = Trinity::make_unique<CUFProfile>(name, frameHeight, frameWidth, sortBy, healthText, boolOptions, topPoint, bottomPoint, leftPoint, topOffset, bottomOffset, leftOffset);
     }
     while (result->NextRow());
 }
@@ -18557,12 +18557,7 @@ void Player::SetPendingBind(uint32 instanceId, uint32 bindTimer)
 
 void Player::SendRaidInfo()
 {
-    uint32 counter = 0;
-
-    WorldPacket data(SMSG_INSTANCE_INFO, 4);
-
-    size_t p_counter = data.wpos();
-    data << uint32(counter);                                // placeholder
+    WorldPackets::Instance::InstanceInfo instanceInfo;
 
     time_t now = time(NULL);
 
@@ -18573,27 +18568,28 @@ void Player::SendRaidInfo()
             if (itr->second.perm)
             {
                 InstanceSave* save = itr->second.save;
-                bool isHeroic = save->GetDifficultyID() == DIFFICULTY_10_HC || save->GetDifficultyID() == DIFFICULTY_25_HC;
-                uint32 completedEncounters = 0;
+
+                WorldPackets::Instance::InstanceLockInfos lockInfos;
+
+                lockInfos.InstanceID = save->GetInstanceId();
+                lockInfos.MapID = save->GetMapId();
+                lockInfos.DifficultyID = save->GetDifficultyID();
+                lockInfos.TimeRemaining = save->GetResetTime() - now;
+
+                lockInfos.CompletedMask = 0;
                 if (Map* map = sMapMgr->FindMap(save->GetMapId(), save->GetInstanceId()))
                     if (InstanceScript* instanceScript = ((InstanceMap*)map)->GetInstanceScript())
-                        completedEncounters = instanceScript->GetCompletedEncounterMask();
+                        lockInfos.CompletedMask = instanceScript->GetCompletedEncounterMask();
 
-                data << uint32(save->GetMapId());           // map id
-                data << uint32(save->GetDifficultyID());      // difficulty
-                data << uint32(isHeroic);                   // heroic
-                data << uint64(save->GetInstanceId());      // instance id
-                data << uint8(1);                           // expired = 0
-                data << uint8(0);                           // extended = 1
-                data << uint32(save->GetResetTime() - now); // reset time
-                data << uint32(completedEncounters);        // completed encounters mask
-                ++counter;
+                lockInfos.Locked = lockInfos.TimeRemaining <= 0;
+                lockInfos.Extended = false;
+
+                instanceInfo.LockList.push_back(lockInfos);
             }
         }
     }
 
-    data.put<uint32>(p_counter, counter);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(instanceInfo.Write());
 }
 
 /// convert the player's binds to the group
@@ -19418,13 +19414,13 @@ void Player::_SaveCUFProfiles(SQLTransaction& trans)
             stmt->setUInt16(4, _CUFProfiles[i]->FrameWidth);
             stmt->setUInt8(5, _CUFProfiles[i]->SortBy);
             stmt->setUInt8(6, _CUFProfiles[i]->HealthText);
-            stmt->setUInt32(7, _CUFProfiles[i]->BoolOptions.to_ulong()); // 27 of 32 fields used, fits in an int
-            stmt->setUInt8(8, _CUFProfiles[i]->Unk146);
-            stmt->setUInt8(9, _CUFProfiles[i]->Unk147);
-            stmt->setUInt8(10, _CUFProfiles[i]->Unk148);
-            stmt->setUInt16(11, _CUFProfiles[i]->Unk150);
-            stmt->setUInt16(12, _CUFProfiles[i]->Unk152);
-            stmt->setUInt16(13, _CUFProfiles[i]->Unk154);
+            stmt->setUInt32(7, _CUFProfiles[i]->BoolOptions.to_ulong()); // 25 of 32 fields used, fits in an int
+            stmt->setUInt8(8, _CUFProfiles[i]->TopPoint);
+            stmt->setUInt8(9, _CUFProfiles[i]->BottomPoint);
+            stmt->setUInt8(10, _CUFProfiles[i]->LeftPoint);
+            stmt->setUInt16(11, _CUFProfiles[i]->TopOffset);
+            stmt->setUInt16(12, _CUFProfiles[i]->BottomOffset);
+            stmt->setUInt16(13, _CUFProfiles[i]->LeftOffset);
         }
 
         trans->Append(stmt);
@@ -20220,7 +20216,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         GetSession()->SendPacket(&data);
 
         if (GetGroup())
-            SetGroupUpdateFlag(GROUP_UPDATE_PET);
+            SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
     }
 }
 
@@ -20259,7 +20255,7 @@ void Player::Say(std::string const& text, Language language, WorldObject const* 
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
 
     WorldPackets::Chat::Chat packet;
-    packet.Initalize(CHAT_MSG_SAY, language, this, this, _text);
+    packet.Initialize(CHAT_MSG_SAY, language, this, this, _text);
     SendMessageToSetInRange(packet.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
@@ -20269,7 +20265,7 @@ void Player::Yell(std::string const& text, Language language, WorldObject const*
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
 
     WorldPackets::Chat::Chat packet;
-    packet.Initalize(CHAT_MSG_YELL, language, this, this, _text);
+    packet.Initialize(CHAT_MSG_YELL, language, this, this, _text);
     SendMessageToSetInRange(packet.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
 }
 
@@ -20279,7 +20275,7 @@ void Player::TextEmote(std::string const& text, WorldObject const* /*= nullptr*/
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
 
     WorldPackets::Chat::Chat packet;
-    packet.Initalize(CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, _text);
+    packet.Initialize(CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, _text);
     SendMessageToSetInRange(packet.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT));
 }
 
@@ -20292,7 +20288,7 @@ void Player::WhisperAddon(std::string const& text, const std::string& prefix, Pl
         return;
 
     WorldPackets::Chat::Chat packet;
-    packet.Initalize(CHAT_MSG_WHISPER, LANG_ADDON, this, this, text, 0, "", DEFAULT_LOCALE, prefix);
+    packet.Initialize(CHAT_MSG_WHISPER, LANG_ADDON, this, this, text, 0, "", DEFAULT_LOCALE, prefix);
     receiver->SendDirectMessage(packet.Write());
 }
 
@@ -20309,14 +20305,14 @@ void Player::Whisper(std::string const& text, Language language, Player* target,
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, target);
 
     WorldPackets::Chat::Chat packet;
-    packet.Initalize(CHAT_MSG_WHISPER, Language(language), this, this, _text);
+    packet.Initialize(CHAT_MSG_WHISPER, Language(language), this, this, _text);
     target->SendDirectMessage(packet.Write());
 
     // rest stuff shouldn't happen in case of addon message
     if (isAddonMessage)
         return;
 
-    packet.Initalize(CHAT_MSG_WHISPER_INFORM, Language(language), target, target, _text);
+    packet.Initialize(CHAT_MSG_WHISPER_INFORM, Language(language), target, target, _text);
     SendDirectMessage(packet.Write());
 
     if (!isAcceptWhispers() && !IsGameMaster() && !target->IsGameMaster())
@@ -22636,9 +22632,8 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
         group->UpdatePlayerOutOfRange(this);
 
     m_groupUpdateMask = GROUP_UPDATE_FLAG_NONE;
-    m_auraRaidUpdateMask = 0;
     if (Pet* pet = GetPet())
-        pet->ResetAuraUpdateMaskForRaid();
+        pet->ResetGroupUpdateFlag();
 }
 
 void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg)

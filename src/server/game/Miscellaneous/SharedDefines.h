@@ -1113,7 +1113,7 @@ enum SpellEffectName
     SPELL_EFFECT_REPUTATION                         = 103,
     SPELL_EFFECT_SUMMON_OBJECT_SLOT1                = 104,
     SPELL_EFFECT_SUMMON_OBJECT_SLOT2                = 105,
-    SPELL_EFFECT_SUMMON_OBJECT_SLOT3                = 106,
+    SPELL_EFFECT_CHANGE_RAID_MARKER                 = 106,
     SPELL_EFFECT_SUMMON_OBJECT_SLOT4                = 107,
     SPELL_EFFECT_DISPEL_MECHANIC                    = 108,
     SPELL_EFFECT_RESURRECT_PET                      = 109,
