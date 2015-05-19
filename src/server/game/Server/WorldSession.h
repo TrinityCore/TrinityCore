@@ -171,9 +171,6 @@ namespace WorldPackets
         class ChannelPlayerCommand;
         class JoinChannel;
         class LeaveChannel;
-        class UserlistAdd;
-        class UserlistRemove;
-        class UserlistUpdate;
     }
 
     namespace Chat
