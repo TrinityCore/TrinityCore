@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "PacketUtilities.h"
+#include "DB2Structure.h"
 
 namespace WorldPackets
 {
