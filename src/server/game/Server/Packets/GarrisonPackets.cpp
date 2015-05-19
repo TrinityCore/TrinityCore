@@ -60,8 +60,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonFollowe
     data << uint32(follower.CurrentMissionID);
     data << uint32(follower.AbilityID.size());
     data << uint32(follower.FollowerStatus);
-    for (uint32 abilityId : follower.AbilityID)
-        data << uint32(abilityId);
+    for (GarrAbilityEntry const* ability : follower.AbilityID)
+        data << uint32(ability->ID);
 
     return data;
 }
