@@ -1064,7 +1064,7 @@ class npc_meteor_strike : public CreatureScript
                 }
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 // Let Halion Controller count as summoner.
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HALION_CONTROLLER)))
@@ -1128,7 +1128,7 @@ class npc_meteor_strike_flame : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void SetGUID(ObjectGuid guid, int32 id /* = 0 */)
+            void SetGUID(ObjectGuid guid, int32 /*id = 0 */)
             {
                 _rootOwnerGuid = guid;
             }
@@ -1164,7 +1164,7 @@ class npc_meteor_strike_flame : public CreatureScript
                     controller->AI()->JustSummoned(me);
             }
 
-            void UpdateAI(uint32 diff) override { }
+            void UpdateAI(uint32 /*diff*/) override { }
             void EnterEvadeMode() override { }
 
         private:
