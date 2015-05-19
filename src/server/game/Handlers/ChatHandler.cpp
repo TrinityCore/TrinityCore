@@ -288,7 +288,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPackets::Chat::Chat packet;
-            packet.Initalize(ChatMsg(type), Language(lang), sender, nullptr, msg);
+            packet.Initialize(ChatMsg(type), Language(lang), sender, nullptr, msg);
             group->BroadcastPacket(packet.Write(), false, group->GetMemberGroup(GetPlayer()->GetGUID()));
             break;
         }
@@ -320,8 +320,8 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
         }
         case CHAT_MSG_RAID:
         {
-            Group* group = GetPlayer()->GetOriginalGroup();
-            if (!group)
+            Group* group = GetPlayer()->GetGroup();
+            if (!group || !group->isRaidGroup() || group->isBGGroup())
                 return;
 
             if (group->IsLeader(GetPlayer()->GetGUID()))
@@ -330,7 +330,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPackets::Chat::Chat packet;
-            packet.Initalize(ChatMsg(type), Language(lang), sender, nullptr, msg);
+            packet.Initialize(ChatMsg(type), Language(lang), sender, nullptr, msg);
             group->BroadcastPacket(packet.Write(), false);
             break;
         }
@@ -344,7 +344,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
 
             WorldPackets::Chat::Chat packet;
             //in battleground, raid warning is sent only to players in battleground - code is ok
-            packet.Initalize(CHAT_MSG_RAID_WARNING, Language(lang), sender, NULL, msg);
+            packet.Initialize(CHAT_MSG_RAID_WARNING, Language(lang), sender, NULL, msg);
             group->BroadcastPacket(packet.Write(), false);
             break;
         }
@@ -381,7 +381,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPackets::Chat::Chat packet;
-            packet.Initalize(ChatMsg(type), Language(lang), sender, nullptr, msg);
+            packet.Initialize(ChatMsg(type), Language(lang), sender, nullptr, msg);
             group->BroadcastPacket(packet.Write(), false);
             break;
         }
@@ -484,7 +484,7 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
             }
 
             WorldPackets::Chat::Chat packet;
-            packet.Initalize(type, LANG_ADDON, sender, nullptr, text, 0, "", DEFAULT_LOCALE, prefix);
+            packet.Initialize(type, LANG_ADDON, sender, nullptr, text, 0, "", DEFAULT_LOCALE, prefix);
             group->BroadcastAddonMessagePacket(packet.Write(), prefix, true, subGroup, sender->GetGUID());
             break;
         }
@@ -666,7 +666,7 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
         return;
 
     WorldPackets::Chat::Chat packet;
-    packet.Initalize(CHAT_MSG_IGNORED, LANG_UNIVERSAL, _player, _player, GetPlayer()->GetName());
+    packet.Initialize(CHAT_MSG_IGNORED, LANG_UNIVERSAL, _player, _player, GetPlayer()->GetName());
     player->SendDirectMessage(packet.Write());
 }
 

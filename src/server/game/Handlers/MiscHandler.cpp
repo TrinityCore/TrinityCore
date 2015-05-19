@@ -1213,129 +1213,28 @@ void WorldSession::HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpd
     _player->m_clientGUIDs.insert(objectUpdateRescued.ObjectGUID);
 }
 
-void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
+void WorldSession::HandleSaveCUFProfiles(WorldPackets::Misc::SaveCUFProfiles& packet)
 {
-    uint8 count = (uint8)recvPacket.ReadBits(20);
-
-    if (count > MAX_CUF_PROFILES)
+    if (packet.CUFProfiles.size() > MAX_CUF_PROFILES)
     {
         TC_LOG_ERROR("entities.player", "HandleSaveCUFProfiles - %s tried to save more than %i CUF profiles. Hacking attempt?", GetPlayerName().c_str(), MAX_CUF_PROFILES);
-        recvPacket.rfinish();
         return;
     }
 
-    CUFProfile* profiles[MAX_CUF_PROFILES];
-    uint8 strlens[MAX_CUF_PROFILES];
+    for (uint8 i = 0; i < packet.CUFProfiles.size(); ++i)
+        GetPlayer()->SaveCUFProfile(i, std::move(packet.CUFProfiles[i]));
 
-    for (uint8 i = 0; i < count; ++i)
-    {
-        profiles[i] = new CUFProfile;
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_SPEC_2            , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_10_PLAYERS        , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_UNK_157                         , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_DISPLAY_HEAL_PREDICTION         , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_SPEC_1            , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_PVP               , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_DISPLAY_POWER_BAR               , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_15_PLAYERS        , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_40_PLAYERS        , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_DISPLAY_PETS                    , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_5_PLAYERS         , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_DISPLAY_ONLY_DISPELLABLE_DEBUFFS, recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_2_PLAYERS         , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_UNK_156                         , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_DISPLAY_NON_BOSS_DEBUFFS        , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_DISPLAY_MAIN_TANK_AND_ASSIST    , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_DISPLAY_AGGRO_HIGHLIGHT         , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_3_PLAYERS         , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_DISPLAY_BORDER                  , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_USE_CLASS_COLORS                , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_UNK_145                         , recvPacket.ReadBit());
-        strlens[i] = (uint8)recvPacket.ReadBits(8);
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_PVE               , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_DISPLAY_HORIZONTAL_GROUPS       , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_25_PLAYERS        , recvPacket.ReadBit());
-        profiles[i]->BoolOptions.set(CUF_KEEP_GROUPS_TOGETHER            , recvPacket.ReadBit());
-    }
-
-    for (uint8 i = 0; i < count; ++i)
-    {
-        recvPacket >> profiles[i]->Unk146;
-        profiles[i]->ProfileName = recvPacket.ReadString(strlens[i]);
-        recvPacket >> profiles[i]->Unk152;
-        recvPacket >> profiles[i]->FrameHeight;
-        recvPacket >> profiles[i]->FrameWidth;
-        recvPacket >> profiles[i]->Unk150;
-        recvPacket >> profiles[i]->HealthText;
-        recvPacket >> profiles[i]->Unk147;
-        recvPacket >> profiles[i]->SortBy;
-        recvPacket >> profiles[i]->Unk154;
-        recvPacket >> profiles[i]->Unk148;
-
-        GetPlayer()->SaveCUFProfile(i, profiles[i]);
-    }
-
-    for (uint8 i = count; i < MAX_CUF_PROFILES; ++i)
-        GetPlayer()->SaveCUFProfile(i, NULL);
+    for (uint8 i = packet.CUFProfiles.size(); i < MAX_CUF_PROFILES; ++i)
+        GetPlayer()->SaveCUFProfile(i, nullptr);
 }
 
 void WorldSession::SendLoadCUFProfiles()
 {
     Player* player = GetPlayer();
 
-    uint8 count = player->GetCUFProfilesCount();
+    WorldPackets::Misc::LoadCUFProfiles loadCUFProfiles;
 
-    ByteBuffer byteBuffer(25 * count);
-    WorldPacket data(SMSG_LOAD_CUF_PROFILES, 5 * count + 25 * count);
-
-    data.WriteBits(count, 20);
-    for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
-    {
-        CUFProfile* profile = player->GetCUFProfile(i);
-        if (!profile)
-            continue;
-
-        data.WriteBit(profile->BoolOptions[CUF_UNK_157]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_10_PLAYERS]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_5_PLAYERS]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_25_PLAYERS]);
-        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_HEAL_PREDICTION]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_PVE]);
-        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_HORIZONTAL_GROUPS]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_40_PLAYERS]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_3_PLAYERS]);
-        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_AGGRO_HIGHLIGHT]);
-        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_BORDER]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_2_PLAYERS]);
-        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_NON_BOSS_DEBUFFS]);
-        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_MAIN_TANK_AND_ASSIST]);
-        data.WriteBit(profile->BoolOptions[CUF_UNK_156]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_SPEC_2]);
-        data.WriteBit(profile->BoolOptions[CUF_USE_CLASS_COLORS]);
-        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_POWER_BAR]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_SPEC_1]);
-        data.WriteBits(profile->ProfileName.size(), 8);
-        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_ONLY_DISPELLABLE_DEBUFFS]);
-        data.WriteBit(profile->BoolOptions[CUF_KEEP_GROUPS_TOGETHER]);
-        data.WriteBit(profile->BoolOptions[CUF_UNK_145]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_15_PLAYERS]);
-        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_PETS]);
-        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_PVP]);
-
-        byteBuffer << uint16(profile->Unk154);
-        byteBuffer << uint16(profile->FrameHeight);
-        byteBuffer << uint16(profile->Unk152);
-        byteBuffer << uint8(profile->Unk147);
-        byteBuffer << uint16(profile->Unk150);
-        byteBuffer << uint8(profile->Unk146);
-        byteBuffer << uint8(profile->HealthText);
-        byteBuffer << uint8(profile->SortBy);
-        byteBuffer << uint16(profile->FrameWidth);
-        byteBuffer << uint8(profile->Unk148);
-        byteBuffer.WriteString(profile->ProfileName);
-    }
-
-    data.FlushBits();
-    data.append(byteBuffer);
-    SendPacket(&data);
+    for (uint8 i = 0; i < MAX_CUF_PROFILES; i++)
+        loadCUFProfiles.CUFProfiles.push_back(player->GetCUFProfile(i));
+    SendPacket(loadCUFProfiles.Write());
 }
