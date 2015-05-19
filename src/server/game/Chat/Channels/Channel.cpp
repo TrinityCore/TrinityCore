@@ -990,32 +990,42 @@ void Channel::MakeVoiceOff(WorldPackets::Channel::ChannelNotify& data, ObjectGui
 void Channel::JoinNotify(Player const* player)
 {
     ObjectGuid const& guid = player->GetGUID();
-    WorldPacket data(IsConstant() ? SMSG_USERLIST_ADD : SMSG_USERLIST_UPDATE, 8 + 1 + 1 + 4 + GetName().size());
-    data << guid;
-    data << uint8(GetPlayerFlags(guid));
-    data << uint8(GetFlags());
-    data << uint32(GetNumPlayers());
-    data << GetName();
 
     if (IsConstant())
-        SendToAllButOne(&data, guid);
+    {
+        WorldPackets::Channel::UserlistAdd userlistAdd;
+        userlistAdd.AddedUserGUID = guid;
+        userlistAdd.ChannelFlags = GetFlags();
+        userlistAdd.UserFlags = GetPlayerFlags(guid);
+        userlistAdd.ChannelID = GetChannelId();
+        userlistAdd.ChannelName = GetName();
+        SendToAllButOne(userlistAdd.Write(), guid);
+    }
     else
-        SendToAll(&data);
+    {
+        WorldPackets::Channel::UserlistUpdate userlistUpdate;
+        userlistUpdate.UpdatedUserGUID = guid;
+        userlistUpdate.ChannelFlags = GetFlags();
+        userlistUpdate.UserFlags = GetPlayerFlags(guid);
+        userlistUpdate.ChannelID = GetChannelId();
+        userlistUpdate.ChannelName = GetName();
+        SendToAll(userlistUpdate.Write());
+    }
 }
 
 void Channel::LeaveNotify(Player const* player)
 {
     ObjectGuid const& guid = player->GetGUID();
-    WorldPacket data(SMSG_USERLIST_REMOVE, 8 + 1 + 4 + GetName().size());
-    data << guid;
-    data << uint8(GetFlags());
-    data << uint32(GetNumPlayers());
-    data << GetName();
+    WorldPackets::Channel::UserlistRemove userlistRemove;
+    userlistRemove.RemovedUserGUID = guid;
+    userlistRemove.ChannelFlags = GetFlags();
+    userlistRemove.ChannelID = GetChannelId();
+    userlistRemove.ChannelName = GetName();
 
     if (IsConstant())
-        SendToAllButOne(&data, guid);
+        SendToAllButOne(userlistRemove.Write(), guid);
     else
-        SendToAll(&data);
+        SendToAll(userlistRemove.Write());
 }
 
 void Channel::SetModerator(ObjectGuid const& guid, bool set)
