@@ -139,11 +139,12 @@ uint32 const AbilitiesForQuality[][2] =
     { 2, 3 }    // Legendary
 };
 
-std::list<uint32> GarrisonMgr::RollFollowerAbilities(GarrFollowerEntry const* follower, uint32 quality, uint32 faction, bool initial) const
+std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(GarrFollowerEntry const* follower, uint32 quality, uint32 faction, bool initial) const
 {
     ASSERT(faction < 2);
 
-    std::list<uint32> result;
+    bool hasForcedExclusiveTrait = false;
+    std::list<GarrAbilityEntry const*> result;
     int32 slots[2] = { AbilitiesForQuality[quality][0], AbilitiesForQuality[quality][1] };
 
     GarrAbilities const* abilities = nullptr;
@@ -151,7 +152,7 @@ std::list<uint32> GarrisonMgr::RollFollowerAbilities(GarrFollowerEntry const* fo
     if (itr != _garrisonFollowerAbilities[faction].end())
         abilities = &itr->second;
 
-    std::list<uint32> abilityList, forcedAbilities, traitList, forcedTraits;
+    std::list<GarrAbilityEntry const*> abilityList, forcedAbilities, traitList, forcedTraits;
     if (abilities)
     {
         for (GarrAbilityEntry const* ability : abilities->Counters)
@@ -162,9 +163,9 @@ std::list<uint32> GarrisonMgr::RollFollowerAbilities(GarrFollowerEntry const* fo
                 continue;
 
             if (ability->Flags & GARRISON_ABILITY_FLAG_CANNOT_REMOVE)
-                forcedAbilities.push_back(ability->ID);
+                forcedAbilities.push_back(ability);
             else
-                abilityList.push_back(ability->ID);
+                abilityList.push_back(ability);
         }
 
         for (GarrAbilityEntry const* ability : abilities->Traits)
@@ -175,9 +176,9 @@ std::list<uint32> GarrisonMgr::RollFollowerAbilities(GarrFollowerEntry const* fo
                 continue;
 
             if (ability->Flags & GARRISON_ABILITY_FLAG_CANNOT_REMOVE)
-                forcedTraits.push_back(ability->ID);
+                forcedTraits.push_back(ability);
             else
-                traitList.push_back(ability->ID);
+                traitList.push_back(ability);
         }
     }
 
@@ -191,9 +192,19 @@ std::list<uint32> GarrisonMgr::RollFollowerAbilities(GarrFollowerEntry const* fo
         forcedTraits.splice(forcedTraits.end(), traitList);
     }
 
+    // check if we have a trait from exclusive category
+    for (GarrAbilityEntry const* ability : forcedTraits)
+    {
+        if (ability->Flags & GARRISON_ABILITY_FLAG_EXCLUSIVE)
+        {
+            hasForcedExclusiveTrait = true;
+            break;
+        }
+    }
+
     if (slots[0] > forcedAbilities.size() + abilityList.size())
     {
-        std::list<uint32> classSpecAbilities; // = GetDefaultClassSpecAbilities(follower, faction)
+        std::list<GarrAbilityEntry const*> classSpecAbilities; // = GetDefaultClassSpecAbilities(follower, faction)
 
         abilityList.splice(abilityList.end(), classSpecAbilities);
         abilityList.sort();
@@ -204,7 +215,7 @@ std::list<uint32> GarrisonMgr::RollFollowerAbilities(GarrFollowerEntry const* fo
 
     if (slots[1] > forcedTraits.size() + traitList.size())
     {
-        std::list<uint32> genericTraits;
+        std::list<GarrAbilityEntry const*> genericTraits;
         for (GarrAbilityEntry const* ability : _garrisonFollowerRandomTraits)
         {
             if (ability->Flags & GARRISON_ABILITY_HORDE_ONLY && faction != GARRISON_FACTION_INDEX_HORDE)
@@ -212,14 +223,43 @@ std::list<uint32> GarrisonMgr::RollFollowerAbilities(GarrFollowerEntry const* fo
             else if (ability->Flags & GARRISON_ABILITY_ALLIANCE_ONLY && faction != GARRISON_FACTION_INDEX_ALLIANCE)
                 continue;
 
-            genericTraits.push_back(ability->ID);
+            // forced exclusive trait exists, skip other ones entirely
+            if (hasForcedExclusiveTrait && ability->Flags & GARRISON_ABILITY_FLAG_EXCLUSIVE)
+                continue;
+
+            genericTraits.push_back(ability);
         }
 
-        traitList.splice(traitList.end(), genericTraits);
-        traitList.sort();
-        traitList.unique();
+        genericTraits.splice(genericTraits.begin(), traitList);
+        // "split" the list into two parts [nonexclusive, exclusive] to make selection later easier
+        genericTraits.sort([](GarrAbilityEntry const* a1, GarrAbilityEntry const* a2)
+        {
+            uint32 e1 = a1->Flags & GARRISON_ABILITY_FLAG_EXCLUSIVE;
+            uint32 e2 = a2->Flags & GARRISON_ABILITY_FLAG_EXCLUSIVE;
+            if (e1 != e2)
+                return e1 < e2;
 
-        Trinity::Containers::RandomResizeList(traitList, std::max<int32>(0, slots[1] - forcedTraits.size()));
+            return a1->ID < a2->ID;
+        });
+        genericTraits.unique();
+
+        std::size_t firstExclusive = 0, total = genericTraits.size();
+        for (auto itr = genericTraits.begin(); itr != genericTraits.end(); ++itr, ++firstExclusive)
+            if ((*itr)->Flags & GARRISON_ABILITY_FLAG_EXCLUSIVE)
+                break;
+
+        while (traitList.size() < std::max<int32>(0, slots[1] - forcedTraits.size()) && !genericTraits.empty())
+        {
+            auto itr = genericTraits.begin();
+            std::advance(itr, urand(0, total-- - 1));
+            if ((*itr)->Flags & GARRISON_ABILITY_FLAG_EXCLUSIVE)
+                total = firstExclusive; // selected exclusive trait - no other can be selected now
+            else
+                --firstExclusive;
+
+            traitList.push_back(*itr);
+            genericTraits.erase(itr);
+        }
     }
 
     result.splice(result.end(), forcedAbilities);

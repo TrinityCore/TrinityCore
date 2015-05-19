@@ -74,7 +74,7 @@ namespace WorldPackets
             uint32 Xp = 0;
             uint32 CurrentBuildingID = 0;
             uint32 CurrentMissionID = 0;
-            std::list<uint32> AbilityID;
+            std::list<GarrAbilityEntry const*> AbilityID;
             uint32 FollowerStatus;
         };
 
