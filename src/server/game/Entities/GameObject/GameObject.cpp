@@ -271,6 +271,16 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
             SetGoAnimProgress(animprogress);
             break;
     }
+
+    if (GameObjectAddon const* addon = sObjectMgr->GetGameObjectAddon(guidlow))
+    {
+        if (addon->InvisibilityValue)
+        {
+            m_invisibility.AddFlag(addon->InvisibilityType);
+            m_invisibility.AddValue(addon->InvisibilityType, addon->InvisibilityValue);
+        }
+    }
+
     LastUsedScriptID = GetGOInfo()->ScriptId;
     AIM_Initialize();
 
