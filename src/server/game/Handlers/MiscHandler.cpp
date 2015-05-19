@@ -1235,6 +1235,7 @@ void WorldSession::SendLoadCUFProfiles()
     WorldPackets::Misc::LoadCUFProfiles loadCUFProfiles;
 
     for (uint8 i = 0; i < MAX_CUF_PROFILES; i++)
-        loadCUFProfiles.CUFProfiles.push_back(player->GetCUFProfile(i));
+        if (CUFProfile* cufProfile = player->GetCUFProfile(i))
+            loadCUFProfiles.CUFProfiles.push_back(cufProfile);
     SendPacket(loadCUFProfiles.Write());
 }
