@@ -23,6 +23,7 @@
 #include "Appender.h"
 #include "Logger.h"
 #include "StringFormat.h"
+#include "Common.h"
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
 
@@ -64,7 +65,7 @@ class Log
         template<typename... Args>
         inline void outMessage(std::string const& filter, LogLevel const level, const char* fmt, Args const&... args)
         {
-            write(std::unique_ptr<LogMessage>(new LogMessage(level, filter, Trinity::StringFormat(fmt, args...))));
+            write(Trinity::make_unique<LogMessage>(level, filter, Trinity::StringFormat(fmt, args...)));
         }
 
         template<typename... Args>
@@ -73,7 +74,7 @@ class Log
             if (!ShouldLog("commands.gm", LOG_LEVEL_INFO))
                 return;
 
-            std::unique_ptr<LogMessage> msg(new LogMessage(LOG_LEVEL_INFO, "commands.gm", std::move(Trinity::StringFormat(fmt, args...))));
+            std::unique_ptr<LogMessage> msg = Trinity::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm", std::move(Trinity::StringFormat(fmt, args...)));
 
             msg->param1 = std::to_string(account);
 

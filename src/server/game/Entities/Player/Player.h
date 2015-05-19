@@ -207,8 +207,9 @@ enum CUFBoolOptions
     CUF_DISPLAY_POWER_BAR,
     CUF_DISPLAY_BORDER,
     CUF_USE_CLASS_COLORS,
-    CUF_DISPLAY_NON_BOSS_DEBUFFS,
     CUF_DISPLAY_HORIZONTAL_GROUPS,
+    CUF_DISPLAY_NON_BOSS_DEBUFFS,
+    CUF_DYNAMIC_POSITION,
     CUF_LOCKED,
     CUF_SHOWN,
     CUF_AUTO_ACTIVATE_2_PLAYERS,
@@ -222,9 +223,6 @@ enum CUFBoolOptions
     CUF_AUTO_ACTIVATE_SPEC_2,
     CUF_AUTO_ACTIVATE_PVP,
     CUF_AUTO_ACTIVATE_PVE,
-    CUF_UNK_145,
-    CUF_UNK_156,
-    CUF_UNK_157,
 
     // The unks is _LOCKED and _SHOWN and _DYNAMIC, unknown order
 
@@ -236,32 +234,32 @@ struct CUFProfile
 {
     CUFProfile() : ProfileName(), BoolOptions() // might want to change default value for options
     {
-        FrameHeight = 0;
-        FrameWidth  = 0;
-        SortBy      = 0;
-        HealthText  = 0;
-        Unk146      = 0;
-        Unk147      = 0;
-        Unk148      = 0;
-        Unk150      = 0;
-        Unk152      = 0;
-        Unk154      = 0;
+        FrameHeight     = 0;
+        FrameWidth      = 0;
+        SortBy          = 0;
+        HealthText      = 0;
+        TopPoint        = 0;
+        BottomPoint     = 0;
+        LeftPoint       = 0;
+        TopOffset       = 0;
+        BottomOffset    = 0;
+        LeftOffset      = 0;
     }
 
     CUFProfile(const std::string& name, uint16 frameHeight, uint16 frameWidth, uint8 sortBy, uint8 healthText, uint32 boolOptions,
-        uint8 unk146, uint8 unk147, uint8 unk148, uint16 unk150, uint16 unk152, uint16 unk154)
+        uint8 topPoint, uint8 bottomPoint, uint8 leftPoint, uint16 topOffset, uint16 bottomOffset, uint16 leftOffset)
         : ProfileName(name), BoolOptions((int)boolOptions)
     {
-        FrameHeight = frameHeight;
-        FrameWidth  = frameWidth;
-        SortBy      = sortBy;
-        HealthText  = healthText;
-        Unk146      = unk146;
-        Unk147      = unk147;
-        Unk148      = unk148;
-        Unk150      = unk150;
-        Unk152      = unk152;
-        Unk154      = unk154;
+        FrameHeight     = frameHeight;
+        FrameWidth      = frameWidth;
+        SortBy          = sortBy;
+        HealthText      = healthText;
+        TopPoint        = topPoint;
+        BottomPoint     = bottomPoint;
+        LeftPoint       = leftPoint;
+        TopOffset       = topOffset;
+        BottomOffset    = bottomOffset;
+        LeftOffset      = leftOffset;
     }
 
     std::string ProfileName;
@@ -270,15 +268,15 @@ struct CUFProfile
     uint8 SortBy;
     uint8 HealthText;
 
-    // LeftAlign, TopAlight, BottomAllign (unk order)
-    uint8 Unk146;
-    uint8 Unk147;
-    uint8 Unk148;
+    // LeftAlign, TopAlight, BottomAlign
+    uint8 TopPoint;
+    uint8 BottomPoint;
+    uint8 LeftPoint;
 
-    // LeftOffset, TopOffset and BottomOffset (unk order)
-    uint16 Unk150;
-    uint16 Unk152;
-    uint16 Unk154;
+    // LeftOffset, TopOffset and BottomOffset
+    uint16 TopOffset;
+    uint16 BottomOffset;
+    uint16 LeftOffset;
 
     std::bitset<CUF_BOOL_OPTIONS_COUNT> BoolOptions;
 
@@ -1737,8 +1735,9 @@ class Player : public Unit, public GridObject<Player>
         void AddTimedQuest(uint32 questId) { m_timedquests.insert(questId); }
         void RemoveTimedQuest(uint32 questId) { m_timedquests.erase(questId); }
 
-        void SaveCUFProfile(uint8 id, CUFProfile* profile) { delete _CUFProfiles[id]; _CUFProfiles[id] = profile; } ///> Replaces a CUF profile at position 0-4
-        CUFProfile* GetCUFProfile(uint8 id) const { return _CUFProfiles[id]; } ///> Retrieves a CUF profile at position 0-4
+        void SaveCUFProfile(uint8 id, std::nullptr_t) { _CUFProfiles[id] = nullptr; } ///> Empties a CUF profile at position 0-4
+        void SaveCUFProfile(uint8 id, std::unique_ptr<CUFProfile> profile) { _CUFProfiles[id] = std::move(profile); } ///> Replaces a CUF profile at position 0-4
+        CUFProfile* GetCUFProfile(uint8 id) const { return _CUFProfiles[id].get(); } ///> Retrieves a CUF profile at position 0-4
         uint8 GetCUFProfilesCount() const
         {
             uint8 count = 0;
@@ -2522,8 +2521,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetSubGroup() const { return m_group.getSubGroup(); }
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag) { m_groupUpdateMask |= flag; }
-        uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
-        void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
+        void RemoveGroupUpdateFlag(uint32 flag) { m_groupUpdateMask &= ~flag; }
         Player* GetNextRandomRaidMember(float radius);
         PartyResult CanUninviteFromGroup(ObjectGuid guidMember = ObjectGuid::Empty) const;
 
@@ -2889,7 +2887,6 @@ class Player : public Unit, public GridObject<Player>
         GroupReference m_originalGroup;
         Group* m_groupInvite;
         uint32 m_groupUpdateMask;
-        uint64 m_auraRaidUpdateMask;
         bool m_bPassOnGroupLoot;
 
         // last used pet number (for BG's)
@@ -2912,7 +2909,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint8 m_grantableLevels;
 
-        CUFProfile* _CUFProfiles[MAX_CUF_PROFILES];
+        std::array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> _CUFProfiles = {};
 
     private:
         // internal common parts for CanStore/StoreItem functions

@@ -71,7 +71,7 @@ namespace Trinity
             void do_helper(WorldPacket& data, char const* text)
             {
                 WorldPackets::Chat::Chat packet;
-                packet.Initalize(_msgtype, LANG_UNIVERSAL, _source, _source, text);
+                packet.Initialize(_msgtype, LANG_UNIVERSAL, _source, _source, text);
                 packet.Write();
                 data = packet.Move();
             }
@@ -98,7 +98,7 @@ namespace Trinity
                 snprintf(str, 2048, text, arg1str, arg2str);
 
                 WorldPackets::Chat::Chat packet;
-                packet.Initalize(_msgtype, LANG_UNIVERSAL, _source, _source, str);
+                packet.Initialize(_msgtype, LANG_UNIVERSAL, _source, _source, str);
                 packet.Write();
                 data = packet.Move();
             }

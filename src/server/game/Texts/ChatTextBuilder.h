@@ -34,7 +34,7 @@ namespace Trinity
             {
                 BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(_textId);
                 WorldPackets::Chat::Chat packet;
-                packet.Initalize(_msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _source->getGender()) : "", _achievementId, "", locale);
+                packet.Initialize(_msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _source->getGender()) : "", _achievementId, "", locale);
                 packet.Write();
                 data = packet.Move();
             }
@@ -56,7 +56,7 @@ namespace Trinity
             void operator()(WorldPacket& data, LocaleConstant locale)
             {
                 WorldPackets::Chat::Chat packet;
-                packet.Initalize(_msgType, _language, _source, _target, _text, 0, "", locale);
+                packet.Initialize(_msgType, _language, _source, _target, _text, 0, "", locale);
                 packet.Write();
                 data = packet.Move();
             }

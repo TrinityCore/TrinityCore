@@ -39,7 +39,7 @@
 
 Pet::Pet(Player* owner, PetType type) :
     Guardian(NULL, owner, true), m_usedTalentCount(0), m_removed(false),
-    m_petType(type), m_duration(0), m_auraRaidUpdateMask(0), m_loading(false),
+    m_petType(type), m_duration(0), m_groupUpdateMask(0), m_loading(false),
     m_declinedname(NULL)
 {
     ASSERT(GetOwner());
@@ -337,8 +337,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     owner->PetSpellInitialize();
 
-    if (owner->GetGroup())
-        owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
+    SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
 
     // TODO: 6.x remove/update pet talents
     //owner->SendTalentsInfoData(true);
@@ -1938,6 +1937,21 @@ void Pet::SetDisplayId(uint32 modelId)
     if (!isControlled())
         return;
 
+    SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
+}
+
+void Pet::SetGroupUpdateFlag(uint32 flag)
+{
     if (GetOwner()->GetGroup())
-        GetOwner()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
+    {
+        m_groupUpdateMask |= flag;
+        GetOwner()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
+    }
+}
+
+void Pet::ResetGroupUpdateFlag()
+{
+    m_groupUpdateMask = GROUP_UPDATE_FLAG_PET_NONE;
+    if (GetOwner()->GetGroup())
+        GetOwner()->RemoveGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
 }
