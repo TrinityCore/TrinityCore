@@ -5001,11 +5001,11 @@ void ObjectMgr::LoadEventScripts()
         {
             TaxiPathNodeEntry const& node = sTaxiPathNodesByPath[path_idx][node_idx];
 
-            if (node.arrivalEventID)
-                evt_scripts.insert(node.arrivalEventID);
+            if (node.ArrivalEventID)
+                evt_scripts.insert(node.ArrivalEventID);
 
-            if (node.departureEventID)
-                evt_scripts.insert(node.departureEventID);
+            if (node.DepartureEventID)
+                evt_scripts.insert(node.DepartureEventID);
         }
     }
 
