@@ -73,10 +73,10 @@ find_path(MYSQL_INCLUDE_DIR
     /usr/local/include
     /usr/local/include/mysql
     /usr/local/mysql/include
-    "C:/Program Files/MySQL/*/include"
-    "C:/Program Files/MySQL/include"
-    "C:/Program Files (x86)/MySQL/*/include"
-    "C:/Program Files (x86)/MySQL/include"
+    "${PROGRAM_FILES_64}/MySQL/*/include"
+    "${PROGRAM_FILES_64}/MySQL/include"
+    "${PROGRAM_FILES_32}/MySQL/*/include"
+    "${PROGRAM_FILES_32}/MySQL/include"
     "C:/MySQL/include"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\*;Location]/include"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\*;Location]/include"
@@ -111,12 +111,12 @@ if( WIN32 )
       libmysql
     PATHS
       ${MYSQL_ADD_LIBRARIES_PATH}
-      "C:/Program Files/MySQL/*/lib"
-      "C:/Program Files/MySQL/*/lib/opt"
-      "C:/Program Files/MySQL/lib"
-      "C:/Program Files (x86)/MySQL/*/lib"
-      "C:/Program Files (x86)/MySQL/*/lib/opt"
-      "C:/Program Files (x86)/MySQL/lib"
+      "${PROGRAM_FILES_64}/MySQL/*/lib"
+      "${PROGRAM_FILES_64}/MySQL/*/lib/opt"
+      "${PROGRAM_FILES_64}/MySQL/lib"
+      "${PROGRAM_FILES_32}/MySQL/*/lib"
+      "${PROGRAM_FILES_32}/MySQL/*/lib/opt"
+      "${PROGRAM_FILES_32}/MySQL/lib"
       "C:/MySQL/lib/debug"
       "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\*;Location]/lib"
       "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\*;Location]/lib/opt"
@@ -162,12 +162,12 @@ endif( UNIX )
 if( WIN32 )
     find_program(MYSQL_EXECUTABLE mysql
       PATHS
-        "C:/Program Files/MySQL/*/bin"
-        "C:/Program Files/MySQL/*/bin/opt"
-        "C:/Program Files/MySQL/bin"
-        "C:/Program Files (x86)/MySQL/*/bin"
-        "C:/Program Files (x86)/MySQL/*/bin/opt"
-        "C:/Program Files (x86)/MySQL/bin"
+        "${PROGRAM_FILES_64}/MySQL/*/bin"
+        "${PROGRAM_FILES_64}/MySQL/*/bin/opt"
+        "${PROGRAM_FILES_64}/MySQL/bin"
+        "${PROGRAM_FILES_32}/MySQL/*/bin"
+        "${PROGRAM_FILES_32}/MySQL/*/bin/opt"
+        "${PROGRAM_FILES_32}/MySQL/bin"
         "C:/MySQL/bin/debug"
         "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\*;Location]/bin"
         "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\*;Location]/bin/opt"
