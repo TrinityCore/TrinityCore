@@ -23,6 +23,7 @@
 
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "SpellHistory.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 
@@ -171,22 +172,12 @@ class spell_mage_cold_snap : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Player* caster = GetCaster()->ToPlayer();
-                // immediately finishes the cooldown on Frost spells
-                const SpellCooldowns& cm = caster->GetSpellCooldownMap();
-                for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
+                GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
                 {
                     SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
-
-                    if (spellInfo->SpellFamilyName == SPELLFAMILY_MAGE &&
-                        (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) &&
-                        spellInfo->Id != SPELL_MAGE_COLD_SNAP && spellInfo->GetRecoveryTime() > 0)
-                    {
-                        caster->RemoveSpellCooldown((itr++)->first, true);
-                    }
-                    else
-                        ++itr;
-                }
+                    return spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) &&
+                        spellInfo->Id != SPELL_MAGE_COLD_SNAP && spellInfo->GetRecoveryTime() > 0;
+                }, true);
             }
 
             void Register() override
