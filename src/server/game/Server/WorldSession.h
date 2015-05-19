@@ -171,6 +171,9 @@ namespace WorldPackets
         class ChannelPlayerCommand;
         class JoinChannel;
         class LeaveChannel;
+        class UserlistAdd;
+        class UserlistRemove;
+        class UserlistUpdate;
     }
 
     namespace Chat
@@ -275,6 +278,11 @@ namespace WorldPackets
         class RequestHonorStats;
     }
 
+    namespace Instance
+    {
+        class InstanceInfo;
+    }
+
     namespace Item
     {
         class AutoEquipItem;
@@ -338,6 +346,8 @@ namespace WorldPackets
         class CompleteCinematic;
         class NextCinematicCamera;
         class FarSight;
+        class LoadCUFProfiles;
+        class SaveCUFProfiles;
     }
 
     namespace Movement
@@ -358,6 +368,47 @@ namespace WorldPackets
         class GossipSelectOption;
         class SpiritHealerActivate;
         class TrainerBuySpell;
+    }
+
+    namespace Party
+    {
+        class PartyCommandResult;
+        class PartyInviteClient;
+        class PartyInvite;
+        class PartyInviteResponse;
+        class PartyUninvite;
+        class GroupDecline;
+        class RequestPartyMemberStats;
+        class PartyMemberStats;
+        class SetPartyLeader;
+        class SetRole;
+        class RoleChangedInform;
+        class SetLootMethod;
+        class LeaveGroup;
+        class MinimapPingClient;
+        class MinimapPing;
+        class UpdateRaidTarget;
+        class SendRaidTargetUpdateSingle;
+        class SendRaidTargetUpdateAll;
+        class ConvertRaid;
+        class RequestPartyJoinUpdates;
+        class SetAssistantLeader;
+        class DoReadyCheck;
+        class ReadyCheckStarted;
+        class ReadyCheckResponseClient;
+        class ReadyCheckResponse;
+        class ReadyCheckCompleted;
+        class RequestRaidInfo;
+        class OptOutOfLoot;
+        class InitiateRolePoll;
+        class RolePollInform;
+        class GroupNewLeader;
+        class PartyUpdate;
+        class SetEveryoneIsAssistant;
+        class ChangeSubGroup;
+        class SwapSubGroups;
+        class RaidMarkersChanged;
+        class ClearRaidMarker;
     }
 
     namespace Petition
@@ -855,8 +906,6 @@ class WorldSession
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(ObjectGuid guid);
 
-        void BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data);
-
         void DoLootRelease(ObjectGuid lguid);
 
         // Account mute time
@@ -1051,28 +1100,31 @@ class WorldSession
         void HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& moveTimeSkipped);
         void HandleMovementAckMessage(WorldPackets::Movement::MovementAckMessage& movementAck);
 
-        void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
+        void HandleRequestRaidInfoOpcode(WorldPackets::Party::RequestRaidInfo& packet);
 
-        void HandleGroupInviteOpcode(WorldPacket& recvPacket);
+        void HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClient& packet);
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
-        void HandleGroupInviteResponseOpcode(WorldPacket& recvPacket);
-        void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
-        void HandleGroupSetLeaderOpcode(WorldPacket& recvPacket);
-        void HandleGroupSetRolesOpcode(WorldPacket& recvData);
-        void HandleGroupDisbandOpcode(WorldPacket& recvPacket);
-        void HandleOptOutOfLootOpcode(WorldPacket& recvData);
-        void HandleLootMethodOpcode(WorldPacket& recvPacket);
+        void HandlePartyInviteResponseOpcode(WorldPackets::Party::PartyInviteResponse& packet);
+        void HandlePartyUninviteOpcode(WorldPackets::Party::PartyUninvite& packet);
+        void HandleSetPartyLeaderOpcode(WorldPackets::Party::SetPartyLeader& packet);
+        void HandleSetRoleOpcode(WorldPackets::Party::SetRole& packet);
+        void HandleLeaveGroupOpcode(WorldPackets::Party::LeaveGroup& packet);
+        void HandleOptOutOfLootOpcode(WorldPackets::Party::OptOutOfLoot& packet);
+        void HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& packet);
         void HandleLootRoll(WorldPackets::Loot::LootRoll& packet);
-        void HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData);
-        void HandleRaidTargetUpdateOpcode(WorldPacket& recvData);
-        void HandleRaidReadyCheckOpcode(WorldPacket& recvData);
-        void HandleGroupRaidConvertOpcode(WorldPacket& recvData);
-        void HandleGroupRequestJoinUpdates(WorldPacket& recvData);
-        void HandleGroupChangeSubGroupOpcode(WorldPacket& recvData);
-        void HandleGroupSwapSubGroupOpcode(WorldPacket& recvData);
-        void HandleGroupAssistantLeaderOpcode(WorldPacket& recvData);
+        void HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats& packet);
+        void HandleUpdateRaidTargetOpcode(WorldPackets::Party::UpdateRaidTarget& packet);
+        void HandleDoReadyCheckOpcode(WorldPackets::Party::DoReadyCheck& packet);
+        void HandleReadyCheckResponseOpcode(WorldPackets::Party::ReadyCheckResponseClient& packet);
+        void HandleConvertRaidOpcode(WorldPackets::Party::ConvertRaid& packet);
+        void HandleRequestPartyJoinUpdates(WorldPackets::Party::RequestPartyJoinUpdates& packet);
+        void HandleChangeSubGroupOpcode(WorldPackets::Party::ChangeSubGroup& packet);
+        void HandleSwapSubGroupsOpcode(WorldPackets::Party::SwapSubGroups& packet);
+        void HandleSetAssistantLeaderOpcode(WorldPackets::Party::SetAssistantLeader& packet);
         void HandlePartyAssignmentOpcode(WorldPacket& recvData);
-        void HandleRolePollBeginOpcode(WorldPacket& recvData);
+        void HandleInitiateRolePoll(WorldPackets::Party::InitiateRolePoll& packet);
+        void HandleSetEveryoneIsAssistant(WorldPackets::Party::SetEveryoneIsAssistant& packet);
+        void HandleClearRaidMarker(WorldPackets::Party::ClearRaidMarker& packet);
 
         void HandleDeclinePetition(WorldPackets::Petition::DeclinePetition& packet);
         void HandleOfferPetition(WorldPackets::Petition::OfferPetition& packet);
@@ -1337,7 +1389,7 @@ class WorldSession
 
         void HandleWardenDataOpcode(WorldPacket& recvData);
         void HandleWorldTeleportOpcode(WorldPacket& recvData);
-        void HandleMinimapPingOpcode(WorldPacket& recvData);
+        void HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet);
         void HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet);
         void HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet);
         void HandleSetDungeonDifficultyOpcode(WorldPackets::Misc::SetDungeonDifficulty& setDungeonDifficulty);
@@ -1470,7 +1522,7 @@ class WorldSession
         void HandleRequestWowTokenMarketPrice(WorldPackets::Token::RequestWowTokenMarketPrice& requestWowTokenMarketPrice);
 
         // Compact Unit Frames (4.x)
-        void HandleSaveCUFProfiles(WorldPacket& recvPacket);
+        void HandleSaveCUFProfiles(WorldPackets::Misc::SaveCUFProfiles& packet);
         void SendLoadCUFProfiles();
 
         // Garrison

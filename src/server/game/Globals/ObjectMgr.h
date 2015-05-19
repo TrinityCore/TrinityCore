@@ -780,6 +780,7 @@ class ObjectMgr
         * @return true if player was found, false otherwise
         */
         static bool GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name);
+        static bool GetPlayerNameAndClassByGUID(ObjectGuid const& guid, std::string& name, uint8& _class);
         static uint32 GetPlayerTeamByGUID(ObjectGuid const& guid);
         static uint32 GetPlayerAccountIdByGUID(ObjectGuid const& guid);
         static uint32 GetPlayerAccountIdByPlayerName(std::string const& name);
@@ -1364,7 +1365,7 @@ class ObjectMgr
         {
             auto itr = _guidGenerators.find(high);
             if (itr == _guidGenerators.end())
-                itr = _guidGenerators.insert(std::make_pair(high, std::unique_ptr<ObjectGuidGenerator<high>>(new ObjectGuidGenerator<high>()))).first;
+                itr = _guidGenerators.insert(std::make_pair(high, Trinity::make_unique<ObjectGuidGenerator<high>>())).first;
 
             return *itr->second;
         }

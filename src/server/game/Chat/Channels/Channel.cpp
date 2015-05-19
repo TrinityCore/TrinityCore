@@ -626,10 +626,10 @@ void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang)
 
     WorldPackets::Chat::Chat packet;
     if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-        packet.Initalize(CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, _name);
+        packet.Initialize(CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, _name);
     else
     {
-        packet.Initalize(CHAT_MSG_CHANNEL, Language(lang), nullptr, nullptr, what, 0, _name);
+        packet.Initialize(CHAT_MSG_CHANNEL, Language(lang), nullptr, nullptr, what, 0, _name);
         packet.SenderGUID = guid;
         packet.TargetGUID = guid;
     }

@@ -50,6 +50,8 @@ public:
     void   AddGroup(Group* group);
     void   RemoveGroup(Group* group);
 
+    void   Update(uint32 diff);
+
 
 protected:
     ObjectGuid::LowType           NextGroupId;
