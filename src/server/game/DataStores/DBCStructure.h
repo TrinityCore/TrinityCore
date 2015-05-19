@@ -1939,17 +1939,17 @@ struct TaxiPathEntry
 
 struct TaxiPathNodeEntry
 {
-                                                            // 0        m_ID
-    uint32    path;                                         // 1        m_PathID
-    uint32    index;                                        // 2        m_NodeIndex
-    uint32    mapid;                                        // 3        m_ContinentID
-    float     x;                                            // 4        m_LocX
-    float     y;                                            // 5        m_LocY
-    float     z;                                            // 6        m_LocZ
-    uint32    actionFlag;                                   // 7        m_flags
-    uint32    delay;                                        // 8        m_delay
-    uint32    arrivalEventID;                               // 9        m_arrivalEventID
-    uint32    departureEventID;                             // 10       m_departureEventID
+                                                            // 0  ID
+    uint32    PathID;                                       // 1
+    uint32    NodeIndex;                                    // 2
+    uint32    MapID;                                        // 3
+    float     LocX;                                         // 4
+    float     LocY;                                         // 5
+    float     LocZ;                                         // 6
+    uint32    Flags;                                        // 7
+    uint32    Delay;                                        // 8
+    uint32    ArrivalEventID;                               // 9
+    uint32    DepartureEventID;                             // 10
 };
 
 struct TeamContributionPointsEntry
