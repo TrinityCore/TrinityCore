@@ -344,6 +344,34 @@ void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
         _owner->SendDirectMessage(buildingRemoved.Write());
 }
 
+void Garrison::AddFollower(uint32 garrFollowerId)
+{
+    WorldPackets::Garrison::GarrisonAddFollowerResult addFollowerResult;
+    GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(garrFollowerId);
+    if (_followers.count(garrFollowerId) || !followerEntry)
+    {
+        addFollowerResult.Result = GARRISON_GENERIC_UNKNOWN_ERROR;
+        _owner->SendDirectMessage(addFollowerResult.Write());
+        return;
+    }
+
+    Follower& follower = _followers[garrFollowerId];
+    follower.PacketInfo.DbID = sGarrisonMgr.GenerateFollowerDbId();
+    follower.PacketInfo.GarrFollowerID = garrFollowerId;
+    follower.PacketInfo.Quality = followerEntry->Quality;   // TODO: handle magic upgrades
+    follower.PacketInfo.FollowerLevel = followerEntry->Level;
+    follower.PacketInfo.ItemLevelWeapon = followerEntry->ItemLevelWeapon;
+    follower.PacketInfo.ItemLevelArmor = followerEntry->ItemLevelArmor;
+    follower.PacketInfo.Xp = 0;
+    follower.PacketInfo.CurrentBuildingID = 0;
+    follower.PacketInfo.CurrentMissionID = 0;
+    follower.PacketInfo.AbilityID = sGarrisonMgr.RollFollowerAbilities(followerEntry, follower.PacketInfo.Quality, GetFaction(), true);
+    follower.PacketInfo.FollowerStatus = 0;
+
+    addFollowerResult.Follower = follower.PacketInfo;
+    _owner->SendDirectMessage(addFollowerResult.Write());
+}
+
 void Garrison::SendInfo()
 {
     WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfo;
@@ -358,6 +386,9 @@ void Garrison::SendInfo()
         if (plot.BuildingInfo.PacketInfo)
             garrisonInfo.Buildings.push_back(plot.BuildingInfo.PacketInfo.get_ptr());
     }
+
+    for (auto const& p : _followers)
+        garrisonInfo.Followers.push_back(&p.second.PacketInfo);
 
     _owner->SendDirectMessage(garrisonInfo.Write());
 }

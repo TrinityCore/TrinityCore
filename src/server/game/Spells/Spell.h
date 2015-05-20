@@ -338,6 +338,7 @@ class Spell
         void EffectApplyGlyph(SpellEffIndex effIndex);
         void EffectEnchantHeldItem(SpellEffIndex effIndex);
         void EffectSummonObject(SpellEffIndex effIndex);
+        void EffectChangeRaidMarker(SpellEffIndex effIndex);
         void EffectResurrect(SpellEffIndex effIndex);
         void EffectParry(SpellEffIndex effIndex);
         void EffectBlock(SpellEffIndex effIndex);
@@ -407,6 +408,7 @@ class Spell
         void EffectDestroyItem(SpellEffIndex effIndex);
         void EffectLearnGarrisonBuilding(SpellEffIndex effIndex);
         void EffectCreateGarrison(SpellEffIndex effIndex);
+        void EffectAddGarrisonFollower(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
