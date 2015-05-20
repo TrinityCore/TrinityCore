@@ -75,8 +75,6 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket.WriteBit(IsLocal);
     _worldPacket.WriteBit(Unk2);
 
-    _worldPacket.FlushBits();
-
     _worldPacket.WriteBits(InviterRealmNameActual.size(), 8);
     _worldPacket.WriteBits(InviterRealmNameNormalized.size(), 8);
     _worldPacket.WriteString(InviterRealmNameActual);
