@@ -63,39 +63,8 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
 
 void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
 {
-<<<<<<< HEAD
-     // unused
-	//std::string memberName = packet.Target.c_str();
-	ExtendedPlayerName extName = ExtractExtendedPlayerName(packet.Target);
-	std::string memberName = extName.Name;
-	uint8 memlength = packet.targetLen;
-	uint8 memlength1 = packet.targetLen1;
-	//uint8 memlength2 = packet.targetLen2;
-	/*uint8 memlength3 = packet.targetLen3;
-	uint8 memlength4 = packet.targetLen4;
-	uint8 memlength5 = packet.targetLen5;
-	uint8 memlength6 = packet.targetLen6;
-	uint8 memlength7 = packet.targetLen7;
-	uint8 memlength8 = packet.targetLen8;*/
-	
-
-	printf("0: %u \n", memlength);
-	printf("1: %u \n", memlength1);
-	//printf("2: %u \n", memlength2);
-	/*printf("3: %u \n", memlength3);
-	printf("4: %u \n", memlength4);
-	printf("5: %u \n", memlength5);
-	printf("6: %u \n", memlength6);
-	printf("7: %u \n", memlength7);
-	printf("8: %u \n", memlength8);*/
-	printf("user: %s \n", memberName.c_str());
-	
-	/*
-=======
-    ObjectGuid crossRealmGuid; // unused
->>>>>>> parent of 6fe8477... modifications
-
-    recvData.read_skip<uint32>(); // Non-zero in cross realm invites
+	ObjectGuid crossRealmGuid; // unused
+	recvData.read_skip<uint32>(); // Non-zero in cross realm invites
     recvData.read_skip<uint32>(); // Always 0
 
     crossRealmGuid[2] = recvData.ReadBit();
@@ -295,10 +264,6 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     }
 
     // ok, we do it
-<<<<<<< HEAD
-	printf("here: %s end \n", memberName.c_str());
-=======
->>>>>>> parent of 6fe8477... modifications
     WorldPacket data(SMSG_PARTY_INVITE, 45);
 
     data.WriteBit(0);
