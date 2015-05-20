@@ -451,3 +451,72 @@ WorldPacket const* WorldPackets::Misc::Dismount::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::SaveCUFProfiles::Read()
+{
+    uint32 count;
+    _worldPacket >> count;
+
+    for (uint8 i = 0; i < count && i < MAX_CUF_PROFILES; i++)
+    {
+        std::unique_ptr<CUFProfile> cufProfile = Trinity::make_unique<CUFProfile>();
+
+        uint8 strLen = _worldPacket.ReadBits(7);
+
+        // Bool Options
+        for (uint8 option = 0; option < CUF_BOOL_OPTIONS_COUNT; option++)
+            cufProfile->BoolOptions.set(option, _worldPacket.ReadBit());
+
+        // Other Options
+        _worldPacket >> cufProfile->FrameHeight;
+        _worldPacket >> cufProfile->FrameWidth;
+
+        _worldPacket >> cufProfile->SortBy;
+        _worldPacket >> cufProfile->HealthText;
+
+        _worldPacket >> cufProfile->TopPoint;
+        _worldPacket >> cufProfile->BottomPoint;
+        _worldPacket >> cufProfile->LeftPoint;
+
+        _worldPacket >> cufProfile->TopOffset;
+        _worldPacket >> cufProfile->BottomOffset;
+        _worldPacket >> cufProfile->LeftOffset;
+
+        cufProfile->ProfileName = _worldPacket.ReadString(strLen);
+
+        CUFProfiles.push_back(std::move(cufProfile));
+    }
+}
+
+WorldPacket const* WorldPackets::Misc::LoadCUFProfiles::Write()
+{
+    _worldPacket << uint32(CUFProfiles.size());
+
+    for (CUFProfile const* cufProfile : CUFProfiles)
+    {
+        _worldPacket.WriteBits(cufProfile->ProfileName.size(), 7);
+
+        // Bool Options
+        for (uint8 option = 0; option < CUF_BOOL_OPTIONS_COUNT; option++)
+            _worldPacket.WriteBit(cufProfile->BoolOptions[option]);
+
+        // Other Options
+        _worldPacket << cufProfile->FrameHeight;
+        _worldPacket << cufProfile->FrameWidth;
+
+        _worldPacket << cufProfile->SortBy;
+        _worldPacket << cufProfile->HealthText;
+
+        _worldPacket << cufProfile->TopPoint;
+        _worldPacket << cufProfile->BottomPoint;
+        _worldPacket << cufProfile->LeftPoint;
+
+        _worldPacket << cufProfile->TopOffset;
+        _worldPacket << cufProfile->BottomOffset;
+        _worldPacket << cufProfile->LeftOffset;
+
+        _worldPacket.WriteString(cufProfile->ProfileName);
+    }
+
+    return &_worldPacket;
+}

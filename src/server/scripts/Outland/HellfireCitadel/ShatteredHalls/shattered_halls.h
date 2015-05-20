@@ -21,18 +21,41 @@
 
 #define DataHeader "SH"
 
-uint32 const EncounterCount          = 3;
+uint32 const EncounterCount          = 4;
+uint32 const VictimCount             = 3;
 
 enum DataTypes
 {
-    DATA_NETHEKURSE                  = 1,
-    DATA_OMROGG                      = 2,
-    DATA_KARGATH                     = 3
+    DATA_NETHEKURSE                  = 0,
+    DATA_OMROGG                      = 1,
+    DATA_KARGATH                     = 2,
+
+    DATA_SHATTERED_EXECUTIONER       = 3,
+    DATA_PRISONERS_EXECUTED          = 4,
+
+    DATA_TEAM_IN_INSTANCE            = 5
 };
 
 enum CreatureIds
 {
-    NPC_GRAND_WARLOCK_NETHEKURSE     = 16807
+    NPC_GRAND_WARLOCK_NETHEKURSE     = 16807,
+    NPC_KARGATH_BLADEFIST            = 16808,
+
+    NPC_SHATTERED_EXECUTIONER        = 17301,
+
+    // Alliance Ids
+    NPC_RANDY_WHIZZLESPROCKET        = 17288,
+
+    NPC_CAPTAIN_ALINA                = 17290,
+    NPC_ALLIANCE_VICTIM_1            = 17289,
+    NPC_ALLIANCE_VICTIM_2            = 17292,
+
+    // Horde Ids
+    NPC_DRISELLA                     = 17294,
+
+    NPC_CAPTAIN_BONESHATTER          = 17296,
+    NPC_HORDE_VICTIM_1               = 17295,
+    NPC_HORDE_VICTIM_2               = 17297
 };
 
 enum GameobjectIds
@@ -40,5 +63,34 @@ enum GameobjectIds
     GO_GRAND_WARLOCK_CHAMBER_DOOR_1  = 182539,
     GO_GRAND_WARLOCK_CHAMBER_DOOR_2  = 182540
 };
+
+enum QuestIds
+{
+    QUEST_IMPRISONED_A               = 9524,
+    QUEST_IMPRISONED_H               = 9525
+};
+
+const Position Executioner = { 152.8524f, -83.63912f, 2.021005f, 0.06981317f };
+
+struct FactionSpawnerHelper
+{
+    FactionSpawnerHelper(uint32 allianceEntry, uint32 hordeEntry, const Position& pos) : _allianceNPC(allianceEntry), _hordeNPC(hordeEntry), _spawnPos(pos) { }
+
+    inline uint32 operator()(uint32 teamID) const { return teamID == ALLIANCE ? _allianceNPC : _hordeNPC; }
+    inline const Position GetPos() const { return _spawnPos; }
+
+private:
+    const uint32 _allianceNPC;
+    const uint32 _hordeNPC;
+    const Position _spawnPos;
+};
+
+const FactionSpawnerHelper executionerVictims[VictimCount] =
+{
+    { NPC_CAPTAIN_ALINA,     NPC_CAPTAIN_BONESHATTER, { 138.8807f, -84.22707f, 1.992269f, 0.06981317f } },
+    { NPC_ALLIANCE_VICTIM_1, NPC_HORDE_VICTIM_1,      { 151.2411f, -91.02930f, 2.019741f, 1.57079600f } },
+    { NPC_ALLIANCE_VICTIM_2, NPC_HORDE_VICTIM_2,      { 151.0459f, -77.51981f, 2.021008f, 4.74729500f } }
+};
+
 
 #endif

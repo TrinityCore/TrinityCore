@@ -25,8 +25,12 @@
 extern DB2Storage<BroadcastTextEntry>            sBroadcastTextStore;
 extern DB2Storage<CurrencyTypesEntry>            sCurrencyTypesStore;
 extern DB2Storage<GameObjectsEntry>              sGameObjectsStore;
+extern DB2Storage<GarrAbilityEntry>              sGarrAbilityStore;
 extern DB2Storage<GarrBuildingEntry>             sGarrBuildingStore;
 extern DB2Storage<GarrBuildingPlotInstEntry>     sGarrBuildingPlotInstStore;
+extern DB2Storage<GarrClassSpecEntry>            sGarrClassSpecStore;
+extern DB2Storage<GarrFollowerEntry>             sGarrFollowerStore;
+extern DB2Storage<GarrFollowerXAbilityEntry>     sGarrFollowerXAbilityStore;
 extern DB2Storage<GarrPlotBuildingEntry>         sGarrPlotBuildingStore;
 extern DB2Storage<GarrPlotEntry>                 sGarrPlotStore;
 extern DB2Storage<GarrPlotInstanceEntry>         sGarrPlotInstanceStore;

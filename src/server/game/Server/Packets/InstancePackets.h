@@ -46,7 +46,31 @@ namespace WorldPackets
             int32 IOwnInstance = 0; // Used to control whether "Reset all instances" button appears on the UI - Script_CanShowResetInstances()
                                     // but it has been deperecated in favor of simply checking group leader, being inside an instance or using dungeon finder
         };
+
+        struct InstanceLockInfos
+        {
+            uint64 InstanceID = 0u;
+            uint32 MapID = 0u;
+            uint32 DifficultyID = 0u;
+            int32 TimeRemaining = 0;
+            uint32 CompletedMask = 0u;
+
+            bool Locked = false;
+            bool Extended = false;
+        };
+
+        class InstanceInfo final : public ServerPacket
+        {
+        public:
+            InstanceInfo() : ServerPacket(SMSG_INSTANCE_INFO, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<InstanceLockInfos> LockList;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Instance::InstanceLockInfos const& lockInfos);
 
 #endif // InstancePackets_h__

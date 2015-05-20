@@ -37,7 +37,7 @@ class CreatureTextBuilder
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
             WorldPackets::Chat::Chat packet;
-            packet.Initalize(_msgType, Language(_language), _source, _target, text, 0, "", locale);
+            packet.Initialize(_msgType, Language(_language), _source, _target, text, 0, "", locale);
             packet.Write();
             data = packet.Move();
         }
@@ -62,7 +62,7 @@ class PlayerTextBuilder
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
             WorldPackets::Chat::Chat packet;
-            packet.Initalize(_msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            packet.Initialize(_msgType, Language(_language), _talker, _target, text, 0, "", locale);
             packet.Write();
             data = packet.Move();
         }

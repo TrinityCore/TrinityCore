@@ -1113,7 +1113,7 @@ enum SpellEffectName
     SPELL_EFFECT_REPUTATION                         = 103,
     SPELL_EFFECT_SUMMON_OBJECT_SLOT1                = 104,
     SPELL_EFFECT_SUMMON_OBJECT_SLOT2                = 105,
-    SPELL_EFFECT_SUMMON_OBJECT_SLOT3                = 106,
+    SPELL_EFFECT_CHANGE_RAID_MARKER                 = 106,
     SPELL_EFFECT_SUMMON_OBJECT_SLOT4                = 107,
     SPELL_EFFECT_DISPEL_MECHANIC                    = 108,
     SPELL_EFFECT_RESURRECT_PET                      = 109,
@@ -1174,7 +1174,7 @@ enum SpellEffectName
     SPELL_EFFECT_REMOVE_AURA                        = 164,
     SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT         = 165,
     SPELL_EFFECT_GIVE_CURRENCY                      = 166,
-    SPELL_EFFECT_167                                = 167,
+    SPELL_EFFECT_UPDATE_PLAYER_PHASE                = 167,
     SPELL_EFFECT_ALLOW_CONTROL_PET                  = 168, // NYI
     SPELL_EFFECT_DESTROY_ITEM                       = 169,
     SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES       = 170, // NYI

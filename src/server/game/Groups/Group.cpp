@@ -21,6 +21,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Player.h"
+#include "Pet.h"
 #include "World.h"
 #include "ObjectMgr.h"
 #include "GroupMgr.h"
@@ -35,6 +36,7 @@
 #include "Util.h"
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
+#include "PartyPackets.h"
 
 Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -55,11 +57,15 @@ Loot* Roll::getLoot()
 
 Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
 m_dungeonDifficulty(DIFFICULTY_NORMAL), m_raidDifficulty(DIFFICULTY_NORMAL_RAID), m_legacyRaidDifficulty(DIFFICULTY_10_N),
-m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
-m_masterLooterGuid(), m_subGroupsCounts(NULL), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0)
+m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
+m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0),
+m_readyCheckStarted(false), m_readyCheckTimer(0), m_activeMarkers(0)
 {
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+    for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
         m_targetIcons[i].Clear();
+
+    for (uint8 i = 0; i < RAID_MARKERS_COUNT; ++i)
+        m_markers[i] = nullptr;
 }
 
 Group::~Group()
@@ -176,7 +182,7 @@ void Group::LoadGroupFromDB(Field* fields)
     m_looterGuid = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt64());
     m_lootThreshold = ItemQualities(fields[3].GetUInt8());
 
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+    for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
         m_targetIcons[i].SetRawValue(fields[4 + i].GetBinary());
 
     m_groupType  = GroupType(fields[12].GetUInt8());
@@ -199,7 +205,7 @@ void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uin
     member.guid = ObjectGuid::Create<HighGuid::Player>(guidLow);
 
     // skip non-existed member
-    if (!ObjectMgr::GetPlayerNameByGUID(member.guid, member.name))
+    if (!ObjectMgr::GetPlayerNameAndClassByGUID(member.guid, member.name, member._class))
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_MEMBER);
         stmt->setUInt64(0, guidLow);
@@ -207,9 +213,10 @@ void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uin
         return;
     }
 
-    member.group = subgroup;
-    member.flags = memberFlags;
-    member.roles = roles;
+    member.group        = subgroup;
+    member.flags        = memberFlags;
+    member.roles        = roles;
+    member.readyChecked = false;
 
     m_memberSlots.push_back(member);
 
@@ -368,7 +375,7 @@ bool Group::AddMember(Player* player)
         bool groupFound = false;
         for (; subGroup < MAX_RAID_SUBGROUPS; ++subGroup)
         {
-            if (m_subGroupsCounts[subGroup] < MAXGROUPSIZE)
+            if (m_subGroupsCounts[subGroup] < MAX_GROUP_SIZE)
             {
                 groupFound = true;
                 break;
@@ -380,11 +387,13 @@ bool Group::AddMember(Player* player)
     }
 
     MemberSlot member;
-    member.guid      = player->GetGUID();
-    member.name      = player->GetName();
-    member.group     = subGroup;
-    member.flags     = 0;
-    member.roles     = 0;
+    member.guid         = player->GetGUID();
+    member.name         = player->GetName();
+    member._class       = player->getClass();
+    member.group        = subGroup;
+    member.flags        = 0;
+    member.roles        = 0;
+    member.readyChecked = false;
     m_memberSlots.push_back(member);
 
     SubGroupCounterIncrease(subGroup);
@@ -407,7 +416,7 @@ bool Group::AddMember(Player* player)
 
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
     {
-        for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+        for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
             m_targetIcons[i].Clear();
     }
 
@@ -455,7 +464,11 @@ bool Group::AddMember(Player* player)
             }
         }
     }
+
     player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
+    if (Pet* pet = player->GetPet())
+        pet->SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
+
     UpdatePlayerOutOfRange(player);
 
     // quest related GO state dependent from raid membership
@@ -552,12 +565,6 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
                 player->GetSession()->SendPacket(&data);
             }
 
-            // Do we really need to send this opcode?
-            data.Initialize(SMSG_PARTY_UPDATE, 1+1+1+1+8+4+4+8);
-            data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
-            data << m_guid << uint32(m_counter) << uint32(0) << uint64(0);
-            player->GetSession()->SendPacket(&data);
-
             _homebindIfInstance(player);
         }
 
@@ -644,7 +651,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
     }
 }
 
-void Group::ChangeLeader(ObjectGuid newLeaderGuid)
+void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
 {
     member_witerator slot = _getMemberWSlot(newLeaderGuid);
 
@@ -707,9 +714,10 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid)
     m_leaderName = newLeader->GetName();
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
-    WorldPacket data(SMSG_GROUP_NEW_LEADER, m_leaderName.size()+1);
-    data << slot->name;
-    BroadcastPacket(&data, true);
+    WorldPackets::Party::GroupNewLeader groupNewLeader;
+    groupNewLeader.Name = m_leaderName;
+    groupNewLeader.PartyIndex = partyIndex;
+    BroadcastPacket(groupNewLeader.Write(), true);
 }
 
 void Group::Disband(bool hideDestroy /* = false */)
@@ -1491,45 +1499,38 @@ void Group::CountTheRoll(Rolls::iterator rollI)
     delete roll;
 }
 
-void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
+void Group::SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy, uint8 partyIndex)
 {
-    if (id >= TARGETICONCOUNT)
+    if (symbol >= TARGET_ICONS_COUNT)
         return;
 
     // clean other icons
-    if (!targetGuid.IsEmpty())
-        for (int i = 0; i < TARGETICONCOUNT; ++i)
-            if (m_targetIcons[i] == targetGuid)
-                SetTargetIcon(i, ObjectGuid::Empty, ObjectGuid::Empty);
+    if (!target.IsEmpty())
+        for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
+            if (m_targetIcons[i] == target)
+                SetTargetIcon(i, ObjectGuid::Empty, changedBy, partyIndex);
 
-    m_targetIcons[id] = targetGuid;
+    m_targetIcons[symbol] = target;
 
-    WorldPacket data(SMSG_SEND_RAID_TARGET_UPDATE_SINGLE, (1+8+1+8));
-    data << uint8(0);                                       // set targets
-    data << whoGuid;
-    data << uint8(id);
-    data << targetGuid;
-    BroadcastPacket(&data, true);
+    WorldPackets::Party::SendRaidTargetUpdateSingle updateSingle;
+    updateSingle.PartyIndex = partyIndex;
+    updateSingle.Target = target;
+    updateSingle.ChangedBy = changedBy;
+    updateSingle.Symbol = symbol;
+    BroadcastPacket(updateSingle.Write(), true);
 }
 
-void Group::SendTargetIconList(WorldSession* session)
+void Group::SendTargetIconList(WorldSession* session, int8 partyIndex)
 {
     if (!session)
         return;
 
-    WorldPacket data(SMSG_SEND_RAID_TARGET_UPDATE_ALL, (1+TARGETICONCOUNT*9));
-    data << uint8(1);                                       // list targets
+    WorldPackets::Party::SendRaidTargetUpdateAll updateAll;
+    updateAll.PartyIndex = partyIndex;
+    for (uint8 i = 0; i < TARGET_ICONS_COUNT; i++)
+        updateAll.TargetIcons.insert(std::pair<uint8, ObjectGuid>(i, m_targetIcons[i]));
 
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-    {
-        if (m_targetIcons[i].IsEmpty())
-            continue;
-
-        data << uint8(i);
-        data << m_targetIcons[i];
-    }
-
-    session->SendPacket(&data);
+    session->SendPacket(updateAll.Write());
 }
 
 void Group::SendUpdate()
@@ -1556,56 +1557,79 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         slot = &(*witr);
     }
 
-    WorldPacket data(SMSG_PARTY_UPDATE, (1+1+1+1+1+4+8+4+4+(GetMembersCount()-1)*(13+8+1+1+1+1)+8+1+8+1+1+1+1));
-    data << uint8(m_groupType);                         // group type (flags in 3.3)
-    data << uint8(slot->group);
-    data << uint8(slot->flags);
-    data << uint8(slot->roles);
-    if (isLFGGroup())
-    {
-        data << uint8(sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
-        data << uint32(sLFGMgr->GetDungeon(m_guid));
-        data << uint8(0); // 4.x new
-    }
+    WorldPackets::Party::PartyUpdate partyUpdate;
 
-    data << m_guid;
-    data << uint32(m_counter++);                        // 3.3, value increases every time this packet gets sent
-    data << uint32(GetMembersCount()-1);
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    partyUpdate.PartyType = m_groupType;
+    partyUpdate.PartyIndex = 0;
+    partyUpdate.PartyFlags = uint8(IsCreated());
+ 
+    partyUpdate.PartyGUID = m_guid;
+    partyUpdate.LeaderGUID = m_leaderGuid;
+
+    partyUpdate.SequenceNum = m_counter++;              // 3.3, value increases every time this packet gets sent
+
+    partyUpdate.MyIndex = -1;
+    uint8 index = 0;
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr, ++index)
     {
         if (slot->guid == citr->guid)
-            continue;
+            partyUpdate.MyIndex = index;
 
         Player* member = ObjectAccessor::FindConnectedPlayer(citr->guid);
 
-        uint8 onlineState = (member && !member->GetSession()->PlayerLogout()) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
-        onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
+        WorldPackets::Party::GroupPlayerInfos playerInfos;
 
-        data << citr->name;
-        data << citr->guid;                             // guid
-        data << uint8(onlineState);                     // online-state
-        data << uint8(citr->group);                     // groupid
-        data << uint8(citr->flags);                     // See enum GroupMemberFlags
-        data << uint8(citr->roles);                     // Lfg Roles
+        playerInfos.GUID = citr->guid;
+        playerInfos.Name = citr->name;
+        playerInfos.Class = citr->_class;
+
+        playerInfos.Status = MEMBER_STATUS_OFFLINE;
+        if (member && member->GetSession() && !member->GetSession()->PlayerLogout())
+            playerInfos.Status = MEMBER_STATUS_ONLINE | (isBGGroup() || isBFGroup() ? MEMBER_STATUS_PVP : 0);
+
+        playerInfos.Subgroup = citr->group;         // groupid
+        playerInfos.Flags = citr->flags;            // See enum GroupMemberFlags
+        playerInfos.RolesAssigned = citr->roles;    // Lfg Roles
+
+        partyUpdate.PlayerList.push_back(playerInfos);
     }
 
-    data << m_leaderGuid;                               // leader guid
-
-    if (GetMembersCount() - 1)
+    if (GetMembersCount() > 1)
     {
-        data << uint8(m_lootMethod);                    // loot method
+        // LootSettings
+        partyUpdate.LootSettings = boost::in_place();
+        partyUpdate.LootSettings->Method = m_lootMethod;
+        partyUpdate.LootSettings->Threshold = m_lootThreshold;
+        partyUpdate.LootSettings->LootMaster = m_lootMethod == MASTER_LOOT ? m_masterLooterGuid : ObjectGuid::Empty;
 
-        if (m_lootMethod == MASTER_LOOT)
-            data << m_masterLooterGuid;                 // master looter guid
-        else
-            data << uint64(0);
-
-        data << uint8(m_lootThreshold);                 // loot threshold
-        data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty
-        data << uint8(m_raidDifficulty);                // Raid Difficulty
+        // Difficulty Settings
+        partyUpdate.DifficultySettings = boost::in_place();
+        partyUpdate.DifficultySettings->DungeonDifficultyID = m_dungeonDifficulty;
+        partyUpdate.DifficultySettings->RaidDifficultyID = m_raidDifficulty;
+        partyUpdate.DifficultySettings->LegacyRaidDifficultyID = m_legacyRaidDifficulty;
     }
 
-    player->GetSession()->SendPacket(&data);
+    // LfgInfos
+    if (isLFGGroup())
+    {
+        partyUpdate.LfgInfos = boost::in_place();
+
+        partyUpdate.LfgInfos->Slot = sLFGMgr->GetDungeon(m_guid);
+        partyUpdate.LfgInfos->BootCount = 0;                                                                            // new 6.x
+        partyUpdate.LfgInfos->Aborted = false;                                                                          // new 6.x
+
+        partyUpdate.LfgInfos->MyFlags = 0;                                                                              // new 6.x
+        partyUpdate.LfgInfos->MyRandomSlot = 0;                                                                         // new 6.x
+
+        partyUpdate.LfgInfos->MyPartialClear = sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0;    // FIXME - Dungeon save status? 2 = done
+        partyUpdate.LfgInfos->MyGearDiff = 0.f;                                                                         // new 6.x
+        partyUpdate.LfgInfos->MyFirstReward = false;                                                                    // new 6.x
+
+        partyUpdate.LfgInfos->MyStrangerCount = 0;                                                                      // new 6.x
+        partyUpdate.LfgInfos->MyKickVoteCount = 0;                                                                      // new 6.x
+    }
+
+    player->GetSession()->SendPacket(partyUpdate.Write());
 }
 
 void Group::UpdatePlayerOutOfRange(Player* player)
@@ -1613,15 +1637,15 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     if (!player || !player->IsInWorld())
         return;
 
-    WorldPacket data;
-    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data);
+    WorldPackets::Party::PartyMemberStats packet;
+    packet.Initialize(player);
 
     Player* member;
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         member = itr->GetSource();
         if (member && member != player && (!member->IsInMap(player) || !member->IsWithinDist(player, member->GetSightRange(), false)))
-            member->GetSession()->SendPacket(&data);
+            member->GetSession()->SendPacket(packet.Write());
     }
 }
 
@@ -1650,32 +1674,6 @@ void Group::BroadcastPacket(WorldPacket const* packet, bool ignorePlayersInBGRai
 
         if (player->GetSession() && (group == -1 || itr->getSubGroup() == group))
             player->GetSession()->SendPacket(packet);
-    }
-}
-
-void Group::BroadcastReadyCheck(WorldPacket const* packet)
-{
-    for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
-    {
-        Player* player = itr->GetSource();
-        if (player && player->GetSession())
-            if (IsLeader(player->GetGUID()) || IsAssistant(player->GetGUID()))
-                player->GetSession()->SendPacket(packet);
-    }
-}
-
-void Group::OfflineReadyCheck()
-{
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
-    {
-        Player* player = ObjectAccessor::FindConnectedPlayer(citr->guid);
-        if (!player || !player->GetSession())
-        {
-            WorldPacket data(SMSG_READY_CHECK_RESPONSE, 9);
-            data << citr->guid;
-            data << uint8(0);
-            BroadcastReadyCheck(&data);
-        }
     }
 }
 
@@ -1725,8 +1723,8 @@ void Group::ChangeMembersGroup(ObjectGuid guid, uint8 group)
     if (slot == m_memberSlots.end())
         return;
 
+    uint8 prevSubGroup = slot->group;
     // Abort if the player is already in the target sub group
-    uint8 prevSubGroup = GetMemberGroup(guid);
     if (prevSubGroup == group)
         return;
 
@@ -1758,12 +1756,56 @@ void Group::ChangeMembersGroup(ObjectGuid guid, uint8 group)
         else
         {
             // If player is in BG raid, it is possible that he is also in normal raid - and that normal raid is stored in m_originalGroup reference
-            prevSubGroup = player->GetOriginalSubGroup();
             player->GetOriginalGroupRef().setSubGroup(group);
         }
     }
 
     // Broadcast the changes to the group
+    SendUpdate();
+}
+
+void Group::SwapMembersGroups(ObjectGuid firstGuid, ObjectGuid secondGuid)
+{
+    if (!isRaidGroup())
+        return;
+
+    member_witerator slots[2];
+    slots[0] = _getMemberWSlot(firstGuid);
+    slots[1] = _getMemberWSlot(secondGuid);
+    if (slots[0] == m_memberSlots.end() || slots[1] == m_memberSlots.end())
+        return;
+
+    if (slots[0]->group == slots[1]->group)
+        return;
+
+    uint8 tmp = slots[0]->group;
+    slots[0]->group = slots[1]->group;
+    slots[1]->group = tmp;
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    for (uint8 i = 0; i < 2; i++)
+    {
+        // Preserve new sub group in database for non-raid groups
+        if (!isBGGroup() && !isBFGroup())
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_SUBGROUP);
+
+            stmt->setUInt8(0, slots[i]->group);
+            stmt->setUInt64(1, slots[i]->guid.GetCounter());
+
+            trans->Append(stmt);
+        }
+
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(slots[i]->guid))
+        {
+            if (player->GetGroup() == this)
+                player->GetGroupRef().setSubGroup(slots[i]->group);
+            else
+                player->GetOriginalGroupRef().setSubGroup(slots[i]->group);
+        }
+    }
+    CharacterDatabase.CommitTransaction(trans);
+
     SendUpdate();
 }
 
@@ -2262,9 +2304,167 @@ void Group::SetLfgRoles(ObjectGuid guid, uint8 roles)
     SendUpdate();
 }
 
+uint8 Group::GetLfgRoles(ObjectGuid guid)
+{
+    member_witerator slot = _getMemberWSlot(guid);
+    if (slot == m_memberSlots.end())
+        return 0;
+
+    return slot->roles;
+}
+
+void Group::Update(uint32 diff)
+{
+    UpdateReadyCheck(diff);
+}
+
+void Group::UpdateReadyCheck(uint32 diff)
+{
+    if (!m_readyCheckStarted)
+        return;
+
+    m_readyCheckTimer -= diff;
+    if (m_readyCheckTimer <= 0)
+        EndReadyCheck();
+}
+
+void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, uint32 duration)
+{
+    if (m_readyCheckStarted)
+        return;
+
+    member_witerator slot = _getMemberWSlot(starterGuid);
+    if (slot == m_memberSlots.end())
+        return ;
+
+    m_readyCheckStarted = true;
+    m_readyCheckTimer = duration;
+
+    SetOfflineMembersReadyChecked();
+
+    SetMemberReadyChecked(&(*slot));
+
+    WorldPackets::Party::ReadyCheckStarted readyCheckStarted;
+    readyCheckStarted.PartyGUID = m_guid;
+    readyCheckStarted.PartyIndex = partyIndex;
+    readyCheckStarted.InitiatorGUID = starterGuid;
+    readyCheckStarted.Duration = duration;
+    BroadcastPacket(readyCheckStarted.Write(), false);
+}
+
+void Group::EndReadyCheck(void)
+{
+    if (!m_readyCheckStarted)
+        return;
+
+    m_readyCheckStarted = false;
+    m_readyCheckTimer = 0;
+
+    ResetMemberReadyChecked();
+
+    WorldPackets::Party::ReadyCheckCompleted readyCheckCompleted;
+    readyCheckCompleted.PartyIndex = 0;
+    readyCheckCompleted.PartyGUID = m_guid;
+    BroadcastPacket(readyCheckCompleted.Write(), false);
+}
+
+bool Group::IsReadyCheckCompleted(void) const
+{
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+        if (!citr->readyChecked)
+            return false;
+    return true;
+}
+
+void Group::SetMemberReadyCheck(ObjectGuid guid, bool ready)
+{
+    if (!m_readyCheckStarted)
+        return;
+
+    member_witerator slot = _getMemberWSlot(guid);
+    if (slot != m_memberSlots.end())
+        SetMemberReadyCheck(&(*slot), ready);
+}
+
+void Group::SetMemberReadyCheck(MemberSlot* slot, bool ready)
+{
+    WorldPackets::Party::ReadyCheckResponse response;
+    response.PartyGUID = m_guid;
+    response.Player = slot->guid;
+    response.IsReady = ready;
+    BroadcastPacket(response.Write(), false);
+
+    SetMemberReadyChecked(slot);
+}
+
+void Group::SetOfflineMembersReadyChecked(void)
+{
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        Player* player = ObjectAccessor::FindConnectedPlayer(itr->guid);
+        if (!player || !player->GetSession())
+            SetMemberReadyCheck(&(*itr), false);
+    }
+}
+
+void Group::SetMemberReadyChecked(MemberSlot* slot)
+{
+    slot->readyChecked = true;
+    if (IsReadyCheckCompleted())
+        EndReadyCheck();
+}
+
+void Group::ResetMemberReadyChecked(void)
+{
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+        itr->readyChecked = false;
+}
+
+void Group::AddRaidMarker(uint8 markerId, uint32 mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid)
+{
+    if (markerId >= RAID_MARKERS_COUNT || m_markers[markerId])
+        return;
+
+    m_activeMarkers |= (1 << markerId);
+    m_markers[markerId] = Trinity::make_unique<RaidMarker>(mapId, positionX, positionY, positionZ, transportGuid);
+    SendRaidMarkersChanged();
+}
+
+void Group::DeleteRaidMarker(uint8 markerId)
+{
+    if (markerId > RAID_MARKERS_COUNT)
+        return;
+
+    for (uint8 i = 0; i < RAID_MARKERS_COUNT; i++)
+        if (m_markers[i] && (markerId == i || markerId == RAID_MARKERS_COUNT))
+        {
+            m_markers[i] = nullptr;
+            m_activeMarkers &= ~(1 << i);
+        }
+
+    SendRaidMarkersChanged();
+}
+
+void Group::SendRaidMarkersChanged(WorldSession* session, int8 partyIndex)
+{
+    WorldPackets::Party::RaidMarkersChanged packet;
+
+    packet.PartyIndex = partyIndex;
+    packet.ActiveMarkers = m_activeMarkers;
+
+    for (uint8 i = 0; i < RAID_MARKERS_COUNT; i++)
+        if (m_markers[i])
+            packet.RaidMarkers.push_back(m_markers[i].get());
+
+    if (session)
+        session->SendPacket(packet.Write());
+    else
+        BroadcastPacket(packet.Write(), false);
+}
+
 bool Group::IsFull() const
 {
-    return isRaidGroup() ? (m_memberSlots.size() >= MAXRAIDSIZE) : (m_memberSlots.size() >= MAXGROUPSIZE);
+    return isRaidGroup() ? (m_memberSlots.size() >= MAX_RAID_SIZE) : (m_memberSlots.size() >= MAX_GROUP_SIZE);
 }
 
 bool Group::isLFGGroup() const
@@ -2371,9 +2571,8 @@ bool Group::SameSubGroup(ObjectGuid guid1, MemberSlot const* slot2) const
 
 bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
 {
-    return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
+    return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAX_GROUP_SIZE);
 }
-
 
 uint8 Group::GetMemberGroup(ObjectGuid guid) const
 {
@@ -2522,3 +2721,15 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
         slot->flags &= ~flag;
 }
 
+void Group::SetEveryoneIsAssistant(bool apply)
+{
+    if (apply)
+        m_groupType = GroupType(m_groupType | GROUPTYPE_EVERYONE_ASSISTANT);
+    else
+        m_groupType = GroupType(m_groupType & ~GROUPTYPE_EVERYONE_ASSISTANT);
+
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+        ToggleGroupMemberFlag(itr, MEMBER_FLAG_ASSISTANT, apply);
+
+    SendUpdate();
+}

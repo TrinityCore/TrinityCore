@@ -24,6 +24,7 @@
 #include "G3D/Vector3.h"
 #include "Object.h"
 #include "Unit.h"
+#include "Player.h"
 #include "Weather.h"
 
 namespace WorldPackets
@@ -641,6 +642,26 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Guid;
+        };
+
+        class SaveCUFProfiles final : public ClientPacket
+        {
+        public:
+            SaveCUFProfiles(WorldPacket&& packet) : ClientPacket(CMSG_SAVE_CUF_PROFILES, std::move(packet)) { }
+
+            void Read() override;
+
+            std::vector<std::unique_ptr<CUFProfile>> CUFProfiles;
+        };
+
+        class LoadCUFProfiles final : public ServerPacket
+        {
+        public:
+            LoadCUFProfiles() : ServerPacket(SMSG_LOAD_CUF_PROFILES, 20) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<CUFProfile const*> CUFProfiles;
         };
     }
 }

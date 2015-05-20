@@ -38,10 +38,14 @@ class WorldSession;
 
 struct MapEntry;
 
-#define MAXGROUPSIZE 5
-#define MAXRAIDSIZE 40
-#define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
-#define TARGETICONCOUNT 8
+#define MAX_GROUP_SIZE      5
+#define MAX_RAID_SIZE       40
+#define MAX_RAID_SUBGROUPS  MAX_RAID_SIZE / MAX_GROUP_SIZE
+
+#define TARGET_ICONS_COUNT  8
+#define RAID_MARKERS_COUNT  8
+
+#define READYCHECK_DURATION 35000
 
 enum RollVote
 {
@@ -81,50 +85,59 @@ enum GroupMemberAssignment
 
 enum GroupType
 {
-    GROUPTYPE_NORMAL         = 0x00,
-    GROUPTYPE_BG             = 0x01,
-    GROUPTYPE_RAID           = 0x02,
-    GROUPTYPE_BGRAID         = GROUPTYPE_BG | GROUPTYPE_RAID, // mask
-    GROUPTYPE_LFG_RESTRICTED = 0x04, // Script_HasLFGRestrictions()
-    GROUPTYPE_LFG            = 0x08,
+    GROUPTYPE_NORMAL                = 0x00,
+    GROUPTYPE_BG                    = 0x01,
+    GROUPTYPE_RAID                  = 0x02,
+    GROUPTYPE_BGRAID                = GROUPTYPE_BG | GROUPTYPE_RAID, // mask
+    GROUPTYPE_LFG_RESTRICTED        = 0x04, // Script_HasLFGRestrictions()
+    GROUPTYPE_LFG                   = 0x08,
+    GROUPTYPE_EVERYONE_ASSISTANT    = 0x40, // Script_IsEveryoneAssistant() (4.x)
     // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
     // GROUPTYPE_ONE_PERSON_PARTY   = 0x20, 4.x Script_IsOnePersonParty()
-    // GROUPTYPE_EVERYONE_ASSISTANT = 0x40  4.x Script_IsEveryoneAssistant()
 };
 
 enum GroupUpdateFlags
 {
     GROUP_UPDATE_FLAG_NONE              = 0x00000000,       // nothing
-    GROUP_UPDATE_FLAG_STATUS            = 0x00000001,       // uint16 (GroupMemberStatusFlag)
-    GROUP_UPDATE_FLAG_CUR_HP            = 0x00000002,       // uint32 (HP)
-    GROUP_UPDATE_FLAG_MAX_HP            = 0x00000004,       // uint32 (HP)
-    GROUP_UPDATE_FLAG_POWER_TYPE        = 0x00000008,       // uint8 (PowerType)
-    GROUP_UPDATE_FLAG_CUR_POWER         = 0x00000010,       // int16 (power value)
-    GROUP_UPDATE_FLAG_MAX_POWER         = 0x00000020,       // int16 (power value)
-    GROUP_UPDATE_FLAG_LEVEL             = 0x00000040,       // uint16 (level value)
-    GROUP_UPDATE_FLAG_ZONE              = 0x00000080,       // uint16 (zone id)
-    GROUP_UPDATE_FLAG_UNK100            = 0x00000100,       // int16 (unk)
-    GROUP_UPDATE_FLAG_POSITION          = 0x00000200,       // uint16 (x), uint16 (y), uint16 (z)
-    GROUP_UPDATE_FLAG_AURAS             = 0x00000400,       // uint8 (unk), uint64 (mask), uint32 (count), for each bit set: uint32 (spell id) + uint16 (AuraFlags)  (if has flags Scalable -> 3x int32 (bps))
-    GROUP_UPDATE_FLAG_PET_GUID          = 0x00000800,       // uint64 (pet guid)
-    GROUP_UPDATE_FLAG_PET_NAME          = 0x00001000,       // cstring (name, NULL terminated string)
-    GROUP_UPDATE_FLAG_PET_MODEL_ID      = 0x00002000,       // uint16 (model id)
-    GROUP_UPDATE_FLAG_PET_CUR_HP        = 0x00004000,       // uint32 (HP)
-    GROUP_UPDATE_FLAG_PET_MAX_HP        = 0x00008000,       // uint32 (HP)
-    GROUP_UPDATE_FLAG_PET_POWER_TYPE    = 0x00010000,       // uint8 (PowerType)
-    GROUP_UPDATE_FLAG_PET_CUR_POWER     = 0x00020000,       // uint16 (power value)
-    GROUP_UPDATE_FLAG_PET_MAX_POWER     = 0x00040000,       // uint16 (power value)
-    GROUP_UPDATE_FLAG_PET_AURAS         = 0x00080000,       // [see GROUP_UPDATE_FLAG_AURAS]
-    GROUP_UPDATE_FLAG_VEHICLE_SEAT      = 0x00100000,       // int32 (vehicle seat id)
-    GROUP_UPDATE_FLAG_PHASE             = 0x00200000,       // int32 (unk), uint32 (phase count), for (count) uint16(phaseId)
+    GROUP_UPDATE_FLAG_UNK704            = 0x00000001,       // uint8[2] (unk)
+    GROUP_UPDATE_FLAG_STATUS            = 0x00000002,       // uint16 (GroupMemberStatusFlag)
+    GROUP_UPDATE_FLAG_POWER_TYPE        = 0x00000004,       // uint8 (PowerType)
+    GROUP_UPDATE_FLAG_UNK322            = 0x00000008,       // uint16 (unk)
+    GROUP_UPDATE_FLAG_CUR_HP            = 0x00000010,       // uint32 (HP)
+    GROUP_UPDATE_FLAG_MAX_HP            = 0x00000020,       // uint32 (max HP)
+    GROUP_UPDATE_FLAG_CUR_POWER         = 0x00000040,       // int16 (power value)
+    GROUP_UPDATE_FLAG_MAX_POWER         = 0x00000080,       // int16 (max power value)
+    GROUP_UPDATE_FLAG_LEVEL             = 0x00000100,       // uint16 (level value)
+    GROUP_UPDATE_FLAG_UNK200000         = 0x00000200,       // int16 (unk)
+    GROUP_UPDATE_FLAG_ZONE              = 0x00000400,       // uint16 (zone id)
+    GROUP_UPDATE_FLAG_UNK2000000        = 0x00000800,       // int16 (unk)
+    GROUP_UPDATE_FLAG_UNK4000000        = 0x00001000,       // int32 (unk)
+    GROUP_UPDATE_FLAG_POSITION          = 0x00002000,       // uint16 (x), uint16 (y), uint16 (z)
+    GROUP_UPDATE_FLAG_VEHICLE_SEAT      = 0x00104000,       // int32 (vehicle seat id)
+    GROUP_UPDATE_FLAG_AURAS             = 0x00008000,       // uint8 (unk), uint64 (mask), uint32 (count), for each bit set: uint32 (spell id) + uint16 (AuraFlags)  (if has flags Scalable -> 3x int32 (bps))
+    GROUP_UPDATE_FLAG_PET               = 0x00010000,       // complex (pet)
+    GROUP_UPDATE_FLAG_PHASE             = 0x00020000,       // int32 (unk), uint32 (phase count), for (count) uint16(phaseId)
 
-    GROUP_UPDATE_PET = GROUP_UPDATE_FLAG_PET_GUID | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_MODEL_ID |
-                       GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP | GROUP_UPDATE_FLAG_PET_POWER_TYPE |
-                       GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER | GROUP_UPDATE_FLAG_PET_AURAS, // all pet flags
-    GROUP_UPDATE_FULL = GROUP_UPDATE_FLAG_STATUS | GROUP_UPDATE_FLAG_CUR_HP | GROUP_UPDATE_FLAG_MAX_HP |
-                        GROUP_UPDATE_FLAG_POWER_TYPE | GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER |
-                        GROUP_UPDATE_FLAG_LEVEL | GROUP_UPDATE_FLAG_ZONE | GROUP_UPDATE_FLAG_POSITION |
-                        GROUP_UPDATE_FLAG_AURAS | GROUP_UPDATE_PET | GROUP_UPDATE_FLAG_PHASE // all known flags, except UNK100 and VEHICLE_SEAT
+    GROUP_UPDATE_FULL =  GROUP_UPDATE_FLAG_UNK704 | GROUP_UPDATE_FLAG_STATUS | GROUP_UPDATE_FLAG_POWER_TYPE |
+                        GROUP_UPDATE_FLAG_UNK322 | GROUP_UPDATE_FLAG_CUR_HP | GROUP_UPDATE_FLAG_MAX_HP |
+                        GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER | GROUP_UPDATE_FLAG_LEVEL |
+                        GROUP_UPDATE_FLAG_UNK200000 | GROUP_UPDATE_FLAG_ZONE | GROUP_UPDATE_FLAG_UNK2000000 |
+                        GROUP_UPDATE_FLAG_UNK4000000 | GROUP_UPDATE_FLAG_POSITION | GROUP_UPDATE_FLAG_VEHICLE_SEAT |
+                        GROUP_UPDATE_FLAG_AURAS | GROUP_UPDATE_FLAG_PET | GROUP_UPDATE_FLAG_PHASE // all known flags
+};
+
+enum GroupUpdatePetFlags
+{
+    GROUP_UPDATE_FLAG_PET_NONE      = 0x00000000,       // nothing
+    GROUP_UPDATE_FLAG_PET_GUID      = 0x00000001,       // ObjectGuid (pet guid)
+    GROUP_UPDATE_FLAG_PET_NAME      = 0x00000002,       // cstring (name, NULL terminated string)
+    GROUP_UPDATE_FLAG_PET_MODEL_ID  = 0x00000004,       // uint16 (model id)
+    GROUP_UPDATE_FLAG_PET_CUR_HP    = 0x00000008,       // uint32 (HP)
+    GROUP_UPDATE_FLAG_PET_MAX_HP    = 0x00000010,       // uint32 (max HP)
+    GROUP_UPDATE_FLAG_PET_AURAS     = 0x00000020,       // [see GROUP_UPDATE_FLAG_AURAS]
+
+    GROUP_UPDATE_PET_FULL = GROUP_UPDATE_FLAG_PET_GUID | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_MODEL_ID |
+                            GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP | GROUP_UPDATE_FLAG_PET_AURAS // all pet flags
 };
 
 class Roll : public LootValidatorRef
@@ -160,6 +173,18 @@ struct InstanceGroupBind
     InstanceGroupBind() : save(NULL), perm(false) { }
 };
 
+struct RaidMarker
+{
+    WorldLocation Location;
+    ObjectGuid TransportGUID;
+
+    RaidMarker(uint32 mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid = ObjectGuid::Empty)
+    {
+        Location.WorldRelocate(mapId, positionX, positionY, positionZ);
+        TransportGUID = transportGuid;
+    }
+};
+
 /** request member stats checken **/
 /// @todo uninvite people that not accepted invite
 class Group
@@ -169,9 +194,11 @@ class Group
         {
             ObjectGuid  guid;
             std::string name;
+            uint8       _class;
             uint8       group;
             uint8       flags;
             uint8       roles;
+            bool        readyChecked;
         };
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
@@ -197,7 +224,7 @@ class Group
         bool   AddLeaderInvite(Player* player);
         bool   AddMember(Player* player);
         bool   RemoveMember(ObjectGuid guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = NULL);
-        void   ChangeLeader(ObjectGuid guid);
+        void   ChangeLeader(ObjectGuid guid, int8 partyIndex = 0);
         void   SetLootMethod(LootMethod method);
         void   SetLooterGuid(ObjectGuid guid);
         void   SetMasterLooterGuid(ObjectGuid guid);
@@ -205,6 +232,31 @@ class Group
         void   SetLootThreshold(ItemQualities threshold);
         void   Disband(bool hideDestroy = false);
         void   SetLfgRoles(ObjectGuid guid, uint8 roles);
+        uint8  GetLfgRoles(ObjectGuid guid);
+        void   SetEveryoneIsAssistant(bool apply);
+
+        // Update
+        void   Update(uint32 diff);
+        void   UpdateReadyCheck(uint32 diff);
+
+        // Ready check
+        void StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, uint32 duration = READYCHECK_DURATION);
+        void EndReadyCheck();
+
+        bool IsReadyCheckStarted(void) const { return m_readyCheckStarted; }
+        bool IsReadyCheckCompleted(void) const;
+
+        void SetOfflineMembersReadyChecked(void);
+        void SetMemberReadyCheck(ObjectGuid guid, bool ready);
+        void SetMemberReadyCheck(MemberSlot* slot, bool ready);
+
+        void SetMemberReadyChecked(MemberSlot* slot);
+        void ResetMemberReadyChecked(void);
+
+        // Raid Markers
+        void AddRaidMarker(uint8 markerId, uint32 mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid = ObjectGuid::Empty);
+        void DeleteRaidMarker(uint8 markerId);
+        void SendRaidMarkersChanged(WorldSession* session = nullptr, int8 partyIndex = 0);
 
         // properties accessories
         bool IsFull() const;
@@ -254,7 +306,8 @@ class Group
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid);
 
         void ChangeMembersGroup(ObjectGuid guid, uint8 group);
-        void SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid);
+        void SwapMembersGroups(ObjectGuid firstGuid, ObjectGuid secondGuid);
+        void SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy, uint8 partyIndex);
         void SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags flag);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
 
@@ -269,7 +322,7 @@ class Group
 
         // -no description-
         //void SendInit(WorldSession* session);
-        void SendTargetIconList(WorldSession* session);
+        void SendTargetIconList(WorldSession* session, int8 partyIndex = 0);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
         void UpdatePlayerOutOfRange(Player* player);
@@ -290,8 +343,6 @@ class Group
 
         void BroadcastPacket(WorldPacket const* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignoredPlayer = ObjectGuid::Empty);
         void BroadcastAddonMessagePacket(WorldPacket const* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty);
-        void BroadcastReadyCheck(WorldPacket const* packet);
-        void OfflineReadyCheck();
 
         /*********************************************************/
         /***                   LOOT SYSTEM                     ***/
@@ -351,7 +402,7 @@ class Group
         Difficulty          m_legacyRaidDifficulty;
         Battleground*       m_bgGroup;
         Battlefield*        m_bfGroup;
-        ObjectGuid          m_targetIcons[TARGETICONCOUNT];
+        ObjectGuid          m_targetIcons[TARGET_ICONS_COUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;
         ObjectGuid          m_looterGuid;
@@ -363,5 +414,13 @@ class Group
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
+
+        // Ready Check
+        bool                m_readyCheckStarted;
+        int32               m_readyCheckTimer;
+
+        // Raid markers
+        std::array<std::unique_ptr<RaidMarker>, RAID_MARKERS_COUNT> m_markers;
+        uint32              m_activeMarkers;
 };
 #endif

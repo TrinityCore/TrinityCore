@@ -151,7 +151,7 @@ namespace WorldPackets
         public:
             Chat() : ServerPacket(SMSG_CHAT, 100) { }
 
-            void Initalize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0, std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
+            void Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0, std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
             WorldPacket const* Write() override;
 
             uint8 SlashCmd = 0;     ///< @see enum ChatMsg
