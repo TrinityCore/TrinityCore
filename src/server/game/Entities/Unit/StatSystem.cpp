@@ -512,13 +512,53 @@ void Player::UpdateAllCritPercentages()
     UpdateCritPercentage(RANGED_ATTACK);
 }
 
+void Player::UpdateMultistrike()
+{
+	float value =  GetRatingBonusValue(CR_MULTISTRIKE);
+	SetFloatValue(PLAYER_MULTISTRIKE, value);
+	//SetFloatValue(PLAYER_MULTISTRIKE, 30.0f);
+	return;
+}
+
+void Player::UpdateReadiness()
+{
+	float value = GetRatingBonusValue(CR_READINESS);
+	SetFloatValue(PLAYER_READINESS, value);
+	return;
+}
+
+void Player::UpdateLifesteal()
+{
+	float value = GetRatingBonusValue(CR_LIFESTEAL);
+	SetFloatValue(PLAYER_LIFESTEAL, value);
+	return;
+}
+
+void Player::UpdateVersatility()
+{
+	float value = GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
+	SetFloatValue(PLAYER_VERSATILITY, value);
+	return;
+}
+
+
+
+void Player::UpdateAvoidance()
+{
+	float value = GetRatingBonusValue(CR_AVOIDANCE);
+	SetFloatValue(PLAYER_AVOIDANCE, value);
+	return;
+}
+
+
+
 void Player::UpdateMastery()
 {
-    if (!CanUseMastery())
+	/*if (!CanUseMastery())
     {
         SetFloatValue(PLAYER_MASTERY, 0.0f);
         return;
-    }
+    }*/
 
     float value = GetTotalAuraModifier(SPELL_AURA_MASTERY);
     value += GetRatingBonusValue(CR_MASTERY);
@@ -890,11 +930,15 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     // automatically update weapon damage after attack power modification
     if (ranged)
         UpdateDamagePhysical(RANGED_ATTACK);
-    else
+	else if (CanDualWield() && haveOffhandWeapon())
     {
         UpdateDamagePhysical(BASE_ATTACK);
         UpdateDamagePhysical(OFF_ATTACK);
     }
+	else
+	{
+		UpdateDamagePhysical(BASE_ATTACK);
+	}
 }
 
 void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage)

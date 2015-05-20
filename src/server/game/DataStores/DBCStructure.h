@@ -317,16 +317,17 @@ struct ChrSpecializationEntry
     //char*     BackgroundFile;                             // 1
     uint32      ClassID;                                    // 2
     uint32      MasterySpellID[MAX_MASTERY_SPELLS];         // 3
-    uint32      OrderIndex;                                 // 4
-    uint32      PetTalentType;                              // 5
-    uint32      Role;                                       // 6 (0 - Tank, 1 - Healer, 2 - DPS)
-    uint32      SpellIconID;                                // 7
-    uint32      RaidBuffs;                                  // 8
-    uint32      Flags;                                      // 9
-    //char*     Name_lang;                                  // 10
-    //char*     Name2_lang;                                 // 11 Same as name_lang?
-    //char*     Description_lang;                           // 12
-    uint32      PrimaryStatOrder[2];                        // 13-14
+	//uint32	Unk_0										// 4
+    uint32      OrderIndex;                                 // 5
+    uint32      PetTalentType;                              // 6
+    uint32      Role;                                       // 7 (0 - Tank, 1 - Healer, 2 - DPS)
+    uint32      SpellIconID;                                // 8
+    uint32      RaidBuffs;                                  // 9
+    uint32      Flags;                                      // 10
+    //char*     Name_lang;                                  // 11
+    //char*     Name2_lang;                                 // 12 Same as name_lang?
+    //char*     Description_lang;                           // 13
+    uint32      PrimaryStatOrder[2];                        // 14-15
 };
 
 struct CinematicSequencesEntry

@@ -72,7 +72,7 @@ bool preciseVectorData = false;
 
 //static const char * szWorkDirMaps = ".\\Maps";
 const char* szWorkDirWmo = "./Buildings";
-const char* szRawVMAPMagic = "VMAP043";
+const char* szRawVMAPMagic = "VMAP042";
 
 bool OpenCascStorage()
 {

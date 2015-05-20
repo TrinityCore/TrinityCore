@@ -441,18 +441,46 @@ public:
 
         if (!areaTriggerId)
             return false;
+		
+		QueryResult result = WorldDatabase.PQuery("SELECT PortLocID FROM areatrigger_teleport WHERE ID='%u'", areaTriggerId);
+		if (!result)
+		{
+			handler->PSendSysMessage("Area Trigger (ID:%u) does not exist", areaTriggerId);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+		
+		
+		Field* fields = result->Fetch();
+		uint32 PortLocID = fields[0].GetUInt32();
 
+		WorldSafeLocsEntry const* portLoc = sWorldSafeLocsStore.LookupEntry(PortLocID);
+		if (!portLoc)
+		{
+			TC_LOG_ERROR("sql.sql", "Area Trigger (ID: %u) has a non-existing Port Loc (ID: %u) in WorldSafeLocs.dbc, skipped", areaTriggerId, PortLocID);
+			handler->PSendSysMessage(LANG_COMMAND_GOAREATRNOTFOUND, areaTriggerId);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+		AreaTriggerStruct at;
+
+		at.target_mapId = portLoc->MapID;
+		at.target_X = portLoc->Loc.X;
+		at.target_Y = portLoc->Loc.Y;
+		at.target_Z = portLoc->Loc.Z;
+		at.target_Orientation = (portLoc->Facing * M_PI) / 180;
+
+		/*
         AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(areaTriggerId);
         if (!at)
         {
             handler->PSendSysMessage(LANG_COMMAND_GOAREATRNOTFOUND, areaTriggerId);
             handler->SetSentErrorMessage(true);
             return false;
-        }
-
-        if (!MapManager::IsValidMapCoord(at->MapID, at->Pos.X, at->Pos.Y, at->Pos.Z))
+        }*/
+		if (!MapManager::IsValidMapCoord(at.target_mapId, at.target_X, at.target_Y, at.target_Z))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, at->Pos.X, at->Pos.Y, at->MapID);
+			handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, at.target_X, at.target_Y, at.target_mapId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -466,8 +494,8 @@ public:
         // save only in non-flight case
         else
             player->SaveRecallPosition();
-
-        player->TeleportTo(at->MapID, at->Pos.X, at->Pos.Y, at->Pos.Z, player->GetOrientation());
+		player->TeleportTo(at.target_mapId, at.target_X, at.target_Y, at.target_Z, at.target_Orientation);
+		
         return true;
     }
 

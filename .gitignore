@@ -16,3 +16,7 @@ CMakeLists.txt.user
 *.BACKUP.*
 *.BASE.*
 *.LOCAL.*
+src/server/game/Handlers/GroupHandler.cpp
+src/server/game/Server/Protocol/Opcodes.cpp
+src/server/game/Server/Protocol/Opcodes.cpp
+src/server/game/Spells/SpellEffects.cpp

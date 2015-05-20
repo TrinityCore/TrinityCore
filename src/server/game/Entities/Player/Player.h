@@ -746,7 +746,7 @@ enum EquipmentSlots                                         // 19 slots
     EQUIPMENT_SLOT_BACK         = 14,
     EQUIPMENT_SLOT_MAINHAND     = 15,
     EQUIPMENT_SLOT_OFFHAND      = 16,
-    EQUIPMENT_SLOT_RANGED       = 17,
+    //EQUIPMENT_SLOT_RANGED       = 17,
     EQUIPMENT_SLOT_TABARD       = 18,
     EQUIPMENT_SLOT_END          = 19
 };
@@ -2070,7 +2070,12 @@ class Player : public Unit, public GridObject<Player>
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
         void UpdateRating(CombatRating cr);
         void UpdateAllRatings();
+		void UpdateMultistrike();
+		void UpdateReadiness();
         void UpdateMastery();
+		void UpdateAvoidance();
+		void UpdateLifesteal();
+		void UpdateVersatility();
         bool CanUseMastery() const;
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;

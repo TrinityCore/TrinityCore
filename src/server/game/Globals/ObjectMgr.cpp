@@ -5505,7 +5505,7 @@ void ObjectMgr::LoadQuestAreaTriggers()
 
         uint32 trigger_ID = fields[0].GetUInt32();
         uint32 quest_ID   = fields[1].GetUInt32();
-
+		
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(trigger_ID);
         if (!atEntry)
         {
@@ -6105,7 +6105,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         at.target_Y           = portLoc->Loc.Y;
         at.target_Z           = portLoc->Loc.Z;
         at.target_Orientation = (portLoc->Facing * M_PI) / 180; // Orientation is initially in degrees
-
+		
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if (!atEntry)
         {
@@ -6114,6 +6114,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         }
 
         _areaTriggerStore[Trigger_ID] = at;
+		
 
     } while (result->NextRow());
 

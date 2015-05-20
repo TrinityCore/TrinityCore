@@ -69,7 +69,8 @@ public:
             { "spell",    rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, NULL,                         "", lookupSpellCommandTable },
             { "taxinode", rbac::RBAC_PERM_COMMAND_LOOKUP_TAXINODE, true, &HandleLookupTaxiNodeCommand, "", NULL },
             { "tele",     rbac::RBAC_PERM_COMMAND_LOOKUP_TELE,     true, &HandleLookupTeleCommand,     "", NULL },
-            { "title",    rbac::RBAC_PERM_COMMAND_LOOKUP_TITLE,    true, &HandleLookupTitleCommand,    "", NULL },
+            { "title",    rbac::RBAC_PERM_COMMAND_LOOKUP_TITLE,    true, &HandleLookupTitleCommand,    "", NULL },			
+            { "triggerteleport",     rbac::RBAC_PERM_COMMAND_LOOKUP_TRIGGER_TELEPORT,true, &HandleLookupTriggerCommand,     "", NULL },
             { "map",      rbac::RBAC_PERM_COMMAND_LOOKUP_MAP,      true, &HandleLookupMapCommand,      "", NULL },
             { NULL,       0,                                false, NULL,                         "", NULL }
         };
@@ -1079,6 +1080,80 @@ public:
 
         return true;
     }
+
+	static bool HandleLookupTriggerCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		std::string namePart = args;
+		//std::wstring wNamePart;
+
+		//if (!Utf8toWStr(namePart, wNamePart))
+			//return false;
+		
+		bool found = false;
+		uint32 count = 0;
+		uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
+
+		// converting string that we try to find to lower case
+		//wstrToLower(wNamePart);
+		
+		QueryResult result = WorldDatabase.PQuery("SELECT ID, Name FROM areatrigger_teleport WHERE Name LIKE '%%%s%%'", namePart);
+		//uint32 objectCount = 0;
+		//QueryResult counter = WorldDatabase.PQuery("SELECT COUNT(*) FROM areatrigger_teleport WHERE Name LIKE '%%%u%%'", wNamePart);
+		if (!result)
+		{
+			handler->SendSysMessage("No Trigger Teleports found!");
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+		//objectCount = (*counter)[0].GetUInt32();
+		// Search in areatrigger_teleport
+		//for (uint32 triggerflag = 0; triggerflag < objectCount; ++triggerflag)
+		//{
+		//Field* fields = result->Fetch();
+		//std::string name = fields[1].GetCString();
+		//UINT32 triggerid = fields[0].GetInt32();
+		if (result)
+		{
+			do
+			{
+			
+				Field* fields = result->Fetch();
+				std::string name = fields[1].GetCString();
+				uint32 triggerid = fields[0].GetInt32();
+				if (name.empty())
+					continue;
+
+				//if (!Utf8FitTo(name, wNamePart))
+				//	continue;
+
+				if (maxResults && count++ == maxResults)
+				{
+					handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+					return true;
+				}
+
+				// send area in "id - [name]" format
+				std::ostringstream ss;
+				if (handler->GetSession())
+					ss << triggerid << " - |cffffffff|Harea:" << triggerid << "|h[" << name << "]|h|r";
+				else
+					ss << triggerid << " - " << name;
+
+				handler->SendSysMessage(ss.str().c_str());
+
+				if (!found)
+					found = true;
+			} while (result->NextRow());
+		} 
+
+		if (!found)
+			handler->SendSysMessage(LANG_COMMAND_NOAREAFOUND);
+		
+		return true;
+	}
 
     static bool HandleLookupMapCommand(ChatHandler* handler, char const* args)
     {

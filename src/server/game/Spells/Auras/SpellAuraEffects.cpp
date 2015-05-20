@@ -2403,7 +2403,7 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
         case SPELL_AURA_MOD_DISARM_RANGED:
             field = UNIT_FIELD_FLAGS_2;
             flag = UNIT_FLAG2_DISARM_RANGED;
-            slot = EQUIPMENT_SLOT_RANGED;
+            slot = EQUIPMENT_SLOT_MAINHAND;
             attType = RANGED_ATTACK;
             break;
         default:
@@ -5444,6 +5444,68 @@ void AuraEffect::HandleMastery(AuraApplication const* aurApp, uint8 mode, bool /
 
     target->UpdateMastery();
 }
+
+
+void AuraEffect::HandleMultistrike(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Player* target = aurApp->GetTarget()->ToPlayer();
+	if (!target)
+		return;
+
+	target->UpdateMultistrike();
+}
+
+void AuraEffect::HandleReadiness(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Player* target = aurApp->GetTarget()->ToPlayer();
+	if (!target)
+		return;
+
+	target->UpdateReadiness();
+}
+
+void AuraEffect::HandleVersatility(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Player* target = aurApp->GetTarget()->ToPlayer();
+	if (!target)
+		return;
+
+	target->UpdateVersatility();
+}
+
+void AuraEffect::HandleAvoidance(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Player* target = aurApp->GetTarget()->ToPlayer();
+	if (!target)
+		return;
+
+	target->UpdateAvoidance();
+}
+
+void AuraEffect::HandleLifesteal(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Player* target = aurApp->GetTarget()->ToPlayer();
+	if (!target)
+		return;
+
+	target->UpdateLifesteal();
+}
+
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
 {
