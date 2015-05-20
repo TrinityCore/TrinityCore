@@ -222,7 +222,7 @@ namespace WorldPackets
         class GarrisonRequestBlueprintAndSpecializationData;
         class GarrisonGetBuildingLandmarks;
     }
-	
+
     namespace Guild
     {
         class QueryGuildInfo;
@@ -362,8 +362,7 @@ namespace WorldPackets
 
 	namespace Party
 	{
-		class PartyInvite;
-		class PartyInviteResponse;
+		class PartyCommandResult;
 	}
 
     namespace Petition
@@ -1059,9 +1058,9 @@ class WorldSession
 
         void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
 
-		void HandleGroupInviteOpcode(WorldPackets::Party::PartyInvite& Packet);
+        void HandleGroupInviteOpcode(WorldPacket& recvPacket);
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
-		void HandleGroupInviteResponseOpcode(WorldPackets::Party::PartyInviteResponse& Packet);
+        void HandleGroupInviteResponseOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
         void HandleGroupSetLeaderOpcode(WorldPacket& recvPacket);
         void HandleGroupSetRolesOpcode(WorldPacket& recvData);

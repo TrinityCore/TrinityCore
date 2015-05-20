@@ -648,7 +648,32 @@ void WorldSession::KickPlayer()
         }
     }
 }
+/*
+WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
+{
+	_worldPacket.WriteBits(Name.length(), 9);
+	_worldPacket << uint32(Command);
+	_worldPacket << uint32(Result);
+	_worldPacket << uint32(ResultData);
+	_worldPacket << ResultGUID;
+	_worldPacket.WriteString(Name);
 
+	return &_worldPacket;
+}
+
+
+*/
+
+//void WorldSession::SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val /* = 0 */)
+/*{
+	WorldPackets::Party::PartyCommandResult data;
+	data.Name = member;
+	data.Command = operation;
+	data.Result = res;
+	data.ResultData = val; // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)
+
+	SendPacket(data.Write());
+}*/
 
 
 void WorldSession::SendNotification(char const* format, ...)
