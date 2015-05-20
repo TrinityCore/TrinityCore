@@ -22,6 +22,7 @@
 #include "Vehicle.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "ObjectMgr.h"
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
 {
