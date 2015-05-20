@@ -26,6 +26,11 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "shattered_halls.h"
+#include "Player.h"
+#include "SpellAuras.h"
+#include "CreatureAI.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 enum Spells
 {

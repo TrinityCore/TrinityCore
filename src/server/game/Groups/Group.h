@@ -24,6 +24,7 @@
 #include "LootMgr.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"
+#include "Object.h"
 
 class Battlefield;
 class Battleground;
