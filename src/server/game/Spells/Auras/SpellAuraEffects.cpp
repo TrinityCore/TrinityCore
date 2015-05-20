@@ -4089,10 +4089,11 @@ void AuraEffect::HandleAuraModIncreaseHealth(AuraApplication const* aurApp, uint
     }
     else
     {
-        if (int32(target->GetHealth()) > GetAmount())
-            target->ModifyHealth(-GetAmount());
-        else
-            target->SetHealth(1);
+        if (target->GetHealth() > 0)
+        {
+            int32 value = std::min<int32>(target->GetHealth() - 1, GetAmount());
+            target->ModifyHealth(-value);
+        }
         target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
     }
 }
@@ -4104,19 +4105,15 @@ void AuraEffect::HandleAuraModIncreaseMaxHealth(AuraApplication const* aurApp, u
 
     Unit* target = aurApp->GetTarget();
 
-    uint32 oldhealth = target->GetHealth();
-    double healthPercentage = (double)oldhealth / (double)target->GetMaxHealth();
+    float percent = target->GetHealthPct();
 
     target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
 
     // refresh percentage
-    if (oldhealth > 0)
+    if (target->GetHealth() > 0)
     {
-        uint32 newhealth = uint32(ceil((double)target->GetMaxHealth() * healthPercentage));
-        if (newhealth == 0)
-            newhealth = 1;
-
-        target->SetHealth(newhealth);
+        uint32 newHealth = std::max<uint32>(target->CountPctFromMaxHealth(int32(percent)), 1);
+        target->SetHealth(newHealth);
     }
 }
 
@@ -4180,8 +4177,12 @@ void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurAp
     // Unit will keep hp% after MaxHealth being modified if unit is alive.
     float percent = target->GetHealthPct();
     target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(GetAmount()), apply);
-    if (target->IsAlive())
-        target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
+
+    if (target->GetHealth() > 0)
+    {
+        uint32 newHealth = std::max<uint32>(target->CountPctFromMaxHealth(int32(percent)), 1);
+        target->SetHealth(newHealth);
+    }
 }
 
 void AuraEffect::HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
