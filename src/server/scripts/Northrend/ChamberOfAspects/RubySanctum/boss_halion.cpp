@@ -1092,9 +1092,6 @@ class npc_meteor_strike : public CreatureScript
                     Position pos = me->GetNearPosition(5.0f, 0.0f);
                     if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
                     {
-                        if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HALION_CONTROLLER)))
-                            controller->AI()->JustSummoned(flame);
-
                         flame->SetOrientation(me->GetOrientation());
 
                         flame->AI()->SetGUID(GetGUID());
@@ -1149,9 +1146,6 @@ class npc_meteor_strike_flame : public CreatureScript
 
                 if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
                 {
-                    if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HALION_CONTROLLER)))
-                        controller->AI()->JustSummoned(flame);
-
                     flame->AI()->SetGUID(_rootOwnerGuid);
                     meteorStrike->AI()->SetData(DATA_SPAWNED_FLAMES, 1);
                 }
