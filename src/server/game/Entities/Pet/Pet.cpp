@@ -39,8 +39,8 @@
 
 Pet::Pet(Player* owner, PetType type) :
     Guardian(NULL, owner, true), m_usedTalentCount(0), m_removed(false),
-    m_petType(type), m_duration(0), m_groupUpdateMask(0), m_loading(false),
-    m_declinedname(NULL)
+    m_petType(type), m_duration(0), m_loading(false), m_declinedname(NULL),
+    m_groupUpdateMask(0)
 {
     ASSERT(GetOwner());
 
