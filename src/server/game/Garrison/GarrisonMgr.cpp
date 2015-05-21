@@ -17,6 +17,7 @@
 
 #include "GarrisonMgr.h"
 #include "Containers.h"
+#include "DatabaseEnv.h"
 #include "Garrison.h"
 #include "ObjectDefines.h"
 #include "World.h"
@@ -55,6 +56,9 @@ void GarrisonMgr::Initialize()
             }
         }
     }
+
+    InitializeDbIdSequences();
+    LoadFollowerClassSpecAbilities();
 }
 
 GarrSiteLevelEntry const* GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
@@ -185,12 +189,17 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(GarrFollow
     Trinity::Containers::RandomResizeList(abilityList, std::max<int32>(0, slots[0] - forcedAbilities.size()));
     Trinity::Containers::RandomResizeList(traitList, std::max<int32>(0, slots[1] - forcedTraits.size()));
 
-    // Add counters specified in GarrFollowerXAbility.db2 before generic classspec ones on follower creation
+    // Add abilities specified in GarrFollowerXAbility.db2 before generic classspec ones on follower creation
     if (initial)
     {
         forcedAbilities.splice(forcedAbilities.end(), abilityList);
         forcedTraits.splice(forcedTraits.end(), traitList);
     }
+
+    forcedAbilities.sort();
+    abilityList.sort();
+    forcedTraits.sort();
+    traitList.sort();
 
     // check if we have a trait from exclusive category
     for (GarrAbilityEntry const* ability : forcedTraits)
@@ -204,18 +213,18 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(GarrFollow
 
     if (slots[0] > forcedAbilities.size() + abilityList.size())
     {
-        std::list<GarrAbilityEntry const*> classSpecAbilities; // = GetDefaultClassSpecAbilities(follower, faction)
-
-        abilityList.splice(abilityList.end(), classSpecAbilities);
-        abilityList.sort();
-        abilityList.unique();
+        std::list<GarrAbilityEntry const*> classSpecAbilities = GetClassSpecAbilities(follower, faction);
+        std::list<GarrAbilityEntry const*> classSpecAbilitiesTemp, classSpecAbilitiesTemp2;
+        classSpecAbilitiesTemp2.swap(abilityList);
+        std::set_difference(classSpecAbilities.begin(), classSpecAbilities.end(), forcedAbilities.begin(), forcedAbilities.end(), std::back_inserter(classSpecAbilitiesTemp));
+        std::set_union(classSpecAbilitiesTemp.begin(), classSpecAbilitiesTemp.end(), classSpecAbilitiesTemp2.begin(), classSpecAbilitiesTemp2.end(), std::back_inserter(abilityList));
 
         Trinity::Containers::RandomResizeList(abilityList, std::max<int32>(0, slots[0] - forcedAbilities.size()));
     }
 
     if (slots[1] > forcedTraits.size() + traitList.size())
     {
-        std::list<GarrAbilityEntry const*> genericTraits;
+        std::list<GarrAbilityEntry const*> genericTraits, genericTraitsTemp;
         for (GarrAbilityEntry const* ability : _garrisonFollowerRandomTraits)
         {
             if (ability->Flags & GARRISON_ABILITY_HORDE_ONLY && faction != GARRISON_FACTION_INDEX_HORDE)
@@ -227,9 +236,10 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(GarrFollow
             if (hasForcedExclusiveTrait && ability->Flags & GARRISON_ABILITY_FLAG_EXCLUSIVE)
                 continue;
 
-            genericTraits.push_back(ability);
+            genericTraitsTemp.push_back(ability);
         }
 
+        std::set_difference(genericTraitsTemp.begin(), genericTraitsTemp.end(), forcedTraits.begin(), forcedTraits.end(), std::back_inserter(genericTraits));
         genericTraits.splice(genericTraits.begin(), traitList);
         // "split" the list into two parts [nonexclusive, exclusive] to make selection later easier
         genericTraits.sort([](GarrAbilityEntry const* a1, GarrAbilityEntry const* a2)
@@ -248,7 +258,7 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(GarrFollow
             if ((*itr)->Flags & GARRISON_ABILITY_FLAG_EXCLUSIVE)
                 break;
 
-        while (traitList.size() < std::max<int32>(0, slots[1] - forcedTraits.size()) && !genericTraits.empty())
+        while (traitList.size() < std::max<int32>(0, slots[1] - forcedTraits.size()) && total)
         {
             auto itr = genericTraits.begin();
             std::advance(itr, urand(0, total-- - 1));
@@ -268,4 +278,76 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(GarrFollow
     result.splice(result.end(), traitList);
 
     return result;
+}
+
+std::list<GarrAbilityEntry const*> GarrisonMgr::GetClassSpecAbilities(GarrFollowerEntry const* follower, uint32 faction) const
+{
+    std::list<GarrAbilityEntry const*> abilities;
+    uint32 classSpecId;
+    switch (faction)
+    {
+        case GARRISON_FACTION_INDEX_HORDE:
+            classSpecId = follower->HordeGarrClassSpecID;
+            break;
+        case GARRISON_FACTION_INDEX_ALLIANCE:
+            classSpecId = follower->AllianceGarrClassSpecID;
+            break;
+        default:
+            return abilities;
+    }
+
+    if (!sGarrClassSpecStore.LookupEntry(classSpecId))
+        return abilities;
+
+    auto itr = _garrisonFollowerClassSpecAbilities.find(classSpecId);
+    if (itr != _garrisonFollowerClassSpecAbilities.end())
+        abilities = itr->second;
+
+    return abilities;
+}
+
+void GarrisonMgr::InitializeDbIdSequences()
+{
+    if (QueryResult result = CharacterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_followers"))
+        _followerDbIdGenerator = (*result)[0].GetUInt64() + 1;
+}
+
+void GarrisonMgr::LoadFollowerClassSpecAbilities()
+{
+    QueryResult result = WorldDatabase.Query("SELECT classSpecId, abilityId FROM garrison_follower_class_spec_abilities");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 garrison follower class spec abilities. DB table `garrison_follower_class_spec_abilities` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 classSpecId = fields[0].GetUInt32();
+        uint32 abilityId = fields[1].GetUInt32();
+
+        if (!sGarrClassSpecStore.LookupEntry(classSpecId))
+        {
+            TC_LOG_ERROR("sql.sql", "Non-existing GarrClassSpec.db2 entry %u was referenced in `garrison_follower_class_spec_abilities` by row (%u, %u).", classSpecId, classSpecId, abilityId);
+            continue;
+        }
+
+        GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(abilityId);
+        if (!ability)
+        {
+            TC_LOG_ERROR("sql.sql", "Non-existing GarrAbility.db2 entry %u was referenced in `garrison_follower_class_spec_abilities` by row (%u, %u).", abilityId, classSpecId, abilityId);
+            continue;
+        }
+
+        _garrisonFollowerClassSpecAbilities[classSpecId].push_back(ability);
+        ++count;
+
+    } while (result->NextRow());
+
+    for (auto& pair : _garrisonFollowerClassSpecAbilities)
+        pair.second.sort();
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u garrison follower class spec abilities.", count);
 }

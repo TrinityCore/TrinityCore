@@ -25,7 +25,8 @@ Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followe
 {
 }
 
-bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings)
+bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
+    PreparedQueryResult followers, PreparedQueryResult abilities)
 {
     if (!garrison)
         return false;
@@ -76,6 +77,60 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
         } while (buildings->NextRow());
     }
 
+    //           0           1        2      3                4               5   6                7               8       9
+    // SELECT dbId, followerId, quality, level, itemLevelWeapon, itemLevelArmor, xp, currentBuilding, currentMission, status FROM character_garrison_followers WHERE guid = ?
+    if (followers)
+    {
+        std::unordered_map<uint64, Follower*> followersByDbId;
+        do
+        {
+            Field* fields = followers->Fetch();
+
+            uint32 followerId = fields[1].GetUInt32();
+            if (!sGarrFollowerStore.LookupEntry(followerId))
+                continue;
+
+            Follower& follower = _followers[followerId];
+            follower.PacketInfo.DbID = fields[0].GetUInt64();
+            follower.PacketInfo.GarrFollowerID = followerId;
+            follower.PacketInfo.Quality = fields[2].GetUInt32();
+            follower.PacketInfo.FollowerLevel = fields[3].GetUInt32();
+            follower.PacketInfo.ItemLevelWeapon = fields[4].GetUInt32();
+            follower.PacketInfo.ItemLevelArmor = fields[5].GetUInt32();
+            follower.PacketInfo.Xp = fields[6].GetUInt32();
+            follower.PacketInfo.CurrentBuildingID = fields[7].GetUInt32();
+            follower.PacketInfo.CurrentMissionID = fields[8].GetUInt32();
+            follower.PacketInfo.FollowerStatus = fields[9].GetUInt32();
+            if (!sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID))
+                follower.PacketInfo.CurrentBuildingID = 0;
+
+            //if (!sGarrMissionStore.LookupEntry(follower.PacketInfo.CurrentMissionID))
+            //    follower.PacketInfo.CurrentMissionID = 0;
+
+            followersByDbId[follower.PacketInfo.DbID] = &follower;
+
+        } while (followers->NextRow());
+
+        if (abilities)
+        {
+            do
+            {
+                Field* fields = abilities->Fetch();
+                uint64 dbId = fields[0].GetUInt64();
+                GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(fields[1].GetUInt32());
+
+                if (!ability)
+                    continue;
+
+                auto itr = followersByDbId.find(dbId);
+                if (itr == followersByDbId.end())
+                    continue;
+
+                itr->second->PacketInfo.AbilityID.push_back(ability);
+            } while (abilities->NextRow());
+        }
+    }
+
     return true;
 }
 
@@ -90,6 +145,10 @@ void Garrison::SaveToDB(SQLTransaction& trans)
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BUILDINGS);
+    stmt->setUInt64(0, _owner->GetGUID().GetCounter());
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_FOLLOWERS);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
     trans->Append(stmt);
 
@@ -118,6 +177,35 @@ void Garrison::SaveToDB(SQLTransaction& trans)
             stmt->setUInt32(2, plot.BuildingInfo.PacketInfo->GarrBuildingID);
             stmt->setUInt64(3, plot.BuildingInfo.PacketInfo->TimeBuilt);
             stmt->setBool(4, plot.BuildingInfo.PacketInfo->Active);
+            trans->Append(stmt);
+        }
+    }
+
+    for (auto const& p : _followers)
+    {
+        Follower const& follower = p.second;
+        uint8 index = 0;
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_FOLLOWERS);
+        stmt->setUInt64(index++, follower.PacketInfo.DbID);
+        stmt->setUInt64(index++, _owner->GetGUID().GetCounter());
+        stmt->setUInt32(index++, follower.PacketInfo.GarrFollowerID);
+        stmt->setUInt32(index++, follower.PacketInfo.Quality);
+        stmt->setUInt32(index++, follower.PacketInfo.FollowerLevel);
+        stmt->setUInt32(index++, follower.PacketInfo.ItemLevelWeapon);
+        stmt->setUInt32(index++, follower.PacketInfo.ItemLevelArmor);
+        stmt->setUInt32(index++, follower.PacketInfo.Xp);
+        stmt->setUInt32(index++, follower.PacketInfo.CurrentBuildingID);
+        stmt->setUInt32(index++, follower.PacketInfo.CurrentMissionID);
+        stmt->setUInt32(index++, follower.PacketInfo.FollowerStatus);
+        trans->Append(stmt);
+
+        uint8 slot = 0;
+        for (GarrAbilityEntry const* ability : follower.PacketInfo.AbilityID)
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_FOLLOWER_ABILITIES);
+            stmt->setUInt64(0, follower.PacketInfo.DbID);
+            stmt->setUInt32(1, ability->ID);
+            stmt->setUInt8(2, slot++);
             trans->Append(stmt);
         }
     }
