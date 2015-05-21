@@ -3134,6 +3134,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 64823: // Item - Druid T8 Balance 4P Bonus
             case 34477: // Misdirection
             case 44401: // Missile Barrage
+            case 18820: // Insight
                 spellInfo->ProcCharges = 1;
                 break;
             case 44544: // Fingers of Frost
