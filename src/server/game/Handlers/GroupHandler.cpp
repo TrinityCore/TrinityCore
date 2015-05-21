@@ -629,10 +629,9 @@ void WorldSession::HandleInitiateRolePoll(WorldPackets::Party::InitiateRolePoll&
     if (!group)
         return;
 
-    if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
-        return;
-
     ObjectGuid guid = GetPlayer()->GetGUID();
+    if (!group->IsLeader(guid) && !group->IsAssistant(guid))
+        return;
 
     WorldPackets::Party::RolePollInform rolePollInform;
     rolePollInform.From = GetPlayer()->GetGUID();
