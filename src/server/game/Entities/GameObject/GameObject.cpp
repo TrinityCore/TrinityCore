@@ -2163,7 +2163,7 @@ void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
         m_goValue.Transport.StateUpdateTimer = 0;
         m_goValue.Transport.PathProgress = getMSTime();
         if (GetGoState() >= GO_STATE_TRANSPORT_STOPPED)
-            m_goValue.Transport.StopFrames->at(GetGoState() - GO_STATE_TRANSPORT_STOPPED);
+            m_goValue.Transport.PathProgress += m_goValue.Transport.StopFrames->at(GetGoState() - GO_STATE_TRANSPORT_STOPPED);
         SetGoState(GO_STATE_TRANSPORT_ACTIVE);
     }
     else
