@@ -2695,19 +2695,26 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         // Haste modifies duration of channeled spells
                         if (m_spellInfo->IsChanneled())
                             m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
+
                         else if (m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
                         {
-                            int32 origDuration = duration;
-                            duration = 0;
-                            for (SpellEffectInfo const* effect : GetEffects())
-                                if (effect)
-                                    if (AuraEffect const* eff = m_spellAura->GetEffect(effect->EffectIndex))
-                                        if (int32 period = eff->GetPeriod())  // period is hastened by UNIT_MOD_CAST_SPEED
-                                            duration = std::max(std::max(origDuration / period, 1) * period, duration);
+                            // DOT Haste calculation - updated to 6.x
+                            // http://www.engadget.com/2014/04/20/warlords-of-draenor-periodic-effects-changes/
 
+                            int32 period = 0;
+
+                            for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
+                                if (effectMask & (1 << effectNumber))
+                                    if (AuraEffect* effect = m_spellAura->GetEffect(effectNumber))
+                                        if (effect->GetPeriodicTimer() > 0)
+                                            period = effect->GetPeriod(); // retrieve the period lenght modified by haste
+
+                            // store the half-tick period which is not considered and save it in m_tickRemainingPeriod
+                            if (period > 0)
+                                m_spellAura->SetTickRemainingPeriod(int32(duration % period));
                             // if there is no periodic effect
-                            if (!duration)
-                                duration = int32(origDuration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+                            else
+                                duration = int32(duration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
                         }
                     }
 

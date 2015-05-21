@@ -163,6 +163,8 @@ class Aura
         void SetDuration(int32 duration, bool withMods = false);
         void RefreshDuration(bool withMods = false);
         void RefreshTimers();
+        void SetTickRemainingPeriod(int32 fraction){ m_tickRemainingPeriod = fraction; };
+        int32 GetTickRemainingPeriod() const { return m_tickRemainingPeriod; };
         bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
 
@@ -300,6 +302,7 @@ class Aura
 
         int32 m_maxDuration;                                // Max aura duration
         int32 m_duration;                                   // Current time
+        int32 m_tickRemainingPeriod;                        // the fraction of period not taken into account in NrOfTicks/duration/haste calculation done in Spell::DoSpellHitOnUnit
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         std::vector<SpellPowerEntry const*> m_periodicCosts;// Periodic costs
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect

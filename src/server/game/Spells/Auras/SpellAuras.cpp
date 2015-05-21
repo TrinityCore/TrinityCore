@@ -378,6 +378,7 @@ m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEven
     m_duration = m_maxDuration;
     m_procCharges = CalcMaxCharges(caster);
     m_isUsingCharges = m_procCharges != 0;
+    m_tickRemainingPeriod = 0;
     // m_casterLevel = cast item level/caster level, caster level should be saved to db, confirmed with sniffs
 }
 
@@ -832,23 +833,44 @@ void Aura::RefreshDuration(bool withMods)
 
 void Aura::RefreshTimers()
 {
-    m_maxDuration = CalcMaxDuration();
-    bool resetPeriodic = true;
-    if (m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER))
-    {
-        int32 minPeriod = m_maxDuration;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (AuraEffect const* eff = GetEffect(i))
-                if (int32 period = eff->GetPeriod())
-                    minPeriod = std::min(period, minPeriod);
+    // 6.x ticking system: if refreshed with less than 30% duration missing, ANY dot / hot get is refreshing without clipping
+    // see http://www.engadget.com/2014/04/20/warlords-of-draenor-periodic-effects-changes/ 
+    // check on SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER is needed to force some specific auras to avoid clipping at any time
 
-        // If only one tick remaining, roll it over into new duration
-        if (GetDuration() <= minPeriod)
+    // Need to check before refreshing, if partial tick damage should be done for the various effects
+    if(Unit * caster = GetCaster())
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (AuraEffect * eff = GetEffect(i))
+                if (eff->IsPartialTickEffect())
+                {
+                    std::list<AuraApplication*> effectApplications;
+                    GetApplicationList(effectApplications);
+                    for (std::list<AuraApplication*>::const_iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
+                        if ((*apptItr)->HasEffect(i))
+                            if (Unit * target = (*apptItr)->GetTarget())
+                                eff->DoPartialTickEffect(caster, target);
+                }
+
+    int32 clipThreshold = int32(0.70 * m_maxDuration);  // the threshold is on the old maximum duration
+    m_maxDuration = CalcMaxDuration();  
+
+    // there are some spells which never reset periodic timer
+    bool resetPeriodic = !m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER);
+
+    // getting the effect period lenght
+    int32 minPeriod = m_maxDuration;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (AuraEffect const* eff = GetEffect(i))
+            if (int32 period = eff->GetPeriod())
+                minPeriod = std::min(period, minPeriod);
+    
+    // add the missing part of the tick we are actually in to the new duration and set resetPeriod false to avoid clipping
+    if (minPeriod != m_maxDuration)
+        if (GetDuration() >= clipThreshold)
         {
-            m_maxDuration += GetDuration();
+            m_maxDuration += (minPeriod - GetDuration() % minPeriod);
             resetPeriodic = false;
         }
-    }
 
     RefreshDuration();
     Unit* caster = GetCaster();
