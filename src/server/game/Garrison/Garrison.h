@@ -105,7 +105,8 @@ public:
 
     explicit Garrison(Player* owner);
 
-    bool LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings);
+    bool LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
+        PreparedQueryResult followers, PreparedQueryResult abilities);
     void SaveToDB(SQLTransaction& trans);
 
     bool Create(uint32 garrSiteId);
