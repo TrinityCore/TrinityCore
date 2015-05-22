@@ -1027,6 +1027,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
                 else
                     (*itr)->ToCreature()->DespawnOrUnsummon(e.action.forceDespawn.delay);
+
+                if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->SetLootState(GO_READY);
             }
 
             delete targets;
