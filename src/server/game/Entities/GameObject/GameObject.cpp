@@ -1757,6 +1757,8 @@ void GameObject::Use(Unit* user)
         return;
     }
 
+    sOutdoorPvPMgr->HandleCustomSpell(user->ToPlayer(), spellId, this);
+
     if (spellCaster)
         spellCaster->CastSpell(user, spellInfo, triggered);
     else
