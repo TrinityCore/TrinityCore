@@ -2955,7 +2955,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         switch (spellInfo->Id)
         {
             case 63026: // Force Cast (HACK: Target shouldn't be changed)
-            case 63171: // Force Cast (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
+            case 63137: // Force Cast (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
                 spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
             case 53096: // Quetz'lun's Judgment
