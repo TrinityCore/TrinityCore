@@ -15,7 +15,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `waypoints` WHERE `entry`=3984;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (3984, 1, 908.933, -90.985, 33.783, 'Nancy Vishas'),
-(3984, 2, 888.142, -121.849, 38.388, 'Nancy Vishas');  
+(3984, 2, 888.142, -121.849, 38.388, 'Nancy Vishas');
 
 DELETE FROM `creature_text` WHERE `entry` IN (3984, 3985);
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`, `BroadcastTextId`) VALUES
