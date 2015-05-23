@@ -21,6 +21,7 @@
 #include "Map.h"
 
 class Garrison;
+class Player;
 
 class GarrisonMap : public Map
 {
@@ -32,8 +33,11 @@ public:
 
     void InitVisibilityDistance() override;
 
+    bool AddPlayerToMap(Player* player, bool initPlayer = true) override;
+
 private:
     ObjectGuid _owner;
+    Player* _loadingPlayer; ///< @workaround Player is not registered in ObjectAccessor during login
 };
 
 #endif // GarrisonMap_h__
