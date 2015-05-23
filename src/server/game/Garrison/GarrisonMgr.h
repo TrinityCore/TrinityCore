@@ -61,7 +61,7 @@ private:
     std::unordered_map<uint32 /*classSpecId*/, std::list<GarrAbilityEntry const*>> _garrisonFollowerClassSpecAbilities;
     std::set<GarrAbilityEntry const*> _garrisonFollowerRandomTraits;
 
-    uint64 _followerDbIdGenerator = UI64LIT(0);
+    uint64 _followerDbIdGenerator = UI64LIT(1);
 };
 
 #define sGarrisonMgr GarrisonMgr::Instance()

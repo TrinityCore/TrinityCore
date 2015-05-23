@@ -97,7 +97,7 @@ void GarrisonGridLoader::Visit(CreatureMapType& /*m*/)
 }
 
 GarrisonMap::GarrisonMap(uint32 id, time_t expiry, uint32 instanceId, Map* parent, ObjectGuid const& owner)
-    : Map(id, expiry, instanceId, DIFFICULTY_NORMAL, parent), _owner(owner)
+    : Map(id, expiry, instanceId, DIFFICULTY_NORMAL, parent), _owner(owner), _loadingPlayer(nullptr)
 {
     GarrisonMap::InitVisibilityDistance();
 }
@@ -112,6 +112,9 @@ void GarrisonMap::LoadGridObjects(NGridType* grid, Cell const& cell)
 
 Garrison* GarrisonMap::GetGarrison()
 {
+    if (_loadingPlayer)
+        return _loadingPlayer->GetGarrison();
+
     if (Player* owner = ObjectAccessor::FindConnectedPlayer(_owner))
         return owner->GetGarrison();
 
@@ -123,4 +126,17 @@ void GarrisonMap::InitVisibilityDistance()
     //init visibility distance for instances
     m_VisibleDistance = World::GetMaxVisibleDistanceInBGArenas();
     m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInBGArenas();
+}
+
+bool GarrisonMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
+{
+    if (player->GetGUID() == _owner)
+        _loadingPlayer = player;
+
+    bool result = Map::AddPlayerToMap(player, initPlayer);
+
+    if (player->GetGUID() == _owner)
+        _loadingPlayer = nullptr;
+
+    return result;
 }
