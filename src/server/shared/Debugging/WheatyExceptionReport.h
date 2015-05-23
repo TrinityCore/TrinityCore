@@ -178,6 +178,8 @@ class WheatyExceptionReport
         static DWORD_PTR DereferenceUnsafePointer(DWORD_PTR address);
 
         static int __cdecl _tprintf(const TCHAR * format, ...);
+        static int __cdecl stackprintf(const TCHAR * format, va_list argptr);
+        static int __cdecl heapprintf(const TCHAR * format, va_list argptr);
 
         static bool StoreSymbol(DWORD type , DWORD_PTR offset);
         static void ClearSymbols();
@@ -191,6 +193,7 @@ class WheatyExceptionReport
         static HANDLE m_hProcess;
         static SymbolPairs symbols;
         static std::stack<SymbolDetail> symbolDetails;
+        static bool stackOverflowException;
 
         static char* PushSymbolDetail(char* pszCurrBuffer);
         static char* PopSymbolDetail(char* pszCurrBuffer);
