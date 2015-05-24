@@ -560,8 +560,8 @@ void LoadDBCStores(const std::string& dataPath)
     for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
         if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
         {
-            if (pathLength[entry->path] < entry->index + 1)
-                pathLength[entry->path] = entry->index + 1;
+            if (pathLength[entry->PathID] < entry->NodeIndex + 1)
+                pathLength[entry->PathID] = entry->NodeIndex + 1;
         }
     // Set path length
     sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
@@ -570,7 +570,7 @@ void LoadDBCStores(const std::string& dataPath)
     // fill data
     for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
         if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
-            sTaxiPathNodesByPath[entry->path].set(entry->index, entry);
+            sTaxiPathNodesByPath[entry->PathID].set(entry->NodeIndex, entry);
 
     // Initialize global taxinodes mask
     // include existed nodes that have at least single not spell base (scripted) path
