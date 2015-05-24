@@ -284,10 +284,6 @@ Unit::Unit(bool isWorldObject) :
 
     _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
-
-    _aiAnimKitId = 0;
-    _movementAnimKitId = 0;
-    _meleeAnimKitId = 0;
 }
 
 ////////////////////////////////////////////////////////////
@@ -13369,45 +13365,6 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
     WorldPackets::Misc::DurabilityDamageDeath packet;
     packet.Percent = percent;
     receiver->GetSession()->SendPacket(packet.Write());
-}
-
-void Unit::SetAIAnimKitId(uint16 animKitId)
-{
-    if (_aiAnimKitId == animKitId)
-        return;
-
-    _aiAnimKitId = animKitId;
-
-    WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
-}
-
-void Unit::SetMovementAnimKitId(uint16 animKitId)
-{
-    if (_movementAnimKitId == animKitId)
-        return;
-
-    _movementAnimKitId = animKitId;
-
-    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
-}
-
-void Unit::SetMeleeAnimKitId(uint16 animKitId)
-{
-    if (_meleeAnimKitId == animKitId)
-        return;
-
-    _meleeAnimKitId = animKitId;
-
-    WorldPacket data(SMSG_SET_MELEE_ANIM_KIT, 8 + 2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
 }
 
 void Unit::PlayOneShotAnimKit(uint16 animKitId)
