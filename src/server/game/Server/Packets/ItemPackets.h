@@ -363,6 +363,30 @@ namespace WorldPackets
             int32 Slot = 0;
         };
 
+        class ItemCooldown final : public ServerPacket
+        {
+        public:
+            ItemCooldown() : ServerPacket(SMSG_ITEM_COOLDOWN, 20) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ItemGuid;
+            uint32 SpellID = 0;
+        };
+
+        class ItemEnchantTimeUpdate final : public ServerPacket
+        {
+        public:
+            ItemEnchantTimeUpdate() : ServerPacket(SMSG_ITEM_ENCHANT_TIME_UPDATE, 40) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid OwnerGuid;
+            ObjectGuid ItemGuid;
+            uint32 DurationLeft = 0;
+            uint32 Slot = 0;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
     }
 }

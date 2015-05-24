@@ -374,3 +374,21 @@ void WorldPackets::Item::CancelTempEnchantment::Read()
 {
     _worldPacket >> Slot;
 }
+
+WorldPacket const* WorldPackets::Item::ItemCooldown::Write()
+{
+    _worldPacket << ItemGuid;
+    _worldPacket << uint32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ItemEnchantTimeUpdate::Write()
+{
+    _worldPacket << ItemGuid;
+    _worldPacket << uint32(DurationLeft);
+    _worldPacket << uint32(Slot);
+    _worldPacket << OwnerGuid;
+
+    return &_worldPacket;
+}

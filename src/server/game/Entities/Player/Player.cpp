@@ -22697,10 +22697,10 @@ void Player::ApplyEquipCooldown(Item* pItem)
 
         GetSpellHistory()->AddCooldown(effectData->SpellID, pItem->GetEntry(), std::chrono::seconds(30));
 
-        WorldPacket data(SMSG_ITEM_COOLDOWN, 12);
-        data << pItem->GetGUID();
-        data << uint32(effectData->SpellID);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Item::ItemCooldown data;
+        data.ItemGuid = pItem->GetGUID();
+        data.SpellID = effectData->SpellID;
+        GetSession()->SendPacket(data.Write());
     }
 }
 
