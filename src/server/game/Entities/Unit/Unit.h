@@ -1489,12 +1489,6 @@ class Unit : public WorldObject
         MountCapabilityEntry const* GetMountCapability(uint32 mountType) const;
 
         void SendDurabilityLoss(Player* receiver, uint32 percent);
-        uint16 GetAIAnimKitId() const { return _aiAnimKitId; }
-        void SetAIAnimKitId(uint16 animKitId);
-        uint16 GetMovementAnimKitId() const { return _movementAnimKitId; }
-        void SetMovementAnimKitId(uint16 animKitId);
-        uint16 GetMeleeAnimKitId() const { return _meleeAnimKitId; }
-        void SetMeleeAnimKitId(uint16 animKitId);
         void PlayOneShotAnimKit(uint16 animKitId);
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
@@ -2345,10 +2339,6 @@ class Unit : public WorldObject
         bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
 
         time_t _lastDamagedTime; // Part of Evade mechanics
-
-        uint16 _aiAnimKitId;
-        uint16 _movementAnimKitId;
-        uint16 _meleeAnimKitId;
 
         SpellHistory* _spellHistory;
 };
