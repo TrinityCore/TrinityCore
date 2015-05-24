@@ -716,13 +716,12 @@ void WorldSession::SendEnchantmentLog(ObjectGuid target, ObjectGuid caster, uint
 
 void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid Itemguid, uint32 slot, uint32 Duration)
 {
-                                                            // last check 2.0.10
-    WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, (8+4+4+8));
-    data << Itemguid;
-    data << uint32(slot);
-    data << uint32(Duration);
-    data << Playerguid;
-    SendPacket(&data);
+    WorldPackets::Item::ItemEnchantTimeUpdate data;
+    data.ItemGuid = Itemguid;
+    data.DurationLeft = Duration;
+    data.Slot = slot;
+    data.OwnerGuid = Playerguid;
+    SendPacket(data.Write());
 }
 
 void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
