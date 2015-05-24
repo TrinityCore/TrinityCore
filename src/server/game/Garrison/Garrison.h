@@ -100,6 +100,8 @@ public:
 
     struct Follower
     {
+        uint32 GetItemLevel() const;
+
         WorldPackets::Garrison::GarrisonFollower PacketInfo;
     };
 
@@ -130,6 +132,7 @@ public:
 
     // Followers
     void AddFollower(uint32 garrFollowerId);
+    Follower const* GetFollower(uint64 dbId) const;
 
     void SendInfo();
     void SendRemoteInfo() const;
@@ -150,6 +153,7 @@ private:
     std::unordered_map<uint32 /*garrPlotInstanceId*/, Plot> _plots;
     std::unordered_set<uint32 /*garrBuildingId*/> _knownBuildings;
     std::unordered_map<uint64 /*dbId*/, Follower> _followers;
+    std::unordered_set<uint32> _followerIds;
 };
 
 #endif // Garrison_h__

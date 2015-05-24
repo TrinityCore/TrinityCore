@@ -81,17 +81,18 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
     // SELECT dbId, followerId, quality, level, itemLevelWeapon, itemLevelArmor, xp, currentBuilding, currentMission, status FROM character_garrison_followers WHERE guid = ?
     if (followers)
     {
-        std::unordered_map<uint64, Follower*> followersByDbId;
         do
         {
             Field* fields = followers->Fetch();
 
+            uint64 dbId = fields[0].GetUInt64();
             uint32 followerId = fields[1].GetUInt32();
             if (!sGarrFollowerStore.LookupEntry(followerId))
                 continue;
 
-            Follower& follower = _followers[followerId];
-            follower.PacketInfo.DbID = fields[0].GetUInt64();
+            _followerIds.insert(followerId);
+            Follower& follower = _followers[dbId];
+            follower.PacketInfo.DbID = dbId;
             follower.PacketInfo.GarrFollowerID = followerId;
             follower.PacketInfo.Quality = fields[2].GetUInt32();
             follower.PacketInfo.FollowerLevel = fields[3].GetUInt32();
@@ -107,8 +108,6 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
             //if (!sGarrMissionStore.LookupEntry(follower.PacketInfo.CurrentMissionID))
             //    follower.PacketInfo.CurrentMissionID = 0;
 
-            followersByDbId[follower.PacketInfo.DbID] = &follower;
-
         } while (followers->NextRow());
 
         if (abilities)
@@ -122,11 +121,11 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
                 if (!ability)
                     continue;
 
-                auto itr = followersByDbId.find(dbId);
-                if (itr == followersByDbId.end())
+                auto itr = _followers.find(dbId);
+                if (itr == _followers.end())
                     continue;
 
-                itr->second->PacketInfo.AbilityID.push_back(ability);
+                itr->second.PacketInfo.AbilityID.push_back(ability);
             } while (abilities->NextRow());
         }
     }
@@ -436,15 +435,17 @@ void Garrison::AddFollower(uint32 garrFollowerId)
 {
     WorldPackets::Garrison::GarrisonAddFollowerResult addFollowerResult;
     GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(garrFollowerId);
-    if (_followers.count(garrFollowerId) || !followerEntry)
+    if (_followerIds.count(garrFollowerId) || !followerEntry)
     {
         addFollowerResult.Result = GARRISON_GENERIC_UNKNOWN_ERROR;
         _owner->SendDirectMessage(addFollowerResult.Write());
         return;
     }
 
-    Follower& follower = _followers[garrFollowerId];
-    follower.PacketInfo.DbID = sGarrisonMgr.GenerateFollowerDbId();
+    _followerIds.insert(garrFollowerId);
+    uint64 dbId = sGarrisonMgr.GenerateFollowerDbId();
+    Follower& follower = _followers[dbId];
+    follower.PacketInfo.DbID = dbId;
     follower.PacketInfo.GarrFollowerID = garrFollowerId;
     follower.PacketInfo.Quality = followerEntry->Quality;   // TODO: handle magic upgrades
     follower.PacketInfo.FollowerLevel = followerEntry->Level;
@@ -458,6 +459,17 @@ void Garrison::AddFollower(uint32 garrFollowerId)
 
     addFollowerResult.Follower = follower.PacketInfo;
     _owner->SendDirectMessage(addFollowerResult.Write());
+
+    _owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER, follower.PacketInfo.DbID);
+}
+
+Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
+{
+    auto itr = _followers.find(dbId);
+    if (itr != _followers.end())
+        return &itr->second;
+
+    return nullptr;
 }
 
 void Garrison::SendInfo()
@@ -670,4 +682,9 @@ bool Garrison::Building::CanActivate() const
     }
 
     return false;
+}
+
+uint32 Garrison::Follower::GetItemLevel() const
+{
+    return (PacketInfo.ItemLevelWeapon + PacketInfo.ItemLevelArmor) / 2;
 }
