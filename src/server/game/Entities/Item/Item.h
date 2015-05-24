@@ -201,8 +201,6 @@ enum ItemUpdateState
     ITEM_REMOVED                                 = 3
 };
 
-#define MAX_ITEM_SPELLS 5
-
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 
 class Item : public Object
