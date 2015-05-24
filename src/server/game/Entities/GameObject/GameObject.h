@@ -576,6 +576,15 @@ struct GameObjectLocale
     StringVector CastBarCaption;
 };
 
+// `gameobject_addon` table
+struct GameObjectAddon
+{
+    InvisibilityType invisibilityType;
+    uint32 InvisibilityValue;
+};
+
+typedef std::unordered_map<ObjectGuid::LowType, GameObjectAddon> GameObjectAddonContainer;
+
 // client side GO show states
 enum GOState
 {

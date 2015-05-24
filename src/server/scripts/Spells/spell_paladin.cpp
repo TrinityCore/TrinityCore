@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
 #include "Group.h"
 
 enum PaladinSpells
@@ -133,7 +134,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
                 int32 remainingHealth = victim->GetHealth() - dmgInfo.GetDamage();
                 uint32 allowedHealth = victim->CountPctFromMaxHealth(35);
                 // If damage kills us
-                if (remainingHealth <= 0 && !victim->ToPlayer()->HasSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL))
+                if (remainingHealth <= 0 && !victim->GetSpellHistory()->HasCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL))
                 {
                     // Cast healing spell, completely avoid damage
                     absorbAmount = dmgInfo.GetDamage();
@@ -148,7 +149,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 
                     int32 healAmount = int32(victim->CountPctFromMaxHealth(uint32(healPct * pctFromDefense)));
                     victim->CastCustomSpell(victim, PAL_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
-                    victim->ToPlayer()->AddSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, time(NULL) + 120);
+                    victim->GetSpellHistory()->AddCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, std::chrono::minutes(2));
                 }
                 else if (remainingHealth < int32(allowedHealth))
                 {

@@ -2954,6 +2954,10 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
+            case 63026: // Force Cast (HACK: Target shouldn't be changed)
+            case 63137: // Force Cast (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
+                spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+                break;
             case 53096: // Quetz'lun's Judgment
             case 70743: // AoD Special
             case 70614: // AoD Special - Vegard
@@ -3130,6 +3134,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 64823: // Item - Druid T8 Balance 4P Bonus
             case 34477: // Misdirection
             case 44401: // Missile Barrage
+            case 18820: // Insight
                 spellInfo->ProcCharges = 1;
                 break;
             case 44544: // Fingers of Frost
