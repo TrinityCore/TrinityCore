@@ -28,6 +28,7 @@
 #include "DBCEnums.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "Garrison.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
@@ -1161,6 +1162,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+            case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
                 SetCriteriaProgress(achievementCriteria, 1, referencePlayer);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
@@ -1269,6 +1271,39 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
+            case ACHIEVEMENT_CRITERIA_TYPE_LFR_DUNGEONS_COMPLETED:
+            case ACHIEVEMENT_CRITERIA_TYPE_LFR_LEAVES:
+            case ACHIEVEMENT_CRITERIA_TYPE_LFR_VOTE_KICKS_INITIATED_BY_PLAYER:
+            case ACHIEVEMENT_CRITERIA_TYPE_LFR_VOTE_KICKS_NOT_INIT_BY_PLAYER:
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_KICKED_FROM_LFR:
+            case ACHIEVEMENT_CRITERIA_TYPE_COUNT_OF_LFR_QUEUE_BOOSTS_BY_TANK:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_SCENARIO_COUNT:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_SCENARIO:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
+            case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET:
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_PET_BATTLE:
+            case ACHIEVEMENT_CRITERIA_TYPE_LEVEL_BATTLE_PET:
+            case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT:
+            case ACHIEVEMENT_CRITERIA_TYPE_LEVEL_BATTLE_PET_CREDIT:
+            case ACHIEVEMENT_CRITERIA_TYPE_ENTER_AREA:
+            case ACHIEVEMENT_CRITERIA_TYPE_LEAVE_AREA:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
+            case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+            case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
+            case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
+            case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON:
+            case ACHIEVEMENT_CRITERIA_TYPE_START_GARRISON_MISSION:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION_COUNT:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION:
+            case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_COUNT:
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINT_COUNT:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT:
+            case ACHIEVEMENT_CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_ITEM_LEVEL:
+            case ACHIEVEMENT_CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_LEVEL:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY_COUNT:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
                 break;                                   // Not implemented yet :(
         }
 
@@ -1413,6 +1448,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteria const* achieveme
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
         case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
+        case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
             return progress->counter >= 1;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
             return progress->counter >= (requiredAmount * 75);
@@ -2492,6 +2528,44 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(ModifierTreeNode const* 
             if (!unit || unit->GetHealthPct() >= reqValue)
                 return false;
             break;
+        case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY: // 145
+        {
+            if (!referencePlayer)
+                return false;
+            Garrison* garrison = referencePlayer->GetGarrison();
+            if (!garrison)
+                return false;
+            Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+            if (!follower || follower->PacketInfo.Quality != reqValue)
+                return false;
+
+            break;
+        }
+        case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL: // 146
+        {
+            if (!referencePlayer)
+                return false;
+            Garrison* garrison = referencePlayer->GetGarrison();
+            if (!garrison)
+                return false;
+            Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+            if (!follower || follower->PacketInfo.FollowerLevel < reqValue)
+                return false;
+
+            break;
+        }
+        case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ILVL: // 184
+        {
+            if (!referencePlayer)
+                return false;
+            Garrison* garrison = referencePlayer->GetGarrison();
+            if (!garrison)
+                return false;
+            Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+            if (!follower || follower->GetItemLevel() < reqValue)
+                return false;
+            break;
+        }
         default:
             break;
     }
@@ -2729,6 +2803,74 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes
             return "GUILD_CHALLENGE_TYPE";
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
             return "GUILD_CHALLENGE";
+        case ACHIEVEMENT_CRITERIA_TYPE_LFR_DUNGEONS_COMPLETED:
+            return "LFR_DUNGEONS_COMPLETED";
+        case ACHIEVEMENT_CRITERIA_TYPE_LFR_LEAVES:
+            return "LFR_LEAVES";
+        case ACHIEVEMENT_CRITERIA_TYPE_LFR_VOTE_KICKS_INITIATED_BY_PLAYER:
+            return "LFR_VOTE_KICKS_INITIATED_BY_PLAYER";
+        case ACHIEVEMENT_CRITERIA_TYPE_LFR_VOTE_KICKS_NOT_INIT_BY_PLAYER:
+            return "LFR_VOTE_KICKS_NOT_INIT_BY_PLAYER";
+        case ACHIEVEMENT_CRITERIA_TYPE_BE_KICKED_FROM_LFR:
+            return "BE_KICKED_FROM_LFR";
+        case ACHIEVEMENT_CRITERIA_TYPE_COUNT_OF_LFR_QUEUE_BOOSTS_BY_TANK:
+            return "COUNT_OF_LFR_QUEUE_BOOSTS_BY_TANK";
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_SCENARIO_COUNT:
+            return "COMPLETE_SCENARIO_COUNT";
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_SCENARIO:
+            return "COMPLETE_SCENARIO";
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET:
+            return "OWN_BATTLE_PET";
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
+            return "OWN_BATTLE_PET_COUNT";
+        case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET:
+            return "CAPTURE_BATTLE_PET";
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_PET_BATTLE:
+            return "WIN_PET_BATTLE";
+        case ACHIEVEMENT_CRITERIA_TYPE_LEVEL_BATTLE_PET:
+            return "LEVEL_BATTLE_PET";
+        case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT:
+            return "CAPTURE_BATTLE_PET_CREDIT";
+        case ACHIEVEMENT_CRITERIA_TYPE_LEVEL_BATTLE_PET_CREDIT:
+            return "LEVEL_BATTLE_PET_CREDIT";
+        case ACHIEVEMENT_CRITERIA_TYPE_ENTER_AREA:
+            return "ENTER_AREA";
+        case ACHIEVEMENT_CRITERIA_TYPE_LEAVE_AREA:
+            return "LEAVE_AREA";
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
+            return "COMPLETE_DUNGEON_ENCOUNTER";
+        case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+            return "PLACE_GARRISON_BUILDING";
+        case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
+            return "UPGRADE_GARRISON_BUILDING";
+        case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
+            return "CONSTRUCT_GARRISON_BUILDING";
+        case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON:
+            return "UPGRADE_GARRISON";
+        case ACHIEVEMENT_CRITERIA_TYPE_START_GARRISON_MISSION:
+            return "START_GARRISON_MISSION";
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION_COUNT:
+            return "COMPLETE_GARRISON_MISSION_COUNT";
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION:
+            return "COMPLETE_GARRISON_MISSION";
+        case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_COUNT:
+            return "RECRUIT_GARRISON_FOLLOWER_COUNT";
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINT_COUNT:
+            return "LEARN_GARRISON_BLUEPRINT_COUNT";
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT:
+            return "COMPLETE_GARRISON_SHIPMENT";
+        case ACHIEVEMENT_CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_ITEM_LEVEL:
+            return "RAISE_GARRISON_FOLLOWER_ITEM_LEVEL";
+        case ACHIEVEMENT_CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_LEVEL:
+            return "RAISE_GARRISON_FOLLOWER_LEVEL";
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY:
+            return "OWN_TOY";
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY_COUNT:
+            return "OWN_TOY_COUNT";
+        case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
+            return "RECRUIT_GARRISON_FOLLOWER";
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
+            return "OWN_HEIRLOOMS";
     }
     return "MISSING_TYPE";
 }

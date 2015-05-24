@@ -494,12 +494,15 @@ struct CriteriaEntry
         uint32 ObjectiveId;
 
         // ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA = 31
+        // ACHIEVEMENT_CRITERIA_TYPE_ENTER_AREA             = 163
+        // ACHIEVEMENT_CRITERIA_TYPE_LEAVE_AREA             = 164
         uint32 AreaID;
 
         // ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM               = 36
         // ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM               = 41
         // ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM              = 42
         // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM             = 57
+        // ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY                = 185
         uint32 ItemID;
 
         // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING    = 38
@@ -544,6 +547,21 @@ struct CriteriaEntry
 
         // ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE              = 109
         uint32 LootType;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER = 165
+        uint32 DungeonEncounterID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING = 169
+        uint32 GarrBuildingID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON       = 170
+        uint32 GarrisonLevel;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION = 174
+        uint32 GarrMissionID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT = 182
+        uint32 CharShipmentContainerID;
     } Asset;                                                // 2
     uint32 StartEvent;                                      // 3
     uint32 StartAsset;                                      // 4
