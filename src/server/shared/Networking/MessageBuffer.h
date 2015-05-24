@@ -55,9 +55,9 @@ public:
 
     uint8* GetBasePointer() { return _storage.data(); }
 
-    uint8* GetReadPointer() { return &_storage[_rpos]; }
+    uint8* GetReadPointer() { return GetBasePointer() + _rpos; }
 
-    uint8* GetWritePointer() { return &_storage[_wpos]; }
+    uint8* GetWritePointer() { return GetBasePointer() + _wpos; }
 
     void ReadCompleted(size_type bytes) { _rpos += bytes; }
 
