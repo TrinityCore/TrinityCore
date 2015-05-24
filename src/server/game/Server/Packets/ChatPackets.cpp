@@ -233,3 +233,15 @@ WorldPacket const* WorldPackets::Chat::ChatServerMessage::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Chat::ChatRegisterAddonPrefixes::Read()
+{
+    int32 count;
+    _worldPacket >> count;
+
+    for (int32 i = 0; i < count; ++i)
+    {
+        uint32 lenghts = _worldPacket.ReadBits(5);
+        Prefixes.push_back(_worldPacket.ReadString(lenghts));
+    }
+}

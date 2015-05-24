@@ -913,31 +913,23 @@ bool WorldSession::IsAddonRegistered(const std::string& prefix) const
     return itr != _registeredAddonPrefixes.end();
 }
 
-void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/) // empty packet
+void WorldSession::HandleUnregisterAllAddonPrefixesOpcode(WorldPackets::Chat::ChatUnregisterAllAddonPrefixes& /*packet*/) // empty packet
 {
     _registeredAddonPrefixes.clear();
 }
 
-void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPackets::Chat::ChatRegisterAddonPrefixes& packet)
 {
-    // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
+    // This is always sent after CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES
 
-    uint32 count = recvPacket.ReadBits(25);
-
-    if (count > REGISTERED_ADDON_PREFIX_SOFTCAP)
+    if (packet.Prefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP)
     {
         // if we have hit the softcap (64) nothing should be filtered
         _filterAddonMessages = false;
-        recvPacket.rfinish();
         return;
     }
 
-    std::vector<uint8> lengths(count);
-    for (uint32 i = 0; i < count; ++i)
-        lengths[i] = recvPacket.ReadBits(5);
-
-    for (uint32 i = 0; i < count; ++i)
-        _registeredAddonPrefixes.push_back(recvPacket.ReadString(lengths[i]));
+    _registeredAddonPrefixes.insert(_registeredAddonPrefixes.end(), packet.Prefixes.begin(), packet.Prefixes.end());
 
     if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen
     {
