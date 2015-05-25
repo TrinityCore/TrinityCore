@@ -350,30 +350,24 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     args.push_back("-u" + user);
     args.push_back("-p" + password);
 
-    // Check If first character is numeric
-    bool _uses_Socket = false;
-    switch (port_or_socket[0])
-    {
-        case '0':case '1':case '2':case '3':case '4':
-        case '5':case '6':case '7':case '8':case '9': break;
-        default:
-            _uses_Socket = true;
-            break;
-    }
-
-    if (_uses_Socket)
+    #ifdef _WIN32
+    if (host == ".")                        // named pipe use option (Windows)
     {
         args.push_back("-P0");
-
-        #ifdef _WIN32
-            args.push_back("--protocol=PIPE");
-        #else
-            args.push_back("--protocol=SOCKET");
-            args.push_back("-S" + port_or_socket);
-        #endif
+        args.push_back("--protocol=PIPE");
     }
-    else
+    else                                    // generic case
         args.push_back("-P" + port_or_socket);
+    #else
+    if (!std::isdigit(port_or_socket[0]))  // socket use option (Unix/Linux)
+    {                                      // We can't check here if host == "." because is named localhost if socket option is enabled
+        args.push_back("-P0");
+        args.push_back("--protocol=SOCKET");
+        args.push_back("-S" + port_or_socket);
+    }
+    else                                    // generic case
+        args.push_back("-P" + port_or_socket);
+    #endif
 
     // Set the default charset to utf8
     args.push_back("--default-character-set=utf8");
