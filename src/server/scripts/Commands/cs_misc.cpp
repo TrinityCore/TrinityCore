@@ -236,8 +236,8 @@ public:
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
             mapId, (mapEntry ? mapEntry->MapName_lang : unknown),
-            zoneId, (zoneEntry ? zoneEntry->ZoneName : unknown),
-            areaId, (areaEntry ? areaEntry->ZoneName : unknown),
+            zoneId, (zoneEntry ? zoneEntry->AreaName_lang : unknown),
+            areaId, (areaEntry ? areaEntry->AreaName_lang : unknown),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         handler->PSendSysMessage(LANG_GRID_POSITION,
@@ -1465,7 +1465,7 @@ public:
          * Player %s %s (guid: %u)                   - I.    LANG_PINFO_PLAYER
          * ** GM Mode active, Phase: -1              - II.   LANG_PINFO_GM_ACTIVE (if GM)
          * ** Banned: (Type, Reason, Time, By)       - III.  LANG_PINFO_BANNED (if banned)
-         * ** Muted: (Time, Reason, By)              - IV.   LANG_PINFO_MUTED (if muted)
+         * ** Muted: (Reason, Time, By)              - IV.   LANG_PINFO_MUTED (if muted)
          * * Account: %s (id: %u), GM Level: %u      - V.    LANG_PINFO_ACC_ACCOUNT
          * * Last Login: %u (Failed Logins: %u)      - VI.   LANG_PINFO_ACC_LASTLOGIN
          * * Uses OS: %s - Latency: %u ms            - VII.  LANG_PINFO_ACC_OS
@@ -1716,7 +1716,7 @@ public:
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)
-            handler->PSendSysMessage(LANG_PINFO_MUTED, secsToTimeString(muteTime - time(NULL), true).c_str(), muteReason.c_str(), muteBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_MUTED, muteReason.c_str(), secsToTimeString(muteTime - time(nullptr), true).c_str(), muteBy.c_str());
 
         // Output V. LANG_PINFO_ACC_ACCOUNT
         handler->PSendSysMessage(LANG_PINFO_ACC_ACCOUNT, userName.c_str(), accId, security);
@@ -1762,11 +1762,11 @@ public:
         AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);
         if (area)
         {
-            areaName = area->ZoneName;
+            areaName = area->AreaName_lang;
 
             AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID);
             if (zone)
-                zoneName = zone->ZoneName;
+                zoneName = zone->AreaName_lang;
         }
 
         if (target)

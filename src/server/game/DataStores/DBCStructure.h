@@ -72,10 +72,10 @@ struct AreaTableEntry
     //uint32    SoundProviderPrefUnderwater;                // 7,
     //uint32    AmbienceID;                                 // 8,
     //uint32    ZoneMusic;                                  // 9,
-    char*       ZoneName;                                   // 10
+    //char*     ZoneName;                                   // 10 - Internal name
     //uint32    IntroSound;                                 // 11
     uint32      ExplorationLevel;                           // 12
-    //char*     AreaName_lang                               // 13
+    char*       AreaName_lang;                              // 13 - In-game name
     uint32      FactionGroupMask;                           // 14
     uint32      LiquidTypeID[4];                            // 15-18
     //float     AmbientMultiplier;                          // 19
@@ -494,12 +494,15 @@ struct CriteriaEntry
         uint32 ObjectiveId;
 
         // ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA = 31
+        // ACHIEVEMENT_CRITERIA_TYPE_ENTER_AREA             = 163
+        // ACHIEVEMENT_CRITERIA_TYPE_LEAVE_AREA             = 164
         uint32 AreaID;
 
         // ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM               = 36
         // ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM               = 41
         // ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM              = 42
         // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM             = 57
+        // ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY                = 185
         uint32 ItemID;
 
         // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING    = 38
@@ -544,6 +547,21 @@ struct CriteriaEntry
 
         // ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE              = 109
         uint32 LootType;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER = 165
+        uint32 DungeonEncounterID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING = 169
+        uint32 GarrBuildingID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON       = 170
+        uint32 GarrisonLevel;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION = 174
+        uint32 GarrMissionID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT = 182
+        uint32 CharShipmentContainerID;
     } Asset;                                                // 2
     uint32 StartEvent;                                      // 3
     uint32 StartAsset;                                      // 4
@@ -1241,7 +1259,7 @@ struct MapEntry
     // Helpers
     uint32 Expansion() const { return ExpansionID; }
 
-    bool IsDungeon() const { return InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID; }
+    bool IsDungeon() const { return (InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID) && !IsGarrison(); }
     bool IsNonRaidDungeon() const { return InstanceType == MAP_INSTANCE; }
     bool Instanceable() const { return InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID || InstanceType == MAP_BATTLEGROUND || InstanceType == MAP_ARENA; }
     bool IsRaid() const { return InstanceType == MAP_RAID; }
@@ -1266,6 +1284,7 @@ struct MapEntry
     }
 
     bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
+    bool IsGarrison() const { return (Flags & MAP_FLAG_GARRISON) != 0; }
 };
 
 struct MapDifficultyEntry

@@ -23,8 +23,20 @@
 #include "SharedDefines.h"
 
 extern DB2Storage<BroadcastTextEntry>            sBroadcastTextStore;
-extern DB2Storage<HolidaysEntry>                 sHolidaysStore;
 extern DB2Storage<CurrencyTypesEntry>            sCurrencyTypesStore;
+extern DB2Storage<GameObjectsEntry>              sGameObjectsStore;
+extern DB2Storage<GarrAbilityEntry>              sGarrAbilityStore;
+extern DB2Storage<GarrBuildingEntry>             sGarrBuildingStore;
+extern DB2Storage<GarrBuildingPlotInstEntry>     sGarrBuildingPlotInstStore;
+extern DB2Storage<GarrClassSpecEntry>            sGarrClassSpecStore;
+extern DB2Storage<GarrFollowerEntry>             sGarrFollowerStore;
+extern DB2Storage<GarrFollowerXAbilityEntry>     sGarrFollowerXAbilityStore;
+extern DB2Storage<GarrPlotBuildingEntry>         sGarrPlotBuildingStore;
+extern DB2Storage<GarrPlotEntry>                 sGarrPlotStore;
+extern DB2Storage<GarrPlotInstanceEntry>         sGarrPlotInstanceStore;
+extern DB2Storage<GarrSiteLevelEntry>            sGarrSiteLevelStore;
+extern DB2Storage<GarrSiteLevelPlotInstEntry>    sGarrSiteLevelPlotInstStore;
+extern DB2Storage<HolidaysEntry>                 sHolidaysStore;
 extern DB2Storage<ItemCurrencyCostEntry>         sItemCurrencyCostStore;
 extern DB2Storage<ItemEffectEntry>               sItemEffectStore;
 extern DB2Storage<ItemEntry>                     sItemStore;
@@ -98,6 +110,7 @@ public:
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     MountEntry const* GetMount(uint32 spellId) const;
+    MountEntry const* GetMountById(uint32 id) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;

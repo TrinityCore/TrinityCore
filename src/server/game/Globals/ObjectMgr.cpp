@@ -2242,6 +2242,25 @@ bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
     return false;
 }
 
+bool ObjectMgr::GetPlayerNameAndClassByGUID(ObjectGuid const& guid, std::string& name, uint8& _class)
+{
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
+    {
+        name = player->GetName();
+        _class = player->getClass();
+        return true;
+    }
+
+    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
+    {
+        name = characterInfo->Name;
+        _class = characterInfo->Class;
+        return true;
+    }
+
+    return false;
+}
+
 uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)
 {
     if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
@@ -6458,6 +6477,22 @@ inline void CheckGOConsumable(GameObjectTemplate const* goInfo, uint32 dataN, ui
 void ObjectMgr::LoadGameObjectTemplate()
 {
     uint32 oldMSTime = getMSTime();
+
+    for (GameObjectsEntry const* db2go : sGameObjectsStore)
+    {
+        GameObjectTemplate& go = _gameObjectTemplateStore[db2go->ID];
+        go.entry = db2go->ID;
+        go.type = db2go->Type;
+        go.displayId = db2go->DisplayID;
+        go.name = db2go->Name->Str[sWorld->GetDefaultDbcLocale()];
+        go.faction = 0;
+        go.flags = 0;
+        go.size = db2go->Size;
+        memset(go.raw.data, 0, sizeof(go.raw.data));
+        memcpy(go.raw.data, db2go->Data, std::min(sizeof(db2go->Data), sizeof(go.raw.data)));
+        go.unkInt32 = 0;
+        go.ScriptId = 0;
+    }
 
     //                                               0      1     2          3     4         5               6     7        8      9
     QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, faction, flags, size, "

@@ -59,7 +59,7 @@ void Corpse::RemoveFromWorld()
     if (IsInWorld())
         GetMap()->GetObjectsStore().Remove<Corpse>(GetGUID());
 
-    Object::RemoveFromWorld();
+    WorldObject::RemoveFromWorld();
 }
 
 bool Corpse::Create(ObjectGuid::LowType guidlow, Map* map)

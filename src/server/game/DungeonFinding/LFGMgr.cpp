@@ -412,7 +412,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         joinData.result = LFG_JOIN_NOT_MEET_REQS;
     else if (grp)
     {
-        if (grp->GetMembersCount() > MAXGROUPSIZE)
+        if (grp->GetMembersCount() > MAX_GROUP_SIZE)
             joinData.result = LFG_JOIN_TOO_MUCH_MEMBERS;
         else
         {
