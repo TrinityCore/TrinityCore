@@ -99,7 +99,7 @@ class BattlegroundMgr
 
         /* Battleground queues */
         BattlegroundQueue& GetBattlegroundQueue(BattlegroundQueueTypeId bgQueueTypeId) { return m_BattlegroundQueues[bgQueueTypeId]; }
-        void ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
+        void ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, uint8 dynamicMatchmakingRatingIndex = 0);
         uint32 GetPrematureFinishTime() const;
 
         void ToggleArenaTesting();
@@ -130,6 +130,9 @@ class BattlegroundMgr
                 return itr->second;
             return BATTLEGROUND_TYPE_NONE;
         }
+
+        // Custom code for widening matchmaking range for teams waiting long time in arena queue
+        void ApplyDynamicMMR(uint32 diff);
 
     private:
         bool CreateBattleground(BattlegroundTemplate const* bgTemplate);
@@ -172,6 +175,8 @@ class BattlegroundMgr
         typedef std::map<uint32 /*mapId*/, BattlegroundTemplate*> BattlegroundMapTemplateContainer;
         BattlegroundTemplateMap _battlegroundTemplates;
         BattlegroundMapTemplateContainer _battlegroundMapTemplates;
+
+        uint32 _dynamicMatchmakingRefreshTimer;
 };
 
 #define sBattlegroundMgr BattlegroundMgr::instance()
