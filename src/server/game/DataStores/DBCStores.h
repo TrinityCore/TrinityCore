@@ -123,6 +123,7 @@ private:
 };
 
 extern DBCStorage <AchievementEntry>             sAchievementStore;
+extern DBCStorage <AnimKitEntry>                 sAnimKitStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
 extern DBCStorage <ArmorLocationEntry>           sArmorLocationStore;

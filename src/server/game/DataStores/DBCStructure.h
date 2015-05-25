@@ -50,12 +50,12 @@ struct AchievementEntry
     uint32      CriteriaTree;                               // 14
 };
 
-struct AchievementCategoryEntry
+struct AnimKitEntry
 {
     uint32      ID;                                         // 0
-    uint32      Parent;                                     // 1 -1 for main category
-    //char*     Name_lang;                                  // 2
-    //uint32    UIOrder;                                    // 3
+    //uint32      OneShotDuration;                          // 1
+    //uint32      OneShotStopAnimKitID;                     // 2
+    //uint32      LowDefAnimKitID;                          // 3
 };
 
 // Temporary define until max depth is found somewhere (adt?)
