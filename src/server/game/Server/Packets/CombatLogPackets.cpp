@@ -147,3 +147,40 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
+{
+    _worldPacket << TargetGUID;
+    _worldPacket << CasterGUID;
+    _worldPacket << SpellID;
+
+    _worldPacket << uint32(Effects.size());
+
+    for (SpellLogEffect const& effect : Effects)
+    {
+        _worldPacket << effect.Effect;
+        _worldPacket << int32(effect.Amount);
+        _worldPacket << int32(effect.OverHealOrKill);
+        _worldPacket << int32(effect.SchoolMaskOrPower);
+        _worldPacket << int32(effect.AbsorbedOrAmplitude);
+        _worldPacket << int32(effect.Resisted);
+
+        _worldPacket.WriteBit(effect.Crit);
+        _worldPacket.WriteBit(effect.Multistrike);
+
+        if (_worldPacket.WriteBit(effect.DebugInfo.is_initialized()))
+        {
+            _worldPacket << float(effect.DebugInfo->CritRollMade);
+            _worldPacket << float(effect.DebugInfo->CritRollNeeded);
+        }
+
+        _worldPacket.FlushBits();
+    }
+
+    _worldPacket.WriteBit(LogData.is_initialized());
+    _worldPacket.FlushBits();
+    if (LogData)
+        _worldPacket << *LogData;
+
+    return &_worldPacket;
+}

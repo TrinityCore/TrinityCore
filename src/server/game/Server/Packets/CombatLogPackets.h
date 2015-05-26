@@ -91,7 +91,6 @@ namespace WorldPackets
         class SpellHealLog final : public ServerPacket
         {
         public:
-
             SpellHealLog() : ServerPacket(SMSG_SPELL_HEAL_LOG, 16 + 16 + 4 * 4 + 1) { }
 
             WorldPacket const* Write() override;
@@ -106,6 +105,39 @@ namespace WorldPackets
             bool Multistrike    = false;
             Optional<float> CritRollMade;
             Optional<float> CritRollNeeded;
+            Optional<Spells::SpellCastLogData> LogData; /// @todo: find the correct way where to use it, in sniff always false
+        };
+
+        class SpellPeriodicAuraLog final : public ServerPacket
+        {
+        public:
+            struct PeriodicalAuraLogEffectDebugInfo
+            {
+                float CritRollMade = 0.0f;
+                float CritRollNeeded = 0.0f;
+            };
+
+            struct SpellLogEffect
+            {
+                int32 Effect              = 0;
+                int32 Amount              = 0;
+                int32 OverHealOrKill      = 0;
+                int32 SchoolMaskOrPower   = 0;
+                int32 AbsorbedOrAmplitude = 0;
+                int32 Resisted            = 0;
+                bool Crit                 = false;
+                bool Multistrike          = false;
+                Optional<PeriodicalAuraLogEffectDebugInfo> DebugInfo;
+            };
+
+            SpellPeriodicAuraLog() : ServerPacket(SMSG_SPELL_PERIODIC_AURA_LOG, 16 + 16 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid TargetGUID;
+            ObjectGuid CasterGUID;
+            int32 SpellID = 0;
+            std::vector<SpellLogEffect> Effects;
             Optional<Spells::SpellCastLogData> LogData; /// @todo: find the correct way where to use it, in sniff always false
         };
     }
