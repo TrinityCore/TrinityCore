@@ -42,7 +42,7 @@ public:
 class npc_legacy_simple_scheduler_test : public CreatureScript
 {
 public:
-    npc_legacy_simple_scheduler_test() : CreatureScript("npc_simple_scheduler_test") { }
+    npc_legacy_simple_scheduler_test() : CreatureScript("npc_legacy_simple_scheduler_test") { }
 
     struct npc_legacy_simple_scheduler_testAI : public CreatureAI
     {
@@ -59,7 +59,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            scheduler.Schedule(Seconds(5), [this](TaskContext& /*context*/)
+            scheduler.Schedule(Seconds(5), [this](TaskContext /*context*/)
             {
                 me->Yell("After 5s", LANG_UNIVERSAL);
             });
@@ -70,7 +70,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            scheduler.Update(Milliseconds(diff));
+            scheduler.Update(diff);
             
             DoMeleeAttackIfReady();
         }
@@ -86,7 +86,7 @@ struct npc_simple_scheduler_test : public CreatureAI
 {
     FunctionScheduler scheduler;
 
-    uint32 step;
+    bool outro;
 
     npc_simple_scheduler_test(Creature* creature) : CreatureAI(creature)
     {
@@ -97,7 +97,8 @@ struct npc_simple_scheduler_test : public CreatureAI
         // Cancel all tasks
         scheduler.CancelAll();
 
-        step = 0;
+        outro = false;
+
         me->SetReactState(REACT_AGGRESSIVE);
     }
 
@@ -108,101 +109,78 @@ struct npc_simple_scheduler_test : public CreatureAI
         // Schedule a simple task that gets executed once in 5 seconds.
         // As time unit std::chrono::duration is used which offers typedef for common used timeunits.
         // No magic milliseconds anymore!
-        scheduler.Schedule(Seconds(5), [this](TaskContext& /*context*/)
+        scheduler.Schedule(Seconds(5), [this](TaskContext /*context*/)
         {
             me->Yell("After 5s", LANG_UNIVERSAL);
         });
-
-        /*
-        // Schedule this every 10s, also display a message after 3 and 7 sec.
-        scheduler.Schedule(Seconds(10), [this](TaskContext& context)
-        {
-        me->Yell("Repeat this every 10 s", LANG_UNIVERSAL);
-
-        // Most methods are lazy overloaded (supports concatenation of multiple expressions).
-        context
-        .Schedule(Seconds(2), [this](TaskContext& context)
-        {
-        me->Yell("After 3s...", LANG_UNIVERSAL);
-        })
-        .Schedule(Seconds(2), [this](TaskContext& context)
-        {
-        me->Yell("After 3s...", LANG_UNIVERSAL);
-        });
-
-        // Repeat this with a constant time of 10s
-        context.Repeat(Seconds(10));
-        });
-        */
     }
 
     void UpdateAI(uint32 diff) override
     {
-        if (!step)
+        if (!outro)
             if (!UpdateVictim())
                 return;
 
         // Update the scheduler with an offset, world update tick is in ms.
-        scheduler.Update(Milliseconds(diff));
+        scheduler.Update(diff);
 
-        if (!step)
+        if (!outro)
             DoMeleeAttackIfReady();
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage)
     {
-        if (step)
+        if (!outro && (damage >= me->GetHealth()))
         {
             damage = 0;
-            return;
-        }
+            outro = true;
 
-        if (damage >= me->GetHealth())
-        {
-            step = 1;
-            damage = 0;
             me->SetReactState(REACT_PASSIVE);
 
             me->Yell("Outro....!", LANG_UNIVERSAL);
 
             // A simple outro event is scheduled here.
-            // Step defines the current event point.
             // TaskContext offers several methods to repeat the event (same time, constant time/ random time).
-            scheduler.Schedule(Seconds(3), [this](TaskContext& context)
+            //
+            // The task also provides a repeat counter which repeats
+            // how often the task was repeated (best to use with dialogs or events).
+            scheduler.Schedule(Seconds(3), [this](TaskContext context)
             {
-                switch (step++)
+                switch (context->GetRepeatCounter())
                 {
-                case 1:
-                    me->Yell("O shit!", LANG_UNIVERSAL);
-                    context.Repeat(Seconds(3));
-                    return;
-                case 2:
-                    me->Yell("I see it was a mistake to fight you.", LANG_UNIVERSAL);
-                    break;
-                case 3:
-                    me->Yell("There is no loot you can get today, sorry!", LANG_UNIVERSAL);
-                    break;
-                case 4:
-                    me->Yell("See YA!", LANG_UNIVERSAL);
-                    break;
-                default:
-                    me->DisappearAndDie();
-                    return;
+                    case 0:
+                        me->Yell("O shit!", LANG_UNIVERSAL);
+                        context->Repeat(Seconds(3));
+                        return;
+                    case 1:
+                        me->Yell("I see it was a mistake to fight you.", LANG_UNIVERSAL);
+                        break;
+                    case 2:
+                        me->Yell("There is no loot you can get today, sorry!", LANG_UNIVERSAL);
+                        break;
+                    case 3:
+                        me->Yell("See YA!", LANG_UNIVERSAL);
+                        break;
+                    default:
+                        me->DisappearAndDie();
+                        return;
                 }
 
                 /////////
                 // Repeat the event with...
 
                 // ... the same time again
-                // context.Repeat();
+                // context->Repeat();
 
                 // ... a constant time
-                // context.Repeat(Seconds(4));
+                // context->Repeat(Seconds(4));
 
                 // ... a random time between min and max
-                context.Repeat(Seconds(4), Seconds(6));
+                context->Repeat(Seconds(4), Seconds(6));
             });
         }
+        else if (outro)
+            damage = 0;
     }
 };
 
@@ -242,7 +220,7 @@ void AddSC_functional_ai_tests()
     new npc_legacy_simple_scheduler_test();
 
     // In nearly every script CreatureAI is wrapped inside a CreatureScript, this approach removes a lot of duplicated code.
-    // SimpleLoaders wrap its ai into the 
+    // SimpleLoaders wrap its AI into the corresponding loading script.
     new SimpleCreatureScriptLoader<npc_simple_scheduler_test>("npc_simple_scheduler_test");
     new SimpleCreatureScriptLoader<npc_simple_functional_ai_test>("npc_simple_functional_ai_test");
 }
