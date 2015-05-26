@@ -2093,8 +2093,11 @@ bool Creature::LoadCreaturesAddon(bool reload)
                 continue;
             }
 
-            AddAura(*itr, this);
-            TC_LOG_DEBUG("entities.unit", "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUIDLow(), GetEntry());
+            if (Aura* newAddonAura = AddAura(*itr, this))
+            {
+                newAddonAura->SetSpawnAura(true);
+                TC_LOG_DEBUG("entities.unit", "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUIDLow(), GetEntry());
+            }
         }
     }
 
