@@ -26,6 +26,7 @@
 #include "Language.h"
 #include "Player.h"
 #include "ObjectAccessor.h"
+#include "World.h"
 
 /*********************************************************/
 /***            BATTLEGROUND QUEUE SYSTEM              ***/
@@ -132,19 +133,21 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
     BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
 
     // create new ginfo
-    GroupQueueInfo* ginfo            = new GroupQueueInfo;
-    ginfo->BgTypeId                  = BgTypeId;
-    ginfo->ArenaType                 = ArenaType;
-    ginfo->ArenaTeamId               = arenateamid;
-    ginfo->IsRated                   = isRated;
-    ginfo->IsInvitedToBGInstanceGUID = 0;
-    ginfo->JoinTime                  = getMSTime();
-    ginfo->RemoveInviteTime          = 0;
-    ginfo->Team                      = leader->GetTeam();
-    ginfo->ArenaTeamRating           = ArenaRating;
-    ginfo->ArenaMatchmakerRating     = MatchmakerRating;
-    ginfo->OpponentsTeamRating       = 0;
-    ginfo->OpponentsMatchmakerRating = 0;
+    GroupQueueInfo* ginfo               = new GroupQueueInfo;
+    ginfo->BgTypeId                     = BgTypeId;
+    ginfo->ArenaType                    = ArenaType;
+    ginfo->ArenaTeamId                  = arenateamid;
+    ginfo->IsRated                      = isRated;
+    ginfo->IsInvitedToBGInstanceGUID    = 0;
+    ginfo->JoinTime                     = getMSTime();
+    ginfo->RemoveInviteTime             = 0;
+    ginfo->Team                         = leader->GetTeam();
+    ginfo->ArenaTeamRating              = ArenaRating;
+    ginfo->ArenaMatchmakerRating        = MatchmakerRating;
+    ginfo->OpponentsTeamRating          = 0;
+    ginfo->OpponentsMatchmakerRating    = 0;
+    ginfo->DynamicMatchmakingRangeIndex = 0;
+    ginfo->BracketId                    = bracketId;
 
     ginfo->Players.clear();
 
@@ -739,7 +742,7 @@ this method is called when group is inserted, or player / group is removed from 
 it must be called after fully adding the members of a group to ensure group joining
 should be called from Battleground::RemovePlayer function in some cases
 */
-void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, uint8 arenaType, bool isRated, uint32 arenaRating)
+void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, uint8 arenaType, bool isRated, uint32 arenaRating, uint8 dynamicMatchmakingRatingIndex)
 {
     //if no players in queue - do nothing
     if (m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].empty() &&
@@ -885,11 +888,21 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         //set rating range
         uint32 arenaMinRating = (arenaRating <= sBattlegroundMgr->GetMaxRatingDifference()) ? 0 : arenaRating - sBattlegroundMgr->GetMaxRatingDifference();
         uint32 arenaMaxRating = arenaRating + sBattlegroundMgr->GetMaxRatingDifference();
+
+        /* Dynamic Matchmaking Rating */
+        if (sWorld->getBoolConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_SYSTEM))
+        {
+            int32 dynamicMmrRangeMultiplier = sWorld->getIntConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_RANGE_INCREASE);
+            // Do not let it underflow
+            int32(arenaMinRating - dynamicMatchmakingRatingIndex * dynamicMmrRangeMultiplier) <= 0 ? arenaMinRating = 0 : arenaMinRating -= dynamicMatchmakingRatingIndex * dynamicMmrRangeMultiplier;
+            arenaMaxRating += dynamicMatchmakingRatingIndex * dynamicMmrRangeMultiplier;
+        }       
+
         // if max rating difference is set and the time past since server startup is greater than the rating discard time
         // (after what time the ratings aren't taken into account when making teams) then
         // the discard time is current_time - time_to_discard, teams that joined after that, will have their ratings taken into account
         // else leave the discard time on 0, this way all ratings will be discarded
-        uint32 discardTime = getMSTime() - sBattlegroundMgr->GetRatingDiscardTimer();
+        int32 discardTime = getMSTime() - sBattlegroundMgr->GetRatingDiscardTimer();
 
         // we need to find 2 teams which will play next game
         GroupsQueueType::iterator itr_teams[BG_TEAMS_COUNT];
@@ -905,7 +918,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
                 // if group match conditions, then add it to pool
                 if (!(*itr2)->IsInvitedToBGInstanceGUID
                     && (((*itr2)->ArenaMatchmakerRating >= arenaMinRating && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating)
-                        || (*itr2)->JoinTime < discardTime))
+                        || (int32)(*itr2)->JoinTime < discardTime))
                 {
                     itr_teams[found++] = itr2;
                     team = i;
@@ -923,7 +936,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
             {
                 if (!(*itr3)->IsInvitedToBGInstanceGUID
                     && (((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating)
-                        || (*itr3)->JoinTime < discardTime)
+                        || (int32)(*itr3)->JoinTime < discardTime)
                     && (*itr_teams[0])->ArenaTeamId != (*itr3)->ArenaTeamId)
                 {
                     itr_teams[found++] = itr3;

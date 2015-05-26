@@ -51,7 +51,7 @@
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
     m_NextAutoDistributionTime(0),
-    m_AutoDistributionTimeChecker(0), m_ArenaTesting(false), m_Testing(false)
+    m_AutoDistributionTimeChecker(0), m_ArenaTesting(false), m_Testing(false), _dynamicMatchmakingRefreshTimer(0)
 { }
 
 BattlegroundMgr::~BattlegroundMgr()
@@ -103,6 +103,10 @@ void BattlegroundMgr::Update(uint32 diff)
         }
     }
 
+    // Widen matchmaking range for players/teams waiting long time in arena queue
+    if (sWorld->getBoolConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_SYSTEM))
+        ApplyDynamicMMR(diff);
+
     // update events timer
     for (int qtype = BATTLEGROUND_QUEUE_NONE; qtype < MAX_BATTLEGROUND_QUEUE_TYPES; ++qtype)
         m_BattlegroundQueues[qtype].UpdateEvents(diff);
@@ -116,11 +120,13 @@ void BattlegroundMgr::Update(uint32 diff)
         for (uint8 i = 0; i < scheduled.size(); i++)
         {
             uint32 arenaMMRating = scheduled[i] >> 32;
-            uint8 arenaType = scheduled[i] >> 24 & 255;
-            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundQueueTypeId(scheduled[i] >> 16 & 255);
+            uint8 arenaType = ((scheduled[i] >> 24) & 192) >> 5; // 3 MSB bits
+            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundQueueTypeId(scheduled[i] >> 24 & 63); // 5 LSB bits
+            uint8 dynamicMatchmakingRangeIndex = scheduled[i] >> 16 & 255; // 8 bits
             BattlegroundTypeId bgTypeId = BattlegroundTypeId((scheduled[i] >> 8) & 255);
             BattlegroundBracketId bracket_id = BattlegroundBracketId(scheduled[i] & 255);
-            m_BattlegroundQueues[bgQueueTypeId].BattlegroundQueueUpdate(diff, bgTypeId, bracket_id, arenaType, arenaMMRating > 0, arenaMMRating);
+
+            m_BattlegroundQueues[bgQueueTypeId].BattlegroundQueueUpdate(diff, bgTypeId, bracket_id, arenaType, arenaMMRating > 0, arenaMMRating, dynamicMatchmakingRangeIndex);
         }
     }
 
@@ -826,11 +832,16 @@ void BattlegroundMgr::SetHolidayWeekends(uint32 mask)
             bg->SetHoliday((mask & (1 << bgtype)) != 0);
 }
 
-void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
+void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, uint8 dynamicMatchmakingRatingIndex)
 {
     //This method must be atomic, @todo add mutex
     //we will use only 1 number created of bgTypeId and bracket_id
-    uint64 const scheduleId = ((uint64)arenaMatchmakerRating << 32) | (uint32(arenaType) << 24) | (bgQueueTypeId << 16) | (bgTypeId << 8) | bracket_id;
+
+    /* Dynamic Matchmaking Rating */
+    // ArenaType only needs 3 bits (values 2,3,5)
+    // BattlegroundQueueTypeId only needs 4 bits (12 values) but it can reside happily with ArenaType in 5 bits (thus making ArenaType + BattlegroundQueueTypeid reside on 8 bits)
+    // Now we made enough space to squeeze dynamicMatchmakingIndex which resides on 8 bits
+    uint64 const scheduleId = ((uint64)arenaMatchmakerRating << 32) | (uint32(arenaType) << 29) | (bgQueueTypeId << 24) | (dynamicMatchmakingRatingIndex << 16) | (bgTypeId << 8) | bracket_id;
     if (std::find(m_QueueUpdateScheduler.begin(), m_QueueUpdateScheduler.end(), scheduleId) == m_QueueUpdateScheduler.end())
         m_QueueUpdateScheduler.push_back(scheduleId);
 }
@@ -1023,3 +1034,70 @@ void BattlegroundMgr::RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 ins
     bgDataStore[bgTypeId].m_Battlegrounds.erase(instanceId);
 }
 
+void BattlegroundMgr::ApplyDynamicMMR(uint32 diff)
+{
+    _dynamicMatchmakingRefreshTimer += diff;
+    // Update every second
+    if (_dynamicMatchmakingRefreshTimer > (1 * IN_MILLISECONDS))
+    {
+        // Reset timer
+        _dynamicMatchmakingRefreshTimer = 0;
+
+        // Update for all arena brackets
+        for (uint16 i = BATTLEGROUND_QUEUE_2v2; i <= BATTLEGROUND_QUEUE_5v5; ++i)
+        {
+            for (uint16 bgTypeId = 0; bgTypeId < MAX_BATTLEGROUND_BRACKETS; ++bgTypeId)
+            {
+                for (uint16 groupType = BG_QUEUE_PREMADE_ALLIANCE; groupType <= BG_QUEUE_PREMADE_HORDE; ++groupType)
+                {
+                    BattlegroundQueue::GroupsQueueType::const_iterator iter = m_BattlegroundQueues[i].m_QueuedGroups[bgTypeId][groupType].begin();
+                    for (; iter != m_BattlegroundQueues[i].m_QueuedGroups[bgTypeId][groupType].end(); iter++)
+                    {
+                        if (!(*iter)->IsInvitedToBGInstanceGUID && (*iter)->IsRated)
+                        {
+                            uint32 msTimeDiff = getMSTime() - (*iter)->JoinTime;
+                            // Increase the matchmaking range every 30 seconds
+                            uint8 dynamicMatchmakingIndex = msTimeDiff / (sWorld->getIntConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_UPDATE_INTERVAL));
+
+                            if (dynamicMatchmakingIndex > 0)
+                            {
+                                // This condition prevents looping of displaying the info message about increasing matchmaking range
+                                if ((*iter)->DynamicMatchmakingRangeIndex < dynamicMatchmakingIndex)
+                                {
+                                    // Update dynamic MMR index
+                                    (*iter)->DynamicMatchmakingRangeIndex = dynamicMatchmakingIndex;
+                                    // Schedule queue update
+                                    ScheduleQueueUpdate((*iter)->ArenaMatchmakerRating, (*iter)->ArenaType, BattlegroundQueueTypeId(i), (*iter)->BgTypeId, BattlegroundBracketId((*iter)->BracketId), (*iter)->DynamicMatchmakingRangeIndex);
+
+                                    if (ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById((*iter)->ArenaTeamId))
+                                    {
+                                        for (ArenaTeam::MemberList::iterator itr = team->m_membersBegin(); itr != team->m_membersEnd(); itr++)
+                                        {
+                                            if (Player* plr = sObjectAccessor->FindPlayer(itr->Guid))
+                                            {
+                                                int32 dynamicMmrRangeMultiplier = sWorld->getIntConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_RANGE_INCREASE);
+                                                // This is default max rating difference + current dynamic mmr range
+                                                int32 mmrDelta = sBattlegroundMgr->GetMaxRatingDifference() + (dynamicMmrRangeMultiplier * dynamicMatchmakingIndex);
+                                                uint32 min;
+                                                int32((*iter)->ArenaMatchmakerRating - mmrDelta) <= 0 ? min = 0 : min = (*iter)->ArenaMatchmakerRating - mmrDelta;
+                                                uint32 max = (*iter)->ArenaMatchmakerRating + mmrDelta;
+
+                                                // Inform players from arena teams that their matchmaking range was increased
+                                                ChatHandler(plr->GetSession()).PSendSysMessage("Your Matchmaking Range was increased. You can meet teams with MMR ranging from %u to %u.", min, max);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // Schedule queue update
+                                    ScheduleQueueUpdate((*iter)->ArenaMatchmakerRating, (*iter)->ArenaType, BattlegroundQueueTypeId(i), (*iter)->BgTypeId, BattlegroundBracketId((*iter)->BracketId), (*iter)->DynamicMatchmakingRangeIndex);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
