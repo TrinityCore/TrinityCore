@@ -890,10 +890,13 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         uint32 arenaMaxRating = arenaRating + sBattlegroundMgr->GetMaxRatingDifference();
 
         /* Dynamic Matchmaking Rating */
-        // Do not let it underflow
-        int32 dynamicMmrRangeMultiplier = sWorld->getIntConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_RANGE_INCREASE);
-        int32(arenaMinRating - dynamicMatchmakingRatingIndex * dynamicMmrRangeMultiplier) <= 0 ? arenaMinRating = 0 : arenaMinRating -= dynamicMatchmakingRatingIndex * dynamicMmrRangeMultiplier;
-        arenaMaxRating += dynamicMatchmakingRatingIndex * dynamicMmrRangeMultiplier;
+        if (sWorld->getBoolConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_SYSTEM))
+        {
+            int32 dynamicMmrRangeMultiplier = sWorld->getIntConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_RANGE_INCREASE);
+            // Do not let it underflow
+            int32(arenaMinRating - dynamicMatchmakingRatingIndex * dynamicMmrRangeMultiplier) <= 0 ? arenaMinRating = 0 : arenaMinRating -= dynamicMatchmakingRatingIndex * dynamicMmrRangeMultiplier;
+            arenaMaxRating += dynamicMatchmakingRatingIndex * dynamicMmrRangeMultiplier;
+        }       
 
         // if max rating difference is set and the time past since server startup is greater than the rating discard time
         // (after what time the ratings aren't taken into account when making teams) then
