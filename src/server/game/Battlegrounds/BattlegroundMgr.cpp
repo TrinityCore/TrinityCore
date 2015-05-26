@@ -104,7 +104,8 @@ void BattlegroundMgr::Update(uint32 diff)
     }
 
     // Widen matchmaking range for players/teams waiting long time in arena queue
-    ApplyDynamicMMR(diff);
+    if (sWorld->getBoolConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_SYSTEM))
+        ApplyDynamicMMR(diff);
 
     // update events timer
     for (int qtype = BATTLEGROUND_QUEUE_NONE; qtype < MAX_BATTLEGROUND_QUEUE_TYPES; ++qtype)
@@ -1045,7 +1046,6 @@ void BattlegroundMgr::ApplyDynamicMMR(uint32 diff)
         // Update for all arena brackets
         for (uint16 i = BATTLEGROUND_QUEUE_2v2; i <= BATTLEGROUND_QUEUE_5v5; ++i)
         {
-            // Theoretically only bgTypeId 14 should be used (80 level arena bracket)
             for (uint16 bgTypeId = 0; bgTypeId < MAX_BATTLEGROUND_BRACKETS; ++bgTypeId)
             {
                 for (uint16 groupType = BG_QUEUE_PREMADE_ALLIANCE; groupType <= BG_QUEUE_PREMADE_HORDE; ++groupType)
@@ -1057,7 +1057,7 @@ void BattlegroundMgr::ApplyDynamicMMR(uint32 diff)
                         {
                             uint32 msTimeDiff = getMSTime() - (*iter)->JoinTime;
                             // Increase the matchmaking range every 30 seconds
-                            uint8 dynamicMatchmakingIndex = msTimeDiff / (30 * IN_MILLISECONDS);
+                            uint8 dynamicMatchmakingIndex = msTimeDiff / (sWorld->getIntConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_UPDATE_INTERVAL));
 
                             if (dynamicMatchmakingIndex > 0)
                             {
@@ -1075,9 +1075,15 @@ void BattlegroundMgr::ApplyDynamicMMR(uint32 diff)
                                         {
                                             if (Player* plr = sObjectAccessor->FindPlayer(itr->Guid))
                                             {
+                                                int32 dynamicMmrRangeMultiplier = sWorld->getIntConfig(CONFIG_ARENA_DYNAMIC_MATCHMAKING_RANGE_INCREASE);
+                                                // This is default max rating difference + current dynamic mmr range
+                                                int32 mmrDelta = sBattlegroundMgr->GetMaxRatingDifference() + (dynamicMmrRangeMultiplier * dynamicMatchmakingIndex);
+                                                uint32 min;
+                                                int32((*iter)->ArenaMatchmakerRating - mmrDelta) <= 0 ? min = 0 : min = (*iter)->ArenaMatchmakerRating - mmrDelta;
+                                                uint32 max = (*iter)->ArenaMatchmakerRating + mmrDelta;
+
                                                 // Inform players from arena teams that their matchmaking range was increased
-                                                ChatHandler(plr->GetSession()).PSendSysMessage("Your Matchmaking Range was increased. You can meet teams with MMR ranging from %u to %u.",
-                                                    (*iter)->ArenaMatchmakerRating - (dynamicMatchmakingIndex * 100), (*iter)->ArenaMatchmakerRating + (dynamicMatchmakingIndex * 100));
+                                                ChatHandler(plr->GetSession()).PSendSysMessage("Your Matchmaking Range was increased. You can meet teams with MMR ranging from %u to %u.", min, max);
                                             }
                                         }
                                     }
@@ -1092,7 +1098,6 @@ void BattlegroundMgr::ApplyDynamicMMR(uint32 diff)
                     }
                 }
             }
-
         }
     }
 }
