@@ -4826,27 +4826,19 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
     data.CasterGUID = aura->GetCasterGUID();
     data.SpellID = aura->GetId();
 
-    if (SpellInfo const* spellInfo = aura->GetSpellInfo())
-    {
-        for (SpellEffectInfoMap::const_iterator itr = spellInfo->_effects.begin(); itr != spellInfo->_effects.end(); ++itr)
-        {
-            for (SpellEffectInfo const* effect : itr->second)
-            {
-                WorldPackets::CombatLog::SpellPeriodicAuraLog::SpellLogEffect spellLogEffect;
-                spellLogEffect.Effect = effect->Effect;
-                spellLogEffect.Amount = info->damage;
-                spellLogEffect.OverHealOrKill = info->overDamage;
-                spellLogEffect.SchoolMaskOrPower = aura->GetMiscValue();
-                spellLogEffect.AbsorbedOrAmplitude = info->absorb;
-                spellLogEffect.Resisted = info->resist;
-                spellLogEffect.Crit = info->critical;
-                spellLogEffect.Multistrike = false; // NYI
-                /// @todo: implement debug info
+    /// @todo: should send more logs in one packet when multistrike
+    WorldPackets::CombatLog::SpellPeriodicAuraLog::SpellLogEffect spellLogEffect;
+    spellLogEffect.Effect = aura->GetAuraType();
+    spellLogEffect.Amount = info->damage;
+    spellLogEffect.OverHealOrKill = info->overDamage;
+    spellLogEffect.SchoolMaskOrPower = aura->GetSpellInfo()->GetSchoolMask();
+    spellLogEffect.AbsorbedOrAmplitude = info->absorb;
+    spellLogEffect.Resisted = info->resist;
+    spellLogEffect.Crit = info->critical;
+    spellLogEffect.Multistrike = false; // NYI
+    /// @todo: implement debug info
 
-                data.Effects.push_back(spellLogEffect);
-            }
-        }
-    }
+    data.Effects.push_back(spellLogEffect);
 
     SendMessageToSet(data.Write(), true);
 }
