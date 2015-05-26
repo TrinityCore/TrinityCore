@@ -52,13 +52,13 @@ class FunctionalCreatureAI : public CreatureAI
 public:
     explicit FunctionalCreatureAI(Creature* creature) : CreatureAI(creature) { }
 
-    ~FunctionalCreatureAI() { }
+    virtual ~FunctionalCreatureAI() { }
 
     // bool CanRespawn() { return true; }
 
-    void EnterEvadeMode() final override
-    {
-    }
+    //void EnterEvadeMode() final override
+    //{
+    //}
 
     /////////////////////////////////
     // OnEnterCombatEvent
@@ -72,77 +72,77 @@ public:
 
     void JustDied(Unit* killer) final override;
 
-    void KilledUnit(Unit* /*victim*/) final override
-    {
-    }
+    //void KilledUnit(Unit* /*victim*/) final override
+    //{
+    //}
 
-    void JustSummoned(Creature* /*summon*/) final override
-    {
-    }
+    //void JustSummoned(Creature* /*summon*/) final override
+    //{
+    //}
 
-    void IsSummonedBy(Unit* /*summoner*/) final override
-    {
-    }
+    //void IsSummonedBy(Unit* /*summoner*/) final override
+    //{
+    //}
 
-    void SummonedCreatureDespawn(Creature* /*summon*/) final override
-    {
-    }
+    //void SummonedCreatureDespawn(Creature* /*summon*/) final override
+    //{
+    //}
 
-    void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) final override
-    {
-    }
+    //void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) final override
+    //{
+    //}
 
     DEFINE_HOOK(FunctionalCreatureAI, OnSpellHitEvent)
 
     void SpellHit(Unit* caster, SpellInfo const* spell) final override;
 
-    void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) final override
-    {
-    }
+    //void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) final override
+    //{
+    //}
 
-    void AttackedBy(Unit* /*attacker*/) final override
-    {
-    }
+    //void AttackedBy(Unit* /*attacker*/) final override
+    //{
+    //}
 
     // bool IsEscorted() { return false; }
 
     // void JustRespawned() { Reset(); }
 
-    void MovementInform(uint32 /*type*/, uint32 /*id*/) final override
-    {
-    }
+    //void MovementInform(uint32 /*type*/, uint32 /*id*/) final override
+    //{
+    //}
 
-    void OnCharmed(bool apply) final override
-    {
-    }
+    //void OnCharmed(bool apply) final override
+    //{
+    //}
 
-    void JustReachedHome() final override
-    {
-    }
+    //void JustReachedHome() final override
+    //{
+    //}
 
-    void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) final override
-    {
-    }
+    //void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) final override
+    //{
+    //}
 
-    void OwnerAttackedBy(Unit* /*attacker*/) final override
-    {
-    }
+    //void OwnerAttackedBy(Unit* /*attacker*/) final override
+    //{
+    //}
 
-    void OwnerAttacked(Unit* /*target*/) final override
-    {
-    }
+    //void OwnerAttacked(Unit* /*target*/) final override
+    //{
+    //}
 
-    void CorpseRemoved(uint32& /*respawnDelay*/) final override
-    {
-    }
+    //void CorpseRemoved(uint32& /*respawnDelay*/) final override
+    //{
+    //}
 
-    void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) final override
-    {
-    }
+    //void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) final override
+    //{
+    //}
 
-    void OnSpellClick(Unit* /*clicker*/, bool& /*result*/) final override
-    {
-    }
+    //void OnSpellClick(Unit* /*clicker*/, bool& /*result*/) final override
+    //{
+    //}
 
     // bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
 
