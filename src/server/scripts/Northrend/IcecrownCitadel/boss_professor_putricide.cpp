@@ -1059,8 +1059,8 @@ class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
             {
                 if (GetHitUnit()->HasAura(SPELL_VOLATILE_OOZE_ADHESIVE))
                 {
-                    GetCaster()->CastSpell(GetHitUnit(), SPELL_OOZE_ERUPTION, true);
                     GetHitUnit()->RemoveAurasDueToSpell(SPELL_VOLATILE_OOZE_ADHESIVE, GetCaster()->GetGUID(), 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                    GetCaster()->CastSpell(GetHitUnit(), SPELL_OOZE_ERUPTION, true);
                 }
             }
 
