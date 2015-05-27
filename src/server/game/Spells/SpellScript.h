@@ -74,7 +74,7 @@ class _SpellScript
                 EffectHook(uint8 _effIndex);
                 virtual ~EffectHook() { }
 
-                uint8 GetAffectedEffectsMask(SpellInfo const* spellInfo);
+                uint32 GetAffectedEffectsMask(SpellInfo const* spellInfo);
                 bool IsEffectAffected(SpellInfo const* spellInfo, uint8 effIndex);
                 virtual bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) = 0;
                 std::string EffIndexToString();
