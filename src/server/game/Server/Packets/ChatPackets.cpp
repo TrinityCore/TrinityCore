@@ -238,10 +238,8 @@ void WorldPackets::Chat::ChatRegisterAddonPrefixes::Read()
 {
     int32 count;
     _worldPacket >> count;
+    Overflown = count > REGISTERED_ADDON_PREFIX_SOFTCAP;
 
-    for (int32 i = 0; i < count; ++i)
-    {
-        uint32 lenghts = _worldPacket.ReadBits(5);
-        Prefixes.push_back(_worldPacket.ReadString(lenghts));
-    }
+    for (int32 i = 0; i < (Overflown ? REGISTERED_ADDON_PREFIX_SOFTCAP : count); ++i)
+        Prefixes.push_back(_worldPacket.ReadString(_worldPacket.ReadBits(5)));
 }

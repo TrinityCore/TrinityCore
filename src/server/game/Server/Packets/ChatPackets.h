@@ -259,6 +259,7 @@ namespace WorldPackets
             void Read() override;
 
             std::vector<std::string> Prefixes;
+            bool Overflown;
         };
 
         class ChatUnregisterAllAddonPrefixes final : public ClientPacket
