@@ -250,6 +250,24 @@ namespace WorldPackets
             int32 MessageID = 0;
             std::string StringParam;
         };
+
+        class ChatRegisterAddonPrefixes final : public ClientPacket
+        {
+        public:
+            ChatRegisterAddonPrefixes(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_REGISTER_ADDON_PREFIXES, std::move(packet)) { }
+
+            void Read() override;
+
+            std::vector<std::string> Prefixes;
+        };
+
+        class ChatUnregisterAllAddonPrefixes final : public ClientPacket
+        {
+        public:
+            ChatUnregisterAllAddonPrefixes(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 
