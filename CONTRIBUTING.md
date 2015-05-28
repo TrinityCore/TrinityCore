@@ -4,6 +4,8 @@ Want to contribute? Great!
 Contributing don't means only creating fixes, also reporting bugs, before reporting a bug, be sure you have updated your core AND database to the latest avariable code.
 
 Mandatory things when creating a ticket:  
+========================================
+
 Branch, commit hash (if you get something like TrinityCore rev. unknown 1970-01-01 00:00:00 +0000 (Archived branch) (Win64, Release) read [unknown](http://www.trinitycore.org/f/topic/345-howto-properly-install-git-on-windows-fix-trinitycore-rev-1970-01-01-000000-0000/) or clone this repository instead download source.  
 Entries of afected creatures / items / quests please, use wowhead to link them.  
 Clear title and description of the bug. If your english is very bad i sugest you to use google translate or yandex to translate to english and include one text on your native language.
