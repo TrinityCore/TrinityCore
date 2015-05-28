@@ -22,13 +22,13 @@ Issues
 ======
 
 Read [this](http://www.trinitycore.org/f/topic/37-the-trinitycore-issuetracker-and-you/) before creating a ticket.  
-If you have problems with TrinityCore instalation, read http://www.trinitycore.org/f/topic/1518-trouble-with-your-trinity-install-readme-1st-faqs/
+If you have problems with TrinityCore instalation, read [this](http://www.trinitycore.org/f/topic/1518-trouble-with-your-trinity-install-readme-1st-faqs/)
 
 1. Fork it.
 2. Create a branch (`git checkout -b fixes`)
 3. Commit your changes (`git commit -am "Added Snarkdown"`)
 4. Push to the branch (`git push origin fixes`)
-5. Open a [Pull Request]
+5. Open a Pull Request
 
 
 When creating patches read:
