@@ -38,8 +38,8 @@ class SHA256Hash
         void Initialize();
         void Finalize();
 
-        uint8 *GetDigest(void) { return mDigest; };
-        int GetLength(void) const { return SHA256_DIGEST_LENGTH; };
+        uint8 *GetDigest(void) { return mDigest; }
+        int GetLength(void) const { return SHA256_DIGEST_LENGTH; }
 
     private:
         SHA256_CTX mC;
