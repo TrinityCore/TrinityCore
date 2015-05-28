@@ -42,7 +42,7 @@ class BattlegroundTPScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(std::vector<int32>& stats)
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
         {
             stats.push_back(FlagCaptures);
             stats.push_back(FlagReturns);

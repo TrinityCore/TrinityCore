@@ -197,7 +197,7 @@ class boss_archaedas : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied (Unit* /*killer*/)
+            void JustDied (Unit* /*killer*/) override
             {
                 instance->SetData(DATA_ANCIENT_DOOR, DONE);      // open the vault door
                 instance->SetData(DATA_MINIONS, SPECIAL);        // deactivate his minions
