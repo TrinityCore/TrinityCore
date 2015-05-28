@@ -34,7 +34,7 @@ Quest::Quest(Field* questRecord)
     SuggestedPlayers = questRecord[7].GetUInt8();
     NextQuestInChain = questRecord[8].GetUInt32();
     RewardXPDifficulty = questRecord[9].GetUInt32();
-    Float10 = questRecord[10].GetFloat();
+    RewardXPMultiplier = questRecord[10].GetFloat();
     RewardMoney = questRecord[11].GetUInt32();
     RewardMoneyDifficulty = questRecord[12].GetUInt32();
     Float13 = questRecord[13].GetFloat();
@@ -225,7 +225,7 @@ uint32 Quest::XPValue(uint32 playerLevel) const
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * xpentry->Exp[RewardXPDifficulty] / 10;
+        uint32 xp = diffFactor * xpentry->Exp[RewardXPDifficulty] * RewardXPMultiplier / 10;
         if (xp <= 100)
             xp = 5 * ((xp + 2) / 5);
         else if (xp <= 500)
