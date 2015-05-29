@@ -65,7 +65,6 @@ find_package(MySQL REQUIRED)
 
 if( UNIX )
   find_package(Readline)
-  find_package(ZLIB)
   find_package(BZip2)
 endif()
 
