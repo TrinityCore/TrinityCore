@@ -196,7 +196,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                 }
             }
 
-            uint32 GetGameObjectEntry(uint32 /*guidLow*/, uint32 entry) override
+            uint32 GetGameObjectEntry(ObjectGuid::LowType /*guidLow*/, uint32 entry) override
             {
                 if (!_teamInInstance)
                 {
