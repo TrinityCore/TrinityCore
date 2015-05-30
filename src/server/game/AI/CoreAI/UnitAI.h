@@ -128,7 +128,7 @@ class UnitAI
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
 
-        virtual void Reset() { };
+        virtual void Reset() { }
 
         // Called when unit is charmed
         virtual void OnCharmed(bool apply) = 0;
