@@ -424,10 +424,11 @@ typedef std::list<SpellImmune> SpellImmuneList;
 enum UnitModifierType
 {
     BASE_VALUE = 0,
-    BASE_PCT = 1,
-    TOTAL_VALUE = 2,
-    TOTAL_PCT = 3,
-    MODIFIER_TYPE_END = 4
+    BASE_PCT_EXCLUDE_CREATE = 1,    // percent modifier affecting all stat values from auras and gear but not player base for level
+    BASE_PCT = 2,
+    TOTAL_VALUE = 3,
+    TOTAL_PCT = 4,
+    MODIFIER_TYPE_END = 5
 };
 
 enum WeaponDamageRange
