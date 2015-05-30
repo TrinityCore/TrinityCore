@@ -330,13 +330,6 @@ enum UnitRename
 #define MAX_AGGRO_RESET_TIME 10 // in seconds
 #define MAX_AGGRO_RADIUS 45.0f  // yards
 
-enum Swing
-{
-    NOSWING                    = 0,
-    SINGLEHANDEDSWING          = 1,
-    TWOHANDEDSWING             = 2
-};
-
 enum VictimState
 {
     VICTIMSTATE_INTACT         = 0, // set when attacker misses
@@ -418,7 +411,7 @@ namespace Movement
 }
 
 typedef std::list<Unit*> UnitList;
-typedef std::list< std::pair<Aura*, uint8> > DispelChargesList;
+typedef std::list<std::pair<Aura*, uint8>> DispelChargesList;
 
 struct SpellImmune
 {
@@ -441,13 +434,6 @@ enum WeaponDamageRange
 {
     MINDAMAGE,
     MAXDAMAGE
-};
-
-enum DamageTypeToSchool
-{
-    RESISTANCE,
-    DAMAGE_DEALT,
-    DAMAGE_TAKEN
 };
 
 enum AuraRemoveMode
