@@ -524,7 +524,7 @@ enum AuraType
     SPELL_AURA_464                                          = 464,
     SPELL_AURA_465                                          = 465,
     SPELL_AURA_466                                          = 466,
-    SPELL_AURA_467                                          = 467,
+    SPELL_AURA_MOD_STAT_BONUS_PCT                           = 467, // Affects stat gain from all sources except base stats
     SPELL_AURA_468                                          = 468,
     SPELL_AURA_469                                          = 469,
     SPELL_AURA_471                                          = 471,

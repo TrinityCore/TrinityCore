@@ -527,7 +527,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //464
     &AuraEffect::HandleNULL,                                      //465
     &AuraEffect::HandleNULL,                                      //466
-    &AuraEffect::HandleNULL,                                      //467
+    &AuraEffect::HandleModStatBonusPercent,                       //467 SPELL_AURA_MOD_STAT_BONUS_PCT
     &AuraEffect::HandleNULL,                                      //468
     &AuraEffect::HandleNULL,                                      //469
     &AuraEffect::HandleNULL,                                      //470
@@ -3980,6 +3980,34 @@ void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mod
 
     target->ToPlayer()->UpdateExpertise(BASE_ATTACK);
     target->ToPlayer()->UpdateExpertise(OFF_ATTACK);
+}
+
+void AuraEffect::HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (GetMiscValue() < -1 || GetMiscValue() > 4)
+    {
+        TC_LOG_ERROR("spells", "WARNING: Misc Value for SPELL_AURA_MOD_STAT_BONUS_PCT not valid");
+        return;
+    }
+
+    // only players have base stats
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+    {
+        if (GetMiscValue() == i || GetMiscValue() == -1)
+        {
+            target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), BASE_PCT_EXCLUDE_CREATE, float(m_amount), apply);
+            if (target->GetTypeId() == TYPEID_PLAYER || target->ToCreature()->IsPet())
+                target->ApplyStatPercentBuffMod(Stats(i), float(m_amount), apply);
+        }
+    }
 }
 
 /********************************/
