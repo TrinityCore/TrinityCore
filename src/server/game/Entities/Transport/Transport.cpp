@@ -226,7 +226,7 @@ void Transport::Update(uint32 diff)
     sScriptMgr->OnTransportUpdate(this, diff);
 }
 
-void Transport::DelayedUpdate(uint32 diff)
+void Transport::DelayedUpdate(uint32 /*diff*/)
 {
     if (GetKeyFrames().size() <= 1)
         return;
