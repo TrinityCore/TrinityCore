@@ -57,9 +57,9 @@ void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void KeepDatabaseAliveHandler(const boost::system::error_code& error);
 variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile);
 
-std::unique_ptr<boost::asio::io_service> _ioService;
-std::unique_ptr<boost::asio::deadline_timer> _dbPingTimer;
-uint32 _dbPingInterval;
+static std::unique_ptr<boost::asio::io_service> _ioService;
+static std::unique_ptr<boost::asio::deadline_timer> _dbPingTimer;
+static uint32 _dbPingInterval;
 LoginDatabaseWorkerPool LoginDatabase;
 
 int main(int argc, char** argv)
