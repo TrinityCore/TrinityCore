@@ -84,17 +84,13 @@ class boss_shattered_executioner : public CreatureScript
                 _Reset();
                 
                 // _Reset() resets the loot mode, so we add them again, if any
-                switch (instance->GetData(DATA_PRISONERS_EXECUTED))
-                {
-                    case 0:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_3);
-                    case 1:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_2);
-                    case 2:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                    default:
-                        break;
-                }
+                uint32 prisonersExecuted = instance->GetData(DATA_PRISONERS_EXECUTED);
+                if (prisonersExecuted == 0)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_3);
+                if (prisonersExecuted <= 1)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_2);
+                if (prisonersExecuted <= 2)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_1);
 
                 if (instance->GetBossState(DATA_KARGATH) == DONE)
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
