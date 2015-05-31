@@ -2415,7 +2415,7 @@ bool Creature::SetSwim(bool enable)
     return true;
 }
 
-bool Creature::SetCanFly(bool enable)
+bool Creature::SetCanFly(bool enable, bool packetOnly /* = false */)
 {
     if (!Unit::SetCanFly(enable))
         return false;
