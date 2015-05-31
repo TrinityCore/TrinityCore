@@ -974,10 +974,30 @@ public:
         {
             if (WorldLocation const* dest = GetExplTargetDest())
             {
-                if (dest->GetPositionZ() > GetCaster()->GetPositionZ() + 4.0f)
-                    return SPELL_FAILED_NOPATH;
-                else if (GetCaster()->HasAuraType(SPELL_AURA_MOD_ROOT))
+                if (GetCaster()->HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
                     return SPELL_FAILED_ROOTED;
+
+                if (GetCaster()->GetMap()->Instanceable())
+                {
+                    float range = GetSpellInfo()->GetMaxRange(true, GetCaster()) * 1.5f;
+
+                    PathGenerator m_preGeneratedPath(GetCaster());
+                    m_preGeneratedPath.SetPathLengthLimit(range);
+
+                    bool result = m_preGeneratedPath.CalculatePath(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), false, true);
+                    if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
+                        return SPELL_FAILED_OUT_OF_RANGE;
+                    else if (!result || m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
+                    {
+                        result = m_preGeneratedPath.CalculatePath(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), false, false);
+                        if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
+                            return SPELL_FAILED_OUT_OF_RANGE;
+                        else if (!result || m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
+                            return SPELL_FAILED_NOPATH;
+                    }
+                }
+                else if (dest->GetPositionZ() > GetCaster()->GetPositionZ() + 4.0f)
+                    return SPELL_FAILED_NOPATH;
 
             }
             return SPELL_CAST_OK;
@@ -986,7 +1006,10 @@ public:
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (WorldLocation const* dest = GetExplTargetDest())
+            {
+                GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_HEROIC_LEAP_JUMP, false);
                 GetCaster()->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), SPELL_WARRIOR_HEROIC_LEAP_JUMP, true);
+            }
         }
 
         void Register() override
