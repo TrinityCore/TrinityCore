@@ -261,13 +261,13 @@ class OPvPCapturePointNA : public OPvPCapturePoint
     public:
         OPvPCapturePointNA(OutdoorPvP* pvp);
 
-        bool Update(uint32 diff);
+        bool Update(uint32 diff) override;
 
-        void ChangeState();
+        void ChangeState() override;
 
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
-        bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
+        bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go) override;
 
         int32 HandleOpenGo(Player* player, GameObject* go) override;
 

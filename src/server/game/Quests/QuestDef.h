@@ -319,6 +319,7 @@ class Quest
         uint32 GetBonusTalents() const { return RewardTalents; }
         int32  GetRewArenaPoints() const {return RewardArenaPoints; }
         uint32 GetXPDifficulty() const { return RewardXPDifficulty; }
+        float  GetXPMultiplier() const { return RewardXPMultiplier; }
         uint32 GetSrcItemId() const { return SourceItemId; }
         uint32 GetSrcItemCount() const { return SourceItemIdCount; }
         uint32 GetSrcSpell() const { return SourceSpellID; }
@@ -333,7 +334,7 @@ class Quest
         std::string const& GetPortraitGiverName() const { return PortraitGiverName; }
         std::string const& GetPortraitTurnInText() const { return PortraitTurnInText; }
         std::string const& GetPortraitTurnInName() const { return PortraitTurnInName; }
-        QuestObjectives const& GetObjectives() const { return Objectives; };
+        QuestObjectives const& GetObjectives() const { return Objectives; }
         uint32 GetRewMoney() const;
         uint32 GetRewMoneyDifficulty() const { return RewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return RewardHonor; }
@@ -402,7 +403,7 @@ class Quest
         uint32 SuggestedPlayers;
         uint32 NextQuestInChain;
         uint32 RewardXPDifficulty;
-        float  Float10;
+        float  RewardXPMultiplier;
         int32  RewardMoney;
         uint32 RewardMoneyDifficulty;
         float  Float13;
