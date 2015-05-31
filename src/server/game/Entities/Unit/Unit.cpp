@@ -35,6 +35,7 @@
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
+#include "MovementPackets.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
@@ -15609,10 +15610,9 @@ void Unit::SetStunned(bool apply)
         if (GetTypeId() == TYPEID_PLAYER)
             SetStandState(UNIT_STAND_STATE_STAND);
 
-        WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
-        data << GetPackGUID();
-        data << uint32(0);
-        SendMessageToSet(&data, true);
+        WorldPackets::Movement::MoveForceRoot packet;
+        packet.Guid = GetPackGUID();
+        SendMessageToSet(packet.Write(), true);
 
         CastStop();
     }
@@ -15654,10 +15654,10 @@ void Unit::SetRooted(bool apply)
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
-            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
-            data << GetPackGUID();
-            data << m_rootTimes;
-            SendMessageToSet(&data, true);
+            WorldPackets::Movement::MoveForceRoot packet;
+            packet.Guid = GetPackGUID();
+            packet.RootTimes = m_rootTimes;
+            SendMessageToSet(packet.Write(), true);
         }
         else
         {
@@ -15672,10 +15672,10 @@ void Unit::SetRooted(bool apply)
         {
             if (GetTypeId() == TYPEID_PLAYER)
             {
-                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
-                data << GetPackGUID();
-                data << ++m_rootTimes;
-                SendMessageToSet(&data, true);
+                WorldPackets::Movement::MoveForceUnroot packet;
+                packet.Guid = GetPackGUID();
+                packet.RootTimes = ++m_rootTimes;
+                SendMessageToSet(packet.Write(), true);
             }
             else
             {

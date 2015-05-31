@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "Path.h"
 #include "WaypointMovementGenerator.h"
+#include "MovementPackets.h"
 
 void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
 {
@@ -210,7 +211,8 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
     recvData.readPackGUID(guid);
 
     MovementInfo movementInfo;                              // used only for proper packet read
-    ReadMovementInfo(recvData, &movementInfo);
+    recvData >> movementInfo;
+    CleanMovementInfo(&movementInfo);
 
     recvData.read_skip<uint32>();                          // unk
 

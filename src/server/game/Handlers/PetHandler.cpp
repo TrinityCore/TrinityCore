@@ -34,6 +34,8 @@
 #include "SpellInfo.h"
 #include "Player.h"
 
+#include "Packets/QueryPackets.h"
+
 void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 {
     ObjectGuid guid;
@@ -395,48 +397,33 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
     }
 }
 
-void WorldSession::HandlePetNameQuery(WorldPacket& recvData)
+void WorldSession::HandlePetNameQuery(WorldPackets::Query::QueryPetName& query)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_NAME_QUERY");
-
-    uint32 petnumber;
-    ObjectGuid petguid;
-
-    recvData >> petnumber;
-    recvData >> petguid;
-
-    SendPetNameQuery(petguid, petnumber);
+    SendPetNameQuery(query.Pet, query.Number);
 }
 
 void WorldSession::SendPetNameQuery(ObjectGuid petguid, uint32 petnumber)
 {
-    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, petguid);
-    if (!pet)
+    WorldPackets::Query::QueryPetNameResponse response;
+
+    response.Number = petnumber;
+
+    if (Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, petguid))
     {
-        WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (4+1+4+1));
-        data << uint32(petnumber);
-        data << uint8(0);
-        data << uint32(0);
-        data << uint8(0);
-        _player->GetSession()->SendPacket(&data);
-        return;
+        response.Timestamp = creature->GetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP);
+        response.Name = creature->GetName();
+        if (Pet* pet = creature->ToPet())
+        {
+            if (DeclinedName const* names = pet->GetDeclinedNames())
+            {
+                response.DeclinedNames = boost::in_place();
+                response.DeclinedNames.get() = *names;
+            }
+        }
     }
 
-    WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (4+4+pet->GetName().size()+1));
-    data << uint32(petnumber);
-    data << pet->GetName();
-    data << uint32(pet->GetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP));
-
-    if (pet->IsPet() && ((Pet*)pet)->GetDeclinedNames())
-    {
-        data << uint8(1);
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << ((Pet*)pet)->GetDeclinedNames()->name[i];
-    }
-    else
-        data << uint8(0);
-
-    _player->GetSession()->SendPacket(&data);
+    _player->GetSession()->SendPacket(response.Write());
 }
 
 bool WorldSession::CheckStableMaster(ObjectGuid guid)

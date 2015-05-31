@@ -1866,6 +1866,8 @@ void World::SetInitialWorldSettings()
 
     LoadCharacterNameData();
 
+    opcodeTable.Initialize();
+
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     TC_LOG_INFO("server.worldserver", "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));

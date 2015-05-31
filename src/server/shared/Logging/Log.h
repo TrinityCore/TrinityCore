@@ -73,7 +73,7 @@ class Log
             if (!ShouldLog("commands.gm", LOG_LEVEL_INFO))
                 return;
 
-            std::unique_ptr<LogMessage> msg(new LogMessage(LOG_LEVEL_INFO, "commands.gm", std::move(Trinity::StringFormat(fmt, args...))));
+            std::unique_ptr<LogMessage> msg(new LogMessage(LOG_LEVEL_INFO, "commands.gm", Trinity::StringFormat(fmt, args...)));
 
             msg->param1 = std::to_string(account);
 

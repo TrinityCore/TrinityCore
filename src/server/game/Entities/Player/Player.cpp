@@ -31,6 +31,7 @@
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
+#include "CharacterPackets.h"
 #include "Chat.h"
 #include "Common.h"
 #include "ConditionMgr.h"
@@ -52,6 +53,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -93,51 +95,6 @@
 #define SKILL_TEMP_BONUS(x)    int16(PAIR32_LOPART(x))
 #define SKILL_PERM_BONUS(x)    int16(PAIR32_HIPART(x))
 #define MAKE_SKILL_BONUS(t, p) MAKE_PAIR32(t, p)
-
-enum CharacterFlags
-{
-    CHARACTER_FLAG_NONE                 = 0x00000000,
-    CHARACTER_FLAG_UNK1                 = 0x00000001,
-    CHARACTER_FLAG_UNK2                 = 0x00000002,
-    CHARACTER_LOCKED_FOR_TRANSFER       = 0x00000004,
-    CHARACTER_FLAG_UNK4                 = 0x00000008,
-    CHARACTER_FLAG_UNK5                 = 0x00000010,
-    CHARACTER_FLAG_UNK6                 = 0x00000020,
-    CHARACTER_FLAG_UNK7                 = 0x00000040,
-    CHARACTER_FLAG_UNK8                 = 0x00000080,
-    CHARACTER_FLAG_UNK9                 = 0x00000100,
-    CHARACTER_FLAG_UNK10                = 0x00000200,
-    CHARACTER_FLAG_HIDE_HELM            = 0x00000400,
-    CHARACTER_FLAG_HIDE_CLOAK           = 0x00000800,
-    CHARACTER_FLAG_UNK13                = 0x00001000,
-    CHARACTER_FLAG_GHOST                = 0x00002000,
-    CHARACTER_FLAG_RENAME               = 0x00004000,
-    CHARACTER_FLAG_UNK16                = 0x00008000,
-    CHARACTER_FLAG_UNK17                = 0x00010000,
-    CHARACTER_FLAG_UNK18                = 0x00020000,
-    CHARACTER_FLAG_UNK19                = 0x00040000,
-    CHARACTER_FLAG_UNK20                = 0x00080000,
-    CHARACTER_FLAG_UNK21                = 0x00100000,
-    CHARACTER_FLAG_UNK22                = 0x00200000,
-    CHARACTER_FLAG_UNK23                = 0x00400000,
-    CHARACTER_FLAG_UNK24                = 0x00800000,
-    CHARACTER_FLAG_LOCKED_BY_BILLING    = 0x01000000,
-    CHARACTER_FLAG_DECLINED             = 0x02000000,
-    CHARACTER_FLAG_UNK27                = 0x04000000,
-    CHARACTER_FLAG_UNK28                = 0x08000000,
-    CHARACTER_FLAG_UNK29                = 0x10000000,
-    CHARACTER_FLAG_UNK30                = 0x20000000,
-    CHARACTER_FLAG_UNK31                = 0x40000000,
-    CHARACTER_FLAG_UNK32                = 0x80000000
-};
-
-enum CharacterCustomizeFlags
-{
-    CHAR_CUSTOMIZE_FLAG_NONE            = 0x00000000,
-    CHAR_CUSTOMIZE_FLAG_CUSTOMIZE       = 0x00000001,       // name, gender, etc...
-    CHAR_CUSTOMIZE_FLAG_FACTION         = 0x00010000,       // name, gender, faction, etc...
-    CHAR_CUSTOMIZE_FLAG_RACE            = 0x00100000        // name, gender, race, etc...
-};
 
 // corpse reclaim times
 #define DEATH_EXPIRE_STEP (5*MINUTE)
@@ -961,7 +918,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
             itr->second.save->RemovePlayer(this);
 }
 
-bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
+bool Player::Create(uint32 guidlow, WorldPackets::Character::CharacterCreateInfo* createInfo)
 {
     //FIXME: outfitId not used in player creating
     /// @todo need more checks against packet modifications
@@ -1948,170 +1905,6 @@ void Player::InnEnter(time_t time, uint32 mapid, float x, float y, float z)
     inn_pos_y = y;
     inn_pos_z = z;
     time_inn_enter = time;
-}
-
-bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
-{
-    //             0               1                2                3                 4                  5                       6                        7
-    //    "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
-    //     8                9               10                     11                     12                     13                    14
-    //    "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
-    //    15                    16                   17                     18                   19               20                     21
-    //    "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.data, character_banned.guid, character_declinedname.genitive "
-
-    Field* fields = result->Fetch();
-
-    uint32 guid = fields[0].GetUInt32();
-    uint8 plrRace = fields[2].GetUInt8();
-    uint8 plrClass = fields[3].GetUInt8();
-    uint8 gender = fields[4].GetUInt8();
-
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(plrRace, plrClass);
-    if (!info)
-    {
-        TC_LOG_ERROR("entities.player.loading", "Player %u has incorrect race/class pair. Don't build enum.", guid);
-        return false;
-    }
-    else if (!IsValidGender(gender))
-    {
-        TC_LOG_ERROR("entities.player.loading", "Player (%u) has incorrect gender (%u), don't build enum.", guid, gender);
-        return false;
-    }
-
-    *data << ObjectGuid(HIGHGUID_PLAYER, guid);
-    *data << fields[1].GetString();                         // name
-    *data << uint8(plrRace);                                // race
-    *data << uint8(plrClass);                               // class
-    *data << uint8(gender);                                 // gender
-
-    uint32 playerBytes = fields[5].GetUInt32();
-    uint32 playerBytes2 = fields[6].GetUInt32();
-
-    uint16 atLoginFlags = fields[15].GetUInt16();
-
-    if (!ValidateAppearance(uint8(plrRace), uint8(plrClass), gender, uint8(playerBytes >> 16), uint8(playerBytes >> 24), uint8(playerBytes >> 8), uint8(playerBytes2), uint8(playerBytes)))
-    {
-        TC_LOG_ERROR("entities.player.loading", "Player %u has wrong Appearance values (Hair/Skin/Color), forcing recustomize", guid);
-
-        if (!(atLoginFlags & AT_LOGIN_CUSTOMIZE))
-        {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-            stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
-            stmt->setUInt32(1, guid);
-            CharacterDatabase.Execute(stmt);
-            atLoginFlags |= AT_LOGIN_CUSTOMIZE;
-        }
-    }
-
-    *data << uint8(playerBytes);                            // skin
-    *data << uint8(playerBytes >> 8);                       // face
-    *data << uint8(playerBytes >> 16);                      // hair style
-    *data << uint8(playerBytes >> 24);                      // hair color
-
-    *data << uint8(playerBytes2 & 0xFF);                    // facial hair
-
-    *data << uint8(fields[7].GetUInt8());                   // level
-    *data << uint32(fields[8].GetUInt16());                 // zone
-    *data << uint32(fields[9].GetUInt16());                 // map
-
-    *data << fields[10].GetFloat();                         // x
-    *data << fields[11].GetFloat();                         // y
-    *data << fields[12].GetFloat();                         // z
-
-    *data << uint32(fields[13].GetUInt32());                // guild id
-
-    uint32 charFlags = 0;
-    uint32 playerFlags = fields[14].GetUInt32();
-    if (playerFlags & PLAYER_FLAGS_HIDE_HELM)
-        charFlags |= CHARACTER_FLAG_HIDE_HELM;
-    if (playerFlags & PLAYER_FLAGS_HIDE_CLOAK)
-        charFlags |= CHARACTER_FLAG_HIDE_CLOAK;
-    if (playerFlags & PLAYER_FLAGS_GHOST)
-        charFlags |= CHARACTER_FLAG_GHOST;
-    if (atLoginFlags & AT_LOGIN_RENAME)
-        charFlags |= CHARACTER_FLAG_RENAME;
-    if (fields[20].GetUInt32())
-        charFlags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
-    {
-        if (!fields[21].GetString().empty())
-            charFlags |= CHARACTER_FLAG_DECLINED;
-    }
-    else
-        charFlags |= CHARACTER_FLAG_DECLINED;
-
-    *data << uint32(charFlags);                             // character flags
-
-    // character customize flags
-    if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
-        *data << uint32(CHAR_CUSTOMIZE_FLAG_CUSTOMIZE);
-    else if (atLoginFlags & AT_LOGIN_CHANGE_FACTION)
-        *data << uint32(CHAR_CUSTOMIZE_FLAG_FACTION);
-    else if (atLoginFlags & AT_LOGIN_CHANGE_RACE)
-        *data << uint32(CHAR_CUSTOMIZE_FLAG_RACE);
-    else
-        *data << uint32(CHAR_CUSTOMIZE_FLAG_NONE);
-
-    // First login
-    *data << uint8(atLoginFlags & AT_LOGIN_FIRST ? 1 : 0);
-
-    // Pets info
-    uint32 petDisplayId = 0;
-    uint32 petLevel = 0;
-    uint32 petFamily = 0;
-
-    // show pet at selection character in character list only for non-ghost character
-    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (plrClass == CLASS_WARLOCK || plrClass == CLASS_HUNTER || plrClass == CLASS_DEATH_KNIGHT))
-    {
-        uint32 entry = fields[16].GetUInt32();
-        CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
-        if (creatureInfo)
-        {
-            petDisplayId = fields[17].GetUInt32();
-            petLevel = fields[18].GetUInt16();
-            petFamily = creatureInfo->family;
-        }
-    }
-
-    *data << uint32(petDisplayId);
-    *data << uint32(petLevel);
-    *data << uint32(petFamily);
-
-    Tokenizer equipment(fields[19].GetString(), ' ');
-    for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
-    {
-        uint32 visualBase = slot * 2;
-        uint32 itemId = GetUInt32ValueFromArray(equipment, visualBase);
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
-        if (!proto)
-        {
-            *data << uint32(0);
-            *data << uint8(0);
-            *data << uint32(0);
-            continue;
-        }
-
-        SpellItemEnchantmentEntry const* enchant = NULL;
-
-        uint32 enchants = GetUInt32ValueFromArray(equipment, visualBase + 1);
-        for (uint8 enchantSlot = PERM_ENCHANTMENT_SLOT; enchantSlot <= TEMP_ENCHANTMENT_SLOT; ++enchantSlot)
-        {
-            // values stored in 2 uint16
-            uint32 enchantId = 0x0000FFFF & (enchants >> enchantSlot*16);
-            if (!enchantId)
-                continue;
-
-            enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId);
-            if (enchant)
-                break;
-        }
-
-        *data << uint32(proto->DisplayInfoID);
-        *data << uint8(proto->InventoryType);
-        *data << uint32(enchant ? enchant->aura_id : 0);
-    }
-
-    return true;
 }
 
 void Player::ToggleAFK()
@@ -4884,20 +4677,28 @@ void Player::DeleteOldCharacters(uint32 keepDays)
 
 void Player::SetMovement(PlayerMovementType pType)
 {
-    WorldPacket data;
+    WorldPackets::ServerPacket* packet = nullptr;
     switch (pType)
     {
-        case MOVE_ROOT:       data.Initialize(SMSG_FORCE_MOVE_ROOT,   GetPackGUID().size()+4); break;
-        case MOVE_UNROOT:     data.Initialize(SMSG_FORCE_MOVE_UNROOT, GetPackGUID().size()+4); break;
-        case MOVE_WATER_WALK: data.Initialize(SMSG_MOVE_WATER_WALK,   GetPackGUID().size()+4); break;
-        case MOVE_LAND_WALK:  data.Initialize(SMSG_MOVE_LAND_WALK,    GetPackGUID().size()+4); break;
+        case MOVE_ROOT:       packet = new WorldPackets::Movement::MoveForceRoot; break;
+        case MOVE_UNROOT:     packet = new WorldPackets::Movement::MoveForceUnroot; break;
+        case MOVE_WATER_WALK: packet = new WorldPackets::Movement::MoveForceWaterWalk; break;
+        case MOVE_LAND_WALK:  packet = new WorldPackets::Movement::MoveForceLandWalk; break;
         default:
             TC_LOG_ERROR("entities.player", "Player::SetMovement: Unsupported move type (%d), data not sent to client.", pType);
             return;
     }
-    data << GetPackGUID();
-    data << uint32(0);
-    GetSession()->SendPacket(&data);
+
+    switch (pType)
+    {
+        case MOVE_ROOT: reinterpret_cast<WorldPackets::Movement::MoveForceRoot*>(packet)->Guid = GetPackGUID(); break;
+        case MOVE_UNROOT: reinterpret_cast<WorldPackets::Movement::MoveForceUnroot*>(packet)->Guid = GetPackGUID(); break;
+        case MOVE_WATER_WALK: reinterpret_cast<WorldPackets::Movement::MoveForceWaterWalk*>(packet)->Guid = GetPackGUID(); break;
+        case MOVE_LAND_WALK: reinterpret_cast<WorldPackets::Movement::MoveForceLandWalk*>(packet)->Guid = GetPackGUID(); break;
+    }
+    
+    GetSession()->SendPacket(packet->Write());
+    delete packet;
 }
 
 /* Preconditions:
@@ -6626,7 +6427,7 @@ void Player::SaveRecallPosition()
     m_recallO = GetOrientation();
 }
 
-void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self)
+void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self)
 {
     if (self)
         GetSession()->SendPacket(data);
@@ -6635,7 +6436,7 @@ void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self)
     VisitNearbyWorldObject(dist, notifier);
 }
 
-void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only)
+void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only)
 {
     if (self)
         GetSession()->SendPacket(data);
@@ -6644,7 +6445,7 @@ void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self, b
     VisitNearbyWorldObject(dist, notifier);
 }
 
-void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
+void Player::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr)
 {
     if (skipped_rcvr != this)
         GetSession()->SendPacket(data);
@@ -6655,7 +6456,7 @@ void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
-void Player::SendDirectMessage(WorldPacket* data)
+void Player::SendDirectMessage(WorldPacket const* data)
 {
     m_session->SendPacket(data);
 }
@@ -20102,31 +19903,6 @@ void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value
     tokens[index] = buf;
 }
 
-void Player::Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PLAYERBYTES2);
-    stmt->setUInt32(0, customizeInfo->Guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-        return;
-
-    Field* fields = result->Fetch();
-
-    uint32 playerBytes2 = fields[0].GetUInt32();
-    playerBytes2 &= ~0xFF;
-    playerBytes2 |= customizeInfo->FacialHair;
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_PLAYERBYTES);
-
-    stmt->setUInt8(0, customizeInfo->Gender);
-    stmt->setUInt32(1, customizeInfo->Skin | (customizeInfo->Face << 8) | (customizeInfo->HairStyle << 16) | (customizeInfo->HairColor << 24));
-    stmt->setUInt32(2, playerBytes2);
-    stmt->setUInt32(3, customizeInfo->Guid.GetCounter());
-
-    CharacterDatabase.ExecuteOrAppend(trans, stmt);
-}
-
 void Player::SendAttackSwingDeadTarget()
 {
     WorldPacket data(SMSG_ATTACKSWING_DEADTARGET, 0);
@@ -22570,10 +22346,10 @@ void Player::SendInitialPacketsAfterAddToMap()
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
     if (HasAuraType(SPELL_AURA_MOD_ROOT))
     {
-        WorldPacket data2(SMSG_FORCE_MOVE_ROOT, 10);
-        data2 << GetPackGUID();
-        data2 << (uint32)2;
-        SendMessageToSet(&data2, true);
+        WorldPackets::Movement::MoveForceRoot packet;
+        packet.Guid = GetPackGUID();
+        packet.RootTimes = 2;
+        SendMessageToSet(packet.Write(), true);
     }
 
     SendAurasForTarget(this);

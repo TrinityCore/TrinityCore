@@ -22,29 +22,19 @@
 #include "Player.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
+#include "Packets/VehiclePackets.h"
 
-void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
+void WorldSession::HandleDismissControlledVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
 
     ObjectGuid vehicleGUID = _player->GetCharmGUID();
-
     if (!vehicleGUID)                                       // something wrong here...
-    {
-        recvData.rfinish();                                // prevent warnings spam
         return;
-    }
 
-    ObjectGuid guid;
+    CleanMovementInfo(&moveDismissVehicle.Status);
 
-    recvData >> guid.ReadAsPacked();
-
-    MovementInfo mi;
-    mi.guid = guid;
-    ReadMovementInfo(recvData, &mi);
-
-    _player->m_movementInfo = mi;
-
+    _player->m_movementInfo = moveDismissVehicle.Status;
     _player->ExitVehicle();
 }
 
@@ -82,7 +72,8 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recvData)
             recvData >> guid.ReadAsPacked();
 
             MovementInfo movementInfo;
-            ReadMovementInfo(recvData, &movementInfo);
+            recvData >> movementInfo;
+            CleanMovementInfo(&movementInfo);
             vehicle_base->m_movementInfo = movementInfo;
 
             ObjectGuid accessory;        //  accessory guid

@@ -47,6 +47,9 @@
 #include "BattlegroundMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "CharacterPackets.h"
+#include "MovementPackets.h"
+#include "MiscPackets.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -364,7 +367,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: Send SMSG_WHO Message");
 }
 
-void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::PlayerLogoutRequest& /*logoutRequest*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_REQUEST Message, security - %u", GetSecurity());
 
@@ -409,22 +412,22 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         if (GetPlayer()->getStandState() == UNIT_STAND_STATE_STAND)
             GetPlayer()->SetStandState(UNIT_STAND_STATE_SIT);
 
-        WorldPacket data(SMSG_FORCE_MOVE_ROOT, (8+4));    // guess size
-        data << GetPlayer()->GetPackGUID();
-        data << (uint32)2;
-        SendPacket(&data);
+        WorldPackets::Movement::MoveForceRoot packet;
+        packet.Guid = GetPlayer()->GetPackGUID();
+        packet.RootTimes = 2;
+        SendPacket(packet.Write());
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
     LogoutRequest(time(NULL));
 }
 
-void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandlePlayerLogoutOpcode(WorldPackets::Character::PlayerLogout& /*playerLogout*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PLAYER_LOGOUT Message");
 }
 
-void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::PlayerLogoutCancel& /*logoutCancel*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_CANCEL Message");
 
@@ -434,17 +437,16 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
 
     LogoutRequest(0);
 
-    WorldPacket data(SMSG_LOGOUT_CANCEL_ACK, 0);
-    SendPacket(&data);
+    WorldPackets::Character::PlayerLogoutResponse packet;
+    SendPacket(packet.Write());
 
     // not remove flags if can't free move - its not set in Logout request code.
     if (GetPlayer()->CanFreeMove())
     {
         //!we can move again
-        data.Initialize(SMSG_FORCE_MOVE_UNROOT, 8);       // guess size
-        data << GetPlayer()->GetPackGUID();
-        data << uint32(0);
-        SendPacket(&data);
+        WorldPackets::Movement::MoveForceUnroot packet;
+        packet.Guid = GetPlayer()->GetPackGUID();
+        SendPacket(packet.Write());
 
         //! Stand Up
         GetPlayer()->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1045,27 +1047,9 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
 }
 
-void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
+void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& /*moveTimeSkipped*/)
 {
-    /*  WorldSession::Update(getMSTime());*/
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
-
-    ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
-    recvData.read_skip<uint32>();
-    /*
-        uint64 guid;
-        uint32 time_skipped;
-        recvData >> guid;
-        recvData >> time_skipped;
-        TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_TIME_SKIPPED");
-
-        //// @todo
-        must be need use in Trinity
-        We substract server Lags to move time (AntiLags)
-        for exmaple
-        GetPlayer()->ModifyLastMoveTime(-int32(time_skipped));
-    */
 }
 
 void WorldSession::HandleFeatherFallAck(WorldPacket& recvData)
@@ -1220,22 +1204,8 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
+void WorldSession::HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& worldPort)
 {
-    uint32 time;
-    uint32 mapid;
-    float PositionX;
-    float PositionY;
-    float PositionZ;
-    float Orientation;
-
-    recvData >> time;                                      // time in m.sec.
-    recvData >> mapid;
-    recvData >> PositionX;
-    recvData >> PositionY;
-    recvData >> PositionZ;
-    recvData >> Orientation;                               // o (3.141593 = 180 degrees)
-
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_WORLD_TELEPORT");
 
     if (GetPlayer()->IsInFlight())
@@ -1246,10 +1216,10 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
     }
 
     TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, Time = %u, map = %u, x = %f, y = %f, z = %f, o = %f",
-        GetPlayer()->GetName().c_str(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
+        GetPlayer()->GetName().c_str(), worldPort.Time, worldPort.MapID, worldPort.PositionX, worldPort.PositionY, worldPort.PositionZ, worldPort.Orientation);
 
     if (HasPermission(rbac::RBAC_PERM_OPCODE_WORLD_TELEPORT))
-        GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
+        GetPlayer()->TeleportTo(worldPort.MapID, worldPort.PositionX, worldPort.PositionY, worldPort.PositionZ, worldPort.Orientation);
     else
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
 }
@@ -1588,23 +1558,14 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
     _player->RemoveAurasByType(SPELL_AURA_MOUNTED); // Calls Dismount()
 }
 
-void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
+void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPackets::Movement::MovementAckMessage& movementAck)
 {
     // fly mode on/off
     TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_SET_CAN_FLY_ACK");
-
-    ObjectGuid guid;                                            // guid - unused
-    recvData >> guid.ReadAsPacked();
-
-    recvData.read_skip<uint32>();                          // unk
-
-    MovementInfo movementInfo;
-    movementInfo.guid = guid;
-    ReadMovementInfo(recvData, &movementInfo);
-
-    recvData.read_skip<float>();                           // unk2
-
-    _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
+    
+    movementAck.Ack.movementInfo.guid = movementAck.Guid;
+    CleanMovementInfo(&movementAck.Ack.movementInfo);
+    _player->m_mover->m_movementInfo.flags = movementAck.Ack.movementInfo.GetMovementFlags();
 }
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
@@ -1797,6 +1758,8 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
         uint32 opcode;
         recvPacket >> opcode;
         recvPacket.SetOpcode(opcode);
-        HandleMovementOpcodes(recvPacket);
+        WorldPackets::Movement::ClientPlayerMovement packet(std::move(recvPacket));
+        packet.Read();
+        HandleMovementOpcodes(packet);
     }
 }
