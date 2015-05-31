@@ -2938,7 +2938,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
     // don't allow channeled spells / spells with cast time to be cast while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
-    if ((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isMoving() && m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT)
+    if (((m_spellInfo->IsChanneled() && !m_spellInfo->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHILE_MOVING)) || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isMoving() && m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT)
     {
         SendCastResult(SPELL_FAILED_MOVING);
         finish(false);
@@ -3271,6 +3271,10 @@ void Spell::handle_immediate()
             m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
             SendChannelStart(duration);
         }
+
+        // interrupt movement at channeled spells for creature case
+        if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->isMoving() && !m_spellInfo->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHILE_MOVING))
+            m_caster->StopMoving();
     }
 
     PrepareTargetProcessing();
