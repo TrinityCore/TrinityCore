@@ -87,11 +87,11 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 resetcheck_timer = 5000;
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void DoAction(int32 action) override
             {
-                if (type == 1)
+                if (action == ACTION_EXECUTIONER_TAUNT)
                 {
-                    switch (data)
+                    switch (instance->GetData(DATA_TEAM_IN_INSTANCE))
                     {
                         case ALLIANCE:
                             Talk(SAY_CALL_EXECUTIONER_A);
