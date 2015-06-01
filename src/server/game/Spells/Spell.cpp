@@ -2428,9 +2428,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     {
         m_caster->CombatStart(unit, !m_spellInfo->HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
 
-        if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_AURA_CC))
-            if (!unit->IsStandState())
-                unit->SetStandState(UNIT_STAND_STATE_STAND);
+        if (!unit->IsStandState())
+            unit->SetStandState(UNIT_STAND_STATE_STAND);
     }
 
     if (spellHitTarget)
@@ -2514,8 +2513,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
         {
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
-            /// @todo This is a hack. But we do not know what types of stealth should be interrupted by CC
-            if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
+
+            if (!m_spellInfo->HasAttribute(SPELL_ATTR0_CU_DONT_BREAK_STEALTH))
                 unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
         }
         else if (m_caster->IsFriendlyTo(unit))
