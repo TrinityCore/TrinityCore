@@ -498,3 +498,27 @@ WorldPacket const* WorldPackets::Character::SetFactionVisible::Write()
     _worldPacket << FactionIndex;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Character::CharCustomizeResponse::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << uint8(SexID);
+    _worldPacket << uint8(SkinID);
+    _worldPacket << uint8(HairColorID);
+    _worldPacket << uint8(HairStyleID);
+    _worldPacket << uint8(FacialHairStyleID);
+    _worldPacket << uint8(FaceID);
+    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(Name);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Character::CharCustomizeFailed::Write()
+{
+    _worldPacket << uint8(Result);
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
