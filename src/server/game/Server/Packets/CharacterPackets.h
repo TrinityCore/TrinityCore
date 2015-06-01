@@ -608,7 +608,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            BarberShopResult Result;
+            BarberShopResult Result = BARBER_SHOP_RESULT_SUCCESS;
         };
 
         class LogXPGain final : public ServerPacket

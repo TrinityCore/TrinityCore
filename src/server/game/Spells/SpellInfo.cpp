@@ -1822,6 +1822,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
                             if (!player->CanFlyInZone(map_id, zone_id))
                                 return SPELL_FAILED_INCORRECT_AREA;
                     }
+                    break;
                 }
                 case SPELL_AURA_MOUNTED:
                 {

@@ -2328,6 +2328,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         return;
     }
 
+    if (!unit)
+        return;
+
     if (unit->IsAlive() != target->alive)
         return;
 
