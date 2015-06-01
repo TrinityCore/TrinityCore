@@ -883,9 +883,9 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     std::swap(x, y);                                         // client have map coords swapped
 }
 
-MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapID)
+MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty /*= nullptr*/)
 {
-    auto itr = sMapDifficultyMap.find(mapID);
+    auto itr = sMapDifficultyMap.find(mapId);
     if (itr == sMapDifficultyMap.end())
         return nullptr;
 
@@ -894,13 +894,21 @@ MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapID)
 
     for (auto& p : itr->second)
     {
-        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(p.first);
-        if (!difficulty)
+        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(p.first);
+        if (!difficultyEntry)
             continue;
 
-        if (difficulty->Flags & DIFFICULTY_FLAG_DEFAULT)
+        if (difficultyEntry->Flags & DIFFICULTY_FLAG_DEFAULT)
+        {
+            if (difficulty)
+                *difficulty = Difficulty(p.first);
+
             return p.second;
+        }
     }
+
+    if (difficulty)
+        *difficulty = Difficulty(itr->second.begin()->first);
 
     return itr->second.begin()->second;
 }
@@ -922,7 +930,7 @@ MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficult
 {
     DifficultyEntry const* diffEntry = sDifficultyStore.LookupEntry(difficulty);
     if (!diffEntry)
-        return GetDefaultMapDifficulty(mapId);
+        return GetDefaultMapDifficulty(mapId, &difficulty);
 
     uint32 tmpDiff = difficulty;
     MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
@@ -931,7 +939,7 @@ MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficult
         tmpDiff = diffEntry->FallbackDifficultyID;
         diffEntry = sDifficultyStore.LookupEntry(tmpDiff);
         if (!diffEntry)
-            return GetDefaultMapDifficulty(mapId);
+            return GetDefaultMapDifficulty(mapId, &difficulty);
 
         // pull new data
         mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // we are 10 normal or 25 normal
