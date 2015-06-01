@@ -177,7 +177,8 @@ namespace MMAP
         {
             TC_LOG_ERROR("phase", "MMAP:LoadTile: Bad header in mmap %04u%02i%02i.mmtile", mapId, x, y);
             fclose(file);
-            return NULL;
+            delete pTile;
+            return nullptr;
         }
 
         if (pTile->fileHeader.mmapVersion != MMAP_VERSION)
@@ -185,7 +186,8 @@ namespace MMAP
             TC_LOG_ERROR("phase", "MMAP:LoadTile: %04u%02i%02i.mmtile was built with generator v%i, expected v%i",
                 mapId, x, y, pTile->fileHeader.mmapVersion, MMAP_VERSION);
             fclose(file);
-            return NULL;
+            delete pTile;
+            return nullptr;
         }
 
         pTile->data = (unsigned char*)dtAlloc(pTile->fileHeader.size, DT_ALLOC_PERM);
@@ -196,7 +198,8 @@ namespace MMAP
         {
             TC_LOG_ERROR("phase", "MMAP:LoadTile: Bad header or data in mmap %04u%02i%02i.mmtile", mapId, x, y);
             fclose(file);
-            return NULL;
+            delete pTile;
+            return nullptr;
         }
 
         fclose(file);
@@ -475,7 +478,10 @@ namespace MMAP
         PhasedTile* pt = new PhasedTile();
         // remove old tile
         if (dtStatusFailed(navMesh->removeTile(loadedTileRefs[packedXY], &pt->data, &pt->dataSize)))
+        {
             TC_LOG_ERROR("phase", "MMapData::AddSwap: Could not unload %04u%02i%02i.mmtile from navmesh", _mapId, x, y);
+            delete pt;
+        }
         else
         {
             TC_LOG_DEBUG("phase", "MMapData::AddSwap: Unloaded %04u%02i%02i.mmtile from navmesh", _mapId, x, y);
