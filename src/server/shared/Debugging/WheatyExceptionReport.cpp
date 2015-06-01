@@ -62,6 +62,8 @@ HANDLE WheatyExceptionReport::m_hProcess;
 SymbolPairs WheatyExceptionReport::symbols;
 std::stack<SymbolDetail> WheatyExceptionReport::symbolDetails;
 bool WheatyExceptionReport::stackOverflowException;
+bool WheatyExceptionReport::alreadyCrashed;
+std::mutex WheatyExceptionReport::alreadyCrashedLock;
 
 // Declare global instance of class
 WheatyExceptionReport g_WheatyExceptionReport;
@@ -74,6 +76,7 @@ WheatyExceptionReport::WheatyExceptionReport()             // Constructor
     m_previousFilter = SetUnhandledExceptionFilter(WheatyUnhandledExceptionFilter);
     m_hProcess = GetCurrentProcess();
     stackOverflowException = false;
+    alreadyCrashed = false;
     if (!IsDebuggerPresent())
     {
         _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
@@ -99,6 +102,13 @@ WheatyExceptionReport::~WheatyExceptionReport()
 LONG WINAPI WheatyExceptionReport::WheatyUnhandledExceptionFilter(
 PEXCEPTION_POINTERS pExceptionInfo)
 {
+    std::unique_lock<std::mutex> guard(alreadyCrashedLock);
+    // Handle only 1 exception in the whole process lifetime
+    if (alreadyCrashed)
+        return EXCEPTION_EXECUTE_HANDLER;
+
+    alreadyCrashed = true;
+
     if (pExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
         stackOverflowException = true;
 
