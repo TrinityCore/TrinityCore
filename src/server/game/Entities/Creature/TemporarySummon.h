@@ -72,9 +72,10 @@ class Minion : public TempSummon
         Unit* GetOwner() const { return m_owner; }
         float GetFollowAngle() const override { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
-        bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
-        bool IsSpiritWolf() const {return GetEntry() == 29264;} // Spirit wolf from feral spirits
+        bool IsPetGhoul() const { return GetEntry() == 26125; } // Ghoul may be guardian or pet
+        bool IsSpiritWolf() const { return GetEntry() == 29264; } // Spirit wolf from feral spirits
         bool IsGuardianPet() const;
+        bool IsRisenAlly() const { return GetEntry() == 30230; }
     protected:
         Unit* const m_owner;
         float m_followAngle;
