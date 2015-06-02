@@ -27,6 +27,7 @@ set(scripts_STAT_SRCS
   Outland/HellfireCitadel/ShatteredHalls/shattered_halls.h
   Outland/HellfireCitadel/ShatteredHalls/boss_warchief_kargath_bladefist.cpp
   Outland/HellfireCitadel/ShatteredHalls/boss_nethekurse.cpp
+  Outland/HellfireCitadel/ShatteredHalls/shattered_halls.cpp
   Outland/HellfireCitadel/ShatteredHalls/instance_shattered_halls.cpp
   Outland/HellfireCitadel/ShatteredHalls/boss_warbringer_omrogg.cpp
   Outland/CoilfangReservoir/SteamVault/boss_mekgineer_steamrigger.cpp

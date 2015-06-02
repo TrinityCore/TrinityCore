@@ -102,7 +102,7 @@ public:
             }
         }
 
-         virtual void Update(uint32 /*diff*/) // correct order goes form 1-6
+         virtual void Update(uint32 /*diff*/) override // correct order goes form 1-6
          {
              switch (State)
              {
