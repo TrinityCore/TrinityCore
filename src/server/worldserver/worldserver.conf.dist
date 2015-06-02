@@ -3361,3 +3361,32 @@ PacketSpoof.BanDuration = 86400
 
 #
 ###################################################################################################
+
+###################################################################################################
+# ARENA DYNAMIC MATCHMAKING SETTINGS
+#
+#    ArenaDynamicMatchmakingSystem.enable
+#        Default:     0 - Disabled
+#                     1 - Enabled
+#                     
+
+ArenaDynamicMatchmakingSystem.enable = 0
+
+#
+#    ArenaDynamicMatchmakingSystem.rangeIncrease
+#        Description: Amount of matchmaking range widened every updateInterval
+#        Default:     100
+#
+
+ArenaDynamicMatchmakingSystem.rangeIncrease = 100
+
+#
+#    ArenaDynamicMatchmakingSystem.updateInterval
+#        Description: Time required for matchmaking range to increase
+#        Default:     30000 miliseconds (30 seconds)
+#
+
+ArenaDynamicMatchmakingSystem.updateInterval = 30000
+
+#
+###################################################################################################

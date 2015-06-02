@@ -1146,6 +1146,11 @@ void World::LoadConfigSettings(bool reload)
        m_int_configs[CONFIG_NO_GRAY_AGGRO_BELOW] = m_int_configs[CONFIG_NO_GRAY_AGGRO_ABOVE];
     }
 
+    // Arena dynamic matchmaking rating system
+    m_bool_configs[CONFIG_ARENA_DYNAMIC_MATCHMAKING_SYSTEM] = sConfigMgr->GetBoolDefault("ArenaDynamicMatchmakingSystem.enable", 0);
+    m_int_configs[CONFIG_ARENA_DYNAMIC_MATCHMAKING_RANGE_INCREASE] = sConfigMgr->GetIntDefault("ArenaDynamicMatchmakingSystem.rangeIncrease", 100);
+    m_int_configs[CONFIG_ARENA_DYNAMIC_MATCHMAKING_UPDATE_INTERVAL] = sConfigMgr->GetIntDefault("ArenaDynamicMatchmakingSystem.updateInterval", 30000);
+
     ///- Read the "Data" directory from the config file
     std::string dataPath = sConfigMgr->GetStringDefault("DataDir", "./");
     if (dataPath.empty() || (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\'))
