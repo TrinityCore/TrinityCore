@@ -349,7 +349,26 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     args.push_back("-h" + host);
     args.push_back("-u" + user);
     args.push_back("-p" + password);
+
+    // Check if we want to connect through ip or socket (Unix only)
+#ifdef _WIN32
+
     args.push_back("-P" + port_or_socket);
+
+#else
+
+    if (!std::isdigit(port_or_socket[0]))
+    {
+        // We can't check here if host == "." because is named localhost if socket option is enabled
+        args.push_back("-P0");
+        args.push_back("--protocol=SOCKET");
+        args.push_back("-S" + port_or_socket);
+    }
+    else
+        // generic case
+        args.push_back("-P" + port_or_socket);
+
+#endif
 
     // Set the default charset to utf8
     args.push_back("--default-character-set=utf8");
