@@ -1664,7 +1664,7 @@ class Player : public Unit, public GridObject<Player>
 
         void setResurrectRequestData(ObjectGuid guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana);
         void clearResurrectRequestData() { setResurrectRequestData(ObjectGuid::Empty, 0, 0.0f, 0.0f, 0.0f, 0, 0); }
-        bool isResurrectRequestedBy(ObjectGuid guid) const { return m_resurrectGUID == guid; }
+        bool isResurrectRequestedBy(ObjectGuid guid) const { return !m_resurrectGUID.IsEmpty() && m_resurrectGUID == guid; }
         bool isResurrectRequested() const { return !m_resurrectGUID.IsEmpty(); }
         void ResurrectUsingRequestData();
 
