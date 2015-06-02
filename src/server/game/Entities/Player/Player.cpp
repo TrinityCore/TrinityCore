@@ -26251,9 +26251,9 @@ bool Player::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
     return true;
 }
 
-bool Player::SetCanFly(bool apply)
+bool Player::SetCanFly(bool apply, bool packetOnly /*= false*/)
 {
-    if (!Unit::SetCanFly(apply))
+    if (!packetOnly && !Unit::SetCanFly(apply))
         return false;
 
     WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
