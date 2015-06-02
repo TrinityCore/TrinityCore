@@ -22,6 +22,7 @@
  */
 
 #include "Player.h"
+#include "UnitAI.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -63,7 +64,10 @@ enum DeathKnightSpells
     SPELL_DK_UNHOLY_PRESENCE                    = 48265,
     SPELL_DK_UNHOLY_PRESENCE_TRIGGERED          = 49772,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
-    SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284
+    SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
+    SPELL_DK_RAISE_ALLY_INITIAL                 = 61999,
+    SPELL_DK_RAISE_ALLY                         = 46619,
+    SPELL_DK_GHOUL_THRASH                       = 47480
 };
 
 enum DeathKnightSpellIcons
@@ -1699,6 +1703,300 @@ public:
     }
 };
 
+enum RaiseAllyMisc
+{
+    TEXT_RISE_ALLY = 33055,
+
+    SPELL_DK_RISEN_GHOUL_SELF_STUN = 47466,
+    SPELL_DK_RISEN_GHOUL_SPAWN__IN = 47448,
+    SPELL_DK_SUMMON_HEAL = 36492,
+    SPELL_DK_DEATH_KNIGHT_RUNE_WEAPON_SCALING_02 = 51906,
+    SPELL_DK_DEATH_KNIGHT_PET_SCALING_01 = 54566,
+    SPELL_DK_DEATH_KNIGHT_PET_SCALING_03 = 61697,
+    SPELL_DK_MIRROR_NAME = 62224,
+    SPELL_DK_MIRROR_NAME_TRIGGERED = 62214,
+    SPELL_DK_PET_SCALING___MASTER_SPELL_03___INTELLECT_SPIRIT_RESILIENCE = 67557,
+    SPELL_DK_PET_SCALING___MASTER_SPELL_06___SPELL_HIT_EXPERTISE_SPELL_PENETRATION = 67561,
+
+    SPELL_GHOUL_FRENZY = 62218,
+
+    NPC_RISEN_ALLY = 30230
+};
+
+// 61999 - Raise Ally Initial
+class spell_dk_raise_ally_initial : public SpellScriptLoader
+{
+public:
+    spell_dk_raise_ally_initial() : SpellScriptLoader("spell_dk_raise_ally_initial") { }
+
+    class spell_dk_raise_ally_initial_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_raise_ally_initial_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_ALLY_INITIAL))
+                return false;
+            return true;
+        }
+
+        SpellCastResult CheckCast()
+        {
+            // Raise Ally cannot be casted on alive players
+            Unit* target = GetExplTargetUnit();
+            if (target && target->IsAlive())
+                return SPELL_FAILED_TARGET_NOT_DEAD;
+            else if (GetCaster()->ToPlayer()->InArena())
+                return SPELL_FAILED_NOT_IN_ARENA;
+            else if (target->IsGhouled())
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            Player* target = GetHitPlayer();
+            if (caster && target)
+                caster->SendGhoulResurrectRequest(target);
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_dk_raise_ally_initial_SpellScript::CheckCast);
+            OnEffectHitTarget += SpellEffectFn(spell_dk_raise_ally_initial_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_dk_raise_ally_initial_SpellScript();
+    }
+};
+
+class player_ghoulAI : public PlayerAI
+{
+    public:
+        player_ghoulAI(Player* player, ObjectGuid ghoulGUID) : PlayerAI(player), _ghoulGUID(ghoulGUID) { }
+
+        void UpdateAI(uint32 /*diff*/) override
+        {
+            if (Creature* ghoul = ObjectAccessor::GetCreature(*me, _ghoulGUID))
+            {
+                if (!ghoul->IsAlive())
+                    me->RemoveAura(SPELL_DK_RAISE_ALLY);
+            }
+            else
+                me->RemoveAura(SPELL_DK_RAISE_ALLY);
+        }
+
+    private:
+        ObjectGuid _ghoulGUID;
+};
+
+// 46619 - Raise Ally
+class spell_dk_raise_ally : public SpellScriptLoader
+{
+public:
+    spell_dk_raise_ally() : SpellScriptLoader("spell_dk_raise_ally") { }
+
+    class spell_dk_raise_ally_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_raise_ally_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_ALLY))
+                return false;
+            return true;
+        }
+
+        void SendText()
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            Unit* original = GetOriginalCaster();
+            if (caster && original)
+                original->Whisper(TEXT_RISE_ALLY, caster, true);
+        }
+
+        void HandleSummon(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            Unit* caster = GetCaster();
+            Unit* originalCaster = GetOriginalCaster();
+            if (!originalCaster)
+                return;
+
+            uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
+
+            //! HACK - StatSystem needs further develop to enable update on Puppet stats
+            // Using same summon properties as Raise Dead 46585 (Guardian) - EffectMiscValueB = 829
+            SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(829);
+
+            uint32 duration = uint32(GetSpellInfo()->GetDuration());
+            Position pos = caster->GetPosition();
+
+            TempSummon* summon = originalCaster->GetMap()->SummonCreature(entry, pos, properties, duration, originalCaster, GetSpellInfo()->Id);
+            if (!summon)
+                return;
+
+            //! Leaving this here as it's necessary if statsystem problem is solved
+            /*
+                Default SUMMON_CATEGORY_PUPPET behaviour sets possesor as originalCaster,
+                in this case we need caster as possesor and originalCaster as owner
+            */
+            //summon->RemoveCharmedBy(NULL);
+
+            summon->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
+
+            summon->CastSpell(summon, SPELL_DK_RISEN_GHOUL_SELF_STUN, true);
+            summon->CastSpell(summon, SPELL_DK_RISEN_GHOUL_SPAWN__IN, true);
+            summon->CastSpell(summon, SPELL_DK_SUMMON_HEAL, true);
+            summon->CastSpell(caster, SPELL_DK_MIRROR_NAME, true);
+            caster->CastSpell(summon, SPELL_DK_MIRROR_NAME_TRIGGERED, true);
+            summon->CastSpell(summon, SPELL_DK_DEATH_KNIGHT_RUNE_WEAPON_SCALING_02, true);
+            summon->CastSpell(summon, SPELL_DK_DEATH_KNIGHT_PET_SCALING_01, true);
+            summon->CastSpell(summon, SPELL_DK_DEATH_KNIGHT_PET_SCALING_03, true);
+            summon->CastSpell(summon, SPELL_DK_PET_SCALING___MASTER_SPELL_03___INTELLECT_SPIRIT_RESILIENCE, true);
+            summon->CastSpell(summon, SPELL_DK_PET_SCALING___MASTER_SPELL_06___SPELL_HIT_EXPERTISE_SPELL_PENETRATION, true);
+
+            // SMSG_POWER_UPDATE is sent
+            summon->SetMaxPower(POWER_ENERGY, 100);
+
+            if (Player* player = GetCaster()->ToPlayer())
+                player->SetGhoulResurrectGhoulGUID(summon->GetGUID());
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_dk_raise_ally_SpellScript::SendText);
+            OnEffectHit += SpellEffectFn(spell_dk_raise_ally_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_dk_raise_ally_SpellScript();
+    }
+
+    class spell_dk_raise_ally_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_raise_ally_AuraScript);
+
+    public:
+        spell_dk_raise_ally_AuraScript()
+        {
+            oldAI = nullptr;
+            oldAIState = false;
+        }
+
+    private:
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_ALLY))
+                return false;
+            return true;
+        }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Player* player = GetTarget()->ToPlayer();
+            if (!player || player->GetGhoulResurrectGhoulGUID().IsEmpty())
+                return;
+
+            oldAI = player->GetAI();
+            oldAIState = player->IsAIEnabled;
+            player->SetAI(new player_ghoulAI(player, player->GetGhoulResurrectGhoulGUID()));
+            player->IsAIEnabled = true;
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Player* player = GetTarget()->ToPlayer();
+            if (!player)
+                return;
+
+            player->IsAIEnabled = oldAIState;
+            UnitAI* thisAI = player->GetAI();
+            player->SetAI(oldAI);
+            delete thisAI;
+
+            // Dismiss ghoul if necessary
+            if (Creature* ghoul = ObjectAccessor::GetCreature(*player, player->GetGhoulResurrectGhoulGUID()))
+            {
+                ghoul->RemoveCharmedBy(nullptr);
+                ghoul->DespawnOrUnsummon(1000);
+            }
+
+            player->SetGhoulResurrectGhoulGUID(ObjectGuid::Empty);
+            player->RemoveAura(SPELL_GHOUL_FRENZY);
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_dk_raise_ally_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_dk_raise_ally_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+
+        UnitAI* oldAI;
+        bool oldAIState;
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_raise_ally_AuraScript();
+    }
+};
+
+// 47480 - Thrash
+class spell_dk_ghoul_thrash : public SpellScriptLoader
+{
+public:
+    spell_dk_ghoul_thrash() : SpellScriptLoader("spell_dk_ghoul_thrash") { }
+
+    class spell_dk_ghoul_thrash_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_ghoul_thrash_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DK_GHOUL_THRASH))
+                return false;
+            return true;
+        }
+
+        void CalcDamage()
+        {
+            if (Aura* aur = GetCaster()->GetAura(SPELL_GHOUL_FRENZY))
+            {
+                int32 damage = GetHitDamage();
+                damage += int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.05f * aur->GetStackAmount());
+                aur->Remove();
+                SetHitDamage(damage);
+            }
+
+            /*
+                Also remove aura from charmer
+                SPELL_GHOUL_FRENZY (62218) - Targets (1, 27) (TARGET_UNIT_CASTER, TARGET_UNIT_MASTER)
+            */
+            if (Unit* charmer = GetCaster()->GetCharmer())
+                charmer->RemoveAura(SPELL_GHOUL_FRENZY);
+        }
+
+        void Register() override
+        {
+            OnHit += SpellHitFn(spell_dk_ghoul_thrash_SpellScript::CalcDamage);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_dk_ghoul_thrash_SpellScript();
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1729,4 +2027,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
     new spell_dk_death_grip_initial();
+    new spell_dk_raise_ally_initial();
+    new spell_dk_raise_ally();
+    new spell_dk_ghoul_thrash();
 }

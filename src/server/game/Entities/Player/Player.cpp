@@ -1242,6 +1242,9 @@ void Player::Update(uint32 p_time)
             if (charmer->GetTypeId() == TYPEID_UNIT && charmer->IsAlive())
                 UpdateCharmedAI();
 
+    if (GetAI() && IsAIEnabled)
+        GetAI()->UpdateAI(p_time);
+
     // Update items that have just a limited lifetime
     if (now > m_Last_tick)
         UpdateItemDuration(uint32(now - m_Last_tick));
@@ -1476,8 +1479,8 @@ void Player::Update(uint32 p_time)
             _pendingBindTimer -= p_time;
     }
 
-    // not auto-free ghost from body in instances
-    if (m_deathTimer > 0 && !GetBaseMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+    // not auto-free ghost from body in instances or if its affected by risen ally
+    if (m_deathTimer > 0 && !GetBaseMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !IsGhouled())
     {
         if (p_time >= m_deathTimer)
         {
@@ -2157,7 +2160,7 @@ bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) co
         return true;
     if (spellInfo->Effects[index].IsEffect(SPELL_EFFECT_ATTACK_ME))
         return true;
-    
+
     return Unit::IsImmunedToSpellEffect(spellInfo, index);
 }
 
@@ -4729,6 +4732,32 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
             }
         }
     }
+}
+
+void Player::SendGhoulResurrectRequest(Player* target)
+{
+    target->m_ghoulResurrectPlayerGUID = GetGUID();
+
+    WorldPacket data(SMSG_RESURRECT_REQUEST, 8 + 4 + 1 + 1);
+    data << uint64(GetGUID());
+    data << uint32(0);
+    data << uint8(0);
+    data << uint8(0);
+    target->GetSession()->SendPacket(&data);
+}
+
+void Player::GhoulResurrect()
+{
+    CastSpell(this, 46619 /*SPELL_DK_RAISE_ALLY*/, true, nullptr, nullptr, m_ghoulResurrectPlayerGUID);
+
+    m_ghoulResurrectPlayerGUID = ObjectGuid::Empty;
+}
+
+void Player::RemoveGhoul()
+{
+    if (IsGhouled())
+        if (Creature* ghoul = ObjectAccessor::GetCreature(*this, m_ghoulResurrectGhoulGUID))
+            ghoul->DespawnOrUnsummon(); // Raise Ally aura will handle unauras
 }
 
 void Player::KillPlayer()
@@ -18682,7 +18711,7 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
     // game masters' instances are always valid
     if (IsGameMaster())
         return true;
-    
+
     // non-instances are always valid
     Map* map = GetMap();
     if (!map || !map->IsDungeon())
@@ -20156,6 +20185,12 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
 void Player::StopCastingCharm()
 {
+    if (IsGhouled())
+    {
+        RemoveGhoul();
+        return;
+    }
+
     Unit* charm = GetCharm();
     if (!charm)
         return;
@@ -21507,6 +21542,14 @@ void Player::setResurrectRequestData(ObjectGuid guid, uint32 mapId, float X, flo
     m_resurrectZ = Z;
     m_resurrectHealth = health;
     m_resurrectMana = mana;
+}
+
+void Player::clearResurrectRequestData()
+{
+    setResurrectRequestData(ObjectGuid::Empty, 0, 0.0f, 0.0f, 0.0f, 0, 0);
+
+    m_ghoulResurrectPlayerGUID = ObjectGuid::Empty;
+    m_ghoulResurrectGhoulGUID = ObjectGuid::Empty;
 }
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
@@ -23410,6 +23453,8 @@ uint32 Player::GetBaseWeaponSkillValue(WeaponAttackType attType) const
 
 void Player::ResurrectUsingRequestData()
 {
+    RemoveGhoul();
+
     /// Teleport before resurrecting by player, otherwise the player might get attacked from creatures near his corpse
     TeleportTo(m_resurrectMap, m_resurrectX, m_resurrectY, m_resurrectZ, GetOrientation());
 
@@ -23853,6 +23898,31 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 
         //WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
         //GetSession()->SendPacket(&data);
+    }
+
+    // HACK: Make sure update for PLAYER_FARSIGHT is received before SMSG_PET_SPELLS to properly hide "Release spirit" dialog
+    if (target->GetTypeId() == TYPEID_UNIT && static_cast<Unit*>(target)->HasUnitTypeMask(UNIT_MASK_MINION) && static_cast<Minion*>(target)->IsRisenAlly())
+    {
+        if (apply)
+        {
+            UpdateDataMapType update_players;
+            BuildUpdate(update_players);
+            WorldPacket packet;
+            for (UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
+            {
+                iter->second.BuildPacket(&packet);
+                iter->first->GetSession()->SendPacket(&packet);
+                packet.clear();
+            }
+        }
+        else
+        {
+            m_deathTimer = 6 * MINUTE * IN_MILLISECONDS;
+
+            // Reset "Release spirit" timer clientside
+            WorldPacket data(SMSG_FORCED_DEATH_UPDATE);
+            SendDirectMessage(&data);
+        }
     }
 }
 
