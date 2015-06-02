@@ -346,9 +346,9 @@ struct Runes
 
 struct EnchantDuration
 {
-    EnchantDuration() : item(NULL), slot(MAX_ENCHANTMENT_SLOT), leftduration(0) { };
+    EnchantDuration() : item(NULL), slot(MAX_ENCHANTMENT_SLOT), leftduration(0) { }
     EnchantDuration(Item* _item, EnchantmentSlot _slot, uint32 _leftduration) : item(_item), slot(_slot),
-        leftduration(_leftduration){ ASSERT(item); };
+        leftduration(_leftduration){ ASSERT(item); }
 
     Item* item;
     EnchantmentSlot slot;
@@ -1839,7 +1839,7 @@ class Player : public Unit, public GridObject<Player>
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
-        void SendMessageToSet(WorldPacket* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet
+        void SendMessageToSet(WorldPacket* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); }// overwrite Object::SendMessageToSet
         void SendMessageToSetInRange(WorldPacket* data, float fist, bool self) override;// overwrite Object::SendMessageToSetInRange
         void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
         void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr) override;

@@ -770,7 +770,8 @@ public:
         void Initialize()
         {
             circleRounds = 0;
-            point = 0;
+            point = 3;
+            wpreached = false;
         }
 
         void Reset() override
@@ -778,9 +779,7 @@ public:
             events.Reset();
 
             summons.DespawnAll();
-            circleRounds = 0;
-            point = 3;
-            wpreached = false;
+            Initialize();
         }
 
         void DoAction(int32 action) override
