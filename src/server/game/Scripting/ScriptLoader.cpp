@@ -622,6 +622,7 @@ void AddSC_instance_magtheridons_lair();
 void AddSC_boss_grand_warlock_nethekurse();  //HC Shattered Halls
 void AddSC_boss_warbringer_omrogg();
 void AddSC_boss_warchief_kargath_bladefist();
+void AddSC_shattered_halls();
 void AddSC_instance_shattered_halls();
 void AddSC_boss_watchkeeper_gargolmar();     //HC Ramparts
 void AddSC_boss_omor_the_unscarred();
@@ -1152,6 +1153,7 @@ void AddOutlandScripts()
     AddSC_boss_grand_warlock_nethekurse();  //HC Shattered Halls
     AddSC_boss_warbringer_omrogg();
     AddSC_boss_warchief_kargath_bladefist();
+    AddSC_shattered_halls();
     AddSC_instance_shattered_halls();
     AddSC_boss_watchkeeper_gargolmar();     //HC Ramparts
     AddSC_boss_omor_the_unscarred();
