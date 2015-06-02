@@ -367,7 +367,7 @@ void FlightPathMovementGenerator::InitEndGridInfo()
     _endMapId = (*i_path)[nodeCount - 1].MapID; //! MapId of last node
     _preloadTargetNode = nodeCount - 3;
     _endGridX = (*i_path)[nodeCount - 1].LocX;
-    _endGridY = (*i_path)[nodeCount - 1].LocZ;
+    _endGridY = (*i_path)[nodeCount - 1].LocY;
 }
 
 void FlightPathMovementGenerator::PreloadEndGrid()

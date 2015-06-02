@@ -194,6 +194,8 @@ class WheatyExceptionReport
         static SymbolPairs symbols;
         static std::stack<SymbolDetail> symbolDetails;
         static bool stackOverflowException;
+        static bool alreadyCrashed;
+        static std::mutex alreadyCrashedLock;
 
         static char* PushSymbolDetail(char* pszCurrBuffer);
         static char* PopSymbolDetail(char* pszCurrBuffer);

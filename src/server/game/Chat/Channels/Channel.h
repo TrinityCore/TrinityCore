@@ -184,7 +184,7 @@ class Channel
         void DeVoice(ObjectGuid guid1, ObjectGuid guid2);
         void JoinNotify(ObjectGuid guid);                                       // invisible notify
         void LeaveNotify(ObjectGuid guid);                                      // invisible notify
-        void SetOwnership(bool ownership) { _ownership = ownership; };
+        void SetOwnership(bool ownership) { _ownership = ownership; }
         static void CleanOldChannelsInDB();
 
     private:
