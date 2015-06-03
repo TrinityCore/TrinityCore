@@ -184,3 +184,30 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellInterruptLog::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << Victim;
+    _worldPacket << int32(InterruptedSpellID);
+    _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellEnergizeLog::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << TargetGUID;
+
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(Type);
+    _worldPacket << int32(Amount);
+
+    _worldPacket.WriteBit(LogData.is_initialized());
+    _worldPacket.FlushBits();
+    if (LogData)
+        _worldPacket << *LogData;
+
+    return &_worldPacket;
+}
