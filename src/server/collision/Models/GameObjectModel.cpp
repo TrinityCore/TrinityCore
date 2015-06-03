@@ -188,12 +188,12 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
     return hit;
 }
 
-bool GameObjectModel::Relocate(const GameObject& go)
+bool GameObjectModel::UpdatePosition()
 {
     if (!iModel)
         return false;
 
-    ModelList::const_iterator it = model_list.find(go.GetDisplayId());
+    ModelList::const_iterator it = model_list.find(owner->GetDisplayId());
     if (it == model_list.end())
         return false;
 
@@ -205,9 +205,9 @@ bool GameObjectModel::Relocate(const GameObject& go)
         return false;
     }
 
-    iPos = Vector3(go.GetPositionX(), go.GetPositionY(), go.GetPositionZ());
+    iPos = Vector3(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ());
 
-    G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(go.GetOrientation(), 0, 0);
+    G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(owner->GetOrientation(), 0, 0);
     iInvRot = iRotation.inverse();
     // transform bounding box:
     mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
@@ -221,7 +221,7 @@ bool GameObjectModel::Relocate(const GameObject& go)
     for (int i = 0; i < 8; ++i)
     {
         Vector3 pos(iBound.corner(i));
-        go.SummonCreature(1, pos.x, pos.y, pos.z, 0, TEMPSUMMON_MANUAL_DESPAWN);
+        owner->SummonCreature(1, pos.x, pos.y, pos.z, 0, TEMPSUMMON_MANUAL_DESPAWN);
     }
 #endif
 

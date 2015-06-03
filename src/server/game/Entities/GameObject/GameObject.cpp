@@ -2420,7 +2420,7 @@ void GameObject::UpdateModelPosition()
     if (GetMap()->ContainsGameObjectModel(*m_model))
     {
         GetMap()->RemoveGameObjectModel(*m_model);
-        m_model->Relocate(*this);
+        m_model->UpdatePosition();
         GetMap()->InsertGameObjectModel(*m_model);
     }
 }
