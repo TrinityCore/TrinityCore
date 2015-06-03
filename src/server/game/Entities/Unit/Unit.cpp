@@ -8129,13 +8129,14 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
 
 void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
 {
-    WorldPacket data(SMSG_SPELL_ENERGIZE_LOG, (8+8+4+4+4+1));
-    data << victim->GetPackGUID();
-    data << GetPackGUID();
-    data << uint32(spellId);
-    data << uint32(powerType);
-    data << int32(damage);
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::SpellEnergizeLog data;
+    data.CasterGUID = GetGUID();
+    data.TargetGUID = victim->GetGUID();
+    data.SpellID = spellId;
+    data.Type = powerType;
+    data.Amount = damage;
+
+    SendMessageToSet(data.Write(), true);
 }
 
 void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
