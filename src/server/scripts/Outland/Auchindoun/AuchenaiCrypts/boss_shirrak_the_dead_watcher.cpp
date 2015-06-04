@@ -113,7 +113,7 @@ public:
                 Map::PlayerList const &PlayerList = map->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     if (Player* i_pl = i->GetSource())
-                        if (i_pl->IsAlive() && (dist = i_pl->IsWithinDist(me, 45)))
+                        if (i_pl->IsAlive() && (dist = i_pl->GetDistance(me)) < 45)
                         {
                             i_pl->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
                             me->AddAura(SPELL_INHIBITMAGIC, i_pl);
