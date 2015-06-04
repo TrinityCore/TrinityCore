@@ -576,6 +576,15 @@ struct GameObjectLocale
     StringVector CastBarCaption;
 };
 
+// `gameobject_addon` table
+struct GameObjectAddon
+{
+    InvisibilityType invisibilityType;
+    uint32 InvisibilityValue;
+};
+
+typedef std::unordered_map<ObjectGuid::LowType, GameObjectAddon> GameObjectAddonContainer;
+
 // client side GO show states
 enum GOState
 {
@@ -717,6 +726,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
         GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_BYTES_1, 0)); }
         void SetGoState(GOState state);
+        virtual uint32 GetTransportPeriod() const;
         uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_BYTES_1, 2); }
         void SetGoArtKit(uint8 artkit);
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }

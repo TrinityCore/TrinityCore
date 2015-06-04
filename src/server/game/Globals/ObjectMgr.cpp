@@ -1039,6 +1039,66 @@ void ObjectMgr::LoadCreatureAddons()
     TC_LOG_INFO("server.loading", ">> Loaded %u creature addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadGameObjectAddons()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0     1                 2
+    QueryResult result = WorldDatabase.Query("SELECT guid, invisibilityType, invisibilityValue FROM gameobject_addon");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gameobject addon definitions. DB table `gameobject_addon` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        ObjectGuid::LowType guid = fields[0].GetUInt32();
+
+        const GameObjectData* goData = GetGOData(guid);
+        if (!goData)
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) does not exist but has a record in `gameobject_addon`", guid);
+            continue;
+        }
+
+        GameObjectAddon& gameObjectAddon = _gameObjectAddonStore[guid];
+        gameObjectAddon.invisibilityType = InvisibilityType(fields[1].GetUInt8());
+        gameObjectAddon.InvisibilityValue = fields[2].GetUInt32();
+
+        if (gameObjectAddon.invisibilityType >= TOTAL_INVISIBILITY_TYPES)
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) has invalid InvisibilityType in `gameobject_addon`", guid);
+            gameObjectAddon.invisibilityType = INVISIBILITY_GENERAL;
+            gameObjectAddon.InvisibilityValue = 0;
+        }
+
+        if (gameObjectAddon.invisibilityType && !gameObjectAddon.InvisibilityValue)
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) has InvisibilityType set but has no InvisibilityValue in `gameobject_addon`, set to 1", guid);
+            gameObjectAddon.InvisibilityValue = 1;
+        }
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u gameobject addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+GameObjectAddon const* ObjectMgr::GetGameObjectAddon(ObjectGuid::LowType lowguid)
+{
+    GameObjectAddonContainer::const_iterator itr = _gameObjectAddonStore.find(lowguid);
+    if (itr != _gameObjectAddonStore.end())
+        return &(itr->second);
+
+    return NULL;
+}
+
 CreatureAddon const* ObjectMgr::GetCreatureAddon(uint32 lowguid)
 {
     CreatureAddonContainer::const_iterator itr = _creatureAddonStore.find(lowguid);
@@ -4941,11 +5001,11 @@ void ObjectMgr::LoadEventScripts()
         {
             TaxiPathNodeEntry const& node = sTaxiPathNodesByPath[path_idx][node_idx];
 
-            if (node.arrivalEventID)
-                evt_scripts.insert(node.arrivalEventID);
+            if (node.ArrivalEventID)
+                evt_scripts.insert(node.ArrivalEventID);
 
-            if (node.departureEventID)
-                evt_scripts.insert(node.departureEventID);
+            if (node.DepartureEventID)
+                evt_scripts.insert(node.DepartureEventID);
         }
     }
 
@@ -6674,7 +6734,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                 {
                     if (got.moTransport.taxiPathId >= sTaxiPathNodesByPath.size() || sTaxiPathNodesByPath[got.moTransport.taxiPathId].empty())
                         TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u GoType: %u) have data0=%u but TaxiPath (Id: %u) not exist.",
-                        entry, got.type, got.moTransport.taxiPathId, got.moTransport.taxiPathId);
+                            entry, got.type, got.moTransport.taxiPathId, got.moTransport.taxiPathId);
                 }
                 if (uint32 transportMap = got.moTransport.mapID)
                     _transportMaps.insert(transportMap);

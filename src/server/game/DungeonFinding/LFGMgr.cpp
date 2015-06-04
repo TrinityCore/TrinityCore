@@ -410,6 +410,8 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         joinData.result = LFG_JOIN_RANDOM_COOLDOWN;
     else if (dungeons.empty())
         joinData.result = LFG_JOIN_NOT_MEET_REQS;
+    else if (player->HasAura(9454)) // check Freeze debuff
+        joinData.result = LFG_JOIN_NOT_MEET_REQS;
     else if (grp)
     {
         if (grp->GetMembersCount() > MAXGROUPSIZE)
@@ -429,6 +431,8 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                         joinData.result = LFG_JOIN_PARTY_RANDOM_COOLDOWN;
                     else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
                         joinData.result = LFG_JOIN_USING_BG_SYSTEM;
+                    else if (plrg->HasAura(9454)) // check Freeze debuff
+                        joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
                     ++memberCount;
                     players.insert(plrg->GetGUID());
                 }
@@ -1266,15 +1270,6 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         if (player->GetMapId() == uint32(dungeon->map))
             player->TeleportToBGEntryPoint();
 
-        // in the case were we are the last in the lfggroup then we must disband the lfggroup when porting out of the instance
-        // only when the player is not logging out.on logout, the core does it's own magic
-        if (!player->GetSession()->isLogingOut() && group->GetMembersCount() == 1)
-        {
-            group->Disband();
-            TC_LOG_DEBUG("lfg.teleport", "Player %s(%s) is last in the lfggroup so we disband the group.",
-                player->GetName().c_str(), player->GetGUID().ToString().c_str());
-        }
-
         return;
     }
 
@@ -1290,6 +1285,8 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         error = LFG_TELEPORTERROR_IN_VEHICLE;
     else if (player->GetCharmGUID())
         error = LFG_TELEPORTERROR_CHARMING;
+    else if (player->HasAura(9454)) // check Freeze debuff
+        error = LFG_TELEPORTERROR_INVALID_LOCATION;
     else if (player->GetMapId() != uint32(dungeon->map))  // Do not teleport players in dungeon to the entrance
     {
         uint32 mapid = dungeon->map;

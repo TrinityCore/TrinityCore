@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "Spell.h"
 #include "ObjectAccessor.h"
+#include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "Creature.h"
 #include "Util.h"
@@ -146,15 +147,15 @@ void PetAI::UpdateAI(uint32 diff)
             if (!spellInfo)
                 continue;
 
-            if (me->GetCharmInfo() && me->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
+            if (me->GetCharmInfo() && me->GetSpellHistory()->HasGlobalCooldown(spellInfo))
                 continue;
 
             if (spellInfo->IsPositive())
             {
                 if (spellInfo->CanBeUsedInCombat())
                 {
-                    // check spell cooldown
-                    if (me->HasSpellCooldown(spellInfo->Id))
+                    // check spell cooldown & school lock
+                    if (!me->GetSpellHistory()->IsReady(spellInfo))
                         continue;
 
                     // Check if we're in combat or commanded to attack

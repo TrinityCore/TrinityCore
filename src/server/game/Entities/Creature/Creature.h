@@ -170,12 +170,7 @@ struct CreatureTemplate
 // Benchmarked: Faster than std::map (insert/find)
 typedef std::unordered_map<uint32, CreatureTemplate> CreatureTemplateContainer;
 
-// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
 // Defines base stats for creatures (used to calculate HP/mana/armor/attackpower/rangedattackpower/all damage).
 struct CreatureBaseStats
@@ -307,12 +302,7 @@ enum ChatType
     CHAT_TYPE_END               = 255
 };
 
-// GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 // `creature_addon` table
 struct CreatureAddon
@@ -414,8 +404,6 @@ struct TrainerSpellData
     TrainerSpell const* Find(uint32 spell_id) const;
 };
 
-typedef std::map<uint32, time_t> CreatureSpellCooldowns;
-
 // max different by z coordinate for creature aggro reaction
 #define CREATURE_Z_ATTACK_RANGE 3
 
@@ -484,7 +472,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool SetWalk(bool enable) override;
         bool SetDisableGravity(bool disable, bool packetOnly = false) override;
         bool SetSwim(bool enable) override;
-        bool SetCanFly(bool enable) override;
+        bool SetCanFly(bool enable, bool packetOnly = false) override;
         bool SetWaterWalking(bool enable, bool packetOnly = false) override;
         bool SetFeatherFall(bool enable, bool packetOnly = false) override;
         bool SetHover(bool enable, bool packetOnly = false) override;
@@ -493,14 +481,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         SpellSchoolMask GetMeleeDamageSchoolMask() const override { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
-
-        void _AddCreatureSpellCooldown(uint32 spell_id, time_t end_time);
-        void _AddCreatureCategoryCooldown(uint32 category, time_t apply_time);
-        void AddCreatureSpellCooldown(uint32 spellid);
-        bool HasSpellCooldown(uint32 spell_id) const;
-        bool HasCategoryCooldown(uint32 spell_id) const;
-        uint32 GetCreatureSpellCooldownDelay(uint32 spellId) const;
-        virtual void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs) override;
 
         bool HasSpell(uint32 spellID) const override;
 
@@ -575,8 +555,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         SpellInfo const* reachWithSpellCure(Unit* victim);
 
         uint32 m_spells[CREATURE_MAX_SPELLS];
-        CreatureSpellCooldowns m_CreatureSpellCooldowns;
-        CreatureSpellCooldowns m_CreatureCategoryCooldowns;
 
         bool CanStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* player) const;

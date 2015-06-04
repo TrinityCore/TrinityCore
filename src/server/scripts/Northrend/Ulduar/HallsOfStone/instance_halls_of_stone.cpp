@@ -23,8 +23,8 @@
 
 DoorData const doorData[] =
 {
-    { GO_SJONNIR_DOOR, DATA_BRANN_EVENT, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { 0,               0,                DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+    { GO_SJONNIR_DOOR, DATA_TRIBUNAL_OF_AGES, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { 0,               0,                     DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
 };
 
 class instance_halls_of_stone : public InstanceMapScript
@@ -90,7 +90,7 @@ class instance_halls_of_stone : public InstanceMapScript
                     case GO_TRIBUNAL_CHEST:
                     case GO_TRIBUNAL_CHEST_HERO:
                         TribunalChestGUID = go->GetGUID();
-                        if (GetBossState(DATA_BRANN_EVENT) == DONE)
+                        if (GetBossState(DATA_TRIBUNAL_OF_AGES) == DONE)
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_TRIBUNAL_SKY_FLOOR:
@@ -156,7 +156,7 @@ class instance_halls_of_stone : public InstanceMapScript
 
                 switch (type)
                 {
-                    case DATA_BRANN_EVENT:
+                    case DATA_TRIBUNAL_OF_AGES:
                         if (state == DONE)
                         {
                             if (GameObject* go = instance->GetGameObject(TribunalChestGUID))
@@ -178,7 +178,7 @@ class instance_halls_of_stone : public InstanceMapScript
                 switch (bossId)
                 {
                     case DATA_SJONNIR:
-                        if (GetBossState(DATA_BRANN_EVENT) != DONE)
+                        if (GetBossState(DATA_TRIBUNAL_OF_AGES) != DONE)
                             return false;
                         break;
                     default:

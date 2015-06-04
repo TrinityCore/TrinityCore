@@ -620,6 +620,7 @@ class BattlegroundSA : public Battleground
          * -Teleport all players to good location
          */
         void TeleportPlayers();
+        void TeleportToEntrancePosition(Player* player);
         /**
          * \brief Called on start and between the two round
          * -Update faction of all vehicle
@@ -627,6 +628,11 @@ class BattlegroundSA : public Battleground
         void OverrideGunFaction();
         /// Set selectable or not demolisher, called on battle start, when boats arrive to dock
         void DemolisherStartState(bool start);
+        /// Checks if a player can interact with the given object
+        bool CanInteractWithObject(uint32 objectId);
+        /// Updates interaction flags of specific objects
+        void UpdateObjectInteractionFlags(uint32 objectId);
+        void UpdateObjectInteractionFlags();
         /**
          * \brief Called when a gate is destroy
          * -Give honor to player witch destroy it

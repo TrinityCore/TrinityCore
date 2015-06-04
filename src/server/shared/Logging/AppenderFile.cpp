@@ -55,7 +55,7 @@ void AppenderFile::_write(LogMessage const* message)
         FILE* file = OpenFile(namebuf, "a", backup || exceedMaxSize);
         if (!file)
             return;
-        fprintf(file, "%s%s", message->prefix.c_str(), message->text.c_str());
+        fprintf(file, "%s%s\n", message->prefix.c_str(), message->text.c_str());
         fflush(file);
         fileSize += uint64(message->Size());
         fclose(file);
