@@ -93,8 +93,15 @@ public:
 
     uint32 GetId() const { return _id; }
     ObjectGuid GetPlayerGuid() const { return _playerGuid; }
-    Player* GetPlayer() const { return ObjectAccessor::FindPlayer(_playerGuid); }
-    Player* GetAssignedPlayer() const { return ObjectAccessor::FindPlayer(_assignedTo); }
+    Player* GetPlayer() const { return ObjectAccessor::FindConnectedPlayer(_playerGuid); }
+    std::string GetPlayerName() const {
+        std::string name;
+        if (!_playerGuid.IsEmpty())
+            ObjectMgr::GetPlayerNameByGUID(_playerGuid, name);
+
+        return name;
+    }
+    Player* GetAssignedPlayer() const { return ObjectAccessor::FindConnectedPlayer(_assignedTo); }
     ObjectGuid GetAssignedToGUID() const { return _assignedTo; }
     std::string GetAssignedToName() const
     {
