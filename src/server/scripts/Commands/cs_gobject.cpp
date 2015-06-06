@@ -433,14 +433,14 @@ public:
         }
 
         object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
+        object->RelocateStationaryPosition(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
         object->UpdateRotationFields();
         object->DestroyForNearbyPlayers();
         object->UpdateObjectVisibility();
 
         object->SaveToDB();
-        object->Refresh();
 
-        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetGUID().GetCounter(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str(), o);
+        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str(), o);
 
         return true;
     }
@@ -474,21 +474,20 @@ public:
         char* toY = strtok(NULL, " ");
         char* toZ = strtok(NULL, " ");
 
+        float x, y, z;
         if (!toX)
         {
             Player* player = handler->GetSession()->GetPlayer();
-            object->Relocate(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), object->GetOrientation());
-            object->DestroyForNearbyPlayers();
-            object->UpdateObjectVisibility();
+            player->GetPosition(x, y, z);
         }
         else
         {
             if (!toY || !toZ)
                 return false;
 
-            float x = (float)atof(toX);
-            float y = (float)atof(toY);
-            float z = (float)atof(toZ);
+            x = (float)atof(toX);
+            y = (float)atof(toY);
+            z = (float)atof(toZ);
 
             if (!MapManager::IsValidMapCoord(object->GetMapId(), x, y, z))
             {
@@ -496,16 +495,15 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-
-            object->Relocate(x, y, z, object->GetOrientation());
-            object->DestroyForNearbyPlayers();
-            object->UpdateObjectVisibility();
         }
 
-        object->SaveToDB();
-        object->Refresh();
+        object->DestroyForNearbyPlayers();
+        object->RelocateStationaryPosition(x, y, z, object->GetOrientation());
+        object->GetMap()->GameObjectRelocation(object, x, y, z, object->GetOrientation());
 
-        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetGUID().GetCounter(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str());
+        object->SaveToDB();
+
+        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str());
 
         return true;
     }
