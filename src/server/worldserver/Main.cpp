@@ -613,11 +613,13 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
         store(command_line_parser(argc, argv).options(all).allow_unregistered().run(), vm);
         notify(vm);
     }
-    catch (std::exception& e) {
+    catch (std::exception& e)
+    {
         std::cerr << e.what() << "\n";
     }
 
-    if (vm.count("help")) {
+    if (vm.count("help"))
+    {
         std::cout << all << "\n";
     }
 
