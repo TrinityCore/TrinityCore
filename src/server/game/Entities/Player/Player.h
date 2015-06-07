@@ -989,6 +989,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS,
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS,
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES,
+    PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_MOUNTS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1323,6 +1324,15 @@ struct PlayerTalentInfo
 
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
+};
+
+struct MountData
+{
+public:
+    MountData() : m_spellId(0), m_favorite(false) { }
+    MountData(uint32 spellId, bool favorite) : m_spellId(spellId), m_favorite(favorite) { }
+    uint32 m_spellId;
+    bool m_favorite;
 };
 
 class Player : public Unit, public GridObject<Player>
@@ -2631,6 +2641,9 @@ class Player : public Unit, public GridObject<Player>
         void CreateGarrison(uint32 garrSiteId);
         Garrison* GetGarrison() { return _garrison.get(); }
 
+        bool AddMount(uint32 spellId, bool isFavorite = false, bool isNew = false);
+        void MountSetFavorite(uint32 spellId, bool state);
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2710,6 +2723,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
+        void _LoadAccountMounts(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2911,6 +2925,8 @@ class Player : public Unit, public GridObject<Player>
         uint8 m_grantableLevels;
 
         std::array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> _CUFProfiles = {};
+
+        std::unordered_map<uint32, bool> mounts;
 
     private:
         // internal common parts for CanStore/StoreItem functions

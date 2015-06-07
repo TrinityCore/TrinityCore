@@ -347,6 +347,8 @@ namespace WorldPackets
         class FarSight;
         class LoadCUFProfiles;
         class SaveCUFProfiles;
+        class AccountMountUpdate;
+        class MountSetFavorite;
     }
 
     namespace Movement
@@ -1510,6 +1512,7 @@ class WorldSession
         void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
+        void HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite);
 
         // Scenes
         void HandleSceneTriggerEvent(WorldPackets::Scenes::SceneTriggerEvent& sceneTriggerEvent);

@@ -520,3 +520,38 @@ WorldPacket const* WorldPackets::Misc::LoadCUFProfiles::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::AccountMountUpdate::Write()
+{
+    _worldPacket.reserve(1 + 4 + 4 + (MountSpellIDs.size() * 4) + ((MountIsFavorite.size() / 8) + 1));
+
+    _worldPacket.WriteBit(IsFullUpdate);
+    _worldPacket << int32(MountSpellIDs.size());
+    _worldPacket << int32(MountIsFavorite.size());
+
+    for (int32 mountId : MountSpellIDs)
+        _worldPacket << mountId;
+    for (bool isFavorite : MountIsFavorite)
+        _worldPacket.WriteBit(isFavorite);
+
+    _worldPacket.FlushBits();
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::AccountMountUpdate::InitializeMounts(std::unordered_map<uint32, bool> mounts, bool fullUpdate)
+{
+    IsFullUpdate = fullUpdate;
+    MountSpellIDs.reserve(mounts.size());
+    MountIsFavorite.reserve(mounts.size());
+    for (std::unordered_map<uint32, bool>::const_iterator itr = mounts.begin(); itr != mounts.end(); ++itr)
+    {
+        MountSpellIDs.push_back(itr->first);
+        MountIsFavorite.push_back(itr->second);
+    }
+}
+
+void WorldPackets::Misc::MountSetFavorite::Read()
+{
+    _worldPacket >> MountSpellID;
+    IsFavorite = _worldPacket.ReadBit();
+}

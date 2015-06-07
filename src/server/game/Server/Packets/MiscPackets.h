@@ -663,6 +663,29 @@ namespace WorldPackets
 
             std::vector<CUFProfile const*> CUFProfiles;
         };
+
+        class AccountMountUpdate final : public ServerPacket
+        {
+        public:
+            AccountMountUpdate() : ServerPacket(SMSG_ACCOUNT_MOUNT_UPDATE) { }
+            void InitializeMounts(std::unordered_map<uint32, bool> mounts, bool fullUpdate);
+            WorldPacket const* Write() override;
+
+            bool IsFullUpdate;
+            std::vector<int32> MountSpellIDs;
+            std::vector<bool> MountIsFavorite;
+        };
+
+        class MountSetFavorite final : public ClientPacket
+        {
+        public:
+            MountSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_MOUNT_SET_FAVORITE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 MountSpellID = 0;
+            bool IsFavorite = false;
+        };
     }
 }
 

@@ -3420,6 +3420,9 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         return false;
     }
 
+    if (MountEntry const* mountEntry = sDB2Manager.GetMount(spellId))
+        return AddMount(spellId, false, true);
+
     PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
 
     bool dependent_set = false;
@@ -17222,6 +17225,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
+    _LoadAccountMounts(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_MOUNTS));
 
     LearnSpecializationSpells();
 
@@ -22588,6 +22592,10 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendDirectMessage(worldServerInfo.Write());
 
     // SMSG_ACCOUNT_MOUNT_UPDATE
+    WorldPackets::Misc::AccountMountUpdate accountMountUpdate;
+    accountMountUpdate.InitializeMounts(mounts, true);
+    SendDirectMessage(accountMountUpdate.Write());
+
     // SMSG_ACCOUNT_TOYS_UPDATE
 
     WorldPackets::Character::InitialSetup initialSetup;
@@ -26749,4 +26757,60 @@ void Player::SendSpellCategoryCooldowns()
     }
 
     SendDirectMessage(cooldowns.Write());
+}
+
+void Player::_LoadAccountMounts(PreparedQueryResult result)
+{
+    if (result)
+    {
+        do
+        {
+            AddMount((*result)[0].GetUInt32(), (*result)[1].GetBool());
+        } while (result->NextRow());
+    }
+}
+
+bool Player::AddMount(uint32 spellId, bool isFavorite /*= false*/, bool isNew /*= false*/)
+{
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    if (!spellInfo)
+        return false;
+
+    MountEntry const* mountEntry = sDB2Manager.GetMount(spellId);
+    if (!mountEntry)
+        return false;
+
+    std::unordered_map<uint32, bool>::const_iterator itr = mounts.find(spellId);
+    if (itr != mounts.end())
+        return false;
+
+    mounts[spellId] = isFavorite;
+    AddTemporarySpell(spellId);
+
+    if (isNew)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_MOUNTS);
+        stmt->setUInt32(0, GetSession()->GetAccountId());
+        stmt->setUInt32(1, spellId);
+        stmt->setBool(2, isFavorite);
+        CharacterDatabase.Execute(stmt);
+    }
+    return true;
+}
+
+void Player::MountSetFavorite(uint32 spellId, bool state)
+{
+    std::unordered_map<uint32, bool>::const_iterator itr = mounts.find(spellId);
+    if (itr == mounts.end())
+    {
+        TC_LOG_ERROR("misc", "Player::MountSetFavorite - Player (%s, name: %s) tried to set mount as favorite without owning it (spellId: %u).", GetGUID().ToString().c_str(), GetName().c_str(), spellId);
+        return;
+    }
+    mounts[spellId] = state;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_MOUNTS_FAVORITE);
+    stmt->setBool(0, state);
+    stmt->setUInt32(1, GetSession()->GetAccountId());
+    stmt->setUInt32(2, spellId);
+    CharacterDatabase.Execute(stmt);
 }
