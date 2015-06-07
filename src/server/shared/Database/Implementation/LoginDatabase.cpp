@@ -133,4 +133,9 @@ void LoginDatabaseConnection::DoPrepareStatements()
 
     PrepareStatement(LOGIN_SEL_LAST_CHAR_UNDELETE, "SELECT LastCharacterUndelete FROM battlenet_accounts WHERE Id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_LAST_CHAR_UNDELETE, "UPDATE battlenet_accounts SET LastCharacterUndelete = UNIX_TIMESTAMP() WHERE Id = ?", CONNECTION_ASYNC);
+
+    // Account wide mounts
+    PrepareStatement(LOGIN_SEL_ACCOUNT_MOUNTS, "SELECT spell, favorite FROM account_mounts WHERE accountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_ACCOUNT_MOUNTS, "INSERT INTO account_mounts (accountId, spell, favorite) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_UPD_ACCOUNT_MOUNTS_FAVORITE, "UPDATE account_mounts SET favorite = ? WHERE accountId = ? AND spell = ?", CONNECTION_ASYNC);
 }

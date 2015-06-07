@@ -256,8 +256,8 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_MOUNTS);
-    stmt->setUInt64(0, m_accountId);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MOUNTS);
+    stmt->setUInt32(0, m_accountId);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_MOUNTS, stmt);
 
     return res;

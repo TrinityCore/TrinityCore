@@ -19151,6 +19151,10 @@ void Player::SaveToDB(bool create /*=false*/)
 
     CharacterDatabase.CommitTransaction(trans);
 
+    SQLTransaction trans2 = LoginDatabase.BeginTransaction();
+    _SaveAccountMounts(trans2);
+    LoginDatabase.CommitTransaction(trans2);
+
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
@@ -26780,37 +26784,51 @@ bool Player::AddMount(uint32 spellId, bool isFavorite /*= false*/, bool isNew /*
     if (!mountEntry)
         return false;
 
-    std::unordered_map<uint32, bool>::const_iterator itr = mounts.find(spellId);
+    std::unordered_map<uint32, MountData>::const_iterator itr = mounts.find(spellId);
     if (itr != mounts.end())
         return false;
 
-    mounts[spellId] = isFavorite;
+    MountData data(isFavorite, isNew ? MOUNTSTATE_NEW : MOUNTSTATE_UNCHANGED);
+    mounts[spellId] = data;
     AddTemporarySpell(spellId);
 
-    if (isNew)
-    {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_MOUNTS);
-        stmt->setUInt32(0, GetSession()->GetAccountId());
-        stmt->setUInt32(1, spellId);
-        stmt->setBool(2, isFavorite);
-        CharacterDatabase.Execute(stmt);
-    }
     return true;
 }
 
 void Player::MountSetFavorite(uint32 spellId, bool state)
 {
-    std::unordered_map<uint32, bool>::const_iterator itr = mounts.find(spellId);
+    std::unordered_map<uint32, MountData>::const_iterator itr = mounts.find(spellId);
     if (itr == mounts.end())
     {
         TC_LOG_ERROR("misc", "Player::MountSetFavorite - Player (%s, name: %s) tried to set mount as favorite without owning it (spellId: %u).", GetGUID().ToString().c_str(), GetName().c_str(), spellId);
         return;
     }
-    mounts[spellId] = state;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_MOUNTS_FAVORITE);
-    stmt->setBool(0, state);
-    stmt->setUInt32(1, GetSession()->GetAccountId());
-    stmt->setUInt32(2, spellId);
-    CharacterDatabase.Execute(stmt);
+    mounts[spellId].m_state |= MOUNTSTATE_CHANGED;
+    mounts[spellId].m_favorite = state;
+}
+
+void Player::_SaveAccountMounts(SQLTransaction& trans)
+{
+    PreparedStatement* stmt = nullptr;
+    for (std::unordered_map<uint32, MountData>::iterator itr = mounts.begin(); itr != mounts.end(); ++itr)
+    {
+        if (itr->second.m_state & MOUNTSTATE_NEW)
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MOUNTS);
+            stmt->setUInt32(0, GetSession()->GetAccountId());
+            stmt->setUInt32(1, itr->first);
+            stmt->setBool(2, itr->second.m_favorite);
+            trans->Append(stmt);
+        }
+        else if (itr->second.m_state & MOUNTSTATE_CHANGED)
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MOUNTS_FAVORITE);
+            stmt->setBool(0, itr->second.m_favorite);
+            stmt->setUInt32(1, GetSession()->GetAccountId());
+            stmt->setUInt32(2, itr->first);
+            trans->Append(stmt);
+        }
+        itr->second.m_state = MOUNTSTATE_UNCHANGED;
+    }
 }

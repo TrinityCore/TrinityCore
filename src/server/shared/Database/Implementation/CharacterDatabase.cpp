@@ -698,9 +698,4 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_CHARACTER_GARRISON_FOLLOWERS, "DELETE gfab, gf FROM character_garrison_follower_abilities gfab INNER JOIN character_garrison_followers gf ON gfab.dbId = gf.dbId WHERE gf.guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_GARRISON_FOLLOWER_ABILITIES, "SELECT gfab.dbId, gfab.abilityId FROM character_garrison_follower_abilities gfab INNER JOIN character_garrison_followers gf ON gfab.dbId = gf.dbId WHERE guid = ? ORDER BY gfab.slot", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHARACTER_GARRISON_FOLLOWER_ABILITIES, "INSERT INTO character_garrison_follower_abilities (dbId, abilityId, slot) VALUES (?, ?, ?)", CONNECTION_ASYNC);
-
-    // Account wide mounts
-    PrepareStatement(CHAR_SEL_ACCOUNT_MOUNTS, "SELECT spell, favorite FROM account_mounts WHERE accountId = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_ACCOUNT_MOUNTS, "INSERT INTO account_mounts (accountId, spell, favorite) VALUES (?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_UPD_ACCOUNT_MOUNTS_FAVORITE, "UPDATE account_mounts SET favorite = ? WHERE accountId = ? AND spell = ?", CONNECTION_ASYNC);
 }

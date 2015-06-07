@@ -1326,13 +1326,20 @@ private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
 
+enum MountSaveState : uint8
+{
+    MOUNTSTATE_UNCHANGED    = 0,
+    MOUNTSTATE_NEW          = 1,
+    MOUNTSTATE_CHANGED      = 2,
+};
+
 struct MountData
 {
-public:
-    MountData() : m_spellId(0), m_favorite(false) { }
-    MountData(uint32 spellId, bool favorite) : m_spellId(spellId), m_favorite(favorite) { }
-    uint32 m_spellId;
-    bool m_favorite;
+    MountData() : m_favorite(false), m_state(MOUNTSTATE_UNCHANGED) { }
+    MountData(bool favorite, MountSaveState state) : m_favorite(favorite), m_state(state) { }
+
+    bool m_favorite : 1;
+    uint8 m_state   : 3;
 };
 
 class Player : public Unit, public GridObject<Player>
@@ -2749,6 +2756,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
         void _SaveCUFProfiles(SQLTransaction& trans);
+        void _SaveAccountMounts(SQLTransaction& trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -2926,7 +2934,7 @@ class Player : public Unit, public GridObject<Player>
 
         std::array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> _CUFProfiles = {};
 
-        std::unordered_map<uint32, bool> mounts;
+        std::unordered_map<uint32, MountData> mounts;
 
     private:
         // internal common parts for CanStore/StoreItem functions
