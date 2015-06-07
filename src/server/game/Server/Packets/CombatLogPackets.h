@@ -168,6 +168,18 @@ namespace WorldPackets
             int32 Amount = 0;
             Optional<Spells::SpellCastLogData> LogData; /// @todo: find the correct way where to use it, in sniff always false
         };
+
+        class SpellInstakillLog final : public ServerPacket
+        {
+        public:
+            SpellInstakillLog() : ServerPacket(SMSG_SPELL_INSTAKILL_LOG, 16 + 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+            ObjectGuid Caster;
+            int32 SpellID;
+        };
     }
 }
 

@@ -211,3 +211,12 @@ WorldPacket const* WorldPackets::CombatLog::SpellEnergizeLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellInstakillLog::Write()
+{
+    _worldPacket << Target;
+    _worldPacket << Caster;
+    _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
