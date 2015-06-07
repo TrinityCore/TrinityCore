@@ -246,6 +246,18 @@ namespace WorldPackets
 
             ObjectGuid UnitGUID;
         };
+
+        class PvPCredit final : public ServerPacket
+        {
+        public:
+            PvPCredit() : ServerPacket(SMSG_PVP_CREDIT, 4 + 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+            int32 Honor = 0;
+            int32 Rank = 0;
+        };
     }
 }
 
