@@ -104,7 +104,7 @@ namespace WorldPackets
 
             ObjectGuid AddedUserGUID;
 
-            uint8 ChannelFlags = CHANNEL_FLAG_NONE;
+            uint8 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
             uint8 UserFlags = MEMBER_FLAG_NONE;
 
             int32 ChannelID = 0;
@@ -121,7 +121,7 @@ namespace WorldPackets
 
             ObjectGuid RemovedUserGUID;
 
-            uint8 ChannelFlags = CHANNEL_FLAG_NONE;
+            uint8 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
 
             uint32 ChannelID = 0;
 
@@ -137,7 +137,7 @@ namespace WorldPackets
 
             ObjectGuid UpdatedUserGUID;
 
-            uint8 ChannelFlags = CHANNEL_FLAG_NONE;
+            uint8 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
             uint8 UserFlags = MEMBER_FLAG_NONE;
 
             int32 ChannelID = 0;

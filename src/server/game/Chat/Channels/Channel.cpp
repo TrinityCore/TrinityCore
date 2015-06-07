@@ -995,7 +995,7 @@ void Channel::JoinNotify(Player const* player)
     {
         WorldPackets::Channel::UserlistAdd userlistAdd;
         userlistAdd.AddedUserGUID = guid;
-        userlistAdd.ChannelFlags = GetFlags();
+        userlistAdd._ChannelFlags = GetFlags();
         userlistAdd.UserFlags = GetPlayerFlags(guid);
         userlistAdd.ChannelID = GetChannelId();
         userlistAdd.ChannelName = GetName();
@@ -1005,7 +1005,7 @@ void Channel::JoinNotify(Player const* player)
     {
         WorldPackets::Channel::UserlistUpdate userlistUpdate;
         userlistUpdate.UpdatedUserGUID = guid;
-        userlistUpdate.ChannelFlags = GetFlags();
+        userlistUpdate._ChannelFlags = GetFlags();
         userlistUpdate.UserFlags = GetPlayerFlags(guid);
         userlistUpdate.ChannelID = GetChannelId();
         userlistUpdate.ChannelName = GetName();
@@ -1018,7 +1018,7 @@ void Channel::LeaveNotify(Player const* player)
     ObjectGuid const& guid = player->GetGUID();
     WorldPackets::Channel::UserlistRemove userlistRemove;
     userlistRemove.RemovedUserGUID = guid;
-    userlistRemove.ChannelFlags = GetFlags();
+    userlistRemove._ChannelFlags = GetFlags();
     userlistRemove.ChannelID = GetChannelId();
     userlistRemove.ChannelName = GetName();
 
