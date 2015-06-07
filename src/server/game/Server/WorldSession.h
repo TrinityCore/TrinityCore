@@ -280,6 +280,7 @@ namespace WorldPackets
     namespace Instance
     {
         class InstanceInfo;
+        class ResetInstances;
     }
 
     namespace Item
@@ -1398,7 +1399,7 @@ class WorldSession
         void HandleRealmSplitOpcode(WorldPacket& recvData);
         void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet);
         void HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet);
-        void HandleResetInstancesOpcode(WorldPacket& recvData);
+        void HandleResetInstancesOpcode(WorldPackets::Instance::ResetInstances& packet);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
 
         // Looking for Dungeon/Raid
