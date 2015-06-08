@@ -28,6 +28,7 @@
 #define GOSSIP_START_EVENT  "Get your people to safety, we'll keep the Blue Dragonflight's forces at bay."
 #define GOSSIP_ITEM_1       "Activate the crystals when we get in trouble, right"
 #define GOSSIP_I_WANT_IN    "I'm not fighting, so send me in now!"
+#define SAY_EVENT_LOCK      "I'm locking the door. Good luck, and thank you for doing this."
 #define SPAWN_TIME          20000
 
 enum PortalCreatures
@@ -59,7 +60,7 @@ enum AzureSellbreakerSpells
     SPELL_ARCANE_BLAST          = 58462,
     SPELL_SLOW                  = 25603,
     SPELL_CHAINS_OF_ICE         = 58464,
-    SPELL_CONE_OF_COLD          = 58463
+    SPELL_CONE_OF_COLD          = 58463,
 };
 
 enum AzureBinderSpells
@@ -67,7 +68,7 @@ enum AzureBinderSpells
     SPELL_ARCANE_BARRAGE        = 58456,
     SPELL_ARCANE_EXPLOSION      = 58455,
     SPELL_FROST_NOVA            = 58458,
-    SPELL_FROSTBOLT             = 58457
+    SPELL_FROSTBOLT             = 58457,
 };
 
 enum AzureMageSlayerSpells
@@ -85,7 +86,7 @@ enum AzureCaptainSpells
 enum AzureSorcerorSpells
 {
     SPELL_ARCANE_STREAM         = 60181,
-    SPELL_MANA_DETONATION       = 60182
+    SPELL_MANA_DETONATION       = 60182,
 };
 
 enum AzureRaiderSpells
@@ -114,7 +115,7 @@ enum TrashDoorSpell
 enum Spells
 {
     SPELL_PORTAL_CHANNEL        = 58012,
-    SPELL_CRYSTAL_ACTIVATION    = 57804,
+    SPELL_CRYSTAL_ACTIVATION    = 57804, // visual effect
     SPELL_ARCANE_SPHERE_PASSIVE = 44263
 };
 
@@ -242,9 +243,19 @@ const float SaboteurFinalPos6[5][3] =
     {1931.063354f, 848.468445f, 47.190434f}
  };
 
-const Position MovePosition = {1806.955566f, 803.851807f, 44.363323f, 0.0f};
-const Position playerTeleportPosition = {1830.531006f, 803.939758f, 44.340508f, 6.281611f};
-const Position sinclariOutsidePosition = {1817.315674f, 804.060608f, 44.363998f, 0.0f};
+const Position PortalLocation[] =
+{
+    { 1877.51f, 850.104f, 44.6599f, 4.7822f },     // WP 1
+    { 1936.07f, 803.198f, 53.3749f, 3.12414f },     // WP 3
+    { 1890.64f, 753.471f, 48.7224f, 1.71042f },     // WP 5
+};
+
+uint64 preEventPortalGUID[3] = { 0 };
+
+const Position MovePosition = { 1806.955566f, 803.851807f, 44.363323f, 0.0f };
+const Position playerTeleportPosition = { 1830.531006f, 803.939758f, 44.340508f, 6.281611f };
+const Position sinclariOutsidePosition = { 1820.429810f, 804.066040f, 44.363998f, 0.0f };
+const Position sinclariCrystalPosition = { 1828.868286f, 798.468811f, 44.363998f, 3.890467f };
 
 class npc_sinclari_vh : public CreatureScript
 {
@@ -321,6 +332,13 @@ public:
 
             me->SetReactState(REACT_AGGRESSIVE);
 
+            if (TempSummon* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL, PortalLocation[0], TEMPSUMMON_MANUAL_DESPAWN))
+                preEventPortalGUID[0] = summon->GetGUID();
+            if (TempSummon* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL, PortalLocation[1], TEMPSUMMON_MANUAL_DESPAWN))
+                preEventPortalGUID[1] = summon->GetGUID();
+            if (TempSummon* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL, PortalLocation[2], TEMPSUMMON_MANUAL_DESPAWN))
+                preEventPortalGUID[2] = summon->GetGUID();
+
             std::list<Creature*> GuardList;
             me->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
             if (!GuardList.empty())
@@ -347,25 +365,17 @@ public:
                     switch (uiPhase)
                     {
                         case 1:
-                            Talk(SAY_SINCLARI_1);
-                            uiTimer = 4000;
-                            uiPhase = 2;
+                            me->SetWalk(true);
+                            me->GetMotionMaster()->MovePoint(0, sinclariCrystalPosition);
+                            uiTimer = 1000;
+                            uiPhase = 6;
                             break;
                         case 2:
                         {
-                            std::list<Creature*> GuardList;
-                            me->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
-                            if (!GuardList.empty())
-                                for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
-                                {
-                                    if (Creature* pGuard = *itr)
-                                    {
-                                        pGuard->SetWalk(false);
-                                        pGuard->GetMotionMaster()->MovePoint(0, MovePosition);
-                                    }
-                                }
-                            uiTimer = 6000;
-                            uiPhase = 3;
+                            me->SetFacingTo(me->GetOrientation() - 3.14f);
+                            Talk(SAY_SINCLARI_1);
+                            uiTimer = 1500;
+                            uiPhase = 7;
                             break;
                         }
                         case 3:
@@ -378,7 +388,6 @@ public:
                                     if (Creature* pGuard = *itr)
                                     {
                                         pGuard->SetVisible(false);
-                                        pGuard->SetReactState(REACT_PASSIVE);
                                     }
                                 }
                             uiTimer = 2000;
@@ -391,11 +400,58 @@ public:
                             uiPhase = 5;
                             break;
                         case 5:
-                            instance->SetData(DATA_MAIN_EVENT_PHASE, IN_PROGRESS);
+                            me->SetFacingTo(0.006673f);
+                            me->Say(SAY_EVENT_LOCK, LANG_UNIVERSAL, me); // need to change to db say
                             me->SetReactState(REACT_PASSIVE);
+                            uiTimer = 3000;
+                            uiPhase = 8;
+                            break;
+                        case 6:
+                            me->GetMotionMaster()->MovementExpired();
+                            me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING);
+                            uiTimer = 2000;
+                            uiPhase = 2;
+                            break;
+                        case 7:
+                        {
+                            std::list<Creature*> creatures;
+                            GetCreatureListWithEntryInGrid(creatures, me, NPC_TELEPORTATION_PORTAL, 200.0f);
+                            GetCreatureListWithEntryInGrid(creatures, me, NPC_AZURE_BINDER_1, 200.0f);
+                            GetCreatureListWithEntryInGrid(creatures, me, NPC_AZURE_MAGE_SLAYER_1, 200.0f);
+                            GetCreatureListWithEntryInGrid(creatures, me, NPC_AZURE_INVADER_1, 200.0f);
+                            DoCast(SPELL_CRYSTAL_ACTIVATION);
+                            if (!creatures.empty())
+                            {
+                                for (std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
+                                    (*itr)->DisappearAndDie();
+                            }
+                            uiTimer = 500;
+                            uiPhase = 9;
+                        }
+                        break;
+                        case 8:
+                            instance->SetData(DATA_MAIN_EVENT_PHASE, IN_PROGRESS);
                             uiTimer = 0;
                             uiPhase = 0;
                             break;
+                        case 9:
+                        {
+                            std::list<Creature*> GuardList;
+                            me->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
+                            if (!GuardList.empty())
+                                for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
+                                {
+                                    if (Creature* pGuard = *itr)
+                                    {
+                                        pGuard->SetReactState(REACT_PASSIVE);
+                                        pGuard->SetWalk(false);
+                                        pGuard->GetMotionMaster()->MovePoint(0, MovePosition);
+                                    }
+                                }
+                            uiTimer = 4000;
+                            uiPhase = 3;
+                        }
+                        break;
                     }
                 }
                 else uiTimer -= uiDiff;
@@ -548,6 +604,9 @@ public:
             Initialize();
             instance = creature->GetInstanceScript();
             uiTypeOfMobsPortal = urand(0, 1);    // 0 - elite mobs   1 - portal guardian or portal keeper with regular mobs
+
+            if (instance->GetData(DATA_MAIN_EVENT_PHASE) == NOT_STARTED)
+                uiTypeOfMobsPortal = 2;
         }
 
         void Initialize()
@@ -575,10 +634,13 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (instance->GetData(DATA_REMOVE_NPC) == 1)
+            if (instance->GetData(DATA_MAIN_EVENT_PHASE) == IN_PROGRESS)
             {
-                me->DespawnOrUnsummon();
-                instance->SetData(DATA_REMOVE_NPC, 0);
+                if (instance->GetData(DATA_REMOVE_NPC) == 1)
+                {
+                    me->DespawnOrUnsummon();
+                    instance->SetData(DATA_REMOVE_NPC, 0);
+                }
             }
 
             uint8 uiWaveCount = instance->GetData(DATA_WAVE_COUNT);
@@ -642,24 +704,39 @@ public:
                         me->RemoveCorpse();
                     }
                     break;
+                case 2: // Pre-event
+                    if (uiSpawnTimer <= diff)
+                    {
+                        uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_BINDER_1);
+                        DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                        uiSpawnTimer = SPAWN_TIME;
+                    } else uiSpawnTimer -= diff;
+                    break;
             }
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(DATA_WAVE_COUNT, instance->GetData(DATA_WAVE_COUNT)+1);
+            if (instance->GetData(DATA_MAIN_EVENT_PHASE) == IN_PROGRESS)
+                instance->SetData(DATA_WAVE_COUNT, instance->GetData(DATA_WAVE_COUNT) + 1);
         }
 
         void JustSummoned(Creature* summoned) override
         {
-            listOfMobs.Summon(summoned);
-            instance->SetGuidData(DATA_ADD_TRASH_MOB, summoned->GetGUID());
+            if (instance->GetData(DATA_MAIN_EVENT_PHASE) == IN_PROGRESS)
+            {
+                listOfMobs.Summon(summoned);
+                instance->SetGuidData(DATA_ADD_TRASH_MOB, summoned->GetGUID());
+            }
         }
 
         void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) override
         {
-            listOfMobs.Despawn(summoned);
-            instance->SetGuidData(DATA_DEL_TRASH_MOB, summoned->GetGUID());
+            if (instance->GetData(DATA_MAIN_EVENT_PHASE) == IN_PROGRESS)
+            {
+                listOfMobs.Despawn(summoned);
+                instance->SetGuidData(DATA_DEL_TRASH_MOB, summoned->GetGUID());
+            }
         }
     };
 
@@ -675,8 +752,39 @@ struct violet_hold_trashAI : public npc_escortAI
     {
         instance = creature->GetInstanceScript();
         bHasGotMovingPoints = false;
-        portalLocationID = instance->GetData(DATA_PORTAL_LOCATION);
-        secondPortalRouteID = 0;
+
+
+        if (instance->GetData(DATA_MAIN_EVENT_PHASE) == NOT_STARTED)
+        {
+            if (Creature* portal = me->FindNearestCreature(NPC_TELEPORTATION_PORTAL, 10.0f))
+            {
+                uint64 portalGUID = portal->GetGUID();
+                for (uint8 i = 0; i < 3; i++)
+                {
+                    if (portalGUID == preEventPortalGUID[i])
+                    {
+                        switch (i)
+                        {
+                        case 0:
+                            portalLocationID = 0;
+                            break;
+                        case 1:
+                            portalLocationID = 2;
+                            break;
+                        case 2:
+                            portalLocationID = 4;
+                            break;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            portalLocationID = instance->GetData(DATA_PORTAL_LOCATION);
+            Reset();
+        }
     }
 
     public:
@@ -691,7 +799,7 @@ struct violet_hold_trashAI : public npc_escortAI
         {
             case 0:
                 if (waypointId == 5)
-                   CreatureStartAttackDoor();
+                    CreatureStartAttackDoor();
                 break;
             case 1:
                 if ((waypointId == 8 && secondPortalRouteID == 0) || (waypointId == 7 && secondPortalRouteID == 1))
@@ -699,7 +807,7 @@ struct violet_hold_trashAI : public npc_escortAI
                 break;
             case 2:
                 if (waypointId == 7)
-                   CreatureStartAttackDoor();
+                    CreatureStartAttackDoor();
                 break;
             case 3:
                 if (waypointId == 8)
@@ -1203,7 +1311,7 @@ public:
 
                 if (uiConeOfColdTimer <= diff)
                 {
-                   DoCast(SPELL_CONE_OF_COLD);
+                    DoCast(SPELL_CONE_OF_COLD);
                     uiConeOfColdTimer = 5000;
                 } else uiConeOfColdTimer -= diff;
             }
@@ -1391,6 +1499,33 @@ public:
     }
 };
 
+class spell_crystal_activation : public SpellScriptLoader
+{
+public:
+    spell_crystal_activation() : SpellScriptLoader("spell_crystal_activation") { }
+
+    class spell_crystal_activation_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_crystal_activation_SpellScript);
+
+        void HandleSendEvent(SpellEffIndex effIndex)
+        {
+            if (GetHitUnit()->GetEntry() == NPC_VIOLET_HOLD_GUARD)
+                PreventHitDefaultEffect(effIndex);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_crystal_activation_SpellScript::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_crystal_activation_SpellScript();
+    }
+};
+
 void AddSC_violet_hold()
 {
     new npc_sinclari_vh();
@@ -1406,4 +1541,5 @@ void AddSC_violet_hold()
     new npc_azure_saboteur();
     new npc_violet_hold_arcane_sphere();
     new go_activation_crystal();
+    new spell_crystal_activation();
 }
