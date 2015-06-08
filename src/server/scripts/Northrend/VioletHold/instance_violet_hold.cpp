@@ -145,6 +145,7 @@ public:
             bCrystalActivated = false;
             defenseless = true;
             uiMainEventPhase = NOT_STARTED;
+            zuramatDead = false;
         }
 
         ObjectGuid uiErekemGuard[2];
@@ -178,6 +179,7 @@ public:
         bool bIsDoorSpellCast;
         bool bCrystalActivated;
         bool defenseless;
+        bool zuramatDead;
 
         std::list<uint8> NpcAtDoorCastingList;
 
@@ -199,16 +201,21 @@ public:
                     break;
                 default:
                     break;
+                case NPC_VOID_SENTRY:
+                    if (zuramatDead)
+                    {
+                        creature->DespawnOrUnsummon();
+                        zuramatDead = false;
+                    }
+                    break;
             }
 
-            /*
-            BEWARE - SHIT.
             if (creature->GetGUID() == uiFirstBoss || creature->GetGUID() == uiSecondBoss)
             {
                 creature->AllLootRemovedFromCorpse();
                 creature->RemoveLootMode(1);
             }
-            */
+
         }
 
         void OnGameObjectCreate(GameObject* go) override
@@ -314,6 +321,9 @@ public:
                         uiRemoveNpc = 0; // might not have been reset after a wipe on a boss.
                     }
                     break;
+                case DATA_ZURAMAT:
+                    zuramatDead = true;
+                    break;
             }
         }
 
@@ -393,19 +403,23 @@ public:
                     if (Creature* pGuard1 = instance->GetCreature(uiErekemGuard[0]))
                     {
                         if (bForceRespawn)
+                        {
                             pGuard1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
+                            pGuard1->GetMotionMaster()->MovePoint(0, BossStartMove21);
+                        }
                         else
-                            pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
-                        pGuard1->GetMotionMaster()->MovePoint(0, BossStartMove21);
+                            pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                     }
 
                     if (Creature* pGuard2 = instance->GetCreature(uiErekemGuard[1]))
                     {
                         if (bForceRespawn)
-                            pGuard2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
+                        {
+                            pGuard2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
+                            pGuard2->GetMotionMaster()->MovePoint(0, BossStartMove22);
+                        }
                         else
-                            pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
-                        pGuard2->GetMotionMaster()->MovePoint(0, BossStartMove22);
+                            pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                     }
                     break;
                 case BOSS_ICHORON:
@@ -448,6 +462,9 @@ public:
                         boss->Respawn();
                         boss->RemoveLootMode(1);
                     }
+                    else
+                        boss->GetMotionMaster()->MoveTargetedHome();
+
                     boss->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                     uiWaveCount = 0;
                 }
@@ -527,6 +544,7 @@ public:
                     return false;
             }
 
+            zuramatDead = false;
             return true;
         }
 
@@ -557,6 +575,7 @@ public:
                 SetData(DATA_MAIN_DOOR, GO_STATE_ACTIVE);
                 SetData(DATA_WAVE_COUNT, 0);
                 uiMainEventPhase = NOT_STARTED;
+                uiActivationTimer = 5000;
 
                 for (int i = 0; i < 4; ++i)
                     if (GameObject* crystal = instance->GetGameObject(uiActivationCrystal[i]))

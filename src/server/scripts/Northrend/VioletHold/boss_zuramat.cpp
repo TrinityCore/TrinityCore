@@ -23,12 +23,8 @@ enum Spells
 {
     SPELL_SHROUD_OF_DARKNESS                    = 54524,
     SPELL_SUMMON_VOID_SENTRY                    = 54369,
-    SPELL_VOID_SHIFT                            = 54361
-};
-
-enum Creatures
-{
-    NPC_VOID_SENTRY                             = 29364
+    SPELL_VOID_SHIFT                            = 54361,
+    SPELL_VOID_SHIFTED                          = 54343,
 };
 
 enum Yells
@@ -46,6 +42,13 @@ enum Misc
     DATA_VOID_DANCE                             = 2153
 };
 
+enum ZuramatEvents
+{
+    EVENT_VOID_SHIFT                            = 1,
+    EVENT_SUMMON_VOID,
+    EVENT_SHROUD_OF_DARKNESS
+};
+
 class boss_zuramat : public CreatureScript
 {
 public:
@@ -53,26 +56,29 @@ public:
 
     struct boss_zuramatAI : public ScriptedAI
     {
-        boss_zuramatAI(Creature* creature) : ScriptedAI(creature)
+        boss_zuramatAI(Creature* creature) : ScriptedAI(creature), sentries(me)
         {
-            Initialize();
             instance = creature->GetInstanceScript();
         }
 
         void Initialize()
         {
-            SpellShroudOfDarknessTimer = 22000;
-            SpellVoidShiftTimer = 15000;
-            SpellSummonVoidTimer = 12000;
+            events.Reset();
             voidDance = true;
         }
 
-        InstanceScript* instance;
-
-        uint32 SpellVoidShiftTimer;
-        uint32 SpellSummonVoidTimer;
-        uint32 SpellShroudOfDarknessTimer;
-        bool voidDance;
+        void DespawnSentries()
+        {
+            sentries.DespawnAll();
+            std::list<Creature*> sentries;
+            GetCreatureListWithEntryInGrid(sentries, me, NPC_VOID_SENTRY_BALL, 200.0f);
+            if (!sentries.empty())
+            {
+                std::list<Creature*>::iterator itr = sentries.begin();
+                for (itr; itr != sentries.end(); ++itr)
+                    (*itr)->DespawnOrUnsummon();
+            }
+        }
 
         void Reset() override
         {
@@ -82,6 +88,7 @@ public:
                 instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
 
             Initialize();
+            DespawnSentries();
         }
 
         void AttackStart(Unit* who) override
@@ -112,36 +119,17 @@ public:
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
                 instance->SetBossState(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetBossState(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+
+            me->SetInCombatWithZone();
+            events.ScheduleEvent(EVENT_SHROUD_OF_DARKNESS, urand(18000, 20000));
+            events.ScheduleEvent(EVENT_VOID_SHIFT, 9000);
+            events.ScheduleEvent(EVENT_SUMMON_VOID, 4000);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
+        void JustSummoned(Creature* summon) override
         {
-            if (!UpdateVictim())
-                return;
-
-            if (SpellSummonVoidTimer <= diff)
-            {
-                DoCastVictim(SPELL_SUMMON_VOID_SENTRY, false);
-                SpellSummonVoidTimer = 20000;
-            } else SpellSummonVoidTimer -=diff;
-
-            if (SpellVoidShiftTimer <= diff)
-            {
-                 if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(unit, SPELL_VOID_SHIFT);
-                SpellVoidShiftTimer = 20000;
-            } else SpellVoidShiftTimer -=diff;
-
-            if (SpellShroudOfDarknessTimer <= diff)
-            {
-                DoCastVictim(SPELL_SHROUD_OF_DARKNESS);
-                SpellShroudOfDarknessTimer = 20000;
-            } else SpellShroudOfDarknessTimer -=diff;
-
-            DoMeleeAttackIfReady();
+            sentries.Summon(summon);
         }
 
         void SummonedCreatureDies(Creature* summoned, Unit* /*who*/) override
@@ -160,7 +148,11 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
+            instance->SetData(DATA_ZURAMAT, 1);
+
             Talk(SAY_DEATH);
+
+            DespawnSentries();
 
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
@@ -179,6 +171,43 @@ public:
             if (victim->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
         }
+
+        void UpdateAI(uint32 diff) override
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            switch (uint32 eventId = events.ExecuteEvent())
+            {
+            case EVENT_SUMMON_VOID:
+                DoCast(SPELL_SUMMON_VOID_SENTRY);
+                events.ScheduleEvent(EVENT_SUMMON_VOID, urand(7000, 10000));
+                break;
+            case EVENT_VOID_SHIFT:
+                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(unit, SPELL_VOID_SHIFT);
+                events.ScheduleEvent(EVENT_VOID_SHIFT, 15000);
+                break;
+            case EVENT_SHROUD_OF_DARKNESS:
+                DoCast(SPELL_SHROUD_OF_DARKNESS);
+                events.ScheduleEvent(EVENT_SHROUD_OF_DARKNESS, urand(18000, 20000));
+                break;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        InstanceScript* instance;
+        EventMap events;
+        SummonList sentries;
+        bool voidDance;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
