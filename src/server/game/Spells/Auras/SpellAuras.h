@@ -134,6 +134,8 @@ class Aura
         void RefreshTimers();
         bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
+        bool IsSpawnAura() const { return m_spawn; }
+        void SetSpawnAura(bool onSpawn){ m_spawn = onSpawn; }
 
         uint8 GetCharges() const { return m_procCharges; }
         void SetCharges(uint8 charges);
@@ -259,6 +261,8 @@ class Aura
         uint8 const m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
+
+        bool m_spawn;                                       // Aura which was added on creature spawn
 
         AuraEffect* m_effects[3];
         ApplicationMap m_applications;

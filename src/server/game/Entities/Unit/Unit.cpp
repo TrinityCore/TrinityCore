@@ -4040,6 +4040,27 @@ void Unit::RemoveArenaAuras()
     }
 }
 
+void Unit::RemoveAurasOnEvade()
+{
+    if (IsPet() || IsGuardian()) // if pet or guardian shouldn't lose any aura
+        return;
+
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        AuraApplication const* aurApp = iter->second;
+        Aura const* aura = aurApp->GetBase();
+
+        if (!aura->IsSpawnAura() &&                                                // auras which are not set on creature spaw
+            !aura->IsPassive() &&                                                  // not passive
+            !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR3_DEATH_PERSISTENT) &&   // not death-persistent
+            !(aura->GetSpellInfo()->HasAura(SPELL_AURA_CONTROL_VEHICLE) ||         // not control vehicle or clone caster
+              aura->GetSpellInfo()->HasAura(SPELL_AURA_CLONE_CASTER)))
+            RemoveAura(iter);
+        else
+            ++iter;
+    }
+}
+
 void Unit::RemoveAllAurasOnDeath()
 {
     // used just after dieing to remove all visible auras
