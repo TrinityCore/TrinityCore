@@ -5293,14 +5293,8 @@ void ObjectMgr::LoadNPCText()
     uint32 oldMSTime = getMSTime();
 
     QueryResult result = WorldDatabase.Query("SELECT ID, "
-        "BroadcastTextID0, Probability0, "
-        "BroadcastTextID1, Probability1, "
-        "BroadcastTextID2, Probability2, "
-        "BroadcastTextID3, Probability3, "
-        "BroadcastTextID4, Probability4, "
-        "BroadcastTextID5, Probability5, "
-        "BroadcastTextID6, Probability6, "
-        "BroadcastTextID7, Probability7"
+        "Probability0, Probability1, Probability2, Probability3, Probability4, Probability5, Probability6, Probability7, "
+        "BroadcastTextID0, BroadcastTextID1, BroadcastTextID2, BroadcastTextID3, BroadcastTextID4, BroadcastTextID5, BroadcastTextID6, BroadcastTextID7"
         " FROM npc_text");
     if (!result)
     {
@@ -5325,27 +5319,30 @@ void ObjectMgr::LoadNPCText()
 
         for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
         {
-            npcText.Data[i].BroadcastTextID  = fields[1 + i].GetUInt32();
-            npcText.Data[i].Probability      = fields[1 + i * 2].GetFloat();
+            npcText.Data[i].Probability      = fields[1 + i].GetFloat();
+            npcText.Data[i].BroadcastTextID  = fields[9 + i].GetUInt32();
         }
 
-        bool isValid = false;
         for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; i++)
         {
             if (npcText.Data[i].BroadcastTextID)
             {
                 if (!sBroadcastTextStore.LookupEntry(npcText.Data[i].BroadcastTextID))
                 {
-                    TC_LOG_ERROR("sql.sql", "NpcText (Id: %u) in table `npc_text` has non-existing or incompatible Index: %u BroadcastTextID %u.", textID, i, npcText.Data[i].BroadcastTextID);
+                    TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a non-existing or incompatible BroadcastText (ID: %u, Index: %u)", textID, npcText.Data[i].BroadcastTextID, i);
                     npcText.Data[i].BroadcastTextID = 0;
                 }
-                else
-                    isValid = true;
             }
         }
 
-        if (!isValid)
-            TC_LOG_ERROR("sql.sql", "NpcText (Id: %u) in table `npc_text` is invalid", textID);
+        for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; i++)
+        {
+            if (npcText.Data[i].Probability > 0 && npcText.Data[i].BroadcastTextID == 0)
+            {
+                TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a probability (Index: %u) set, but no BroadcastTextID to go with it", textID, i);
+                npcText.Data[i].Probability = 0;
+            }
+        }
     }
     while (result->NextRow());
 
