@@ -20007,8 +20007,8 @@ void Player::SendRaidDifficulty(bool legacy, int32 forcedDifficulty /*= -1*/)
 
 void Player::SendResetFailedNotify(uint32 /*mapid*/)
 {
-    WorldPacket data(SMSG_RESET_FAILED_NOTIFY, 4);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Instance::ResetFailedNotify data;
+    GetSession()->SendPacket(data.Write());
 }
 
 /// Reset all solo instances and optionally send a message on success for each

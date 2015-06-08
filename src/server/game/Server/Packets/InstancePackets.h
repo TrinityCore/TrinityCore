@@ -97,6 +97,14 @@ namespace WorldPackets
             uint32 MapID = 0;
             uint8 ResetFailedReason = 0;
         };
+
+        class ResetFailedNotify final : public ServerPacket
+        {
+        public:
+            ResetFailedNotify() : ServerPacket(SMSG_RESET_FAILED_NOTIFY, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 
