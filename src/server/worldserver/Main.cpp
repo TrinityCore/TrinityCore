@@ -111,11 +111,11 @@ extern int main(int argc, char** argv)
 
 #ifdef _WIN32
     if (configService.compare("install") == 0)
-        return WinServiceInstall() == true ? 0 : 1;
+        return WinServiceInstall() ? 0 : 1;
     else if (configService.compare("uninstall") == 0)
-        return WinServiceUninstall() == true ? 0 : 1;
+        return WinServiceUninstall() ? 0 : 1;
     else if (configService.compare("run") == 0)
-        WinServiceRun();
+        return WinServiceRun() ? 0 : 0;
 #endif
 
     std::string configError;
