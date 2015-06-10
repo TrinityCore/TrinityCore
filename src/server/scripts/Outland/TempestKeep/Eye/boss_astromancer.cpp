@@ -92,17 +92,13 @@ class boss_high_astromancer_solarian : public CreatureScript
 {
     public:
 
-        boss_high_astromancer_solarian()
-            : CreatureScript("boss_high_astromancer_solarian")
-        {
-        }
+        boss_high_astromancer_solarian() : CreatureScript("boss_high_astromancer_solarian") { }
 
-        struct boss_high_astromancer_solarianAI : public ScriptedAI
+        struct boss_high_astromancer_solarianAI : public BossAI
         {
-            boss_high_astromancer_solarianAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+            boss_high_astromancer_solarianAI(Creature* creature) : BossAI(creature, DATA_HIGH_ASTROMANCER_SOLARIAN)
             {
                 Initialize();
-                instance = creature->GetInstanceScript();
 
                 defaultarmor = creature->GetArmor();
                 defaultsize = creature->GetObjectScale();
@@ -125,9 +121,6 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Wrath_Timer = 20000 + rand32() % 5000;//twice in phase one
                 Phase = 1;
             }
-
-            InstanceScript* instance;
-            SummonList Summons;
 
             uint8 Phase;
 
@@ -152,16 +145,13 @@ class boss_high_astromancer_solarian : public CreatureScript
             void Reset() override
             {
                 Initialize();
-
-                instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
-
+                _Reset();
                 me->SetArmor(defaultarmor);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetVisible(true);
                 me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
 
-                Summons.DespawnAll();
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -174,15 +164,13 @@ class boss_high_astromancer_solarian : public CreatureScript
                 me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
                 Talk(SAY_DEATH);
-                instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
+                _JustDied();
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                DoZoneInCombat();
-
-                instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
+                _EnterCombat();
             }
 
             void SummonMinion(uint32 entry, float x, float y, float z)
@@ -193,7 +181,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         Summoned->AI()->AttackStart(target);
 
-                    Summons.Summon(Summoned);
+                    summons.Summon(Summoned);
                 }
             }
 
@@ -431,10 +419,7 @@ class npc_solarium_priest : public CreatureScript
 {
     public:
 
-        npc_solarium_priest()
-            : CreatureScript("npc_solarium_priest")
-        {
-        }
+        npc_solarium_priest() : CreatureScript("npc_solarium_priest") { }
 
         struct npc_solarium_priestAI : public ScriptedAI
         {
@@ -462,9 +447,7 @@ class npc_solarium_priest : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
-            {
-            }
+            void EnterCombat(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
