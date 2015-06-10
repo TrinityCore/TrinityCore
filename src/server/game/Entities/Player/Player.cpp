@@ -890,6 +890,8 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_achievementMgr = new AchievementMgr<Player>(this);
     m_reputationMgr = new ReputationMgr(this);
+
+    m_mountCount = 0;
 }
 
 Player::~Player()
@@ -3420,7 +3422,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         return false;
     }
 
-    if (MountEntry const* mountEntry = sDB2Manager.GetMount(spellId))
+    if (sDB2Manager.GetMount(spellId))
         return AddMount(spellId, false, true);
 
     PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
@@ -22597,7 +22599,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     // SMSG_ACCOUNT_MOUNT_UPDATE
     WorldPackets::Misc::AccountMountUpdate accountMountUpdate;
-    accountMountUpdate.InitializeMounts(mounts, true);
+    accountMountUpdate.InitializeMounts(mounts, true, m_mountCount);
     SendDirectMessage(accountMountUpdate.Write());
 
     // SMSG_ACCOUNT_TOYS_UPDATE
@@ -26763,42 +26765,65 @@ void Player::SendSpellCategoryCooldowns()
     SendDirectMessage(cooldowns.Write());
 }
 
-void Player::_LoadAccountMounts(PreparedQueryResult result)
+void Player::_LoadAccountMounts()
 {
-    if (result)
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MOUNTS);
+    stmt->setUInt32(0, GetSession()->GetAccountId());
+    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
     {
         do
         {
-            AddMount((*result)[0].GetUInt32(), (*result)[1].GetBool());
+            uint32 spellId = (*result)[0].GetUInt32();
+            bool disabled = false;
+            if (GetTeam() == ALLIANCE)
+                disabled = (sObjectMgr->HordeToAllianceMounts.find(spellId) != sObjectMgr->HordeToAllianceMounts.end());
+            else
+                disabled = (sObjectMgr->AllianceToHordeMounts.find(spellId) != sObjectMgr->AllianceToHordeMounts.end());
+
+            AddMount((*result)[0].GetUInt32(), (*result)[1].GetBool(), false, disabled);
         } while (result->NextRow());
     }
 }
 
-bool Player::AddMount(uint32 spellId, bool isFavorite /*= false*/, bool isNew /*= false*/)
+bool Player::AddMount(uint32 spellId, bool isFavorite /*= false*/, bool isNew /*= false*/, bool isDisabled /*= false*/)
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    if (!spellInfo)
+    if (!sSpellMgr->GetSpellInfo(spellId))
         return false;
 
-    MountEntry const* mountEntry = sDB2Manager.GetMount(spellId);
-    if (!mountEntry)
+    if (!sDB2Manager.GetMount(spellId))
         return false;
 
-    std::unordered_map<uint32, MountData>::const_iterator itr = mounts.find(spellId);
-    if (itr != mounts.end())
+    if (mounts.find(spellId) != mounts.end())
         return false;
 
-    MountData data(isFavorite, isNew ? MOUNTSTATE_NEW : MOUNTSTATE_UNCHANGED);
+    MountData data(isFavorite, isDisabled, isNew ? MOUNTSTATE_NEW : MOUNTSTATE_UNCHANGED);
     mounts[spellId] = data;
-    AddTemporarySpell(spellId);
+
+    if (!isDisabled)
+    {
+        AddTemporarySpell(spellId);
+        m_mountCount++;
+    }
+
+    if (isNew)
+    {
+        std::map<uint32, uint32>::const_iterator itr = sObjectMgr->AllianceToHordeMounts.find(spellId);
+        if (itr != sObjectMgr->AllianceToHordeMounts.end())
+            AddMount(itr->second, isFavorite, true, GetTeam() == ALLIANCE);
+        else
+        {
+            itr = sObjectMgr->HordeToAllianceMounts.find(spellId);
+            if (sObjectMgr->HordeToAllianceMounts.find(spellId) != sObjectMgr->HordeToAllianceMounts.end())
+                AddMount(itr->second, isFavorite, true, GetTeam() == HORDE);
+        }
+    }
 
     return true;
 }
 
 void Player::MountSetFavorite(uint32 spellId, bool state)
 {
-    std::unordered_map<uint32, MountData>::const_iterator itr = mounts.find(spellId);
-    if (itr == mounts.end())
+    if (mounts.find(spellId) == mounts.end())
     {
         TC_LOG_ERROR("misc", "Player::MountSetFavorite - Player (%s, name: %s) tried to set mount as favorite without owning it (spellId: %u).", GetGUID().ToString().c_str(), GetName().c_str(), spellId);
         return;

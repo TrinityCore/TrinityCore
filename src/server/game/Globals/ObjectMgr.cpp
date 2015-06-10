@@ -9284,3 +9284,15 @@ void ObjectMgr::LoadCreatureQuestItems()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature quest items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
+
+void ObjectMgr::LoadFactionMountSpells()
+{
+    for (CharacterConversionMap::const_iterator itr = FactionChangeSpells.begin(); itr != FactionChangeSpells.end(); ++itr)
+    {
+        if (sDB2Manager.GetMount(itr->first))
+        {
+            AllianceToHordeMounts[itr->first] = itr->second;
+            HordeToAllianceMounts[itr->second] = itr->first;
+        }
+    }
+}

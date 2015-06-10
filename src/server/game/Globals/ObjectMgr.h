@@ -1304,12 +1304,15 @@ class ObjectMgr
         CharacterConversionMap FactionChangeReputation;
         CharacterConversionMap FactionChangeSpells;
         CharacterConversionMap FactionChangeTitles;
+        CharacterConversionMap AllianceToHordeMounts;
+        CharacterConversionMap HordeToAllianceMounts;
 
         void LoadFactionChangeAchievements();
         void LoadFactionChangeItems();
         void LoadFactionChangeQuests();
         void LoadFactionChangeReputations();
         void LoadFactionChangeSpells();
+        void LoadFactionMountSpells();
         void LoadFactionChangeTitles();
 
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
