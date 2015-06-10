@@ -123,6 +123,9 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                     case DATA_SACRIFICED_PLAYER:
                         SacrificedPlayerGUID = data;
                         break;
+                    case DATA_GRAUF:
+                        GraufGUID = data;
+                        break;
                     default:
                         break;
                 }
@@ -158,6 +161,8 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                         return SvalaGUID;
                     case DATA_SACRIFICED_PLAYER:
                         return SacrificedPlayerGUID;
+                    case DATA_GRAUF:
+                        return GraufGUID;
                     default:
                         break;
                 }
@@ -183,6 +188,8 @@ class instance_utgarde_pinnacle : public InstanceMapScript
 
             ObjectGuid SvalaGUID;
             ObjectGuid SacrificedPlayerGUID;
+
+            ObjectGuid GraufGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
