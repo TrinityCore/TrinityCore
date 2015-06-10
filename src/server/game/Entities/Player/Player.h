@@ -989,7 +989,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS,
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS,
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES,
-    PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_MOUNTS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -2731,7 +2730,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
-        void _LoadAccountMounts(PreparedQueryResult result);
+        void _LoadAccountMounts();
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/

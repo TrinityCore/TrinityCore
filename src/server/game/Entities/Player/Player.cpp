@@ -17227,7 +17227,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
-    _LoadAccountMounts(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_MOUNTS));
+    _LoadAccountMounts();
 
     LearnSpecializationSpells();
 
