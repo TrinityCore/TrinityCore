@@ -37,10 +37,10 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
         _worldPacket << Info->GuildGUID;
         _worldPacket << uint32(Info->VirtualRealmAddress);
         _worldPacket << uint32(Info->Ranks.size());
-        _worldPacket << uint32(Info->EmblemStyle);
         _worldPacket << uint32(Info->EmblemColor);
-        _worldPacket << uint32(Info->BorderStyle);
+        _worldPacket << uint32(Info->EmblemStyle);
         _worldPacket << uint32(Info->BorderColor);
+        _worldPacket << uint32(Info->BorderStyle);
         _worldPacket << uint32(Info->BackgroundColor);
 
         for (GuildInfo::GuildInfoRank const& rank : Info->Ranks)
@@ -135,10 +135,10 @@ WorldPacket const* WorldPackets::Guild::GuildInvite::Write()
     _worldPacket << GuildGUID;
     _worldPacket << OldGuildVirtualRealmAddress;
     _worldPacket << OldGuildGUID;
-    _worldPacket << EmblemStyle;
     _worldPacket << EmblemColor;
-    _worldPacket << BorderStyle;
+    _worldPacket << EmblemStyle;
     _worldPacket << BorderColor;
+    _worldPacket << BorderStyle;
     _worldPacket << Background;
     _worldPacket << Level;
 
@@ -801,10 +801,10 @@ WorldPacket const* WorldPackets::Guild::GuildChallengeUpdate::Write()
 void WorldPackets::Guild::SaveGuildEmblem::Read()
 {
     _worldPacket >> Vendor;
-    _worldPacket >> BStyle;
+    _worldPacket >> EColor;
     _worldPacket >> EStyle;
     _worldPacket >> BColor;
-    _worldPacket >> EColor;
+    _worldPacket >> BStyle;
     _worldPacket >> Bg;
 }
 
