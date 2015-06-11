@@ -16671,7 +16671,7 @@ bool Player::IsLoading() const
     return GetSession()->PlayerLoading();
 }
 
-bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
+bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder, SQLQueryHolder* collectionsHolder)
 {
     ////                                                     0     1        2     3     4        5      6    7      8     9           10              11
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, "
@@ -17227,7 +17227,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
-    _LoadAccountMounts();
+    _LoadAccountMounts(collectionsHolder->GetPreparedResult(PLAYER_COLLECTIONS_LOGIN_QUERY_LOAD_MOUNTS));
 
     LearnSpecializationSpells();
 
@@ -26765,11 +26765,9 @@ void Player::SendSpellCategoryCooldowns()
     SendDirectMessage(cooldowns.Write());
 }
 
-void Player::_LoadAccountMounts()
+void Player::_LoadAccountMounts(PreparedQueryResult result)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MOUNTS);
-    stmt->setUInt32(0, GetSession()->GetAccountId());
-    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+    if (result)
     {
         do
         {

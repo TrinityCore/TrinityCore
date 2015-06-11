@@ -996,10 +996,11 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //! HandlePlayerLoginOpcode
-    if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    if (_charLoginCallback.valid() && _charLoginCollectionsCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready && _charLoginCollectionsCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
         SQLQueryHolder* param = _charLoginCallback.get();
-        HandlePlayerLogin((LoginQueryHolder*)param);
+        SQLQueryHolder* param2 = _charLoginCollectionsCallback.get();
+        HandlePlayerLogin((LoginQueryHolder*)param, (LoginCollectionsQueryHolder*)param2);
     }
 
     //! HandleAddFriendOpcode

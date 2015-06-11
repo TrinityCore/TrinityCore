@@ -992,6 +992,12 @@ enum PlayerLoginQueryIndex
     MAX_PLAYER_LOGIN_QUERY
 };
 
+enum PlayerCollectionsLoginQueryIndex
+{
+    PLAYER_COLLECTIONS_LOGIN_QUERY_LOAD_MOUNTS,
+    MAX_PLAYER_COLLECTIONS_LOGIN_QUERY
+};
+
 enum PlayerDelayedOperations
 {
     DELAYED_SAVE_PLAYER         = 0x01,
@@ -1772,7 +1778,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        bool LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder);
+        bool LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder, SQLQueryHolder* collectionsHolder);
         bool IsLoading() const override;
 
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
@@ -2730,7 +2736,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
-        void _LoadAccountMounts();
+        void _LoadAccountMounts(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/

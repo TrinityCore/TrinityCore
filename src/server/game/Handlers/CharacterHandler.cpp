@@ -259,6 +259,30 @@ bool LoginQueryHolder::Initialize()
     return res;
 }
 
+class LoginCollectionsQueryHolder : public SQLQueryHolder
+{
+private:
+    uint32 m_accountId;
+public:
+    LoginCollectionsQueryHolder(uint32 accountId)
+        : m_accountId(accountId) { }
+    uint32 GetAccountId() const { return m_accountId; }
+    bool Initialize();
+};
+
+bool LoginCollectionsQueryHolder::Initialize()
+{
+    SetSize(MAX_PLAYER_COLLECTIONS_LOGIN_QUERY);
+
+    bool res = true;
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MOUNTS);
+    stmt->setUInt32(0, m_accountId);
+    res &= SetPreparedQuery(PLAYER_COLLECTIONS_LOGIN_QUERY_LOAD_MOUNTS, stmt);
+
+    return res;
+}
+
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
     WorldPackets::Character::EnumCharactersResult charEnum;
@@ -861,9 +885,11 @@ void WorldSession::HandleContinuePlayerLogin()
     }
 
     LoginQueryHolder* holder = new LoginQueryHolder(GetAccountId(), m_playerLoading);
-    if (!holder->Initialize())
+    LoginCollectionsQueryHolder* collectionsHolder = new LoginCollectionsQueryHolder(GetAccountId());
+    if (!holder->Initialize() || !collectionsHolder->Initialize())
     {
         delete holder;                                      // delete all unprocessed queries
+        delete collectionsHolder;                           // delete all account wide collections related queries
         m_playerLoading.Clear();
         return;
     }
@@ -871,6 +897,7 @@ void WorldSession::HandleContinuePlayerLogin()
     SendPacket(WorldPackets::Auth::ResumeComms(CONNECTION_TYPE_INSTANCE).Write());
 
     _charLoginCallback = CharacterDatabase.DelayQueryHolder(holder);
+    _charLoginCollectionsCallback = LoginDatabase.DelayQueryHolder(collectionsHolder);
 }
 
 void WorldSession::AbortLogin(WorldPackets::Character::LoginFailureReason reason)
@@ -890,7 +917,7 @@ void WorldSession::HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreen
     // TODO: Do something with this packet
 }
 
-void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
+void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, LoginCollectionsQueryHolder* collectionsHolder)
 {
     ObjectGuid playerGuid = holder->GetGuid();
 
@@ -899,12 +926,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     ChatHandler chH = ChatHandler(pCurrChar->GetSession());
 
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
-    if (!pCurrChar->LoadFromDB(playerGuid, holder))
+    if (!pCurrChar->LoadFromDB(playerGuid, holder, collectionsHolder))
     {
         SetPlayer(NULL);
         KickPlayer();                                       // disconnect client, player no set to session and it will not deleted or saved at kick
         delete pCurrChar;                                   // delete it manually
         delete holder;                                      // delete all unprocessed queries
+        delete collectionsHolder;                           // delete all account wide collections related queries
         m_playerLoading.Clear();
         return;
     }
@@ -1136,6 +1164,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     sBattlenetServer.SendChangeToonOnlineState(GetBattlenetAccountId(), GetAccountId(), _player->GetGUID(), _player->GetName(), true);
 
     delete holder;
+    delete collectionsHolder;
 }
 
 void WorldSession::SendFeatureSystemStatus()
