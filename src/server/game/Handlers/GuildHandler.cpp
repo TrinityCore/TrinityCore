@@ -191,6 +191,12 @@ void WorldSession::HandleSaveGuildEmblem(WorldPackets::Guild::SaveGuildEmblem& p
         if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
             GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
+        if (!emblemInfo.ValidateEmblemColors())
+        {
+            Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_INVALID_TABARD_COLORS);
+            return;
+        }
+
         if (Guild* guild = GetPlayer()->GetGuild())
             guild->HandleSetEmblem(this, emblemInfo);
         else

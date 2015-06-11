@@ -3030,8 +3030,8 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
-            case 63026: // Force Cast (HACK: Target shouldn't be changed)
-            case 63137: // Force Cast (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
+            case 63026: // Summon Aspirant Test NPC (HACK: Target shouldn't be changed)
+            case 63137: // Summon Valiant Test (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
             case 42436: // Drink! (Brewfest)

@@ -266,9 +266,10 @@ class EmblemInfo
 public:
     EmblemInfo() : m_style(0), m_color(0), m_borderStyle(0), m_borderColor(0), m_backgroundColor(0) { }
 
-    void LoadFromDB(Field* fields);
+    bool LoadFromDB(Field* fields);
     void SaveToDB(ObjectGuid::LowType guildId) const;
     void ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet);
+    bool ValidateEmblemColors();
 
     uint32 GetStyle() const { return m_style; }
     uint32 GetColor() const { return m_color; }
