@@ -680,12 +680,10 @@ void EmblemInfo::ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet)
 
 bool EmblemInfo::ValidateEmblemColors()
 {
-    if (sGuildColorBackgroundStore.LookupEntry(m_backgroundColor) &&
-        sGuildColorBorderStore.LookupEntry(m_borderColor) &&
-        sGuildColorEmblemStore.LookupEntry(m_color))
-        return true;
-
-    return false;
+    return sGuildColorBackgroundStore.LookupEntry(m_backgroundColor) &&
+           sGuildColorBorderStore.LookupEntry(m_borderColor) &&
+           sGuildColorEmblemStore.LookupEntry(m_color);
+        
 }
 
 bool EmblemInfo::LoadFromDB(Field* fields)
@@ -2259,7 +2257,8 @@ bool Guild::LoadFromDB(Field* fields)
 
     if (!m_emblemInfo.LoadFromDB(fields))
     {
-        TC_LOG_ERROR("guild", "Guild " UI64FMTD " has invalid emblem colors, skipped.", m_id);
+        TC_LOG_ERROR("guild", "Guild " UI64FMTD " has invalid emblem colors (Background: %u, Border: %u, Emblem: %u), skipped.", 
+            m_id, m_emblemInfo.GetBackgroundColor(), m_emblemInfo.GetBorderColor(), m_emblemInfo.GetColor());
         return false;
     }
 
