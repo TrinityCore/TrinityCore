@@ -132,6 +132,9 @@ GameTable <GtSpellScalingEntry>          sGtSpellScalingStore(GtSpellScalingfmt)
 GameTable <GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore(GtOCTBaseHPByClassfmt);
 GameTable <GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore(GtOCTBaseMPByClassfmt);
 DBCStorage <GuildPerkSpellsEntry>         sGuildPerkSpellsStore(GuildPerkSpellsfmt);
+DBCStorage <GuildColorBackgroundEntry>    sGuildColorBackgroundStore(GuildColorBackgroundfmt);
+DBCStorage <GuildColorBorderEntry>        sGuildColorBorderStore(GuildColorBorderfmt);
+DBCStorage <GuildColorEmblemEntry>        sGuildColorEmblemStore(GuildColorEmblemfmt);
 
 DBCStorage <ImportPriceArmorEntry>        sImportPriceArmorStore(ImportPriceArmorfmt);
 DBCStorage <ImportPriceQualityEntry>      sImportPriceQualityStore(ImportPriceQualityfmt);
@@ -464,6 +467,9 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sGlyphPropertiesStore,        dbcPath, "GlyphProperties.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sGlyphSlotStore,              dbcPath, "GlyphSlot.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sGuildPerkSpellsStore,        dbcPath, "GuildPerkSpells.dbc");//19116
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGuildColorBackgroundStore,   dbcPath, "GuildColorBackground.dbc");//19865
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGuildColorBorderStore,       dbcPath, "GuildColorBorder.dbc"); //19865
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGuildColorEmblemStore,       dbcPath, "GuildColorEmblem.dbc");//19865
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceArmorStore,       dbcPath, "ImportPriceArmor.dbc"); // 19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceQualityStore,     dbcPath, "ImportPriceQuality.dbc"); // 19116

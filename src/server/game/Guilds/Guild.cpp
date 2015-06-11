@@ -678,13 +678,25 @@ void EmblemInfo::ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet)
     m_backgroundColor = packet.Bg;
 }
 
-void EmblemInfo::LoadFromDB(Field* fields)
+bool EmblemInfo::ValidateEmblemColors()
+{
+    if (sGuildColorBackgroundStore.LookupEntry(m_backgroundColor) &&
+        sGuildColorBorderStore.LookupEntry(m_borderColor) &&
+        sGuildColorEmblemStore.LookupEntry(m_color))
+        return true;
+
+    return false;
+}
+
+bool EmblemInfo::LoadFromDB(Field* fields)
 {
     m_style             = fields[3].GetUInt8();
     m_color             = fields[4].GetUInt8();
     m_borderStyle       = fields[5].GetUInt8();
     m_borderColor       = fields[6].GetUInt8();
     m_backgroundColor   = fields[7].GetUInt8();
+        
+    return ValidateEmblemColors();
 }
 
 void EmblemInfo::SaveToDB(ObjectGuid::LowType guildId) const
@@ -2244,7 +2256,13 @@ bool Guild::LoadFromDB(Field* fields)
     m_id            = fields[0].GetUInt64();
     m_name          = fields[1].GetString();
     m_leaderGuid    = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt64());
-    m_emblemInfo.LoadFromDB(fields);
+
+    if (!m_emblemInfo.LoadFromDB(fields))
+    {
+        TC_LOG_ERROR("guild", "Guild " UI64FMTD " has invalid emblem colors, skipped.", m_id);
+        return false;
+    }
+
     m_info          = fields[8].GetString();
     m_motd          = fields[9].GetString();
     m_createdDate   = time_t(fields[10].GetUInt32());
