@@ -44,8 +44,8 @@ struct CompressedWorldPacket
 using boost::asio::ip::tcp;
 
 std::string const WorldSocket::ServerConnectionInitialize("WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT");
-
 std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER");
+uint32 const WorldSocket::MinSizeForCompression = 0x400;
 
 uint32 const SizeOfClientHeader[2][2] =
 {
@@ -54,7 +54,6 @@ uint32 const SizeOfClientHeader[2][2] =
 };
 
 uint32 const SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint32), sizeof(uint32) };
-
 WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
     _type(CONNECTION_TYPE_REALM), _authSeed(rand32()), _OverSpeedPings(0),
     _worldSession(nullptr), _authed(false), _compressionStream(nullptr), _initialized(false)
@@ -375,7 +374,7 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
 
     uint32 packetSize = packet.size();
     uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
-    if (packetSize > 0x400)
+    if (packetSize > MinSizeForCompression && _authCrypt.IsInitialized())
         packetSize = compressBound(packetSize) + sizeof(CompressedWorldPacket);
 
     std::unique_lock<std::mutex> guard(_writeLock);
@@ -403,7 +402,7 @@ void WorldSocket::WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& 
     uint8* headerPos = buffer.GetWritePointer();
     buffer.WriteCompleted(sizeOfHeader);
 
-    if (packetSize > 0x400)
+    if (packetSize > MinSizeForCompression && _authCrypt.IsInitialized())
     {
         CompressedWorldPacket cmp;
         cmp.UncompressedSize = packetSize + 4;
@@ -451,7 +450,7 @@ uint32 WorldSocket::CompressPacket(uint8* buffer, WorldPacket const& packet)
     _compressionStream->next_in = (Bytef*)&opcode;
     _compressionStream->avail_in = sizeof(uint32);
 
-    int32 z_res = deflate(_compressionStream, Z_BLOCK);
+    int32 z_res = deflate(_compressionStream, Z_NO_FLUSH);
     if (z_res != Z_OK)
     {
         TC_LOG_ERROR("network", "Can't compress packet opcode (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
