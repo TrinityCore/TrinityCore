@@ -1336,6 +1336,7 @@ enum MountSaveState : uint8
     MOUNTSTATE_UNCHANGED    = 0,
     MOUNTSTATE_NEW          = 1,
     MOUNTSTATE_CHANGED      = 2,
+    MOUNTSTATE_CONVERTED    = 4,
 };
 
 struct MountData
@@ -2655,6 +2656,8 @@ class Player : public Unit, public GridObject<Player>
         Garrison* GetGarrison() { return _garrison.get(); }
 
         bool AddMount(uint32 spellId, bool isFavorite = false, bool isNew = false, bool isDisabled = false);
+        void ConvertMount(uint32 spellId);
+        void LearnOtherFactionMount(uint32 spellId);
         void MountSetFavorite(uint32 spellId, bool state);
 
     protected:
@@ -2762,7 +2765,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
         void _SaveCUFProfiles(SQLTransaction& trans);
-        void _SaveAccountMounts(SQLTransaction& trans);
+        void _SaveAccountMounts(SQLTransaction& authTrans, SQLTransaction& charTrans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
