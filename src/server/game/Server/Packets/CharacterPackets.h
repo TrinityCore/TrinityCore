@@ -608,7 +608,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            BarberShopResult Result;
+            BarberShopResult Result = BARBER_SHOP_RESULT_SUCCESS;
         };
 
         class LogXPGain final : public ServerPacket
@@ -685,6 +685,35 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 FactionIndex = 0;
+        };
+
+        class CharCustomizeResponse final : public ServerPacket
+        {
+        public:
+            CharCustomizeResponse() : ServerPacket(SMSG_CHAR_CUSTOMIZE, 16 + 1 + 1 + 1 + 1 + 1 + 1 + 1) { }
+            CharCustomizeResponse(CharCustomizeInfo const* customizeInfo);
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CharGUID;
+            std::string CharName;
+            uint8 SexID = 0;
+            uint8 SkinID = 0;
+            uint8 HairColorID = 0;
+            uint8 HairStyleID = 0;
+            uint8 FacialHairStyleID = 0;
+            uint8 FaceID = 0;
+        };
+
+        class CharCustomizeFailed final : public ServerPacket
+        {
+        public:
+            CharCustomizeFailed() : ServerPacket(SMSG_CHAR_CUSTOMIZE_FAILED, 1 + 16) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Result = 0;
+            ObjectGuid CharGUID;
         };
     }
 }

@@ -56,3 +56,19 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Instance::InstanceLockInf
 
     return data;
 }
+
+WorldPacket const* WorldPackets::Instance::InstanceReset::Write()
+{
+    _worldPacket << uint32(MapID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceResetFailed::Write()
+{
+    _worldPacket << uint32(MapID);
+    _worldPacket.WriteBits(ResetFailedReason, 2);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

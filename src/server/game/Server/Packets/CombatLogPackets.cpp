@@ -147,3 +147,76 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
+{
+    _worldPacket << TargetGUID;
+    _worldPacket << CasterGUID;
+    _worldPacket << SpellID;
+
+    _worldPacket << uint32(Effects.size());
+
+    for (SpellLogEffect const& effect : Effects)
+    {
+        _worldPacket << effect.Effect;
+        _worldPacket << int32(effect.Amount);
+        _worldPacket << int32(effect.OverHealOrKill);
+        _worldPacket << int32(effect.SchoolMaskOrPower);
+        _worldPacket << int32(effect.AbsorbedOrAmplitude);
+        _worldPacket << int32(effect.Resisted);
+
+        _worldPacket.WriteBit(effect.Crit);
+        _worldPacket.WriteBit(effect.Multistrike);
+
+        if (_worldPacket.WriteBit(effect.DebugInfo.is_initialized()))
+        {
+            _worldPacket << float(effect.DebugInfo->CritRollMade);
+            _worldPacket << float(effect.DebugInfo->CritRollNeeded);
+        }
+
+        _worldPacket.FlushBits();
+    }
+
+    _worldPacket.WriteBit(LogData.is_initialized());
+    _worldPacket.FlushBits();
+    if (LogData)
+        _worldPacket << *LogData;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellInterruptLog::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << Victim;
+    _worldPacket << int32(InterruptedSpellID);
+    _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellEnergizeLog::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << TargetGUID;
+
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(Type);
+    _worldPacket << int32(Amount);
+
+    _worldPacket.WriteBit(LogData.is_initialized());
+    _worldPacket.FlushBits();
+    if (LogData)
+        _worldPacket << *LogData;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellInstakillLog::Write()
+{
+    _worldPacket << Target;
+    _worldPacket << Caster;
+    _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}

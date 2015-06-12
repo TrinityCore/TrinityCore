@@ -398,7 +398,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid MoverGUID;
-            uint32 TimeSkipped;
+            uint32 TimeSkipped = 0;
         };
     }
 

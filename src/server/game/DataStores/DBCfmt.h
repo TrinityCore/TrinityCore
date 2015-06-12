@@ -25,6 +25,7 @@
 char const Achievementfmt[] = "niixsxiixixxiii";
 const std::string CustomAchievementfmt = "pppaaaapapaapp";
 const std::string CustomAchievementIndex = "ID";
+char const AnimKitfmt[] = "nxxx";
 char const AreaTableEntryfmt[] = "iiiniixxxxxxisiiiiixxxxxxxxxx";
 char const AreaTriggerEntryfmt[] = "nifffxxxfffffxxxx";
 char const ArmorLocationfmt[] = "nfffff";
@@ -87,6 +88,9 @@ char const GtSpellScalingfmt[] = "df";
 char const GtOCTBaseHPByClassfmt[] = "df";
 char const GtOCTBaseMPByClassfmt[] = "df";
 char const GuildPerkSpellsfmt[] = "dii";
+char const GuildColorBackgroundfmt[] = "nXXX";
+char const GuildColorBorderfmt[] = "nXXX";
+char const GuildColorEmblemfmt[] = "nXXX";
 char const ImportPriceArmorfmt[] = "nffff";
 char const ImportPriceQualityfmt[] = "nf";
 char const ImportPriceShieldfmt[] = "nf";

@@ -208,7 +208,7 @@ class Channel
         void DeVoice(Player const* player);
         void JoinNotify(Player const* player);
         void LeaveNotify(Player const* player);
-        void SetOwnership(bool ownership) { _ownership = ownership; };
+        void SetOwnership(bool ownership) { _ownership = ownership; }
         static void CleanOldChannelsInDB();
 
     private:

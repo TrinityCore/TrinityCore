@@ -50,12 +50,12 @@ struct AchievementEntry
     uint32      CriteriaTree;                               // 14
 };
 
-struct AchievementCategoryEntry
+struct AnimKitEntry
 {
     uint32      ID;                                         // 0
-    uint32      Parent;                                     // 1 -1 for main category
-    //char*     Name_lang;                                  // 2
-    //uint32    UIOrder;                                    // 3
+    //uint32      OneShotDuration;                          // 1
+    //uint32      OneShotStopAnimKitID;                     // 2
+    //uint32      LowDefAnimKitID;                          // 3
 };
 
 // Temporary define until max depth is found somewhere (adt?)
@@ -951,6 +951,33 @@ struct GuildPerkSpellsEntry
     //uint32    ID;                                         // 0
     uint32      GuildLevel;                                 // 1
     uint32      SpellID;                                    // 2
+};
+
+// GuildColorBackground.dbc
+struct GuildColorBackgroundEntry
+{
+    uint32      ID;
+    //uint8       Red;
+    //uint8       Green;
+    //uint8       Blue;
+};
+
+// GuildColorBorder.dbc
+struct GuildColorBorderEntry
+{
+    uint32      ID;
+    //uint8       Red;
+    //uint8       Green;
+    //uint8       Blue;
+};
+
+// GuildColorEmblem.dbc
+struct GuildColorEmblemEntry
+{
+    uint32      ID;
+    //uint8       Red;
+    //uint8       Green;
+    //uint8       Blue;
 };
 
 // ImportPriceArmor.dbc

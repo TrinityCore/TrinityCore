@@ -72,7 +72,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.SuggestedGroupNum;
         _worldPacket << Info.RewardNextQuest;
         _worldPacket << Info.RewardXPDifficulty;
-        _worldPacket << Info.Float10; // Unk
+        _worldPacket << Info.RewardXPMultiplier;
         _worldPacket << Info.RewardMoney;
         _worldPacket << Info.RewardMoneyDifficulty;
         _worldPacket << Info.Float13; // Unk

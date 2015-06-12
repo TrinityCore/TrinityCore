@@ -68,7 +68,7 @@ public:
 
     static GameObjectModel* Create(const GameObject& go);
 
-    bool Relocate(GameObject const& go);
+    bool UpdatePosition();
 };
 
 #endif // _GAMEOBJECT_MODEL_H

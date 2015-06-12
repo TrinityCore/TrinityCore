@@ -51,24 +51,51 @@ using namespace boost::program_options;
 # define _TRINITY_BNET_CONFIG  "bnetserver.conf"
 #endif
 
+#if PLATFORM == PLATFORM_WINDOWS
+#include "ServiceWin32.h"
+char serviceName[] = "bnetserver";
+char serviceLongName[] = "TrinityCore bnet service";
+char serviceDescription[] = "TrinityCore Battle.net emulator authentication service";
+/*
+* -1 - not in service mode
+*  0 - stopped
+*  1 - running
+*  2 - paused
+*/
+int m_ServiceStatus = -1;
+
+static boost::asio::deadline_timer* _serviceStatusWatchTimer;
+void ServiceStatusWatcher(boost::system::error_code const& error);
+#endif
+
 bool StartDB();
 void StopDB();
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void KeepDatabaseAliveHandler(const boost::system::error_code& error);
-variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile);
+variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService);
 
-std::unique_ptr<boost::asio::io_service> _ioService;
-std::unique_ptr<boost::asio::deadline_timer> _dbPingTimer;
-uint32 _dbPingInterval;
+static boost::asio::io_service* _ioService;
+static boost::asio::deadline_timer* _dbPingTimer;
+static uint32 _dbPingInterval;
 LoginDatabaseWorkerPool LoginDatabase;
 
 int main(int argc, char** argv)
 {
     std::string configFile = _TRINITY_BNET_CONFIG;
-    auto vm = GetConsoleArguments(argc, argv, configFile);
+    std::string configService;
+    auto vm = GetConsoleArguments(argc, argv, configFile, configService);
     // exit if help is enabled
     if (vm.count("help"))
         return 0;
+
+#if PLATFORM == PLATFORM_WINDOWS
+    if (configService.compare("install") == 0)
+        return WinServiceInstall() ? 0 : 1;
+    else if (configService.compare("uninstall") == 0)
+        return WinServiceUninstall() ? 0 : 1;
+    else if (configService.compare("run") == 0)
+        return WinServiceRun() ? 0 : 1;
+#endif
 
     std::string configError;
     if (!sConfigMgr->LoadInitial(configFile, configError))
@@ -109,7 +136,7 @@ int main(int argc, char** argv)
 
     sIpcContext->Initialize();
 
-    _ioService.reset(new boost::asio::io_service());
+    _ioService = new boost::asio::io_service();
 
     // Get the list of realms for the server
     sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10), worldListenPort);
@@ -120,6 +147,7 @@ int main(int argc, char** argv)
     {
         TC_LOG_ERROR("server.bnetserver", "Specified battle.net port (%d) out of allowed range (1-65535)", bnport);
         StopDB();
+        delete _ioService;
         return 1;
     }
 
@@ -139,12 +167,21 @@ int main(int argc, char** argv)
 
     // Enabled a timed callback for handling the database keep alive ping
     _dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
-    _dbPingTimer.reset(new boost::asio::deadline_timer(*_ioService));
+    _dbPingTimer = new boost::asio::deadline_timer(*_ioService);
     _dbPingTimer->expires_from_now(boost::posix_time::minutes(_dbPingInterval));
     _dbPingTimer->async_wait(KeepDatabaseAliveHandler);
 
     sComponentMgr->Load();
     sModuleMgr->Load();
+
+#if PLATFORM == PLATFORM_WINDOWS
+    if (m_ServiceStatus != -1)
+    {
+        _serviceStatusWatchTimer = new boost::asio::deadline_timer(*_ioService);
+        _serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
+        _serviceStatusWatchTimer->async_wait(ServiceStatusWatcher);
+    }
+#endif
 
     // Start the io service worker loop
     _ioService->run();
@@ -162,9 +199,10 @@ int main(int argc, char** argv)
 
     TC_LOG_INFO("server.bnetserver", "Halting process...");
 
-    signals.clear();
+    signals.cancel();
 
-    _ioService.reset();
+    delete _dbPingTimer;
+    delete _ioService;
     return 0;
 }
 
@@ -211,24 +249,55 @@ void KeepDatabaseAliveHandler(const boost::system::error_code& error)
     }
 }
 
-variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile)
+#if PLATFORM == PLATFORM_WINDOWS
+void ServiceStatusWatcher(boost::system::error_code const& error)
 {
+    if (!error)
+    {
+        if (m_ServiceStatus == 0)
+        {
+            _ioService->stop();
+            delete _serviceStatusWatchTimer;
+        }
+        else
+        {
+            _serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
+            _serviceStatusWatchTimer->async_wait(ServiceStatusWatcher);
+        }
+    }
+}
+#endif
+
+variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService)
+{
+    (void)configService;
+
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
         ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_BNET_CONFIG), "use <arg> as configuration file")
         ;
+#if PLATFORM == PLATFORM_WINDOWS
+    options_description win("Windows platform specific options");
+    win.add_options()
+        ("service,s", value<std::string>(&configService)->default_value(""), "Windows service options: [install | uninstall]")
+        ;
+
+    all.add(win);
+#endif
     variables_map variablesMap;
     try
     {
         store(command_line_parser(argc, argv).options(all).allow_unregistered().run(), variablesMap);
         notify(variablesMap);
     }
-    catch (std::exception& e) {
+    catch (std::exception& e)
+    {
         std::cerr << e.what() << "\n";
     }
 
-    if (variablesMap.count("help")) {
+    if (variablesMap.count("help"))
+    {
         std::cout << all << "\n";
     }
 

@@ -61,6 +61,7 @@ HANDLE WheatyExceptionReport::m_hDumpFile;
 HANDLE WheatyExceptionReport::m_hProcess;
 SymbolPairs WheatyExceptionReport::symbols;
 std::stack<SymbolDetail> WheatyExceptionReport::symbolDetails;
+bool WheatyExceptionReport::stackOverflowException;
 
 // Declare global instance of class
 WheatyExceptionReport g_WheatyExceptionReport;
@@ -72,6 +73,7 @@ WheatyExceptionReport::WheatyExceptionReport()             // Constructor
     // Install the unhandled exception filter function
     m_previousFilter = SetUnhandledExceptionFilter(WheatyUnhandledExceptionFilter);
     m_hProcess = GetCurrentProcess();
+    stackOverflowException = false;
     if (!IsDebuggerPresent())
     {
         _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
@@ -97,6 +99,9 @@ WheatyExceptionReport::~WheatyExceptionReport()
 LONG WINAPI WheatyExceptionReport::WheatyUnhandledExceptionFilter(
 PEXCEPTION_POINTERS pExceptionInfo)
 {
+    if (pExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
+        stackOverflowException = true;
+
     TCHAR module_folder_name[MAX_PATH];
     GetModuleFileName(0, module_folder_name, MAX_PATH);
     TCHAR* pos = _tcsrchr(module_folder_name, '\\');
@@ -419,107 +424,114 @@ void WheatyExceptionReport::printTracesForAllThreads(bool bWriteVariables)
 void WheatyExceptionReport::GenerateExceptionReport(
 PEXCEPTION_POINTERS pExceptionInfo)
 {
-    SYSTEMTIME systime;
-    GetLocalTime(&systime);
+    __try
+    {
+        SYSTEMTIME systime;
+        GetLocalTime(&systime);
 
-    // Start out with a banner
-    _tprintf(_T("Revision: %s\r\n"), _FULLVERSION);
-    _tprintf(_T("Date %u:%u:%u. Time %u:%u \r\n"), systime.wDay, systime.wMonth, systime.wYear, systime.wHour, systime.wMinute);
-    PEXCEPTION_RECORD pExceptionRecord = pExceptionInfo->ExceptionRecord;
+        // Start out with a banner
+        _tprintf(_T("Revision: %s\r\n"), _FULLVERSION);
+        _tprintf(_T("Date %u:%u:%u. Time %u:%u \r\n"), systime.wDay, systime.wMonth, systime.wYear, systime.wHour, systime.wMinute);
+        PEXCEPTION_RECORD pExceptionRecord = pExceptionInfo->ExceptionRecord;
 
-    PrintSystemInfo();
-    // First print information about the type of fault
-    _tprintf(_T("\r\n//=====================================================\r\n"));
-    _tprintf(_T("Exception code: %08X %s\r\n"),
-        pExceptionRecord->ExceptionCode,
-        GetExceptionString(pExceptionRecord->ExceptionCode));
+        PrintSystemInfo();
+        // First print information about the type of fault
+        _tprintf(_T("\r\n//=====================================================\r\n"));
+        _tprintf(_T("Exception code: %08X %s\r\n"),
+            pExceptionRecord->ExceptionCode,
+            GetExceptionString(pExceptionRecord->ExceptionCode));
 
-    // Now print information about where the fault occured
-    TCHAR szFaultingModule[MAX_PATH];
-    DWORD section;
-    DWORD_PTR offset;
-    GetLogicalAddress(pExceptionRecord->ExceptionAddress,
-        szFaultingModule,
-        sizeof(szFaultingModule),
-        section, offset);
+        // Now print information about where the fault occured
+        TCHAR szFaultingModule[MAX_PATH];
+        DWORD section;
+        DWORD_PTR offset;
+        GetLogicalAddress(pExceptionRecord->ExceptionAddress,
+            szFaultingModule,
+            sizeof(szFaultingModule),
+            section, offset);
 
 #ifdef _M_IX86
-    _tprintf(_T("Fault address:  %08X %02X:%08X %s\r\n"),
-        pExceptionRecord->ExceptionAddress,
-        section, offset, szFaultingModule);
+        _tprintf(_T("Fault address:  %08X %02X:%08X %s\r\n"),
+            pExceptionRecord->ExceptionAddress,
+            section, offset, szFaultingModule);
 #endif
 #ifdef _M_X64
-    _tprintf(_T("Fault address:  %016I64X %02X:%016I64X %s\r\n"),
-        pExceptionRecord->ExceptionAddress,
-        section, offset, szFaultingModule);
+        _tprintf(_T("Fault address:  %016I64X %02X:%016I64X %s\r\n"),
+            pExceptionRecord->ExceptionAddress,
+            section, offset, szFaultingModule);
 #endif
 
-    PCONTEXT pCtx = pExceptionInfo->ContextRecord;
+        PCONTEXT pCtx = pExceptionInfo->ContextRecord;
 
-    // Show the registers
-    #ifdef _M_IX86                                          // X86 Only!
-    _tprintf(_T("\r\nRegisters:\r\n"));
+        // Show the registers
+#ifdef _M_IX86                                          // X86 Only!
+        _tprintf(_T("\r\nRegisters:\r\n"));
 
-    _tprintf(_T("EAX:%08X\r\nEBX:%08X\r\nECX:%08X\r\nEDX:%08X\r\nESI:%08X\r\nEDI:%08X\r\n")
-        , pCtx->Eax, pCtx->Ebx, pCtx->Ecx, pCtx->Edx,
-        pCtx->Esi, pCtx->Edi);
+        _tprintf(_T("EAX:%08X\r\nEBX:%08X\r\nECX:%08X\r\nEDX:%08X\r\nESI:%08X\r\nEDI:%08X\r\n")
+            , pCtx->Eax, pCtx->Ebx, pCtx->Ecx, pCtx->Edx,
+            pCtx->Esi, pCtx->Edi);
 
-    _tprintf(_T("CS:EIP:%04X:%08X\r\n"), pCtx->SegCs, pCtx->Eip);
-    _tprintf(_T("SS:ESP:%04X:%08X  EBP:%08X\r\n"),
-        pCtx->SegSs, pCtx->Esp, pCtx->Ebp);
-    _tprintf(_T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\r\n"),
-        pCtx->SegDs, pCtx->SegEs, pCtx->SegFs, pCtx->SegGs);
-    _tprintf(_T("Flags:%08X\r\n"), pCtx->EFlags);
-    #endif
+        _tprintf(_T("CS:EIP:%04X:%08X\r\n"), pCtx->SegCs, pCtx->Eip);
+        _tprintf(_T("SS:ESP:%04X:%08X  EBP:%08X\r\n"),
+            pCtx->SegSs, pCtx->Esp, pCtx->Ebp);
+        _tprintf(_T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\r\n"),
+            pCtx->SegDs, pCtx->SegEs, pCtx->SegFs, pCtx->SegGs);
+        _tprintf(_T("Flags:%08X\r\n"), pCtx->EFlags);
+#endif
 
-    #ifdef _M_X64
-    _tprintf(_T("\r\nRegisters:\r\n"));
-    _tprintf(_T("RAX:%016I64X\r\nRBX:%016I64X\r\nRCX:%016I64X\r\nRDX:%016I64X\r\nRSI:%016I64X\r\nRDI:%016I64X\r\n")
-        _T("R8: %016I64X\r\nR9: %016I64X\r\nR10:%016I64X\r\nR11:%016I64X\r\nR12:%016I64X\r\nR13:%016I64X\r\nR14:%016I64X\r\nR15:%016I64X\r\n")
-        , pCtx->Rax, pCtx->Rbx, pCtx->Rcx, pCtx->Rdx,
-        pCtx->Rsi, pCtx->Rdi, pCtx->R9, pCtx->R10, pCtx->R11, pCtx->R12, pCtx->R13, pCtx->R14, pCtx->R15);
-    _tprintf(_T("CS:RIP:%04X:%016I64X\r\n"), pCtx->SegCs, pCtx->Rip);
-    _tprintf(_T("SS:RSP:%04X:%016X  RBP:%08X\r\n"),
-        pCtx->SegSs, pCtx->Rsp, pCtx->Rbp);
-    _tprintf(_T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\r\n"),
-        pCtx->SegDs, pCtx->SegEs, pCtx->SegFs, pCtx->SegGs);
-    _tprintf(_T("Flags:%08X\r\n"), pCtx->EFlags);
-    #endif
+#ifdef _M_X64
+        _tprintf(_T("\r\nRegisters:\r\n"));
+        _tprintf(_T("RAX:%016I64X\r\nRBX:%016I64X\r\nRCX:%016I64X\r\nRDX:%016I64X\r\nRSI:%016I64X\r\nRDI:%016I64X\r\n")
+            _T("R8: %016I64X\r\nR9: %016I64X\r\nR10:%016I64X\r\nR11:%016I64X\r\nR12:%016I64X\r\nR13:%016I64X\r\nR14:%016I64X\r\nR15:%016I64X\r\n")
+            , pCtx->Rax, pCtx->Rbx, pCtx->Rcx, pCtx->Rdx,
+            pCtx->Rsi, pCtx->Rdi, pCtx->R9, pCtx->R10, pCtx->R11, pCtx->R12, pCtx->R13, pCtx->R14, pCtx->R15);
+        _tprintf(_T("CS:RIP:%04X:%016I64X\r\n"), pCtx->SegCs, pCtx->Rip);
+        _tprintf(_T("SS:RSP:%04X:%016X  RBP:%08X\r\n"),
+            pCtx->SegSs, pCtx->Rsp, pCtx->Rbp);
+        _tprintf(_T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\r\n"),
+            pCtx->SegDs, pCtx->SegEs, pCtx->SegFs, pCtx->SegGs);
+        _tprintf(_T("Flags:%08X\r\n"), pCtx->EFlags);
+#endif
 
-    SymSetOptions(SYMOPT_DEFERRED_LOADS);
+        SymSetOptions(SYMOPT_DEFERRED_LOADS);
 
-    // Initialize DbgHelp
-    if (!SymInitialize(GetCurrentProcess(), 0, TRUE))
-    {
-        _tprintf(_T("\n\rCRITICAL ERROR.\n\r Couldn't initialize the symbol handler for process.\n\rError [%s].\n\r\n\r"),
-            ErrorMessage(GetLastError()));
-    }
+        // Initialize DbgHelp
+        if (!SymInitialize(GetCurrentProcess(), 0, TRUE))
+        {
+            _tprintf(_T("\n\rCRITICAL ERROR.\n\r Couldn't initialize the symbol handler for process.\n\rError [%s].\n\r\n\r"),
+                ErrorMessage(GetLastError()));
+        }
 
-    CONTEXT trashableContext = *pCtx;
+        CONTEXT trashableContext = *pCtx;
 
-    WriteStackDetails(&trashableContext, false, NULL);
-    printTracesForAllThreads(false);
+        WriteStackDetails(&trashableContext, false, NULL);
+        printTracesForAllThreads(false);
 
-//    #ifdef _M_IX86                                          // X86 Only!
+        //    #ifdef _M_IX86                                          // X86 Only!
 
-    _tprintf(_T("========================\r\n"));
-    _tprintf(_T("Local Variables And Parameters\r\n"));
+        _tprintf(_T("========================\r\n"));
+        _tprintf(_T("Local Variables And Parameters\r\n"));
 
-    trashableContext = *pCtx;
-    WriteStackDetails(&trashableContext, true, NULL);
-    printTracesForAllThreads(true);
+        trashableContext = *pCtx;
+        WriteStackDetails(&trashableContext, true, NULL);
+        printTracesForAllThreads(true);
 
-    /*_tprintf(_T("========================\r\n"));
-    _tprintf(_T("Global Variables\r\n"));
+        /*_tprintf(_T("========================\r\n"));
+        _tprintf(_T("Global Variables\r\n"));
 
-    SymEnumSymbols(GetCurrentProcess(),
+        SymEnumSymbols(GetCurrentProcess(),
         (UINT_PTR)GetModuleHandle(szFaultingModule),
         0, EnumerateSymbolsCallback, 0);*/
-  //  #endif                                                  // X86 Only!
+        //  #endif                                                  // X86 Only!
 
-    SymCleanup(GetCurrentProcess());
+        SymCleanup(GetCurrentProcess());
 
-    _tprintf(_T("\r\n"));
+        _tprintf(_T("\r\n"));
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        _tprintf(_T("Error writing the crash log\r\n"));
+    }
 }
 
 //======================================================================
@@ -1313,16 +1325,43 @@ DWORD_PTR WheatyExceptionReport::DereferenceUnsafePointer(DWORD_PTR address)
 //============================================================================
 int __cdecl WheatyExceptionReport::_tprintf(const TCHAR * format, ...)
 {
-    TCHAR szBuff[WER_LARGE_BUFFER_SIZE];
+    int retValue;
+    va_list argptr;
+    va_start(argptr, format);
+    if (stackOverflowException)
+    {
+        retValue = heapprintf(format, argptr);
+        va_end(argptr);
+    }
+    else
+    {
+        retValue = stackprintf(format, argptr);
+        va_end(argptr);
+    }
+
+    return retValue;
+}
+
+int __cdecl WheatyExceptionReport::stackprintf(const TCHAR * format, va_list argptr)
+{
     int retValue;
     DWORD cbWritten;
-    va_list argptr;
 
-    va_start(argptr, format);
+    TCHAR szBuff[WER_LARGE_BUFFER_SIZE];
     retValue = vsprintf(szBuff, format, argptr);
-    va_end(argptr);
-
     WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
+
+    return retValue;
+}
+
+int __cdecl WheatyExceptionReport::heapprintf(const TCHAR * format, va_list argptr)
+{
+    int retValue;
+    DWORD cbWritten;
+    TCHAR* szBuff = (TCHAR*)malloc(sizeof(TCHAR) * WER_LARGE_BUFFER_SIZE);
+    retValue = vsprintf(szBuff, format, argptr);
+    WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
+    free(szBuff);
 
     return retValue;
 }

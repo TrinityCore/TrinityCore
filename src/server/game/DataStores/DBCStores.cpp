@@ -60,6 +60,7 @@ static AreaFlagByMapID sAreaFlagByMapID;                    // for instances wit
 static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 
 DBCStorage <AchievementEntry> sAchievementStore(Achievementfmt);
+DBCStorage <AnimKitEntry> sAnimKitStore(AnimKitfmt);
 DBCStorage <AreaTriggerEntry> sAreaTriggerStore(AreaTriggerEntryfmt);
 DBCStorage <ArmorLocationEntry> sArmorLocationStore(ArmorLocationfmt);
 DBCStorage <AuctionHouseEntry> sAuctionHouseStore(AuctionHouseEntryfmt);
@@ -131,6 +132,9 @@ GameTable <GtSpellScalingEntry>          sGtSpellScalingStore(GtSpellScalingfmt)
 GameTable <GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore(GtOCTBaseHPByClassfmt);
 GameTable <GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore(GtOCTBaseMPByClassfmt);
 DBCStorage <GuildPerkSpellsEntry>         sGuildPerkSpellsStore(GuildPerkSpellsfmt);
+DBCStorage <GuildColorBackgroundEntry>    sGuildColorBackgroundStore(GuildColorBackgroundfmt);
+DBCStorage <GuildColorBorderEntry>        sGuildColorBorderStore(GuildColorBorderfmt);
+DBCStorage <GuildColorEmblemEntry>        sGuildColorEmblemStore(GuildColorEmblemfmt);
 
 DBCStorage <ImportPriceArmorEntry>        sImportPriceArmorStore(ImportPriceArmorfmt);
 DBCStorage <ImportPriceQualityEntry>      sImportPriceQualityStore(ImportPriceQualityfmt);
@@ -369,6 +373,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore,            dbcPath, "Achievement.dbc"/*, &CustomAchievementfmt, &CustomAchievementIndex*/);//19116
+    LoadDBC(availableDbcLocales, bad_dbc_files, sAnimKitStore,                dbcPath, "AnimKit.dbc");//19865
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sAuctionHouseStore,           dbcPath, "AuctionHouse.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sArmorLocationStore,          dbcPath, "ArmorLocation.dbc");//19116
@@ -462,6 +467,9 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sGlyphPropertiesStore,        dbcPath, "GlyphProperties.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sGlyphSlotStore,              dbcPath, "GlyphSlot.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sGuildPerkSpellsStore,        dbcPath, "GuildPerkSpells.dbc");//19116
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGuildColorBackgroundStore,   dbcPath, "GuildColorBackground.dbc");//19865
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGuildColorBorderStore,       dbcPath, "GuildColorBorder.dbc"); //19865
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGuildColorEmblemStore,       dbcPath, "GuildColorEmblem.dbc");//19865
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceArmorStore,       dbcPath, "ImportPriceArmor.dbc"); // 19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceQualityStore,     dbcPath, "ImportPriceQuality.dbc"); // 19116
@@ -881,9 +889,9 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     std::swap(x, y);                                         // client have map coords swapped
 }
 
-MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapID)
+MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty /*= nullptr*/)
 {
-    auto itr = sMapDifficultyMap.find(mapID);
+    auto itr = sMapDifficultyMap.find(mapId);
     if (itr == sMapDifficultyMap.end())
         return nullptr;
 
@@ -892,13 +900,21 @@ MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapID)
 
     for (auto& p : itr->second)
     {
-        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(p.first);
-        if (!difficulty)
+        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(p.first);
+        if (!difficultyEntry)
             continue;
 
-        if (difficulty->Flags & DIFFICULTY_FLAG_DEFAULT)
+        if (difficultyEntry->Flags & DIFFICULTY_FLAG_DEFAULT)
+        {
+            if (difficulty)
+                *difficulty = Difficulty(p.first);
+
             return p.second;
+        }
     }
+
+    if (difficulty)
+        *difficulty = Difficulty(itr->second.begin()->first);
 
     return itr->second.begin()->second;
 }
@@ -920,7 +936,7 @@ MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficult
 {
     DifficultyEntry const* diffEntry = sDifficultyStore.LookupEntry(difficulty);
     if (!diffEntry)
-        return GetDefaultMapDifficulty(mapId);
+        return GetDefaultMapDifficulty(mapId, &difficulty);
 
     uint32 tmpDiff = difficulty;
     MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
@@ -929,7 +945,7 @@ MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficult
         tmpDiff = diffEntry->FallbackDifficultyID;
         diffEntry = sDifficultyStore.LookupEntry(tmpDiff);
         if (!diffEntry)
-            return GetDefaultMapDifficulty(mapId);
+            return GetDefaultMapDifficulty(mapId, &difficulty);
 
         // pull new data
         mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // we are 10 normal or 25 normal

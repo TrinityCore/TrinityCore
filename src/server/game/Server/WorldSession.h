@@ -186,6 +186,8 @@ namespace WorldPackets
         class ChatMessageEmote;
         class CTextEmote;
         class EmoteClient;
+        class ChatRegisterAddonPrefixes;
+        class ChatUnregisterAllAddonPrefixes;
     }
 
     namespace Combat
@@ -278,6 +280,7 @@ namespace WorldPackets
     namespace Instance
     {
         class InstanceInfo;
+        class ResetInstances;
     }
 
     namespace Item
@@ -1312,8 +1315,8 @@ class WorldSession
         void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
-        void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
-        void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
+        void HandleUnregisterAllAddonPrefixesOpcode(WorldPackets::Chat::ChatUnregisterAllAddonPrefixes& packet);
+        void HandleAddonRegisteredPrefixesOpcode(WorldPackets::Chat::ChatRegisterAddonPrefixes& packet);
 
         void HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& packet);
         void HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& packet);
@@ -1396,7 +1399,7 @@ class WorldSession
         void HandleRealmSplitOpcode(WorldPacket& recvData);
         void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet);
         void HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet);
-        void HandleResetInstancesOpcode(WorldPacket& recvData);
+        void HandleResetInstancesOpcode(WorldPackets::Instance::ResetInstances& packet);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
 
         // Looking for Dungeon/Raid

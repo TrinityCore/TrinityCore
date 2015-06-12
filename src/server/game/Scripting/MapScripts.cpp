@@ -283,18 +283,11 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
 
 inline GameObject* Map::_FindGameObject(WorldObject* searchObject, ObjectGuid::LowType guid) const
 {
-    GameObject* gameobject = NULL;
+    auto bounds = searchObject->GetMap()->GetGameObjectBySpawnIdStore().equal_range(guid);
+    if (bounds.first == bounds.second)
+        return nullptr;
 
-    CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
-    Cell cell(p);
-
-    Trinity::GameObjectWithDbGUIDCheck goCheck(*searchObject, guid);
-    Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(searchObject, gameobject, goCheck);
-
-    TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
-    cell.Visit(p, objectChecker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
-
-    return gameobject;
+    return bounds.first->second;
 }
 
 /// Process queued scripts
@@ -806,26 +799,17 @@ void Map::ScriptsProcess()
                 }
 
                 Creature* cTarget = NULL;
-                WorldObject* wSource = dynamic_cast <WorldObject*> (source);
-                if (wSource) //using grid searcher
+                WorldObject* wSource = dynamic_cast<WorldObject*>(source);
+                auto creatureBounds = _creatureBySpawnIdStore.equal_range(step.script->CallScript.CreatureEntry);
+                if (creatureBounds.first != creatureBounds.second)
                 {
-                    CellCoord p(Trinity::ComputeCellCoord(wSource->GetPositionX(), wSource->GetPositionY()));
-                    Cell cell(p);
-
-                    Trinity::CreatureWithDbGUIDCheck target_check(wSource, uint64(step.script->CallScript.CreatureEntry));
-                    Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(wSource, cTarget, target_check);
-
-                    TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
-                    cell.Visit(p, unit_checker, *wSource->GetMap(), *wSource, wSource->GetGridActivationRange());
-                }
-                else //check hashmap holders
-                {
-                    if (sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
+                    // Prefer alive (last respawned) creature
+                    auto creatureItr = std::find_if(creatureBounds.first, creatureBounds.second, [](Map::CreatureBySpawnIdContainer::value_type const& pair)
                     {
-                        auto creatureBounds = _creatureBySpawnIdStore.equal_range(step.script->CallScript.CreatureEntry);
-                        if (creatureBounds.first != creatureBounds.second)
-                            cTarget = creatureBounds.first->second;
-                    }
+                        return pair.second->IsAlive();
+                    });
+
+                    cTarget = creatureItr != creatureBounds.second ? creatureItr->second : creatureBounds.first->second;
                 }
 
                 if (!cTarget)

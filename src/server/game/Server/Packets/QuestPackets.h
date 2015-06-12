@@ -116,6 +116,7 @@ namespace WorldPackets
             int32 SuggestedGroupNum         = 0;
             int32 RewardNextQuest           = 0; // client will request this quest from NPC, if not 0
             int32 RewardXPDifficulty        = 0; // used for calculating rewarded experience
+            float RewardXPMultiplier        = 1.0f;
             int32 RewardMoney               = 0; // reward money (below max lvl)
             int32 RewardMoneyDifficulty     = 0; // used in XP calculation at client
             int32 RewardBonusMoney          = 0;
@@ -163,8 +164,6 @@ namespace WorldPackets
             int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
             int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
 
-            // Non JAM data
-            float Float10 = 1.0f;
             float Float13 = 1.0f;
             int32 AllowableRaces = -1;
         };
