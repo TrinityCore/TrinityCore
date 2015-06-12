@@ -13,90 +13,710 @@ Thanks to the ScriptDev2 team (http://www.scriptdev2.com) for scripts.
 Thanks to the WCell team (especially Ralek) for research on realm reconnect
 sequence, item scaling stats algorithm, gameobject rotation issues.
 
-Thanks go out to the following people for various patches/code (listed in the
-order they were added) (there may be duplicates or invalid names, most of them
-were extracted from commits):
-w12x, dythzer, XEQT, death420, balrok, TOM_RUS,
-runningnak3d, Seline, KingPin, raczman, bogie, Neo2003, NoFantasy, Derex,
-freghar, toilet1, megamage, MadJack, WarHead, gvcoman, Ntsc, arrai, jrkpote,
-Seraphim, vagoth, KerchumA222, Rognar, Blaymoira, DragonHunter, Molius, ApoC,
-SeT, hunuza, Wyk3d, VladimirMangos, rj686, Arthorius, QAston, Muhaha, dereka,
-Kaldorei, NuRRi, Biglad, Machiavelli, Nivelo, Paradox, Aokromes, EleGoS,
-Visagalis, reno, Cybrax, GriffonHeart, fgenesis, rilex, XTElite1, Anubisss, eL,
-Iskander, arclite, Bladex, EIFEL, Klaimmore, XTZGZoReX, panaut0lordv, DearScorpion,
-BlueSteel, AlexDereka, Drahy, krz, Xeptor, Sethoso, Sarjuuk, pasdVn, nissen,
-Triply, `win, Fog, emsy, McBitter, Lukaasm, maikash, Wormheart, DonTomika,
-DiSlord, Tiretunderl, Ramses_II, cccyril, Cha0S2, miebaik, Trazom, KiriX,
-darkEvil, Sorken, Kudlaty, Charlie2025, Medwise, Rat, Lutik, domingo,
-TrullyONE, rastikzzz, Tassader, Lightguard, KAPATEJIb, Tux`Volant, zhanhang03,
-Asael, Elron, False, nos4r2zod, Disassembler, thumsoul, rvnth, throneinc,
-MrTux, Luniz2k1, Dani, BroodWyrm, raven_coda, Bagsac, Thraxx, Trogvar,
-teacher4, zhenya, Albrecht de Endrau, Phacops, Naicisum, thenecromancer, shax,
-cryingcloud, freeganja, Foks, daveh, Az@zel, evilstar, Corfen, Astellar, Maxxie,
-DEN_North, StarJoker, Nezemnoy, X-Savior, subhuman_bob, Ambal, Brueggus, sparc,
-jojo, Trojan, tvaroh, Genars, BombermaG, Bulkin, nesocip, xILOSWag, SilverIce,
-Uruviel, timmit, Seizerkiller, Stokrotka, JoN0, Tanatos, Hunteee, Alyen,
-Farah, Them, DaGNU, arthurcik, BudIcePenguin, Amok, Amit86, onkelz28, Azrael,
-Larva, Roland, DerDyddye, Vicos, PSZ, CRAZyBUg, irish, Sephiroth1984,
-mike753, Xlybriem, Paytheo, ArticDevil, FearX, Beaste, bufferoverflow, Jeniczek,
-Den, bobaz, crackm, seirge, D_Skywalk, mknjc, Christyan, Saeba, Nevan, tlexii,
-liszt, duckman, Joro, Charlie, smellbee, bigjohnson4, maxdestroyer, Destalker,
-ckegg, Drethek, yad02, Win32, NetSky, Zcuron, Necroo, ogeraisi, Coldblooded,
-Edder, riddick, Craker, NeoLithicX, srounet, SLG, Tidus, neo0608, SyRiOCoP,
-F636y623, Patro, mobel, simak, hectolight, Riccardo, GodsdoG, Gomez, kamir86, fredi,
-qubix, Deafboy, Authorius, DarkRabbit, mrbungle, netoya, peldor, eumario, Alex,
-Moandor, ebx, DasBlub, guenex, Brats, Lucy, arcx, Enril, oiler2112,
-Wizz, Elminster, 123qwe, NeatElves, Turk3y, deicide, vladonix, nugu100,
-Skystar, Reve, jorooo, FrozenDB, miranda.conrado, Tequila, Gommes, Zerg2000,
-aerione_alt, Rastik, FrenchW, wilibald09, Velorien, kancaras, fisherman,
-Aviram, Mufik, loop69, multiplexer, Koani, rechapa79, kozelo, MeanMachine,
-fregh, adrycasillo, IncoGnito, Alez, Itch, Kuteur, MaS0n, peaceman, manuel,
-Gendalph, Lynx3d, raftom, Infinity, Ebrithil, Sorya, HP1, Prince, redcore,
-Boogie, Necro, Thyros, simon, MrSmite, horogandris, Stryker, MaXiMiUS, kaell,
-totoro, Forgiven, Big, Oculus, Lorac, Nemesis, Epsik, iadus3, durotar, hoshie,
-fukifat, imbecile, Nafsih, Meldanor, Turok, Naturamen, Themris, Sundark,
-Azuritus, jotapdiez, EnderGT, Curuad, oc_redfox, rockzOr, Darkshines,
-BlackYoghurt, McLovin, Gyullo, kaxap, Hawthorne, nanouniko, new001, Opterman,
-Typhoon, Cleave, HiZed, The_Game_Master, Athor, Veras, Menia, Jolan, BlackOne,
-johnholiver, Spp, Drevi, kb_z, Tartalo, Shendor, Demonx, Taliesin, defacer,
-SoulForge, Jackpoz, Cass, QuaLiT1, exul182, sunwell, AniRB, clotza, Tommassino,
-dracula70, alexsot, RedSonja, Cnillidan, Proofzor, aqs999, Sony, amsjunior123,
-Sisif, Joshh, alex_1983, arez, RammboNr5, Insider, bodompelle, lobuz, Azazel,
-footman, elron103, make_the_king, destros, MetaphysicalDrama, disassebler,
-Malcrom, Vladmim�r Lipt�k, retriman, hyriuu, Smakapotatis, PainKiller,
-bkhorizon, n0n4m3, Chesterfield, Frankir, Wowka321, Morpheux, p0wer,
-Ouden, toshik, laise, yavi, Splinter, Syntec, Arthas, denyde, unholy,
-Vaughner, blackmanos, edrinn, Liberate, Shauren, dr.tenma, click,
-SupaBad, Xanadu, Socolin, Shocker, Silinoron, 0xFuture, xK1, Ramus, menke,
-wowgargamel, Dark0r, Kierkegaard, Leak, ge0rg, StormByte, joshwhedon,
-BlackCat0110, JuliuSZS, n4rk0, filip.havlicek, m.ax, laviniu, LordJZ, Scazzato88,
-svannon, jurkovic.nikola, Willian Krueger, BioHazard, Ille000, Erocoloco,
-terrorbringer, antihrists, Havenard, scarymovie87, D3VIL, FaTe753, PrinceCreed,
-spgm, Dakeyras, sombre88, 19Maxx83, moriquendu, Ille, breakerfly,
-zthoreen, clement.roussel, p.alexej, Ceris, Nayre, Kiper, announce, thmarth,
-Ner'zhul, DarkXuan, linencloth, SnakeIce, Tome, Nay, Kaelima,
-Subv, Tuxity, tibbi, Gigatotem, Nexflame, trickerer, zxbiohazardzx, w1sht0l1v3,
-Warpten, CeIa, Kandera, horn, Dimitro, thesensei, Sovak, Vincent-Michael,
-Xanvial, faq, Gacko, Geodar, hexa-, MacWarrior, cyberbrest, Myran2, Northstrider,
-AFROM, CrYser, Kretol, Bizzy, nelegalno, Kinzcool, armano2, Tomas, Aristoo, Trista,
-e@cacaw.net, oMadMano, Kiddie, blub, Santiago, tobmaps, Mik43l, danik, Souler,
-joschiwald, CDawg, WishToDie, gecko32, gadge, neuro_999, Stefo, dr.skull, NTX, Hexit,
-Stalker-Riddick, thomas33, Manuel Carrasco, Imprtat, Chaplain, teyrnon, zorix, Greymane,
-Venugh, e000, Amit, Alternative, Exodius, Jorge, shlomi1515, tharaca, Alestaan, Valcorb,
-Odyssey, Chipsi, Pesthuf, stfx, Yaki Khadafi, David Klepáček, SignFinder, unknown,
-NNN666, AliveShiro, 4m1g0, mweinelt, Abdollah Hasan, Xees, zori, warriorpoetex, qaywsx,
-ghost, Discovered, faq_, Jildor, The Game, Kezo90, Helias, Frca, Ramusik, elecyb, Joni,
-Multivitamin, faramir118, cookta2012, Gyx, ShinDarth, Lopin, Martin Weinelt,
-Bezo, frozenarmor, E. van Harten, LiMCrosS, Albis, Go6o, Pitcrawler, Matthew Goff, neurorulez,
-Ka0z, glkrlos, zwerg, Merlin2010, furion, Giuseppe Montesanto, LihO, Bootz, PKX, burnham,
-Drake Fish, Vlad, Discover, Heisenberg, Kapoeira, Emo Norfik, tREAk, zoidmann, Wilds, weclub,
-Jon, Cron, Alexander, Vinolentus, LaserJet, mns, Stalker_Riddick, Yelvann, draco, Geekotron,
-bytewarrior, Fredi Machado, Studioworks, 3kids, idostyle@zoit, Sebastián Orellana, DemiDroL,
-n4ndo, et2012, Rochet2, Grobi, Google, Wispeckt, hacknowledge, wonopon, Naga,
-Joeri Thissen, Payn, Fest, insider42, DrTenma, L30m4nc3r, Akama, Jesper Meyer, Kiperr,
-maanuel, vcrx6, Furion89, Mark07, lost-illusion, SeTM, TCKiper, vlad852, tehmarto, boom,
-Per Wilhelmsen, telsamat, Various, erimioa, Sawiner, zergtmn, SimonDMII, pek2011, alexbolotsin,
-laly, mrquickfx, Koord, amnell, GWRde, EdwinDW, gildor, darkstalker, Feanordev, _manuel_,
-thymuswisewood, sohrab, Lazzalf, Taser, Ottowayne, Exordian, nucleartux, John Holiver, j4r0d,
-Trazom62, Brian, enjoi, teacher, Alex Bolotsin, Troy, silver1ce, nihal, arcanzic, Chaz Brown,
-pendragon, aven_coda, cca220v, ArcticDevil, derex_tri
+Thanks go out to the following people for various patches/code (there may be duplicates or invalid names, most of them
+were extracted from old commits):
+
+- 0xFuture
+- 123qwe
+- 19Maxx83
+- 3kids
+- 4m1g0
+- Abdollah Hasan
+- adrycasillo
+- aerione_alt
+- AFROM
+- Akama
+- Albis
+- Albrecht de Endrau
+- Alestaan
+- Alex
+- Alex Bolotsin
+- Alexander
+- alexbolotsin
+- AlexDereka
+- alexsot
+- alex_1983
+- Alez
+- AliveShiro
+- Alternative
+- Alyen
+- Ambal
+- Amit
+- Amit86
+- amnell
+- Amok
+- amsjunior123
+- AniRB
+- announce
+- antihrists
+- Anubisss
+- Aokromes
+- ApoC
+- aqs999
+- arcanzic
+- arclite
+- ArcticDevil
+- arcx
+- arez
+- Aristoo
+- armano2
+- arrai
+- Arthas
+- Arthorius
+- arthurcik
+- ArticDevil
+- Asael
+- Astellar
+- Athor
+- Authorius
+- aven_coda
+- Aviram
+- Az@zel
+- Azrael
+- Azuritus
+- Bagsac
+- balrok
+- Beaste
+- Bezo
+- Big
+- bigjohnson4
+- Biglad
+- BioHazard
+- Bizzy
+- bkhorizon
+- BlackCat0110
+- blackmanos
+- BlackOne
+- BlackYoghurt
+- Bladex
+- Blaymoira
+- blub
+- BlueSteel
+- bobaz
+- bodompelle
+- bogie
+- BombermaG
+- Boogie
+- boom
+- Bootz
+- Brats
+- breakerfly
+- Brian
+- BroodWyrm
+- Brueggus
+- BudIcePenguin
+- bufferoverflow
+- Bulkin
+- burnham
+- bytewarrior
+- Cass
+- cca220v
+- cccyril
+- CDawg
+- CeIa
+- Ceris
+- Cha0S2
+- Chaplain
+- Charlie
+- Charlie2025
+- Chaz Brown
+- Chesterfield
+- Chipsi
+- Christyan
+- ckegg
+- Cleave
+- clement.roussel
+- click
+- clotza
+- Cnillidan
+- Coldblooded
+- cookta2012
+- Corfen
+- crackm
+- Craker
+- CRAZyBUg
+- Cron
+- cryingcloud
+- CrYser
+- Curuad
+- cyberbrest
+- Cybrax
+- D3VIL
+- DaGNU
+- Dakeyras
+- Dani
+- danik
+- Dark0r
+- darkEvil
+- DarkRabbit
+- Darkshines
+- darkstalker
+- DarkXuan
+- DasBlub
+- daveh
+- David KlepÃ¡Äek
+- Deafboy
+- DearScorpion
+- death420
+- defacer
+- deicide
+- DemiDroL
+- Demonx
+- Den
+- denyde
+- DEN_North
+- DerDyddye
+- dereka
+- Derex
+- derex_tri
+- Destalker
+- destros
+- Dimitro
+- disassebler
+- Disassembler
+- Discover
+- Discovered
+- DiSlord
+- domingo
+- DonTomika
+- dr.skull
+- dr.tenma
+- draco
+- dracula70
+- DragonHunter
+- Drahy
+- Drake Fish
+- Drethek
+- Drevi
+- DrTenma
+- duckman
+- durotar
+- dythzer
+- D_Skywalk
+- E. van Harten
+- e000
+- e@cacaw.net
+- Ebrithil
+- ebx
+- Edder
+- edrinn
+- EdwinDW
+- EIFEL
+- eL
+- elecyb
+- EleGoS
+- Elminster
+- Elron
+- elron103
+- Emo Norfik
+- emsy
+- EnderGT
+- enjoi
+- Enril
+- Epsik
+- erimioa
+- Erocoloco
+- et2012
+- eumario
+- evilstar
+- Exodius
+- Exordian
+- exul182
+- F636y623
+- False
+- faq
+- faq_
+- Farah
+- faramir118
+- FaTe753
+- Feanordev
+- FearX
+- Fest
+- fgenesis
+- filip.havlicek
+- fisherman
+- Fog
+- Foks
+- footman
+- Forgiven
+- Frankir
+- Frca
+- fredi
+- Fredi Machado
+- freeganja
+- fregh
+- freghar
+- FrenchW
+- frozenarmor
+- FrozenDB
+- fukifat
+- furion
+- Furion89
+- Gacko
+- gadge
+- ge0rg
+- gecko32
+- Geekotron
+- Genars
+- Gendalph
+- Geodar
+- ghost
+- Gigatotem
+- gildor
+- Giuseppe Montesanto
+- glkrlos
+- Go6o
+- GodsdoG
+- Gomez
+- Gommes
+- Google
+- Greymane
+- GriffonHeart
+- Grobi
+- guenex
+- gvcoman
+- GWRde
+- Gyullo
+- Gyx
+- hacknowledge
+- Havenard
+- Hawthorne
+- hectolight
+- Heisenberg
+- Helias
+- hexa-
+- Hexit
+- HiZed
+- horn
+- horogandris
+- hoshie
+- HP1
+- Hunteee
+- hunuza
+- hyriuu
+- iadus3
+- idostyle@zoit
+- Ille
+- Ille000
+- imbecile
+- Imprtat
+- IncoGnito
+- Infinity
+- Insider
+- insider42
+- irish
+- Iskander
+- Itch
+- j4r0d
+- Jackpoz
+- Jeniczek
+- Jesper Meyer
+- Jildor
+- Joeri Thissen
+- John Holiver
+- johnholiver
+- jojo
+- Jolan
+- Jon
+- JoN0
+- Joni
+- Jorge
+- Joro
+- jorooo
+- joschiwald
+- Joshh
+- joshwhedon
+- jotapdiez
+- jrkpote
+- JuliuSZS
+- jurkovic.nikola
+- Ka0z
+- Kaelima
+- kaell
+- Kaldorei
+- kamir86
+- kancaras
+- Kandera
+- KAPATEJIb
+- Kapoeira
+- kaxap
+- kb_z
+- KerchumA222
+- Kezo90
+- Kiddie
+- Kierkegaard
+- KingPin
+- Kinzcool
+- Kiper
+- Kiperr
+- KiriX
+- Klaimmore
+- Koani
+- Koord
+- kozelo
+- Kretol
+- krz
+- Kudlaty
+- Kuteur
+- L30m4nc3r
+- laise
+- laly
+- Larva
+- LaserJet
+- laviniu
+- Lazzalf
+- Leak
+- Liberate
+- Lightguard
+- LihO
+- LiMCrosS
+- linencloth
+- liszt
+- lobuz
+- loop69
+- Lopin
+- Lorac
+- LordJZ
+- lost-illusion
+- Lucy
+- Lukaasm
+- Luniz2k1
+- Lutik
+- Lynx3d
+- m.ax
+- maanuel
+- Machiavelli
+- MacWarrior
+- MadJack
+- maikash
+- make_the_king
+- Malcrom
+- manuel
+- Manuel Carrasco
+- Mark07
+- Martin Weinelt
+- MaS0n
+- Matthew Goff
+- maxdestroyer
+- MaXiMiUS
+- Maxxie
+- McBitter
+- McLovin
+- MeanMachine
+- Medwise
+- megamage
+- Meldanor
+- Menia
+- menke
+- Merlin2010
+- MetaphysicalDrama
+- miebaik
+- Mik43l
+- mike753
+- miranda.conrado
+- mknjc
+- mns
+- Moandor
+- mobel
+- Molius
+- moriquendu
+- Morpheux
+- mrbungle
+- mrquickfx
+- MrSmite
+- MrTux
+- Mufik
+- Muhaha
+- multiplexer
+- Multivitamin
+- mweinelt
+- Myran2
+- n0n4m3
+- n4ndo
+- n4rk0
+- Nafsih
+- Naga
+- Naicisum
+- nanouniko
+- Naturamen
+- Nay
+- Nayre
+- NeatElves
+- Necro
+- Necroo
+- nelegalno
+- Nemesis
+- neo0608
+- Neo2003
+- NeoLithicX
+- Ner'zhul
+- nesocip
+- netoya
+- NetSky
+- neurorulez
+- neuro_999
+- Nevan
+- new001
+- Nexflame
+- Nezemnoy
+- nihal
+- nissen
+- Nivelo
+- NNN666
+- NoFantasy
+- Northstrider
+- nos4r2zod
+- Ntsc
+- NTX
+- nucleartux
+- nugu100
+- NuRRi
+- Oculus
+- oc_redfox
+- Odyssey
+- ogeraisi
+- oiler2112
+- oMadMano
+- onkelz28
+- Opterman
+- Ottowayne
+- Ouden
+- p.alexej
+- p0wer
+- PainKiller
+- panaut0lordv
+- Paradox
+- pasdVn
+- Patro
+- Payn
+- Paytheo
+- peaceman
+- pek2011
+- peldor
+- pendragon
+- Per Wilhelmsen
+- Pesthuf
+- Phacops
+- Pitcrawler
+- PKX
+- Prince
+- PrinceCreed
+- Proofzor
+- PSZ
+- QAston
+- qaywsx
+- QuaLiT1
+- qubix
+- raczman
+- raftom
+- RammboNr5
+- Ramses_II
+- Ramus
+- Ramusik
+- Rastik
+- rastikzzz
+- Rat
+- raven_coda
+- rechapa79
+- redcore
+- RedSonja
+- reno
+- retriman
+- Reve
+- Riccardo
+- riddick
+- rilex
+- rj686
+- Rochet2
+- rockzOr
+- Rognar
+- Roland
+- runningnak3d
+- rvnth
+- Saeba
+- Santiago
+- Sarjuuk
+- Sawiner
+- scarymovie87
+- Scazzato88
+- SebastiÃ¡n Orellana
+- seirge
+- Seizerkiller
+- Seline
+- Sephiroth1984
+- Seraphim
+- SeT
+- Sethoso
+- SeTM
+- Shauren
+- shax
+- Shendor
+- ShinDarth
+- shlomi1515
+- Shocker
+- SignFinder
+- Silinoron
+- silver1ce
+- SilverIce
+- simak
+- simon
+- SimonDMII
+- Sisif
+- Skystar
+- SLG
+- Smakapotatis
+- smellbee
+- SnakeIce
+- Socolin
+- sohrab
+- sombre88
+- Sony
+- Sorken
+- Sorya
+- Souler
+- SoulForge
+- Sovak
+- sparc
+- spgm
+- Splinter
+- Spp
+- srounet
+- Stalker-Riddick
+- Stalker_Riddick
+- StarJoker
+- Stefo
+- stfx
+- Stokrotka
+- StormByte
+- Stryker
+- Studioworks
+- subhuman_bob
+- Subv
+- Sundark
+- sunwell
+- SupaBad
+- svannon
+- Syntec
+- SyRiOCoP
+- Taliesin
+- Tanatos
+- Tartalo
+- Taser
+- Tassader
+- TCKiper
+- teacher
+- teacher4
+- tehmarto
+- telsamat
+- Tequila
+- terrorbringer
+- teyrnon
+- tharaca
+- The Game
+- Them
+- Themris
+- thenecromancer
+- thesensei
+- The_Game_Master
+- thmarth
+- thomas33
+- Thraxx
+- throneinc
+- thumsoul
+- thymuswisewood
+- Thyros
+- tibbi
+- Tidus
+- timmit
+- Tiretunderl
+- tlexii
+- tobmaps
+- toilet1
+- Tomas
+- Tome
+- Tommassino
+- TOM_RUS
+- toshik
+- totoro
+- Trazom
+- Trazom62
+- tREAk
+- trickerer
+- Triply
+- Trista
+- Trogvar
+- Trojan
+- Troy
+- TrullyONE
+- Turk3y
+- Turok
+- Tuxity
+- Tux`Volant
+- tvaroh
+- Typhoon
+- unholy
+- unknown
+- Uruviel
+- vagoth
+- Valcorb
+- Various
+- Vaughner
+- vcrx6
+- Velorien
+- Venugh
+- Veras
+- Vicos
+- Vincent-Michael
+- Vinolentus
+- Visagalis
+- Vlad
+- vlad852
+- VladimirMangos
+- Vladmimír Lipták
+- vladonix
+- w12x
+- w1sht0l1v3
+- WarHead
+- Warpten
+- warriorpoetex
+- weclub
+- Wilds
+- wilibald09
+- Willian Krueger
+- Win32
+- WishToDie
+- Wispeckt
+- Wizz
+- wonopon
+- Wormheart
+- wowgargamel
+- Wowka321
+- Wyk3d
+- X-Savior
+- Xanadu
+- Xanvial
+- Xees
+- Xeptor
+- XEQT
+- xILOSWag
+- xK1
+- Xlybriem
+- XTElite1
+- XTZGZoReX
+- yad02
+- Yaki Khadafi
+- yavi
+- Yelvann
+- Zcuron
+- Zerg2000
+- zergtmn
+- zhanhang03
+- zhenya
+- zoidmann
+- zori
+- zorix
+- zthoreen
+- zwerg
+- zxbiohazardzx
+- _manuel_
+- `win
