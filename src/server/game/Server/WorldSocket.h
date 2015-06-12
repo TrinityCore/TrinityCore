@@ -69,8 +69,8 @@ union ClientPktHeader
 class WorldSocket : public Socket<WorldSocket>
 {
     static std::string const ServerConnectionInitialize;
-
     static std::string const ClientConnectionInitialize;
+    static uint32 const MinSizeForCompression;
 
 public:
     WorldSocket(tcp::socket&& socket);
