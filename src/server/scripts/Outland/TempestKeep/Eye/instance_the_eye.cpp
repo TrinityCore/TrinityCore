@@ -34,6 +34,21 @@ EndScriptData */
 3 - Void Reaver event
 */
 
+DoorData const doorData[] =
+{
+    { GO_ARCANE_DOOR_LEFT,  DATA_KAELTHAS, DOOR_TYPE_ROOM, BOUNDARY_SW   },
+    { GO_ARCANE_DOOR_RIGHT, DATA_KAELTHAS, DOOR_TYPE_ROOM, BOUNDARY_SE   },
+    {                    0,             0, DOOR_TYPE_ROOM, BOUNDARY_NONE } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_KAEL_STATUE_RIGHT,      DATA_KAEL_STATUE_RIGHT     },
+    { GO_KAEL_STATUE_LEFT,       DATA_KAEL_STATUE_LEFT      },
+    { GO_TEMPEST_BRIDDGE_WINDOW, DATA_TEMPEST_BRIDGE_WINDOW },
+    {                         0, 0                          } // END
+};
+
 class instance_the_eye : public InstanceMapScript
 {
     public:
@@ -45,8 +60,8 @@ class instance_the_eye : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-
-                KaelthasEventPhase = 0;
+                LoadDoorData(doorData);
+                LoadObjectData(nullptr, gameObjectData);
             }
 
             ObjectGuid ThaladredTheDarkener;
@@ -56,7 +71,6 @@ class instance_the_eye : public InstanceMapScript
             ObjectGuid Kaelthas;
             ObjectGuid Astromancer;
             ObjectGuid Alar;
-            uint8 KaelthasEventPhase;
 
             void OnCreatureCreate(Creature* creature) override
             {
@@ -101,28 +115,6 @@ class instance_the_eye : public InstanceMapScript
                 case DATA_ALAR:                         return Alar;
                 }
                 return ObjectGuid::Empty;
-            }
-
-            void SetData(uint32 type, uint32 data) override
-            {
-                switch (type)
-                {
-                    case DATA_KAELTHASEVENT:
-                        KaelthasEventPhase = data;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_KAELTHASEVENT:
-                        return KaelthasEventPhase;
-                }
-                return 0;
             }
         };
 
