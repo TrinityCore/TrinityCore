@@ -50,7 +50,7 @@ These control the version of Winsock used by G3D.
 #define G3D_WINSOCK_MAJOR_VERSION 2
 #define G3D_WINSOCK_MINOR_VERSION 0
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__FreeBSD__)
 /// Fast call is a register-based optimized calling convention supported only by Visual C++
 #define __fastcall
 #endif

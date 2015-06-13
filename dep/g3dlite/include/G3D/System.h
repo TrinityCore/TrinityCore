@@ -21,6 +21,10 @@
 #include "G3D/FileNotFound.h"
 #include <string>
 
+#ifdef G3D_FREEBSD
+#   include <sys/_timeval.h>
+#endif
+
 #ifdef G3D_OSX
 #define Zone OSX_Zone
 #   include <CoreServices/CoreServices.h>
