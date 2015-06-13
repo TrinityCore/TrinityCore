@@ -178,7 +178,7 @@ namespace WorldPackets
 
             ObjectGuid Target;
             ObjectGuid Caster;
-            int32 SpellID;
+            int32 SpellID = 0;
         };
     }
 }
