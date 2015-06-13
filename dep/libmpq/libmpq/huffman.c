@@ -2,7 +2,7 @@
  *  huffman.c -- functions do decompress files in mpq files which
  *               uses a modified huffman version.
  *
- *  Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
+ *  Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
  *
  *  Differences between C++ and C version:
  *
