@@ -1,4 +1,4 @@
-.\" Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
+.\" Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
 .\" USA.
-.TH libmpq 3 2008-04-29 "The MoPaQ archive library"
+.TH libmpq 3 2011-11-06 "The MoPaQ archive library"
 .SH NAME
 libmpq \- cross-platform C library for manipulating mpq archives.
 .SH SYNOPSIS
@@ -41,12 +41,12 @@ libmpq \- cross-platform C library for manipulating mpq archives.
 .BI "        mpq_archive_s  *" "mpq_archive"
 .BI ");"
 .sp
-.BI "int32_t libmpq__archive_packed_size("
+.BI "int32_t libmpq__archive_size_packed("
 .BI "        mpq_archive_s  *" "mpq_archive",
 .BI "        off_t          *" "packed_size"
 .BI ");"
 .sp
-.BI "int32_t libmpq__archive_unpacked_size("
+.BI "int32_t libmpq__archive_size_unpacked("
 .BI "        mpq_archive_s  *" "mpq_archive",
 .BI "        off_t          *" "unpacked_size"
 .BI ");"
@@ -66,13 +66,13 @@ libmpq \- cross-platform C library for manipulating mpq archives.
 .BI "        uint32_t       *" "files"
 .BI ");"
 .sp
-.BI "int32_t libmpq__file_packed_size("
+.BI "int32_t libmpq__file_size_packed("
 .BI "        mpq_archive_s  *" "mpq_archive",
 .BI "        uint32_t        " "file_number",
 .BI "        off_t          *" "packed_size"
 .BI ");"
 .sp
-.BI "int32_t libmpq__file_unpacked_size("
+.BI "int32_t libmpq__file_size_unpacked("
 .BI "        mpq_archive_s  *" "mpq_archive",
 .BI "        uint32_t        " "file_number",
 .BI "        off_t          *" "unpacked_size"
@@ -132,14 +132,14 @@ libmpq \- cross-platform C library for manipulating mpq archives.
 .BI "        uint32_t        " "file_number"
 .BI ");"
 .sp
-.BI "int32_t libmpq__block_packed_size("
+.BI "int32_t libmpq__block_size_packed("
 .BI "        mpq_archive_s  *" "mpq_archive",
 .BI "        uint32_t        " "file_number",
 .BI "        uint32_t        " "block_number",
 .BI "        off_t          *" "packed_size"
 .BI ");"
 .sp
-.BI "int32_t libmpq__block_unpacked_size("
+.BI "int32_t libmpq__block_size_unpacked("
 .BI "        mpq_archive_s  *" "mpq_archive",
 .BI "        uint32_t        " "file_number",
 .BI "        uint32_t        " "block_number",
@@ -177,13 +177,13 @@ The \fIlibmpq\fP library supports decrypting, decompressing, exploding and vario
 .BR libmpq__strerror (3),
 .BR libmpq__archive_open (3),
 .BR libmpq__archive_close (3),
-.BR libmpq__archive_packed_size (3),
-.BR libmpq__archive_unpacked_size (3),
+.BR libmpq__archive_size_packed (3),
+.BR libmpq__archive_size_unpacked (3),
 .BR libmpq__archive_offset (3),
 .BR libmpq__archive_version (3),
 .BR libmpq__archive_files (3),
-.BR libmpq__file_packed_size (3),
-.BR libmpq__file_unpacked_size (3),
+.BR libmpq__file_size_packed (3),
+.BR libmpq__file_size_unpacked (3),
 .BR libmpq__file_offset (3),
 .BR libmpq__file_blocks (3),
 .BR libmpq__file_encrypted (3),
@@ -193,15 +193,15 @@ The \fIlibmpq\fP library supports decrypting, decompressing, exploding and vario
 .BR libmpq__file_read (3),
 .BR libmpq__block_open_offset (3),
 .BR libmpq__block_close_offset (3),
-.BR libmpq__block_packed_size (3),
-.BR libmpq__block_unpacked_size (3),
+.BR libmpq__block_size_packed (3),
+.BR libmpq__block_size_unpacked (3),
 .BR libmpq__block_offset (3),
 .BR libmpq__block_seed (3),
 .BR libmpq__block_read (3)
 .SH AUTHOR
 Check documentation.
 .TP
-libmpq is (c) 2003-2008
-.B Maik Broemme <mbroemme@plusserver.de>
+libmpq is (c) 2003-2011
+.B Maik Broemme <mbroemme@libmpq.org>
 .PP
 The above e-mail address can be used to send bug reports, feedbacks or library enhancements.

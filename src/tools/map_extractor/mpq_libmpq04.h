@@ -43,7 +43,7 @@ public:
         uint32_t filenum;
         if(libmpq__file_number(mpq_a, "(listfile)", &filenum)) return;
         libmpq__off_t size, transferred;
-        libmpq__file_unpacked_size(mpq_a, filenum, &size);
+        libmpq__file_size_unpacked(mpq_a, filenum, &size);
 
         char *buffer = new char[size+1];
         buffer[size] = '\0';

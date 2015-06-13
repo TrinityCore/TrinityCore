@@ -1,7 +1,7 @@
 /*
  *  explode.c -- explode function of pkware data compression library.
  *
- *  Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
+ *  Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
  *
  *  This source was adepted from the C++ version of pkware.cpp included
  *  in stormlib. The C++ version belongs to the following authors:
