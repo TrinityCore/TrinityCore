@@ -21,24 +21,16 @@
 
 enum Spells
 {
-  SPELL_CAUTERIZING_FLAMES                      = 59466, //Only in heroic
-  SPELL_FIREBOLT                                = 54235,
-  H_SPELL_FIREBOLT                              = 59468,
-  SPELL_FLAME_BREATH                            = 54282,
-  H_SPELL_FLAME_BREATH                          = 59469,
-  SPELL_LAVA_BURN                               = 54249,
-  H_SPELL_LAVA_BURN                             = 59594
+    SPELL_CAUTERIZING_FLAMES                    = 59466, // Only in heroic
+    SPELL_FIREBOLT                              = 54235,
+    SPELL_FLAME_BREATH                          = 54282,
+    SPELL_LAVA_BURN                             = 54249
 };
 
 class boss_lavanthor : public CreatureScript
 {
 public:
     boss_lavanthor() : CreatureScript("boss_lavanthor") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_lavanthorAI>(creature);
-    }
 
     struct boss_lavanthorAI : public ScriptedAI
     {
@@ -67,23 +59,24 @@ public:
         {
             Initialize();
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, NOT_STARTED);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
-            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_LAVANTHOR_CELL)))
-                    if (pDoor->GetGoState() == GO_STATE_READY)
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+            if (GameObject* door = instance->GetGameObject(DATA_LAVANTHOR_CELL))
+                if (door->GetGoState() == GO_STATE_READY)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who) override
@@ -102,10 +95,8 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
         void UpdateAI(uint32 diff) override
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
@@ -123,9 +114,10 @@ public:
 
             if (uiLavaBurnTimer <= diff)
             {
-                DoCastVictim(SPELL_LAVA_BURN);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                    DoCast(target, SPELL_LAVA_BURN);
                 uiLavaBurnTimer = urand(15000, 23000);
-            }
+            } else uiLavaBurnTimer -= diff;
 
             if (IsHeroic())
             {
@@ -143,17 +135,21 @@ public:
         {
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 7);
             }
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
             {
-                instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_lavanthorAI>(creature);
+    }
 };
 
 void AddSC_boss_lavanthor()

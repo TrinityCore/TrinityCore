@@ -77,12 +77,11 @@ class boss_alar : public CreatureScript
     public:
         boss_alar() : CreatureScript("boss_alar") { }
 
-        struct boss_alarAI : public ScriptedAI
+        struct boss_alarAI : public BossAI
         {
-            boss_alarAI(Creature* creature) : ScriptedAI(creature)
+            boss_alarAI(Creature* creature) : BossAI(creature, DATA_ALAR)
             {
                 Initialize();
-                instance = creature->GetInstanceScript();
                 DefaultMoveSpeedRate = creature->GetSpeedRate(MOVE_RUN);
                 DiveBomb_Timer = 0;
                 MeltArmor_Timer = 0;
@@ -104,8 +103,6 @@ class boss_alar : public CreatureScript
 
                 cur_wp = 4;
             }
-
-            InstanceScript* instance;
 
             WaitEventType WaitEvent;
             uint32 WaitTimer;
@@ -129,9 +126,8 @@ class boss_alar : public CreatureScript
 
             void Reset() override
             {
-                instance->SetData(DATA_ALAREVENT, NOT_STARTED);
-
                 Initialize();
+                _Reset();
 
                 me->SetDisplayId(me->GetNativeDisplayId());
                 me->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
@@ -145,16 +141,9 @@ class boss_alar : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
-                instance->SetData(DATA_ALAREVENT, IN_PROGRESS);
-
+                _EnterCombat();
                 me->SetDisableGravity(true); // after enterevademode will be set walk movement
-                DoZoneInCombat();
                 me->setActive(true);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                instance->SetData(DATA_ALAREVENT, DONE);
             }
 
             void JustSummoned(Creature* summon) override
@@ -508,7 +497,7 @@ class npc_ember_of_alar : public CreatureScript
                     DoCast(me, SPELL_EMBER_BLAST, true);
                     me->SetDisplayId(11686);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    if (instance->GetData(DATA_ALAREVENT) == 2)
+                    if (instance->GetBossState(DATA_ALAR) == IN_PROGRESS)
                     {
                         if (Unit* Alar = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ALAR)))
                         {

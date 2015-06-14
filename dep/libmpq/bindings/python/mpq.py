@@ -50,14 +50,14 @@ libmpq.libmpq__version.restype = ctypes.c_char_p
 
 libmpq.libmpq__archive_open.errcheck = check_error
 libmpq.libmpq__archive_close.errcheck = check_error
-libmpq.libmpq__archive_packed_size.errcheck = check_error
-libmpq.libmpq__archive_unpacked_size.errcheck = check_error
+libmpq.libmpq__archive_size_packed.errcheck = check_error
+libmpq.libmpq__archive_size_unpacked.errcheck = check_error
 libmpq.libmpq__archive_offset.errcheck = check_error
 libmpq.libmpq__archive_version.errcheck = check_error
 libmpq.libmpq__archive_files.errcheck = check_error
 
-libmpq.libmpq__file_packed_size.errcheck = check_error
-libmpq.libmpq__file_unpacked_size.errcheck = check_error
+libmpq.libmpq__file_size_packed.errcheck = check_error
+libmpq.libmpq__file_size_unpacked.errcheck = check_error
 libmpq.libmpq__file_offset.errcheck = check_error
 libmpq.libmpq__file_blocks.errcheck = check_error
 libmpq.libmpq__file_encrypted.errcheck = check_error
@@ -68,7 +68,7 @@ libmpq.libmpq__file_read.errcheck = check_error
 
 libmpq.libmpq__block_open_offset.errcheck = check_error
 libmpq.libmpq__block_close_offset.errcheck = check_error
-libmpq.libmpq__block_unpacked_size.errcheck = check_error
+libmpq.libmpq__block_size_unpacked.errcheck = check_error
 libmpq.libmpq__block_read.errcheck = check_error
 
 __version__ = libmpq.libmpq__version()
@@ -112,7 +112,7 @@ class Reader(object):
     
     def _read_block(self, ctypes=ctypes, libmpq=libmpq):
         block_size = ctypes.c_uint64()
-        libmpq.libmpq__block_unpacked_size(self._file._archive._mpq,
+        libmpq.libmpq__block_size_unpacked(self._file._archive._mpq,
             self._file.number, self._cur_block, ctypes.byref(block_size))
         block_data = ctypes.create_string_buffer(block_size.value)
         libmpq.libmpq__block_read(self._file._archive._mpq,
