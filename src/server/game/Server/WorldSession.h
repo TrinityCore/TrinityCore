@@ -498,6 +498,7 @@ namespace WorldPackets
         class SetActionButton;
         class UnlearnSkill;
         class SelfRes;
+        class GetMirrorImageData;
     }
 
     namespace Talent
@@ -1496,7 +1497,7 @@ class WorldSession
 
         // Miscellaneous
         void HandleSpellClick(WorldPacket& recvData);
-        void HandleMirrorImageDataRequest(WorldPacket& recvData);
+        void HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorImageData& packet);
         void HandleRemoveGlyph(WorldPacket& recvData);
         void HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& setFocusedAchievement);
         void HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet);
