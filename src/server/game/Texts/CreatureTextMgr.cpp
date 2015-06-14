@@ -33,13 +33,12 @@ class CreatureTextBuilder
         CreatureTextBuilder(WorldObject const* obj, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
             : _source(obj), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
-        void operator()(WorldPacket& data, LocaleConstant locale) const
+        WorldPackets::Chat::Chat* operator()(LocaleConstant locale) const
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
-            WorldPackets::Chat::Chat packet;
-            packet.Initialize(_msgType, Language(_language), _source, _target, text, 0, "", locale);
-            packet.Write();
-            data = packet.Move();
+            WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
+            chat->Initialize(_msgType, Language(_language), _source, _target, text, 0, "", locale);
+            return chat;
         }
 
     private:
@@ -58,13 +57,12 @@ class PlayerTextBuilder
         PlayerTextBuilder(WorldObject const* obj, WorldObject const* speaker, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
             : _source(obj), _talker(speaker), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
-        void operator()(WorldPacket& data, LocaleConstant locale) const
+        WorldPackets::Chat::Chat* operator()(LocaleConstant locale) const
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
-            WorldPackets::Chat::Chat packet;
-            packet.Initialize(_msgType, Language(_language), _talker, _target, text, 0, "", locale);
-            packet.Write();
-            data = packet.Move();
+            WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
+            chat->Initialize(_msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            return chat;
         }
 
     private:

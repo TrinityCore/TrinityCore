@@ -150,8 +150,12 @@ namespace WorldPackets
         {
         public:
             Chat() : ServerPacket(SMSG_CHAT, 100) { }
+            Chat(Chat const& chat);
 
             void Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0, std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
+            void SetSender(WorldObject const* sender, LocaleConstant locale);
+            void SetReceiver(WorldObject const* receiver, LocaleConstant locale);
+
             WorldPacket const* Write() override;
 
             uint8 SlashCmd = 0;     ///< @see enum ChatMsg
@@ -267,6 +271,17 @@ namespace WorldPackets
             ChatUnregisterAllAddonPrefixes(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class DefenseMessage final : public ServerPacket
+        {
+        public:
+            DefenseMessage() : ServerPacket(SMSG_DEFENSE_MESSAGE) { }
+
+            WorldPacket const* Write() override;
+
+            int32 ZoneID = 0;
+            std::string MessageText;
         };
     }
 }
