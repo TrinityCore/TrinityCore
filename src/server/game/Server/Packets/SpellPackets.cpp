@@ -706,3 +706,39 @@ void WorldPackets::Spells::UnlearnSkill::Read()
 {
     _worldPacket >> SkillLine;
 }
+
+void WorldPackets::Spells::GetMirrorImageData::Read()
+{
+    _worldPacket >> UnitGUID;
+    _worldPacket >> DisplayID;
+}
+
+WorldPacket const* WorldPackets::Spells::MirrorImageComponentedData::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket << DisplayID;
+    _worldPacket << RaceID;
+    _worldPacket << Gender;
+    _worldPacket << ClassID;
+    _worldPacket << SkinColor;
+    _worldPacket << FaceVariation;
+    _worldPacket << HairVariation;
+    _worldPacket << HairColor;
+    _worldPacket << BeardVariation;
+    _worldPacket << GuildGUID;
+
+    _worldPacket << uint32(ItemDisplayID.size());
+
+    for (auto const& itemDisplayId : ItemDisplayID)
+        _worldPacket << itemDisplayId;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::MirrorImageCreatureData::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket << DisplayID;
+
+    return &_worldPacket;
+}
