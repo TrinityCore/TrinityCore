@@ -52,7 +52,7 @@ enum Yells
     TIRION_ARGENT_INTRO_1,
     TIRION_KNIGHT_INTRO,
     TIRION_KNIGHT_INTRO_1,
-        
+
     VARIAN_INTRO_A = 50,
     VARIAN_INTRO_H,
     VARIAN_KNIGHT_INTRO,
@@ -216,27 +216,27 @@ public:
             {
                 case 0:
                     VEHICLE_TO_SUMMON1 = VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_ORGRIMMAR_WOLF;
+                    VEHICLE_TO_SUMMON2 = NPC_ORGRIMMAR_CHAMPION;
                     break;
                     Talk(ANNOUNCER_WARRIOR);
                 case 1:
                     VEHICLE_TO_SUMMON1 = VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_SILVERMOON_HAWKSTRIDER;
+                    VEHICLE_TO_SUMMON2 = NPC_SILVERMOON_CHAMPION;
                     Talk(ANNOUNCER_MAGE);
                     break;
                 case 2:
                     VEHICLE_TO_SUMMON1 = VEHICLE_RUNOK_WILDMANE_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_THUNDER_BLUFF_KODO;
+                    VEHICLE_TO_SUMMON2 = NPC_THUNDERBLUFF_CHAMPION;
                     Talk(ANNOUNCER_SHAMAN);
                     break;
                 case 3:
                     VEHICLE_TO_SUMMON1 = VEHICLE_ZUL_TORE_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_DARKSPEAR_RAPTOR;
+                    VEHICLE_TO_SUMMON2 = NPC_SENJIN_CHAMPION;
                     Talk(ANNOUNCER_HUNTER);
                     break;
                 case 4:
                     VEHICLE_TO_SUMMON1 = VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_FORSAKE_WARHORSE;
+                    VEHICLE_TO_SUMMON2 = NPC_UNDERCITY_CHAMPION;
                     Talk(ANNOUNCER_ROUGUE);
                     break;
                 default:
@@ -558,16 +558,16 @@ public:
         {
             switch (summon->GetEntry())
             {
-                case VEHICLE_DARNASSIA_NIGHTSABER:
-                case VEHICLE_EXODAR_ELEKK:
-                case VEHICLE_STORMWIND_STEED:
-                case VEHICLE_GNOMEREGAN_MECHANOSTRIDER:
-                case VEHICLE_IRONFORGE_RAM:
-                case VEHICLE_FORSAKE_WARHORSE:
-                case VEHICLE_THUNDER_BLUFF_KODO:
-                case VEHICLE_ORGRIMMAR_WOLF:
-                case VEHICLE_SILVERMOON_HAWKSTRIDER:
-                case VEHICLE_DARKSPEAR_RAPTOR:
+                case NPC_DARNASSUS_CHAMPION:
+                case NPC_EXODAR_CHAMPION:
+                case NPC_STORMWIND_CHAMPION:
+                case NPC_GNOMEREGAN_CHAMPION:
+                case NPC_IRONFORGE_CHAMPION:
+                case NPC_UNDERCITY_CHAMPION:
+                case NPC_THUNDERBLUFF_CHAMPION:
+                case NPC_ORGRIMMAR_CHAMPION:
+                case NPC_SILVERMOON_CHAMPION:
+                case NPC_SENJIN_CHAMPION:
                     SetData(DATA_LESSER_CHAMPIONS_DEFEATED, 0);
                     break;
             }

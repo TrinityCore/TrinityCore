@@ -1,4 +1,5 @@
-UPDATE `creature_template` SET `faction`=14, `unit_flags`= 2, `scriptName`='generic_vehicleAI_toc5' WHERE `entry` IN (33217,33316,33317,33318,33319,33320,33321,33322,33323,33324,34658,35633,35634,35635,35636,35637,35638,35640,35641,35768);
+--
+UPDATE `creature_template` SET `scriptName`='generic_vehicleAI_toc5' WHERE `entry` IN (35314, 35323, 35325, 35326, 35327, 35328, 35329, 35330, 35331, 35332);
 UPDATE `creature_template` SET `unit_flags`=33554690 WHERE `scriptname` like'boss%toc5';
 
 UPDATE `creature_template` SET `gossip_menu_id`=10614 WHERE `entry`IN(35004,35005);
@@ -8,8 +9,8 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 (10614, 1, 0, 'I am ready for the next challenge.', 35538, 1, 1, 0, 0, 0, 0, '', 0),
 (10614, 2, 0, 'I am ready.  However, I\'d like to skip the pageantry.', 36657, 1, 1, 0, 0, 0, 0, '', 0);
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=10614; 
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=10614;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,10614,0,0,0,13,1,0,3,2,1,0,0,'','Show gossip option only if GrandChampions is not done'),
 (15,10614,1,0,0,13,1,3,3,2,1,0,0,'','Show gossip option only if BlacKnight is not done'),
 (15,10614,1,0,0,13,1,0,3,2,0,0,0,'','Show gossip option only if GrandChampions is done'),
@@ -43,7 +44,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 
 -- varian
 DELETE FROM `creature_text` WHERE `entry`=34990 AND `groupid`>=50;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (34990, 50, 0, 'I have no taste for these games, Tirion. Still... I trust they will perform admirably.', 12, 0, 100, 1, 0, 0, 35322, 0, 'King Varian Wrynn - GRAND_CHAMPIONS_INTRO_A'),
 (34990, 51, 0, 'I did not come here to watch animals tear at each other senselessly, Tirion.', 12, 0, 100, 1, 0, 0, 35328, 0, 'King Varian Wrynn - GRAND_CHAMPIONS_INTRO_H'),
 (34990, 52, 0, 'Don\'t just stand there; kill him!', 14, 0, 100, 22, 0, 0, 35550, 0, 'King Varian Wrynn - BLACK_KNIGHT_INTRO'),
@@ -68,3 +69,13 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (34994, 0, 0, 'Garrosh, enough.', 12, 0, 100, 396, 0, 0, 35325, 0, 'Thrall - GRAND_CHAMPIONS_INTRO_A'),
 (34994, 1, 0, 'Fight well, Horde! Lok\'tar Ogar!', 14, 0, 100, 22, 0, 0, 35326, 0, 'Thrall - GRAND_CHAMPIONS_INTRO_H'),
 (34994, 2, 0, 'Well done, Horde!', 14, 0, 100, 66, 0, 0, 35794, 0, 'Thrall - BLACK_KNIGHT_OUTRO');
+
+-- Black Knight's Gryphon should fly
+UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=35491;
+
+UPDATE `creature_template` SET `npcflag`=16777216, `unit_flags`=256 WHERE `entry` IN  (35644, 36558, 36557, 36559);
+UPDATE `creature_template` SET `spell1`=68505, `spell2`=62575, `spell3`=68282, `spell4`=62552 WHERE `entry`=36557;
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (36557, 36559);
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+(36557, 67830, 1, 0),
+(36559, 67830, 1, 0);

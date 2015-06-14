@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,7 +31,7 @@ EndScriptData */
 
 enum Spells
 {
-    //Vehicle
+    // Vehicle
     SPELL_CHARGE                    = 63010,
     SPELL_SHIELD_BREAKER            = 68504,
     SPELL_SHIELD                    = 66482,
@@ -114,7 +113,7 @@ void AggroAllPlayers(Creature* temp)
 void GuidDataAdder(Creature* creature)
 {
     InstanceScript* instance = creature->GetInstanceScript();
-    
+
     if (!instance)
         return;
 
@@ -263,7 +262,7 @@ public:
                 uiChargeTimer = 5000;
             }else uiChargeTimer -= uiDiff;
 
-            //dosen't work at all
+            // doesn't work at all
             if (uiShieldBreakerTimer <= uiDiff)
             {
                 Vehicle* pVehicle = me->GetVehicleKit();
@@ -383,7 +382,7 @@ public:
                     AggroAllPlayers(me);
                     uiPhase = 0;
                 }
-            }else uiPhaseTimer -= uiDiff;
+            } else uiPhaseTimer -= uiDiff;
 
             if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
@@ -671,7 +670,7 @@ public:
                     AggroAllPlayers(me);
                     uiPhase = 0;
                 }
-            }else uiPhaseTimer -= uiDiff;
+            } else uiPhaseTimer -= uiDiff;
 
             if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
@@ -812,7 +811,7 @@ public:
                 me->GetMotionMaster()->MoveTargetedHome();
             }
         }
-        
+
         void UpdateAI(uint32 uiDiff) override
         {
             if (uiPhaseTimer <= uiDiff)
@@ -822,7 +821,7 @@ public:
                     AggroAllPlayers(me);
                     uiPhase = 0;
                 }
-            }else uiPhaseTimer -= uiDiff;
+            } else uiPhaseTimer -= uiDiff;
 
             if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;

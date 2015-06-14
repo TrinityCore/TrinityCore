@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,7 +88,7 @@ enum CreatureIds
     NPC_EXODAR_CHAMPION         = 35330,
     NPC_GNOMEREGAN_CHAMPION     = 35331,
     NPC_DARNASSUS_CHAMPION      = 35332,
-    
+
     NPC_EADRIC                  = 35119,
     NPC_PALETRESS               = 34928,
 
@@ -153,34 +152,23 @@ enum GameObjects
 
 enum Vehicles
 {
-    //Grand Champions Alliance Vehicles
+    // Grand Champions Alliance Vehicles
     VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT             = 35637,
     VEHICLE_AMBROSE_BOLTSPARK_MOUNT                 = 35633,
     VEHICLE_COLOSOS_MOUNT                           = 35768,
     VEHICLE_EVENSONG_MOUNT                          = 34658,
     VEHICLE_LANA_STOUTHAMMER_MOUNT                  = 35636,
-    //Alliance Champions escort vehicles
-    VEHICLE_DARNASSIA_NIGHTSABER                    = 33319,
-    VEHICLE_EXODAR_ELEKK                            = 33318,
-    VEHICLE_STORMWIND_STEED                         = 33217,
-    VEHICLE_GNOMEREGAN_MECHANOSTRIDER               = 33317,
-    VEHICLE_IRONFORGE_RAM                           = 33316,
-    //Grand Champions Horde Vehicles
+    // Grand Champions Horde Vehicles
     VEHICLE_MOKRA_SKILLCRUSHER_MOUNT                = 35638,
     VEHICLE_ERESSEA_DAWNSINGER_MOUNT                = 35635,
     VEHICLE_RUNOK_WILDMANE_MOUNT                    = 35640,
     VEHICLE_ZUL_TORE_MOUNT                          = 35641,
     VEHICLE_DEATHSTALKER_VESCERI_MOUNT              = 35634,
-    //Horde Champions escort vehicles
-    VEHICLE_FORSAKE_WARHORSE                        = 33324,
-    VEHICLE_THUNDER_BLUFF_KODO                      = 33322,
-    VEHICLE_ORGRIMMAR_WOLF                          = 33320,
-    VEHICLE_SILVERMOON_HAWKSTRIDER                  = 33323,
-    VEHICLE_DARKSPEAR_RAPTOR                        = 33321,
 
-    VEHICLE_ARGENT_WARHORSE                         = 35644,
+    VEHICLE_ARGENT_WARHORSE                         = 36557,
     VEHICLE_ARGENT_BATTLEWORG                       = 36558,
-
+    VEHICLE_ARGENT_WARHORSE_AGRESSIF                = 35644,
+    VEHICLE_ARGENT_BATTLEWORG_AGRESSIF              = 36559,
     VEHICLE_BLACK_KNIGHT                            = 35491
 };
 
@@ -191,13 +179,13 @@ enum Criterias
     CRITERIA_CHAMPION_COLOSOS       = 12299,
     CRITERIA_CHAMPION_AMBROSE       = 12300,
     CRITERIA_CHAMPION_JAELYNE       = 12301,
-    
+
     CRITERIA_CHAMPION_MOKRA         = 12302,
     CRITERIA_CHAMPION_VISCERI       = 12303,
     CRITERIA_CHAMPION_RUNOK         = 12304,
     CRITERIA_CHAMPION_ERESSEA       = 12305,
     CRITERIA_CHAMPION_ZULTORE       = 12306,
-    
+
     CRITERIA_CHAMPION_JACOB_H       = 12310,
     CRITERIA_CHAMPION_LANA_H        = 12311,
     CRITERIA_CHAMPION_COLOSOS_H     = 12312,
@@ -243,7 +231,8 @@ enum Criterias
     SPELL_ACHIEVEMENT_EADRIC        = 68575,
     SPELL_ACHIEVEMENT_MEMORIES      = 68206,
     SPELL_ACHIEVEMENT_BLACK_KNIGHT  = 68663,
-    SPELL_ACHIEVEMENT_FACEROOLLER   = 68197
+    SPELL_ACHIEVEMENT_FACEROOLLER   = 68197,
+    SPELL_DEFEND_TOTC               = 66482
 };
 
 #endif

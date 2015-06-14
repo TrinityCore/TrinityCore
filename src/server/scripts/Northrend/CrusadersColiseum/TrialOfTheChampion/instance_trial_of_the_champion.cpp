@@ -88,25 +88,25 @@ public:
                         creature->UpdateEntry(VEHICLE_LANA_STOUTHAMMER_MOUNT);
                     break;
                 //
-                case VEHICLE_FORSAKE_WARHORSE:
+                case NPC_UNDERCITY_CHAMPION:
                     if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_IRONFORGE_RAM);
+                        creature->UpdateEntry(NPC_IRONFORGE_CHAMPION);
                     break;
-                case VEHICLE_THUNDER_BLUFF_KODO:
+                case NPC_THUNDERBLUFF_CHAMPION:
                     if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_EXODAR_ELEKK);
+                        creature->UpdateEntry(NPC_EXODAR_CHAMPION);
                     break;
-                case VEHICLE_ORGRIMMAR_WOLF:
+                case NPC_ORGRIMMAR_CHAMPION:
                     if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_STORMWIND_STEED);
+                        creature->UpdateEntry(NPC_STORMWIND_CHAMPION);
                     break;
-                case VEHICLE_SILVERMOON_HAWKSTRIDER:
+                case NPC_SILVERMOON_CHAMPION:
                     if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_GNOMEREGAN_MECHANOSTRIDER);
+                        creature->UpdateEntry(NPC_GNOMEREGAN_CHAMPION);
                     break;
-                case VEHICLE_DARKSPEAR_RAPTOR:
+                case NPC_SENJIN_CHAMPION:
                     if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_DARNASSIA_NIGHTSABER);
+                        creature->UpdateEntry(NPC_DARNASSUS_CHAMPION);
                     break;
                 // Grand champions
                 case NPC_MOKRA:
@@ -136,7 +136,6 @@ public:
                         creature->UpdateEntry(NPC_ARELAS);
                     break;
                 case VEHICLE_ARGENT_WARHORSE:
-                case VEHICLE_ARGENT_BATTLEWORG:
                     VehicleList.push_back(creature->GetGUID());
                     break;
                 case NPC_EADRIC:
@@ -162,6 +161,16 @@ public:
                 case NPC_BLACK_KNIGHT:
                     uiKnightGUID = creature->GetGUID();
                     break;
+                case VEHICLE_ARGENT_BATTLEWORG:
+                    VehicleList.push_back(creature->GetGUID());
+                    if (TeamInInstance == ALLIANCE)
+                        creature->UpdateEntry(VEHICLE_ARGENT_WARHORSE);
+                    break;
+                case VEHICLE_ARGENT_WARHORSE_AGRESSIF:
+                    VehicleList.push_back(creature->GetGUID());
+                    if (TeamInInstance == ALLIANCE)
+                        creature->UpdateEntry(VEHICLE_ARGENT_BATTLEWORG_AGRESSIF);
+                    break;
             }
         }
 
@@ -170,7 +179,7 @@ public:
             Creature* creature = unit->ToCreature();
             if (!creature)
                 return;
-            
+
             switch (creature->GetEntry())
             {
             case VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT:
@@ -189,24 +198,24 @@ public:
                     Creature* champion1 = instance->GetCreature(uiGrandChampion1GUID);
                     Creature* champion2 = instance->GetCreature(uiGrandChampion2GUID);
                     Creature* champion3 = instance->GetCreature(uiGrandChampion3GUID);
-                    if (champion1 && champion2 && champion2)
+                    if (champion1 && champion2 && champion3)
                     {
                         champion1->AI()->DoAction(1);
                         champion2->AI()->DoAction(1);
                         champion3->AI()->DoAction(1);
-                        
+
                         for (GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                             if (Creature* vehicles = instance->GetCreature(*itr))
                                 vehicles->DespawnOrUnsummon();
                     }
-                    DoRemoveAurasDueToSpellOnPlayers(66482); // Defender
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFEND_TOTC); // Defender
                 }
                 break;
             default:
                 break;
             }
         }
-        
+
         void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
@@ -437,7 +446,7 @@ public:
 
             return false;
         }
-        
+
         uint32 GetRelatedCreatureEntry(uint32 criteria_id)
         {
             switch (criteria_id)
@@ -500,7 +509,7 @@ public:
             }
 
             return 0;
-        }        
+        }
 
         private:
             ObjectGuid uiAnnouncerGUID;

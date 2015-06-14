@@ -110,7 +110,7 @@ public:
             uiDeathBiteTimer = urand(2000, 4000);
             uiMarkedDeathTimer = urand(5000, 7000);
         }
-        
+
         bool bEventInProgress;
         bool bEvent;
         bool bSummonArmy;
@@ -360,14 +360,14 @@ public:
                 uiLeapTimer = urand(7000, 10000);
             }
             else uiLeapTimer -= diff;
-            
+
             if (uiAttackTimer <= diff)
             {
                 DoCastVictim(SPELL_CLAW);
                 uiAttackTimer = urand(1000, 3500);
             }
             else uiAttackTimer -= diff;
-            
+
             DoMeleeAttackIfReady();
         }
     };
