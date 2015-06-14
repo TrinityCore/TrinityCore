@@ -101,10 +101,10 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.Flags[1] = creatureInfo->type_flags2;
         for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
             stats.ProxyCreatureID[i] = creatureInfo->KillCredit[i];
-        stats.CreatureDisplayID[0] = creatureInfo->Modelid1;
-        stats.CreatureDisplayID[1] = creatureInfo->Modelid2;
-        stats.CreatureDisplayID[2] = creatureInfo->Modelid3;
-        stats.CreatureDisplayID[3] = creatureInfo->Modelid4;
+        stats.CreatureDisplayID[0] = sObjectMgr->GetCreatureDisplay(creatureInfo->Modelid1);
+        stats.CreatureDisplayID[1] = sObjectMgr->GetCreatureDisplay(creatureInfo->Modelid2);
+        stats.CreatureDisplayID[2] = sObjectMgr->GetCreatureDisplay(creatureInfo->Modelid3);
+        stats.CreatureDisplayID[3] = sObjectMgr->GetCreatureDisplay(creatureInfo->Modelid4);
         stats.Name[0] = creatureInfo->Name;
         stats.NameAlt[0] = creatureInfo->FemaleName;
     }
