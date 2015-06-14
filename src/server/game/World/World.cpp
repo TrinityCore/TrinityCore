@@ -2351,7 +2351,7 @@ namespace Trinity
     class WorldWorldTextBuilder
     {
         public:
-            typedef std::vector<WorldPacket*> WorldPacketList;
+            typedef std::vector<WorldPackets::Packet*> WorldPacketList;
             static size_t const BufferSize = 2048;
 
             explicit WorldWorldTextBuilder(uint32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) { }
@@ -2383,10 +2383,10 @@ namespace Trinity
             {
                 while (char* line = ChatHandler::LineFromMessage(text))
                 {
-                    WorldPackets::Chat::Chat packet;
-                    packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-                    packet.Write();
-                    dataList.emplace_back(new WorldPacket(packet.Move()));
+                    WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
+                    packet->Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+                    packet->Write();
+                    dataList.push_back(packet);
                 }
             }
 

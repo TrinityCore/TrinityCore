@@ -33,7 +33,7 @@
 #include "CreatureAI.h"
 #include "Spell.h"
 #include "WorldSession.h"
-#include "Packets/ChatPackets.h"
+#include "Packet.h"
 
 class Player;
 //class Map;
@@ -1411,7 +1411,7 @@ namespace Trinity
 
         private:
             Builder& i_builder;
-            std::vector<WorldPacket*> i_data_cache;         // 0 = default, i => i-1 locale index
+            std::vector<WorldPackets::Packet*> i_data_cache;         // 0 = default, i => i-1 locale index
     };
 
     // Prepare using Builder localized packets with caching and send to player
@@ -1419,7 +1419,7 @@ namespace Trinity
     class LocalizedPacketListDo
     {
         public:
-            typedef std::vector<WorldPacket*> WorldPacketList;
+            typedef std::vector<WorldPackets::Packet*> WorldPacketList;
             explicit LocalizedPacketListDo(Builder& builder) : i_builder(builder) { }
 
             ~LocalizedPacketListDo()

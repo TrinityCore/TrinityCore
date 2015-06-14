@@ -30,13 +30,12 @@ namespace Trinity
             BroadcastTextBuilder(Unit const* obj, ChatMsg msgType, uint32 textId, WorldObject const* target = nullptr, uint32 achievementId = 0)
                 : _source(obj), _msgType(msgType), _textId(textId), _target(target), _achievementId(achievementId) { }
 
-            void operator()(WorldPacket& data, LocaleConstant locale)
+            WorldPackets::Chat::Chat* operator()(LocaleConstant locale) const
             {
                 BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(_textId);
-                WorldPackets::Chat::Chat packet;
-                packet.Initialize(_msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _source->getGender()) : "", _achievementId, "", locale);
-                packet.Write();
-                data = packet.Move();
+                WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
+                chat->Initialize(_msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _source->getGender()) : "", _achievementId, "", locale);
+                return chat;
             }
 
         private:
@@ -53,12 +52,11 @@ namespace Trinity
             CustomChatTextBuilder(WorldObject const* obj, ChatMsg msgType, std::string const& text, Language language = LANG_UNIVERSAL, WorldObject const* target = nullptr)
                 : _source(obj), _msgType(msgType), _text(text), _language(language), _target(target) { }
 
-            void operator()(WorldPacket& data, LocaleConstant locale)
+            WorldPackets::Chat::Chat* operator()(LocaleConstant locale) const
             {
-                WorldPackets::Chat::Chat packet;
-                packet.Initialize(_msgType, _language, _source, _target, _text, 0, "", locale);
-                packet.Write();
-                data = packet.Move();
+                WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
+                chat->Initialize(_msgType, _language, _source, _target, _text, 0, "", locale);
+                return chat;
             }
 
         private:

@@ -35,6 +35,7 @@ namespace WorldPackets
         virtual WorldPacket const* Write() = 0;
         virtual void Read() = 0;
 
+        WorldPacket const* GetRawPacket() const { return &_worldPacket; }
         size_t GetSize() const { return _worldPacket.size(); }
         ConnectionType GetConnection() const { return _worldPacket.GetConnection(); }
 

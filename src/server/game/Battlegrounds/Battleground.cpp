@@ -48,7 +48,7 @@ namespace Trinity
             BattlegroundChatBuilder(ChatMsg msgtype, uint32 textId, Player const* source, va_list* args = NULL)
                 : _msgtype(msgtype), _textId(textId), _source(source), _args(args) { }
 
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            WorldPackets::Packet* operator()(LocaleConstant loc_idx)
             {
                 char const* text = sObjectMgr->GetTrinityString(_textId, loc_idx);
                 if (_args)
@@ -61,19 +61,18 @@ namespace Trinity
                     vsnprintf(str, 2048, text, ap);
                     va_end(ap);
 
-                    do_helper(data, &str[0]);
+                    return do_helper(&str[0]);
                 }
-                else
-                    do_helper(data, text);
+
+                return do_helper(text);
             }
 
         private:
-            void do_helper(WorldPacket& data, char const* text)
+            WorldPackets::Packet* do_helper(char const* text)
             {
-                WorldPackets::Chat::Chat packet;
-                packet.Initialize(_msgtype, LANG_UNIVERSAL, _source, _source, text);
-                packet.Write();
-                data = packet.Move();
+                WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
+                packet->Initialize(_msgtype, LANG_UNIVERSAL, _source, _source, text);
+                return packet;
             }
 
             ChatMsg _msgtype;
@@ -88,7 +87,7 @@ namespace Trinity
             Battleground2ChatBuilder(ChatMsg msgtype, uint32 textId, Player const* source, uint32 arg1, uint32 arg2)
                 : _msgtype(msgtype), _textId(textId), _source(source), _arg1(arg1), _arg2(arg2) { }
 
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            WorldPackets::Packet* operator()(LocaleConstant loc_idx)
             {
                 char const* text = sObjectMgr->GetTrinityString(_textId, loc_idx);
                 char const* arg1str = _arg1 ? sObjectMgr->GetTrinityString(_arg1, loc_idx) : "";
@@ -97,10 +96,9 @@ namespace Trinity
                 char str[2048];
                 snprintf(str, 2048, text, arg1str, arg2str);
 
-                WorldPackets::Chat::Chat packet;
-                packet.Initialize(_msgtype, LANG_UNIVERSAL, _source, _source, str);
-                packet.Write();
-                data = packet.Move();
+                WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
+                packet->Initialize(_msgtype, LANG_UNIVERSAL, _source, _source, str);
+                return packet;
             }
 
         private:
