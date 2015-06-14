@@ -57,7 +57,7 @@ A: Of course :) The example below takes first parameter as mpq archive
            libmpq__archive_open(&mpq_archive, argv[1], -1);
 
            /* get size of first file (0) and malloc output buffer. */
-           libmpq__file_unpacked_size(mpq_archive, 0, &out_size);
+           libmpq__file_size_unpacked(mpq_archive, 0, &out_size);
            out_buf = malloc(out_size);
 
            /* read, decrypt and unpack file to output buffer. */

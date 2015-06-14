@@ -1,7 +1,7 @@
 /*
  *  huffman.h -- structures used for huffman compression.
  *
- *  Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
+ *  Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
  *
  *  This source was adepted from the C++ version of huffman.h included
  *  in stormlib. The C++ version belongs to the following authors:

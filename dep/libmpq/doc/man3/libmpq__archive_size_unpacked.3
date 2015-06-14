@@ -1,4 +1,4 @@
-.\" Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
+.\" Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
 .\" USA.
-.TH libmpq 3 2008-05-15 "The MoPaQ archive library"
+.TH libmpq 3 2011-11-06 "The MoPaQ archive library"
 .SH NAME
 libmpq \- cross-platform C library for manipulating mpq archives.
 .SH SYNOPSIS
@@ -27,29 +27,25 @@ libmpq \- cross-platform C library for manipulating mpq archives.
 .B
 #include <mpq.h>
 .sp
-.BI "int32_t libmpq__file_packed_size("
+.BI "int32_t libmpq__archive_size_unpacked("
 .BI "        mpq_archive_s  *" "mpq_archive",
-.BI "        uint32_t        " "file_number",
-.BI "        off_t          *" "packed_size"
+.BI "        off_t          *" "unpacked_size"
 .BI ");"
 .fi
 .SH DESCRIPTION
 .PP
-Call \fBlibmpq__file_packed_size\fP() to get the packed size of a given file in the archive. It will return a valid size for compressed and imploded files as well as stored only.
+Call \fBlibmpq__archive_size_unpacked\fP() to get the unpacked size of all files in the archive. It will count uncompressed and exploded files as well as stored only.
 .LP
-The \fBlibmpq__file_packed_size\fP() function takes as first argument the archive structure \fImpq_archive\fP which have to be allocated first and opened by \fBlibmpq__archive_open\fP(). The second argument \fIfile_number\fP is the number of file and the third argument is a reference to the compressed, imploded or stored size \fIpacked_size\fP of file.
+The \fBlibmpq__archive_size_unpacked\fP() function takes as first argument the archive structure \fImpq_archive\fP which have to be allocated first and opened by \fBlibmpq__archive_open\fP(). The second argument is a reference to the uncompressed, exploded or stored size \fIunpacked_size\fP of file.
 .SH RETURN VALUE
-On success, a zero is returned and on error one of the following constants.
-.TP
-.B LIBMPQ_ERROR_EXIST
-File does not exist in archive.
+On success, a zero is returned.
 .SH SEE ALSO
-.BR libmpq__archive_packed_size (3),
-.BR libmpq__block_packed_size (3)
+.BR libmpq__file_size_unpacked (3),
+.BR libmpq__block_size_unpacked (3)
 .SH AUTHOR
 Check documentation.
 .TP
-libmpq is (c) 2003-2008
-.B Maik Broemme <mbroemme@plusserver.de>
+libmpq is (c) 2003-2011
+.B Maik Broemme <mbroemme@libmpq.org>
 .PP
 The above e-mail address can be used to send bug reports, feedbacks or library enhancements.
