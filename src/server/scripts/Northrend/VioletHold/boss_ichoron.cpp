@@ -23,19 +23,16 @@ enum Spells
 {
     SPELL_DRAINED                               = 59820,
     SPELL_FRENZY                                = 54312,
-    SPELL_FRENZY_H                              = 59522,
     SPELL_PROTECTIVE_BUBBLE                     = 54306,
     SPELL_WATER_BLAST                           = 54237,
-    SPELL_WATER_BLAST_H                         = 59520,
     SPELL_WATER_BOLT_VOLLEY                     = 54241,
-    SPELL_WATER_BOLT_VOLLEY_H                   = 59521,
     SPELL_SPLASH                                = 59516,
     SPELL_WATER_GLOBULE                         = 54268
 };
 
 enum IchoronCreatures
 {
-    NPC_ICHOR_GLOBULE                           = 29321,
+    NPC_ICHOR_GLOBULE                           = 29321
 };
 
 enum Yells
@@ -52,18 +49,18 @@ enum Yells
 enum Actions
 {
     ACTION_WATER_ELEMENT_HIT                    = 1,
-    ACTION_WATER_ELEMENT_KILLED                 = 2,
+    ACTION_WATER_ELEMENT_KILLED                 = 2
 };
 
 /// @todo get those positions from spawn of creature 29326
 #define MAX_SPAWN_LOC 5
-static Position SpawnLoc[MAX_SPAWN_LOC]=
+static Position const SpawnLoc[MAX_SPAWN_LOC]=
 {
     {1840.64f, 795.407f, 44.079f, 1.676f},
     {1886.24f, 757.733f, 47.750f, 5.201f},
     {1877.91f, 845.915f, 43.417f, 3.560f},
     {1918.97f, 850.645f, 47.225f, 4.136f},
-    {1935.50f, 796.224f, 52.492f, 4.224f},
+    {1935.50f, 796.224f, 52.492f, 4.224f}
 };
 
 enum Misc
@@ -75,11 +72,6 @@ class boss_ichoron : public CreatureScript
 {
 public:
     boss_ichoron() : CreatureScript("boss_ichoron") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_ichoronAI>(creature);
-    }
 
     struct boss_ichoronAI : public ScriptedAI
     {
@@ -117,9 +109,9 @@ public:
             DespawnWaterElements();
 
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, NOT_STARTED);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -128,16 +120,17 @@ public:
 
             DoCast(me, SPELL_PROTECTIVE_BUBBLE);
 
-            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_ICHORON_CELL)))
-                if (pDoor->GetGoState() == GO_STATE_READY)
+            if (GameObject* door = instance->GetGameObject(DATA_ICHORON_CELL))
+                if (door->GetGoState() == GO_STATE_READY)
                 {
                     EnterEvadeMode();
                     return;
                 }
+
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who) override
@@ -208,7 +201,6 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
         void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
@@ -230,7 +222,7 @@ public:
                         if (!me->HasAura(SPELL_PROTECTIVE_BUBBLE))
                         {
                             Talk(SAY_SHATTER);
-                            DoCast(me, SPELL_WATER_BLAST);
+                            DoCast(me, SPELL_WATER_BLAST); // wrong target
                             DoCast(me, SPELL_DRAINED);
                             bIsExploded = true;
                             me->AttackStop();
@@ -291,12 +283,12 @@ public:
 
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 7);
             }
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
             {
-                instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
@@ -323,24 +315,21 @@ public:
 
         void KilledUnit(Unit* victim) override
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Talk(SAY_SLAY);
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_ichoronAI>(creature);
+    }
 };
 
 class npc_ichor_globule : public CreatureScript
 {
 public:
     npc_ichor_globule() : CreatureScript("npc_ichor_globule") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_ichor_globuleAI>(creature);
-    }
 
     struct npc_ichor_globuleAI : public ScriptedAI
     {
@@ -367,19 +356,18 @@ public:
 
         void AttackStart(Unit* /*who*/) override
         {
-            return;
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
             if (uiRangeCheck_Timer < uiDiff)
             {
-                if (Creature* pIchoron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ICHORON)))
+                if (Creature* ichoron = instance->GetCreature(DATA_ICHORON))
                 {
-                    if (me->IsWithinDist(pIchoron, 2.0f, false))
+                    if (me->IsWithinDist(ichoron, 2.0f, false))
                     {
-                        if (pIchoron->AI())
-                            pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_HIT);
+                        if (ichoron->AI())
+                            ichoron->AI()->DoAction(ACTION_WATER_ELEMENT_HIT);
                         me->DespawnOrUnsummon();
                     }
                 }
@@ -391,12 +379,16 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             DoCast(me, SPELL_SPLASH);
-            if (Creature* pIchoron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ICHORON)))
-                if (pIchoron->AI())
-                    pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);
+            if (Creature* ichoron = instance->GetCreature(DATA_ICHORON))
+                if (ichoron->AI())
+                    ichoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<npc_ichor_globuleAI>(creature);
+    }
 };
 
 class achievement_dehydration : public AchievementCriteriaScript

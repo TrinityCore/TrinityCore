@@ -2,7 +2,7 @@
  *  extract.c -- global extracting function for all known file compressions
  *               in a mpq archive.
  *
- *  Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
+ *  Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ static decompress_table_s dcmp_table[] = {
 /* this function decompress a stream using huffman algorithm. */
 int32_t libmpq__decompress_huffman(uint8_t *in_buf, uint32_t in_size, uint8_t *out_buf, uint32_t out_size) {
 
+    (void)in_size;
 	/* TODO: make typdefs of this structs? */
 	/* some common variables. */
 	int32_t tb     = 0;
