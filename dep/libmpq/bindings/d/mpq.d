@@ -1,7 +1,7 @@
 /*
  *  mpq.d -- D programming language module for libmpq
  *
- *  Copyright (c) 2008 Georg Lukas <georg@op-co.de>
+ *  Copyright (c) 2008-2011 Georg Lukas <georg@op-co.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -58,15 +58,15 @@ char *libmpq__version();
 /* libmpq__generic mpq archive information. */
 int libmpq__archive_open(mpq_archive_s **mpq_archive, char *mpq_filename, off_t archive_offset);
 int libmpq__archive_close(mpq_archive_s *mpq_archive);
-int libmpq__archive_packed_size(mpq_archive_s *mpq_archive, off_t *packed_size);
-int libmpq__archive_unpacked_size(mpq_archive_s *mpq_archive, off_t *unpacked_size);
+int libmpq__archive_size_packed(mpq_archive_s *mpq_archive, off_t *packed_size);
+int libmpq__archive_size_unpacked(mpq_archive_s *mpq_archive, off_t *unpacked_size);
 int libmpq__archive_offset(mpq_archive_s *mpq_archive, off_t *offset);
 int libmpq__archive_version(mpq_archive_s *mpq_archive, uint *version_);
 int libmpq__archive_files(mpq_archive_s *mpq_archive, uint *files);
 
 /* libmpq__generic file processing functions. */
-int libmpq__file_packed_size(mpq_archive_s *mpq_archive, uint file_number, off_t *packed_size);
-int libmpq__file_unpacked_size(mpq_archive_s *mpq_archive, uint file_number, off_t *unpacked_size);
+int libmpq__file_size_packed(mpq_archive_s *mpq_archive, uint file_number, off_t *packed_size);
+int libmpq__file_size_unpacked(mpq_archive_s *mpq_archive, uint file_number, off_t *unpacked_size);
 int libmpq__file_offset(mpq_archive_s *mpq_archive, uint file_number, off_t *offset);
 int libmpq__file_blocks(mpq_archive_s *mpq_archive, uint file_number, uint *blocks);
 int libmpq__file_encrypted(mpq_archive_s *mpq_archive, uint file_number, uint *encrypted);
@@ -78,7 +78,7 @@ int libmpq__file_read(mpq_archive_s *mpq_archive, uint file_number, ubyte *out_b
 /* libmpq__generic block processing functions. */
 int libmpq__block_open_offset(mpq_archive_s *mpq_archive, uint file_number);
 int libmpq__block_close_offset(mpq_archive_s *mpq_archive, uint file_number);
-int libmpq__block_unpacked_size(mpq_archive_s *mpq_archive, uint file_number, uint block_number, off_t *unpacked_size);
+int libmpq__block_size_unpacked(mpq_archive_s *mpq_archive, uint file_number, uint block_number, off_t *unpacked_size);
 int libmpq__block_read(mpq_archive_s *mpq_archive, uint file_number, uint block_number, ubyte *out_buf, off_t out_size, off_t *transferred);
 
 }

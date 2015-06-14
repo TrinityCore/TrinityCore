@@ -25,8 +25,8 @@ jemalloc (a general-purpose scalable concurrent malloc-implementation)
   Version: 3.6.0
   
 libMPQ (a library for reading MPQ files)
-  https://libmpq.org/
-  Version: 1.0.4
+  https://github.com/mbroemme/libmpq/
+  Version: d59b4cf1d107b5f6a0f67d6bc545c6c6ebef3d74
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/

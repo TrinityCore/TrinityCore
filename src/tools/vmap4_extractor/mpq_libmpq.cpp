@@ -71,7 +71,7 @@ MPQFile::MPQFile(const char* filename):
         uint32 filenum;
         if(libmpq__file_number(mpq_a, filename, &filenum)) continue;
         libmpq__off_t transferred;
-        libmpq__file_unpacked_size(mpq_a, filenum, &size);
+        libmpq__file_size_unpacked(mpq_a, filenum, &size);
 
         // HACK: in patch.mpq some files don't want to open and give 1 for filesize
         if (size<=1) {
