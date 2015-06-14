@@ -22,15 +22,13 @@
 enum Spells
 {
     SPELL_SHROUD_OF_DARKNESS                    = 54524,
-    H_SPELL_SHROUD_OF_DARKNESS                  = 59745,
     SPELL_SUMMON_VOID_SENTRY                    = 54369,
-    SPELL_VOID_SHIFT                            = 54361,
-    H_SPELL_VOID_SHIFT                          = 59743,
+    SPELL_VOID_SHIFT                            = 54361
 };
 
 enum Creatures
 {
-    NPC_VOID_SENTRY                        = 29364
+    NPC_VOID_SENTRY                             = 29364
 };
 
 enum Yells
@@ -52,11 +50,6 @@ class boss_zuramat : public CreatureScript
 {
 public:
     boss_zuramat() : CreatureScript("boss_zuramat") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_zuramatAI>(creature);
-    }
 
     struct boss_zuramatAI : public ScriptedAI
     {
@@ -107,25 +100,25 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            Talk(SAY_AGGRO);
-            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_ZURAMAT_CELL)))
-                if (pDoor->GetGoState() == GO_STATE_READY)
+            if (GameObject* door = instance->GetGameObject(DATA_ZURAMAT_CELL))
+                if (door->GetGoState() == GO_STATE_READY)
                 {
                     EnterEvadeMode();
                     return;
                 }
+
+            Talk(SAY_AGGRO);
+
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
         void UpdateAI(uint32 diff) override
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
@@ -171,26 +164,27 @@ public:
 
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 7);
             }
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
             {
-                instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
 
         void KilledUnit(Unit* victim) override
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Talk(SAY_SLAY);
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
-
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_zuramatAI>(creature);
+    }
 };
 
 class achievement_void_dance : public AchievementCriteriaScript
