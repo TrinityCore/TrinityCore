@@ -246,7 +246,14 @@ class SmartScript
                 DecPhase(abs(p));
         }
 
-        void DecPhase(int32 p = 1) { mEventPhase  -= (mEventPhase < (uint32)p ? (uint32)p - mEventPhase : (uint32)p); }
+        void DecPhase(int32 p = 1) 
+        { 
+            if(mEventPhase > (uint32)p)
+                mEventPhase -= (uint32)p; 
+            else
+                mEventPhase = 0;
+        }
+
         bool IsInPhase(uint32 p) const { return ((1 << (mEventPhase - 1)) & p) != 0; }
         void SetPhase(uint32 p = 0) { mEventPhase = p; }
 
