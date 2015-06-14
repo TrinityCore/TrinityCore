@@ -1,8 +1,8 @@
 /*
  *  crypt_buf_gen.c -- tool to re-create the static decryption buffer.
  *
- *  Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
- *  Copyright (c)      2008 Georg Lukas <georg@op-co.de>
+ *  Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
+ *  Copyright (c) 2008-2011 Georg Lukas <georg@op-co.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

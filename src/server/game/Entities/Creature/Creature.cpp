@@ -2635,3 +2635,29 @@ void Creature::StartPickPocketRefillTimer()
     _pickpocketLootRestore = time(NULL) + sWorld->getIntConfig(CONFIG_CREATURE_PICKPOCKET_REFILL);
 }
 
+void Creature::SetTextRepeatId(uint8 textGroup, uint8 id)
+{
+    CreatureTextRepeatIds& repeats = m_textRepeat[textGroup];
+    if (std::find(repeats.begin(), repeats.end(), id) == repeats.end())
+        repeats.push_back(id);
+    else
+        TC_LOG_ERROR("sql.sql", "CreatureTextMgr: TextGroup %u for Creature(%s) GuidLow %u Entry %u, id %u already added", uint32(textGroup), GetName().c_str(), GetGUIDLow(), GetEntry(), uint32(id));
+}
+
+CreatureTextRepeatIds Creature::GetTextRepeatGroup(uint8 textGroup)
+{
+    CreatureTextRepeatIds ids;
+
+    CreatureTextRepeatGroup::const_iterator groupItr = m_textRepeat.find(textGroup);
+    if (groupItr != m_textRepeat.end())
+        ids = groupItr->second;
+
+    return ids;
+}
+
+void Creature::ClearTextRepeatGroup(uint8 textGroup)
+{
+    CreatureTextRepeatGroup::iterator groupItr = m_textRepeat.find(textGroup);
+    if (groupItr != m_textRepeat.end())
+        groupItr->second.clear();
+}
