@@ -1,7 +1,7 @@
 /*
  *  common.c -- shared functions used by mpq-tools.
  *
- *  Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
+ *  Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -175,7 +175,7 @@ int32_t libmpq__decompress_block(uint8_t *in_buf, uint32_t in_size, uint8_t *out
 
 	/* check if one compression mode is used. */
 	else if (compression_type == LIBMPQ_FLAG_COMPRESS_PKZIP ||
-	    compression_type == LIBMPQ_FLAG_COMPRESS_MULTI) {
+	         compression_type == LIBMPQ_FLAG_COMPRESS_MULTI) {
 
 		/* check if block is really compressed, some blocks have set the compression flag, but are not compressed. */
 		if (in_size < out_size) {
