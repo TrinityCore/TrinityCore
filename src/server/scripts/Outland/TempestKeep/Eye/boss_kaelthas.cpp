@@ -286,17 +286,13 @@ class boss_kaelthas : public CreatureScript
 {
     public:
 
-        boss_kaelthas()
-            : CreatureScript("boss_kaelthas")
+        boss_kaelthas() : CreatureScript("boss_kaelthas") { }
+
+        struct boss_kaelthasAI : public BossAI
         {
-        }
-        //Kael'thas AI
-        struct boss_kaelthasAI : public ScriptedAI
-        {
-            boss_kaelthasAI(Creature* creature) : ScriptedAI(creature), summons(me)
+            boss_kaelthasAI(Creature* creature) : BossAI(creature, DATA_KAELTHAS)
             {
                 Initialize();
-                instance = creature->GetInstanceScript();
                 PhaseSubphase = 0;
                 Phase_Timer = 0;
             }
@@ -320,8 +316,6 @@ class boss_kaelthas : public CreatureScript
                 ChainPyros = false;
             }
 
-            InstanceScript* instance;
-
             uint32 Fireball_Timer;
             uint32 ArcaneDisruption_Timer;
             uint32 Phoenix_Timer;
@@ -341,8 +335,6 @@ class boss_kaelthas : public CreatureScript
             bool IsCastingFireball;
             bool ChainPyros;
 
-            SummonList summons;
-
             ObjectGuid m_auiAdvisorGuid[MAX_ADVISORS];
 
             void Reset() override
@@ -351,8 +343,8 @@ class boss_kaelthas : public CreatureScript
 
                 if (me->IsInCombat())
                     PrepareAdvisors();
-
-                summons.DespawnAll();
+                
+                _Reset();
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -413,7 +405,6 @@ class boss_kaelthas : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!me->HasUnitState(UNIT_STATE_STUNNED) && me->CanCreatureAttack(who))
                 {
@@ -444,6 +435,8 @@ class boss_kaelthas : public CreatureScript
             {
                 if (!instance->GetData(DATA_KAELTHASEVENT) && !Phase)
                     StartEvent();
+
+                instance->SetBossState(DATA_KAELTHAS, IN_PROGRESS);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -463,19 +456,12 @@ class boss_kaelthas : public CreatureScript
                 }
             }
 
-            void SummonedCreatureDespawn(Creature* summon) override
-            {
-                summons.Despawn(summon);
-            }
-
             void JustDied(Unit* /*killer*/) override
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                 Talk(SAY_DEATH);
-
-                summons.DespawnAll();
 
                 instance->SetData(DATA_KAELTHASEVENT, 0);
 
@@ -484,6 +470,7 @@ class boss_kaelthas : public CreatureScript
                     if (Unit* pAdvisor = ObjectAccessor::GetUnit(*me, m_auiAdvisorGuid[i]))
                         pAdvisor->Kill(pAdvisor);
                 }
+                _JustDied();
             }
 
             void UpdateAI(uint32 diff) override
@@ -1024,10 +1011,8 @@ class boss_thaladred_the_darkener : public CreatureScript
 {
     public:
 
-        boss_thaladred_the_darkener()
-            : CreatureScript("boss_thaladred_the_darkener")
-        {
-        }
+        boss_thaladred_the_darkener() : CreatureScript("boss_thaladred_the_darkener") { }
+        
         struct boss_thaladred_the_darkenerAI : public advisorbase_ai
         {
             boss_thaladred_the_darkenerAI(Creature* creature) : advisorbase_ai(creature)
@@ -1130,10 +1115,8 @@ class boss_lord_sanguinar : public CreatureScript
 {
     public:
 
-        boss_lord_sanguinar()
-            : CreatureScript("boss_lord_sanguinar")
-        {
-        }
+        boss_lord_sanguinar() : CreatureScript("boss_lord_sanguinar") { }
+        
         struct boss_lord_sanguinarAI : public advisorbase_ai
         {
             boss_lord_sanguinarAI(Creature* creature) : advisorbase_ai(creature)
@@ -1205,10 +1188,8 @@ class boss_grand_astromancer_capernian : public CreatureScript
 {
     public:
 
-        boss_grand_astromancer_capernian()
-            : CreatureScript("boss_grand_astromancer_capernian")
-        {
-        }
+        boss_grand_astromancer_capernian() : CreatureScript("boss_grand_astromancer_capernian") { }
+        
         struct boss_grand_astromancer_capernianAI : public advisorbase_ai
         {
             boss_grand_astromancer_capernianAI(Creature* creature) : advisorbase_ai(creature)
@@ -1358,10 +1339,8 @@ class boss_master_engineer_telonicus : public CreatureScript
 {
     public:
 
-        boss_master_engineer_telonicus()
-            : CreatureScript("boss_master_engineer_telonicus")
-        {
-        }
+        boss_master_engineer_telonicus() : CreatureScript("boss_master_engineer_telonicus") { }
+
         struct boss_master_engineer_telonicusAI : public advisorbase_ai
         {
             boss_master_engineer_telonicusAI(Creature* creature) : advisorbase_ai(creature)
@@ -1449,10 +1428,8 @@ class npc_kael_flamestrike : public CreatureScript
 {
     public:
 
-        npc_kael_flamestrike()
-            : CreatureScript("npc_kael_flamestrike")
-        {
-        }
+        npc_kael_flamestrike() : CreatureScript("npc_kael_flamestrike") { }
+
         struct npc_kael_flamestrikeAI : public ScriptedAI
         {
             npc_kael_flamestrikeAI(Creature* creature) : ScriptedAI(creature)
@@ -1481,7 +1458,6 @@ class npc_kael_flamestrike : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
-
 
             void EnterCombat(Unit* /*who*/) override { }
 
@@ -1523,10 +1499,8 @@ class npc_phoenix_tk : public CreatureScript
 {
     public:
 
-        npc_phoenix_tk()
-            : CreatureScript("npc_phoenix_tk")
-        {
-        }
+        npc_phoenix_tk() : CreatureScript("npc_phoenix_tk") { }
+        
         struct npc_phoenix_tkAI : public ScriptedAI
         {
             npc_phoenix_tkAI(Creature* creature) : ScriptedAI(creature)
@@ -1585,10 +1559,8 @@ class npc_phoenix_egg_tk : public CreatureScript
 {
     public:
 
-        npc_phoenix_egg_tk()
-            : CreatureScript("npc_phoenix_egg_tk")
-        {
-        }
+        npc_phoenix_egg_tk() : CreatureScript("npc_phoenix_egg_tk") { }
+        
         struct npc_phoenix_egg_tkAI : public ScriptedAI
         {
             npc_phoenix_egg_tkAI(Creature* creature) : ScriptedAI(creature)
@@ -1610,7 +1582,6 @@ class npc_phoenix_egg_tk : public CreatureScript
 
             //ignore any
             void MoveInLineOfSight(Unit* /*who*/) override { }
-
 
             void AttackStart(Unit* who) override
             {

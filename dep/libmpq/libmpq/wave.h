@@ -1,7 +1,7 @@
 /*
  *  wave.h -- header file for wav unplode functions used by mpq-tools.
  *
- *  Copyright (c) 2003-2007 Maik Broemme <mbroemme@plusserver.de>
+ *  Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
  *
  *  This source was adepted from the C++ version of wave.h included
  *  in stormlib. The C++ version belongs to the following authors:

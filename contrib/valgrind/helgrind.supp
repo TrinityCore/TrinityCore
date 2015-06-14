@@ -45,3 +45,63 @@
    fun:_ZNKSt13__atomic_baseIjE4loadESt12memory_order
    fun:_ZNKSt13__atomic_baseIjEcvjEv
 }
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:load
+   fun:_ZNKSt13__atomic_baseIjEcvjEv
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:store
+   fun:_ZNSt13__atomic_baseIiEaSEi
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:store
+   fun:_ZNSt13__atomic_baseIbEaSEb
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:load
+   fun:_ZNKSt11atomic_boolcvbEv
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:store
+   fun:_ZNSt13__atomic_baseIjEaSEj
+}
+{
+   [2] integer counters
+   Helgrind:Race
+   fun:_ZN4MMAP11MMapManager7loadMapERKSsjii
+   fun:_ZN3Map8LoadMMapEii
+}
+{
+   [2] integer counters
+   Helgrind:Race
+   fun:_ZN8Movement7counterIjLj4294967295EE8IncreaseEv
+}
+{
+   [2] integer counters
+   Helgrind:Race
+   fun:_ZN3G3D10BufferPool6mallocEm
+}
+{
+   [3] System libraries
+   Helgrind:Race
+   fun:__GI_mempcpy
+   fun:_IO_file_xsputn@@GLIBC_2.2.5
+   fun:vfprintf
+}
+{
+   [3] System libraries
+   Helgrind:Race
+   fun:__GI_mempcpy
+   fun:_IO_file_xsputn@@GLIBC_2.2.5
+   fun:fwrite
+}
