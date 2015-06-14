@@ -694,6 +694,50 @@ namespace WorldPackets
 
             void Read() override { }
         };
+
+        class GetMirrorImageData final : public ClientPacket
+        {
+        public:
+            GetMirrorImageData(WorldPacket&& packet) : ClientPacket(CMSG_GET_MIRROR_IMAGE_DATA, std::move(packet)) {}
+
+            void Read() override;
+
+            ObjectGuid UnitGUID;
+            uint32 DisplayID = 0;
+        };
+
+        class MirrorImageComponentedData final : public ServerPacket
+        {
+        public:
+            MirrorImageComponentedData() : ServerPacket(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 8 + 4 + 8 * 1 + 8 + 11 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            uint32 DisplayID = 0;
+            uint8 RaceID = 0;
+            uint8 Gender = 0;
+            uint8 ClassID = 0;
+            uint8 SkinColor = 0;
+            uint8 FaceVariation = 0;
+            uint8 HairVariation = 0;
+            uint8 HairColor = 0;
+            uint8 BeardVariation = 0;
+            ObjectGuid GuildGUID;
+
+            std::vector<uint32> ItemDisplayID;
+        };
+
+        class MirrorImageCreatureData final : public ServerPacket
+        {
+        public:
+            MirrorImageCreatureData() : ServerPacket(SMSG_MIRROR_IMAGE_CREATURE_DATA, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            uint32 DisplayID = 0;
+        };
     }
 }
 
