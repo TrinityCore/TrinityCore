@@ -563,7 +563,7 @@ void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
 {
     LocaleConstant loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx+1;
-    WorldPacket* data;
+    WorldPackets::Packet* data;
 
     // create if not cached yet
     if (i_data_cache.size() < cache_idx + 1 || !i_data_cache[cache_idx])
@@ -571,18 +571,18 @@ void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
         if (i_data_cache.size() < cache_idx + 1)
             i_data_cache.resize(cache_idx + 1);
 
-        data = new WorldPacket();
+        data = i_builder(loc_idx);
 
-        i_builder(*data, loc_idx);
+        ASSERT(data->GetSize() == 0);
 
-        ASSERT(data->GetOpcode() != NULL_OPCODE);
+        data->Write();
 
         i_data_cache[cache_idx] = data;
     }
     else
         data = i_data_cache[cache_idx];
 
-    p->SendDirectMessage(data);
+    p->SendDirectMessage(data->GetRawPacket());
 }
 
 template<class Builder>
@@ -606,7 +606,7 @@ void Trinity::LocalizedPacketListDo<Builder>::operator()(Player* p)
         data_list = &i_data_cache[cache_idx];
 
     for (size_t i = 0; i < data_list->size(); ++i)
-        p->SendDirectMessage((*data_list)[i]);
+        p->SendDirectMessage((*data_list)[i]->GetRawPacket());
 }
 
 #endif                                                      // TRINITY_GRIDNOTIFIERSIMPL_H

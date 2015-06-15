@@ -799,7 +799,6 @@ void Map::ScriptsProcess()
                 }
 
                 Creature* cTarget = NULL;
-                WorldObject* wSource = dynamic_cast<WorldObject*>(source);
                 auto creatureBounds = _creatureBySpawnIdStore.equal_range(step.script->CallScript.CreatureEntry);
                 if (creatureBounds.first != creatureBounds.second)
                 {
