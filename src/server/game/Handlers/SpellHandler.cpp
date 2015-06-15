@@ -512,34 +512,38 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
 
     if (Creature* creature = unit->ToCreature())
     {
-        uint32 display = creature->GetDisplayId();
-        int32 outfit = creature->GetOutfit();
-
-        if (outfit < 0 && display == sObjectMgr->GetCreatureDisplay(outfit))
+        int32 outfitId = creature->GetOutfit();
+        if (outfitId < 0)
         {
-            const CreatureOutfitContainer* outfits = sObjectMgr->GetCreatureOutfitMap();
-            CreatureOutfitContainer::const_iterator it = outfits->find(-outfit);
-            if (it != outfits->end())
+            const CreatureOutfitContainer& outfits = sObjectMgr->GetCreatureOutfitMap();
+            CreatureOutfitContainer::const_iterator it = outfits.find(-outfitId);
+            if (it != outfits.end())
             {
-                WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 68);
-                data << guid;
-                data << uint32(display);                // displayId
-                data << uint8(it->second.race);         // race
-                data << uint8(it->second.gender);       // gender
-                data << uint8(1);                       // class
-                data << uint8(it->second.skin);         // skin
-                data << uint8(it->second.face);         // face
-                data << uint8(it->second.hair);         // hair
-                data << uint8(it->second.haircolor);    // haircolor
-                data << uint8(it->second.facialhair);   // facialhair
-                data << ObjectGuid::Empty;              // guildId
+                CreatureOutfit const& outfit = it->second;
+                if (creature->GetDisplayId() == outfit.displayId)
+                {
+                    WorldPackets::Spells::MirrorImageComponentedData packet;
+                    packet.UnitGUID = guid;
+                    packet.DisplayID = outfit.displayId;
+                    packet.RaceID = outfit.race;
+                    packet.Gender = outfit.gender;
+                    packet.ClassID = 1;
+                    packet.SkinColor = outfit.skin;
+                    packet.FaceVariation = outfit.face;
+                    packet.HairVariation = outfit.hair;
+                    packet.HairColor = outfit.haircolor;
+                    packet.BeardVariation = outfit.facialhair;
+                    packet.GuildGUID = ObjectGuid::Empty;
 
-                // item displays
-                for (uint32 i = 0; i < MAX_CREATURE_OUTFIT_DISPLAYS; ++i)
-                    data << uint32(it->second.outfit[i]);
+                    packet.ItemDisplayID.reserve(11);
 
-                SendPacket(&data);
-                return;
+                    // item displays
+                    for (auto const& display : it->second.outfit)
+                        packet.ItemDisplayID.push_back(display);
+
+                    SendPacket(packet.Write());
+                    return;
+                }
             }
         }
     }

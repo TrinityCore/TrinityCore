@@ -1249,7 +1249,7 @@ class ObjectMgr
         bool AddGameTele(GameTele& data);
         bool DeleteGameTele(std::string const& name);
 
-        const CreatureOutfitContainer* GetCreatureOutfitMap() const { return &_creatureOutfitStore; }
+        const CreatureOutfitContainer& GetCreatureOutfitMap() const { return _creatureOutfitStore; }
 
         TrainerSpellData const* GetNpcTrainerSpells(uint32 entry) const
         {

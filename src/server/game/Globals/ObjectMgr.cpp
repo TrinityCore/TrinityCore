@@ -9124,12 +9124,12 @@ uint32 ObjectMgr::GetCreatureDisplay(int32 modelid) const
     if (modelid >= 0)
         return modelid;
 
-    const CreatureOutfitContainer* outfits = GetCreatureOutfitMap();
-    CreatureOutfitContainer::const_iterator it = outfits->find(-modelid);
-    if (it == outfits->end())
-        return 0;
+    const CreatureOutfitContainer& outfits = GetCreatureOutfitMap();
+    CreatureOutfitContainer::const_iterator it = outfits.find(-modelid);
+    if (it != outfits.end())
+        return it->second.displayId;
 
-    return it->second.displayId;
+    return 0;
 }
 
 void ObjectMgr::LoadRaceAndClassExpansionRequirements()
