@@ -742,7 +742,7 @@ enum SpellAttr10
     SPELL_ATTR10_UNK26                            = 0x04000000, // 26
     SPELL_ATTR10_UNK27                            = 0x08000000, // 27
     SPELL_ATTR10_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR10_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE        = 0x20000000, // 29 This mount is stored per-character
     SPELL_ATTR10_UNK30                            = 0x40000000, // 30
     SPELL_ATTR10_UNK31                            = 0x80000000  // 31
 };
