@@ -68,6 +68,29 @@ class npc_pet_mage_mirror_image : public CreatureScript
                     me->GetMotionMaster()->Clear(false);
                     me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
                 }
+
+                // prefer owners victim 
+                if (owner && owner->GetVictim() && !owner->GetVictim()->HasBreakableByDamageCrowdControlAura(owner))
+                    me->Attack(owner->GetVictim(), false);
+                else
+                {
+                    if (!owner)
+                        return;
+
+                    // lets find victim
+                    std::list<Unit*> targets;
+                    Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
+                    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+                    me->VisitNearbyObject(30.0f, searcher);
+                    for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                    {
+                        if (!(*iter)->HasBreakableByDamageCrowdControlAura((*iter)))
+                        {
+                            me->Attack((*iter), false);
+                            break;
+                        }
+                    }
+                }
             }
         };
 
