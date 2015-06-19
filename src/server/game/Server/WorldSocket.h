@@ -72,6 +72,8 @@ class WorldSocket : public Socket<WorldSocket>
     static std::string const ClientConnectionInitialize;
     static uint32 const MinSizeForCompression;
 
+    typedef Socket<WorldSocket> BaseSocket;
+
 public:
     WorldSocket(tcp::socket&& socket);
     ~WorldSocket();
@@ -80,6 +82,7 @@ public:
     WorldSocket& operator=(WorldSocket const& right) = delete;
 
     void Start() override;
+    bool Update() override;
 
     void SendPacket(WorldPacket const& packet);
 
@@ -94,6 +97,8 @@ protected:
     bool ReadHeaderHandler();
     bool ReadDataHandler();
 private:
+    void CheckIpCallback(PreparedQueryResult result);
+
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
     void LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex> const& guard) const;
@@ -103,8 +108,11 @@ private:
     uint32 CompressPacket(uint8* buffer, WorldPacket const& packet);
 
     void HandleSendAuthSession();
-    void HandleAuthSession(WorldPackets::Auth::AuthSession& authSession);
-    void HandleAuthContinuedSession(WorldPackets::Auth::AuthContinuedSession& authSession);
+    void HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession);
+    void HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession, PreparedQueryResult result);
+    void HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession);
+    void HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession, PreparedQueryResult result);
+    void LoadSessionPermissionsCallback(PreparedQueryResult result);
     void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
 
     bool HandlePing(WorldPacket& recvPacket);
@@ -131,6 +139,11 @@ private:
     z_stream_s* _compressionStream;
 
     bool _initialized;
+
+    std::mutex _queryLock;
+    PreparedQueryResultFuture _queryFuture;
+    std::function<void(PreparedQueryResult)> _queryCallback;
+    std::string _ipCountry;
 };
 
 #endif

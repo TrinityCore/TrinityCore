@@ -907,6 +907,8 @@ class RBACData
 
         /// Loads all permissions assigned to current account
         void LoadFromDB();
+        PreparedQueryResultFuture LoadFromDBAsync();
+        void LoadFromDBCallback(PreparedQueryResult result);
 
         /// Sets security level
         void SetSecurityLevel(uint8 id)
