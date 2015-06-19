@@ -677,8 +677,8 @@ bool Battlenet::Session::Update()
 
     if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        _queryCallback(_queryFuture.get());
-        _queryCallback = nullptr;
+        auto callback = std::move(_queryCallback);
+        callback(_queryFuture.get());
     }
 
     return true;

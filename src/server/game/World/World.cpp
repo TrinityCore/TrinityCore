@@ -282,14 +282,7 @@ void World::AddSession_(WorldSession* s)
         return;
     }
 
-    s->SendAuthResponse(AUTH_OK, false);
-
-    s->SendSetTimeZoneInformation();
-    s->SendFeatureSystemStatusGlueScreen();
-
-    s->SendAddonsInfo();
-    s->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-    s->SendTutorialsData();
+    s->InitializeSession();
 
     UpdateMaxSessionCounters();
 
@@ -394,18 +387,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
     if ((!m_playerLimit || sessions < m_playerLimit) && !m_QueuedPlayer.empty())
     {
         WorldSession* pop_sess = m_QueuedPlayer.front();
-        pop_sess->SetInQueue(false);
-        pop_sess->ResetTimeOutTime();
-        pop_sess->SendAuthWaitQue(0);
-
-        pop_sess->SendSetTimeZoneInformation();
-        pop_sess->SendFeatureSystemStatusGlueScreen();
-
-        pop_sess->SendAddonsInfo();
-
-        pop_sess->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-        pop_sess->SendTutorialsData();
-
+        pop_sess->InitializeSession();
         m_QueuedPlayer.pop_front();
 
         // update iter to point first queued socket or end() if queue is empty now
