@@ -66,69 +66,6 @@ public:
 
             switch (creature->GetEntry())
             {
-                // Champions mount
-                case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT);
-                    break;
-                case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_AMBROSE_BOLTSPARK_MOUNT);
-                    break;
-                case VEHICLE_RUNOK_WILDMANE_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_COLOSOS_MOUNT);
-                    break;
-                case VEHICLE_ZUL_TORE_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_EVENSONG_MOUNT);
-                    break;
-                case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_LANA_STOUTHAMMER_MOUNT);
-                    break;
-                //
-                case NPC_UNDERCITY_CHAMPION:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(NPC_IRONFORGE_CHAMPION);
-                    break;
-                case NPC_THUNDERBLUFF_CHAMPION:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(NPC_EXODAR_CHAMPION);
-                    break;
-                case NPC_ORGRIMMAR_CHAMPION:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(NPC_STORMWIND_CHAMPION);
-                    break;
-                case NPC_SILVERMOON_CHAMPION:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(NPC_GNOMEREGAN_CHAMPION);
-                    break;
-                case NPC_SENJIN_CHAMPION:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(NPC_DARNASSUS_CHAMPION);
-                    break;
-                // Grand champions
-                case NPC_MOKRA:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(NPC_JACOB);
-                    break;
-                case NPC_ERESSEA:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(NPC_AMBROSE);
-                    break;
-                case NPC_RUNOK:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(NPC_COLOSOS);
-                    break;
-                case NPC_ZULTORE:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(NPC_JAELYNE);
-                    break;
-                case NPC_VISCERI:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(NPC_LANA);
-                    break;
                 // Coliseum Announcer || Just NPC_JAEREN must be spawned.
                 case NPC_JAEREN:
                     uiAnnouncerGUID = creature->GetGUID();

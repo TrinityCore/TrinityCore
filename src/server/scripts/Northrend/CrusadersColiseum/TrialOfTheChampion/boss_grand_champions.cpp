@@ -298,91 +298,115 @@ public:
     }
 };
 
+struct boss_grand_championAI : public ScriptedAI
+{
+    boss_grand_championAI(Creature* creature) : ScriptedAI(creature)
+    {
+        _instance = creature->GetInstanceScript();
+
+        _phase = 0;
+        _phaseTimer = 0;
+
+        _done = false;
+        _home = false;
+
+        Initialize();
+        GuidDataAdder(creature);
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    virtual void Initialize() = 0;
+
+    void Reset() override
+    {
+        Initialize();
+    }
+
+    void JustReachedHome() override
+    {
+        ScriptedAI::JustReachedHome();
+
+        if (!_home)
+            return;
+
+        _phase = 1;
+        _phaseTimer = 15000;
+
+        _home = false;
+    }
+
+    void DoAction(int32 actionId) override
+    {
+        if (actionId == 1)
+        {
+            if (me->GetGUID() == _instance->GetGuidData(DATA_GRAND_CHAMPION_1))
+                me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
+            else if (me->GetGUID() == _instance->GetGuidData(DATA_GRAND_CHAMPION_2))
+                me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
+            else if (me->GetGUID() == _instance->GetGuidData(DATA_GRAND_CHAMPION_3))
+                me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
+
+            _instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+
+            _home = true;
+            me->GetMotionMaster()->MoveTargetedHome();
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
+        _instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_phaseTimer <= diff)
+        {
+            if (_phase == 1)
+            {
+                AggroAllPlayers(me);
+                _phase = 0;
+            }
+        }
+        else
+            _phaseTimer -= diff;
+    }
+
+protected:
+    InstanceScript* _instance;
+
+    uint8 _phase;
+    uint32 _phaseTimer;
+
+    bool _done;
+    bool _home;
+};
+
 class boss_warrior_toc5 : public CreatureScript
 {
 public:
     boss_warrior_toc5() : CreatureScript("boss_warrior_toc5") { }
 
     // Marshal Jacob Alerius && Mokra the Skullcrusher || Warrior
-    struct boss_warrior_toc5AI : public ScriptedAI
+    struct boss_warrior_toc5AI : public boss_grand_championAI
     {
-        boss_warrior_toc5AI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-            GuidDataAdder(me);
+        boss_warrior_toc5AI(Creature* creature) : boss_grand_championAI(creature) { }
 
-            bDone = false;
-            bHome = false;
-
-            uiPhase = 0;
-            uiPhaseTimer = 0;
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void Initialize()
+        void Initialize() override
         {
             uiBladeStormTimer = urand(15000, 20000);
             uiInterceptTimer = 7000;
             uiMortalStrikeTimer = urand(8000, 12000);
         }
 
-        InstanceScript* instance;
-
-        uint8 uiPhase;
-        uint32 uiPhaseTimer;
-
         uint32 uiBladeStormTimer;
         uint32 uiInterceptTimer;
         uint32 uiMortalStrikeTimer;
 
-        bool bDone;
-        bool bHome;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustReachedHome() override
-        {
-            if (!bHome)
-                return;
-
-            uiPhaseTimer = 15000;
-            uiPhase = 1;
-
-            bHome = false;
-        }
-
-        void DoAction(int32 actionId) override
-        {
-            if (actionId == 1)
-            {
-                if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
-                    me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
-                    me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
-
-                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
-
-                bHome = true;
-                me->GetMotionMaster()->MoveTargetedHome();
-            }
-        }
-
         void UpdateAI(uint32 uiDiff) override
         {
-            if (uiPhaseTimer <= uiDiff)
-            {
-                if (uiPhase == 1)
-                {
-                    AggroAllPlayers(me);
-                    uiPhase = 0;
-                }
-            } else uiPhaseTimer -= uiDiff;
+            boss_grand_championAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
@@ -421,12 +445,6 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
-            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
-        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -441,24 +459,11 @@ public:
     boss_mage_toc5() : CreatureScript("boss_mage_toc5") { }
 
     // Ambrose Boltspark && Eressea Dawnsinger || Mage
-    struct boss_mage_toc5AI : public ScriptedAI
+    struct boss_mage_toc5AI : public boss_grand_championAI
     {
-        boss_mage_toc5AI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-            GuidDataAdder(me);
+        boss_mage_toc5AI(Creature* creature) : boss_grand_championAI(creature) { }
 
-            bDone = false;
-            bHome = false;
-
-            uiPhase = 0;
-            uiPhaseTimer = 0;
-
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void Initialize()
+        void Initialize() override
         {
             uiFireBallTimer = 5000;
             uiPolymorphTimer = 8000;
@@ -466,70 +471,14 @@ public:
             uiHasteTimer = 22000;
         }
 
-        InstanceScript* instance;
-
-        uint8 uiPhase;
-        uint32 uiPhaseTimer;
-
         uint32 uiFireBallTimer;
         uint32 uiBlastWaveTimer;
         uint32 uiHasteTimer;
         uint32 uiPolymorphTimer;
 
-        bool bDone;
-        bool bHome;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustReachedHome() override
-        {
-            if (!bHome)
-                return;
-
-            uiPhaseTimer = 15000;
-            uiPhase = 1;
-
-            bHome = false;
-        }
-
-        void DoAction(int32 actionId) override
-        {
-            if (actionId == 1)
-            {
-                if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
-                    me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
-                    me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
-
-                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
-
-                bHome = true;
-                me->GetMotionMaster()->MoveTargetedHome();
-            }
-        }
-
         void UpdateAI(uint32 uiDiff) override
         {
-            if (uiPhaseTimer <= uiDiff)
-            {
-                if (uiPhase == 1)
-                {
-                    AggroAllPlayers(me);
-                    uiPhase = 0;
-                }
-            }else uiPhaseTimer -= uiDiff;
-
-            if (uiFireBallTimer <= uiDiff)
-            {
-                if (me->GetVictim())
-                    DoCastVictim(SPELL_FIREBALL);
-                uiFireBallTimer = 5000;
-            } else uiFireBallTimer -= uiDiff;
+            boss_grand_championAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
@@ -563,12 +512,6 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
-            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
-        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -583,24 +526,11 @@ public:
     boss_shaman_toc5() : CreatureScript("boss_shaman_toc5") { }
 
     // Colosos && Runok Wildmane || Shaman
-    struct boss_shaman_toc5AI : public ScriptedAI
+    struct boss_shaman_toc5AI : public boss_grand_championAI
     {
-        boss_shaman_toc5AI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-            GuidDataAdder(me);
+        boss_shaman_toc5AI(Creature* creature) : boss_grand_championAI(creature) { }
 
-            bDone = false;
-            bHome = false;
-
-            uiPhase = 0;
-            uiPhaseTimer = 0;
-
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void Initialize()
+        void Initialize() override
         {
             uiChainLightningTimer = 16000;
             uiHealingWaveTimer = 12000;
@@ -608,23 +538,10 @@ public:
             uiHexMendingTimer = urand(20000, 25000);
         }
 
-        InstanceScript* instance;
-
-        uint8 uiPhase;
-        uint32 uiPhaseTimer;
-
         uint32 uiChainLightningTimer;
         uint32 uiEartShieldTimer;
         uint32 uiHealingWaveTimer;
         uint32 uiHexMendingTimer;
-
-        bool bDone;
-        bool bHome;
-
-        void Reset() override
-        {
-            Initialize();
-        }
 
         void EnterCombat(Unit* who) override
         {
@@ -632,45 +549,9 @@ public:
             DoCast(who, SPELL_HEX_OF_MENDING);
         };
 
-        void JustReachedHome() override
-        {
-            if (!bHome)
-                return;
-
-            uiPhaseTimer = 15000;
-            uiPhase = 1;
-
-            bHome = false;
-        }
-
-        void DoAction(int32 actionId) override
-        {
-            if (actionId == 1)
-            {
-                if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
-                    me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
-                    me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
-
-                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
-
-                bHome = true;
-                me->GetMotionMaster()->MoveTargetedHome();
-            }
-        }
-
         void UpdateAI(uint32 uiDiff) override
         {
-            if (uiPhaseTimer <= uiDiff)
-            {
-                if (uiPhase == 1)
-                {
-                    AggroAllPlayers(me);
-                    uiPhase = 0;
-                }
-            } else uiPhaseTimer -= uiDiff;
+            boss_grand_championAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
@@ -713,12 +594,6 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
-            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
-        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -732,25 +607,12 @@ class boss_hunter_toc5 : public CreatureScript
 public:
     boss_hunter_toc5() : CreatureScript("boss_hunter_toc5") { }
 
-        // Jaelyne Evensong && Zul'tore || Hunter
-    struct boss_hunter_toc5AI : public ScriptedAI
+    // Jaelyne Evensong && Zul'tore || Hunter
+    struct boss_hunter_toc5AI : public boss_grand_championAI
     {
-        boss_hunter_toc5AI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-            GuidDataAdder(me);
+        boss_hunter_toc5AI(Creature* creature) : boss_grand_championAI(creature) { }
 
-            bDone = false;
-            bHome = false;
-
-            uiPhase = 0;
-            uiPhaseTimer = 0;
-
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void Initialize()
+        void Initialize() override
         {
             uiShootTimer = 12000;
             uiMultiShotTimer = 0;
@@ -761,11 +623,6 @@ public:
             bShoot = false;
         }
 
-        InstanceScript* instance;
-
-        uint8 uiPhase;
-        uint32 uiPhaseTimer;
-
         uint32 uiShootTimer;
         uint32 uiMultiShotTimer;
         uint32 uiLightningArrowsTimer;
@@ -773,55 +630,10 @@ public:
         ObjectGuid uiTargetGUID;
 
         bool bShoot;
-        bool bDone;
-        bool bHome;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustReachedHome() override
-        {
-            ScriptedAI::JustReachedHome();
-
-            if (!bHome)
-                return;
-
-            uiPhaseTimer = 15000;
-            uiPhase = 1;
-
-            bHome = false;
-        }
-
-        void DoAction(int32 actionId) override
-        {
-            if (actionId == 1)
-            {
-                if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
-                    me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
-                    me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
-
-                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
-
-                bHome = true;
-                me->GetMotionMaster()->MoveTargetedHome();
-            }
-        }
 
         void UpdateAI(uint32 uiDiff) override
         {
-            if (uiPhaseTimer <= uiDiff)
-            {
-                if (uiPhase == 1)
-                {
-                    AggroAllPlayers(me);
-                    uiPhase = 0;
-                }
-            } else uiPhaseTimer -= uiDiff;
+            boss_grand_championAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
@@ -874,12 +686,6 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
-            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
-        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -894,87 +700,24 @@ public:
     boss_rouge_toc5() : CreatureScript("boss_rouge_toc5") { }
 
     // Lana Stouthammer Evensong && Deathstalker Visceri || Rouge
-    struct boss_rouge_toc5AI : public ScriptedAI
+    struct boss_rouge_toc5AI : public boss_grand_championAI
     {
-        boss_rouge_toc5AI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-            GuidDataAdder(me);
+        boss_rouge_toc5AI(Creature* creature) : boss_grand_championAI(creature) { }
 
-            bDone = false;
-            bHome = false;
-
-            uiPhase = 0;
-            uiPhaseTimer = 0;
-
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void Initialize()
+        void Initialize() override
         {
             uiEviscerateTimer = 8000;
             uiFanKivesTimer = 14000;
             uiPosionBottleTimer = 19000;
         }
 
-        InstanceScript* instance;
-
-        uint8 uiPhase;
-        uint32 uiPhaseTimer;
         uint32 uiEviscerateTimer;
         uint32 uiFanKivesTimer;
         uint32 uiPosionBottleTimer;
 
-        bool bDone;
-        bool bHome;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustReachedHome() override
-        {
-            ScriptedAI::JustReachedHome();
-
-            if (!bHome)
-                return;
-
-            uiPhaseTimer = 15000;
-            uiPhase = 1;
-
-            bHome = false;
-        }
-
-        void DoAction(int32 actionId) override
-        {
-            if (actionId == 1)
-            {
-                if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
-                    me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
-                    me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
-
-                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
-
-                bHome = true;
-                me->GetMotionMaster()->MoveTargetedHome();
-            }
-        }
-
         void UpdateAI(uint32 uiDiff) override
         {
-            if (uiPhaseTimer <= uiDiff)
-            {
-                if (uiPhase == 1)
-                {
-                    AggroAllPlayers(me);
-                    uiPhase = 0;
-                }
-            } else uiPhaseTimer -= uiDiff;
+            boss_grand_championAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
@@ -999,12 +742,6 @@ public:
             } else uiPosionBottleTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(DATA_GRAND_CHAMPION_ENTRY, me->GetEntry());
-            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 

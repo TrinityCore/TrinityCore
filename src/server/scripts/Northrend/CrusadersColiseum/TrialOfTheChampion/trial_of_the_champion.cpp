@@ -76,6 +76,42 @@ enum Yells
 
 #define ORIENTATION             4.714f
 
+struct GrandChampionInfo
+{
+    uint32 GrandChampionEntry[2];
+    uint32 FactionChampionEntry[2];
+    uint8 AnnounceText;
+};
+
+GrandChampionInfo const GrandChampionData[5] =
+{
+    {
+        { VEHICLE_MOKRA_SKILLCRUSHER_MOUNT,   VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT },
+        { NPC_ORGRIMMAR_CHAMPION,             NPC_STORMWIND_CHAMPION              },
+        ANNOUNCER_WARRIOR
+    },
+    {
+        { VEHICLE_ERESSEA_DAWNSINGER_MOUNT,   VEHICLE_AMBROSE_BOLTSPARK_MOUNT     },
+        { NPC_SILVERMOON_CHAMPION,            NPC_GNOMEREGAN_CHAMPION             },
+        ANNOUNCER_MAGE
+    },
+    {
+        { VEHICLE_RUNOK_WILDMANE_MOUNT,       VEHICLE_COLOSOS_MOUNT               },
+        { NPC_THUNDERBLUFF_CHAMPION,          NPC_EXODAR_CHAMPION                 },
+        ANNOUNCER_SHAMAN
+    },
+    {
+        { VEHICLE_ZUL_TORE_MOUNT,             VEHICLE_EVENSONG_MOUNT              },
+        { NPC_SENJIN_CHAMPION,                NPC_DARNASSUS_CHAMPION              },
+        ANNOUNCER_HUNTER
+    },
+    {
+        { VEHICLE_DEATHSTALKER_VESCERI_MOUNT, VEHICLE_LANA_STOUTHAMMER_MOUNT      },
+        { NPC_UNDERCITY_CHAMPION,             NPC_IRONFORGE_CHAMPION              },
+        ANNOUNCER_ROUGUE
+    }
+};
+
 /*######
 ## npc_announcer_toc5
 ######*/
@@ -126,10 +162,6 @@ public:
 
         uint32 uiPhase;
         uint32 uiTimer;
-
-        ObjectGuid uiVehicle1GUID;
-        ObjectGuid uiVehicle2GUID;
-        ObjectGuid uiVehicle3GUID;
 
         GuidList Champion1List;
         GuidList Champion2List;
@@ -186,9 +218,9 @@ public:
 
         void StartGrandChampionsAttack()
         {
-            Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, uiVehicle1GUID);
-            Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, uiVehicle2GUID);
-            Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, uiVehicle3GUID);
+            Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1));
+            Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2));
+            Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3));
 
             if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
             {
@@ -207,74 +239,28 @@ public:
                 me->SetFacingTo(ORIENTATION);
         }
 
-        void DoSummonGrandChampion(uint32 uiBoss)
+        void DoSummonGrandChampion(uint32 bossId)
         {
-            ++uiSummonTimes;
-            uint32 VEHICLE_TO_SUMMON1 = 0;
-            uint32 VEHICLE_TO_SUMMON2 = 0;
-            switch (uiBoss)
-            {
-                case 0:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
-                    VEHICLE_TO_SUMMON2 = NPC_ORGRIMMAR_CHAMPION;
-                    break;
-                    Talk(ANNOUNCER_WARRIOR);
-                case 1:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
-                    VEHICLE_TO_SUMMON2 = NPC_SILVERMOON_CHAMPION;
-                    Talk(ANNOUNCER_MAGE);
-                    break;
-                case 2:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_RUNOK_WILDMANE_MOUNT;
-                    VEHICLE_TO_SUMMON2 = NPC_THUNDERBLUFF_CHAMPION;
-                    Talk(ANNOUNCER_SHAMAN);
-                    break;
-                case 3:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_ZUL_TORE_MOUNT;
-                    VEHICLE_TO_SUMMON2 = NPC_SENJIN_CHAMPION;
-                    Talk(ANNOUNCER_HUNTER);
-                    break;
-                case 4:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
-                    VEHICLE_TO_SUMMON2 = NPC_UNDERCITY_CHAMPION;
-                    Talk(ANNOUNCER_ROUGUE);
-                    break;
-                default:
-                    return;
-            }
+            if (bossId >= 5)
+                return;
 
-            if (Creature* pBoss = me->SummonCreature(VEHICLE_TO_SUMMON1, SpawnPosition))
+            uint32 teamIndex = instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? 1 : 0;
+            GrandChampionInfo const* info = &GrandChampionData[bossId];
+
+            ++uiSummonTimes;
+            if (uiSummonTimes > 3)
+                return;
+
+            Talk(info->AnnounceText);
+
+            if (Creature* boss = me->SummonCreature(info->GrandChampionEntry[teamIndex], SpawnPosition))
             {
-                switch (uiSummonTimes)
-                {
-                    case 1:
-                    {
-                        uiVehicle1GUID = pBoss->GetGUID();
-                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1, uiVehicle1GUID);
-                        pBoss->AI()->SetData(1, 0);
-                        break;
-                    }
-                    case 2:
-                    {
-                        uiVehicle2GUID = pBoss->GetGUID();
-                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2, uiVehicle2GUID);
-                        pBoss->AI()->SetData(2, 0);
-                        break;
-                    }
-                    case 3:
-                    {
-                        uiVehicle3GUID = pBoss->GetGUID();
-                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3, uiVehicle3GUID);
-                        pBoss->AI()->SetData(3, 0);
-                        break;
-                    }
-                    default:
-                        return;
-                }
+                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1 + uiSummonTimes - 1, boss->GetGUID());
+                boss->AI()->SetData(uiSummonTimes, 0);
 
                 for (uint8 i = 0; i < 3; ++i)
                 {
-                    if (Creature* pAdd = me->SummonCreature(VEHICLE_TO_SUMMON2, SpawnPosition))
+                    if (Creature* pAdd = me->SummonCreature(info->FactionChampionEntry[teamIndex], SpawnPosition))
                     {
                         switch (uiSummonTimes)
                         {
@@ -292,13 +278,13 @@ public:
                         switch (i)
                         {
                             case 0:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI));
+                                pAdd->GetMotionMaster()->MoveFollow(boss, 2.0f, float(M_PI));
                                 break;
                             case 1:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2);
+                                pAdd->GetMotionMaster()->MoveFollow(boss, 2.0f, float(M_PI) / 2);
                                 break;
                             case 2:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2 + float(M_PI));
+                                pAdd->GetMotionMaster()->MoveFollow(boss, 2.0f, float(M_PI) / 2 + float(M_PI));
                                 break;
                         }
                     }
