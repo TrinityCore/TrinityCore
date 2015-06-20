@@ -41,6 +41,19 @@ enum BaseLocation
     LOCATION_DOWNLOAD
 };
 
+struct UpdateResult
+{
+    UpdateResult()
+        : updated(0), recent(0), archived(0) { }
+
+    UpdateResult(size_t const updated_, size_t const recent_, size_t const archived_)
+        : updated(updated_), recent(recent_), archived(archived_) { }
+
+    size_t updated;
+    size_t recent;
+    size_t archived;
+};
+
 template <class T>
 class DBUpdater
 {
