@@ -31,6 +31,7 @@
 #include "SocialMgr.h"
 #include "Opcodes.h"
 #include "ChatPackets.h"
+#include "CalendarPackets.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -2533,15 +2534,12 @@ void Guild::BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint
 
 void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank)
 {
-    uint32 count = 0;
-
-    WorldPacket data(SMSG_CALENDAR_EVENT_INITIAL_INVITES);
-    data << uint32(count); // count placeholder
+    WorldPackets::Calendar::CalendarEventInitialInvites packet;
 
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         // not sure if needed, maybe client checks it as well
-        if (count >= CALENDAR_MAX_INVITES)
+        if (packet.Invites.size() >= CALENDAR_MAX_INVITES)
         {
             if (Player* player = session->GetPlayer())
                 sCalendarMgr->SendCalendarCommandResult(player->GetGUID(), CALENDAR_ERROR_INVITES_EXCEEDED);
@@ -2552,16 +2550,10 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
         uint32 level = Player::GetLevelFromDB(member->GetGUID());
 
         if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
-        {
-            data << member->GetGUID();
-            data << uint8(level);
-            ++count;
-        }
+            packet.Invites.emplace_back(member->GetGUID(), level);
     }
 
-    data.put<uint32>(0, count);
-
-    session->SendPacket(&data);
+    session->SendPacket(packet.Write());
 }
 
 // Members handling
