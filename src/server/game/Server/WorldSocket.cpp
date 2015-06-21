@@ -77,8 +77,11 @@ void WorldSocket::Start()
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
-    _queryCallback = std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    {
+        std::lock_guard<std::mutex> guard(_queryLock);
+        _queryCallback = io_service().wrap(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1));
+        _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    }
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
@@ -124,7 +127,7 @@ bool WorldSocket::Update()
         return false;
 
     {
-        std::lock_guard<std::mutex> lock(_queryLock);
+        std::lock_guard<std::mutex> guard(_queryLock);
         if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
         {
             auto callback = std::move(_queryCallback);
@@ -584,14 +587,17 @@ struct AccountInfo
 
 void WorldSocket::HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession)
 {
+    // Client switches packet headers after sending CMSG_AUTH_SESSION
+    _headerBuffer.Resize(SizeOfClientHeader[1][1]);
+
     // Get the account information from the auth database
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
     stmt->setInt32(0, int32(realmHandle.Index));
     stmt->setString(1, authSession->Account);
 
     {
-        std::lock_guard<std::mutex> lock(_queryLock);
-        _queryCallback = std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1);
+        std::lock_guard<std::mutex> guard(_queryLock);
+        _queryCallback = io_service().wrap(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1));
         _queryFuture = LoginDatabase.AsyncQuery(stmt);
     }
 }
@@ -622,7 +628,6 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     // even if auth credentials are bad, try using the session key we have - client cannot read auth response error without it
     _authCrypt.Init(&account.Game.SessionKey);
-    _headerBuffer.Resize(SizeOfClientHeader[1][1]);
 
     // First reject the connection if packet contains invalid data or realm state doesn't allow logging in
     if (sWorld->IsClosed())
@@ -759,7 +764,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     if (wardenActive)
         _worldSession->InitWarden(&account.Game.SessionKey, account.BattleNet.OS);
 
-    _queryCallback = std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1);
+    _queryCallback = io_service().wrap(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1));
     _queryFuture = _worldSession->LoadPermissionsAsync();
 }
 
@@ -781,13 +786,16 @@ void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth:
         return;
     }
 
+    // Client switches packet headers after sending CMSG_AUTH_CONTINUED_SESSION
+    _headerBuffer.Resize(SizeOfClientHeader[1][1]);
+
     uint32 accountId = PAIR64_LOPART(authSession->Key);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION);
     stmt->setUInt32(0, accountId);
 
     {
-        std::lock_guard<std::mutex> lock(_queryLock);
-        _queryCallback = std::bind(&WorldSocket::HandleAuthContinuedSessionCallback, this, authSession, std::placeholders::_1);
+        std::lock_guard<std::mutex> guard(_queryLock);
+        _queryCallback = io_service().wrap(std::bind(&WorldSocket::HandleAuthContinuedSessionCallback, this, authSession, std::placeholders::_1));
         _queryFuture = LoginDatabase.AsyncQuery(stmt);
     }
 }
@@ -808,7 +816,6 @@ void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPacket
     k.SetHexStr(fields[1].GetCString());
 
     _authCrypt.Init(&k, _encryptSeed.AsByteArray().get(), _decryptSeed.AsByteArray().get());
-    _headerBuffer.Resize(SizeOfClientHeader[1][1]);
 
     SHA1Hash sha;
     sha.UpdateData(login);
