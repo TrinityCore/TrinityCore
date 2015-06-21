@@ -7799,7 +7799,7 @@ void ObjectMgr::LoadCreatureOutfits()
     //                                                 0     1      2      3     4     5       6           7
     QueryResult result = WorldDatabase.Query("SELECT entry, race, gender, skin, face, hair, haircolor, facialhair, "
         //8       9        10    11     12     13    14     15     16     17     18
-        "head, shoulders, body, chest, waist, legs, feet, wrists, hands, back, tabard FROM creature_template_outfits");
+        "head, shoulders, body, chest, waist, legs, feet, wrists, hands, tabard, back FROM creature_template_outfits");
 
     if (!result)
     {
