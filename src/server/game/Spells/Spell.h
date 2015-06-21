@@ -409,6 +409,7 @@ class Spell
         void EffectLearnGarrisonBuilding(SpellEffIndex effIndex);
         void EffectCreateGarrison(SpellEffIndex effIndex);
         void EffectAddGarrisonFollower(SpellEffIndex effIndex);
+        void EffectActivateGarrisonBuilding(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
