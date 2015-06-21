@@ -185,13 +185,13 @@ std::string WorldSession::GetPlayerInfo() const
 {
     std::ostringstream ss;
 
-    ss << "[Player: " << GetPlayerName() << " (";
-    if (_player)
-        ss << _player->GetGUID().ToString() << ", ";
-    else if (!m_playerLoading.IsEmpty())
+    ss << "[Player: ";
+    if (!m_playerLoading.IsEmpty())
         ss << "Logging in: " << m_playerLoading.ToString() << ", ";
+    else if (_player)
+        ss << _player->GetName() << ' ' << _player->GetGUID().ToString() << ", ";
 
-    ss << "Account: " << GetAccountId() << ")]";
+    ss << "Account: " << GetAccountId() << "]";
 
     return ss.str();
 }
@@ -1079,7 +1079,15 @@ void WorldSession::InitWarden(BigNumber* k, std::string const& os)
         _warden = new WardenWin();
         _warden->Init(this, k);
     }
-    else if (os == "OSX")
+    else if (os == "Wn64")
+    {
+        // Not implemented
+    }
+    else if (os == "Mc64")
+    {
+        // Not implemented
+    }
+    else if (os == "Mac")
     {
         // Disabled as it is causing the client to crash
         // _warden = new WardenMac();
