@@ -17,7 +17,6 @@
 
 #include "RBAC.h"
 #include "AccountMgr.h"
-#include "DatabaseEnv.h"
 #include "Log.h"
 
 namespace rbac
