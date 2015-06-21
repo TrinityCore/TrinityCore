@@ -154,17 +154,27 @@ UpdateFetcher::SQLUpdate UpdateFetcher::ReadSQLUpdate(boost::filesystem::path co
     return update;
 }
 
-uint32 UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash, bool const archivedRedundancy, int32 const cleanDeadReferencesMaxCount) const
+UpdateResult UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash, bool const archivedRedundancy, int32 const cleanDeadReferencesMaxCount) const
 {
     LocaleFileStorage const available = GetFileList();
     AppliedFileStorage applied = ReceiveAppliedFiles();
+
+    size_t countRecentUpdates = 0;
+    size_t countArchivedUpdates = 0;
+
+    // Count updates
+    for (auto const& entry : applied)
+        if (entry.second.state == RELEASED)
+            ++countRecentUpdates;
+        else
+            ++countArchivedUpdates;
 
     // Fill hash to name cache
     HashToFileNameStorage hashToName;
     for (auto entry : applied)
         hashToName.insert(std::make_pair(entry.second.hash, entry.first));
 
-    uint32 importedUpdates = 0;
+    size_t importedUpdates = 0;
 
     for (auto const& availableQuery : available)
     {
@@ -314,7 +324,7 @@ uint32 UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash
         }
     }
 
-    return importedUpdates;
+    return UpdateResult(importedUpdates, countRecentUpdates, countArchivedUpdates);
 }
 
 std::string UpdateFetcher::CalculateHash(SQLUpdate const& query) const
@@ -329,7 +339,6 @@ std::string UpdateFetcher::CalculateHash(SQLUpdate const& query) const
 uint32 UpdateFetcher::Apply(Path const& path) const
 {
     using Time = std::chrono::high_resolution_clock;
-    using ms = std::chrono::milliseconds;
 
     // Benchmark query speed
     auto const begin = Time::now();
@@ -338,7 +347,7 @@ uint32 UpdateFetcher::Apply(Path const& path) const
     _applyFile(path);
 
     // Return time the query took to apply
-    return std::chrono::duration_cast<ms>(Time::now() - begin).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(Time::now() - begin).count();
 }
 
 void UpdateFetcher::UpdateEntry(AppliedFileEntry const& entry, uint32 const speed) const
