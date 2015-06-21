@@ -40,8 +40,11 @@ void WorldSocket::Start()
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
-    _queryCallback = std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    {
+        std::lock_guard<std::mutex> guard(_queryLock);
+        _queryCallback = io_service().wrap(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1));
+        _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    }
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
@@ -79,7 +82,7 @@ bool WorldSocket::Update()
         return false;
 
     {
-        std::lock_guard<std::mutex> lock(_queryLock);
+        std::lock_guard<std::mutex> guard(_queryLock);
         if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
         {
             auto callback = std::move(_queryCallback);
@@ -394,8 +397,8 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt->setString(1, authSession->Account);
 
     {
-        std::lock_guard<std::mutex> lock(_queryLock);
-        _queryCallback = std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1);
+        std::lock_guard<std::mutex> guard(_queryLock);
+        _queryCallback = io_service().wrap(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1));
         _queryFuture = LoginDatabase.AsyncQuery(stmt);
     }
 }
@@ -554,7 +557,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     if (wardenActive)
         _worldSession->InitWarden(&account.SessionKey, account.OS);
 
-    _queryCallback = std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1);
+    _queryCallback = io_service().wrap(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1));
     _queryFuture = _worldSession->LoadPermissionsAsync();
 }
 

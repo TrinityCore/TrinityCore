@@ -99,7 +99,7 @@ private:
 
     std::mutex _queryLock;
     PreparedQueryResultFuture _queryFuture;
-    std::function<void(PreparedQueryResult)> _queryCallback;
+    std::function<void(PreparedQueryResult&&)> _queryCallback;
     std::string _ipCountry;
 };
 
