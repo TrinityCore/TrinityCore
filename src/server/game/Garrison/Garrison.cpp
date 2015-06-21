@@ -133,7 +133,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
     return true;
 }
 
-void Garrison::SaveToDB(SQLTransaction& trans)
+void Garrison::SaveToDB(SQLTransaction trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
@@ -429,6 +429,27 @@ void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
     }
     else
         _owner->SendDirectMessage(buildingRemoved.Write());
+}
+
+void Garrison::ActivateBuilding(uint32 garrPlotInstanceId)
+{
+    if (Plot* plot = GetPlot(garrPlotInstanceId))
+    {
+        if (plot->BuildingInfo.CanActivate() && plot->BuildingInfo.PacketInfo && !plot->BuildingInfo.PacketInfo->Active)
+        {
+            plot->BuildingInfo.PacketInfo->Active = true;
+            if (Map* map = FindMap())
+            {
+                plot->DeleteGameObject(map);
+                if (GameObject* go = plot->CreateGameObject(map, GetFaction()))
+                    map->AddToMap(go);
+            }
+
+            WorldPackets::Garrison::GarrisonBuildingActivated buildingActivated;
+            buildingActivated.GarrPlotInstanceID = garrPlotInstanceId;
+            _owner->SendDirectMessage(buildingActivated.Write());
+        }
+    }
 }
 
 void Garrison::AddFollower(uint32 garrFollowerId)
