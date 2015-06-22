@@ -58,6 +58,7 @@ void GarrisonMgr::Initialize()
     }
 
     InitializeDbIdSequences();
+    LoadPlotFinalizeGOInfo();
     LoadFollowerClassSpecAbilities();
 }
 
@@ -117,6 +118,15 @@ GarrBuildingEntry const* GarrisonMgr::GetPreviousLevelBuilding(uint32 buildingTy
         for (GarrBuildingEntry const* building : itr->second)
             if (building->Level == currentLevel - 1)
                 return building;
+
+    return nullptr;
+}
+
+FinalizeGarrisonPlotGOInfo const* GarrisonMgr::GetPlotFinalizeGOInfo(uint32 garrPlotInstanceID) const
+{
+    auto itr = _finalizePlotGOInfo.find(garrPlotInstanceID);
+    if (itr != _finalizePlotGOInfo.end())
+        return &itr->second;
 
     return nullptr;
 }
@@ -312,6 +322,92 @@ void GarrisonMgr::InitializeDbIdSequences()
         _followerDbIdGenerator = (*result)[0].GetUInt64() + 1;
 }
 
+void GarrisonMgr::LoadPlotFinalizeGOInfo()
+{
+    //                                                                0                  1       2       3       4       5               6
+    QueryResult result = WorldDatabase.Query("SELECT garrPlotInstanceId, hordeGameObjectId, hordeX, hordeY, hordeZ, hordeO, hordeAnimKitId, "
+    //                      7          8          9         10         11                 12
+        "allianceGameObjectId, allianceX, allianceY, allianceZ, allianceO, allianceAnimKitId FROM garrison_plot_finalize_info");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 garrison follower class spec abilities. DB table `garrison_plot_finalize_info` is empty.");
+        return;
+    }
+
+    uint32 msTime = getMSTime();
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 garrPlotInstanceId = fields[0].GetUInt32();
+        uint32 hordeGameObjectId = fields[1].GetUInt32();
+        uint32 allianceGameObjectId = fields[7].GetUInt32();
+        uint16 hordeAnimKitId = fields[6].GetUInt16();
+        uint16 allianceAnimKitId = fields[12].GetUInt16();
+
+        if (!sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId))
+        {
+            TC_LOG_ERROR("sql.sql", "Non-existing GarrPlotInstance.db2 entry %u was referenced in `garrison_plot_finalize_info`.", garrPlotInstanceId);
+            continue;
+        }
+
+        GameObjectTemplate const* goTemplate = sObjectMgr->GetGameObjectTemplate(hordeGameObjectId);
+        if (!goTemplate)
+        {
+            TC_LOG_ERROR("sql.sql", "Non-existing gameobject_template entry %u was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId %u.",
+                hordeGameObjectId, garrPlotInstanceId);
+            continue;
+        }
+
+        if (goTemplate->type != GAMEOBJECT_TYPE_GOOBER)
+        {
+            TC_LOG_ERROR("sql.sql", "Invalid gameobject type %u (entry %u) was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId %u.",
+                goTemplate->type, hordeGameObjectId, garrPlotInstanceId);
+            continue;
+        }
+
+        goTemplate = sObjectMgr->GetGameObjectTemplate(allianceGameObjectId);
+        if (!goTemplate)
+        {
+            TC_LOG_ERROR("sql.sql", "Non-existing gameobject_template entry %u was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId %u.",
+                allianceGameObjectId, garrPlotInstanceId);
+            continue;
+        }
+
+        if (goTemplate->type != GAMEOBJECT_TYPE_GOOBER)
+        {
+            TC_LOG_ERROR("sql.sql", "Invalid gameobject type %u (entry %u) was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId %u.",
+                goTemplate->type, allianceGameObjectId, garrPlotInstanceId);
+            continue;
+        }
+
+        if (hordeAnimKitId && !sAnimKitStore.LookupEntry(hordeAnimKitId))
+        {
+            TC_LOG_ERROR("sql.sql", "Non-existing AnimKit.dbc entry %u was referenced in `garrison_plot_finalize_info`.`hordeAnimKitId` for garrPlotInstanceId %u.",
+                hordeAnimKitId, garrPlotInstanceId);
+            continue;
+        }
+
+        if (allianceAnimKitId && !sAnimKitStore.LookupEntry(allianceAnimKitId))
+        {
+            TC_LOG_ERROR("sql.sql", "Non-existing AnimKit.dbc entry %u was referenced in `garrison_plot_finalize_info`.`allianceAnimKitId` for garrPlotInstanceId %u.",
+                allianceAnimKitId, garrPlotInstanceId);
+            continue;
+        }
+
+        FinalizeGarrisonPlotGOInfo& info = _finalizePlotGOInfo[garrPlotInstanceId];
+        info.FactionInfo[GARRISON_FACTION_INDEX_HORDE].GameObjectId = hordeGameObjectId;
+        info.FactionInfo[GARRISON_FACTION_INDEX_HORDE].Pos.Relocate(fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat());
+        info.FactionInfo[GARRISON_FACTION_INDEX_HORDE].AnimKitId = hordeAnimKitId;
+
+        info.FactionInfo[GARRISON_FACTION_INDEX_ALLIANCE].GameObjectId = allianceGameObjectId;
+        info.FactionInfo[GARRISON_FACTION_INDEX_ALLIANCE].Pos.Relocate(fields[8].GetFloat(), fields[9].GetFloat(), fields[10].GetFloat(), fields[11].GetFloat());
+        info.FactionInfo[GARRISON_FACTION_INDEX_ALLIANCE].AnimKitId = allianceAnimKitId;
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u garrison plot finalize entries in %u.", uint32(_finalizePlotGOInfo.size()), GetMSTimeDiffToNow(msTime));
+}
+
 void GarrisonMgr::LoadFollowerClassSpecAbilities()
 {
     QueryResult result = WorldDatabase.Query("SELECT classSpecId, abilityId FROM garrison_follower_class_spec_abilities");
@@ -321,6 +417,7 @@ void GarrisonMgr::LoadFollowerClassSpecAbilities()
         return;
     }
 
+    uint32 msTime = getMSTime();
     uint32 count = 0;
     do
     {
@@ -349,5 +446,5 @@ void GarrisonMgr::LoadFollowerClassSpecAbilities()
     for (auto& pair : _garrisonFollowerClassSpecAbilities)
         pair.second.sort();
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u garrison follower class spec abilities.", count);
+    TC_LOG_INFO("server.loading", ">> Loaded %u garrison follower class spec abilities in %u.", count, GetMSTimeDiffToNow(msTime));
 }
