@@ -25,6 +25,14 @@ WorldPacket const* WorldPackets::Garrison::GarrisonCreateResult::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Garrison::GarrisonDeleteResult::Write()
+{
+    _worldPacket << uint32(Result);
+    _worldPacket << uint32(GarrSiteID);
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonPlotInfo& plotInfo)
 {
     data << uint32(plotInfo.GarrPlotInstanceID);
