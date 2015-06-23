@@ -110,8 +110,10 @@ public:
     bool LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
         PreparedQueryResult followers, PreparedQueryResult abilities);
     void SaveToDB(SQLTransaction trans);
+    static void DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans);
 
     bool Create(uint32 garrSiteId);
+    void Delete();
     void Upgrade();
 
     void Enter() const;

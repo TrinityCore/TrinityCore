@@ -135,23 +135,9 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
 
 void Garrison::SaveToDB(SQLTransaction trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
-    stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-    trans->Append(stmt);
+    DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BLUEPRINTS);
-    stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BUILDINGS);
-    stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_FOLLOWERS);
-    stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
     stmt->setUInt32(1, _siteLevel->ID);
     stmt->setUInt32(2, _followerActivationsRemainingToday);
@@ -210,6 +196,25 @@ void Garrison::SaveToDB(SQLTransaction trans)
     }
 }
 
+void Garrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
+    stmt->setUInt64(0, ownerGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BLUEPRINTS);
+    stmt->setUInt64(0, ownerGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BUILDINGS);
+    stmt->setUInt64(0, ownerGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_FOLLOWERS);
+    stmt->setUInt64(0, ownerGuid);
+    trans->Append(stmt);
+}
+
 bool Garrison::Create(uint32 garrSiteId)
 {
     _siteLevel = sGarrisonMgr.GetGarrSiteLevelEntry(garrSiteId, 1);
@@ -224,6 +229,18 @@ bool Garrison::Create(uint32 garrSiteId)
     _owner->SendUpdatePhasing();
     SendRemoteInfo();
     return true;
+}
+
+void Garrison::Delete()
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
+    CharacterDatabase.CommitTransaction(trans);
+
+    WorldPackets::Garrison::GarrisonDeleteResult garrisonDelete;
+    garrisonDelete.Result = GARRISON_SUCCESS;
+    garrisonDelete.GarrSiteID = _siteLevel->SiteID;
+    _owner->SendDirectMessage(garrisonDelete.Write());
 }
 
 void Garrison::InitializePlots()

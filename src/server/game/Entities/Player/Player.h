@@ -2629,6 +2629,7 @@ class Player : public Unit, public GridObject<Player>
         void OnCombatExit();
 
         void CreateGarrison(uint32 garrSiteId);
+        void DeleteGarrison();
         Garrison* GetGarrison() { return _garrison.get(); }
 
     protected:
