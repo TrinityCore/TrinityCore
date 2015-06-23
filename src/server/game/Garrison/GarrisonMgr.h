@@ -20,6 +20,7 @@
 
 #include "DB2Stores.h"
 #include <unordered_set>
+#include "Position.h"
 
 struct FinalizeGarrisonPlotGOInfo
 {
