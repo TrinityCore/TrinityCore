@@ -21,6 +21,8 @@
 #include "Garrison.h"
 #include "ObjectDefines.h"
 #include "World.h"
+#include "GameObject.h"
+#include "ObjectMgr.h"
 
 void GarrisonMgr::Initialize()
 {
