@@ -520,3 +520,20 @@ WorldPacket const* WorldPackets::Misc::LoadCUFProfiles::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::SetAIAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetPlayHoverAnim::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket.WriteBit(PlayHoverAnim);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

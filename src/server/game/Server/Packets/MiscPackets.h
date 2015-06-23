@@ -663,6 +663,28 @@ namespace WorldPackets
 
             std::vector<CUFProfile const*> CUFProfiles;
         };
+
+        class SetAIAnimKit final : public ServerPacket
+        {
+        public:
+            SetAIAnimKit() : ServerPacket(SMSG_SET_AI_ANIM_KIT, 16 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint16 AnimKitID = 0;
+        };
+
+        class SetPlayHoverAnim final : public ServerPacket
+        {
+        public:
+            SetPlayHoverAnim() : ServerPacket(SMSG_SET_PLAY_HOVER_ANIM, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            bool PlayHoverAnim = false;
+        };
     }
 }
 
