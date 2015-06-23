@@ -3112,10 +3112,10 @@ void WorldObject::SetAIAnimKitId(uint16 animKitId)
 
     m_aiAnimKitId = animKitId;
 
-    WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::SetAIAnimKit data;
+    data.Unit = GetGUID();
+    data.AnimKitID = animKitId;
+    SendMessageToSet(data.Write(), true);
 }
 
 void WorldObject::SetMovementAnimKitId(uint16 animKitId)
