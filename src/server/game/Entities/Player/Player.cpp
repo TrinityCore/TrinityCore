@@ -23657,6 +23657,9 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
     if (player->GetMapId() != pRewardSource->GetMapId() || player->GetInstanceId() != pRewardSource->GetInstanceId())
         return false;
 
+    if (player->GetMap()->IsDungeon())
+        return true;
+
     return pRewardSource->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE);
 }
 
