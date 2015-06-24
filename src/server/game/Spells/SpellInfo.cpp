@@ -3239,8 +3239,6 @@ void SpellInfo::_UnloadImplicitTargetConditionLists()
 
 SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) const
 {
-    // 6.x todo: add first highest difficulty effect, resize list to max element, add lower diff effects without overwriting any higher diffed ones
-
     SpellEffectInfoVector effList;
 
     // DIFFICULTY_NONE effects are the default effects, always active if current difficulty's effects don't overwrite
@@ -3250,7 +3248,8 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
 
     // downscale difficulty if original was not found
     // DIFFICULTY_NONE is already in our list
-    for (; difficulty > DIFFICULTY_NONE; --difficulty)
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    while (difficultyEntry)
     {
         SpellEffectInfoMap::const_iterator itr = _effects.find(difficulty);
         if (itr != _effects.end())
@@ -3263,23 +3262,35 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
                     if (effect->EffectIndex >= effList.size())
                         effList.resize(effect->EffectIndex + 1);
 
-                    effList[effect->EffectIndex] = effect;
+                    if (!effList[effect->EffectIndex])
+                        effList[effect->EffectIndex] = effect;
                 }
             }
-            // if we found any effect in our difficulty then stop searching
-            break;
         }
+
+        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
     }
-    if (effList.empty())
-        TC_LOG_ERROR("spells", "GetEffectsForDifficulty did not find any effects for spell %u in difficulty %u", Id, difficulty);
+
     return effList;
 }
 
 SpellEffectInfo const* SpellInfo::GetEffect(uint32 difficulty, uint32 index) const
 {
-    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
-    if (index >= effects.size())
-        return nullptr;
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    while (difficultyEntry)
+    {
+        SpellEffectInfoMap::const_iterator itr = _effects.find(difficulty);
+        if (itr != _effects.end())
+            if (itr->second.size() > index && itr->second[index])
+                return itr->second[index];
 
-    return effects[index];
+        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+    }
+
+    SpellEffectInfoMap::const_iterator itr = _effects.find(DIFFICULTY_NONE);
+    if (itr != _effects.end())
+        if (itr->second.size() > index)
+            return itr->second[index];
+
+    return nullptr;
 }
