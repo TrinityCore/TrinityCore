@@ -859,7 +859,7 @@ class spell_midsummer_braziers_hit : public SpellScriptLoader
                 if ((player->HasAura(SPELL_TORCH_TOSSING_TRAINING) && GetStackAmount() == 8) || (player->HasAura(SPELL_TORCH_TOSSING_PRACTICE) && GetStackAmount() == 20))
                 {
                     if (player->GetTeam() == ALLIANCE)
-                       player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE, true);
+                        player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE, true);
                     else if (player->GetTeam() == HORDE)
                         player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_HORDE, true);
                     Remove();
@@ -904,6 +904,6 @@ void AddSC_holiday_spell_scripts()
     new spell_brewfest_relay_race_intro_force_player_to_throw();
     new spell_brewfest_dismount_ram();
     new spell_brewfest_barker_bunny();
-    //Midsummer Fire Festival
+    // Midsummer Fire Festival
     new spell_midsummer_braziers_hit();
 }
