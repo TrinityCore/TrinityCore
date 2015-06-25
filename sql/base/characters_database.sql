@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.24, for osx10.8 (x86_64)
 --
 -- Host: localhost    Database: characters335
 -- ------------------------------------------------------
--- Server version	5.6.9-rc
+-- Server version	5.6.24
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
