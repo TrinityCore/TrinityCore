@@ -26,14 +26,6 @@
 #include "ruby_sanctum.h"
 #include "Player.h"
 
-/* ScriptData
-SDName: ruby_sanctum
-SDAuthors: Kaelima, Warpten
-SD%Complete: 90%
-SDComment: Based on Kaelima's initial work (half of it). Corporeality handling is a pure guess, we lack info.
-SDCategory: Chamber of Aspects
-EndScriptData */
-
 enum Texts
 {
     // Shared
@@ -87,6 +79,8 @@ enum Spells
 
     // Living Inferno
     SPELL_BLAZING_AURA                  = 75885,
+    SPELL_SPAWN_LIVING_EMBERS           = 75880,
+    SPELL_SUMMON_LIVING_EMBER           = 75881,
 
     // Halion Controller
     SPELL_COSMETIC_FIRE_PILLAR          = 76006,
@@ -143,7 +137,7 @@ enum Events
     EVENT_CHECK_CORPOREALITY    = 14,
     EVENT_SHADOW_PULSARS_SHOOT  = 15,
     EVENT_TRIGGER_BERSERK       = 16,
-    EVENT_TWILIGHT_MENDING      = 17
+    EVENT_TWILIGHT_MENDING      = 17,
 };
 
 enum Actions
@@ -156,7 +150,13 @@ enum Actions
     ACTION_MONITOR_CORPOREALITY = 3,
 
     // Orb Carrier
-    ACTION_SHOOT                = 4
+    ACTION_SHOOT                = 4,
+
+    // Living Inferno
+    ACTION_SUMMON_LIVING_EMBERS = 5,
+
+    // Meteor Flame
+    ACTION_SUMMON_FLAME         = 6
 };
 
 enum Phases
@@ -174,7 +174,8 @@ enum Misc
     DATA_MATERIAL_DAMAGE_TAKEN   = 2,
     DATA_STACKS_DISPELLED        = 3,
     DATA_FIGHT_PHASE             = 4,
-    DATA_EVADE_METHOD            = 5
+    DATA_EVADE_METHOD            = 5,
+    DATA_SPAWNED_FLAMES          = 6,
 };
 
 enum OrbCarrierSeats
@@ -703,7 +704,7 @@ class npc_halion_controller : public CreatureScript
                 // The IsInCombat() check is needed because that check should be false when Halion is
                 // not engaged, while it would return true without as UpdateVictim() checks for
                 // combat state.
-                if (!(_events.IsInPhase(PHASE_INTRO)) && me->IsInCombat() && !UpdateVictim())
+                if (!_events.IsInPhase(PHASE_INTRO) && me->IsInCombat() && !UpdateVictim())
                 {
                     EnterEvadeMode();
                     return;
@@ -894,8 +895,6 @@ class npc_halion_controller : public CreatureScript
         }
 };
 
-typedef npc_halion_controller::npc_halion_controllerAI controllerAI;
-
 class npc_orb_carrier : public CreatureScript
 {
     public:
@@ -997,7 +996,7 @@ class npc_meteor_strike_initial : public CreatureScript
                 if (!owner)
                     return;
 
-                // Let Halion Controller count as summoner
+                // Let Controller count as summoner
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HALION_CONTROLLER)))
                     controller->AI()->JustSummoned(me);
 
@@ -1007,11 +1006,13 @@ class npc_meteor_strike_initial : public CreatureScript
                 if (HalionAI* halionAI = CAST_AI(HalionAI, owner->AI()))
                 {
                     Position const* ownerPos = halionAI->GetMeteorStrikePosition();
+                    // Adjust randomness between 0 and pi.
+                    float randomAdjustment = frand(static_cast<float>(M_PI / 14), static_cast<float>(13 * M_PI / 14));
                     float angle[4];
                     angle[0] = me->GetAngle(ownerPos);
-                    angle[1] = me->GetAngle(ownerPos) - static_cast<float>(M_PI/2);
-                    angle[2] = me->GetAngle(ownerPos) - static_cast<float>(-M_PI/2);
-                    angle[3] = me->GetAngle(ownerPos) - static_cast<float>(M_PI);
+                    angle[1] = angle[0] + randomAdjustment;
+                    angle[2] = angle[0] + static_cast<float>(M_PI);
+                    angle[3] = angle[2] + randomAdjustment;
 
                     _meteorList.clear();
                     for (uint8 i = 0; i < 4; i++)
@@ -1020,7 +1021,10 @@ class npc_meteor_strike_initial : public CreatureScript
                         me->SetOrientation(angle[i]);
                         Position newPos = me->GetNearPosition(10.0f, 0.0f); // Exact distance
                         if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        {
+                            meteor->SetOrientation(angle[i]);
                             _meteorList.push_back(meteor);
+                        }
                     }
                 }
             }
@@ -1046,11 +1050,8 @@ class npc_meteor_strike : public CreatureScript
         struct npc_meteor_strikeAI : public ScriptedAI
         {
             npc_meteor_strikeAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
+                _instance(creature->GetInstanceScript()), _spawnCount(0)
             {
-                _range = 5.0f;
-                _spawnCount = 0;
-
                 SetCombatMovement(false);
             }
 
@@ -1064,6 +1065,93 @@ class npc_meteor_strike : public CreatureScript
                 }
             }
 
+            void IsSummonedBy(Unit* summoner) override
+            {
+                // Let Halion Controller count as summoner.
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HALION_CONTROLLER)))
+                    controller->AI()->JustSummoned(me);
+            }
+
+            void SetData(uint32 dataType, uint32 dataCount) override
+            {
+                if (dataType == DATA_SPAWNED_FLAMES)
+                    _spawnCount += dataCount;
+            }
+
+            uint32 GetData(uint32 dataType) override
+            {
+                if (dataType == DATA_SPAWNED_FLAMES)
+                    return _spawnCount;
+                return 0;
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+                if (_events.ExecuteEvent() == EVENT_SPAWN_METEOR_FLAME)
+                {
+                    Position pos = me->GetNearPosition(5.0f, 0.0f);
+                    if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                    {
+                        flame->SetOrientation(me->GetOrientation());
+
+                        flame->AI()->SetGUID(GetGUID());
+                        flame->AI()->DoAction(ACTION_SUMMON_FLAME);
+                    }
+                }
+            }
+
+        private:
+            InstanceScript* _instance;
+            EventMap _events;
+            uint8 _spawnCount;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetRubySanctumAI<npc_meteor_strikeAI>(creature);
+        }
+};
+
+class npc_meteor_strike_flame : public CreatureScript
+{
+    public:
+        npc_meteor_strike_flame() : CreatureScript("npc_meteor_strike_flame") { }
+
+        struct npc_meteor_strike_flameAI : public ScriptedAI
+        {
+            npc_meteor_strikeAI(Creature* creature) : ScriptedAI(creature),
+                _instance(creature->GetInstanceScript())
+            {
+                SetCombatMovement(false);
+            }
+
+            void SetGUID(ObjectGuid guid, int32 id /* = 0 */) override
+            {
+                _rootOwnerGuid = guid;
+            }
+
+            void DoAction(int32 action) override
+            {
+                if (action != ACTION_SUMMON_FLAME || _rootOwnerGuid.IsEmpty())
+                    return;
+
+                me->CastSpell(me, SPELL_METEOR_STRIKE_FIRE_AURA_2, true);
+
+                Creature* meteorStrike = ObjectAccessor::GetCreature(*me, _rootOwnerGuid);
+                if (!meteorStrike || meteorStrike->AI()->GetData(DATA_SPAWNED_FLAMES) > 5)
+                    return;
+
+                me->SetOrientation(me->GetOrientation() + frand(static_cast<float>(-M_PI / 16), static_cast<float>(M_PI / 16)));
+                Position pos = me->GetNearPosition(5.0f, 0.0f);
+
+                if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                {
+                    flame->AI()->SetGUID(_rootOwnerGuid);
+                    meteorStrike->AI()->SetData(DATA_SPAWNED_FLAMES, 1);
+                }
+            }
+
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 // Let Halion Controller count as summoner.
@@ -1071,40 +1159,18 @@ class npc_meteor_strike : public CreatureScript
                     controller->AI()->JustSummoned(me);
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (_spawnCount > 5)
-                    return;
-
-                _events.Update(diff);
-
-                if (_events.ExecuteEvent() == EVENT_SPAWN_METEOR_FLAME)
-                {
-                    Position pos = me->GetNearPosition( _range, 0.0f);
-
-                    if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
-                    {
-                        if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HALION_CONTROLLER)))
-                            controller->AI()->JustSummoned(flame);
-
-                        flame->CastSpell(flame, SPELL_METEOR_STRIKE_FIRE_AURA_2, true);
-                        ++_spawnCount;
-                    }
-                    _range += 5.0f;
-                    _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, 800);
-                }
-            }
+            void UpdateAI(uint32 diff) override { }
+            void EnterEvadeMode() override { }
 
         private:
             InstanceScript* _instance;
             EventMap _events;
-            float _range;
-            uint8 _spawnCount;
+            ObjectGuid _rootOwnerGuid = ObjectGuid::Empty;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetRubySanctumAI<npc_meteor_strikeAI>(creature);
+            return GetRubySanctumAI<npc_meteor_strike_flameAI>(creature);
         }
 };
 
@@ -1120,26 +1186,23 @@ class npc_combustion_consumption : public CreatureScript
             {
                 SetCombatMovement(false);
 
-                switch (me->GetEntry())
+                switch (creature->GetEntry())
                 {
                     case NPC_COMBUSTION:
                         _explosionSpell = SPELL_FIERY_COMBUSTION_EXPLOSION;
                         _damageSpell = SPELL_COMBUSTION_DAMAGE_AURA;
-                        me->SetPhaseMask(0x01, true);
+                        creature->SetPhaseMask(IsHeroic() ? 0x21 : 0x01, true);
                         break;
                     case NPC_CONSUMPTION:
                         _explosionSpell = SPELL_SOUL_CONSUMPTION_EXPLOSION;
                         _damageSpell = SPELL_CONSUMPTION_DAMAGE_AURA;
-                        me->SetPhaseMask(0x20, true);
+                        creature->SetPhaseMask(IsHeroic() ? 0x21 : 0x20, true);
                         break;
                     default: // Should never happen
                         _explosionSpell = 0;
                         _damageSpell = 0;
                         break;
                 }
-
-                if (IsHeroic())
-                    me->SetPhaseMask(0x01 | 0x20, true);
             }
 
             void IsSummonedBy(Unit* summoner) override
@@ -1161,7 +1224,7 @@ class npc_combustion_consumption : public CreatureScript
                 me->CastCustomSpell(SPELL_SCALE_AURA, SPELLVALUE_AURA_STACK, stackAmount, me);
                 DoCast(me, _damageSpell);
 
-                int32 damage = 1200 + (stackAmount * 1290); // Needs more researches.
+                int32 damage = 1200 + (stackAmount * 1290); // Needs more research.
                 summoner->CastCustomSpell(_explosionSpell, SPELLVALUE_BASE_POINT0, damage, summoner);
             }
 
@@ -1194,6 +1257,10 @@ class npc_living_inferno : public CreatureScript
                 me->SetInCombatWithZone();
                 me->CastSpell(me, SPELL_BLAZING_AURA, true);
 
+                // SMSG_SPELL_GO for the living ember stuff isn't even sent to the client - Blizzard on drugs.
+                if (me->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC)
+                    me->CastSpell(me, SPELL_SPAWN_LIVING_EMBERS, true);
+
                 if (InstanceScript* instance = me->GetInstanceScript())
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HALION_CONTROLLER)))
                         controller->AI()->JustSummoned(me);
@@ -1211,7 +1278,6 @@ class npc_living_inferno : public CreatureScript
         }
 };
 
-//! Need sniff data
 class npc_living_ember : public CreatureScript
 {
     public:
@@ -1739,12 +1805,46 @@ class spell_halion_summon_exit_portals : public SpellScriptLoader
         }
 };
 
+class spell_halion_spawn_living_embers : public SpellScriptLoader
+{
+    public:
+        spell_halion_spawn_living_embers() : SpellScriptLoader("spell_halion_spawn_living_embers") { }
+
+        class spell_halion_spawn_living_embers_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_halion_spawn_living_embers_SpellScript);
+
+            void SelectMeteorFlames(std::list<WorldObject*>& unitList)
+            {
+                if (!unitList.empty())
+                    Trinity::Containers::RandomResizeList(unitList, 10);
+            }
+
+            void HandleScript(SpellEffIndex /* effIndex */)
+            {
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_LIVING_EMBER, true);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_halion_spawn_living_embers_SpellScript::SelectMeteorFlames, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffectHitTarget += SpellEffectFn(spell_halion_spawn_living_embers_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_halion_spawn_living_embers_SpellScript();
+        }
+};
+
 void AddSC_boss_halion()
 {
     new boss_halion();
     new boss_twilight_halion();
 
     new npc_halion_controller();
+    new npc_meteor_strike_flame();
     new npc_meteor_strike_initial();
     new npc_meteor_strike();
     new npc_combustion_consumption();
@@ -1766,4 +1866,5 @@ void AddSC_boss_halion()
     new spell_halion_twilight_phasing();
     new spell_halion_twilight_cutter();
     new spell_halion_clear_debuffs();
+    new spell_halion_spawn_living_embers();
 }
