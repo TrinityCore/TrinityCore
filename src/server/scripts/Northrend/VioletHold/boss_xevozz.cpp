@@ -68,6 +68,11 @@ enum XevozzEvents
     EVENT_DESPAWN_SPHERE
 };
 
+enum SphereActions
+{
+    ACTION_SUMMON                               = 1,
+};
+
 class boss_xevozz : public CreatureScript
 {
 public:
@@ -216,9 +221,9 @@ public:
                     break;
                 case EVENT_SUMMON_PLAYERS:
                     if (Creature* sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE, 150.0f))
-                        sphere->GetAI()->DoAction(1);
+                        sphere->GetAI()->DoAction(ACTION_SUMMON);
                     else if (Creature* sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE2, 150.0f))
-                        sphere->GetAI()->DoAction(1);
+                        sphere->GetAI()->DoAction(ACTION_SUMMON);
                     break;
                 default:
                     break;
@@ -247,25 +252,31 @@ public:
     {
         npc_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            arcanePower = false;
         }
 
         void Reset() override
         {
+            Initialize();
             events.Reset();
             DoCast(SPELL_POWER_BALL_VISUAL);
             DoCast(SPELL_POWER_BALL_DAMAGE_TRIGGER);
-            arcanePower = false;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->setFaction(16);
-
             events.ScheduleEvent(EVENT_DESPAWN_SPHERE, 40000);
             events.ScheduleEvent(EVENT_RANGE_CHECK, 1000);
         }
 
         void DoAction(int32 action) override
         {
-            DoCast(SPELL_SUMMON_PLAYERS);
+            if (action == ACTION_SUMMON)
+                DoCast(SPELL_SUMMON_PLAYERS);
         }
 
         void UpdateAI(uint32 diff) override
@@ -316,7 +327,7 @@ public:
     {
         PrepareSpellScript(spell_xevozz_summon_players_SpellScript);
 
-        void HandleScript(SpellEffIndex effIndex)
+        void HandleScript(SpellEffIndex /*effIndex*/)
         {
             Unit* target = GetHitUnit();
 

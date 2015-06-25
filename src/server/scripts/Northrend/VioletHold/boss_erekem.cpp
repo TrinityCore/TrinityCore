@@ -57,16 +57,21 @@ class boss_erekem : public CreatureScript
 public:
     boss_erekem() : CreatureScript("boss_erekem") { }
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_erekemAI>(creature);
+    }
+
     struct boss_erekemAI : public ScriptedAI
     {
         boss_erekemAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
         }
 
         void Initialize()
         {
-            events.Reset();
             phase = 0;
             breakBondsCd = 0;
         }
@@ -100,6 +105,8 @@ public:
                         pGuard2->Respawn();
                 }
             }
+
+            events.Reset();
         }
 
         void JustReachedHome() override
@@ -297,11 +304,6 @@ public:
         uint8 phase;
         int32 breakBondsCd;
     };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_erekemAI>(creature);
-    }
 };
 
 enum GuardSpells
@@ -315,6 +317,11 @@ class npc_erekem_guard : public CreatureScript
 {
 public:
     npc_erekem_guard() : CreatureScript("npc_erekem_guard") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<npc_erekem_guardAI>(creature);
+    }
 
     struct npc_erekem_guardAI : public ScriptedAI
     {
@@ -387,11 +394,6 @@ public:
             } else uiGushingWoundTimer -= diff;
         }
     };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_erekem_guardAI>(creature);
-    }
 };
 
 void AddSC_boss_erekem()

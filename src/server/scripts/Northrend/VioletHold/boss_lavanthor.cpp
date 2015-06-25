@@ -40,6 +40,11 @@ class boss_lavanthor : public CreatureScript
 public:
     boss_lavanthor() : CreatureScript("boss_lavanthor") { }
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_lavanthorAI>(creature);
+    }
+
     struct boss_lavanthorAI : public ScriptedAI
     {
         boss_lavanthorAI(Creature* creature) : ScriptedAI(creature)
@@ -146,11 +151,6 @@ public:
         EventMap events;
         InstanceScript* instance;
     };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_lavanthorAI>(creature);
-    }
 };
 
 void AddSC_boss_lavanthor()
