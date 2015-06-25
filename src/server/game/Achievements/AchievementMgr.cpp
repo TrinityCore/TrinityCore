@@ -2955,7 +2955,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         CriteriaTreeEntry const* cur = tree;
         while (achievementItr == achievementCriteriaTreeIds.end())
         {
-            if (!tree->Parent)
+            if (!cur->Parent)
                 break;
 
             cur = sCriteriaTreeStore.LookupEntry(cur->Parent);
@@ -2974,8 +2974,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         achievementCriteriaTree->Entry = tree;
 
         _achievementCriteriaTrees[achievementCriteriaTree->Entry->ID] = achievementCriteriaTree;
-        if (sCriteriaStore.LookupEntry(tree->CriteriaID))
-            _achievementCriteriaTreeByCriteria[tree->CriteriaID].push_back(achievementCriteriaTree);
     }
 
     // Build tree
@@ -2986,7 +2984,21 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
         auto parent = _achievementCriteriaTrees.find(itr->second->Entry->Parent);
         if (parent != _achievementCriteriaTrees.end())
+        {
             parent->second->Children.push_back(itr->second);
+            while (parent != _achievementCriteriaTrees.end())
+            {
+                auto cur = parent;
+                parent = _achievementCriteriaTrees.find(parent->second->Entry->Parent);
+                if (parent == _achievementCriteriaTrees.end())
+                {
+                    if (sCriteriaStore.LookupEntry(itr->second->Entry->CriteriaID))
+                        _achievementCriteriaTreeByCriteria[itr->second->Entry->CriteriaID].push_back(cur->second);
+                }
+            }
+        }
+        else if (sCriteriaStore.LookupEntry(itr->second->Entry->CriteriaID))
+            _achievementCriteriaTreeByCriteria[itr->second->Entry->CriteriaID].push_back(itr->second);
     }
 
     // Load criteria
@@ -3013,8 +3025,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
         for (AchievementCriteriaTree const* tree : treeItr->second)
         {
-            const_cast<AchievementCriteriaTree*>(tree)->Criteria = achievementCriteria;
-
             if (tree->Achievement->Flags & ACHIEVEMENT_FLAG_GUILD)
                 achievementCriteria->FlagsCu |= ACHIEVEMENT_CRITERIA_FLAG_CU_GUILD;
             else if (tree->Achievement->Flags & ACHIEVEMENT_FLAG_ACCOUNT)
@@ -3038,6 +3048,9 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         if (criteria->StartTimer)
             _achievementCriteriasByTimedType[criteria->StartEvent].push_back(achievementCriteria);
     }
+
+    for (auto& p : _achievementCriteriaTrees)
+        const_cast<AchievementCriteriaTree*>(p.second)->Criteria = GetAchievementCriteria(p.second->Entry->CriteriaID);
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement criteria and %u guild achievement crieteria in %u ms", criterias, guildCriterias, GetMSTimeDiffToNow(oldMSTime));
 }
