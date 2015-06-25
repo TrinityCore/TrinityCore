@@ -163,7 +163,7 @@ public:
         void OnPeriodic(AuraEffect const* aurEff)
         {
             PreventDefaultAction();
-            std::list<HostileReference*> players = GetTarget()->ToCreature()->getThreatManager().getThreatList();
+            std::list<HostileReference*> players = GetTarget()->getThreatManager().getThreatList();
             if (!players.empty())
             {
                 std::list<HostileReference*>::iterator itr = players.begin();
@@ -198,7 +198,7 @@ public:
         void OnPeriodic(AuraEffect const* aurEff)
         {
             PreventDefaultAction();
-            std::list<HostileReference*> players = GetTarget()->ToCreature()->getThreatManager().getThreatList();
+            std::list<HostileReference*> players = GetTarget()->getThreatManager().getThreatList();
             if (!players.empty())
             {
                 std::list<HostileReference*>::iterator itr = players.begin();

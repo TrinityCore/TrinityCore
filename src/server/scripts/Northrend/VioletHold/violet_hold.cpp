@@ -250,7 +250,9 @@ const Position PortalLocation[] =
     { 1890.64f, 753.471f, 48.7224f, 1.71042f },     // WP 5
 };
 
-uint64 preEventPortalGUID[3] = { 0 };
+#define MAX_PRE_EVENT_PORTAL    3
+
+ObjectGuid preEventPortalGUID[MAX_PRE_EVENT_PORTAL] = { ObjectGuid::Empty };
 
 const Position MovePosition = { 1806.955566f, 803.851807f, 44.363323f, 0.0f };
 const Position playerTeleportPosition = { 1830.531006f, 803.939758f, 44.340508f, 6.281611f };
@@ -331,13 +333,9 @@ public:
             Initialize();
 
             me->SetReactState(REACT_AGGRESSIVE);
-
-            if (TempSummon* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL, PortalLocation[0], TEMPSUMMON_MANUAL_DESPAWN))
-                preEventPortalGUID[0] = summon->GetGUID();
-            if (TempSummon* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL, PortalLocation[1], TEMPSUMMON_MANUAL_DESPAWN))
-                preEventPortalGUID[1] = summon->GetGUID();
-            if (TempSummon* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL, PortalLocation[2], TEMPSUMMON_MANUAL_DESPAWN))
-                preEventPortalGUID[2] = summon->GetGUID();
+            for (uint8 i = 0; i < MAX_PRE_EVENT_PORTAL; i++)
+                if (TempSummon* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL, PortalLocation[i], TEMPSUMMON_MANUAL_DESPAWN))
+                    preEventPortalGUID[i] = summon->GetGUID();
 
             std::list<Creature*> GuardList;
             me->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
@@ -758,26 +756,10 @@ struct violet_hold_trashAI : public npc_escortAI
         {
             if (Creature* portal = me->FindNearestCreature(NPC_TELEPORTATION_PORTAL, 10.0f))
             {
-                uint64 portalGUID = portal->GetGUID();
-                for (uint8 i = 0; i < 3; i++)
-                {
+                ObjectGuid portalGUID = portal->GetGUID();
+                for (uint8 i = 0; i < MAX_PRE_EVENT_PORTAL; i++)
                     if (portalGUID == preEventPortalGUID[i])
-                    {
-                        switch (i)
-                        {
-                        case 0:
-                            portalLocationID = 0;
-                            break;
-                        case 1:
-                            portalLocationID = 2;
-                            break;
-                        case 2:
-                            portalLocationID = 4;
-                            break;
-                        }
-                        break;
-                    }
-                }
+                        portalLocationID = i * 2;
             }
         }
         else

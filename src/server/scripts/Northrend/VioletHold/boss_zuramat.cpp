@@ -58,26 +58,23 @@ public:
     {
         boss_zuramatAI(Creature* creature) : ScriptedAI(creature), sentries(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
         }
 
         void Initialize()
         {
-            events.Reset();
             voidDance = true;
         }
 
         void DespawnSentries()
         {
             sentries.DespawnAll();
-            std::list<Creature*> sentries;
-            GetCreatureListWithEntryInGrid(sentries, me, NPC_VOID_SENTRY_BALL, 200.0f);
-            if (!sentries.empty())
-            {
-                std::list<Creature*>::iterator itr = sentries.begin();
-                for (itr; itr != sentries.end(); ++itr)
+            std::list<Creature*> sentrylist;
+            GetCreatureListWithEntryInGrid(sentrylist, me, NPC_VOID_SENTRY_BALL, 200.0f);
+            if (!sentrylist.empty())
+                for (std::list<Creature*>::const_iterator itr = sentrylist.begin(); itr != sentrylist.end(); ++itr)
                     (*itr)->DespawnOrUnsummon();
-            }
         }
 
         void Reset() override
@@ -88,6 +85,7 @@ public:
                 instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
 
             Initialize();
+            events.Reset();
             DespawnSentries();
         }
 
@@ -174,7 +172,6 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 

@@ -72,7 +72,10 @@ enum Misc
     DATA_DEHYDRATION                            = 1
 };
 
-Position const globulePaths[10] =
+
+#define MAX_GLOBULE_PATHS   10
+
+Position const globulePaths[MAX_GLOBULE_PATHS] =
 {
     // first target
     { 1861.357f, 804.039f, 44.008f, 6.268f },
@@ -177,9 +180,7 @@ public:
                         DoExplodeCompleted();
 
                     me->SetHealth(me->GetHealth() + me->CountPctFromMaxHealth(3));
-                    
-                    if (dehydration)
-                        dehydration = false;
+                    dehydration = false;
                 }
                 break;
             }
@@ -314,7 +315,7 @@ public:
                         GetCreatureListWithEntryInGrid(summonTargets, me, NPC_ICHORON_SUMMON_TARGET, 200.0f);
                         std::list<Creature*>::iterator itr = summonTargets.begin();
 
-                        for (uint8 i = 0; i < 10; i++)
+                        for (uint8 i = 0; i < MAX_GLOBULE_PATHS; i++)
                         {
                             std::advance(itr, urand(0, summonTargets.size() - 1)); // I take a random minion in the list
                             Position targetPos = (*itr)->GetRandomNearPosition(10.0f);
@@ -325,7 +326,7 @@ public:
                             float minDistance = 1000.0f;
                             uint8 nextPath = 0;
                             // I move the globules to next position. the 10 positions are in couples, defined in globulePaths, so i have to increase by 2.
-                            for (uint8 gpath = 0; gpath < 10; gpath += 2) 
+                            for (uint8 gpath = 0; gpath < MAX_GLOBULE_PATHS; gpath += 2)
                             {
                                 if (globule->GetDistance(globulePaths[gpath]) < minDistance)
                                 {
@@ -441,18 +442,20 @@ public:
     {
         npc_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            pathId = 0;
         }
 
         void Reset() override
         {
-            pathId = 0;
+            Initialize();
             events.Reset();
             DoCast(SPELL_WATER_GLOBULE);
-        }
-
-        void AttackStart(Unit* /*who*/) override
-        {
         }
 
         void SetData(uint32 id, uint32 data) override
