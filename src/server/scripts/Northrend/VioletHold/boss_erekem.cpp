@@ -49,7 +49,7 @@ enum ErekemEvents
     EVENT_LIGHTNING_BOLT,
     EVENT_EARTH_SHOCK,
     EVENT_WINDFURY,
-    EVENT_STORMSTRIKE,
+    EVENT_STORMSTRIKE
 };
 
 class boss_erekem : public CreatureScript
@@ -109,7 +109,6 @@ public:
             
             if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
                 pGuard2->Respawn();
-            
         }
 
         void AttackStart(Unit* who) override
@@ -284,6 +283,8 @@ public:
                 case EVENT_STORMSTRIKE:
                     DoCastVictim(SPELL_STORMSTRIKE);
                     events.ScheduleEvent(EVENT_STORMSTRIKE, urand(1500, 2000));
+                    break;
+                default:
                     break;
             }
 

@@ -17,6 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "violet_hold.h"
 
 enum Spells
@@ -29,13 +31,13 @@ enum Spells
     // Visual
     SPELL_OPTIC_LINK_LEVEL_1                   = 54393,
     SPELL_OPTIC_LINK_LEVEL_2                   = 54394,
-    SPELL_OPTIC_LINK_LEVEL_3                   = 54395,
+    SPELL_OPTIC_LINK_LEVEL_3                   = 54395
 };
 
 enum MoraggEvents
 {
     EVENT_CORROSIVE_SALIVA                      = 1,
-    EVENT_OPTIC_LINK,
+    EVENT_OPTIC_LINK
 };
 
 class boss_moragg : public CreatureScript
@@ -116,6 +118,8 @@ public:
                 case EVENT_CORROSIVE_SALIVA:
                     DoCastVictim(SPELL_CORROSIVE_SALIVA);
                     events.ScheduleEvent(EVENT_CORROSIVE_SALIVA, 10000);
+                    break;
+                default:
                     break;
             }
 

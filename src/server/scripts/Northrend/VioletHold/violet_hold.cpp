@@ -1442,7 +1442,6 @@ public:
     }
 };
 
-
 class npc_violet_hold_arcane_sphere : public CreatureScript
 {
 public:

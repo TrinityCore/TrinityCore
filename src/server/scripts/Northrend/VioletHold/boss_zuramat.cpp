@@ -185,19 +185,21 @@ public:
 
             switch (uint32 eventId = events.ExecuteEvent())
             {
-            case EVENT_SUMMON_VOID:
-                DoCast(SPELL_SUMMON_VOID_SENTRY);
-                events.ScheduleEvent(EVENT_SUMMON_VOID, urand(7000, 10000));
-                break;
-            case EVENT_VOID_SHIFT:
-                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(unit, SPELL_VOID_SHIFT);
-                events.ScheduleEvent(EVENT_VOID_SHIFT, 15000);
-                break;
-            case EVENT_SHROUD_OF_DARKNESS:
-                DoCast(SPELL_SHROUD_OF_DARKNESS);
-                events.ScheduleEvent(EVENT_SHROUD_OF_DARKNESS, urand(18000, 20000));
-                break;
+                case EVENT_SUMMON_VOID:
+                    DoCast(SPELL_SUMMON_VOID_SENTRY);
+                    events.ScheduleEvent(EVENT_SUMMON_VOID, urand(7000, 10000));
+                    break;
+                case EVENT_VOID_SHIFT:
+                    if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(unit, SPELL_VOID_SHIFT);
+                    events.ScheduleEvent(EVENT_VOID_SHIFT, 15000);
+                    break;
+                case EVENT_SHROUD_OF_DARKNESS:
+                    DoCast(SPELL_SHROUD_OF_DARKNESS);
+                    events.ScheduleEvent(EVENT_SHROUD_OF_DARKNESS, urand(18000, 20000));
+                    break;
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
