@@ -52,18 +52,18 @@ enum Yells
 
 enum Actions
 {
-    ACTION_WATER_ELEMENT_HIT                    = 1,
+    ACTION_WATER_ELEMENT_HIT                    = 1
 };
 
 enum IchoronEvents
 {
     EVENT_WATER_BLAST                           = 1,
-    EVENT_WATER_BOLT_VOLLEY,
+    EVENT_WATER_BOLT_VOLLEY
 };
 
 enum GlobuleEvents
 {
-    EVENT_GLOBULE_MOVE                          = 1,
+    EVENT_GLOBULE_MOVE                          = 1
 };
 
 enum Misc
@@ -72,7 +72,7 @@ enum Misc
     DATA_DEHYDRATION                            = 1
 };
 
-Position globulePaths[10] =
+Position const globulePaths[10] =
 {
     // first target
     { 1861.357f, 804.039f, 44.008f, 6.268f },
@@ -399,15 +399,15 @@ public:
 
                 switch (uint32 eventId = events.ExecuteEvent())
                 {
-                case EVENT_WATER_BLAST:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_WATER_BLAST);
-                    events.ScheduleEvent(EVENT_WATER_BLAST, urand(6000, 9000));
-                    break;
-                case EVENT_WATER_BOLT_VOLLEY:
-                    DoCast(SPELL_WATER_BOLT_VOLLEY);
-                    events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, urand(10000, 15000));
-                    break;
+                    case EVENT_WATER_BLAST:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_WATER_BLAST);
+                        events.ScheduleEvent(EVENT_WATER_BLAST, urand(6000, 9000));
+                        break;
+                    case EVENT_WATER_BOLT_VOLLEY:
+                        DoCast(SPELL_WATER_BOLT_VOLLEY);
+                        events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, urand(10000, 15000));
+                        break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -500,7 +500,6 @@ public:
 
             if (events.ExecuteEvent() == EVENT_GLOBULE_MOVE)
                 me->GetMotionMaster()->MovePoint(1, globulePaths[pathId + 1]);
-
         }
 
     private:

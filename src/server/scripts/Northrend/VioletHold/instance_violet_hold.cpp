@@ -215,7 +215,6 @@ public:
                 creature->AllLootRemovedFromCorpse();
                 creature->RemoveLootMode(1);
             }
-
         }
 
         void OnGameObjectCreate(GameObject* go) override

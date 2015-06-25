@@ -17,8 +17,10 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "violet_hold.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "Player.h"
+#include "violet_hold.h"
 
 enum Spells
 {
@@ -179,12 +181,12 @@ public:
                 Talk(SAY_SUMMON_ENERGY);
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
-            events.Update(uiDiff);
+            events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -217,6 +219,8 @@ public:
                         sphere->GetAI()->DoAction(1);
                     else if (Creature* sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE2, 150.0f))
                         sphere->GetAI()->DoAction(1);
+                    break;
+                default:
                     break;
             }
 

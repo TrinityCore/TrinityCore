@@ -24,7 +24,7 @@ enum Spells
     SPELL_CAUTERIZING_FLAMES                    = 59466, // Only in heroic
     SPELL_FIREBOLT                              = 54235,
     SPELL_FLAME_BREATH                          = 54282,
-    SPELL_LAVA_BURN                             = 54249,
+    SPELL_LAVA_BURN                             = 54249
 };
 
 enum LavanthorEvents
@@ -32,7 +32,7 @@ enum LavanthorEvents
     EVENT_CAUTERIZING_FLAMES = 1,
     EVENT_FIREBOLT,
     EVENT_FLAME_BREATH,
-    EVENT_LAVA_BURN,
+    EVENT_LAVA_BURN
 };
 
 class boss_lavanthor : public CreatureScript
@@ -103,24 +103,26 @@ public:
 
             switch (uint32 eventId = events.ExecuteEvent())
             {
-            case EVENT_FIREBOLT:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_FIREBOLT);
-                events.ScheduleEvent(EVENT_FIREBOLT, urand(5000, 13000));
-                break;
-            case EVENT_FLAME_BREATH:
-                DoCast(SPELL_FLAME_BREATH);
-                events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 15000));
-                break;
-            case EVENT_LAVA_BURN:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_LAVA_BURN);
-                events.ScheduleEvent(EVENT_LAVA_BURN, urand(15000, 23000));
-                break;
-            case EVENT_CAUTERIZING_FLAMES:
-                DoCast(SPELL_CAUTERIZING_FLAMES);
-                events.ScheduleEvent(EVENT_CAUTERIZING_FLAMES, urand(10000, 16000));
-                break;
+                case EVENT_FIREBOLT:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_FIREBOLT);
+                    events.ScheduleEvent(EVENT_FIREBOLT, urand(5000, 13000));
+                    break;
+                case EVENT_FLAME_BREATH:
+                    DoCast(SPELL_FLAME_BREATH);
+                    events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 15000));
+                    break;
+                case EVENT_LAVA_BURN:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_LAVA_BURN);
+                    events.ScheduleEvent(EVENT_LAVA_BURN, urand(15000, 23000));
+                    break;
+                case EVENT_CAUTERIZING_FLAMES:
+                    DoCast(SPELL_CAUTERIZING_FLAMES);
+                    events.ScheduleEvent(EVENT_CAUTERIZING_FLAMES, urand(10000, 16000));
+                    break;
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
