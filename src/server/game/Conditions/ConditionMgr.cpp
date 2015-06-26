@@ -1565,7 +1565,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 if (!effect)
                     continue;
 
-                if (effect->ChainTarget > 0)
+                if (effect->ChainTargets > 0)
                     continue;
 
                 switch (effect->TargetA.GetSelectionCategory())
