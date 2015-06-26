@@ -1065,7 +1065,7 @@ class npc_meteor_strike : public CreatureScript
                 }
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 // Let Halion Controller count as summoner.
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HALION_CONTROLLER)))
@@ -1120,7 +1120,7 @@ class npc_meteor_strike_flame : public CreatureScript
 
         struct npc_meteor_strike_flameAI : public ScriptedAI
         {
-            npc_meteor_strikeAI(Creature* creature) : ScriptedAI(creature),
+            npc_meteor_strike_flameAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
                 SetCombatMovement(false);
