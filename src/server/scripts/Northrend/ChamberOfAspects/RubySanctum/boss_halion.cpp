@@ -1078,7 +1078,7 @@ class npc_meteor_strike : public CreatureScript
                     _spawnCount += dataCount;
             }
 
-            uint32 GetData(uint32 dataType) override
+            uint32 GetData(uint32 dataType) const override
             {
                 if (dataType == DATA_SPAWNED_FLAMES)
                     return _spawnCount;
