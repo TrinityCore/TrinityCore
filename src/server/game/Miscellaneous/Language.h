@@ -988,16 +988,15 @@ enum TrinityStrings
     LANG_ACCOUNT_BNET_UNLINKED          = 1188,
     LANG_ACCOUNT_BNET_NOT_LINKED        = 1189,
     LANG_DISALLOW_TICKETS_CONFIG        = 1190,
-    // Room for more level 3              1191-1199 not used
+    // Room for more level 3              1191-1198 not used
 
     // Debug commands
+    LANG_DEBUG_AREATRIGGER_LEFT         = 1999,
     LANG_CINEMATIC_NOT_EXIST            = 1200,
     LANG_MOVIE_NOT_EXIST                = 1201,
     LANG_DEBUG_AREATRIGGER_ON           = 1202,
     LANG_DEBUG_AREATRIGGER_OFF          = 1203,
     LANG_DEBUG_AREATRIGGER_ENTERED      = 1204,
-    LANG_DEBUG_AREATRIGGER_LEFT         = 1205,
-    // Room for more debug                1206-1299 not used
 
     // Isle of Conquest
     LANG_BG_IC_START_TWO_MINUTES        = 1205,

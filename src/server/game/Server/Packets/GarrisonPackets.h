@@ -39,6 +39,17 @@ namespace WorldPackets
             uint32 Result = 0;
         };
 
+        class GarrisonDeleteResult final : public ServerPacket
+        {
+        public:
+            GarrisonDeleteResult() : ServerPacket(SMSG_GARRISON_DELETE_RESULT, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+            uint32 GarrSiteID = 0;
+        };
+
         class GetGarrisonInfo final : public ClientPacket
         {
         public:
@@ -278,6 +289,16 @@ namespace WorldPackets
 
             GarrisonFollower Follower;
             uint32 Result = 0;
+        };
+
+        class GarrisonBuildingActivated final : public ServerPacket
+        {
+        public:
+            GarrisonBuildingActivated() : ServerPacket(SMSG_GARRISON_BUILDING_ACTIVATED, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 GarrPlotInstanceID = 0;
         };
     }
 }

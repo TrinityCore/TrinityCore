@@ -68,6 +68,7 @@
 #include "ReputationMgr.h"
 #include "AreaTrigger.h"
 #include "Garrison.h"
+#include "CombatLogPackets.h"
 #include "DuelPackets.h"
 #include "MiscPackets.h"
 #include "SpellPackets.h"
@@ -298,7 +299,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
     &Spell::EffectNULL,                                     //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
     &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
-    &Spell::EffectNULL,                                     //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
+    &Spell::EffectActivateGarrisonBuilding,                 //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
     &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226
     &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227
@@ -378,11 +379,12 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     if (m_caster == unitTarget)                              // prevent interrupt message
         finish();
 
-    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 8+8+4);
-    data << m_caster->GetGUID();
-    data << unitTarget->GetGUID();
-    data << uint32(m_spellInfo->Id);
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::SpellInstakillLog data;
+    data.Target = unitTarget->GetGUID();
+    data.Caster = m_caster->GetGUID();
+    data.SpellID = m_spellInfo->Id;
+
+    m_caster->SendMessageToSet(data.Write(), true);
 
     m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 }
@@ -421,7 +423,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_SHARE_DAMAGE))
                 {
                     uint32 count = 0;
-                    for (std::vector<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    for (std::vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         if (ihit->effectMask & (1<<effIndex))
                             ++count;
 
@@ -5856,4 +5858,16 @@ void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
         garrison->AddFollower(GetEffect(effIndex)->MiscValue);
+}
+
+void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
+        garrison->ActivateBuilding(GetEffect(effIndex)->MiscValue);
 }

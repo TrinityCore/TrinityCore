@@ -1125,7 +1125,7 @@ class npc_meteor_strike_flame : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*id = 0 */)
+            void SetGUID(ObjectGuid guid, int32 /*id = 0 */) override
             {
                 _rootOwnerGuid = guid;
             }

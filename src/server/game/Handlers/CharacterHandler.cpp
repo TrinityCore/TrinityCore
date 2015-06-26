@@ -2574,25 +2574,18 @@ void WorldSession::SendCharRename(ResponseCodes result, WorldPackets::Character:
 
 void WorldSession::SendCharCustomize(ResponseCodes result, WorldPackets::Character::CharCustomizeInfo const* customizeInfo)
 {
-    /// @todo: fix 6.x implementation
-    (void)result;
-    (void)customizeInfo;
-    /*
-    WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1 + 8 + customizeInfo.NewName.size() + 1 + 6);
-    data << uint8(result);
     if (result == RESPONSE_SUCCESS)
     {
-        data << customizeInfo.Guid;
-        data << customizeInfo.NewName;
-        data << uint8(customizeInfo.Gender);
-        data << uint8(customizeInfo.Skin);
-        data << uint8(customizeInfo.Face);
-        data << uint8(customizeInfo.HairStyle);
-        data << uint8(customizeInfo.HairColor);
-        data << uint8(customizeInfo.FacialHair);
+        WorldPackets::Character::CharCustomizeResponse response(customizeInfo);
+        SendPacket(response.Write());
     }
-    SendPacket(&data);
-    */
+    else
+    {
+        WorldPackets::Character::CharCustomizeFailed failed;
+        failed.Result = uint8(result);
+        failed.CharGUID = customizeInfo->CharGUID;
+        SendPacket(failed.Write());
+    }
 }
 
 void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Character::CharRaceOrFactionChangeInfo const* factionChangeInfo)

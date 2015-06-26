@@ -903,17 +903,15 @@ class boss_yogg_saron : public CreatureScript
                 DoCast(me, SPELL_KNOCK_AWAY);
 
                 me->ResetLootMode();
-                switch (_instance->GetData(DATA_KEEPERS_COUNT))
-                {
-                    case 0:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_4);
-                    case 1:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_3);
-                    case 2:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_2);
-                    case 3:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                }
+                uint32 keepersCount = _instance->GetData(DATA_KEEPERS_COUNT);
+                if (keepersCount == 0)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_4);
+                if (keepersCount <= 1)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_3);
+                if (keepersCount <= 2)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_2);
+                if (keepersCount <= 3)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_1);
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override

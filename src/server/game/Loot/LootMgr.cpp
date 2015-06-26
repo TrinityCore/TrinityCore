@@ -155,12 +155,6 @@ uint32 LootStore::LoadLootTable()
         uint8  mincount            = fields[7].GetUInt8();
         uint8  maxcount            = fields[8].GetUInt8();
 
-        if (maxcount > std::numeric_limits<uint8>::max())
-        {
-            TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: MaxCount value (%u) to large. must be less %u - skipped", GetName(), entry, item, maxcount, std::numeric_limits<uint8>::max());
-            continue;                                   // error already printed to log/console.
-        }
-
         if (groupid >= 1 << 7)                                     // it stored in 7 bit field
         {
             TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: GroupId (%u) must be less %u - skipped", GetName(), entry, item, groupid, 1 << 7);

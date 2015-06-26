@@ -8129,13 +8129,14 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
 
 void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
 {
-    WorldPacket data(SMSG_SPELL_ENERGIZE_LOG, (8+8+4+4+4+1));
-    data << victim->GetPackGUID();
-    data << GetPackGUID();
-    data << uint32(spellId);
-    data << uint32(powerType);
-    data << int32(damage);
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::SpellEnergizeLog data;
+    data.CasterGUID = GetGUID();
+    data.TargetGUID = victim->GetGUID();
+    data.SpellID = spellId;
+    data.Type = powerType;
+    data.Amount = damage;
+
+    SendMessageToSet(data.Write(), true);
 }
 
 void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
@@ -8519,6 +8520,13 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
 
 int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 {
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        float overrideSP = GetFloatValue(PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT);
+        if (overrideSP > 0.0f)
+            return int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), overrideSP) + 0.5f);
+    }
+
     int32 DoneAdvertisedBenefit = 0;
 
     AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
@@ -9089,6 +9097,13 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
 int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
 {
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        float overrideSP = GetFloatValue(PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT);
+        if (overrideSP > 0.0f)
+            return int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), overrideSP) + 0.5f);
+    }
+
     int32 advertisedBenefit = 0;
 
     AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
@@ -10409,15 +10424,15 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     // Apply strongest slow aura mod to speed
     int32 slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);
     if (slow)
-    {
         AddPct(speed, slow);
-        if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
-        {
-            float min_speed = minSpeedMod / 100.0f;
-            if (speed < min_speed)
-                speed = min_speed;
-        }
+
+    if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
+    {
+        float min_speed = minSpeedMod / 100.0f;
+        if (speed < min_speed)
+            speed = min_speed;
     }
+
     SetSpeed(mtype, speed, forced);
 }
 
@@ -15989,28 +16004,11 @@ void Unit::SendSetVehicleRecId(uint32 vehicleId)
 
 void Unit::SendSetPlayHoverAnim(bool enable)
 {
-    ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_SET_PLAY_HOVER_ANIM, 10);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(enable);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[6]);
+    WorldPackets::Misc::SetPlayHoverAnim data;
+    data.UnitGUID = GetGUID();
+    data.PlayHoverAnim = enable;
 
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[6]);
-
-    SendMessageToSet(&data, true);
+    SendMessageToSet(data.Write(), true);
 }
 
 bool Unit::IsSplineEnabled() const

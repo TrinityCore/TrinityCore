@@ -1822,6 +1822,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
                             if (!player->CanFlyInZone(map_id, zone_id))
                                 return SPELL_FAILED_INCORRECT_AREA;
                     }
+                    break;
                 }
                 case SPELL_AURA_MOUNTED:
                 {
@@ -1958,7 +1959,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     }
 
     // not allow casting on flying player
-    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT))
+    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT) && !(AttributesCu & SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET))
         return SPELL_FAILED_BAD_TARGETS;
 
     /* TARGET_UNIT_MASTER gets blocked here for passengers, because the whole idea of this check is to
@@ -2577,6 +2578,8 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
                         powerCost += int32(CalculatePct(caster->GetMaxHealth(), power->ManaCostPercentage));
                         break;
                     case POWER_MANA:
+                        powerCost += int32(CalculatePct(caster->GetCreateMana(), power->ManaCostPercentage));
+                        break;
                     case POWER_RAGE:
                     case POWER_FOCUS:
                     case POWER_ENERGY:
@@ -2635,7 +2638,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
                     modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST2, powerCost);
             }
 
-            if (!caster->IsControlledByPlayer())
+            if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power->ManaCostPercentage, 0.0f))
             {
                 if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
                 {
@@ -2693,7 +2696,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
         }
     };
 
-    if (_hasPowerDifficultyData) // optimization - use static data for 99.5% cases (4753 of 4772 in build 6.1.0.19702)
+    if (!_hasPowerDifficultyData) // optimization - use static data for 99.5% cases (4753 of 4772 in build 6.1.0.19702)
         collector(PowerCosts);
     else
         collector(sDB2Manager.GetSpellPowers(Id, caster->GetMap()->GetDifficultyID()));
@@ -3236,8 +3239,6 @@ void SpellInfo::_UnloadImplicitTargetConditionLists()
 
 SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) const
 {
-    // 6.x todo: add first highest difficulty effect, resize list to max element, add lower diff effects without overwriting any higher diffed ones
-
     SpellEffectInfoVector effList;
 
     // DIFFICULTY_NONE effects are the default effects, always active if current difficulty's effects don't overwrite
@@ -3247,7 +3248,8 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
 
     // downscale difficulty if original was not found
     // DIFFICULTY_NONE is already in our list
-    for (; difficulty > DIFFICULTY_NONE; --difficulty)
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    while (difficultyEntry)
     {
         SpellEffectInfoMap::const_iterator itr = _effects.find(difficulty);
         if (itr != _effects.end())
@@ -3260,23 +3262,35 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
                     if (effect->EffectIndex >= effList.size())
                         effList.resize(effect->EffectIndex + 1);
 
-                    effList[effect->EffectIndex] = effect;
+                    if (!effList[effect->EffectIndex])
+                        effList[effect->EffectIndex] = effect;
                 }
             }
-            // if we found any effect in our difficulty then stop searching
-            break;
         }
+
+        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
     }
-    if (effList.empty())
-        TC_LOG_ERROR("spells", "GetEffectsForDifficulty did not find any effects for spell %u in difficulty %u", Id, difficulty);
+
     return effList;
 }
 
 SpellEffectInfo const* SpellInfo::GetEffect(uint32 difficulty, uint32 index) const
 {
-    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
-    if (index >= effects.size())
-        return nullptr;
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    while (difficultyEntry)
+    {
+        SpellEffectInfoMap::const_iterator itr = _effects.find(difficulty);
+        if (itr != _effects.end())
+            if (itr->second.size() > index && itr->second[index])
+                return itr->second[index];
 
-    return effects[index];
+        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+    }
+
+    SpellEffectInfoMap::const_iterator itr = _effects.find(DIFFICULTY_NONE);
+    if (itr != _effects.end())
+        if (itr->second.size() > index)
+            return itr->second[index];
+
+    return nullptr;
 }

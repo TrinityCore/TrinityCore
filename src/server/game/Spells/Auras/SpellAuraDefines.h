@@ -461,7 +461,7 @@ enum AuraType
     SPELL_AURA_401                                          = 401,
     SPELL_AURA_402                                          = 402,
     SPELL_AURA_403                                          = 403,
-    SPELL_AURA_404                                          = 404,
+    SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT              = 404,
     SPELL_AURA_405                                          = 405,
     SPELL_AURA_406                                          = 406,
     SPELL_AURA_MOD_FEAR_2                                   = 407,  // NYI
@@ -476,7 +476,7 @@ enum AuraType
     SPELL_AURA_416                                          = 416,
     SPELL_AURA_417                                          = 417,
     SPELL_AURA_418                                          = 418,
-    SPELL_AURA_419                                          = 419,
+    SPELL_AURA_MOD_BASE_MANA_PCT                            = 419,
     SPELL_AURA_MOD_BATTLE_PET_XP_PCT                        = 420,  // NYI
     SPELL_AURA_421                                          = 421,
     SPELL_AURA_422                                          = 422,
@@ -523,7 +523,7 @@ enum AuraType
     SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING       = 463, // NYI
     SPELL_AURA_464                                          = 464,
     SPELL_AURA_465                                          = 465,
-    SPELL_AURA_466                                          = 466,
+    SPELL_AURA_MOD_BONUS_ARMOR_PCT                          = 466, // Affects bonus armor gain from all sources except base stats
     SPELL_AURA_MOD_STAT_BONUS_PCT                           = 467, // Affects stat gain from all sources except base stats
     SPELL_AURA_468                                          = 468,
     SPELL_AURA_469                                          = 469,

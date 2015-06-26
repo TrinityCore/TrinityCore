@@ -38,7 +38,7 @@ std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* cl
 {
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayer()->GetName().c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
     if (closedName)
         ss << handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, closedName);
     if (assignedToName)
@@ -173,13 +173,12 @@ std::string GmTicket::FormatViewMessageString(ChatHandler& handler, bool detaile
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayer()->GetName().c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, true, false)).c_str());
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(curTime - _lastModifiedTime, true, false)).c_str());
 
-    std::string name;
-    if (ObjectMgr::GetPlayerNameByGUID(_assignedTo, name))
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name.c_str());
+    if (!_assignedTo.IsEmpty())
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, GetAssignedToName().c_str());
 
     if (detailed)
     {
@@ -196,7 +195,7 @@ std::string GmTicket::FormatViewMessageString(ChatHandler& handler, const char* 
 {
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayer()->GetName().c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
     if (szClosedName)
         ss << handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, szClosedName);
     if (szAssignedToName)
@@ -281,12 +280,11 @@ std::string BugTicket::FormatViewMessageString(ChatHandler& handler, bool detail
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayer()->GetName().c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, true, false)).c_str());
 
-    std::string name;
-    if (ObjectMgr::GetPlayerNameByGUID(_assignedTo, name))
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name.c_str());
+    if (!_assignedTo.IsEmpty())
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, GetAssignedToName().c_str());
 
     if (detailed)
     {
@@ -408,12 +406,11 @@ std::string ComplaintTicket::FormatViewMessageString(ChatHandler& handler, bool 
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayer()->GetName().c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, true, false)).c_str());
 
-    std::string name;
-    if (ObjectMgr::GetPlayerNameByGUID(_assignedTo, name))
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name.c_str());
+    if (!_assignedTo.IsEmpty())
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, GetAssignedToName().c_str());
 
     if (detailed)
     {
@@ -495,12 +492,11 @@ std::string SuggestionTicket::FormatViewMessageString(ChatHandler& handler, bool
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayer()->GetName().c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, true, false)).c_str());
 
-    std::string name;
-    if (ObjectMgr::GetPlayerNameByGUID(_assignedTo, name))
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name.c_str());
+    if (!_assignedTo.IsEmpty())
+        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, GetAssignedToName().c_str());
 
     if (detailed)
     {

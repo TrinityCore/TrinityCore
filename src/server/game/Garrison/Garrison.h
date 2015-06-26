@@ -109,9 +109,11 @@ public:
 
     bool LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
         PreparedQueryResult followers, PreparedQueryResult abilities);
-    void SaveToDB(SQLTransaction& trans);
+    void SaveToDB(SQLTransaction trans);
+    static void DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans);
 
     bool Create(uint32 garrSiteId);
+    void Delete();
     void Upgrade();
 
     void Enter() const;
@@ -129,6 +131,7 @@ public:
     void UnlearnBlueprint(uint32 garrBuildingId);
     void PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId);
     void CancelBuildingConstruction(uint32 garrPlotInstanceId);
+    void ActivateBuilding(uint32 garrPlotInstanceId);
 
     // Followers
     void AddFollower(uint32 garrFollowerId);

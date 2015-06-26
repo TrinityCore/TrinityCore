@@ -33,7 +33,7 @@
 #include "CreatureAI.h"
 #include "Spell.h"
 #include "WorldSession.h"
-#include "Packets/ChatPackets.h"
+#include "Packet.h"
 
 class Player;
 //class Map;
@@ -736,18 +736,6 @@ namespace Trinity
         NearestGameObjectTypeInObjectRangeCheck(NearestGameObjectTypeInObjectRangeCheck const&);
     };
 
-    class GameObjectWithDbGUIDCheck
-    {
-        public:
-            GameObjectWithDbGUIDCheck(WorldObject const& /*obj*/, ObjectGuid::LowType db_guid) : i_db_guid(db_guid) { }
-            bool operator()(GameObject const* go) const
-            {
-                return go->GetSpawnId() == i_db_guid;
-            }
-        private:
-            ObjectGuid::LowType i_db_guid;
-    };
-
     // Unit checks
 
     class MostHPMissingInRange
@@ -847,18 +835,6 @@ namespace Trinity
             WorldObject const* i_obj;
             Unit const* i_funit;
             float i_range;
-    };
-
-    class CreatureWithDbGUIDCheck
-    {
-        public:
-            CreatureWithDbGUIDCheck(WorldObject const* /*obj*/, ObjectGuid::LowType lowguid) : i_lowguid(lowguid) { }
-            bool operator()(Creature* u)
-            {
-                return u->GetSpawnId() == i_lowguid;
-            }
-        private:
-            ObjectGuid::LowType i_lowguid;
     };
 
     class AnyFriendlyUnitInObjectRangeCheck
@@ -1435,7 +1411,7 @@ namespace Trinity
 
         private:
             Builder& i_builder;
-            std::vector<WorldPacket*> i_data_cache;         // 0 = default, i => i-1 locale index
+            std::vector<WorldPackets::Packet*> i_data_cache;         // 0 = default, i => i-1 locale index
     };
 
     // Prepare using Builder localized packets with caching and send to player
@@ -1443,7 +1419,7 @@ namespace Trinity
     class LocalizedPacketListDo
     {
         public:
-            typedef std::vector<WorldPacket*> WorldPacketList;
+            typedef std::vector<WorldPackets::Packet*> WorldPacketList;
             explicit LocalizedPacketListDo(Builder& builder) : i_builder(builder) { }
 
             ~LocalizedPacketListDo()

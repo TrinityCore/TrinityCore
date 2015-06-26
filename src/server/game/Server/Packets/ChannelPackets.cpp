@@ -86,7 +86,7 @@ WorldPacket const* WorldPackets::Channel::ChannelNotifyLeft::Write()
 WorldPacket const* WorldPackets::Channel::UserlistAdd::Write()
 {
     _worldPacket << AddedUserGUID;
-    _worldPacket << uint8(ChannelFlags);
+    _worldPacket << uint8(_ChannelFlags);
     _worldPacket << uint8(UserFlags);
 
     _worldPacket << uint32(ChannelID);
@@ -101,7 +101,7 @@ WorldPacket const* WorldPackets::Channel::UserlistRemove::Write()
 {
     _worldPacket << RemovedUserGUID;
 
-    _worldPacket << uint8(ChannelFlags);
+    _worldPacket << uint8(_ChannelFlags);
 
     _worldPacket << uint32(ChannelID);
 
@@ -115,7 +115,7 @@ WorldPacket const* WorldPackets::Channel::UserlistUpdate::Write()
 {
     _worldPacket << UpdatedUserGUID;
 
-    _worldPacket << uint8(ChannelFlags);
+    _worldPacket << uint8(_ChannelFlags);
     _worldPacket << uint8(UserFlags);
 
     _worldPacket << uint32(ChannelID);

@@ -66,7 +66,7 @@ void Zone2MapCoordinates(float &x, float &y, uint32 zone);
 void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
 
 typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyMap;
-MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapID);
+MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty = nullptr);
 MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
 MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
 
@@ -185,6 +185,9 @@ extern GameTable <GtSpellScalingEntry>          sGtSpellScalingStore;
 extern GameTable <GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore;
 extern GameTable <GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore;
 extern DBCStorage <GuildPerkSpellsEntry>         sGuildPerkSpellsStore;
+extern DBCStorage <GuildColorBackgroundEntry>    sGuildColorBackgroundStore;
+extern DBCStorage <GuildColorBorderEntry>        sGuildColorBorderStore;
+extern DBCStorage <GuildColorEmblemEntry>        sGuildColorEmblemStore;
 extern DBCStorage <ImportPriceArmorEntry>        sImportPriceArmorStore;
 extern DBCStorage <ImportPriceQualityEntry>      sImportPriceQualityStore;
 extern DBCStorage <ImportPriceShieldEntry>       sImportPriceShieldStore;

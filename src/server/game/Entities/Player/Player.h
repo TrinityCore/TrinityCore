@@ -2132,7 +2132,7 @@ class Player : public Unit, public GridObject<Player>
         void SendAutoRepeatCancel(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
-        void SendDungeonDifficulty();
+        void SendDungeonDifficulty(int32 forcedDifficulty = -1);
         void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
@@ -2629,6 +2629,7 @@ class Player : public Unit, public GridObject<Player>
         void OnCombatExit();
 
         void CreateGarrison(uint32 garrSiteId);
+        void DeleteGarrison();
         Garrison* GetGarrison() { return _garrison.get(); }
 
     protected:
@@ -2760,7 +2761,7 @@ class Player : public Unit, public GridObject<Player>
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
         Difficulty m_legacyRaidDifficulty;
-        Difficulty m_raidMapDifficulty;
+        Difficulty m_prevMapDifficulty;
 
         uint32 m_atLoginFlags;
 

@@ -953,6 +953,33 @@ struct GuildPerkSpellsEntry
     uint32      SpellID;                                    // 2
 };
 
+// GuildColorBackground.dbc
+struct GuildColorBackgroundEntry
+{
+    uint32      ID;
+    //uint8       Red;
+    //uint8       Green;
+    //uint8       Blue;
+};
+
+// GuildColorBorder.dbc
+struct GuildColorBorderEntry
+{
+    uint32      ID;
+    //uint8       Red;
+    //uint8       Green;
+    //uint8       Blue;
+};
+
+// GuildColorEmblem.dbc
+struct GuildColorEmblemEntry
+{
+    uint32      ID;
+    //uint8       Red;
+    //uint8       Green;
+    //uint8       Blue;
+};
+
 // ImportPriceArmor.dbc
 struct ImportPriceArmorEntry
 {

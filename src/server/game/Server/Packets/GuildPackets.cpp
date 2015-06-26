@@ -801,10 +801,10 @@ WorldPacket const* WorldPackets::Guild::GuildChallengeUpdate::Write()
 void WorldPackets::Guild::SaveGuildEmblem::Read()
 {
     _worldPacket >> Vendor;
-    _worldPacket >> BStyle;
     _worldPacket >> EStyle;
-    _worldPacket >> BColor;
     _worldPacket >> EColor;
+    _worldPacket >> BStyle;
+    _worldPacket >> BColor;
     _worldPacket >> Bg;
 }
 

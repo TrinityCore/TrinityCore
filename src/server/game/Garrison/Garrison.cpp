@@ -133,25 +133,11 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
     return true;
 }
 
-void Garrison::SaveToDB(SQLTransaction& trans)
+void Garrison::SaveToDB(SQLTransaction trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
-    stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-    trans->Append(stmt);
+    DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BLUEPRINTS);
-    stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BUILDINGS);
-    stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_FOLLOWERS);
-    stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
     stmt->setUInt32(1, _siteLevel->ID);
     stmt->setUInt32(2, _followerActivationsRemainingToday);
@@ -210,6 +196,25 @@ void Garrison::SaveToDB(SQLTransaction& trans)
     }
 }
 
+void Garrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
+    stmt->setUInt64(0, ownerGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BLUEPRINTS);
+    stmt->setUInt64(0, ownerGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BUILDINGS);
+    stmt->setUInt64(0, ownerGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_FOLLOWERS);
+    stmt->setUInt64(0, ownerGuid);
+    trans->Append(stmt);
+}
+
 bool Garrison::Create(uint32 garrSiteId)
 {
     _siteLevel = sGarrisonMgr.GetGarrSiteLevelEntry(garrSiteId, 1);
@@ -224,6 +229,18 @@ bool Garrison::Create(uint32 garrSiteId)
     _owner->SendUpdatePhasing();
     SendRemoteInfo();
     return true;
+}
+
+void Garrison::Delete()
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
+    CharacterDatabase.CommitTransaction(trans);
+
+    WorldPackets::Garrison::GarrisonDeleteResult garrisonDelete;
+    garrisonDelete.Result = GARRISON_SUCCESS;
+    garrisonDelete.GarrSiteID = _siteLevel->SiteID;
+    _owner->SendDirectMessage(garrisonDelete.Write());
 }
 
 void Garrison::InitializePlots()
@@ -431,6 +448,27 @@ void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
         _owner->SendDirectMessage(buildingRemoved.Write());
 }
 
+void Garrison::ActivateBuilding(uint32 garrPlotInstanceId)
+{
+    if (Plot* plot = GetPlot(garrPlotInstanceId))
+    {
+        if (plot->BuildingInfo.CanActivate() && plot->BuildingInfo.PacketInfo && !plot->BuildingInfo.PacketInfo->Active)
+        {
+            plot->BuildingInfo.PacketInfo->Active = true;
+            if (Map* map = FindMap())
+            {
+                plot->DeleteGameObject(map);
+                if (GameObject* go = plot->CreateGameObject(map, GetFaction()))
+                    map->AddToMap(go);
+            }
+
+            WorldPackets::Garrison::GarrisonBuildingActivated buildingActivated;
+            buildingActivated.GarrPlotInstanceID = garrPlotInstanceId;
+            _owner->SendDirectMessage(buildingActivated.Write());
+        }
+    }
+}
+
 void Garrison::AddFollower(uint32 garrFollowerId)
 {
     WorldPackets::Garrison::GarrisonAddFollowerResult addFollowerResult;
@@ -581,7 +619,7 @@ GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32
     if (!_owner->HasCurrency(building->CostCurrencyID, building->CostCurrencyAmount))
         return GARRISON_ERROR_NOT_ENOUGH_CURRENCY;
 
-    if (!_owner->HasEnoughMoney(uint64(building->CostMoney * GOLD)))
+    if (!_owner->HasEnoughMoney(uint64(building->CostMoney) * GOLD))
         return GARRISON_ERROR_NOT_ENOUGH_GOLD;
 
     // New building cannot replace another building currently under construction
@@ -628,16 +666,39 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
     }
 
     Position const& pos = PacketInfo.PlotPos;
-    GameObject* go = new GameObject();
-    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, 0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
-        0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_ACTIVE))
+    GameObject* building = new GameObject();
+    if (!building->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, 0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
+        0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
     {
-        delete go;
+        delete building;
         return nullptr;
     }
 
-    BuildingInfo.Guid = go->GetGUID();
-    return go;
+    if (BuildingInfo.CanActivate() && BuildingInfo.PacketInfo && !BuildingInfo.PacketInfo->Active)
+    {
+        if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(PacketInfo.GarrPlotInstanceID))
+        {
+            Position const& pos2 = finalizeInfo->FactionInfo[faction].Pos;
+            GameObject* finalizer = new GameObject();
+            if (finalizer->Create(map->GenerateLowGuid<HighGuid::GameObject>(), finalizeInfo->FactionInfo[faction].GameObjectId, map, 0, pos2.GetPositionX(), pos2.GetPositionY(),
+                pos2.GetPositionZ(), pos2.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
+            {
+                // set some spell id to make the object delete itself after use
+                finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
+                finalizer->SetRespawnTime(0);
+
+                if (uint16 animKit = finalizeInfo->FactionInfo[faction].AnimKitId)
+                    finalizer->SetAIAnimKitId(animKit);
+
+                map->AddToMap(finalizer);
+            }
+            else
+                delete finalizer;
+        }
+    }
+
+    BuildingInfo.Guid = building->GetGUID();
+    return building;
 }
 
 void Garrison::Plot::DeleteGameObject(Map* map)
