@@ -123,7 +123,7 @@ public:
                 whereClause <<  "WHERE guid = '" << guid << '\'';
         }
 
-        QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature %s", whereClause.str().c_str());
+        QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map FROM creature %s", whereClause.str().c_str());
         if (!result)
         {
             handler->SendSysMessage(LANG_COMMAND_GOCREATNOTFOUND);
@@ -139,8 +139,6 @@ public:
         float z = fields[2].GetFloat();
         float o = fields[3].GetFloat();
         uint32 mapId = fields[4].GetUInt16();
-        ObjectGuid::LowType guid = fields[5].GetUInt64();
-        uint32 id = fields[6].GetUInt32();
 
         Transport* transport = NULL;
 
