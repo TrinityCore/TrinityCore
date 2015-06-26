@@ -229,6 +229,21 @@ class instance_oculus : public InstanceMapScript
                 return true;
             }
 
+            uint32 GetData(uint32 type) const override
+            {
+                if (type == DATA_CONSTRUCTS)
+                {
+                    if (CentrifugueConstructCounter == 0)
+                        return KILL_NO_CONSTRUCT;
+                    else if (CentrifugueConstructCounter == 1)
+                        return KILL_ONE_CONSTRUCT;
+                    else if (CentrifugueConstructCounter > 1)
+                        return KILL_MORE_CONSTRUCT;
+                }
+
+                return KILL_NO_CONSTRUCT;
+            }
+
             ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
