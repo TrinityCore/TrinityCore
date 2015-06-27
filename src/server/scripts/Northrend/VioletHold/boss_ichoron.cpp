@@ -456,6 +456,7 @@ public:
             Initialize();
             events.Reset();
             DoCast(SPELL_WATER_GLOBULE);
+            me->SetReactState(REACT_PASSIVE);
         }
 
         void SetData(uint32 id, uint32 data) override
@@ -475,11 +476,11 @@ public:
             switch (id)
             {
                 case 0:
-                    me->GetMotionMaster()->MovementExpired();
+                    me->GetMotionMaster()->Clear();
                     events.ScheduleEvent(EVENT_GLOBULE_MOVE, 500);
                     break;
                 case 1:
-                    me->GetMotionMaster()->MovementExpired();
+                    me->GetMotionMaster()->Clear();
                     if (Creature* ichoron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ICHORON)))
                         me->GetMotionMaster()->MoveFollow(ichoron, 0.0f, 0.0f);
                     break;
