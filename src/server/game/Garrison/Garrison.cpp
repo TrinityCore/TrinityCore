@@ -397,6 +397,8 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
             buildingRemoved.GarrBuildingID = oldBuildingId;
             _owner->SendDirectMessage(buildingRemoved.Write());
         }
+
+        _owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING, garrBuildingId);
     }
 
     _owner->SendDirectMessage(placeBuildingResult.Write());
