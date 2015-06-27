@@ -1056,6 +1056,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA: // This also behaves like ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA
             case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
+            case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
                 SetCriteriaProgress(achievementCriteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -1289,7 +1290,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_ENTER_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_LEAVE_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
-            case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
             case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
             case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
             case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON:
@@ -1443,6 +1443,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteria const* achieveme
         case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
         case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
         case ACHIEVEMENT_CRITERIA_TYPE_CURRENCY:
+        case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
             return progress->counter >= requiredAmount;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
@@ -2381,6 +2382,10 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteria const* achieve
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
             return false;
+        case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+            if (miscValue1 != achievementCriteria->Entry->Asset.GarrBuildingID)
+                return false;
+            break;
         default:
             break;
     }
