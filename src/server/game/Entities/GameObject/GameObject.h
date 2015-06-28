@@ -25,24 +25,13 @@
 #include "Object.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"
+#include "G3D/Quat.h"
 
 class GameObjectAI;
 class Group;
 class Transport;
 
 #define MAX_GAMEOBJECT_QUEST_ITEMS 6
-
-// small wrapper to avoid clutter
-struct QuatData
-{
-    static QuatData const Empty;
-    float x, y, z, w;
-
-    QuatData() : x(0.f), y(0.f), z(0.f), w(0.f) { }
-    QuatData(float qx, float qy, float qz, float qw) : x(qx), y(qy), z(qz), w(qw) { }
-
-    bool isUnit() const { return fabs(x*x + y*y + z*z + w*w - 1.f) < 1e-5f; }
-};
 
 // from `gameobject_template`
 struct GameObjectTemplate
@@ -643,7 +632,7 @@ struct GameObjectData
     float posY;
     float posZ;
     float orientation;
-    QuatData rotation;
+    G3D::Quat rotation;
     int32  spawntimesecs;
     uint32 animprogress;
     GOState go_state;
@@ -685,7 +674,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld() override;
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
-        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, QuatData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, G3D::Quat const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectData const* GetGOData() const { return m_goData; }
@@ -699,7 +688,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
          // z_rot, y_rot, x_rot - rotation angles around z, y and x axes
         void SetWorldRotationAngles(float z_rot, float y_rot, float x_rot);
-        void SetWorldRotation(float qx, float qy, float qz, float qw);
+        void SetWorldRotation(G3D::Quat const& rot);
         void SetTransportPathRotation(float qx, float qy, float qz, float qw);
         int64 GetPackedWorldRotation() const { return m_packedRotation; }
 
@@ -914,7 +903,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectValue m_goValue;
 
         int64 m_packedRotation;
-        QuatData m_worldRotation;
+        G3D::Quat m_worldRotation;
         Position m_stationaryPosition;
 
         ObjectGuid m_lootRecipient;
@@ -923,6 +912,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
     private:
         void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
+        void UpdatePackedRotation();
 
         //! Object distance/size - overridden from Object::_IsWithinDist. Needs to take in account proper GO size.
         bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool /*is3D*/) const override

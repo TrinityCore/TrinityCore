@@ -148,7 +148,7 @@ public:
         GameObject* object = new GameObject;
         ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
 
-        if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+        if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), x, y, z, o, G3D::Quat(), 0, GO_STATE_READY))
         {
             delete object;
             return false;

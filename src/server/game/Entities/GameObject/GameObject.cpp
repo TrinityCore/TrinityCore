@@ -33,8 +33,6 @@
 #include "World.h"
 #include "Transport.h"
 
-QuatData const QuatData::Empty = QuatData();
-
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(nullptr), m_goValue(), m_AI(nullptr)
 {
@@ -53,6 +51,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_cooldownTime = 0;
     m_goInfo = nullptr;
     m_goData = nullptr;
+    m_packedRotation = 0.f;
 
     m_spawnId = 0;
 
@@ -174,7 +173,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, QuatData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit)
+bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, G3D::Quat const& rotation, uint32 animprogress, GOState go_state, uint32 artKit)
 {
     ASSERT(map);
     SetMap(map);
@@ -223,7 +222,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
         return false;
     }
 
-    SetWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w);
+    SetWorldRotation(rotation);
     SetTransportPathRotation(0.f, 0.f, 0.f, 1.f);
 
     SetObjectScale(goinfo->size);
@@ -1890,45 +1889,33 @@ std::string const & GameObject::GetNameForLocaleIdx(LocaleConstant loc_idx) cons
     return GetName();
 }
 
-struct PackedQuat
+void GameObject::UpdatePackedRotation()
 {
-    PackedQuat() : m_raw(0) { };
-    PackedQuat(int64 val) : m_raw(val) { };
+    static const int32 PACK_YZ = 1 << 20;
+    static const int32 PACK_X = PACK_YZ << 1;
 
-    PackedQuat(const G3D::Quat& quat)
-    {
-        int8 w_sign = (quat.w >= 0 ? 1 : -1);
-        int64 x = int32(quat.x * PACK_X)  * w_sign & PACK_X_MASK;
-        int64 y = int32(quat.y * PACK_YZ) * w_sign & PACK_YZ_MASK;
-        int64 z = int32(quat.z * PACK_YZ) * w_sign & PACK_YZ_MASK;
-        m_raw = z | (y << 21) | (x << 42);
-    };
+    static const int32 PACK_YZ_MASK = (PACK_YZ << 1) - 1;
+    static const int32 PACK_X_MASK = (PACK_X << 1) - 1;
 
-    int64 GetComp() const { return m_raw; };
+    int8 w_sign = (m_worldRotation.w >= 0.f ? 1 : -1);
+    int64 x = int32(m_worldRotation.x * PACK_X)  * w_sign & PACK_X_MASK;
+    int64 y = int32(m_worldRotation.y * PACK_YZ) * w_sign & PACK_YZ_MASK;
+    int64 z = int32(m_worldRotation.z * PACK_YZ) * w_sign & PACK_YZ_MASK;
+    m_packedRotation = z | (y << 21) | (x << 42);
+}
 
-    private:
-        int64 m_raw;
-
-        static const int32 PACK_YZ = 1 << 20;
-        static const int32 PACK_X  = PACK_YZ << 1;
-
-        static const int32 PACK_YZ_MASK = (PACK_YZ << 1) - 1;
-        static const int32 PACK_X_MASK  = (PACK_X  << 1) - 1;
-};
-
-void GameObject::SetWorldRotation(float qx, float qy, float qz, float qw)
+void GameObject::SetWorldRotation(G3D::Quat const& rot)
 {
-    G3D::Quat rotation(qx, qy, qz, qw);
-    // Temporary solution for gameobjects that has no rotation data in DB:
-    if (qz == 0.f && qw == 0.f)
+    G3D::Quat rotation;
+    // Temporary solution for gameobjects that have no rotation data in DB:
+    if (G3D::fuzzyEq(rot.z, 0.f) && G3D::fuzzyEq(rot.w, 0.f))
         rotation = G3D::Quat::fromAxisAngleRotation(G3D::Vector3::unitZ(), GetOrientation());
+    else
+        rotation = rot;
 
     rotation.unitize();
-    m_packedRotation = PackedQuat(rotation).GetComp();
-    m_worldRotation.x = rotation.x;
-    m_worldRotation.y = rotation.y;
-    m_worldRotation.z = rotation.z;
-    m_worldRotation.w = rotation.w;
+    m_worldRotation = rotation;
+    UpdatePackedRotation();
 }
 
 void GameObject::SetTransportPathRotation(float qx, float qy, float qz, float qw)
@@ -1941,8 +1928,7 @@ void GameObject::SetTransportPathRotation(float qx, float qy, float qz, float qw
 
 void GameObject::SetWorldRotationAngles(float z_rot, float y_rot, float x_rot)
 {
-    G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot));
-    SetWorldRotation(quat.x, quat.y, quat.z, quat.w);
+    SetWorldRotation(G3D::Quat(G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot)));
 }
 
 void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= nullptr*/, uint32 spellId /*= 0*/)
