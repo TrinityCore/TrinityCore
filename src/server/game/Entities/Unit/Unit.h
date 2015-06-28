@@ -1480,6 +1480,7 @@ class Unit : public WorldObject
         bool IsInFlight()  const { return HasUnitState(UNIT_STATE_IN_FLIGHT); }
 
         bool IsInCombat()  const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT); }
+        bool IsInCombatWith(Unit const* who) const;
         void CombatStart(Unit* target, bool initialAggro = true);
         void SetInCombatState(bool PvP, Unit* enemy = NULL);
         void SetInCombatWith(Unit* enemy);
