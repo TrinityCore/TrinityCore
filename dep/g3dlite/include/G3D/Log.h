@@ -57,9 +57,9 @@ private:
 
     static Log*             commonLog;
 
+public:
     int                     stripFromStackBottom;
 
-public:
 
     /**
      @param stripFromStackBottom Number of call stacks to strip from the
