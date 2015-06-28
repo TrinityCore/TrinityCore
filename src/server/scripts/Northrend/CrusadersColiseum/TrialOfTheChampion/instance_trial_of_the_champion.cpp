@@ -26,6 +26,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "trial_of_the_champion.h"
 #include "Player.h"
+#include "Vehicle.h"
 
 #define MAX_ENCOUNTER  4
 
@@ -44,6 +45,7 @@ public:
         instance_trial_of_the_champion_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            m_playersTeam = 0;
             uiMovementDone = 0;
             uiGrandChampionsDeaths = 0;
             uiArgentSoldierDeaths = 0;
@@ -53,6 +55,7 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
 
+        uint32 m_playersTeam;
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
         uint16 uiMovementDone;
@@ -69,6 +72,11 @@ public:
         ObjectGuid uiGrandChampion3GUID;
         ObjectGuid uiChampionLootGUID;
         ObjectGuid uiArgentChampionGUID;
+        ObjectGuid uiTirionGUID;
+        ObjectGuid uiVarianGUID;
+        ObjectGuid uiJainaGUID;
+        ObjectGuid uiGarroshGUID;
+        ObjectGuid uiThrallGUID;
 
         GuidList VehicleList;
 
@@ -89,51 +97,92 @@ public:
 
         void OnCreatureCreate(Creature* creature) override
         {
+            // OnCreatureCreate is called before OnPlayerEnter
             Map::PlayerList const &players = instance->GetPlayers();
-            uint32 TeamInInstance = 0;
-
             if (!players.isEmpty())
             {
                 if (Player* player = players.begin()->GetSource())
-                    TeamInInstance = player->GetTeam();
+                {
+                    if (GetData(DATA_PLAYERS_TEAM) == 0)
+                        SetData(DATA_PLAYERS_TEAM, player->GetTeam());
+                }
+                
             }
 
             switch (creature->GetEntry())
             {
-                // Champions
-                case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT);
-                    break;
-                case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_AMBROSE_BOLTSPARK_MOUNT);
-                    break;
-                case VEHICLE_RUNOK_WILDMANE_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_COLOSOS_MOUNT);
-                    break;
-                case VEHICLE_ZUL_TORE_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_EVENSONG_MOUNT);
-                    break;
-                case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_LANA_STOUTHAMMER_MOUNT);
+                case NPC_MOKRA:
+                case NPC_ERESSEA:
+                case NPC_RUNOK:
+                case NPC_ZULTORE:
+                case NPC_VISCERI:
+                case NPC_JACOB:
+                case NPC_AMBROSE:
+                case NPC_COLOSOS:
+                case NPC_JAELYNE:
+                case NPC_LANA:
+                    SetGrandChampionData(creature);
                     break;
                 // Coliseum Announcer || Just NPC_JAEREN must be spawned.
                 case NPC_JAEREN:
                     uiAnnouncerGUID = creature->GetGUID();
-                    if (TeamInInstance == ALLIANCE)
+                    if (GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
                         creature->UpdateEntry(NPC_ARELAS);
                     break;
-                case VEHICLE_ARGENT_WARHORSE:
-                case VEHICLE_ARGENT_BATTLEWORG:
+                case VEHICLE_ARGENT_WARHORSE_H:
+                    if (GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
+                        creature->UpdateEntry(VEHICLE_ARGENT_WARHORSE_A);
+                    VehicleList.push_back(creature->GetGUID());
+                    break;
+                case VEHICLE_ARGENT_BATTLEWORG_H:
+                    if (GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
+                        creature->UpdateEntry(VEHICLE_ARGENT_BATTLEWORG_A);
                     VehicleList.push_back(creature->GetGUID());
                     break;
                 case NPC_EADRIC:
                 case NPC_PALETRESS:
                     uiArgentChampionGUID = creature->GetGUID();
+                    break;
+                case NPC_TIRION:
+                    uiTirionGUID = creature->GetGUID();
+                    break;
+                case NPC_VARIAN:
+                    uiVarianGUID = creature->GetGUID();
+                    break;
+                case NPC_JAINA:
+                    uiJainaGUID = creature->GetGUID();
+                    break;
+                case NPC_GARROSH:
+                    uiGarroshGUID = creature->GetGUID();
+                    break;
+                case NPC_THRALL:
+                    uiThrallGUID = creature->GetGUID();
+                    break;
+                // Setting passive and unattackable flags to Lesser Champions and Grand Champions' vehicles
+                case VEHICLE_DARNASSUS_CHAMPION:
+                case VEHICLE_EXODAR_CHAMPION:
+                case VEHICLE_STORMWIND_CHAMPION:
+                case VEHICLE_GNOMEREGAN_CHAMPION:
+                case VEHICLE_IRONFORGE_CHAMPION:
+                case VEHICLE_UNDERCITY_CHAMPION:
+                case VEHICLE_THUNDER_BLUFF_CHAMPION:
+                case VEHICLE_ORGRIMMAR_CHAMPION:
+                case VEHICLE_SILVERMOON_CHAMPION:
+                case VEHICLE_SENJIN_CHAMPION:
+                case VEHICLE_AMBROSE_BOLTSPARK_MOUNT:
+                case VEHICLE_COLOSOS_MOUNT:
+                case VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT:
+                case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
+                case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
+                case VEHICLE_RUNOK_WILDMANE_MOUNT:
+                case VEHICLE_ZUL_TORE_MOUNT:
+                case VEHICLE_EVENSONG_MOUNT:
+                case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
+                case VEHICLE_LANA_STOUTHAMMER_MOUNT:
+                    creature->SetReactState(REACT_PASSIVE);
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    break;
+                default:
                     break;
             }
         }
@@ -152,17 +201,22 @@ public:
             }
         }
 
+        void SetGrandChampionData(Creature* cr)
+        {
+            if (!uiGrandChampion1GUID)
+                uiGrandChampion1GUID = cr->GetGUID();
+            else if (!uiGrandChampion2GUID)
+                uiGrandChampion2GUID = cr->GetGUID();
+            else if (!uiGrandChampion3GUID)
+                uiGrandChampion3GUID = cr->GetGUID();
+        }
+
         void SetData(uint32 uiType, uint32 uiData) override
         {
             switch (uiType)
             {
-                case DATA_MOVEMENT_DONE:
-                    uiMovementDone = uiData;
-                    if (uiMovementDone == 3)
-                    {
-                        if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
-                            pAnnouncer->AI()->SetData(DATA_IN_POSITION, 0);
-                    }
+                case DATA_PLAYERS_TEAM:
+                    m_playersTeam = uiData;
                     break;
                 case BOSS_GRAND_CHAMPIONS:
                     m_auiEncounter[0] = uiData;
@@ -171,6 +225,18 @@ public:
                         for (GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                             if (Creature* summon = instance->GetCreature(*itr))
                                 summon->RemoveFromWorld();
+                        // We must remove defense spells from players
+                        Map::PlayerList const &players = instance->GetPlayers();
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        {
+                            if (Player *plr = itr->GetSource())
+                            {
+                                plr->RemoveAura(62552); // Actual defense spell
+                                plr->RemoveAura(63130); // Shield Level 1 (visual only)
+                                plr->RemoveAura(63131); // Shield Level 2 (visual only)
+                                plr->RemoveAura(63132); // Shield Level 3 (visual only)
+                            }
+                        }
                     }else if (uiData == DONE)
                     {
                         ++uiGrandChampionsDeaths;
@@ -225,12 +291,12 @@ public:
         {
             switch (uiData)
             {
+                case DATA_PLAYERS_TEAM: return m_playersTeam;
                 case BOSS_GRAND_CHAMPIONS:  return m_auiEncounter[0];
                 case BOSS_ARGENT_CHALLENGE_E: return m_auiEncounter[1];
                 case BOSS_ARGENT_CHALLENGE_P: return m_auiEncounter[2];
                 case BOSS_BLACK_KNIGHT: return m_auiEncounter[3];
 
-                case DATA_MOVEMENT_DONE: return uiMovementDone;
                 case DATA_ARGENT_SOLDIER_DEFEATED: return uiArgentSoldierDeaths;
             }
 
@@ -247,6 +313,16 @@ public:
                 case DATA_GRAND_CHAMPION_1: return uiGrandChampion1GUID;
                 case DATA_GRAND_CHAMPION_2: return uiGrandChampion2GUID;
                 case DATA_GRAND_CHAMPION_3: return uiGrandChampion3GUID;
+
+                case DATA_GRAND_CHAMPION_VEHICLE_1: return uiGrandChampionVehicle1GUID;
+                case DATA_GRAND_CHAMPION_VEHICLE_2: return uiGrandChampionVehicle2GUID;
+                case DATA_GRAND_CHAMPION_VEHICLE_3: return uiGrandChampionVehicle3GUID;
+
+                case DATA_TIRION: return uiTirionGUID;
+                case DATA_VARIAN: return uiVarianGUID;
+                case DATA_JAINA: return uiJainaGUID;
+                case DATA_GARROSH: return uiGarroshGUID;
+                case DATA_THRALL: return uiThrallGUID;
             }
 
             return ObjectGuid::Empty;
@@ -256,14 +332,14 @@ public:
         {
             switch (uiType)
             {
-                case DATA_GRAND_CHAMPION_1:
-                    uiGrandChampion1GUID = uiData;
+                case DATA_GRAND_CHAMPION_VEHICLE_1:
+                    uiGrandChampionVehicle1GUID = uiData;
                     break;
-                case DATA_GRAND_CHAMPION_2:
-                    uiGrandChampion2GUID = uiData;
+                case DATA_GRAND_CHAMPION_VEHICLE_2:
+                    uiGrandChampionVehicle2GUID = uiData;
                     break;
-                case DATA_GRAND_CHAMPION_3:
-                    uiGrandChampion3GUID = uiData;
+                case DATA_GRAND_CHAMPION_VEHICLE_3:
+                    uiGrandChampionVehicle3GUID = uiData;
                     break;
             }
         }
