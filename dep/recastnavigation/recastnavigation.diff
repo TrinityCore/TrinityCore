@@ -1,18 +1,17 @@
-From b84e9ffbd1d1e1fb2f5d78cc53d2bb7b56c3fce3 Mon Sep 17 00:00:00 2001
+From 37b4c6d3d78ea676d8b300a282013a27a51912c1 Mon Sep 17 00:00:00 2001
 From: jackpoz <giacomopoz@gmail.com>
 Date: Fri, 20 Jun 2014 23:15:04 +0200
 Subject: [PATCH] Add custom trinitycore changes
 
 ---
- Detour/Include/DetourNavMesh.h                 | 76 ++++++++------------------
- Detour/Source/DetourCommon.cpp                 |  4 +-
- Detour/Source/DetourNavMesh.cpp                | 32 ++++-------
- Detour/Source/DetourNavMeshBuilder.cpp         |  6 +-
- Detour/Source/DetourNavMeshQuery.cpp           |  9 +--
- Detour/Source/DetourNode.cpp                   | 29 +++-------
- DetourCrowd/Source/DetourObstacleAvoidance.cpp |  6 +-
- Recast/Include/Recast.h                        |  8 +--
- 8 files changed, 59 insertions(+), 111 deletions(-)
+ Detour/Include/DetourNavMesh.h       | 76 ++++++++++++------------------------
+ Detour/Source/DetourNavMesh.cpp      | 30 +++++---------
+ Detour/Source/DetourNavMeshQuery.cpp |  5 ++-
+ Detour/Source/DetourNode.cpp         | 29 ++++----------
+ Recast/Include/Recast.h              |  8 ++--
+ Recast/Source/RecastMeshDetail.cpp   |  2 +-
+ Recast/Source/RecastRegion.cpp       |  2 +-
+ 7 files changed, 50 insertions(+), 102 deletions(-)
 
 diff --git a/Detour/Include/DetourNavMesh.h b/Detour/Include/DetourNavMesh.h
 index 1060845..782ddbc 100644
@@ -177,46 +176,10 @@ index 1060845..782ddbc 100644
  };
  
  /// Allocates a navigation mesh object using the Detour allocator.
-diff --git a/Detour/Source/DetourCommon.cpp b/Detour/Source/DetourCommon.cpp
-index a98d8c8..b5700f5 100644
---- a/Detour/Source/DetourCommon.cpp
-+++ b/Detour/Source/DetourCommon.cpp
-@@ -16,14 +16,14 @@
- // 3. This notice may not be removed or altered from any source distribution.
- //
- 
-+#include <math.h>
- #include "DetourCommon.h"
--#include "DetourMath.h"
- 
- //////////////////////////////////////////////////////////////////////////////////////////
- 
- float dtSqrt(float x)
- {
--	return dtMathSqrtf(x);
-+	return sqrtf(x);
- }
- 
- void dtClosestPtPointTriangle(float* closest, const float* p,
 diff --git a/Detour/Source/DetourNavMesh.cpp b/Detour/Source/DetourNavMesh.cpp
-index 9d627be..5174050 100644
+index d353d08..e8a679b 100644
 --- a/Detour/Source/DetourNavMesh.cpp
 +++ b/Detour/Source/DetourNavMesh.cpp
-@@ -16,13 +16,13 @@
- // 3. This notice may not be removed or altered from any source distribution.
- //
- 
-+#include <math.h>
- #include <float.h>
- #include <string.h>
- #include <stdio.h>
- #include "DetourNavMesh.h"
- #include "DetourNode.h"
- #include "DetourCommon.h"
--#include "DetourMath.h"
- #include "DetourAlloc.h"
- #include "DetourAssert.h"
- #include <new>
 @@ -193,13 +193,11 @@ dtNavMesh::dtNavMesh() :
  	m_tileLutMask(0),
  	m_posLookup(0),
@@ -270,68 +233,21 @@ index 9d627be..5174050 100644
  	if (tile->salt == 0)
  		tile->salt++;
  
-diff --git a/Detour/Source/DetourNavMeshBuilder.cpp b/Detour/Source/DetourNavMeshBuilder.cpp
-index 1bf271b..9d8471b 100644
---- a/Detour/Source/DetourNavMeshBuilder.cpp
-+++ b/Detour/Source/DetourNavMeshBuilder.cpp
-@@ -16,13 +16,13 @@
- // 3. This notice may not be removed or altered from any source distribution.
- //
- 
-+#include <math.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
- #include <float.h>
- #include "DetourNavMesh.h"
- #include "DetourCommon.h"
--#include "DetourMath.h"
- #include "DetourNavMeshBuilder.h"
- #include "DetourAlloc.h"
- #include "DetourAssert.h"
-@@ -202,8 +202,8 @@ static int createBVTree(const unsigned short* verts, const int /*nverts*/,
- 			if (z > it.bmax[2]) it.bmax[2] = z;
- 		}
- 		// Remap y
--		it.bmin[1] = (unsigned short)dtMathFloorf((float)it.bmin[1]*ch/cs);
--		it.bmax[1] = (unsigned short)dtMathCeilf((float)it.bmax[1]*ch/cs);
-+		it.bmin[1] = (unsigned short)floorf((float)it.bmin[1]*ch/cs);
-+		it.bmax[1] = (unsigned short)ceilf((float)it.bmax[1]*ch/cs);
- 	}
- 	
- 	int curNode = 0;
 diff --git a/Detour/Source/DetourNavMeshQuery.cpp b/Detour/Source/DetourNavMeshQuery.cpp
-index 9debb4d..ec3a294 100644
+index 5fbc83e..fbf3724 100644
 --- a/Detour/Source/DetourNavMeshQuery.cpp
 +++ b/Detour/Source/DetourNavMeshQuery.cpp
-@@ -16,13 +16,13 @@
- // 3. This notice may not be removed or altered from any source distribution.
- //
- 
-+#include <math.h>
- #include <float.h>
- #include <string.h>
- #include "DetourNavMeshQuery.h"
- #include "DetourNavMesh.h"
- #include "DetourNode.h"
- #include "DetourCommon.h"
--#include "DetourMath.h"
- #include "DetourAlloc.h"
- #include "DetourAssert.h"
- #include <new>
-@@ -99,8 +99,9 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
- 	return dtVdist(pa, pb) * m_areaCost[curPoly->getArea()];
+@@ -100,7 +100,8 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
  }
  #endif	
--	
+ 	
 -static const float H_SCALE = 0.999f; // Search heuristic scale.
-+
 +// Edited by TC
-+static const float H_SCALE = 2.0f; // Search heuristic scale. 
++static const float H_SCALE = 2.0f; // Search heuristic scale.
  
  
  dtNavMeshQuery* dtAllocNavMeshQuery()
-@@ -3504,7 +3505,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
+@@ -3501,7 +3502,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
  	dtVsub(hitNormal, centerPos, hitPos);
  	dtVnormalize(hitNormal);
  	
@@ -383,42 +299,8 @@ index 5cf6548..1d18977 100644
  
  //////////////////////////////////////////////////////////////////////////////////////////
  dtNodePool::dtNodePool(int maxNodes, int hashSize) :
-diff --git a/DetourCrowd/Source/DetourObstacleAvoidance.cpp b/DetourCrowd/Source/DetourObstacleAvoidance.cpp
-index 0fad9ef..d3f90b7 100644
---- a/DetourCrowd/Source/DetourObstacleAvoidance.cpp
-+++ b/DetourCrowd/Source/DetourObstacleAvoidance.cpp
-@@ -18,10 +18,10 @@
- 
- #include "DetourObstacleAvoidance.h"
- #include "DetourCommon.h"
--#include "DetourMath.h"
- #include "DetourAlloc.h"
- #include "DetourAssert.h"
- #include <string.h>
-+#include <math.h>
- #include <float.h>
- #include <new>
- 
-@@ -58,7 +58,7 @@ static int isectRaySeg(const float* ap, const float* u,
- 	dtVsub(v,bq,bp);
- 	dtVsub(w,ap,bp);
- 	float d = dtVperp2D(u,v);
--	if (dtMathFabs(d) < 1e-6f) return 0;
-+	if (fabsf(d) < 1e-6f) return 0;
- 	d = 1.0f/d;
- 	t = dtVperp2D(v,w) * d;
- 	if (t < 0 || t > 1) return 0;
-@@ -482,7 +482,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
- 	const int nd = dtClamp(ndivs, 1, DT_MAX_PATTERN_DIVS);
- 	const int nr = dtClamp(nrings, 1, DT_MAX_PATTERN_RINGS);
- 	const float da = (1.0f/nd) * DT_PI*2;
--	const float dang = dtMathAtan2f(dvel[2], dvel[0]);
-+	const float dang = atan2f(dvel[2], dvel[0]);
- 	
- 	// Always add sample at zero
- 	pat[npat*2+0] = 0;
 diff --git a/Recast/Include/Recast.h b/Recast/Include/Recast.h
-index 83ca606..66974cd 100644
+index d8bdde2..d3e9219 100644
 --- a/Recast/Include/Recast.h
 +++ b/Recast/Include/Recast.h
 @@ -243,7 +243,7 @@ struct rcConfig
@@ -443,6 +325,32 @@ index 83ca606..66974cd 100644
  	rcSpan* next;					///< The next span higher up in column.
  };
  
+diff --git a/Recast/Source/RecastMeshDetail.cpp b/Recast/Source/RecastMeshDetail.cpp
+index c0bba6f..56b059d 100644
+--- a/Recast/Source/RecastMeshDetail.cpp
++++ b/Recast/Source/RecastMeshDetail.cpp
+@@ -511,7 +511,7 @@ static float polyMinExtent(const float* verts, const int nverts)
+ inline int prev(int i, int n) { return i-1 >= 0 ? i-1 : n-1; }
+ inline int next(int i, int n) { return i+1 < n ? i+1 : 0; }
+ 
+-static void triangulateHull(const int nverts, const float* verts, const int nhull, const int* hull, rcIntArray& tris)
++static void triangulateHull(const int /*nverts*/, const float* verts, const int nhull, const int* hull, rcIntArray& tris)
+ {
+ 	int start = 0, left = 1, right = nhull-1;
+ 	
+diff --git a/Recast/Source/RecastRegion.cpp b/Recast/Source/RecastRegion.cpp
+index 38bc4ff..352ba57 100644
+--- a/Recast/Source/RecastRegion.cpp
++++ b/Recast/Source/RecastRegion.cpp
+@@ -1041,7 +1041,7 @@ static void addUniqueConnection(rcRegion& reg, int n)
+ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
+ 									   unsigned short& maxRegionId,
+ 									   rcCompactHeightfield& chf,
+-									   unsigned short* srcReg, rcIntArray& overlaps)
++									   unsigned short* srcReg, rcIntArray& /*overlaps*/)
+ {
+ 	const int w = chf.width;
+ 	const int h = chf.height;
 -- 
-1.9.0.msysgit.0
+1.9.5.msysgit.0
 

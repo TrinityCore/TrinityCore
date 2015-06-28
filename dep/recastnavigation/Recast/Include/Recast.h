@@ -1083,7 +1083,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 ///  @returns True if the operation completed successfully.
 bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 					 const float maxError, const int maxEdgeLen,
-					 rcContourSet& cset, const int flags = RC_CONTOUR_TESS_WALL_EDGES);
+					 rcContourSet& cset, const int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
 
 /// Builds a polygon mesh from the provided contours.
 ///  @ingroup recast
