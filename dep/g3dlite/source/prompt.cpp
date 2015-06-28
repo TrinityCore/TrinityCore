@@ -572,6 +572,8 @@ int prompt(
 		  return result;
                 }
         #endif
+#else
+    (void)useGui;
 #endif /* G3DFIX: exclude GUI prompt code */
     return textPrompt(windowTitle, prompt, choice, numChoices);
 }
