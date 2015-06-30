@@ -237,8 +237,8 @@ static unsigned short getHeight(const float fx, const float fy, const float fz,
 
 enum EdgeValues
 {
-	UNDEF = -1,
-	HULL = -2,
+	EV_UNDEF = -1,
+	EV_HULL = -2,
 };
 
 static int findEdge(const int* edges, int nedges, int s, int t)
@@ -249,7 +249,7 @@ static int findEdge(const int* edges, int nedges, int s, int t)
 		if ((e[0] == s && e[1] == t) || (e[0] == t && e[1] == s))
 			return i;
 	}
-	return UNDEF;
+	return EV_UNDEF;
 }
 
 static int addEdge(rcContext* ctx, int* edges, int& nedges, const int maxEdges, int s, int t, int l, int r)
@@ -257,12 +257,12 @@ static int addEdge(rcContext* ctx, int* edges, int& nedges, const int maxEdges, 
 	if (nedges >= maxEdges)
 	{
 		ctx->log(RC_LOG_ERROR, "addEdge: Too many edges (%d/%d).", nedges, maxEdges);
-		return UNDEF;
+		return EV_UNDEF;
 	}
 	
 	// Add edge if not already in the triangulation.
 	int e = findEdge(edges, nedges, s, t);
-	if (e == UNDEF)
+	if (e == EV_UNDEF)
 	{
 		int* edge = &edges[nedges*4];
 		edge[0] = s;
@@ -273,15 +273,15 @@ static int addEdge(rcContext* ctx, int* edges, int& nedges, const int maxEdges, 
 	}
 	else
 	{
-		return UNDEF;
+		return EV_UNDEF;
 	}
 }
 
 static void updateLeftFace(int* e, int s, int t, int f)
 {
-	if (e[0] == s && e[1] == t && e[2] == UNDEF)
+	if (e[0] == s && e[1] == t && e[2] == EV_UNDEF)
 		e[2] = f;
-	else if (e[1] == s && e[0] == t && e[3] == UNDEF)
+	else if (e[1] == s && e[0] == t && e[3] == EV_UNDEF)
 		e[3] = f;
 }
 
@@ -322,12 +322,12 @@ static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges
 	
 	// Cache s and t.
 	int s,t;
-	if (edge[2] == UNDEF)
+	if (edge[2] == EV_UNDEF)
 	{
 		s = edge[0];
 		t = edge[1];
 	}
-	else if (edge[3] == UNDEF)
+	else if (edge[3] == EV_UNDEF)
 	{
 		s = edge[1];
 		t = edge[0];
@@ -390,15 +390,15 @@ static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges
 		
 		// Add new edge or update face info of old edge.
 		e = findEdge(edges, nedges, pt, s);
-		if (e == UNDEF)
-		    addEdge(ctx, edges, nedges, maxEdges, pt, s, nfaces, UNDEF);
+		if (e == EV_UNDEF)
+		    addEdge(ctx, edges, nedges, maxEdges, pt, s, nfaces, EV_UNDEF);
 		else
 		    updateLeftFace(&edges[e*4], pt, s, nfaces);
 		
 		// Add new edge or update face info of old edge.
 		e = findEdge(edges, nedges, t, pt);
-		if (e == UNDEF)
-		    addEdge(ctx, edges, nedges, maxEdges, t, pt, nfaces, UNDEF);
+		if (e == EV_UNDEF)
+		    addEdge(ctx, edges, nedges, maxEdges, t, pt, nfaces, EV_UNDEF);
 		else
 		    updateLeftFace(&edges[e*4], t, pt, nfaces);
 		
@@ -406,7 +406,7 @@ static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges
 	}
 	else
 	{
-		updateLeftFace(&edges[e*4], s, t, HULL);
+		updateLeftFace(&edges[e*4], s, t, EV_HULL);
 	}
 }
 
@@ -420,14 +420,14 @@ static void delaunayHull(rcContext* ctx, const int npts, const float* pts,
 	edges.resize(maxEdges*4);
 	
 	for (int i = 0, j = nhull-1; i < nhull; j=i++)
-		addEdge(ctx, &edges[0], nedges, maxEdges, hull[j],hull[i], HULL, UNDEF);
+		addEdge(ctx, &edges[0], nedges, maxEdges, hull[j],hull[i], EV_HULL, EV_UNDEF);
 	
 	int currentEdge = 0;
 	while (currentEdge < nedges)
 	{
-		if (edges[currentEdge*4+2] == UNDEF)
+		if (edges[currentEdge*4+2] == EV_UNDEF)
 			completeFacet(ctx, pts, npts, &edges[0], nedges, maxEdges, nfaces, currentEdge);
-		if (edges[currentEdge*4+3] == UNDEF)
+		if (edges[currentEdge*4+3] == EV_UNDEF)
 			completeFacet(ctx, pts, npts, &edges[0], nedges, maxEdges, nfaces, currentEdge);
 		currentEdge++;
 	}
@@ -507,17 +507,11 @@ static float polyMinExtent(const float* verts, const int nverts)
 	return rcSqrt(minDist);
 }
 
-inline int next(int i, int n)
-{
-	return (i+1) % n;
-}
+// Last time I checked the if version got compiled using cmov, which was a lot faster than module (with idiv).
+inline int prev(int i, int n) { return i-1 >= 0 ? i-1 : n-1; }
+inline int next(int i, int n) { return i+1 < n ? i+1 : 0; }
 
-inline int prev(int i, int n)
-{
-	return (i + n-1) % n;
-}
-
-static void triangulateHull(const int nverts, const float* verts, const int nhull, const int* hull, rcIntArray& tris)
+static void triangulateHull(const int /*nverts*/, const float* verts, const int nhull, const int* hull, rcIntArray& tris)
 {
 	int start = 0, left = 1, right = nhull-1;
 	
