@@ -383,7 +383,9 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     // CLI Client connection info
     args.push_back("-h" + host);
     args.push_back("-u" + user);
-    args.push_back("-p" + password);
+
+    if (!password.empty())
+        args.push_back("-p" + password);
 
     // Check if we want to connect through ip or socket (Unix only)
 #ifdef _WIN32
