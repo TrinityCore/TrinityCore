@@ -1041,7 +1041,7 @@ static void addUniqueConnection(rcRegion& reg, int n)
 static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 									   unsigned short& maxRegionId,
 									   rcCompactHeightfield& chf,
-									   unsigned short* srcReg, rcIntArray& overlaps)
+									   unsigned short* srcReg, rcIntArray& /*overlaps*/)
 {
 	const int w = chf.width;
 	const int h = chf.height;

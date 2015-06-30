@@ -12,3 +12,4 @@ G3D-v8.0_hotfix8.diff - 2013-09-01 - fix typo in Vector3int32 += operator
 G3D-v8.0_hotfix9.diff - 2014-06-01 - only VS < 10 don't ship inttypes.h
 G3D-v9.0 hotfix1.diff - 2014-08-22 - updated to G3D9, reapplied previous patches and removed unneeded changes
 G3D-v9.0 hotfix2.diff - 2014-08-23 - fix some -Wconversion warnings
+G3D-v9.0 hotfix3.diff - 2015-06-28 - fix some warnings

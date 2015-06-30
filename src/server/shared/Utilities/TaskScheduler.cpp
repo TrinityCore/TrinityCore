@@ -17,16 +17,22 @@
 
 #include "TaskScheduler.h"
 
-TaskScheduler& TaskScheduler::Update()
+TaskScheduler& TaskScheduler::ClearValidator()
 {
-    _now = clock_t::now();
-    Dispatch();
+    _predicate = EmptyValidator;
     return *this;
 }
 
-TaskScheduler& TaskScheduler::Update(size_t const milliseconds)
+TaskScheduler& TaskScheduler::Update(success_t const& callback)
 {
-    return Update(std::chrono::milliseconds(milliseconds));
+    _now = clock_t::now();
+    Dispatch(callback);
+    return *this;
+}
+
+TaskScheduler& TaskScheduler::Update(size_t const milliseconds, success_t const& callback)
+{
+    return Update(std::chrono::milliseconds(milliseconds), callback);
 }
 
 TaskScheduler& TaskScheduler::Async(std::function<void()> const& callable)
@@ -66,14 +72,25 @@ TaskScheduler& TaskScheduler::InsertTask(TaskContainer task)
     return *this;
 }
 
-void TaskScheduler::Dispatch()
+void TaskScheduler::Dispatch(success_t const& callback)
 {
+    // If the validation failed abort the dispatching here.
+    if (!_predicate())
+        return;
+
     // Process all asyncs
     while (!_asyncHolder.empty())
     {
         _asyncHolder.front()();
         _asyncHolder.pop();
+
+        // If the validation failed abort the dispatching here.
+        if (!_predicate())
+            return;
     }
+
+    if (_task_holder.IsEmpty())
+        return;
 
     while (!_task_holder.IsEmpty())
     {
@@ -86,7 +103,14 @@ void TaskScheduler::Dispatch()
 
         // Invoke the context
         context.Invoke();
+
+        // If the validation failed abort the dispatching here.
+        if (!_predicate())
+            return;
     }
+
+    // On finish call the final callback
+    callback();
 }
 
 void TaskScheduler::TaskQueue::Push(TaskContainer&& task)

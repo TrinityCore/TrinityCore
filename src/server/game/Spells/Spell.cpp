@@ -3754,6 +3754,10 @@ void Spell::SendSpellStart()
     //TC_LOG_DEBUG("spells", "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN_2;
+    uint32 schoolImmunityMask = m_caster->GetSchoolImmunityMask();
+    uint32 mechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+    if (schoolImmunityMask || mechanicImmunityMask)
+        castFlags |= CAST_FLAG_IMMUNITY;
 
     if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
@@ -3788,10 +3792,10 @@ void Spell::SendSpellStart()
     if (castFlags & CAST_FLAG_AMMO)
         WriteAmmoToPacket(&data);
 
-    if (castFlags & CAST_FLAG_UNKNOWN_23)
+    if (castFlags & CAST_FLAG_IMMUNITY)
     {
-        data << uint32(0);
-        data << uint32(0);
+        data << uint32(schoolImmunityMask);
+        data << uint32(mechanicImmunityMask);
     }
 
     m_caster->SendMessageToSet(&data, true);
