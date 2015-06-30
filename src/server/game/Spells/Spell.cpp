@@ -3852,6 +3852,10 @@ void Spell::SendSpellStart()
     TC_LOG_DEBUG("spells", "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
+    uint32 schoolImmunityMask = m_caster->GetSchoolImmunityMask();
+    uint32 mechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+    if (schoolImmunityMask || mechanicImmunityMask)
+        castFlags |= CAST_FLAG_IMMUNITY;
 
     if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
@@ -3925,12 +3929,11 @@ void Spell::SendSpellStart()
         castData.Ammo.InventoryType = 0;
     }**/
 
-    /** @todo implement spell immunity packet data
     if (castFlags & CAST_FLAG_IMMUNITY)
     {
-        castData.Immunities.School = 0;
-        castData.Immunities.Value = 0;
-    }**/
+        castData.Immunities.School = schoolImmunityMask;
+        castData.Immunities.Value = mechanicImmunityMask;
+    }
 
     /** @todo implement heal prediction packet data
     if (castFlags & CAST_FLAG_HEAL_PREDICTION)
