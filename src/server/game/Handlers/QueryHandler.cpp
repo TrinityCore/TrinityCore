@@ -90,7 +90,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.EnergyMulti = creatureInfo->ModMana;
         stats.Leader = creatureInfo->RacialLeader;
 
-        CreatureQuestItemList* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID);
+        CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID);
         if (items)
             for (uint32 item : *items)
                 stats.QuestItems.push_back(item);
@@ -131,7 +131,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         stats.IconName = gameObjectInfo->IconName;
         stats.Name[0] = gameObjectInfo->name;
 
-        GameObjectQuestItemList* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID);
+        GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID);
         if (items)
             for (uint32 item : *items)
                 stats.QuestItems.push_back(item);

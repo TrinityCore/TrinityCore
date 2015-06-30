@@ -748,18 +748,18 @@ class ObjectMgr
 
         static ObjectGuid GetPlayerGUIDByName(std::string const& name);
 
-        GameObjectQuestItemList* GetGameObjectQuestItemList(uint32 id)
+        GameObjectQuestItemList const* GetGameObjectQuestItemList(uint32 id) const
         {
-            GameObjectQuestItemMap::iterator itr = _gameObjectQuestItemStore.find(id);
+            GameObjectQuestItemMap::const_iterator itr = _gameObjectQuestItemStore.find(id);
             if (itr != _gameObjectQuestItemStore.end())
                 return &itr->second;
             return NULL;
         }
         GameObjectQuestItemMap const* GetGameObjectQuestItemMap() const { return &_gameObjectQuestItemStore; }
 
-        CreatureQuestItemList* GetCreatureQuestItemList(uint32 id)
+        CreatureQuestItemList const* GetCreatureQuestItemList(uint32 id) const
         {
-            CreatureQuestItemMap::iterator itr = _creatureQuestItemStore.find(id);
+            CreatureQuestItemMap::const_iterator itr = _creatureQuestItemStore.find(id);
             if (itr != _creatureQuestItemStore.end())
                 return &itr->second;
             return NULL;
