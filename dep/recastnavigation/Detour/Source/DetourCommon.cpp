@@ -16,15 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
 #include "DetourCommon.h"
+#include "DetourMath.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-
-float dtSqrt(float x)
-{
-	return sqrtf(x);
-}
 
 void dtClosestPtPointTriangle(float* closest, const float* p,
 							  const float* a, const float* b, const float* c)
@@ -360,7 +355,7 @@ void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 		acc += dacc;
 	}
 	
-	float v = dtSqrt(t);
+	float v = dtMathSqrtf(t);
 	
 	const float a = 1 - v;
 	const float b = (1 - u) * v;

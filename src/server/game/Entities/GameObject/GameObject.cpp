@@ -1766,6 +1766,9 @@ void GameObject::Use(Unit* user)
         return;
     }
 
+    if (Player* player = user->ToPlayer())
+        sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
+
     if (spellCaster)
         spellCaster->CastSpell(user, spellInfo, triggered);
     else
@@ -2323,7 +2326,7 @@ void GameObject::UpdateModelPosition()
     if (GetMap()->ContainsGameObjectModel(*m_model))
     {
         GetMap()->RemoveGameObjectModel(*m_model);
-        m_model->Relocate(*this);
+        m_model->UpdatePosition();
         GetMap()->InsertGameObjectModel(*m_model);
     }
 }

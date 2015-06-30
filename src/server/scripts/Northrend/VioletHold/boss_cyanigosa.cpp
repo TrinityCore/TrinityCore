@@ -23,12 +23,9 @@ enum Spells
 {
     SPELL_ARCANE_VACUUM                         = 58694,
     SPELL_BLIZZARD                              = 58693,
-    H_SPELL_BLIZZARD                            = 59369,
     SPELL_MANA_DESTRUCTION                      = 59374,
     SPELL_TAIL_SWEEP                            = 58690,
-    H_SPELL_TAIL_SWEEP                          = 59283,
     SPELL_UNCONTROLLABLE_ENERGY                 = 58688,
-    H_SPELL_UNCONTROLLABLE_ENERGY               = 59281,
     SPELL_TRANSFORM                             = 58668
 };
 
@@ -48,17 +45,11 @@ class boss_cyanigosa : public CreatureScript
 public:
     boss_cyanigosa() : CreatureScript("boss_cyanigosa") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct boss_cyanigosaAI : public BossAI
     {
-        return GetInstanceAI<boss_cyanigosaAI>(creature);
-    }
-
-    struct boss_cyanigosaAI : public ScriptedAI
-    {
-        boss_cyanigosaAI(Creature* creature) : ScriptedAI(creature)
+        boss_cyanigosaAI(Creature* creature) : BossAI(creature, DATA_CYANIGOSA)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
@@ -76,23 +67,19 @@ public:
         uint32 uiTailSweepTimer;
         uint32 uiUncontrollableEnergyTimer;
 
-        InstanceScript* instance;
-
         void Reset() override
         {
             Initialize();
-            instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
+            BossAI::Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* who) override
         {
+            BossAI::EnterCombat(who);
             Talk(SAY_AGGRO);
-
-            instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
-
 
         void UpdateAI(uint32 diff) override
         {
@@ -102,13 +89,12 @@ public:
                 instance->SetData(DATA_REMOVE_NPC, 0);
             }
 
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
             if (uiArcaneVacuumTimer <= diff)
             {
-                DoCast(SPELL_ARCANE_VACUUM);
+                DoCastAOE(SPELL_ARCANE_VACUUM);
                 uiArcaneVacuumTimer = 10000;
             } else uiArcaneVacuumTimer -= diff;
 
@@ -121,7 +107,7 @@ public:
 
             if (uiTailSweepTimer <= diff)
             {
-                DoCast(SPELL_TAIL_SWEEP);
+                DoCastVictim(SPELL_TAIL_SWEEP);
                 uiTailSweepTimer = 20000;
             } else uiTailSweepTimer -= diff;
 
@@ -144,22 +130,23 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* killer) override
         {
+            BossAI::JustDied(killer);
             Talk(SAY_DEATH);
-
-            instance->SetData(DATA_CYANIGOSA_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) override
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Talk(SAY_SLAY);
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_cyanigosaAI>(creature);
+    }
 };
 
 class achievement_defenseless : public AchievementCriteriaScript

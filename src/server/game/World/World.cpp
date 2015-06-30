@@ -1536,6 +1536,12 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading GameObject Addon Data...");
     sObjectMgr->LoadGameObjectAddons();                          // must be after LoadGameObjectTemplate() and LoadGameobjects()
 
+    TC_LOG_INFO("server.loading", "Loading GameObject Quest Items...");
+    sObjectMgr->LoadGameObjectQuestItems();
+
+    TC_LOG_INFO("server.loading", "Loading Creature Quest Items...");
+    sObjectMgr->LoadCreatureQuestItems();
+
     TC_LOG_INFO("server.loading", "Loading Creature Linked Respawn...");
     sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
 
@@ -1719,6 +1725,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading faction change spell pairs...");
     sObjectMgr->LoadFactionChangeSpells();
+
+    TC_LOG_INFO("server.loading", "Loading faction change quest pairs...");
+    sObjectMgr->LoadFactionChangeQuests();
 
     TC_LOG_INFO("server.loading", "Loading faction change item pairs...");
     sObjectMgr->LoadFactionChangeItems();

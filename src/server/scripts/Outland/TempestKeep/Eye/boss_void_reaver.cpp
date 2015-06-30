@@ -47,17 +47,13 @@ class boss_void_reaver : public CreatureScript
 {
     public:
 
-        boss_void_reaver()
-            : CreatureScript("boss_void_reaver")
-        {
-        }
+        boss_void_reaver() : CreatureScript("boss_void_reaver") { }
 
-        struct boss_void_reaverAI : public ScriptedAI
+        struct boss_void_reaverAI : public BossAI
         {
-            boss_void_reaverAI(Creature* creature) : ScriptedAI(creature)
+            boss_void_reaverAI(Creature* creature) : BossAI(creature, DATA_VOID_REAVER)
             {
                 Initialize();
-                instance = creature->GetInstanceScript();
             }
 
             void Initialize()
@@ -70,8 +66,6 @@ class boss_void_reaver : public CreatureScript
                 Enraged = false;
             }
 
-            InstanceScript* instance;
-
             uint32 Pounding_Timer;
             uint32 ArcaneOrb_Timer;
             uint32 KnockAway_Timer;
@@ -82,9 +76,7 @@ class boss_void_reaver : public CreatureScript
             void Reset() override
             {
                 Initialize();
-
-                if (me->IsAlive())
-                    instance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
+                _Reset();
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -96,15 +88,13 @@ class boss_void_reaver : public CreatureScript
             {
                 Talk(SAY_DEATH);
                 DoZoneInCombat();
-
-                instance->SetData(DATA_VOIDREAVEREVENT, DONE);
+                _JustDied();
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-
-                instance->SetData(DATA_VOIDREAVEREVENT, IN_PROGRESS);
+                _EnterCombat();
             }
 
             void UpdateAI(uint32 diff) override

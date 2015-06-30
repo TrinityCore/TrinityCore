@@ -1,0 +1,38 @@
+ dep/libmpq/libmpq/extract.c | 1 +
+ dep/libmpq/libmpq/mpq.c     | 4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/dep/libmpq/libmpq/extract.c b/dep/libmpq/libmpq/extract.c
+index f4ebb29..dc970b7 100644
+--- a/dep/libmpq/libmpq/extract.c
++++ b/dep/libmpq/libmpq/extract.c
+@@ -49,6 +49,7 @@ static decompress_table_s dcmp_table[] = {
+ /* this function decompress a stream using huffman algorithm. */
+ int32_t libmpq__decompress_huffman(uint8_t *in_buf, uint32_t in_size, uint8_t *out_buf, uint32_t out_size) {
+ 
++    (void)in_size;
+ 	/* TODO: make typdefs of this structs? */
+ 	/* some common variables. */
+ 	int32_t tb     = 0;
+diff --git a/dep/libmpq/libmpq/mpq.c b/dep/libmpq/libmpq/mpq.c
+index 1936f25..71081b5 100644
+--- a/dep/libmpq/libmpq/mpq.c
++++ b/dep/libmpq/libmpq/mpq.c
+@@ -65,7 +65,7 @@ const char *libmpq__version(void) {
+ const char *libmpq__strerror(int32_t return_code) {
+ 
+ 	/* check for array bounds */
+-	if (-return_code < 0 || -return_code > sizeof(__libmpq_error_strings)/sizeof(char*))
++	if (-return_code < 0 || (size_t)-return_code > sizeof(__libmpq_error_strings)/sizeof(char*))
+ 		return NULL;
+ 
+ 	/* return appropriate string */
+@@ -912,7 +912,7 @@ int32_t libmpq__block_read(mpq_archive_s *mpq_archive, uint32_t file_number, uin
+ 	}
+ 
+ 	/* read block from file. */
+-	if (fread(in_buf, 1, in_size, mpq_archive->fp) != in_size) {
++    if ((libmpq__off_t)fread(in_buf, 1, in_size, mpq_archive->fp) != in_size) {
+ 
+ 		/* free buffers. */
+ 		free(in_buf);
