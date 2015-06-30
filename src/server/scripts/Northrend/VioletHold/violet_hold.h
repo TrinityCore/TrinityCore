@@ -101,7 +101,9 @@ enum CreaturesIds
     NPC_SINCLARI                                = 30658,
     NPC_SABOTEOUR                               = 31079,
     NPC_VIOLET_HOLD_GUARD                       = 30659,
-    NPC_DEFENSE_SYSTEM                          = 30837
+    NPC_DEFENSE_SYSTEM                          = 30837,
+    NPC_VOID_SENTRY                             = 29364, 
+    NPC_VOID_SENTRY_BALL                        = 29365
 };
 
 enum GameObjectIds

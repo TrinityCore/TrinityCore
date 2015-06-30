@@ -60,6 +60,10 @@ class TaskScheduler
     typedef uint32 repeated_t;
     // Task handle type
     typedef std::function<void(TaskContext)> task_handler_t;
+    // Predicate type
+    typedef std::function<bool()> predicate_t;
+    // Success handle type
+    typedef std::function<void()> success_t;
 
     class Task
     {
@@ -163,27 +167,57 @@ class TaskScheduler
     /// the next update tick.
     AsyncHolder _asyncHolder;
 
+    predicate_t _predicate;
+
+    static bool EmptyValidator()
+    {
+        return true;
+    }
+
+    static void EmptyCallback()
+    {
+    }
+
 public:
-    TaskScheduler() : self_reference(this, [](TaskScheduler const*) { }),
-        _now(clock_t::now()) { }
+    TaskScheduler()
+        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(EmptyValidator) { }
+
+    template<typename P>
+    TaskScheduler(P&& predicate)
+        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(std::forward<P>(predicate)) { }
 
     TaskScheduler(TaskScheduler const&) = delete;
     TaskScheduler(TaskScheduler&&) = delete;
     TaskScheduler& operator= (TaskScheduler const&) = delete;
     TaskScheduler& operator= (TaskScheduler&&) = delete;
 
+    /// Sets a validator which is asked if tasks are allowed to be executed.
+    template<typename P>
+    TaskScheduler& SetValidator(P&& predicate)
+    {
+        _predicate = std::forward<P>(predicate);
+        return *this;
+    }
+
+    /// Clears the validator which is asked if tasks are allowed to be executed.
+    TaskScheduler& ClearValidator();
+
     /// Update the scheduler to the current time.
-    TaskScheduler& Update();
+    /// Calls the optional callback on successfully finish.
+    TaskScheduler& Update(success_t const& callback = EmptyCallback);
 
     /// Update the scheduler with a difftime in ms.
-    TaskScheduler& Update(size_t const milliseconds);
+    /// Calls the optional callback on successfully finish.
+    TaskScheduler& Update(size_t const milliseconds, success_t const& callback = EmptyCallback);
 
     /// Update the scheduler with a difftime.
+    /// Calls the optional callback on successfully finish.
     template<class _Rep, class _Period>
-    TaskScheduler& Update(std::chrono::duration<_Rep, _Period> const& difftime)
+    TaskScheduler& Update(std::chrono::duration<_Rep, _Period> const& difftime,
+        success_t const& callback = EmptyCallback)
     {
         _now += difftime;
-        Dispatch();
+        Dispatch(callback);
         return *this;
     }
 
@@ -370,7 +404,7 @@ private:
     }
 
     /// Dispatch remaining tasks
-    void Dispatch();
+    void Dispatch(success_t const& callback);
 };
 
 class TaskContext

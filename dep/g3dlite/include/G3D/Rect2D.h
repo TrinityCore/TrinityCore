@@ -118,7 +118,7 @@ private:
     }
 
     /** Uninitialized constructor */
-    Rect2D(bool b) {}
+    Rect2D(bool /*b*/) {}
 public:
 
     /** \param any Must either Rect2D::xywh(#, #, #, #) or Rect2D::xyxy(#, #, #, #)*/
