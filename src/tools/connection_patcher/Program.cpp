@@ -121,6 +121,11 @@ namespace Connection_Patcher
             // Creep::Instance::LoadModule() to allow for unsigned auth module
             patcher->Patch(PATCH::Signature(), PATTERN::Signature());
 
+            std::cout << "patching Versions\n";
+            // sever the connection to blizzard's versions file to stop it from updating and replace with custom version
+            // hardcode http://%s.patch.battle.net:1119/%s/versions into http://trinity6.github.io/tc/%s/%s/versions
+            patcher->Patch(PATCH::Versions(), PATTERN::Versions());
+
             patcher->Finish(output);
 
             std::cout << "Patching done.\n";
