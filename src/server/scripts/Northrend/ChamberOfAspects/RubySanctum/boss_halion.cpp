@@ -1126,7 +1126,7 @@ class npc_meteor_strike_flame : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void SetGUID(ObjectGuid guid, int32 id /* = 0 */) override
+            void SetGUID(ObjectGuid guid, int32 /*id = 0 */) override
             {
                 _rootOwnerGuid = guid;
             }
@@ -1159,7 +1159,7 @@ class npc_meteor_strike_flame : public CreatureScript
                     controller->AI()->JustSummoned(me);
             }
 
-            void UpdateAI(uint32 diff) override { }
+            void UpdateAI(uint32 /*diff*/) override { }
             void EnterEvadeMode() override { }
 
         private:
